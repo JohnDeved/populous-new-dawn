@@ -28,14 +28,7 @@ import {
 import { createGameStore } from './game-store'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
-import {
-  messageHeight,
-  messageIcon,
-  messageText,
-  messageTop,
-  messageViewPoint,
-  removeMessage,
-} from './messages'
+import { messageIcon, messageText, messageViewPoint, removeMessage } from './messages'
 import {
   HudSprite,
   FollowerNumber,
@@ -61,6 +54,15 @@ const timeLabel = (time: number) =>
     .toString()
     .padStart(2, '0')}`
 
+const messageScreenX = (value: number, width: number) => {
+    const product = Math.imul(width, value)
+    return (product + ((product >> 31) & 0xffff)) >> 16
+  },
+  messageScreenY = (value: number, height: number) => {
+    const product = (Math.imul(height, value) + Math.trunc(height / 2)) | 0
+    return (product + ((product >> 31) & 0xffff)) >> 16
+  }
+
 type LoadRequest =
   | { kind: 'mission'; mission: number }
   | { kind: 'checkpoint' }
@@ -83,6 +85,7 @@ export default function Home() {
   const [musicVolume, setMusicVolume] = useState(0.65)
   const [soundPending, setSoundPending] = useState(false)
   const [hudSize, setHudSize] = useState('auto')
+  const [messageViewportHeight, setMessageViewportHeight] = useState(480)
   const [checkpointNotice, setCheckpointNotice] = useState('')
   const [startup, setStartup] = useState<'loading' | 'choice' | 'playing'>('loading')
   useEffect(() => {
@@ -110,6 +113,7 @@ export default function Home() {
   const shell = useRef<HTMLElement>(null)
   const followerPress = useRef<EventTarget | null>(null)
   const loadRequest = useRef<LoadRequest | null>(null)
+  const messageDetails = useRef(new Map<number, HTMLDetailsElement>())
   useEffect(() => {
     const resize = () => {
       // Scale artwork uniformly; extra screen height extends only the panel background.
@@ -117,11 +121,42 @@ export default function Home() {
       const preferred =
         hudSize === 'auto' ? Math.min(2.5, Math.max(1, Math.floor(fit * 2) / 2)) : Number(hudSize)
       shell.current?.style.setProperty('--hud-scale', String(Math.min(preferred, fit)))
+
+      // 0x4314c0 + 0x44a1f0: campaign notifications use independent screen
+      // parameterization, not the user's uniformly scaled HUD artwork size.
+      let normalizedMessageWidth = 0x0ccc
+      if (messageScreenX(normalizedMessageWidth, window.innerWidth) & 1)
+        normalizedMessageWidth += 0x66
+      shell.current?.style.setProperty(
+        '--message-left',
+        `${messageScreenX(0x2800, window.innerWidth)}px`
+      )
+      shell.current?.style.setProperty(
+        '--message-width',
+        `${messageScreenX(normalizedMessageWidth, window.innerWidth)}px`
+      )
+      setMessageViewportHeight(window.innerHeight)
     }
     resize()
     window.addEventListener('resize', resize)
     return () => window.removeEventListener('resize', resize)
   }, [hudSize])
+  useEffect(() => {
+    const opened: number[] = []
+    for (const message of world.messages.slots) {
+      if (!message || !(message.flags & 2)) continue
+      const details = messageDetails.current.get(message.serial)
+      if (!details) continue
+      details.open = true
+      opened.push(message.serial)
+    }
+    if (!opened.length) return
+    const serials = new Set(opened)
+    store.change(w => {
+      for (const message of w.messages.slots)
+        if (message && serials.has(message.serial)) message.flags &= ~2
+    })
+  })
   const [hover, setHover] = useState<string | null>(null)
   const viewport = useRef<HTMLDivElement>(null),
     minimap = useRef<HTMLCanvasElement>(null),
@@ -655,40 +690,49 @@ export default function Home() {
           .map((message, slot) => ({ message, slot }))
           .filter(entry => entry.message)
           .sort((a, b) => b.message!.age - a.message!.age)
-          .map(({ message, slot }) => (
-            <details
-              key={message!.serial}
-              open={message!.flags & 0x20000 ? true : undefined}
-              onToggle={event => {
-                const target = messageViewPoint(message!)
-                if (event.currentTarget.open && target)
-                  engine.current?.focus(target, { animate: true })
-              }}
-              data-lower={messageTop(message!) > 240 || undefined}
-              style={
-                {
-                  '--message-height': `${messageHeight(message!)}px`,
-                  top: `calc(${messageTop(message!)}px * var(--hud-scale))`,
-                } as CSSProperties
-              }
-            >
-              <summary aria-label="Read campaign message">
-                <img src={messageIcon(message!)} alt="" />
-              </summary>
-              <div>
-                <p>{messageText(message!.stringId)}</p>
-                <button
-                  onClick={() => {
-                    removeMessage(world.messages, slot)
-                    update()
+          .map(({ message, slot }) => {
+            const top = messageScreenY(message!.position, messageViewportHeight),
+              height = messageScreenY(message!.height, messageViewportHeight)
+            return (
+              <details
+                key={message!.serial}
+                ref={element => {
+                  if (element) messageDetails.current.set(message!.serial, element)
+                  else messageDetails.current.delete(message!.serial)
+                }}
+                data-lower={top > Math.trunc(messageViewportHeight / 2) || undefined}
+                style={
+                  {
+                    '--message-height': `${height}px`,
+                    top: `${top}px`,
+                  } as CSSProperties
+                }
+              >
+                <summary
+                  aria-label="Read campaign message"
+                  onClick={event => {
+                    const target = messageViewPoint(message!),
+                      details = event.currentTarget.parentElement as HTMLDetailsElement
+                    if (!details.open && target) engine.current?.focus(target, { animate: true })
                   }}
-                  aria-label="Dismiss campaign message"
                 >
-                  ×
-                </button>
-              </div>
-            </details>
-          ))}
+                  <img src={messageIcon(message!)} alt="" />
+                </summary>
+                <div>
+                  <p>{messageText(message!.stringId)}</p>
+                  <button
+                    onClick={() => {
+                      removeMessage(world.messages, slot)
+                      update()
+                    }}
+                    aria-label="Dismiss campaign message"
+                  >
+                    ×
+                  </button>
+                </div>
+              </details>
+            )
+          })}
       </aside>
       {ready && !!(world.flyby.flags & 1) && (
         <button className="skip-introduction" onClick={() => engine.current?.skipIntroduction()}>

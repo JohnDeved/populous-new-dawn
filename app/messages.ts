@@ -141,6 +141,15 @@ export function stepMessages(state: MessageState, rebound = () => {}) {
     }
     message.speed = (message.speed + 0x555) | 0
   }
+  // 0x4314c0: after motion, consume at most the first oldest pending popup
+  // that has reached a collision/settled state. Bit 2 is the transient draw signal
+  // set after the popup consumer; the native message renderer clears it on draw.
+  for (const message of messages) {
+    if (!(message.flags & 0x20000) || !(message.flags & 0xc0000)) continue
+    message.flags &= ~0x20000
+    if (message.flags & 0x10) message.flags |= 2
+    break
+  }
 }
 
 export const messageTop = (message: CampaignMessage) =>
