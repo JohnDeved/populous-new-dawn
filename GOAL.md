@@ -217,6 +217,16 @@ for complete gate acceptance. Reuse the accepted inventory; do not repeat it or
 close a gate from documentation alone. CEO coordinates shared ownership, integration
 and final acceptance. Preserve original deadlines and the September 30 target.
 
+Use GitHub labels on issues and PRs: `release-gate` for PND gates, `overdue` for
+missed original dates, and `status:blocked`, `status:in-progress` or
+`status:needs-review` for the current state. Blocked work must name its concrete
+dependency in the body or latest status comment. Reuse an existing blocker ticket
+or create one with an owner, next action and acceptance; label prerequisite work
+`unblocks` and prioritize it by downstream release impact. Use `priority:critical`
+for overdue prerequisites and the release critical path, plus existing type labels.
+Do not label merely unfinished work blocked. Remove stale status labels when the
+state changes; a closed blocker does not automatically satisfy its dependent gate.
+
 Mandatory near-term order: choose from reviewed release-critical gaps and the PND01
 campaign/system inventory, not another convenient mission opening or expansion.
 
