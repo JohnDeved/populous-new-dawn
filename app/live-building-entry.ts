@@ -1,3 +1,4 @@
+import { notifyHutOccupancy } from './hut-occupancy-smoke.ts'
 import { buildingPose } from './building-shapes.ts'
 import { releaseTasks } from './world-tasks.ts'
 import { sound } from './world-effects.ts'
@@ -344,6 +345,9 @@ function occupancyEffects(w: World): OccupancyEffects {
           if (p) p.building = null
         }
       }
+      // 00407150 / 00407490 reconcile the indicator in the same admission/removal call.
+      const building = w.buildings.find(target => target.id === b.id)
+      if (building) notifyHutOccupancy(building)
     },
   }
 }
