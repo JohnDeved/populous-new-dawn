@@ -303,30 +303,30 @@ async function waitForGuardedSmoke(page, ids, mode, afterTurn = 0) {
   throw new Error('Controlled ' + mode + ' smoke did not settle within 60 seconds')
 }
 
-async function chooseRenderedResidents(page, preferred, count) {
-  const candidates = await page.evaluate(preferred => {
-    const scene = window.testScene,
-      first = new Set(preferred)
-    return scene.world.units
-      .filter(
-        u =>
-          u.team === 'blue' &&
-          u.kind === 'brave' &&
-          u.hp > 0 &&
-          u.guard &&
-          u.inside === null &&
-          u.work === null &&
-          scene.picking.personBounds(u.id)
-      )
-      .sort((a, b) => Number(first.has(b.id)) - Number(first.has(a.id)))
-      .map(u => u.id)
-  }, preferred)
-  const ids = []
-  for (const id of candidates) {
-    if (await renderedPersonTarget(page, id, false)) ids.push(id)
-    if (ids.length === count) return ids
-  }
-  throw new Error('Guard staging has only ' + ids.length + ' pickable Braves; requires ' + count)
+async function chooseHudResidents(page, count) {
+  await pauseGame(page)
+  await clearSelection(page)
+  const button = page.getByRole('button', { name: 'Select brave', exact: true })
+  for (let i = 0; i < count; i++) await button.click()
+  const selected = await page.evaluate(() => {
+    const world = window.testScene.world
+    return world.selected.map(id => {
+      const u = world.units.find(candidate => candidate.id === id)
+      return {
+        id,
+        hp: u?.hp ?? 0,
+        guard: !!u?.guard,
+        inside: u?.inside ?? null,
+        work: u?.work ?? null,
+      }
+    })
+  })
+  assert.equal(selected.length, count, 'HUD brave selection must return the requested resident count')
+  assert.ok(
+    selected.every(u => u.hp > 0 && u.guard && u.inside === null && u.work === null),
+    'HUD brave selection must return only guarded free residents'
+  )
+  return selected.map(u => u.id)
 }
 
 async function buildSiteCandidates(page) {
@@ -371,8 +371,8 @@ async function resolveBuildSite(page) {
   throw new Error('No rendered valid Mission 1 hut construction site')
 }
 
-async function resolveHutDispatch(page, buildingId = null) {
-  return page.evaluate(async buildingId => {
+async function resolveHutDispatch(page, buildingId = null, requireCommand = true) {
+  return page.evaluate(async ({ buildingId, requireCommand }) => {
     const scene = window.testScene,
       world = scene.world,
       hut = world.buildings.find(building => building.id === (buildingId ?? window.hutSmoke.hutId)),
@@ -392,25 +392,26 @@ async function resolveHutDispatch(page, buildingId = null) {
         if (hit !== scene.renderer.domElement || scene.picking.pickPerson(event)) continue
         const pickingId = scene.picking.pick(event),
           object = scene.pickWorldObject(event),
-          context = object && liveCommandContext(world, object)
-        if (
-          pickingId === hut.id &&
-          object?.id === hut.id &&
-          context?.enabled &&
-          context.model === 8 &&
-          context.building?.id === hut.id
-        )
+          context = object && liveCommandContext(world, object),
+          commandReady =
+            !requireCommand ||
+            (context?.enabled && context.model === 8 && context.building?.id === hut.id)
+        if (pickingId === hut.id && object?.id === hut.id && commandReady)
           return {
             x: event.clientX,
             y: event.clientY,
             projected: center,
             pickingId,
             objectId: object.id,
-            contextModel: context.model,
+            contextModel: context?.model ?? null,
           }
       }
-    throw new Error('No rendered fresh-hut point with enabled command-8 context')
-  }, buildingId)
+    throw new Error(
+      requireCommand
+        ? 'No rendered fresh-hut point with enabled command-8 context'
+        : 'No rendered fresh-hut pointer hit'
+    )
+  }, { buildingId, requireCommand })
 }
 
 async function resolveGroundDispatch(page) {
@@ -574,7 +575,11 @@ async function renderedPixels(page) {
 
 async function admissionDispatch(page, ids) {
   await pauseGame(page)
-  await selectRenderedPeople(page, ids)
+  const alreadySelected = await page.evaluate(ids => {
+    const selected = window.testScene.world.selected
+    return selected.length === ids.length && ids.every(id => selected.includes(id))
+  }, ids)
+  if (!alreadySelected) await selectRenderedPeople(page, ids)
   await resumeGame(page)
   const target = await resolveHutDispatch(page),
     before = await page.evaluate(ids => {
@@ -626,7 +631,7 @@ async function admissionDispatch(page, ids) {
 async function departOne(page, cohort) {
   await guardNewcomers(page, cohort)
   await clearSelection(page)
-  const hutTarget = await resolveHutDispatch(page)
+  const hutTarget = await resolveHutDispatch(page, null, false)
   await page.mouse.move(hutTarget.x, hutTarget.y)
   const panel = page.getByRole('group', { name: /^Hut: [0-9]+ of [0-9]+ occupants$/ })
   await panel.waitFor({ state: 'visible' })
@@ -816,7 +821,7 @@ try {
   await page.screenshot({ path: reportPath.replace('.json', '-zero.png') })
   writeReport()
 
-  const residentIds = await chooseRenderedResidents(page, builderIds, 1)
+  const residentIds = await chooseHudResidents(page, 1)
   stage('partial admission')
 
   const partialDispatch = await admissionDispatch(page, [residentIds[0]])
@@ -839,7 +844,7 @@ try {
   await page.screenshot({ path: reportPath.replace('.json', '-partial.png') })
   writeReport()
 
-  const additionalResidents = await chooseRenderedResidents(page, builderIds, 2)
+  const additionalResidents = await chooseHudResidents(page, 2)
   residentIds.push(...additionalResidents)
   stage('full admission')
   const fullDispatch = await admissionDispatch(page, additionalResidents)
