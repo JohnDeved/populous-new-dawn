@@ -389,7 +389,9 @@ def _observe_lifecycle(state, snapshot, config, now):
         }
         prior_terminal = state['lifecycleTerminal'].get(worker, 0)
         active_other = any(
-            other_key != run_key and other.get('worker') == worker and other.get('state') == 'running'
+            other_key != run_key and other.get('worker') == worker
+            and other.get('state') == 'running'
+            and other.get('startedAt', 0) > event['at']
             for other_key, other in state['lifecycleRuns'].items()
         )
         receipt = {**notice}
@@ -417,6 +419,7 @@ def _observe_lifecycle(state, snapshot, config, now):
         if notice.get('kind') != 'lifecycle_completion':
             continue
         if any(run.get('worker') == notice['worker'] and run.get('state') == 'running'
+               and run.get('startedAt', 0) > notice['at']
                for run in state['lifecycleRuns'].values()):
             del state['pending'][key]
             receipt = {**notice, 'disposition': 'pending-superseded-by-active-run'}

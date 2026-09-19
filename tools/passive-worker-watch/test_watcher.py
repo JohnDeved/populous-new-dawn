@@ -483,6 +483,30 @@ class EventStateTests(DatabaseCase):
             lambda text: calls.append(text) or {'confirmed': True})
         self.assertEqual(calls, [])
 
+    def test_older_orphaned_running_run_does_not_suppress_later_completion(self):
+        state = self.state(now=NOW - 200)
+        worker = records.WORKERS[1]
+        state['lifecycleRuns']['orphan-runtime:orphan-worker-1'] = {
+            'runtimeId': 'orphan-runtime', 'runId': 'orphan-worker-1',
+            'startedAt': NOW - 100, 'lastAt': NOW - 100, 'state': 'running',
+            'number': 1, 'worker': worker,
+        }
+        self.add_lifecycle(number=1, started=NOW - 10, interrupted_at=NOW - 1,
+                           ended_state='completed', runtime='later-complete',
+                           run_id='later-worker-1')
+        incoming = watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        completions = [event for event in incoming
+                       if event.get('kind') == 'lifecycle_completion']
+        self.assertEqual(len(completions), 1)
+        self.assertEqual(completions[0]['disposition'], 'pending-completion-notice')
+        self.assertEqual(len(state['pending']), 1)
+        calls = []
+        watcher.notify_pending(
+            state, CONFIG, NOW, lambda _: None,
+            lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(len(calls), 1)
+        self.assertIn('Worker 1c', calls[0])
+
     def test_coordinator_final_covers_earlier_lifecycle_interruption(self):
         self.add_lifecycle(number=3, started=NOW - 5, interrupted_at=NOW - 2)
         self.add_final('Worker3c | #fixture | DONE', at=NOW - 1)
