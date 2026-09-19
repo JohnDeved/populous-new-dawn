@@ -507,6 +507,42 @@ class EventStateTests(DatabaseCase):
         self.assertEqual(len(calls), 1)
         self.assertIn('Worker 1c', calls[0])
 
+    def test_overlapping_newer_run_suppresses_completion_before_terminal_timestamp(self):
+        self.add_lifecycle(number=2, started=NOW - 10, interrupted_at=NOW - 1,
+                           ended_state='completed', runtime='finishing-run',
+                           run_id='finishing-worker-2')
+        self.add_lifecycle(number=2, started=NOW - 5, runtime='overlap-run',
+                           run_id='overlap-worker-2')
+        state = self.state(now=NOW - 20)
+        incoming = watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        completions = [event for event in incoming
+                       if event.get('kind') == 'lifecycle_completion']
+        self.assertEqual(len(completions), 1)
+        self.assertEqual(completions[0]['disposition'], 'superseded-by-active-run')
+        self.assertEqual(state['pending'], {})
+
+    def test_pending_completion_remembers_terminal_start_for_delayed_overlap(self):
+        self.add_lifecycle(number=3, started=NOW - 10, interrupted_at=NOW - 1,
+                           ended_state='completed', runtime='pending-finishing',
+                           run_id='pending-worker-3')
+        state = self.state(now=NOW - 20)
+        state['nextNotifyAt'] = NOW + 120
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(len(state['pending']), 1)
+        notice = next(iter(state['pending'].values()))
+        self.assertEqual(notice['terminalStartedAt'], NOW - 10)
+        self.add_lifecycle(number=3, started=NOW - 5, runtime='delayed-overlap',
+                           run_id='delayed-overlap-worker-3')
+        incoming = watcher.observe(state, self.snapshot(NOW + 1), CONFIG, NOW + 1)
+        self.assertEqual(state['pending'], {})
+        self.assertTrue(any(event.get('disposition') == 'pending-superseded-by-active-run'
+                            for event in incoming))
+        calls = []
+        watcher.notify_pending(
+            state, CONFIG, NOW + 121, lambda _: None,
+            lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(calls, [])
+
     def test_coordinator_final_covers_earlier_lifecycle_interruption(self):
         self.add_lifecycle(number=3, started=NOW - 5, interrupted_at=NOW - 2)
         self.add_final('Worker3c | #fixture | DONE', at=NOW - 1)

@@ -162,11 +162,15 @@ def validate_event(event, key, kind):
     elif kind in {'lifecycle_interruption', 'lifecycle_completion'}:
         allowed = ({'INTERRUPTED'} if kind == 'lifecycle_interruption'
                    else {'COMPLETED', 'FAILED', 'CANCELLED'})
+        terminal_started = (records.timestamp(event.get('terminalStartedAt'))
+                            if kind == 'lifecycle_completion' else None)
         if (event.get('source') != 'localdev_activity'
                 or event.get('alreadyAddressedToCoordinator') is not False
                 or event.get('reportedState') not in allowed
                 or event.get('attribution') != 'localdev-role-self-report'
                 or not isinstance(event.get('runId'), str) or not event['runId'] or len(event['runId']) > 80
+                or (kind == 'lifecycle_completion'
+                    and (terminal_started is None or terminal_started > event['at']))
                 or not record_key.startswith('activity:') or len(record_key) <= len('activity:')):
             raise ValueError('Invalid persisted lifecycle terminal fields')
     elif (event.get('alreadyAddressedToCoordinator') is not True
@@ -387,11 +391,13 @@ def _observe_lifecycle(state, snapshot, config, now):
             'attribution': 'localdev-role-self-report',
             'alreadyAddressedToCoordinator': False, 'runId': event['runId'],
         }
+        if kind == 'lifecycle_completion':
+            notice['terminalStartedAt'] = run['startedAt']
         prior_terminal = state['lifecycleTerminal'].get(worker, 0)
         active_other = any(
             other_key != run_key and other.get('worker') == worker
             and other.get('state') == 'running'
-            and other.get('startedAt', 0) > event['at']
+            and other.get('startedAt', 0) > run['startedAt']
             for other_key, other in state['lifecycleRuns'].items()
         )
         receipt = {**notice}
@@ -419,7 +425,7 @@ def _observe_lifecycle(state, snapshot, config, now):
         if notice.get('kind') != 'lifecycle_completion':
             continue
         if any(run.get('worker') == notice['worker'] and run.get('state') == 'running'
-               and run.get('startedAt', 0) > notice['at']
+               and run.get('startedAt', 0) > notice['terminalStartedAt']
                for run in state['lifecycleRuns'].values()):
             del state['pending'][key]
             receipt = {**notice, 'disposition': 'pending-superseded-by-active-run'}
