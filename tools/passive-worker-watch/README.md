@@ -37,7 +37,8 @@ Three local evidence classes are accepted.
 3. **Local Dev interrupted run.** `~/.local-dev/activity/*.jsonl` is read
    directly and read-only. The Local Dev producer fsyncs `run.*` events. A
    managed run becomes attributable only when its own lifecycle title/goal begins
-   with an unambiguous `Worker Nc` self-label. A `ReviewerNc`/ `Reviewer Nc`
+   with an unambiguous `WorkerNc` or `Worker Nc` self-label. A `ReviewerNc`/
+   `Reviewer Nc`
    self-label is always unknown and non-actionable, even if other text mentions a
    worker. Only the exact producer record `run.interrupted` with
    “Runtime disconnected; no assistant completion was reported.” is positive

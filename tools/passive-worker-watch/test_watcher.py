@@ -332,6 +332,17 @@ class EventStateTests(DatabaseCase):
                                lambda text: calls.append(text) or {'confirmed': True})
         self.assertEqual(calls, [])
 
+    def test_compact_worker4c_interruption_remains_actionable(self):
+        self.add_lifecycle(number=4, started=NOW - 4, interrupted_at=NOW - 1,
+                           title='Worker4c fixture run',
+                           goal='generic fixture lifecycle')
+        state = self.state()
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        event = next(iter(state['pending'].values()))
+        self.assertEqual(event['number'], 4)
+        self.assertEqual(event['worker'], records.WORKERS[4])
+        self.assertEqual(event['kind'], 'lifecycle_interruption')
+
     def test_coordinator_final_covers_earlier_lifecycle_interruption(self):
         self.add_lifecycle(number=3, started=NOW - 5, interrupted_at=NOW - 2)
         self.add_final('Worker3c | #fixture | DONE', at=NOW - 1)
