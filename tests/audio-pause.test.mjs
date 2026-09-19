@@ -106,15 +106,25 @@ test('a superseded context resume does not submit an extra music play', async t 
   const first = sound.setPaused(false)
   await sound.setPaused(true)
   const second = sound.setPaused(false)
-  resumes[0].resolve()
-  await first
-  assert.equal(plays.length, 0, 'only the latest resume may submit playback')
-  resumes[1].resolve()
-  await setImmediate()
-  assert.equal(plays.length, 1)
-  plays[0].resolve()
-  await second
-  assert.equal(timers.size, 1)
+  try {
+    resumes[0].resolve()
+    await setImmediate()
+    assert.equal(plays.length, 0, 'only the latest resume may submit playback')
+    await first
+    resumes[1].resolve()
+    await setImmediate()
+    assert.equal(plays.length, 1)
+    plays[0].resolve()
+    await second
+    assert.equal(timers.size, 1)
+  } finally {
+    // Stop new playback before settling requests, including the failing baseline.
+    sound.mute()
+    for (const resume of resumes) resume.resolve()
+    await setImmediate()
+    for (const play of plays) play.resolve()
+    await Promise.allSettled([first, second])
+  }
 })
 
 for (const stop of ['mute', 'dispose']) {
