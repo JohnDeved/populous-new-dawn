@@ -121,9 +121,15 @@ async function playbackGains(page, master, music, label) {
       )
     })
     .toBe(true)
-  const actual = await assertValues(page, master, music, label)
+  const actual = await audioState(page)
+  report.checks.push({ label, actual })
+  save()
+  assert.equal(actual.enabled, true)
   assert.equal(actual.context, 'running')
+  assert.ok(Math.abs(actual.masterGain - master) < 1e-6)
+  assert.ok(Math.abs(actual.musicGain - music) < 1e-6)
   await settings(page)
+  await assertValues(page, master, music, label + '-visible-controls')
 }
 
 async function gameplay(page) {
