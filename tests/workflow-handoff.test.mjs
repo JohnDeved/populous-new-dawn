@@ -22,6 +22,13 @@ import {
 } from '../scripts/orchestration/worker-closeout.mjs'
 
 const sha = value => createHash('sha256').update(value).digest('hex')
+const DECODE_DEPTH_LIMIT = 8
+const DECODE_BYTES_LIMIT = 256 * 1024
+const jsonWrap = (value, layers) => {
+  let wrapped = value
+  for (let index = 0; index < layers; index++) wrapped = JSON.stringify(wrapped)
+  return wrapped
+}
 const run = (cwd, command, ...args) => execFileSync(command, args, { cwd, encoding: 'utf8' }).trim()
 
 function fixture() {
@@ -258,7 +265,7 @@ test('decoded command-receipt stdout and stderr reject escaped secret JSON witho
   try {
     const receiptPath = 'work/orchestration/task/receipt.json',
       receipt = join(repo, receiptPath),
-      hidden = 'SYNTHETIC_DO_NOT_ECHO_48319'
+      hidden = ['SYNTHETIC', 'DO', 'NOT', 'ECHO', '48319'].join('_')
     for (const stream of ['stdout', 'stderr']) {
       const envelope = {
         version: 1,
@@ -292,6 +299,150 @@ test('decoded command-receipt stdout and stderr reject escaped secret JSON witho
       assert.equal(failure.message.includes(hidden), false)
       assert.equal(existsSync(output), false)
     }
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('double JSON-string wrappers in stdout and stderr reject secrets without echoing values', () => {
+  const { root, repo, base } = fixture()
+  try {
+    const receiptPath = 'work/orchestration/task/receipt.json',
+      receipt = join(repo, receiptPath),
+      hidden = ['SYNTHETIC', 'DOUBLE', 'WRAP', 'DO', 'NOT', 'ECHO', '71263'].join('_')
+    for (const stream of ['stdout', 'stderr']) {
+      const envelope = {
+        version: 1,
+        kind: 'pnd-command-receipt',
+        source: { headOid: run(repo, 'git', 'rev-parse', 'HEAD'), branch: 'fixture' },
+        command: ['node', 'fixture'],
+        cwd: repo,
+        exitCode: 0,
+        stdout: '',
+        stderr: '',
+      }
+      envelope[stream] = JSON.stringify(
+        JSON.stringify(stream === 'stdout' ? { password: hidden } : { credential: hidden })
+      )
+      writeFileSync(receipt, JSON.stringify(envelope, null, 2) + '\n')
+      const output = join(root, `double-secret-${stream}-bundle`)
+      let failure
+      try {
+        buildReviewBundle(repo, {
+          taskId: `double-decoded-${stream}-secret`,
+          base,
+          output,
+          receipts: [receiptPath],
+        })
+      } catch (error) {
+        failure = error
+      }
+      assert(failure, `double-decoded ${stream} secret must be rejected`)
+      assert.match(failure.message, /decoded|secret-like/i)
+      assert.equal(failure.message.includes(hidden), false)
+      assert.equal(existsSync(output), false)
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('benign nested JSON strings pass within depth and decoded-byte bounds', () => {
+  const { root, repo, bundle, base } = fixture()
+  try {
+    const receiptPath = 'work/orchestration/task/receipt.json',
+      receipt = join(repo, receiptPath),
+      envelope = {
+        version: 1,
+        kind: 'pnd-command-receipt',
+        source: { headOid: run(repo, 'git', 'rev-parse', 'HEAD'), branch: 'fixture' },
+        command: ['node', 'fixture'],
+        cwd: repo,
+        exitCode: 0,
+        stdout: jsonWrap({ status: 'safe', nested: ['ok'] }, DECODE_DEPTH_LIMIT),
+        stderr: '',
+      }
+    writeFileSync(receipt, JSON.stringify(envelope, null, 2) + '\n')
+    assert.equal(
+      buildReviewBundle(repo, {
+        taskId: 'nested-benign-depth-boundary',
+        base,
+        output: bundle,
+        receipts: [receiptPath],
+      }).status,
+      'passed'
+    )
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('decoded JSON recursion fails closed beyond depth or total decoded-byte bounds', () => {
+  for (const kind of ['depth', 'bytes']) {
+    const { root, repo, base } = fixture()
+    try {
+      const receiptPath = 'work/orchestration/task/receipt.json',
+        receipt = join(repo, receiptPath),
+        envelope = {
+          version: 1,
+          kind: 'pnd-command-receipt',
+          source: { headOid: run(repo, 'git', 'rev-parse', 'HEAD'), branch: 'fixture' },
+          command: ['node', 'fixture'],
+          cwd: repo,
+          exitCode: 0,
+          stdout:
+            kind === 'depth'
+              ? jsonWrap({ status: 'safe' }, DECODE_DEPTH_LIMIT + 1)
+              : JSON.stringify('x'.repeat(DECODE_BYTES_LIMIT - 1)),
+          stderr: '',
+        },
+        output = join(root, `decoded-${kind}-limit-bundle`)
+      writeFileSync(receipt, JSON.stringify(envelope, null, 2) + '\n')
+      let failure
+      try {
+        buildReviewBundle(repo, {
+          taskId: `decoded-${kind}-limit`,
+          base,
+          output,
+          receipts: [receiptPath],
+        })
+      } catch (error) {
+        failure = error
+      }
+      assert(failure, `decoded ${kind} overflow must fail closed`)
+      assert.match(failure.message, /decoded.*(?:depth|bytes|limit)/i)
+      assert.equal(existsSync(output), false)
+    } finally {
+      rmSync(root, { recursive: true, force: true })
+    }
+  }
+})
+
+test('decoded JSON byte boundary accepts exactly the configured budget', () => {
+  const { root, repo, bundle, base } = fixture()
+  try {
+    const receiptPath = 'work/orchestration/task/receipt.json',
+      receipt = join(repo, receiptPath),
+      envelope = {
+        version: 1,
+        kind: 'pnd-command-receipt',
+        source: { headOid: run(repo, 'git', 'rev-parse', 'HEAD'), branch: 'fixture' },
+        command: ['node', 'fixture'],
+        cwd: repo,
+        exitCode: 0,
+        stdout: JSON.stringify('x'.repeat(DECODE_BYTES_LIMIT - 2)),
+        stderr: '',
+      }
+    writeFileSync(receipt, JSON.stringify(envelope, null, 2) + '\n')
+    assert.equal(
+      buildReviewBundle(repo, {
+        taskId: 'decoded-byte-boundary',
+        base,
+        output: bundle,
+        receipts: [receiptPath],
+      }).status,
+      'passed'
+    )
   } finally {
     rmSync(root, { recursive: true, force: true })
   }

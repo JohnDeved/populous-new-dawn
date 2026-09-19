@@ -20,6 +20,8 @@ import { fileURLToPath } from 'node:url'
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 const MAX_RECEIPT_BYTES = 2 * 1024 * 1024
 const MAX_TOTAL_RECEIPT_BYTES = 8 * 1024 * 1024
+const MAX_DECODE_DEPTH = 8
+const MAX_DECODED_BYTES = 256 * 1024
 const TASK_ID = /^[a-z0-9][a-z0-9._-]*$/i
 const HASH = /^[0-9a-f]{64}$/i
 const GIT_OID = /^[0-9a-f]{40,64}$/i
@@ -163,35 +165,35 @@ function sourceAtHead(repo, head, path, status) {
   }
 }
 
-function assertNoSecretDecoded(value, label = 'receipt') {
+function assertNoSecretDecoded(value, label = 'receipt', state = { decodedBytes: 0 }, depth = 0) {
   if (typeof value === 'string') {
     if (SECRET_ASSIGNMENT.test(value))
       throw new Error(`receipt decoded payload contains secret-like field at ${label}`)
-    const trimmed = value.trim()
-    if (
-      (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
-      (trimmed.startsWith('[') && trimmed.endsWith(']'))
-    ) {
-      try {
-        const decoded = JSON.parse(trimmed)
-        if (decoded !== value) assertNoSecretDecoded(decoded, `${label}.decoded`)
-      } catch (error) {
-        if (error instanceof SyntaxError) return
-        throw error
-      }
+    let decoded
+    try {
+      decoded = JSON.parse(value)
+    } catch (error) {
+      if (error instanceof SyntaxError) return
+      throw error
     }
+    if (depth >= MAX_DECODE_DEPTH)
+      throw new Error(`receipt decoded payload exceeds depth limit at ${label}`)
+    state.decodedBytes += Buffer.byteLength(value, 'utf8')
+    if (state.decodedBytes > MAX_DECODED_BYTES)
+      throw new Error(`receipt decoded payload exceeds byte limit at ${label}`)
+    assertNoSecretDecoded(decoded, `${label}.decoded`, state, depth + 1)
     return
   }
   if (Array.isArray(value)) {
     for (let index = 0; index < value.length; index++)
-      assertNoSecretDecoded(value[index], `${label}[${index}]`)
+      assertNoSecretDecoded(value[index], `${label}[${index}]`, state, depth)
     return
   }
   if (!value || typeof value !== 'object') return
   for (const [key, item] of Object.entries(value)) {
     if (SECRET_KEY.test(key))
       throw new Error(`receipt decoded payload contains secret-like field at ${label}`)
-    assertNoSecretDecoded(item, `${label}.${key}`)
+    assertNoSecretDecoded(item, `${label}.${key}`, state, depth)
   }
 }
 

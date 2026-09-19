@@ -83,8 +83,10 @@ The command requires a committed tracked checkout. It writes:
 Receipt inputs must be repository-local regular text files. Sensitive path names,
 binary receipts, oversized evidence, and common secret-like assignments are rejected.
 For JSON receipts, secret scanning also walks decoded values recursively, including
-escaped JSON carried inside command-receipt stdout/stderr or equivalent string payloads;
-rejection messages identify only the field location and never echo the secret value.
+JSON-string wrappers carried inside command-receipt stdout/stderr or equivalent nested
+string payloads. Decoding is capped at 8 JSON-string layers and 256 KiB cumulative
+decoded JSON text per receipt; exceeding either bound fails closed. Rejection messages
+identify only the field location and never echo the secret value.
 Copied receipts redact the source-root and home-directory strings. Do not add
 credentials, environment files, personal profiles, browser/session data, or arbitrary
 machine logs to a review bundle.
