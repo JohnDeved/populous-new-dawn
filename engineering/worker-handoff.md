@@ -86,14 +86,49 @@ Copied receipts redact the source-root and home-directory strings. Do not add
 credentials, environment files, personal profiles, browser/session data, or arbitrary
 machine logs to a review bundle.
 
-Verify mechanically at any time with:
+Verification is caller-bound: obtain the expected HEAD, diff SHA-256, every changed-source SHA-256, and every copied/redacted receipt SHA-256 from a trusted source/PR handoff, not from the bundle manifest itself. Then run:
 
 ```sh
-npm run orchestration:review-bundle -- verify --bundle /absolute/review-bundle
+npm run orchestration:review-bundle -- verify \
+  --bundle /absolute/review-bundle \
+  --expected-head "$HEAD" \
+  --expected-diff-sha256 "$DIFF_SHA" \
+  --expected-source path/to/source.ts="$SOURCE_SHA" \
+  --expected-receipt work/orchestration/task/npm-check.json="$RECEIPT_SHA"
 ```
 
-A reviewer can instead bind Local Dev directly to the bundle and run
-`node verify.mjs` without opening the worker worktree.
+Repeat `--expected-source` and `--expected-receipt` for the complete expected sets. `--expected-receipt` uses the copied bundle receipt hash (`bundleSha256` from the trusted creation output), so altered receipt payloads cannot self-authenticate by changing the manifest. The verifier rejects absolute/traversal paths, symlink escapes, identity-count drift, and any manifest identity that disagrees with those caller-supplied values.
+
+A reviewer can instead bind Local Dev directly to the bundle and run the bundled `node verify.mjs` with the same trusted expected arguments, without opening the worker worktree.
+
+## Raw source-bound command receipts
+
+For review-relevant gates, capture the actual command output rather than replacing it with a summary-only claim:
+
+```sh
+npm run orchestration:receipt -- \
+  --output work/orchestration/task/npm-check.json -- npm run check
+npm run orchestration:receipt -- \
+  --output work/orchestration/task/build.json -- npm run build
+```
+
+The receipt records the exact source HEAD/branch, command array, exit code/signal, raw stdout/stderr, and SHA-256 for both streams. Include these raw receipt JSON files in the portable review bundle. Receipt outputs must remain ignored under `work/orchestration/`.
+
+Use the same wrapper for a closeout proof after switching Local Dev away from the source project:
+
+```sh
+node /absolute/source/scripts/orchestration/command-receipt.mjs \
+  --output work/orchestration/task/closeout.json -- \
+  node /absolute/source/scripts/orchestration/worker-closeout.mjs \
+    --source-project /absolute/source \
+    --bundle-project /absolute/review-bundle \
+    --active-project /absolute/temporary-closeout-project \
+    --bundle-preflight open \
+    --expected-head "$HEAD" \
+    --complete true
+```
+
+`worker-closeout.mjs` verifies the source repository still has the trusted expected HEAD. If a safety operation was denied, pass `--denied-operation optional|required`, plus `--meaningful-work-remaining true|false` and `--review-ready true|false`; the CLI emits the same `IN_PROGRESS`/`NEEDS_REVIEW`/`BLOCKED` decision used by policy instead of leaving that logic test-only.
 
 ## Local Dev closeout checklist
 
@@ -117,7 +152,9 @@ node /absolute/source/scripts/orchestration/worker-closeout.mjs \
   --source-project /absolute/source \
   --bundle-project /absolute/review-bundle \
   --active-project /absolute/temporary-closeout-project \
-  --bundle-preflight open
+  --bundle-preflight open \
+  --expected-head "$HEAD" \
+  --complete true
 ```
 
 The command must return `status: "passed"` before the final worker reply. A stale
@@ -131,7 +168,9 @@ still switch Local Dev to a unique temporary closeout project and verify with
 ```sh
 npm run orchestration:closeout -- \
   --source-project /absolute/source \
-  --active-project /absolute/temporary-closeout-project
+  --active-project /absolute/temporary-closeout-project \
+  --expected-head "$HEAD" \
+  --complete true
 ```
 
 ## Install and use
@@ -140,13 +179,20 @@ No service or daemon is installed. The commands use Node's standard library and 
 repository's existing Git checkout.
 
 ```sh
-npm run orchestration:review-bundle -- create --task-id task --base origin/main --output /absolute/bundle
-npm run orchestration:review-bundle -- verify --bundle /absolute/bundle
+npm run orchestration:receipt -- --output work/orchestration/task/npm-check.json -- npm run check
+npm run orchestration:review-bundle -- create --task-id task --base origin/main --output /absolute/bundle \
+  --receipt work/orchestration/task/npm-check.json
+npm run orchestration:review-bundle -- verify --bundle /absolute/bundle \
+  --expected-head "$HEAD" --expected-diff-sha256 "$DIFF_SHA" \
+  --expected-source path/to/source.ts="$SOURCE_SHA" \
+  --expected-receipt work/orchestration/task/npm-check.json="$RECEIPT_SHA"
 npm run orchestration:closeout -- \
   --source-project /absolute/source \
   --bundle-project /absolute/bundle \
   --active-project /absolute/neutral-project \
-  --bundle-preflight open
+  --bundle-preflight open \
+  --expected-head "$HEAD" \
+  --complete true
 ```
 
 The closeout command is deliberately not automatic: Local Dev project switching must

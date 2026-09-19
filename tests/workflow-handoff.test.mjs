@@ -1,11 +1,20 @@
 import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs'
 import { homedir, tmpdir } from 'node:os'
 import { join } from 'node:path'
 import test from 'node:test'
 import { buildReviewBundle, verifyReviewBundle } from '../scripts/orchestration/review-bundle.mjs'
+import { runCommandReceipt } from '../scripts/orchestration/command-receipt.mjs'
 import {
   assessProjectRelease,
   deniedOperationDisposition,
@@ -48,6 +57,21 @@ function fixture() {
     ) + '\n'
   )
   return { root, repo, bundle, neutral, base }
+}
+
+function expectedIdentity(repo, base) {
+  const head = run(repo, 'git', 'rev-parse', 'HEAD'),
+    content = readFileSync(join(repo, 'source.txt')),
+    diff = execFileSync('git', ['diff', '--binary', `${base}..${head}`, '--'], { cwd: repo }),
+    receiptPath = 'work/orchestration/task/receipt.json',
+    receipt = readFileSync(join(repo, receiptPath), 'utf8'),
+    copiedReceipt = receipt.replaceAll(repo, '<SOURCE_ROOT>').replaceAll(homedir(), '<HOME>')
+  return {
+    expectedHead: head,
+    expectedDiffSha256: sha(diff),
+    expectedSources: [{ path: 'source.txt', sha256: sha(content) }],
+    expectedReceipts: [{ path: receiptPath, sha256: sha(copiedReceipt) }],
+  }
 }
 
 test('project closeout detects stale source/bundle ownership and accepts a released neutral binding', () => {
@@ -126,15 +150,219 @@ test('review bundle is independently readable from a non-overlapping local fixtu
     assert.equal(copied.includes(homedir()), false)
     assert.match(copied, /<SOURCE_ROOT>/)
     assert.match(copied, /<HOME>/)
-    assert.equal(verifyReviewBundle(bundle).status, 'passed')
+    const identity = expectedIdentity(repo, base)
+    assert.equal(verifyReviewBundle(bundle, identity).status, 'passed')
     const standalone = JSON.parse(
-      execFileSync(process.execPath, ['verify.mjs'], {
-        cwd: bundle,
-        encoding: 'utf8',
-      })
+      execFileSync(
+        process.execPath,
+        [
+          'verify.mjs',
+          '--expected-head',
+          identity.expectedHead,
+          '--expected-diff-sha256',
+          identity.expectedDiffSha256,
+          '--expected-source',
+          `source.txt=${identity.expectedSources[0].sha256}`,
+          '--expected-receipt',
+          `${identity.expectedReceipts[0].path}=${identity.expectedReceipts[0].sha256}`,
+        ],
+        { cwd: bundle, encoding: 'utf8' }
+      )
     )
     assert.equal(standalone.status, 'passed')
     assert.equal(standalone.headOid, head)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('review bundle rejects quoted secret fields and environment-secret files atomically', () => {
+  const { root, repo, bundle, base } = fixture()
+  try {
+    const receipt = join(repo, 'work/orchestration/task/receipt.json')
+    writeFileSync(receipt, '{"password":"top-secret","credential":"value"}\n')
+    assert.throws(
+      () =>
+        buildReviewBundle(repo, {
+          taskId: 'secret-reject',
+          base,
+          output: bundle,
+          receipts: ['work/orchestration/task/receipt.json'],
+        }),
+      /secret-like/i
+    )
+    assert.equal(existsSync(bundle), false)
+
+    writeFileSync(receipt, '{"status":"passed"}\n')
+    const envLocal = join(repo, 'work/orchestration/task/.env.local')
+    writeFileSync(envLocal, 'TOKEN=secret\n')
+    assert.throws(
+      () =>
+        buildReviewBundle(repo, {
+          taskId: 'env-reject',
+          base,
+          output: bundle,
+          receipts: ['work/orchestration/task/.env.local'],
+        }),
+      /sensitive receipt path/i
+    )
+    assert.equal(existsSync(bundle), false)
+
+    const productionEnv = join(repo, 'work/orchestration/task/production.env')
+    writeFileSync(productionEnv, 'TOKEN=secret\n')
+    assert.throws(
+      () =>
+        buildReviewBundle(repo, {
+          taskId: 'env-equivalent-reject',
+          base,
+          output: bundle,
+          receipts: ['work/orchestration/task/production.env'],
+        }),
+      /sensitive receipt path/i
+    )
+    assert.equal(existsSync(bundle), false)
+
+    const retry = buildReviewBundle(repo, {
+      taskId: 'atomic-retry',
+      base,
+      output: bundle,
+      receipts: ['work/orchestration/task/receipt.json'],
+    })
+    assert.equal(retry.status, 'passed')
+    assert.equal(existsSync(join(bundle, 'changes.patch')), true)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('real-path canonicalization rejects source aliases and bundle outputs through source symlinks', () => {
+  const { root, repo, bundle, neutral, base } = fixture()
+  try {
+    const alias = join(root, 'source-alias')
+    symlinkSync(repo, alias)
+    assert.deepEqual(
+      assessProjectRelease({
+        sourceProject: repo,
+        activeProject: alias,
+      }).reasons,
+      ['PROJECT_STILL_BOUND']
+    )
+
+    const outputAlias = join(root, 'output-alias')
+    symlinkSync(repo, outputAlias)
+    assert.throws(
+      () =>
+        buildReviewBundle(repo, {
+          taskId: 'alias-output',
+          base,
+          output: join(outputAlias, 'bundle'),
+          receipts: ['work/orchestration/task/receipt.json'],
+        }),
+      /outside|overlap|source project/i
+    )
+    assert.equal(existsSync(join(repo, 'bundle')), false)
+    assert.equal(
+      assessProjectRelease({ sourceProject: repo, activeProject: neutral }).status,
+      'passed'
+    )
+    assert.equal(existsSync(bundle), false)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('bundle verification is bound to caller-supplied identities and rejects traversal', () => {
+  const { root, repo, bundle, base } = fixture()
+  try {
+    buildReviewBundle(repo, {
+      taskId: 'identity-bound',
+      base,
+      output: bundle,
+      receipts: ['work/orchestration/task/receipt.json'],
+    })
+    const identity = expectedIdentity(repo, base),
+      manifestPath = join(bundle, 'manifest.json'),
+      original = JSON.parse(readFileSync(manifestPath, 'utf8'))
+
+    assert.equal(verifyReviewBundle(bundle, identity).status, 'passed')
+
+    const changedHead = structuredClone(original)
+    changedHead.repository.headOid = '0'.repeat(40)
+    writeFileSync(manifestPath, JSON.stringify(changedHead, null, 2) + '\n')
+    assert.throws(() => verifyReviewBundle(bundle, identity), /expected head|head identity/i)
+
+    const changedSource = structuredClone(original)
+    changedSource.sources[0].sha256 = 'f'.repeat(64)
+    writeFileSync(manifestPath, JSON.stringify(changedSource, null, 2) + '\n')
+    assert.throws(() => verifyReviewBundle(bundle, identity), /source identity|source.*sha/i)
+
+    const changedReceipt = structuredClone(original)
+    changedReceipt.receipts[0].bundleSha256 = 'a'.repeat(64)
+    writeFileSync(manifestPath, JSON.stringify(changedReceipt, null, 2) + '\n')
+    assert.throws(() => verifyReviewBundle(bundle, identity), /receipt identity/i)
+
+    const traversal = structuredClone(original)
+    traversal.diff.path = '../outside.patch'
+    writeFileSync(manifestPath, JSON.stringify(traversal, null, 2) + '\n')
+    assert.throws(() => verifyReviewBundle(bundle, identity), /unsafe|traversal|bundle path/i)
+
+    const absolute = structuredClone(original)
+    absolute.receipts[0].bundlePath = join(root, 'outside-receipt.json')
+    writeFileSync(manifestPath, JSON.stringify(absolute, null, 2) + '\n')
+    assert.throws(() => verifyReviewBundle(bundle, identity), /unsafe|absolute|bundle path/i)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('raw command receipts retain source head and complete stdout/stderr', () => {
+  const { root, repo } = fixture()
+  try {
+    const output = 'work/orchestration/task/raw-command.json',
+      receipt = runCommandReceipt(repo, {
+        output,
+        command: [process.execPath, '-e', "console.log('raw-stdout'); console.error('raw-stderr')"],
+      }),
+      saved = JSON.parse(readFileSync(join(repo, output), 'utf8'))
+    assert.equal(receipt.exitCode, 0)
+    assert.equal(saved.source.headOid, run(repo, 'git', 'rev-parse', 'HEAD'))
+    assert.match(saved.stdout, /raw-stdout/)
+    assert.match(saved.stderr, /raw-stderr/)
+    assert.equal(saved.stdoutSha256, sha(saved.stdout))
+    assert.equal(saved.stderrSha256, sha(saved.stderr))
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('closeout CLI consumes denial semantics instead of leaving them fixture-only', () => {
+  const { root, repo, neutral } = fixture()
+  try {
+    const output = JSON.parse(
+      execFileSync(
+        process.execPath,
+        [
+          join(process.cwd(), 'scripts/orchestration/worker-closeout.mjs'),
+          '--source-project',
+          repo,
+          '--active-project',
+          neutral,
+          '--expected-head',
+          run(repo, 'git', 'rev-parse', 'HEAD'),
+          '--denied-operation',
+          'required',
+          '--meaningful-work-remaining',
+          'true',
+          '--review-ready',
+          'false',
+        ],
+        { encoding: 'utf8' }
+      )
+    )
+    assert.equal(output.status, 'passed')
+    assert.equal(output.deniedOperation.operation, 'denied')
+    assert.equal(output.deniedOperation.retry, false)
+    assert.equal(output.workerStatus, 'IN_PROGRESS')
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
@@ -147,7 +375,7 @@ test('a denied operation blocks only itself until no meaningful or review-ready 
       meaningfulWorkRemaining: true,
       reviewReady: false,
     }),
-    { operation: 'denied', retry: false, workerStatus: 'IN_PROGRESS' }
+    { operation: 'denied', retry: false, required: false, workerStatus: 'IN_PROGRESS' }
   )
   assert.equal(
     deniedOperationDisposition({

@@ -11,7 +11,8 @@
         "Markdown provenance",
         "Git change routing",
         "Contract audit",
-        "Worker closeout and review bundles"
+        "Worker closeout and review bundles",
+        "Source-bound raw command receipts"
       ],
       "knownLimits": [
         "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."

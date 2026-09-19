@@ -6,22 +6,25 @@ import {
   existsSync,
   lstatSync,
   mkdirSync,
+  mkdtempSync,
   readFileSync,
   realpathSync,
+  renameSync,
+  rmSync,
   writeFileSync,
 } from 'node:fs'
 import { homedir } from 'node:os'
-import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
+import { basename, dirname, isAbsolute, normalize, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 export const ROOT = fileURLToPath(new URL('../../', import.meta.url))
 const MAX_RECEIPT_BYTES = 2 * 1024 * 1024
 const MAX_TOTAL_RECEIPT_BYTES = 8 * 1024 * 1024
 const TASK_ID = /^[a-z0-9][a-z0-9._-]*$/i
-const SENSITIVE_PATH =
-  /(^|\/)(?:\.env(?:\.|$)|id_(?:rsa|ed25519)(?:\.|$)|[^/]*(?:credential|secret)[^/]*|[^/]*\.(?:pem|key))$/i
+const HASH = /^[0-9a-f]{64}$/i
+const GIT_OID = /^[0-9a-f]{40,64}$/i
 const SECRET_ASSIGNMENT =
-  /(?:^|[\s"'[{,])(?:authorization|api[_-]?key|client[_-]?secret|password|passwd|private[_-]?key|access[_-]?token|refresh[_-]?token)\s*[:=]/im
+  /(?:^|[\s{,])["']?(?:authorization|api[_-]?key|client[_-]?secret|credential(?:s)?|password|passwd|private[_-]?key|access[_-]?token|refresh[_-]?token)["']?\s*[:=]/im
 
 const sha256 = value => createHash('sha256').update(value).digest('hex')
 const git = (repo, args, options = {}) =>
@@ -41,29 +44,69 @@ function pathExists(path) {
   }
 }
 
+export function canonicalPath(value) {
+  let target = resolve(value),
+    ancestor = target
+  const tail = []
+  while (!pathExists(ancestor)) {
+    const parent = dirname(ancestor)
+    assert(parent !== ancestor, `cannot canonicalize path: ${value}`)
+    tail.unshift(basename(ancestor))
+    ancestor = parent
+  }
+  return resolve(realpathSync(ancestor), ...tail)
+}
+
+function insideOrSame(root, value) {
+  const fromRoot = relative(root, value)
+  return (
+    fromRoot === '' ||
+    (!fromRoot.startsWith(`..${sep}`) && fromRoot !== '..' && !isAbsolute(fromRoot))
+  )
+}
+
+function safeIdentityPath(value, label = 'path') {
+  assert(typeof value === 'string' && value.length, `${label} must be non-empty`)
+  assert(!isAbsolute(value) && !value.includes('\0'), `unsafe ${label}: ${value}`)
+  assert(value.replaceAll('\\', '/') === value, `non-canonical ${label}: ${value}`)
+  assert(!value.split('/').includes('..'), `unsafe ${label} traversal: ${value}`)
+  assert(normalize(value).split(sep).join('/') === value, `non-canonical ${label}: ${value}`)
+  assert(value !== '.', `${label} must identify a file: ${value}`)
+  return value
+}
+
+function isSensitivePath(value) {
+  const name = basename(value).toLowerCase()
+  return (
+    name === '.env' ||
+    name.startsWith('.env.') ||
+    name === '.envrc' ||
+    name.endsWith('.env') ||
+    /^id_(?:rsa|ed25519)(?:\.|$)/.test(name) ||
+    /(?:credential|secret)/.test(name) ||
+    /\.(?:pem|key)$/.test(name)
+  )
+}
+
 export function safeRepoFile(repo, value) {
-  assert(typeof value === 'string' && value.length, 'receipt path must be non-empty')
-  assert(!isAbsolute(value) && !value.includes('\0'), `unsafe receipt path: ${value}`)
-  assert(
-    !value.split('/').includes('..') && value.replaceAll('\\', '/') === value,
-    `non-canonical receipt path: ${value}`
-  )
-  const absolute = resolve(repo, value),
-    local = relative(repo, absolute)
-  assert(
-    local !== '..' && !local.startsWith(`..${sep}`) && !isAbsolute(local),
-    `receipt escapes repository: ${value}`
-  )
+  safeIdentityPath(value, 'receipt path')
+  assert(!isSensitivePath(value), `sensitive receipt path is not bundle-safe: ${value}`)
+  const repository = canonicalPath(repo),
+    absolute = resolve(repo, value)
   assert(pathExists(absolute) && lstatSync(absolute).isFile(), `missing receipt file: ${value}`)
-  const repository = realpathSync(repo),
-    resolved = realpathSync(absolute),
-    resolvedLocal = relative(repository, resolved)
-  assert(
-    resolvedLocal !== '..' && !resolvedLocal.startsWith(`..${sep}`) && !isAbsolute(resolvedLocal),
-    `receipt resolves outside repository: ${value}`
-  )
-  assert(!SENSITIVE_PATH.test(value), `sensitive receipt path is not bundle-safe: ${value}`)
-  return absolute
+  const resolved = realpathSync(absolute)
+  assert(insideOrSame(repository, resolved), `receipt resolves outside repository: ${value}`)
+  return resolved
+}
+
+function safeBundleFile(root, value, label) {
+  safeIdentityPath(value, label)
+  const bundle = canonicalPath(root),
+    absolute = resolve(root, value)
+  assert(pathExists(absolute) && lstatSync(absolute).isFile(), `missing ${label}: ${value}`)
+  const resolved = realpathSync(absolute)
+  assert(insideOrSame(bundle, resolved), `${label} resolves outside bundle: ${value}`)
+  return resolved
 }
 
 function assertReviewReadyCheckout(repo) {
@@ -128,7 +171,7 @@ function redactReceipt(raw, repo) {
     !SECRET_ASSIGNMENT.test(text),
     'receipt contains a secret-like assignment; publish a bounded sanitized receipt instead'
   )
-  const repository = realpathSync(repo),
+  const repository = canonicalPath(repo),
     requestedRepository = resolve(repo),
     home = homedir()
   let redacted = text,
@@ -149,51 +192,239 @@ function redactReceipt(raw, repo) {
 
 function assertOutsideSource(repo, output) {
   assert(isAbsolute(output), 'review bundle output must be an absolute path')
-  const source = realpathSync(repo),
-    target = resolve(output),
-    local = relative(source, target),
-    reverse = relative(target, source)
+  const source = canonicalPath(repo),
+    target = canonicalPath(output)
   assert(
-    local === '..' || local.startsWith(`..${sep}`),
-    'review bundle must be outside the source project'
-  )
-  assert(
-    reverse === '..' || reverse.startsWith(`..${sep}`),
-    'review bundle must not contain the source project'
+    !insideOrSame(source, target) && !insideOrSame(target, source),
+    'review bundle output must resolve outside and not alias the source project'
   )
   assert(!existsSync(target), `review bundle output already exists: ${target}`)
   mkdirSync(dirname(target), { recursive: true })
+  const recanonicalized = canonicalPath(target)
+  assert.equal(
+    recanonicalized,
+    target,
+    'review bundle output canonical path changed after parent creation'
+  )
   return target
 }
 
-const verifierSource = `#!/usr/bin/env node
+function collectReceipts(repo, receipts) {
+  let totalReceiptBytes = 0
+  const prepared = []
+  for (const sourcePath of [...new Set(receipts)]) {
+    const absolute = safeRepoFile(repo, sourcePath),
+      raw = readFileSync(absolute)
+    totalReceiptBytes += raw.length
+    assert(
+      totalReceiptBytes <= MAX_TOTAL_RECEIPT_BYTES,
+      `receipts exceed ${MAX_TOTAL_RECEIPT_BYTES} total source bytes`
+    )
+    const { data, redactions } = redactReceipt(raw, repo)
+    prepared.push({
+      sourcePath,
+      raw,
+      data,
+      redactions,
+      bundlePath: `receipts/${sourcePath}`,
+    })
+  }
+  return prepared
+}
+
+function expectedMap(entries, label) {
+  assert(Array.isArray(entries), `${label} must be an array`)
+  const values = new Map()
+  for (const entry of entries) {
+    assert(
+      entry && typeof entry === 'object' && !Array.isArray(entry),
+      `${label} entry must be an object`
+    )
+    const path = safeIdentityPath(entry.path, `${label} path`)
+    assert(HASH.test(entry.sha256 ?? ''), `${label} sha256 is invalid for ${path}`)
+    assert(!values.has(path), `duplicate ${label} path: ${path}`)
+    values.set(path, entry.sha256.toLowerCase())
+  }
+  return values
+}
+
+function validateExpectedIdentity(manifest, expected) {
+  assert(expected && typeof expected === 'object', 'trusted expected identity is required')
+  assert(GIT_OID.test(expected.expectedHead ?? ''), 'trusted expected head is required')
+  assert.equal(
+    manifest.repository?.headOid,
+    expected.expectedHead,
+    'bundle head identity does not match trusted expected head'
+  )
+  assert(HASH.test(expected.expectedDiffSha256 ?? ''), 'trusted expected diff sha256 is required')
+  assert.equal(
+    manifest.diff?.sha256,
+    expected.expectedDiffSha256.toLowerCase(),
+    'bundle diff identity does not match trusted expected diff'
+  )
+
+  const expectedSources = expectedMap(expected.expectedSources, 'expected source'),
+    manifestSources = new Map()
+  assert(Array.isArray(manifest.sources), 'manifest sources must be an array')
+  for (const source of manifest.sources) {
+    const path = safeIdentityPath(source.path, 'manifest source path')
+    assert(HASH.test(source.sha256 ?? ''), `manifest source sha256 is invalid for ${path}`)
+    assert(!manifestSources.has(path), `duplicate manifest source path: ${path}`)
+    manifestSources.set(path, source.sha256.toLowerCase())
+  }
+  assert.equal(manifestSources.size, expectedSources.size, 'bundle source identity count mismatch')
+  for (const [path, hash] of expectedSources) {
+    assert.equal(manifestSources.get(path), hash, `bundle source identity mismatch: ${path}`)
+  }
+
+  const expectedReceipts = expectedMap(expected.expectedReceipts ?? [], 'expected receipt'),
+    manifestReceipts = new Map()
+  assert(Array.isArray(manifest.receipts), 'manifest receipts must be an array')
+  for (const receipt of manifest.receipts) {
+    const sourcePath = safeIdentityPath(receipt.sourcePath, 'manifest receipt source path')
+    assert(
+      HASH.test(receipt.bundleSha256 ?? ''),
+      `manifest receipt bundle sha256 is invalid for ${sourcePath}`
+    )
+    assert(
+      !manifestReceipts.has(sourcePath),
+      `duplicate manifest receipt source path: ${sourcePath}`
+    )
+    manifestReceipts.set(sourcePath, receipt.bundleSha256.toLowerCase())
+  }
+  assert.equal(
+    manifestReceipts.size,
+    expectedReceipts.size,
+    'bundle receipt identity count mismatch'
+  )
+  for (const [path, hash] of expectedReceipts) {
+    assert.equal(manifestReceipts.get(path), hash, `bundle receipt identity mismatch: ${path}`)
+  }
+}
+
+function verifierSource() {
+  return String.raw`#!/usr/bin/env node
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { readFileSync } from 'node:fs'
-import { dirname, resolve } from 'node:path'
+import { existsSync, lstatSync, readFileSync, realpathSync } from 'node:fs'
+import { dirname, isAbsolute, normalize, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
-const root = dirname(fileURLToPath(import.meta.url))
-const manifest = JSON.parse(readFileSync(resolve(root, 'manifest.json'), 'utf8'))
+const HASH = /^[0-9a-f]{64}$/i
+const GIT_OID = /^[0-9a-f]{40,64}$/i
 const sha = value => createHash('sha256').update(value).digest('hex')
+const root = dirname(fileURLToPath(import.meta.url))
+
+function safeRelative(value, label) {
+  assert(typeof value === 'string' && value.length, label + ' must be non-empty')
+  assert(!isAbsolute(value) && !value.includes('\\0'), 'unsafe ' + label + ': ' + value)
+  assert(value.replaceAll('\\\\', '/') === value, 'non-canonical ' + label + ': ' + value)
+  assert(!value.split('/').includes('..'), 'unsafe ' + label + ' traversal: ' + value)
+  assert(normalize(value).split(sep).join('/') === value, 'non-canonical ' + label + ': ' + value)
+  return value
+}
+
+function safeFile(value, label) {
+  safeRelative(value, label)
+  const absolute = resolve(root, value)
+  assert(existsSync(absolute) && lstatSync(absolute).isFile(), 'missing ' + label + ': ' + value)
+  const bundle = realpathSync(root)
+  const resolved = realpathSync(absolute)
+  const local = relative(bundle, resolved)
+  assert(
+    local === '' || (!local.startsWith('..' + sep) && local !== '..' && !isAbsolute(local)),
+    label + ' resolves outside bundle: ' + value
+  )
+  return resolved
+}
+
+function parsePair(value, label) {
+  const index = value.lastIndexOf('=')
+  assert(index > 0, label + ' must be path=sha256')
+  const path = safeRelative(value.slice(0, index), label)
+  const hash = value.slice(index + 1)
+  assert(HASH.test(hash), 'invalid ' + label + ' sha256: ' + path)
+  return { path, sha256: hash.toLowerCase() }
+}
+
+function parseArgs(args) {
+  const options = { expectedSource: [], expectedReceipt: [] }
+  for (let index = 0; index < args.length; index++) {
+    const flag = args[index]
+    const value = args[++index]
+    assert(flag && flag.startsWith('--') && value !== undefined && !value.startsWith('--'), 'invalid verifier argument')
+    if (flag === '--expected-source') options.expectedSource.push(parsePair(value, 'expected source'))
+    else if (flag === '--expected-receipt') options.expectedReceipt.push(parsePair(value, 'expected receipt'))
+    else if (flag === '--expected-head') options.expectedHead = value
+    else if (flag === '--expected-diff-sha256') options.expectedDiffSha256 = value
+    else throw new Error('unknown verifier option: ' + flag)
+  }
+  assert(GIT_OID.test(options.expectedHead || ''), 'trusted --expected-head is required')
+  assert(HASH.test(options.expectedDiffSha256 || ''), 'trusted --expected-diff-sha256 is required')
+  return options
+}
+
+function mapEntries(entries, label) {
+  const values = new Map()
+  for (const entry of entries) {
+    assert(!values.has(entry.path), 'duplicate ' + label + ': ' + entry.path)
+    values.set(entry.path, entry.sha256)
+  }
+  return values
+}
+
+const expected = parseArgs(process.argv.slice(2))
+const manifest = JSON.parse(readFileSync(safeFile('manifest.json', 'manifest'), 'utf8'))
 assert.equal(manifest.version, 1)
 assert.equal(manifest.kind, 'pnd-review-bundle')
-const diff = readFileSync(resolve(root, manifest.diff.path))
-assert.equal(sha(diff), manifest.diff.sha256)
+assert.equal(manifest.repository && manifest.repository.headOid, expected.expectedHead, 'bundle head identity mismatch')
+assert.equal(manifest.diff && manifest.diff.sha256, expected.expectedDiffSha256.toLowerCase(), 'bundle diff identity mismatch')
+
+const expectedSources = mapEntries(expected.expectedSource, 'expected source')
+const sources = new Map()
+assert(Array.isArray(manifest.sources), 'manifest sources must be an array')
+for (const source of manifest.sources) {
+  const path = safeRelative(source.path, 'manifest source path')
+  assert(HASH.test(source.sha256 || ''), 'invalid manifest source sha256: ' + path)
+  assert(!sources.has(path), 'duplicate manifest source: ' + path)
+  sources.set(path, source.sha256.toLowerCase())
+}
+assert.equal(sources.size, expectedSources.size, 'bundle source identity count mismatch')
+for (const [path, hash] of expectedSources)
+  assert.equal(sources.get(path), hash, 'bundle source identity mismatch: ' + path)
+
+const expectedReceipts = mapEntries(expected.expectedReceipt, 'expected receipt')
+const receiptSources = new Map()
+assert(Array.isArray(manifest.receipts), 'manifest receipts must be an array')
+for (const receipt of manifest.receipts) {
+  const path = safeRelative(receipt.sourcePath, 'manifest receipt source path')
+  assert(HASH.test(receipt.bundleSha256 || ''), 'invalid manifest receipt bundle sha256: ' + path)
+  assert(!receiptSources.has(path), 'duplicate manifest receipt: ' + path)
+  receiptSources.set(path, receipt.bundleSha256.toLowerCase())
+}
+assert.equal(receiptSources.size, expectedReceipts.size, 'bundle receipt identity count mismatch')
+for (const [path, hash] of expectedReceipts)
+  assert.equal(receiptSources.get(path), hash, 'bundle receipt identity mismatch: ' + path)
+
+const diff = readFileSync(safeFile(manifest.diff.path, 'diff'))
+assert.equal(sha(diff), expected.expectedDiffSha256.toLowerCase())
 assert.equal(diff.length, manifest.diff.bytes)
 for (const receipt of manifest.receipts) {
-  const data = readFileSync(resolve(root, receipt.bundlePath))
-  assert.equal(sha(data), receipt.bundleSha256, receipt.bundlePath)
+  const data = readFileSync(safeFile(receipt.bundlePath, 'receipt bundle path'))
+  const trustedHash = expectedReceipts.get(receipt.sourcePath)
+  assert(trustedHash, 'missing trusted receipt identity: ' + receipt.sourcePath)
+  assert.equal(sha(data), trustedHash, receipt.bundlePath)
   assert.equal(data.length, receipt.bundleBytes, receipt.bundlePath)
 }
 console.log(JSON.stringify({
   status: 'passed',
-  headOid: manifest.repository.headOid,
-  sources: manifest.sources.length,
-  receipts: manifest.receipts.length,
-  diffSha256: manifest.diff.sha256,
+  headOid: expected.expectedHead,
+  sources: sources.size,
+  receipts: receiptSources.size,
+  diffSha256: expected.expectedDiffSha256.toLowerCase(),
 }, null, 2))
 `
+}
 
 function bundleReadme(manifest) {
   return `# Review bundle: ${manifest.taskId}
@@ -201,15 +432,14 @@ function bundleReadme(manifest) {
 This directory is intentionally outside the source checkout so a reviewer can open it
 through an independent Local Dev project binding.
 
-1. Open this directory with Local Dev \`project_open\`.
-2. Run \`node verify.mjs\`; it must report \`status: passed\`.
-3. Review \`changes.patch\`, \`manifest.json\`, and the copied bounded receipts.
-4. If Local Dev reports \`PROJECT_IN_USE\` for this bundle, the worker closeout is incomplete.
-
-Source identity:
-- branch: \`${manifest.repository.branch}\`
-- base: \`${manifest.repository.baseCommit}\`
-- head: \`${manifest.repository.headOid}\`
+1. Obtain the expected HEAD, changed-source SHA-256 values, receipt source hashes, and
+   diff SHA-256 from a trusted source/PR handoff — never from this bundle's manifest.
+2. Open this directory with Local Dev \`project_open\`.
+3. Run \`node verify.mjs --expected-head <HEAD> --expected-diff-sha256 <SHA>\`
+   plus one \`--expected-source path=sha256\` for every changed source and one
+   \`--expected-receipt path=sha256\` for every receipt.
+4. Review \`changes.patch\`, \`manifest.json\`, and the copied bounded receipts.
+5. If Local Dev reports \`PROJECT_IN_USE\` for this bundle, the worker closeout is incomplete.
 
 The bundle contains no repository credentials or environment files. Explicit receipt
 inputs are text-only, secret-like assignments are rejected, and local source/home paths
@@ -227,42 +457,26 @@ export function buildReviewBundle(repo, { taskId, base, output, receipts = [] })
       git(
         repo,
         ['diff', '--name-status', '-z', '--find-renames', `${baseCommit}..${headOid}`, '--'],
-        {
-          encoding: 'buffer',
-        }
+        { encoding: 'buffer' }
       )
     )
   assert(changes.length, 'review bundle requires at least one committed change')
   for (const change of changes) {
-    for (const path of [change.from, change.path].filter(Boolean))
-      assert(!SENSITIVE_PATH.test(path), `sensitive changed path is not bundle-safe: ${path}`)
+    for (const path of [change.from, change.path].filter(Boolean)) {
+      safeIdentityPath(path, 'changed source path')
+      assert(!isSensitivePath(path), `sensitive changed path is not bundle-safe: ${path}`)
+    }
   }
-  const target = assertOutsideSource(repo, output)
-  mkdirSync(target, { recursive: false })
+
   const patch = git(repo, ['diff', '--binary', `${baseCommit}..${headOid}`, '--'], {
-    encoding: 'buffer',
-  })
-  writeFileSync(resolve(target, 'changes.patch'), patch)
-  const sources = changes.map(change => ({
-    ...change,
-    ...sourceAtHead(repo, headOid, change.path),
-  }))
-  let totalReceiptBytes = 0
-  const receiptEntries = []
-  for (const sourcePath of [...new Set(receipts)]) {
-    const absolute = safeRepoFile(repo, sourcePath),
-      raw = readFileSync(absolute)
-    totalReceiptBytes += raw.length
-    assert(
-      totalReceiptBytes <= MAX_TOTAL_RECEIPT_BYTES,
-      `receipts exceed ${MAX_TOTAL_RECEIPT_BYTES} total source bytes`
-    )
-    const { data, redactions } = redactReceipt(raw, repo),
-      bundlePath = `receipts/${sourcePath}`,
-      destination = resolve(target, bundlePath)
-    mkdirSync(dirname(destination), { recursive: true })
-    writeFileSync(destination, data)
-    receiptEntries.push({
+      encoding: 'buffer',
+    }),
+    sources = changes.map(change => ({
+      ...change,
+      ...sourceAtHead(repo, headOid, change.path),
+    })),
+    preparedReceipts = collectReceipts(repo, receipts),
+    receiptEntries = preparedReceipts.map(({ sourcePath, raw, data, redactions, bundlePath }) => ({
       sourcePath,
       sourceSha256: sha256(raw),
       sourceBytes: raw.length,
@@ -270,59 +484,88 @@ export function buildReviewBundle(repo, { taskId, base, output, receipts = [] })
       bundleSha256: sha256(data),
       bundleBytes: data.length,
       redactions,
-    })
+    })),
+    manifest = {
+      version: 1,
+      kind: 'pnd-review-bundle',
+      taskId,
+      repository: { branch, baseCommit, headOid },
+      diff: { path: 'changes.patch', sha256: sha256(patch), bytes: patch.length },
+      sources,
+      receipts: receiptEntries,
+      reviewerPreflight: {
+        localDev:
+          'Open this bundle as a non-overlapping Local Dev project and verify it against trusted caller-supplied identities before releasing it.',
+        verify: ['node', 'verify.mjs'],
+      },
+    }
+
+  const target = assertOutsideSource(repo, output),
+    staging = mkdtempSync(resolve(dirname(target), `.${basename(target)}.tmp-`))
+  try {
+    writeFileSync(resolve(staging, 'changes.patch'), patch)
+    for (const receipt of preparedReceipts) {
+      const destination = resolve(staging, receipt.bundlePath)
+      mkdirSync(dirname(destination), { recursive: true })
+      writeFileSync(destination, receipt.data)
+    }
+    writeFileSync(resolve(staging, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`)
+    writeFileSync(resolve(staging, 'verify.mjs'), verifierSource())
+    writeFileSync(resolve(staging, 'README.md'), bundleReadme(manifest))
+    renameSync(staging, target)
+  } catch (error) {
+    rmSync(staging, { recursive: true, force: true })
+    throw error
   }
-  const manifest = {
-    version: 1,
-    kind: 'pnd-review-bundle',
-    taskId,
-    repository: { branch, baseCommit, headOid },
-    diff: { path: 'changes.patch', sha256: sha256(patch), bytes: patch.length },
-    sources,
-    receipts: receiptEntries,
-    reviewerPreflight: {
-      localDev:
-        'Open this bundle as a non-overlapping Local Dev project, run node verify.mjs, then release it before handoff.',
-      verify: ['node', 'verify.mjs'],
-    },
-  }
-  writeFileSync(resolve(target, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`)
-  writeFileSync(resolve(target, 'verify.mjs'), verifierSource)
-  writeFileSync(resolve(target, 'README.md'), bundleReadme(manifest))
   return { status: 'passed', output: target, manifest }
 }
 
-export function verifyReviewBundle(bundle) {
-  const root = realpathSync(bundle),
-    manifest = JSON.parse(readFileSync(resolve(root, 'manifest.json'), 'utf8'))
+export function verifyReviewBundle(bundle, expected) {
+  const root = canonicalPath(bundle),
+    manifestPath = safeBundleFile(root, 'manifest.json', 'manifest'),
+    manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
   assert.equal(manifest.version, 1)
   assert.equal(manifest.kind, 'pnd-review-bundle')
-  const patch = readFileSync(resolve(root, manifest.diff.path))
-  assert.equal(sha256(patch), manifest.diff.sha256)
-  assert.equal(patch.length, manifest.diff.bytes)
+  validateExpectedIdentity(manifest, expected)
+
+  const diff = readFileSync(safeBundleFile(root, manifest.diff.path, 'diff'))
+  assert.equal(sha256(diff), expected.expectedDiffSha256.toLowerCase())
+  assert.equal(diff.length, manifest.diff.bytes)
+  const expectedReceipts = expectedMap(expected.expectedReceipts ?? [], 'expected receipt')
   for (const receipt of manifest.receipts) {
-    const data = readFileSync(resolve(root, receipt.bundlePath))
-    assert.equal(sha256(data), receipt.bundleSha256, receipt.bundlePath)
+    const data = readFileSync(safeBundleFile(root, receipt.bundlePath, 'receipt bundle path')),
+      trustedHash = expectedReceipts.get(receipt.sourcePath)
+    assert(trustedHash, `missing trusted receipt identity: ${receipt.sourcePath}`)
+    assert.equal(sha256(data), trustedHash, receipt.bundlePath)
     assert.equal(data.length, receipt.bundleBytes, receipt.bundlePath)
   }
   return {
     status: 'passed',
-    headOid: manifest.repository.headOid,
-    sources: manifest.sources.length,
-    receipts: manifest.receipts.length,
-    diffSha256: manifest.diff.sha256,
+    headOid: expected.expectedHead,
+    sources: expected.expectedSources.length,
+    receipts: (expected.expectedReceipts ?? []).length,
+    diffSha256: expected.expectedDiffSha256.toLowerCase(),
   }
 }
 
+function parsePair(value, label) {
+  const index = value.lastIndexOf('=')
+  assert(index > 0, `${label} must be path=sha256`)
+  const path = safeIdentityPath(value.slice(0, index), label),
+    hash = value.slice(index + 1)
+  assert(HASH.test(hash), `invalid ${label} sha256: ${path}`)
+  return { path, sha256: hash.toLowerCase() }
+}
+
 function parseArgs(args) {
-  const options = { receipt: [] }
+  const options = { receipt: [], 'expected-source': [], 'expected-receipt': [] }
   for (let index = 0; index < args.length; index++) {
     const flag = args[index]
     assert(flag.startsWith('--'), `unexpected argument: ${flag}`)
     const key = flag.slice(2),
       value = args[++index]
     assert(value !== undefined && !value.startsWith('--'), `missing value for ${flag}`)
-    if (key === 'receipt') options.receipt.push(value)
+    if (['receipt', 'expected-source', 'expected-receipt'].includes(key)) options[key].push(value)
     else {
       assert(!Object.hasOwn(options, key), `duplicate option: ${flag}`)
       options[key] = value
@@ -337,9 +580,15 @@ function main() {
   if (command === 'create') {
     for (const key of Object.keys(options))
       assert(
-        ['receipt', 'task-id', 'base', 'output'].includes(key),
+        ['receipt', 'expected-source', 'expected-receipt', 'task-id', 'base', 'output'].includes(
+          key
+        ),
         `unknown create option: --${key}`
       )
+    assert(
+      !options['expected-source'].length && !options['expected-receipt'].length,
+      'create does not accept expected identities'
+    )
     assert(options['task-id'], 'create requires --task-id')
     assert(options.base, 'create requires --base')
     assert(options.output, 'create requires --output')
@@ -354,9 +603,28 @@ function main() {
   }
   if (command === 'verify') {
     for (const key of Object.keys(options))
-      assert(['receipt', 'bundle'].includes(key), `unknown verify option: --${key}`)
+      assert(
+        [
+          'receipt',
+          'expected-source',
+          'expected-receipt',
+          'bundle',
+          'expected-head',
+          'expected-diff-sha256',
+        ].includes(key),
+        `unknown verify option: --${key}`
+      )
+    assert(!options.receipt.length, 'verify does not accept --receipt')
     assert(options.bundle, 'verify requires --bundle')
-    console.log(JSON.stringify(verifyReviewBundle(options.bundle), null, 2))
+    const expected = {
+      expectedHead: options['expected-head'],
+      expectedDiffSha256: options['expected-diff-sha256'],
+      expectedSources: options['expected-source'].map(value => parsePair(value, 'expected source')),
+      expectedReceipts: options['expected-receipt'].map(value =>
+        parsePair(value, 'expected receipt')
+      ),
+    }
+    console.log(JSON.stringify(verifyReviewBundle(options.bundle, expected), null, 2))
     return
   }
   throw new Error(`unknown review-bundle command: ${command}`)
