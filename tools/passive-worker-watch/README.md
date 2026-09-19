@@ -34,22 +34,31 @@ Three local evidence classes are accepted.
 2. **Typed local failed turn.** A fresh `thread_turns.status=failed` row with a
    nonempty error for an exact managed ID may create a local error notice. This
    is error evidence, not idle evidence.
-3. **Local Dev interrupted run.** `~/.local-dev/activity/*.jsonl` is read
+3. **Local Dev terminal run.** `~/.local-dev/activity/*.jsonl` is read
    directly and read-only. The Local Dev producer fsyncs `run.*` events. A
    managed run becomes attributable only when its own lifecycle title/goal begins
    with an unambiguous `WorkerNc` or `Worker Nc` self-label. A `ReviewerNc`/
-   `Reviewer Nc`
-   self-label is always unknown and non-actionable, even if other text mentions a
-   worker. Only the exact producer record `run.interrupted` with
-   “Runtime disconnected; no assistant completion was reported.” is positive
-   stalled/incomplete-run evidence. `run.started`, a long-running run, silence,
-   missing events, and journal mtimes never mean idle. A conflicting self-label
-   makes identity unknown and suppresses the notice.
+   `Reviewer Nc` self-label is always unknown and non-actionable, even if other
+   text mentions a worker. Exact producer `run.ended` records with `completed`,
+   `failed`, or `cancelled` are explicit completion/error evidence; the exact
+   `run.interrupted` summary “Runtime disconnected; no assistant completion was
+   reported.” remains interruption evidence. A terminal wake is suppressed when
+   another same-worker run has explicit lifecycle activity at or after the
+   terminating run began, or its explicit lifecycle interval extends past that
+   terminal timestamp; an older orphan with no overlap activity does not block
+   later valid completion evidence. Per-worker terminal watermarks prevent delayed
+   old terminal records
+   from replaying after newer ones. `run.started`, a long-running run, silence,
+   missing events, cache timestamps, and journal mtimes never mean idle. A
+   reviewer/conflicting self-label permanently poisons that run's identity;
+   later goals cannot rebind it to a managed worker.
 
-A later same-worker coordinator final at or after a local error/interruption covers
-that event and suppresses a redundant watcher notice. The watcher never restarts a
-task and never claims that an interrupted worker remains idle or unavailable; a
-later task may already have started.
+A later same-worker coordinator final at or after a local error/terminal event
+covers that event and suppresses a redundant watcher notice. The watcher never
+restarts a task. A Local Dev completion wake proves only that the attributed run
+ended and that no other same-worker managed run was active in that observed
+lifecycle window; it does **not** infer silent ChatGPT/UI idle or future
+availability.
 
 ## Bounded local reads and output
 
@@ -67,12 +76,13 @@ and output-blocked rather than replayed. Installation archives the prior watcher
 state before a verified roster/runtime upgrade, so old pending output cannot cross
 into the new roster.
 
-Only uncovered typed errors or explicit Local Dev interruptions may call
+Only uncovered typed errors or explicit Local Dev terminal wakes may call
 `codex queue`, always to coordinator
 `01a09e5b-1361-7c12-acbe-a9377e0af8a0`. Durable consumed intent is written before
 the call. Timeout/nonzero/unconfirmed delivery is not retried for that batch.
-Independent new events obey bounded backoff. Notices explicitly say they do not
-assert idle/current availability.
+Independent new events obey bounded backoff. Completion notices are suppressed
+when a newer same-worker managed run is active and explicitly say they do not
+infer silent UI idle/current availability.
 
 ## Verification
 
@@ -87,8 +97,9 @@ python3 -B tools/passive-worker-watch/watcher.py dry \
 
 Dry mode performs one bounded local snapshot, emits no coordinator output and
 records exact source hashes plus capability claims. The focused suite covers the
-current roster, final/error semantics, explicit Local Dev interruption handling,
-conflicting identity, silence/running non-idle behavior, dedupe/backoff/crash
+current roster, final/error semantics, explicit Local Dev completion/interruption
+handling, newer-run suppression, conflicting identity, silence/running non-idle
+behavior, stale-terminal dedupe/backoff/crash
 recovery, read-only inputs, output destination, install gating and PID/hash
 ownership.
 
@@ -122,7 +133,9 @@ installation has `processVerified=true`, `plistOwned=true`,
 signals a reused or unverified PID.
 
 Acceptance should observe at least two healthy daemon cycles with the same verified
-PID/config/hashes. A controlled verification notice may be sent once through the
-installed watcher's `enqueue` function; its text must clearly identify itself as
-a controlled install check and make no worker-idle/stall claim. That exercises the
-same coordinator-only output path without fabricating lifecycle evidence.
+PID/config/hashes. A controlled completion/idle-wake verification notice may be
+sent once through the installed watcher's `enqueue` function; its text must
+clearly identify itself as controlled and make no actual worker-idle/error claim.
+That exercises the same coordinator-only output path without fabricating
+lifecycle evidence. True silent ChatGPT/UI idle remains intentionally unsupported
+because no authoritative local persisted status source is available.

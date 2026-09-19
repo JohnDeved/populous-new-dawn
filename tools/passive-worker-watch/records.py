@@ -277,6 +277,7 @@ def snapshot(root, config, now, activity_root=None):
             'positiveStop': 'explicit current-roster final headers only',
             'localErrors': 'fresh typed failed-turn records if present; not live status',
             'interruptedRuns': 'explicit Local Dev run.interrupted after a self-labelled managed run',
+            'completedRuns': 'explicit Local Dev run.ended after a self-labelled managed run',
             'silentStops': False, 'activeStatus': False, 'idleStatus': False,
             'duplicateFinalNotifications': False,
         },
