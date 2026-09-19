@@ -24,11 +24,12 @@ def launchctl(*args):
     return subprocess.run(['/bin/launchctl', *args], capture_output=True, text=True, timeout=25)
 
 
-def agent_spec(runtime, state_dir, interpreter, records_root):
+def agent_spec(runtime, state_dir, interpreter, records_root, activity_root):
     return {
         'Label': LABEL,
         'ProgramArguments': [str(interpreter), str(runtime / 'watcher.py'), 'run',
-                             '--state-dir', str(state_dir), '--records-root', str(records_root)],
+                             '--state-dir', str(state_dir), '--records-root', str(records_root),
+                             '--activity-root', str(activity_root)],
         'WorkingDirectory': str(runtime), 'RunAtLoad': True,
         # A normal fail-closed exit does not restart into an output/API loop.
         'KeepAlive': {'Crashed': True}, 'ThrottleInterval': 300, 'ExitTimeOut': 20,
@@ -63,17 +64,40 @@ def status(home, plist_path):
     pid = int(match[1]) if match else None
     state_path = home / 'state.json'
     try:
-        process = json.loads(state_path.read_text()).get('process', {})
+        state = json.loads(state_path.read_text())
+        process = state.get('process', {})
         record = {k: process[k] for k in ('pid', 'description') if k in process}
+        observations = state.get('observations')
+        last_observation = state.get('lastObservationAt')
+        health = state.get('health')
     except (OSError, ValueError, AttributeError):
-        record = {}
+        record, observations, last_observation, health = {}, None, None, None
     current = watcher.process_identity(pid) if pid else None
-    verified = bool(pid and value and owned_spec(value, runtime)
-                    and matching_process(record, runtime, current))
-    return {'registered': result.returncode == 0, 'pid': pid, 'processVerified': verified,
-            'plistOwned': bool(value and owned_spec(value, runtime)),
-            'stateRecord': record, 'currentIdentity': current,
-            'statePath': str(state_path), 'label': LABEL}
+    process_verified = bool(pid and value and owned_spec(value, runtime)
+                            and matching_process(record, runtime, current))
+    try:
+        installation = json.loads((runtime / 'installation.json').read_text())
+        runtime_hashes = watcher.fingerprints(runtime)
+        hashes_verified = bool(installation.get('fingerprints') == runtime_hashes)
+        roots_verified = bool(
+            installation.get('recordsRoot') in value.get('ProgramArguments', []) if value else False
+        ) and bool(
+            installation.get('activityRoot') in value.get('ProgramArguments', []) if value else False
+        )
+    except (OSError, ValueError, AttributeError, KeyError):
+        installation, runtime_hashes = {}, {}
+        hashes_verified = roots_verified = False
+    return {
+        'registered': result.returncode == 0, 'pid': pid, 'processVerified': process_verified,
+        'plistOwned': bool(value and owned_spec(value, runtime)),
+        'hashesVerified': hashes_verified, 'rootsVerified': roots_verified,
+        'runtimeFingerprints': runtime_hashes,
+        'installationFingerprints': installation.get('fingerprints'),
+        'recordsRoot': installation.get('recordsRoot'), 'activityRoot': installation.get('activityRoot'),
+        'observations': observations, 'lastObservationAt': last_observation, 'health': health,
+        'stateRecord': record, 'currentIdentity': current,
+        'statePath': str(state_path), 'label': LABEL,
+    }
 
 
 TEST_SOURCES = ('verify.py', 'test_watcher.py', 'fixtures/local-events.json')
@@ -103,7 +127,7 @@ def validate_test_receipt(tests, source, now):
         raise RuntimeError('Fresh, nonempty, internally consistent exact-source test receipt required')
 
 
-def validate_gate(source, root, dry_path, tests_path, now):
+def validate_gate(source, root, activity_root, dry_path, tests_path, now):
     expected = watcher.fingerprints(source)
     dry = json.loads(dry_path.read_text())
     tests = json.loads(tests_path.read_text())
@@ -113,10 +137,14 @@ def validate_gate(source, root, dry_path, tests_path, now):
             or dry.get('fingerprints') != expected or not dry.get('sourceUnchanged')
             or not 0 <= now - dry.get('finishedAt', 0) <= 900
             or not snapshot.get('complete') or snapshot.get('dataRoot') != str(root.resolve())
+            or snapshot.get('activityRoot') != str(activity_root.resolve())
             or set(snapshot.get('workers', {})) != set(watcher.records.WORKERS.values())
             or not all(w.get('bound') and w.get('liveStatus') == 'unknown' for w in snapshot['workers'].values())
             or snapshot.get('claims', {}).get('silentStops') is not False
-            or snapshot.get('claims', {}).get('activeStatus') is not False):
+            or snapshot.get('claims', {}).get('activeStatus') is not False
+            or snapshot.get('claims', {}).get('idleStatus') is not False
+            or snapshot.get('lifecycleCoverage', {}).get('idle') is not False
+            or snapshot.get('lifecycleCoverage', {}).get('runningMeansActive') is not False):
         raise RuntimeError('Fresh exact-source local-event dry receipt with honest reduced claims required')
     validate_test_receipt(tests, source, now)
     return expected
@@ -130,8 +158,8 @@ def retired_watcher_processes():
     return [line.strip() for line in result.stdout.splitlines() if any(arg.endswith(marker) for arg in line.split())]
 
 
-def install(source, root, home, plist_path, dry_path, tests_path):
-    fingerprints = validate_gate(source, root, dry_path, tests_path, time.time())
+def install(source, root, activity_root, home, plist_path, dry_path, tests_path):
+    fingerprints = validate_gate(source, root, activity_root, dry_path, tests_path, time.time())
     if retired_watcher_processes():
         raise RuntimeError('Retired watcher is still running; do not create a duplicate or signal it blindly')
     home.mkdir(parents=True, exist_ok=True, mode=0o700)
@@ -147,6 +175,11 @@ def install(source, root, home, plist_path, dry_path, tests_path):
         receipts = home / 'receipts'
         receipts.mkdir(exist_ok=True)
         stamp = str(time.time_ns())
+        state_path = home / 'state.json'
+        if state_path.exists():
+            # A roster/runtime upgrade must never replay an older watcher's output intent.
+            # Preserve the complete prior state, then cold-start the newly verified source.
+            state_path.rename(receipts / (stamp + '-previous-state.json'))
         if plist_path.exists():
             shutil.copy2(plist_path, receipts / (stamp + '-previous-agent.plist'))
         runtime = home / 'runtime'
@@ -156,12 +189,13 @@ def install(source, root, home, plist_path, dry_path, tests_path):
         for name in watcher.SOURCE_NAMES:
             shutil.copy2(source / name, runtime / name)
         watcher.atomic(runtime / 'installation.json', {'fingerprints': fingerprints,
-                                                       'installedAt': time.time(), 'recordsRoot': str(root.resolve())})
+                                                       'installedAt': time.time(), 'recordsRoot': str(root.resolve()),
+                                                       'activityRoot': str(activity_root.resolve())})
         if watcher.fingerprints(runtime) != fingerprints:
             raise RuntimeError('Copied installation fingerprint mismatch; not bootstrapped')
         plist_path.parent.mkdir(parents=True, exist_ok=True)
         temporary = plist_path.with_suffix('.tmp')
-        temporary.write_bytes(plistlib.dumps(agent_spec(runtime, home, Path(sys.executable).resolve(), root.resolve())))
+        temporary.write_bytes(plistlib.dumps(agent_spec(runtime, home, Path(sys.executable).resolve(), root.resolve(), activity_root.resolve())))
         temporary.chmod(0o600)
         os.replace(temporary, plist_path)
         watcher.atomic(receipts / (stamp + '-install.json'), {'state': 'prepared', 'fingerprints': fingerprints})
@@ -177,7 +211,7 @@ def install(source, root, home, plist_path, dry_path, tests_path):
     deadline = time.monotonic() + 8
     while time.monotonic() < deadline:
         current = status(home, plist_path)
-        if current['processVerified']:
+        if current['processVerified'] and current['hashesVerified'] and current['rootsVerified']:
             watcher.atomic(receipts / (stamp + '-install.json'), {'state': 'running', 'status': current,
                                                                    'fingerprints': fingerprints})
             return current
@@ -224,6 +258,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['status', 'install', 'disable', 'uninstall'])
     parser.add_argument('--records-root', type=Path, default=Path.home() / '.codex')
+    parser.add_argument('--activity-root', type=Path, default=Path.home() / '.local-dev/activity')
     parser.add_argument('--dry-receipt', type=Path)
     parser.add_argument('--tests-receipt', type=Path)
     args = parser.parse_args()
@@ -233,7 +268,7 @@ def main():
     if args.action == 'install':
         if not all((args.dry_receipt, args.tests_receipt)):
             parser.error('Installation requires local dry receipt and tests receipt')
-        result = install(source, args.records_root.resolve(), home, plist_path,
+        result = install(source, args.records_root.resolve(), args.activity_root.resolve(), home, plist_path,
                          args.dry_receipt, args.tests_receipt)
     else:
         result = {'status': status, 'disable': disable, 'uninstall': uninstall}[args.action](home, plist_path)

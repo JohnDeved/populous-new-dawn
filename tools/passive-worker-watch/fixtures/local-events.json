@@ -1,5 +1,5 @@
 {
-  "provenance": "Sanitized shapes from locally inspected persisted task cache and SQLite schemas; no live content or credentials",
+  "provenance": "Sanitized shapes from locally inspected persisted task cache, SQLite schemas and Local Dev activity journals; no live content or credentials",
   "now": 1789808400,
   "cacheFields": ["createdAt", "id", "isTask", "projectId", "title", "updatedAt"],
   "metadataHasActivityState": false,
@@ -9,19 +9,19 @@
   "turnTimestampUnit": "seconds",
   "coordinatorEventTimestampUnit": "milliseconds",
   "headers": [
-    {"text": "Worker1 | #21/PR120 | BLOCKED", "accepted": true},
-    {"text": "Worker 2b | #73 | NEEDS_REVIEW", "accepted": true},
-    {"text": "Worker3 | #10 | ERROR", "accepted": true},
-    {"text": "Worker5 | #27 | SYSTEMERROR", "accepted": true},
-    {"text": "Worker1 | chat_id=6aad9a2e-6084-83eb-ace6-6218f2da0ef4 | #21 | DONE", "accepted": true},
-    {"text": "Worker1 | chat_id=6aaa90bc-c5a4-83eb-bd6f-5a79b946547d | #21 | DONE", "accepted": false},
+    {"text": "Worker1c | #21/PR120 | BLOCKED", "accepted": true},
+    {"text": "Worker 2c | #73 | NEEDS_REVIEW", "accepted": true},
+    {"text": "Worker3c | #10 | ERROR", "accepted": true},
+    {"text": "Worker4c | #27 | SYSTEMERROR", "accepted": true},
+    {"text": "Worker1c | chat_id=6aaebd2a-9698-83ed-a9ca-732b8651f074 | #21 | DONE", "accepted": true},
+    {"text": "Worker1c | chat_id=6aad9a2e-6084-83eb-ace6-6218f2da0ef4 | #21 | DONE", "accepted": false},
     {"text": "Worker4 | #60 | DONE", "accepted": false},
-    {"text": "Worker6 | #85 | BLOCKED", "accepted": false},
-    {"text": "Worker7 | #watcher | DONE", "accepted": false},
-    {"text": "> Worker1 | #21 | DONE", "accepted": false},
-    {"text": "Worker1 | #21 | WORKING", "accepted": false},
-    {"text": "Worker1 | #21 | IDLE", "accepted": false},
-    {"text": "Worker1 | #21 | DONE maybe later", "accepted": false},
-    {"text": "Coordinator: Worker1 | #21 | DONE", "accepted": false}
+    {"text": "Worker5c | #85 | BLOCKED", "accepted": false},
+    {"text": "Worker1b | #watcher | DONE", "accepted": false},
+    {"text": "> Worker1c | #21 | DONE", "accepted": false},
+    {"text": "Worker1c | #21 | WORKING", "accepted": false},
+    {"text": "Worker1c | #21 | IDLE", "accepted": false},
+    {"text": "Worker1c | #21 | DONE maybe later", "accepted": false},
+    {"text": "Coordinator: Worker1c | #21 | DONE", "accepted": false}
   ]
 }
