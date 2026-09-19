@@ -45,7 +45,7 @@ export class ObjectPanels {
       const canvas = document.createElement('canvas')
       canvas.setAttribute('aria-hidden', 'true')
       const element = document.createElement('div')
-      element.className = 'person-panel'
+      element.className = head ? 'person-panel worship-panel' : 'person-panel'
       element.setAttribute('role', 'group')
       element.insertBefore(canvas, null)
       for (let i = 0; i < (head?.required ?? 8); i++) {
@@ -156,7 +156,7 @@ export class ObjectPanels {
         target: head.target,
         growth: head.growth,
         cooldown: head.cooldown,
-        shamanOnly: head.kind === 'vault',
+        shamanOnly: head.kind === 'vault' || head.mode === 3,
         people: Array.from({ length: count }, (_, i) =>
           people[i]
             ? { model: people[i].model, selected: !!(people[i].selectionFlags & 128) }
@@ -237,8 +237,28 @@ export class ObjectPanels {
           (u ?? head)!,
           ((p?.h ?? nativePosition(world, (u ?? head)!).h) + panel.offset) / 45
         )
-      element.style.left = `${((point.x + 1) * scene.container.clientWidth) / 2}px`
-      element.style.top = `${((1 - point.y) * scene.container.clientHeight) / 2}px`
+      if (head) {
+        const containerRect = scene.container.getBoundingClientRect(),
+          rendererRect = scene.renderer.domElement.getBoundingClientRect(),
+          scale = Number.parseFloat(getComputedStyle(element).getPropertyValue('--hud-scale')) || 1,
+          rendererLeft = rendererRect.left - containerRect.left,
+          rendererTop = rendererRect.top - containerRect.top,
+          anchorX = rendererLeft + ((point.x + 1) * rendererRect.width) / 2,
+          anchorY = rendererTop + ((1 - point.y) * rendererRect.height) / 2,
+          halfPanelWidth = (canvas.width * scale) / 2,
+          panelHeight = canvas.height * scale
+        element.style.left = `${Math.max(
+          rendererLeft + halfPanelWidth,
+          Math.min(rendererLeft + rendererRect.width - halfPanelWidth, anchorX)
+        )}px`
+        element.style.top = `${Math.max(
+          rendererTop + panelHeight,
+          Math.min(rendererTop + rendererRect.height, anchorY)
+        )}px`
+      } else {
+        element.style.left = `${((point.x + 1) * scene.container.clientWidth) / 2}px`
+        element.style.top = `${((1 - point.y) * scene.container.clientHeight) / 2}px`
+      }
     }
   }
   focusWorshipper(headId: number, personId: number) {
