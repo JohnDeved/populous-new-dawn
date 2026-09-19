@@ -4,7 +4,14 @@ import { writeFileSync } from 'node:fs'
 import { chromium } from '@playwright/test'
 import { bindGame, openGame } from './browser-game.mjs'
 
-const report = { stages: [], orders: [], guards: [], events: [] }
+const report = {
+  stages: [],
+  orders: [],
+  guards: [],
+  hoverSelections: [],
+  eventHistories: { preLoad: [], postRebind: [] },
+  preLoadSealed: false,
+}
 const output = (process.env.PND_QUEUE_OUTPUT ?? '/private/tmp') + '/hut-smoke-events'
 const save = () => writeFileSync(output + '.json', JSON.stringify(report, null, 2) + '\n')
 let page, errors
@@ -50,6 +57,32 @@ async function personPoint(id) {
     return null
   }, id)
 }
+// Hover identifies the actual Hut independently of selection or command mode.
+// With selection cleared, liveCommandContext may be model3; it is not an admission.
+async function hutHoverPoint() {
+  return page.evaluate(() => {
+    const scene = window.testScene,
+      hut = scene.world.buildings.find(b => b.id === window.smokeEvents.hutId)
+    if (!hut) return null
+    const rect = scene.renderer.domElement.getBoundingClientRect(),
+      center = scene.screen(hut)
+    for (let dy = -120; dy <= 60; dy += 4)
+      for (let dx = -75; dx <= 75; dx += 4) {
+        const x = rect.left + ((center.x + 1) * rect.width) / 2 + dx,
+          y = rect.top + ((1 - center.y) * rect.height) / 2 + dy,
+          event = { clientX: x, clientY: y }
+        if (
+          document.elementFromPoint(x, y) !== scene.renderer.domElement ||
+          scene.picking.pickPerson(event)
+        )
+          continue
+        const object = scene.pickWorldObject(event)
+        if (object?.id === hut.id) return { x, y, objectId: object.id }
+      }
+    return null
+  })
+}
+
 async function targetPoint(ground = false) {
   return page.evaluate(async ground => {
     const s = window.testScene,
@@ -101,9 +134,15 @@ async function selectPerson(id) {
       id
     )
     if (inside === report.hutId) {
-      const hut = await targetPoint()
-      assert.ok(hut, 'Hut must have a rendered hover point')
+      assert.deepEqual(await page.evaluate(() => [...window.testScene.world.selected]), [])
+      const hut = await hutHoverPoint()
+      assert.ok(hut, 'Resident departure must identify the actual rendered Hut with no selection')
+      assert.equal(hut.objectId, report.hutId)
       await page.mouse.move(hut.x, hut.y)
+      const selected = await page.evaluate(() => [...window.testScene.world.selected])
+      report.hoverSelections.push({ id, target: hut, selected })
+      save()
+      assert.deepEqual(selected, [], 'Hover must not dispatch or select a model3 ground order')
       await page.locator('.training-panel:visible button[data-person="' + id + '"]').click()
     } else {
       const count = await page.evaluate(
@@ -166,10 +205,30 @@ async function guardNewcomers(cohort) {
 async function snapshot() {
   return page.evaluate(() => window.smokeEvents.read())
 }
+// The observer phase travels with its trace, so a failed rebind cannot relabel
+// the old world's events. Once sealed, the complete pre-load evidence is immutable.
+async function captureEventHistory() {
+  const trace = await page.evaluate(() => {
+    const observer = window.smokeEvents
+    return observer ? { phase: observer.phase, events: observer.events } : null
+  })
+  if (!trace) return null
+  assert.ok(Object.hasOwn(report.eventHistories, trace.phase), 'Unknown event-history phase')
+  if (trace.phase === 'preLoad' && report.preLoadSealed)
+    assert.deepEqual(
+      trace.events,
+      report.eventHistories.preLoad,
+      'Sealed pre-load events must survive rebind unchanged'
+    )
+  else report.eventHistories[trace.phase] = trace.events
+  return trace.events
+}
+
 async function eventAudit() {
-  report.events = await page.evaluate(() => window.smokeEvents.events)
+  const events = await captureEventHistory()
   save()
-  for (const event of report.events) {
+  assert.ok(events, 'An active event observer is required for smoke acceptance')
+  for (const event of events) {
     const current = event.current
     const expected = current.ids.length
       ? current.ids.length >= current.capacity
@@ -239,6 +298,7 @@ async function admit(id) {
   await resume()
   const target = await targetPoint()
   assert.ok(target, 'Actual Hut command8 target must be available')
+  assert.equal(target.model, 8, 'Admission must never accept the selection-free hover path')
   await page.mouse.click(target.x, target.y)
   const receipt = await page.evaluate(id => {
     const w = window.testScene.world,
@@ -262,6 +322,7 @@ async function depart(id, cohort) {
   })
   const point = await targetPoint(true)
   assert.ok(point, 'Normal ground command must be pickable')
+  assert.equal(point.model, 3, 'Departure must issue the genuine ground command after selection')
   await page.mouse.click(point.x, point.y)
   const after = await snapshot()
   assert.ok(
@@ -274,41 +335,45 @@ async function depart(id, cohort) {
   await page.evaluate(() => new Promise(resolve => requestAnimationFrame(resolve)))
   await eventAudit()
 }
-async function observe(hutId) {
-  await page.evaluate(async hutId => {
-    const { default: rules } = await import('/app/original-rules.json')
-    const read = () => {
-      const s = window.testScene,
-        w = s.world,
-        b = w.buildings.find(b => b.id === hutId)
-      const smoke = s.buildingMeshes.get(hutId)?.userData.hutOccupancySmoke
-      return {
-        turn: w.turn,
-        counter: b.counter,
-        capacity: rules.buildingCapacity[b.level],
-        progress: b.progress,
-        ids: w.units
-          .filter(u => u.hp > 0 && u.inside === hutId)
-          .map(u => u.id)
-          .sort((a, b) => a - b),
-        admission: b.admission?.inside ?? 0,
-        mode: smoke?.state.root?.mode ?? null,
-        visible: !!smoke?.group.visible,
-        root: smoke?.state.root ? { ...smoke.state.root } : null,
+async function observe(hutId, phase) {
+  assert.ok(Object.hasOwn(report.eventHistories, phase), 'Observer must name its evidence phase')
+  await page.evaluate(
+    async ({ hutId, phase }) => {
+      const { default: rules } = await import('/app/original-rules.json')
+      const read = () => {
+        const s = window.testScene,
+          w = s.world,
+          b = w.buildings.find(b => b.id === hutId)
+        const smoke = s.buildingMeshes.get(hutId)?.userData.hutOccupancySmoke
+        return {
+          turn: w.turn,
+          counter: b.counter,
+          capacity: rules.buildingCapacity[b.level],
+          progress: b.progress,
+          ids: w.units
+            .filter(u => u.hp > 0 && u.inside === hutId)
+            .map(u => u.id)
+            .sort((a, b) => a - b),
+          admission: b.admission?.inside ?? 0,
+          mode: smoke?.state.root?.mode ?? null,
+          visible: !!smoke?.group.visible,
+          root: smoke?.state.root ? { ...smoke.state.root } : null,
+        }
       }
-    }
-    const t = { hutId, read, events: [], armed: false, previous: read() }
-    window.smokeEvents = t
-    const frame = () => {
-      if (window.smokeEvents !== t) return
-      const current = read()
-      if (t.armed && current.ids.join(',') !== t.previous.ids.join(',') && t.events.length < 64)
-        t.events.push({ previous: t.previous, current })
-      t.previous = current
+      const t = { hutId, phase, read, events: [], armed: false, previous: read() }
+      window.smokeEvents = t
+      const frame = () => {
+        if (window.smokeEvents !== t) return
+        const current = read()
+        if (t.armed && current.ids.join(',') !== t.previous.ids.join(',') && t.events.length < 64)
+          t.events.push({ previous: t.previous, current })
+        t.previous = current
+        requestAnimationFrame(frame)
+      }
       requestAnimationFrame(frame)
-    }
-    requestAnimationFrame(frame)
-  }, hutId)
+    },
+    { hutId, phase }
+  )
 }
 try {
   ;({ page, errors } = await openGame(browser, 1))
@@ -324,7 +389,7 @@ try {
       )?.id
   )
   assert.ok(report.hutId, 'Shipped Mission1 must supply a completed Blue Hut')
-  await observe(report.hutId)
+  await observe(report.hutId, 'preLoad')
   report.initial = await snapshot()
   save()
   assert.equal(
@@ -371,7 +436,9 @@ try {
     save()
   }
   assert.ok(
-    report.events.some(e => e.current.ids.length > e.previous.ids.length && e.current.counter & 31),
+    report.eventHistories.preLoad.some(
+      e => e.current.ids.length > e.previous.ids.length && e.current.counter & 31
+    ),
     'Must observe a genuine off-32-phase admission'
   )
   await page.screenshot({ path: output + '-full.png' })
@@ -393,13 +460,23 @@ try {
     save()
   }
   assert.ok(
-    report.events.some(e => e.current.ids.length < e.previous.ids.length && e.current.counter & 31),
+    report.eventHistories.preLoad.some(
+      e => e.current.ids.length < e.previous.ids.length && e.current.counter & 31
+    ),
     'Must observe a genuine off-32-phase removal'
   )
   await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+  // Stop only this read-only observer before replacing the world; do not let
+  // the checkpoint discontinuity masquerade as an occupancy event.
+  await page.evaluate(() => {
+    window.smokeEvents.armed = false
+  })
+  await eventAudit()
+  report.preLoadSealed = true
+  save()
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await bindGame(page)
-  await observe(report.hutId)
+  await observe(report.hutId, 'postRebind')
   report.restored = await settled(cohort, 'full')
   await page.evaluate(() => {
     window.smokeEvents.armed = true
@@ -407,6 +484,13 @@ try {
   })
   await depart(cohort[0], cohort)
   report.afterRestoreRemoval = await settled(cohort.slice(1), 'partial')
+  assert.ok(report.preLoadSealed, 'Complete pre-load history must be preserved before rebind')
+  assert.ok(
+    report.eventHistories.postRebind.some(
+      e => e.current.ids.length < e.previous.ids.length && e.current.counter & 31
+    ),
+    'Post-rebind removal must have its own genuine off-phase event evidence'
+  )
   assert.deepEqual(errors, [])
   report.result =
     'PASS normal command8 admissions/removals reconcile off-phase, reverse sequence, pause and checkpoint rebind'
@@ -416,7 +500,9 @@ try {
   report.failure = { message: error.message, stack: error.stack }
   if (page) {
     report.last = await snapshot().catch(() => null)
-    report.events = await page.evaluate(() => window.smokeEvents?.events ?? []).catch(() => [])
+    await captureEventHistory().catch(historyError => {
+      report.historyCaptureFailure = { message: historyError.message }
+    })
     await page.screenshot({ path: output + '-failure.png' }).catch(() => {})
   }
   throw error
