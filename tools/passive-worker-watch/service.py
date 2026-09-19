@@ -1,0 +1,207 @@
+#!/usr/bin/env python3
+"""Own one passive-watcher LaunchAgent. Never manage worker tasks or other processes."""
+from __future__ import annotations
+
+import argparse
+import json
+import os
+from pathlib import Path
+import plistlib
+import re
+import shutil
+import subprocess
+import sys
+import time
+
+import watcher
+
+LABEL = 'com.populous.worker-watcher'
+DEFAULT_HOME = Path.home() / 'Library/Application Support/PopulousPassiveWatcher'
+RETIRED_SUFFIX = '/work/orchestration/worker-watch-cli/run-watcher.sh'
+
+
+def launchctl(*args):
+    return subprocess.run(['/bin/launchctl', *args], capture_output=True, text=True, timeout=25)
+
+
+def agent_spec(runtime, state_dir, interpreter):
+    return {
+        'Label': LABEL,
+        'ProgramArguments': [str(interpreter), str(runtime / 'watcher.py'), 'run',
+                             '--sampler', str(runtime / 'sidebar'), '--state-dir', str(state_dir)],
+        'WorkingDirectory': str(runtime), 'RunAtLoad': True,
+        # A normal fail-closed exit does not restart into an output/API loop.
+        'KeepAlive': {'Crashed': True}, 'ThrottleInterval': 300, 'ExitTimeOut': 20,
+        'StandardOutPath': '/dev/null', 'StandardErrorPath': '/dev/null',
+        'ProcessType': 'Background',
+    }
+
+
+def read_plist(path):
+    with path.open('rb') as file:
+        value = plistlib.load(file)
+    if value.get('Label') != LABEL:
+        raise RuntimeError('Unowned launch-agent label; refuse modification')
+    return value
+
+
+def owned_spec(value, runtime):
+    args = value.get('ProgramArguments', [])
+    return len(args) >= 3 and args[1:3] == [str(runtime / 'watcher.py'), 'run']
+
+
+def matching_process(record, runtime, current):
+    return (isinstance(record, dict) and record == current
+            and str(runtime / 'watcher.py') + ' run ' in record.get('description', ''))
+
+
+def status(home, plist_path):
+    runtime = home / 'runtime'
+    value = read_plist(plist_path) if plist_path.exists() else None
+    result = launchctl('print', f'gui/{os.getuid()}/{LABEL}')
+    match = re.search(r'^\s*pid = (\d+)\s*$', result.stdout, re.M)
+    pid = int(match[1]) if match else None
+    state_path = home / 'state.json'
+    try:
+        process = json.loads(state_path.read_text()).get('process', {})
+        record = {k: process[k] for k in ('pid', 'description') if k in process}
+    except (OSError, ValueError, AttributeError):
+        record = {}
+    current = watcher.process_identity(pid) if pid else None
+    verified = bool(pid and value and owned_spec(value, runtime)
+                    and matching_process(record, runtime, current))
+    return {'registered': result.returncode == 0, 'pid': pid, 'processVerified': verified,
+            'plistOwned': bool(value and owned_spec(value, runtime)),
+            'stateRecord': record, 'currentIdentity': current,
+            'statePath': str(state_path), 'label': LABEL}
+
+
+def validate_gate(source, sampler, dry_path, tests_path, now):
+    expected = watcher.fingerprints(source, sampler)
+    dry = json.loads(dry_path.read_text())
+    tests = json.loads(tests_path.read_text())
+    if (dry.get('status') != 'passed' or dry.get('notificationCalls') != 0
+            or dry.get('fingerprints') != expected or not dry.get('sourceUnchanged')
+            or not 0 <= now - dry.get('finishedAt', 0) <= 900
+            or len(dry.get('samples', [])) != 2):
+        raise RuntimeError('Fresh, green, exact-source passive dry receipt required')
+    config = watcher.configuration(source / 'managed.json')
+    for observation in dry['samples']:
+        if not watcher.usable(observation, config, observation['at'] + 1):
+            raise RuntimeError('Dry receipt does not identify all four rows')
+    if tests.get('status') != 'passed' or tests.get('fingerprints') != expected:
+        raise RuntimeError('Passing exact-source tests receipt required')
+    return expected
+
+
+def install(source, sampler, home, plist_path, dry_path, tests_path):
+    fingerprints = validate_gate(source, sampler, dry_path, tests_path, time.time())
+    home.mkdir(parents=True, exist_ok=True, mode=0o700)
+    with watcher.singleton(home):
+        before = status(home, plist_path)
+        if before['registered']:
+            raise RuntimeError('Agent already registered; use identity-checked disable first')
+        old = read_plist(plist_path) if plist_path.exists() else None
+        if old and not owned_spec(old, home / 'runtime'):
+            args = old.get('ProgramArguments', [])
+            if len(args) != 1 or not args[0].endswith(RETIRED_SUFFIX):
+                raise RuntimeError('Unrecognized historical agent; preserve without replacement')
+        receipts = home / 'receipts'
+        receipts.mkdir(exist_ok=True)
+        stamp = str(time.time_ns())
+        if plist_path.exists():
+            shutil.copy2(plist_path, receipts / (stamp + '-previous-agent.plist'))
+        runtime = home / 'runtime'
+        if runtime.exists():
+            runtime.rename(home / ('runtime-before-' + stamp))
+        runtime.mkdir()
+        for name in watcher.SOURCE_NAMES:
+            shutil.copy2(source / name, runtime / name)
+        shutil.copy2(sampler, runtime / 'sidebar')
+        watcher.atomic(runtime / 'installation.json', {'fingerprints': fingerprints,
+                                                       'installedAt': time.time()})
+        if watcher.fingerprints(runtime, runtime / 'sidebar') != fingerprints:
+            raise RuntimeError('Copied installation fingerprint mismatch; not bootstrapped')
+        plist_path.parent.mkdir(parents=True, exist_ok=True)
+        temporary = plist_path.with_suffix('.tmp')
+        temporary.write_bytes(plistlib.dumps(agent_spec(runtime, home, Path(sys.executable).resolve())))
+        temporary.chmod(0o600)
+        os.replace(temporary, plist_path)
+        watcher.atomic(receipts / (stamp + '-install.json'), {'state': 'prepared', 'fingerprints': fingerprints})
+    # Release singleton before launchd starts its sole daemon.
+    enabled = launchctl('enable', f'gui/{os.getuid()}/{LABEL}')
+    if enabled.returncode:
+        raise RuntimeError('Could not explicitly enable the verified agent; not bootstrapped')
+    result = launchctl('bootstrap', f'gui/{os.getuid()}', str(plist_path))
+    if result.returncode:
+        watcher.atomic(receipts / (stamp + '-install.json'), {'state': 'bootstrap-unconfirmed',
+                       'exitCode': result.returncode, 'detail': result.stderr[:500]})
+        raise RuntimeError('Bootstrap unconfirmed; inspect service status, never retry blindly')
+    deadline = time.monotonic() + 8
+    while time.monotonic() < deadline:
+        current = status(home, plist_path)
+        if current['processVerified']:
+            watcher.atomic(receipts / (stamp + '-install.json'), {'state': 'running', 'status': current,
+                                                                   'fingerprints': fingerprints})
+            return current
+        time.sleep(0.25)
+    raise RuntimeError('Agent registered but PID identity not verified; stop, inspect status')
+
+
+def disable(home, plist_path):
+    current = status(home, plist_path)
+    if current['registered'] and (not current['plistOwned'] or (current['pid'] and not current['processVerified'])):
+        raise RuntimeError('Refuse to unload an unverified or PID-reused process')
+    if not current['registered'] and not current['plistOwned']:
+        return {**current, 'disabled': True, 'action': 'no-owned-agent'}
+    result = launchctl('disable', f'gui/{os.getuid()}/{LABEL}')
+    if result.returncode:
+        raise RuntimeError('Persistent disable unconfirmed; do not retry blindly')
+    if not current['registered']:
+        return {**current, 'disabled': True, 'action': 'persistently-disabled'}
+    result = launchctl('bootout', f'gui/{os.getuid()}/{LABEL}')
+    if result.returncode:
+        raise RuntimeError('Bootout unconfirmed; no direct PID signal or retry')
+    deadline = time.monotonic() + 22
+    while time.monotonic() < deadline:
+        after = status(home, plist_path)
+        if not after['registered'] and (not current['pid'] or
+                watcher.process_identity(current['pid']) != current['currentIdentity']):
+            return {**after, 'disabled': True}
+        time.sleep(0.25)
+    raise RuntimeError('Cleanup unverified; do not delete files or relaunch')
+
+
+def uninstall(home, plist_path):
+    result = disable(home, plist_path)
+    if plist_path.exists():
+        if not owned_spec(read_plist(plist_path), home / 'runtime'):
+            raise RuntimeError('Refuse to remove a foreign/historical plist')
+        saved = home / 'receipts' / (str(time.time_ns()) + '-uninstalled-agent.plist')
+        saved.parent.mkdir(parents=True, exist_ok=True)
+        plist_path.rename(saved)  # Preserve, never destroy runtime/state/old receipts.
+    return {**result, 'uninstalled': True, 'preserved': str(home)}
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('action', choices=['status', 'install', 'disable', 'uninstall'])
+    parser.add_argument('--sampler', type=Path)
+    parser.add_argument('--dry-receipt', type=Path)
+    parser.add_argument('--tests-receipt', type=Path)
+    args = parser.parse_args()
+    source = Path(__file__).resolve().parent
+    home = DEFAULT_HOME
+    plist_path = Path.home() / 'Library/LaunchAgents' / (LABEL + '.plist')
+    if args.action == 'install':
+        if not all((args.sampler, args.dry_receipt, args.tests_receipt)):
+            parser.error('Installation requires sampler, dry receipt and tests receipt')
+        result = install(source, args.sampler.resolve(), home, plist_path,
+                         args.dry_receipt, args.tests_receipt)
+    else:
+        result = {'status': status, 'disable': disable, 'uninstall': uninstall}[args.action](home, plist_path)
+    print(json.dumps(result, sort_keys=True))
+
+
+if __name__ == '__main__':
+    main()

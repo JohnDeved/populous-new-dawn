@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "appBundle": "com.openai.codex",
+  "coordinator": "01a09e5b-1361-7c12-acbe-a9377e0af8a0",
+  "pollSeconds": 30,
+  "confirmSeconds": 20,
+  "maxGapSeconds": 90,
+  "notifySeconds": 60,
+  "workers": [
+    {"number": 1, "id": "6aad9a2e-6084-83eb-ace6-6218f2da0ef4", "title": "Worker 1b - pro"},
+    {"number": 2, "id": "6aad9a3d-1d4c-83eb-b794-b4acb8226670", "title": "Worker 2b - xhigh"},
+    {"number": 3, "id": "6aad9a51-2b4c-83ed-a0ea-d7f1833bcaf1", "title": "Worker 3b - xhigh"},
+    {"number": 5, "id": "6aad9d06-fd44-83ed-a6a8-067b46998f90", "title": "Worker 5b - xhigh"}
+  ]
+}
