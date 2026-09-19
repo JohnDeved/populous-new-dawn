@@ -1,0 +1,95 @@
+{
+  "atlas": "bloodlust",
+  "width": 320,
+  "height": 32,
+  "frames": [
+    {
+      "source": 1478,
+      "x": 0,
+      "y": 0,
+      "w": 30,
+      "h": 25,
+      "rgbaSHA256": "26c87f9c0c22561fa7a691715220283b2f83efb2684334cbf43681ae27c3a3fe"
+    },
+    {
+      "source": 1479,
+      "x": 32,
+      "y": 0,
+      "w": 30,
+      "h": 25,
+      "rgbaSHA256": "1f5d07eb2328c3083c2cf31f79bfe9abdf5cb829e66d0d8222298a34e9b3f0a9"
+    },
+    {
+      "source": 1480,
+      "x": 64,
+      "y": 0,
+      "w": 30,
+      "h": 25,
+      "rgbaSHA256": "d7f14ccdbb005ad81e135efcf6abb604c89d64a1ed1b8873c708e8ee242b2a2d"
+    },
+    {
+      "source": 1481,
+      "x": 96,
+      "y": 0,
+      "w": 30,
+      "h": 25,
+      "rgbaSHA256": "4249b0921fb4bd2736772a9ac6b0bd5975d80f1b6dd189e6d8b78f75289c0c30"
+    },
+    {
+      "source": 1482,
+      "x": 128,
+      "y": 0,
+      "w": 30,
+      "h": 25,
+      "rgbaSHA256": "6c004e20a115bff2d9ad1d9d370b9a466ac0fdbda7bc63152b12593febb7c6c4"
+    },
+    {
+      "source": 1483,
+      "x": 160,
+      "y": 0,
+      "w": 30,
+      "h": 25,
+      "rgbaSHA256": "479884894e87b1f725e1c8f93752774136ef28c570fb4e88d155da23219dcb97"
+    },
+    {
+      "source": 1484,
+      "x": 192,
+      "y": 0,
+      "w": 30,
+      "h": 25,
+      "rgbaSHA256": "421a7395e21267593dbe23c3316c314644c6a17b4cb7e3345e15c04686a52bd0"
+    },
+    {
+      "source": 1485,
+      "x": 224,
+      "y": 0,
+      "w": 30,
+      "h": 25,
+      "rgbaSHA256": "1c4c79536c2a4c37bd6aeb74fc81ccf43e6c484478c1390940c0a056b0fc5b2b"
+    },
+    {
+      "source": 1486,
+      "x": 256,
+      "y": 0,
+      "w": 30,
+      "h": 25,
+      "rgbaSHA256": "f469185913a6fe4b1926f3fa8d7b537b770a8d9cb6e98cd17e5d8b8e2635ea99"
+    },
+    {
+      "source": 1487,
+      "x": 288,
+      "y": 0,
+      "w": 30,
+      "h": 25,
+      "rgbaSHA256": "d9f20e19db0df4b2b47a7f058d3e22aeaebad4556189203a4b7f54da2285dfe5"
+    }
+  ],
+  "inputSHA256": {
+    "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+    "data/al0-c.dat": "afc46e78b56f901f1331ceb0b02052eeaba2b6446b8747a03d0f12639ae17310"
+  },
+  "pngSHA256": "85095d071e6132921cf9324759f305ec35f68f89bc103587c292083e04bf0220",
+  "executableSHA256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "renderer": "004673b0 Bloodlust-only HFX offset0x2e30, ten presentation frames"
+}
