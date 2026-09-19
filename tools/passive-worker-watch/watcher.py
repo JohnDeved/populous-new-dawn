@@ -294,6 +294,12 @@ def covered(error, finals):
     return bool(report and report['at'] >= error['at'])
 
 
+def overlaps_terminal(run, terminal_started, terminal_at):
+    if run.get('state') == 'running':
+        return run.get('lastAt', 0) >= terminal_started
+    return run.get('startedAt', 0) <= terminal_at < run.get('lastAt', 0)
+
+
 def _lifecycle_event_identity(event, now, age):
     if (not isinstance(event, dict) or event.get('type') not in
             {'run.started', 'run.goal', 'run.ended', 'run.interrupted'}
@@ -416,8 +422,7 @@ def _observe_lifecycle(state, snapshot, config, now):
         prior_terminal = state['lifecycleTerminal'].get(worker, 0)
         active_other = any(
             other_key != run_key and other.get('worker') == worker
-            and other.get('state') == 'running'
-            and other.get('lastAt', 0) >= run['startedAt']
+            and overlaps_terminal(other, run['startedAt'], event['at'])
             for other_key, other in state['lifecycleRuns'].items()
         )
         receipt = {**notice}
@@ -444,8 +449,8 @@ def _observe_lifecycle(state, snapshot, config, now):
     for key, notice in list(state['pending'].items()):
         if notice.get('kind') != 'lifecycle_completion':
             continue
-        if any(run.get('worker') == notice['worker'] and run.get('state') == 'running'
-               and run.get('lastAt', 0) >= notice['terminalStartedAt']
+        if any(run.get('worker') == notice['worker']
+               and overlaps_terminal(run, notice['terminalStartedAt'], notice['at'])
                for run in state['lifecycleRuns'].values()):
             del state['pending'][key]
             receipt = {**notice, 'disposition': 'pending-superseded-by-active-run'}

@@ -567,6 +567,31 @@ class EventStateTests(DatabaseCase):
         self.assertEqual(completions[0]['disposition'], 'superseded-by-active-run')
         self.assertEqual(state['pending'], {})
 
+    def test_two_overlapping_completions_in_one_poll_only_wake_latest_terminal(self):
+        self.add_lifecycle(number=2, started=NOW - 10, interrupted_at=NOW - 5,
+                           ended_state='completed', runtime='overlap-a',
+                           run_id='overlap-a-worker-2')
+        self.add_lifecycle(number=2, started=NOW - 8, interrupted_at=NOW - 1,
+                           ended_state='completed', runtime='overlap-b',
+                           run_id='overlap-b-worker-2')
+        state = self.state(now=NOW - 20)
+        incoming = watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        completions = [event for event in incoming
+                       if event.get('kind') == 'lifecycle_completion']
+        self.assertEqual(
+            [(event['runId'], event['disposition']) for event in completions],
+            [('overlap-a-worker-2', 'superseded-by-active-run'),
+             ('overlap-b-worker-2', 'pending-completion-notice')])
+        self.assertEqual(len(state['pending']), 1)
+        pending = next(iter(state['pending'].values()))
+        self.assertEqual(pending['runId'], 'overlap-b-worker-2')
+        calls = []
+        watcher.notify_pending(
+            state, CONFIG, NOW, lambda _: None,
+            lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(len(calls), 1)
+        self.assertIn('overlap-b-worker-2', calls[0])
+
     def test_reviewer_identity_poison_survives_worker_goal_and_restart(self):
         self.add_lifecycle(number=2, started=NOW - 10,
                            title='Reviewer2c exact-head review',

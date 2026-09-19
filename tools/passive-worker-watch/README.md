@@ -44,7 +44,8 @@ Three local evidence classes are accepted.
    `run.interrupted` summary “Runtime disconnected; no assistant completion was
    reported.” remains interruption evidence. A terminal wake is suppressed when
    another same-worker run has explicit lifecycle activity at or after the
-   terminating run began; an older orphan with no overlap activity does not block
+   terminating run began, or its explicit lifecycle interval extends past that
+   terminal timestamp; an older orphan with no overlap activity does not block
    later valid completion evidence. Per-worker terminal watermarks prevent delayed
    old terminal records
    from replaying after newer ones. `run.started`, a long-running run, silence,
