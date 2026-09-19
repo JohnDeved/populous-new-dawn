@@ -498,3 +498,80 @@ Analysis result SHA-256:
   exit 0; all eight checks. Input/log hashes are in the checks receipt.
 - Native and browser/pixel runs: not run in this continuation; native evidence is
   reused and the missing visual inputs are reported rather than invented.
+
+
+## Original triangle-arena producer — bounded continuation
+
+Research base: `08853d5d77a24dde8f947c48b9071301c64cb1ff` (PR115).
+PR125 remains separate at `3069ec92657b760ead091479d2953ccd22ddc228`;
+its browser acceptance and red-receipt bundles were not rerun or regenerated.
+This section records a **source-proved prerequisite**, not a successful new
+renderer reference or a production repair.
+
+The retained GetCaps/BL320 result already establishes native construction of
+`0x5d2570` and a successful texture-storage return through `0x487e30`.
+Its next fault is the null arena owner loaded from `0x5ce0bc` at `0x46a5fd`,
+then dereferenced by `0x47d8ac`. That earlier result remains unchanged:
+`work/orchestration/worker-3-training-entry/getcaps-binding/result.json`, SHA-256
+`e8acad5f33e19738f0818cf7592a4ef615b473a93e5a3bc91799ca4886b4be48`.
+The completed formation-aware 58-turn admission evidence above is also preserved.
+
+### Authentic owner and frame-initialization boundaries
+
+The following is decoded from the original executable, SHA-256
+`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`,
+using the existing read-only `native-unit-pool-static.py`; no new Ghidra export,
+function replacement, or native fixture recording was needed.
+
+| Original boundary | Source-proved operation |
+| --- | --- |
+| `0x4b5693..0x4b56a7` | Startup loads the existing D3D interface and calls complete `0x47c6e0`, which creates/configures the material at `0x59df74`. |
+| `0x4b56a7..0x4b5716` | Requests `0x248066` bytes through `0x55aca0`, executes the inlined constructor, and publishes its returned owner at `0x5ce0bc` with instruction `0x4b5711`. |
+| Constructor fields | Sets arena `+0x1e` to 8; clears six dwords at `+0x24803a..+0x24804e` and `+0x24805a`; sets `+0x248052` and `+0x248056` to `0x4000`. |
+| `0x52260d..0x522624` | Loads the UI device handle and the published arena, then calls complete `0x47c790` for the frame. |
+| `0x47c790` | Clears count `+0x1c` and previous count `+0x18`, sets cursor `+0x20002a` to owner `+0x2a`, binds the device at `+0x26`, sets `+0x248046` to 1, and executes three `0x460890` cache resets. |
+| `0x47d8a0` | Consumes that cursor, writes the triangle record/vtable and three vertices, advances the cursor by `0x80`, and increments the 16-bit command count. |
+
+Allocation alone therefore cannot replace frame initialization. Conversely,
+seeding the cursor/count as older isolated painter probes do would not establish
+the authentic producer requested here. `decomp/generated/0047d8a0.c` documents
+the triangle consumer; `0047c7e0.c` and `0047cc60.c` describe downstream batch
+preparation, not substitutes for the missing constructor/frame setup.
+
+The new ignored diagnostic imports the preserved GetCaps and render-producer
+functions unchanged. Its only additional allocation response supplies raw heap
+storage for the exact `0x4b56b1` return site/size. Original instructions, not host
+writes, are intended to publish the owner and initialize arena fields. The
+existing COM D3D/device handles are supplied at the documented native call
+boundaries; this does not execute a complete original UI/outer-loop startup.
+Any unsupported subsequent native or COM consumer must stop the proof.
+
+### Execution disposition: result inspection blocked
+
+Static preflight passed, including original opcode checks, live input hashes,
+unchanged inherited assertions and preservation of earlier artifacts. Preflight:
+`work/orchestration/worker-3-training-entry/triangle-arena/preflight.json`, SHA-256
+`5cecd0049c14ae5b53b55b5fb34816bba6d2c16702bb84c1103f5f48566e5ddc`.
+
+Exactly one serialized job was submitted:
+`a2bb8a3f-1ff5-4f9b-bd1e-e5b777a64f03`. Its queue waiter returned **terminal
+status failed**, exit 1, with 21,102 ms execution time. The subsequent Local Dev
+read of the result/log/terminal receipt was denied by the tool safety gate before
+inspection. That access was not retried through another reader and no second
+native execution was attempted. `triangle-arena/inspection-stop.json` preserves
+the observed queue disposition and access failure.
+
+**The new runtime outcome is not audited.** Neither successful arena construction,
+emitted triangle counts, a newly reached runtime leaf, nor native/browser pixels
+may be inferred from the prepared code or preflight. The exact immediate blocker
+is authorized access to the existing failed job's receipts. Inspect that result
+before deciding whether another native interface remains; do not repeat this job
+to recover its output.
+
+No browser production, admission, capacity, training or interpolation behavior
+was changed. There is no new multi-admission or visible-doorway conclusion. No
+browser/GPU, audio-acceptance, server or Ghidra run occurred in this continuation.
+The queue reached terminal failure; detailed child-exit/cleanup fields were not
+read and are not independently certified here. Research publication is limited
+to this appendix, with whitespace/source-scope checks; general TypeScript/build
+and gameplay suites are not relevant to the unchanged implementation.
