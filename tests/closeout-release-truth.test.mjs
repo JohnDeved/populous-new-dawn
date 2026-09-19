@@ -59,7 +59,7 @@ for (const option of ['--complete', '--review-ready']) {
       assert.equal(receipt.bundleReleased, null)
       assert.equal(receipt.releaseVerification, 'not-performed')
       assert.ok(receipt.reasons.includes('INDEPENDENT_RELEASE_NOT_VERIFIED'))
-      assert.equal(receipt.workerStatus, 'BLOCKED')
+      assert.equal(receipt.workerStatus, option === '--review-ready' ? 'NEEDS_REVIEW' : 'BLOCKED')
       assert.equal(receipt.sourceHead, f.head)
     } finally {
       rmSync(f.root, { recursive: true, force: true })
@@ -99,7 +99,7 @@ test('meaningful independent work can continue without a fabricated release clai
   }
 })
 
-test('optional denial cannot override the independent-acquisition dependency', () => {
+test('review-ready partial work stays review-ready while release remains unverified', () => {
   const f = fixture()
   try {
     const result = spawnSync(
@@ -121,7 +121,9 @@ test('optional denial cannot override the independent-acquisition dependency', (
     )
     assert.equal(result.status, 2)
     const receipt = JSON.parse(result.stdout)
-    assert.equal(receipt.workerStatus, 'BLOCKED')
+    assert.equal(receipt.workerStatus, 'NEEDS_REVIEW')
+    assert.equal(receipt.deniedOperation.workerStatus, 'NEEDS_REVIEW')
+    assert.equal(receipt.status, 'unverified')
     assert.equal(receipt.sourceReleased, null)
   } finally {
     rmSync(f.root, { recursive: true, force: true })

@@ -186,10 +186,12 @@ A stale active source path yields `PROJECT_STILL_BOUND`; a stale active bundle p
 yields `REVIEW_BUNDLE_STILL_BOUND`. A different path yields `unverified`, not a claim
 that the old Local Dev reservation disappeared.
 
-`--complete true`, `--review-ready true`, and an optional-denial classification do
-not override this dependency. Remaining independent authorized work may still be
-`IN_PROGRESS`; otherwise this helper reports `BLOCKED`. That status concerns the
-unverified released handoff, not a reversal of already-passed source/test results.
+`--complete true` does not override this dependency or produce `DONE`. Release
+verification and useful work readiness remain separate: meaningful authorized work
+is still `IN_PROGRESS`, and review-ready partial work remains `NEEDS_REVIEW` while
+release fields stay `null` and the CLI still exits 2. Otherwise the unresolved
+required handoff yields `BLOCKED`. A denial classification cannot turn release
+into a pass, but it must not erase legitimate partial-work readiness either.
 
 The required future success condition is a supported runtime relinquishment followed
 by a second independently identified client acquiring the same canonical project

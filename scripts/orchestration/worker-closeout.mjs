@@ -148,7 +148,7 @@ export function assessWorkerCloseout({
     workerStatus = classifyWorkerStatus({
       complete: complete && !requiredBlocked,
       meaningfulWorkRemaining,
-      reviewReady: reviewReady && !requiredBlocked,
+      reviewReady,
       requiredBlocked: requiredBlocked || denied?.workerStatus === 'BLOCKED',
     })
   return {
