@@ -58,8 +58,8 @@ claimed as reached control flow.
 | `0040c599`–`0040c5aa` | Zero has no allocation; positive subcapacity selects 75, capacity-or-more selects 74. |
 
 Local receipts reside in `work/orchestration/worker2-73-completion-evidence/`:
-`input-fingerprints.json`, `static-proof.json`, `proof-checks.json`, the task
-contract and final checks/outcome. The frozen PR114 source hashes are retained
+`input-fingerprints.json`, `static-proof.json`, `task-contract.json` and
+`outcome.json`. The frozen PR114 source hashes are retained
 there. The committed note contains the decisive addresses so its conclusion is
 not dependent solely on local files.
 
@@ -214,7 +214,7 @@ The readable occupancy owner already emits `updateIndicator` from both
 The [live entry adapter](../../app/live-building-entry.ts) currently consumes it
 by synchronizing `u.inside`/the person's building reference only.
 
-At frozen PR114, `scene-entities.ts::updateHutSmoke` creates a state once and then
+At frozen PR114, `scene-entities.ts::updateHutOccupancySmoke` creates a state once and then
 calls `stepHutOccupancySmoke`; that helper reconciles an existing state only when
 crossing a 32-count boundary. It does not compare/reconcile occupancy events on
 other visits. For example, an already-created empty smoke state at count 33 can
