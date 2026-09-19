@@ -32,6 +32,8 @@
     "orchestration:progress": "node scripts/orchestration/progress.mjs",
     "orchestration:verify": "node scripts/orchestration/verify.mjs",
     "orchestration:audit": "node scripts/orchestration/cli.mjs audit",
+    "orchestration:review-bundle": "node scripts/orchestration/review-bundle.mjs",
+    "orchestration:closeout": "node scripts/orchestration/worker-closeout.mjs",
     "build:cloudflare": "PND_CLOUDFLARE=1 npm run build",
     "deploy:cloudflare": "npm run build:cloudflare && wrangler deploy --config dist/server/wrangler.json",
     "preview:cloudflare": "npm run build:cloudflare && wrangler versions upload --config dist/server/wrangler.json"

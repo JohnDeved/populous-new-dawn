@@ -10,13 +10,14 @@
         "Manifest rejection",
         "Markdown provenance",
         "Git change routing",
-        "Contract audit"
+        "Contract audit",
+        "Worker closeout and review bundles"
       ],
       "knownLimits": [
         "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
       ],
       "executable": "node",
-      "args": ["--test", "tests/orchestration.test.mjs", "tests/delivery-clock.test.mjs"],
+      "args": ["--test", "tests/orchestration.test.mjs", "tests/delivery-clock.test.mjs", "tests/workflow-handoff.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [

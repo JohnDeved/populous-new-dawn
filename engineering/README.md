@@ -31,6 +31,8 @@ npm run orchestration:plan -- --base "$(git rev-parse HEAD)"
 npm run orchestration:prepare -- --spec work/orchestration/task-spec.json --task-id task --contract work/orchestration/task-contract.json
 npm run orchestration:verify -- --contract work/orchestration/task-contract.json
 npm run orchestration:audit -- --contract work/orchestration/task-contract.json
+npm run orchestration:review-bundle -- create --task-id task --base origin/main --output /absolute/review-bundle
+npm run orchestration:closeout -- --source-project /absolute/source --bundle-project /absolute/review-bundle --active-project /absolute/neutral --bundle-preflight open
 ```
 
 - `check` validates manifest shapes, duplicate/cross references, safe canonical
@@ -64,6 +66,13 @@ npm run orchestration:audit -- --contract work/orchestration/task-contract.json
   recorded baseline, reports both rename endpoints, detects prohibited/generated
   writes, verifies relevant input hashes, and invalidates stale verification
   fingerprints. It reports violations; it never reverts files.
+- `review-bundle` exports an exact committed diff plus source/receipt SHA-256 identities
+  to a non-overlapping directory that a reviewer can bind independently. Explicit
+  receipt inputs are bounded text files; secret-like inputs are rejected and local
+  source/home paths are redacted in copied receipts.
+- `closeout` verifies the Local Dev source and review-bundle bindings have both been
+  released after a reviewer-open preflight. The required binding-switch sequence and
+  worker-state rules live in `worker-handoff.md`.
 
 The default context budget is 24,000 UTF-8 bytes, or 12,000 for a role packet.
 Override either with `--budget N`.
@@ -142,8 +151,10 @@ Apply the progress-boundary stall checks and automatic local recovery in
    system path; injection and isolated helpers are not stopping conditions. The parent
    owns objective, non-goals, acceptance, risk, allowed/prohibited/generated paths,
    integration, and any later authorized ledger update.
-5. Keep one source writer. Use focused agents only for independent evidence gathering
-   or fresh review. Each assignment states a bounded question/deliverable, allowed
+5. Keep one source writer and, when practical, the same feature owner through
+   implementation, focused checker repair, evidence publication, branch/PR update,
+   and final handoff. Use focused agents only for independent evidence gathering or
+   fresh review. Each assignment states a bounded question/deliverable, allowed
    writes, evidence, and stop condition. Start new specialists without inherited
    thread history. Supply native, performance, and reviewer specialists one role
    packet from the implementation contract; they start with cited omissions and
@@ -156,12 +167,17 @@ Apply the progress-boundary stall checks and automatic local recovery in
    a missing native/browser asset. Any later relevant source/fixture/input change
    invalidates the receipt.
 8. Give a fresh reviewer the final diff, acceptance criteria, and receipts together.
-   Re-review substantive repairs and unresolved findings; receipt formatting alone
-   does not justify another review. If independent review is unavailable, do a
-   separate review pass and state that it was not independent.
-9. Audit the contract, report every check status honestly, and stop at the contract's
-   stopping condition for this slice. During authorized continued work, proceed to
-   the next useful task; contract completion does not require human steering.
+   Export a portable review bundle when the reviewer would otherwise depend on the
+   worker's ignored directory or source binding. Re-review substantive repairs and
+   unresolved findings; receipt formatting alone does not justify another review. If
+   independent review is unavailable, do a separate review pass and state that it was
+   not independent.
+9. Audit the contract and report every check status honestly. A denied operation blocks
+   only that operation: do not retry/circumvent it, and continue independent allowed
+   work. Use `BLOCKED` only when no meaningful scoped work or useful review-ready
+   partial remains; otherwise report `IN_PROGRESS` or `NEEDS_REVIEW`. Before the final
+   reply, perform the Local Dev binding release/verification checklist in
+   `worker-handoff.md`.
 
 Do not use cleanup as fallback work. A locked feature may cross files or subsystems.
 Permit at most one independently revertible behavior-neutral prerequisite refactor
