@@ -317,15 +317,20 @@ class EventStateTests(DatabaseCase):
         self.assertIsNone(run['number'])
         self.assertIsNone(run['worker'])
 
-    def test_reviewer_self_label_with_cross_worker_subject_maps_reviewer_only(self):
+    def test_reviewer2c_interruption_is_unknown_and_cannot_enqueue_worker2c(self):
         self.add_lifecycle(number=2, started=NOW - 4, interrupted_at=NOW - 1,
-                           title='Reviewer 2c watcher review',
-                           goal='Reviewer 2c exact-head review of Worker4c watcher repair')
+                           title='Reviewer2c watcher review',
+                           goal='Reviewer2c exact-head review of Worker4c watcher repair')
         state = self.state()
         watcher.observe(state, self.snapshot(), CONFIG, NOW)
-        event = next(iter(state['pending'].values()))
-        self.assertEqual(event['number'], 2)
-        self.assertEqual(event['worker'], records.WORKERS[2])
+        self.assertEqual(state['pending'], {})
+        run = state['lifecycleRuns']['fixture-runtime:11111111-1111-4111-8111-111111111111']
+        self.assertIsNone(run['number'])
+        self.assertIsNone(run['worker'])
+        calls = []
+        watcher.notify_pending(state, CONFIG, NOW, lambda _: None,
+                               lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(calls, [])
 
     def test_coordinator_final_covers_earlier_lifecycle_interruption(self):
         self.add_lifecycle(number=3, started=NOW - 5, interrupted_at=NOW - 2)

@@ -16,7 +16,8 @@ MAX_TAIL_BYTES = 8 * 1024 * 1024
 MAX_EVENT_BYTES = 256 * 1024
 MAX_EVENTS = 2048
 RUN_ID = re.compile(r'^[0-9a-zA-Z-]{1,80}$')
-ROLE = re.compile(r'^\s*(?:Worker|Reviewer)\s*([1-4])c\b', re.I)
+ROLE = re.compile(r'^\s*Worker\s+([1-4])c\b', re.I)
+REVIEWER = re.compile(r'^\s*Reviewer\s*([1-4])c\b', re.I)
 TYPES = {'run.started', 'run.goal', 'run.ended', 'run.interrupted'}
 INTERRUPTED_SUMMARY = 'Runtime disconnected; no assistant completion was reported.'
 
@@ -38,10 +39,11 @@ def timestamp(value):
 
 
 def role_number(*values):
+    strings = [value for value in values if isinstance(value, str)]
+    if any(REVIEWER.match(value) for value in strings):
+        return None
     found = []
-    for value in values:
-        if not isinstance(value, str):
-            continue
+    for value in strings:
         match = ROLE.match(value)
         if match:
             found.append(int(match[1]))
