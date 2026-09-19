@@ -64,7 +64,9 @@ async function ready(page) {
 }
 async function start(page, button = 'Mission 1') {
   await page.goto(process.env.POPULOUS_URL, { waitUntil: 'networkidle' })
-  await page.getByRole('button', { name: button, exact: true }).click()
+  // Use the shared browser-game keyboard route for the horizontally overflowing mission picker.
+  await page.getByRole('button', { name: button, exact: true }).focus()
+  await page.keyboard.press('Enter')
   await ready(page)
 }
 async function settings(page) {
