@@ -25,6 +25,8 @@ const HASH = /^[0-9a-f]{64}$/i
 const GIT_OID = /^[0-9a-f]{40,64}$/i
 const SECRET_ASSIGNMENT =
   /(?:^|[\s{,])["']?(?:authorization|api[_-]?key|client[_-]?secret|credential(?:s)?|password|passwd|private[_-]?key|access[_-]?token|refresh[_-]?token)["']?\s*[:=]/im
+const SECRET_KEY =
+  /^(?:authorization|api[_-]?key|client[_-]?secret|credential(?:s)?|password|passwd|private[_-]?key|access[_-]?token|refresh[_-]?token)$/i
 
 const sha256 = value => createHash('sha256').update(value).digest('hex')
 const git = (repo, args, options = {}) =>
@@ -150,16 +152,46 @@ function parseNameStatus(raw) {
   return records
 }
 
-function sourceAtHead(repo, head, path) {
-  try {
-    const value = git(repo, ['show', `${head}:${path}`], { encoding: 'buffer' })
-    return {
-      sha256: sha256(value),
-      blobOid: git(repo, ['rev-parse', `${head}:${path}`]).trim(),
-      bytes: value.length,
+function sourceAtHead(repo, head, path, status) {
+  if (/^D/.test(status)) return { state: 'deleted' }
+  const value = git(repo, ['show', `${head}:${path}`], { encoding: 'buffer' })
+  return {
+    state: 'present',
+    sha256: sha256(value),
+    blobOid: git(repo, ['rev-parse', `${head}:${path}`]).trim(),
+    bytes: value.length,
+  }
+}
+
+function assertNoSecretDecoded(value, label = 'receipt') {
+  if (typeof value === 'string') {
+    if (SECRET_ASSIGNMENT.test(value))
+      throw new Error(`receipt decoded payload contains secret-like field at ${label}`)
+    const trimmed = value.trim()
+    if (
+      (trimmed.startsWith('{') && trimmed.endsWith('}')) ||
+      (trimmed.startsWith('[') && trimmed.endsWith(']'))
+    ) {
+      try {
+        const decoded = JSON.parse(trimmed)
+        if (decoded !== value) assertNoSecretDecoded(decoded, `${label}.decoded`)
+      } catch (error) {
+        if (error instanceof SyntaxError) return
+        throw error
+      }
     }
-  } catch {
-    return { sha256: null, blobOid: null, bytes: 0 }
+    return
+  }
+  if (Array.isArray(value)) {
+    for (let index = 0; index < value.length; index++)
+      assertNoSecretDecoded(value[index], `${label}[${index}]`)
+    return
+  }
+  if (!value || typeof value !== 'object') return
+  for (const [key, item] of Object.entries(value)) {
+    if (SECRET_KEY.test(key))
+      throw new Error(`receipt decoded payload contains secret-like field at ${label}`)
+    assertNoSecretDecoded(item, `${label}.${key}`)
   }
 }
 
@@ -171,6 +203,11 @@ function redactReceipt(raw, repo) {
     !SECRET_ASSIGNMENT.test(text),
     'receipt contains a secret-like assignment; publish a bounded sanitized receipt instead'
   )
+  try {
+    assertNoSecretDecoded(JSON.parse(text))
+  } catch (error) {
+    if (!(error instanceof SyntaxError)) throw error
+  }
   const repository = canonicalPath(repo),
     requestedRepository = resolve(repo),
     home = homedir()
@@ -248,6 +285,17 @@ function expectedMap(entries, label) {
   return values
 }
 
+function expectedDeletionSet(entries = []) {
+  assert(Array.isArray(entries), 'expected deletions must be an array')
+  const values = new Set()
+  for (const value of entries) {
+    const path = safeIdentityPath(value, 'expected deletion path')
+    assert(!values.has(path), `duplicate expected deletion path: ${path}`)
+    values.add(path)
+  }
+  return values
+}
+
 function validateExpectedIdentity(manifest, expected) {
   assert(expected && typeof expected === 'object', 'trusted expected identity is required')
   assert(GIT_OID.test(expected.expectedHead ?? ''), 'trusted expected head is required')
@@ -264,18 +312,40 @@ function validateExpectedIdentity(manifest, expected) {
   )
 
   const expectedSources = expectedMap(expected.expectedSources, 'expected source'),
-    manifestSources = new Map()
+    expectedDeletions = expectedDeletionSet(expected.expectedDeletions),
+    manifestSources = new Map(),
+    manifestDeletions = new Set(),
+    manifestPaths = new Set()
+  for (const path of expectedSources.keys())
+    assert(!expectedDeletions.has(path), `source cannot be both present and deleted: ${path}`)
   assert(Array.isArray(manifest.sources), 'manifest sources must be an array')
   for (const source of manifest.sources) {
     const path = safeIdentityPath(source.path, 'manifest source path')
+    assert(!manifestPaths.has(path), `duplicate manifest source path: ${path}`)
+    manifestPaths.add(path)
+    if (source.state === 'deleted') {
+      assert(/^D/.test(source.status ?? ''), `deleted source status is invalid: ${path}`)
+      assert(!Object.hasOwn(source, 'sha256'), `deleted source must not carry sha256: ${path}`)
+      assert(!Object.hasOwn(source, 'blobOid'), `deleted source must not carry blobOid: ${path}`)
+      assert(!Object.hasOwn(source, 'bytes'), `deleted source must not carry bytes: ${path}`)
+      manifestDeletions.add(path)
+      continue
+    }
+    assert.equal(source.state, 'present', `manifest source state is invalid: ${path}`)
+    assert(!/^D/.test(source.status ?? ''), `present source cannot have deleted status: ${path}`)
     assert(HASH.test(source.sha256 ?? ''), `manifest source sha256 is invalid for ${path}`)
-    assert(!manifestSources.has(path), `duplicate manifest source path: ${path}`)
     manifestSources.set(path, source.sha256.toLowerCase())
   }
   assert.equal(manifestSources.size, expectedSources.size, 'bundle source identity count mismatch')
-  for (const [path, hash] of expectedSources) {
+  assert.equal(
+    manifestDeletions.size,
+    expectedDeletions.size,
+    'bundle deletion identity count mismatch'
+  )
+  for (const [path, hash] of expectedSources)
     assert.equal(manifestSources.get(path), hash, `bundle source identity mismatch: ${path}`)
-  }
+  for (const path of expectedDeletions)
+    assert(manifestDeletions.has(path), `bundle deletion identity mismatch: ${path}`)
 
   const expectedReceipts = expectedMap(expected.expectedReceipts ?? [], 'expected receipt'),
     manifestReceipts = new Map()
@@ -348,13 +418,14 @@ function parsePair(value, label) {
 }
 
 function parseArgs(args) {
-  const options = { expectedSource: [], expectedReceipt: [] }
+  const options = { expectedSource: [], expectedReceipt: [], expectedDeletion: [] }
   for (let index = 0; index < args.length; index++) {
     const flag = args[index]
     const value = args[++index]
     assert(flag && flag.startsWith('--') && value !== undefined && !value.startsWith('--'), 'invalid verifier argument')
     if (flag === '--expected-source') options.expectedSource.push(parsePair(value, 'expected source'))
     else if (flag === '--expected-receipt') options.expectedReceipt.push(parsePair(value, 'expected receipt'))
+    else if (flag === '--expected-deletion') options.expectedDeletion.push(safeRelative(value, 'expected deletion'))
     else if (flag === '--expected-head') options.expectedHead = value
     else if (flag === '--expected-diff-sha256') options.expectedDiffSha256 = value
     else throw new Error('unknown verifier option: ' + flag)
@@ -381,17 +452,37 @@ assert.equal(manifest.repository && manifest.repository.headOid, expected.expect
 assert.equal(manifest.diff && manifest.diff.sha256, expected.expectedDiffSha256.toLowerCase(), 'bundle diff identity mismatch')
 
 const expectedSources = mapEntries(expected.expectedSource, 'expected source')
+const expectedDeletions = new Set(expected.expectedDeletion)
+assert.equal(expectedDeletions.size, expected.expectedDeletion.length, 'duplicate expected deletion')
 const sources = new Map()
+const deletions = new Set()
+const sourcePaths = new Set()
+for (const path of expectedSources.keys())
+  assert(!expectedDeletions.has(path), 'source cannot be both present and deleted: ' + path)
 assert(Array.isArray(manifest.sources), 'manifest sources must be an array')
 for (const source of manifest.sources) {
   const path = safeRelative(source.path, 'manifest source path')
+  assert(!sourcePaths.has(path), 'duplicate manifest source: ' + path)
+  sourcePaths.add(path)
+  if (source.state === 'deleted') {
+    assert(/^D/.test(source.status || ''), 'invalid deleted source status: ' + path)
+    assert(!Object.hasOwn(source, 'sha256'), 'deleted source must not carry sha256: ' + path)
+    assert(!Object.hasOwn(source, 'blobOid'), 'deleted source must not carry blobOid: ' + path)
+    assert(!Object.hasOwn(source, 'bytes'), 'deleted source must not carry bytes: ' + path)
+    deletions.add(path)
+    continue
+  }
+  assert.equal(source.state, 'present', 'invalid manifest source state: ' + path)
+  assert(!/^D/.test(source.status || ''), 'present source cannot have deleted status: ' + path)
   assert(HASH.test(source.sha256 || ''), 'invalid manifest source sha256: ' + path)
-  assert(!sources.has(path), 'duplicate manifest source: ' + path)
   sources.set(path, source.sha256.toLowerCase())
 }
 assert.equal(sources.size, expectedSources.size, 'bundle source identity count mismatch')
+assert.equal(deletions.size, expectedDeletions.size, 'bundle deletion identity count mismatch')
 for (const [path, hash] of expectedSources)
   assert.equal(sources.get(path), hash, 'bundle source identity mismatch: ' + path)
+for (const path of expectedDeletions)
+  assert(deletions.has(path), 'bundle deletion identity mismatch: ' + path)
 
 const expectedReceipts = mapEntries(expected.expectedReceipt, 'expected receipt')
 const receiptSources = new Map()
@@ -419,7 +510,7 @@ for (const receipt of manifest.receipts) {
 console.log(JSON.stringify({
   status: 'passed',
   headOid: expected.expectedHead,
-  sources: sources.size,
+  sources: sources.size + deletions.size,
   receipts: receiptSources.size,
   diffSha256: expected.expectedDiffSha256.toLowerCase(),
 }, null, 2))
@@ -436,7 +527,8 @@ through an independent Local Dev project binding.
    diff SHA-256 from a trusted source/PR handoff — never from this bundle's manifest.
 2. Open this directory with Local Dev \`project_open\`.
 3. Run \`node verify.mjs --expected-head <HEAD> --expected-diff-sha256 <SHA>\`
-   plus one \`--expected-source path=sha256\` for every changed source and one
+   plus one \`--expected-source path=sha256\` for every present changed source,
+   one \`--expected-deletion path\` for every deleted tracked source, and one
    \`--expected-receipt path=sha256\` for every receipt.
 4. Review \`changes.patch\`, \`manifest.json\`, and the copied bounded receipts.
 5. If Local Dev reports \`PROJECT_IN_USE\` for this bundle, the worker closeout is incomplete.
@@ -473,7 +565,7 @@ export function buildReviewBundle(repo, { taskId, base, output, receipts = [] })
     }),
     sources = changes.map(change => ({
       ...change,
-      ...sourceAtHead(repo, headOid, change.path),
+      ...sourceAtHead(repo, headOid, change.path, change.status),
     })),
     preparedReceipts = collectReceipts(repo, receipts),
     receiptEntries = preparedReceipts.map(({ sourcePath, raw, data, redactions, bundlePath }) => ({
@@ -542,7 +634,7 @@ export function verifyReviewBundle(bundle, expected) {
   return {
     status: 'passed',
     headOid: expected.expectedHead,
-    sources: expected.expectedSources.length,
+    sources: expected.expectedSources.length + (expected.expectedDeletions ?? []).length,
     receipts: (expected.expectedReceipts ?? []).length,
     diffSha256: expected.expectedDiffSha256.toLowerCase(),
   }
@@ -558,14 +650,20 @@ function parsePair(value, label) {
 }
 
 function parseArgs(args) {
-  const options = { receipt: [], 'expected-source': [], 'expected-receipt': [] }
+  const options = {
+    receipt: [],
+    'expected-source': [],
+    'expected-receipt': [],
+    'expected-deletion': [],
+  }
   for (let index = 0; index < args.length; index++) {
     const flag = args[index]
     assert(flag.startsWith('--'), `unexpected argument: ${flag}`)
     const key = flag.slice(2),
       value = args[++index]
     assert(value !== undefined && !value.startsWith('--'), `missing value for ${flag}`)
-    if (['receipt', 'expected-source', 'expected-receipt'].includes(key)) options[key].push(value)
+    if (['receipt', 'expected-source', 'expected-receipt', 'expected-deletion'].includes(key))
+      options[key].push(value)
     else {
       assert(!Object.hasOwn(options, key), `duplicate option: ${flag}`)
       options[key] = value
@@ -580,13 +678,21 @@ function main() {
   if (command === 'create') {
     for (const key of Object.keys(options))
       assert(
-        ['receipt', 'expected-source', 'expected-receipt', 'task-id', 'base', 'output'].includes(
-          key
-        ),
+        [
+          'receipt',
+          'expected-source',
+          'expected-receipt',
+          'expected-deletion',
+          'task-id',
+          'base',
+          'output',
+        ].includes(key),
         `unknown create option: --${key}`
       )
     assert(
-      !options['expected-source'].length && !options['expected-receipt'].length,
+      !options['expected-source'].length &&
+        !options['expected-receipt'].length &&
+        !options['expected-deletion'].length,
       'create does not accept expected identities'
     )
     assert(options['task-id'], 'create requires --task-id')
@@ -608,6 +714,7 @@ function main() {
           'receipt',
           'expected-source',
           'expected-receipt',
+          'expected-deletion',
           'bundle',
           'expected-head',
           'expected-diff-sha256',
@@ -620,6 +727,7 @@ function main() {
       expectedHead: options['expected-head'],
       expectedDiffSha256: options['expected-diff-sha256'],
       expectedSources: options['expected-source'].map(value => parsePair(value, 'expected source')),
+      expectedDeletions: options['expected-deletion'],
       expectedReceipts: options['expected-receipt'].map(value =>
         parsePair(value, 'expected receipt')
       ),

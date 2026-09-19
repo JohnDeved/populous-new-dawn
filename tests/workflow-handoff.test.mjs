@@ -59,6 +59,24 @@ function fixture() {
   return { root, repo, bundle, neutral, base }
 }
 
+function deletionFixture() {
+  const root = mkdtempSync(join(tmpdir(), 'pnd-handoff-delete-')),
+    repo = join(root, 'repo'),
+    bundle = join(root, 'review-bundle')
+  mkdirSync(repo)
+  writeFileSync(join(repo, '.gitignore'), 'work/\n')
+  writeFileSync(join(repo, 'deleted.txt'), 'delete-me\n')
+  run(repo, 'git', 'init', '-q')
+  run(repo, 'git', 'config', 'user.email', 'fixture@example.com')
+  run(repo, 'git', 'config', 'user.name', 'Fixture')
+  run(repo, 'git', 'add', '.')
+  run(repo, 'git', 'commit', '-qm', 'base')
+  const base = run(repo, 'git', 'rev-parse', 'HEAD')
+  run(repo, 'git', 'rm', '-q', 'deleted.txt')
+  run(repo, 'git', 'commit', '-qm', 'delete source')
+  return { root, repo, bundle, base }
+}
+
 function expectedIdentity(repo, base) {
   const head = run(repo, 'git', 'rev-parse', 'HEAD'),
     content = readFileSync(join(repo, 'source.txt')),
@@ -230,6 +248,150 @@ test('review bundle rejects quoted secret fields and environment-secret files at
     })
     assert.equal(retry.status, 'passed')
     assert.equal(existsSync(join(bundle, 'changes.patch')), true)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('decoded command-receipt stdout and stderr reject escaped secret JSON without exposing values', () => {
+  const { root, repo, base } = fixture()
+  try {
+    const receiptPath = 'work/orchestration/task/receipt.json',
+      receipt = join(repo, receiptPath),
+      hidden = 'SYNTHETIC_DO_NOT_ECHO_48319'
+    for (const stream of ['stdout', 'stderr']) {
+      const envelope = {
+        version: 1,
+        kind: 'pnd-command-receipt',
+        source: { headOid: run(repo, 'git', 'rev-parse', 'HEAD'), branch: 'fixture' },
+        command: ['node', 'fixture'],
+        cwd: repo,
+        exitCode: 0,
+        stdout: '',
+        stderr: '',
+      }
+      envelope[stream] =
+        stream === 'stdout'
+          ? JSON.stringify({ password: hidden })
+          : JSON.stringify({ credential: hidden })
+      writeFileSync(receipt, JSON.stringify(envelope, null, 2) + '\n')
+      const output = join(root, `secret-${stream}-bundle`)
+      let failure
+      try {
+        buildReviewBundle(repo, {
+          taskId: `decoded-${stream}-secret`,
+          base,
+          output,
+          receipts: [receiptPath],
+        })
+      } catch (error) {
+        failure = error
+      }
+      assert(failure, `decoded ${stream} secret must be rejected`)
+      assert.match(failure.message, /decoded|secret-like/i)
+      assert.equal(failure.message.includes(hidden), false)
+      assert.equal(existsSync(output), false)
+    }
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('tracked deletion has an explicit expected deletion identity and rejects tamper or omission', () => {
+  const { root, repo, bundle, base } = deletionFixture()
+  try {
+    const result = buildReviewBundle(repo, {
+      taskId: 'deletion-identity',
+      base,
+      output: bundle,
+    })
+    assert.equal(result.manifest.sources.length, 1)
+    assert.deepEqual(result.manifest.sources[0], {
+      status: 'D',
+      path: 'deleted.txt',
+      state: 'deleted',
+    })
+    const head = run(repo, 'git', 'rev-parse', 'HEAD'),
+      diff = execFileSync('git', ['diff', '--binary', `${base}..${head}`, '--'], { cwd: repo }),
+      expected = {
+        expectedHead: head,
+        expectedDiffSha256: sha(diff),
+        expectedSources: [],
+        expectedDeletions: ['deleted.txt'],
+        expectedReceipts: [],
+      },
+      manifestPath = join(bundle, 'manifest.json'),
+      original = JSON.parse(readFileSync(manifestPath, 'utf8'))
+
+    assert.equal(verifyReviewBundle(bundle, expected).status, 'passed')
+    const standalone = JSON.parse(
+      execFileSync(
+        process.execPath,
+        [
+          'verify.mjs',
+          '--expected-head',
+          head,
+          '--expected-diff-sha256',
+          expected.expectedDiffSha256,
+          '--expected-deletion',
+          'deleted.txt',
+        ],
+        { cwd: bundle, encoding: 'utf8' }
+      )
+    )
+    assert.equal(standalone.status, 'passed')
+
+    const tampered = structuredClone(original)
+    tampered.sources[0] = {
+      status: 'D',
+      path: 'deleted.txt',
+      state: 'present',
+      sha256: 'a'.repeat(64),
+    }
+    writeFileSync(manifestPath, JSON.stringify(tampered, null, 2) + '\n')
+    assert.throws(
+      () => verifyReviewBundle(bundle, expected),
+      /deletion|deleted status|source identity/i
+    )
+    assert.throws(
+      () =>
+        execFileSync(
+          process.execPath,
+          [
+            'verify.mjs',
+            '--expected-head',
+            head,
+            '--expected-diff-sha256',
+            expected.expectedDiffSha256,
+            '--expected-deletion',
+            'deleted.txt',
+          ],
+          { cwd: bundle, encoding: 'utf8', stdio: 'pipe' }
+        ),
+      /Command failed/
+    )
+
+    const missing = structuredClone(original)
+    missing.sources = []
+    writeFileSync(manifestPath, JSON.stringify(missing, null, 2) + '\n')
+    assert.throws(() => verifyReviewBundle(bundle, expected), /count|deletion|source identity/i)
+    assert.throws(
+      () =>
+        execFileSync(
+          process.execPath,
+          [
+            'verify.mjs',
+            '--expected-head',
+            head,
+            '--expected-diff-sha256',
+            expected.expectedDiffSha256,
+            '--expected-deletion',
+            'deleted.txt',
+          ],
+          { cwd: bundle, encoding: 'utf8', stdio: 'pipe' }
+        ),
+      /Command failed/
+    )
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
