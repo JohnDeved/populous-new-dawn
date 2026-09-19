@@ -43,6 +43,7 @@ async function audioState(page) {
             musicVolume: value.musicVolume,
             enabled: value.enabled,
             context: value.context?.state ?? null,
+            audioTime: value.context?.currentTime ?? null,
             masterGain: value.master?.gain.value ?? null,
             musicGain: value.music?.gain.gain.value ?? null,
             musicPaused: value.music?.element.paused ?? null,
@@ -95,16 +96,36 @@ async function assertValues(page, master, music, label) {
     ) < 1e-8
   )
   const actual = await audioState(page)
+  report.checks.push({ label, actual })
+  save()
   assert.ok(Math.abs(actual.volume - master) < 1e-8)
   assert.ok(Math.abs(actual.musicVolume - music) < 1e-8)
-  if (actual.enabled) {
+  // Scheduled AudioParam changes become observable when audio render quanta resume.
+  // Both gains are required again by playbackGains through a real Continue gesture.
+  if (actual.enabled && actual.context === 'running') {
     assert.ok(Math.abs(actual.masterGain - master) < 1e-6)
     assert.ok(Math.abs(actual.musicGain - music) < 1e-6)
   }
-  report.checks.push({ label, actual })
-  save()
   return actual
 }
+async function playbackGains(page, master, music, label) {
+  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await expect
+    .poll(async () => {
+      const audio = await audioState(page)
+      return (
+        audio.enabled &&
+        audio.context === 'running' &&
+        Math.abs(audio.masterGain - master) < 1e-6 &&
+        Math.abs(audio.musicGain - music) < 1e-6
+      )
+    })
+    .toBe(true)
+  const actual = await assertValues(page, master, music, label)
+  assert.equal(actual.context, 'running')
+  await settings(page)
+}
+
 async function gameplay(page) {
   return page.evaluate(() => {
     const w = window.testStore.getWorld()
@@ -170,12 +191,11 @@ try {
   assert.equal(enabled.enabled, true)
   assert.ok(enabled.buffers > 30)
   assert.equal(enabled.context, 'suspended', 'Settings dialog preserves audio pause')
-  await page.getByRole('button', { name: 'Close menu', exact: true }).click()
-  await expect.poll(async () => (await audioState(page)).context).toBe('running')
-  await settings(page)
+  await playbackGains(page, 0.2, 0.4, 'running-real-audio-gains')
   await volume(page, 'Master volume', 0)
   await volume(page, 'Music volume', 0.75)
   await assertValues(page, 0, 0.75, 'zero-master-retained')
+  await playbackGains(page, 0, 0.75, 'running-zero-master-gains')
   await page.screenshot({ path: join(output, 'saved-volume-controls.png') })
 
   report.stage = 'checkpoint-and-restart'
@@ -185,10 +205,12 @@ try {
   await ready(page)
   await settings(page)
   await assertValues(page, 0, 0.75, 'ordinary-restart')
+  await playbackGains(page, 0, 0.75, 'running-restart-gains')
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
   await ready(page)
   await settings(page)
   await assertValues(page, 0, 0.75, 'ordinary-checkpoint-load')
+  await playbackGains(page, 0, 0.75, 'running-checkpoint-gains')
 
   report.stage = 'fresh-page-and-mission'
   await page.close()
