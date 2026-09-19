@@ -134,13 +134,14 @@ def new_state(config, root, now):
             'events': [], 'pending': {}, 'attempts': [], 'nextNotifyAt': 0,
             'notificationFailures': 0, 'outputBlocked': False,
             'readerFailures': 0, 'nextReadAt': 0, 'observations': 0, 'lastObservationAt': 0,
-            'lifecycleSeen': {}, 'lifecycleRuns': {}}
+            'lifecycleSeen': {}, 'lifecycleRuns': {}, 'lifecycleTerminal': {}}
 
 
 def validate_event(event, key, kind):
     """Validate every field used after loading; malformed intent must be quarantined."""
     prefixes = {'final_report': 'final:', 'local_error': 'error:',
-                'lifecycle_interruption': 'interrupt:'}
+                'lifecycle_interruption': 'interrupt:',
+                'lifecycle_completion': 'completion:'}
     prefix = prefixes.get(kind)
     if (prefix is None or not isinstance(event, dict)
             or not isinstance(key, str) or not re.fullmatch(re.escape(prefix) + r'[0-9a-f]{64}', key)
@@ -158,14 +159,16 @@ def validate_event(event, key, kind):
         if (event.get('source') != 'thread_turns' or event.get('alreadyAddressedToCoordinator') is not False
                 or not record_key.startswith(expected) or len(record_key) == len(expected)):
             raise ValueError('Invalid persisted pending-error fields')
-    elif kind == 'lifecycle_interruption':
+    elif kind in {'lifecycle_interruption', 'lifecycle_completion'}:
+        allowed = ({'INTERRUPTED'} if kind == 'lifecycle_interruption'
+                   else {'COMPLETED', 'FAILED', 'CANCELLED'})
         if (event.get('source') != 'localdev_activity'
                 or event.get('alreadyAddressedToCoordinator') is not False
-                or event.get('reportedState') != 'INTERRUPTED'
+                or event.get('reportedState') not in allowed
                 or event.get('attribution') != 'localdev-role-self-report'
                 or not isinstance(event.get('runId'), str) or not event['runId'] or len(event['runId']) > 80
                 or not record_key.startswith('activity:') or len(record_key) <= len('activity:')):
-            raise ValueError('Invalid persisted lifecycle-interruption fields')
+            raise ValueError('Invalid persisted lifecycle terminal fields')
     elif (event.get('alreadyAddressedToCoordinator') is not True
           or event.get('source') not in {'queued_items', 'thread_items', 'thread_realtime_items'}
           or event.get('reportedState') not in records.FINAL_STATES
@@ -201,7 +204,9 @@ def load_state(path, config, root, now):
         expected = new_state(config, root, now)
         if any(state.get(k) != expected[k] for k in ('version', 'mode', 'configuration', 'dataRoot')):
             raise ValueError('Incompatible or legacy watcher state')
-        for key in ('seen', 'latestFinal', 'pending', 'lifecycleSeen', 'lifecycleRuns'):
+        state.setdefault('lifecycleTerminal', {})
+        for key in ('seen', 'latestFinal', 'pending', 'lifecycleSeen', 'lifecycleRuns',
+                    'lifecycleTerminal'):
             if not isinstance(state.get(key), dict):
                 raise ValueError('Invalid event map')
         for key in ('events', 'attempts'):
@@ -218,6 +223,10 @@ def load_state(path, config, root, now):
         if any(type(at) not in (int, float) or not records.math.isfinite(at)
                for mapping in (state['seen'], state['lifecycleSeen']) for at in mapping.values()):
             raise ValueError('Invalid seen-event timestamp')
+        if any(worker not in records.WORKERS.values()
+               or records.timestamp(at) is None
+               for worker, at in state['lifecycleTerminal'].items()):
+            raise ValueError('Invalid lifecycle terminal watermark')
         if (len(state['seen']) > 2048 or len(state['lifecycleSeen']) > 4096
                 or len(state['lifecycleRuns']) > 256
                 or len(state['attempts']) > 64 or len(state['events']) > 128):
@@ -310,6 +319,7 @@ def _observe_lifecycle(state, snapshot, config, now):
         key: run for key, run in state['lifecycleRuns'].items()
         if run['state'] == 'running' or 0 <= now - run['lastAt'] <= age * 2
     }
+    terminal = []
     incoming = []
     for event in sorted(events, key=lambda item: (item.get('at', 0), item.get('runtimeId', ''),
                                                   item.get('sequence', 0))):
@@ -342,7 +352,7 @@ def _observe_lifecycle(state, snapshot, config, now):
                 if run.get('number') in (None, number):
                     run['number'], run['worker'] = number, records.WORKERS[number]
                 else:
-                    # Conflicting self-labels make the run unidentifiable, not a stall claim.
+                    # Conflicting self-labels make the run unidentifiable, not a completion claim.
                     run['number'], run['worker'] = None, None
             continue
         if run is None or run['state'] != 'running':
@@ -350,32 +360,68 @@ def _observe_lifecycle(state, snapshot, config, now):
         run['lastAt'] = max(run['lastAt'], event['at'])
         if event['type'] == 'run.ended':
             run['state'] = event.get('state')
-            continue
-        run['state'] = 'interrupted'
+            terminal.append((run_key, dict(run), event, 'lifecycle_completion'))
+        else:
+            run['state'] = 'interrupted'
+            terminal.append((run_key, dict(run), event, 'lifecycle_interruption'))
+
+    # Decide terminal wakes only after the complete lifecycle batch is known. This
+    # prevents an older completion from claiming availability while another managed
+    # run for the same worker is already active in the same observed window.
+    for run_key, run, event, kind in terminal:
         number, worker = run.get('number'), run.get('worker')
-        if number is None or worker is None or event['at'] <= state['startedAt']:
+        if number is None or worker is None:
             continue
-        interruption = {
-            'key': 'interrupt:' + records.digest(run_key + ':' + str(event['at'])),
-            'recordKey': 'activity:' + run_key,
-            'worker': worker, 'number': number, 'kind': 'lifecycle_interruption',
-            'reportedState': 'INTERRUPTED', 'at': event['at'], 'source': 'localdev_activity',
-            'attribution': 'localdev-role-self-report',
-            'alreadyAddressedToCoordinator': False, 'runId': event['runId'],
-        }
-        if interruption['key'] in state['seen']:
+        reported = 'INTERRUPTED' if kind == 'lifecycle_interruption' else str(event.get('state', '')).upper()
+        prefix = 'interrupt:' if kind == 'lifecycle_interruption' else 'completion:'
+        key = prefix + records.digest(run_key + ':' + reported + ':' + str(event['at']))
+        if key in state['seen']:
             continue
         if len(state['seen']) >= 2048:
             raise records.EvidenceUnavailable('Event deduplication capacity exceeded')
-        state['seen'][interruption['key']] = now
-        receipt = {**interruption}
-        if covered(interruption, state['latestFinal']):
+        state['seen'][key] = now
+        notice = {
+            'key': key, 'recordKey': 'activity:' + run_key,
+            'worker': worker, 'number': number, 'kind': kind,
+            'reportedState': reported, 'at': event['at'], 'source': 'localdev_activity',
+            'attribution': 'localdev-role-self-report',
+            'alreadyAddressedToCoordinator': False, 'runId': event['runId'],
+        }
+        prior_terminal = state['lifecycleTerminal'].get(worker, 0)
+        active_other = any(
+            other_key != run_key and other.get('worker') == worker and other.get('state') == 'running'
+            for other_key, other in state['lifecycleRuns'].items()
+        )
+        receipt = {**notice}
+        if event['at'] <= state['startedAt']:
+            receipt['disposition'] = 'baseline-terminal'
+        elif event['at'] <= prior_terminal:
+            receipt['disposition'] = 'stale-terminal-suppressed'
+        elif active_other:
+            receipt['disposition'] = 'superseded-by-active-run'
+        elif covered(notice, state['latestFinal']):
             receipt['disposition'] = 'covered-by-final-report'
         else:
-            state['pending'][interruption['key']] = interruption
-            receipt['disposition'] = 'pending-interruption-notice'
+            state['pending'][key] = notice
+            receipt['disposition'] = ('pending-interruption-notice'
+                                      if kind == 'lifecycle_interruption'
+                                      else 'pending-completion-notice')
+        state['lifecycleTerminal'][worker] = max(prior_terminal, event['at'])
         state['events'] = (state['events'] + [receipt])[-128:]
         incoming.append(receipt)
+
+    # A completion may have been retained during notification backoff. If a later
+    # observation shows another same-worker managed run still running, consume the
+    # stale pending wake instead of sending it after the worker is active again.
+    for key, notice in list(state['pending'].items()):
+        if notice.get('kind') != 'lifecycle_completion':
+            continue
+        if any(run.get('worker') == notice['worker'] and run.get('state') == 'running'
+               for run in state['lifecycleRuns'].values()):
+            del state['pending'][key]
+            receipt = {**notice, 'disposition': 'pending-superseded-by-active-run'}
+            state['events'] = (state['events'] + [receipt])[-128:]
+            incoming.append(receipt)
     if len(state['lifecycleRuns']) > 256:
         raise records.EvidenceUnavailable('Lifecycle run capacity exceeded')
     return incoming
@@ -446,7 +492,7 @@ def notify_pending(state, config, now, persist, output=enqueue):
         return None
     eligible = [
         event for event in state['pending'].values()
-        if event['kind'] in {'local_error', 'lifecycle_interruption'}
+        if event['kind'] in {'local_error', 'lifecycle_interruption', 'lifecycle_completion'}
         and not event['alreadyAddressedToCoordinator']
         and 0 <= now - event['at'] <= config['eventMaxAgeSeconds']
         and not covered(event, state['latestFinal'])
@@ -459,14 +505,17 @@ def notify_pending(state, config, now, persist, output=enqueue):
         prefix = f"Worker {event['number']}c | chat_id={event['worker']}"
         if event['kind'] == 'local_error':
             parts.append(prefix + f" | recorded failed turn at {event['at']:.3f}")
-        else:
+        elif event['kind'] == 'lifecycle_interruption':
             parts.append(prefix + f" | Local Dev run {event['runId']} interrupted without assistant completion at {event['at']:.3f}")
+        else:
+            parts.append(prefix + f" | Local Dev run {event['runId']} ended {event['reportedState'].lower()} at {event['at']:.3f} | completion wake")
     message = 'Local worker watcher | LOCAL RECORD NOTICE | ' + '; '.join(parts)
     if len(eligible) > 16:
         message += f'; plus {len(eligible) - 16} additional explicit local records in the retained receipt'
-    message += ('. Explicit local lifecycle/error evidence only; interruption proves that run ended '
-                'without assistant completion. This does not assert idle, current availability, or '
-                'that no later run started. No task restarted.')
+    message += ('. Explicit local lifecycle/error evidence only. A completion wake proves only that '
+                'the attributed Local Dev run ended; the watcher suppresses it when another managed '
+                'run for that worker is active in the same observed lifecycle window. This does not '
+                'infer silent UI idle or future availability. No task restarted.')
     attempt = {'at': now, 'state': 'uncertain', 'keys': [e['key'] for e in eligible],
                'messageSha256': records.digest(message)}
     state['attempts'] = (state['attempts'] + [attempt])[-64:]

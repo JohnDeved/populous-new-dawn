@@ -161,6 +161,7 @@ def snapshot(root, now, max_age):
         'events': events,
         'claims': {
             'interruptedRun': 'explicit run.interrupted only',
+            'completedRun': 'explicit run.ended only',
             'idle': False,
             'runningMeansActive': False,
         },

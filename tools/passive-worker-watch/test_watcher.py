@@ -294,15 +294,27 @@ class EventStateTests(DatabaseCase):
         self.assertNotIn(' is idle', calls[0])
         self.assertFalse(state['capabilities']['idleStatus'])
 
-    def test_running_or_completed_lifecycle_never_creates_idle_or_notice(self):
+    def test_running_never_notifies_but_completed_run_wakes(self):
         self.add_lifecycle(number=2, started=NOW - 4)
         state = self.state()
         watcher.observe(state, self.snapshot(), CONFIG, NOW)
         self.assertEqual(state['pending'], {})
         self.add_lifecycle(number=2, started=NOW - 4, interrupted_at=NOW - 1,
                            ended_state='completed')
-        watcher.observe(state, self.snapshot(NOW), CONFIG, NOW)
-        self.assertEqual(state['pending'], {})
+        incoming = watcher.observe(state, self.snapshot(NOW), CONFIG, NOW)
+        completions = [event for event in incoming if event['kind'] == 'lifecycle_completion']
+        self.assertEqual(len(completions), 1)
+        self.assertEqual(completions[0]['reportedState'], 'COMPLETED')
+        self.assertEqual(set(state['pending']), {completions[0]['key']})
+        calls = []
+        watcher.notify_pending(state, CONFIG, NOW, lambda _: None,
+                               lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(len(calls), 1)
+        self.assertIn('Worker 2c', calls[0])
+        self.assertIn('ended completed', calls[0])
+        self.assertIn('completion wake', calls[0])
+        self.assertNotIn(' is idle', calls[0])
+        self.assertFalse(state['capabilities']['idleStatus'])
         self.assertEqual(state['lifecycleRuns']['fixture-runtime:11111111-1111-4111-8111-111111111111']['state'],
                          'completed')
 
@@ -342,6 +354,134 @@ class EventStateTests(DatabaseCase):
         self.assertEqual(event['number'], 4)
         self.assertEqual(event['worker'], records.WORKERS[4])
         self.assertEqual(event['kind'], 'lifecycle_interruption')
+
+    def test_each_worker_completion_wakes_exactly_once_across_restart(self):
+        state = self.state(now=NOW - 20)
+        calls = []
+        last = NOW
+        for number in range(1, 5):
+            at = NOW + number * 70
+            last = at
+            self.add_lifecycle(number=number, started=at - 4, interrupted_at=at - 1,
+                               ended_state='completed', runtime=f'worker-{number}',
+                               run_id=f'completion-{number}')
+            watcher.observe(state, self.snapshot(at), CONFIG, at)
+            watcher.notify_pending(
+                state, CONFIG, at, lambda _: None,
+                lambda text: calls.append(text) or {'confirmed': True})
+            self.assertEqual(sum(f'Worker {number}c' in text for text in calls), 1)
+        self.assertEqual(len(calls), 4)
+        path = self.root / 'completion-state.json'
+        watcher.atomic(path, state)
+        restarted = watcher.load_state(path, CONFIG, self.root, last + 10)
+        watcher.observe(restarted, self.snapshot(last + 10), CONFIG, last + 10)
+        watcher.notify_pending(
+            restarted, CONFIG, last + 70, lambda _: None,
+            lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(len(calls), 4)
+
+    def test_failed_localdev_run_wakes_as_explicit_error_completion(self):
+        self.add_lifecycle(number=2, started=NOW - 4, interrupted_at=NOW - 1,
+                           ended_state='failed', runtime='worker-failed',
+                           run_id='failed-worker-2')
+        state = self.state()
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        event = next(iter(state['pending'].values()))
+        self.assertEqual(event['kind'], 'lifecycle_completion')
+        self.assertEqual(event['reportedState'], 'FAILED')
+        calls = []
+        watcher.notify_pending(
+            state, CONFIG, NOW, lambda _: None,
+            lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(len(calls), 1)
+        self.assertIn('ended failed', calls[0])
+
+    def test_reviewer2c_completion_is_unknown_and_cannot_enqueue_worker2c(self):
+        self.add_lifecycle(number=2, started=NOW - 4, interrupted_at=NOW - 1,
+                           ended_state='completed',
+                           title='Reviewer2c exact-head review',
+                           goal='Reviewer 2c review of Worker4c repair',
+                           runtime='reviewer-complete', run_id='reviewer-2c-complete')
+        state = self.state()
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(state['pending'], {})
+        run = state['lifecycleRuns']['reviewer-complete:reviewer-2c-complete']
+        self.assertIsNone(run['number'])
+        self.assertIsNone(run['worker'])
+        calls = []
+        watcher.notify_pending(
+            state, CONFIG, NOW, lambda _: None,
+            lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(calls, [])
+
+    def test_newer_active_run_suppresses_older_completion_until_new_run_ends(self):
+        self.add_lifecycle(number=3, started=NOW - 6, interrupted_at=NOW - 2,
+                           ended_state='completed', runtime='older-run',
+                           run_id='older-worker-3')
+        self.add_lifecycle(number=3, started=NOW - 1, runtime='newer-run',
+                           run_id='newer-worker-3')
+        state = self.state(now=NOW - 10)
+        incoming = watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(state['pending'], {})
+        self.assertTrue(any(event.get('disposition') == 'superseded-by-active-run'
+                            for event in incoming))
+        calls = []
+        watcher.notify_pending(
+            state, CONFIG, NOW, lambda _: None,
+            lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(calls, [])
+        self.add_lifecycle(number=3, started=NOW - 1, interrupted_at=NOW + 1,
+                           ended_state='completed', runtime='newer-run',
+                           run_id='newer-worker-3')
+        watcher.observe(state, self.snapshot(NOW + 2), CONFIG, NOW + 2)
+        self.assertEqual(len(state['pending']), 1)
+        event = next(iter(state['pending'].values()))
+        self.assertEqual(event['runId'], 'newer-worker-3')
+
+    def test_delayed_older_completion_cannot_recreate_after_newer_notice(self):
+        self.add_lifecycle(number=4, started=NOW - 4, interrupted_at=NOW - 1,
+                           ended_state='completed', runtime='newest-terminal',
+                           run_id='newest-worker-4')
+        state = self.state(now=NOW - 10)
+        calls = []
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        watcher.notify_pending(
+            state, CONFIG, NOW, lambda _: None,
+            lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(len(calls), 1)
+        watermark = state['lifecycleTerminal'][records.WORKERS[4]]
+        self.add_lifecycle(number=4, started=NOW - 8, interrupted_at=NOW - 5,
+                           ended_state='completed', runtime='delayed-old-terminal',
+                           run_id='old-worker-4')
+        incoming = watcher.observe(state, self.snapshot(NOW + 10), CONFIG, NOW + 10)
+        self.assertEqual(state['pending'], {})
+        self.assertTrue(any(event.get('disposition') == 'stale-terminal-suppressed'
+                            for event in incoming))
+        self.assertEqual(state['lifecycleTerminal'][records.WORKERS[4]], watermark)
+        watcher.notify_pending(
+            state, CONFIG, NOW + 70, lambda _: None,
+            lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(len(calls), 1)
+
+    def test_pending_completion_is_cancelled_when_newer_run_starts_before_send(self):
+        self.add_lifecycle(number=1, started=NOW - 4, interrupted_at=NOW - 1,
+                           ended_state='completed', runtime='completed-before-backoff',
+                           run_id='completed-worker-1')
+        state = self.state(now=NOW - 10)
+        state['nextNotifyAt'] = NOW + 120
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(len(state['pending']), 1)
+        self.add_lifecycle(number=1, started=NOW + 1, runtime='active-after-complete',
+                           run_id='active-worker-1')
+        incoming = watcher.observe(state, self.snapshot(NOW + 2), CONFIG, NOW + 2)
+        self.assertEqual(state['pending'], {})
+        self.assertTrue(any(event.get('disposition') == 'pending-superseded-by-active-run'
+                            for event in incoming))
+        calls = []
+        watcher.notify_pending(
+            state, CONFIG, NOW + 121, lambda _: None,
+            lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(calls, [])
 
     def test_coordinator_final_covers_earlier_lifecycle_interruption(self):
         self.add_lifecycle(number=3, started=NOW - 5, interrupted_at=NOW - 2)
