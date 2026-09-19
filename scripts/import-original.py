@@ -1,11 +1,13 @@
 """Decode the supplied Populous assets; never execute the Windows installer.
-Usage: python3 scripts/import-original.py /path/to/extracted/game [--units-only | --vehicles-only | --training-huts-only]
+Usage: python3 scripts/import-original.py /path/to/extracted/game [--units-only | --vehicles-only | --training-huts-only | --hut-smoke-only]
 --units-only appends Shaman families to the existing unit atlas and writes only
 app/original-units.json, public/original/unit-layers.png and provenance.json.
 --vehicles-only appends original mesh143/144 to original-models.json and its
 provenance modelIds; it never regenerates the shared object atlas.
 --training-huts-only appends meshes 98/100/101/102/105 and provenance modelIds,
 retaining every existing model, texture and unrelated asset.
+--hut-smoke-only appends HFX1329-1344 and HFX1385-1400 after the existing
+effects atlas rows, preserving all existing pixels and metadata indices.
 Native layout evidence and remaining renderer differences: references/native-assets.md.
 Only Python's standard library is needed. Format/geometry checks run on every import.
 """
@@ -18,6 +20,42 @@ def png(path, width, height, pixels):
     assert len(pixels) == width * height * 4
     rows = b''.join(b'\0' + pixels[y*width*4:(y+1)*width*4] for y in range(height))
     path.write_bytes(b'\x89PNG\r\n\x1a\n' + chunk(b'IHDR', struct.pack('>IIBBBBB', width, height, 8, 6, 0, 0, 0)) + chunk(b'IDAT', zlib.compress(rows)) + chunk(b'IEND', b''))
+
+def read_owned_rgba_png(path):
+    """Read our generated filter-0 RGBA8 PNG without normalizing any pixels."""
+    data = path.read_bytes()
+    assert data[:8] == b'\x89PNG\r\n\x1a\n'
+    offset = 8
+    width = height = None
+    compressed = bytearray()
+    while offset < len(data):
+        size = struct.unpack_from('>I', data, offset)[0]
+        kind = data[offset + 4:offset + 8]
+        payload = data[offset + 8:offset + 8 + size]
+        assert zlib.crc32(kind + payload) & 0xffffffff == struct.unpack_from(
+            '>I', data, offset + 8 + size
+        )[0]
+        offset += 12 + size
+        if kind == b'IHDR':
+            width, height, depth, color, compression, filtering, interlace = struct.unpack(
+                '>IIBBBBB', payload
+            )
+            assert (depth, color, compression, filtering, interlace) == (8, 6, 0, 0, 0)
+        elif kind == b'IDAT':
+            compressed.extend(payload)
+        elif kind == b'IEND':
+            break
+    assert width is not None and height is not None
+    raw = zlib.decompress(bytes(compressed))
+    stride = width * 4
+    assert len(raw) == height * (stride + 1)
+    pixels = bytearray()
+    for y in range(height):
+        row = raw[y * (stride + 1):(y + 1) * (stride + 1)]
+        assert row[0] == 0, 'Owned effects atlas must retain filter-0 rows'
+        pixels.extend(row[1:])
+    return width, height, pixels
+
 
 def object_atlas(data, palette, alpha, alpha_tiles):
     """0x4b6e60/0x42fb30: selected object tiles use AL colors and nibble opacity."""
@@ -379,8 +417,97 @@ def append_training_hut_models(source, project):
     print('Appended original training-hut meshes 98, 100, 101, 102, 105; previous models and atlas retained.')
 
 
+def append_hut_smoke_effects(source, project):
+    """Append occupancy-smoke HFX rows without moving or rewriting existing atlas pixels."""
+    output = project / 'public/original'
+    effects_path = output / 'effects.png'
+    metadata_path = project / 'app/original-effects.json'
+    provenance = json.loads((output / 'provenance.json').read_text())
+    metadata = json.loads(metadata_path.read_text())
+    old_metadata = json.loads(metadata_path.read_text())
+
+    inputs = {}
+    for name in ('pal0-c.dat', 'al0-c.dat', 'hfx0-0.dat'):
+        relative = 'data/' + name
+        data = (source / relative).read_bytes()
+        if hashlib.sha256(data).hexdigest() != provenance['sha256'][relative]:
+            raise ValueError('Original hut-smoke input identity differs: ' + relative)
+        inputs[name] = data
+
+    if any(name in metadata['animations'] for name in ('hutSmokeFull', 'hutSmokePartial')):
+        raise ValueError('Hut occupancy smoke is already present in the effects metadata')
+
+    width, old_height, old_pixels = read_owned_rgba_png(effects_path)
+    if (width, old_height) != (metadata['width'], metadata['height']):
+        raise ValueError('Effects PNG dimensions differ from metadata')
+    cell, columns = 256, 8
+    if width != cell * columns or old_height % cell:
+        raise ValueError('Unexpected effects atlas geometry')
+
+    # Never fill unused cells in the existing final row: all old pixels, including
+    # transparent padding, are preserved exactly. New content begins on a new row.
+    first_index = (old_height // cell) * columns
+    additions = (
+        ('hutSmokeFull', 1329, 16),
+        ('hutSmokePartial', 1385, 16),
+    )
+    final_index = first_index + sum(count for _, _, count in additions)
+    new_height = ((final_index + columns - 1) // columns) * cell
+    pixels = bytearray(width * new_height * 4)
+    pixels[:len(old_pixels)] = old_pixels
+
+    palette = inputs['pal0-c.dat']
+    alpha = inputs['al0-c.dat']
+    fx_palette = b''.join(
+        palette[alpha[(value | 15) * 256] * 4:alpha[(value | 15) * 256] * 4 + 3]
+        + bytes([(value & 15) * 17])
+        for value in range(256)
+    )
+    effects = sprites(inputs['hfx0-0.dat'], fx_palette, alpha=True)
+    index = first_index
+    for name, start, count in additions:
+        entries = []
+        for source in range(start, start + count):
+            w, h, data = effects[source]
+            assert w <= cell and h <= cell
+            x = (index % columns) * cell
+            y = (index // columns) * cell
+            for row in range(h):
+                begin = ((y + row) * width + x) * 4
+                pixels[begin:begin + w * 4] = data[row * w * 4:(row + 1) * w * 4]
+            entries.append({'index': index, 'w': w, 'h': h, 'source': source})
+            index += 1
+        metadata['animations'][name] = entries
+
+    metadata['height'] = new_height
+    # Existing metadata values and indices are immutable in this append-only mode.
+    for key, value in old_metadata.items():
+        if key == 'height':
+            continue
+        if key == 'animations':
+            for name, sequence in value.items():
+                assert metadata['animations'][name] == sequence
+        else:
+            assert metadata[key] == value
+
+    png(effects_path, width, new_height, pixels)
+    metadata_path.write_text(json.dumps(metadata, separators=(',', ':')))
+    check_width, check_height, check_pixels = read_owned_rgba_png(effects_path)
+    assert (check_width, check_height) == (width, new_height)
+    assert check_pixels[:len(old_pixels)] == old_pixels
+    print(
+        f'Appended original hut occupancy smoke HFX1329-1344/HFX1385-1400 at '
+        f'atlas indices {first_index}-{index - 1}; preserved {width}x{old_height} existing pixels.'
+    )
+
+
 def main():
     source = Path(sys.argv[1]); project = Path(__file__).resolve().parents[1]
+    if '--hut-smoke-only' in sys.argv[2:]:
+        if sys.argv[2:] != ['--hut-smoke-only']:
+            raise ValueError('Usage: import-original.py GAME_ROOT --hut-smoke-only')
+        append_hut_smoke_effects(source, project)
+        return
     if '--training-huts-only' in sys.argv[2:]:
         if sys.argv[2:] != ['--training-huts-only']:
             raise ValueError('Usage: import-original.py GAME_ROOT --training-huts-only')
