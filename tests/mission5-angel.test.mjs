@@ -5,6 +5,32 @@ import { migrateCheckpoint } from '../app/game-store.ts'
 import { syncLivePersonCells } from '../app/live-people.ts'
 import { worshipPositions } from '../app/worship.ts'
 
+function preservedAngelState(world, angel) {
+  return {
+    id: angel.id,
+    x: angel.x,
+    z: angel.z,
+    range: angel.range,
+    angle: angel.angle,
+    kind: angel.kind,
+    name: angel.name,
+    target: structuredClone(angel.angelTarget),
+    reward: angel.reward,
+    rewards: structuredClone(angel.rewards),
+    rewardRecipient: angel.rewardRecipient,
+    rewardDelay: angel.rewardDelay,
+    work: angel.work,
+    followers: angel.followers,
+    remaining: angel.remaining,
+    uses: angel.uses,
+    active: angel.active,
+    progress: angel.progress,
+    duration: angel.duration,
+    randomState: world.randomState,
+    cosmeticRandom: structuredClone(world.cosmeticRandom),
+  }
+}
+
 test('Mission 5 Angel head delivers its linked hostile summon through live worship', () => {
   const world = createWorld(5),
     head = world.shrines.find(shrine => shrine.kind === 'angel'),
@@ -117,45 +143,49 @@ test('Mission 5 Angel head delivers its linked hostile summon through live worsh
   assert.ok(world.sounds.some(sound => sound.cue === 0xb2))
 })
 
-test('Mission 5 checkpoint migration upgrades only the persisted Angel presentation', () => {
+test('Mission 5 checkpoint migration upgrades an explicit mode-5 legacy Angel without changing gameplay state', () => {
   const world = createWorld(5),
     angel = world.shrines.find(shrine => shrine.kind === 'angel')
   angel.model = 45
   angel.work = 7
   angel.followers = 2
-  const before = {
-      x: angel.x,
-      z: angel.z,
-      target: structuredClone(angel.angelTarget),
-      work: angel.work,
-      followers: angel.followers,
-      remaining: angel.remaining,
-      uses: angel.uses,
-      active: angel.active,
-    },
-    randomState = world.randomState,
-    cosmeticRandom = structuredClone(world.cosmeticRandom)
+  angel.uses = 3
+  angel.reward = 'bridge'
+  angel.rewards = ['bridge', 'lightning']
+  angel.rewardRecipient = 2
+  angel.rewardDelay = 9
+  const before = preservedAngelState(world, angel)
 
   migrateCheckpoint(world)
   assert.equal(angel.mode, 5)
   assert.equal(angel.model, 157)
-  assert.deepEqual(
-    {
-      x: angel.x,
-      z: angel.z,
-      target: angel.angelTarget,
-      work: angel.work,
-      followers: angel.followers,
-      remaining: angel.remaining,
-      uses: angel.uses,
-      active: angel.active,
-    },
-    before
-  )
-  assert.equal(world.randomState, randomState)
-  assert.deepEqual(world.cosmeticRandom, cosmeticRandom)
+  assert.deepEqual(preservedAngelState(world, angel), before)
   migrateCheckpoint(world)
   assert.equal(angel.model, 157)
+  assert.deepEqual(preservedAngelState(world, angel), before)
+})
+
+test('Mission 5 checkpoint migration recovers an absent authored mode before upgrading the Angel model', () => {
+  const world = createWorld(5),
+    angel = world.shrines.find(shrine => shrine.kind === 'angel')
+  angel.model = 45
+  delete angel.mode
+  angel.work = 11
+  angel.followers = 4
+  angel.uses = 2
+  angel.reward = 'bridge'
+  angel.rewards = ['bridge', 'lightning']
+  angel.rewardRecipient = 1
+  angel.rewardDelay = 13
+  const before = preservedAngelState(world, angel)
+
+  migrateCheckpoint(world)
+  assert.equal(angel.mode, 5)
+  assert.equal(angel.model, 157)
+  assert.deepEqual(preservedAngelState(world, angel), before)
+  migrateCheckpoint(world)
+  assert.equal(angel.model, 157)
+  assert.deepEqual(preservedAngelState(world, angel), before)
 })
 
 test('Mission 5 checkpoint migration adds only the previously omitted Angel head', () => {
