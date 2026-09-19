@@ -38,6 +38,8 @@ class DatabaseCase(unittest.TestCase):
         self.temporary = tempfile.TemporaryDirectory()
         self.addCleanup(self.temporary.cleanup)
         self.root = Path(self.temporary.name)
+        self.activity = self.root / 'activity'
+        self.activity.mkdir()
         self.cache = {'electron-persisted-atom-state': {'chatgpt-sidebar-state-v1': {
             'redacted-scope': {'pinnedConversations': [
                 {'conversation': {'id': w['id'], 'title': w['title'], 'isTask': True,
@@ -66,7 +68,7 @@ class DatabaseCase(unittest.TestCase):
     def rows(self):
         return self.cache['electron-persisted-atom-state']['chatgpt-sidebar-state-v1']['redacted-scope']['pinnedConversations']
 
-    def add_final(self, text='Worker1 | #x | DONE', at=NOW - 1, ident='message-1', table='queued_items', thread=records.COORDINATOR, item_type='userMessage'):
+    def add_final(self, text='Worker1c | #x | DONE', at=NOW - 1, ident='message-1', table='queued_items', thread=records.COORDINATOR, item_type='userMessage'):
         name = 'queue_1.sqlite' if table == 'queued_items' else 'thread_history_1.sqlite'
         with sqlite3.connect(self.root / name) as connection:
             if table == 'queued_items':
@@ -82,8 +84,42 @@ class DatabaseCase(unittest.TestCase):
             connection.execute('INSERT INTO thread_turns VALUES(?,?,?,?,?,?,?)',
                                (worker, ident, status, at - 20, at, error, int(at)))
 
+    def add_lifecycle(self, number=1, started=NOW - 3, interrupted_at=None,
+                      ended_state=None, title=None, goal=None,
+                      runtime='fixture-runtime', run_id='11111111-1111-4111-8111-111111111111'):
+        title = title if title is not None else f'Worker {number}c fixture run'
+        goal = goal if goal is not None else f'Worker {number}c fixture lifecycle'
+        events = [
+            {'version': 1, 'runtimeId': runtime, 'sequence': 1, 'timestamp': iso(started),
+             'type': 'run.started', 'runId': run_id,
+             'detail': {'run': {'id': run_id, 'goal': goal, 'title': title,
+                                'origin': 'assistant', 'state': 'running',
+                                'startedAt': iso(started), 'contextScope': 'session',
+                                'backgroundProcessPolicy': 'cleanup',
+                                'steering': [], 'todos': []}}},
+            {'version': 1, 'runtimeId': runtime, 'sequence': 2, 'timestamp': iso(started + 0.1),
+             'type': 'run.goal', 'runId': run_id,
+             'detail': {'goal': goal, 'title': title, 'origin': 'assistant'}},
+        ]
+        if ended_state is not None:
+            at = interrupted_at if interrupted_at is not None else started + 1
+            events.append({'version': 1, 'runtimeId': runtime, 'sequence': 3,
+                           'timestamp': iso(at), 'type': 'run.ended', 'runId': run_id,
+                           'detail': {'state': ended_state, 'summary': 'fixture',
+                                      'endedAt': iso(at), 'source': 'assistant_report',
+                                      'backgroundProcesses': 0,
+                                      'backgroundProcessPolicy': 'cleanup'}})
+        elif interrupted_at is not None:
+            events.append({'version': 1, 'runtimeId': runtime, 'sequence': 3,
+                           'timestamp': iso(interrupted_at), 'type': 'run.interrupted',
+                           'runId': run_id,
+                           'detail': {'endedAt': iso(interrupted_at),
+                                      'summary': 'Runtime disconnected; no assistant completion was reported.'}})
+        (self.activity / (runtime + '.jsonl')).write_text(
+            ''.join(json.dumps(event) + '\n' for event in events))
+
     def snapshot(self, now=NOW):
-        return records.snapshot(self.root, CONFIG, now)
+        return records.snapshot(self.root, CONFIG, now, self.activity)
 
     def state(self, now=NOW - 5):
         return watcher.new_state(CONFIG, self.root, now)
@@ -139,12 +175,12 @@ class ReaderTests(DatabaseCase):
     def test_timestamp_floor_staleness_and_future_rejected(self):
         bindings = self.snapshot()['workers']
         for at in [NOW + 1, NOW - 901, NOW - 4000]:
-            self.assertIsNone(records.final_event(payload('Worker1 | #x | DONE'), 'x', at, bindings, NOW, 900, 'queued_items'))
+            self.assertIsNone(records.final_event(payload('Worker1c | #x | DONE'), 'x', at, bindings, NOW, 900, 'queued_items'))
         bindings[IDS[0]]['createdAt'] = NOW
-        self.assertIsNone(records.final_event(payload('Worker1 | #x | DONE'), 'x', NOW - 1, bindings, NOW, 900, 'queued_items'))
+        self.assertIsNone(records.final_event(payload('Worker1c | #x | DONE'), 'x', NOW - 1, bindings, NOW, 900, 'queued_items'))
 
     def test_correct_current_explicit_id_and_number_attribution(self):
-        self.add_final('Worker1 | chat_id=' + IDS[0] + ' | #x | DONE')
+        self.add_final('Worker1c | chat_id=' + IDS[0] + ' | #x | DONE')
         event = self.snapshot()['events'][0]
         self.assertEqual(event['attribution'], 'explicit-id-self-report')
         self.assertTrue(event['alreadyAddressedToCoordinator'])
@@ -152,7 +188,7 @@ class ReaderTests(DatabaseCase):
     def test_queue_realtime_history_copies_coalesce(self):
         for table in ['queued_items', 'thread_items', 'thread_realtime_items']:
             self.add_final(table=table)
-        self.add_final('Worker1  |  #x  | DONE', ident='copy-with-whitespace')
+        self.add_final('Worker1c  |  #x  | DONE', ident='copy-with-whitespace')
         # Exact copies and repeated whitespace coalesce across all local transports.
         value = self.snapshot()
         self.assertEqual(len(value['events']), 1)
@@ -161,13 +197,13 @@ class ReaderTests(DatabaseCase):
     def test_foreign_thread_assistant_quotes_and_bad_payload_ignored(self):
         self.add_final(thread='other-coordinator')
         self.add_final(table='thread_items', item_type='agentMessage')
-        self.add_final('intro\nWorker1 | #x | DONE', ident='quoted')
-        self.add_final('Worker1 | #x | DONE maybe', ident='not-final')
+        self.add_final('intro\nWorker1c | #x | DONE', ident='quoted')
+        self.add_final('Worker1c | #x | DONE maybe', ident='not-final')
         self.assertEqual(self.snapshot()['events'], [])
 
     def test_changed_report_is_new_but_body_not_retained(self):
-        self.add_final('Worker1 | #x | DONE\nHead: aaaa', ident='a')
-        self.add_final('Worker1 | #x | DONE\nHead: bbbb', ident='b')
+        self.add_final('Worker1c | #x | DONE\nHead: aaaa', ident='a')
+        self.add_final('Worker1c | #x | DONE\nHead: bbbb', ident='b')
         value = self.snapshot()
         self.assertEqual(len(value['events']), 2)
         self.assertNotIn('Head:', json.dumps(value))
@@ -226,7 +262,7 @@ class EventStateTests(DatabaseCase):
         self.assertEqual(state['events'][-1]['disposition'], 'baseline-or-unsupported')
 
     def test_finals_are_positive_reported_stop_but_already_notified(self):
-        self.add_final('Worker2b | #x | ERROR')
+        self.add_final('Worker2c | #x | ERROR')
         state = self.state()
         events = watcher.observe(state, self.snapshot(), CONFIG, NOW)
         self.assertEqual(events[0]['disposition'], 'covered-by-coordinator-handoff')
@@ -240,6 +276,70 @@ class EventStateTests(DatabaseCase):
             self.assertEqual(watcher.observe(state, self.snapshot(now), CONFIG, now), [])
         self.assertEqual(state['pending'], {})
         self.assertTrue(all(w['liveStatus'] == 'unknown' for w in state['workers'].values()))
+
+    def test_explicit_localdev_interruption_is_stall_evidence_not_idle(self):
+        self.add_lifecycle(number=1, started=NOW - 4, interrupted_at=NOW - 1)
+        state = self.state()
+        incoming = watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        interruptions = [event for event in incoming if event['kind'] == 'lifecycle_interruption']
+        self.assertEqual(len(interruptions), 1)
+        self.assertEqual(interruptions[0]['reportedState'], 'INTERRUPTED')
+        self.assertEqual(set(state['pending']), {interruptions[0]['key']})
+        calls = []
+        watcher.notify_pending(state, CONFIG, NOW, lambda _: None,
+                               lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(len(calls), 1)
+        self.assertIn('Worker 1c', calls[0])
+        self.assertIn('interrupted without assistant completion', calls[0])
+        self.assertNotIn(' is idle', calls[0])
+        self.assertFalse(state['capabilities']['idleStatus'])
+
+    def test_running_or_completed_lifecycle_never_creates_idle_or_notice(self):
+        self.add_lifecycle(number=2, started=NOW - 4)
+        state = self.state()
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(state['pending'], {})
+        self.add_lifecycle(number=2, started=NOW - 4, interrupted_at=NOW - 1,
+                           ended_state='completed')
+        watcher.observe(state, self.snapshot(NOW), CONFIG, NOW)
+        self.assertEqual(state['pending'], {})
+        self.assertEqual(state['lifecycleRuns']['fixture-runtime:11111111-1111-4111-8111-111111111111']['state'],
+                         'completed')
+
+    def test_conflicting_lifecycle_self_labels_fail_closed(self):
+        self.add_lifecycle(number=2, started=NOW - 4, interrupted_at=NOW - 1,
+                           title='Reviewer 2c fixture review',
+                           goal='Worker 4c conflicting fixture role')
+        state = self.state()
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(state['pending'], {})
+        run = state['lifecycleRuns']['fixture-runtime:11111111-1111-4111-8111-111111111111']
+        self.assertIsNone(run['number'])
+        self.assertIsNone(run['worker'])
+
+    def test_reviewer2c_interruption_is_unknown_and_cannot_enqueue_worker2c(self):
+        self.add_lifecycle(number=2, started=NOW - 4, interrupted_at=NOW - 1,
+                           title='Reviewer2c watcher review',
+                           goal='Reviewer2c exact-head review of Worker4c watcher repair')
+        state = self.state()
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(state['pending'], {})
+        run = state['lifecycleRuns']['fixture-runtime:11111111-1111-4111-8111-111111111111']
+        self.assertIsNone(run['number'])
+        self.assertIsNone(run['worker'])
+        calls = []
+        watcher.notify_pending(state, CONFIG, NOW, lambda _: None,
+                               lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(calls, [])
+
+    def test_coordinator_final_covers_earlier_lifecycle_interruption(self):
+        self.add_lifecycle(number=3, started=NOW - 5, interrupted_at=NOW - 2)
+        self.add_final('Worker3c | #fixture | DONE', at=NOW - 1)
+        state = self.state(now=NOW - 6)
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(state['pending'], {})
+        self.assertTrue(any(event.get('disposition') == 'covered-by-final-report'
+                            for event in state['events']))
 
     def test_duplicate_error_once_across_snapshots_and_restart(self):
         self.add_turn()
@@ -387,7 +487,7 @@ class LifecycleAndSurfaceTests(DatabaseCase):
             config = copy.deepcopy(CONFIG); config[key] = val
             p = self.root / 'config.json'; p.write_text(json.dumps(config))
             with self.assertRaises(ValueError): records.configuration(p)
-        config = copy.deepcopy(CONFIG); config['workers'].append({'number': 4, 'id': 'parked'})
+        config = copy.deepcopy(CONFIG); config['workers'].append({'number': 5, 'id': 'parked'})
         p.write_text(json.dumps(config))
         with self.assertRaises(ValueError): records.configuration(p)
 
@@ -397,7 +497,7 @@ class LifecycleAndSurfaceTests(DatabaseCase):
         for node in ast.walk(tree):
             if isinstance(node, ast.Import): imported.update(n.name.split('.')[0] for n in node.names)
             elif isinstance(node, ast.ImportFrom): imported.add((node.module or '').split('.')[0])
-        self.assertTrue(imported <= {'__future__', 'contextlib', 'datetime', 'hashlib', 'json', 'math', 'pathlib', 're', 'sqlite3', 'time'})
+        self.assertTrue(imported <= {'__future__', 'contextlib', 'datetime', 'hashlib', 'json', 'math', 'pathlib', 're', 'sqlite3', 'time', 'lifecycle'})
         combined = '\n'.join((ROOT / name).read_text() for name in watcher.SOURCE_NAMES if name.endswith('.py'))
         for bad in ['list_threads', 'read_thread', 'wait_threads', 'navigate_to_codex_page', 'send_message_to_thread',
                     'AXUIElement', 'NSAppleScript', 'sidebar.swift', '--sampler', 'urllib', 'requests.',
@@ -427,12 +527,12 @@ class LifecycleAndSurfaceTests(DatabaseCase):
 
     def test_retired_watcher_blocks_install_without_signal_or_bootstrap(self):
         with patch.object(service, 'validate_gate', return_value={}), patch.object(service, 'retired_watcher_processes', return_value=['42 python /old/work/orchestration/worker-watch-cli/watch.py']), patch.object(service, 'launchctl') as ctl:
-            with self.assertRaises(RuntimeError): service.install(ROOT, self.root, self.root / 'new-home', self.root / 'agent', self.root / 'dry', self.root / 'tests')
+            with self.assertRaises(RuntimeError): service.install(ROOT, self.root, self.activity, self.root / 'new-home', self.root / 'agent', self.root / 'dry', self.root / 'tests')
             ctl.assert_not_called()
             self.assertFalse((self.root / 'new-home').exists())
 
     def test_agent_spec_single_local_process_and_no_sampler(self):
-        spec = service.agent_spec(self.root / 'runtime', self.root, Path('/usr/bin/python3'), self.root / 'records')
+        spec = service.agent_spec(self.root / 'runtime', self.root, Path('/usr/bin/python3'), self.root / 'records', self.activity)
         self.assertEqual(spec['Label'], service.LABEL)
         self.assertEqual(spec['KeepAlive'], {'Crashed': True})
         self.assertNotIn('--sampler', spec['ProgramArguments'])
@@ -440,7 +540,7 @@ class LifecycleAndSurfaceTests(DatabaseCase):
 
     def test_uninstall_preserves_receipts(self):
         p = self.root / 'agent.plist'
-        p.write_bytes(plistlib.dumps(service.agent_spec(self.root / 'runtime', self.root, Path('/usr/bin/python3'), self.root / 'records')))
+        p.write_bytes(plistlib.dumps(service.agent_spec(self.root / 'runtime', self.root, Path('/usr/bin/python3'), self.root / 'records', self.activity)))
         (self.root / 'state.json').write_text('receipt')
         with patch.object(service, 'disable', return_value={'disabled': True}): service.uninstall(self.root, p)
         self.assertEqual((self.root / 'state.json').read_text(), 'receipt')
@@ -451,7 +551,7 @@ class LifecycleAndSurfaceTests(DatabaseCase):
         self.add_final()
         destination = self.root / 'dry.json'
         with patch.object(watcher.time, 'time', return_value=NOW), patch.object(watcher, 'enqueue') as output:
-            result = watcher.dry(ROOT, self.root, destination)
+            result = watcher.dry(ROOT, self.root, destination, self.activity)
         self.assertEqual(result['status'], 'passed')
         self.assertFalse(result['snapshot']['claims']['silentStops'])
         self.assertEqual(result['notificationCalls'], 0)
@@ -460,13 +560,13 @@ class LifecycleAndSurfaceTests(DatabaseCase):
 
     def test_green_gate_binds_source_root_freshness_and_honest_claims(self):
         dry_path = self.root / 'dry.json'; tests_path = self.root / 'tests.json'
-        with patch.object(watcher.time, 'time', return_value=NOW): watcher.dry(ROOT, self.root, dry_path)
+        with patch.object(watcher.time, 'time', return_value=NOW): watcher.dry(ROOT, self.root, dry_path, self.activity)
         tests_path.write_text(json.dumps(valid_test_receipt(NOW)))
-        self.assertEqual(service.validate_gate(ROOT, self.root, dry_path, tests_path, NOW + 1), watcher.fingerprints(ROOT))
-        with self.assertRaises(RuntimeError): service.validate_gate(ROOT, self.root, dry_path, tests_path, NOW + 901)
+        self.assertEqual(service.validate_gate(ROOT, self.root, self.activity, dry_path, tests_path, NOW + 1), watcher.fingerprints(ROOT))
+        with self.assertRaises(RuntimeError): service.validate_gate(ROOT, self.root, self.activity, dry_path, tests_path, NOW + 901)
         value = json.loads(dry_path.read_text()); value['snapshot']['claims']['activeStatus'] = True
         dry_path.write_text(json.dumps(value))
-        with self.assertRaises(RuntimeError): service.validate_gate(ROOT, self.root, dry_path, tests_path, NOW + 1)
+        with self.assertRaises(RuntimeError): service.validate_gate(ROOT, self.root, self.activity, dry_path, tests_path, NOW + 1)
 
     def test_logs_and_receipts_are_bounded(self):
         log = watcher.logger(self.root)
@@ -549,7 +649,7 @@ class Reviewer1bRegressions(DatabaseCase):
         state = self.state()
         watcher.observe(state, self.snapshot(), CONFIG, NOW)
         original = copy.deepcopy(state['latestFinal'][IDS[0]])
-        self.add_final('Worker1 | #newer | DONE', at=NOW + 5, ident='newer-final')
+        self.add_final('Worker1c | #newer | DONE', at=NOW + 5, ident='newer-final')
         watcher.observe(state, self.snapshot(NOW + 10), CONFIG, NOW + 10)
         newer = copy.deepcopy(state['latestFinal'][IDS[0]])
         state['events'] = []  # Model bounded journal rotation, not identity deletion.
@@ -619,19 +719,19 @@ class Reviewer1bRegressions(DatabaseCase):
 
     def test_aged_tests_receipt_rejected_despite_matching_pass_hashes(self):
         dry_path, tests_path = self.root / 'dry.json', self.root / 'tests.json'
-        with patch.object(watcher.time, 'time', return_value=NOW): watcher.dry(ROOT, self.root, dry_path)
+        with patch.object(watcher.time, 'time', return_value=NOW): watcher.dry(ROOT, self.root, dry_path, self.activity)
         tests_path.write_text(json.dumps(valid_test_receipt(NOW - 901)))
-        with self.assertRaises(RuntimeError): service.validate_gate(ROOT, self.root, dry_path, tests_path, NOW)
+        with self.assertRaises(RuntimeError): service.validate_gate(ROOT, self.root, self.activity, dry_path, tests_path, NOW)
 
     def test_exit1_and_zero_tests_receipts_rejected_despite_pass_claim(self):
         dry_path, tests_path = self.root / 'dry.json', self.root / 'tests.json'
-        with patch.object(watcher.time, 'time', return_value=NOW): watcher.dry(ROOT, self.root, dry_path)
+        with patch.object(watcher.time, 'time', return_value=NOW): watcher.dry(ROOT, self.root, dry_path, self.activity)
         for mutation in [{'exitCode': 1}, {'testsDiscovered': 0, 'testsRun': 0, 'testsPassed': 0}]:
             with self.subTest(mutation=mutation):
                 receipt = valid_test_receipt(NOW)
                 receipt.update(mutation)
                 tests_path.write_text(json.dumps(receipt))
-                with self.assertRaises(RuntimeError): service.validate_gate(ROOT, self.root, dry_path, tests_path, NOW)
+                with self.assertRaises(RuntimeError): service.validate_gate(ROOT, self.root, self.activity, dry_path, tests_path, NOW)
 
 
 if __name__ == '__main__':

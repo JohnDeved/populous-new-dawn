@@ -22,8 +22,8 @@ import records
 
 COORDINATOR = records.COORDINATOR
 CLI = Path.home() / '.nvm/versions/node/v24.18.0/bin/codex'
-SOURCE_NAMES = ('watcher.py', 'records.py', 'service.py', 'managed.json')
-MODE = 'local-events-v2'
+SOURCE_NAMES = ('watcher.py', 'records.py', 'lifecycle.py', 'service.py', 'managed.json')
+MODE = 'local-lifecycle-v3'
 
 
 def sha(path):
@@ -129,18 +129,21 @@ def logger(directory):
 
 
 def new_state(config, root, now):
-    return {'version': 2, 'mode': MODE, 'configuration': records.digest(json.dumps(config, sort_keys=True)),
+    return {'version': 3, 'mode': MODE, 'configuration': records.digest(json.dumps(config, sort_keys=True)),
             'dataRoot': str(root.resolve()), 'startedAt': now, 'seen': {}, 'latestFinal': {},
             'events': [], 'pending': {}, 'attempts': [], 'nextNotifyAt': 0,
             'notificationFailures': 0, 'outputBlocked': False,
-            'readerFailures': 0, 'nextReadAt': 0, 'observations': 0, 'lastObservationAt': 0}
+            'readerFailures': 0, 'nextReadAt': 0, 'observations': 0, 'lastObservationAt': 0,
+            'lifecycleSeen': {}, 'lifecycleRuns': {}}
 
 
 def validate_event(event, key, kind):
     """Validate every field used after loading; malformed intent must be quarantined."""
-    prefix = 'final:' if kind == 'final_report' else 'error:'
-    if (kind not in {'final_report', 'local_error'} or not isinstance(event, dict)
-            or not isinstance(key, str) or not re.fullmatch(prefix + r'[0-9a-f]{64}', key)
+    prefixes = {'final_report': 'final:', 'local_error': 'error:',
+                'lifecycle_interruption': 'interrupt:'}
+    prefix = prefixes.get(kind)
+    if (prefix is None or not isinstance(event, dict)
+            or not isinstance(key, str) or not re.fullmatch(re.escape(prefix) + r'[0-9a-f]{64}', key)
             or event.get('key') != key or event.get('kind') != kind
             or event.get('worker') not in records.WORKERS.values()
             or type(event.get('number')) is not int
@@ -155,13 +158,40 @@ def validate_event(event, key, kind):
         if (event.get('source') != 'thread_turns' or event.get('alreadyAddressedToCoordinator') is not False
                 or not record_key.startswith(expected) or len(record_key) == len(expected)):
             raise ValueError('Invalid persisted pending-error fields')
+    elif kind == 'lifecycle_interruption':
+        if (event.get('source') != 'localdev_activity'
+                or event.get('alreadyAddressedToCoordinator') is not False
+                or event.get('reportedState') != 'INTERRUPTED'
+                or event.get('attribution') != 'localdev-role-self-report'
+                or not isinstance(event.get('runId'), str) or not event['runId'] or len(event['runId']) > 80
+                or not record_key.startswith('activity:') or len(record_key) <= len('activity:')):
+            raise ValueError('Invalid persisted lifecycle-interruption fields')
     elif (event.get('alreadyAddressedToCoordinator') is not True
           or event.get('source') not in {'queued_items', 'thread_items', 'thread_realtime_items'}
           or event.get('reportedState') not in records.FINAL_STATES
-          or event.get('attribution') not in {'current-number-self-report', 'explicit-id-self-report'}
+          or event.get('attribution') not in {'current-roster-self-report', 'explicit-id-self-report'}
           or not record_key.startswith('coordinator:') or len(record_key) == len('coordinator:')):
         raise ValueError('Invalid persisted final-report fields')
 
+
+def validate_lifecycle_run(key, run):
+    if (not isinstance(key, str) or len(key) > 180 or not isinstance(run, dict)
+            or not isinstance(run.get('runtimeId'), str) or not run['runtimeId']
+            or not isinstance(run.get('runId'), str) or not run['runId']
+            or key != run['runtimeId'] + ':' + run['runId']
+            or records.timestamp(run.get('startedAt')) is None
+            or records.timestamp(run.get('lastAt')) is None
+            or run['lastAt'] < run['startedAt']
+            or run.get('state') not in {'running', 'completed', 'failed', 'cancelled', 'interrupted'}):
+        raise ValueError('Invalid persisted lifecycle run')
+    number = run.get('number')
+    worker = run.get('worker')
+    if number is None:
+        if worker is not None:
+            raise ValueError('Lifecycle run has worker without role number')
+    elif (type(number) is not int or number not in records.WORKERS
+          or worker != records.WORKERS[number]):
+        raise ValueError('Invalid lifecycle role binding')
 
 def load_state(path, config, root, now):
     if not path.exists():
@@ -171,7 +201,7 @@ def load_state(path, config, root, now):
         expected = new_state(config, root, now)
         if any(state.get(k) != expected[k] for k in ('version', 'mode', 'configuration', 'dataRoot')):
             raise ValueError('Incompatible or legacy watcher state')
-        for key in ('seen', 'latestFinal', 'pending'):
+        for key in ('seen', 'latestFinal', 'pending', 'lifecycleSeen', 'lifecycleRuns'):
             if not isinstance(state.get(key), dict):
                 raise ValueError('Invalid event map')
         for key in ('events', 'attempts'):
@@ -185,12 +215,17 @@ def load_state(path, config, root, now):
         for key in ('notificationFailures', 'readerFailures', 'observations'):
             if type(state.get(key)) is not int or state[key] < 0:
                 raise ValueError('Invalid counter')
-        if any(type(at) not in (int, float) or not records.math.isfinite(at) for at in state['seen'].values()):
+        if any(type(at) not in (int, float) or not records.math.isfinite(at)
+               for mapping in (state['seen'], state['lifecycleSeen']) for at in mapping.values()):
             raise ValueError('Invalid seen-event timestamp')
-        if len(state['seen']) > 2048 or len(state['attempts']) > 64 or len(state['events']) > 128:
+        if (len(state['seen']) > 2048 or len(state['lifecycleSeen']) > 4096
+                or len(state['lifecycleRuns']) > 256
+                or len(state['attempts']) > 64 or len(state['events']) > 128):
             raise ValueError('Persisted event bounds exceeded')
+        for key, run in state['lifecycleRuns'].items():
+            validate_lifecycle_run(key, run)
         for key, event in state['pending'].items():
-            validate_event(event, key, 'local_error')
+            validate_event(event, key, event.get('kind') if isinstance(event, dict) else None)
         for worker, event in state['latestFinal'].items():
             validate_event(event, event.get('key') if isinstance(event, dict) else None, 'final_report')
             if worker != event['worker']:
@@ -238,8 +273,116 @@ def covered(error, finals):
     return bool(report and report['at'] >= error['at'])
 
 
+def _lifecycle_event_identity(event, now, age):
+    if (not isinstance(event, dict) or event.get('type') not in
+            {'run.started', 'run.goal', 'run.ended', 'run.interrupted'}
+            or not isinstance(event.get('runtimeId'), str) or not event['runtimeId']
+            or len(event['runtimeId']) > 80
+            or type(event.get('sequence')) is not int or event['sequence'] < 1
+            or not isinstance(event.get('runId'), str) or not event['runId']
+            or len(event['runId']) > 80
+            or records.timestamp(event.get('at')) is None
+            or not 0 <= now - event['at'] <= age):
+        raise records.EvidenceUnavailable('Malformed Local Dev lifecycle event')
+    number = event.get('number')
+    worker = event.get('worker')
+    if number is not None and (type(number) is not int or number not in records.WORKERS
+                               or worker != records.WORKERS[number]):
+        raise records.EvidenceUnavailable('Malformed Local Dev lifecycle role binding')
+    return event['runtimeId'] + ':' + event['runId']
+
+
+def _observe_lifecycle(state, snapshot, config, now):
+    age = config['eventMaxAgeSeconds']
+    events = snapshot.get('lifecycleEvents')
+    coverage = snapshot.get('lifecycleCoverage')
+    if not isinstance(events, list) or not isinstance(coverage, dict):
+        raise records.EvidenceUnavailable('Local Dev lifecycle coverage missing')
+    if coverage.get('idle') is not False or coverage.get('runningMeansActive') is not False:
+        raise records.EvidenceUnavailable('Local Dev lifecycle claims are unsafe')
+    state['lifecycleCoverage'] = coverage
+    state['activityRoot'] = snapshot.get('activityRoot')
+    state['lifecycleSeen'] = {
+        key: at for key, at in state['lifecycleSeen'].items()
+        if 0 <= now - at <= age * 2
+    }
+    state['lifecycleRuns'] = {
+        key: run for key, run in state['lifecycleRuns'].items()
+        if run['state'] == 'running' or 0 <= now - run['lastAt'] <= age * 2
+    }
+    incoming = []
+    for event in sorted(events, key=lambda item: (item.get('at', 0), item.get('runtimeId', ''),
+                                                  item.get('sequence', 0))):
+        run_key = _lifecycle_event_identity(event, now, age)
+        event_key = 'life:' + records.digest(
+            event['runtimeId'] + ':' + str(event['sequence']) + ':' + event['type'] + ':' + event['runId'])
+        if event_key in state['lifecycleSeen']:
+            continue
+        if len(state['lifecycleSeen']) >= 4096:
+            raise records.EvidenceUnavailable('Lifecycle deduplication capacity exceeded')
+        state['lifecycleSeen'][event_key] = event['at']
+        run = state['lifecycleRuns'].get(run_key)
+        if event['type'] == 'run.started':
+            if run is None:
+                run = {
+                    'runtimeId': event['runtimeId'], 'runId': event['runId'],
+                    'startedAt': event['at'], 'lastAt': event['at'], 'state': 'running',
+                    'number': event.get('number'), 'worker': event.get('worker'),
+                }
+                state['lifecycleRuns'][run_key] = run
+            else:
+                run['lastAt'] = max(run['lastAt'], event['at'])
+            continue
+        if event['type'] == 'run.goal':
+            if run is None or run['state'] != 'running':
+                continue
+            run['lastAt'] = max(run['lastAt'], event['at'])
+            number = event.get('number')
+            if number is not None:
+                if run.get('number') in (None, number):
+                    run['number'], run['worker'] = number, records.WORKERS[number]
+                else:
+                    # Conflicting self-labels make the run unidentifiable, not a stall claim.
+                    run['number'], run['worker'] = None, None
+            continue
+        if run is None or run['state'] != 'running':
+            continue
+        run['lastAt'] = max(run['lastAt'], event['at'])
+        if event['type'] == 'run.ended':
+            run['state'] = event.get('state')
+            continue
+        run['state'] = 'interrupted'
+        number, worker = run.get('number'), run.get('worker')
+        if number is None or worker is None or event['at'] <= state['startedAt']:
+            continue
+        interruption = {
+            'key': 'interrupt:' + records.digest(run_key + ':' + str(event['at'])),
+            'recordKey': 'activity:' + run_key,
+            'worker': worker, 'number': number, 'kind': 'lifecycle_interruption',
+            'reportedState': 'INTERRUPTED', 'at': event['at'], 'source': 'localdev_activity',
+            'attribution': 'localdev-role-self-report',
+            'alreadyAddressedToCoordinator': False, 'runId': event['runId'],
+        }
+        if interruption['key'] in state['seen']:
+            continue
+        if len(state['seen']) >= 2048:
+            raise records.EvidenceUnavailable('Event deduplication capacity exceeded')
+        state['seen'][interruption['key']] = now
+        receipt = {**interruption}
+        if covered(interruption, state['latestFinal']):
+            receipt['disposition'] = 'covered-by-final-report'
+        else:
+            state['pending'][interruption['key']] = interruption
+            receipt['disposition'] = 'pending-interruption-notice'
+        state['events'] = (state['events'] + [receipt])[-128:]
+        incoming.append(receipt)
+    if len(state['lifecycleRuns']) > 256:
+        raise records.EvidenceUnavailable('Lifecycle run capacity exceeded')
+    return incoming
+
+
 def observe(state, snapshot, config, now):
-    if snapshot['dataRoot'] != state['dataRoot'] or snapshot['version'] != 2:
+    if snapshot['dataRoot'] != state['dataRoot'] or snapshot['version'] != 3:
         raise records.EvidenceUnavailable('Snapshot identity mismatch')
     if now < state['lastObservationAt'] or not 0 <= now - snapshot['at'] <= 10:
         raise records.EvidenceUnavailable('Observation clock moved backwards or stale snapshot')
@@ -254,7 +397,8 @@ def observe(state, snapshot, config, now):
     state['seen'] = {k: at for k, at in state['seen'].items()
                      if k.startswith('final:') or now - at <= age * 2}
     incoming = []
-    # Finals first: a coordinator-addressed final can cover an error in the same read.
+    # Coordinator finals first: an explicit handoff can cover local error/lifecycle evidence
+    # observed in the same read.
     events = sorted(snapshot['events'], key=lambda e: (e['kind'] != 'final_report', e['at']))
     for event in events:
         if not 0 <= now - event['at'] <= age or event['worker'] not in records.WORKERS.values():
@@ -266,7 +410,7 @@ def observe(state, snapshot, config, now):
                 prior = state['latestFinal'].get(event['worker'])
                 if prior and prior['key'] == event['key']:
                     prior['at'] = min(prior['at'], original)
-            continue  # A later transport copy never creates a new final timestamp.
+            continue
         if event['kind'] == 'final_report':
             prior = state['latestFinal'].get(event['worker'])
             if prior is None or prior['at'] < event['at']:
@@ -287,33 +431,45 @@ def observe(state, snapshot, config, now):
             receipt['disposition'] = 'baseline-or-unsupported'
         state['events'] = (state['events'] + [receipt])[-128:]
         incoming.append(receipt)
-    state['pending'] = {k: e for k, e in state['pending'].items()
-                        if 0 <= now - e['at'] <= age and not covered(e, state['latestFinal'])}
+    incoming.extend(_observe_lifecycle(state, snapshot, config, now))
+    state['pending'] = {
+        key: event for key, event in state['pending'].items()
+        if 0 <= now - event['at'] <= age and not covered(event, state['latestFinal'])
+    }
     return incoming
 
 
 def notify_pending(state, config, now, persist, output=enqueue):
     for key, event in state['pending'].items():
-        validate_event(event, key, 'local_error')
+        validate_event(event, key, event.get('kind') if isinstance(event, dict) else None)
     if state['outputBlocked'] or now < state['nextNotifyAt']:
         return None
-    eligible = [e for e in state['pending'].values()
-                if e['kind'] == 'local_error' and not e['alreadyAddressedToCoordinator']
-                and 0 <= now - e['at'] <= config['eventMaxAgeSeconds']
-                and not covered(e, state['latestFinal'])]
+    eligible = [
+        event for event in state['pending'].values()
+        if event['kind'] in {'local_error', 'lifecycle_interruption'}
+        and not event['alreadyAddressedToCoordinator']
+        and 0 <= now - event['at'] <= config['eventMaxAgeSeconds']
+        and not covered(event, state['latestFinal'])
+    ]
     state['pending'] = {}
     if not eligible:
         return None
-    message = 'Local worker event watcher | ERROR RECORD | ' + '; '.join(
-        f"Worker {e['number']}b | chat_id={e['worker']} | recorded failed turn at {e['at']:.3f}"
-        for e in eligible[:16])
+    parts = []
+    for event in eligible[:16]:
+        prefix = f"Worker {event['number']}c | chat_id={event['worker']}"
+        if event['kind'] == 'local_error':
+            parts.append(prefix + f" | recorded failed turn at {event['at']:.3f}")
+        else:
+            parts.append(prefix + f" | Local Dev run {event['runId']} interrupted without assistant completion at {event['at']:.3f}")
+    message = 'Local worker watcher | LOCAL RECORD NOTICE | ' + '; '.join(parts)
     if len(eligible) > 16:
-        message += f'; plus {len(eligible) - 16} additional local error records in the retained receipt'
-    message += '. Local typed error evidence only; live status and silent stops are unknown. No task restarted.'
+        message += f'; plus {len(eligible) - 16} additional explicit local records in the retained receipt'
+    message += ('. Explicit local lifecycle/error evidence only; interruption proves that run ended '
+                'without assistant completion. This does not assert idle, current availability, or '
+                'that no later run started. No task restarted.')
     attempt = {'at': now, 'state': 'uncertain', 'keys': [e['key'] for e in eligible],
                'messageSha256': records.digest(message)}
     state['attempts'] = (state['attempts'] + [attempt])[-64:]
-    # Crash-safe deadline and consumed intent precede the sole output invocation.
     state['nextNotifyAt'] = now + config['failureBackoffSeconds']
     persist(state)
     try:
@@ -339,7 +495,6 @@ def notify_pending(state, config, now, persist, output=enqueue):
     persist(state)
     return result
 
-
 def cycle_succeeded(state, config, now):
     # Only full read + processing/output completion clears an earlier failure.
     state['readerFailures'] = 0
@@ -353,13 +508,13 @@ def cycle_failed(state, config, now, problem):
     state['health'] = {'status': 'read-error', 'at': now, 'detail': problem}
 
 
-def dry(source, root, destination):
+def dry(source, root, destination, activity_root=None):
     config = configuration(source / 'managed.json')
     bound = fingerprints(source)
     receipt = {'mode': MODE, 'startedAt': time.time(), 'fingerprints': bound,
                'notificationCalls': 0, 'status': 'blocked'}
     try:
-        snapshot = records.snapshot(root, config, time.time())
+        snapshot = records.snapshot(root, config, time.time(), activity_root)
         state = new_state(config, root, snapshot['at'])
         observe(state, snapshot, config, time.time())
         receipt.update(status='passed', snapshot=snapshot,
@@ -374,10 +529,12 @@ def dry(source, root, destination):
     return receipt
 
 
-def daemon(source, directory, root):
+def daemon(source, directory, root, activity_root):
     config = configuration(source / 'managed.json')
     manifest = json.loads((source / 'installation.json').read_text())
-    if manifest['fingerprints'] != fingerprints(source) or manifest['recordsRoot'] != str(root.resolve()):
+    if (manifest['fingerprints'] != fingerprints(source)
+            or manifest['recordsRoot'] != str(root.resolve())
+            or manifest['activityRoot'] != str(activity_root.resolve())):
         raise RuntimeError('Installed runtime/root differs from verified manifest')
     with singleton(directory):
         path = directory / 'state.json'
@@ -402,7 +559,7 @@ def daemon(source, directory, root):
                 now = time.time()
                 if now >= state['nextReadAt']:
                     try:
-                        snapshot = records.snapshot(root, config, now)
+                        snapshot = records.snapshot(root, config, now, activity_root)
                         events = observe(state, snapshot, config, time.time())
                         for event in events:
                             log.info('Local event: %s', json.dumps(event, sort_keys=True))
@@ -439,18 +596,19 @@ def main():
     parser.add_argument('mode', choices=['dry', 'run'])
     parser.add_argument('--state-dir', type=Path)
     parser.add_argument('--records-root', type=Path, default=Path.home() / '.codex')
+    parser.add_argument('--activity-root', type=Path, default=Path.home() / '.local-dev/activity')
     parser.add_argument('--receipt', type=Path)
     args = parser.parse_args()
     source = Path(__file__).resolve().parent
     if args.mode == 'dry':
         if args.receipt is None:
             parser.error('--receipt is required for dry mode')
-        receipt = dry(source, args.records_root.resolve(), args.receipt)
+        receipt = dry(source, args.records_root.resolve(), args.receipt, args.activity_root.resolve())
         print(json.dumps(receipt, sort_keys=True))
         return 0 if receipt['status'] == 'passed' else 2
     if args.state_dir is None:
         parser.error('--state-dir is required for run mode')
-    return daemon(source, args.state_dir.resolve(), args.records_root.resolve())
+    return daemon(source, args.state_dir.resolve(), args.records_root.resolve(), args.activity_root.resolve())
 
 
 if __name__ == '__main__':

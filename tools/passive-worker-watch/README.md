@@ -1,146 +1,127 @@
-# Local worker event watcher
+# Local worker lifecycle watcher
 
-This is a **final-handoff/local-error record observer**, not a live activity or
-silent-stop detector. The Accessibility path is retired: no Swift helper, app
-observation, navigation, focus/input, screenshots, monitoring API, network client,
-model call or assignment sender is installed. `managed.json` permits only Worker
-1b, 2b, 3b and 5b and their exact configured conversation IDs/titles.
+This is a **local lifecycle/final-error observer** for the current Worker 1c–4c
+roster. It does not infer idle. It does not call ChatGPT/model/network APIs and
+does not use browser/UI navigation, Accessibility, screenshots, focus/input
+automation, or assignment/restart controls.
 
-## What local evidence can and cannot establish
+The only installed output path is the local `codex queue` CLI, pinned to the
+configured coordinator thread.
 
-The scoped local cache at
-`.codex-global-state.json → electron-persisted-atom-state → chatgpt-sidebar-state-v1
-→ scoped pinnedConversations[].conversation` identifies the four managed IDs,
-creation/update times and titles. Inspection found **no activity/completion/error
-field**. A recent `updatedAt`, a file mtime, a completed Codex turn, silence, or a
-missing worker is never interpreted as active, idle or stopped. Cache freshness
-is displayed separately from identity; every worker's `liveStatus` remains
-`unknown`. Duplicate/missing/wrong-title records make identity incomplete.
+## Managed roster
 
-The local Codex `state_5.sqlite/threads` and `thread_history_1.sqlite/thread_turns`
-currently have **no rows for these four ChatGPT IDs**. No link to a similarly
-named Codex thread is guessed. Silent stops and unreported ChatGPT system errors
-are therefore not detectable with the permitted evidence. This is a declared
-limit, not an installation error or an excuse to restore Accessibility/API calls.
+`managed.json` binds exactly these cached conversation identities/titles:
 
-Only a first-line explicit `WorkerN[b] | [chat_id=ID |] ticket | FINAL_STATE`
-is positive *self-reported* stop evidence. Accepted final states are DONE,
-BLOCKED, NEEDS_REVIEW, ERROR, SYSTEMERROR and STOPPED. A report must be fresh,
-after that exact configured worker's creation time, and match a currently bound
-ID/title. An explicit wrong/retired chat ID, parked worker number, quoted header,
-checkpoint/progress or arbitrary body text is rejected. Number-only headers are
-attributed as current-number **self-reports**, not authenticated task execution.
-Reported DONE does not prove present idleness or that a new task has not started.
+- Worker 1c — `6aaebd2a-9698-83ed-a9ca-732b8651f074`
+- Worker 2c — `6aaebd46-b95c-83ed-80ac-207d2c6c5c43`
+- Worker 3c — `6aaebd51-30ac-83eb-a58a-1cfdb96b9100`
+- Worker 4c — `6aaebd5d-d418-83eb-a0b7-6000fe1dbf24`
 
-Only the coordinator's queued items and delivered/realtime `userMessage` records
-are queried. They already address the coordinator, so their final handoffs are
-journaled as covered and **never generate a redundant notification**. Queue →
-realtime → history copies and repeated content coalesce; a later delivery copy
-cannot refresh a consumed report timestamp. Payload bodies are used only for a
-digest and are not retained, executed or copied into notices.
+Duplicate/missing/wrong-title metadata makes the observation incomplete. Cache
+`updatedAt`, file mtimes, silence and elapsed time are metadata only and never
+establish active/idle/stopped state.
 
-If a fresh typed local `failed` turn with a nonempty error field later exists for
-one of the exact managed IDs, it can create a **local error-record** notice, not
-stop/idle evidence. The local protocol defines these statuses and Unix-second
-turn timestamps. Completed, interrupted and inProgress records do not create a
-notice. A later same-worker final already covering the coordinator suppresses a
-redundant error wakeup. This conditional path is fixture-tested; no current live
-coverage for these workers is claimed where their turn records are absent.
+## Positive evidence
 
-## Reliability and bounded output
+Three local evidence classes are accepted.
 
-Reads use SQLite URI `mode=ro` and `PRAGMA query_only`, fixed tables, exact thread
-filters, bounded time/payload/row windows, and an explicitly bounded metadata-cache
-subtree. Other app configuration/profile values are not inspected or output.
-Schema errors, a saturated window or missing metadata are watcher-health problems,
-not worker errors. Local reads back off to at most five minutes; no API fallback.
+1. **Coordinator final handoff.** A fresh first-line
+   `WorkerNc | [chat_id=ID |] ticket | FINAL_STATE` in the configured
+   coordinator queue/history is explicit self-reported completion/error evidence.
+   Accepted states are DONE, BLOCKED, NEEDS_REVIEW, ERROR, SYSTEMERROR and STOPPED.
+   These messages already address the coordinator, so the watcher journals them
+   and never sends a duplicate notification.
+2. **Typed local failed turn.** A fresh `thread_turns.status=failed` row with a
+   nonempty error for an exact managed ID may create a local error notice. This
+   is error evidence, not idle evidence.
+3. **Local Dev interrupted run.** `~/.local-dev/activity/*.jsonl` is read
+   directly and read-only. The Local Dev producer fsyncs `run.*` events. A
+   managed run becomes attributable only when its own lifecycle title/goal begins
+   with an unambiguous `Worker Nc` self-label. A `ReviewerNc`/ `Reviewer Nc`
+   self-label is always unknown and non-actionable, even if other text mentions a
+   worker. Only the exact producer record `run.interrupted` with
+   “Runtime disconnected; no assistant completion was reported.” is positive
+   stalled/incomplete-run evidence. `run.started`, a long-running run, silence,
+   missing events, and journal mtimes never mean idle. A conflicting self-label
+   makes identity unknown and suppresses the notice.
 
-Cold start baselines existing records without alerts. Restarts preserve consumed
-event and output intent. Legacy/corrupt/incompatible state is archived, then starts
-unarmed with output blocked until an owner reviews the uncertainty. Pending
-records must have consistent key, kind, managed worker/number, timestamp, source,
-record identity and coordinator-addressed flag before consumption. A malformed
-record quarantines the persisted state instead of recurring every poll. Reader
-backoff resets only after the entire read/process/output cycle succeeds, never
-just because `observe` completed before a later processing failure. Records older
-than the configured event window cannot reappear as new work. State contains at
-most 2,048 dedupe keys, 128 event receipts, 64 output receipts and one latest final
-per managed worker. Error keys age out after 1,800 seconds; final semantic keys
-retain their earliest observed event timestamp for this managed configuration
-without that TTL. Delayed identical coordinator copies cannot refresh a final or
-cover a newer error. Retained journal/latest-final timestamps backfill older v2
-state on loading; missing history is never invented. Capacity exhaustion is a
-visible fail-closed condition, not permission to evict final identities silently.
-Logs rotate across three files capped at 256 KiB each.
+A later same-worker coordinator final at or after a local error/interruption covers
+that event and suppresses a redundant watcher notice. The watcher never restarts a
+task and never claims that an interrupted worker remains idle or unavailable; a
+later task may already have started.
 
-Only a new uncovered local error may call the local Codex queue CLI, only to the
-configured coordinator, at most once per minute. Durable consumed intent precedes
-the invocation. Timeout/nonzero/unconfirmed output is never retried for that batch,
-including after restart; new independent errors respect exponential backoff from
-five minutes to one hour. There are no reminders. Exactly-once external delivery
-is not claimed: an uncertain attempt can be lost rather than duplicated. An
-unverified child-cleanup identity stops the daemon; it is never blindly signalled.
+## Bounded local reads and output
 
-## Checks and one live dry observation
+Codex SQLite reads use URI `mode=ro` plus `PRAGMA query_only`, exact tables and
+bounded rows/payloads. The task-cache reader retains only the configured roster
+fields. Local Dev activity reads inspect at most 24 recently modified journals,
+at most 8 MiB from each tail, and at most 2,048 sanitized lifecycle events. Raw
+goals, tool arguments/results and other journal content are not retained in watcher
+state or notices.
 
-From the repository root, using Python 3.9+:
+Schema/bound failures are watcher-health errors, never worker errors. Cold start
+baselines pre-existing evidence. State persists dedupe, final identity, lifecycle
+run identity and crash-safe output intent. Corrupt/incompatible state is preserved
+and output-blocked rather than replayed. Installation archives the prior watcher
+state before a verified roster/runtime upgrade, so old pending output cannot cross
+into the new roster.
+
+Only uncovered typed errors or explicit Local Dev interruptions may call
+`codex queue`, always to coordinator
+`01a09e5b-1361-7c12-acbe-a9377e0af8a0`. Durable consumed intent is written before
+the call. Timeout/nonzero/unconfirmed delivery is not retried for that batch.
+Independent new events obey bounded backoff. Notices explicitly say they do not
+assert idle/current availability.
+
+## Verification
+
+From the repository root:
 
 ```sh
 python3 -B tools/passive-worker-watch/verify.py \
-  --receipt work/orchestration/passive-four-watcher/local-events/tests.json
+  --receipt work/orchestration/watcher-current-roster/tests.json
 python3 -B tools/passive-worker-watch/watcher.py dry \
-  --receipt work/orchestration/passive-four-watcher/local-events/live-dry.json
+  --receipt work/orchestration/watcher-current-roster/live-dry.json
 ```
 
-Dry mode takes one local snapshot, baselines it in isolated memory, emits no queue
-notice, and records source hashes, ID/freshness coverage and the reduced claims.
-Green means those exact local-record claims pass, **not** that live worker activity
-or silent stops are known. The fixtures use the observed cache/schema and explicit
-final-header shapes. Tests block socket/subprocess use during monitoring and cover
-filtering, freshness, duplicates, corrupt/restarted state, rate/backoff/no-retry,
-read-only databases, ownership, gates and bounded logs. Retired AX fixtures and
-failure receipts remain in Git history and ignored orchestration evidence.
+Dry mode performs one bounded local snapshot, emits no coordinator output and
+records exact source hashes plus capability claims. The focused suite covers the
+current roster, final/error semantics, explicit Local Dev interruption handling,
+conflicting identity, silence/running non-idle behavior, dedupe/backoff/crash
+recovery, read-only inputs, output destination, install gating and PID/hash
+ownership.
 
-Root README TypeScript formatter/Oxlint/ESLint/Fallow, gameplay, browser/native
-and app-build checks do not exercise this Python/JSON-only tool. No app/package
-inputs change; those are marked not applicable, never green substitutes. The
-existing engineering planner calls the paths unmapped; no gameplay subsystem or
-parity claim is invented. Use focused checks, metadata validation and exact scope
-review, with fingerprints for the actual source tested.
+This is a Python/JSON-only local tool. Gameplay/browser/native/build evidence is
+not a substitute for these checks and is not claimed by this watcher.
 
-## Installation, status, disable and uninstall
+## Installation and lifecycle
 
-The sole label is `com.populous.worker-watcher`. Install requires fresh (within
-15 minutes) passing dry and test receipts whose runtime hashes match. Generate
-`tests.json` with `verify.py`, not a handwritten pass summary. The gate requires
-fresh ordered start/finish times, exit code zero, positive equal discovered/run/
-passed counts, no failures/errors/skips/exceptional outcomes, and matching runtime
-plus verifier/test/fixture hashes. A stale, zero-test, failed or contradictory
-receipt is rejected even when its status/fingerprints claim a pass. A failed
-reduced-claim dry receipt also cannot be used to install.
+The sole LaunchAgent label is `com.populous.worker-watcher`. The default local
+roots are `~/.codex` and `~/.local-dev/activity`; both are pinned into the
+verified installation manifest and launchd arguments.
 
 ```sh
 python3 -B tools/passive-worker-watch/service.py status
 python3 -B tools/passive-worker-watch/service.py install \
-  --dry-receipt work/orchestration/passive-four-watcher/local-events/live-dry.json \
-  --tests-receipt work/orchestration/passive-four-watcher/local-events/tests.json
+  --dry-receipt work/orchestration/watcher-current-roster/live-dry.json \
+  --tests-receipt work/orchestration/watcher-current-roster/tests.json
 python3 -B tools/passive-worker-watch/service.py disable
 python3 -B tools/passive-worker-watch/service.py uninstall
 ```
 
-The default records root is `~/.codex`; override with `--records-root` only for an
-explicit local dataset. The installed root is pinned to the verified receipt.
-Runtime copies live under `~/Library/Application Support/PopulousPassiveWatcher`;
-no Accessibility binary is copied. One nonblocking flock and one LaunchAgent own
-the daemon. Launchd starts it at login; crash restarts are throttled, normal failure
-exits do not loop. Status/cleanup verifies PID plus creation/command identity and
-the owned plist. Disable persists the disabled label and unloads only the verified
-job; uninstall archives its plist and leaves all state/history/runtime receipts.
-Never stop a reused or unverified PID, revive a retired sender or delete evidence.
+Install requires fresh passing dry/test receipts with matching source/test hashes.
+A current owned agent must be identity-checked and disabled before replacement.
+The prior state is archived, never replayed into the new roster. Runtime copies
+live under `~/Library/Application Support/PopulousPassiveWatcher`.
 
-After installation, verify a quiet observation cycle: same owned PID/command,
-advancing observation count, healthy local reads, no new output attempts, and no
-monitoring network sockets. The runtime's `capabilities` and `localTurnCoverage`
-retain the limitations. A separate final worker handoff to the coordinator is
-output, not a monitoring call; this watcher ignores Worker7 and cannot alert on
-its own final publication message.
+`service.py status` reports the launchd PID, process identity, configured roots,
+observation count/health, installed hashes and recomputed runtime hashes. A valid
+installation has `processVerified=true`, `plistOwned=true`,
+`hashesVerified=true` and `rootsVerified=true`. Disable/cleanup never blindly
+signals a reused or unverified PID.
+
+Acceptance should observe at least two healthy daemon cycles with the same verified
+PID/config/hashes. A controlled verification notice may be sent once through the
+installed watcher's `enqueue` function; its text must clearly identify itself as
+a controlled install check and make no worker-idle/stall claim. That exercises the
+same coordinator-only output path without fabricating lifecycle evidence.
