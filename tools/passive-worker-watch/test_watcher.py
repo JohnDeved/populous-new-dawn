@@ -543,6 +543,73 @@ class EventStateTests(DatabaseCase):
             lambda text: calls.append(text) or {'confirmed': True})
         self.assertEqual(calls, [])
 
+    def test_older_run_with_explicit_overlap_activity_suppresses_later_completion(self):
+        self.add_lifecycle(number=2, started=NOW - 20, runtime='older-overlap',
+                           run_id='older-overlap-worker-2')
+        path = self.activity / 'older-overlap.jsonl'
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        rows.append({
+            'version': 1, 'runtimeId': 'older-overlap', 'sequence': 3,
+            'timestamp': iso(NOW - 5), 'type': 'run.goal',
+            'runId': 'older-overlap-worker-2',
+            'detail': {'goal': 'Worker2c still-active overlap',
+                       'title': 'Worker 2c overlap', 'origin': 'assistant'},
+        })
+        path.write_text(''.join(json.dumps(row) + '\n' for row in rows))
+        self.add_lifecycle(number=2, started=NOW - 10, interrupted_at=NOW - 1,
+                           ended_state='completed', runtime='later-finishing',
+                           run_id='later-finishing-worker-2')
+        state = self.state(now=NOW - 30)
+        incoming = watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        completions = [event for event in incoming
+                       if event.get('kind') == 'lifecycle_completion']
+        self.assertEqual(len(completions), 1)
+        self.assertEqual(completions[0]['disposition'], 'superseded-by-active-run')
+        self.assertEqual(state['pending'], {})
+
+    def test_reviewer_identity_poison_survives_worker_goal_and_restart(self):
+        self.add_lifecycle(number=2, started=NOW - 10,
+                           title='Reviewer2c exact-head review',
+                           goal='Reviewer 2c watcher review',
+                           runtime='reviewer-rebind', run_id='reviewer-rebind-run')
+        state = self.state(now=NOW - 20)
+        watcher.observe(state, self.snapshot(NOW - 5), CONFIG, NOW - 5)
+        run_key = 'reviewer-rebind:reviewer-rebind-run'
+        run = state['lifecycleRuns'][run_key]
+        self.assertTrue(run['identityBlocked'])
+        self.assertIsNone(run['number'])
+        self.assertIsNone(run['worker'])
+        state_path = self.root / 'reviewer-poison-state.json'
+        watcher.atomic(state_path, state)
+        state = watcher.load_state(state_path, CONFIG, self.root, NOW - 4)
+        self.assertTrue(state['lifecycleRuns'][run_key]['identityBlocked'])
+
+        path = self.activity / 'reviewer-rebind.jsonl'
+        rows = [json.loads(line) for line in path.read_text().splitlines()]
+        rows.append({
+            'version': 1, 'runtimeId': 'reviewer-rebind', 'sequence': 3,
+            'timestamp': iso(NOW - 3), 'type': 'run.goal',
+            'runId': 'reviewer-rebind-run',
+            'detail': {'goal': 'Worker2c follow-up',
+                       'title': 'Worker 2c task', 'origin': 'assistant'},
+        })
+        rows.append({
+            'version': 1, 'runtimeId': 'reviewer-rebind', 'sequence': 4,
+            'timestamp': iso(NOW - 1), 'type': 'run.ended',
+            'runId': 'reviewer-rebind-run',
+            'detail': {'state': 'completed', 'summary': 'fixture',
+                       'endedAt': iso(NOW - 1), 'source': 'assistant_report',
+                       'backgroundProcesses': 0,
+                       'backgroundProcessPolicy': 'cleanup'},
+        })
+        path.write_text(''.join(json.dumps(row) + '\n' for row in rows))
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(state['pending'], {})
+        run = state['lifecycleRuns'][run_key]
+        self.assertTrue(run['identityBlocked'])
+        self.assertIsNone(run['number'])
+        self.assertIsNone(run['worker'])
+
     def test_coordinator_final_covers_earlier_lifecycle_interruption(self):
         self.add_lifecycle(number=3, started=NOW - 5, interrupted_at=NOW - 2)
         self.add_final('Worker3c | #fixture | DONE', at=NOW - 1)

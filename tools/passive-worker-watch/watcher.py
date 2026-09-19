@@ -189,10 +189,13 @@ def validate_lifecycle_run(key, run):
             or records.timestamp(run.get('startedAt')) is None
             or records.timestamp(run.get('lastAt')) is None
             or run['lastAt'] < run['startedAt']
+            or type(run.get('identityBlocked')) is not bool
             or run.get('state') not in {'running', 'completed', 'failed', 'cancelled', 'interrupted'}):
         raise ValueError('Invalid persisted lifecycle run')
     number = run.get('number')
     worker = run.get('worker')
+    if run['identityBlocked'] and (number is not None or worker is not None):
+        raise ValueError('Blocked lifecycle run has role binding')
     if number is None:
         if worker is not None:
             raise ValueError('Lifecycle run has worker without role number')
@@ -235,6 +238,11 @@ def load_state(path, config, root, now):
                 or len(state['lifecycleRuns']) > 256
                 or len(state['attempts']) > 64 or len(state['events']) > 128):
             raise ValueError('Persisted event bounds exceeded')
+        for run in state['lifecycleRuns'].values():
+            # Pre-poison state predates explicit identity poisoning. Treat an
+            # unbound retained run as blocked on upgrade rather than risk rebinding
+            # an old reviewer/conflicting run after restart.
+            run.setdefault('identityBlocked', run.get('number') is None)
         for key, run in state['lifecycleRuns'].items():
             validate_lifecycle_run(key, run)
         for key, event in state['pending'].items():
@@ -299,9 +307,14 @@ def _lifecycle_event_identity(event, now, age):
         raise records.EvidenceUnavailable('Malformed Local Dev lifecycle event')
     number = event.get('number')
     worker = event.get('worker')
+    blocked = event.get('identityBlocked')
+    if blocked is not None and type(blocked) is not bool:
+        raise records.EvidenceUnavailable('Malformed Local Dev lifecycle identity poison')
     if number is not None and (type(number) is not int or number not in records.WORKERS
                                or worker != records.WORKERS[number]):
         raise records.EvidenceUnavailable('Malformed Local Dev lifecycle role binding')
+    if blocked is True and (number is not None or worker is not None):
+        raise records.EvidenceUnavailable('Poisoned Local Dev lifecycle identity is bound')
     return event['runtimeId'] + ':' + event['runId']
 
 
@@ -338,10 +351,13 @@ def _observe_lifecycle(state, snapshot, config, now):
         run = state['lifecycleRuns'].get(run_key)
         if event['type'] == 'run.started':
             if run is None:
+                blocked = event.get('identityBlocked') is True
                 run = {
                     'runtimeId': event['runtimeId'], 'runId': event['runId'],
                     'startedAt': event['at'], 'lastAt': event['at'], 'state': 'running',
-                    'number': event.get('number'), 'worker': event.get('worker'),
+                    'number': None if blocked else event.get('number'),
+                    'worker': None if blocked else event.get('worker'),
+                    'identityBlocked': blocked,
                 }
                 state['lifecycleRuns'][run_key] = run
             else:
@@ -352,11 +368,15 @@ def _observe_lifecycle(state, snapshot, config, now):
                 continue
             run['lastAt'] = max(run['lastAt'], event['at'])
             number = event.get('number')
-            if number is not None:
+            if event.get('identityBlocked') is True:
+                run['identityBlocked'] = True
+                run['number'], run['worker'] = None, None
+            elif not run.get('identityBlocked') and number is not None:
                 if run.get('number') in (None, number):
                     run['number'], run['worker'] = number, records.WORKERS[number]
                 else:
-                    # Conflicting self-labels make the run unidentifiable, not a completion claim.
+                    # Conflicting self-labels permanently poison this run's identity.
+                    run['identityBlocked'] = True
                     run['number'], run['worker'] = None, None
             continue
         if run is None or run['state'] != 'running':
@@ -397,7 +417,7 @@ def _observe_lifecycle(state, snapshot, config, now):
         active_other = any(
             other_key != run_key and other.get('worker') == worker
             and other.get('state') == 'running'
-            and other.get('startedAt', 0) > run['startedAt']
+            and other.get('lastAt', 0) >= run['startedAt']
             for other_key, other in state['lifecycleRuns'].items()
         )
         receipt = {**notice}
@@ -425,7 +445,7 @@ def _observe_lifecycle(state, snapshot, config, now):
         if notice.get('kind') != 'lifecycle_completion':
             continue
         if any(run.get('worker') == notice['worker'] and run.get('state') == 'running'
-               and run.get('startedAt', 0) > notice['terminalStartedAt']
+               and run.get('lastAt', 0) >= notice['terminalStartedAt']
                for run in state['lifecycleRuns'].values()):
             del state['pending'][key]
             receipt = {**notice, 'disposition': 'pending-superseded-by-active-run'}

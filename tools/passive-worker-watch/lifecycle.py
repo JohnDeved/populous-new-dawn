@@ -38,16 +38,24 @@ def timestamp(value):
     return float(value) if type(value) in (int, float) and math.isfinite(value) and value > 0 else None
 
 
-def role_number(*values):
+def role_binding(*values):
     strings = [value for value in values if isinstance(value, str)]
     if any(REVIEWER.match(value) for value in strings):
-        return None
+        return None, True
     found = []
     for value in strings:
         match = ROLE.match(value)
         if match:
             found.append(int(match[1]))
-    return found[0] if found and len(set(found)) == 1 else None
+    if not found:
+        return None, False
+    if len(set(found)) != 1:
+        return None, True
+    return found[0], False
+
+
+def role_number(*values):
+    return role_binding(*values)[0]
 
 
 def _tail(path):
@@ -96,12 +104,14 @@ def _event(raw, now, max_age):
         started = timestamp(run.get('startedAt'))
         if started is None or started > at + 2:
             return None
+        number, blocked = role_binding(run.get('title'), run.get('goal'))
         event.update(origin=run['origin'], contextScope=run['contextScope'],
-                     number=role_number(run.get('title'), run.get('goal')))
+                     number=number, identityBlocked=blocked)
     elif raw['type'] == 'run.goal':
         if detail.get('origin') != 'assistant':
             return None
-        event['number'] = role_number(detail.get('title'), detail.get('goal'))
+        number, blocked = role_binding(detail.get('title'), detail.get('goal'))
+        event.update(number=number, identityBlocked=blocked)
     elif raw['type'] == 'run.ended':
         if detail.get('source') != 'assistant_report' or detail.get('state') not in {'completed', 'failed', 'cancelled'}:
             return None

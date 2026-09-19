@@ -43,11 +43,14 @@ Three local evidence classes are accepted.
    `failed`, or `cancelled` are explicit completion/error evidence; the exact
    `run.interrupted` summary “Runtime disconnected; no assistant completion was
    reported.” remains interruption evidence. A terminal wake is suppressed when
-   another managed run for that worker is active in the same observed lifecycle
-   window. Per-worker terminal watermarks prevent delayed old terminal records
+   another same-worker run has explicit lifecycle activity at or after the
+   terminating run began; an older orphan with no overlap activity does not block
+   later valid completion evidence. Per-worker terminal watermarks prevent delayed
+   old terminal records
    from replaying after newer ones. `run.started`, a long-running run, silence,
    missing events, cache timestamps, and journal mtimes never mean idle. A
-   conflicting self-label makes identity unknown and suppresses the notice.
+   reviewer/conflicting self-label permanently poisons that run's identity;
+   later goals cannot rebind it to a managed worker.
 
 A later same-worker coordinator final at or after a local error/terminal event
 covers that event and suppresses a redundant watcher notice. The watcher never
