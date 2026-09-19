@@ -546,32 +546,60 @@ existing COM D3D/device handles are supplied at the documented native call
 boundaries; this does not execute a complete original UI/outer-loop startup.
 Any unsupported subsequent native or COM consumer must stop the proof.
 
-### Execution disposition: result inspection blocked
+### Execution disposition: arena bound; backend selector is next
 
 Static preflight passed, including original opcode checks, live input hashes,
 unchanged inherited assertions and preservation of earlier artifacts. Preflight:
 `work/orchestration/worker-3-training-entry/triangle-arena/preflight.json`, SHA-256
 `5cecd0049c14ae5b53b55b5fb34816bba6d2c16702bb84c1103f5f48566e5ddc`.
 
-Exactly one serialized job was submitted:
-`a2bb8a3f-1ff5-4f9b-bd1e-e5b777a64f03`. Its queue waiter returned **terminal
-status failed**, exit 1, with 21,102 ms execution time. The subsequent Local Dev
-read of the result/log/terminal receipt was denied by the tool safety gate before
-inspection. That access was not retried through another reader and no second
-native execution was attempted. `triangle-arena/inspection-stop.json` preserves
-the observed queue disposition and access failure.
+Exactly one serialized job was submitted and no rerun was needed:
+`a2bb8a3f-1ff5-4f9b-bd1e-e5b777a64f03`. The saved queue metadata records
+terminal status `failed`, exit code 2, and 21,102 ms execution time. The saved
+result is now readable at `triangle-arena/result.json`, SHA-256
+`c4269884a4e1ba0197ff80816ca3557aa67820357aaf0036e5d95796907c60ff`.
 
-**The new runtime outcome is not audited.** Neither successful arena construction,
-emitted triangle counts, a newly reached runtime leaf, nor native/browser pixels
-may be inferred from the prepared code or preflight. The exact immediate blocker
-is authorized access to the existing failed job's receipts. Inspect that result
-before deciding whether another native interface remains; do not repeat this job
-to recover its output.
+The runtime result authenticates the arena prerequisite. The only supplied
+allocation was raw `0x248066`-byte heap storage returned at original caller
+`0x4b56b1`. Original instruction `0x4b5711` then published `0x6000000` to
+`0x5ce0bc`. On turn 49 / frame 193, complete `0x47c790` initialized that owner
+with cursor `0x600002a`, count/previous-count zero, device `0x4042200`, and the
+constructor/frame fields described above. The unchanged original painter then
+emitted 47 `0x47d8a0` triangle records: the count reached 47 and the cursor
+advanced to `0x60017aa`. This is original arena construction and triangle
+production, not a host-seeded command buffer.
+
+The proof stopped later in phase `unchanged-original-person-hut-painter` at
+`0x52a7f3`, still on turn 49 / frame 193. `pixelDiagnostics` remained `not-run`;
+there is therefore no matched native/browser pixel result and no new visible-
+doorway conclusion. The stop is also not an unsupported harness leaf: the saved
+result reports `inheritedMissingLeaf: null`.
+
+Static decoding identifies the exact runtime dependency. `0x45f713` calls
+`0x5162e0`; when `0x5da078` is nonzero that wrapper calls `0x52a7e0`. At
+`0x52a7ee`, the original executable loads dispatcher selector `0xD05AF0`;
+`0x52a7f3` immediately dereferences it and the saved run faults on address zero,
+before the virtual call through slot `+0x38`. Thus the new boundary is a missing
+original render-backend selector, not missing arena state or a person/admission
+operation.
+
+The corresponding original producer is also source-localized. `0x4b2650` returns
+the current runtime render descriptor at `[0xafc2f4] + 0x0c`. The normal frame
+outer loop passes that descriptor to `0x5281c0` at `0x522df3..0x522dfe` (and the
+repeat path does the same at `0x523134..0x52313f`). `0x5281c0` inspects the
+descriptor at `+0x20` and selects one of the original dispatch tables
+`0xD05B10`, `0xD05B18`, `0xD05B1C`, or `0xD05B20` into `0xD05AF0`.
+
+**Next exact matched-pixel prerequisite:** execute/bind that original descriptor
+producer and `0x5281c0` selector step for the same frame/pass before entering the
+preserved person/hut painter, then let `0x52a7e0` consume the resulting selector
+naturally. Do not host-write `0xD05AF0`, invent a vtable, or force
+`0x5da078 = 0` to divert into the software branch. After this prerequisite, a
+newly authorized proof still must reach the actual pixel diagnostic; the 47
+triangle commands alone do not establish framebuffer equality or disappearance.
 
 No browser production, admission, capacity, training or interpolation behavior
-was changed. There is no new multi-admission or visible-doorway conclusion. No
-browser/GPU, audio-acceptance, server or Ghidra run occurred in this continuation.
-The queue reached terminal failure; detailed child-exit/cleanup fields were not
-read and are not independently certified here. Research publication is limited
-to this appendix, with whitespace/source-scope checks; general TypeScript/build
-and gameplay suites are not relevant to the unchanged implementation.
+was changed. No gameplay fix is supported by this result. Research publication
+is limited to binding the saved native outcome and the next original producer
+boundary; TypeScript/build/gameplay suites are not relevant to the unchanged
+implementation.
