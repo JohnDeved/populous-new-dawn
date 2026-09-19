@@ -57,6 +57,21 @@ test('authored Mission16 already exposes both sprites without forced availabilit
   assert.deepEqual(w,before)
 })
 
+test('the original undiscovered spell question mark follows the accepted six-frame append',()=>{
+  assert.deepEqual(
+    [408,409,410,411,412,413].map(id=>hud.rects[id]),
+    [
+      {x:0,y:411,w:28,h:25},
+      {x:29,y:411,w:28,h:25},
+      {x:58,y:411,w:28,h:25},
+      {x:87,y:411,w:28,h:25},
+      {x:116,y:411,w:28,h:25},
+      {x:145,y:411,w:28,h:25},
+    ]
+  )
+  assert.deepEqual(hud.rects[1056],{x:0,y:437,w:20,h:23})
+})
+
 test('all shipped spell descriptor icons remain available after the append',()=>{
   for(const model of [2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21])
     for(const id of rules.spellCharging[model].icons)assert.ok(hud.rects[id],`${model}:${id}`)

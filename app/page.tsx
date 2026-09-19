@@ -38,10 +38,10 @@ import {
   ShamanHealth,
   ManaMeter,
 } from './hud'
-import { spellButton, spellOrder } from './spell-button'
+import { spellOrder } from './spell-button'
+import { spellHudButton, spellHudRoster, spellHudVisibility } from './spell-visibility'
 import { nativeUnitModel } from './unit-kinds'
 import {
-  campaignSpellModels,
   missionComputerTribes,
   missionNumbers,
   tutorialLevel,
@@ -76,8 +76,7 @@ export default function Home() {
     update = store.update
   const completedMissions = store.getCompletedMissions(),
     recommendedMission = missionNumbers.find(mission => !completedMissions.includes(mission))
-  const missionSpellModels = campaignSpellModels(world.outcome.level)
-  const spellRoster = SPELLS.filter(s => missionSpellModels.has(s.model) || world.shots[s.id] > 0)
+  const spellRoster = spellHudRoster(world)
   const { routeNotice } = world
   const [tab, setTab] = useState<'spells' | 'buildings' | 'followers'>('spells')
   const [sound, setSound] = useState(false)
@@ -237,9 +236,7 @@ export default function Home() {
       }
       const s =
         !e.code.startsWith('Numpad') &&
-        SPELLS.find(
-          s => s.key === e.key && (missionSpellModels.has(s.model) || world.shots[s.id] > 0)
-        )
+        SPELLS.find(s => s.key === e.key && spellHudVisibility(world, s) === 'visible')
       if (s) {
         store.change(w => {
           w.mode = w.mode === s.id ? null : s.id
@@ -885,46 +882,73 @@ export default function Home() {
           {tab === 'spells' && (
             <div className="spell-list">
               {spellRoster
-                .toSorted((a, b) => spellOrder.indexOf(a.model) - spellOrder.indexOf(b.model))
-                .map(s => {
-                  const permanent = !!(world.manaWorld.spells[0].available & (1 << s.model)),
-                    view = spellButton({
+                .toSorted(
+                  (a, b) =>
+                    spellOrder.indexOf(a.spell.model) - spellOrder.indexOf(b.spell.model)
+                )
+                .map(({ spell: s, visibility }) => {
+                  const player = world.manaWorld.playerTribe,
+                    owner = world.manaTribes[player]?.spellOwner ?? player,
+                    permanent = !!(
+                      world.manaWorld.spells[owner]?.available &
+                      (1 << s.model)
+                    ),
+                    undiscovered = visibility === 'undiscovered',
+                    interactive = visibility === 'visible',
+                    view = spellHudButton(visibility, {
                       model: s.model,
                       permanent,
                       charging:
-                        permanent && !(world.manaWorld.spells[0].disabled & (1 << (s.model - 1))),
-                      hovered: hover === s.id,
-                      selected: world.mode === s.id,
+                        permanent &&
+                        !(world.manaWorld.spells[player].disabled & (1 << (s.model - 1))),
+                      hovered: !undiscovered && hover === s.id,
+                      selected: interactive && world.mode === s.id,
                       stock: world.shots[s.id],
                       gifts: world.giftCounts[s.id],
-                      progress: world.manaTribes[0].spellProgress[s.model],
+                      progress: world.manaTribes[player].spellProgress[s.model],
                     })
                   return (
                     <button
                       key={s.id}
                       className="spell-card"
-                      style={{ borderImageSource: `url('/original/hud-${view.frame}.png')` }}
-                      aria-label={`${s.name}, ${world.shots[s.id]} shots`}
-                      aria-pressed={world.mode === s.id}
-                      title={`${s.name}${permanent ? ' · Right-click to pause or resume charging' : ''}`}
-                      onClick={() =>
+                      style={{
+                        borderImageSource: `url('/original/hud-${view.frame}.png')`,
+                        cursor: undiscovered ? 'default' : undefined,
+                      }}
+                      aria-label={
+                        undiscovered ? 'Undiscovered spell' : `${s.name}, ${world.shots[s.id]} shots`
+                      }
+                      aria-disabled={visibility !== 'visible'}
+                      aria-pressed={interactive && world.mode === s.id}
+                      title={
+                        undiscovered
+                          ? 'Undiscovered spell'
+                          : `${s.name}${permanent ? ' · Right-click to pause or resume charging' : ''}`
+                      }
+                      onClick={() => {
+                        if (!interactive) return
                         store.change(w => {
                           w.mode = w.mode === s.id ? null : s.id
                         })
-                      }
+                      }}
                       onContextMenu={e => {
                         e.preventDefault()
+                        if (undiscovered) return
                         if (permanent)
                           store.change(w => {
                             const bit = 1 << (s.model - 1)
-                            w.manaWorld.spells[0].disabled ^= bit
+                            w.manaWorld.spells[player].disabled ^= bit
                             if (s.id === 'blast')
-                              w.charging = !(w.manaWorld.spells[0].disabled & bit)
+                              w.charging = !(w.manaWorld.spells[player].disabled & bit)
                           })
                       }}
-                      onMouseEnter={() => setHover(s.id)}
+                      onMouseEnter={() => {
+                        if (!undiscovered) setHover(s.id)
+                      }}
                       onMouseLeave={() => setHover(null)}
-                      onFocus={() => setHover(s.id)}
+                      onFocus={() => {
+                        if (!undiscovered) setHover(s.id)
+                      }}
                       onBlur={() => setHover(null)}
                     >
                       <SpellButtonArt view={view} />
