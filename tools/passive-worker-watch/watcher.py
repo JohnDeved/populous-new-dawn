@@ -136,6 +136,33 @@ def new_state(config, root, now):
             'readerFailures': 0, 'nextReadAt': 0, 'observations': 0, 'lastObservationAt': 0}
 
 
+def validate_event(event, key, kind):
+    """Validate every field used after loading; malformed intent must be quarantined."""
+    prefix = 'final:' if kind == 'final_report' else 'error:'
+    if (kind not in {'final_report', 'local_error'} or not isinstance(event, dict)
+            or not isinstance(key, str) or not re.fullmatch(prefix + r'[0-9a-f]{64}', key)
+            or event.get('key') != key or event.get('kind') != kind
+            or event.get('worker') not in records.WORKERS.values()
+            or type(event.get('number')) is not int
+            or records.WORKERS.get(event['number']) != event['worker']
+            or records.timestamp(event.get('at')) is None):
+        raise ValueError('Invalid persisted event identity/kind/timestamp')
+    record_key = event.get('recordKey')
+    if not isinstance(record_key, str) or len(record_key) > 256:
+        raise ValueError('Invalid persisted event record key')
+    if kind == 'local_error':
+        expected = 'turn:' + event['worker'] + ':'
+        if (event.get('source') != 'thread_turns' or event.get('alreadyAddressedToCoordinator') is not False
+                or not record_key.startswith(expected) or len(record_key) == len(expected)):
+            raise ValueError('Invalid persisted pending-error fields')
+    elif (event.get('alreadyAddressedToCoordinator') is not True
+          or event.get('source') not in {'queued_items', 'thread_items', 'thread_realtime_items'}
+          or event.get('reportedState') not in records.FINAL_STATES
+          or event.get('attribution') not in {'current-number-self-report', 'explicit-id-self-report'}
+          or not record_key.startswith('coordinator:') or len(record_key) == len('coordinator:')):
+        raise ValueError('Invalid persisted final-report fields')
+
+
 def load_state(path, config, root, now):
     if not path.exists():
         return new_state(config, root, now)
@@ -162,10 +189,31 @@ def load_state(path, config, root, now):
             raise ValueError('Invalid seen-event timestamp')
         if len(state['seen']) > 2048 or len(state['attempts']) > 64 or len(state['events']) > 128:
             raise ValueError('Persisted event bounds exceeded')
-        for event in list(state['pending'].values()) + list(state['latestFinal'].values()):
-            if (not isinstance(event, dict) or event.get('worker') not in records.WORKERS.values()
-                    or records.timestamp(event.get('at')) is None):
-                raise ValueError('Invalid persisted event')
+        for key, event in state['pending'].items():
+            validate_event(event, key, 'local_error')
+        for worker, event in state['latestFinal'].items():
+            validate_event(event, event.get('key') if isinstance(event, dict) else None, 'final_report')
+            if worker != event['worker']:
+                raise ValueError('Final-report map identity mismatch')
+        for event in state['events']:
+            if not isinstance(event, dict):
+                raise ValueError('Invalid persisted event journal')
+            validate_event(event, event.get('key'), event.get('kind'))
+        # Upgrade retained v2 receipts without inventing an original timestamp.
+        # Final semantic keys never age out; the map's capacity remains fail-closed.
+        finals = [e for e in state['events'] if e['kind'] == 'final_report'] + list(state['latestFinal'].values())
+        for event in finals:
+            key = event['key']
+            state['seen'][key] = min(state['seen'].get(key, event['at']), event['at'])
+        if len(state['seen']) > 2048:
+            raise ValueError('Final identity preservation exceeds dedupe capacity')
+        for event in finals:
+            canonical = {**event, 'at': state['seen'][event['key']]}
+            prior = state['latestFinal'].get(event['worker'])
+            if prior and prior['key'] == canonical['key']:
+                prior['at'] = canonical['at']
+            elif prior is None or prior['at'] < canonical['at']:
+                state['latestFinal'][event['worker']] = canonical
         for attempt in state['attempts']:
             if not isinstance(attempt, dict) or records.timestamp(attempt.get('at')) is None:
                 raise ValueError('Invalid output intent')
@@ -199,14 +247,12 @@ def observe(state, snapshot, config, now):
         raise records.EvidenceUnavailable('Managed metadata binding is missing or ambiguous')
     state['observations'] += 1
     state['lastObservationAt'] = now
-    state['health'] = {'status': 'ok', 'at': now}
     state['workers'] = snapshot['workers']
     state['capabilities'] = snapshot['claims']
     state['localTurnCoverage'] = snapshot['localTurnCoverage']
-    state['readerFailures'] = 0
-    state['nextReadAt'] = now + config['pollSeconds']
     age = config['eventMaxAgeSeconds']
-    state['seen'] = {k: at for k, at in state['seen'].items() if now - at <= age * 2}
+    state['seen'] = {k: at for k, at in state['seen'].items()
+                     if k.startswith('final:') or now - at <= age * 2}
     incoming = []
     # Finals first: a coordinator-addressed final can cover an error in the same read.
     events = sorted(snapshot['events'], key=lambda e: (e['kind'] != 'final_report', e['at']))
@@ -214,14 +260,20 @@ def observe(state, snapshot, config, now):
         if not 0 <= now - event['at'] <= age or event['worker'] not in records.WORKERS.values():
             continue
         if event['key'] in state['seen']:
-            continue  # Delivery copies must not refresh a prior report's time.
+            if event['kind'] == 'final_report':
+                original = min(state['seen'][event['key']], event['at'])
+                state['seen'][event['key']] = original
+                prior = state['latestFinal'].get(event['worker'])
+                if prior and prior['key'] == event['key']:
+                    prior['at'] = min(prior['at'], original)
+            continue  # A later transport copy never creates a new final timestamp.
         if event['kind'] == 'final_report':
             prior = state['latestFinal'].get(event['worker'])
             if prior is None or prior['at'] < event['at']:
                 state['latestFinal'][event['worker']] = event
         if len(state['seen']) >= 2048:
             raise records.EvidenceUnavailable('Event deduplication capacity exceeded')
-        state['seen'][event['key']] = now
+        state['seen'][event['key']] = event['at'] if event['kind'] == 'final_report' else now
         receipt = {**event, 'disposition': 'baseline' if event['at'] <= state['startedAt'] else 'observed'}
         if event['kind'] == 'final_report':
             receipt['disposition'] = 'covered-by-coordinator-handoff'
@@ -241,6 +293,8 @@ def observe(state, snapshot, config, now):
 
 
 def notify_pending(state, config, now, persist, output=enqueue):
+    for key, event in state['pending'].items():
+        validate_event(event, key, 'local_error')
     if state['outputBlocked'] or now < state['nextNotifyAt']:
         return None
     eligible = [e for e in state['pending'].values()
@@ -284,6 +338,19 @@ def notify_pending(state, config, now, persist, output=enqueue):
         state['nextNotifyAt'] = now + delay
     persist(state)
     return result
+
+
+def cycle_succeeded(state, config, now):
+    # Only full read + processing/output completion clears an earlier failure.
+    state['readerFailures'] = 0
+    state['nextReadAt'] = now + config['pollSeconds']
+    state['health'] = {'status': 'ok', 'at': now}
+
+
+def cycle_failed(state, config, now, problem):
+    state['readerFailures'] += 1
+    state['nextReadAt'] = now + min(300, config['pollSeconds'] * 2 ** min(state['readerFailures'] - 1, 5))
+    state['health'] = {'status': 'read-error', 'at': now, 'detail': problem}
 
 
 def dry(source, root, destination):
@@ -337,15 +404,17 @@ def daemon(source, directory, root):
                     try:
                         snapshot = records.snapshot(root, config, now)
                         events = observe(state, snapshot, config, time.time())
-                        if last_problem is not None:
-                            log.info('Local records recovered')
-                            last_problem = None
                         for event in events:
                             log.info('Local event: %s', json.dumps(event, sort_keys=True))
                         atomic(path, state)
                         result = notify_pending(state, config, time.time(), lambda s: atomic(path, s))
                         if result is not None:
                             log.info('Output receipt: %s', json.dumps(result, sort_keys=True))
+                        cycle_succeeded(state, config, time.time())
+                        atomic(path, state)
+                        if last_problem is not None:
+                            log.info('Local records recovered')
+                            last_problem = None
                     except CleanupUnverified as error:
                         state['outputBlocked'] = True
                         state['health'] = {'status': 'cleanup-unverified', 'at': now, 'detail': str(error)}
@@ -353,9 +422,7 @@ def daemon(source, directory, root):
                         return 2
                     except Exception as error:
                         problem = type(error).__name__ + ': ' + str(error)[:300]
-                        state['readerFailures'] += 1
-                        state['nextReadAt'] = now + min(300, config['pollSeconds'] * 2 ** min(state['readerFailures'] - 1, 5))
-                        state['health'] = {'status': 'read-error', 'at': now, 'detail': problem}
+                        cycle_failed(state, config, now, problem)
                         if problem != last_problem:
                             log.warning('Local evidence unavailable, not a worker error: %s', problem)
                             last_problem = problem

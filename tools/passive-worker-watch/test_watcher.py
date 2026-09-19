@@ -461,7 +461,7 @@ class LifecycleAndSurfaceTests(DatabaseCase):
     def test_green_gate_binds_source_root_freshness_and_honest_claims(self):
         dry_path = self.root / 'dry.json'; tests_path = self.root / 'tests.json'
         with patch.object(watcher.time, 'time', return_value=NOW): watcher.dry(ROOT, self.root, dry_path)
-        tests_path.write_text(json.dumps({'status': 'passed', 'fingerprints': watcher.fingerprints(ROOT)}))
+        tests_path.write_text(json.dumps(valid_test_receipt(NOW)))
         self.assertEqual(service.validate_gate(ROOT, self.root, dry_path, tests_path, NOW + 1), watcher.fingerprints(ROOT))
         with self.assertRaises(RuntimeError): service.validate_gate(ROOT, self.root, dry_path, tests_path, NOW + 901)
         value = json.loads(dry_path.read_text()); value['snapshot']['claims']['activeStatus'] = True
@@ -474,6 +474,164 @@ class LifecycleAndSurfaceTests(DatabaseCase):
         for handler in log.handlers: handler.close()
         self.assertLessEqual(len(list(self.root.glob('watcher.log*'))), 3)
         self.assertTrue(all(p.stat().st_size <= 262144 for p in self.root.glob('watcher.log*')))
+
+
+def valid_test_receipt(now):
+    import verify
+    return {'version': 1, 'kind': 'passive-watcher-tests', 'status': 'passed',
+            'startedAt': now - 1, 'finishedAt': now, 'exitCode': 0,
+            'testsDiscovered': 44, 'testsRun': 44, 'testsPassed': 44,
+            'failures': 0, 'errors': 0, 'skipped': 0, 'exceptional': 0,
+            'fingerprints': watcher.fingerprints(ROOT),
+            'testFingerprints': verify.test_fingerprints(ROOT), 'sourceUnchanged': True}
+
+
+class Reviewer1bRegressions(DatabaseCase):
+    def test_delayed_identical_final_cannot_cover_newer_error_after_1800s(self):
+        self.add_final(at=NOW - 1)
+        state = self.state()
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        original = copy.deepcopy(state['latestFinal'][IDS[0]])
+        later = NOW + 1801
+        watcher.observe(state, self.snapshot(later), CONFIG, later)  # Old transient window is empty.
+        path = self.root / 'state.json'
+        watcher.atomic(path, state)
+        state = watcher.load_state(path, CONFIG, self.root, later)
+        self.add_final(at=later + 2, ident='delayed-copy', table='thread_items')
+        self.add_turn(at=later + 1, ident='genuinely-new-error')
+        watcher.observe(state, self.snapshot(later + 3), CONFIG, later + 3)
+        self.assertEqual(state['latestFinal'][IDS[0]]['at'], original['at'])
+        self.assertEqual(state['latestFinal'][IDS[0]]['key'], original['key'])
+        self.assertEqual(state['seen'][original['key']], original['at'])
+        self.assertEqual(len(state['pending']), 1, 'old final must not suppress the newer error')
+
+    def test_missing_kind_pending_is_quarantined_before_consumption(self):
+        state = self.state()
+        self.add_turn()
+        event = copy.deepcopy(self.snapshot()['events'][0])
+        del event['kind']
+        state['pending'][event['key']] = event
+        path = self.root / 'state.json'
+        watcher.atomic(path, state)
+        recovered = watcher.load_state(path, CONFIG, self.root, NOW)
+        self.assertEqual(recovered['pending'], {})
+        self.assertTrue(recovered['outputBlocked'])
+        preserved = list(self.root.glob('state.preserved.*.json'))
+        self.assertEqual(len(preserved), 1)
+        self.assertNotIn('kind', json.loads(preserved[0].read_text())['pending'][event['key']])
+        watcher.notify_pending(recovered, CONFIG, NOW, lambda s: None,
+                               lambda _: self.fail('quarantined record must not send'))
+
+    def test_observe_cannot_reset_incomplete_cycle_failure_backoff(self):
+        state = self.state()
+        state['readerFailures'] = 3
+        state['nextReadAt'] = NOW + 120
+        state['health'] = {'status': 'read-error', 'at': NOW - 30}
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(state['readerFailures'], 3)
+        self.assertEqual(state['nextReadAt'], NOW + 120)
+        self.assertEqual(state['health']['status'], 'read-error')
+
+    def test_migration_restores_original_final_identity_from_retained_journal(self):
+        self.add_final(at=NOW - 1)
+        state = self.state()
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        original = copy.deepcopy(state['latestFinal'][IDS[0]])
+        state['seen'].clear()  # Old v2 code pruned the key after 1800 seconds.
+        path = self.root / 'state.json'
+        watcher.atomic(path, state)
+        recovered = watcher.load_state(path, CONFIG, self.root, NOW + 1801)
+        self.assertFalse(recovered['outputBlocked'])
+        self.assertEqual(recovered['seen'][original['key']], original['at'])
+
+    def test_final_identity_survives_journal_rotation_and_later_distinct_final(self):
+        self.add_final(at=NOW - 1)
+        state = self.state()
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        original = copy.deepcopy(state['latestFinal'][IDS[0]])
+        self.add_final('Worker1 | #newer | DONE', at=NOW + 5, ident='newer-final')
+        watcher.observe(state, self.snapshot(NOW + 10), CONFIG, NOW + 10)
+        newer = copy.deepcopy(state['latestFinal'][IDS[0]])
+        state['events'] = []  # Model bounded journal rotation, not identity deletion.
+        later = NOW + 2000
+        self.add_final(at=later, ident='ancient-copy')
+        watcher.observe(state, self.snapshot(later + 1), CONFIG, later + 1)
+        self.assertEqual(state['seen'][original['key']], original['at'])
+        self.assertEqual(state['latestFinal'][IDS[0]], newer)
+
+    def test_all_consumed_pending_fields_are_validated_at_load(self):
+        self.add_turn()
+        valid = self.snapshot()['events'][0]
+        mutations = [{'kind': None}, {'kind': 'final_report'}, {'key': 'error:wrong'},
+                     {'number': 5}, {'number': True}, {'worker': 'parked'}, {'at': 'invalid'},
+                     {'source': 'queued_items'}, {'recordKey': 'coordinator:wrong'},
+                     {'alreadyAddressedToCoordinator': True}]
+        for mutation in mutations:
+            with self.subTest(mutation=mutation):
+                state = self.state()
+                state['pending'][valid['key']] = {**valid, **mutation}
+                path = self.root / 'state.json'
+                watcher.atomic(path, state)
+                recovered = watcher.load_state(path, CONFIG, self.root, NOW)
+                self.assertEqual(recovered['pending'], {})
+                self.assertTrue(recovered['outputBlocked'])
+
+    def test_repeated_post_observe_failure_escalates_until_whole_cycle_succeeds(self):
+        self.add_turn()
+        state = self.state()
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        state['pending'][next(iter(state['pending']))].pop('kind')
+        for index, delta in enumerate([30, 60, 120], 1):
+            at = NOW + index
+            watcher.observe(state, self.snapshot(at), CONFIG, at)
+            with self.assertRaises(ValueError):
+                watcher.notify_pending(state, CONFIG, at, lambda s: None,
+                                       lambda _: self.fail('invalid intent cannot send'))
+            watcher.cycle_failed(state, CONFIG, at, 'invalid pending')
+            self.assertEqual(state['readerFailures'], index)
+            self.assertEqual(state['nextReadAt'], at + delta)
+        state['pending'] = {}
+        watcher.cycle_succeeded(state, CONFIG, NOW + 10)
+        self.assertEqual(state['readerFailures'], 0)
+        self.assertEqual(state['health']['status'], 'ok')
+        self.assertEqual(state['nextReadAt'], NOW + 40)
+
+    def test_future_inconsistent_or_unbound_test_receipts_fail_closed(self):
+        for mutation in [{'finishedAt': NOW + 1}, {'startedAt': NOW + 2},
+                         {'testsRun': True}, {'testsDiscovered': 45}, {'failures': 1},
+                         {'errors': 1}, {'skipped': 1}, {'exceptional': 1},
+                         {'testFingerprints': {}}, {'sourceUnchanged': False}, {'exitCode': False}]:
+            with self.subTest(mutation=mutation):
+                receipt = valid_test_receipt(NOW)
+                receipt.update(mutation)
+                with self.assertRaises(RuntimeError): service.validate_test_receipt(receipt, ROOT, NOW)
+        with self.assertRaises(RuntimeError): service.validate_test_receipt([], ROOT, NOW)
+
+    def test_test_receipt_freshness_boundary_and_actual_runner_contract(self):
+        import verify
+        receipt = valid_test_receipt(NOW)
+        self.assertIsNone(service.validate_test_receipt(receipt, ROOT, NOW + 899))
+        with self.assertRaises(RuntimeError): service.validate_test_receipt(receipt, ROOT, NOW + 900)
+        self.assertEqual(verify.test_fingerprints(ROOT), service.test_fingerprints(ROOT))
+        runner = (ROOT / 'verify.py').read_text()
+        self.assertIn('result.testsRun == discovered == passed', runner)
+        self.assertIn('result.wasSuccessful()', runner)
+
+    def test_aged_tests_receipt_rejected_despite_matching_pass_hashes(self):
+        dry_path, tests_path = self.root / 'dry.json', self.root / 'tests.json'
+        with patch.object(watcher.time, 'time', return_value=NOW): watcher.dry(ROOT, self.root, dry_path)
+        tests_path.write_text(json.dumps(valid_test_receipt(NOW - 901)))
+        with self.assertRaises(RuntimeError): service.validate_gate(ROOT, self.root, dry_path, tests_path, NOW)
+
+    def test_exit1_and_zero_tests_receipts_rejected_despite_pass_claim(self):
+        dry_path, tests_path = self.root / 'dry.json', self.root / 'tests.json'
+        with patch.object(watcher.time, 'time', return_value=NOW): watcher.dry(ROOT, self.root, dry_path)
+        for mutation in [{'exitCode': 1}, {'testsDiscovered': 0, 'testsRun': 0, 'testsPassed': 0}]:
+            with self.subTest(mutation=mutation):
+                receipt = valid_test_receipt(NOW)
+                receipt.update(mutation)
+                tests_path.write_text(json.dumps(receipt))
+                with self.assertRaises(RuntimeError): service.validate_gate(ROOT, self.root, dry_path, tests_path, NOW)
 
 
 if __name__ == '__main__':

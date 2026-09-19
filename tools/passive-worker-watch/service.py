@@ -76,6 +76,33 @@ def status(home, plist_path):
             'statePath': str(state_path), 'label': LABEL}
 
 
+TEST_SOURCES = ('verify.py', 'test_watcher.py', 'fixtures/local-events.json')
+
+
+def test_fingerprints(source):
+    return {name: watcher.sha(source / name) for name in TEST_SOURCES}
+
+
+def validate_test_receipt(tests, source, now):
+    if not isinstance(tests, dict):
+        raise RuntimeError('Malformed test receipt')
+    counts = ('testsDiscovered', 'testsRun', 'testsPassed', 'failures', 'errors', 'skipped', 'exceptional')
+    times = [tests.get('startedAt'), tests.get('finishedAt')]
+    if (type(tests.get('version')) is not int or tests['version'] != 1
+            or tests.get('kind') != 'passive-watcher-tests' or tests.get('status') != 'passed'
+            or tests.get('sourceUnchanged') is not True
+            or type(tests.get('exitCode')) is not int or tests['exitCode'] != 0
+            or not all(type(tests.get(k)) is int and tests[k] >= 0 for k in counts)
+            or not all(type(t) in (int, float) and watcher.records.math.isfinite(t) and t > 0 for t in times)):
+        raise RuntimeError('Complete successful test counts, exit code and timestamps required')
+    if (not times[0] <= times[1] <= now or now - times[0] > 900
+            or not 0 < tests['testsDiscovered'] == tests['testsRun'] == tests['testsPassed']
+            or any(tests[k] != 0 for k in ('failures', 'errors', 'skipped', 'exceptional'))
+            or tests.get('fingerprints') != watcher.fingerprints(source)
+            or tests.get('testFingerprints') != test_fingerprints(source)):
+        raise RuntimeError('Fresh, nonempty, internally consistent exact-source test receipt required')
+
+
 def validate_gate(source, root, dry_path, tests_path, now):
     expected = watcher.fingerprints(source)
     dry = json.loads(dry_path.read_text())
@@ -91,8 +118,7 @@ def validate_gate(source, root, dry_path, tests_path, now):
             or snapshot.get('claims', {}).get('silentStops') is not False
             or snapshot.get('claims', {}).get('activeStatus') is not False):
         raise RuntimeError('Fresh exact-source local-event dry receipt with honest reduced claims required')
-    if tests.get('status') != 'passed' or tests.get('fingerprints') != expected:
-        raise RuntimeError('Passing exact-source tests receipt required')
+    validate_test_receipt(tests, source, now)
     return expected
 
 

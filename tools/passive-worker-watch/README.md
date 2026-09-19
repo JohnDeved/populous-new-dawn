@@ -57,10 +57,21 @@ not worker errors. Local reads back off to at most five minutes; no API fallback
 
 Cold start baselines existing records without alerts. Restarts preserve consumed
 event and output intent. Legacy/corrupt/incompatible state is archived, then starts
-unarmed with output blocked until an owner reviews the uncertainty. Records older
+unarmed with output blocked until an owner reviews the uncertainty. Pending
+records must have consistent key, kind, managed worker/number, timestamp, source,
+record identity and coordinator-addressed flag before consumption. A malformed
+record quarantines the persisted state instead of recurring every poll. Reader
+backoff resets only after the entire read/process/output cycle succeeds, never
+just because `observe` completed before a later processing failure. Records older
 than the configured event window cannot reappear as new work. State contains at
-most 2,048 recent keys, 128 event receipts, 64 output receipts and one latest final
-per managed worker. Logs rotate across three files capped at 256 KiB each.
+most 2,048 dedupe keys, 128 event receipts, 64 output receipts and one latest final
+per managed worker. Error keys age out after 1,800 seconds; final semantic keys
+retain their earliest observed event timestamp for this managed configuration
+without that TTL. Delayed identical coordinator copies cannot refresh a final or
+cover a newer error. Retained journal/latest-final timestamps backfill older v2
+state on loading; missing history is never invented. Capacity exhaustion is a
+visible fail-closed condition, not permission to evict final identities silently.
+Logs rotate across three files capped at 256 KiB each.
 
 Only a new uncovered local error may call the local Codex queue CLI, only to the
 configured coordinator, at most once per minute. Durable consumed intent precedes
@@ -75,7 +86,8 @@ unverified child-cleanup identity stops the daemon; it is never blindly signalle
 From the repository root, using Python 3.9+:
 
 ```sh
-python3 -B -m unittest discover -s tools/passive-worker-watch -p test_watcher.py
+python3 -B tools/passive-worker-watch/verify.py \
+  --receipt work/orchestration/passive-four-watcher/local-events/tests.json
 python3 -B tools/passive-worker-watch/watcher.py dry \
   --receipt work/orchestration/passive-four-watcher/local-events/live-dry.json
 ```
@@ -99,9 +111,13 @@ review, with fingerprints for the actual source tested.
 ## Installation, status, disable and uninstall
 
 The sole label is `com.populous.worker-watcher`. Install requires fresh (within
-15 minutes) passing dry and test receipts whose runtime hashes match. `tests.json`
-must come from the actual check run and contain `status: passed` plus the exact
-`fingerprints`; a failed reduced-claim receipt cannot be used to install.
+15 minutes) passing dry and test receipts whose runtime hashes match. Generate
+`tests.json` with `verify.py`, not a handwritten pass summary. The gate requires
+fresh ordered start/finish times, exit code zero, positive equal discovered/run/
+passed counts, no failures/errors/skips/exceptional outcomes, and matching runtime
+plus verifier/test/fixture hashes. A stale, zero-test, failed or contradictory
+receipt is rejected even when its status/fingerprints claim a pass. A failed
+reduced-claim dry receipt also cannot be used to install.
 
 ```sh
 python3 -B tools/passive-worker-watch/service.py status
