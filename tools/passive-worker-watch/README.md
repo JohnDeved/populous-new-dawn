@@ -53,6 +53,7 @@ Use Python 3.9+ and the installed macOS Swift compiler. From the repository root
 mkdir -p work/orchestration/passive-four-watcher
 swiftc tools/passive-worker-watch/sidebar.swift -o work/orchestration/passive-four-watcher/sidebar
 work/orchestration/passive-four-watcher/sidebar --self-test
+work/orchestration/passive-four-watcher/sidebar --root-fixture tools/passive-worker-watch/fixtures/application-root-cycle.json
 python3 -B -m unittest discover -s tools/passive-worker-watch -p test_watcher.py
 python3 -B tools/passive-worker-watch/watcher.py dry \
   --sampler work/orchestration/passive-four-watcher/sidebar \
@@ -81,6 +82,29 @@ diff. The engineering plan reports these new tool paths as unmapped. The contrac
 preparer currently requires a gameplay subsystem, so its rejection is recorded
 instead of modifying the mapping or inventing gameplay coverage. Scope is audited
 against `tools/passive-worker-watch/**`; no parity/hosting files change.
+
+## Observed root-provider failure
+
+The follow-up passive structural trace found a more precise boundary than missing
+labels: `AXWindows`, `AXMainWindow` and `AXFocusedWindow` returned the application
+itself (`AXApplication`, identical by `CFEqual`). Its children were itself and two
+menu bars, not a rendered worker sidebar. The sampler now validates window role,
+identity and geometry before walking, emits the redacted `windowRoots` shape, and
+reports `accessibility-window-is-application-self-reference` instead of pretending
+that a successful AX call supplied a usable window. The observed shape is retained
+in `fixtures/application-root-cycle.json` and used by pure Swift/Python regressions.
+It never arms an idle event and never satisfies the installation gate.
+
+Read-only navigation-order/visible-child roots, focused-element ancestry, passive
+app hit-testing and a bounded AX notification subscription exposed no valid window.
+System-wide hit-testing resolved a different application and was discarded without
+reading that application's contents. A permission-only check found no already-
+running/authorized System Events helper, so no AppleScript request or prompt ran.
+Those are ignored diagnosis receipts, not additional runtime polling fallbacks.
+No accessibility flag, task, window or permission was changed. There is no observed
+worker-row shape to map safely until the app exposes a real AX window; do not
+broaden labels, infer idle from the cycle, enable app accessibility via a setter,
+or resurrect navigation/task APIs to manufacture a green result.
 
 ## Single-agent lifecycle
 

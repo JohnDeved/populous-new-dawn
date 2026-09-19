@@ -341,6 +341,47 @@ class SurfaceTests(unittest.TestCase):
 
 
 class FinalBoundaryTests(unittest.TestCase):
+    def test_observed_application_cycle_cannot_produce_idle(self):
+        shape = json.loads((ROOT / 'fixtures/application-root-cycle.json').read_text())
+        self.assertTrue(shape['windows'][0]['sameAsApplication'])
+        self.assertEqual(shape['applicationChildRoles'], ['AXApplication', 'AXMenuBar', 'AXMenuBar'])
+        state = watcher.initial(CONFIG)
+        watcher.observe(state, observation(1000, 'working'), [], CONFIG, 1000)
+        broken = observation(1030, complete=shape['expectedComplete'])
+        broken['reason'] = shape['windows'][0]['expectedIssue']
+        broken['windowRoots'] = shape['windows']
+        broken['rows'] = {ident: {'count': 0, 'visible': False, 'status': 'unknown'} for ident in IDS}
+        for at in [1030, 1060, 1090]:
+            broken.update(at=at, sampleId=str(at))
+            self.assertEqual(watcher.observe(state, broken, [], CONFIG, at), [])
+        self.assertEqual(state['pending'], [])
+        self.assertTrue(all(w['phase'] == 'unknown' for w in state['workers'].values()))
+        watcher.notify_pending(state, CONFIG, [], 1090, lambda s: None,
+                               lambda _: self.fail('provider failure must not send'))
+
+    def test_provider_failure_is_not_a_label_mapping_fallback(self):
+        source = (ROOT / 'sidebar.swift').read_text()
+        self.assertIn('let same = CFEqual(window, root)', source)
+        self.assertIn('windowIssue(role: role, sameAsApplication: same', source)
+        self.assertIn('"windowRoots": rootShapes', source)
+        self.assertNotIn('AXEnhancedUserInterface', source)
+        self.assertNotIn('AXManualAccessibility', source)
+        self.assertNotIn('AXUIElementCopyElementAtPosition', source)
+        # Structural alternatives are diagnosis receipts, never a polling fallback.
+        self.assertEqual(len(CONFIG['workers']), 4)
+
+    def test_root_failure_dry_stops_after_one_passive_read(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            shape = json.loads((ROOT / 'fixtures/application-root-cycle.json').read_text())
+            value = observation(1000, trusted=True, complete=False,
+                                reason=shape['windows'][0]['expectedIssue'])
+            with patch.object(watcher, 'fingerprints', return_value={}), patch.object(watcher, 'sample', return_value=value) as sampler, patch.object(watcher, 'enqueue') as output:
+                result = watcher.dry(ROOT, Path(tmp) / 'sidebar', Path(tmp), Path(tmp) / 'dry.json')
+            self.assertEqual(result['blocker'], 'accessibility-window-is-application-self-reference')
+            self.assertEqual(result['notificationCalls'], 0)
+            sampler.assert_called_once()
+            output.assert_not_called()
+
     def test_titles_cannot_redirect_to_parked_rows(self):
         with tempfile.TemporaryDirectory() as tmp:
             value = copy.deepcopy(CONFIG)

@@ -6,6 +6,30 @@ import Foundation
 struct Worker: Decodable { let number: Int; let id: String; let title: String }
 struct Configuration: Decodable { let version: Int; let appBundle: String; let workers: [Worker] }
 
+// AXWindows can successfully return the application itself instead of a window.
+// Never interpret that provider failure as an empty sidebar or four idle workers.
+func windowIssue(role: String, sameAsApplication: Bool, hasGeometry: Bool) -> String {
+    if sameAsApplication { return "accessibility-window-is-application-self-reference" }
+    if role != "AXWindow" { return "accessibility-window-role-unavailable" }
+    if !hasGeometry { return "accessibility-window-geometry-unavailable" }
+    return ""
+}
+struct RootFixture: Decodable {
+    struct Window: Decodable {
+        let role: String; let sameAsApplication: Bool; let hasGeometry: Bool; let expectedIssue: String
+    }
+    let windows: [Window]
+}
+if CommandLine.arguments.count == 3 && CommandLine.arguments[1] == "--root-fixture" {
+    let fixture = try JSONDecoder().decode(RootFixture.self, from: Data(contentsOf: URL(fileURLWithPath: CommandLine.arguments[2])))
+    for window in fixture.windows {
+        assert(windowIssue(role: window.role, sameAsApplication: window.sameAsApplication,
+                           hasGeometry: window.hasGeometry) == window.expectedIssue)
+    }
+    print("PASS: observed root-provider shape; no accessibility observation performed")
+    exit(0)
+}
+
 func classify(_ labels: [String], visible: Bool, complete: Bool) -> String {
     guard visible && complete else { return "unknown" }
     if labels.contains("Working") { return labels.allSatisfy { $0 == "Working" } ? "working" : "unknown" }
@@ -20,6 +44,10 @@ if CommandLine.arguments.contains("--self-test") {
     assert(classify([], visible: false, complete: true) == "unknown")
     assert(classify([], visible: true, complete: false) == "unknown")
     assert(classify(["Unrecognized"], visible: true, complete: true) == "unknown")
+    assert(windowIssue(role: "AXWindow", sameAsApplication: false, hasGeometry: true).isEmpty)
+    assert(windowIssue(role: "AXWindow", sameAsApplication: false, hasGeometry: false) == "accessibility-window-geometry-unavailable")
+    assert(windowIssue(role: "AXApplication", sameAsApplication: false, hasGeometry: true) == "accessibility-window-role-unavailable")
+    assert(windowIssue(role: "AXApplication", sameAsApplication: true, hasGeometry: false) == "accessibility-window-is-application-self-reference")
     print("PASS: passive status classification; no accessibility observation performed")
     exit(0)
 }
@@ -90,6 +118,7 @@ func walk(_ element: AXUIElement, _ depth: Int, _ window: CGRect) {
 }
 let trusted = AXIsProcessTrusted() // Never requests permission or displays a prompt.
 var appIdentity = ""
+var rootShapes = [[String: Any]]()
 if !trusted {
     complete = false
     reason = "accessibility-not-trusted"
@@ -103,9 +132,21 @@ if !trusted {
         appIdentity = "\(app.processIdentifier):\(launched.timeIntervalSince1970)"
         let root = AXUIElementCreateApplication(app.processIdentifier)
         AXUIElementSetMessagingTimeout(root, 0.05)
-        for window in get(root, "AXWindows", required: true) as? [AXUIElement] ?? [] {
+        let windows = get(root, "AXWindows", required: true) as? [AXUIElement] ?? []
+        if windows.isEmpty { complete = false; reason = "accessibility-windows-unavailable" }
+        for window in windows {
+            let role = get(window, "AXRole", required: true) as? String ?? ""
+            let same = CFEqual(window, root)
+            let rect = same ? nil : rectangle(window)
+            let issue = windowIssue(role: role, sameAsApplication: same, hasGeometry: rect != nil)
+            rootShapes.append(["role": role, "sameAsApplication": same, "hasGeometry": rect != nil])
+            if !issue.isEmpty {
+                complete = false
+                reason = issue
+                continue
+            }
             if get(window, "AXMinimized") as? Bool == true { continue }
-            if let rect = rectangle(window) { walk(window, 0, rect) }
+            if let rect { walk(window, 0, rect) }
         }
     } else {
         complete = false
@@ -125,6 +166,6 @@ let result: [String: Any] = [
     "version": 1, "sampleId": UUID().uuidString, "at": started.timeIntervalSince1970,
     "elapsedSeconds": Date().timeIntervalSince(started), "trusted": trusted,
     "complete": complete && missing.isEmpty, "appIdentity": appIdentity,
-    "rows": resultRows, "unavailable": missing, "reason": reason,
+    "rows": resultRows, "unavailable": missing, "reason": reason, "windowRoots": rootShapes,
 ]
 print(String(data: try JSONSerialization.data(withJSONObject: result, options: .sortedKeys), encoding: .utf8)!)
