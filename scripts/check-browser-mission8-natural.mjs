@@ -118,6 +118,19 @@ async function advance(turns) {
   return result
 }
 async function focus(point) {
+  // The minimap is a cropped, rotated view: first use the shipped faction control
+  // to reach the enemy settlement, then refine the view with an actual map click.
+  const before = await snapshot()
+  await page.getByRole('button', { name: 'Focus Dakini tribe', exact: true }).click()
+  await page.evaluate(() => {
+    const s = window.testSceneRef.current
+    for (let i = 0; s.cameraMotion.active && i < 64; i++) s.updateCameraMotion(1 / 24)
+    s.onChange()
+  })
+  await render()
+  const after = await snapshot()
+  assert.equal(after.turn, before.turn, 'Camera input must not advance simulation')
+  assert.deepEqual(after.selected, before.selected, 'Faction focus must retain the party')
   // Read the actual minimap inverse, then click its closest displayed point.
   const screen = await page.evaluate(async target => {
     const s = window.testSceneRef.current,
