@@ -1,438 +1,479 @@
 import ast
 import copy
-import importlib.util
+from datetime import datetime, timezone
 import json
 import os
 from pathlib import Path
 import plistlib
+import socket
 import sqlite3
+import subprocess
+import sys
 import tempfile
 import unittest
 from unittest.mock import patch
-import sys
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
+import records
 import watcher
 import service
 
-CONFIG = watcher.configuration(ROOT / 'managed.json')
-IDS = list(watcher.EXPECTED.values())
+CONFIG = records.configuration(ROOT / 'managed.json')
+FIXTURE = json.loads((ROOT / 'fixtures/local-events.json').read_text())
+NOW = FIXTURE['now']
+IDS = list(records.WORKERS.values())
 
 
-def observation(at, status='clear', identity='111:start', **updates):
-    value = {'version': 1, 'sampleId': str(at), 'at': at, 'trusted': True,
-             'complete': True, 'appIdentity': identity,
-             'rows': {ident: {'count': 1, 'visible': True, 'status': status} for ident in IDS}}
-    value.update(updates)
-    return value
+def iso(value):
+    return datetime.fromtimestamp(value, timezone.utc).isoformat()
 
 
-def stopped(state, start=1000, kind='clear'):
-    watcher.observe(state, observation(start, 'working'), [], CONFIG, start)
-    watcher.observe(state, observation(start + 30, kind), [], CONFIG, start + 30)
-    return watcher.observe(state, observation(start + 60, kind), [], CONFIG, start + 60)
+def payload(text):
+    return json.dumps({'content': [{'type': 'text', 'text': text}]})
 
 
-class TransitionTests(unittest.TestCase):
+class DatabaseCase(unittest.TestCase):
     def setUp(self):
-        self.state = watcher.initial(CONFIG)
+        self.temporary = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temporary.cleanup)
+        self.root = Path(self.temporary.name)
+        self.cache = {'electron-persisted-atom-state': {'chatgpt-sidebar-state-v1': {
+            'redacted-scope': {'pinnedConversations': [
+                {'conversation': {'id': w['id'], 'title': w['title'], 'isTask': True,
+                                  'createdAt': iso(NOW - 3600), 'updatedAt': iso(NOW - 10),
+                                  'projectId': None}, 'pinnedAt': iso(NOW - 3500)}
+                for w in CONFIG['workers']], 'pinnedProjects': [], 'projects': []}},
+                'irrelevant-private-field': 'MUST-NOT-RETAIN'}, 'unrelated': 'MUST-NOT-RETAIN'}
+        self.write_cache()
+        schemas = {
+            'state_5.sqlite': ['CREATE TABLE threads(id TEXT PRIMARY KEY)'],
+            'queue_1.sqlite': ['CREATE TABLE queued_items(id TEXT,thread_id TEXT,created_at_ms INTEGER,payload_json TEXT)'],
+            'thread_history_1.sqlite': [
+                'CREATE TABLE thread_items(item_id TEXT,thread_id TEXT,created_at_ms INTEGER,item_json TEXT,item_type TEXT)',
+                'CREATE TABLE thread_realtime_items(item_id TEXT,thread_id TEXT,created_at_ms INTEGER,item_json TEXT,item_type TEXT)',
+                'CREATE TABLE thread_turns(thread_id TEXT,turn_id TEXT,status TEXT,started_at INTEGER,completed_at INTEGER,error_json TEXT,rollout_ordinal INTEGER)'],
+        }
+        for name, queries in schemas.items():
+            with sqlite3.connect(self.root / name) as connection:
+                for sql in queries: connection.execute(sql)
+        with sqlite3.connect(self.root / 'state_5.sqlite') as connection:
+            connection.execute('INSERT INTO threads VALUES(?)', (records.COORDINATOR,))
 
-    def test_managed_four_are_exact(self):
-        self.assertEqual({w['number'] for w in CONFIG['workers']}, {1, 2, 3, 5})
-        with tempfile.TemporaryDirectory() as tmp:
-            path = Path(tmp) / 'managed.json'
-            value = copy.deepcopy(CONFIG)
-            value['workers'].append({'number': 7, 'id': 'parked', 'title': 'Worker 7'})
-            path.write_text(json.dumps(value))
-            with self.assertRaises(ValueError):
-                watcher.configuration(path)
+    def write_cache(self):
+        (self.root / '.codex-global-state.json').write_text(json.dumps(self.cache))
 
-    def test_stale_idle_never_alerts(self):
-        for now in range(1000, 2000, 30):
-            self.assertEqual(watcher.observe(self.state, observation(now), [], CONFIG, now), [])
-        self.assertEqual(self.state['pending'], [])
+    def rows(self):
+        return self.cache['electron-persisted-atom-state']['chatgpt-sidebar-state-v1']['redacted-scope']['pinnedConversations']
 
-    def test_working_two_clear_alerts_once(self):
-        events = stopped(self.state)
-        self.assertEqual(len(events), 4)
-        self.assertTrue(all(e['status'] == 'idle' for e in events))
-        for now in range(1090, 2000, 30):
-            self.assertEqual(watcher.observe(self.state, observation(now), [], CONFIG, now), [])
+    def add_final(self, text='Worker1 | #x | DONE', at=NOW - 1, ident='message-1', table='queued_items', thread=records.COORDINATOR, item_type='userMessage'):
+        name = 'queue_1.sqlite' if table == 'queued_items' else 'thread_history_1.sqlite'
+        with sqlite3.connect(self.root / name) as connection:
+            if table == 'queued_items':
+                connection.execute('INSERT INTO queued_items VALUES(?,?,?,?)', (ident, thread, at * 1000, payload(text)))
+            else:
+                connection.execute(f'INSERT INTO {table} VALUES(?,?,?,?,?)', (ident, thread, at * 1000, payload(text), item_type))
 
-    def test_single_clear_and_cached_sample_do_not_confirm(self):
-        watcher.observe(self.state, observation(1000, 'working'), [], CONFIG, 1000)
-        for now in [1030, 1031, 1032]:
-            self.assertEqual(watcher.observe(self.state, observation(1030), [], CONFIG, now), [])
-        self.assertEqual(self.state['pending'], [])
+    def add_turn(self, status='failed', at=NOW - 1, ident='turn-1', worker=IDS[0], error='{"code":"synthetic"}', local=True):
+        if local:
+            with sqlite3.connect(self.root / 'state_5.sqlite') as connection:
+                connection.execute('INSERT OR IGNORE INTO threads VALUES(?)', (worker,))
+        with sqlite3.connect(self.root / 'thread_history_1.sqlite') as connection:
+            connection.execute('INSERT INTO thread_turns VALUES(?,?,?,?,?,?,?)',
+                               (worker, ident, status, at - 20, at, error, int(at)))
 
-    def test_confirmation_minimum_is_required(self):
-        watcher.observe(self.state, observation(1000, 'working'), [], CONFIG, 1000)
-        watcher.observe(self.state, observation(1030), [], CONFIG, 1030)
-        self.assertEqual(watcher.observe(self.state, observation(1040), [], CONFIG, 1040), [])
-        self.assertEqual(len(watcher.observe(self.state, observation(1050), [], CONFIG, 1050)), 4)
+    def snapshot(self, now=NOW):
+        return records.snapshot(self.root, CONFIG, now)
 
-    def test_unknown_duplicate_hidden_disarm(self):
-        for defect in ['incomplete', 'duplicate', 'hidden', 'missing', 'untrusted', 'unknown']:
-            with self.subTest(defect=defect):
-                state = watcher.initial(CONFIG)
-                watcher.observe(state, observation(1000, 'working'), [], CONFIG, 1000)
-                obs = observation(1030)
-                if defect == 'incomplete': obs['complete'] = False
-                elif defect == 'duplicate': obs['rows'][IDS[0]]['count'] = 2
-                elif defect == 'hidden': obs['rows'][IDS[0]]['visible'] = False
-                elif defect == 'missing': del obs['rows'][IDS[0]]
-                elif defect == 'untrusted': obs['trusted'] = False
-                else: obs['rows'][IDS[0]]['status'] = 'unknown'
-                self.assertEqual(watcher.observe(state, obs, [], CONFIG, 1030), [])
-                self.assertEqual(watcher.observe(state, observation(1060), [], CONFIG, 1060), [])
-                self.assertEqual(watcher.observe(state, observation(1090), [], CONFIG, 1090), [])
-
-    def test_parked_workers_ignored(self):
-        obs = observation(1000)
-        obs['rows']['parked-worker4'] = {'count': 1, 'visible': True, 'status': 'working'}
-        watcher.observe(self.state, obs, [], CONFIG, 1000)
-        obs = observation(1030)
-        obs['rows']['parked-worker4'] = {'count': 1, 'visible': True, 'status': 'clear'}
-        watcher.observe(self.state, obs, [], CONFIG, 1030)
-        self.assertEqual(watcher.observe(self.state, observation(1060), [], CONFIG, 1060), [])
-        self.assertEqual(set(self.state['workers']), set(IDS))
-
-    def test_app_restart_and_long_gap_require_fresh_working(self):
-        for at, identity in [(1030, '222:new'), (1200, '111:start')]:
-            state = watcher.initial(CONFIG)
-            watcher.observe(state, observation(1000, 'working'), [], CONFIG, 1000)
-            watcher.observe(state, observation(at, identity=identity), [], CONFIG, at)
-            self.assertEqual(watcher.observe(state, observation(at + 30, identity=identity), [], CONFIG, at + 30), [])
-
-    def test_explicit_system_error_only_after_working(self):
-        self.assertEqual(watcher.observe(self.state, observation(1000, 'systemError'), [], CONFIG, 1000), [])
-        self.assertTrue(all(e['status'] == 'systemError' for e in stopped(self.state, 1030, 'systemError')))
-
-    def test_self_report_suppresses_duplicate_but_old_report_does_not(self):
-        watcher.observe(self.state, observation(1000, 'working'), [], CONFIG, 1000)
-        watcher.observe(self.state, observation(1030), [], CONFIG, 1030)
-        reports = [{'worker': IDS[0], 'at': 1050}, {'worker': IDS[1], 'at': 999}]
-        events = watcher.observe(self.state, observation(1060), reports, CONFIG, 1060)
-        self.assertTrue(events[0]['coveredBySelfReport'])
-        self.assertEqual(len(self.state['pending']), 3)
-
-    def test_new_active_episode_rearms_once(self):
-        first = stopped(self.state)
-        second = stopped(self.state, 1090)
-        self.assertEqual([e['epoch'] for e in first], [1] * 4)
-        self.assertEqual([e['epoch'] for e in second], [2] * 4)
-
-    def test_restart_does_not_replay_stop_or_pending_event(self):
-        stopped(self.state)
-        watcher.restart(self.state, CONFIG)
-        self.assertEqual(self.state['pending'], [])
-        for now in [1090, 1120]:
-            self.assertEqual(watcher.observe(self.state, observation(now), [], CONFIG, now), [])
-
-    def test_clock_future_or_backwards_is_safe(self):
-        self.assertFalse(watcher.usable(observation(1200), CONFIG, 1000))
-        watcher.observe(self.state, observation(1000, 'working'), [], CONFIG, 1000)
-        watcher.observe(self.state, observation(990), [], CONFIG, 990)
-        self.assertEqual(watcher.observe(self.state, observation(1020), [], CONFIG, 1020), [])
+    def state(self, now=NOW - 5):
+        return watcher.new_state(CONFIG, self.root, now)
 
 
-class NotificationTests(unittest.TestCase):
-    def setUp(self):
-        self.state = watcher.initial(CONFIG)
-        stopped(self.state)
+class ReaderTests(DatabaseCase):
+    def test_exact_four_identity_and_no_fabricated_activity(self):
+        value = self.snapshot()
+        self.assertTrue(value['complete'])
+        self.assertEqual(set(value['workers']), set(IDS))
+        self.assertTrue(all(w['bound'] and w['liveStatus'] == 'unknown' for w in value['workers'].values()))
+        self.assertFalse(value['claims']['silentStops'])
+        self.assertFalse(value['claims']['activeStatus'])
+        self.assertTrue(all(v['recentTurnCount'] == 0 for v in value['localTurnCoverage'].values()))
+        self.assertNotIn('MUST-NOT-RETAIN', json.dumps(value))
 
-    def test_durable_intent_precedes_one_batched_notification(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            path = Path(tmp) / 'state.json'
+    def test_stale_cache_is_not_idle_or_fresh(self):
+        for row in self.rows():
+            row['conversation'].update(createdAt=iso(NOW - 200000), updatedAt=iso(NOW - 100000))
+        self.write_cache()
+        value = self.snapshot()
+        self.assertTrue(value['complete'])
+        self.assertTrue(all(not w['metadataFresh'] and w['liveStatus'] == 'unknown' for w in value['workers'].values()))
+        self.assertEqual(value['events'], [])
+
+    def test_missing_duplicate_title_mismatch_and_future_metadata(self):
+        original = copy.deepcopy(self.cache)
+        for fault in ['missing', 'duplicate', 'title', 'future', 'timestamp']:
+            self.cache = copy.deepcopy(original)
+            if fault == 'missing': self.rows().pop(0)
+            elif fault == 'duplicate': self.rows().append(copy.deepcopy(self.rows()[0]))
+            elif fault == 'title': self.rows()[0]['conversation']['title'] = 'Worker4 parked'
+            elif fault == 'future': self.rows()[0]['conversation']['updatedAt'] = iso(NOW + 1)
+            else: self.rows()[0]['conversation']['createdAt'] = 'invalid'
+            self.write_cache()
+            self.assertFalse(self.snapshot()['complete'], fault)
+
+    def test_parked_metadata_is_never_returned(self):
+        self.rows().append({'conversation': {'id': 'parked', 'title': 'Worker 4', 'status': 'failed'}})
+        self.write_cache()
+        self.add_turn(worker='parked')
+        self.add_final('Worker4 | #x | DONE')
+        value = self.snapshot()
+        self.assertNotIn('parked', json.dumps(value))
+        self.assertEqual(value['events'], [])
+
+    def test_header_fixtures_filter_only_explicit_finals(self):
+        bindings = self.snapshot()['workers']
+        for row in FIXTURE['headers']:
+            event = records.final_event(payload(row['text']), 'item', NOW - 1, bindings, NOW, 900, 'queued_items')
+            self.assertEqual(event is not None, row['accepted'], row['text'])
+
+    def test_timestamp_floor_staleness_and_future_rejected(self):
+        bindings = self.snapshot()['workers']
+        for at in [NOW + 1, NOW - 901, NOW - 4000]:
+            self.assertIsNone(records.final_event(payload('Worker1 | #x | DONE'), 'x', at, bindings, NOW, 900, 'queued_items'))
+        bindings[IDS[0]]['createdAt'] = NOW
+        self.assertIsNone(records.final_event(payload('Worker1 | #x | DONE'), 'x', NOW - 1, bindings, NOW, 900, 'queued_items'))
+
+    def test_correct_current_explicit_id_and_number_attribution(self):
+        self.add_final('Worker1 | chat_id=' + IDS[0] + ' | #x | DONE')
+        event = self.snapshot()['events'][0]
+        self.assertEqual(event['attribution'], 'explicit-id-self-report')
+        self.assertTrue(event['alreadyAddressedToCoordinator'])
+
+    def test_queue_realtime_history_copies_coalesce(self):
+        for table in ['queued_items', 'thread_items', 'thread_realtime_items']:
+            self.add_final(table=table)
+        self.add_final('Worker1  |  #x  | DONE', ident='copy-with-whitespace')
+        # Exact copies and repeated whitespace coalesce across all local transports.
+        value = self.snapshot()
+        self.assertEqual(len(value['events']), 1)
+        self.assertEqual(value['eventCounts'], {'queued_items': 2, 'thread_items': 1, 'thread_realtime_items': 1})
+
+    def test_foreign_thread_assistant_quotes_and_bad_payload_ignored(self):
+        self.add_final(thread='other-coordinator')
+        self.add_final(table='thread_items', item_type='agentMessage')
+        self.add_final('intro\nWorker1 | #x | DONE', ident='quoted')
+        self.add_final('Worker1 | #x | DONE maybe', ident='not-final')
+        self.assertEqual(self.snapshot()['events'], [])
+
+    def test_changed_report_is_new_but_body_not_retained(self):
+        self.add_final('Worker1 | #x | DONE\nHead: aaaa', ident='a')
+        self.add_final('Worker1 | #x | DONE\nHead: bbbb', ident='b')
+        value = self.snapshot()
+        self.assertEqual(len(value['events']), 2)
+        self.assertNotIn('Head:', json.dumps(value))
+
+    def test_typed_error_is_not_positive_stop(self):
+        self.add_turn()
+        event = self.snapshot()['events'][0]
+        self.assertEqual(event['kind'], 'local_error')
+        self.assertNotIn('reportedState', event)
+        self.assertNotIn('synthetic', json.dumps(event))
+        self.assertFalse(event['alreadyAddressedToCoordinator'])
+
+    def test_completed_interrupted_progress_and_missing_error_do_not_emit(self):
+        for index, status in enumerate(['completed', 'interrupted', 'inProgress']):
+            self.add_turn(status=status, ident=str(index))
+        self.add_turn(error=None, ident='empty')
+        self.assertEqual(self.snapshot()['events'], [])
+
+    def test_error_requires_same_local_thread_and_fresh_completion(self):
+        self.add_turn(local=False)
+        self.add_turn(at=NOW - 901, ident='stale', worker=IDS[1])
+        self.add_turn(at=NOW + 1, ident='future', worker=IDS[2])
+        self.assertEqual(self.snapshot()['events'], [])
+
+    def test_databases_open_readonly_and_are_not_created(self):
+        with records.readonly(self.root, 'queue_1.sqlite') as conn:
+            self.assertEqual(conn.execute('PRAGMA query_only').fetchone()[0], 1)
+            with self.assertRaises(sqlite3.OperationalError): conn.execute('DELETE FROM queued_items')
+        with self.assertRaises(sqlite3.OperationalError):
+            with records.readonly(self.root, 'missing.sqlite'): pass
+        self.assertFalse((self.root / 'missing.sqlite').exists())
+        before = {p.name: watcher.sha(p) for p in self.root.glob('*.sqlite')}
+        self.snapshot()
+        self.assertEqual(before, {p.name: watcher.sha(p) for p in self.root.glob('*.sqlite')})
+
+    def test_missing_coordinator_or_saturated_window_fails_closed(self):
+        with sqlite3.connect(self.root / 'state_5.sqlite') as conn: conn.execute('DELETE FROM threads')
+        with self.assertRaises(records.EvidenceUnavailable): self.snapshot()
+        with sqlite3.connect(self.root / 'state_5.sqlite') as conn: conn.execute('INSERT INTO threads VALUES(?)', (records.COORDINATOR,))
+        with patch.object(records, 'MAX_ROWS', 1):
+            # Cache itself exceeds bound; no partial-success claim.
+            with self.assertRaises(records.EvidenceUnavailable): self.snapshot()
+
+    def test_no_network_or_process_invocation_during_monitor_read(self):
+        with patch.object(subprocess, 'Popen', side_effect=AssertionError('No monitoring subprocess')), \
+             patch.object(socket, 'socket', side_effect=AssertionError('No monitoring network')):
+            self.assertTrue(self.snapshot()['complete'])
+
+
+class EventStateTests(DatabaseCase):
+    def test_cold_start_baselines_existing_error(self):
+        self.add_turn()
+        state = self.state(now=NOW)
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(state['pending'], {})
+        self.assertEqual(state['events'][-1]['disposition'], 'baseline-or-unsupported')
+
+    def test_finals_are_positive_reported_stop_but_already_notified(self):
+        self.add_final('Worker2b | #x | ERROR')
+        state = self.state()
+        events = watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(events[0]['disposition'], 'covered-by-coordinator-handoff')
+        self.assertEqual(state['latestFinal'][IDS[1]]['reportedState'], 'ERROR')
+        self.assertEqual(state['pending'], {})
+        watcher.notify_pending(state, CONFIG, NOW, lambda s: None, lambda _: self.fail('duplicate final notice'))
+
+    def test_silence_and_updated_metadata_never_create_idle(self):
+        state = self.state()
+        for now in [NOW, NOW + 30, NOW + 300, NOW + 900]:
+            self.assertEqual(watcher.observe(state, self.snapshot(now), CONFIG, now), [])
+        self.assertEqual(state['pending'], {})
+        self.assertTrue(all(w['liveStatus'] == 'unknown' for w in state['workers'].values()))
+
+    def test_duplicate_error_once_across_snapshots_and_restart(self):
+        self.add_turn()
+        state = self.state()
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        calls = []
+        watcher.notify_pending(state, CONFIG, NOW, lambda s: None, lambda text: calls.append(text) or {'confirmed': True})
+        path = self.root / 'watch-state.json'
+        watcher.atomic(path, state)
+        restarted = watcher.load_state(path, CONFIG, self.root, NOW + 30)
+        watcher.observe(restarted, self.snapshot(NOW + 30), CONFIG, NOW + 30)
+        watcher.notify_pending(restarted, CONFIG, NOW + 90, lambda s: None, lambda text: calls.append(text) or {'confirmed': True})
+        self.assertEqual(len(calls), 1)
+        self.assertEqual(restarted['pending'], {})
+
+    def test_final_covers_same_or_earlier_error_before_output(self):
+        self.add_turn(at=NOW - 3)
+        self.add_final(at=NOW - 1)
+        state = self.state()
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(state['pending'], {})
+
+    def test_final_arriving_during_backoff_cancels_pending(self):
+        self.add_turn(at=NOW - 3)
+        state = self.state()
+        state['nextNotifyAt'] = NOW + 60
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(len(state['pending']), 1)
+        self.add_final(at=NOW + 1)
+        watcher.observe(state, self.snapshot(NOW + 30), CONFIG, NOW + 30)
+        self.assertEqual(state['pending'], {})
+
+    def test_event_expiry_and_clock_reversal(self):
+        self.add_turn()
+        state = self.state()
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        watcher.observe(state, self.snapshot(NOW + 901), CONFIG, NOW + 901)
+        self.assertEqual(state['pending'], {})
+        with self.assertRaises(records.EvidenceUnavailable): watcher.observe(state, self.snapshot(NOW), CONFIG, NOW)
+
+    def test_durable_intent_before_one_batched_output(self):
+        self.add_turn(worker=IDS[0]); self.add_turn(worker=IDS[1], ident='second')
+        state = self.state(); watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        path = self.root / 'watch-state.json'
+        def output(text):
+            saved = json.loads(path.read_text())
+            self.assertEqual(saved['pending'], {})
+            self.assertEqual(saved['attempts'][-1]['state'], 'uncertain')
+            self.assertEqual(text.count('chat_id='), 2)
+            return {'confirmed': True}
+        result = watcher.notify_pending(state, CONFIG, NOW, lambda s: watcher.atomic(path, s), output)
+        self.assertTrue(result['confirmed'])
+        self.assertEqual(state['nextNotifyAt'], NOW + 60)
+
+    def test_failure_never_retries_same_batch_and_new_event_backs_off(self):
+        self.add_turn(); state = self.state(); watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        calls = []
+        failed = lambda text: calls.append(text) or {'confirmed': False, 'exitCode': 1}
+        watcher.notify_pending(state, CONFIG, NOW, lambda s: None, failed)
+        self.assertEqual(state['nextNotifyAt'], NOW + 300)
+        self.add_turn(at=NOW + 1, ident='new')
+        watcher.observe(state, self.snapshot(NOW + 30), CONFIG, NOW + 30)
+        watcher.notify_pending(state, CONFIG, NOW + 30, lambda s: None, failed)
+        self.assertEqual(len(calls), 1)
+        watcher.notify_pending(state, CONFIG, NOW + 300, lambda s: None, failed)
+        self.assertEqual(len(calls), 2)
+        self.assertEqual(state['nextNotifyAt'], NOW + 900)
+        self.assertEqual(state['pending'], {})
+
+    def test_crash_after_intent_consumes_event_across_restart(self):
+        self.add_turn(); state = self.state(); watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        path = self.root / 'watch-state.json'
+        def crash(_): raise KeyboardInterrupt()
+        with self.assertRaises(KeyboardInterrupt): watcher.notify_pending(state, CONFIG, NOW, lambda s: watcher.atomic(path, s), crash)
+        recovered = watcher.load_state(path, CONFIG, self.root, NOW + 10)
+        self.assertEqual(recovered['attempts'][0]['state'], 'unknown-after-restart')
+        watcher.observe(recovered, self.snapshot(NOW + 30), CONFIG, NOW + 30)
+        self.assertEqual(recovered['pending'], {})
+
+    def test_timeout_and_unconfirmed_success_are_not_retried(self):
+        for failure in [TimeoutError('uncertain'), {'confirmed': False, 'exitCode': 0}]:
+            state = self.state(); self.add_turn(ident=str(type(failure)))
+            watcher.observe(state, self.snapshot(), CONFIG, NOW)
             calls = []
-            def send(text):
-                on_disk = json.loads(path.read_text())
-                self.assertEqual(on_disk['attempts'][-1]['state'], 'uncertain')
-                self.assertEqual(on_disk['pending'], [])
-                calls.append(text)
-                return {'confirmed': True}
-            persist = lambda state: watcher.atomic(path, state)
-            watcher.notify_pending(self.state, CONFIG, [], 1060, persist, send)
-            watcher.notify_pending(self.state, CONFIG, [], 1090, persist, send)
-            self.assertEqual(len(calls), 1)
-            self.assertEqual(calls[0].count('chat_id='), 4)
-
-    def test_uncertain_timeout_and_nonzero_never_loop_even_after_restart(self):
-        for failure in [TimeoutError('timeout'), {'confirmed': False, 'exitCode': 1}, {'confirmed': False, 'exitCode': 0}]:
-            state = watcher.initial(CONFIG)
-            stopped(state)
-            calls = []
-            def send(_):
+            def output(_):
                 calls.append(True)
                 if isinstance(failure, Exception): raise failure
                 return failure
-            watcher.notify_pending(state, CONFIG, [], 1060, lambda s: None, send)
-            self.assertTrue(state['outputBlocked'])
-            watcher.restart(state, CONFIG)
-            stopped(state, 2000)
-            watcher.notify_pending(state, CONFIG, [], 3000, lambda s: None, send)
+            watcher.notify_pending(state, CONFIG, NOW, lambda s: None, output)
+            watcher.notify_pending(state, CONFIG, NOW + 301, lambda s: None, output)
             self.assertEqual(len(calls), 1)
 
-    def test_crash_after_intent_blocks_on_restart(self):
-        self.state['attempts'] = [{'at': 1060, 'state': 'uncertain'}]
-        watcher.restart(self.state, CONFIG)
-        self.assertTrue(self.state['outputBlocked'])
+    def test_corrupt_legacy_or_different_root_state_preserved(self):
+        for raw in ['{broken', '{"version":1}', json.dumps(watcher.new_state(CONFIG, Path('/other'), NOW))]:
+            path = self.root / 'state.json'; path.write_text(raw)
+            recovered = watcher.load_state(path, CONFIG, self.root, NOW)
+            self.assertTrue(recovered['outputBlocked'])
+            self.assertEqual(recovered['pending'], {})
+            self.assertFalse(path.exists())
+        self.assertEqual(len(list(self.root.glob('state.preserved.*.json'))), 3)
 
-    def test_rate_bound_and_expiry(self):
-        self.state['lastAttemptAt'] = 1040
-        calls = []
-        output = lambda text: calls.append(text) or {'confirmed': True}
-        self.assertIsNone(watcher.notify_pending(self.state, CONFIG, [], 1060, lambda s: None, output))
-        watcher.notify_pending(self.state, CONFIG, [], 1100, lambda s: None, output)
-        self.assertEqual(len(calls), 1)
-        state = watcher.initial(CONFIG)
-        stopped(state)
-        watcher.notify_pending(state, CONFIG, [], 1200, lambda s: None, output)
-        self.assertEqual(len(calls), 1)
+    def test_cleanup_uncertainty_stops_without_retry(self):
+        self.add_turn(); state = self.state(); watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        def fail(_): raise watcher.CleanupUnverified('unknown child')
+        with self.assertRaises(watcher.CleanupUnverified): watcher.notify_pending(state, CONFIG, NOW, lambda s: None, fail)
+        self.assertTrue(state['outputBlocked'])
 
-    def test_fresh_activity_cancels_pending_and_database_failure_blocks_output(self):
-        output = lambda _: self.fail('must not enqueue')
-        watcher.notify_pending(self.state, CONFIG, None, 1060, lambda s: None, output)
-        watcher.observe(self.state, observation(1090, 'working'), [], CONFIG, 1090)
-        watcher.notify_pending(self.state, CONFIG, [], 1090, lambda s: None, output)
+    def test_delivery_copy_does_not_refresh_final_timestamp(self):
+        self.add_final(at=NOW - 3)
+        state = self.state()
+        watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.add_final(at=NOW + 10, table='thread_items')
+        watcher.observe(state, self.snapshot(NOW + 30), CONFIG, NOW + 30)
+        self.assertEqual(state['latestFinal'][IDS[0]]['at'], NOW - 3)
+        self.assertEqual(len(state['events']), 1)
 
-    def test_queue_command_is_exact_and_wrong_thread_stdout_fails(self):
-        with patch.object(watcher, 'child', return_value=watcher.subprocess.CompletedProcess([], 0, 'Queued message abc for thread other.', '')) as child:
+    def test_malformed_nested_state_is_preserved_not_replayed(self):
+        path = self.root / 'state.json'
+        state = self.state(); state['seen'] = {'x': 'not-a-time'}
+        path.write_text(json.dumps(state))
+        recovered = watcher.load_state(path, CONFIG, self.root, NOW)
+        self.assertTrue(recovered['outputBlocked'])
+        self.assertEqual(recovered['pending'], {})
+        self.assertEqual(len(list(self.root.glob('state.preserved.*.json'))), 1)
+
+    def test_backoff_is_capped_and_success_resets_failure_count(self):
+        self.add_turn(); state = self.state(); watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        state['notificationFailures'] = 20
+        watcher.notify_pending(state, CONFIG, NOW, lambda s: None, lambda _: {'confirmed': False})
+        self.assertEqual(state['nextNotifyAt'], NOW + CONFIG['maxFailureBackoffSeconds'])
+        self.add_turn(at=NOW + 3601, ident='later')
+        watcher.observe(state, self.snapshot(NOW + 3610), CONFIG, NOW + 3610)
+        watcher.notify_pending(state, CONFIG, NOW + 3610, lambda s: None, lambda _: {'confirmed': True})
+        self.assertEqual(state['notificationFailures'], 0)
+
+    def test_missing_binding_is_unavailable_not_a_worker_error(self):
+        state = self.state(); self.rows().pop(); self.write_cache()
+        with self.assertRaises(records.EvidenceUnavailable): watcher.observe(state, self.snapshot(), CONFIG, NOW)
+        self.assertEqual(state['pending'], {})
+
+
+class LifecycleAndSurfaceTests(DatabaseCase):
+    def test_config_cannot_add_parked_or_redirect_coordinator(self):
+        for key, val in [('coordinator', 'other'), ('mode', 'anything')]:
+            config = copy.deepcopy(CONFIG); config[key] = val
+            p = self.root / 'config.json'; p.write_text(json.dumps(config))
+            with self.assertRaises(ValueError): records.configuration(p)
+        config = copy.deepcopy(CONFIG); config['workers'].append({'number': 4, 'id': 'parked'})
+        p.write_text(json.dumps(config))
+        with self.assertRaises(ValueError): records.configuration(p)
+
+    def test_monitoring_source_has_no_process_network_or_ui_import(self):
+        tree = ast.parse((ROOT / 'records.py').read_text())
+        imported = set()
+        for node in ast.walk(tree):
+            if isinstance(node, ast.Import): imported.update(n.name.split('.')[0] for n in node.names)
+            elif isinstance(node, ast.ImportFrom): imported.add((node.module or '').split('.')[0])
+        self.assertTrue(imported <= {'__future__', 'contextlib', 'datetime', 'hashlib', 'json', 'math', 'pathlib', 're', 'sqlite3', 'time'})
+        combined = '\n'.join((ROOT / name).read_text() for name in watcher.SOURCE_NAMES if name.endswith('.py'))
+        for bad in ['list_threads', 'read_thread', 'wait_threads', 'navigate_to_codex_page', 'send_message_to_thread',
+                    'AXUIElement', 'NSAppleScript', 'sidebar.swift', '--sampler', 'urllib', 'requests.',
+                    'socket.', 'http.client', 'shell=True', 'app-chat-send']:
+            self.assertNotIn(bad, combined)
+        self.assertFalse((ROOT / 'sidebar.swift').exists())
+
+    def test_queue_command_is_only_configured_output_and_confirmation_strict(self):
+        with patch.object(watcher, 'child', return_value=subprocess.CompletedProcess([], 0, 'Queued message a for thread wrong.', '')) as call:
             self.assertFalse(watcher.enqueue('notice')['confirmed'])
-            self.assertEqual(child.call_args.args[0], [str(watcher.CLI), 'queue', '--thread', watcher.COORDINATOR, '--message', 'notice'])
+            self.assertEqual(call.call_args.args[0], [str(watcher.CLI), 'queue', '--thread', records.COORDINATOR, '--message', 'notice'])
 
-
-class StorageAndServiceTests(unittest.TestCase):
-    def test_corrupt_state_preserved_and_output_fused(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            path = Path(tmp) / 'state.json'
-            path.write_text('{broken')
-            state = watcher.load_state(path, CONFIG)
-            self.assertTrue(state['outputBlocked'])
-            saved = list(Path(tmp).glob('state.corrupt.*.json'))
-            self.assertEqual(saved[0].read_text(), '{broken')
-
-    def test_singleton_and_stale_state(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            with watcher.singleton(root):
-                with self.assertRaises(BlockingIOError):
-                    with watcher.singleton(root): pass
-            with watcher.singleton(root): pass
-            state = watcher.initial(CONFIG)
-            state['process'] = {'pid': 99999, 'running': True}
-            watcher.atomic(root / 'state.json', state)
-            self.assertEqual(watcher.load_state(root / 'state.json', CONFIG)['workers'][IDS[0]]['phase'], 'unknown')
-
-    def test_pid_reuse_or_different_command_refuses_disable(self):
+    def test_singleton_and_pid_reuse(self):
+        with watcher.singleton(self.root):
+            with self.assertRaises(BlockingIOError):
+                with watcher.singleton(self.root): pass
+        with watcher.singleton(self.root): pass
         runtime = Path('/tmp/owned/runtime')
-        first = {'pid': 42, 'description': 'old ' + str(runtime / 'watcher.py') + ' run --state-dir /tmp/owned'}
-        self.assertTrue(service.matching_process(first, runtime, first))
-        self.assertFalse(service.matching_process(first, runtime, {**first, 'description': 'new unrelated'}))
-        with patch.object(service, 'status', return_value={'registered': True, 'pid': 42, 'processVerified': False, 'plistOwned': True}), patch.object(service, 'launchctl') as ctl:
-            with self.assertRaises(RuntimeError): service.disable(Path('/tmp/owned'), Path('/tmp/agent'))
-            ctl.assert_not_called()
+        ident = {'pid': 42, 'description': 'created ' + str(runtime / 'watcher.py') + ' run --state-dir /tmp/owned'}
+        self.assertTrue(service.matching_process(ident, runtime, ident))
+        self.assertFalse(service.matching_process(ident, runtime, {**ident, 'description': 'different creation'}))
 
-    def test_launch_agent_has_one_exact_daemon_and_no_shell(self):
-        root = Path('/tmp/owned')
-        spec = service.agent_spec(root / 'runtime', root, Path('/usr/bin/python3'))
+    def test_disable_refuses_unverified_pid(self):
+        with patch.object(service, 'status', return_value={'registered': True, 'plistOwned': True, 'pid': 42, 'processVerified': False}), patch.object(service, 'launchctl') as call:
+            with self.assertRaises(RuntimeError): service.disable(self.root, self.root / 'agent.plist')
+            call.assert_not_called()
+
+    def test_retired_watcher_blocks_install_without_signal_or_bootstrap(self):
+        with patch.object(service, 'validate_gate', return_value={}), patch.object(service, 'retired_watcher_processes', return_value=['42 python /old/work/orchestration/worker-watch-cli/watch.py']), patch.object(service, 'launchctl') as ctl:
+            with self.assertRaises(RuntimeError): service.install(ROOT, self.root, self.root / 'new-home', self.root / 'agent', self.root / 'dry', self.root / 'tests')
+            ctl.assert_not_called()
+            self.assertFalse((self.root / 'new-home').exists())
+
+    def test_agent_spec_single_local_process_and_no_sampler(self):
+        spec = service.agent_spec(self.root / 'runtime', self.root, Path('/usr/bin/python3'), self.root / 'records')
         self.assertEqual(spec['Label'], service.LABEL)
         self.assertEqual(spec['KeepAlive'], {'Crashed': True})
-        self.assertNotIn('StartInterval', spec)
-        self.assertEqual(spec['ProgramArguments'][1:3], ['/tmp/owned/runtime/watcher.py', 'run'])
-        self.assertEqual(plistlib.loads(plistlib.dumps(spec)), spec)
+        self.assertNotIn('--sampler', spec['ProgramArguments'])
+        self.assertEqual(spec, plistlib.loads(plistlib.dumps(spec)))
 
-    def test_uninstall_preserves_owned_plist_and_all_receipts(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            path = root / 'agent.plist'
-            path.write_bytes(plistlib.dumps(service.agent_spec(root / 'runtime', root, Path('/usr/bin/python3'))))
-            (root / 'state.json').write_text('historical state')
-            with patch.object(service, 'disable', return_value={'disabled': True}):
-                service.uninstall(root, path)
-            self.assertFalse(path.exists())
-            self.assertEqual((root / 'state.json').read_text(), 'historical state')
-            self.assertEqual(len(list((root / 'receipts').glob('*.plist'))), 1)
+    def test_uninstall_preserves_receipts(self):
+        p = self.root / 'agent.plist'
+        p.write_bytes(plistlib.dumps(service.agent_spec(self.root / 'runtime', self.root, Path('/usr/bin/python3'), self.root / 'records')))
+        (self.root / 'state.json').write_text('receipt')
+        with patch.object(service, 'disable', return_value={'disabled': True}): service.uninstall(self.root, p)
+        self.assertEqual((self.root / 'state.json').read_text(), 'receipt')
+        self.assertFalse(p.exists())
+        self.assertEqual(len(list((self.root / 'receipts').glob('*.plist'))), 1)
 
-    def test_blocked_or_stale_dry_receipt_cannot_install(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            dry = root / 'dry.json'; tests = root / 'tests.json'
-            dry.write_text(json.dumps({'status': 'blocked'})); tests.write_text('{}')
-            with patch.object(watcher, 'fingerprints', return_value={}):
-                with self.assertRaises(RuntimeError): service.validate_gate(ROOT, root, dry, tests, 1000)
+    def test_dry_reads_once_never_notifies_and_accepts_only_reduced_claims(self):
+        self.add_final()
+        destination = self.root / 'dry.json'
+        with patch.object(watcher.time, 'time', return_value=NOW), patch.object(watcher, 'enqueue') as output:
+            result = watcher.dry(ROOT, self.root, destination)
+        self.assertEqual(result['status'], 'passed')
+        self.assertFalse(result['snapshot']['claims']['silentStops'])
+        self.assertEqual(result['notificationCalls'], 0)
+        self.assertEqual(result['coldStartPending'], 0)
+        output.assert_not_called()
 
-    def test_logs_are_bounded(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            log = watcher.logger(Path(tmp))
-            for _ in range(400): log.info('x' * 2048)
-            for handler in log.handlers: handler.close()
-            logs = list(Path(tmp).glob('watcher.log*'))
-            self.assertLessEqual(len(logs), 3)
-            self.assertTrue(all(p.stat().st_size <= 262144 for p in logs))
+    def test_green_gate_binds_source_root_freshness_and_honest_claims(self):
+        dry_path = self.root / 'dry.json'; tests_path = self.root / 'tests.json'
+        with patch.object(watcher.time, 'time', return_value=NOW): watcher.dry(ROOT, self.root, dry_path)
+        tests_path.write_text(json.dumps({'status': 'passed', 'fingerprints': watcher.fingerprints(ROOT)}))
+        self.assertEqual(service.validate_gate(ROOT, self.root, dry_path, tests_path, NOW + 1), watcher.fingerprints(ROOT))
+        with self.assertRaises(RuntimeError): service.validate_gate(ROOT, self.root, dry_path, tests_path, NOW + 901)
+        value = json.loads(dry_path.read_text()); value['snapshot']['claims']['activeStatus'] = True
+        dry_path.write_text(json.dumps(value))
+        with self.assertRaises(RuntimeError): service.validate_gate(ROOT, self.root, dry_path, tests_path, NOW + 1)
 
-    def test_local_databases_read_only_and_headers_only(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            for name, tables in [('queue_1.sqlite', ['queued_items']), ('thread_history_1.sqlite', ['thread_items', 'thread_realtime_items'])]:
-                db = sqlite3.connect(root / name)
-                for table in tables:
-                    db.execute(f'CREATE TABLE {table}(thread_id TEXT, created_at_ms INTEGER, payload_json TEXT, item_json TEXT, item_type TEXT)')
-                    for number in [1, 2, 3, 4, 5, 6, 7]:
-                        payload = json.dumps({'content': [{'type': 'text', 'text': f'Worker{number} | #test | DONE\nNo body retained'}]})
-                        db.execute(f'INSERT INTO {table} VALUES(?,?,?,?,?)', (watcher.COORDINATOR, 1050000, payload, payload, 'userMessage'))
-                db.commit(); db.close()
-            before = {p.name: watcher.sha(p) for p in root.glob('*.sqlite')}
-            reports = watcher.read_reports(root, CONFIG, 1000, 1100)
-            self.assertEqual({r['worker'] for r in reports}, set(IDS))
-            self.assertTrue(all(set(r) == {'worker', 'at', 'stop'} for r in reports))
-            self.assertEqual(before, {p.name: watcher.sha(p) for p in root.glob('*.sqlite')})
-            with self.assertRaises(sqlite3.OperationalError):
-                ro = sqlite3.connect((root / 'queue_1.sqlite').as_uri() + '?mode=ro', uri=True)
-                try: ro.execute('DELETE FROM queued_items')
-                finally: ro.close()
-
-    def test_retired_explicit_identity_and_quoted_headers_ignored(self):
-        for text in ['Worker1 | chat_id=retired | #x | DONE', '> Worker1 | #x | DONE', 'Worker4 | #x | DONE']:
-            self.assertIsNone(watcher.parse_report(json.dumps({'content': [{'type': 'text', 'text': text}]}), 1, CONFIG))
-
-
-class SurfaceTests(unittest.TestCase):
-    def test_no_network_task_or_input_code_in_runtime(self):
-        files = [ROOT / 'watcher.py', ROOT / 'service.py', ROOT / 'sidebar.swift']
-        banned = ['list_threads', 'read_thread', 'wait_threads', 'navigate_to_codex_page',
-                  'send_message_to_thread', 'rpc_session', 'app-chat-send', 'CGEvent(',
-                  'postToPid', 'AXUIElementPerformAction', 'AXUIElementSetAttributeValue',
-                  '.activate(', 'AXIsProcessTrustedWithOptions', 'screenshot', 'urllib',
-                  'requests.', 'http.client', 'websocket', 'socket.', 'shell=True', 'os.system']
-        for file in files:
-            text = file.read_text()
-            for token in banned:
-                self.assertNotIn(token, text, (file.name, token))
-        for file in files[:2]:
-            tree = ast.parse(file.read_text())
-            imports = {node.names[0].name.split('.')[0] for node in ast.walk(tree) if isinstance(node, ast.Import)}
-            self.assertTrue(imports <= {'argparse','fcntl','hashlib','json','logging','math','os','re','signal','sqlite3','subprocess','tempfile','time','uuid','plistlib','shutil','sys','watcher'})
-
-    def test_monitoring_only_calls_passive_sampler(self):
-        with patch.object(watcher, 'child', return_value=watcher.subprocess.CompletedProcess([], 0, json.dumps(observation(1000)), '')) as call:
-            watcher.sample(Path('/tmp/sidebar'), ROOT / 'managed.json')
-            self.assertEqual(call.call_args.args[0], ['/tmp/sidebar', str(ROOT / 'managed.json')])
-        self.assertIn('"AXWebArea", "AXTextArea", "AXMenu"', (ROOT / 'sidebar.swift').read_text())
-
-    def test_dry_block_does_not_send_or_retry(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            value = observation(1000, trusted=False, reason='accessibility-not-trusted')
-            with patch.object(watcher, 'fingerprints', return_value={}), patch.object(watcher, 'sample', return_value=value) as sampler, patch.object(watcher, 'enqueue') as output, patch.object(watcher, 'read_reports') as records:
-                result = watcher.dry(ROOT, root / 'sidebar', root, root / 'dry.json')
-            self.assertEqual(result['status'], 'blocked')
-            self.assertEqual(result['notificationCalls'], 0)
-            sampler.assert_called_once(); output.assert_not_called(); records.assert_not_called()
-
-    def test_dry_success_still_never_emits_notification(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            with patch.object(watcher, 'fingerprints', return_value={}), patch.object(watcher, 'sample', side_effect=[observation(1000,'working'), observation(1020)]), patch.object(watcher, 'read_reports', return_value=[]), patch.object(watcher.time, 'time', side_effect=[1000,1000,1000,1000,1020,1020,1020,1020]), patch.object(watcher.time, 'sleep'), patch.object(watcher, 'enqueue') as output:
-                result = watcher.dry(ROOT, root / 'sidebar', root, root / 'dry.json')
-            self.assertEqual(result['status'], 'passed')
-            output.assert_not_called()
-
-
-class FinalBoundaryTests(unittest.TestCase):
-    def test_observed_application_cycle_cannot_produce_idle(self):
-        shape = json.loads((ROOT / 'fixtures/application-root-cycle.json').read_text())
-        self.assertTrue(shape['windows'][0]['sameAsApplication'])
-        self.assertEqual(shape['applicationChildRoles'], ['AXApplication', 'AXMenuBar', 'AXMenuBar'])
-        state = watcher.initial(CONFIG)
-        watcher.observe(state, observation(1000, 'working'), [], CONFIG, 1000)
-        broken = observation(1030, complete=shape['expectedComplete'])
-        broken['reason'] = shape['windows'][0]['expectedIssue']
-        broken['windowRoots'] = shape['windows']
-        broken['rows'] = {ident: {'count': 0, 'visible': False, 'status': 'unknown'} for ident in IDS}
-        for at in [1030, 1060, 1090]:
-            broken.update(at=at, sampleId=str(at))
-            self.assertEqual(watcher.observe(state, broken, [], CONFIG, at), [])
-        self.assertEqual(state['pending'], [])
-        self.assertTrue(all(w['phase'] == 'unknown' for w in state['workers'].values()))
-        watcher.notify_pending(state, CONFIG, [], 1090, lambda s: None,
-                               lambda _: self.fail('provider failure must not send'))
-
-    def test_provider_failure_is_not_a_label_mapping_fallback(self):
-        source = (ROOT / 'sidebar.swift').read_text()
-        self.assertIn('let same = CFEqual(window, root)', source)
-        self.assertIn('windowIssue(role: role, sameAsApplication: same', source)
-        self.assertIn('"windowRoots": rootShapes', source)
-        self.assertNotIn('AXEnhancedUserInterface', source)
-        self.assertNotIn('AXManualAccessibility', source)
-        self.assertNotIn('AXUIElementCopyElementAtPosition', source)
-        # Structural alternatives are diagnosis receipts, never a polling fallback.
-        self.assertEqual(len(CONFIG['workers']), 4)
-
-    def test_root_failure_dry_stops_after_one_passive_read(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            shape = json.loads((ROOT / 'fixtures/application-root-cycle.json').read_text())
-            value = observation(1000, trusted=True, complete=False,
-                                reason=shape['windows'][0]['expectedIssue'])
-            with patch.object(watcher, 'fingerprints', return_value={}), patch.object(watcher, 'sample', return_value=value) as sampler, patch.object(watcher, 'enqueue') as output:
-                result = watcher.dry(ROOT, Path(tmp) / 'sidebar', Path(tmp), Path(tmp) / 'dry.json')
-            self.assertEqual(result['blocker'], 'accessibility-window-is-application-self-reference')
-            self.assertEqual(result['notificationCalls'], 0)
-            sampler.assert_called_once()
-            output.assert_not_called()
-
-    def test_titles_cannot_redirect_to_parked_rows(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            value = copy.deepcopy(CONFIG)
-            value['workers'][0]['title'] = 'Worker 4 - xhigh'
-            path = Path(tmp) / 'managed.json'
-            path.write_text(json.dumps(value))
-            with self.assertRaises(ValueError): watcher.configuration(path)
-
-    def test_persistent_disable_without_a_running_pid(self):
-        value = {'registered': False, 'pid': None, 'processVerified': False, 'plistOwned': True}
-        with patch.object(service, 'status', return_value=value), patch.object(service, 'launchctl', return_value=watcher.subprocess.CompletedProcess([], 0, '', '')) as call:
-            result = service.disable(Path('/tmp/owned'), Path('/tmp/owned.plist'))
-        self.assertTrue(result['disabled'])
-        call.assert_called_once_with('disable', f'gui/{os.getuid()}/{service.LABEL}')
-
-    def test_cleanup_uncertainty_stops_instead_of_continuing(self):
-        state = watcher.initial(CONFIG)
-        stopped(state)
-        def unsafe(_): raise watcher.CleanupUnverified('identity unavailable')
-        with self.assertRaises(watcher.CleanupUnverified):
-            watcher.notify_pending(state, CONFIG, [], 1060, lambda s: None, unsafe)
-        self.assertTrue(state['outputBlocked'])
-        self.assertEqual(state['attempts'][-1]['state'], 'uncertain')
-
-    def test_wrong_or_future_report_does_not_suppress(self):
-        state = watcher.initial(CONFIG)
-        watcher.observe(state, observation(1000, 'working'), [], CONFIG, 1000)
-        watcher.observe(state, observation(1030), [], CONFIG, 1030)
-        reports = [{'worker': 'parked', 'at': 1050}, {'worker': IDS[0], 'at': 9999}]
-        self.assertEqual(len(watcher.observe(state, observation(1060), reports, CONFIG, 1060)), 4)
-        self.assertEqual(len(state['pending']), 4)
-
-    def test_green_install_gate_is_source_and_binary_bound(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            root = Path(tmp)
-            expected = {'sampler': 'same'}
-            dry = {'status': 'passed', 'notificationCalls': 0, 'fingerprints': expected,
-                   'sourceUnchanged': True, 'finishedAt': 1060,
-                   'samples': [observation(1000), observation(1020)]}
-            (root / 'dry.json').write_text(json.dumps(dry))
-            (root / 'tests.json').write_text(json.dumps({'status': 'passed', 'fingerprints': expected}))
-            with patch.object(watcher, 'fingerprints', return_value=expected):
-                self.assertEqual(service.validate_gate(ROOT, root, root / 'dry.json', root / 'tests.json', 1070), expected)
-                with self.assertRaises(RuntimeError): service.validate_gate(ROOT, root, root / 'dry.json', root / 'tests.json', 3000)
-            with patch.object(watcher, 'fingerprints', return_value={'sampler': 'changed'}):
-                with self.assertRaises(RuntimeError): service.validate_gate(ROOT, root, root / 'dry.json', root / 'tests.json', 1070)
-
-    def test_read_failure_never_creates_a_database(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            with self.assertRaises(sqlite3.OperationalError): watcher.read_reports(Path(tmp), CONFIG, 1000, 1100)
-            self.assertEqual(list(Path(tmp).iterdir()), [])
+    def test_logs_and_receipts_are_bounded(self):
+        log = watcher.logger(self.root)
+        for _ in range(400): log.info('x' * 2048)
+        for handler in log.handlers: handler.close()
+        self.assertLessEqual(len(list(self.root.glob('watcher.log*'))), 3)
+        self.assertTrue(all(p.stat().st_size <= 262144 for p in self.root.glob('watcher.log*')))
 
 
 if __name__ == '__main__':

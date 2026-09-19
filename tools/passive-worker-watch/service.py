@@ -24,11 +24,11 @@ def launchctl(*args):
     return subprocess.run(['/bin/launchctl', *args], capture_output=True, text=True, timeout=25)
 
 
-def agent_spec(runtime, state_dir, interpreter):
+def agent_spec(runtime, state_dir, interpreter, records_root):
     return {
         'Label': LABEL,
         'ProgramArguments': [str(interpreter), str(runtime / 'watcher.py'), 'run',
-                             '--sampler', str(runtime / 'sidebar'), '--state-dir', str(state_dir)],
+                             '--state-dir', str(state_dir), '--records-root', str(records_root)],
         'WorkingDirectory': str(runtime), 'RunAtLoad': True,
         # A normal fail-closed exit does not restart into an output/API loop.
         'KeepAlive': {'Crashed': True}, 'ThrottleInterval': 300, 'ExitTimeOut': 20,
@@ -76,26 +76,38 @@ def status(home, plist_path):
             'statePath': str(state_path), 'label': LABEL}
 
 
-def validate_gate(source, sampler, dry_path, tests_path, now):
-    expected = watcher.fingerprints(source, sampler)
+def validate_gate(source, root, dry_path, tests_path, now):
+    expected = watcher.fingerprints(source)
     dry = json.loads(dry_path.read_text())
     tests = json.loads(tests_path.read_text())
-    if (dry.get('status') != 'passed' or dry.get('notificationCalls') != 0
+    snapshot = dry.get('snapshot', {})
+    if (dry.get('mode') != watcher.MODE or dry.get('status') != 'passed'
+            or dry.get('notificationCalls') != 0 or dry.get('coldStartPending') != 0
             or dry.get('fingerprints') != expected or not dry.get('sourceUnchanged')
             or not 0 <= now - dry.get('finishedAt', 0) <= 900
-            or len(dry.get('samples', [])) != 2):
-        raise RuntimeError('Fresh, green, exact-source passive dry receipt required')
-    config = watcher.configuration(source / 'managed.json')
-    for observation in dry['samples']:
-        if not watcher.usable(observation, config, observation['at'] + 1):
-            raise RuntimeError('Dry receipt does not identify all four rows')
+            or not snapshot.get('complete') or snapshot.get('dataRoot') != str(root.resolve())
+            or set(snapshot.get('workers', {})) != set(watcher.records.WORKERS.values())
+            or not all(w.get('bound') and w.get('liveStatus') == 'unknown' for w in snapshot['workers'].values())
+            or snapshot.get('claims', {}).get('silentStops') is not False
+            or snapshot.get('claims', {}).get('activeStatus') is not False):
+        raise RuntimeError('Fresh exact-source local-event dry receipt with honest reduced claims required')
     if tests.get('status') != 'passed' or tests.get('fingerprints') != expected:
         raise RuntimeError('Passing exact-source tests receipt required')
     return expected
 
 
-def install(source, sampler, home, plist_path, dry_path, tests_path):
-    fingerprints = validate_gate(source, sampler, dry_path, tests_path, time.time())
+def retired_watcher_processes():
+    result = subprocess.run(['/bin/ps', '-axo', 'pid=,command='], capture_output=True, text=True, timeout=5)
+    if result.returncode:
+        raise RuntimeError('Cannot exclude an existing retired watcher process')
+    marker = '/work/orchestration/worker-watch-cli/watch.py'
+    return [line.strip() for line in result.stdout.splitlines() if any(arg.endswith(marker) for arg in line.split())]
+
+
+def install(source, root, home, plist_path, dry_path, tests_path):
+    fingerprints = validate_gate(source, root, dry_path, tests_path, time.time())
+    if retired_watcher_processes():
+        raise RuntimeError('Retired watcher is still running; do not create a duplicate or signal it blindly')
     home.mkdir(parents=True, exist_ok=True, mode=0o700)
     with watcher.singleton(home):
         before = status(home, plist_path)
@@ -117,14 +129,13 @@ def install(source, sampler, home, plist_path, dry_path, tests_path):
         runtime.mkdir()
         for name in watcher.SOURCE_NAMES:
             shutil.copy2(source / name, runtime / name)
-        shutil.copy2(sampler, runtime / 'sidebar')
         watcher.atomic(runtime / 'installation.json', {'fingerprints': fingerprints,
-                                                       'installedAt': time.time()})
-        if watcher.fingerprints(runtime, runtime / 'sidebar') != fingerprints:
+                                                       'installedAt': time.time(), 'recordsRoot': str(root.resolve())})
+        if watcher.fingerprints(runtime) != fingerprints:
             raise RuntimeError('Copied installation fingerprint mismatch; not bootstrapped')
         plist_path.parent.mkdir(parents=True, exist_ok=True)
         temporary = plist_path.with_suffix('.tmp')
-        temporary.write_bytes(plistlib.dumps(agent_spec(runtime, home, Path(sys.executable).resolve())))
+        temporary.write_bytes(plistlib.dumps(agent_spec(runtime, home, Path(sys.executable).resolve(), root.resolve())))
         temporary.chmod(0o600)
         os.replace(temporary, plist_path)
         watcher.atomic(receipts / (stamp + '-install.json'), {'state': 'prepared', 'fingerprints': fingerprints})
@@ -186,7 +197,7 @@ def uninstall(home, plist_path):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('action', choices=['status', 'install', 'disable', 'uninstall'])
-    parser.add_argument('--sampler', type=Path)
+    parser.add_argument('--records-root', type=Path, default=Path.home() / '.codex')
     parser.add_argument('--dry-receipt', type=Path)
     parser.add_argument('--tests-receipt', type=Path)
     args = parser.parse_args()
@@ -194,9 +205,9 @@ def main():
     home = DEFAULT_HOME
     plist_path = Path.home() / 'Library/LaunchAgents' / (LABEL + '.plist')
     if args.action == 'install':
-        if not all((args.sampler, args.dry_receipt, args.tests_receipt)):
-            parser.error('Installation requires sampler, dry receipt and tests receipt')
-        result = install(source, args.sampler.resolve(), home, plist_path,
+        if not all((args.dry_receipt, args.tests_receipt)):
+            parser.error('Installation requires local dry receipt and tests receipt')
+        result = install(source, args.records_root.resolve(), home, plist_path,
                          args.dry_receipt, args.tests_receipt)
     else:
         result = {'status': status, 'disable': disable, 'uninstall': uninstall}[args.action](home, plist_path)

@@ -1,0 +1,27 @@
+{
+  "provenance": "Sanitized shapes from locally inspected persisted task cache and SQLite schemas; no live content or credentials",
+  "now": 1789808400,
+  "cacheFields": ["createdAt", "id", "isTask", "projectId", "title", "updatedAt"],
+  "metadataHasActivityState": false,
+  "managedThreadRowsObserved": 0,
+  "managedTurnRowsObserved": 0,
+  "localTurnStatusValues": ["completed", "interrupted", "failed", "inProgress"],
+  "turnTimestampUnit": "seconds",
+  "coordinatorEventTimestampUnit": "milliseconds",
+  "headers": [
+    {"text": "Worker1 | #21/PR120 | BLOCKED", "accepted": true},
+    {"text": "Worker 2b | #73 | NEEDS_REVIEW", "accepted": true},
+    {"text": "Worker3 | #10 | ERROR", "accepted": true},
+    {"text": "Worker5 | #27 | SYSTEMERROR", "accepted": true},
+    {"text": "Worker1 | chat_id=6aad9a2e-6084-83eb-ace6-6218f2da0ef4 | #21 | DONE", "accepted": true},
+    {"text": "Worker1 | chat_id=6aaa90bc-c5a4-83eb-bd6f-5a79b946547d | #21 | DONE", "accepted": false},
+    {"text": "Worker4 | #60 | DONE", "accepted": false},
+    {"text": "Worker6 | #85 | BLOCKED", "accepted": false},
+    {"text": "Worker7 | #watcher | DONE", "accepted": false},
+    {"text": "> Worker1 | #21 | DONE", "accepted": false},
+    {"text": "Worker1 | #21 | WORKING", "accepted": false},
+    {"text": "Worker1 | #21 | IDLE", "accepted": false},
+    {"text": "Worker1 | #21 | DONE maybe later", "accepted": false},
+    {"text": "Coordinator: Worker1 | #21 | DONE", "accepted": false}
+  ]
+}

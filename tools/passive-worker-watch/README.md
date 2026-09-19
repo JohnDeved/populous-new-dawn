@@ -1,156 +1,130 @@
-# Passive four-worker watcher
+# Local worker event watcher
 
-A monitor, not a dispatcher. `managed.json` is deliberately limited to Worker 1b,
-2b, 3b and 5b and their exact current IDs/titles. Parked workers are not discovered.
-The sampler reads only already-rendered sidebar rows of the existing Codex desktop
-app hosting these ChatGPT tasks. It never opens a task, activates/focuses a window,
-requests accessibility permission, takes a screenshot, reads conversation web areas
-or profiles, posts input, or changes reasoning. There is no task/API/browser/model
-monitoring transport and no import of the retired watcher or sender.
+This is a **final-handoff/local-error record observer**, not a live activity or
+silent-stop detector. The Accessibility path is retired: no Swift helper, app
+observation, navigation, focus/input, screenshots, monitoring API, network client,
+model call or assignment sender is installed. `managed.json` permits only Worker
+1b, 2b, 3b and 5b and their exact configured conversation IDs/titles.
 
-## Evidence and transition rules
+## What local evidence can and cannot establish
 
-The old `worker-watch-cli/sidebar-spinner-receipt.json` demonstrated passive exact
-row/Working reads; its later `sidebar-observation.json` reported `trusted:false`.
-The retained tooling audit and coordinator rollback demonstrated why navigation,
-auto-dispatch and retry machinery must not return. This replacement reuses only
-the passive observation and conservative two-clear rule, not those runtime paths.
-Historical files under `work/orchestration/worker-watch-cli`, `app-chat-send`, and
-the prior audit directories are never edited or consumed as assignments.
+The scoped local cache at
+`.codex-global-state.json → electron-persisted-atom-state → chatgpt-sidebar-state-v1
+→ scoped pinnedConversations[].conversation` identifies the four managed IDs,
+creation/update times and titles. Inspection found **no activity/completion/error
+field**. A recent `updatedAt`, a file mtime, a completed Codex turn, silence, or a
+missing worker is never interpreted as active, idle or stopped. Cache freshness
+is displayed separately from identity; every worker's `liveStatus` remains
+`unknown`. Duplicate/missing/wrong-title records make identity incomplete.
 
-A visible unique row with the `Working` accessibility status arms an episode.
-Two complete observations without that status, separated by at least 20 seconds
-and no more than the 90-second observation gap, confirm one idle transition. Two
-explicit error statuses confirm a systemError transition. The exact error label
-must be exposed beneath the row; cached task status is not consulted. A missing,
-duplicate, hidden, incomplete, unknown or untrusted row never means idle. An app
-incarnation change or observation gap disarms all episodes. A watcher restart
-also requires fresh Working; it does not reconstruct a missed stop from stale
-state. Consequently very short work entirely between samples is not detected.
+The local Codex `state_5.sqlite/threads` and `thread_history_1.sqlite/thread_turns`
+currently have **no rows for these four ChatGPT IDs**. No link to a similarly
+named Codex thread is guessed. Silent stops and unreported ChatGPT system errors
+are therefore not detectable with the permitted evidence. This is a declared
+limit, not an installation error or an excuse to restore Accessibility/API calls.
 
-Only local SQLite `mode=ro` / `query_only` queries of the coordinator's queue and
-user-message history are used to suppress already reported stops. Reads are
-bounded by time, payload size and row count; a saturated/unavailable source blocks
-notification rather than falling back to a task API. Only managed-worker headers
-and timestamps are retained. Explicit retired chat IDs and parked worker numbers
-are ignored. A header without a chat ID can suppress a duplicate but cannot arm
-or generate a transition. No queue items or delivered records are changed.
+Only a first-line explicit `WorkerN[b] | [chat_id=ID |] ticket | FINAL_STATE`
+is positive *self-reported* stop evidence. Accepted final states are DONE,
+BLOCKED, NEEDS_REVIEW, ERROR, SYSTEMERROR and STOPPED. A report must be fresh,
+after that exact configured worker's creation time, and match a currently bound
+ID/title. An explicit wrong/retired chat ID, parked worker number, quoted header,
+checkpoint/progress or arbitrary body text is rejected. Number-only headers are
+attributed as current-number **self-reports**, not authenticated task execution.
+Reported DONE does not prove present idleness or that a new task has not started.
 
-New transitions are batched into at most one `codex queue` call per 60 seconds,
-addressed only to the configured coordinator. No reminders are sent. Pending
-observations expire or are cancelled by fresh Working. Durable uncertain intent
-is written **before** invoking the CLI. Nonzero, timeout or unconfirmed output
-sets a persistent output fuse: no automatic retry, even after restart. Monitoring
-continues to record local transitions unless child cleanup itself is unverified,
-in which case the daemon stops. Exactly-once external delivery is not claimed:
-a crash after intent can lose an alert, but cannot silently replay it.
+Only the coordinator's queued items and delivered/realtime `userMessage` records
+are queried. They already address the coordinator, so their final handoffs are
+journaled as covered and **never generate a redundant notification**. Queue →
+realtime → history copies and repeated content coalesce; a later delivery copy
+cannot refresh a consumed report timestamp. Payload bodies are used only for a
+digest and are not retained, executed or copied into notices.
 
-## Build, tests, and one passive dry check
+If a fresh typed local `failed` turn with a nonempty error field later exists for
+one of the exact managed IDs, it can create a **local error-record** notice, not
+stop/idle evidence. The local protocol defines these statuses and Unix-second
+turn timestamps. Completed, interrupted and inProgress records do not create a
+notice. A later same-worker final already covering the coordinator suppresses a
+redundant error wakeup. This conditional path is fixture-tested; no current live
+coverage for these workers is claimed where their turn records are absent.
 
-Use Python 3.9+ and the installed macOS Swift compiler. From the repository root:
+## Reliability and bounded output
+
+Reads use SQLite URI `mode=ro` and `PRAGMA query_only`, fixed tables, exact thread
+filters, bounded time/payload/row windows, and an explicitly bounded metadata-cache
+subtree. Other app configuration/profile values are not inspected or output.
+Schema errors, a saturated window or missing metadata are watcher-health problems,
+not worker errors. Local reads back off to at most five minutes; no API fallback.
+
+Cold start baselines existing records without alerts. Restarts preserve consumed
+event and output intent. Legacy/corrupt/incompatible state is archived, then starts
+unarmed with output blocked until an owner reviews the uncertainty. Records older
+than the configured event window cannot reappear as new work. State contains at
+most 2,048 recent keys, 128 event receipts, 64 output receipts and one latest final
+per managed worker. Logs rotate across three files capped at 256 KiB each.
+
+Only a new uncovered local error may call the local Codex queue CLI, only to the
+configured coordinator, at most once per minute. Durable consumed intent precedes
+the invocation. Timeout/nonzero/unconfirmed output is never retried for that batch,
+including after restart; new independent errors respect exponential backoff from
+five minutes to one hour. There are no reminders. Exactly-once external delivery
+is not claimed: an uncertain attempt can be lost rather than duplicated. An
+unverified child-cleanup identity stops the daemon; it is never blindly signalled.
+
+## Checks and one live dry observation
+
+From the repository root, using Python 3.9+:
 
 ```sh
-mkdir -p work/orchestration/passive-four-watcher
-swiftc tools/passive-worker-watch/sidebar.swift -o work/orchestration/passive-four-watcher/sidebar
-work/orchestration/passive-four-watcher/sidebar --self-test
-work/orchestration/passive-four-watcher/sidebar --root-fixture tools/passive-worker-watch/fixtures/application-root-cycle.json
 python3 -B -m unittest discover -s tools/passive-worker-watch -p test_watcher.py
 python3 -B tools/passive-worker-watch/watcher.py dry \
-  --sampler work/orchestration/passive-four-watcher/sidebar \
-  --receipt work/orchestration/passive-four-watcher/live-dry.json
+  --receipt work/orchestration/passive-four-watcher/local-events/live-dry.json
 ```
 
-The last command is the **only live observation**, not a send. It performs at most
-two passive reads, separated by the ordinary 20-second confirmation minimum, uses
-isolated in-memory state, and never calls the output function. It stops immediately
-on an untrusted/incomplete four-row sample. The receipt names missing IDs and the
-actual blocker. Do not navigate, focus, scroll, grant permission automatically or
-retry a failing observation just to make it pass. Source and compiled-binary hashes
-are recorded and rechecked. A green read establishes passive visibility in that
-execution context, not indefinite accessibility availability under launchd.
+Dry mode takes one local snapshot, baselines it in isolated memory, emits no queue
+notice, and records source hashes, ID/freshness coverage and the reduced claims.
+Green means those exact local-record claims pass, **not** that live worker activity
+or silent stops are known. The fixtures use the observed cache/schema and explicit
+final-header shapes. Tests block socket/subprocess use during monitoring and cover
+filtering, freshness, duplicates, corrupt/restarted state, rate/backoff/no-retry,
+read-only databases, ownership, gates and bounded logs. Retired AX fixtures and
+failure receipts remain in Git history and ignored orchestration evidence.
 
-The focused tests cover stale idle, fresh Working/two-clear, explicit errors,
-parked/retired IDs, duplicates, visibility gaps, restart/corruption, output intent,
-failure fuse, rate limiting, read-only records, singleton/process ownership,
-installation gates, bounded logs and forbidden command/input surfaces. The tests
-never monitor live tasks or enqueue real notifications.
+Root README TypeScript formatter/Oxlint/ESLint/Fallow, gameplay, browser/native
+and app-build checks do not exercise this Python/JSON-only tool. No app/package
+inputs change; those are marked not applicable, never green substitutes. The
+existing engineering planner calls the paths unmapped; no gameplay subsystem or
+parity claim is invented. Use focused checks, metadata validation and exact scope
+review, with fingerprints for the actual source tested.
 
-This tooling changes no app TypeScript or build inputs. Root README TypeScript
-format/Oxlint/ESLint/Fallow and gameplay/native/browser/build runs are therefore
-not substitutes for the Python/Swift checks and are marked not applicable to this
-diff. The engineering plan reports these new tool paths as unmapped. The contract
-preparer currently requires a gameplay subsystem, so its rejection is recorded
-instead of modifying the mapping or inventing gameplay coverage. Scope is audited
-against `tools/passive-worker-watch/**`; no parity/hosting files change.
+## Installation, status, disable and uninstall
 
-## Observed root-provider failure
-
-The follow-up passive structural trace found a more precise boundary than missing
-labels: `AXWindows`, `AXMainWindow` and `AXFocusedWindow` returned the application
-itself (`AXApplication`, identical by `CFEqual`). Its children were itself and two
-menu bars, not a rendered worker sidebar. The sampler now validates window role,
-identity and geometry before walking, emits the redacted `windowRoots` shape, and
-reports `accessibility-window-is-application-self-reference` instead of pretending
-that a successful AX call supplied a usable window. The observed shape is retained
-in `fixtures/application-root-cycle.json` and used by pure Swift/Python regressions.
-It never arms an idle event and never satisfies the installation gate.
-
-Read-only navigation-order/visible-child roots, focused-element ancestry, passive
-app hit-testing and a bounded AX notification subscription exposed no valid window.
-System-wide hit-testing resolved a different application and was discarded without
-reading that application's contents. A permission-only check found no already-
-running/authorized System Events helper, so no AppleScript request or prompt ran.
-Those are ignored diagnosis receipts, not additional runtime polling fallbacks.
-No accessibility flag, task, window or permission was changed. There is no observed
-worker-row shape to map safely until the app exposes a real AX window; do not
-broaden labels, infer idle from the cycle, enable app accessibility via a setter,
-or resurrect navigation/task APIs to manufacture a green result.
-
-## Single-agent lifecycle
-
-`service.py` owns only `com.populous.worker-watcher`, reusing the retired label so
-there can be no second watcher LaunchAgent. Installation requires both a fresh
-(within 15 minutes) green dry receipt and a tests receipt with `status: passed` and
-`fingerprints` exactly equal to the dry receipt. Generate that receipt from the
-actual test run, not manually. Installation copies these sources and the binary
-into `~/Library/Application Support/PopulousPassiveWatcher/runtime`, pins hashes,
-preserves any prior unloaded retired plist/runtime and never overwrites history.
-It refuses an already loaded agent or an unrecognized existing plist; it does not
-terminate the retired watcher on an assumed PID. Explicit ownership/retirement
-must be resolved before replacement.
+The sole label is `com.populous.worker-watcher`. Install requires fresh (within
+15 minutes) passing dry and test receipts whose runtime hashes match. `tests.json`
+must come from the actual check run and contain `status: passed` plus the exact
+`fingerprints`; a failed reduced-claim receipt cannot be used to install.
 
 ```sh
 python3 -B tools/passive-worker-watch/service.py status
 python3 -B tools/passive-worker-watch/service.py install \
-  --sampler work/orchestration/passive-four-watcher/sidebar \
-  --dry-receipt work/orchestration/passive-four-watcher/live-dry.json \
-  --tests-receipt work/orchestration/passive-four-watcher/tests.json
+  --dry-receipt work/orchestration/passive-four-watcher/local-events/live-dry.json \
+  --tests-receipt work/orchestration/passive-four-watcher/local-events/tests.json
 python3 -B tools/passive-worker-watch/service.py disable
 python3 -B tools/passive-worker-watch/service.py uninstall
 ```
 
-One daemon holds a nonblocking flock. Its persisted PID plus creation/command
-identity is checked against the live process and the owned plist before unloading.
-A reused PID is never signalled. `disable` persists launchd's disabled state and
-unloads the exact verified job. `uninstall` also archives the owned plist; state,
-notification outcomes, corrupt-state backups, previous runtime copies and receipts
-remain. No raw process-group cleanup is performed against an old watcher record.
-Transient sampler/queue children are bounded and only a still-identical owned
-process group may be stopped on timeout. Identity uncertainty is a blocker.
+The default records root is `~/.codex`; override with `--records-root` only for an
+explicit local dataset. The installed root is pinned to the verified receipt.
+Runtime copies live under `~/Library/Application Support/PopulousPassiveWatcher`;
+no Accessibility binary is copied. One nonblocking flock and one LaunchAgent own
+the daemon. Launchd starts it at login; crash restarts are throttled, normal failure
+exits do not loop. Status/cleanup verifies PID plus creation/command identity and
+the owned plist. Disable persists the disabled label and unloads only the verified
+job; uninstall archives its plist and leaves all state/history/runtime receipts.
+Never stop a reused or unverified PID, revive a retired sender or delete evidence.
 
-The agent starts at login and restarts only on crashes, throttled to five minutes;
-a normal fail-closed exit does not trigger a restart loop. State corruption is
-preserved and recovered into an unarmed/output-fused state. The runtime maintains
-three log segments capped at 256 KiB each and the last 64 notification receipts.
-Only state/logs created by this replacement are bounded; historic audit receipts
-are not deleted. Deliberate output-fuse recovery requires an owner to inspect the
-uncertain queue result; no automatic acknowledgement/reset command exists.
-
-## Review status
-
-A live failure must be published as a **draft tooling PR**, with the exact dry
-receipt and installation withheld. Do not label an uninstalled or accessibility-
-blocked watcher hands-off operational. CEO owns review/integration routing; this
-monitor never sends assignments or messages reviewers. A separate terminal worker
-handoff to the coordinator is outside monitoring and does not count as a watcher
-notification.
+After installation, verify a quiet observation cycle: same owned PID/command,
+advancing observation count, healthy local reads, no new output attempts, and no
+monitoring network sockets. The runtime's `capabilities` and `localTurnCoverage`
+retain the limitations. A separate final worker handoff to the coordinator is
+output, not a monitoring call; this watcher ignores Worker7 and cannot alert on
+its own final publication message.
