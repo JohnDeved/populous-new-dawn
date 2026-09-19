@@ -143,7 +143,13 @@ async function selectPerson(id) {
       report.hoverSelections.push({ id, target: hut, selected })
       save()
       assert.deepEqual(selected, [], 'Hover must not dispatch or select a model3 ground order')
-      await page.locator('.training-panel:visible button[data-person="' + id + '"]').click()
+      const resident = page.locator('.training-panel button[data-person="' + id + '"]:visible')
+      assert.equal(
+        await resident.count(),
+        1,
+        'Exactly one visible resident button is required for ' + id
+      )
+      await resident.click()
     } else {
       const count = await page.evaluate(
         () =>
