@@ -142,6 +142,11 @@ Results are atomically saved before execution and after each completion, includi
 blocked checks. An interrupted run preserves completed results, marks the active
 check blocked, and leaves later checks not-run. Restarting does not reuse old passes.
 
+Raw contracts and run receipts remain ignored working evidence. Before final review of
+tracked work, use `engineering/worker-handoff.md` to export only the bounded receipts
+needed for review into a non-overlapping review bundle with exact source/receipt hashes.
+Do not copy credentials, environment files, personal profiles, or unrelated machine logs.
+
 Generate delegated assignments from the parent contract with `context --role`; do
 not maintain a second contract. The emitted envelope contains task/base/input
 identity, one question and role deliverable, a 350–500 word response budget, no

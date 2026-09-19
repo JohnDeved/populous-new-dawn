@@ -98,9 +98,14 @@ packet; assign a compact question directly and reuse the result until gameplay o
 evidence changes a candidate.
 
 The parent owns final priority, scope, integration, acceptance, and any authorized ledger update.
-Use one source writer. Subagents share the checkout unless separate worktrees are
-demonstrated; recursive delegation is out of scope. Artifact-producing review must
-write only to an agreed ignored path and is not a read-only security boundary.
+Use one source writer. Keep that feature owner through implementation, focused checker
+repair, evidence publication, branch/PR update, and final handoff when practical;
+transfer ownership only for an explicit scope/resource conflict or reassignment.
+Subagents share the checkout unless separate worktrees are demonstrated; recursive
+delegation is out of scope. Artifact-producing review must write only to an agreed
+ignored path and is not a read-only security boundary. Before final review, export the
+bounded evidence needed by the reviewer using `engineering/worker-handoff.md` so the
+review does not depend on opening the worker-owned ignored directory.
 
 Start native, performance, and reviewer specialists with `fork_turns: "none"`, one
 bounded assignment, and a role packet generated from the implementation contract.
@@ -125,6 +130,13 @@ path instead of loading a whole source.
 Serialize Ghidra access to one project, fixture recording, parity recording, shared
 build directories, fixed-port browser servers, fixed capture paths, and performance
 measurements. Stop bounded repair/review loops and report unresolved failures.
+
+A denied tool operation blocks only that operation. Preserve its reason/fingerprint,
+do not retry it unchanged or route around the safeguard, and continue independent
+allowed work. Report `BLOCKED` only when no meaningful scoped work remains and no
+useful review-ready partial result exists; otherwise use `IN_PROGRESS` or
+`NEEDS_REVIEW`. Follow `engineering/worker-handoff.md` for portable review bundles
+and deterministic Local Dev project-release verification before the final reply.
 
 ## Verification and evidence
 

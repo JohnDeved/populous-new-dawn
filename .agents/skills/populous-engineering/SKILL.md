@@ -37,8 +37,9 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
    editing. Acceptance must reach the absent behavior through the shipped UI,
    campaign, or normal system path; injection and isolated helpers are not stopping
    conditions.
-5. Keep one implementation owner. Delegate only independent native/performance
-   research or a fresh final review using the focused project agents in
+5. Keep one implementation owner through focused checker repair, evidence publication,
+   branch/PR update, and final handoff when practical. Delegate only independent
+   native/performance research or a fresh final review using the focused project agents in
    `.codex/agents/`. Start those specialists with no inherited thread history and
    supply one validated role packet:
 
@@ -92,8 +93,11 @@ Invoke explicitly as `$populous-engineering` before a substantial repository tas
 
 9. Report conclusions, exact sources/symbols, remaining limits, changed files, and
    every required check as passed/failed/blocked/not-run/not-applicable with the
-   tested fingerprint. The stopping condition closes this contract; during authorized
-   continued work, choose and start the next useful task without requesting steering.
+   tested fingerprint. A denied operation blocks only that operation; preserve its
+   receipt, do not retry or circumvent it, and continue independent authorized work.
+   Use `BLOCKED` only when no meaningful scoped work or useful review-ready partial
+   remains. Before the final reply, use `engineering/worker-handoff.md` to export a
+   portable review bundle when needed and release/verify the Local Dev project binding.
 
 `engineering/README.md` governs architecture, evidence boundaries, resource
 serialization, performance records, and parity bookkeeping. The manifests there
