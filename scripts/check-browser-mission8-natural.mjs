@@ -170,23 +170,61 @@ async function hitPoint(point, id = null) {
     ({ point, id }) => {
       const s = window.testSceneRef.current,
         b = s.container.getBoundingClientRect(),
-        mesh = id === null ? null : s.unitMeshes.get(id),
-        projected = s.screen(mesh?.position ?? point),
-        x = b.left + ((projected.x + 1) * b.width) / 2,
-        y = b.top + ((1 - projected.y) * b.height) / 2
-      for (let dy = -28; dy <= 28; dy += 2)
-        for (let dx = -36; dx <= 36; dx += 2) {
-          const e = { clientX: x + dx, clientY: y + dy }
-          if (document.elementFromPoint(e.clientX, e.clientY) !== s.renderer.domElement) continue
-          if (id !== null) {
-            if (s.picking.pickPerson(e) === id) return { x: e.clientX, y: e.clientY }
-          } else {
-            const p = s.pick(e)
-            if (p && s.picking.pick(e) === null && Math.hypot(p.x - point.x, p.z - point.z) < 2)
-              return { x: e.clientX, y: e.clientY, point: p }
+        screen = candidate => {
+          const projected = s.screen(candidate)
+          return {
+            clientX: b.left + ((projected.x + 1) * b.width) / 2,
+            clientY: b.top + ((1 - projected.y) * b.height) / 2,
           }
         }
-      throw new Error('No genuine rendered hit for ' + JSON.stringify({ point, id }))
+      if (id === null) {
+        // Staging is a player-chosen destination, not an exact authored object.
+        // Search nearby exposed terrain, then retain the actual ray-picked point.
+        for (let radius = 0; radius <= 12; radius += 2)
+          for (let direction = 0; direction < 12; direction++) {
+            const angle = (direction * Math.PI) / 6,
+              candidate = {
+                x: point.x + Math.cos(angle) * radius,
+                z: point.z + Math.sin(angle) * radius,
+              },
+              event = screen(candidate),
+              picked = s.pick(event)
+            if (document.elementFromPoint(event.clientX, event.clientY) !== s.renderer.domElement)
+              continue
+            if (
+              picked &&
+              s.picking.pick(event) === null &&
+              Math.hypot(picked.x - candidate.x, picked.z - candidate.z) < 2
+            )
+              return { x: event.clientX, y: event.clientY, point: picked }
+          }
+      } else {
+        const mesh = s.unitMeshes.get(id),
+          center = screen(mesh?.position ?? point)
+        for (let dy = -28; dy <= 28; dy += 2)
+          for (let dx = -36; dx <= 36; dx += 2) {
+            const event = { clientX: center.clientX + dx, clientY: center.clientY + dy }
+            if (
+              document.elementFromPoint(event.clientX, event.clientY) === s.renderer.domElement &&
+              s.picking.pickPerson(event) === id
+            )
+              return { x: event.clientX, y: event.clientY }
+          }
+      }
+      const center = screen(point),
+        picked = s.pick(center)
+      throw new Error(
+        'No genuine rendered hit: ' +
+          JSON.stringify({
+            point,
+            id,
+            center,
+            picked,
+            obstruction: document.elementFromPoint(center.clientX, center.clientY)?.className,
+            viewpoint: s.viewPoint,
+            camera: s.camera.position.toArray(),
+          })
+      )
     },
     { point, id }
   )
