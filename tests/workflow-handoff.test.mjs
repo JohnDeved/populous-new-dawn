@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
   existsSync,
@@ -99,7 +99,7 @@ function expectedIdentity(repo, base) {
   }
 }
 
-test('project closeout detects stale source/bundle ownership and accepts a released neutral binding', () => {
+test('project closeout distinguishes active-path separation from unverified ownership release', () => {
   const { root, repo, bundle, neutral } = fixture()
   try {
     assert.equal(pathsOverlap(repo, join(repo, 'child')), true)
@@ -137,13 +137,17 @@ test('project closeout detects stale source/bundle ownership and accepts a relea
         activeProject: neutral,
         bundlePreflight: 'open',
       }).status,
-      'passed'
+      'unverified'
     )
     assert.deepEqual(assessProjectRelease({ sourceProject: repo, activeProject: neutral }), {
-      status: 'passed',
-      reasons: [],
-      sourceReleased: true,
+      status: 'unverified',
+      pathStatus: 'passed',
+      reasons: ['INDEPENDENT_RELEASE_NOT_VERIFIED'],
+      sourceUnbound: true,
+      bundleUnbound: null,
+      sourceReleased: null,
       bundleReleased: null,
+      releaseVerification: 'not-performed',
       reviewerOpenPreflight: 'not-applicable',
     })
   } finally {
@@ -576,7 +580,7 @@ test('real-path canonicalization rejects source aliases and bundle outputs throu
     assert.equal(existsSync(join(repo, 'bundle')), false)
     assert.equal(
       assessProjectRelease({ sourceProject: repo, activeProject: neutral }).status,
-      'passed'
+      'unverified'
     )
     assert.equal(existsSync(bundle), false)
   } finally {
@@ -651,28 +655,28 @@ test('raw command receipts retain source head and complete stdout/stderr', () =>
 test('closeout CLI consumes denial semantics instead of leaving them fixture-only', () => {
   const { root, repo, neutral } = fixture()
   try {
-    const output = JSON.parse(
-      execFileSync(
-        process.execPath,
-        [
-          join(process.cwd(), 'scripts/orchestration/worker-closeout.mjs'),
-          '--source-project',
-          repo,
-          '--active-project',
-          neutral,
-          '--expected-head',
-          run(repo, 'git', 'rev-parse', 'HEAD'),
-          '--denied-operation',
-          'required',
-          '--meaningful-work-remaining',
-          'true',
-          '--review-ready',
-          'false',
-        ],
-        { encoding: 'utf8' }
-      )
+    const command = spawnSync(
+      process.execPath,
+      [
+        join(process.cwd(), 'scripts/orchestration/worker-closeout.mjs'),
+        '--source-project',
+        repo,
+        '--active-project',
+        neutral,
+        '--expected-head',
+        run(repo, 'git', 'rev-parse', 'HEAD'),
+        '--denied-operation',
+        'required',
+        '--meaningful-work-remaining',
+        'true',
+        '--review-ready',
+        'false',
+      ],
+      { encoding: 'utf8' }
     )
-    assert.equal(output.status, 'passed')
+    assert.equal(command.status, 2)
+    const output = JSON.parse(command.stdout)
+    assert.equal(output.status, 'unverified')
     assert.equal(output.deniedOperation.operation, 'denied')
     assert.equal(output.deniedOperation.retry, false)
     assert.equal(output.workerStatus, 'IN_PROGRESS')
