@@ -1,7 +1,7 @@
 import { inHitTriangle } from './world-picking.ts'
 import * as THREE from 'three'
 import { Painter } from './painter.ts'
-import { widenGroundBounds } from './viewport-bounds.ts'
+import { DisplayGroundFootprint, widenGroundBounds } from './viewport-bounds.ts'
 import { visibleTerrainCells, visibleTerrainCopies, terrainTiles } from './terrain-visibility.ts'
 import { globePoint, globeVisible, globePick } from './globe.ts'
 import {
@@ -191,6 +191,7 @@ export class RenderView {
   angle = 0
   rawCenter = { x: 0, y: 0 }
   overview = false
+  private displayGroundFootprint = new DisplayGroundFootprint()
   bounds = circularMeshBounds(50)
   boundsTexture = new THREE.DataTexture(
     new Float32Array(444),
@@ -244,7 +245,12 @@ export class RenderView {
             widenGroundBounds(this.config, width, height, this.terrainHeights),
             angle
           )
-        : circularMeshBounds(this.config.diameter)
+        : overview
+          ? circularMeshBounds(this.config.diameter)
+          : this.displayGroundFootprint.cover(
+              circularMeshBounds(this.config.diameter), this.config, width, height,
+              this.terrainHeights, angle, this.rawCenter
+            )
     const pixels = this.boundsTexture.image.data as Float32Array
     for (let i = 0; i < 222; i++) pixels.set(this.bounds[i], i * 2)
     this.boundsTexture.needsUpdate = true
