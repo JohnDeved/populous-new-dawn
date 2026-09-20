@@ -120,12 +120,8 @@ async function dispatchOneWorshipper(page, headId) {
   for (let attempt = 0; attempt < 8; attempt++) {
     await page.keyboard.press('Escape')
     const braveButton = page.getByLabel('Select brave')
-    await braveButton.click()
-    let selected = await page.evaluate(() => [...window.testScene.world.selected])
-    if (!selected.length) {
-      await braveButton.click({ modifiers: ['Shift'] })
-      selected = await page.evaluate(() => [...window.testScene.world.selected])
-    }
+    await braveButton.click({ modifiers: ['Shift'] })
+    const selected = await page.evaluate(() => [...window.testScene.world.selected])
     assert.ok(selected.length >= 1, 'normal HUD input must select at least one Brave')
     await focusShrineWithMinimap(page, headId)
     const point = await worshipCommandPoint(page, headId)
@@ -277,7 +273,12 @@ async function acceptance() {
     page = game.page
     page.setDefaultTimeout(20_000)
     await waitNormalInput(page)
-    await page.evaluate(() => [...document.querySelectorAll('button')].find(button => button.textContent?.includes('game speed'))?.click())
+    await page.evaluate(() => {
+      const speed = [...document.querySelectorAll('button')].find(button =>
+        button.textContent?.includes('game speed')
+      )
+      speed?.click()
+    })
     const ids = await page.evaluate(() => ({
       head: window.testScene.world.shrines.find(
         h => h.kind === 'volcano' && h.mode === 0 && h.target >= 1000
