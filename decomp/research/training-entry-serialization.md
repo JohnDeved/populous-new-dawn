@@ -603,3 +603,35 @@ was changed. No gameplay fix is supported by this result. Research publication
 is limited to binding the saved native outcome and the next original producer
 boundary; TypeScript/build/gameplay suites are not relevant to the unchanged
 implementation.
+
+## Original render-backend selector — bounded continuation
+
+Research base: `19b31d3572548cdc933ed533efeed78f2555b48a` (PR115).
+The retained triangle-arena result and its 47 original triangle records remain
+unchanged. A new serialized continuation executed only the next source-localized
+producer boundary before the preserved painter:
+
+- complete original `0x4b2650` returned descriptor `0x320000c` from the
+  retained UI owner `0x3200000`;
+- complete original `0x5281c0` consumed that descriptor on turn 49 / frame 193
+  and selected original table `0xD05B10` into `0xD05AF0`;
+- the preserved painter retained all 47 triangle records and advanced past the
+  previous null load/dereference at `0x52a7f3`, stopping at the virtual dispatch
+  instruction `0x52a7fc`.
+
+The saved ignored receipt is
+`work/orchestration/worker-3-training-entry/triangle-backend/result.json`.
+Its checker is `scripts/check-native-training-render-binding.py`. The first
+three failed queue submissions were harness-precondition corrections (retained
+preflight location, current-note hash, and fresh inherited replay output); they
+executed no native frame. Job `3a71e241-03c5-4a3b-8149-ecd9fe54f8df` produced
+the binding above and stopped at the next unsupported original virtual consumer.
+
+This is the smallest authentic missing arena/painter binding requested by the
+prior handoff. It is not matched pixel evidence: `pixelDiagnostics` remained
+`not-run`, no browser framebuffer was captured, and the native trajectory still
+ends before the selected backend method returns. Therefore no doorway,
+interpolation, admission, capacity, training, or gameplay conclusion changes,
+and PR115 remains unresolved/draft. The next bounded prerequisite is the genuine
+selected backend object/method consumed through slot `+0x38`; do not host-write
+the call target or infer pixels from the 47 queued triangles.
