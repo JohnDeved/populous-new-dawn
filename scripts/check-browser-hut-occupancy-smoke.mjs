@@ -321,7 +321,11 @@ async function chooseHudResidents(page, count) {
       }
     })
   })
-  assert.equal(selected.length, count, 'HUD brave selection must return the requested resident count')
+  assert.equal(
+    selected.length,
+    count,
+    'HUD brave selection must return the requested resident count'
+  )
   assert.ok(
     selected.every(u => u.hp > 0 && u.guard && u.inside === null && u.work === null),
     'HUD brave selection must return only guarded free residents'
@@ -372,46 +376,51 @@ async function resolveBuildSite(page) {
 }
 
 async function resolveHutDispatch(page, buildingId = null, requireCommand = true) {
-  return page.evaluate(async ({ buildingId, requireCommand }) => {
-    const scene = window.testScene,
-      world = scene.world,
-      hut = world.buildings.find(building => building.id === (buildingId ?? window.hutSmoke.hutId)),
-      { liveCommandContext } = await import('/app/live-command.ts')
-    if (!hut) throw new Error('Fresh Mission 1 hut disappeared before dispatch')
-    scene.renderer.render(scene.scene, scene.camera)
-    const projected = scene.screen(hut),
-      rect = scene.renderer.domElement.getBoundingClientRect(),
-      center = {
-        x: rect.left + ((projected.x + 1) * rect.width) / 2,
-        y: rect.top + ((1 - projected.y) * rect.height) / 2,
-      }
-    for (let dy = -120; dy <= 60; dy += 3)
-      for (let dx = -75; dx <= 75; dx += 3) {
-        const event = { clientX: center.x + dx, clientY: center.y + dy },
-          hit = document.elementFromPoint(event.clientX, event.clientY)
-        if (hit !== scene.renderer.domElement || scene.picking.pickPerson(event)) continue
-        const pickingId = scene.picking.pick(event),
-          object = scene.pickWorldObject(event),
-          context = object && liveCommandContext(world, object),
-          commandReady =
-            !requireCommand ||
-            (context?.enabled && context.model === 8 && context.building?.id === hut.id)
-        if (pickingId === hut.id && object?.id === hut.id && commandReady)
-          return {
-            x: event.clientX,
-            y: event.clientY,
-            projected: center,
-            pickingId,
-            objectId: object.id,
-            contextModel: context?.model ?? null,
-          }
-      }
-    throw new Error(
-      requireCommand
-        ? 'No rendered fresh-hut point with enabled command-8 context'
-        : 'No rendered fresh-hut pointer hit'
-    )
-  }, { buildingId, requireCommand })
+  return page.evaluate(
+    async ({ buildingId, requireCommand }) => {
+      const scene = window.testScene,
+        world = scene.world,
+        hut = world.buildings.find(
+          building => building.id === (buildingId ?? window.hutSmoke.hutId)
+        ),
+        { liveCommandContext } = await import('/app/live-command.ts')
+      if (!hut) throw new Error('Fresh Mission 1 hut disappeared before dispatch')
+      scene.renderer.render(scene.scene, scene.camera)
+      const projected = scene.screen(hut),
+        rect = scene.renderer.domElement.getBoundingClientRect(),
+        center = {
+          x: rect.left + ((projected.x + 1) * rect.width) / 2,
+          y: rect.top + ((1 - projected.y) * rect.height) / 2,
+        }
+      for (let dy = -120; dy <= 60; dy += 3)
+        for (let dx = -75; dx <= 75; dx += 3) {
+          const event = { clientX: center.x + dx, clientY: center.y + dy },
+            hit = document.elementFromPoint(event.clientX, event.clientY)
+          if (hit !== scene.renderer.domElement || scene.picking.pickPerson(event)) continue
+          const pickingId = scene.picking.pick(event),
+            object = scene.pickWorldObject(event),
+            context = object && liveCommandContext(world, object),
+            commandReady =
+              !requireCommand ||
+              (context?.enabled && context.model === 8 && context.building?.id === hut.id)
+          if (pickingId === hut.id && object?.id === hut.id && commandReady)
+            return {
+              x: event.clientX,
+              y: event.clientY,
+              projected: center,
+              pickingId,
+              objectId: object.id,
+              contextModel: context?.model ?? null,
+            }
+        }
+      throw new Error(
+        requireCommand
+          ? 'No rendered fresh-hut point with enabled command-8 context'
+          : 'No rendered fresh-hut pointer hit'
+      )
+    },
+    { buildingId, requireCommand }
+  )
 }
 
 async function resolveGroundDispatch(page) {
