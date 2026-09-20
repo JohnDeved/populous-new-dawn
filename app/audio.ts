@@ -1,5 +1,6 @@
 import native from './original-sound.json' with { type: 'json' }
 import { Music } from './music.ts'
+import { DEFAULT_AUDIO_PREFERENCES } from './audio-preferences.ts'
 import { SELECTION_CUES } from './person-selection.ts'
 import {
   ambientLayers,
@@ -170,8 +171,8 @@ export class Soundscape {
   enabled = false
   disposed = false
   randomState = 1 // Independent of simulation RNG; native initialization is still to be matched.
-  volume = 0.35
-  musicVolume = 0.65
+  volume = DEFAULT_AUDIO_PREFERENCES.volume
+  musicVolume = DEFAULT_AUDIO_PREFERENCES.musicVolume
   music: Music | null = null
   paused = false
   generation = 0

@@ -28,6 +28,12 @@ import {
 import { createGameStore } from './game-store'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
+import {
+  DEFAULT_AUDIO_PREFERENCES,
+  readAudioPreferences,
+  saveAudioPreferences,
+  type AudioPreferences,
+} from './audio-preferences'
 import { messageIcon, messageText, messageViewPoint, removeMessage } from './messages'
 import {
   HudSprite,
@@ -80,22 +86,15 @@ export default function Home() {
   const { routeNotice } = world
   const [tab, setTab] = useState<'spells' | 'buildings' | 'followers'>('spells')
   const [sound, setSound] = useState(false)
-  const [volume, setVolume] = useState(0.35)
-  const [musicVolume, setMusicVolume] = useState(0.65)
+  const [audioPreferences, setAudioPreferences] =
+    useState<AudioPreferences>(DEFAULT_AUDIO_PREFERENCES)
+  const [audioStorageNotice, setAudioStorageNotice] = useState('')
+  const { volume, musicVolume } = audioPreferences
   const [soundPending, setSoundPending] = useState(false)
   const [hudSize, setHudSize] = useState('auto')
   const [messageViewportHeight, setMessageViewportHeight] = useState(480)
   const [checkpointNotice, setCheckpointNotice] = useState('')
   const [startup, setStartup] = useState<'loading' | 'choice' | 'playing'>('loading')
-  useEffect(() => {
-    let active = true
-    void store.restoreCheckpoint().then(() => {
-      if (active) setStartup('choice')
-    })
-    return () => {
-      active = false
-    }
-  }, [store])
   useEffect(() => {
     try {
       const saved = localStorage.getItem('hud-size')
@@ -165,6 +164,16 @@ export default function Home() {
       engine.current.hoveredSpell =
         tab === 'spells' ? (SPELLS.find(s => s.id === hover)?.model ?? 0) : 0
   }, [hover, tab, ready])
+  function changeAudioPreferences(next: AudioPreferences) {
+    setAudioPreferences(next)
+    audio.current?.setVolume(next.volume)
+    audio.current?.setMusicVolume(next.musicVolume)
+    setAudioStorageNotice(
+      saveAudioPreferences(next)
+        ? ''
+        : 'Volume changes apply for this session; browser storage is unavailable.'
+    )
+  }
   useEffect(() => {
     audio.current = new Soundscape()
     return () => {
@@ -172,6 +181,20 @@ export default function Home() {
       audio.current = null
     }
   }, [])
+  useEffect(() => {
+    let active = true
+    void store.restoreCheckpoint().then(() => {
+      if (!active) return
+      const preferences = readAudioPreferences()
+      setAudioPreferences(preferences)
+      audio.current?.setVolume(preferences.volume)
+      audio.current?.setMusicVolume(preferences.musicVolume)
+      setStartup('choice')
+    })
+    return () => {
+      active = false
+    }
+  }, [store])
   useEffect(() => {
     if (startup !== 'playing') return
     let disposed = false,
@@ -1353,11 +1376,9 @@ export default function Home() {
               max="1"
               step=".05"
               value={volume}
-              onChange={e => {
-                const v = Number(e.target.value)
-                setVolume(v)
-                audio.current?.setVolume(v)
-              }}
+              onChange={e =>
+                changeAudioPreferences({ ...audioPreferences, volume: Number(e.target.value) })
+              }
             />
           </label>
           <label>
@@ -1368,14 +1389,13 @@ export default function Home() {
               max="1"
               step=".05"
               value={musicVolume}
-              onChange={e => {
-                const v = Number(e.target.value)
-                setMusicVolume(v)
-                audio.current?.setMusicVolume(v)
-              }}
+              onChange={e =>
+                changeAudioPreferences({ ...audioPreferences, musicVolume: Number(e.target.value) })
+              }
             />
           </label>
         </div>
+        {audioStorageNotice && <p role="status">{audioStorageNotice}</p>}
         <details className="reference-details">
           <summary>About this recreation & references</summary>
           <p>
