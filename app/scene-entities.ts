@@ -35,6 +35,8 @@ import { buildingSocketPoint } from './building-shapes.ts'
 import { random } from './native-math.ts'
 import {
   createHutOccupancySmoke,
+  observeHutOccupancy,
+  reconcileHutOccupancySmoke,
   hutOccupancySmokeLayer,
   stepHutOccupancySmoke,
   type HutOccupancySmokeState,
@@ -160,7 +162,8 @@ function makeBuilding(b: Building, stage: number) {
     base = rules.buildingObjects[buildingModel(b)],
     // Training huts require their actual tribe mesh. Preserve unrelated and
     // neutral fallback behavior; Balloon Hut resource87 remains unimported.
-    renderId = originalTrainingHutObject(b) ??
+    renderId =
+      originalTrainingHutObject(b) ??
       (nativeModels[id] ? id : nativeModels[base] ? base : rules.buildingObjects[13])
   const model = nativeModel(renderId, b.kind === 'temple' ? 1.65 : 2, stage)
   g.add(model)
@@ -179,6 +182,7 @@ function makeBuilding(b: Building, stage: number) {
 }
 
 interface HutSmokeRenderState {
+  occupants: number
   state: HutOccupancySmokeState
   group: THREE.Group
   sprite: THREE.Sprite
@@ -205,7 +209,12 @@ function hutSmokeSprite() {
   return sprite
 }
 
-function updateHutOccupancySmoke(scene: GameScene, b: Building, buildingGroup: THREE.Group) {
+function updateHutOccupancySmoke(
+  scene: GameScene,
+  b: Building,
+  buildingGroup: THREE.Group,
+  occupancyEvent = false
+) {
   if (b.kind !== 'hut' || b.team !== 'blue' || b.progress < 1 || b.hp <= 0) {
     releaseHutSmoke(scene, buildingGroup)
     return
@@ -226,6 +235,7 @@ function updateHutOccupancySmoke(scene: GameScene, b: Building, buildingGroup: T
     group.name = 'hut-occupancy-smoke'
     group.add(sprite)
     smoke = {
+      occupants,
       state: createHutOccupancySmoke(
         b.counter,
         occupants,
@@ -237,15 +247,27 @@ function updateHutOccupancySmoke(scene: GameScene, b: Building, buildingGroup: T
     }
     buildingGroup.userData.hutOccupancySmoke = smoke
     scene.objects.add(group)
-  } else
+    // Both Hut teardown and whole-scene disposal release this unique material.
+    sprite.material.addEventListener(
+      'dispose',
+      observeHutOccupancy(b, () => updateHutOccupancySmoke(scene, b, buildingGroup, true))
+    )
+  } else {
     stepHutOccupancySmoke(
       smoke.state,
       b.counter,
-      occupants,
+      occupancyEvent ? smoke.occupants : occupants,
       capacity,
       scene.gameClock.animationFrame,
       () => random(scene.world.cosmeticRandom)
     )
+
+    if (occupancyEvent)
+      // Advance the old root to the real event counter first, so an off-phase
+      // allocation is not backdated or decremented for earlier elapsed visits.
+      reconcileHutOccupancySmoke(smoke.state, occupants, capacity, scene.gameClock.animationFrame)
+    smoke.occupants = occupants
+  }
 
   const socket = buildingSocketPoint(buildingPose(b), capacity),
     point = browserPosition(socket),
@@ -531,7 +553,11 @@ export function updateUnitsFrame(scene: GameScene) {
         string,
         Record<string, { frames: number[]; flip: boolean }[]>
       >
-    )[u.kind === 'shaman' ? shamanAppearance(u.team).signature : `${animationTeam(renderTeam)}-${u.kind}`]
+    )[
+      u.kind === 'shaman'
+        ? shamanAppearance(u.team).signature
+        : `${animationTeam(renderTeam)}-${u.kind}`
+    ]
     const state = unitAnimation(scene.world, u)
     if (g.userData.state !== state) {
       g.userData.state = state
@@ -742,7 +768,10 @@ export function updateShrinesFrame(scene: GameScene) {
       }
     }
     entry.g.visible =
-      !!stone || shrine.active || shrine.kind === 'vault' || (shrine.kind === 'angel' && !!shrine.angelTarget)
+      !!stone ||
+      shrine.active ||
+      shrine.kind === 'vault' ||
+      (shrine.kind === 'angel' && !!shrine.angelTarget)
   }
 }
 
