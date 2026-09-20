@@ -367,6 +367,7 @@ export function campaignCommand(
             )
           : campaignAttackTarget(w, 0, marker)
     if (target === null) return
+    const taskSpells = missionSixAttack ? [5, 6, 7].map(index => read(args[index])) : []
     requestAttack(
       w.ai,
       target.target,
@@ -377,7 +378,8 @@ export function campaignCommand(
       w.ai.attributes[28],
       !!(w.ai.states & (1 << 20)),
       campaignTribe(w),
-      target.id
+      target.id,
+      taskSpells
     )
     return
   }

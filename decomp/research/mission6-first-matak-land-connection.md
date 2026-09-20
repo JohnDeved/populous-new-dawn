@@ -44,9 +44,9 @@ The payment/permission chain is already recovered elsewhere:
 
 ## Model 12 endpoints
 
-The original task caster does not hardcode Mission 6 bridge coordinates. `004d14f0` derives the source from the live Matak Shaman. It forms a packed target center from the Shaman's current native cell; when the Shaman is in native states 25 or 29 it substitutes the type-20 task target at task `+0x10`. It then applies `004f3040` range validation and passes that center to `004f4680`. Because model12 returns the input center unchanged, `004f4de0` receives that exact dynamic destination.
+The original task caster does not hardcode Mission 6 bridge coordinates. `004d14f0` derives the source from the live Matak Shaman. It forms the spell target from the type-20 task target at task `+0x10` for ordinary Shaman state 10. Only when the Shaman is in native states 25 or 29 does it substitute the live Shaman cell instead. It then applies `004f3040` range validation and passes that center to `004f4680`. Because model12 returns the input center unchanged, `004f4de0` receives that exact dynamic destination.
 
-Thus the original Land Bridge endpoints are **live Matak Shaman source -> phase-6 ATTACK target center**, subject to the normal model12 range/terrain validation. They are not a fixed pair that the browser should inject. The existing retained topology note that a normal bridge between the closest initial components makes the route connected is supporting geometry, not the producer definition.
+Thus the original Mission 6 Land Bridge endpoints are **live Matak Shaman source -> phase-6 ATTACK task target center** in the ordinary state-10 raid path, subject to normal model12 range/terrain validation. States 25/29 instead use the live Shaman cell and are not the ordinary first-raid bridge route. They are not a fixed pair that the browser should inject. The existing retained topology note that a normal bridge between the closest initial components makes the route connected is supporting geometry, not the producer definition.
 
 ## First unsupported browser binding
 
@@ -66,7 +66,7 @@ Reserve only, after CEO coordination:
 - `app/campaign-command-runtime.ts` — pass resolved ATTACK args 5/6/7 to `requestAttack` while retaining current exact-vector validation.
 - `app/computer.ts` — add a three-model task spell list, initialize/snapshot it in `requestAttack`, and expose a phase-6 task-spell callback/action before the existing settlement/fallback work. Do not rewrite other task phases.
 - `app/computer-runtime.ts` — implement the live Matak Shaman callback using the existing spell primitives: first-permitted task model, stock-or-mana payment rule, Shaman eligibility, usage limit, native range, `chooseSpellTarget`, existing `beginCast`, and clear the consumed task spell only after allocation.
-- focused additions to `tests/mission6.test.mjs` for task `[12,3,2]`, phase-6 model12 selection/consumption, mana/usage/range refusal, and dynamic task-target destination.
+- focused additions to `tests/mission6.test.mjs` for task `[12,3,2]`, phase-6 model12 selection/consumption, mana/usage/range refusal, and the state-10 task-target / state-25-or-29 live-cell destination conditional.
 
 `app/computer-spells.ts`, Land Bridge terrain/effect code, mission scripts, level data, stocks, markers and generated outputs need no speculative change for this repair.
 
