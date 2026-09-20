@@ -79,7 +79,8 @@
     102,
     105,
     8,
-    157
+    157,
+    149
   ],
   "sourceFrames": 7953,
   "animationFrames": 4770,
@@ -131,5 +132,25 @@
       "objects/pnts0-2.dat": "09ebbdc9496d2ebd3a932be96af3fd27e6701a41105a5154aec4abe39e50b911",
       "objects/morph0-2.dat": "1939b4d30839f2ab49ea110abb29d40eb001d6cc6fa4932be72ce44c3aebf066"
     }
+  },
+  "staticStoneHead149": {
+    "baseModel": 149,
+    "asset": "app/original-models.json",
+    "importer": "scripts/import-stone-head-149.py",
+    "decodedSha256": "4500fc0e919cc8362f22900a100918f7aceb4c779212a09f2fb9c6724ee19a53",
+    "sha256": {
+      "objects/objs0-2.dat": "e1af6bdf050608d7c1832700826bece72ca592abdff3ee9c2138c50ed8a8607d",
+      "objects/facs0-2.dat": "01a9a6d02efa0d35f7026cd97f8e01f72cbfb72e94217efe8256e8fe43597e9a",
+      "objects/pnts0-2.dat": "09ebbdc9496d2ebd3a932be96af3fd27e6701a41105a5154aec4abe39e50b911"
+    },
+    "atlas": {
+      "asset": "public/original/atlas.png",
+      "sha256": "fdb5c2af7ca43debb5d943036969df29949773b6b94c0b7ce99ffc5d946b27b0",
+      "tiles": [
+        159,
+        167
+      ]
+    },
+    "scope": "Static base only; original animation cadence and key150/151 runtime integration unresolved."
   }
 }

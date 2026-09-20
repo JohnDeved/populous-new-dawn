@@ -47,6 +47,7 @@ import { nativeUnitDraw } from './unit-kinds.ts'
 import { originalVehicleMesh, originalVehicleUV } from './vehicle-appearance.ts'
 import { initializeStoneHead, stoneHeadFrame, stoneHeadPositions } from './stone-head-animation.ts'
 import { stoneHeadAngle } from './stone-head-orientation.ts'
+import { stoneHead149Model } from './stone-head-149.ts'
 import { originalTrainingHutObject } from './training-hut-appearance.ts'
 import { shamanAppearance, shamanNativeDirections } from './shaman-appearance.ts'
 import nativeEffects from './original-effects.json'
@@ -152,7 +153,8 @@ function makeBuilding(b: Building, stage: number) {
     base = rules.buildingObjects[buildingModel(b)],
     // Training huts require their actual tribe mesh. Preserve unrelated and
     // neutral fallback behavior; Balloon Hut resource87 remains unimported.
-    renderId = originalTrainingHutObject(b) ??
+    renderId =
+      originalTrainingHutObject(b) ??
       (nativeModels[id] ? id : nativeModels[base] ? base : rules.buildingObjects[13])
   const model = nativeModel(renderId, b.kind === 'temple' ? 1.65 : 2, stage)
   g.add(model)
@@ -205,7 +207,7 @@ export function updateWaveShake(
 
 function makeShrine(scene: GameScene, shrine: Shrine) {
   const g = new THREE.Group()
-  g.add(nativeModel(shrine.model))
+  g.add(nativeModel(stoneHead149Model(shrine, scene.world.outcome.level)))
   scene.locate(g, shrine)
   scene.orientModel(g, stoneHeadAngle(shrine, scene.world.outcome.level))
   scene.objects.add(g)
@@ -444,7 +446,11 @@ export function updateUnitsFrame(scene: GameScene) {
         string,
         Record<string, { frames: number[]; flip: boolean }[]>
       >
-    )[u.kind === 'shaman' ? shamanAppearance(u.team).signature : `${animationTeam(renderTeam)}-${u.kind}`]
+    )[
+      u.kind === 'shaman'
+        ? shamanAppearance(u.team).signature
+        : `${animationTeam(renderTeam)}-${u.kind}`
+    ]
     const state = unitAnimation(scene.world, u)
     if (g.userData.state !== state) {
       g.userData.state = state
@@ -609,12 +615,13 @@ export function updateShrinesFrame(scene: GameScene) {
       marker.userData.cellPosition = placement
       animateVaultKnowledgeMarker(scene, marker, vaultKnowledgeVisible(shrine))
     }
+    const model = stoneHead149Model(shrine, scene.world.outcome.level)
     let mesh = entry.g.children[0] as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>
-    if (mesh.userData.nativeModel !== shrine.model) {
+    if (mesh.userData.nativeModel !== model) {
       entry.g.remove(mesh)
       mesh.geometry.dispose()
       mesh.material.dispose()
-      mesh = nativeModel(shrine.model)
+      mesh = nativeModel(model)
       entry.g.add(mesh)
     }
     const stone = initializeStoneHead(shrine, scene.world.outcome.level)
@@ -651,8 +658,9 @@ export function updateShrinesFrame(scene: GameScene) {
         mesh.userData.morphStart = morph.started
       }
     }
+    const activeHead = !!stone || shrine.active
     entry.g.visible =
-      !!stone || shrine.active || shrine.kind === 'vault' || (shrine.kind === 'angel' && !!shrine.angelTarget)
+      activeHead || shrine.kind === 'vault' || (shrine.kind === 'angel' && !!shrine.angelTarget)
   }
 }
 
