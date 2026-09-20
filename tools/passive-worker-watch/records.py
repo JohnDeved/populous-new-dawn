@@ -21,10 +21,10 @@ import lifecycle
 
 COORDINATOR = '01a09e5b-1361-7c12-acbe-a9377e0af8a0'
 WORKERS = {
-    1: '6aaebd2a-9698-83ed-a9ca-732b8651f074',
-    2: '6aaebd46-b95c-83ed-80ac-207d2c6c5c43',
-    3: '6aaebd51-30ac-83eb-a58a-1cfdb96b9100',
-    4: '6aaebd5d-d418-83eb-a0b7-6000fe1dbf24',
+    1: '6aafbc1e-a320-83eb-802e-584acf5d243b',
+    2: '6aafbad9-b3c8-83ed-8714-a6fb47f41498',
+    3: '6aafba7a-0180-83ed-b488-20787cf2cc8c',
+    4: '6aafbada-9700-83eb-9d01-f5ce381319a6',
 }
 TITLES = {
     1: 'Worker 1c - xhigh',
@@ -36,6 +36,8 @@ FINAL_STATES = {'DONE', 'BLOCKED', 'NEEDS_REVIEW', 'ERROR', 'SYSTEMERROR', 'STOP
 HEADER = re.compile(r'^Worker\s*([1234])c\s*\|', re.I)
 MAX_ROWS = 512
 MAX_PAYLOAD = 65536
+LOCAL_SOURCES = ('.codex-global-state.json', 'state_5.sqlite', 'queue_1.sqlite',
+                 'thread_history_1.sqlite')
 
 
 class EvidenceUnavailable(RuntimeError):
@@ -44,6 +46,21 @@ class EvidenceUnavailable(RuntimeError):
 
 def digest(value):
     return hashlib.sha256(value.encode()).hexdigest()
+
+
+def source_identities(root):
+    """Return the bounded local source generation; absence/replacement is unknown."""
+    result = {}
+    try:
+        for name in LOCAL_SOURCES:
+            status = (Path(root) / name).stat()
+            if not status.st_size:
+                raise EvidenceUnavailable('Local evidence source is empty: ' + name)
+            result[name] = (status.st_dev, status.st_ino)
+    except OSError as error:
+        raise EvidenceUnavailable('Local evidence source unavailable: ' + str(error)[:200]) from error
+    return result
+
 
 
 def configuration(path):
@@ -102,12 +119,13 @@ def metadata(root, config, now):
         rows = found[worker['id']]
         row = rows[0] if len(rows) == 1 else {}
         created, updated = timestamp(row.get('createdAt')), timestamp(row.get('updatedAt'))
-        bound = bool(len(rows) == 1 and row.get('title') == worker['title'] and created and updated
-                     and created <= updated <= now and created <= now)
+        cache_bound = bool(len(rows) == 1 and row.get('title') == worker['title'] and created and updated
+                           and created <= updated <= now and created <= now)
         result[worker['id']] = {
-            'number': worker['number'], 'matches': len(rows), 'bound': bound,
-            'createdAt': created, 'metadataUpdatedAt': updated,
-            'metadataFresh': bool(bound and now - updated <= config['metadataMaxAgeSeconds']),
+            'number': worker['number'], 'matches': len(rows), 'bound': True,
+            'cacheBound': cache_bound, 'createdAt': created if cache_bound else 0.001,
+            'metadataUpdatedAt': updated,
+            'metadataFresh': bool(cache_bound and now - updated <= config['metadataMaxAgeSeconds']),
             'liveStatus': 'unknown',
         }
     return result
@@ -115,7 +133,11 @@ def metadata(root, config, now):
 
 @contextmanager
 def readonly(root, name):
-    connection = sqlite3.connect((root / name).resolve().as_uri() + '?mode=ro', uri=True, timeout=1)
+    try:
+        connection = sqlite3.connect((root / name).resolve().as_uri() + '?mode=ro&immutable=1',
+                                     uri=True, timeout=1)
+    except (OSError, sqlite3.Error) as error:
+        raise EvidenceUnavailable('Local database unavailable: ' + name) from error
     connection.row_factory = sqlite3.Row
     try:
         connection.execute('PRAGMA query_only=ON')
@@ -168,7 +190,9 @@ def final_event(payload, item_id, at, bindings, now, max_age, source):
             return None
         parts.pop(1)
         attribution = 'explicit-id-self-report'
-    if len(parts) != 3 or not parts[1] or len(parts[1]) > 160 or parts[2].upper() not in FINAL_STATES:
+    if (len(parts) != 3 or not parts[1] or len(parts[1]) > 160
+            or parts[2].upper() not in FINAL_STATES
+            or (attribution == 'current-roster-self-report' and not binding['cacheBound'])):
         return None
     state = parts[2].upper()
     semantic = digest(ident + '\n' + ' '.join(text.split()))
@@ -200,6 +224,7 @@ def lifecycle_records(activity_root, bindings, config, now):
 def snapshot(root, config, now, activity_root=None):
     root = Path(root).resolve()
     activity_root = (Path.home() / '.local-dev/activity') if activity_root is None else Path(activity_root)
+    source_generation = source_identities(root)
     bindings = metadata(root, config, now)
     events, counts, local_turns = [], {}, {}
     minimum = now - config['eventMaxAgeSeconds']
@@ -245,7 +270,7 @@ def snapshot(root, config, now, activity_root=None):
             binding = bindings[ident]
             for row in rows:
                 at, started = timestamp(row['completed_at']), timestamp(row['started_at'])
-                if (ident in local_ids and binding['bound'] and row['status'] == 'failed'
+                if (ident in local_ids and binding['cacheBound'] and row['status'] == 'failed'
                         and row['has_error'] and at and started
                         and binding['createdAt'] <= started <= at <= now
                         and now - at <= config['eventMaxAgeSeconds']):
@@ -260,6 +285,8 @@ def snapshot(root, config, now, activity_root=None):
         if existing is None or event['at'] < existing['at']:
             unique[event['key']] = event
     localdev = lifecycle_records(activity_root, bindings, config, now)
+    if source_identities(root) != source_generation:
+        raise EvidenceUnavailable('Local evidence sources changed during observation')
     return {
         'version': 3, 'at': now, 'dataRoot': str(root),
         'activityRoot': localdev['root'], 'workers': bindings,
@@ -273,7 +300,7 @@ def snapshot(root, config, now, activity_root=None):
             **localdev['claims'],
         },
         'claims': {
-            'identity': 'exact configured current cached IDs/titles',
+            'identity': 'exact configured IDs/titles; cache corroboration required for cache-derived claims',
             'positiveStop': 'explicit current-roster final headers only',
             'localErrors': 'fresh typed failed-turn records if present; not live status',
             'interruptedRuns': 'explicit Local Dev run.interrupted after a self-labelled managed run',

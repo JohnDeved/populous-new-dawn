@@ -13,7 +13,7 @@
     {"text": "Worker 2c | #73 | NEEDS_REVIEW", "accepted": true},
     {"text": "Worker3c | #10 | ERROR", "accepted": true},
     {"text": "Worker4c | #27 | SYSTEMERROR", "accepted": true},
-    {"text": "Worker1c | chat_id=6aaebd2a-9698-83ed-a9ca-732b8651f074 | #21 | DONE", "accepted": true},
+    {"text": "Worker1c | chat_id=6aafbc1e-a320-83eb-802e-584acf5d243b | #21 | DONE", "accepted": true},
     {"text": "Worker1c | chat_id=6aad9a2e-6084-83eb-ace6-6218f2da0ef4 | #21 | DONE", "accepted": false},
     {"text": "Worker4 | #60 | DONE", "accepted": false},
     {"text": "Worker5c | #85 | BLOCKED", "accepted": false},

@@ -12,14 +12,16 @@ configured coordinator thread.
 
 `managed.json` binds exactly these cached conversation identities/titles:
 
-- Worker 1c — `6aaebd2a-9698-83ed-a9ca-732b8651f074`
-- Worker 2c — `6aaebd46-b95c-83ed-80ac-207d2c6c5c43`
-- Worker 3c — `6aaebd51-30ac-83eb-a58a-1cfdb96b9100`
-- Worker 4c — `6aaebd5d-d418-83eb-a0b7-6000fe1dbf24`
+- Worker 1c — `6aafbc1e-a320-83eb-802e-584acf5d243b`
+- Worker 2c — `6aafbad9-b3c8-83ed-8714-a6fb47f41498`
+- Worker 3c — `6aafba7a-0180-83ed-b488-20787cf2cc8c`
+- Worker 4c — `6aafbada-9700-83eb-9d01-f5ce381319a6`
 
-Duplicate/missing/wrong-title metadata makes the observation incomplete. Cache
-`updatedAt`, file mtimes, silence and elapsed time are metadata only and never
-establish active/idle/stopped state.
+The manifest is the exact user-authorized roster. Matching cached identity/title metadata
+corroborates cache- and SQLite-derived claims; duplicate, missing, stale or wrong-title
+cache metadata suppresses those claims. Explicit-ID coordinator finals and self-labelled
+Local Dev terminals still map to the exact configured task ID. Cache `updatedAt`, file
+mtimes, silence and elapsed time never establish active/idle/stopped state.
 
 ## Positive evidence
 
@@ -62,14 +64,14 @@ availability.
 
 ## Bounded local reads and output
 
-Codex SQLite reads use URI `mode=ro` plus `PRAGMA query_only`, exact tables and
+Codex SQLite reads use URI `mode=ro&immutable=1` plus `PRAGMA query_only`, exact tables and
 bounded rows/payloads. The task-cache reader retains only the configured roster
 fields. Local Dev activity reads inspect at most 24 recently modified journals,
 at most 8 MiB from each tail, and at most 2,048 sanitized lifecycle events. Raw
 goals, tool arguments/results and other journal content are not retained in watcher
 state or notices.
 
-Schema/bound failures are watcher-health errors, never worker errors. Cold start
+Database disappearance, replacement during a snapshot, schema/bound failures are watcher-health errors, never worker errors. Cold start
 baselines pre-existing evidence. State persists dedupe, final identity, lifecycle
 run identity and crash-safe output intent. Corrupt/incompatible state is preserved
 and output-blocked rather than replayed. Installation archives the prior watcher
