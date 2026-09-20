@@ -172,6 +172,7 @@ import type {
 } from './world-types.ts'
 import { selectHudPeople, type HudSelectionMode } from './hud-selection.ts'
 import { worshipHeadPose } from './live-worship.ts'
+import { recordWorshipPanelActivity } from './worship-panel-activity.ts'
 import {
   cancelLiveOrder,
   stepLiveConversionVictim,
@@ -884,6 +885,7 @@ function stepTurn(w: World) {
               : people
           }
         )
+        recordWorshipPanelActivity(shrine, w.turn, counts[w.manaWorld.playerTribe])
         const recipient =
           shrine.kind === 'mana' || shrine.rewardMana !== undefined
             ? counts.findIndex(count => count > 0)
