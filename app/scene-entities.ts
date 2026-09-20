@@ -31,6 +31,14 @@ import {
   type Shrine,
 } from './model'
 import { terrainPointHeight } from './native-terrain.ts'
+import { buildingSocketPoint } from './building-shapes.ts'
+import { random } from './native-math.ts'
+import {
+  createHutOccupancySmoke,
+  hutOccupancySmokeLayer,
+  stepHutOccupancySmoke,
+  type HutOccupancySmokeState,
+} from './hut-occupancy-smoke.ts'
 import { unitHealthGauge } from './unit-health.ts'
 import {
   spriteDirection,
@@ -168,6 +176,85 @@ function makeBuilding(b: Building, stage: number) {
     healthFill,
   }
   return g
+}
+
+interface HutSmokeRenderState {
+  state: HutOccupancySmokeState
+  group: THREE.Group
+  sprite: THREE.Sprite
+}
+
+function releaseHutSmoke(scene: GameScene, buildingGroup: THREE.Group) {
+  const smoke = buildingGroup.userData.hutOccupancySmoke as HutSmokeRenderState | undefined
+  if (!smoke) return
+  scene.objects.remove(smoke.group)
+  scene.releaseGroup(smoke.group)
+  delete buildingGroup.userData.hutOccupancySmoke
+}
+
+function hutSmokeSprite() {
+  const sprite = new THREE.Sprite(
+    new THREE.SpriteMaterial({
+      map: texture('effects'),
+      transparent: true,
+      depthWrite: false,
+      toneMapped: false,
+    })
+  )
+  sprite.center.set(0.5, 0)
+  return sprite
+}
+
+function updateHutOccupancySmoke(scene: GameScene, b: Building, buildingGroup: THREE.Group) {
+  if (b.kind !== 'hut' || b.team !== 'blue' || b.progress < 1 || b.hp <= 0) {
+    releaseHutSmoke(scene, buildingGroup)
+    return
+  }
+
+  const model = buildingModel(b),
+    capacity = rules.buildingCapacity[model]
+  if (!capacity) {
+    releaseHutSmoke(scene, buildingGroup)
+    return
+  }
+
+  const occupants = scene.world.units.filter(u => u.inside === b.id && u.hp > 0).length
+  let smoke = buildingGroup.userData.hutOccupancySmoke as HutSmokeRenderState | undefined
+  if (!smoke) {
+    const group = new THREE.Group(),
+      sprite = hutSmokeSprite()
+    group.name = 'hut-occupancy-smoke'
+    group.add(sprite)
+    smoke = {
+      state: createHutOccupancySmoke(
+        b.counter,
+        occupants,
+        capacity,
+        scene.gameClock.animationFrame
+      ),
+      group,
+      sprite,
+    }
+    buildingGroup.userData.hutOccupancySmoke = smoke
+    scene.objects.add(group)
+  } else
+    stepHutOccupancySmoke(
+      smoke.state,
+      b.counter,
+      occupants,
+      capacity,
+      scene.gameClock.animationFrame,
+      () => random(scene.world.cosmeticRandom)
+    )
+
+  const socket = buildingSocketPoint(buildingPose(b), capacity),
+    point = browserPosition(socket),
+    height = terrainPointHeight(scene.world.land, socket) + socket.heightOffset
+  scene.locate(smoke.group, point, height / 45)
+
+  const layer = hutOccupancySmokeLayer(smoke.state, scene.gameClock.animationFrame)
+  smoke.group.visible = !!layer
+  if (layer) effectFrame(smoke.sprite, nativeEffects.animations[layer.sequence][layer.frame])
 }
 
 function makeVehicle(v: Vehicle) {
@@ -539,6 +626,7 @@ export function updateBuildingsFrame(scene: GameScene) {
   }
   for (const [id, g] of scene.buildingMeshes)
     if (!scene.world.buildings.some(b => b.id === id && !b.preparation)) {
+      releaseHutSmoke(scene, g)
       scene.objects.remove(g)
       scene.releaseGroup(g)
       scene.buildingMeshes.delete(id)
@@ -548,6 +636,7 @@ export function updateBuildingsFrame(scene: GameScene) {
     const stage = buildingStage(b)
     let g = scene.buildingMeshes.get(b.id)
     if (g && g.userData.signature !== `${buildingObject(b)}-${stage}`) {
+      releaseHutSmoke(scene, g)
       scene.objects.remove(g)
       scene.releaseGroup(g)
       scene.buildingMeshes.delete(b.id)
@@ -565,6 +654,7 @@ export function updateBuildingsFrame(scene: GameScene) {
     }
     scene.locate(g, b, b.foundation)
     scene.orientModel(g, b.angle)
+    updateHutOccupancySmoke(scene, b, g)
     updateWaveShake(
       g,
       b,
