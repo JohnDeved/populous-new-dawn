@@ -23,6 +23,19 @@ CONFIG = records.configuration(ROOT / 'managed.json')
 FIXTURE = json.loads((ROOT / 'fixtures/local-events.json').read_text())
 NOW = FIXTURE['now']
 IDS = list(records.WORKERS.values())
+EXPECTED_IDS = [
+    '6aafbc1e-a320-83eb-802e-584acf5d243b',
+    '6aafbad9-b3c8-83ed-8714-a6fb47f41498',
+    '6aafba7a-0180-83ed-b488-20787cf2cc8c',
+    '6aafbada-9700-83eb-9d01-f5ce381319a6',
+]
+RETIRED_IDS = {
+    '6aaebd2a-9698-83ed-a9ca-732b8651f074',
+    '6aaebd46-b95c-83ed-80ac-207d2c6c5c43',
+    '6aaebd51-30ac-83eb-a58a-1cfdb96b9100',
+    '6aaebd5d-d418-83eb-a0b7-6000fe1dbf24',
+    '6aafbad8-c39c-83ed-b2e5-acd15c84a937',
+}
 
 
 def iso(value):
@@ -126,6 +139,71 @@ class DatabaseCase(unittest.TestCase):
 
 
 class ReaderTests(DatabaseCase):
+    def test_exact_replacement_roster_excludes_all_retired_ids(self):
+        self.assertEqual(IDS, EXPECTED_IDS)
+        self.assertTrue(RETIRED_IDS.isdisjoint(IDS))
+
+    def test_database_replacement_during_snapshot_fails_closed_then_recovers(self):
+        replacement = self.root / 'state-next.sqlite'
+        with sqlite3.connect(replacement) as connection:
+            connection.execute('CREATE TABLE threads(id TEXT PRIMARY KEY)')
+            connection.execute('INSERT INTO threads VALUES(?)', (records.COORDINATOR,))
+            connection.executemany('INSERT INTO threads VALUES(?)', [(ident,) for ident in IDS])
+        original = records.metadata
+
+        def replace_after_metadata(*args):
+            value = original(*args)
+            os.replace(replacement, self.root / 'state_5.sqlite')
+            return value
+
+        with patch.object(records, 'metadata', side_effect=replace_after_metadata):
+            with self.assertRaises(records.EvidenceUnavailable):
+                self.snapshot()
+        self.assertTrue(self.snapshot()['complete'])
+
+    def test_database_disappearance_is_unavailable_then_recreated_source_recovers(self):
+        missing = self.root / 'queue_1.sqlite'
+        missing.unlink()
+        with self.assertRaises(records.EvidenceUnavailable):
+            self.snapshot()
+        with sqlite3.connect(missing) as connection:
+            connection.execute('CREATE TABLE queued_items(id TEXT,thread_id TEXT,created_at_ms INTEGER,payload_json TEXT)')
+        self.assertTrue(self.snapshot()['complete'])
+
+    def test_each_terminal_maps_once_to_exact_task_and_coordinator(self):
+        for index, ident in enumerate(EXPECTED_IDS, start=1):
+            with self.subTest(worker=index, terminal='completion'):
+                self.add_lifecycle(number=index, ended_state='completed',
+                                   runtime=f'complete-{index}', run_id=f'10000000-0000-4000-8000-00000000000{index}')
+                state = self.state()
+                watcher.observe(state, self.snapshot(), CONFIG, NOW)
+                calls = []
+                watcher.notify_pending(state, CONFIG, NOW, lambda _: None,
+                                       lambda message: calls.append(message) or {'confirmed': True})
+                watcher.notify_pending(state, CONFIG, NOW + 61, lambda _: None,
+                                       lambda message: calls.append(message) or {'confirmed': True})
+                self.assertEqual(len(calls), 1)
+                self.assertEqual(calls[0].count(f'Worker {index}c | chat_id={ident}'), 1)
+                self.assertTrue(all(retired not in calls[0] for retired in RETIRED_IDS))
+            (self.activity / f'complete-{index}.jsonl').unlink()
+            with self.subTest(worker=index, terminal='interruption'):
+                self.add_lifecycle(number=index, interrupted_at=NOW - 2,
+                                   runtime=f'interrupt-{index}', run_id=f'20000000-0000-4000-8000-00000000000{index}')
+                state = self.state()
+                watcher.observe(state, self.snapshot(), CONFIG, NOW)
+                calls = []
+                watcher.notify_pending(state, CONFIG, NOW, lambda _: None,
+                                       lambda message: calls.append(message) or {'confirmed': True})
+                watcher.notify_pending(state, CONFIG, NOW + 61, lambda _: None,
+                                       lambda message: calls.append(message) or {'confirmed': True})
+                self.assertEqual(len(calls), 1)
+                self.assertEqual(calls[0].count(f'Worker {index}c | chat_id={ident}'), 1)
+                self.assertTrue(all(retired not in calls[0] for retired in RETIRED_IDS))
+        with patch.object(watcher, 'child', return_value=subprocess.CompletedProcess(
+                [], 0, f'Queued message proof for thread {records.COORDINATOR}\n', '')) as output:
+            self.assertTrue(watcher.enqueue('proof')['confirmed'])
+            self.assertEqual(output.call_args.args[0][2:4], ['--thread', records.COORDINATOR])
+
     def test_exact_four_identity_and_no_fabricated_activity(self):
         value = self.snapshot()
         self.assertTrue(value['complete'])
@@ -155,7 +233,11 @@ class ReaderTests(DatabaseCase):
             elif fault == 'future': self.rows()[0]['conversation']['updatedAt'] = iso(NOW + 1)
             else: self.rows()[0]['conversation']['createdAt'] = 'invalid'
             self.write_cache()
-            self.assertFalse(self.snapshot()['complete'], fault)
+            value = self.snapshot()
+            self.assertTrue(value['complete'], fault)
+            self.assertFalse(value['workers'][IDS[0]]['cacheBound'], fault)
+            self.add_final('Worker1c | #cache-only | DONE', ident='cache-' + fault)
+            self.assertEqual(self.snapshot()['events'], [], fault)
 
     def test_parked_metadata_is_never_returned(self):
         self.rows().append({'conversation': {'id': 'parked', 'title': 'Worker 4', 'status': 'failed'}})
@@ -232,7 +314,7 @@ class ReaderTests(DatabaseCase):
         with records.readonly(self.root, 'queue_1.sqlite') as conn:
             self.assertEqual(conn.execute('PRAGMA query_only').fetchone()[0], 1)
             with self.assertRaises(sqlite3.OperationalError): conn.execute('DELETE FROM queued_items')
-        with self.assertRaises(sqlite3.OperationalError):
+        with self.assertRaises(records.EvidenceUnavailable):
             with records.readonly(self.root, 'missing.sqlite'): pass
         self.assertFalse((self.root / 'missing.sqlite').exists())
         before = {p.name: watcher.sha(p) for p in self.root.glob('*.sqlite')}
@@ -778,9 +860,13 @@ class EventStateTests(DatabaseCase):
         watcher.notify_pending(state, CONFIG, NOW + 3610, lambda s: None, lambda _: {'confirmed': True})
         self.assertEqual(state['notificationFailures'], 0)
 
-    def test_missing_binding_is_unavailable_not_a_worker_error(self):
-        state = self.state(); self.rows().pop(); self.write_cache()
-        with self.assertRaises(records.EvidenceUnavailable): watcher.observe(state, self.snapshot(), CONFIG, NOW)
+    def test_missing_cache_binding_suppresses_cache_derived_worker_error(self):
+        state = self.state(); self.rows().pop(0); self.write_cache(); self.add_turn()
+        snapshot = self.snapshot()
+        self.assertTrue(snapshot['complete'])
+        self.assertFalse(snapshot['workers'][IDS[0]]['cacheBound'])
+        self.assertEqual(snapshot['events'], [])
+        watcher.observe(state, snapshot, CONFIG, NOW)
         self.assertEqual(state['pending'], {})
 
 
