@@ -191,8 +191,47 @@ test('explicit flight return preserves the complete world on order allocation ex
   person.state = 26
   shaman.native = null
   shaman.flight = person
+  person.commands[0] = 1
+  Object.assign(world.buildingOrders.records[1], { model: 3, a: 0x1200, b: 0x3400, references: 1 })
   for (const order of world.buildingOrders.records) order.references = 1
   const before = structuredClone(world)
   assert.equal(returnLivePerson(world, shaman, { x: person.x, y: person.y }, person), false)
   assert.deepEqual(world, before)
+})
+
+test('cast-ready flight-owned Shaman receives the type2 post-cast return on the same person', () => {
+  const world = createWorld(3)
+  for (const task of world.ai.tasks) task.flags = 0
+  requestConvertTask(world.ai, 4, 1)
+  const shaman = world.units.find(u => u.team === 'yellow' && u.kind === 'shaman')
+  const person = createLivePerson(world, shaman)
+  person.state = 26
+  person.flags2 = 0
+  person.flags4 = 0
+  shaman.native = null
+  shaman.flight = person
+  const other = world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+  const otherPerson = other.native ??= createLivePerson(world, other)
+  const otherBefore = structuredClone(otherPerson)
+  for (const wild of world.units.filter(u => u.team === 'wild').slice(0, 8)) {
+    wild.x = shaman.x
+    wild.z = shaman.z
+  }
+  Object.assign(world.ai.tasks[0], { phase: 8, elapsed: 0, target: ((person.x >>> 8) & 254) | (person.y & 0xfe00) })
+  world.manaTribes[2].mana = rules.spellCharging[17].cost
+  world.castingTribes[2].flags &= ~0x80000
+  world.castingTribes[2].cooldown = 0
+  world.castingTribes[2].aiCooldown = 0
+  world.ai.flags &= ~0x40000
+  world.ai.cursor = 0
+  world.turn = 1
+  stepComputerTasks(world, 2)
+  assert.equal(world.spellCasts[2][17], 1)
+  assert.equal(world.ai.tasks[0].phase, 3)
+  assert.equal(currentPersonOrder(world.buildingOrders, person)?.model, 3)
+  assert.equal(shaman.flight, person)
+  assert.equal(shaman.native, person)
+  assert.equal(person.state, 26)
+  assert.equal(other.native, otherPerson)
+  assert.deepEqual(otherPerson, otherBefore)
 })
