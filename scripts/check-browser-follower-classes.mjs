@@ -22,7 +22,10 @@ export default async function followerClasses({ page, openMission, output, url, 
   }
   const snapshots = []
   for (const mission of [1, 3]) {
-    if (mission !== 1) await page.goto(url, { waitUntil: 'domcontentloaded' })
+    if (mission !== 1) {
+      await page.goto(url, { waitUntil: 'domcontentloaded' })
+      await page.getByRole('dialog', { name: 'Start game', exact: true }).waitFor({ state: 'visible' })
+    }
     await openMission(mission)
     await page.evaluate(() => { window.testStore.change(world => { world.speed = 0 }) })
     const opening = await roster()
