@@ -79,3 +79,31 @@ test('Mission3 active type2 advances after allocation state is switched off', ()
   assert.equal(typeof seed, 'number')
   assert.equal(world.randomState, seed)
 })
+
+test('type2 timeout clears motion before a blocked state transition and then frees the task', () => {
+  const world = createWorld(3)
+  for (const task of world.ai.tasks) task.flags = 0
+  assert.equal(requestConvertTask(world.ai, 4, 1), true)
+  const task = world.ai.tasks[0]
+  Object.assign(task, { phase: 8, elapsed: 600, target: 0x52dc })
+  const shaman = world.units.find(u => u.team === 'yellow' && u.kind === 'shaman')
+  const person = shaman.native
+  person.flags2 |= 0x100000
+  person.motionTimer = 7
+  person.motionMode = 3
+  const state = person.state, seed = world.randomState
+  world.ai.cursor = 0
+  world.turn = 1
+  stepComputerTasks(world, 2)
+  assert.equal(task.phase, 3)
+  assert.equal(task.elapsed, 601)
+  assert.equal(person.state, state)
+  assert.equal(person.motionTimer, 0)
+  assert.equal(person.motionMode, 0)
+  assert.equal(person.anchorX, (person.x & 0xfe00) + 256)
+  assert.equal(person.anchorY, (person.y & 0xfe00) + 256)
+  assert.equal(person.anchorFlags, 0)
+  assert.equal(world.randomState, seed)
+  stepComputerTasks(world, 2)
+  assert.equal(task.flags & 1, 0)
+})

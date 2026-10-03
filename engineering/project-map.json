@@ -571,6 +571,8 @@
       "scripts/check-browser-mission3-preacher-task.mjs",
       "tests/mission3-preacher-task.test.mjs",
       "tests/mission3-convert-task.test.mjs",
+      "scripts/check-browser-mission3-convert-task.mjs",
+      "decomp/research/mission3-convert-task.md",
       "decomp/generated/0043b2a0.c",
       "decomp/generated/004c8c50.c",
       "decomp/generated/004f3280.c",

@@ -53,3 +53,29 @@ for name,state,position,count,nearby,ready,mana_ok,reach,allowed,casts in [
     rows.append(dict(name=name,phase=p.read(AI+0x78,'H'),calls=calls,elapsed=1))
 print(json.dumps(rows,indent=2))
 print('PASS:8 controlled native phase8 range/payment/readiness/fallback boundaries')
+
+# Unhooked timeout: blocked state avoids unrelated initializer/RNG. A valid
+# first-passenger identity skips cleanup; other route/motion bytes must survive.
+rows=[]
+for driver in [False,True]:
+    p=Probe();p.shaman();p.write(AI+0x74,'I',1);p.write(AI+0x85,'B',2)
+    p.write(AI+0x78,'H',8);p.write(AI+0x3e,'H',600)
+    p.write(PERSON+0xc,'I',0x20100800);p.write(PERSON+0x3d,'HH',0x2345,0x4567)
+    p.write(PERSON+0x4f,'HH',0x7777,0x8888);p.write(PERSON+0x68,'HH',1,2)
+    p.write(PERSON+0x82,'B',255);p.write(PERSON+0x61,'H',7);p.write(PERSON+0x66,'B',3)
+    p.write(PERSON+0x63,'h',3);p.write(PERSON+0x67,'B',2)
+    if driver:
+        vehicle=PERSON+0x400
+        p.write(PERSON+0x9f,'H',3);p.write(0x890390+3*4,'I',vehicle);p.write(vehicle+0x7a,'H',1)
+    p.call(0x4623e0,AI)
+    assert p.read(AI+0x78,'H')==3 and p.read(AI+0x3e,'H')==601
+    assert p.read(PERSON+0x2c,'B')==17
+    assert p.read(PERSON+0xc)==(0x20100800 if driver else 0x101000)
+    assert [p.read(PERSON+0x61,'H'),p.read(PERSON+0x66,'B')]==([7,3] if driver else [0,0])
+    assert [p.read(PERSON+0x63,'h'),p.read(PERSON+0x67,'B')]==[3,2]
+    assert [p.read(PERSON+0x4f,'H'),p.read(PERSON+0x51,'H')]==[0x7777,0x8888]
+    assert [p.read(PERSON+0x68,'H'),p.read(PERSON+0x6a,'H'),p.read(PERSON+0x82,'B')]==([1,2,255] if driver else [0x2300,0x4500,0])
+    assert p.read(0x89d178)==0x12345678
+    rows.append(dict(driver=driver,phase=3,elapsed=601,cleanup=not driver))
+print(json.dumps(rows,indent=2))
+print('PASS:2 unhooked phase8 timeout/first-passenger cleanup boundaries')

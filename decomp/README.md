@@ -269,6 +269,8 @@ Its ordinary one-shot Chumara conversion is documented in the
 [Mission 3 Convert Wild note](research/mission3-convert-wild.md).
 The remaining population cutoff and native type2 allocation/controller gap are
 bounded in [Mission 3 population/state research](research/mission3-population-state.md).
+The subsequent [live Convert Wild task](research/mission3-convert-task.md) records
+its runtime integration and remaining acceptance limits.
 
 ## Campaign counter comparison
 
