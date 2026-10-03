@@ -33,10 +33,12 @@ import {
 import { terrainPointHeight } from './native-terrain.ts'
 import { buildingSocketPoint } from './building-shapes.ts'
 import { random } from './native-math.ts'
+import { afterCurrentGameTurn } from './game-clock.ts'
 import {
   createHutOccupancySmoke,
   observeHutOccupancy,
   reconcileHutOccupancySmoke,
+  completeHutSmokeAllocationVisit,
   hutOccupancySmokeLayer,
   hutOccupancySmokeSocket,
   stepHutOccupancySmoke,
@@ -264,10 +266,23 @@ function updateHutOccupancySmoke(
       () => random(scene.world.cosmeticRandom)
     )
 
-    if (occupancyEvent)
-      // Advance the old root to the real event counter first, so an off-phase
-      // allocation is not backdated or decremented for earlier elapsed visits.
-      reconcileHutOccupancySmoke(smoke.state, occupants, capacity, scene.gameClock.animationFrame)
+    if (occupancyEvent) {
+      // Drain preceding visits before creating a root at the real admission or
+      // removal event. Its own first visit belongs to this turn's secondary pass.
+      const allocated = reconcileHutOccupancySmoke(
+        smoke.state,
+        occupants,
+        capacity,
+        scene.gameClock.animationFrame
+      )
+      const state = smoke.state,
+        root = state.root,
+        allocationCounter = b.counter
+      if (allocated && root?.mode === 'partial')
+        afterCurrentGameTurn(scene.gameClock, () =>
+          completeHutSmokeAllocationVisit(state, root, allocationCounter, b.counter)
+        )
+    }
     smoke.occupants = occupants
   }
 

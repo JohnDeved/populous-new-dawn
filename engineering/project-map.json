@@ -325,9 +325,18 @@
         { "path": "decomp/README.md", "heading": "Terrain texel-center sampling" },
         { "path": "decomp/research/mission18.md", "heading": "Bank-g sky" },
         { "path": "decomp/research/mission19.md", "heading": "Bank-d authored sky inputs" },
+        { "path": "decomp/research/sky-rendering-audit.md", "heading": "Result" },
+        {
+          "path": "decomp/research/hut-smoke-first-visit.md",
+          "heading": "Bounded live repair"
+        },
         {
           "path": "decomp/research/hut-occupancy-smoke.md",
           "heading": "Attachment selector correction (2026-10-03)"
+        },
+        {
+          "path": "decomp/research/hut-smoke-secondary-phase.md",
+          "heading": "Phase ownership and traversal order"
         },
         { "path": "decomp/research/early-mission-skies.md", "heading": "Original selection and bounded correction" }
       ],
