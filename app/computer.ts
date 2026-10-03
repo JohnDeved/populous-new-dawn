@@ -24,7 +24,11 @@ export type ComputerTask = {
   route: MarkerEntry[]
 }
 export type MarkerEntry = { marker: number; secondary: number; quotas: number[] }
-export type ComputerProducer = { id: number; attempts: number; group: number }
+export interface ComputerProducer {
+  id: number
+  attempts: number
+  group: number
+}
 export type ComputerQueue = {
   tasks: ComputerTask[]
   producers: ComputerProducer[]
@@ -287,7 +291,8 @@ export function produceComputerTasks(
   }
   // Legacy checkpoints have no producer history; initialize once, never replay
   // earlier allocations or reset a saved order on subsequent opportunities.
-  const producers = (ai.producers ??= createComputerProducers())
+  ai.producers ??= createComputerProducers()
+  const { producers } = ai
   for (const producer of producers) {
     const allocated = produce(producer.id, slot)
     producer.attempts = (producer.attempts + 1) | 0
