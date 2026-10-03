@@ -17,11 +17,11 @@ const followerClasses = [
 export function followerClassControls(
   units: readonly Pick<Unit, 'team' | 'kind' | 'hp' | 'ghost'>[]
 ) {
-  return followerClasses.map(control => {
+  return followerClasses.map(({ kind, label, sprite }) => {
     const count = units.filter(
-      unit => unit.team === 'blue' && unit.hp > 0 && !unit.ghost && unit.kind === control.kind
+      unit => unit.team === 'blue' && unit.hp > 0 && !unit.ghost && unit.kind === kind
     ).length
-    return { ...control, count, enabled: count > 0 }
+    return { kind, label, sprite, count, enabled: count > 0 }
   })
 }
 
