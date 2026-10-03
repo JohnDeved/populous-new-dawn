@@ -133,7 +133,9 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
   if (
     !order ||
-    ![3, 6, 7, 8, 10, 11, 15, 16, 17, 19, 21, 22, 25, 27, 28, 30, 31, 32, 33].includes(order.model)
+    ![3, 6, 7, 8, 10, 11, 15, 16, 17, 18, 19, 21, 22, 25, 27, 28, 30, 31, 32, 33].includes(
+      order.model
+    )
   )
     unsupported()
   const state = {
@@ -208,6 +210,8 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
 }
 
 export function startLiveOrders(w: World, p: LivePerson, rng: { randomState: number }) {
+  // 0x432260 returns before touching fields/RNG when the current slot is empty.
+  if (!p.commands[p.commandCursor] && !p.immediateCommand) return
   const { state, effects } = orderContext(w, p, rng)
   startPersonOrders(state, p, effects)
   rng.randomState = state.randomState

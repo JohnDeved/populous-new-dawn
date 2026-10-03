@@ -1,3 +1,4 @@
+import { tribeForTeam } from './world-types.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
 import { nativeModels, nativeModel } from './scene-assets.ts'
@@ -104,10 +105,14 @@ export function initializeTerrain(scene: GameScene) {
 }
 
 function placeReincarnationStone(scene: GameScene, group: THREE.Object3D) {
-  const point = group.userData.groundPoint as Point
+  const point = group.userData.groundPoint as Point,
+    site = scene.world.levelStart?.find(site => site.tribe === group.userData.startTribe),
+    born = site?.stoneTurns[group.userData.startStone as number]
+  group.visible = !site || born != null
+  if (!group.visible) return
   group.position.y =
     (terrainPointHeight(scene.world.land, nativePosition(scene.world, point)) +
-      reincarnationStoneRise(scene.world.turn)) /
+      reincarnationStoneRise(site && born != null ? scene.world.turn - born : scene.world.turn)) /
     128
 }
 
@@ -298,9 +303,11 @@ export function makeDecorations(scene: GameScene) {
   for (const team of campaignShamanTeams(scene.world)) {
     const center = campaignPosition(scene.world, team)
     const stones = reincarnationStones(scene.world.land, nativePosition(scene.world, center))
-    for (const stone of stones) {
+    for (const [index, stone] of stones.entries()) {
       const group = new THREE.Group()
       group.name = 'reincarnation-stone'
+      group.userData.startTribe = tribeForTeam(team)
+      group.userData.startStone = index
       group.userData.groundPoint = browserPosition(stone)
       group.add(nativeModel(30))
       scene.locate(group, group.userData.groundPoint)

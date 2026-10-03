@@ -1,3 +1,4 @@
+import type { LevelStartSite } from './level-start.ts'
 import type { LiveFormation } from './live-movement.ts'
 import type { Footprints } from './footprints.ts'
 import type { CombatMarch } from './combat-order-search.ts'
@@ -334,13 +335,14 @@ export type Effect = Point & {
     | 'angel'
   height?: number
   sprite?: { sequence: string; frame: number; fixed?: boolean }
-  animation?: AnimatedUnit | SpellTrail
+  animation?: (AnimatedUnit & { displacement?: { x: number; y: number; h: number } }) | SpellTrail
   lightning?: Lightning
   smoke?: BuildingSmoke
   debris?: BuildingDebris
   fire?: SceneryFire
   sinking?: SinkingBuilding & { stage: number }
   wave?: BlastWave
+  startConversionLink?: number
   turnsRemaining?: number
   groundVersion?: number
   age: number
@@ -465,6 +467,8 @@ export type World = {
   replants: Replant[]
   indexedSearch: Uint8Array
   fights: Battle[]
+  levelStart: LevelStartSite[]
+  levelStartStoneSound: number
   sounds: SoundEvent[]
   soundSerial: number
   mana: number

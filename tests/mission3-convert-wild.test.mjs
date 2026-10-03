@@ -20,19 +20,23 @@ test('Mission3 Chumara moves, spends its original shot and mana, then stops allo
   assert.ok(world.ai.flags & 0x40)
   assert.ok(!world.ai.pendingCommands.some(command => [1073, 1115, 1197].includes(command.opcode)))
   const shaman = world.units.find(u => u.team === 'yellow' && u.kind === 'shaman')
-  const origin = { x: shaman.x, z: shaman.z }
+  let origin
   const phases = new Set()
   const active = () => world.ai.tasks.find(task => task.flags & 1 && task.type === 2)
   for (let i = 0; i < 2000 && active()?.phase !== 8; i++) {
     tick(world, 1 / 12)
     if (active()) phases.add(active().phase)
+    if (active()?.phase === 6) origin ??= { x: shaman.x, z: shaman.z }
   }
   assert.deepEqual([...phases], [0, 2, 4, 5, 6, 7, 8])
   assert.equal(world.spellCasts[2][17], 0)
   assert.equal(currentPersonOrder(world.buildingOrders, shaman.native)?.model, 3)
+  assert.ok(origin)
   assert.notDeepEqual({ x: shaman.x, z: shaman.z }, origin)
   assert.equal(world.ai.flags & 0x40, 0)
   const wildBefore = world.units.filter(u => u.team === 'wild' && u.hp > 0).length
+  // Original Blue startup has converted its twelve nearby Wildmen before this task.
+  assert.equal(wildBefore, 32)
   const yellowBefore = world.units.filter(u => u.team === 'yellow' && u.hp > 0).length
   const restored = migrateCheckpoint(structuredClone(world)), castEvents = []
   let cutoff

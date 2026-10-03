@@ -88,7 +88,8 @@ test('burning huts eject running followers with distinct panic and trail lifetim
     assert.equal(unitAnimationSource(u), p)
     assert.equal(w.selected.includes(u.id), false)
     for (let i = 0; i < 64; i++) {
-      for (const fx of w.effects) if (fx.animation?.displacement) particles.set(fx.id, fx)
+      // Original orbiters also carry displacement; personal fire particles own bit0x4000.
+      for (const fx of w.effects) if (fx.animation?.displacement && fx.animation.flags2 & 0x4000) particles.set(fx.id, fx)
       tick(w, 1 / 12)
       if (i < 63) assert.equal(u.native?.state, 26)
       assert.equal(u.inside, null)

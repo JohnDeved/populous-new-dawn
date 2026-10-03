@@ -41,7 +41,10 @@ test('Mission 3 naturally grows both tribes and recruits the authored three-Brav
   }
   // All entities and counters come from the shipped mission, births and player commands.
   until(() => living('blue').length >= 6)
-  for (const [kind, x, z] of [['hut', 26, 70], ['hut', 42, 70], ['hut', 22, 78], ['camp', 42, 78]]) {
+  // The original opening converts twelve Braves; sending the full group to build
+  // leaves the authored hut empty. Three upgraded new huts cap this flow at30,
+  // so build a fourth through normal player orders to reach the real >30 gate.
+  for (const [kind, x, z] of [['hut', 26, 70], ['hut', 42, 70], ['hut', 22, 78], ['hut', 26, 86], ['camp', 42, 78]]) {
     select(w, 'brave')
     assert.ok(placeBuilding(w, kind, { x, z }))
     const building = w.buildings.findLast(b => b.team === 'blue' && b.kind === kind)

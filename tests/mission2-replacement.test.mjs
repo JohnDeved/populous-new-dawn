@@ -48,6 +48,7 @@ test('Mission 2 explicitly trains replacement Warriors after natural combat desp
     assert.ok(command(world, target))
     for (let elapsed = 0; elapsed < 10000 && target.hp > 0; elapsed++) {
       tick(world, 1 / 12)
+      if (target.hp <= 0) break
       // Fighting or panic can end a direct order. Re-select idle survivors as a
       // player would, without interrupting their current movement or combat.
       if (elapsed % 64 !== 0) continue
@@ -55,6 +56,8 @@ test('Mission 2 explicitly trains replacement Warriors after natural combat desp
         !unit.fight && !unit.path.length && !unit.lift && unit.inside === null)
       if (!idle.length) continue
       setSelection(world, idle.map(unit => unit.id))
+      // Native panic can exclude otherwise idle survivors from selection.
+      if (!world.selected.length) continue
       assert.ok(command(world, target))
     }
     assert.ok(target.hp <= 0, `Warrior ${target.id} survived the assault at turn ${world.turn}`)
@@ -73,7 +76,8 @@ test('Mission 2 explicitly trains replacement Warriors after natural combat desp
     return unit.kind === 'brave' && person && currentPersonOrder(world.buildingOrders, person)?.model === 8
   }), 2000)
   // Native training replaces the old Brave object with newly allocated Warriors.
-  until(() => warriors('green').some(unit => !originalWarriors.has(unit.id)), 10000)
+  until(() => warriors('green').length >= 2 &&
+    warriors('green').some(unit => !originalWarriors.has(unit.id)), 10000)
   assert.ok(warriors('green').length >= 2)
   assert.deepEqual(world.ai.attributes.slice(5, 9), [0, 0, 0, 0])
   assert.equal(world.status, 'playing')

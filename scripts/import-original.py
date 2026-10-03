@@ -228,6 +228,9 @@ def append_shaman_units(source, project):
     bases = {directions[0]['source'] for directions in units['animations']['blue-shaman'].values()}
     bases.update(rules['animationObjects'][obj][0]
                  for i, obj in enumerate(rules['personAnimationObjects']) if i % 9 == 7 and obj >= 0)
+    # 0x433a10 selects action 0x5d directly, outside the per-model action map.
+    # Original level-start circle creation uses source 520 plus tribe * 8.
+    bases.add(rules['animationObjects'][0x5d][0])
     required_starts = sorted({base + tribe * 8 for base in bases for tribe in range(4)})
     needed_frames = {frame for start in required_starts for direction in range(8)
                      for frame in cycle(start + direction)[0]}
@@ -501,8 +504,66 @@ def append_hut_smoke_effects(source, project):
     )
 
 
+def append_level_start_effects(source, project):
+    """Append only the source-proven model51 dust and model58 conversion frames."""
+    output = project / 'public/original'
+    metadata_path = project / 'app/original-effects.json'
+    metadata = json.loads(metadata_path.read_text())
+    baseline = json.loads(metadata_path.read_text())
+    provenance = json.loads((output / 'provenance.json').read_text())
+    inputs = {}
+    for name in ('pal0-c.dat', 'al0-c.dat', 'hfx0-0.dat'):
+        relative = 'data/' + name
+        inputs[name] = (source / relative).read_bytes()
+        if hashlib.sha256(inputs[name]).hexdigest() != provenance['sha256'][relative]:
+            raise ValueError('Original startup effect input identity differs: ' + relative)
+    additions = [('startStoneDust', 1160, 20), ('startConversion', 1240, 8)]
+    if any(name in metadata['animations'] for name, _, _ in additions):
+        raise ValueError('Level-start effects are already imported')
+    atlas_path = output / 'effects.png'
+    width, old_height, old_pixels = read_owned_rgba_png(atlas_path)
+    assert (width, old_height) == (metadata['width'], metadata['height'])
+    cell, columns = 256, 8
+    assert width == cell * columns and old_height % cell == 0
+    index = (old_height // cell) * columns
+    new_height = ((index + 28 + columns - 1) // columns) * cell
+    pixels = bytearray(width * new_height * 4)
+    pixels[:len(old_pixels)] = old_pixels
+    palette, alpha = inputs['pal0-c.dat'], inputs['al0-c.dat']
+    fx_palette = b''.join(palette[alpha[(v | 15) * 256] * 4:alpha[(v | 15) * 256] * 4 + 3]
+                          + bytes([(v & 15) * 17]) for v in range(256))
+    bank = sprites(inputs['hfx0-0.dat'], fx_palette, alpha=True)
+    for name, start, count in additions:
+        entries = []
+        for source_frame in range(start, start + count):
+            w, h, rgba = bank[source_frame]
+            assert w <= cell and h <= cell
+            x, y = index % columns * cell, index // columns * cell
+            for row in range(h):
+                begin = ((y + row) * width + x) * 4
+                pixels[begin:begin + w * 4] = rgba[row * w * 4:(row + 1) * w * 4]
+            entries.append({'index': index, 'w': w, 'h': h, 'source': source_frame})
+            index += 1
+        metadata['animations'][name] = entries
+    metadata['height'] = new_height
+    # Native model51 explicitly selects palette4 in 0x5137c0.
+    metadata['startStoneDustColor'] = list(palette[alpha[4 * 4096 + 0x2f82] * 4:alpha[4 * 4096 + 0x2f82] * 4 + 3])
+    for name, frames in baseline['animations'].items():
+        assert metadata['animations'][name] == frames
+    png(atlas_path, width, new_height, pixels)
+    metadata_path.write_text(json.dumps(metadata, separators=(',', ':')))
+    _, _, actual = read_owned_rgba_png(atlas_path)
+    assert actual[:len(old_pixels)] == old_pixels
+    print(f'Appended 28 original startup-effect frames; preserved all {width}x{old_height} old atlas pixels and indices.')
+
+
 def main():
     source = Path(sys.argv[1]); project = Path(__file__).resolve().parents[1]
+    if '--level-start-effects-only' in sys.argv[2:]:
+        if sys.argv[2:] != ['--level-start-effects-only']:
+            raise ValueError('Usage: import-original.py GAME_ROOT --level-start-effects-only')
+        append_level_start_effects(source, project)
+        return
     if '--hut-smoke-only' in sys.argv[2:]:
         if sys.argv[2:] != ['--hut-smoke-only']:
             raise ValueError('Usage: import-original.py GAME_ROOT --hut-smoke-only')

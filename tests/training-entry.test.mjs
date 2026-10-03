@@ -1,8 +1,9 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import captures from './fixtures/movement-order.json' with { type: 'json' }
 import manifest from '../decomp/exports.json' with { type: 'json' }
-import { createWorld, addBuilding, addUnit, campaignPersonCount, command, disguiseSelectedSpies, entrance, tick, housing, manaRate, unitAnimationSource, nativePosition, buildingPose } from '../app/model.ts'
+import { addBuilding, addUnit, campaignPersonCount, command, disguiseSelectedSpies, entrance, tick, housing, manaRate, unitAnimationSource, nativePosition, buildingPose } from '../app/model.ts'
 import { nativePersonModel } from '../app/live-combat.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
@@ -16,9 +17,11 @@ import { unitSpeed } from '../app/world-rules.ts'
 import { nativeUnitDraw } from '../app/unit-kinds.ts'
 
 function schoolScenario(kind, count, direction) {
-  const w = createWorld()
+  const w = createStartedWorld()
   w.manaWorld.gameFlags = 32 // Native building-development gate: observe an unfunded queue.
-  w.units = w.units.filter(u => u.kind === 'shaman')
+  retainFixtureUnits(w, u => u.kind === 'shaman')
+  // Queue/admission mechanics use an unobstructed land fixture after startup.
+  w.terrain.fill(3); w.terrainVersion++
   const b = addBuilding(w, 'blue', kind, { x: -2, z: 32 }, true, { angle: direction * Math.PI / 2 })
   const people = Array.from({ length: count }, (_, i) => addUnit(w, 'blue', 'brave', { x: 7 + i * .4, z: 33 }))
   w.selected = people.map(u => u.id)
@@ -211,7 +214,8 @@ test('a funded Spy Training Hut trains an original model-5 Spy and sends it outs
   for (let turn = 0; turn < 63; turn++) tick(w, 1 / 12)
   assert.equal(spy.native.disguise, 0x40, 'the completed Spy appears as the chosen tribe')
 
-  const target = addBuilding(w, 'red', 'hut', { x: spy.x + 7, z: spy.z }, true),
+  // Keep the target approach clear of the now-real reincarnation circle.
+  const target = addBuilding(w, 'red', 'hut', { x: 20, z: 40 }, true),
     door = entrance(w, target),
     detector = addUnit(w, 'red', 'brave', { x: door.x + 0.5, z: door.z })
   detector.native = createLivePerson(w, detector)

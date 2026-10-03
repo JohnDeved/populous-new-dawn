@@ -1,3 +1,8 @@
+import {
+  levelStartOwnsShaman,
+  stepLevelStarts,
+  stepLevelStartConversion,
+} from './level-start-runtime.ts'
 import { setShamanDeathPhase } from './shaman-death-vfx.ts'
 import { syncStoneHeadPresentation } from './stone-head-animation.ts'
 import {
@@ -563,6 +568,7 @@ function stepTurn(w: World) {
       if (!step.remaining) fx.duration = fx.age
     }
     if (fx.turnsRemaining !== undefined && --fx.turnsRemaining === 0) fx.duration = fx.age
+    if (fx.startConversionLink !== undefined) stepLevelStartConversion(w, fx)
     if (fx.kind === 'hypnotise' && fx.turnsRemaining === 11) applyHypnotise(w, fx, fx.team!)
     if (fx.angel) {
       const event = stepAngel(w, fx)
@@ -1208,8 +1214,13 @@ function stepTurn(w: World) {
       previous: u.flight ? { x: u.flight.x, y: u.flight.y, h: u.flight.h } : nativePosition(w, u),
     }))
   syncLandscapeObjects(w)
+  // 0x4ec6f0 visits each person once. Completion still consumes this turn's
+  // command18 visit; its new idle state first runs on the following turn.
+  const startingPeople = new Set(w.units.filter(u => levelStartOwnsShaman(w, u)).map(u => u.id))
+  stepLevelStarts(w)
   const armageddon = w.effects.find(fx => fx.armageddon)?.armageddon
   for (const u of w.units) {
+    if (startingPeople.has(u.id)) continue
     if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)
     u.fighting = false
     const spy = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person
@@ -1474,6 +1485,7 @@ function stepTurn(w: World) {
     if (
       u.native &&
       ([3, 6, 7, 16, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
+        (activeOrder?.model === 18 && !!(activeOrder.flags & 1)) ||
         (activeOrder?.model === 28 && nativePersonTribe(u) === w.manaWorld.playerTribe && !target))
     ) {
       stepLiveMovement(w, u, {
