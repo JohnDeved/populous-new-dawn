@@ -1,3 +1,4 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, addBuilding, addUnit, command, tick } from '../app/model.ts'
@@ -8,8 +9,8 @@ import manifest from '../decomp/exports.json' with { type: 'json' }
 import { currentPersonOrder, prepareBuildingEntryOrder } from '../app/person-orders.ts'
 
 function scenario(kind = 'camp', count = 3, angle = 0) {
-  const w = createWorld()
-  w.units = []
+  const w = createStartedWorld()
+  retainFixtureUnits(w, () => false)
   w.buildings = []
   w.shrines = []
   w.trees = []
@@ -85,13 +86,14 @@ test('shared ground → training → destination queues retain identities until 
 })
 
 test('shared ground → construction → destination queues retain identity and resume after the crew leaves', () => {
-  const w = createWorld()
+  const w = createStartedWorld()
   w.manaWorld.gameFlags = 32
   const b = addBuilding(w, 'blue', 'hut', { x: -2, z: 32 }, false)
   b.progress = 0.5
   const u = w.units.find(u => u.team === 'blue' && u.kind === 'brave'),
     start = { x: u.x, z: u.z },
     destination = { x: -5, z: 29 }
+  retainFixtureUnits(w, unit => unit === u)
   w.selected = [u.id]
   command(w, { x: start.x + 2, z: start.z }, { ctrlKey: true })
   command(w, b, { ctrlKey: true })
@@ -118,14 +120,15 @@ test('shared ground → construction → destination queues retain identity and 
 
 test('cancelled, invalid, removed and dead queued builders release command-6 ownership exactly once', () => {
   for (const mode of ['cancelled', 'invalid', 'removed', 'dead']) {
-    const w = createWorld()
+    const w = createStartedWorld()
     w.manaWorld.gameFlags = 32
     const b = addBuilding(w, 'blue', 'hut', { x: -2, z: 32 }, false, {
       plan: mode === 'invalid',
     })
     b.progress = 0.5
     const u = w.units.find(u => u.team === 'blue' && u.kind === 'brave'),
-      destination = { x: u.x + 4, z: u.z }
+      destination = { x: -5, z: 29 }
+    retainFixtureUnits(w, unit => unit === u)
     w.selected = [u.id]
     command(w, b, { ctrlKey: true })
     command(w, destination)
@@ -150,7 +153,7 @@ test('cancelled, invalid, removed and dead queued builders release command-6 own
       assert.equal(u.native, p)
       assert.equal(currentPersonOrder(w.buildingOrders, p), w.buildingOrders.records[tailId])
       until(w, () => w.buildingOrders.active === 0)
-      assert.ok(u.x > destination.x - 1)
+      assert.ok(Math.abs(u.native.x - u.native.goalX) < 568 && Math.abs(u.native.y - u.native.goalY) < 568, 'native 0x4336c0 obstacle-arrival square')
     }
   }
 })

@@ -1,3 +1,4 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {createWorld,addUnit,addBuilding,command,tick,unitAnimationSource} from '../app/model.ts'
@@ -6,7 +7,7 @@ import {initializeLivePanic,moveLivePerson} from '../app/live-people.ts'
 import {currentPersonOrder} from '../app/person-orders.ts'
 
 function scenario(count=24) {
- const w=createWorld();w.units=[];w.buildings=[];w.shrines=[];w.trees=[];w.manaWorld.gameFlags=32
+ const w=createStartedWorld();retainFixtureUnits(w, () => false);w.buildings=[];w.shrines=[];w.trees=[];w.manaWorld.gameFlags=32
  w.terrain.fill(3);w.terrainVersion++
  for(let i=0;i<count;i++)addUnit(w,'blue','brave',{x:-25+i%3*.5,z:8+Math.floor(i/3)*.5})
  w.selected=w.units.map(u=>u.id);command(w,{x:30,z:8});return w
@@ -116,4 +117,15 @@ test('shared ground motion advances a retained route once before any state contr
  moveLivePerson(w,u,p)
  assert.equal(p.motionGroup,id);assert.equal(p.motionIndex,1)
  assert.equal(p.turnAngle,p.destinationX);assert.equal(p.turnY,p.destinationY)
+})
+
+test('native432260 empty current slot returns before building live order context', async () => {
+ const {startLiveOrders}=await import('../app/live-movement.ts')
+ const w=createWorld(),p=w.units.find(u=>u.team==='blue'&&u.kind==='shaman').native
+ // A retained earlier record is not an order at the advanced cursor.
+ p.commandCursor=1;p.immediateCommand=0
+ const before=structuredClone(p),rng={randomState:0x12345678}
+ startLiveOrders(w,p,rng)
+ assert.deepEqual(p,before)
+ assert.equal(rng.randomState,0x12345678)
 })

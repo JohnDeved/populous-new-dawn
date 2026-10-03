@@ -1,3 +1,5 @@
+import { currentPersonOrder } from '../app/person-orders.ts'
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import fixture from './fixtures/building-entry-clocks.json' with { type: 'json' }
@@ -11,9 +13,9 @@ import { advanceGame } from '../app/game-clock.ts'
 import { buildingAdmission } from '../app/live-building-entry.ts'
 
 function scenario(direction = 0, count = 1, level = 1) {
-  const w = createWorld()
+  const w = createStartedWorld()
   w.manaWorld.gameFlags = 32
-  w.units = w.units.filter(u => u.kind === 'shaman')
+  retainFixtureUnits(w, u => u.kind === 'shaman')
   const b = addBuilding(w, 'blue', 'hut', { x: -2, z: 32 }, true, { angle: direction * Math.PI / 2, level })
   const people = Array.from({ length: count }, (_, i) => addUnit(w, 'blue', 'brave', { x: 7 + i * 0.25, z: 33 }))
   w.selected = people.map(u => u.id)
@@ -39,12 +41,12 @@ test('followers visibly cross the native interior threshold before housing consu
   for (const level of [1, 2, 3]) for (let direction = 0; direction < 4; direction++) {
     const { w, b, people: [u] } = scenario(direction, 1, level)
     until(w, () => u.entry?.person.substate === 5)
-    const entry = u.entry, p = entry.person
+    const entry = u.entry, p = entry.person, order = currentPersonOrder(entry.orders, p)
     assert.equal(u.inside, null, 'door arrival is not admission')
     assert.equal(u.native, null, 'ordinary state ownership remains separate')
     assert.equal(unitAnimationSource(u), p)
     assert.equal(p.object, rules.animationObjects[rules.personAnimationObjects[9 + p.model]][0])
-    assert.equal(entry.orders.records[1].references, 1)
+    assert.equal(order.references, 1)
     const door = { x: u.x, z: u.z }
     until(w, () => u.inside === b.id)
     assert.ok(Math.hypot(u.x - door.x, u.z - door.z) > 1, 'entry requires actual movement inside')
@@ -53,7 +55,7 @@ test('followers visibly cross the native interior threshold before housing consu
     assert.ok(Math.abs(((position.y - inside.y) << 16) >> 16) < 112)
     assert.equal(p.flags2 & 0x804000, 0x804000)
     assert.equal(p.renderFlags & 16, 16)
-    assert.equal(entry.orders.records[1].references, 0)
+    assert.equal(order.references, 0)
     assert.equal(entry.orders.active, 0)
     assert.equal(u.entry, undefined)
     assert.equal(unitAnimationSource(u), null)

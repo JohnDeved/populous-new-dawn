@@ -210,6 +210,8 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
 }
 
 export function startLiveOrders(w: World, p: LivePerson, rng: { randomState: number }) {
+  // 0x432260 returns before touching fields/RNG when the current slot is empty.
+  if (!p.commands[p.commandCursor] && !p.immediateCommand) return
   const { state, effects } = orderContext(w, p, rng)
   startPersonOrders(state, p, effects)
   rng.randomState = state.randomState

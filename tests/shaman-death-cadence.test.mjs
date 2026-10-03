@@ -1,3 +1,4 @@
+import { finishLevelStart } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, select, command, tick } from '../app/model.ts'
@@ -12,6 +13,7 @@ function phaseWorld(phase = 0) {
     // Authored Mission 2, normal command/movement/combat: no HP, position,
     // entity, RNG, AI, phase or outcome injection to create this death.
     const w = createWorld(2), shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+    finishLevelStart(w)
     select(w, 'shaman')
     assert.equal(command(w, w.units.find(u => u.id === 13)), true)
     for (let i = 0; i < 2000 && !deathEffect(w); i++) tick(w, 1 / 12)

@@ -1,3 +1,4 @@
+import { finishLevelStart } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import levelThree from '../app/level-three.ts'
@@ -49,6 +50,7 @@ test('Mission 3 opens through original Chumara, Swarm, Temple and Erosion paths'
   assert.equal(vault?.reward, 'temple')
   assert.deepEqual(erosionHead?.effectTarget, { x: -15, z: 111 })
 
+  finishLevelStart(world)
   assert.ok(command(world, vault))
   until(world, () => world.unlockedTemple)
   assert.ok(world.shots.swarm > 0)

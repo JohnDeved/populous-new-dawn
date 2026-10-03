@@ -62,7 +62,7 @@ No installer, Wine or full original game execution was used.
 `scripts/check-native-level-start.py EXE` currently compares32 complete native
 wave lifetimes (all terrain hashes, ordered orbit/trail geometry, notifications,
 expiry),69 native height rectangle/rounding cases,40 complete carrier lifetimes
-including RNG/trail positions, all eight stone rise/dust/sound timelines, all four replacement-conversion
+including RNG/trail positions, all eight stone rise/dust/sound timelines, five complete 32-particle effect9 bursts, all four replacement-conversion
 allocation paths, permitted player/direct cast readiness, and all command18
 phase/timer transitions for the
 six authored Mission1–3 shamans. Allocation, registration, lighting, notifications
@@ -74,7 +74,7 @@ Portable fresh/restart/skip/checkpoint, original-byte append preservation and
 the listed native checks pass. Permitted casts at opening turns0/15/40 now enter the existing native state22,
 retain command18 and return through its ordinary initializer, including checkpoint
 continuation. Original orbit displacement is also compared and used for rendering.
-Pending final acceptance: revised legacy fixture checks, real Mac before/during/after
+Pending final acceptance: revised legacy fixture checks, local Linux HeadlessShell before/during/after
 frames on the exact integrated commit and fresh review. Existing world allocation,
 terrain-notification batching, camera adapter and original-palette browser blend
 limits are not upgraded to native whole-game equivalence by these helper checks.

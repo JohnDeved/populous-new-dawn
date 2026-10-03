@@ -1,3 +1,4 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {createWorld,addBuilding,addUnit,command,tick,buildingStage} from '../app/model.ts'
@@ -8,8 +9,8 @@ import {advanceGame} from '../app/game-clock.ts'
 
 function until(w,ready,limit=400){for(let i=0;i<limit&&!ready();i++)tick(w,1/12);assert.ok(ready())}
 function scenario(direction=2,count=8){
-  const w=createWorld();w.inputMask=0;w.manaWorld.gameFlags=32
-  w.units=w.units.filter(u=>u.kind==='shaman')
+  const w=createStartedWorld();w.inputMask=0;w.manaWorld.gameFlags=32
+  retainFixtureUnits(w, u=>u.kind==='shaman')
   const b=addBuilding(w,'blue','camp',{x:-2,z:32},true,{angle:direction*Math.PI/2})
   const people=Array.from({length:count},(_,i)=>addUnit(w,'blue','brave',{x:7+i*.4,z:33}))
   w.selected=people.map(u=>u.id);command(w,b)
@@ -78,8 +79,8 @@ test('dismantling outcomes and timber remain independent of render frequency',()
 })
 
 function queuedSite(direction = 0, count = 3, marked = true) {
-  const w = createWorld()
-  Object.assign(w, { units: [], buildings: [], trees: [], shrines: [], inputMask: 0 })
+  const w = createStartedWorld()
+  retainFixtureUnits(w, () => false); Object.assign(w, { units: [], buildings: [], trees: [], shrines: [], inputMask: 0 })
   w.manaWorld.gameFlags = 32
   w.terrain.fill(3); w.terrainVersion++
   const b = addBuilding(w, 'blue', 'hut', { x: 0, z: 8 }, true, { angle: direction * Math.PI / 2 })

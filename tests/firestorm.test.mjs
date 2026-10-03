@@ -1,3 +1,4 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createFirestorm, stepFirestorm } from '../app/firestorm.ts'
@@ -33,9 +34,9 @@ test('Firestorm emits its complete native 220-turn rain sequence', () => {
 
 test('live Firestorm composes fire, panic Blast and building ignition independently of refresh rate', () => {
   const run = schedule => {
-    const w = createWorld(),
+    const w = createStartedWorld(),
       shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
-    w.units = [shaman]
+    retainFixtureUnits(w, u => u === shaman)
     w.buildings = []
     w.trees = []
     w.land.buildingIds.fill(0)

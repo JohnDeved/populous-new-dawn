@@ -1,3 +1,4 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs';
 import {createLivePerson,syncLivePersonCells} from '../app/live-people.ts';
 import {currentPersonOrder} from '../app/person-orders.ts';
 import {worshipPositions} from '../app/worship.ts';
@@ -433,15 +434,15 @@ test('native Lightning delays the upper flash and regenerates eight segments for
 
 test('native spell allocation, discrete flight, RNG trails and delayed impact',()=>{
  const rngAfter=n=>{const state={randomState:1};for(let i=0;i<n;i++)random(state);return state.randomState;};
- const make=()=>{const w=createWorld();w.terrain.fill(3);w.terrainVersion++;w.buildings=[];w.randomState=1;w.units=w.units.filter(u=>u.kind==='shaman');Object.assign(w.units[0],{x:0,z:0});Object.assign(w.units[1],{x:30,z:30});return w;};
+ const make=()=>{const w=createStartedWorld();retainFixtureUnits(w,()=>false);w.terrain.fill(3);w.terrainVersion++;w.buildings=[];w.randomState=1;addUnit(w,'blue','shaman',{x:0,z:0});addUnit(w,'red','shaman',{x:30,z:30});w.sounds=[];return w;};
  assert.deepEqual(nativeStep3D({x:32760,y:-32760,h:32760},2047,511,-321),{x:32760,y:32455,h:32759},'negative odd length and short wrapping verified against x86');
- const w=make();cast(w,'blast',{x:10,z:0});assert.equal(w.shots.blast,3);assert.deepEqual(w.projectiles[0].target,{x:11,z:-1});tick(w,6/12);
+ const w=make(),startTurn=w.turn;cast(w,'blast',{x:10,z:0});assert.equal(w.shots.blast,3);assert.deepEqual(w.projectiles[0].target,{x:11,z:-1});tick(w,6/12);
  assert.equal(w.projectiles[0].phase,'flying');assert.equal(w.effects.some(e=>e.kind==='blast'),false);assert.equal(w.projectiles[0].visuals.length,5);
  tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:3041,y:-1960,h:198});assert.equal(w.randomState,rngAfter(4),'two shamans initialize approach and rest (four speed draws); no first-turn Blast jitter');
  tick(w,1/12);assert.deepEqual(w.projectiles[0].position,{x:4034,y:-1872,h:165});assert.equal(w.randomState,rngAfter(4+8),'four trailing particles consume eight draws after the four idle initialization draws');
  const spark=w.effects.find(e=>e.sprite?.sequence==='blastTrail'),sparkHeight=spark.animation.h;
  assert.equal(spark.animation.remaining,0);assert.notEqual(w.cosmeticRandom.randomState,1);
- tick(w,1/12);assert.equal(w.projectiles[0].phase,'arrived');assert.equal(w.effects.some(e=>e.kind==='blast'),false);tick(w,1/12);assert.equal(w.projectiles.length,0);assert.equal(w.effects.find(e=>e.kind==='blast').age,0);assert.deepEqual(w.sounds.map(e=>e.turn),[0,6,10,10]);
+ tick(w,1/12);assert.equal(w.projectiles[0].phase,'arrived');assert.equal(w.effects.some(e=>e.kind==='blast'),false);tick(w,1/12);assert.equal(w.projectiles.length,0);assert.equal(w.effects.find(e=>e.kind==='blast').age,0);assert.deepEqual(w.sounds.map(e=>e.turn-startTurn),[0,6,10,10]);
  const flash=w.effects.find(e=>e.kind==='blast');assert.equal(flash.animation.object,1099);assert.equal(flash.duration,9/12);
  assert.equal(spark.animation.state,4);assert.equal(spark.animation.object,318);assert.equal(spark.animation.h,sparkHeight+20,'jitter sparks rise on both processing turns');
  tick(w,8/12);assert.ok(w.effects.includes(flash));w.paused=true;tick(w,1);assert.ok(w.effects.includes(flash));
@@ -576,7 +577,7 @@ test('mission-one ordinary marker guard patrols and answers nearby enemies',asyn
 
 test('campaign markers remove the bridge head on the native phase, independently of routing',()=>{
  const w=createWorld(),head=w.shrines.find(s=>s.kind==='bridge');
- const set=(index,h)=>{const p=nativeCellPoint(level.markers[index]);w.terrain[(p.z+48)*GRID+p.x+48]=h===0?-.35:h/45;};
+ const set=(index,h)=>{const p=nativeCellPoint(level.markers[index]);const cell=(p.z+48)*GRID+p.x+48;w.terrain[cell]=h===0?-.35:h/45;w.land.heights[(level.markers[index]>>>9)*128+((level.markers[index]&254)>>>1)]=h;};
  assert.deepEqual(nativeCellPoint(level.markers[35]),{x:-6,z:14});
  assert.deepEqual(nativeCellPoint(level.markers[35]|0x101),{x:-6,z:14},'odd native coordinate bits ignored');
  assert.equal(markerHeight(w.terrain,35),0);assert.throws(()=>markerHeight(w.terrain,256),/Invalid campaign marker/);
@@ -652,7 +653,8 @@ test('worship decays without followers and continues at full spell stock', () =>
 });
 
 test('vault discovery follows worship, door, entry and exit tasks', () => {
- const w = createWorld(), vault = w.shrines.find(s => s.kind === 'vault');
+ const w = createStartedWorld(), vault = w.shrines.find(s => s.kind === 'vault');
+ const openingSounds=w.sounds.filter(s=>s.cue===0x9f).length;
  // Independent named knowledge.3ds reference, rounded to 1/10,000 model units.
  const points = nativeModels[vault.model].p, unique = new Map();
  for (let i=0;i<points.length;i+=3) {
@@ -665,9 +667,9 @@ test('vault discovery follows worship, door, entry and exit tasks', () => {
   'the rendered vault matches the named stone pyramid, not the prison or a hut');
  const shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman');
  // Isolate the interaction from the nearby mission defender.
- w.units = w.units.filter(u => u.team === 'blue' || u.z < -20);
+ retainFixtureUnits(w,u => u.team === 'blue' || u.z < -20);
  const door = entrance(w, vault, 2);
- Object.assign(shaman, door);
+ Object.assign(shaman, door);Object.assign(shaman.native,nativePosition(w,door));syncLivePersonCells(w);
  w.selected = [shaman.id];
  command(w, vault);
  const firstOrder=shaman.native.commands[shaman.native.commandCursor];
@@ -705,12 +707,12 @@ test('vault discovery follows worship, door, entry and exit tasks', () => {
  until(w, () => w.unlockedCamp, 8);
  assert.equal(vault.model, 152);
  assert.equal(vault.morph.to, 155, 'closing uses the native base mesh with final target points');
- assert.equal(w.sounds.filter(s => s.cue === 0x9f).length, 2);
+ assert.equal(w.sounds.filter(s => s.cue === 0x9f).length-openingSounds, 2);
  assert.equal(vault.uses, 1);
 });
 
 test('vault allocation preserves the current order when the shared pool is full',()=>{
- const w=createWorld(),vault=w.shrines.find(s=>s.kind==='vault');
+ const w=createStartedWorld(),vault=w.shrines.find(s=>s.kind==='vault');
  const shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman');
  w.selected=[shaman.id];command(w,{x:shaman.x+1,z:shaman.z});
  const prior=currentPersonOrder(w.buildingOrders,shaman.native);assert.ok(prior);
@@ -718,7 +720,7 @@ test('vault allocation preserves the current order when the shared pool is full'
  command(w,vault);
  assert.equal(currentPersonOrder(w.buildingOrders,shaman.native),prior);
  assert.equal(prior.references,1);
- const entering=createWorld(),head=entering.shrines.find(s=>s.kind==='vault');
+ const entering=createStartedWorld(),head=entering.shrines.find(s=>s.kind==='vault');
  const walker=entering.units.find(u=>u.team==='blue'&&u.kind==='shaman');
  entering.selected=[walker.id];command(entering,entering.buildings.find(b=>b.team==='blue'));tick(entering,1/12);
  const person=walker.entry.person,entry=currentPersonOrder(entering.buildingOrders,person);
@@ -1220,7 +1222,7 @@ test('mission-one victory continuation creates and restarts the recovered missio
  const store=createGameStore();store.startMission(2);const world=store.getWorld();
  assert.equal(levelTwo.sourceSha256,'83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f');assert.equal(levelTwo.headerSha256,'44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49');assert.equal(scriptTwo.source,'cpscr074.dat');assert.equal(scriptTwo.sha256,'03931ad1bc69860177c0a0d7d850db46b268683bf95b274926e18fe1f8a5d9db');
  assert.deepEqual({level:world.outcome.level,blue:world.units.filter(u=>u.team==='blue').length,green:world.units.filter(u=>u.team==='green').length,wild:world.units.filter(u=>u.team==='wild').length,buildings:world.buildings.length},
-  {level:2,blue:9,green:18,wild:0,buildings:6});
+  {level:2,blue:1,green:18,wild:8,buildings:6});
  assert.deepEqual(world.shrines.map(s=>[s.kind,s.reward]),[['vault','swarm'],['bridgeEffect',undefined],['tornado','tornado']]);
  assert.deepEqual(world.shrines.find(s=>s.kind==='bridgeEffect').bridgeTarget,{x:-61,z:-105});
  assert.equal(world.unlockedCamp,true);assert.equal(world.inputMask,128);assert.equal(world.ai.coordinateLatch,0x8232);assert.deepEqual(world.manaTribes.map(t=>t.active),[true,false,false,true]);
@@ -2198,7 +2200,7 @@ test('native boarding checks the first boat and landing requests reserve distinc
 
 test('live native routes release query ownership, expire failures and walk low shoreline', async () => {
  const {supportsFollower}=await import('../app/model.ts');
- const w=createWorld(),u=w.units.find(u=>u.team==='blue'&&u.kind==='shaman'),shore={x:9,z:25};
+ const w=createStartedWorld(),u=w.units.find(u=>u.team==='blue'&&u.kind==='shaman'),shore={x:9,z:25};
  assert.equal(walkable(w.terrain,shore),false);assert.equal(supportsFollower(w,shore),true);
  assert.deepEqual(findPath(w,u,ENEMY),[]);const searches=w.pathfinding.state.searches;
  assert.ok(searches>0);assert.deepEqual(findPath(w,u,ENEMY),[]);assert.equal(w.pathfinding.state.searches,searches,'failed route is cached');
@@ -2271,7 +2273,7 @@ test('mission-one low population response assigns and releases persistent shaman
  const shaman=w.units.find(u=>u.team==='red'&&u.kind==='shaman'),guards=w.units.filter(u=>u.native&&currentPersonOrder(w.buildingOrders,u.native)?.model===30),order=currentPersonOrder(w.buildingOrders,guards[0].native);
  assert.equal(guards.length,4);assert.equal(order.references,4);assert.ok(guards.every(u=>u.native.target===shaman.id));assert.equal(w.manaTribes[1].shamanGuardChanged,1);
  guards.slice(0,-1).forEach(cancelLiveOrder.bind(null,w));assert.equal(w.manaTribes[1].shamanGuards,1);assert.equal(order.references,1);
- shaman.native.speed=100;const seed=w.randomState;cancelLiveOrder(w,guards.at(-1));assert.equal(w.manaTribes[1].shamanGuards,0);assert.equal(order.references,0);assert.equal(w.buildingOrders.active,0);assert.notEqual(w.randomState,seed,'final release rerolls a moving current shaman');
+ shaman.native.speed=100;const seed=w.randomState;cancelLiveOrder(w,guards.at(-1));assert.equal(w.manaTribes[1].shamanGuards,0);assert.equal(order.references,0);assert.equal(w.buildingOrders.active,1,'the Blue opening still owns command18');assert.equal(currentPersonOrder(w.buildingOrders,w.units.find(u=>u.team==='blue'&&u.kind==='shaman').native)?.model,18);assert.notEqual(w.randomState,seed,'final release rerolls a moving current shaman');
  const recurring=createWorld();recurring.killCredits[0][1]=6;until(recurring,()=>recurring.manaTribes[1].shamanGuards>0,12);assert.ok(recurring.manaTribes[1].shamanGuards>0,'the final recurring script block reaches command 30');
 });
 

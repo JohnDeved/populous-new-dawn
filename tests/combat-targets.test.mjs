@@ -1,3 +1,4 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import captures from './fixtures/combat-targets.json' with { type: 'json' }
@@ -21,7 +22,7 @@ test('mixed target collection, native distance bands, fight admission and reserv
 })
 
 function field() {
-  const w = createWorld(); w.units = []; w.buildings = []; w.fights = []
+  const w = createStartedWorld(); retainFixtureUnits(w, () => false); w.buildings = []; w.fights = []
   w.terrain.fill(3); w.terrainVersion++; tick(w, 1 / 6); w.turn = 4
   w.land.flags.fill(0); w.land.buildingIds.fill(0); w.land.owners.fill(0)
   return w

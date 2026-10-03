@@ -1,3 +1,4 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createWorld, addBuilding, addUnit, command, tick, buildingPose } from '../app/model.ts'
@@ -15,10 +16,10 @@ function until(w, ready, limit = 300) {
   assert.ok(ready())
 }
 function scenario(team = 'blue', direction = 2, kind = 'brave', count = 1) {
-  const w = createWorld()
+  const w = createStartedWorld()
   w.inputMask = 0
   w.manaWorld.gameFlags = 32
-  w.units = w.units.filter(u => u.kind === 'shaman')
+  retainFixtureUnits(w, u => u.kind === 'shaman')
   const b = addBuilding(w, team, 'tower', { x: -2, z: 32 }, true, {
     angle: (direction * Math.PI) / 2,
   })
@@ -139,7 +140,7 @@ test('a tower Firewarrior autonomously attacks an eligible hostile on the tower 
     people: [guard],
   } = scenario('blue', 2, 'firewarrior')
   until(w, () => guard.inside === b.id)
-  w.units = [guard]
+  retainFixtureUnits(w, u => u === guard)
   w.effects = []
   guard.cooldown = 0
   guard.entry.person.counter = 0

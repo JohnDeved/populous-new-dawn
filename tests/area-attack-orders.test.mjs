@@ -1,3 +1,4 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
@@ -13,8 +14,8 @@ import { selectLiveCombatTarget } from '../app/live-combat.ts'
 import { advanceGame } from '../app/game-clock.ts'
 
 function scenario(count = 1, waypoints = true) {
-  const w = createWorld()
-  Object.assign(w, { units: [], buildings: [], trees: [], shrines: [] })
+  const w = createStartedWorld()
+  retainFixtureUnits(w, () => false); Object.assign(w, { units: [], buildings: [], trees: [], shrines: [] })
   w.manaWorld.gameFlags = 96
   w.terrain.fill(3)
   w.terrainVersion++

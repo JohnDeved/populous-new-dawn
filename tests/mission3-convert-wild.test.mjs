@@ -20,16 +20,18 @@ test('Mission 3 Chumara spends its original Convert Wild shot through ordinary t
 
   for (let turn = 0; turn < 61; turn++) tick(world, 1 / 12)
   assert.equal(world.spellCasts[2][17], 0)
+  // The Blue opening wave has already replaced its twelve nearby Wildmen.
+  assert.equal(world.units.filter(unit => unit.team === 'wild').length, 32)
   tick(world, 1 / 12)
   assert.equal(world.spellCasts[2][17], 1)
   assert.equal(world.manaWorld.spells[2].stocks[17], 0)
   assert.equal(world.ai.flags & 0x40, 0)
 
-  for (let turn = 0; world.units.filter(unit => unit.team === 'wild').length === 44; turn++) {
+  for (let turn = 0; world.units.filter(unit => unit.team === 'wild').length === 32; turn++) {
     assert.ok(turn < 100)
     tick(world, 1 / 12)
   }
-  assert.equal(world.units.filter(unit => unit.team === 'wild').length, 43)
+  assert.equal(world.units.filter(unit => unit.team === 'wild').length, 31)
   assert.equal(world.units.filter(unit => unit.team === 'yellow').length, 8)
 
   for (let turn = 0; turn < 512; turn++) tick(world, 1 / 12)

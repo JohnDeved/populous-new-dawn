@@ -1,3 +1,5 @@
+import { releaseTasks } from '../app/world-tasks.ts'
+import { removeObjectFromCell } from '../app/object-cells.ts'
 import { clearPersonOrders } from '../app/person-orders.ts'
 import { orderEffects } from '../app/live-movement.ts'
 import assert from 'node:assert/strict'
@@ -22,7 +24,12 @@ export function retainFixtureUnits(world, keep) {
   for (const unit of world.units) {
     if (keep(unit)) continue
     const person = unit.native ?? unit.entry?.person ?? unit.builder?.person
-    if (person) clearPersonOrders(world.buildingOrders, person, orderEffects(world))
+    releaseTasks(world, unit)
+    if (person) {
+      clearPersonOrders(world.buildingOrders, person, orderEffects(world))
+      if (person.flags2 & 0x20000) removeObjectFromCell(world.objectCells, person)
+      world.objectCells.objects.delete(person.id)
+    }
   }
   world.units = world.units.filter(keep)
 }

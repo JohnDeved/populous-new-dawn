@@ -35,7 +35,7 @@ import {
 } from './native-terrain.ts'
 import { setAnimationObject } from './animation.ts'
 import { reincarnationStones } from './reincarnation.ts'
-import { random, short } from './native-math.ts'
+import { short } from './native-math.ts'
 import { createSpellTrail } from './spell-trails.ts'
 import models from './original-models.json' with { type: 'json' }
 import {
@@ -43,6 +43,7 @@ import {
   stepLevelStartWave,
   stepLevelStartCarrier,
   levelStartStoneHeading,
+  levelStartBurstParticle,
   type StartPoint,
   type LevelStartSite,
 } from './level-start.ts'
@@ -76,6 +77,24 @@ function animatedStartEffect(
   }
   setAnimationObject(fx.animation, draw, object)
   return fx
+}
+
+function stoneBurst(w: World, point: StartPoint, tribe: number) {
+  const team = teamForTribe(tribe)
+  w.effectCounter = (w.effectCounter + 1) & 255 // effect9, 0x50ccd0
+  for (let particle = 0; particle < 32; particle++) {
+    const position = { ...point, h: short(point.h + 90) },
+      burst = effect(w, 'trail', browserPosition(position)),
+      trail = createSpellTrail(w.land, position, 3, (w.effectCounter - 1) & 255, w.cosmeticRandom)
+    trail.flags4 &= ~0x100
+    Object.assign(trail, levelStartBurstParticle(w))
+    trail.flags2 |= 0x1080
+    burst.animation = trail
+    burst.sprite = { sequence: 'blastTrail', frame: 0 }
+    burst.height = trail.h / 45
+    burst.duration = Infinity
+    burst.team = team
+  }
 }
 
 // Native load 0x42b230 -> 0x419810/0x419880 queues command18 on authored
@@ -268,6 +287,12 @@ export function stepLevelStarts(w: World) {
       )
         continue
       w.effectCounter = (w.effectCounter + 1) & 255 // effect7 replaces itself with the stone
+      const previousStoneTurn = site.stoneTurns[carrier.index]
+      if (previousStoneTurn !== null) {
+        const ground = terrainPointHeight(w.land, carrier.destination),
+          rise = Math.min(16, w.turn - previousStoneTurn + 1)
+        stoneBurst(w, { ...carrier.destination, h: ground - 256 + rise * 16 }, site.tribe)
+      }
       site.stoneTurns[carrier.index] = w.turn
       site.carriers.splice(site.carriers.indexOf(carrier), 1)
       const point = {
@@ -278,30 +303,7 @@ export function stepLevelStarts(w: World) {
       fx.animation!.palette = 4
       fx.animation!.f1 = 76 // 0x4a7eb0: hold*4-step, before the first animation pass.
       if (++w.levelStartStoneSound & 1) sound(w, 0x9f, browserPosition(point))
-      w.effectCounter = (w.effectCounter + 1) & 255 // effect9, 0x50ccd0
-      for (let particle = 0; particle < 32; particle++) {
-        const position = { ...carrier.destination, h: point.h - 38 },
-          burst = effect(w, 'trail', browserPosition(position)),
-          trail = createSpellTrail(
-            w.land,
-            position,
-            3,
-            (w.effectCounter - 1) & 255,
-            w.cosmeticRandom
-          )
-        trail.flags4 &= ~0x100
-        random(w)
-        trail.remaining = (w.randomState % 2) + 1
-        trail.speed = 60
-        trail.pitch = random(w) & 2047
-        trail.yaw = random(w) & 2047
-        trail.flags2 |= 0x1080
-        burst.animation = trail
-        burst.sprite = { sequence: 'blastTrail', frame: 0 }
-        burst.height = trail.h / 45
-        burst.duration = Infinity
-        burst.team = team
-      }
+      stoneBurst(w, { ...carrier.destination, h: point.h - 128 }, site.tribe)
     }
   }
   for (const site of [...w.levelStart].reverse()) {
