@@ -797,7 +797,7 @@ export function campaignRules(w: World) {
                     ...script.codes.slice(504, 530),
                     1004,
                     ...script.codes.slice(570, 715),
-                    ...script.codes.slice(729, 768),
+                    ...script.codes.slice(729, 796),
                     ...script.codes.slice(796, 833),
                     ...script.codes.slice(833, 984),
                     1004,

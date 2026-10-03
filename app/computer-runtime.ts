@@ -24,6 +24,7 @@ import {
   writePersonOrder,
   commitPersonOrders,
   clearPersonOrders,
+  prepareMovementOrder,
   queuePersonOrder,
 } from './person-orders.ts'
 import {
@@ -74,13 +75,21 @@ import {
   computerSpellInRange,
   spellCaster,
   spellPaymentType,
+  nativeSpellRange,
 } from './spell-casting.ts'
-import { clearLivePath } from './live-pathfinding.ts'
-import { nativeCellPoint } from './world-coordinates.ts'
+import { clearLivePath, planLivePath } from './live-pathfinding.ts'
+import { nativeCellPoint, browserPosition } from './world-coordinates.ts'
+import {
+  requestConvertTask,
+  findConvertTarget,
+  standableConvertTarget,
+} from './computer-convert.ts'
 import {
   castShoreBlast,
   chooseSpellTarget,
   processComputerSpells,
+  stepConvertWildTarget,
+  convertWildDensity,
   type SpellTargetUnit,
   type SpellTargetWorld,
 } from './computer-spells.ts'
@@ -217,30 +226,33 @@ export function returnComputerGuards(w: World, tribe: number) {
   }
 }
 
+function finishComputerPerson(w: World, u: Unit, p: LivePerson, cleanup: boolean) {
+  if (cleanup) clearPersonOrders(w.buildingOrders, p, orderEffects(w))
+  resetPersonMotion(p)
+  if (!(p.flags2 & 0x100000)) {
+    u.native = p
+    changeLivePersonState(w, u, defaultPersonState(p, w.manaWorld.gameFlags))
+  }
+  adoptLiveOrders(w, u, p)
+  if (cleanup) {
+    const cell = (p.y >>> 9) * 128 + (p.x >>> 9),
+      building =
+        w.land.flags[cell] & 512
+          ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
+          : undefined,
+      point = building ? buildingOutsidePoint(buildingPose(building)) : p
+    //0x405090 snaps the idle anchor, not the active goal/route fields.
+    p.anchorX = (point.x & 0xfe00) + 0x100
+    p.anchorY = (point.y & 0xfe00) + 0x100
+    p.anchorFlags = 0
+  }
+}
+
 function finishPreacherSelection(w: World, tribe: number, cleanup: boolean) {
   for (const u of w.units) {
     if (u.hp <= 0 || u.team !== campaignTeam(w, tribe)) continue
     const p = unitAnimationSource(u) ?? u.native
-    if (!p || p.state !== 14) continue
-    if (cleanup) clearPersonOrders(w.buildingOrders, p, orderEffects(w))
-    resetPersonMotion(p)
-    if (!(p.flags2 & 0x100000)) {
-      u.native = p
-      changeLivePersonState(w, u, defaultPersonState(p, w.manaWorld.gameFlags))
-    }
-    adoptLiveOrders(w, u, p)
-    if (cleanup) {
-      const cell = (p.y >>> 9) * 128 + (p.x >>> 9),
-        building =
-          w.land.flags[cell] & 512
-            ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
-            : undefined,
-        point = building ? buildingOutsidePoint(buildingPose(building)) : p
-      //0x405090 snaps the idle anchor, not the active goal/route fields.
-      p.anchorX = (point.x & 0xfe00) + 0x100
-      p.anchorY = (point.y & 0xfe00) + 0x100
-      p.anchorFlags = 0
-    }
+    if (p?.state === 14) finishComputerPerson(w, u, p, cleanup)
   }
 }
 
@@ -290,6 +302,142 @@ function stepComputerPreacher(w: World, tribe: number, index: number) {
     finishPreacherSelection(w, tribe, false)
     task.phase = 7
   }
+}
+
+// 0x4c7370: native type2 task, scoped to Mission3 until other producers are integrated.
+function stepComputerConvert(w: World, tribe: number, index: number) {
+  const task = w.ai.tasks[index],
+    unit = w.units.find(u => u.hp > 0 && u.team === campaignTeam(w, tribe) && isShaman(u)),
+    p = unit && (unitAnimationSource(unit) ?? unit.native ?? createLivePerson(w, unit))
+  if (!p || p.computerAssignment) task.phase = 3
+  if (task.phase === 3) {
+    if (acquireSelection(w.ai, index)) {
+      finishPreacherSelection(w, tribe, true)
+      releaseSelection(w.ai, index)
+    }
+    task.flags &= ~3
+    return
+  }
+  if (!unit || !p) return
+  if (task.phase === 0) {
+    task.target = w.ai.constructionBase ?? ((p.x >>> 8) & 254) | (p.y & 0xfe00)
+    let target: number | null
+    if (w.ai.flags & 0x40) {
+      target = w.ai.coordinateLatch
+      w.ai.flags = (w.ai.flags & ~0x40) >>> 0
+    } else {
+      const wild = w.units
+          .filter(u => u.hp > 0 && u.team === 'wild')
+          .map(u => nativePosition(w, u)),
+        counts = new Uint8Array(64)
+      for (const person of wild) counts[(person.x >>> 13) + ((person.y >>> 10) & 56)]++
+      target = findConvertTarget(task.target, counts, wild, 0, w.ai.attributes[0] & 255)
+    }
+    if (target === null) task.phase = 3
+    else {
+      task.target = target
+      task.remaining = 360
+      task.elapsed = 0
+      task.extra = 20
+      task.phase = 2
+    }
+    return
+  }
+  if (task.phase === 2) {
+    const target = standableConvertTarget(task.target, w.land)
+    if (target === null) {
+      task.phase = 3
+      return
+    }
+    task.target = target
+    const vehicles = w.vehicles.filter(v => v.active && v.team === campaignTeam(w, tribe)),
+      counts = [1, 2, 3, 4].map(
+        model => (vehicles.filter(v => v.model === model).length << 16) >> 16
+      )
+    if (counts.reduce((sum, count) => sum + count, 0)) task.phase = 4
+    else {
+      const point = { x: ((target & 254) + 1) << 8, y: (((target >>> 8) & 254) + 1) << 8 },
+        reachable = planLivePath(w, unit, browserPosition(point), p, true)
+      if (!reachable) p.flags4 = (p.flags4 & ~0x10000000) >>> 0
+      task.phase = reachable ? 4 : 3
+    }
+    return
+  }
+  if (task.phase === 4) {
+    if (acquireSelection(w.ai, index)) task.phase = 5
+    return
+  }
+  if (task.phase === 5) {
+    if (!(rules.personStateFlags[p.state] & 8) || p.computerAssignment) {
+      task.phase = 3
+      return
+    }
+    task.phase = 6
+    if (!(p.flags2 & 0x100000)) {
+      unit.native = p
+      changeLivePersonState(w, unit, 14)
+    }
+    w.ai.commandDelay = 20
+    return
+  }
+  if (task.phase === 6) {
+    task.phase = 7
+    return
+  }
+  if (task.phase === 7) {
+    const group = { records: Array.from({ length: 8 }, emptyPersonOrder), count: 0, cursor: 0 }
+    queuePersonOrder(group, 3, 0, task.target)
+    releaseSelection(w.ai, index)
+    const people = w.units.flatMap(u => {
+      const source = unitAnimationSource(u) ?? u.native
+      return u.hp > 0 && u.team === campaignTeam(w, tribe) && source ? [source] : []
+    })
+    commitPersonOrders(w.buildingOrders, group, people, [-1, -1, -1], {
+      ...orderEffects(w),
+      prepare: (order, model, a, b, flags = 0) => {
+        if (model !== 3) throw new Error('Unexpected Convert Wild movement command')
+        prepareMovementOrder(order, { x: a, y: b }, flags, w.land, id =>
+          buildingOutsidePoint(buildingPose(w.buildings.find(building => building.id === id)!))
+        )
+      },
+    })
+    finishPreacherSelection(w, tribe, false)
+    task.elapsed = 0
+    task.phase = 8
+    return
+  }
+  if (task.phase !== 8) return
+  task.elapsed = (task.elapsed + w.ai.tasks.filter(t => t.flags & 1).length) & 65535
+  const spellWorld = computerSpellWorld(w, tribe),
+    target = stepConvertWildTarget(spellWorld, task.target),
+    casterCell = ((p.x >>> 8) & 254) | (p.y & 0xfe00)
+  if (task.elapsed < 601) {
+    task.target = target.cell
+    const movingFallback = !(rules.personStateFlags[p.state] & 8) && target.count < 4
+    if (movingFallback && convertWildDensity(spellWorld, casterCell) < 5) return
+    if (movingFallback || target.count) {
+      const casting = w.castingTribes[tribe],
+        caster = {
+          ...spellCaster(w, unit),
+          state: p.state,
+          flags4: p.flags4 | (unit.casting ? 0x400 : 0),
+        },
+        range = Math.trunc(nativeSpellRange(w.manaWorld.gameFlags, casting.flags, caster, 17) / 512)
+      if (!canShamanCast(casting, w.manaTribes[tribe].playerType, caster)) return
+      if (w.manaTribes[tribe].mana < rules.spellCharging[17].cost) return
+      if (!movingFallback && Math.imul(range, range) < cellDistanceSquared(task.target, casterCell))
+        return
+      if (!computerSpellAllowed(casting, w.ai.flags, w.manaWorld.gameFlags, 17)) return
+      allocateComputerSpell(w, unit, 17, task.target)
+      returnLivePerson(w, unit, { x: p.x, y: p.y })
+      task.phase = 3
+      return
+    }
+  }
+  // Native +0x9f/+0x7a identity protects a vehicle's first passenger/driver.
+  if (!w.vehicles.some(v => v.active && v.id === p.vehicle && v.passengers[0] === p.id))
+    finishComputerPerson(w, unit, p, true)
+  task.phase = 3
 }
 
 export function computerTrainingBuilding(w: World, model: number, tribe = campaignTribe(w)) {
@@ -836,12 +984,27 @@ export function stepComputerTasks(w: World, tribe: number) {
   const phase = computerPhase(w.turn, tribe)
   if (phase === 'produce') {
     if (produceMissionBuilding(w, tribe)) return
+    // Preserve current construction priority. Full native producer-table fairness
+    // remains a separate timing boundary; this integrates the proved type2 producer.
+    if (
+      w.outcome.level === 3 &&
+      requestConvertTask(
+        w.ai,
+        w.ai.states,
+        w.units.filter(u => u.hp > 0 && u.team === 'wild').length
+      )
+    )
+      return
     produceMissionTraining(w, tribe)
     return
   }
   if (phase !== 'dispatch') return
   dispatchComputerTask(w.ai, index => {
     const task = w.ai.tasks[index]
+    if (w.outcome.level === 3 && task.type === 2) {
+      stepComputerConvert(w, tribe, index)
+      return
+    }
     if (task.type === 11) {
       stepComputerPreacher(w, tribe, index)
       return
@@ -1348,6 +1511,7 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
     gameFlags: w.manaWorld.gameFlags,
     aiFlags: w.ai.flags,
     aiStates: w.ai.states,
+    nativeConvertTask: w.outcome.level === 3,
     coordinateTarget: w.ai.coordinateLatch,
     blastFrequency: w.ai.attributes[32],
     stock: w.manaWorld.spells[tribe],

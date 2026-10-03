@@ -379,6 +379,7 @@ export function processComputerSpells(
     gameFlags: number
     aiFlags: number
     aiStates?: number
+    nativeConvertTask?: boolean
     coordinateTarget?: number
     blastFrequency: number
     stock: SpellStock
@@ -468,7 +469,8 @@ export function processComputerSpells(
     context.reserve
   )
   // ponytail: carry the native marker override; add the remaining task-2 phases when gameplay needs them.
-  const convertReady = !!(context.aiStates && context.aiStates & 4) && !!payment(17)
+  const convertReady =
+    !context.nativeConvertTask && !!(context.aiStates && context.aiStates & 4) && !!payment(17)
   const casterCell = cellOf(caster)
   if (
     convertReady &&
