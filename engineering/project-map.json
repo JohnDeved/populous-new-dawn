@@ -325,6 +325,7 @@
         { "path": "decomp/README.md", "heading": "Terrain texel-center sampling" },
         { "path": "decomp/research/mission18.md", "heading": "Bank-g sky" },
         { "path": "decomp/research/mission19.md", "heading": "Bank-d authored sky inputs" },
+        { "path": "decomp/research/sky-rendering-audit.md", "heading": "Result" },
         {
           "path": "decomp/research/hut-occupancy-smoke.md",
           "heading": "Attachment selector correction (2026-10-03)"
