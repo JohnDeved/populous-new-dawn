@@ -1,62 +1,26 @@
-# Worker closeout and review-bundle handoff
+# Worker and review handoff
 
-This workflow keeps recoverable tooling problems from turning into false `BLOCKED`
-outcomes. It applies to Local Dev worker chats and complements, rather than replaces,
-the gameplay/evidence contracts in this directory.
+The worker owns implementation, focused repair, evidence publication, and a linked
+GitHub draft PR. The parent owns final review, integration, and authorized main merges.
+Use one writer per isolated branch. Reviewers remain read-only; unavoidable check
+artifacts use an agreed ignored path. No project-binding/release handshake is needed.
 
-## Repair order
+A compact handoff includes issue/PR, exact base/head, outcome, check statuses,
+source/input fingerprints, evidence path, remaining limits, and any held resources.
+Read the full diff, not a summary. Review substantive repairs on the updated head.
+Use raw receipts directly when the reviewer can access them; create the optional
+portable bundle below only when evidence otherwise would not travel with the PR.
 
-When several workflow problems appear together, use this order:
+Use one GitHub status label at a time. Report `status:blocked` only for a concrete
+required dependency with no useful scoped work remaining; review-ready partial work
+can remain `status:needs-review` with its limits explicit. A check can be blocked
+without the entire task being blocked. A denied action retains its exact reason and
+fingerprint; do not bypass the safeguard. Continue independently authorized work.
+Do not discard prior failed/denied receipts just because a later method succeeds.
 
-1. **Make review evidence portable.** A reviewer who cannot open a worker-owned
-   ignored directory cannot independently verify the work.
-2. **Release the Local Dev project binding before the final reply.** A finished worker
-   must not leave its source worktree or review bundle `PROJECT_IN_USE`.
-3. **Scope denials to the denied operation.** Preserve the denial receipt, do not retry
-   or route around it, and continue independent allowed work.
-4. **Choose the worker state from remaining work, not from one failed operation.**
-5. **Keep one feature owner through implementation, checker repair, evidence
-   publication, and PR handoff when practical.** Fresh review remains independent.
-
-These are coordination repairs. They do not weaken feature acceptance, native proof,
-browser checks, generated ownership, or review requirements.
-
-## Worker state semantics
-
-A tool or policy denial is an operation result, not automatically a task result.
-
-- `DONE`: the scoped objective and required validation are complete.
-- `IN_PROGRESS`: meaningful authorized work remains, including independent work
-  after an optional or required operation was denied.
-- `NEEDS_REVIEW`: useful review-ready tracked work is committed/pushed/published,
-  even if a non-critical validation or follow-up remains.
-- `BLOCKED`: no meaningful scoped work remains because a required dependency or
-  operation cannot be obtained with current authority, and there is no useful
-  review-ready partial result to hand off.
-
-Never retry an unchanged denied operation or bypass the safeguard through a different
-tool. Record the denial fingerprint/reason and continue only genuinely independent,
-already-authorized work.
-
-The helper exports the same decision rule for fixture tests:
-
-```js
-import { deniedOperationDisposition } from './scripts/orchestration/worker-closeout.mjs'
-```
-
-## One feature owner
-
-Keep the implementation owner responsible for the same feature through:
-
-1. source implementation;
-2. focused checker repair;
-3. evidence/receipt publication;
-4. branch/PR update and final handoff.
-
-Hand ownership off only for a real scope/resource conflict or explicit reassignment.
-A fresh reviewer should inspect the final diff and bundle but should not become the
-default checker-repair or evidence-publication owner. This avoids serial re-discovery
-and conflicting partial branches.
+Stop only task-owned processes and release shared resources after checks. Keep useful
+receipts until review/integration is complete. Do not claim runtime ownership release
+from a changed directory or a caller-supplied Boolean.
 
 ## Portable review bundle
 
@@ -105,7 +69,8 @@ npm run orchestration:review-bundle -- verify \
 
 Repeat `--expected-source`, `--expected-deletion`, and `--expected-receipt` for the complete expected sets. Deleted sources are explicit `state: "deleted"` manifest entries with no ambiguous `sha256: null`. `--expected-receipt` uses the copied bundle receipt hash (`bundleSha256` from the trusted creation output), so altered receipt payloads cannot self-authenticate by changing the manifest. The verifier rejects absolute/traversal paths, symlink escapes, identity-count drift, and any manifest identity that disagrees with those caller-supplied values.
 
-A reviewer can instead bind Local Dev directly to the bundle and run the bundled `node verify.mjs` with the same trusted expected arguments, without opening the worker worktree.
+A reviewer can run the bundled `node verify.mjs` from any permitted executor with
+the same trusted expected arguments, without editing or opening the worker worktree.
 
 ## Raw source-bound command receipts
 
@@ -120,129 +85,9 @@ npm run orchestration:receipt -- \
 
 The receipt records the exact source HEAD/branch, command array, exit code/signal, raw stdout/stderr, and SHA-256 for both streams. Include these raw receipt JSON files in the portable review bundle. Receipt outputs must remain ignored under `work/orchestration/`.
 
-Use the same wrapper for a closeout proof after switching Local Dev away from the source project:
 
-```sh
-node /absolute/source/scripts/orchestration/command-receipt.mjs \
-  --output work/orchestration/task/closeout.json -- \
-  node /absolute/source/scripts/orchestration/worker-closeout.mjs \
-    --source-project /absolute/source \
-    --bundle-project /absolute/review-bundle \
-    --active-project /absolute/temporary-closeout-project \
-    --bundle-preflight open \
-    --expected-head "$HEAD" \
-    --complete true
-```
-
-`worker-closeout.mjs` verifies the source repository still has the trusted expected HEAD. If a safety operation was denied, pass `--denied-operation optional|required`, plus `--meaningful-work-remaining true|false` and `--review-ready true|false`; the CLI emits the same `IN_PROGRESS`/`NEEDS_REVIEW`/`BLOCKED` decision used by policy instead of leaving that logic test-only.
-
-## Local Dev closeout checklist
-
-A project switch is **not** an ownership-release acknowledgment. The current Local
-Dev session implementation can retain every previously selected project while the
-run remains active; a second client may still receive `PROJECT_IN_USE` even though
-`project_current` shows a neutral directory. A source-free path and a caller-supplied
-`--bundle-preflight open` do not prove that an independent reviewer can acquire it.
-
-The repository helper currently has no authenticated runtime acquisition result to
-verify. It therefore reports path observations separately (`sourceUnbound` and
-`bundleUnbound`), and reports unknown release as `null`, not `true`. When paths are
-otherwise valid it returns `status: "unverified"`,
-`releaseVerification: "not-performed"` and reason
-`INDEPENDENT_RELEASE_NOT_VERIFIED` (CLI exit 2). Known overlapping paths still fail
-with their specific diagnostics. No override flag can turn this missing evidence
-into success. This is a fail-closed reporting repair, **not** the live ownership fix.
-
-Perform the following observations only after all source work, commits, pushes and
-PR updates are complete; they remain necessary but insufficient for a released
-handoff until a supported runtime release/acquisition protocol is integrated.
-
-1. Generate and locally verify the review bundle.
-2. Use Local Dev `project_open` on the **bundle directory**. This is the reviewer-open
-   preflight and must succeed; `PROJECT_IN_USE` means the bundle is not independently
-   reviewable yet.
-3. Run `node verify.mjs` while the bundle is the active Local Dev project.
-4. Use Local Dev `project_open` with a unique disposable closeout slug and
-   `onMissing: "temporary"`. This changes the active path only; it does not prove
-   release of the source worktree or bundle.
-5. Call Local Dev `project_current`. The active path must overlap neither the source
-   project nor the bundle.
-6. Run the deterministic check, supplying the path returned by `project_current`:
-
-```sh
-node /absolute/source/scripts/orchestration/worker-closeout.mjs \
-  --source-project /absolute/source \
-  --bundle-project /absolute/review-bundle \
-  --active-project /absolute/temporary-closeout-project \
-  --bundle-preflight open \
-  --expected-head "$HEAD" \
-  --complete true
-```
-
-The current command cannot produce a verified release: do not repeatedly rerun it
-or fabricate a proof to obtain `status: "passed"`. Preserve its exit-2 receipt,
-disclose the release dependency, and finish the user-visible handoff truthfully.
-A stale active source path yields `PROJECT_STILL_BOUND`; a stale active bundle path
-yields `REVIEW_BUNDLE_STILL_BOUND`. A different path yields `unverified`, not a claim
-that the old Local Dev reservation disappeared.
-
-`--complete true` does not override this dependency or produce `DONE`. Release
-verification and useful work readiness remain separate: meaningful authorized work
-is still `IN_PROGRESS`, and review-ready partial work remains `NEEDS_REVIEW` while
-release fields stay `null` and the CLI still exits 2. Otherwise the unresolved
-required handoff yields `BLOCKED`. A denial classification cannot turn release
-into a pass, but it must not erase legitimate partial-work readiness either.
-
-The required future success condition is a supported runtime relinquishment followed
-by a second independently identified client acquiring the same canonical project
-and expected source head, with process cleanup and session ownership verified.
-Read-only reviewers must coexist, active writers must remain exclusive, stale/dead
-owners must be reconciled, and release status must be generated from the completed
-acquisition rather than a worker-provided Boolean. This repository patch does not
-implement, install or claim those backend capabilities.
-
-If review is not needed because there is no tracked change, skip bundle creation but
-still switch Local Dev to a unique temporary closeout project and verify with
-`project_current` that the source checkout is no longer active. The source-only check is:
-
-```sh
-npm run orchestration:closeout -- \
-  --source-project /absolute/source \
-  --active-project /absolute/temporary-closeout-project \
-  --expected-head "$HEAD" \
-  --complete true
-```
-
-## Install and use
-
-No service or daemon is installed. The commands use Node's standard library and the
-repository's existing Git checkout.
-
-```sh
-npm run orchestration:receipt -- --output work/orchestration/task/npm-check.json -- npm run check
-npm run orchestration:review-bundle -- create --task-id task --base origin/main --output /absolute/bundle \
-  --receipt work/orchestration/task/npm-check.json
-npm run orchestration:review-bundle -- verify --bundle /absolute/bundle \
-  --expected-head "$HEAD" --expected-diff-sha256 "$DIFF_SHA" \
-  --expected-source path/to/source.ts="$SOURCE_SHA" \
-  --expected-deletion path/to/deleted-source.ts \
-  --expected-receipt work/orchestration/task/npm-check.json="$RECEIPT_SHA"
-npm run orchestration:closeout -- \
-  --source-project /absolute/source \
-  --bundle-project /absolute/bundle \
-  --active-project /absolute/neutral-project \
-  --bundle-preflight open \
-  --expected-head "$HEAD" \
-  --complete true
-```
-
-The closeout command is deliberately not automatic: Local Dev project switching must
-remain visible to the worker so it cannot silently release another chat's project.
-
-## Rollback
-
-The tooling is repository-local. Roll back by reverting the commit that adds these
-scripts/policy changes. Review bundles are external disposable directories and are not
-part of the source checkout; remove an obsolete bundle only after its review/evidence
-retention need has ended. No persistent process, app setting, credential, or service
-needs removal.
+Receipts bind the actual source HEAD; dirty work additionally needs the tested diff
+and input fingerprints. Commit the candidate before final verification when practical.
+If relevant code, fixture, dependency, or runtime input changes, rerun affected checks.
+A portable bundle verifies identities and transport integrity, not gameplay correctness.
+Never include credentials, browser profiles, session data, or arbitrary machine logs.

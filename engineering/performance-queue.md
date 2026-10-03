@@ -5,8 +5,8 @@ performance/browser jobs and competing native/build/full-check workloads. Submis
 starts a background controller; it runs jobs FIFO without an agent waiting, a service
 installation, or a dated time slot. Source work and small portable checks can continue.
 One exclusive lane deliberately favors clean measurements over maximum concurrency.
-When submitting through Local Dev, retain the intentional background controller
-(`backgroundProcessPolicy: keep`); completing the submission task must not kill it.
+Retain the owned background controller until its jobs finish; ending a waiting
+client must not kill an active job or erase its recovery receipt.
 Browser checks use the queue's `supervise` mode unless they already have a reviewed
 parent guardian. The supervisor owns startup, checker descendants and cleanup.
 
@@ -25,7 +25,7 @@ A paused/crashed queue returns `deferred` (exit2) with the existing job ID: do n
 enqueue a duplicate. Escalate only unresolved resource cleanup or acceptance decisions.
 
 `run` prints a compact job-ID/recovery receipt to stderr **before** waiting; final
-stdout remains one result object. A Local Dev foreground timeout can end the waiting
+stdout remains one result object. An executor foreground timeout can end the waiting
 client while the detached job continues. Resume with `wait JOB_ID`, not another test.
 Identical unfinished submissions (effective spec and source fingerprint) reuse one
 job, even across concurrent callers. If the same spec has different inputs while its

@@ -11,17 +11,18 @@
         "Markdown provenance",
         "Git change routing",
         "Contract audit",
-        "Worker closeout and review bundles",
+        "Portable review bundle integrity",
         "Source-bound raw command receipts"
       ],
       "knownLimits": [
         "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
       ],
       "executable": "node",
-      "args": ["--test", "tests/orchestration.test.mjs", "tests/delivery-clock.test.mjs", "tests/workflow-handoff.test.mjs"],
+      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
+        ".codex/config.toml",
         ".agents/skills/populous-engineering/SKILL.md",
         "AGENTS.md",
         "GOAL.md",
@@ -96,6 +97,7 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        ".codex/config.toml",
         "package.json",
         "app",
         "engineering",

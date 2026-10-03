@@ -2,8 +2,10 @@
 
 Status: unfinished.
 
-Delivery target: complete the single-player release by 2026-09-30 end of day
-Europe/Berlin. Multiplayer, lobby, network, and lockstep work are outside this
+The original single-player release target was 2026-09-30 end of day
+Europe/Berlin and has passed. Keep unmet release gates visibly overdue in GitHub;
+do not imply that the release is complete or invent a replacement deadline.
+Multiplayer, lobby, network, and lockstep work are outside this
 release and must not consume deadline work or block it. Reconsider them only after
 the release through explicit future direction. Keep the remaining scope and
 acceptance quality intact; use the date to favor coherent runs of high-impact
@@ -145,9 +147,9 @@ and its acceptance constraints. Judge workflow changes by subsequent gameplay de
 Detect stalled delivery during active work and correct its workflow or implementation
 approach autonomously under `engineering/efficiency-review.md`; do not wait for the
 user to notice or for an unfinished slice to complete.
-Measure delivery speed using real elapsed time and comparable verified parity gain
-per hour. Use the workflow delivery clock to detect stalls and retain approaches that
-produce more accepted gameplay in less time without weakening acceptance.
+Use observed check durations and accepted outcomes to improve delivery without
+weakening acceptance. GitHub issues/PRs own task status; do not maintain another
+delivery-clock ledger.
 
 ## Main priority: modern desktop compatibility
 
@@ -205,17 +207,11 @@ code.
 
 ## Current execution order: highest-impact playable parity
 
-User priority (September 18): workers directly own PND release-gate work, with
-overdue prerequisites first. PND-01 remains overdue; PND-02 is accepted. Finish a
-running check or reviewable delivery before switching, then prefer work that closes
-the gate's remaining acceptance over another convenient cosmetic or research slice.
-Worker1 owns PND-01's remaining original-save fixture prerequisite leading to PND-07;
-Worker2 owns PND-10's message regression repair; Worker3 owns PND-04 training/task
-behavior; Worker4 owns PND-08 natural campaign completion; Worker5 owns PND-06
-worship/spell acceptance blockers. User reports are child tasks, not replacements
-for complete gate acceptance. Reuse the accepted inventory; do not repeat it or
-close a gate from documentation alone. CEO coordinates shared ownership, integration
-and final acceptance. Preserve original deadlines and the September 30 target.
+GitHub release-gate issues and their linked PRs are the current priority and status
+source. Preserve overdue original dates and complete gate acceptance; past named
+worker assignments in this file are retired. The parent assigns current owners and
+keeps independent work moving on isolated branches. Finish a running check or
+reviewable delivery before switching; a small fix does not close an entire gate.
 
 Use GitHub labels on issues and PRs: `release-gate` for PND gates, `overdue` for
 missed original dates, and `status:blocked`, `status:in-progress` or
@@ -256,23 +252,22 @@ Reuse current triage while its gameplay and evidence assumptions remain valid.
 
 ## Use subagents where they improve delivery
 
-The parent owns priority, source edits, integration, and acceptance. Use a specialist
+The parent owns priority, integration, and acceptance; workers own their isolated
+feature branches and draft PRs. Coordinate up to six workers. Use a specialist
 for a concrete question that reduces uncertainty or allows useful independent work:
 
 - `pnd-scout`: uncertain priorities, live ownership, integration gaps, or check scope.
 - `pnd-native`: original behavior and unresolved native/browser boundaries.
 - `pnd-performance`: timing, rendering, hot paths, resources, or measurements.
-- Dedicated ChatGPT reviewers through Local Dev: finished non-trivial changes
-  and acceptance evidence, before integration or parity/evidence claims. Use
-  [Reviewer 1](https://chatgpt.com/c/6aac64d7-e0a8-83eb-8591-642392067b5e) or
-  [Reviewer 2](https://chatgpt.com/c/6aac6528-e4e0-83eb-937f-58e788b30e26).
-  Reviewer 1 uses Pro thinking; Reviewer 2 uses xhigh/Extra High. This user-directed route replaces Codex review subagents:
-  assign each PR to one available reviewer and do not duplicate its full review
-  in Codex. Provide the exact head/base, full diff, acceptance criteria and retained
-  receipts. Reviewers inspect read-only, report concrete findings and ACCEPT/REJECT,
-  and notify the CEO on a verdict, actionable blocker or unexpected stop,
-  using the compact reporting rule below. Follow-up reviews cover repairs and unresolved findings.
-  The CEO retains final acceptance, necessary integration checks and main merges.
+- Use an internal coding reviewer for finished non-trivial changes and acceptance
+  evidence before integration or parity/evidence claims. Do not create, reopen, or
+  route work to separate ChatGPT review conversations. The previous dedicated
+  reviewer-chat workflow is retired.
+  Assign one fresh reviewer the exact head/base, full diff, acceptance criteria
+  and retained receipts. Reviewers inspect read-only and report concrete findings
+  plus ACCEPT/REJECT to the parent. Follow-up reviews cover substantive repairs
+  and unresolved findings. The parent retains final acceptance, necessary
+  integration checks and authorized merges.
   Every review applies [README's TypeScript quality workflow](README.md#typescript-quality-workflow)
   to maintained TypeScript changes: inspect readability, helper reuse, unnecessary
   machinery and decompiler-style code; verify source-bound `format:check`, `lint`
@@ -302,28 +297,11 @@ test bring-up and acknowledgements in local evidence. Retain assigned checkpoint
 but send only a changed finding or missed forecast. A delivery timeout is uncertain:
 check delivery before retrying; never send repeated full handoffs.
 
-The CEO routes first: use the latest report, collapse superseded reports, and read
-deep evidence only for review, integration or an unresolved decision. Do not echo
-every handoff or refresh every ledger per message. Give each assignment one bounded
-fallback task with a separate reservation when available; after delivery or a hard
-block, continue that preauthorized task while review proceeds. Otherwise request
-routing once. The watcher remains a deduplicated failsafe, not routine reporting.
-
-Reduce chat coordination traffic: reuse the watcher's fresh local snapshot and
-worker handoff before requesting another chat read. Routine snapshots are batched
-every three minutes; local queued-report deduplication stays fast. Keep the
-15-minute long-idle threshold and 30-minute reminder cooldown. Recognize both
-compact worker headers and explicit chat IDs. One CEO routes assignments/reviews;
-workers report once to the CEO rather than also messaging reviewers. After a
-successful send, allow at least one snapshot interval before verifying execution;
-delivery alone is not execution. On `Too many requests`, honor any supplied retry
-delay and pause repeated calls to that tool. The user-authorized Chrome fallback
-can wake an idle worker through the ordinary ChatGPT UI: use the single-call helper
-documented in `work/orchestration/worker-watch-cli/README.md`. It reuses tabs,
-checks active responses/drafts, records send attempts before clicking, and returns
-a compact result. Never replay uncertain delivery, interrupt an active response,
-or work around a rate limit shown by ChatGPT itself. A stalled page returns once;
-do not enter a refresh loop. Busy destinations await their next state change.
+Use the issue and linked draft PR for ownership, blockers, review, and completion.
+Workers report useful deltas directly to the parent. The parent reviews finished PRs
+and merges accepted work into main under the user's authorization. No separate
+reviewer-chat routing, browser wake/watch helper, or local status snapshot is needed.
+Do not duplicate status updates across chat and local ledgers.
 
 Follow `AGENTS.md` and the engineering skill for workflow mechanics. Supply applicable
 constraints and cited sections instead of whole goals, histories, or the performance
@@ -344,6 +322,6 @@ working elsewhere. Do not end useful work waiting for routine steering or approv
 of an internal engineering decision. A checkpoint does not complete the remake goal.
 
 Keep this file focused on outcomes and priorities. `parity.json` remains the gameplay
-and game-mechanics parity percentage and progress ledger; procedures, evidence,
+and game-mechanics coverage ledger; GitHub owns task status. Procedures, evidence,
 history, and receipts stay in their canonical locations.
 Preserve existing work and the user's authority over publishing, deployment, and recording.

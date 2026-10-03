@@ -474,14 +474,13 @@ test('context output saves current JSON and rejects silent option mistakes', () 
     assert.equal(JSON.parse(readFileSync(join(repo, output))).status, 'incomplete', 'Overflow cannot leave a stale complete packet')
   }))
 
-test('clock corruption cannot turn successful preparation into a failed partial operation', () =>
+test('preparation is independent of retired local status state', () =>
   withRepo(repo => {
     put(repo, 'work/orchestration/delivery-clock.json', '{broken')
     put(repo, 'work/orchestration/spec.json', taskSpec(repo))
     const result = prepareMain(['--spec', 'work/orchestration/spec.json', '--task-id', 'clock-fault',
       '--contract', 'work/orchestration/clock-fault.json'], repo)
-    assert.equal(result.deliveryClock.status, 'unavailable')
-    assert(result.deliveryClock.reason)
+    assert.equal(Object.hasOwn(result, 'deliveryClock'), false)
     assert.equal(JSON.parse(readFileSync(join(repo, result.contract))).identity.taskId, 'clock-fault')
     assert.equal(readFileSync(join(repo, 'work/orchestration/delivery-clock.json'), 'utf8'), '{broken')
   }))
@@ -1079,7 +1078,7 @@ function configureAggregate(repo) {
   const configure = (id, executable, args) => Object.assign(checks.checks.find(check => check.id === id),
     { automation: 'safe', executable, args })
   configure('repository-check', 'npm', ['run', 'check'])
-  configure('orchestration-tests', 'node', ['--test', 'tests/orchestration.test.mjs', 'tests/delivery-clock.test.mjs'])
+  configure('orchestration-tests', 'node', ['--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/workflow-policy.test.mjs'])
   configure('orchestration-structural', 'node', ['scripts/orchestration/cli.mjs', 'check'])
   checks.checks.find(check => check.id === 'orchestration-tests').inputs = ['docs.md']
   put(repo, 'engineering/checks.json', checks)
@@ -1189,6 +1188,35 @@ test('reviewed aggregate coverage executes once, fingerprints covered inputs, an
     assert.ok(fallback.verification.requiredCheckIds.includes('orchestration-tests'))
     assert.equal(fallback.verification.coverage.length, 1)
   }))
+
+for (const checkId of ['orchestration-tests', 'repository-check']) {
+  test(`${checkId} receipts become stale when worker configuration changes`, async () =>
+    withAsyncRepo(async repo => {
+      configureAggregate(repo)
+      const config = '.codex/config.toml'
+      put(repo, config, '[agents]\nmax_concurrent_threads_per_session = 6\n')
+      const checks = JSON.parse(readFileSync(join(repo, 'engineering/checks.json')))
+      for (const id of ['orchestration-tests', 'repository-check']) {
+        checks.checks.find(check => check.id === id).inputs.push(config)
+      }
+      put(repo, 'engineering/checks.json', checks)
+      const spec = taskSpec(repo)
+      spec.verification.requiredCheckIds = [checkId]
+      const task = prepareContract(repo, spec, { taskId: 'config-fingerprint' })
+      const path = 'work/orchestration/config-fingerprint.json'
+      put(repo, path, task)
+      const outcome = await verifyContract(repo, path, {
+        env: {},
+        execute: async () => ({ exitCode: 0, stdout: 'passed\n', stderr: '', timedOut: false }),
+      })
+      assert.equal(outcome.status, 'passed')
+      assert.ok(outcome.results[0].inputPaths.includes(config))
+      const saved = JSON.parse(readFileSync(join(repo, path)))
+      assert.equal(auditContract(repo, saved).invalidatedResults.length, 0)
+      put(repo, config, '[agents]\nmax_concurrent_threads_per_session = 5\n')
+      assert.ok(auditContract(repo, saved).invalidatedResults.some(result => result.checkId === checkId))
+    }))
+}
 
 test('verification runs only safe contract checks, records blocking, and detects mutations', async () => {
   await withAsyncRepo(async repo => {
