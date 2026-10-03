@@ -15,10 +15,16 @@ export async function makeHutSmokeScene(world) {
     ground: new THREE.Group(),
     decorations: new THREE.Group(),
     cursor: { material: new THREE.MeshBasicMaterial() },
-    locate(group, point, height = 0) { group.position.set(point.x, height, point.z) },
-    orientModel(group, angle) { group.rotation.y = angle },
+    locate(group, point, height = 0) {
+      group.position.set(point.x, height, point.z)
+    },
+    orientModel(group, angle) {
+      group.rotation.y = angle
+    },
     makeDecorations() {},
-    planGeometry() { return { geometry: new THREE.BufferGeometry() } },
+    planGeometry() {
+      return { geometry: new THREE.BufferGeometry() }
+    },
   })
   const render = () => api.updateBuildingsFrame(scene)
   const close = () => {
@@ -50,19 +56,29 @@ export async function naturalHutAdmission() {
     if (!event && ids.length) {
       const smoke = scene.buildingMeshes.get(hut.id).userData.hutOccupancySmoke
       event = {
-        turn: world.turn, counter: hut.counter, building: hut.id, residents: ids,
-        level: hut.level, pose: api.buildingPose(hut),
+        turn: world.turn,
+        counter: hut.counter,
+        building: hut.id,
+        residents: ids,
+        level: hut.level,
+        pose: api.buildingPose(hut),
         callbackRoot: structuredClone(smoke.state.root),
       }
     }
   })
-  for (let turn = 0; turn < 256 && !event; turn++) {
-    api.advanceGame(world, scene.gameClock, 1 / 12)
-    render()
+  try {
+    for (let turn = 0; turn < 256 && !event; turn++) {
+      api.advanceGame(world, scene.gameClock, 1 / 12)
+      render()
+    }
+    assert.ok(event, 'authored Mission2 must reach an ordinary residence admission')
+    return { ...fixture, hut, event }
+  } catch (error) {
+    fixture.close()
+    throw error
+  } finally {
+    stop()
   }
-  assert.ok(event, 'authored Mission2 must reach an ordinary residence admission')
-  stop()
-  return { ...fixture, hut, event }
 }
 
 export async function captureHutFirstVisits() {
@@ -86,5 +102,37 @@ export async function captureHutFirstVisits() {
     return { event, roots }
   } finally {
     close()
+  }
+}
+
+// Controlled supporting world; residents still use actual command8 admission.
+// No direct occupancy, resident slot, building counter or smoke state assignment.
+export async function fullHutScene() {
+  const api = await loadSceneFixture()
+  const world = api.createWorld()
+  world.manaWorld.gameFlags = 32 // Existing housing-entry population-isolation fixture.
+  world.units = world.units.filter(unit => unit.kind === 'shaman')
+  const hut = api.addBuilding(world, 'blue', 'hut', { x: -2, z: 32 }, true)
+  const fixture = await makeHutSmokeScene(world)
+  const residents = []
+  try {
+    fixture.render()
+    for (let index = 0; index < 3; index++) {
+      const person = api.addUnit(world, 'blue', 'brave', { x: 7, z: 33 })
+      residents.push(person)
+      world.selected = [person.id]
+      assert.ok(api.command(world, hut))
+      for (let turn = 0; turn < 180 && person.inside !== hut.id; turn++) {
+        api.advanceGame(world, fixture.scene.gameClock, 1 / 12)
+        fixture.render()
+      }
+      assert.equal(person.inside, hut.id, 'supporting resident must enter through command8')
+    }
+    const smoke = fixture.scene.buildingMeshes.get(hut.id).userData.hutOccupancySmoke
+    assert.equal(smoke.state.root.mode, 'full')
+    return { ...fixture, hut, residents, smoke }
+  } catch (error) {
+    fixture.close()
+    throw error
   }
 }
