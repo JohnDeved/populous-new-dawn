@@ -5110,3 +5110,10 @@ loop. The browser allocation adapter remains an explicit implementation gap.
 binds the level reset and record allocator to the corrected Mission 1–3 initial
 adapter contribution. It preserves a failed-before/passed-after native comparison
 and names the remaining primary-stream, secondary-list and render-RNG boundaries.
+
+## Building construction-gauge consumer — 2026-10-03
+
+[Bounded native/current comparison](research/building-construction-gauge.md) identifies
+the inherited Mission 3 Tower line, executes the staged mesh/overlay queue, and
+separates construction presentation from original person-health and activity panels.
+No full original-frame raster parity is claimed.
