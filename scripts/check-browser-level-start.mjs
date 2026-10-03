@@ -7,7 +7,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
-import { bindGame } from './browser-game.mjs'
+import { bindGame, showAllMissions } from './browser-game.mjs'
 const output=resolve(process.env.POPULOUS_LEVEL_START_OUTPUT??`work/orchestration/level-start-browser-${process.pid}`)
 mkdirSync(output,{recursive:true})
 const commit=execFileSync('git',['rev-parse','HEAD'],{encoding:'utf8'}).trim()
@@ -20,7 +20,9 @@ try {
   page.on('console',m=>{if(m.type()==='error')errors.push(m.text())})
   await page.addInitScript(()=>{window.requestAnimationFrame=()=>0})
   await page.goto(process.env.POPULOUS_URL??'http://localhost:3000',{waitUntil:'networkidle'})
-  await page.getByRole('button',{name:`Mission ${level}`,exact:true}).click()
+  await showAllMissions(page)
+  await page.getByRole('button',{name:`Mission ${level}`,exact:true}).focus()
+  await page.keyboard.press('Enter')
   await bindGame(page)
   const frames=[]
   for(const [label,turn] of [['before',0],['flyby-warmup',1],['shaman-pose',8],['terrain-conversion',24],['stones-rising',44],['after',80]]) {
