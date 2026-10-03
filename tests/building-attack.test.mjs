@@ -1,3 +1,4 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { attackCombatBuilding } from '../app/combat-building.ts'
@@ -27,12 +28,12 @@ test('an entirely occupied world cancels special positioning instead of hanging'
   assert.ok(probes > 0 && probes <= 65536)
 })
 
-import {createWorld,addBuilding,addUnit,command,tick} from '../app/model.ts'
+import {addBuilding,addUnit,command,tick} from '../app/model.ts'
 import {advanceGame} from '../app/game-clock.ts'
 import {currentPersonOrder} from '../app/person-orders.ts'
 
 function battlefield(occupied=false,kind='warrior'){
-  const w=createWorld();w.manaWorld.gameFlags=32;w.units=[];w.buildings=[];w.shrines=[];w.trees=[]
+  const w=createStartedWorld();w.manaWorld.gameFlags=32;retainFixtureUnits(w, () => false);w.buildings=[];w.shrines=[];w.trees=[]
   w.terrain.fill(3);w.terrainVersion++
   const b=addBuilding(w,'red','hut',{x:0,z:0}),u=addUnit(w,'blue',kind,{x:0,z:8})
   w.selected=[u.id];command(w,b)
@@ -134,7 +135,9 @@ test('cancelling or killing an attacker during its defender encounter releases t
     assert.equal(record.references,0)
     if(cancel){
       assert.equal(currentPersonOrder(w.buildingOrders,u.native).model,3)
-      assert.equal(currentPersonOrder(w.buildingOrders,defender.native).model,21)
+      // Native automatic response waits for the class scan-mask turn.
+      for(let i=0;i<4&&currentPersonOrder(w.buildingOrders,defender.native)?.model!==21;i++)advanceGame(w,clock,1/12)
+      assert.equal(currentPersonOrder(w.buildingOrders,defender.native)?.model,21)
     }else assert.equal(w.buildingOrders.active,0)
   }
 })

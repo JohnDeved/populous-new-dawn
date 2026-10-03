@@ -1,11 +1,12 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {createWorld,addUnit,command,tick,cancelInteraction} from '../app/model.ts'
+import {addUnit,command,tick,cancelInteraction} from '../app/model.ts'
 import {advanceGame} from '../app/game-clock.ts'
 import {currentPersonOrder} from '../app/person-orders.ts'
 
 function world(count=6,kind='brave'){
- const w=createWorld();w.units=[];w.buildings=[];w.shrines=[];w.trees=[];w.terrain.fill(3);w.terrainVersion++;w.manaWorld.gameFlags=32
+ const w=createStartedWorld();retainFixtureUnits(w, () => false);w.buildings=[];w.shrines=[];w.trees=[];w.terrain.fill(3);w.terrainVersion++;w.manaWorld.gameFlags=32
  for(let i=0;i<count;i++)addUnit(w,'blue',kind,{x:-25+i*.5,z:8})
  w.selected=w.units.map(u=>u.id);return w
 }

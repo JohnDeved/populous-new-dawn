@@ -215,6 +215,8 @@ export function makeFx(scene: GameScene, f: Effect) {
   sprite.userData.atlasTransform = new THREE.Vector4(1, 1, 0, 0)
   sprite.center.set(0.5, 0)
   if (f.smoke) sprite.material.color.setStyle(`rgb(${nativeEffects.buildingSmokeColor.join(',')})`)
+  if (f.sprite?.sequence === 'startStoneDust')
+    sprite.material.color.setStyle(`rgb(${nativeEffects.startStoneDustColor.join(',')})`)
   g.add(sprite)
   g.userData.sprite = sprite
   g.userData.sequence = sequence

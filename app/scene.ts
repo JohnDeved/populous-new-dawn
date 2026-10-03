@@ -5,12 +5,14 @@ import { renderBuildingPanels } from './building-panels.ts'
 import { createCameraMotion, createResultCamera } from './camera-motion.ts'
 import { type FlybyCamera } from './flyby.ts'
 import { FpsGraph } from './fps-graph.ts'
+import { levelStartCamera } from './level-start.ts'
 import { advanceGame } from './game-clock.ts'
 import { MinimapRenderer } from './minimap-renderer.ts'
 import {
   HOME,
   SPELLS,
   nativePosition,
+  browserPosition,
   type Building,
   type Effect,
   type Point,
@@ -221,6 +223,7 @@ export class GameScene {
   viewPoint: Point = HOME
   flybyCamera: FlybyCamera = { x: 17 * 256, y: -41 * 256, angle: 0, zoom: 0 }
   cameraBearing = 0
+  levelStartCameraSeeded = false
   flybyTime = 0
   wasFlying = false
   resultCamera = createResultCamera()
@@ -426,7 +429,16 @@ export class GameScene {
     this.rebuildTerrain()
     this.makeDecorations()
     this.makeShrines()
-    this.focus(this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman') ?? HOME)
+    const shaman = this.world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+    if (shaman && this.world.turn === 0 && this.world.levelStart?.some(site => site.tribe === 0)) {
+      const camera = levelStartCamera(
+        nativePosition(this.world, shaman),
+        this.world.manaWorld.gameFlags
+      )
+      this.cameraBearing = (camera.angle * Math.PI) / 1024
+      this.levelStartCameraSeeded = true
+      this.focus(browserPosition(camera))
+    } else this.focus(shaman ?? HOME)
     this.drawMinimap()
     this.resize = new ResizeObserver(() => this.setSize())
     this.resize.observe(container)

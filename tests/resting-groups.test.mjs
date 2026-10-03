@@ -1,6 +1,7 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import {createWorld,addUnit,command,tick,unitAnimationSource} from '../app/model.ts'
+import {addUnit,command,tick,unitAnimationSource} from '../app/model.ts'
 import {advanceGame} from '../app/game-clock.ts'
 import {createRestingSlots} from '../app/resting-slots.ts'
 import {idleSlotPosition} from '../app/person-idle.ts'
@@ -8,8 +9,8 @@ import {stepLiveResting} from '../app/live-resting.ts'
 import {objectsInCell} from '../app/object-cells.ts'
 
 function group(count) {
-  const w=createWorld()
-  w.units=[];w.buildings=[];w.trees=[];w.shrines=[];w.manaWorld.gameFlags=32
+  const w=createStartedWorld()
+  retainFixtureUnits(w, () => false);w.buildings=[];w.trees=[];w.shrines=[];w.manaWorld.gameFlags=32
   w.terrain.fill(3);w.terrainVersion++
   for(let i=0;i<count;i++)addUnit(w,'blue','brave',{x:0,z:8})
   w.selected=w.units.map(u=>u.id);command(w,{x:10,z:8})

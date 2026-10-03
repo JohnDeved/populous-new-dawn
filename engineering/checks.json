@@ -4066,6 +4066,220 @@
         "Hash-verified supplied EXE/adjacent assets",
         "Explicit native resource grant"
       ]
+    },
+    {
+      "cwd": ".",
+      "env": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "level-start-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Verify ordinary Mission1–3 startup, input release, terrain/conversion, restart, flyby skip and resumable checkpoints.",
+      "coveredBehavior": [
+        "Authored startup gates",
+        "Real terrain and replacement braves",
+        "Persisted staged sequence and no replay",
+        "Native Shaman pose clock and command18 input ownership"
+      ],
+      "knownLimits": [
+        "Browser pixels and native instruction comparisons run separately."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/level-start.test.mjs"
+      ],
+      "inputs": [
+        "app/level-start.ts",
+        "app/level-start-runtime.ts",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts",
+        "app/world-state.ts",
+        "app/selection-runtime.ts",
+        "app/game-store.ts",
+        "app/reincarnation.ts",
+        "app/scene-terrain-runtime.ts",
+        "app/scene-effects.ts",
+        "tests/level-start.test.mjs",
+        "app/scene.ts",
+        "app/scene-camera-runtime.ts",
+        "app/spell-casting.ts",
+        "app/live-people.ts",
+        "app/live-movement.ts"
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_PYTHON",
+        "POPULOUS_EXE"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "level-start-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Compare isolated original opening command, terrain wave, carriers, stones and conversion producers.",
+      "coveredBehavior": [
+        "Original EXE command18 phases and timer branches",
+        "Terrain mean, wave, orbit geometry and expiry",
+        "Carrier RNG and stone rise/sound",
+        "Replacement-brave conversion allocation",
+        "Fresh camera initializer and six-frame flyby warmup retain original coordinates/angle",
+        "One native person counter increment through command18 completion"
+      ],
+      "knownLimits": [
+        "Supplied allocation, registration, notification and animation leaves; not full original game execution."
+      ],
+      "executable": "$POPULOUS_PYTHON",
+      "args": [
+        "-B",
+        "scripts/check-native-level-start.py",
+        "$POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/level-start.ts",
+        "app/level-start-runtime.ts",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts",
+        "app/world-state.ts",
+        "app/selection-runtime.ts",
+        "app/game-store.ts",
+        "app/reincarnation.ts",
+        "app/scene-terrain-runtime.ts",
+        "app/scene-effects.ts",
+        "scripts/check-native-level-start.py",
+        "scripts/decomp.py",
+        "app/scene.ts",
+        "app/scene-camera-runtime.ts",
+        "app/spell-casting.ts",
+        "app/live-people.ts",
+        "app/live-movement.ts",
+        "scripts/check-native-formation-phase.py"
+      ],
+      "prerequisites": [
+        "Hash-matching supplied original EXE and adjacent mwsearch data",
+        "Explicit isolated native-execution authorization",
+        "Python with Unicorn and Capstone"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_PYTHON",
+        "POPULOUS_DATA_ROOT"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "level-start-static",
+      "kind": "static",
+      "automation": "safe",
+      "purpose": "Compare appended startup HFX frames and dust palette with original bytes.",
+      "coveredBehavior": [
+        "Model51 source1160 frames",
+        "Model58 source1240 frames",
+        "Original palette4 dust color"
+      ],
+      "knownLimits": [
+        "Not an original raster or browser comparison; append-preservation uses an optional captured baseline."
+      ],
+      "executable": "$POPULOUS_PYTHON",
+      "args": [
+        "-B",
+        "scripts/check-static-level-start.py",
+        "--data-root",
+        "$POPULOUS_DATA_ROOT"
+      ],
+      "inputs": [
+        "scripts/check-static-level-start.py",
+        "scripts/import-original.py",
+        "app/original-effects.json",
+        "public/original/effects.png",
+        "public/original/provenance.json"
+      ],
+      "prerequisites": [
+        "Supplied hash-matching original game data",
+        "Python with Pillow"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_URL",
+        "POPULOUS_LEVEL_START_OUTPUT"
+      ],
+      "sideEffects": [
+        "Writes screenshots and a commit-labelled JSON report to the requested output directory"
+      ],
+      "resources": [
+        "Serialized local Linux browser/server QA slot"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "level-start-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Capture real before/during/after Mission1–3 startup on the exact development commit.",
+      "coveredBehavior": [
+        "Natural mission button entry",
+        "Shipped scene/frame callback",
+        "Terrain, Shaman source520 and visible stone progression",
+        "Fresh native camera seed and flyby warmup"
+      ],
+      "knownLimits": [
+        "UI restart/checkpoint acceptance also requires corresponding portable/store checks; native evidence is separate."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/check-browser-level-start.mjs"
+      ],
+      "inputs": [
+        "app/level-start.ts",
+        "app/level-start-runtime.ts",
+        "app/world-initialization.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts",
+        "app/world-state.ts",
+        "app/selection-runtime.ts",
+        "app/game-store.ts",
+        "app/reincarnation.ts",
+        "app/scene-terrain-runtime.ts",
+        "app/scene-effects.ts",
+        "scripts/check-browser-level-start.mjs",
+        "scripts/browser-game.mjs",
+        "app/original-units.json",
+        "app/original-effects.json",
+        "app/scene.ts",
+        "app/scene-camera-runtime.ts",
+        "app/spell-casting.ts",
+        "app/live-people.ts",
+        "app/live-movement.ts"
+      ],
+      "prerequisites": [
+        "Reserved Linux HeadlessShell browser/server slot",
+        "Playwright Chromium with verified local launch wrapper",
+        "Unique output directory"
+      ]
     }
   ]
 }

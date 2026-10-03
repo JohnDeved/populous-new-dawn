@@ -242,7 +242,10 @@ test('1103 replacement preserves all person/order state on allocation exhaustion
 
 test('natural Chumara training reaches marker3 Preacher task, checkpoint phases and movement', () => {
   const world = createWorld(3)
-  until(world, () => world.ai.tasks.some(t => t.flags & 1 && t.type === 11 && t.phase === 4))
+  // Campaign scheduling can create phase4 and dispatch it to5 within one turn.
+  // Either observable boundary still leads to the exact state14 assertions below.
+  until(world, () => world.ai.tasks.some(t => t.flags & 1 && t.type === 11 &&
+    (t.phase === 4 || t.phase === 5)))
   const task = world.ai.tasks.find(t => t.flags & 1 && t.type === 11),
     id = task.entity
   const preacher = world.units.find(u => u.id === id)

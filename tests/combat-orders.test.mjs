@@ -1,3 +1,4 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {createHash} from 'node:crypto'
@@ -11,7 +12,7 @@ import {automaticMeleeTarget} from '../app/live-combat.ts'
 import {buildingCounterattack,cancelLiveBuildingAttack,startLiveCombatResponse} from '../app/live-building-combat.ts'
 import {createLivePerson,enterLiveCombat,syncLivePersonCells} from '../app/live-people.ts'
 import {startLiveOrders} from '../app/live-movement.ts'
-import {createWorld,addUnit,addBuilding,command,nativePosition,syncLandscapeObjects,tick,unitAnimationSource} from '../app/model.ts'
+import {addUnit,addBuilding,command,nativePosition,syncLandscapeObjects,tick,unitAnimationSource} from '../app/model.ts'
 
 const unsupported = () => {throw Error('Unexpected world consumer')}
 test('original automatic commands preserve normal queues, share one reference-counted record and handle allocation exhaustion', () => {
@@ -43,7 +44,7 @@ test('native scan dispatch preserves pending bits, suppression, specialist selec
 })
 
 function field() {
-  const w=createWorld();w.units=[];w.buildings=[];w.fights=[];w.terrain.fill(3);w.terrainVersion++;tick(w,1/6);w.turn=4
+  const w=createStartedWorld();retainFixtureUnits(w, () => false);w.buildings=[];w.fights=[];w.terrain.fill(3);w.terrainVersion++;tick(w,1/6);w.turn=4
   w.land.categories.fill(0);w.land.flags.fill(0);w.land.buildingIds.fill(0);w.land.owners.fill(0)
   return w
 }
@@ -98,7 +99,7 @@ test('coastal response targets come from the corrected native cell, including it
 })
 
 test('tower counterattacks ignore hostile people in water', () => {
-  const w=createWorld(2),tower=w.buildings.find(b=>b.team==='green'&&b.kind==='tower')
+  const w=createStartedWorld(2),tower=w.buildings.find(b=>b.team==='green'&&b.kind==='tower')
   for(let i=0;i<200&&!w.units.some(u=>u.inside===tower.id);i++)tick(w,1/12)
   const defender=addUnit(w,'green','warrior',{x:tower.x+2,z:tower.z}),
     hostile=addUnit(w,'blue','shaman',{x:tower.x+1,z:tower.z})
@@ -288,7 +289,7 @@ test('live automatic sharing leaves a nonmatching same-cell peer untouched', () 
 })
 
 test('live preacher response retains its sermon queue and resumes conversion', () => {
-  const w=createWorld();w.units=[];w.selected=[]
+  const w=createStartedWorld();retainFixtureUnits(w, () => false);w.selected=[]
   const preacher=addUnit(w,'blue','preacher',{x:2,z:0})
   for(let i=0;i<200&&!preacher.native;i++)tick(w,1/12)
   assert.equal(currentPersonOrder(w.buildingOrders,preacher.native)?.model,17)

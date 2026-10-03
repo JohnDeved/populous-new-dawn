@@ -1,3 +1,4 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { initializeRouteRecovery, stepRouteRecovery } from '../app/person-route-recovery.ts'
@@ -33,8 +34,8 @@ test('failed-route initialization and retries match native fields, timing and or
 })
 
 function islands(count = 6, kind = 'warrior', team = 'red') {
-  const w = createWorld()
-  Object.assign(w, { units: [], buildings: [], trees: [], shrines: [] })
+  const w = createStartedWorld()
+  retainFixtureUnits(w, () => false); Object.assign(w, { units: [], buildings: [], trees: [], shrines: [] })
   w.manaWorld.gameFlags = 96
   w.terrain.fill(0)
   for (let z = -9; z <= 9; z++) for (let x = -29; x <= 29; x++)

@@ -364,7 +364,10 @@
       "title": "Original Shaman appearance",
       "mappingStatus": "reviewed",
       "implementationPaths": [
-        "app/shaman-appearance.ts"
+        "app/shaman-appearance.ts",
+        "app/level-start.ts",
+        "app/level-start-runtime.ts",
+        "app/reincarnation.ts"
       ],
       "researchPaths": [
         "scripts/import-original.py",
@@ -377,7 +380,11 @@
         "scripts/check-native-shaman-appearance.py",
         "scripts/check-browser-shaman-appearance.mjs",
         "scripts/check-browser-sprite-layers.mjs",
-        "scripts/check-browser-reincarnation.mjs"
+        "scripts/check-browser-reincarnation.mjs",
+        "tests/level-start.test.mjs",
+        "scripts/check-native-level-start.py",
+        "scripts/check-static-level-start.py",
+        "scripts/check-browser-level-start.mjs"
       ],
       "sharedPaths": [
         "app/scene-entities.ts",
@@ -415,11 +422,15 @@
         },
         {
           "path": "decomp/README.md",
-          "heading": "Animated shaman portrait — 2026-09-09"
+          "heading": "Animated shaman portrait \u2014 2026-09-09"
         },
         {
           "path": "decomp/README.md",
-          "heading": "2026-09-12 — shaman reincarnation lifecycle"
+          "heading": "2026-09-12 \u2014 shaman reincarnation lifecycle"
+        },
+        {
+          "path": "decomp/research/level-start-sequence.md",
+          "heading": "Original level-start sequence (issue #20)"
         }
       ],
       "nativeAddresses": [
@@ -431,7 +442,11 @@
         "shaman-appearance-portable",
         "shaman-assets-static",
         "shaman-appearance-browser",
-        "shaman-appearance-native"
+        "shaman-appearance-native",
+        "level-start-portable",
+        "level-start-native",
+        "level-start-static",
+        "level-start-browser"
       ],
       "generatedInputIds": [
         "native-fixtures",

@@ -13,6 +13,8 @@ import type { GameScene } from './scene.ts'
 // First-mission cues; load these before enabling playback so combat doesn't wait on a fetch.
 export const AUDIO_CUES = [
   ...SELECTION_CUES,
+  5, // 0x4d7fd0: opening Wildman conversion
+  0x9e, // 0x50c780: opening terrain wave
   0x6a,
   0x6b,
   0x26,

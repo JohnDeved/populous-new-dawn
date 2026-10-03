@@ -1,3 +1,5 @@
+import { currentPersonOrder } from './person-orders.ts'
+import { changeLivePersonState } from './live-people.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import type { ManaTribe, ManaWorld, SpellStock } from './mana.ts'
 import { cellDistanceSquared, positionDistance } from './native-math.ts'
@@ -444,4 +446,8 @@ export function beginCast(w: World, u: Unit, spell: Spell, p: Point) {
   }
   u.casting = { spell, point: target, remaining: 6 / TURNS_PER_SECOND }
   castVoice(w, u, spell)
+  // 0x4c1b80 retains the opening order while its Shaman enters cast state22.
+  // Other legacy casting owners retain their existing handoff.
+  if (u.native && currentPersonOrder(w.buildingOrders, u.native)?.model === 18)
+    changeLivePersonState(w, u, 22)
 }

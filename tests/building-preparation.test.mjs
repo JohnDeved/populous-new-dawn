@@ -1,3 +1,4 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import level from './fixtures/building-level.json' with {type:'json'}
@@ -9,7 +10,7 @@ import {setPersonAnimation} from '../app/animation.ts'
 import sprites from '../app/original-units.json' with {type:'json'}
 import rules from '../app/original-rules.json' with {type:'json'}
 import {createMotionRoutes,setDirectPersonDestination} from '../app/person-routes.ts'
-import {createWorld,placeBuilding,tick,buildingPose,command,browserPosition,nativePosition} from '../app/model.ts'
+import {placeBuilding,tick,buildingPose,command,browserPosition,nativePosition} from '../app/model.ts'
 import {buildingGradeVertices,buildingFootprintCells} from '../app/building-shapes.ts'
 import {AUDIO_CUES} from '../app/audio.ts'
 import {currentPersonOrder} from '../app/person-orders.ts'
@@ -41,7 +42,7 @@ test('leveling movement, animation, timers, terrain and sound match complete nat
 test('live plans retain uneven ground, level visibly and wait for timber and crew clearance',()=>{
  assert.ok(AUDIO_CUES.includes(2))
  for(const kind of ['hut','camp'])for(let direction=0;direction<4;direction++){
-  const w=createWorld();w.manaWorld.gameFlags=32;w.unlockedCamp=true;w.buildingDirections[kind]=direction
+  const w=createStartedWorld();w.manaWorld.gameFlags=32;w.unlockedCamp=true;w.buildingDirections[kind]=direction
   w.selected=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').map(u=>u.id)
   const before=w.land.heights.slice(),seed=w.randomState
   assert.ok(placeBuilding(w,kind,{x:-2,z:32}))
@@ -81,7 +82,7 @@ test('live plans retain uneven ground, level visibly and wait for timber and cre
 })
 
 test('a full shared order pool leaves a new plan unstaffed without leaking ownership',()=>{
- const w=createWorld();w.manaWorld.gameFlags=32
+ const w=createStartedWorld();w.manaWorld.gameFlags=32
  const worker=w.units.find(u=>u.team==='blue'&&u.kind==='brave');w.selected=[worker.id]
  assert.ok(command(w,{x:worker.x+2,z:worker.z}));const previous=currentPersonOrder(w.buildingOrders,worker.native)
  for(const order of w.buildingOrders.records.slice(1))if(!order.references)order.references=1
@@ -94,7 +95,7 @@ test('a full shared order pool leaves a new plan unstaffed without leaking owner
 })
 
 test('simultaneous fetch deposits cap preparation work and preserve surplus timber',()=>{
- const w=createWorld();w.manaWorld.gameFlags=32
+ const w=createStartedWorld();w.manaWorld.gameFlags=32
  const workers=w.units.filter(u=>u.team==='blue'&&u.kind==='brave').slice(0,2)
  w.selected=workers.map(u=>u.id);assert.ok(placeBuilding(w,'hut',{x:-2,z:32}))
  const b=w.buildings.at(-1);assert.ok(b.preparation);b.preparation.work=0;b.logs=0
@@ -110,13 +111,13 @@ test('simultaneous fetch deposits cap preparation work and preserve surplus timb
 })
 
 test('unattended plans expire and redirected leveling workers release their sprite and route',()=>{
- const w=createWorld();w.manaWorld.gameFlags=32
- w.units=w.units.filter(u=>u.kind!=='brave')
+ const w=createStartedWorld();w.manaWorld.gameFlags=32
+ retainFixtureUnits(w, u=>u.kind!=='brave')
  assert.ok(placeBuilding(w,'hut',{x:-2,z:32}))
  const b=w.buildings.at(-1);assert.ok(b.preparation);assert.ok(!b.builders.some(Boolean))
  b.preparation.timeout=50;b.counter=127;tick(w,1/12)
  assert.ok(!w.buildings.includes(b));assert.ok(!w.land.buildingIds.some(id=>(id&1023)===b.id))
- const v=createWorld();v.manaWorld.gameFlags=32;v.selected=v.units.filter(u=>u.kind==='brave'&&u.team==='blue').map(u=>u.id)
+ const v=createStartedWorld();v.manaWorld.gameFlags=32;v.selected=v.units.filter(u=>u.kind==='brave'&&u.team==='blue').map(u=>u.id)
  assert.ok(placeBuilding(v,'hut',{x:-2,z:32}))
  const plan=v.buildings.at(-1)
  for(let n=0;n<1000&&!v.units.some(u=>u.builder?.task===8);n++)tick(v,1/12)
@@ -126,7 +127,7 @@ test('unattended plans expire and redirected leveling workers release their spri
 })
 
 test('native preparation clears on-site timber before allocation without deleting its resource',()=>{
- const w=createWorld();w.manaWorld.gameFlags=32
+ const w=createStartedWorld();w.manaWorld.gameFlags=32
  w.selected=w.units.filter(u=>u.kind==='brave'&&u.team==='blue').map(u=>u.id)
  assert.ok(placeBuilding(w,'hut',{x:-2,z:32}))
  const b=w.buildings.at(-1),i=buildingFootprintCells(buildingPose(b))[0]
