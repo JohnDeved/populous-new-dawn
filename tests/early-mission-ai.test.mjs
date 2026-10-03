@@ -67,7 +67,9 @@ test('Mission 3 naturally grows both tribes and recruits the authored three-Brav
   assert.deepEqual(restored.ai.tasks, w.ai.tasks)
   for (let i = 0; i < 100; i++) { tick(w, 1 / 12); tick(restored, 1 / 12) }
   assert.deepEqual(restored.ai.tasks, w.ai.tasks)
-  assert.equal(restored.randomSeed, w.randomSeed)
+  assert.equal(typeof restored.randomState, 'number')
+  assert.equal(typeof w.randomState, 'number')
+  assert.equal(restored.randomState, w.randomState)
   assert.equal(w.ai.tasks.filter(task => task.flags & 1 && task.type === 20).length, 1)
   assert.equal(raid.members.length, 3)
   const members = raid.members.map(id => w.units.find(unit => unit.id === id))

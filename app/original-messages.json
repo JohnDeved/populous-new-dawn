@@ -355,6 +355,10 @@
     "38": {
       "stringId": 553,
       "text": "The people in this Hut are producing Mana. A full Hut breeds new Followers more quickly than an empty one.  "
+    },
+    "107": {
+      "stringId": 650,
+      "text": "One of your Followers is being charmed by the false words of the Enemy Preacher. Be quick Shaman and use the Swarm spell to stop him!"
     }
   }
 }

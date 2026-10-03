@@ -1,5 +1,5 @@
 """Import message/tooltip text, native string IDs and interface artwork.
-Usage: python3 scripts/import-messages.py /path/to/extracted/game [--messages-only]
+Usage: python3 scripts/import-messages.py /path/to/extracted/game [--messages-only | --message NUMBER]
 """
 import hashlib
 import importlib.util
@@ -21,6 +21,26 @@ def read(address,size):
 lang=(source/'language/lang00.dat').read_bytes()
 assert len(lang)%2==0 and lang.endswith(b'\0\0')
 strings=lang.decode('utf-16le').split('\0')[:-1]
+
+# A newly bound campaign command may need one message without regenerating
+# unrelated scripts, profiles, images, tooltips or sky assets.
+if '--message' in sys.argv[2:]:
+    if len(sys.argv) != 4 or sys.argv[2] != '--message':
+        raise SystemExit('Use --message NUMBER alone after the game directory')
+    number = int(sys.argv[3])
+    if not 0 <= number < 256:
+        raise ValueError('Message number must be in 0..255')
+    output = ROOT / 'app/original-messages.json'
+    existing = json.loads(output.read_text())
+    assert existing['executableSha256'] == identity['sha256']
+    assert existing['sha256']['language/lang00.dat'] == hashlib.sha256(lang).hexdigest()
+    string_id = struct.unpack('<H', read(0x5ae310 + number * 2, 2))[0]
+    assert 0 <= string_id < len(strings)
+    existing['messages'][str(number)] = {'stringId': string_id, 'text': strings[string_id]}
+    output.write_text(json.dumps(existing, indent=2) + '\n')
+    print(f'Imported campaign message {number}, original string {string_id}; other entries retained')
+    raise SystemExit(0)
+
 messages={}
 for script_name,opcode in [
     ('original-script.json',1176),

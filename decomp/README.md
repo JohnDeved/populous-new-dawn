@@ -253,6 +253,9 @@ recorded in the [Mission 3 opening note](research/mission3-opening.md).
 The complete periodic three-Brave raid block and its natural recruitment/combat
 path are documented in [early mission AI](research/early-mission-ai.md); later
 Mission 3 command blocks and rendered acceptance remain separate.
+The state-23 listener warning is documented separately in
+[Mission 3 anti-preaching notification](research/mission3-preaching-message.md),
+including the scoped original message-107 import and one-shot checkpoint path.
 Its ordinary one-shot Chumara conversion is documented in the
 [Mission 3 Convert Wild note](research/mission3-convert-wild.md).
 
