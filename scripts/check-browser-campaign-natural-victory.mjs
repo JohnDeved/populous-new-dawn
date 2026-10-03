@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
 
+const swarmOnly = process.argv.includes('--mission3-swarm-only')
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
 const wrapped = value => ((value + 128) % 256 + 256) % 256 - 128
 
@@ -473,8 +474,10 @@ async function castAt(page, spell, collection, id, required = true) {
   await page.getByRole('button', { name: new RegExp(`^${spell}, `) }).click()
   await page.mouse.click(target.x, target.y)
   await advance(page, 1)
-  const accepted = (await state(page)).shots[shot] === before - 1
-  if (required) assert.ok(accepted, `${spell} cast was accepted`)
+  const after = (await state(page)).shots[shot],
+    accepted = after === before - 1
+  if (required)
+    assert.ok(accepted, `${spell} cast was accepted: ${JSON.stringify({ target, before, after })}`)
   return accepted
 }
 
@@ -677,15 +680,31 @@ async function missionTwo(page) {
   await advanceUntil(page, { type: 'status', status: 'won' }, 5000, 'natural Mission 2 victory')
 }
 
-async function missionThree(page) {
-  const vault = await worship(page, 'vault', 'shaman')
+async function swarmDiagnostic(page) {
+  return page.evaluate(async () => {
+    const { missionThreeSwarmDiagnostic } = await import('/scripts/campaign-swarm-target.mjs')
+    return missionThreeSwarmDiagnostic(globalThis.testScene.world)
+  })
+}
+
+async function missionThreeSwarm(page) {
+  await worship(page, 'vault', 'shaman')
   await advanceUntil(page, { type: 'unlocked-temple' }, 10_000, 'Mission 3 Temple knowledge')
-  let snapshot = await state(page)
-  const swarmTarget = nearest(
-    snapshot.units.filter(unit => unit.team === 'yellow' && unit.kind !== 'shaman'),
-    snapshot.shrines.find(shrine => shrine.id === vault.id)
-  )
-  await castAt(page, 'Swarm', 'units', swarmTarget.id)
+  const before = await swarmDiagnostic(page)
+  assert.ok(before.target, `No eligible Mission 3 Swarm target: ${JSON.stringify(before)}`)
+  try {
+    // spellPoint/castAt also validate the actual terrain pick, then use the spell
+    // button and mouse click. Eligibility must never spend a shot speculatively.
+    await castAt(page, 'Swarm', 'units', before.target.id)
+  } catch (error) {
+    assert.fail(`${error.message}: ${JSON.stringify({ before, after: await swarmDiagnostic(page) })}`)
+  }
+  console.log(`Mission 3 Swarm input: ${JSON.stringify({ before, after: await swarmDiagnostic(page) })}`)
+}
+
+async function missionThree(page) {
+  await missionThreeSwarm(page)
+  let snapshot
 
   const temple = await build(page, 'temple', 'Temple, 8 wood', { x: 24, z: 70 })
   await advanceUntil(
@@ -859,38 +878,44 @@ async function missionThree(page) {
 }
 
 try {
-  const { page, errors } = await openGame(browser, 2)
+  const { page, errors } = await openGame(browser, swarmOnly ? 3 : 2)
   page.setDefaultTimeout(20_000)
   await suspendOwnedFrame(page)
-  await missionTwo(page)
-  await advanceOutcome(page)
-  assert.equal(
-    await page.evaluate(() => globalThis.testStore.getCompletedMissions().includes(2)),
-    true,
-    'Mission 2 victory is recorded in the campaign profile'
-  )
-  await page.getByRole('button', { name: 'Continue to Mission 3', exact: false }).click()
-  await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 3)
-  await page.waitForFunction(
-    () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
-  )
-  await page.evaluate(() => {
-    globalThis.testScene = globalThis.testSceneRef.current
-  })
-  await page.waitForFunction(() => globalThis.testScene.world.flyby.flags & 1)
-  await page.keyboard.press('Escape')
-  await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
-  await suspendOwnedFrame(page)
-  await missionThree(page)
-  await advanceOutcome(page)
-  assert.equal(
-    await page.evaluate(() => globalThis.testStore.getCompletedMissions().includes(3)),
-    true,
-    'Mission 3 victory is recorded in the campaign profile'
-  )
-  await page.getByRole('button', { name: 'Continue to Mission 4', exact: false }).waitFor()
-  assert.deepEqual(errors, [])
-  console.log('PASS: rendered player actions win Mission 2, continue, and naturally win Mission 3')
+  if (swarmOnly) {
+    await missionThreeSwarm(page)
+    assert.deepEqual(errors, [])
+    console.log('PASS: focused Mission 3 Vault and Swarm rendered input (not full campaign acceptance)')
+  } else {
+    await missionTwo(page)
+    await advanceOutcome(page)
+    assert.equal(
+      await page.evaluate(() => globalThis.testStore.getCompletedMissions().includes(2)),
+      true,
+      'Mission 2 victory is recorded in the campaign profile'
+    )
+    await page.getByRole('button', { name: 'Continue to Mission 3', exact: false }).click()
+    await page.waitForFunction(() => globalThis.testStore.getWorld().outcome.level === 3)
+    await page.waitForFunction(
+      () => globalThis.testSceneRef.current?.world === globalThis.testStore.getWorld()
+    )
+    await page.evaluate(() => {
+      globalThis.testScene = globalThis.testSceneRef.current
+    })
+    await page.waitForFunction(() => globalThis.testScene.world.flyby.flags & 1)
+    await page.keyboard.press('Escape')
+    await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
+    await suspendOwnedFrame(page)
+    await missionThree(page)
+    await advanceOutcome(page)
+    assert.equal(
+      await page.evaluate(() => globalThis.testStore.getCompletedMissions().includes(3)),
+      true,
+      'Mission 3 victory is recorded in the campaign profile'
+    )
+    await page.getByRole('button', { name: 'Continue to Mission 4', exact: false }).waitFor()
+    assert.deepEqual(errors, [])
+    console.log('PASS: rendered player actions win Mission 2, continue, and naturally win Mission 3')
+  }
 } finally {
   await browser.close()
 }
