@@ -53,8 +53,23 @@ phases, real command3 movement, one paid cast, nine actual conversions, populati
 and the authored state OFF transition; the world remains playing. Those counts and
 turns are observations of that browser-model run, not an original timing oracle.
 
-Natural checkpoint/RNG assertions, two unhooked timeout/driver comparisons and the
-rendered checker are prepared next. Full standard gates, combined original-startup
+The subsequent signed-position correction enables the next generic-search task.
+At `bdea490`, the retained natural trace shows a stocked cast139, another task190,
+a mana-paid cast205 with stock0, and population17/OFF223; no new allocation or
+cast occurs through700. Both casts precede OFF in this scenario. The earlier
+one-cast total was a shortcut/adapter assumption, not a native acceptance rule.
+`004f4de0` supplies the mana price when payment type is not3, including empty stock.
+
+The target probe now covers55 cases, including exact integer-distance boundaries:
+`Math.hypot(20,99)` rounds below101 in this runtime, whereas native integer-square
+`fast_sqrt` returns101. The port uses squared integer input to `Math.sqrt` instead.
+Eight controlled phase8 cases and two unhooked timeout/driver cases plus an
+unhooked assigned-fighting-Shaman cancellation pass. Three failure-first adapter
+regressions cover the actual fight person, signed coordinates and caster flags2.
+
+Natural checkpoint/RNG and rendered assertions now preserve the original stocked
+cast, subsequent mana payment and stable cutoff, rather than requiring one total
+cast. Their final gates and the rendered checker remain pending. Full standard gates, combined original-startup
 validation and fresh source review remain required. The rendered checker uses
 normal tick progression with diagnostic camera focus and actual mesh-pixel
 contribution; it must not be represented as realtime or hardware performance.
