@@ -67,6 +67,12 @@ ignored `work/orchestration/`. Leave `.openai/hosting.json` untouched.
 
 ## Delegation
 
+Workers and reviewers must use the Local Dev plugin for repository work. Treat the
+Local Dev project/worktree binding as authoritative; do not substitute a generic
+chat, cloud work task, browser automation, or another checkout. The parent must
+repeat this requirement in every worker and reviewer assignment, alongside the
+mandatory Codex CLI final-handoff instruction.
+
 Small tasks stay with the parent. Delegate only a bounded, independent question or
 a fresh review:
 

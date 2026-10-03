@@ -18,6 +18,7 @@ export type ComputerTask = {
   damage: number
   retries: number
   retreatPercent: number
+  spells?: number[]
   quotas: number[]
   members: number[]
   route: MarkerEntry[]
@@ -54,6 +55,7 @@ export function createComputerQueue(): ComputerQueue {
       damage: 0,
       retries: 0,
       retreatPercent: 0,
+      spells: [0, 0, 0],
       quotas: [],
       members: [],
       route: Array.from({ length: 4 }, () => ({ marker: 0, secondary: 0, quotas: [0, 0, 0, 0] })),
@@ -266,7 +268,8 @@ export function requestAttack(
   retreatPercent: number,
   enabled: boolean,
   maximum: number,
-  entity = 0
+  entity = 0,
+  spells: number[] = []
 ) {
   if (!enabled || ai.tasks.filter(t => t.flags & 1 && t.type === 20).length >= maximum) return
   const task = ai.tasks.find(t => !(t.flags & 1))
@@ -289,6 +292,7 @@ export function requestAttack(
     damage: 0,
     retries: 0,
     retreatPercent: retreatPercent & 255,
+    spells: Array.from({ length: 3 }, (_, index) => (spells[index] ?? 0) & 255),
     quotas: quotas.slice(0, 6).map(n => n & 255),
     members: [],
   })
@@ -423,6 +427,7 @@ export function releaseSelection(ai: ComputerQueue, index: number) {
 export type AttackInput = {
   staging: number
   select: (model: number, count: number, destination: number) => number[]
+  selectShaman?: () => number | null
   settled: () => boolean | null
   memberWithin: (target: number, radius: number) => number | null
   ready: () => boolean
@@ -432,6 +437,7 @@ export type AttackInput = {
   entity?: (id: number) => AttackTarget | null
   tracking?: (id: number) => boolean
   reacquire?: () => AttackTarget | null
+  taskSpell?: (models: readonly number[], target: number) => number | null
 }
 export type AttackTarget = { id: number; target: number; direct?: boolean; contained?: boolean }
 export type AttackAction =
@@ -467,11 +473,18 @@ export function stepAttackTask(
   }
   if (task.phase === 3) {
     while (task.remaining < 6) {
-      const model = task.remaining + 2,
-        count = Math.min(
-          100,
-          Math.trunc(((task.quotas[task.remaining++] ?? 0) * task.requested) / 100)
-        )
+      const slot = task.remaining++,
+        quota = task.quotas[slot] ?? 0,
+        model = slot + 2
+      if (model === 7 && input.selectShaman) {
+        if (!quota) continue
+        const id = input.selectShaman()
+        if (id === null) continue
+        task.members.push(id)
+        task.selected++
+        return [{ kind: 'select' as const, id }]
+      }
+      const count = Math.min(100, Math.trunc((quota * task.requested) / 100))
       if (!count) continue
       const ids = input.select(model, count, input.staging)
       task.members.push(...ids)
@@ -499,6 +512,15 @@ export function stepAttackTask(
     return [{ kind: 'move', target: input.staging, replace: true }]
   }
   if (task.phase === 6) {
+    const spells = task.spells ?? []
+    if (spells.some(Boolean) && input.taskSpell) {
+      const model = input.taskSpell(spells, task.target)
+      if (model !== null) {
+        const slot = spells.indexOf(model)
+        if (slot >= 0) spells[slot] = 0
+      }
+      return actions
+    }
     task.elapsed += ai.tasks.filter(t => t.flags & 1).length
     const settled = input.settled()
     if (settled === null) {

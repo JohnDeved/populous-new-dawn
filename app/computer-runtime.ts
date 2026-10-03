@@ -53,15 +53,24 @@ import {
   stepMarkerTask,
   stepShamanGuardTask,
   stepTrainingTask,
+  type ComputerTask,
   type TrainingBuilding,
 } from './computer.ts'
 import { missionData } from './mission-data.ts'
 import rules from './original-rules.json' with { type: 'json' }
-import { spellCaster, beginCast } from './spell-casting.ts'
+import {
+  beginCast,
+  canShamanCast,
+  computerSpellAllowed,
+  computerSpellInRange,
+  spellCaster,
+  spellPaymentType,
+} from './spell-casting.ts'
 import { clearLivePath } from './live-pathfinding.ts'
 import { nativeCellPoint } from './world-coordinates.ts'
 import {
   castShoreBlast,
+  chooseSpellTarget,
   processComputerSpells,
   type SpellTargetUnit,
   type SpellTargetWorld,
@@ -603,6 +612,66 @@ export function computerMarkerOrderCount(
   return count
 }
 
+function allocateComputerSpell(w: World, u: Unit, model: number, cell: number) {
+  const spell = SPELLS.find(s => s.model === model)
+  if (!spell) throw new Error(`Unimplemented computer spell effect ${model}`)
+  clearLivePath(w, u)
+  beginCast(w, u, spell.id, nativeCellPoint(cell))
+  const fightingPerson = u.fight?.motion
+  if (fightingPerson && (fightingPerson.state === 25 || fightingPerson.state === 29)) {
+    u.native = fightingPerson
+    changeLivePersonState(w, u, 22)
+    u.fight = null
+  }
+}
+
+function castAttackTaskSpell(w: World, tribe: number, task: ComputerTask) {
+  const models = task.spells ?? []
+  if (!models.some(Boolean)) return null
+  const team = campaignTeam(w, tribe),
+    shaman = w.units.find(u => u.team === team && isShaman(u) && u.hp > 0)
+  if (!shaman) return null
+  const person = combatPerson(shaman),
+    casting = w.castingTribes[tribe],
+    caster = {
+      ...spellCaster(w, shaman),
+      ...person,
+      landIndex: person.vehicle,
+      casting,
+      playerType: w.manaTribes[tribe].playerType,
+    }
+  if (shaman.casting) caster.flags4 |= 0x400
+  let model = 0
+  for (const candidate of models) {
+    if (!candidate || candidate === 6 || candidate === 19) continue
+    if (computerSpellAllowed(casting, w.ai.flags, w.manaWorld.gameFlags, candidate)) {
+      model = candidate
+      break
+    }
+  }
+  if (!model || !canShamanCast(casting, caster.playerType, caster)) return null
+  const stock = w.manaWorld.spells[tribe],
+    payment = spellPaymentType(w.manaWorld.gameFlags, casting.flags, stock, model)
+  if (payment !== 3 && w.manaTribes[tribe].mana < rules.spellCharging[model].cost) return null
+  const position = nativePosition(w, shaman),
+    shamanCell = ((position.x >>> 8) & 254) | (position.y & 0xfe00),
+    center = person.state === 25 || person.state === 29 ? shamanCell : task.target & 65535
+  if (
+    !computerSpellInRange(
+      w.manaWorld.gameFlags,
+      casting.flags,
+      { ...caster, x: person.x, y: person.y },
+      center,
+      model
+    )
+  )
+    return null
+  const target = chooseSpellTarget(computerSpellWorld(w, tribe), model, center, null)
+  if (!target.accepted) return null
+  allocateComputerSpell(w, shaman, model, target.cell)
+  return model
+}
+
 export function stepComputerTasks(w: World, tribe: number) {
   const level = missionData(w.outcome.level).level
   const phase = computerPhase(w.turn, tribe)
@@ -869,6 +938,20 @@ export function stepComputerTasks(w: World, tribe: number) {
           entity: id => campaignAttackEntity(w, id),
           tracking: id => computerAttackHasOrder(w, index, 28, id),
           reacquire: () => campaignAttackTarget(w, tribe === 0 ? campaignTribe(w) : 0),
+          selectShaman: () => {
+            if (!shaman) return null
+            const source = unitAnimationSource(shaman) ?? shaman.native
+            if (source?.computerAssignment) return null
+            if (
+              w.ai.tasks.some(
+                (other, otherIndex) =>
+                  otherIndex !== index && !!(other.flags & 1) && other.members.includes(shaman.id)
+              )
+            )
+              return null
+            return shaman.id
+          },
+          taskSpell: () => castAttackTaskSpell(w, tribe, task),
           select: (model, count, destination) => {
             const current = (selection ??= computerSelectionWorld(w, tribe)),
               ids = selectComputerPeople(current.world, model, model, -1, 1, destination, 7, count)
@@ -1075,18 +1158,7 @@ export function stepComputerSpells(w: World, tribe = campaignTribe(w)) {
   const world = computerSpellWorld(w, tribe),
     categoryFlags = (cell: number) =>
       rules.terrainCategoryFlags[w.land.categories[nativeCellIndex(cell)] & 15]
-  const allocate = (model: number, cell: number) => {
-    const spell = SPELLS.find(s => s.model === model)
-    if (!spell) throw new Error(`Unimplemented computer spell effect ${model}`)
-    clearLivePath(w, u!)
-    beginCast(w, u!, spell.id, nativeCellPoint(cell))
-    const fightingPerson = u!.fight?.motion
-    if (fightingPerson && (fightingPerson.state === 25 || fightingPerson.state === 29)) {
-      u!.native = fightingPerson
-      changeLivePersonState(w, u!, 22)
-      u!.fight = null
-    }
-  }
+  const allocate = (model: number, cell: number) => allocateComputerSpell(w, u!, model, cell)
   // The live person owns native action flags; browser casting has no native record yet.
   if (caster && u?.casting) caster.flags4 |= 0x400
   const shore = castShoreBlast(

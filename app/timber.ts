@@ -1,12 +1,15 @@
 import rules from './original-rules.json' with { type: 'json' }
 
 // 0x4a8e20: starting an approach reserves a timber share and resets its 64-turn timer.
-export function reserveTimber(tree: {
-  flags4?: number
-  wood?: number
-  reservations?: number
-  reservationTimer?: number
-}, wood = tree.wood ?? 0) {
+export function reserveTimber(
+  tree: {
+    flags4?: number
+    wood?: number
+    reservations?: number
+    reservationTimer?: number
+  },
+  wood = tree.wood ?? 0
+) {
   if ((tree.flags4 ?? 0) & 0x100000) return
   tree.reservationTimer = 64
   tree.reservations = ((tree.reservations ?? 0) + 1) & 255

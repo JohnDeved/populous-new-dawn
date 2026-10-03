@@ -162,7 +162,7 @@ test('multiple heads keep separate state while30/60/120/144Hz and irregular sche
 test('shipped scene updates ordinary head positions byphase and leaves Vault on the existing path', () => {
   const scene = readFileSync(new URL('../app/scene-entities.ts', import.meta.url), 'utf8')
   assert.ok(scene.includes('position.copyArray(stoneHeadPositions(frame))'))
-  assert.ok(scene.includes('!!stone || shrine.active'))
+  assert.match(scene, /!!stone\s*\|\|\s*shrine\.active/)
   assert.ok(scene.includes('} else if (shrine.morph) {'))
   const clock = readFileSync(new URL('../app/game-clock.ts', import.meta.url), 'utf8')
   assert.ok(clock.indexOf('animateStoneHeads(w)') > clock.indexOf('animateLiveObjects(w)'))

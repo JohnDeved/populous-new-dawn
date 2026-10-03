@@ -138,9 +138,24 @@ node /absolute/source/scripts/orchestration/command-receipt.mjs \
 
 ## Local Dev closeout checklist
 
-There is currently no Local Dev `project_close` command. Closing is therefore an
-explicit binding switch, followed by verification. Perform this only after all source
-work, commits, pushes, and PR updates are complete.
+A project switch is **not** an ownership-release acknowledgment. The current Local
+Dev session implementation can retain every previously selected project while the
+run remains active; a second client may still receive `PROJECT_IN_USE` even though
+`project_current` shows a neutral directory. A source-free path and a caller-supplied
+`--bundle-preflight open` do not prove that an independent reviewer can acquire it.
+
+The repository helper currently has no authenticated runtime acquisition result to
+verify. It therefore reports path observations separately (`sourceUnbound` and
+`bundleUnbound`), and reports unknown release as `null`, not `true`. When paths are
+otherwise valid it returns `status: "unverified"`,
+`releaseVerification: "not-performed"` and reason
+`INDEPENDENT_RELEASE_NOT_VERIFIED` (CLI exit 2). Known overlapping paths still fail
+with their specific diagnostics. No override flag can turn this missing evidence
+into success. This is a fail-closed reporting repair, **not** the live ownership fix.
+
+Perform the following observations only after all source work, commits, pushes and
+PR updates are complete; they remain necessary but insufficient for a released
+handoff until a supported runtime release/acquisition protocol is integrated.
 
 1. Generate and locally verify the review bundle.
 2. Use Local Dev `project_open` on the **bundle directory**. This is the reviewer-open
@@ -148,7 +163,8 @@ work, commits, pushes, and PR updates are complete.
    reviewable yet.
 3. Run `node verify.mjs` while the bundle is the active Local Dev project.
 4. Use Local Dev `project_open` with a unique disposable closeout slug and
-   `onMissing: "temporary"`. This releases both the source worktree and bundle.
+   `onMissing: "temporary"`. This changes the active path only; it does not prove
+   release of the source worktree or bundle.
 5. Call Local Dev `project_current`. The active path must overlap neither the source
    project nor the bundle.
 6. Run the deterministic check, supplying the path returned by `project_current`:
@@ -163,9 +179,27 @@ node /absolute/source/scripts/orchestration/worker-closeout.mjs \
   --complete true
 ```
 
-The command must return `status: "passed"` before the final worker reply. A stale
-source binding yields `PROJECT_STILL_BOUND`; a stale bundle binding yields
-`REVIEW_BUNDLE_STILL_BOUND`.
+The current command cannot produce a verified release: do not repeatedly rerun it
+or fabricate a proof to obtain `status: "passed"`. Preserve its exit-2 receipt,
+disclose the release dependency, and finish the user-visible handoff truthfully.
+A stale active source path yields `PROJECT_STILL_BOUND`; a stale active bundle path
+yields `REVIEW_BUNDLE_STILL_BOUND`. A different path yields `unverified`, not a claim
+that the old Local Dev reservation disappeared.
+
+`--complete true` does not override this dependency or produce `DONE`. Release
+verification and useful work readiness remain separate: meaningful authorized work
+is still `IN_PROGRESS`, and review-ready partial work remains `NEEDS_REVIEW` while
+release fields stay `null` and the CLI still exits 2. Otherwise the unresolved
+required handoff yields `BLOCKED`. A denial classification cannot turn release
+into a pass, but it must not erase legitimate partial-work readiness either.
+
+The required future success condition is a supported runtime relinquishment followed
+by a second independently identified client acquiring the same canonical project
+and expected source head, with process cleanup and session ownership verified.
+Read-only reviewers must coexist, active writers must remain exclusive, stale/dead
+owners must be reconciled, and release status must be generated from the completed
+acquisition rather than a worker-provided Boolean. This repository patch does not
+implement, install or claim those backend capabilities.
 
 If review is not needed because there is no tracked change, skip bundle creation but
 still switch Local Dev to a unique temporary closeout project and verify with

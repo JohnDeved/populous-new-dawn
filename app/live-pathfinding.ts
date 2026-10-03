@@ -105,8 +105,7 @@ export function planLivePath(
   try {
     const planned = planDestination(w, u, p, nativePosition(w, end), probeOnly)
     if (probeOnly) return planned ? p : null
-    const vehicleRoute =
-      p.motionGroup && !!(w.motionRoutes.records[p.motionGroup * 109 + 2] & 3)
+    const vehicleRoute = p.motionGroup && !!(w.motionRoutes.records[p.motionGroup * 109 + 2] & 3)
     if (
       !(p.flags4 & 0x10000000) &&
       (vehicleRoute || liveRoutePoints(w, p).every(point => supportsFollower(w, point)))
@@ -345,32 +344,28 @@ function advanceLiveRoute(w: World, p: LivePerson) {
       tribes: w.manaTribes.map(t => ({ playerType: t.playerType })),
       cellObjects: (cell: number) => liveVehicleCellObjects(w, cell),
     }
-  advancePersonRoute(
-    { routes: w.motionRoutes, vehicles, people: w.pathfinding.people },
-    p,
-    {
-      boarding: (person, cell) => boardingVehicle(vehicleWorld, person, cell),
-      board: (person, vehicle) => boardLiveVehicle(w, person as LivePerson, vehicle as Vehicle),
-      routeAvailable: person =>
-        routeVehicleAvailable(w.motionRoutes, person, cell =>
-          boardingVehicle(vehicleWorld, person, cell)
-        ),
-      approach: (vehicle, to) => vehicleCanApproach(vehicleWorld, vehicle, to),
-      alternativeLanding: (vehicle, to) => {
-        const landing = findVehicleLanding(vehicleWorld, w.indexedSearch, vehicle, to)
-        return landing.found ? landing.point : null
-      },
-      landingBlocked: to =>
-        !!p.vehicle && !vehicleCanDisembark(vehicleWorld, vehicles.get(p.vehicle)!, to),
-      prepareLanding: (vehicle, to) => {
-        vehicle.turnAngle = to.x
-        vehicle.turnY = to.y
-      },
-      leaveVehicle: (vehicle, person, to) =>
-        leaveLiveVehicle(w, vehicle as Vehicle, person as LivePerson, to),
-      clearOrders: person => releasePersonRoute(w.motionRoutes, person),
-    }
-  )
+  advancePersonRoute({ routes: w.motionRoutes, vehicles, people: w.pathfinding.people }, p, {
+    boarding: (person, cell) => boardingVehicle(vehicleWorld, person, cell),
+    board: (person, vehicle) => boardLiveVehicle(w, person as LivePerson, vehicle as Vehicle),
+    routeAvailable: person =>
+      routeVehicleAvailable(w.motionRoutes, person, cell =>
+        boardingVehicle(vehicleWorld, person, cell)
+      ),
+    approach: (vehicle, to) => vehicleCanApproach(vehicleWorld, vehicle, to),
+    alternativeLanding: (vehicle, to) => {
+      const landing = findVehicleLanding(vehicleWorld, w.indexedSearch, vehicle, to)
+      return landing.found ? landing.point : null
+    },
+    landingBlocked: to =>
+      !!p.vehicle && !vehicleCanDisembark(vehicleWorld, vehicles.get(p.vehicle)!, to),
+    prepareLanding: (vehicle, to) => {
+      vehicle.turnAngle = to.x
+      vehicle.turnY = to.y
+    },
+    leaveVehicle: (vehicle, person, to) =>
+      leaveLiveVehicle(w, vehicle as Vehicle, person as LivePerson, to),
+    clearOrders: person => releasePersonRoute(w.motionRoutes, person),
+  })
 }
 
 // 0x4e6d00 advances routes after the position/cell update. Velocity and task

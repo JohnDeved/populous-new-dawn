@@ -27,18 +27,25 @@ export function originalVehicleTextureTile(tile: number, team: Team) {
 
 const uvCache = new Map<string, Float32Array>()
 export function originalVehicleUV(model: number, team: Team) {
-  const id = originalVehicleMesh(model), key = `${id}:${team}`
+  const id = originalVehicleMesh(model),
+    key = `${id}:${team}`
   const cached = uvCache.get(key)
   if (cached) return cached
-  const data = models[id], uv: number[] = []
+  const data = models[id],
+    uv: number[] = []
   for (let face = 0, vertex = 0; face < data.tiles.length; face++) {
     const count = data.faces[face * 2] === 3 ? 3 : 6
     if (modelFaceVisible(data, face, 4)) {
-      const source = data.tiles[face], target = originalVehicleTextureTile(source, team)
+      const source = data.tiles[face],
+        target = originalVehicleTextureTile(source, team)
       for (let corner = 0; corner < count; corner++) {
-        const u = data.uv[(vertex + corner) * 2], v = data.uv[(vertex + corner) * 2 + 1]
-        const localU = u * 8 - (source & 7), localV = (1 - v) * 32 - (source >> 3)
-        uv.push(...modelTextureUV(target, ((target & 7) + localU) / 8, 1 - ((target >> 3) + localV) / 32))
+        const u = data.uv[(vertex + corner) * 2],
+          v = data.uv[(vertex + corner) * 2 + 1]
+        const localU = u * 8 - (source & 7),
+          localV = (1 - v) * 32 - (source >> 3)
+        uv.push(
+          ...modelTextureUV(target, ((target & 7) + localU) / 8, 1 - ((target >> 3) + localV) / 32)
+        )
       }
     }
     vertex += count

@@ -30,7 +30,11 @@ const reincarnation = Object.fromEntries(
   Object.entries(appearances).map(([team, appearance], tribe) => [
     team,
     [
-      { source: 680 + appearance.sourceOffset, directions: requiredSource(680 + appearance.sourceOffset), layerOwner: -1 },
+      {
+        source: 680 + appearance.sourceOffset,
+        directions: requiredSource(680 + appearance.sourceOffset),
+        layerOwner: -1,
+      },
       { source: 352, directions: requiredSource(352), layerOwner: tribe },
       { source: 360, directions: requiredSource(360), layerOwner: tribe },
     ],

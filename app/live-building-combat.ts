@@ -544,7 +544,11 @@ function stepAreaAttack(
     const fireTarget = p.substate === 11 ? building : target
     if (!fireTarget) return true
     if (p.animationMode === 40) {
-      if (!p.stateObject || !w.effects.some(effect => effect.id === p.stateObject) || --p.timer < 1) {
+      if (
+        !p.stateObject ||
+        !w.effects.some(effect => effect.id === p.stateObject) ||
+        --p.timer < 1
+      ) {
         Object.assign(p, { animationMode: 0, stateObject: 0, timer: 0 })
         u.fighting = false
         return true

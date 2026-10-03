@@ -115,14 +115,15 @@ export function stepFirewarriorShots(w: World) {
       // ponytail: this slice proves the ordinary Brave result. Add the native
       // target table, splash, protection, and LOS as those live paths land.
       const source = w.units.find(unit => unit.id === shot.source && unit.hp > 0),
-        damaged = unit && applyUnitDamage(
-          unit,
-          (shot.tower ? 25 : 10) * (shot.bloodlust ? constants.BLOODLUST_DAMAGE_X : 1)
-        )
+        damaged =
+          unit &&
+          applyUnitDamage(
+            unit,
+            (shot.tower ? 25 : 10) * (shot.bloodlust ? constants.BLOODLUST_DAMAGE_X : 1)
+          )
       if (damaged && source) {
         const attacker = tribeForTeam(source.team),
-          person =
-            unit.fight?.motion ?? unit.native ?? unit.entry?.person ?? unit.builder?.person
+          person = unit.fight?.motion ?? unit.native ?? unit.entry?.person ?? unit.builder?.person
         unit.damageAttacker = attacker
         if (person) person.damageAttacker = attacker
       }

@@ -133,9 +133,7 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
   if (
     !order ||
-    ![3, 6, 7, 8, 10, 11, 15, 16, 17, 19, 21, 22, 25, 27, 28, 30, 31, 32, 33].includes(
-      order.model
-    )
+    ![3, 6, 7, 8, 10, 11, 15, 16, 17, 19, 21, 22, 25, 27, 28, 30, 31, 32, 33].includes(order.model)
   )
     unsupported()
   const state = {
@@ -188,7 +186,10 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
     },
     canStayForTarget: unsupported,
     leaveBuilding: person => {
-      leaveLiveBuilding(w, w.units.find(u => u.id === person.id)!)
+      leaveLiveBuilding(
+        w,
+        w.units.find(u => u.id === person.id)!
+      )
     },
     resetVehicleMovement: id => {
       const vehicle = w.vehicles.find(v => v.id === id)
@@ -395,8 +396,7 @@ export function startLiveOrder(w: World, u: Unit, id: number) {
 export function cancelLiveOrder(w: World, u: Unit) {
   const p = u.native ?? u.flight ?? u.fight?.motion ?? u.builder?.person
   const model = p && currentPersonOrder(w.buildingOrders, p)?.model
-  if (!p || !model || ![3, 6, 7, 15, 16, 17, 22, 27, 28, 30, 31, 32, 33].includes(model))
-    return
+  if (!p || !model || ![3, 6, 7, 15, 16, 17, 22, 27, 28, 30, 31, 32, 33].includes(model)) return
   if ([17, 31, 32].includes(model)) releasePreacherVictims(w, p, p.commandAux || 3)
   clearPersonOrders(w.buildingOrders, p, orderEffects(w))
   releasePersonRoute(w.motionRoutes, p)

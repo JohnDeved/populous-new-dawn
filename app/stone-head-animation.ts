@@ -17,8 +17,8 @@ export type StoneHeadSource = { triggerIndex: number; sceneryIndex: number }
 const sourceCache = new Map<number, Map<string, StoneHeadSource>>()
 const key = (p: Point) => `${p.x}:${p.z}`
 const cell = (p: Point) =>
-  (((Math.round((p.x + 8) * 256) & 65535) >>> 9) |
-    (((Math.round((-p.z - 8) * 256) & 65535) >>> 9) << 7))
+  ((Math.round((p.x + 8) * 256) & 65535) >>> 9) |
+  (((Math.round((-p.z - 8) * 256) & 65535) >>> 9) << 7)
 
 // 004851e0: a linked class6/model2 grant-mode3 sets trigger flag0x20, then the
 // colocated class5/model9 is linked. Modes3/5 override that family in004fbd20.
@@ -37,18 +37,34 @@ export function originalStoneHeadSource(mission: number, point: Point): StoneHea
       )
       if (!links.some(o => o?.type === 6 && o.model === 2 && o.settings?.[2] === 3)) continue
       const scenery = objects.find(o => o.type === 5 && o.model === 9 && cell(o) === cell(trigger))
-      if (scenery) sources.set(key(trigger), { triggerIndex: trigger.index, sceneryIndex: scenery.index })
+      if (scenery)
+        sources.set(key(trigger), { triggerIndex: trigger.index, sceneryIndex: scenery.index })
     }
     sourceCache.set(mission, sources)
   }
   return sources.get(key(point)) ?? null
 }
 
-export function createStoneHeadAnimation(enabled: boolean, source: StoneHeadSource): StoneHeadAnimation {
+export function createStoneHeadAnimation(
+  enabled: boolean,
+  source: StoneHeadSource
+): StoneHeadAnimation {
   const state: StoneHeadAnimation = {
-    ...source, family: 45, enabled, holdFrame: 1,
-    object: 45, draw: 4, morph: 1, palette: 0, renderFlags: 0,
-    f1: 0, f2: 0, stamp: 0, flags3: 0, morphTimer: 0, morphFrames: 0,
+    ...source,
+    family: 45,
+    enabled,
+    holdFrame: 1,
+    object: 45,
+    draw: 4,
+    morph: 1,
+    palette: 0,
+    renderFlags: 0,
+    f1: 0,
+    f2: 0,
+    stamp: 0,
+    flags3: 0,
+    morphTimer: 0,
+    morphFrames: 0,
   }
   setAnimationObject(state, 4, 45)
   state.morph = data.morphIndex
@@ -122,18 +138,26 @@ export function stoneHeadRawPoints(frame: number) {
     throw new RangeError(`Invalid original Stone Head frame: ${frame}`)
   const segment = data.segments.find(s => frame >= s.first && frame <= s.last)!
   const keys: Record<string, number[]> = data.keypoints
-  const from = keys[segment.from], to = keys[segment.to]
-  return from.map((value, i) => morphCoordinate(value, to[i], frame - segment.first, segment.duration))
+  const from = keys[segment.from],
+    to = keys[segment.to]
+  return from.map((value, i) =>
+    morphCoordinate(value, to[i], frame - segment.first, segment.duration)
+  )
 }
 
 const frameCache = new Map<number, Float32Array>()
 export function stoneHeadPositions(frame: number) {
   let positions = frameCache.get(frame)
   if (!positions) {
-    const points = stoneHeadRawPoints(frame), scale = data.scale * 3
-    positions = new Float32Array(data.visiblePointIndices.flatMap(index => [
-      points[index * 3] / scale, points[index * 3 + 1] / scale, -points[index * 3 + 2] / scale,
-    ]))
+    const points = stoneHeadRawPoints(frame),
+      scale = data.scale * 3
+    positions = new Float32Array(
+      data.visiblePointIndices.flatMap(index => [
+        points[index * 3] / scale,
+        points[index * 3 + 1] / scale,
+        -points[index * 3 + 2] / scale,
+      ])
+    )
     frameCache.set(frame, positions)
   }
   return positions

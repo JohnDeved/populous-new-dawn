@@ -14,14 +14,22 @@ import { spiralCell } from '../app/native-math.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { campaignInternal, withCampaignTribe } from '../app/campaign-runtime.ts'
 import { stepComputerTasks } from '../app/computer-runtime.ts'
+import { createComputerQueue, requestAttack, stepAttackTask } from '../app/computer.ts'
+import { createLivePerson } from '../app/live-people.ts'
 
 test('Mission 6 keeps both original opponents distinct through outcome and checkpoints', () => {
   assert.equal(
     levelSix.sourceSha256,
     '264d69d98965465325a4b0e6ec1b1f9145d2a407e68ca9472e6a76a60a1a8a62'
   )
-  assert.equal(scriptSix.tribes[2].sha256, '7ee29a7c5e3f49bee4e2a40c1ef0bf5b1796d082dd3396e1a5a85900c917cb1a')
-  assert.equal(scriptSix.tribes[3].sha256, '01dcc425abaf6bf9680e1d62cede2d5c3a0de9739631d69516d810bc424b8e60')
+  assert.equal(
+    scriptSix.tribes[2].sha256,
+    '7ee29a7c5e3f49bee4e2a40c1ef0bf5b1796d082dd3396e1a5a85900c917cb1a'
+  )
+  assert.equal(
+    scriptSix.tribes[3].sha256,
+    '01dcc425abaf6bf9680e1d62cede2d5c3a0de9739631d69516d810bc424b8e60'
+  )
 
   const world = createWorld(6)
   assert.deepEqual(
@@ -88,13 +96,23 @@ test('Mission 6 credits each opponent attack task independently', () => {
     tasks = [world.campaignAIs[2].tasks[0], world.campaignAIs[3].tasks[0]]
   world.manaTribes[2].active = world.manaTribes[3].active = false
   for (let i = 0; i < 2; i++) {
-    Object.assign(tasks[i], { flags: 1, type: 20, phase: 16, members: [attackers[i].id], damage: 0 })
+    Object.assign(tasks[i], {
+      flags: 1,
+      type: 20,
+      phase: 16,
+      members: [attackers[i].id],
+      damage: 0,
+    })
     victims[i].hp = 1
     joinBattle(world, attackers[i], victims[i])
   }
-  for (let turn = 0; turn < 240 && victims.some(victim => victim.hp > 0); turn++) tick(world, 1 / 12)
+  for (let turn = 0; turn < 240 && victims.some(victim => victim.hp > 0); turn++)
+    tick(world, 1 / 12)
   assert.ok(victims.every(victim => victim.hp === 0))
-  assert.deepEqual(tasks.map(task => task.damage), [1, 1])
+  assert.deepEqual(
+    tasks.map(task => task.damage),
+    [1, 1]
+  )
 })
 
 test('Mission 6 low-population survivors counterattack the player Shaman', () => {
@@ -118,7 +136,10 @@ test('Mission 6 low-population survivors counterattack the player Shaman', () =>
     assert.equal(world.manaTribes[tribe].flags2 & 0x40, 0x40)
 
     const order = currentPersonOrder(world.buildingOrders, survivor.native)
-    assert.deepEqual(order && { model: order.model, target: order.a }, { model: 28, target: shaman.id })
+    assert.deepEqual(order && { model: order.model, target: order.a }, {
+      model: 28,
+      target: shaman.id,
+    })
     for (let turn = 0; turn < 64 && !survivor.fight; turn++) tick(world, 1 / 12)
     assert.ok(Math.hypot(survivor.x - start.x, survivor.z - start.z) > 0)
     assert.ok(survivor.fight)
@@ -179,15 +200,15 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
 
   for (
     let turn = 0;
-    turn < 10000 &&
-    !restored.campaignAIs[2].tasks.some(task => task.flags & 1 && task.type === 20);
+    turn < 10000 && !restored.campaignAIs[2].tasks.some(task => task.flags & 1 && task.type === 20);
     turn++
   )
     tick(restored, 1 / 12)
   const attack = restored.campaignAIs[2].tasks.find(task => task.flags & 1 && task.type === 20)
-  assert.deepEqual(restored.campaignAIs[2].attributes.slice(6, 17), [
-    12, 20, 0, 3, 25, 0, 80, 30, 2, 2, 0,
-  ])
+  assert.deepEqual(
+    restored.campaignAIs[2].attributes.slice(6, 17),
+    [12, 20, 0, 3, 25, 0, 80, 30, 2, 2, 0]
+  )
   assert.ok(withCampaignTribe(restored, 2, () => campaignInternal(restored, 1147)) > 4)
   assert.ok(withCampaignTribe(restored, 2, () => campaignInternal(restored, 1148)) > 2)
   assert.deepEqual(
@@ -209,16 +230,12 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
     raiding.campaignAIs[2].tasks.filter(task => task.flags & 1 && task.type === 20).length,
     1
   )
-  for (let turn = 0; turn < 64 && restoredAttack.members.length < 4; turn++)
-    tick(raiding, 1 / 12)
+  for (let turn = 0; turn < 64 && restoredAttack.members.length < 4; turn++) tick(raiding, 1 / 12)
   assert.deepEqual(
-    restoredAttack.members
-      .map(id => raiding.units.find(unit => unit.id === id)?.kind)
-      .sort(),
+    restoredAttack.members.map(id => raiding.units.find(unit => unit.id === id)?.kind).sort(),
     ['preacher', 'warrior', 'warrior', 'warrior']
   )
-  for (let turn = 0; turn < 3000 && restoredAttack.phase !== 16; turn++)
-    tick(raiding, 1 / 12)
+  for (let turn = 0; turn < 3000 && restoredAttack.phase !== 16; turn++) tick(raiding, 1 / 12)
   assert.equal(restoredAttack.phase, 16)
   const preacherId = restoredAttack.members.find(
       id => raiding.units.find(unit => unit.id === id)?.kind === 'preacher'
@@ -242,7 +259,9 @@ test('Mission 6 Chumara trains Preachers and launches its first mixed raid', () 
   converting.units = converting.units.filter(unit => unit.id === preacherId)
   syncLivePersonCells(converting)
   const knownIds = new Set(converting.units.map(unit => unit.id)),
-    conversionPoint = browserPosition(convertingPreacher.native ?? convertingPreacher.fight?.motion),
+    conversionPoint = browserPosition(
+      convertingPreacher.native ?? convertingPreacher.fight?.motion
+    ),
     victim = addUnit(converting, 'blue', 'brave', {
       x: conversionPoint.x + 1,
       z: conversionPoint.z,
@@ -279,7 +298,10 @@ test('Mission 6 opponents expand and Matak launches its first Warrior raid', () 
     tick(failed, 1 / 12)
   failed.units = failed.units.filter(unit => unit.team !== 'green' || unit.kind !== 'brave')
   for (let turn = 0; turn < 4; turn++) tick(failed, 1 / 12)
-  assert.equal(failed.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 0), false)
+  assert.equal(
+    failed.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 0),
+    false
+  )
   assert.equal(
     failed.buildings.some(building => building.team === 'green' && buildingModel(building) === 4),
     false
@@ -287,15 +309,22 @@ test('Mission 6 opponents expand and Matak launches its first Warrior raid', () 
 
   let world = createWorld(6)
   for (let turn = 0; turn < 60; turn++) tick(world, 1 / 12)
-  assert.equal(world.campaignAIs[2].tasks.some(task => task.flags & 1 && task.type === 0), false)
-  assert.equal(world.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 0), false)
+  assert.equal(
+    world.campaignAIs[2].tasks.some(task => task.flags & 1 && task.type === 0),
+    false
+  )
+  assert.equal(
+    world.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 0),
+    false
+  )
 
   tick(world, 1 / 12)
   const matak = world.campaignAIs[3].tasks.find(task => task.flags & 1 && task.type === 0)
-  assert.deepEqual(
-    matak && { model: matak.requested, origin: matak.origin, phase: matak.phase },
-    { model: 4, origin: 0x72d8, phase: 0 }
-  )
+  assert.deepEqual(matak && { model: matak.requested, origin: matak.origin, phase: matak.phase }, {
+    model: 4,
+    origin: 0x72d8,
+    phase: 0,
+  })
   tick(world, 1 / 12)
   const chumara = world.campaignAIs[2].tasks.find(task => task.flags & 1 && task.type === 0)
   assert.deepEqual(
@@ -305,7 +334,8 @@ test('Mission 6 opponents expand and Matak launches its first Warrior raid', () 
 
   for (
     let turn = 0;
-    turn < 32 && [2, 3].some(tribe => !world.campaignAIs[tribe].tasks.some(task => task.phase === 8));
+    turn < 32 &&
+    [2, 3].some(tribe => !world.campaignAIs[tribe].tasks.some(task => task.phase === 8));
     turn++
   )
     tick(world, 1 / 12)
@@ -315,7 +345,9 @@ test('Mission 6 opponents expand and Matak launches its first Warrior raid', () 
   assert.ok(
     tasks.every(task => {
       const building = world.buildings.find(building => building.id === task.entity)
-      return building && buildingModel(building) === 4 && building.builders.filter(Boolean).length === 2
+      return (
+        building && buildingModel(building) === 4 && building.builders.filter(Boolean).length === 2
+      )
     })
   )
 
@@ -335,7 +367,8 @@ test('Mission 6 opponents expand and Matak launches its first Warrior raid', () 
   assert.ok(
     ['yellow', 'green'].every(team =>
       world.buildings.some(
-        building => building.team === team && buildingModel(building) === 4 && building.progress === 1
+        building =>
+          building.team === team && buildingModel(building) === 4 && building.progress === 1
       )
     )
   )
@@ -370,8 +403,8 @@ test('Mission 6 opponents expand and Matak launches its first Warrior raid', () 
     world.campaignAIs[3].tasks.find(task => task.phase === 8 && task.requested === 1),
   ]
   assert.deepEqual(
-    expansionTasks.map(task =>
-      task && { model: task.requested, workers: task.members.length, origin: task.origin }
+    expansionTasks.map(
+      task => task && { model: task.requested, workers: task.members.length, origin: task.origin }
     ),
     [
       { model: 7, workers: 2, origin: tasks[0].target },
@@ -404,7 +437,9 @@ test('Mission 6 opponents expand and Matak launches its first Warrior raid', () 
   const recovering = migrateCheckpoint(structuredClone(world)),
     recoveringAI = recovering.campaignAIs[3],
     recoveringTask = recoveringAI.tasks.find(task => task.entity === expansionTasks[1].entity),
-    recoveringBuilding = recovering.buildings.find(building => building.id === recoveringTask.entity),
+    recoveringBuilding = recovering.buildings.find(
+      building => building.id === recoveringTask.entity
+    ),
     recoveringIndex = recoveringAI.tasks.indexOf(recoveringTask)
   recoveringAI.tasks.forEach(task => {
     if (task !== recoveringTask) task.flags = 0
@@ -438,7 +473,9 @@ test('Mission 6 opponents expand and Matak launches its first Warrior raid', () 
 
   const redirected = migrateCheckpoint(structuredClone(world)),
     redirectedAI = redirected.campaignAIs[2],
-    redirectedCamp = redirected.buildings.find(building => building.id === expansionTasks[0].entity),
+    redirectedCamp = redirected.buildings.find(
+      building => building.id === expansionTasks[0].entity
+    ),
     redirectedWorker = redirected.units.find(unit => unit.id === expansionTasks[0].members[0]),
     warriorsBefore = redirected.units.filter(
       unit => unit.team === 'yellow' && unit.kind === 'warrior'
@@ -517,11 +554,215 @@ test('Mission 6 opponents expand and Matak launches its first Warrior raid', () 
   const raiding = migrateCheckpoint(structuredClone(world)),
     restoredAttack = raiding.campaignAIs[3].tasks.find(task => task.flags & 1 && task.type === 20)
   assert.ok(restoredAttack)
-  for (let turn = 0; turn < 64 && restoredAttack.members.length < 5; turn++)
-    tick(raiding, 1 / 12)
+  for (let turn = 0; turn < 64 && restoredAttack.members.length < 5; turn++) tick(raiding, 1 / 12)
   assert.equal(restoredAttack.members.length, 5)
   assert.deepEqual(
     restoredAttack.members.map(id => raiding.units.find(unit => unit.id === id)?.kind).sort(),
-    ['brave', 'warrior', 'warrior', 'warrior', 'warrior']
+    ['shaman', 'warrior', 'warrior', 'warrior', 'warrior']
+  )
+  const matakShaman = raiding.units.find(unit => unit.team === 'green' && unit.kind === 'shaman')
+  assert.ok(matakShaman)
+  assert.ok(restoredAttack.members.includes(matakShaman.id))
+  assert.equal(matakShaman.native?.state, 14)
+})
+
+test('Mission 6 ATTACK snapshots the native three-spell payload and keeps old tasks compatible', () => {
+  const ai = createComputerQueue(),
+    payload = [12, 3, 2]
+  requestAttack(ai, 0x80ce, 0, 5, 128, [0, 10, 20, 0, 0, 0], 20, true, 1, 77, payload)
+  const task = ai.tasks[0]
+  assert.deepEqual(task.spells, [12, 3, 2])
+  payload[0] = 8
+  assert.deepEqual(task.spells, [12, 3, 2], 'task must snapshot ATTACK spell operands')
+
+  task.phase = 6
+  task.fallback = 18
+  const seen = [],
+    input = {
+      staging: 0,
+      select: () => [],
+      settled: () => true,
+      memberWithin: () => null,
+      ready: () => true,
+      activeMembers: () => 1,
+      targetsRemain: () => true,
+      random: () => 0,
+      taskSpell: (models, target) => {
+        seen.push({ models: [...models], target })
+        return null
+      },
+    }
+  assert.deepEqual(stepAttackTask(ai, 0, input), [])
+  assert.equal(
+    task.phase,
+    6,
+    'a retained task spell must retry rather than skip the native phase-6 hook'
+  )
+  assert.deepEqual(task.spells, [12, 3, 2], 'failed allocation must not consume a task spell')
+  assert.deepEqual(seen, [{ models: [12, 3, 2], target: 0x80ce }])
+
+  input.taskSpell = models => models[0]
+  assert.deepEqual(stepAttackTask(ai, 0, input), [])
+  assert.equal(task.phase, 6)
+  assert.deepEqual(task.spells, [0, 3, 2], 'successful allocation consumes only the selected model')
+
+  delete task.spells
+  task.phase = 6
+  assert.deepEqual(stepAttackTask(ai, 0, { ...input, taskSpell: undefined }), [])
+  assert.equal(
+    task.phase,
+    18,
+    'legacy checkpoints without the task-spell field keep prior phase-6 behavior'
+  )
+})
+
+test('type-20 sixth ATTACK quota selects exactly the tribe Shaman outside the generic selector', () => {
+  const ai = createComputerQueue(),
+    generic = [],
+    shamanSelections = []
+  requestAttack(ai, 0x80ce, 0, 5, 128, [0, 88, 12, 0, 0, 1], 20, true, 1, 77, [12, 3, 2])
+  const input = {
+    staging: 0x72d8,
+    select: (model, count) => {
+      generic.push({ model, count })
+      return model === 3 ? [101, 102, 103, 104].slice(0, count) : []
+    },
+    selectShaman: () => {
+      shamanSelections.push(9)
+      return 9
+    },
+    settled: () => true,
+    memberWithin: () => null,
+    ready: () => true,
+    activeMembers: () => 5,
+    targetsRemain: () => true,
+    random: () => 0,
+  }
+  stepAttackTask(ai, 0, input)
+  assert.equal(ai.tasks[0].phase, 3)
+  stepAttackTask(ai, 0, input)
+  assert.deepEqual(ai.tasks[0].members, [101, 102, 103, 104])
+  stepAttackTask(ai, 0, input)
+  assert.deepEqual(ai.tasks[0].members, [101, 102, 103, 104, 9])
+  assert.equal(ai.tasks[0].selected, 5)
+  assert.deepEqual(shamanSelections, [9])
+  assert.equal(
+    generic.some(call => call.model === 7),
+    false
+  )
+  stepAttackTask(ai, 0, input)
+  assert.equal(ai.tasks[0].phase, 4)
+  assert.deepEqual(generic.at(-1), { model: -1, count: 0 })
+})
+
+test('Mission 6 first Matak ATTACK retains source-derived Land Bridge, Lightning, Blast order', () => {
+  const world = createWorld(6)
+  for (
+    let turn = 0;
+    turn < 15000 && !world.campaignAIs[3].tasks.some(task => task.flags & 1 && task.type === 20);
+    turn++
+  )
+    tick(world, 1 / 12)
+  const attack = world.campaignAIs[3].tasks.find(task => task.flags & 1 && task.type === 20)
+  assert.deepEqual(
+    attack && { requested: attack.requested, damage: attack.extra, spells: attack.spells },
+    { requested: 5, damage: 128, spells: [12, 3, 2] }
+  )
+  const restored = migrateCheckpoint(structuredClone(world)),
+    restoredAttack = restored.campaignAIs[3].tasks.find(task => task.flags & 1 && task.type === 20)
+  assert.deepEqual(restoredAttack?.spells, [12, 3, 2])
+})
+
+function missionSixTaskSpellFixture({
+  mana = 70000,
+  stock = 0,
+  state = 17,
+  targetOffset = 0,
+  usageBlocked = false,
+} = {}) {
+  const world = createWorld(6),
+    ai = world.campaignAIs[3],
+    shaman = world.units.find(unit => unit.team === 'green' && unit.kind === 'shaman'),
+    position = nativePosition(world, shaman),
+    source = ((position.x >>> 8) & 254) | (position.y & 0xfe00),
+    target = (((source & 255) + targetOffset) & 254) | (source & 0xfe00)
+  ai.tasks.forEach(task => (task.flags = 0))
+  Object.assign(ai.tasks[0], {
+    flags: 1,
+    type: 20,
+    phase: 6,
+    target,
+    fallback: 18,
+    spells: [12, 3, 2],
+    members: [],
+  })
+  ai.cursor = 0
+  world.turn = 0
+  world.manaTribes[3].mana = mana
+  world.manaWorld.spells[3].stocks[12] = stock
+  shaman.native = createLivePerson(world, shaman)
+  shaman.native.state = state
+  if (usageBlocked) {
+    ai.flags |= 0x40000
+    for (const model of [12, 3, 2])
+      world.castingTribes[3].spells[model].used = rules.spellCharging[model].normalLimit
+  }
+  return { world, ai, shaman, source, target }
+}
+
+test('Mission 6 phase-6 task Shaman uses native payment, eligibility, usage and range gates', () => {
+  for (const payment of [
+    { mana: 70000, stock: 0, expectedAvailable: -40000 },
+    { mana: 0, stock: 1, expectedAvailable: 30000 },
+  ]) {
+    const { world, ai, source } = missionSixTaskSpellFixture(payment)
+    withCampaignTribe(world, 3, () => stepComputerTasks(world, 3))
+    const bridge = world.projectiles.find(projectile => projectile.spell === 'bridge')
+    assert.ok(bridge)
+    assert.equal(((bridge.destination.x >>> 8) & 254) | (bridge.destination.y & 0xfe00), source)
+    assert.deepEqual(ai.tasks[0].spells, [0, 3, 2])
+    assert.equal(world.manaTribes[3].mana, payment.mana)
+    assert.equal(world.manaTribes[3].available, payment.expectedAvailable)
+    assert.equal(world.manaWorld.spells[3].stocks[12] & 15, 0)
+  }
+
+  const cooling = missionSixTaskSpellFixture()
+  cooling.world.castingTribes[3].cooldown = 1
+  withCampaignTribe(cooling.world, 3, () => stepComputerTasks(cooling.world, 3))
+  assert.equal(
+    cooling.world.projectiles.some(projectile => projectile.spell === 'bridge'),
+    false
+  )
+  assert.deepEqual(cooling.ai.tasks[0].spells, [12, 3, 2])
+
+  const blocked = missionSixTaskSpellFixture({ usageBlocked: true })
+  withCampaignTribe(blocked.world, 3, () => stepComputerTasks(blocked.world, 3))
+  assert.equal(blocked.world.projectiles.length, 0)
+  assert.deepEqual(blocked.ai.tasks[0].spells, [12, 3, 2])
+
+  const outOfRange = missionSixTaskSpellFixture({ state: 10, targetOffset: 80 })
+  withCampaignTribe(outOfRange.world, 3, () => stepComputerTasks(outOfRange.world, 3))
+  assert.equal(outOfRange.world.projectiles.length, 0)
+  assert.deepEqual(outOfRange.ai.tasks[0].spells, [12, 3, 2])
+})
+
+test('Mission 6 phase-6 task spell uses task target outside Shaman states 25/29', () => {
+  for (const state of [25, 29]) {
+    const { world, ai, source } = missionSixTaskSpellFixture({ state, targetOffset: 2 })
+    withCampaignTribe(world, 3, () => stepComputerTasks(world, 3))
+    const bridge = world.projectiles.find(projectile => projectile.spell === 'bridge')
+    assert.ok(bridge)
+    assert.equal(((bridge.destination.x >>> 8) & 254) | (bridge.destination.y & 0xfe00), source)
+    assert.deepEqual(ai.tasks[0].spells, [0, 3, 2])
+  }
+
+  const normal = missionSixTaskSpellFixture({ state: 10, targetOffset: 2 })
+  withCampaignTribe(normal.world, 3, () => stepComputerTasks(normal.world, 3))
+  const bridge = normal.world.projectiles.find(projectile => projectile.spell === 'bridge')
+  assert.ok(bridge)
+  assert.equal(
+    ((bridge.destination.x >>> 8) & 254) | (bridge.destination.y & 0xfe00),
+    normal.target,
+    'ordinary state-10 Shaman must cast at the ATTACK task target'
   )
 })

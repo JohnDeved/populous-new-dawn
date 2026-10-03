@@ -63,11 +63,22 @@ export function assessProjectRelease({
         ? 'REVIEW_BUNDLE_PROJECT_IN_USE'
         : 'REVIEW_BUNDLE_PREFLIGHT_NOT_VERIFIED'
     )
+  const pathStatus = reasons.length ? 'failed' : 'passed',
+    sourceUnbound = !pathsOverlap(active, source),
+    bundleUnbound = bundle ? !pathsOverlap(active, bundle) : null
+  // A neutral path proves only this caller's active binding. Local Dev may still
+  // retain the old reservation; neither a path nor a caller-supplied "open" string
+  // proves that a second client acquired it. Keep unknown ownership explicit.
+  if (pathStatus === 'passed') reasons.push('INDEPENDENT_RELEASE_NOT_VERIFIED')
   return {
-    status: reasons.length ? 'failed' : 'passed',
+    status: pathStatus === 'passed' ? 'unverified' : 'failed',
+    pathStatus,
     reasons,
-    sourceReleased: !pathsOverlap(active, source),
-    bundleReleased: bundle ? !pathsOverlap(active, bundle) : null,
+    sourceUnbound,
+    bundleUnbound,
+    sourceReleased: sourceUnbound ? null : false,
+    bundleReleased: bundleUnbound === false ? false : null,
+    releaseVerification: 'not-performed',
     reviewerOpenPreflight: bundle ? bundlePreflight : 'not-applicable',
   }
 }
@@ -134,14 +145,12 @@ export function assessWorkerCloseout({
             meaningfulWorkRemaining,
             reviewReady,
           }),
-    workerStatus =
-      denied?.workerStatus ??
-      classifyWorkerStatus({
-        complete: complete && release.status === 'passed',
-        meaningfulWorkRemaining,
-        reviewReady,
-        requiredBlocked,
-      })
+    workerStatus = classifyWorkerStatus({
+      complete: complete && !requiredBlocked,
+      meaningfulWorkRemaining,
+      reviewReady,
+      requiredBlocked: requiredBlocked || denied?.workerStatus === 'BLOCKED',
+    })
   return {
     ...release,
     expectedHead,

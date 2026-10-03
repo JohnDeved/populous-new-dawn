@@ -57,11 +57,7 @@ export function loadTexture(kind: string) {
   t.wrapT = THREE.RepeatWrapping
   t.wrapS = THREE.RepeatWrapping
   t.anisotropy = 8
-  if (
-    kind === 'atlas' ||
-    kind.startsWith('sky') ||
-    kind.startsWith('clouds')
-  ) {
+  if (kind === 'atlas' || kind.startsWith('sky') || kind.startsWith('clouds')) {
     // 0x47cc60 / 0x47d6f0: ordinary smoothed textures use bilinear
     // filtering of encoded palette colors, without mipmaps or anisotropy.
     t.colorSpace = THREE.NoColorSpace
@@ -259,18 +255,18 @@ export function part(
   return m
 }
 export function releaseGroup(g: THREE.Object3D) {
-    const materials = new Set<THREE.Material>(),
-      sharedTextures = new Set([...textures.values()].map(asset => asset.texture))
-    g.traverse(o => {
-      if (o instanceof THREE.Sprite) {
-        // Atlas images belong to the shared texture cache, not individual particles.
-        if (o.material.map && !sharedTextures.has(o.material.map)) o.material.map.dispose()
-        materials.add(o.material)
-      }
-      if (o instanceof THREE.Mesh || o instanceof THREE.Line) {
-        if (![...meshes.values()].includes(o.geometry)) o.geometry.dispose()
-        ;(Array.isArray(o.material) ? o.material : [o.material]).forEach(m => materials.add(m))
-      }
-    })
-    materials.forEach(m => m.dispose())
-  }
+  const materials = new Set<THREE.Material>(),
+    sharedTextures = new Set([...textures.values()].map(asset => asset.texture))
+  g.traverse(o => {
+    if (o instanceof THREE.Sprite) {
+      // Atlas images belong to the shared texture cache, not individual particles.
+      if (o.material.map && !sharedTextures.has(o.material.map)) o.material.map.dispose()
+      materials.add(o.material)
+    }
+    if (o instanceof THREE.Mesh || o instanceof THREE.Line) {
+      if (![...meshes.values()].includes(o.geometry)) o.geometry.dispose()
+      ;(Array.isArray(o.material) ? o.material : [o.material]).forEach(m => materials.add(m))
+    }
+  })
+  materials.forEach(m => m.dispose())
+}

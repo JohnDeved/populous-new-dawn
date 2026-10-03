@@ -176,6 +176,7 @@ export class Soundscape {
   music: Music | null = null
   paused = false
   generation = 0
+  private playbackRequest = 0
   backgroundTimer: ReturnType<typeof setInterval> | null = null
   nextAccent = 0
   ambientVoices = new Map<number, { gain: GainNode; stop: () => void }>()
@@ -190,20 +191,27 @@ export class Soundscape {
   }
 
   async setPaused(paused: boolean) {
+    const request = ++this.playbackRequest
+    const current = () => request === this.playbackRequest && this.enabled && !this.disposed
     this.paused = paused
     if (!this.enabled || !this.context || this.disposed) return
-    if (paused) {
-      if (this.backgroundTimer) clearInterval(this.backgroundTimer)
-      this.backgroundTimer = null
-      this.music?.element.pause()
-      await this.context.suspend()
-    } else {
-      await this.context.resume()
-      if (this.enabled && !this.paused && !this.disposed) {
+    try {
+      if (paused) {
+        if (this.backgroundTimer) clearInterval(this.backgroundTimer)
+        this.backgroundTimer = null
+        this.music?.element.pause()
+        await this.context.suspend()
+      } else {
+        await this.context.resume()
+        if (!current()) return
         await this.music?.element.play()
-        if (this.enabled && !this.paused && !this.disposed && !this.backgroundTimer)
+        if (current() && !this.backgroundTimer)
           this.backgroundTimer = setInterval(() => this.updateBackground(), 50)
       }
+    } catch (error) {
+      // Pause, mute or a newer resume can cancel an outstanding play/resume.
+      // Only the current request may report a playback failure to the UI.
+      if (current()) throw error
     }
   }
   setMusicVolume(value: number) {
@@ -303,6 +311,7 @@ export class Soundscape {
     this.enabled = true
     this.master!.gain.setValueAtTime(this.volume, ctx.currentTime)
     await this.setPaused(this.paused)
+    if (this.disposed || generation !== this.generation) return false
     this.cue(0x66)
     return true
   }
@@ -319,6 +328,7 @@ export class Soundscape {
   }
   mute() {
     this.generation++
+    this.playbackRequest++
     this.enabled = false
     this.music?.element.pause()
     if (this.context && this.context.state !== 'closed') void this.context.suspend()

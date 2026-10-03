@@ -273,6 +273,8 @@ export type Shrine = Point &
     rewardModel?: number
     rewardDelay?: number
     rewardRecipient?: number
+    // Completed local-player worship sample consumed by automatic panel presentation.
+    panelActivity?: { turn: number; count: number }
     angelTarget?: Point
     nextSlot: number
     slotTimer: number

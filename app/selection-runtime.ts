@@ -9,8 +9,20 @@ import { nativePersonModel } from './live-combat.ts'
 import { EncounterPhase } from './melee-encounter.ts'
 import { type HudSelectionMode, selectHudPeople } from './hud-selection.ts'
 import { sound } from './world-effects.ts'
-import { markPersonSelected, clickPersonSelection, selectedPersonVoice, canDragPerson, selectedGroupVoices } from './person-selection.ts'
-import { dragCommandCorners, unwrapDragCorners, dragCellBounds, inDragCells, inDragSelection } from './drag-selection.ts'
+import {
+  markPersonSelected,
+  clickPersonSelection,
+  selectedPersonVoice,
+  canDragPerson,
+  selectedGroupVoices,
+} from './person-selection.ts'
+import {
+  dragCommandCorners,
+  unwrapDragCorners,
+  dragCellBounds,
+  inDragCells,
+  inDragSelection,
+} from './drag-selection.ts'
 import { currentPersonOrder, deselectPerson } from './person-orders.ts'
 
 export function builderActivity(u: Unit) {

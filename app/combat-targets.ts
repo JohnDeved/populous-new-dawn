@@ -263,13 +263,11 @@ export function selectFirewarriorTarget(
           : target.model === 6
             ? 3
             : 6
-  const nearby = candidates.find(
-    ({ target, distance }) => target.class === 1 && distance < 0x481
-  )
+  const nearby = candidates.find(({ target, distance }) => target.class === 1 && distance < 0x481)
   const ordered = candidates.toSorted((a, b) => priority(a.target) - priority(b.target))
   const choice = nearby
     ? nearby
-    : ordered.find(({ target }) => !(target.flags4 & 0x200000)) ?? ordered[0]
+    : (ordered.find(({ target }) => !(target.flags4 & 0x200000)) ?? ordered[0])
   if (reserve) reserveCombatTarget(choice.target, p)
   return { target: choice.target, type: choice.target.class === 2 ? 3 : 2 }
 }

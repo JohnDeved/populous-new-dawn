@@ -9,6 +9,7 @@ import {
 } from './person-panel.ts'
 import { liveWorshippers, selectWorshippers } from './live-worship.ts'
 import { worshipPanel } from './worship-panel.ts'
+import { automaticWorshipPanelActive } from './worship-panel-activity.ts'
 import { nativeUnitModel } from './unit-kinds.ts'
 import models from './original-models.json' with { type: 'json' }
 import { paintPanel } from './training-panel.ts'
@@ -23,12 +24,14 @@ export class ObjectPanels {
       offset: number
       kind: 'person' | 'head'
       key: string
+      automatic: boolean
     }
   >()
   inspected: number | null = null
   frame = 0
+  automaticSamples = new Map<number, number>()
   constructor(readonly scene: GameScene) {}
-  open(id: number, immediate = false) {
+  open(id: number, immediate = false, automatic = false) {
     const { scene } = this
     const u = scene.world.units.find(
       person => person.id === id && person.hp > 0 && person.team === 'blue'
@@ -36,6 +39,7 @@ export class ObjectPanels {
     const head = scene.world.shrines.find(s => s.id === id)
     if (!u && !head) return
     let panel = this.panels.get(id)
+    const first = !this.panels.size
     if (!panel) {
       for (const old of this.panels.values())
         if (u && old.kind === 'person' && old.phase < 2) {
@@ -45,7 +49,7 @@ export class ObjectPanels {
       const canvas = document.createElement('canvas')
       canvas.setAttribute('aria-hidden', 'true')
       const element = document.createElement('div')
-      element.className = 'person-panel'
+      element.className = head ? 'person-panel worship-panel' : 'person-panel'
       element.setAttribute('role', 'group')
       element.insertBefore(canvas, null)
       for (let i = 0; i < (head?.required ?? 8); i++) {
@@ -81,12 +85,17 @@ export class ObjectPanels {
         remaining: 0,
         hold: 20,
         key: '',
+        automatic,
       }
       this.panels.set(id, panel)
-    }
+    } else if (automatic) panel.automatic = true
     if (immediate) {
       panel.phase = 1
       panel.remaining = panel.hold
+    }
+    if (automatic) {
+      if (first) this.frame = scene.gameClock.animationFrame
+      return
     }
     this.inspected = id
     this.frame = scene.gameClock.animationFrame
@@ -94,6 +103,12 @@ export class ObjectPanels {
   update(atlas: HTMLImageElement) {
     const { scene, panels } = this,
       { world } = scene
+    for (const head of world.shrines) {
+      const sample = head.panelActivity
+      if (!sample || this.automaticSamples.get(head.id) === sample.turn) continue
+      this.automaticSamples.set(head.id, sample.turn)
+      if (automaticWorshipPanelActive(head)) this.open(head.id, false, true)
+    }
     const elapsed = scene.gameClock.animationFrame - this.frame
     this.frame = scene.gameClock.animationFrame
     if (!panels.size) return
@@ -107,13 +122,20 @@ export class ObjectPanels {
       if (!u && !head) {
         panel.element.remove()
         panels.delete(id)
+        this.automaticSamples.delete(id)
         continue
+      }
+      const automaticHeld = !!head && panel.automatic && automaticWorshipPanelActive(head)
+      if (panel.automatic && panel.phase === 1 && !automaticHeld) {
+        panel.automatic = false
+        panel.remaining = 0
       }
       let alive = true
       for (let i = 0; i < elapsed && alive; i++)
         alive = stepPersonPanel(
           panel,
-          this.inspected === id ||
+          automaticHeld ||
+            this.inspected === id ||
             panel.element.matches(':hover') ||
             panel.element.contains(document.activeElement)
         )
@@ -156,7 +178,7 @@ export class ObjectPanels {
         target: head.target,
         growth: head.growth,
         cooldown: head.cooldown,
-        shamanOnly: head.kind === 'vault',
+        shamanOnly: head.kind === 'vault' || head.mode === 3,
         people: Array.from({ length: count }, (_, i) =>
           people[i]
             ? { model: people[i].model, selected: !!(people[i].selectionFlags & 128) }
@@ -237,8 +259,28 @@ export class ObjectPanels {
           (u ?? head)!,
           ((p?.h ?? nativePosition(world, (u ?? head)!).h) + panel.offset) / 45
         )
-      element.style.left = `${((point.x + 1) * scene.container.clientWidth) / 2}px`
-      element.style.top = `${((1 - point.y) * scene.container.clientHeight) / 2}px`
+      if (head) {
+        const containerRect = scene.container.getBoundingClientRect(),
+          rendererRect = scene.renderer.domElement.getBoundingClientRect(),
+          scale = Number.parseFloat(getComputedStyle(element).getPropertyValue('--hud-scale')) || 1,
+          rendererLeft = rendererRect.left - containerRect.left,
+          rendererTop = rendererRect.top - containerRect.top,
+          anchorX = rendererLeft + ((point.x + 1) * rendererRect.width) / 2,
+          anchorY = rendererTop + ((1 - point.y) * rendererRect.height) / 2,
+          halfPanelWidth = (canvas.width * scale) / 2,
+          panelHeight = canvas.height * scale
+        element.style.left = `${Math.max(
+          rendererLeft + halfPanelWidth,
+          Math.min(rendererLeft + rendererRect.width - halfPanelWidth, anchorX)
+        )}px`
+        element.style.top = `${Math.max(
+          rendererTop + panelHeight,
+          Math.min(rendererTop + rendererRect.height, anchorY)
+        )}px`
+      } else {
+        element.style.left = `${((point.x + 1) * scene.container.clientWidth) / 2}px`
+        element.style.top = `${((1 - point.y) * scene.container.clientHeight) / 2}px`
+      }
     }
   }
   focusWorshipper(headId: number, personId: number) {
@@ -293,5 +335,6 @@ export class ObjectPanels {
   dispose() {
     for (const panel of this.panels.values()) panel.element.remove()
     this.panels.clear()
+    this.automaticSamples.clear()
   }
 }

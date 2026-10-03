@@ -64,7 +64,7 @@ export function stepSwamp(
 ) {
   if (!--swamp.remaining) return false
   effects.sound()
-  if (special || (swamp.counter & 3)) return true
+  if (special || swamp.counter & 3) return true
 
   const center = ((swamp.center.x >>> 8) & 254) | (swamp.center.y & 0xfe00)
   let invalid = 0

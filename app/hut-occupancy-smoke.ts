@@ -1,3 +1,27 @@
+import type { Building } from './world-types.ts'
+
+// Transient presentation listeners: never stored in World/checkpoints. The
+// admission owner notifies only after its actual resident slots have changed.
+const occupancyListeners = new WeakMap<Building, Set<() => void>>()
+
+export function observeHutOccupancy(building: Building, reconcile: () => void) {
+  let listeners = occupancyListeners.get(building)
+  if (!listeners) {
+    listeners = new Set()
+    occupancyListeners.set(building, listeners)
+  }
+  listeners.add(reconcile)
+  return () => {
+    listeners.delete(reconcile)
+    if (!listeners.size && occupancyListeners.get(building) === listeners)
+      occupancyListeners.delete(building)
+  }
+}
+
+export function notifyHutOccupancy(building: Building) {
+  occupancyListeners.get(building)?.forEach(reconcile => reconcile())
+}
+
 export type HutSmokeSequence = 'hutSmokePartial' | 'hutSmokeFull'
 
 interface RootSmoke {
@@ -39,7 +63,7 @@ export function createHutOccupancySmoke(
   }
 }
 
-function syncProducer(
+export function reconcileHutOccupancySmoke(
   state: HutOccupancySmokeState,
   occupants: number,
   capacity: number,
@@ -82,7 +106,8 @@ export function stepHutOccupancySmoke(
     // 0x403280 -> 0x40c4e0 samples completed player buildings on this phase.
     // A newly allocated root is not processed again in that same allocated-list visit.
     const allocated =
-      !(state.lastBuildingCounter & 31) && syncProducer(state, occupants, capacity, animationFrame)
+      !(state.lastBuildingCounter & 31) &&
+      reconcileHutOccupancySmoke(state, occupants, capacity, animationFrame)
     if (!allocated && state.root) stepPartialRoot(state.root, drawRandom, animationFrame)
   }
 }
