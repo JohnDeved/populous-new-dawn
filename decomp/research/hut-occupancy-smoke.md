@@ -26,9 +26,12 @@ This is therefore a partial/full state, not a linear smoke-count mapping.
 
 `0040c4e0` first allocates at the building inside point, but model 74/75
 initialization in `0050c150` immediately finds the owning building and calls
-`00404540` using the building's native capacity as the socket index. Residential
-hut levels therefore use sockets 3, 4 and 5. The browser reuses the already
-recovered `buildingSocketPoint`, including its socket height offset.
+`00404540` using the building descriptor's dedicated attachment byte at `+0x33`.
+Residential hut models 1/2/3 select sockets 0/1/2. Capacity is the separate byte
+at `+0x20` (3/4/5). The earlier version of this note conflated these fields and
+the browser consequently selected the wrong sockets; see the correction below.
+The browser now reuses `buildingSocketPoint`, including `smoke.txt` corrections
+on sockets 0–2 and the socket height offset.
 
 Both models use animation descriptor 40: a 16-frame mode-1 loop with step 4.
 
@@ -71,7 +74,7 @@ The normal browser hut path already owns the required inputs:
 
 The presentation helper advances only by the delta in `b.counter`; render calls
 with no building turn consume no RNG and change no root lifetime. The scene
-binding samples real living occupants, uses the native capacity/socket, and
+binding samples real living occupants, uses the native capacity and separate attachment socket, and
 renders only the recovered HFX root sequence. A scene reconstruction initializes
 the root from the current persisted occupancy because the browser checkpoint does
 not serialize native class-7 presentation units.
@@ -153,9 +156,12 @@ from idling back inside before the smoke sample. Unexpected occupants are not
 silently removed to make an assertion pass. Failure records include the last
 observed residents/incoming identities and the exact stage.
 
-The existing HFX, atlas UV, capacity socket, pixel-contribution, pause, and
-checkpoint assertions remain. The browser fixture proves level 1 / capacity 3 /
-socket 3; retained helper evidence covers supported capacities/sockets 3/4/5.
+The existing HFX, atlas UV, socket, pixel-contribution, pause, and
+checkpoint assertions remain. That historical browser fixture exercised level 1 /
+capacity 3 and asserted socket 3, which the 2026-10-03 native initializer comparison
+disproved. It established agreement with the browser helper, not correct native
+attachment. The corrected fixture expects socket 0; native evidence covers
+models 1/2/3 with sockets 0/1/2 independently of capacities 3/4/5.
 Neither the checker nor this note claims live level-2/3 coverage, full original
 idle/birth scheduling equivalence, or secondary full-hut child puffs.
 
@@ -184,3 +190,57 @@ to 60 seconds and each input batch to 32 people; unexpected production failures
 are recorded rather than repaired. No world, unit, order, occupancy, position,
 clock, or RNG state is injected. Reverse partial smoke also retains visible-pixel
 and atlas assertions. Production and the canonical wrapper remain frozen.
+
+## Attachment selector correction (2026-10-03)
+
+The user reported smoke rising from the wrong part of a house. The source path
+`updateHutOccupancySmoke` selected `buildingSocketPoint(pose, capacity)`.
+The existing browser assertion computed its expected XYZ with that same wrong
+selector. This was a semantic error in the earlier research, not evidence that
+`buildingSocketPoint` itself needed an arbitrary offset.
+
+The hash-verified base executable
+`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`
+contains the decisive load at `0050c232`: building model ×76 plus `005a725b`
+(`005a7228 + 0x33`), followed by the `00404540` call at `0050c23b`.
+Those descriptor bytes are **0, 1, 2** for residential models 1, 2, 3. Occupancy
+capacity comes from offset `0x20` and remains **3, 4, 5**. The corrected scene
+uses `hutOccupancySmokeSocket(model)` only for attachment selection.
+
+Reproduce the composed original-byte comparison:
+
+```sh
+python scripts/check-native-hut-smoke-placement.py /path/to/d3dpoptb.exe
+```
+
+The checker executes the complete `0050c150` initializer and real `00404540`
+socket arithmetic, with original shape/object data and SHA-pinned `smoke.txt`
+corrections. It observes the selector without intercepting that call. It compares
+288 cases across both smoke models, all three residential levels and Blue hut
+families, all four headings, normal anchors and wrapped boundaries. All 288
+corrected helper placements agree. The initial 72-case normal-anchor audit found
+all 72 old capacity-selected placements differed.
+
+For example, object107 / model1 / heading0 / anchor(8192,12288) selects
+socket0 = (8320,12928) with height offset400. The old capacity3 selected
+(7936,12544) with height offset16. Under the checker's deterministic terrain,
+the final native heights are -24 versus -480. This numerical example is native
+coordinate evidence, not a measured screen displacement.
+
+Supplied/intercepted consumers are explicit: the checker supplies a building in
+the effect's cell; cell-list unlink/relink (`004ed6f0`, `004ed640`), animation
+setup (`004ee700`) and final position assignment (`004ee580`) are intercepted.
+It captures the complete position passed to that final consumer. Terrain height
+(`0044e940`) is deterministic, so this proves selection, coordinate arithmetic,
+smoke corrections and height composition, not the live terrain algorithm.
+No Windows executable, installer or Wine process is started.
+
+No changes are needed to model origin/heading, world-coordinate conversion,
+terrain sampling, billboard bottom-center anchor or HFX assets for this defect.
+Those paths are preserved; their complete native visual equivalence is not
+claimed. Real-browser before/after evidence must keep hut family/level/heading,
+occupancy and camera fixed, then cover a second camera bearing. The root must
+originate at the corrected house socket. Full/partial/empty transitions, pause,
+checkpoint restore and destruction must remain intact. The revised browser
+checker is not, by itself, a matched original-frame comparison. Secondary
+full-hut puffs and complete frame parity remain open.

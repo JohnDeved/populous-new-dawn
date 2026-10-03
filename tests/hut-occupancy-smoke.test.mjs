@@ -3,8 +3,25 @@ import test from 'node:test'
 import {
   createHutOccupancySmoke,
   hutOccupancySmokeLayer,
+  hutOccupancySmokeSocket,
   stepHutOccupancySmoke,
 } from '../app/hut-occupancy-smoke.ts'
+import { buildingSocketPoint } from '../app/building-shapes.ts'
+
+test('hut smoke uses descriptor attachment slots, independently of resident capacity', () => {
+  assert.deepEqual([1, 2, 3].map(hutOccupancySmokeSocket), [0, 1, 2])
+  for (const model of [0, 4, -1, 1.5, NaN])
+    assert.throws(() => hutOccupancySmokeSocket(model), RangeError)
+
+  // 0050c150 -> 00404540, original object107 / heading0. Capacity3 instead
+  // chooses (7936,12544,+16), displacing the root both sideways and downward.
+  const pose = { object: 107, angle: 0, anchorX: 8192, anchorY: 12288 }
+  assert.deepEqual(buildingSocketPoint(pose, hutOccupancySmokeSocket(1)), {
+    x: 8320,
+    y: 12928,
+    heightOffset: 400,
+  })
+})
 
 test('hut occupancy producer samples real occupancy every 32 building turns', () => {
   const state = createHutOccupancySmoke(0, 0, 3, 0)

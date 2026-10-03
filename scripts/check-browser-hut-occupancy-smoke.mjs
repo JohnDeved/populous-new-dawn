@@ -478,11 +478,13 @@ async function smokeSnapshot(page) {
     if (!hut || !smoke) return null
     const { buildingModel, buildingPose, browserPosition } = await import('/app/model.ts'),
       { buildingSocketPoint } = await import('/app/building-shapes.ts'),
+      { hutOccupancySmokeSocket } = await import('/app/hut-occupancy-smoke.ts'),
       { terrainPointHeight } = await import('/app/native-terrain.ts'),
       originalEffects = (await import('/app/original-effects.json')).default,
       originalRules = (await import('/app/original-rules.json')).default,
       capacity = originalRules.buildingCapacity[buildingModel(hut)],
-      socket = buildingSocketPoint(buildingPose(hut), capacity),
+      socketIndex = hutOccupancySmokeSocket(buildingModel(hut)),
+      socket = buildingSocketPoint(buildingPose(hut), socketIndex),
       point = browserPosition(socket),
       expectedY = (terrainPointHeight(world.land, socket) + socket.heightOffset) / 128,
       root = smoke.state.root,
@@ -511,7 +513,7 @@ async function smokeSnapshot(page) {
       occupants: world.units.filter(unit => unit.inside === hut.id && unit.hp > 0).length,
       admissionInside: hut.admission?.inside ?? 0,
       capacity,
-      socketIndex: capacity,
+      socketIndex,
       root: structuredClone(root),
       visible: smoke.group.visible,
       sequence,
@@ -818,7 +820,7 @@ try {
   assert.equal(state.occupants, 0)
   assert.equal(state.admissionInside, 0)
   assert.equal(state.capacity, 3)
-  assert.equal(state.socketIndex, 3)
+  assert.equal(state.socketIndex, 0)
   const turnsToProducer = (32 - (state.counter & 31)) & 31 || 32
   state = await waitForGuardedSmoke(page, [], 'absent', state.turn + turnsToProducer)
   assert.equal(state.occupants, 0)
@@ -945,7 +947,7 @@ try {
     'PASS rendered construction; continuous newcomer Guard with protected cohort; absent/partial/full/reverse native HFX/socket smoke; pause; checkpoint'
   writeReport()
   console.log(
-    'PASS: rendered Mission 1 hut construction followed by shipped Guard release establishes zero occupancy; real resident input drives model75 partial HFX1385-1400 then model74 full HFX1329-1344 at capacity socket 3; full→partial→empty, pause and checkpoint restoration pass; supported capacities remain sockets 3/4/5; secondary full-hut child puffs remain excluded; evidence ' +
+    'PASS: rendered Mission 1 hut construction followed by shipped Guard release establishes zero occupancy; real resident input drives model75 partial HFX1385-1400 then model74 full HFX1329-1344 at attachment socket 0; full→partial→empty, pause and checkpoint restoration pass; hut models 1/2/3 use sockets 0/1/2 independently of capacity 3/4/5; secondary full-hut child puffs remain excluded; evidence ' +
       reportPath
   )
 } catch (error) {

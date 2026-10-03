@@ -322,7 +322,11 @@
         { "path": "references/modern-performance.md", "heading": "Batch terrain notifications" },
         { "path": "decomp/README.md", "heading": "Terrain texel-center sampling" },
         { "path": "decomp/research/mission18.md", "heading": "Bank-g sky" },
-        { "path": "decomp/research/mission19.md", "heading": "Bank-d authored sky inputs" }
+        { "path": "decomp/research/mission19.md", "heading": "Bank-d authored sky inputs" },
+        {
+          "path": "decomp/research/hut-occupancy-smoke.md",
+          "heading": "Attachment selector correction (2026-10-03)"
+        }
       ],
       "nativeAddresses": ["0x4306d0", "0x44df40", "0x44e940", "0x4f9380", "0x4b5f40"],
       "checkIds": [

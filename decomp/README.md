@@ -5056,3 +5056,11 @@ This is static evidence, not native execution or full loading-screen fidelity.
 ## Vault side-fire evidence
 
 [Vault side-fire research](research/vault-side-fire.md) traces generic ignition, the Vault descriptor protection bit and empty original fire attachments. It separates those static exclusions from the unobserved full Mission 7 effect timeline; no decorative flame implementation is justified by this evidence.
+
+## Residential hut smoke attachment correction
+
+[Hut smoke attachment selector](research/hut-occupancy-smoke.md#attachment-selector-correction-2026-10-03)
+corrects the earlier conflation of capacity with the native descriptor's separate
+socket selector. `python scripts/check-native-hut-smoke-placement.py EXE`
+executes 288 composed initializer/socket cases; browser integration and complete
+original-frame matching remain separate evidence requirements.
