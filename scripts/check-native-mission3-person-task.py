@@ -15,7 +15,7 @@ from unicorn.x86_const import UC_X86_REG_EAX,UC_X86_REG_EIP,UC_X86_REG_ESP
 if len(sys.argv) != 2:
  raise SystemExit('Usage: python scripts/check-native-mission3-person-task.py /path/to/d3dpoptb.exe')
 EXE = Path(sys.argv[1]).resolve()
-assert hashlib.sha256(EXE.read_bytes()).hexdigest() == '3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f' 
+assert hashlib.sha256(EXE.read_bytes()).hexdigest() == '3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f'
 AI=0x89d1c8+2*0xc65;P=0x2000000;STACK=0x201d000;STOP=0x201e000;PERSON=0x2008000
 class Probe:
  def __init__(self):
