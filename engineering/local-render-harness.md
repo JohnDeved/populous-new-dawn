@@ -29,9 +29,12 @@ The harness checks HTTP readiness, then visible mission UI and actual attached g
 canvas/state. It does not wait for networkidle. The normal mission button and Skip
 Introduction controls start the game. Reading test references is observation, not
 world/tick injection. `mission.png` and `receipt.json` contain actual output and
-source commit/tree, dirty state, browser version, renderer, console diagnostics,
+source commit/tree, tracked-diff and untracked-content fingerprints, browser version,
+renderer, console diagnostics,
 and pass/fail. `server.log` records build diagnostics. Failure captures are best
-effort. Owned browser and server process group are stopped on success, failure,
+effort. Timeout/interrupt outcomes cannot be changed by a late scenario return;
+failed receipts never include a successful result. Receipts are detached snapshots.
+Owned browser and server process group are stopped on success, failure,
 SIGINT, SIGTERM or timeout. Never reuse an output directory concurrently.
 
 Advanced focused checks can supply `--scenario /absolute/scenario.mjs`. Its default

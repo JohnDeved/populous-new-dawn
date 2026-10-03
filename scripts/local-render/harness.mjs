@@ -1,5 +1,6 @@
 import { spawn, execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync, createWriteStream, existsSync } from 'node:fs'
+import { mkdirSync, writeFileSync, createWriteStream, existsSync, readFileSync, lstatSync, readlinkSync } from 'node:fs'
+import { createHash } from 'node:crypto'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createRequire } from 'node:module'
@@ -22,9 +23,16 @@ export function parseOptions(args) {
   if (!Number.isFinite(options.timeout) || options.timeout < 1000) throw Error('Timeout must be at least 1000ms')
   return options
 }
-function sourceReceipt(root) {
-  const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8' }).trim()
-  return { root, commit: git('rev-parse', 'HEAD'), tree: git('rev-parse', 'HEAD^{tree}'), status: git('status', '--porcelain') }
+export function sourceReceipt(root) {
+  const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+  const digest = value => createHash('sha256').update(value).digest('hex')
+  const untracked = git('ls-files', '--others', '--exclude-standard', '-z').split('\0').filter(Boolean).sort().map(path => {
+    const absolute = resolve(root, path), stat = lstatSync(absolute)
+    if (!stat.isFile() && !stat.isSymbolicLink()) throw Error(`Cannot fingerprint non-file source: ${path}`)
+    return { path, mode: stat.mode, sha256: digest(stat.isSymbolicLink() ? readlinkSync(absolute) : readFileSync(absolute)) }
+  })
+  const source = { root, commit: git('rev-parse', 'HEAD').trim(), tree: git('rev-parse', 'HEAD^{tree}').trim(), status: git('status', '--porcelain').trim(), trackedDiffSha256: digest(git('diff', '--binary', 'HEAD', '--')), untracked }
+  return { ...source, fingerprint: digest(JSON.stringify(source)) }
 }
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 async function stopServer(server) {
@@ -41,7 +49,7 @@ export async function runLocalBrowser(options, scenario) {
   if (!existsSync(receipt.launch.executablePath)) throw Error(`Browser binary does not exist: ${receipt.launch.executablePath}`)
   const require = createRequire(resolve(root, 'package.json'))
   const { chromium } = require('@playwright/test')
-  let browser, server, timer, launchPromise
+  let browser, server, timer, launchPromise, outcome, finalReceipt
   const log = createWriteStream(resolve(output, 'server.log'))
   const abort = new AbortController()
   const onSignal = () => abort.abort(Error('Interrupted'))
@@ -92,16 +100,18 @@ export async function runLocalBrowser(options, scenario) {
       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
       await page.evaluate(() => { window.testScene = window.testSceneRef.current })
     }
-    receipt.result = await scenario({ browser, context, page, url, root, output, openMission, receipt, signal: abort.signal })
-    receipt.status = 'passed'
+    return scenario({ browser, context, page, url, root, output, openMission, receipt, signal: abort.signal })
   }
   try {
-    await Promise.race([work(), new Promise((_, reject) => {
+    const result = await Promise.race([work(), new Promise((_, reject) => {
       timer = setTimeout(() => abort.abort(Error(`Run exceeded ${options.timeout}ms`)), options.timeout)
       abort.signal.addEventListener('abort', () => reject(abort.signal.reason), { once: true })
     })])
+    // Work never owns the terminal outcome. Late scenario completion after an
+    // abort cannot overwrite failure while screenshots or cleanup are pending.
+    outcome = { status: 'passed', result }
   } catch (error) {
-    receipt.status = 'failed'; receipt.failure = error.stack ?? String(error)
+    outcome = { status: 'failed', failure: error.stack ?? String(error) }
     if (browser) for (const [index, page] of browser.contexts().flatMap(c => c.pages()).entries()) {
       await page.screenshot({ path: resolve(output, `failure-${index}.png`), timeout: 5000 }).catch(() => {})
     }
@@ -112,12 +122,15 @@ export async function runLocalBrowser(options, scenario) {
     await stopServer(server)
     log.end()
     process.removeListener('SIGINT', onSignal); process.removeListener('SIGTERM', onSignal)
-    receipt.finishedAt = new Date().toISOString(); receipt.sourceAfter = sourceReceipt(root)
-    if (receipt.source.commit !== receipt.sourceAfter.commit || receipt.source.status !== receipt.sourceAfter.status) { receipt.status = 'failed'; receipt.failure = 'Source changed during execution' }
-    writeFileSync(resolve(output, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
+    const sourceAfter = sourceReceipt(root)
+    if (receipt.source.fingerprint !== sourceAfter.fingerprint) outcome = { status: 'failed', failure: 'Source bytes changed during execution', previousFailure: outcome.failure }
+    // Detach nested arrays/results from scenario-owned references before writing.
+    finalReceipt = structuredClone({ ...receipt, ...outcome, finishedAt: new Date().toISOString(), sourceAfter })
+    if (finalReceipt.status !== 'passed') delete finalReceipt.result
+    writeFileSync(resolve(output, 'receipt.json'), JSON.stringify(finalReceipt, null, 2) + '\n')
   }
-  if (receipt.status !== 'passed') throw Error(receipt.failure)
-  return receipt
+  if (finalReceipt.status !== 'passed') throw Error(finalReceipt.failure)
+  return finalReceipt
 }
 export async function smoke({ page, openMission, output }, mission = 1) {
   await openMission(mission)
