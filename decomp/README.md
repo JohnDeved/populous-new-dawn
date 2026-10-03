@@ -247,6 +247,8 @@ Swarm ownership path is isolated in the
 type-20 attack's kill ownership, model-7 target preference, fallbacks, and retained
 Blue target are documented in the
 [Mission 2 Matak raid note](research/mission2-matak-raid.md).
+The independent construction-base lifecycle and post-destruction Tower/Hut
+requests are documented in [Mission 2 rebuilding](research/mission2-rebuilding.md).
 The imported owner layout, rechargeable Swarm, Temple Vault reward, linked Erosion
 head, and explicitly deferred recurring script for the next campaign world are
 recorded in the [Mission 3 opening note](research/mission3-opening.md).
