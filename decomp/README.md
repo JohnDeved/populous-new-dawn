@@ -155,6 +155,8 @@ worship, its visit delay, and later lessons remain open.
 
 ## Mission 18 sky static evidence
 
+[Early-mission skies](research/early-mission-skies.md) records the original palette-gated c/s/p filename selection, isolated success/failure execution, and six exact Mission 2/3 sky assets. Reproduce with `python scripts/check-native-early-mission-skies.py /path/to/d3dpoptb.exe`; OS opens, decoder/device execution, and matched original frames remain outside this proof.
+
 [Mission 18 sky](research/mission18-sky.md) records palette-open-gated filename selection, alternate-root policy and failed-image return paths. Reproduce the original-byte proof from a fresh checkout with Python 3.9+ and the existing Capstone 5 dependency (validated 5.0.7):
 
 ```sh
