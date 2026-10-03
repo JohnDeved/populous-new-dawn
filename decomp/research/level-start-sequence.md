@@ -9,11 +9,14 @@ unless load flag `0x200` is set (restoring a save). `00419810` snaps each Shaman
 reincarnation center to a 512-unit cell center. `00419880` queues command18 with
 flags32. `00432590` dispatches that command to `00433a10`. `00432df0` sets the
 person's flags4 bit128; ordinary state initialization clears it (`00432260`).
-This is independent of the campaign's flyby camera/input commands.
+This is independent of the campaign's flyby camera/input commands. Bit128 is
+selection-only: `004c2d80` and player target entry `004c24f0` both permit casting
+while command18 is running. `004c1b80` enters state22 while retaining the order
+queue, so a generic casting ban is unsupported and was removed during research.
 
 `00433a10` skips site construction when tribe flag `0x10000` disables
 reincarnation. The imported turn-zero campaign scripts therefore exclude Dakini
-in Mission1 and Chumara in Mission2; Mission3 includes both Blue and Matak.
+in Mission1 and Matak in Mission2; Mission3 includes both Blue and Chumara.
 The live binding is restricted to these three researched missions.
 
 ## Command, terrain, conversion and stones
@@ -59,14 +62,17 @@ No installer, Wine or full original game execution was used.
 `scripts/check-native-level-start.py EXE` currently compares32 complete native
 wave lifetimes (all terrain hashes, ordered orbit/trail geometry, notifications,
 expiry),69 native height rectangle/rounding cases,40 complete carrier lifetimes
-including RNG/trail positions, and all command18 phase/timer transitions for the
+including RNG/trail positions, all eight stone rise/dust/sound timelines, all four replacement-conversion
+allocation paths, permitted player/direct cast readiness, and all command18
+phase/timer transitions for the
 six authored Mission1–3 shamans. Allocation, registration, lighting, notifications
 and lifecycle/animation leaves are explicitly supplied; this is not a full native
 game simulation or browser proof. The phase probe supplies effect8's independently
 compared21-visit lifetime; it does not independently prove cross-class scheduling.
 
-Pending final acceptance: native stone/conversion/particle checks, portable
-fresh/restart/skip/checkpoint tests, regression checks, real Mac before/during/after
+Portable fresh/restart/skip/checkpoint, original-byte append preservation and
+the listed native checks pass. Pending final acceptance: interrupted-cast return
+integration, revised legacy fixture checks, real Mac before/during/after
 frames on the exact integrated commit and fresh review. Existing world allocation,
 terrain-notification batching, camera adapter and original-palette browser blend
 limits are not upgraded to native whole-game equivalence by these helper checks.

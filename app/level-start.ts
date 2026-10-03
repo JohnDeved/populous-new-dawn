@@ -4,9 +4,16 @@ import { nativeStep3D, shotAngles } from './world-coordinates.ts'
 import type { NativeTerrain } from './native-terrain.ts'
 
 export type StartPoint = { x: number; y: number; h: number }
-export type StartCarrier = { index: number; position: StartPoint; destination: StartPoint; visits: number }
+export type StartCarrier = {
+  id: number
+  index: number
+  position: StartPoint
+  destination: StartPoint
+  visits: number
+}
 export type StartOrbit = StartPoint & { angle: number; id: number }
 export type StartWave = {
+  id: number
   center: StartPoint
   visits: number
   terrainRadius: number
@@ -21,6 +28,8 @@ export type LevelStartSite = {
   entering: boolean
   timer: number
   counter: number
+  suspended?: boolean
+  awaitedWave?: number | null
   wave: StartWave | null
   carriers: StartCarrier[]
   stoneTurns: (number | null)[]
@@ -28,7 +37,8 @@ export type LevelStartSite = {
 
 // 0x4ba600: nearest multiple of 64, ties round down; keep sites above sea level.
 export function levelStartHeight(height: number) {
-  const lower = height & ~63, upper = (height + 63) & ~63
+  const lower = height & ~63,
+    upper = (height + 63) & ~63
   return Math.max(64, Math.min(1024, height - lower <= upper - height ? lower : upper))
 }
 
@@ -46,7 +56,9 @@ export function levelStartTargetHeight(land: Pick<NativeTerrain, 'heights'>, cen
 
 // 0x49c7a0 uses the native type-2 iterator, including repeated ring endpoints.
 export function levelStartCells(center: StartPoint) {
-  const pool = createIndexedSearch(), id = startIndexedSearch(pool, 2, 0, 0, 3), cells: number[] = []
+  const pool = createIndexedSearch(),
+    id = startIndexedSearch(pool, 2, 0, 0, 3),
+    cells: number[] = []
   let offset
   while ((offset = nextIndexedSearch(pool, id))) {
     const x = (((center.x >>> 8) & 254) + offset.x * 2) & 255,
@@ -118,7 +130,8 @@ export function stepLevelStartCarrier(
   trail: (position: StartPoint) => void
 ) {
   for (let i = 0; i < 20; i++) {
-    const p = carrier.position, d = carrier.destination
+    const p = carrier.position,
+      d = carrier.destination
     trail({ ...p, x: short(p.x + 8 - (random(rng) & 15)), y: short(p.y + 8 - (random(rng) & 15)) })
     if (Math.abs(d.x - p.x) < 108 && Math.abs(d.y - p.y) < 108 && Math.abs(d.h - p.h) < 108)
       return false

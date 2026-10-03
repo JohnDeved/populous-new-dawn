@@ -68,3 +68,14 @@ export function reincarnationStones(
     return { x, y, h: terrainPointHeight(land, { x, y }), heading: nativeAngle(deltaX, -deltaY) }
   })
 }
+
+// Old checkpoints and untraced later missions retain their established static
+// sites. Traced fresh starts acquire each stone only when its carrier arrives.
+export function levelStartStoneExists(
+  sites: readonly { tribe: number; stoneTurns: (number | null)[] }[] | undefined,
+  tribe: number,
+  index: number
+) {
+  const site = sites?.find(site => site.tribe === tribe)
+  return !site || site.stoneTurns[index] != null
+}

@@ -1,3 +1,4 @@
+import { tribeForTeam } from './world-types.ts'
 import {
   type World,
   type Point,
@@ -30,7 +31,7 @@ import { createBuildingSmoke } from './building-smoke.ts'
 import { replantDelay, stepReplant, findReplantSite, stepTreeGrowth } from './tree-growth.ts'
 import { stepTimberReservations } from './timber.ts'
 import { campaignPosition, campaignShamanTeams } from './campaign-runtime.ts'
-import { reincarnationStones } from './reincarnation.ts'
+import { levelStartStoneExists, reincarnationStones } from './reincarnation.ts'
 import { terrainSupportsPerson } from './person-collision.ts'
 import type { NativeModel } from './model-faces.ts'
 
@@ -269,7 +270,11 @@ export function stepScenery(w: World) {
         for (const shrine of w.shrines) add(nativePosition(w, shrine), 9)
         for (const team of campaignShamanTeams(w)) {
           const center = campaignPosition(w, team)
-          for (const stone of reincarnationStones(w.land, nativePosition(w, center))) add(stone, 12)
+          for (const [index, stone] of reincarnationStones(
+            w.land,
+            nativePosition(w, center)
+          ).entries())
+            if (levelStartStoneExists(w.levelStart, tribeForTeam(team), index)) add(stone, 12)
         }
         for (const fx of w.effects) if (fx.fire) add(fx.fire, 10)
         const point = findReplantSite(

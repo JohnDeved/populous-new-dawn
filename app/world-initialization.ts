@@ -134,14 +134,7 @@ export function createWorld(missionNumber = 1): World {
       })
     }
     if (o.type === 1)
-      addUnit(
-        w,
-        o.owner === 255
-            ? 'wild'
-            : teamForTribe(o.owner),
-        unitKindFromModel(o.model),
-        o
-      )
+      addUnit(w, o.owner === 255 ? 'wild' : teamForTribe(o.owner), unitKindFromModel(o.model), o)
     if (o.type === 4) {
       const point = nativePosition(w, o)
       w.vehicles.push({

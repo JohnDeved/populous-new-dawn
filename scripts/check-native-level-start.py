@@ -155,3 +155,59 @@ for world in worlds:
    assert actual['phase']==expected_phase,(world['level'],owner,turn,actual,expected_phase,read(p+0x70,'h'))
    if not complete:assert actual['timer']==read(p+0x70,'h'),(world['level'],owner,turn,actual,read(p+0x70,'h'))
 print('PASS: original command18 phase/timer transitions at every opening turn for all six authored Mission1–3 shamans, including two disabled enemy sites')
+
+# Stone rise consumer, including immediate creation visit, original dust request,
+# alternating sound gate and stable post-rise height.
+cpu,identity=native_cpu(exe);cpu.mem_map(0x2000000,0x40000)
+stone_events=[];ground=321
+
+def stone_hook(c,address,size,user):
+ sp=c.reg_read(UC_X86_REG_ESP);result=0
+ if address==0x44e940:result=ground
+ elif address==0x48a050:stone_events.append(['sound',read(sp+8,'I')])
+ elif address==0x4ed8a0:
+  cls,model=read(sp+4,'I'),read(sp+8,'I');assert (cls,model)==(7,51);stone_events.append(['effect',51])
+ c.reg_write(UC_X86_REG_EAX,result);c.reg_write(UC_X86_REG_EIP,read(sp,'I'));c.reg_write(UC_X86_REG_ESP,sp+4)
+for a in [0x44e940,0x48a050,0x4ed8a0]:cpu.hook_add(UC_HOOK_CODE,stone_hook,begin=a,end=a)
+write(0x98e7e4,'I',0)
+for n in range(8):
+ cpu.mem_write(p,bytes(256));write(p+0x2d,'B',1);write(p+0xc,'I',0x40000000)
+ for visit in range(20):
+  stone_events=[];call(0x4a7eb0,p)
+  assert read(p+0x41,'h')==ground+min(visit+1,16)*16-256,(n,visit)
+  if visit==0:assert stone_events==([['sound',159]] if n%2==0 else [])+[['effect',51]]
+  else:assert not stone_events
+print('PASS: all8 native stone rise/lifetime visits, dust producer and alternating original sound gate')
+
+# Conversion is real replacement allocation, with neutral linked effect58 and
+# sound5 before removing the original Wildman. The wave adds its owner flash.
+cpu,identity=native_cpu(exe);cpu.mem_map(0x2000000,0x40000)
+new_person,flash=0x2006000,0x2007000;conversion_events=[]
+def conversion_hook(c,address,size,user):
+ sp=c.reg_read(UC_X86_REG_ESP);result=0
+ if address==0x4ed8a0:
+  cls,model,owner,point=struct.unpack('<4I',c.mem_read(sp+4,16));conversion_events.append(['allocate',cls,model,owner&255,*struct.unpack('<HHh',c.mem_read(point,6))]);result=new_person if cls==1 else flash
+ elif address==0x48a050:conversion_events.append(['sound',read(sp+8,'I')])
+ elif address==0x4d4b50:conversion_events.append(['remove',read(sp+4,'I')])
+ c.reg_write(UC_X86_REG_EAX,result);c.reg_write(UC_X86_REG_EIP,read(sp,'I'));c.reg_write(UC_X86_REG_ESP,sp+4)
+for a in [0x4ed8a0,0x48a050,0x4d4b50]:cpu.hook_add(UC_HOOK_CODE,conversion_hook,begin=a,end=a)
+for owner in range(4):
+ cpu.mem_write(p,bytes(256));cpu.mem_write(new_person,bytes(256));cpu.mem_write(flash,bytes(256));write(0x892443,'I',0x2008000);write(0x895da8,'I',0)
+ write(p+0x3d,'HHh',40192,23808,128);write(new_person+0x24,'H',123);write(p+0x26,'H',789);conversion_events=[]
+ call(0x4d7fd0,p,owner,p+0x3d)
+ assert conversion_events==[['allocate',1,2,owner,40192,23808,128],['allocate',7,58,255,40192,23808,128],['sound',5],['remove',p]],conversion_events
+ assert read(new_person+0x10,'I')&0x40000
+ assert read(flash+0x72,'H')==123
+print('PASS: all4 native tribes allocate replacement braves, linked conversion flashes and original sound/removal sequence')
+
+# Selection exclusion is NOT cast exclusion. Both direct readiness and the
+# original player target entry accept command18 with flags4/128 (cursor clear).
+cpu,identity=native_cpu(exe);cpu.mem_map(0x2000000,0x40000)
+for stage_flags in [0,0x4000]:
+ cpu.mem_write(p,bytes(256));cpu.mem_write(0x89d1c8,bytes(0xc65))
+ write(p+0x2b,'BBB',7,10,0);write(p+0x2f,'B',0);write(p+0x10,'I',128);write(p+0xc,'I',stage_flags)
+ write(p+0x3d,'HHh',4352,55040,128);write(0x89d1c8+0x89d,'I',p);write(0x89d1c8+0xc1f,'B',2)
+ write(0x89d17c,'I',0);write(0x684214,'I',0);write(p+0x1000,'HHh',4452,55040,128)
+ call(0x4c2d80,p);assert cpu.reg_read(UC_X86_REG_EAX)==1
+ call(0x4c24f0,0,1,2,p+0x1000,0);assert cpu.reg_read(UC_X86_REG_EAX)==1
+print('PASS: native command18 selection flag does not block direct/player-entry spell readiness')

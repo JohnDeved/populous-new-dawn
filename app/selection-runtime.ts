@@ -111,9 +111,7 @@ export function selectionBuilding(w: World, point: { x: number; y: number }) {
 }
 
 export function canOrder(u: Unit) {
-  const p = unitAnimationSource(u)
-  return u.hp > 0 && !(p?.flags2 && p.flags2 & 0x100000) &&
-    !(p?.commandStatus === 18 && p.flags4 & 128)
+  return u.hp > 0 && !((unitAnimationSource(u)?.flags2 ?? 0) & 0x100000)
 }
 
 export function select(w: World, kind: UnitKind | 'all') {

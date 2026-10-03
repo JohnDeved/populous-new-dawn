@@ -51,7 +51,7 @@ import {
 import { invalidateTimberSearch } from './timber-search.ts'
 import { invalidateTimberRoutes } from './timber-search.ts'
 import { buildingCellValid } from './building-validity.ts'
-import { reincarnationStones } from './reincarnation.ts'
+import { levelStartStoneExists, reincarnationStones } from './reincarnation.ts'
 import { campaignPosition, campaignShamanTeams } from './campaign-runtime.ts'
 import { browserPosition, distance, wrappedDistance } from './world-coordinates.ts'
 import { BUILDINGS, buildingHp } from './world-rules.ts'
@@ -117,7 +117,8 @@ export function checkBuildingSite(
   }
   for (const team of campaignShamanTeams(w)) {
     const center = campaignPosition(w, team)
-    for (const stone of reincarnationStones(land, nativePosition(w, center))) add(stone, 12)
+    for (const [index, stone] of reincarnationStones(land, nativePosition(w, center)).entries())
+      if (levelStartStoneExists(w.levelStart, tribeForTeam(team), index)) add(stone, 12)
   }
   const world = {
     land,
