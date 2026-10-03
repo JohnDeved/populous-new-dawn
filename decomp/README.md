@@ -5105,3 +5105,10 @@ root gate, exact cosmetic RNG threshold, capacity reserve, traversal order and
 sixteen-visit child expiry. `python -B scripts/check-native-hut-smoke-puffs.py EXE`
 checks bounded original instructions without executing the surrounding world
 loop. The browser allocation adapter remains an explicit implementation gap.
+
+## Building construction-gauge consumer — 2026-10-03
+
+[Bounded native/current comparison](research/building-construction-gauge.md) identifies
+the inherited Mission 3 Tower line, executes the staged mesh/overlay queue, and
+separates construction presentation from original person-health and activity panels.
+No full original-frame raster parity is claimed.
