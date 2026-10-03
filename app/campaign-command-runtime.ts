@@ -31,6 +31,7 @@ import { runScript, scriptValue, type PopScript } from './popscript.ts'
 import { missionData, missionScript, tutorialLevel } from './mission-data.ts'
 import { buildingFootprintCells, buildingModel, buildingPose } from './building-shapes.ts'
 import { nativePersonModel } from './live-combat.ts'
+import { unitAnimationSource } from './selection-runtime.ts'
 import { buildingCounterattack } from './live-building-combat.ts'
 import { appendLiveOrders } from './live-movement.ts'
 import { emptyPersonOrder, writePersonOrder } from './person-orders.ts'
@@ -125,6 +126,7 @@ export function campaignCommand(
       1142: 2,
       1143: 1,
       1151: 1,
+      1168: 2,
       1169: 0,
       1170: 0,
       1171: 2,
@@ -568,6 +570,19 @@ export function campaignCommand(
     return
   }
 
+  if (opcode === 1168) {
+    const tribe = args[0] >= 1118 && args[0] <= 1121 ? args[0] - 1118 : read(args[0])
+    if (!Number.isInteger(tribe) || tribe < 0 || tribe > 3)
+      throw new RangeError('Invalid conversion-victim tribe')
+    const team = campaignTeam(w, tribe)
+    // 0x4f21f0 walks this tribe's person list and tests only the current state.
+    writeVariable(
+      args[1],
+      w.units.filter(unit => unit.team === team && unitAnimationSource(unit)?.state === 23).length
+    )
+    return
+  }
+
   if (opcode === 1169) {
     w.castingTribes[w.manaWorld.playerTribe].flags |= 0x20000
     return
@@ -760,6 +775,10 @@ export function campaignRules(w: World) {
                     12,
                     1003,
                     ...script.codes.slice(308, 457),
+                    // Original EVERY 31 header and complete anti-preaching conditional.
+                    ...script.codes.slice(457, 460),
+                    ...script.codes.slice(504, 530),
+                    1004,
                     ...script.codes.slice(729, 768),
                     ...script.codes.slice(796, 833),
                     ...script.codes.slice(833, 984),
