@@ -169,11 +169,17 @@ test('type11 waits for selection ownership and cancellation safely releases stat
   assert.equal(task.phase, 5)
   assert.equal(world.ai.commandDelay, 20)
   assert.equal(unit.native.state, 14)
+  unit.native.motionTimer = 7
+  unit.native.motionMode = 3
+  unit.native.flags2 |= 0x20000800
   task.flags |= 2
   stepComputerTasks(world, 2)
   assert.equal(task.flags & 3, 0)
   assert.equal(world.ai.selectionOwner, 10)
   assert.notEqual(unit.native.state, 14)
+  assert.equal(unit.native.motionTimer, 0)
+  assert.equal(unit.native.motionMode, 0)
+  assert.equal(unit.native.flags2 & 0x20000800, 0)
 })
 
 test('duplicate raw payload and failed allocator preserve native selection side effects', () => {
@@ -350,4 +356,37 @@ test('1103 retargets only active order30 in native state10/33 without restarting
       assert.equal(p.state, state)
     } else assert.deepEqual(p, before)
   }
+})
+
+test('cancelled blocked-state Preacher resets motion before the native state gate', () => {
+  const { world, unit } = controlledPreacher()
+  requestPreacherTask(world.ai, unit.id, 0x1234, 0x800, 1)
+  stepComputerTasks(world, 2)
+  const p = unit.native
+  assert.equal(p.state, 14)
+  p.flags2 |= 0x20100800
+  p.motionTimer = 7
+  p.motionMode = 3
+  p.x = 0x2345
+  p.y = 0x4567
+  world.land.flags[(p.y >>> 9) * 128 + (p.x >>> 9)] &= ~512
+  p.goalX = 0x7777
+  p.goalY = 0x8888
+  p.anchorX = 1
+  p.anchorY = 2
+  p.anchorFlags = 255
+  p.motionGroup = 3
+  p.motionIndex = 2
+  world.pathfinding.people.set(unit.id, p)
+  world.ai.tasks[0].flags |= 2
+  stepComputerTasks(world, 2)
+  assert.equal(p.state, 14)
+  assert.equal(p.motionTimer, 0)
+  assert.equal(p.motionMode, 0)
+  assert.equal(p.flags2 & 0x20000800, 0)
+  assert.ok(p.flags2 & 0x1000)
+  assert.deepEqual([p.anchorX, p.anchorY, p.anchorFlags], [0x2300, 0x4500, 0])
+  assert.deepEqual([p.goalX, p.goalY], [0x7777, 0x8888])
+  assert.deepEqual([p.motionGroup, p.motionIndex], [3, 2])
+  assert.equal(world.pathfinding.people.get(unit.id), p)
 })

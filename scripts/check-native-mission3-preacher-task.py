@@ -143,3 +143,31 @@ for state,model,flags,queued,base,exhausted in [
     return_results.append(dict(state=state,model=model,flags=flags,queued=queued,base=base,exhausted=exhausted,replaced=matching))
 print(json.dumps(return_results,indent=2))
 print('PASS:6 native1103 complete replacement/filter/exhaustion cases without intercepted leaves')
+
+# Original restoration/cleanup resets motion before the blocked-state gate.
+# All leaves execute;0x100000 deliberately avoids unrelated state initialization.
+cleanup_results=[]
+for cleanup in [False,True]:
+    cpu,_=native_cpu(exe);cpu.mem_map(0x2000000,0x20000)
+    ai=0x89d1c8+2*0xc65;person=0x2000000;stack=0x201d000;stop=0x201e000
+    def write(a,f,*v):cpu.mem_write(a,struct.pack('<'+f,*v))
+    def read(a,f='I'):return struct.unpack('<'+f,cpu.mem_read(a,struct.calcsize('<'+f)))[0]
+    cpu.mem_write(ai,bytes(0xc65));write(ai+0xc22,'B',2);write(ai+0x881,'I',person);write(ai+0x85,'B',11)
+    write(person+0x24,'H',1);write(person+0x2a,'BBB',1,4,14);write(person+0x2f,'B',2)
+    write(person+0xc,'I',0x20100800);write(person+0x3d,'HH',0x2345,0x4567)
+    write(person+0x4f,'HH',0x7777,0x8888);write(person+0x68,'HH',1,2);write(person+0x82,'B',255)
+    write(person+0x61,'H',7);write(person+0x66,'B',3);write(person+0x63,'h',3);write(person+0x67,'B',2)
+    write(0x89d178,'I',0x12345678)
+    write(stack,'III',stop,ai,ai+0x36 if cleanup else 14);cpu.reg_write(UC_X86_REG_ESP,stack)
+    cpu.emu_start(0x4f6840 if cleanup else 0x418ce0,stop,count=2000000)
+    assert cpu.reg_read(UC_X86_REG_EIP)==stop
+    assert read(person+0x2c,'B')==14 and read(person+0xc)==0x101000
+    assert read(person+0x61,'H')==0 and read(person+0x66,'B')==0
+    assert [read(person+0x63,'h'),read(person+0x67,'B')]==[3,2]
+    assert [read(person+0x4f,'H'),read(person+0x51,'H')]==[0x7777,0x8888]
+    expected=[0x2300,0x4500,0] if cleanup else [1,2,255]
+    assert [read(person+0x68,'H'),read(person+0x6a,'H'),read(person+0x82,'B')]==expected
+    assert read(0x89d178)==0x12345678
+    cleanup_results.append(dict(cleanup=cleanup,anchor=expected,motionGroup=3,motionIndex=2,state=14))
+print(json.dumps(cleanup_results,indent=2))
+print('PASS:2 native blocked-state restoration/cleanup cases without intercepted leaves')

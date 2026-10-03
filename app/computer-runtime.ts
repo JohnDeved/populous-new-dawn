@@ -84,7 +84,7 @@ import {
   type SpellTargetUnit,
   type SpellTargetWorld,
 } from './computer-spells.ts'
-import { defaultPersonState } from './person-state.ts'
+import { defaultPersonState, resetPersonMotion } from './person-state.ts'
 import { refreshBuildingTerritory } from './territory.ts'
 import { addBuilding, checkBuildingSite } from './construction-runtime.ts'
 import { entrance, findPath, route } from './live-command.ts'
@@ -223,6 +223,7 @@ function finishPreacherSelection(w: World, tribe: number, cleanup: boolean) {
     const p = unitAnimationSource(u) ?? u.native
     if (!p || p.state !== 14) continue
     if (cleanup) clearPersonOrders(w.buildingOrders, p, orderEffects(w))
+    resetPersonMotion(p)
     if (!(p.flags2 & 0x100000)) {
       u.native = p
       changeLivePersonState(w, u, defaultPersonState(p, w.manaWorld.gameFlags))
@@ -235,9 +236,10 @@ function finishPreacherSelection(w: World, tribe: number, cleanup: boolean) {
             ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
             : undefined,
         point = building ? buildingOutsidePoint(buildingPose(building)) : p
-      p.goalX = point.x
-      p.goalY = point.y
-      clearLivePath(w, u)
+      //0x405090 snaps the idle anchor, not the active goal/route fields.
+      p.anchorX = (point.x & 0xfe00) + 0x100
+      p.anchorY = (point.y & 0xfe00) + 0x100
+      p.anchorFlags = 0
     }
   }
 }

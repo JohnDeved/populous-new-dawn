@@ -135,3 +135,11 @@ It uses the shipped mission selector, ordinary ticks and camera focus, then veri
 the actual Preacher mesh contributes WebGL pixels and saves selected/arrival
 screenshots under the isolated task output directory. This checker being present
 or syntax-valid is not a passed rendered result; record its actual execution.
+
+The fresh source review identified and corrected missing motion-reset and anchor
+cleanup in `finishPreacherSelection`. Native `00418ce0`/`004f6840` reset motion
+before testing the state-change gate. Cancellation writes cell-centered
+`anchorX/anchorY`, clears `anchorFlags`, and does not overwrite goal coordinates or
+release retained route fields on the blocked-state path. Two additional unhooked
+native cases verify that exact blocked-state behavior; failure-first portable
+regressions retain the pre-fix stale-motion/anchor failures.
