@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { spawn } from 'node:child_process'
 import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
@@ -606,6 +607,7 @@ try {
     if (message.type() === 'error') errors.push(message.text())
   })
   await page.goto(process.env.POPULOUS_URL, { waitUntil: 'networkidle' })
+  await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 4', exact: true }).focus()
   await page.keyboard.press('Enter')
   await bindGame(page)
@@ -723,6 +725,7 @@ try {
   record('continuation', { level: 5 })
 
   await page.reload({ waitUntil: 'networkidle' })
+  await showAllMissions(page)
   const completedMissionFour = page.getByRole('button', {
     name: 'Mission 4, completed',
     exact: true,

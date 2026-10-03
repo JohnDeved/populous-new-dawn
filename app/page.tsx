@@ -26,6 +26,8 @@ import {
   type UnitKind,
 } from './model'
 import { createGameStore } from './game-store'
+import { WorldSelector } from './world-selector'
+import worldSelectorStyles from './world-selector.module.css'
 import type { GameScene } from './scene'
 import { Soundscape } from './audio'
 import {
@@ -80,8 +82,7 @@ export default function Home() {
   useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot)
   const world = store.getWorld(),
     update = store.update
-  const completedMissions = store.getCompletedMissions(),
-    recommendedMission = missionNumbers.find(mission => !completedMissions.includes(mission))
+  const completedMissions = store.getCompletedMissions()
   const spellRoster = spellHudRoster(world)
   const { routeNotice } = world
   const [tab, setTab] = useState<'spells' | 'buildings' | 'followers'>('spells')
@@ -105,6 +106,7 @@ export default function Home() {
     }
   }, [])
   const [menu, setMenu] = useState(false)
+  const [selectorOpen, setSelectorOpen] = useState(false)
   const [ready, setReady] = useState(false)
   const [desktopNotice, setDesktopNotice] = useState(true)
   const [error, setError] = useState('')
@@ -235,11 +237,17 @@ export default function Home() {
   }, [world, update, store, startup])
   useEffect(() => {
     const modal = startupDialog.current
-    if (startup === 'choice' && modal && !modal.open) modal.showModal()
+    if ((startup === 'choice' || selectorOpen) && modal && !modal.open) {
+      if (selectorOpen)
+        store.change(w => {
+          w.paused = true
+        })
+      modal.showModal()
+    }
     return () => {
       if (modal?.open) modal.close()
     }
-  }, [startup])
+  }, [startup, selectorOpen, store])
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
       if (
@@ -373,6 +381,7 @@ export default function Home() {
     }
   }
   function beginLoad(request: LoadRequest) {
+    setSelectorOpen(false)
     audio.current?.reset()
     setMenu(false)
     setReady(false)
@@ -439,7 +448,7 @@ export default function Home() {
   const modeName =
     SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
   function blockLoadingInteraction(event: SyntheticEvent) {
-    if (ready || (event.target as Element).closest('.loading-world')) return false
+    if (ready || (event.target as Element).closest('.loading-world,[data-world-selector]')) return false
     event.preventDefault()
     event.stopPropagation()
     return true
@@ -649,7 +658,7 @@ export default function Home() {
         if (
           world.inputMask &&
           !(e.target as Element).closest(
-            '.top-actions,.wordmark,.game-dialog,.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen'
+            '.top-actions,.wordmark,.game-dialog,.campaign-messages,.skip-introduction,.paused-badge,.desktop-recommendation,.loading-world,.end-screen,[data-world-selector]'
           )
         ) {
           e.preventDefault()
@@ -906,8 +915,7 @@ export default function Home() {
             <div className="spell-list">
               {spellRoster
                 .toSorted(
-                  (a, b) =>
-                    spellOrder.indexOf(a.spell.model) - spellOrder.indexOf(b.spell.model)
+                  (a, b) => spellOrder.indexOf(a.spell.model) - spellOrder.indexOf(b.spell.model)
                 )
                 .map(({ spell: s, visibility }) => {
                   const player = world.manaWorld.playerTribe,
@@ -1067,46 +1075,36 @@ export default function Home() {
         </div>
       )}
 
-      {startup === 'choice' && (
-        <dialog ref={startupDialog} className="loading-world" aria-label="Start game">
-          <span className="loading-rune">⟡</span>
-          <p className="eyebrow">Populous: The Beginning</p>
-          <h2>Select Level</h2>
-          <p>Choose a mission{store.hasCheckpoint() ? ' or return to your saved world.' : '.'}</p>
-          {!!completedMissions.length && recommendedMission && (
-            <p role="status">Mission {recommendedMission} is recommended next.</p>
-          )}
-          <button
-            className="secondary-button"
-            aria-label="Tutorial"
-            onClick={() => startMission(tutorialLevel)}
-          >
-            Tutorial
-          </button>
-          <div className="menu-actions" aria-label="Choose mission">
-            {store.hasCheckpoint() && (
-              <button
-                autoFocus
-                className="primary-button"
-                aria-label="Load Game"
-                onClick={loadCheckpoint}
-              >
-                Load Game <span>↗</span>
-              </button>
-            )}
-            {missionNumbers.map(mission => (
-              <button
-                key={mission}
-                autoFocus={!store.hasCheckpoint() && mission === missionNumbers[0]}
-                className="secondary-button"
-                aria-label={`Mission ${mission}${completedMissions.includes(mission) ? ', completed' : ''}`}
-                onClick={() => startMission(mission)}
-              >
-                Mission {mission}
-                {completedMissions.includes(mission) && <span aria-hidden="true"> ✓</span>}
-              </button>
-            ))}
-          </div>
+      {(startup === 'choice' || selectorOpen) && (
+        <dialog
+          ref={startupDialog}
+          className={worldSelectorStyles.dialog}
+          data-world-selector
+          aria-label="Start game"
+          onCancel={event => {
+            event.preventDefault()
+            if (selectorOpen) {
+              setSelectorOpen(false)
+              if (world.status === 'playing') setMenu(true)
+            }
+          }}
+        >
+          <WorldSelector
+            missions={missionNumbers}
+            completed={completedMissions}
+            hasCheckpoint={store.hasCheckpoint()}
+            onStart={startMission}
+            onTutorial={() => startMission(tutorialLevel)}
+            onLoad={loadCheckpoint}
+            onBack={
+              selectorOpen
+                ? () => {
+                    setSelectorOpen(false)
+                    if (world.status === 'playing') setMenu(true)
+                  }
+                : undefined
+            }
+          />
         </dialog>
       )}
       {startup === 'loading' && (
@@ -1177,6 +1175,9 @@ export default function Home() {
               : 'Restart Level'}{' '}
             <span>↗</span>
           </button>
+          <button className="secondary-button" onClick={() => setSelectorOpen(true)}>
+            Select Level
+          </button>
         </div>
       )}
       <dialog
@@ -1185,7 +1186,7 @@ export default function Home() {
         onClose={() => {
           setMenu(false)
           store.change(w => {
-            w.paused = false
+            if (!selectorOpen) w.paused = false
           })
         }}
       >
@@ -1263,6 +1264,15 @@ export default function Home() {
           )}
           <button className="secondary-button" onClick={restart}>
             Restart world
+          </button>
+          <button
+            className="secondary-button"
+            onClick={() => {
+              setMenu(false)
+              setSelectorOpen(true)
+            }}
+          >
+            Select Level
           </button>
         </div>
         {checkpointNotice && <p role="status">{checkpointNotice}</p>}

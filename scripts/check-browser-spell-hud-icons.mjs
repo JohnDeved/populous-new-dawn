@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 // Focused authored HUD validation. Execute only inside the canonical queue.
 import assert from 'node:assert/strict'
 import {mkdirSync,readFileSync,writeFileSync} from 'node:fs'
@@ -27,6 +28,7 @@ try{
   const page=await context.newPage();page.setDefaultTimeout(20000)
   page.on('pageerror',error=>report.errors.push(error.stack??error.message))
   await page.goto(url,{waitUntil:'domcontentloaded',timeout:60000})
+  await showAllMissions(page)
   await page.getByRole('button',{name:'Mission 16',exact:true}).press('Enter')
   await bindGame(page)
   await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())

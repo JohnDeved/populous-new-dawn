@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { writeFileSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
@@ -314,6 +315,7 @@ try {
   page.setDefaultTimeout(30000)
   page.on('pageerror', e => report.errors.push(e.message))
   await page.goto(process.env.POPULOUS_URL, { waitUntil: 'networkidle' })
+  await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 8', exact: true }).focus()
   await page.keyboard.press('Enter')
   await bind()

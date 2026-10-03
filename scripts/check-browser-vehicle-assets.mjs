@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 // Focused original-vehicle acceptance. Run only through the shared queue with
 // --output-dir; capture inputs are original Mission22 actors and a labelled
 // completed-hut fixture exercising the normal Mission13 production handler.
@@ -33,6 +34,7 @@ try {
   page.on('pageerror', error => report.errors.push(error.stack ?? error.message))
   async function openMission(number) {
     await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45_000 })
+    await showAllMissions(page)
     const button = page.getByRole('button', { name: `Mission ${number}`, exact: true })
     await button.waitFor({ state: 'attached' })
     await button.click()

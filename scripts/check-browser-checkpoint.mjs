@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
@@ -409,9 +410,9 @@ try {
   await page.reload({ waitUntil: 'networkidle' })
   const startup = page.getByRole('dialog', { name: 'Start game' })
   await startup.waitFor()
-  await page.getByRole('status').filter({ hasText: 'Mission 2 is recommended next.' }).waitFor()
+  await page.getByRole('button', { name: 'Start Mission 2', exact: true }).waitFor()
   assert.match(
-    await page.getByRole('button', { name: 'Mission 1, completed', exact: true }).textContent(),
+    await page.getByRole('button', { name: 'Select Mission 1', exact: true }).textContent(),
     /✓/
   )
   assert.equal(await page.locator('.world-viewport canvas').count(), 0, 'no hidden fresh scene')
@@ -421,7 +422,8 @@ try {
     await page.getByRole('button', { name: 'Load Game', exact: true }).evaluate(button => button === document.activeElement),
     true
   )
-  for (let i = 0; i < 4; i++) await page.keyboard.press('Tab')
+  await showAllMissions(page)
+  await missionFour.focus()
   assert.equal(await missionFour.evaluate(button => button === document.activeElement), true)
   await page.keyboard.press('Enter')
   await waitForScene(page)
@@ -479,7 +481,8 @@ try {
 
   await page.reload({ waitUntil: 'networkidle' })
   await page.getByRole('dialog', { name: 'Start game' }).waitFor()
-  await page.getByRole('button', { name: 'Mission 1, completed', exact: true }).click()
+  await page.getByRole('button', { name: 'Select Mission 1', exact: true }).click()
+  await page.getByRole('button', { name: 'Replay Mission 1', exact: true }).click()
   await waitForScene(page)
   const fresh = await page.evaluate(() => ({
     turn: globalThis.testScene.world.turn,

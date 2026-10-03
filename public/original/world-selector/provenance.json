@@ -1,0 +1,44 @@
+{
+  "consumer": "00412780 / 004852f0",
+  "assets": [
+    {
+      "mission": 1,
+      "bank": 12,
+      "width": 512,
+      "height": 512,
+      "sources": {
+        "levels/levl2001.hdr": "4b89ef6d64e4010bb3ec3b5985d0edc8e710504e8b1bc75a6ae688bd6eb070a6",
+        "data/plstx001.dat": "3843a9bd552cf8c3e44e514f1d2c5b7c8ce3443a3b2c92eecfe4e7bd0acb51ce",
+        "data/plspl0-c.dat": "9e6dc9767ea11135c001c69acc090cfdaa7b55131725bc0bce204015050c39c2"
+      },
+      "output": "mission-1.png",
+      "outputSha256": "5c5cca9d1a4cc543d0ed6e8a43915ca7c50db99b4f7206866dbbfd5d3e9acd94"
+    },
+    {
+      "mission": 2,
+      "bank": 28,
+      "width": 512,
+      "height": 512,
+      "sources": {
+        "levels/levl2002.hdr": "44be9f709f03f4b4d936d86056256e7bb98683088332b4bb47354ad709ea8a49",
+        "data/plstx002.dat": "aaa13d29bf1dc47ffec981b08e67b55015cf4faef9b8729f05d831791ac0fec8",
+        "data/plspl0-s.dat": "a74fd9c5e6b630e9de3ffa7f93ce1cca2785dfd0de5499923ae18d51ebc8b2e4"
+      },
+      "output": "mission-2.png",
+      "outputSha256": "a6d2d4b2ee3bdc3387bf429b9b20c575bac42e5a5b4d89f98b2ba3f64f171527"
+    },
+    {
+      "mission": 3,
+      "bank": 25,
+      "width": 512,
+      "height": 512,
+      "sources": {
+        "levels/levl2003.hdr": "219dd7611a4e3f6c2d4e78620a4d5bb9cf61bf0e9c66c21b2b43b89c8ba4d3f0",
+        "data/plstx003.dat": "bb2a831f962727ca5ebff7b68f8dbcc3e5ac834c91cdca3a59d6145dd39037bb",
+        "data/plspl0-p.dat": "916b8eef2b9c9a9af6607ad29501364d5a280681ba52229bfff32c8a2fe2c736"
+      },
+      "output": "mission-3.png",
+      "outputSha256": "442cb85b2dc966d8ad5d191b9cf0c2184132ffe5f973e66eb92f2b58321f9cd0"
+    }
+  ]
+}

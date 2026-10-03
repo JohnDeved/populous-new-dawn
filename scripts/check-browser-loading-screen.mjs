@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame } from './browser-game.mjs'
@@ -82,6 +83,7 @@ async function waitForCount(read, expected, timeout = 10000) {
 }
 
 async function selectMission(page, mission) {
+  await showAllMissions(page)
   const button = page.getByRole('button', { name: `Mission ${mission}`, exact: true })
   await button.waitFor()
   await button.focus()

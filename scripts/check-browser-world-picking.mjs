@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import {chromium} from '@playwright/test'
 import {bindGame} from './browser-game.mjs'
@@ -8,7 +9,9 @@ try {
  page.on('pageerror',error=>errors.push(error.stack??error.message))
  page.on('console',message=>{if(message.type()==='error')errors.push(message.text())})
  await page.goto(process.env.POPULOUS_URL??'http://127.0.0.1:4318',{waitUntil:'domcontentloaded',timeout:45000})
+ await showAllMissions(page)
  await page.getByRole('button',{name:'Mission 23',exact:true}).waitFor({timeout:20000})
+ await showAllMissions(page)
  await page.getByRole('button',{name:'Mission 23',exact:true}).click()
  await bindGame(page)
  if(await page.evaluate(()=>!!window.testScene.world.inputMask))await page.keyboard.press('Escape')

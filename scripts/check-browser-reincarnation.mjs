@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 // Start npm run dev, then node scripts/check-browser-reincarnation.mjs.
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
@@ -23,6 +24,7 @@ try {
     window.resumeFrames = () => { held = false }
   })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
+  await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 1', exact: true }).click()
   await page.waitForSelector('.world-viewport canvas')
   await page.evaluate(() => {

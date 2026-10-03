@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame } from './browser-game.mjs'
@@ -14,6 +15,7 @@ try {
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', {
     waitUntil: 'networkidle',
   })
+  await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 23', exact: true }).click()
   await bindGame(page)
   if (await page.evaluate(() => !!globalThis.testScene.world.inputMask))
