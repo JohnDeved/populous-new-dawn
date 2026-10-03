@@ -14,6 +14,7 @@ import {
   buildingModel,
   buildingPose,
   buildingPosition,
+  buildingOutsidePoint,
 } from './building-shapes.ts'
 import { buildingAdmission } from './live-building-entry.ts'
 import {
@@ -333,27 +334,49 @@ function produceMissionBuilding(w: World, tribe: number) {
       .filter(building => building.team === team && building.hp > 0)
       .reduce((sum, building) => {
         const model = buildingModel(building)
-        return sum + (rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
+        const counts = w.outcome.level !== 2 || building.preparation || building.progress === 1
+        return (
+          sum + (counts && rules.buildingFlags[model] & 0x20 ? rules.buildingCapacity[model] : 0)
+        )
       }, 0)
   if (
-    ![3, 6, 11, 12, 23].includes(w.outcome.level) ||
+    ![2, 3, 6, 11, 12, 23].includes(w.outcome.level) ||
     !(w.ai.states & 1) ||
     w.ai.tasks.filter(task => task.flags & 1 && task.type === 0).length >= w.ai.attributes[9]
   )
     return false
   const selection = computerSelectionWorld(w, tribe)
-  if (availableTrainingPeople(selection.world) < 2) return false
+  const available =
+    w.outcome.level === 2
+      ? selection.world.people.filter(
+          person => rules.personStateFlags[person.state] & 8 && !person.busy && person.model !== 7
+        ).length
+      : availableTrainingPeople(selection.world)
+  if (available < 2) return false
   const shaman = w.units.find(unit => unit.team === team && isShaman(unit) && unit.hp > 0),
     position = shaman && nativePosition(w, shaman),
     origin =
-      w.outcome.level === 12 && position
-        ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
-        : base
-          ? ((buildingPose(base).anchorX >>> 8) & 254) | (buildingPose(base).anchorY & 0xfe00)
-          : position
-            ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
-            : 0
+      w.outcome.level === 2 && w.ai.constructionBase !== undefined
+        ? w.ai.constructionBase
+        : (w.outcome.level === 2 || w.outcome.level === 12) && position
+          ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
+          : base
+            ? ((buildingPose(base).anchorX >>> 8) & 254) | (buildingPose(base).anchorY & 0xfe00)
+            : position
+              ? ((position.x >>> 8) & 254) | (position.y & 0xfe00)
+              : 0
   if (!origin) return false
+  if (w.outcome.level === 2) {
+    // The authored outpost is not the construction base. Native 0x461d70 starts
+    // without a base; the first ordinary Tower plan establishes it in phase 3.
+    const model =
+      !(w.ai.flags & 0x400) && (w.ai.constructionBase === undefined || !has(4))
+        ? 4
+        : housing < w.ai.attributes[10]
+          ? 1
+          : 0
+    return !!model && requestConstruction(w.ai, model, origin)
+  }
   // ponytail: only the first proved Mission 12 producer request belongs to this opening slice.
   if (w.outcome.level === 12 && w.ai.flags & mission12TowerRequested) return false
   if (
@@ -501,10 +524,19 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
       task.target = cell
       task.entity = building.id
       task.retries = 0
-      task.phase = 4
+      task.phase = w.outcome.level === 2 && task.requested === 4 ? 3 : 4
       return
     }
     if (task.elapsed >= task.remaining) cleanup()
+    return
+  }
+  if (task.phase === 3 && w.outcome.level === 2) {
+    const building = w.buildings.find(b => b.id === task.entity && b.hp > 0)
+    if (!task.extra && w.ai.constructionBase === undefined && building) {
+      const outside = buildingOutsidePoint(buildingPose(building))
+      w.ai.constructionBase = ((outside.x >>> 8) & 254) | (outside.y & 0xfe00)
+    }
+    task.phase = 4
     return
   }
   if (task.phase === 4) {
