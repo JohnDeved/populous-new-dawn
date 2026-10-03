@@ -45,28 +45,29 @@ export async function naturalHutAdmission() {
   const world = api.createWorld(2)
   const fixture = await makeHutSmokeScene(world)
   const { scene, render } = fixture
-  render()
-  const hut = world.buildings.find(b => b.team === 'blue' && b.kind === 'hut')
-  assert.ok(hut)
-  assert.equal(world.units.filter(u => u.inside === hut.id).length, 0)
-  let event
-  const { observeHutOccupancy } = await import('../../app/hut-occupancy-smoke.ts')
-  const stop = observeHutOccupancy(hut, () => {
-    const ids = world.units.filter(u => u.inside === hut.id && u.hp > 0).map(u => u.id)
-    if (!event && ids.length) {
-      const smoke = scene.buildingMeshes.get(hut.id).userData.hutOccupancySmoke
-      event = {
-        turn: world.turn,
-        counter: hut.counter,
-        building: hut.id,
-        residents: ids,
-        level: hut.level,
-        pose: api.buildingPose(hut),
-        callbackRoot: structuredClone(smoke.state.root),
-      }
-    }
-  })
+  let stop = () => {}
   try {
+    render()
+    const hut = world.buildings.find(b => b.team === 'blue' && b.kind === 'hut')
+    assert.ok(hut)
+    assert.equal(world.units.filter(u => u.inside === hut.id).length, 0)
+    let event
+    const { observeHutOccupancy } = await import('../../app/hut-occupancy-smoke.ts')
+    stop = observeHutOccupancy(hut, () => {
+      const ids = world.units.filter(u => u.inside === hut.id && u.hp > 0).map(u => u.id)
+      if (!event && ids.length) {
+        const smoke = scene.buildingMeshes.get(hut.id).userData.hutOccupancySmoke
+        event = {
+          turn: world.turn,
+          counter: hut.counter,
+          building: hut.id,
+          residents: ids,
+          level: hut.level,
+          pose: api.buildingPose(hut),
+          callbackRoot: structuredClone(smoke.state.root),
+        }
+      }
+    })
     for (let turn = 0; turn < 256 && !event; turn++) {
       api.advanceGame(world, scene.gameClock, 1 / 12)
       render()

@@ -89,6 +89,27 @@ export function reconcileHutOccupancySmoke(
   return true
 }
 
+// Finish a root allocated by an occupancy event during the current game turn.
+// If the building counter advances after that event (for example a Tornado
+// release before the building pass), its normal counter delta owns visit 1.
+// Otherwise the later native secondary pass supplies this otherwise-missed visit.
+export function completeHutSmokeAllocationVisit(
+  state: HutOccupancySmokeState,
+  root: RootSmoke | null,
+  allocationCounter: number,
+  completedCounter: number
+) {
+  if (
+    root &&
+    state.root === root &&
+    root.mode === 'partial' &&
+    root.visible &&
+    root.lifetime === 16 &&
+    allocationCounter === completedCounter
+  )
+    root.lifetime--
+}
+
 function stepPartialRoot(root: RootSmoke, drawRandom: () => number, animationFrame: number) {
   if (root.mode === 'full') return
   if (!root.visible && (drawRandom() & 15) < 3) {
@@ -112,11 +133,11 @@ export function stepHutOccupancySmoke(
   while (remaining-- > 0) {
     state.lastBuildingCounter = (state.lastBuildingCounter + 1) & 255
     // 0x403280 -> 0x40c4e0 samples completed player buildings on this phase.
-    // A newly allocated root is not processed again in that same allocated-list visit.
-    const allocated =
-      !(state.lastBuildingCounter & 31) &&
+    // Roots allocated in the primary pass are visited by the later secondary pass
+    // in the same turn. Only children born during that secondary traversal wait.
+    if (!(state.lastBuildingCounter & 31))
       reconcileHutOccupancySmoke(state, occupants, capacity, animationFrame)
-    if (!allocated && state.root) stepPartialRoot(state.root, drawRandom, animationFrame)
+    if (state.root) stepPartialRoot(state.root, drawRandom, animationFrame)
   }
 }
 

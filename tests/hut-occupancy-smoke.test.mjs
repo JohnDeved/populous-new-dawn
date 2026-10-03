@@ -32,7 +32,11 @@ test('hut occupancy producer samples real occupancy every 32 building turns', ()
   assert.equal(hutOccupancySmokeLayer(state, 11)?.sequence, 'hutSmokePartial')
 
   stepHutOccupancySmoke(state, 63, 3, 3, 20, () => 31)
-  assert.equal(state.root?.mode, 'partial', 'occupancy change waits for the 32-count producer visit')
+  assert.equal(
+    state.root?.mode,
+    'partial',
+    'occupancy change waits for the 32-count producer visit'
+  )
   stepHutOccupancySmoke(state, 64, 3, 3, 21, () => 31)
   assert.equal(hutOccupancySmokeLayer(state, 21)?.sequence, 'hutSmokeFull')
 
@@ -50,16 +54,17 @@ test('partial root uses the native 16-visit visible lifetime and restart draw', 
     return 31
   })
   assert.equal(hutOccupancySmokeLayer(state, 4)?.sequence, 'hutSmokePartial')
-  assert.deepEqual(draws, [], 'newly allocated root is not processed again that visit')
+  assert.equal(state.root.lifetime, 15, 'the allocation turn is native processor visit 1')
+  assert.deepEqual(draws, [], 'a visible first visit consumes no cosmetic RNG')
 
-  stepHutOccupancySmoke(state, 48, 1, 3, 20, () => {
+  stepHutOccupancySmoke(state, 47, 1, 3, 20, () => {
     draws.push(31)
     return 31
   })
   assert.equal(hutOccupancySmokeLayer(state, 20), null)
   assert.equal(draws.length, 0, 'visible partial root consumes no cosmetic RNG')
 
-  stepHutOccupancySmoke(state, 49, 1, 3, 21, () => {
+  stepHutOccupancySmoke(state, 48, 1, 3, 21, () => {
     draws.push(0)
     return 0
   })
