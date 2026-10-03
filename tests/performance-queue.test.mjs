@@ -491,11 +491,15 @@ test('all linked worktrees resolve the same queue; invalid specs never launch', 
   assert(!fs.existsSync(f.events))
 })
 
-test('submission preserves PATH and run returns one compact result without agent polling', async t => {
+test('submission preserves PATH under an ESM temp parent and returns one compact result', async t => {
   const f = fixture(t),
     bin = path.join(f.root, 'bin'),
     oldPath = process.env.PATH
   fs.mkdirSync(bin)
+  // An isolated TMPDIR can live under a type:module checkout. The extensionless
+  // executable is CommonJS regardless of the package scope above the fixture.
+  fs.writeFileSync(path.join(f.root, 'package.json'), '{"type":"module"}\n')
+  fs.writeFileSync(path.join(bin, 'package.json'), '{"type":"commonjs"}\n')
   fs.writeFileSync(path.join(bin, 'queue-fixture'), `#!${process.execPath}\n${fixtureSource}`, {
     mode: 0o700,
   })

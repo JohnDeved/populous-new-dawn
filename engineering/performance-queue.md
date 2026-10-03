@@ -15,6 +15,8 @@ at the exact candidate commit. Keep writable `node_modules`, build output, tool
 caches, and `TMPDIR` private to that run; do not symlink/hardlink writable dependency
 trees or reuse a checkout belonging to an unknown run. Read-only native data can be
 shared when the inspected checks do not modify it. Inspect every command's writes;
+prefer a private sibling temporary directory outside the source package so generated
+scripts cannot accidentally inherit its `package.json` module type.
 no shared fixed ports, profiles, capture paths, or record modes. The receipt helper
 does not enforce isolation or manage arbitrary daemons.
 
