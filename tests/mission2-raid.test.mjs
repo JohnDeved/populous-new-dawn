@@ -1,3 +1,4 @@
+import { wrappedDistance } from '../app/world-coordinates.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import {
@@ -45,7 +46,7 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
   for (let attempts = 0; w.killCredits[0][3] <= 3 && attempts < 8; attempts++) {
     const target = w.units
       .filter(unit => unit.team === 'green' && unit.kind !== 'shaman' && unit.hp > 0)
-      .sort((a, b) => Math.hypot(a.x + 99, a.z + 105) - Math.hypot(b.x + 99, b.z + 105))[0]
+      .sort((a, b) => wrappedDistance(a, camp) - wrappedDistance(b, camp))[0]
     assert.ok(target)
     setSelection(w, warriors().map(unit => unit.id))
     assert.ok(command(w, target))
@@ -53,6 +54,11 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
   }
   assert.equal(w.killCredits[0][1], 0)
   assert.ok(w.killCredits[0][3] > 3)
+
+  // Let the authored raid regroup without running through our idle defenders.
+  // This startup scenario selects two fallback Braves rather than Warriors.
+  select(w, 'all')
+  assert.ok(command(w, { x: -80, z: -108 }))
 
   stepUntil(w, () => w.ai.tasks.some(task => task.flags & 1 && task.type === 20), 5000)
   const raid = w.ai.tasks.find(task => task.flags & 1 && task.type === 20)
@@ -71,17 +77,20 @@ test('Mission 2 naturally earns Matak kills and launches the organized raid', ()
       }),
     2000
   )
-  const blueHp = w.units
-    .filter(unit => unit.team === 'blue' && unit.hp > 0)
-    .reduce((sum, unit) => sum + unit.hp, 0)
-  stepUntil(
-    w,
-    () =>
-      w.units
-        .filter(unit => unit.team === 'blue' && unit.hp > 0)
-        .reduce((sum, unit) => sum + unit.hp, 0) < blueHp,
-    5000
-  )
+  // Return one actual follower to fight the raid. Clicking the camp itself
+  // starts training, whose replacement object is not evidence of combat damage.
+  select(w, 'brave')
+  assert.ok(w.selected.length)
+  const defender = w.units.find(unit => unit.id === w.selected[0])
+  const attacker = w.units.find(unit => unit.id === raid.members[0])
+  assert.ok(defender && attacker)
+  setSelection(w, [defender.id])
+  assert.ok(command(w, attacker))
+  const blueHp = defender.hp
+  const taskDamage = raid.damage
+  // Newborn followers change total tribe HP, so observe this fixed lifetime.
+  stepUntil(w, () => defender.hp < blueHp, 5000)
+  assert.ok(raid.members.includes(defender.fight?.opponent) || raid.damage > taskDamage)
   assert.equal(raid.phase, 16)
   assert.equal(raid.fallback, 14)
   assert.ok(raid.flags & 1)

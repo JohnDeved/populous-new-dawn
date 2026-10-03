@@ -1,9 +1,10 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import captures from './fixtures/combat-targets.json' with { type: 'json' }
 import { detectCombatThreat, selectCombatTarget, stepAttackReservation } from '../app/combat-targets.ts'
 import { automaticMeleeTarget } from '../app/live-combat.ts'
-import { createWorld, addUnit, addBuilding, tick, syncLandscapeObjects } from '../app/model.ts'
+import { addUnit, addBuilding, tick, syncLandscapeObjects } from '../app/model.ts'
 
 test('mixed target collection, native distance bands, fight admission and reservations replay executable captures', () => {
   for (const capture of captures.cases) {
@@ -21,7 +22,7 @@ test('mixed target collection, native distance bands, fight admission and reserv
 })
 
 function field() {
-  const w = createWorld(); w.units = []; w.buildings = []; w.fights = []
+  const w = createStartedWorld(); retainFixtureUnits(w, () => false); w.buildings = []; w.fights = []
   w.terrain.fill(3); w.terrainVersion++; tick(w, 1 / 6); w.turn = 4
   w.land.flags.fill(0); w.land.buildingIds.fill(0); w.land.owners.fill(0)
   return w

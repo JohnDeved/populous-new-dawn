@@ -95,6 +95,9 @@ function migrateLegacyComputerTeam(world: World, tribe: number) {
 export function migrateCheckpoint(world: World) {
   world.outcome.level ??= 1
   world.drawMode ??= 0
+  // An old checkpoint has already passed startup. Never replay terrain or conversion.
+  world.levelStart ??= []
+  world.levelStartStoneSound ??= 0
   const computerTribe = missionEnemyTribe(world.outcome.level),
     legacySingleAI = !world.campaignAIs
   world.vehicles ??= []

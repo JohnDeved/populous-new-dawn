@@ -1,6 +1,7 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createWorld, command, tick, unitAnimationSource, nativePosition } from '../app/model.ts'
+import { command, tick, unitAnimationSource, nativePosition } from '../app/model.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import { liveWorshippers, selectWorshippers, worshipHeadPose } from '../app/live-worship.ts'
 import { countWorshippers, worshipPositions } from '../app/worship.ts'
@@ -11,9 +12,9 @@ import { terrainPointHeight } from '../app/native-terrain.ts'
 import { initializeLivePanic } from '../app/live-people.ts'
 
 function scenario() {
-  const w = createWorld()
+  const w = createStartedWorld()
   w.manaWorld.gameFlags = 32
-  w.units = w.units.filter(u => u.team === 'blue')
+  retainFixtureUnits(w, u => u.team === 'blue')
   w.selected = w.units.map(u => u.id)
   const head = w.shrines.find(s => s.kind === 'bridge')
   command(w, head)
@@ -187,10 +188,10 @@ test('an unreachable head preserves the existing command without entering an unp
 })
 
 test('Ctrl waypoints finish at a stone head without replacing the current route or person', () => {
-  const w = createWorld(),
+  const w = createStartedWorld(),
     clock = { animationTime: 0, animationFrame: 0 }
   w.manaWorld.gameFlags = 32
-  w.units = w.units.filter(u => u.team === 'blue')
+  retainFixtureUnits(w, u => u.team === 'blue')
   w.selected = w.units.map(u => u.id)
   const head = w.shrines.find(s => s.kind === 'bridge')
   command(w, { x: 4, z: 24 }, { ctrlKey: true })
@@ -221,10 +222,10 @@ test('Ctrl waypoints finish at a stone head without replacing the current route 
 test('training replacements inherit a queued stone-head order and perform the original prayer', async () => {
   const { addBuilding, addUnit } = await import('../app/model.ts')
   const { stepLiveTraining } = await import('../app/live-building-entry.ts')
-  const w = createWorld(),
+  const w = createStartedWorld(),
     clock = { animationTime: 0, animationFrame: 0 }
   w.manaWorld.gameFlags = 32
-  w.units = []
+  retainFixtureUnits(w, () => false)
   const b = addBuilding(w, 'blue', 'camp', { x: -2, z: 32 }, true, { angle: Math.PI })
   const people = Array.from({ length: 3 }, (_, i) =>
     addUnit(w, 'blue', 'brave', { x: 7 + i * 0.4, z: 33 })
@@ -259,11 +260,11 @@ test('training replacements inherit a queued stone-head order and perform the or
 
 test('queued worship preserves turns, poses, RNG and rewards at 5–240 Hz and irregular frames', () => {
   const run = schedule => {
-    const w = createWorld(),
+    const w = createStartedWorld(),
       history = [],
       clock = { animationTime: 0, animationFrame: 0 }
     w.manaWorld.gameFlags = 32
-    w.units = w.units.filter(u => u.team === 'blue')
+    retainFixtureUnits(w, u => u.team === 'blue')
     w.selected = w.units.map(u => u.id)
     const head = w.shrines.find(s => s.kind === 'bridge')
     command(w, { x: 4, z: 24 }, { ctrlKey: true })

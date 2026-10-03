@@ -15,10 +15,12 @@ test('Shaman import preserves every prior frame, piece and animation entry', () 
   assert.equal(hash(units.frames.slice(0, 4250)), 'fc7e3f7c87e8d066d05935efb5c9aa587c9390c5aa47229b40df23f0e384bccf')
   assert.equal(hash(units.pieces.slice(0, 3276)), '8a02f51aa443b0c583be35ec691ab1f811048055098d54e46e9adf7d41dffddd')
   assert.equal(hash(Object.fromEntries(Object.entries(units.animations).slice(0, 13))), 'a80bf4033d5ae38e84207bc6bfcb2615a5897861eaf2c931533940ce49f93575')
-  assert.equal(units.frames.length, 4770)
-  assert.equal(units.pieces.length, 3785)
+  assert.equal(hash(units.frames.slice(0, 4770)), '890b8810167fbda4f3da7eaa07e2eaf197f3315e8ae83541a144f13b26e1f108')
+  assert.equal(hash(units.pieces.slice(0, 3785)), '806e4138b33988fecd366ef22529c9ec74e2c7389273075e83ba17bf495e7898')
+  assert.equal(units.frames.length, 5021)
+  assert.equal(units.pieces.length, 4004)
   assert.equal(units.frameCounts.length, 792)
-  assert.deepEqual([units.width, units.height, units.cell, units.columns], [2048, 7616, 64, 32])
+  assert.deepEqual([units.width, units.height, units.cell, units.columns], [2048, 8064, 64, 32])
 })
 
 test('actual tribe selects every native Shaman source and eight original directions', () => {
@@ -26,6 +28,7 @@ test('actual tribe selects every native Shaman source and eight original directi
   rules.personAnimationObjects.forEach((object, i) => {
     if (i % 9 === 7 && object >= 0) bases.add(rules.animationObjects[object][0])
   })
+  bases.add(rules.animationObjects[0x5d][0])
   for (const [tribe, team] of TRIBE_TEAMS.entries()) {
     const identity = shamanAppearance(team)
     assert.equal(identity.signature, `${team}-shaman`)

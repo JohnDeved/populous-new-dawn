@@ -199,6 +199,8 @@ export function createWorldState(missionNumber = 1): World {
       shamanGuardChanged: 0,
     })),
     routeNotice: null,
+    levelStart: [],
+    levelStartStoneSound: 0,
     terrain: makeTerrain(land),
     terrainVersion: 0,
     units: [],

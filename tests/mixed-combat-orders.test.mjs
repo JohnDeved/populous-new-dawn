@@ -1,13 +1,14 @@
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createWorld, addUnit, addBuilding, command, tick, joinBattle } from '../app/model.ts'
+import { addUnit, addBuilding, command, tick, joinBattle } from '../app/model.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
 import { advanceGame } from '../app/game-clock.ts'
 
 const person = u => u.fight?.motion ?? u.native ?? u.entry?.person
 function scenario(kind = 'ground', existing = true) {
-  const w = createWorld()
-  w.units = []
+  const w = createStartedWorld()
+  retainFixtureUnits(w, () => false)
   w.buildings = []
   w.trees = []
   w.terrain.fill(3)
@@ -139,8 +140,8 @@ test('combat interruption and resumed orders preserve simulation and poses acros
 })
 
 test('combat removes a waiting trainee from its physical line while retaining its training order', () => {
-  const w = createWorld()
-  w.units = []
+  const w = createStartedWorld()
+  retainFixtureUnits(w, () => false)
   w.buildings = []
   w.shrines = []
   w.trees = []
