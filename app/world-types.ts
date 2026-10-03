@@ -342,6 +342,7 @@ export type Effect = Point & {
   fire?: SceneryFire
   sinking?: SinkingBuilding & { stage: number }
   wave?: BlastWave
+  startConversionLink?: number
   turnsRemaining?: number
   groundVersion?: number
   age: number

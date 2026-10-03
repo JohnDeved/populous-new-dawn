@@ -42,6 +42,16 @@ The live binding is restricted to these three researched missions.
   most128 using `0044fde0`. Wildmen in those cells convert through `004d7fd0`,
   which allocates a new brave then deletes the Wildman, plus two model58 flashes
   and sound5. This replaces Mission2's previous instant ownership shortcut.
+- The neutral model58 flash retains the replacement handle. `005138b0` (state45)
+  decrements its eight-visit lifetime first, then follows an active linked record
+  and samples ground height. Removed/inactive/missing records leave its last
+  position unchanged until normal expiry; another active record at the retained
+  native handle is followed. The owner flash is unlinked and stationary. Neither
+  path clears the Brave's flags4/0x40000. Fifteen complete native lifetimes compare
+  all120 position/ground/lifetime visits.
+- Model61 uses state48's timer-only consumer: producer speed48/angle writes do
+  not move the child during its six visits. Complete class7 dispatcher execution
+  at eight angles verifies this; only final removal is supplied.
 - The ring owns32 model60 orbits, one light on every fifth, moving by91 angle
   units per visit and emitting model61 sparkles. It ends after21 visits unless
   uncleared scenery keeps it alive. It is not the separate Flatten spell31.

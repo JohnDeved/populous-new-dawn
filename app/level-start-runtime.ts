@@ -1,4 +1,4 @@
-import type { World, Unit } from './world-types.ts'
+import type { World, Unit, Effect } from './world-types.ts'
 import { teamForTribe, tribeForTeam } from './world-types.ts'
 import { missionData } from './mission-data.ts'
 import {
@@ -44,6 +44,7 @@ import {
   stepLevelStartCarrier,
   levelStartStoneHeading,
   levelStartBurstParticle,
+  levelStartConversionPoint,
   type StartPoint,
   type LevelStartSite,
 } from './level-start.ts'
@@ -170,9 +171,11 @@ export function initializeLevelStart(w: World) {
 }
 
 export function levelStartOwnsShaman(w: World, u: Unit) {
+  const order = u.native && currentPersonOrder(w.buildingOrders, u.native)
   return (
     u.native?.state === 10 &&
-    currentPersonOrder(w.buildingOrders, u.native)?.model === 18 &&
+    order?.model === 18 &&
+    !(order.flags & 1) &&
     (w.levelStart?.some(site => site.shaman === u.id && site.phase < 4) ?? false)
   )
 }
@@ -208,7 +211,23 @@ function convertStartingWildman(w: World, u: Unit, tribe: number) {
   registerLivePerson(w, replacement.native)
   sound(w, 5, replacement)
   // 0x4d7fd0's neutral flash plus 0x50c840's owner flash are separate allocations.
-  for (let i = 0; i < 2; i++) animatedStartEffect(w, point, 'startConversion', 1240, 45, 8)
+  const neutral = animatedStartEffect(w, point, 'startConversion', 1240, 45, 8)
+  neutral.startConversionLink = replacement.id
+  animatedStartEffect(w, point, 'startConversion', 1240, 45, 8)
+}
+
+// 0x5138b0, effect58/state45. The common effect loop decrements first; expiry
+// does not follow or change the linked object's conversion flag.
+export function stepLevelStartConversion(w: World, fx: Effect) {
+  if (fx.startConversionLink === undefined || fx.turnsRemaining === 0) return
+  const target = w.objectCells.objects.get(fx.startConversionLink) as
+      | (StartPoint & { class: number; flags2: number })
+      | undefined,
+    current = { ...nativePosition(w, fx), h: Math.round((fx.height ?? 0) * 45) }
+  moveVisual(
+    fx,
+    levelStartConversionPoint(current, target, p => terrainPointHeight(w.land, p))
+  )
 }
 
 export function stepLevelStarts(w: World) {
@@ -317,15 +336,16 @@ export function stepLevelStarts(w: World) {
         removePersonOrder(w.buildingOrders, u.native, u.native.commandCursor, orderEffects(w))
       continue
     }
-    const p = u.native
-    site.counter = (site.counter + 1) & 255
-    p.counter = site.counter
-    if (currentPersonOrder(w.buildingOrders, p)?.model !== 18) {
+    const p = u.native,
+      order = currentPersonOrder(w.buildingOrders, p)
+    if (order?.model !== 18 || (p.state === 10 && order.flags & 1)) {
       // A real replacement order cancels this command, not its already-created effects.
       site.phase = 4
       p.flags2 &= ~0x4000
       continue
     }
+    site.counter = (site.counter + 1) & 255
+    p.counter = site.counter
     if (p.state !== 10) {
       // 0x4c1b80 may enter cast state22 without clearing command18. Its return
       // goes through 0x432260, which reinitializes the command at substate0.

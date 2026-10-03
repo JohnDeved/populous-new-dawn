@@ -271,3 +271,34 @@ print('PASS: all four native camera stores retain their fresh-load seed through 
 # processors are supplied; list traversal, dispatch count and byte counters execute.
 subprocess.run([sys.executable,'-B','scripts/check-native-formation-phase.py',str(exe)],cwd=ROOT,check=True)
 print('PASS: all six startup people retain the original one-visit counter cadence through command completion')
+
+# Complete model58/state45 child dispatcher (005138b0). Only final removal is
+# supplied; movement/terrain sampling execute. Native freed table slots remain
+# records, so an inactive slot models a browser object that no longer exists.
+cpu,identity=native_cpu(exe);cpu.mem_map(0x2000000,0x40000)
+linked_removed=False
+q=p+0x1000
+def linked_remove(c,address,size,user):
+ global linked_removed
+ linked_removed=True;sp=c.reg_read(UC_X86_REG_ESP)
+ c.reg_write(UC_X86_REG_EIP,read(sp,'I'));c.reg_write(UC_X86_REG_ESP,sp+4)
+cpu.hook_add(UC_HOOK_CODE,linked_remove,begin=0x4ef180,end=0x4ef180)
+linked_cases=[]
+for mode in ['moving','inactive','removed','reused-active-handle','owner-unlinked']:
+ for ground in [64,321,1024]:
+  cpu.mem_write(p,bytes(256));cpu.mem_write(q,bytes(256));land=bytearray(0x40000)
+  for i in range(16384):struct.pack_into('<h',land,i*16+4,ground)
+  cpu.mem_write(0x8a03e4,bytes(land));write(p+0x24,'H',1);write(q+0x24,'H',2)
+  write(p+0x2a,'BBB',7,58,45);write(p+0x3d,'HHh',1000,2000,ground);write(p+0x6c,'h',8);write(p+0x72,'H',0 if mode=='owner-unlinked' else 2)
+  write(q+0x2a,'BBB',1,2,19);write(q+0x10,'I',0x40000);write(0x890390+4,'I',p);write(0x890390+8,'I',q)
+  linked_removed=False;targets=[];visits=[]
+  for visit in range(1,9):
+   target={'x':1200+visit*73,'y':2200+visit*65,'h':450+visit,'class':0 if mode=='inactive' and visit>=3 else 2 if mode=='reused-active-handle' and visit>=3 else 1,'flags2':1 if mode=='removed' and visit>=3 else 0}
+   write(q+0x3d,'HHh',target['x'],target['y'],target['h']);write(q+0x2a,'B',target['class']);write(q+0xc,'I',target['flags2']);targets.append(None if mode=='owner-unlinked' else target)
+   call(0x4ed700,p)
+   visits.append({'position':dict(zip(['x','y','h'],struct.unpack('<HHh',cpu.mem_read(p+0x3d,6)))),'remaining':read(p+0x6c,'h'),'removed':linked_removed})
+   assert read(q+0x10,'I')==0x40000,'linked consumer does not clear the Brave conversion flag'
+  linked_cases.append({'mode':mode,'ground':ground,'targets':targets,'expected':visits})
+js="""import fs from 'node:fs';import {levelStartConversionPoint} from './app/level-start.ts';for(const c of JSON.parse(fs.readFileSync(0,'utf8'))){let point={x:1000,y:2000,h:c.ground},remaining=8;const actual=c.targets.map(target=>{remaining--;if(remaining)point=levelStartConversionPoint(point,target??undefined,()=>c.ground);return{position:{...point},remaining,removed:remaining===0}});if(JSON.stringify(actual)!==JSON.stringify(c.expected))throw new Error('linked flash mismatch '+c.mode+'/'+c.ground)}"""
+subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(linked_cases).encode(),cwd=ROOT,check=True)
+print('PASS:15 complete model58 lifetimes:120 moving/grounded, inactive/removed, reused-handle and stationary-owner visits')

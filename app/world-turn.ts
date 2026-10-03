@@ -1,4 +1,8 @@
-import { levelStartOwnsShaman, stepLevelStarts } from './level-start-runtime.ts'
+import {
+  levelStartOwnsShaman,
+  stepLevelStarts,
+  stepLevelStartConversion,
+} from './level-start-runtime.ts'
 import { setShamanDeathPhase } from './shaman-death-vfx.ts'
 import { syncStoneHeadPresentation } from './stone-head-animation.ts'
 import {
@@ -564,6 +568,7 @@ function stepTurn(w: World) {
       if (!step.remaining) fx.duration = fx.age
     }
     if (fx.turnsRemaining !== undefined && --fx.turnsRemaining === 0) fx.duration = fx.age
+    if (fx.startConversionLink !== undefined) stepLevelStartConversion(w, fx)
     if (fx.kind === 'hypnotise' && fx.turnsRemaining === 11) applyHypnotise(w, fx, fx.team!)
     if (fx.angel) {
       const event = stepAngel(w, fx)
@@ -1480,6 +1485,7 @@ function stepTurn(w: World) {
     if (
       u.native &&
       ([3, 6, 7, 16, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
+        (activeOrder?.model === 18 && !!(activeOrder.flags & 1)) ||
         (activeOrder?.model === 28 && nativePersonTribe(u) === w.manaWorld.playerTribe && !target))
     ) {
       stepLiveMovement(w, u, {

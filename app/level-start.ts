@@ -170,3 +170,14 @@ export function levelStartCamera(position: StartPoint, gameFlags: number, previo
     angle: gameFlags & 32 ? previousAngle : 256,
   }
 }
+
+// 0x5138b0 follows an active linked record. A missing browser record stands for
+// the inactive native slot: retain the last position until the eight-visit expiry.
+export function levelStartConversionPoint(
+  current: StartPoint,
+  target: (StartPoint & { class: number; flags2: number }) | undefined,
+  ground: (p: StartPoint) => number
+): StartPoint {
+  if (!target || !target.class || target.flags2 & 1) return current
+  return { x: target.x, y: target.y, h: ground(target) }
+}

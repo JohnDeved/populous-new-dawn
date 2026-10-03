@@ -156,3 +156,71 @@ test('permitted state22 interruption and completion retain one counter increment
     assert.equal(site.phase,4)
   }
 })
+
+test('replacement player orders cancel startup before its counter write', () => {
+  for(const delay of [0,2,7]) {
+    const w=createWorld(2),u=w.units.find(u=>u.team==='blue'&&u.kind==='shaman')
+    assert.ok(cast(w,'blast',{x:u.x-10,z:u.z}))
+    for(let i=0;i<delay;i++)tick(w,1/12)
+    select(w,'shaman');assert.ok(command(w,{x:u.x+6,z:u.z}))
+    const before=u.native.counter,saved=migrateCheckpoint(structuredClone(w))
+    tick(w,1/12);tick(saved,1/12)
+    assert.equal(u.native.counter,(before+1)&255,`replacement after${delay} cast visits`)
+    assert.equal(w.levelStart.find(s=>s.tribe===0).phase,4)
+    assert.deepEqual(digest(saved),digest(w))
+  }
+})
+
+test('only the linked neutral startup conversion flash follows its replacement Brave', async () => {
+  const {terrainPointHeight}=await import('../app/native-terrain.ts')
+  const w=createWorld(2)
+  for(let i=0;i<30&&!w.effects.some(f=>f.sprite?.sequence==='startConversion');i++)tick(w,1/12)
+  const linked=w.effects.find(f=>f.startConversionLink!==undefined)
+  assert.ok(linked,'native004d7fd0 retains its replacement handle on the neutral flash')
+  const brave=w.units.find(u=>u.id===linked.startConversionLink),born={x:linked.x,z:linked.z}
+  const owner=w.effects.find(f=>f.sprite?.sequence==='startConversion'&&f!==linked&&f.x===born.x&&f.z===born.z)
+  assert.ok(owner);assert.equal(owner.startConversionLink,undefined)
+  w.selected=[brave.id];assert.ok(command(w,{x:brave.x+5,z:brave.z}))
+  for(let visit=1;visit<=8;visit++) {
+    const point=nativePosition(w,brave),expected={...browserPoint(point),h:terrainPointHeight(w.land,point)}
+    tick(w,1/12)
+    if(visit<8){assert.equal(linked.turnsRemaining,8-visit);assert.deepEqual({x:linked.x,z:linked.z},browserPoint(point));assert.equal(linked.height,expected.h/45);assert.deepEqual({x:owner.x,z:owner.z},born)}
+    else{assert.equal(w.effects.includes(linked),false);assert.equal(w.effects.includes(owner),false)}
+    if(visit===3){const saved=migrateCheckpoint(structuredClone(w));assert.equal(saved.effects.find(f=>f.id===linked.id).startConversionLink,brave.id);for(let i=0;i<5;i++)tick(saved,1/12);const live=structuredClone(w);for(let i=0;i<5;i++)tick(live,1/12);assert.deepEqual(digest(saved),digest(live))}
+  }
+  assert.ok(brave.native.flags4&0x40000,'effect expiry does not invent a Brave flag clear')
+})
+function browserPoint(p){return{x:((p.x-2048)<<16>>16)/256,z:-((p.y+2048)<<16>>16)/256}}
+
+test('a missing converted Brave does not retarget its flash or shorten the native expiry', async () => {
+  const {retainFixtureUnits}=await import('./level-start-fixture.mjs')
+  const {addUnit}=await import('../app/model.ts')
+  const w=createWorld(2)
+  for(let i=0;i<30&&!w.effects.some(f=>f.startConversionLink!==undefined);i++)tick(w,1/12)
+  const fx=w.effects.find(f=>f.startConversionLink!==undefined),link=fx.startConversionLink
+  const point={x:fx.x,z:fx.z,height:fx.height}
+  retainFixtureUnits(w,u=>u.id!==link)
+  const replacement=addUnit(w,'blue','brave',{x:point.x+4,z:point.z})
+  assert.notEqual(replacement.id,link)
+  const saved=migrateCheckpoint(structuredClone(w))
+  for(let visit=1;visit<=8;visit++){
+    tick(w,1/12);tick(saved,1/12)
+    if(visit<8){assert.ok(w.effects.includes(fx));assert.equal(fx.turnsRemaining,8-visit);assert.deepEqual({x:fx.x,z:fx.z,height:fx.height},point)}
+    else assert.equal(w.effects.includes(fx),false)
+  }
+  assert.deepEqual(digest(saved),digest(w))
+})
+
+test('an invalidated command18 is consumed by the ordinary queue without completing the site', async () => {
+  const {currentPersonOrder}=await import('../app/person-orders.ts')
+  const w=createWorld(2),u=w.units.find(u=>u.team==='blue'&&u.kind==='shaman')
+  advance(w,20)
+  const site=w.levelStart.find(s=>s.tribe===0),before=u.native.counter
+  currentPersonOrder(w.buildingOrders,u.native).flags|=1
+  tick(w,1/12)
+  assert.equal(site.phase,4)
+  assert.equal(u.native.counter,(before+1)&255)
+  assert.equal(currentPersonOrder(w.buildingOrders,u.native),undefined)
+  assert.equal(w.castingTribes[0].flags&2,0,'cancellation is not successful site completion')
+  assert.ok(site.wave,'an allocated wave retains its independent lifetime')
+})
