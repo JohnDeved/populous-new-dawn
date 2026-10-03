@@ -34,6 +34,8 @@ test('Mission 3 warns once when a naturally trained Chumara Preacher starts conv
   for (let i = 0; i < 128; i++) { tick(world, 1 / 12); tick(restored, 1 / 12) }
   assert.deepEqual(restored.ai.variables, world.ai.variables)
   assert.deepEqual(restored.messages, world.messages)
-  assert.equal(restored.randomSeed, world.randomSeed)
+  assert.equal(typeof restored.randomState, 'number')
+  assert.equal(typeof world.randomState, 'number')
+  assert.equal(restored.randomState, world.randomState)
   assert.equal(world.messages.slots.filter(message => message?.stringId === id).length, 1)
 })
