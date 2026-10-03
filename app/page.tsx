@@ -1070,12 +1070,17 @@ export default function Home() {
         </div>
       )}
       {startup === 'playing' && (!ready || error) && (
-        <div className={error ? 'loading-world' : 'loading-world loading-world-original'} role="status">
+        <div
+          className={error ? 'loading-world' : 'loading-world loading-world-original'}
+          role="status"
+        >
           {error ? (
             <>
               <span className="loading-rune">⟡</span>
               <h2>Loading failed</h2>
-              <p>The battlefield did not finish loading. Retry the same request when you are ready.</p>
+              <p>
+                The battlefield did not finish loading. Retry the same request when you are ready.
+              </p>
               <details>
                 <summary>Technical details</summary>
                 {error}
@@ -1095,9 +1100,7 @@ export default function Home() {
       {world.status !== 'playing' && !world.outcome.cameraPlaying && (
         <div className="end-screen">
           <span className="end-rune">{world.status === 'won' ? '✺' : '◈'}</span>
-          <p className="eyebrow">
-            {world.status === 'won' ? 'Level Complete' : 'Level Failed'}
-          </p>
+          <p className="eyebrow">{world.status === 'won' ? 'Level Complete' : 'Level Failed'}</p>
           <h2>{world.status === 'won' ? 'Level Won' : 'Level Lost'}</h2>
           <p>
             {world.status === 'won'

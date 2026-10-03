@@ -1045,9 +1045,7 @@ export function stepTeleport(w: World, fx: Effect) {
   const vehicle = liveVehicleCellObjects(w, ((target.x >>> 8) & 254) | (target.y & 0xfe00)).find(
     candidate =>
       !candidate.passengerCount ||
-      candidate.passengers.some(
-        id => w.units.find(unit => unit.id === id)?.team === shaman.team
-      )
+      candidate.passengers.some(id => w.units.find(unit => unit.id === id)?.team === shaman.team)
   )
   if (vehicle) boardLiveVehicle(w, person, vehicle)
   return false

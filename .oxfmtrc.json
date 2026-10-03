@@ -6,7 +6,7 @@
   "trailingComma": "es5",
   "arrowParens": "avoid",
   "ignorePatterns": [
-    "app/level-one.ts",
+    "app/level-*.ts",
     "app/original-*.json"
   ]
 }

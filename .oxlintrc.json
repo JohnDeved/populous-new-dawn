@@ -3,7 +3,7 @@
     "./node_modules/oxc-standard/.oxlintrc.json"
   ],
   "ignorePatterns": [
-    "app/level-one.ts",
+    "app/level-*.ts",
     "app/original-*.json",
     "decomp/**",
     "work/**",

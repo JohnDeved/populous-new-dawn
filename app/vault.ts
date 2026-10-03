@@ -82,8 +82,7 @@ export function stepVaultTask(task: VaultTask, input: VaultInput) {
     case 2:
       if (first) actions.push('face')
       actions.push('pray')
-      if (!input.arrived)
-        next(1) // Native task returns to its approach state.
+      if (!input.arrived) next(1) // Native task returns to its approach state.
       else if (input.ready) next(3)
       break
     case 3:

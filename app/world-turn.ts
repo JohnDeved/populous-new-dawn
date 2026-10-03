@@ -923,12 +923,7 @@ function stepTurn(w: World) {
         volcano.duration = Infinity
       } else if (shrine.kind === 'linkedEffects') {
         if (shrine.rewardMana !== undefined) {
-          const gift = createGift(
-            w,
-            'mana',
-            shrine.effectTarget ?? shrine,
-            shrine.rewardModel
-          )
+          const gift = createGift(w, 'mana', shrine.effectTarget ?? shrine, shrine.rewardModel)
           gift.amount = shrine.rewardMana
           gift.recipient = shrine.rewardRecipient ?? w.manaWorld.playerTribe
           gift.phase = 1

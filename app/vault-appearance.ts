@@ -33,9 +33,11 @@ export function vaultKnowledgeVisible(shrine: Pick<Shrine, 'kind' | 'active' | '
 // 0x4faaf0 replaces the class-6/model-2 reward position with the colocated
 // model-18 Vault's 0x404540 socket 1. Shrine x/z is the rendered Vault origin,
 // so recover its snapped building anchor before applying the original socket.
-export function vaultKnowledgePlacement(
-  shrine: Pick<Shrine, 'x' | 'z' | 'model' | 'angle'>
-): { x: number; z: number; heightOffset: number } {
+export function vaultKnowledgePlacement(shrine: Pick<Shrine, 'x' | 'z' | 'model' | 'angle'>): {
+  x: number
+  z: number
+  heightOffset: number
+} {
   const socket = buildingSocketPoint(
     {
       object: shrine.model,

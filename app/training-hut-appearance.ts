@@ -10,7 +10,8 @@ export function originalTrainingHutObject(
   if (
     building.team === 'wild' ||
     !['temple', 'spyHut', 'camp', 'firewarriorHut'].includes(building.kind)
-  ) return undefined
+  )
+    return undefined
   const object = buildingObject(building)
   if (!Object.hasOwn(models, object))
     throw new Error(`Missing original ${building.team} ${building.kind} mesh ${object}`)

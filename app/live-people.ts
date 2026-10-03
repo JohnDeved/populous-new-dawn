@@ -411,7 +411,10 @@ function context(w: World) {
     },
     sound: (p, cue) => sound(w, cue, browserPosition(p)),
     leaveBuilding: person => {
-      leaveLiveBuilding(w, w.units.find(u => u.id === person.id)!)
+      leaveLiveBuilding(
+        w,
+        w.units.find(u => u.id === person.id)!
+      )
     },
     projectile: () => {
       throw new Error('Live firewarriors are not yet implemented')

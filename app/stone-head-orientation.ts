@@ -23,7 +23,10 @@ export function findStoneHeadHeading(objects: readonly StoneScenery[], point: Po
 }
 
 const sources = new Map<number, Map<number, number>>()
-export function stoneHeadAngle(shrine: Pick<Shrine, 'kind' | 'angle' | 'x' | 'z'>, mission: number) {
+export function stoneHeadAngle(
+  shrine: Pick<Shrine, 'kind' | 'angle' | 'x' | 'z'>,
+  mission: number
+) {
   if (shrine.kind === 'vault') return shrine.angle
   let headings = sources.get(mission)
   if (!headings) {

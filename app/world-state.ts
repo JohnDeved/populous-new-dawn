@@ -276,36 +276,36 @@ export function createWorldState(missionNumber = 1): World {
       missionNumber === tutorialLevel
         ? ''
         : missionNumber === 1
-        ? 'Select a brave and send them to the southern stone head to worship for Land Bridge.'
-        : missionNumber === 2
-          ? 'Send your Shaman to the Totem Pole and build your settlement before facing the Matak.'
-          : missionNumber === 3
-            ? 'The Chumara can turn your followers against you. Reach their Vault and learn their power.'
-            : missionNumber === 4
-              ? 'Convert the Wildmen, discover the Guard Tower, and defeat the Matak.'
-              : missionNumber === 5
-                ? 'Worship the stone head to receive a Boat and cross the water.'
-                : missionNumber === 6
-                  ? 'Establish your settlement and defeat both the Chumara and Matak tribes.'
-                  : missionNumber === 7
-                    ? 'Convert Wildmen and seize Invisibility from the Chumara Vault.'
-                    : missionNumber === 8
-                      ? 'Seize Firewarrior training from the Dakini Vault and build your ranged force.'
-                      : missionNumber === 12
-                        ? 'For the first time we must face all three Enemy tribes. I must prepare for a mighty struggle.'
-                        : missionNumber === 14
-                          ? 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge.'
-                          : missionNumber === 15
-                            ? 'Destroy the Prison before time runs out and free your Shaman.'
-                            : missionNumber === 16
-                              ? 'Find Bloodlust in the desert and use its fighting frenzy against your enemies.'
-                              : missionNumber === 17
-                                ? 'Find Armageddon and prepare every tribe for the final arena battle.'
-                                : missionNumber === 18
-                                  ? "Prepare for the enemy tribes' powerful magic and seek Armageddon."
-                                  : missionNumber === 19
-                                    ? 'Protect the Chumara settlement from the Dakini and seek Teleport.'
-                                    : 'Discover the Boat House and launch a vessel to cross the world.',
+          ? 'Select a brave and send them to the southern stone head to worship for Land Bridge.'
+          : missionNumber === 2
+            ? 'Send your Shaman to the Totem Pole and build your settlement before facing the Matak.'
+            : missionNumber === 3
+              ? 'The Chumara can turn your followers against you. Reach their Vault and learn their power.'
+              : missionNumber === 4
+                ? 'Convert the Wildmen, discover the Guard Tower, and defeat the Matak.'
+                : missionNumber === 5
+                  ? 'Worship the stone head to receive a Boat and cross the water.'
+                  : missionNumber === 6
+                    ? 'Establish your settlement and defeat both the Chumara and Matak tribes.'
+                    : missionNumber === 7
+                      ? 'Convert Wildmen and seize Invisibility from the Chumara Vault.'
+                      : missionNumber === 8
+                        ? 'Seize Firewarrior training from the Dakini Vault and build your ranged force.'
+                        : missionNumber === 12
+                          ? 'For the first time we must face all three Enemy tribes. I must prepare for a mighty struggle.'
+                          : missionNumber === 14
+                            ? 'Worship the stone heads to claim Angel of Death, Earthquake, and Land Bridge.'
+                            : missionNumber === 15
+                              ? 'Destroy the Prison before time runs out and free your Shaman.'
+                              : missionNumber === 16
+                                ? 'Find Bloodlust in the desert and use its fighting frenzy against your enemies.'
+                                : missionNumber === 17
+                                  ? 'Find Armageddon and prepare every tribe for the final arena battle.'
+                                  : missionNumber === 18
+                                    ? "Prepare for the enemy tribes' powerful magic and seek Armageddon."
+                                    : missionNumber === 19
+                                      ? 'Protect the Chumara settlement from the Dakini and seek Teleport.'
+                                      : 'Discover the Boat House and launch a vessel to cross the world.',
     messageUntil: missionNumber === tutorialLevel ? 0 : 18,
     status: 'playing',
     respawn: 0,

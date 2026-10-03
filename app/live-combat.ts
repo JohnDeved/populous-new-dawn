@@ -251,7 +251,12 @@ function startFirewarriorResponse(
   if (!range) return 0
   const radius = Math.trunc(range / 2) * 2,
     buildings = !!(rules.personStateFlags[p.state] & 8) && !p.vehicle,
-    area = { model: 21, flags: 32 | (buildings ? 2 : 0), a: ((p.x >>> 8) & 254) | (p.y & 0xfe00), b: radius * 257 },
+    area = {
+      model: 21,
+      flags: 32 | (buildings ? 2 : 0),
+      a: ((p.x >>> 8) & 254) | (p.y & 0xfe00),
+      b: radius * 257,
+    },
     selected = selectLiveFirewarriorTarget(w, u, area, ready, false)
   if (!selected) return 0
   const id = allocatePersonOrder(w.buildingOrders)
