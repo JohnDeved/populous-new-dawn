@@ -37,6 +37,8 @@ export async function openGame(browser, mission = 1) {
   page.on('pageerror', error => errors.push(error.stack ?? error.message))
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
+  // Direct-access setup is explicit; campaign selector checks exercise its gating separately.
+  await page.getByRole('button', { name: 'All missions', exact: true }).click()
   await page.getByRole('button', { name: `Mission ${mission}`, exact: true }).focus()
   await page.keyboard.press('Enter')
   await bindGame(page)

@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import importlib.util
 import json
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -37,8 +38,8 @@ def main():
     assert pe.cstr(0x599b8c) == 'data/plspl0-%c.dat'
     raw = (args.executable.parent / 'data/plsdata.dat').read_bytes()
     worlds = decode_layout(raw)
-    source = (ROOT / 'app/world-selector-data.ts').read_text()
-    checked_in = json.loads(source.split('readonly SelectorWorld[] = ', 1)[1].split('\n\nexport const', 1)[0])
+    checked_in = json.loads(subprocess.check_output(['node', '--input-type=module', '-e',
+        "import {selectorWorlds} from './app/world-selector-data.ts'; console.log(JSON.stringify(selectorWorlds))"], cwd=ROOT))
     assert worlds == checked_in, 'Selector layout drifted from original data'
     assert len(worlds) == 25
     assert [worlds[i]['mission'] for i in (24,23,22)] == [1,2,3]
