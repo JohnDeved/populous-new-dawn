@@ -53,8 +53,9 @@ try {
    await page.screenshot({path:screenshot})
    frames.push({...state,heightHash,screenshot})
   }
-  assert.notEqual(frames[0].heightHash,frames[2].heightHash)
-  assert.equal(frames[3].heightHash,frames[4].heightHash)
+  const atTurn=turn=>frames.find(frame=>frame.turn===turn)
+  assert.notEqual(atTurn(0).heightHash,atTurn(24).heightHash)
+  assert.equal(atTurn(44).heightHash,atTurn(80).heightHash)
   assert.deepEqual(errors,[])
   report.missions.push({level,frames,errors})
   await context.close()
