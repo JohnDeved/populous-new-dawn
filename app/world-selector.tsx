@@ -7,7 +7,7 @@ import {
 } from './world-selector-data'
 import styles from './world-selector.module.css'
 
-type Props = {
+interface Props {
   missions: readonly number[]
   completed: readonly number[]
   hasCheckpoint: boolean
@@ -31,6 +31,9 @@ export function WorldSelector({
   const available = openingMissionAvailable(selected, completed)
   const isCompleted = completed.includes(selected)
   const body = selectorWorlds.find(world => world.mission === selected)!
+  let status = 'Available'
+  if (isCompleted) status = 'Completed · ready to replay'
+  else if (!available) status = `Complete Mission ${selected - 1} to continue.`
 
   function navigate(event: KeyboardEvent<HTMLElement>) {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return
@@ -81,7 +84,7 @@ export function WorldSelector({
         </section>
       ) : (
         <>
-          <div className={styles.campaign} onKeyDown={navigate}>
+          <div className={styles.campaign}>
             <div className={styles.map} aria-label="Opening worlds orbit map">
               <svg
                 viewBox="0 0 420 400"
@@ -123,46 +126,35 @@ export function WorldSelector({
               />
               <p className={styles.eyebrow}>World {selected}</p>
               <h3>Mission {selected}</h3>
-              <p role="status">
-                {isCompleted
-                  ? 'Completed · ready to replay'
-                  : available
-                    ? 'Available'
-                    : `Complete Mission ${selected - 1} to continue.`}
-              </p>
+              <p role="status">{status}</p>
               <p className={styles.orbitDescription}>Moon of World 5 · orbit {body.orbitRadius}</p>
               <button
                 className={styles.start}
                 disabled={!available}
+                onKeyDown={navigate}
                 onClick={() => onStart(selected)}
               >
                 {isCompleted ? `Replay Mission ${selected}` : `Start Mission ${selected}`}
               </button>
             </section>
           </div>
-          <div
-            className={styles.worldChoices}
-            aria-label="Choose campaign world"
-            onKeyDown={navigate}
-          >
+          <div className={styles.worldChoices} aria-label="Choose campaign world">
             {openingCampaignMissions.map(mission => {
               const unlocked = openingMissionAvailable(mission, completed)
+              let label = 'Locked'
+              if (completed.includes(mission)) label = 'Completed ✓'
+              else if (unlocked) label = 'Available'
               return (
                 <button
                   key={mission}
                   autoFocus={!hasCheckpoint && mission === selected}
                   aria-pressed={mission === selected}
                   aria-label={`Select Mission ${mission}`}
+                  onKeyDown={navigate}
                   onClick={() => setSelected(mission)}
                 >
                   <strong>Mission {mission}</strong>
-                  <span>
-                    {completed.includes(mission)
-                      ? 'Completed ✓'
-                      : unlocked
-                        ? 'Available'
-                        : 'Locked'}
-                  </span>
+                  <span>{label}</span>
                 </button>
               )
             })}

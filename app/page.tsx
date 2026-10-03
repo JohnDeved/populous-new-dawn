@@ -49,11 +49,7 @@ import {
 import { spellOrder } from './spell-button'
 import { spellHudButton, spellHudRoster, spellHudVisibility } from './spell-visibility'
 import { nativeUnitModel } from './unit-kinds'
-import {
-  missionComputerTribes,
-  missionNumbers,
-  tutorialLevel,
-} from './mission-data'
+import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
 import { teamForTribe, type TribeTeam } from './world-types'
 const timeLabel = (time: number) =>
   `${Math.floor(time / 60)
@@ -448,7 +444,8 @@ export default function Home() {
   const modeName =
     SPELLS.find(s => s.id === world.mode)?.name ?? BUILDINGS.find(b => b.id === world.mode)?.name
   function blockLoadingInteraction(event: SyntheticEvent) {
-    if (ready || (event.target as Element).closest('.loading-world,[data-world-selector]')) return false
+    if (ready || (event.target as Element).closest('.loading-world,[data-world-selector]'))
+      return false
     event.preventDefault()
     event.stopPropagation()
     return true
@@ -920,10 +917,7 @@ export default function Home() {
                 .map(({ spell: s, visibility }) => {
                   const player = world.manaWorld.playerTribe,
                     owner = world.manaTribes[player]?.spellOwner ?? player,
-                    permanent = !!(
-                      world.manaWorld.spells[owner]?.available &
-                      (1 << s.model)
-                    ),
+                    permanent = !!(world.manaWorld.spells[owner]?.available & (1 << s.model)),
                     undiscovered = visibility === 'undiscovered',
                     interactive = visibility === 'visible',
                     view = spellHudButton(visibility, {
@@ -947,7 +941,9 @@ export default function Home() {
                         cursor: undiscovered ? 'default' : undefined,
                       }}
                       aria-label={
-                        undiscovered ? 'Undiscovered spell' : `${s.name}, ${world.shots[s.id]} shots`
+                        undiscovered
+                          ? 'Undiscovered spell'
+                          : `${s.name}, ${world.shots[s.id]} shots`
                       }
                       aria-disabled={visibility !== 'visible'}
                       aria-pressed={interactive && world.mode === s.id}
