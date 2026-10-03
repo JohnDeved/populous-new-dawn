@@ -100,8 +100,9 @@ test('Mission 2 rebuilds after a real player army destroys both Towers, retainin
   }
   setSelection(world, warriors().map(u => u.id))
   assert.ok(command(world, { x: -108, z: -105 }))
-  const oldIds = new Set(towers.map(b => b.id))
-  const replacement = () => world.buildings.find(b => b.team === 'green' && b.kind === 'tower' && b.hp > 0 && !oldIds.has(b.id))
+  // Building handles may be reused; a replacement is a new object lifetime.
+  assert.ok(towers.every(tower => tower.hp <= 0))
+  const replacement = () => world.buildings.find(b => b.team === 'green' && b.kind === 'tower' && b.hp > 0 && !towers.includes(b))
   until(world, () => !!replacement(), 3000)
   const building = replacement()
   assert.equal(world.ai.constructionBase, base)
