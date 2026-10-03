@@ -1,5 +1,29 @@
 import { hudGlyph } from './hud-font.ts'
 import hud from './original-hud.json' with { type: 'json' }
+import type { Unit } from './world-types.ts'
+
+// 0x5cb255..0x5cb35d: native class order and HFX pairs. Model 6 is the
+// Firewarrior; model 4 is the Preacher (not their previously swapped labels).
+const followerClasses = [
+  { kind: 'brave', label: 'Braves', sprite: 666 },
+  { kind: 'warrior', label: 'Warriors', sprite: 668 },
+  { kind: 'firewarrior', label: 'Firewarriors', sprite: 670 },
+  { kind: 'preacher', label: 'Preachers', sprite: 672 },
+  { kind: 'spy', label: 'Spies', sprite: 674 },
+] as const
+
+// 0x4a1170/0x4a0510: empty classes retain a disabled frame, without icon/count
+// art. Training knowledge is independent; housed followers still count.
+export function followerClassControls(
+  units: readonly Pick<Unit, 'team' | 'kind' | 'hp' | 'ghost'>[]
+) {
+  return followerClasses.map(({ kind, label, sprite }) => {
+    const count = units.filter(
+      unit => unit.team === 'blue' && unit.hp > 0 && !unit.ghost && unit.kind === kind
+    ).length
+    return { kind, label, sprite, count, enabled: count > 0 }
+  })
+}
 
 // 0x4a0510/0x4a0800, English 640×480 HUD. The alternate font accompanies
 // the native alternate count table; its control ownership remains separate.
