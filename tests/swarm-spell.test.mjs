@@ -438,6 +438,11 @@ test('Mission 2 naturally funds the Matak Shaman and casts Swarm through player 
       w.projectiles.some(projectile => projectile.team === 'green' && projectile.spell === 'swarm'),
     5000
   )
+  // Original startup RNG changes the shot's launch turn. Hold the selected
+  // Warriors at its actual target through an ordinary player order, rather than
+  // letting the moving group outrun the incoming Swarm before its impact.
+  const incoming = w.projectiles.find(projectile => projectile.team === 'green' && projectile.spell === 'swarm')
+  assert.ok(command(w, incoming.target))
   stepUntil(w, () => w.effects.some(effect => effect.swarm), 100)
   stepUntil(w, () => w.units.some(unit => unit.team === 'blue' && unit.native?.state === 26), 100)
   assert.deepEqual({ mana: w.manaTribes[1].mana, available: w.manaTribes[1].available }, inactive)
