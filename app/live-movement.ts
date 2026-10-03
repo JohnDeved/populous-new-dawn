@@ -391,8 +391,13 @@ export function movementOrder(w: World, to: { x: number; y: number }) {
 
 //0x43b2a0: allocate before replacing; exhaustion leaves the person untouched.
 //Unlike player input, this command does not restart the person's current state.
-export function returnLivePerson(w: World, u: Unit, to: { x: number; y: number }) {
-  const p = u.native ?? u.entry?.person ?? u.builder?.person
+export function returnLivePerson(
+  w: World,
+  u: Unit,
+  to: { x: number; y: number },
+  source?: LivePerson
+) {
+  const p = source ?? u.native ?? u.entry?.person ?? u.builder?.person
   if (!p) return false
   const id = movementOrder(w, to)
   if (!id) return false

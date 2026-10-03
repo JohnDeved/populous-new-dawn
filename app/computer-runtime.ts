@@ -440,7 +440,7 @@ function stepComputerConvert(w: World, tribe: number, index: number) {
         return
       if (!computerSpellAllowed(casting, w.ai.flags, w.manaWorld.gameFlags, 17)) return
       allocateComputerSpell(w, unit, 17, task.target)
-      returnLivePerson(w, unit, { x: p.x, y: p.y })
+      returnLivePerson(w, unit, { x: p.x, y: p.y }, p)
       task.phase = 3
       return
     }
