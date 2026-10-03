@@ -429,6 +429,7 @@ function stepComputerConvert(w: World, tribe: number, index: number) {
       const casting = w.castingTribes[tribe],
         caster = {
           ...spellCaster(w, unit),
+          height: p.h, // 0x4c2e30 reads the signed person+0x41, not the terrain beneath it.
           state: p.state,
           flags2: p.flags2 | (unit.inside === null ? 0 : 0x800000),
           flags4: p.flags4 | (unit.casting ? 0x400 : 0),

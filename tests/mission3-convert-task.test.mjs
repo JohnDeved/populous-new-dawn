@@ -10,6 +10,8 @@ import { stepComputerTasks } from '../app/computer-runtime.ts'
 import { campaignCommand } from '../app/campaign-command-runtime.ts'
 import { returnLivePerson } from '../app/live-movement.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'
+import { nativeSpellRange, spellCaster } from '../app/spell-casting.ts'
+import { browserPosition } from '../app/world-coordinates.ts'
 
 // Controlled cases pair with check-native-mission3-convert-target.py; these are
 // helper boundaries, separate from the natural mission journey below.
@@ -234,4 +236,35 @@ test('cast-ready flight-owned Shaman receives the type2 post-cast return on the 
   assert.equal(person.state, 26)
   assert.equal(other.native, otherPerson)
   assert.deepEqual(otherPerson, otherBefore)
+})
+
+test('type2 range reads actual signed person height rather than terrain beneath it', t => {
+  const world = createWorld(3)
+  for (const task of world.ai.tasks) task.flags = 0
+  requestConvertTask(world.ai, 4, 1)
+  const shaman = world.units.find(u => u.team === 'yellow' && u.kind === 'shaman')
+  const person = createLivePerson(world, shaman)
+  Object.assign(person, { state: 17, flags2: 0, flags4: 0 })
+  shaman.native = person
+  world.manaWorld.gameFlags &= ~32
+  world.castingTribes[2].flags &= ~0x80000
+  world.castingTribes[2].cooldown = 0
+  world.castingTribes[2].aiCooldown = 0
+  world.ai.flags &= ~0x40000
+  const caster = spellCaster(world, shaman)
+  const terrainRange = Math.trunc(nativeSpellRange(world.manaWorld.gameFlags, world.castingTribes[2].flags, caster, 17) / 512)
+  person.h = terrainRange < 24 ? 896 : -128
+  const personRange = Math.trunc(nativeSpellRange(world.manaWorld.gameFlags, world.castingTribes[2].flags, { ...caster, height: person.h }, 17) / 512)
+  assert.notEqual(personRange, terrainRange)
+  t.diagnostic(JSON.stringify({ terrainHeight: caster.height, personHeight: person.h, terrainRange, personRange }))
+  const distance = Math.min(personRange, terrainRange) + 1
+  const target = ((((person.x >>> 8) & 254) + distance * 2) & 255) | (person.y & 0xfe00)
+  const point = browserPosition({ x: (target & 255) << 8, y: target & 0xff00 })
+  for (const wild of world.units.filter(u => u.team === 'wild').slice(0, 8)) Object.assign(wild, point)
+  Object.assign(world.ai.tasks[0], { phase: 8, elapsed: 0, target })
+  world.manaTribes[2].mana = rules.spellCharging[17].cost
+  world.ai.cursor = 0
+  world.turn = 1
+  stepComputerTasks(world, 2)
+  assert.equal(world.spellCasts[2][17], Number(distance <= personRange))
 })
