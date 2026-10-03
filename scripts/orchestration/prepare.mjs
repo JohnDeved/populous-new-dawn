@@ -4,7 +4,6 @@ import { createHash } from 'node:crypto'
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { observeProgress } from './progress.mjs'
 import {
   ROOT, changedPaths, parseOptions, repositoryCheckCoverage, safeRepoPath,
   validateContract, validateRepository,
@@ -70,7 +69,6 @@ export function main(argv = process.argv.slice(2), repo = ROOT) {
     requiredCheckIds: contract.verification.requiredCheckIds,
     coverage: contract.verification.coverage,
     executesChecks: false,
-    deliveryClock: observeProgress(repo),
   }
 }
 

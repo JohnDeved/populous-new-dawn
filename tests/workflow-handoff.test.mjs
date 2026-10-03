@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { execFileSync, spawnSync } from 'node:child_process'
+import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
   existsSync,
@@ -15,11 +15,7 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { buildReviewBundle, verifyReviewBundle } from '../scripts/orchestration/review-bundle.mjs'
 import { runCommandReceipt } from '../scripts/orchestration/command-receipt.mjs'
-import {
-  assessProjectRelease,
-  deniedOperationDisposition,
-  pathsOverlap,
-} from '../scripts/orchestration/worker-closeout.mjs'
+
 
 const sha = value => createHash('sha256').update(value).digest('hex')
 const DECODE_DEPTH_LIMIT = 8
@@ -34,10 +30,8 @@ const run = (cwd, command, ...args) => execFileSync(command, args, { cwd, encodi
 function fixture() {
   const root = mkdtempSync(join(tmpdir(), 'pnd-handoff-')),
     repo = join(root, 'repo'),
-    bundle = join(root, 'review-bundle'),
-    neutral = join(root, 'closeout-neutral')
+    bundle = join(root, 'review-bundle')
   mkdirSync(repo)
-  mkdirSync(neutral)
   writeFileSync(join(repo, '.gitignore'), 'work/\n')
   writeFileSync(join(repo, 'source.txt'), 'before\n')
   run(repo, 'git', 'init', '-q')
@@ -63,7 +57,7 @@ function fixture() {
       2
     ) + '\n'
   )
-  return { root, repo, bundle, neutral, base }
+  return { root, repo, bundle, base }
 }
 
 function deletionFixture() {
@@ -99,62 +93,6 @@ function expectedIdentity(repo, base) {
   }
 }
 
-test('project closeout distinguishes active-path separation from unverified ownership release', () => {
-  const { root, repo, bundle, neutral } = fixture()
-  try {
-    assert.equal(pathsOverlap(repo, join(repo, 'child')), true)
-    assert.deepEqual(
-      assessProjectRelease({
-        sourceProject: repo,
-        bundleProject: bundle,
-        activeProject: repo,
-        bundlePreflight: 'open',
-      }).reasons,
-      ['PROJECT_STILL_BOUND']
-    )
-    assert.deepEqual(
-      assessProjectRelease({
-        sourceProject: repo,
-        bundleProject: bundle,
-        activeProject: bundle,
-        bundlePreflight: 'open',
-      }).reasons,
-      ['REVIEW_BUNDLE_STILL_BOUND']
-    )
-    assert.deepEqual(
-      assessProjectRelease({
-        sourceProject: repo,
-        bundleProject: bundle,
-        activeProject: neutral,
-        bundlePreflight: 'project-in-use',
-      }).reasons,
-      ['REVIEW_BUNDLE_PROJECT_IN_USE']
-    )
-    assert.equal(
-      assessProjectRelease({
-        sourceProject: repo,
-        bundleProject: bundle,
-        activeProject: neutral,
-        bundlePreflight: 'open',
-      }).status,
-      'unverified'
-    )
-    assert.deepEqual(assessProjectRelease({ sourceProject: repo, activeProject: neutral }), {
-      status: 'unverified',
-      pathStatus: 'passed',
-      reasons: ['INDEPENDENT_RELEASE_NOT_VERIFIED'],
-      sourceUnbound: true,
-      bundleUnbound: null,
-      sourceReleased: null,
-      bundleReleased: null,
-      releaseVerification: 'not-performed',
-      reviewerOpenPreflight: 'not-applicable',
-    })
-  } finally {
-    rmSync(root, { recursive: true, force: true })
-  }
-})
-
 test('review bundle is independently readable from a non-overlapping local fixture', () => {
   const { root, repo, bundle, base } = fixture()
   try {
@@ -165,11 +103,13 @@ test('review bundle is independently readable from a non-overlapping local fixtu
       receipts: ['work/orchestration/task/receipt.json'],
     })
     assert.equal(result.status, 'passed')
-    assert.equal(pathsOverlap(repo, bundle), false)
     const manifest = JSON.parse(readFileSync(join(bundle, 'manifest.json'), 'utf8')),
       head = run(repo, 'git', 'rev-parse', 'HEAD'),
       changed = readFileSync(join(repo, 'source.txt'))
     assert.equal(manifest.repository.headOid, head)
+    assert.equal(Object.hasOwn(manifest.reviewerPreflight, 'localDev'), false)
+    assert.match(manifest.reviewerPreflight.instructions, /trusted caller-supplied identities/)
+    assert.doesNotMatch(readFileSync(join(bundle, 'README.md'), 'utf8'), /Local Dev|project_open|PROJECT_IN_USE/)
     assert.equal(manifest.sources.length, 1)
     assert.equal(manifest.sources[0].path, 'source.txt')
     assert.equal(manifest.sources[0].sha256, sha(changed))
@@ -553,16 +493,13 @@ test('tracked deletion has an explicit expected deletion identity and rejects ta
 })
 
 test('real-path canonicalization rejects source aliases and bundle outputs through source symlinks', () => {
-  const { root, repo, bundle, neutral, base } = fixture()
+  const { root, repo, bundle, base } = fixture()
   try {
     const alias = join(root, 'source-alias')
     symlinkSync(repo, alias)
-    assert.deepEqual(
-      assessProjectRelease({
-        sourceProject: repo,
-        activeProject: alias,
-      }).reasons,
-      ['PROJECT_STILL_BOUND']
+    assert.throws(
+      () => buildReviewBundle(alias, { taskId: 'alias-source', base, output: join(repo, 'bundle') }),
+      /outside|overlap|source project/i
     )
 
     const outputAlias = join(root, 'output-alias')
@@ -578,10 +515,6 @@ test('real-path canonicalization rejects source aliases and bundle outputs throu
       /outside|overlap|source project/i
     )
     assert.equal(existsSync(join(repo, 'bundle')), false)
-    assert.equal(
-      assessProjectRelease({ sourceProject: repo, activeProject: neutral }).status,
-      'unverified'
-    )
     assert.equal(existsSync(bundle), false)
   } finally {
     rmSync(root, { recursive: true, force: true })
@@ -650,72 +583,4 @@ test('raw command receipts retain source head and complete stdout/stderr', () =>
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
-})
-
-test('closeout CLI consumes denial semantics instead of leaving them fixture-only', () => {
-  const { root, repo, neutral } = fixture()
-  try {
-    const command = spawnSync(
-      process.execPath,
-      [
-        join(process.cwd(), 'scripts/orchestration/worker-closeout.mjs'),
-        '--source-project',
-        repo,
-        '--active-project',
-        neutral,
-        '--expected-head',
-        run(repo, 'git', 'rev-parse', 'HEAD'),
-        '--denied-operation',
-        'required',
-        '--meaningful-work-remaining',
-        'true',
-        '--review-ready',
-        'false',
-      ],
-      { encoding: 'utf8' }
-    )
-    assert.equal(command.status, 2)
-    const output = JSON.parse(command.stdout)
-    assert.equal(output.status, 'unverified')
-    assert.equal(output.deniedOperation.operation, 'denied')
-    assert.equal(output.deniedOperation.retry, false)
-    assert.equal(output.workerStatus, 'IN_PROGRESS')
-  } finally {
-    rmSync(root, { recursive: true, force: true })
-  }
-})
-
-test('a denied operation blocks only itself until no meaningful or review-ready work remains', () => {
-  assert.deepEqual(
-    deniedOperationDisposition({
-      required: false,
-      meaningfulWorkRemaining: true,
-      reviewReady: false,
-    }),
-    { operation: 'denied', retry: false, required: false, workerStatus: 'IN_PROGRESS' }
-  )
-  assert.equal(
-    deniedOperationDisposition({
-      required: true,
-      meaningfulWorkRemaining: true,
-      reviewReady: false,
-    }).workerStatus,
-    'IN_PROGRESS'
-  )
-  assert.equal(
-    deniedOperationDisposition({
-      required: true,
-      meaningfulWorkRemaining: false,
-      reviewReady: true,
-    }).workerStatus,
-    'NEEDS_REVIEW'
-  )
-  assert.equal(
-    deniedOperationDisposition({
-      required: true,
-      meaningfulWorkRemaining: false,
-      reviewReady: false,
-    }).workerStatus,
-    'BLOCKED'
-  )
 })

@@ -474,14 +474,13 @@ test('context output saves current JSON and rejects silent option mistakes', () 
     assert.equal(JSON.parse(readFileSync(join(repo, output))).status, 'incomplete', 'Overflow cannot leave a stale complete packet')
   }))
 
-test('clock corruption cannot turn successful preparation into a failed partial operation', () =>
+test('preparation is independent of retired local status state', () =>
   withRepo(repo => {
     put(repo, 'work/orchestration/delivery-clock.json', '{broken')
     put(repo, 'work/orchestration/spec.json', taskSpec(repo))
     const result = prepareMain(['--spec', 'work/orchestration/spec.json', '--task-id', 'clock-fault',
       '--contract', 'work/orchestration/clock-fault.json'], repo)
-    assert.equal(result.deliveryClock.status, 'unavailable')
-    assert(result.deliveryClock.reason)
+    assert.equal(Object.hasOwn(result, 'deliveryClock'), false)
     assert.equal(JSON.parse(readFileSync(join(repo, result.contract))).identity.taskId, 'clock-fault')
     assert.equal(readFileSync(join(repo, 'work/orchestration/delivery-clock.json'), 'utf8'), '{broken')
   }))
@@ -1079,7 +1078,7 @@ function configureAggregate(repo) {
   const configure = (id, executable, args) => Object.assign(checks.checks.find(check => check.id === id),
     { automation: 'safe', executable, args })
   configure('repository-check', 'npm', ['run', 'check'])
-  configure('orchestration-tests', 'node', ['--test', 'tests/orchestration.test.mjs', 'tests/delivery-clock.test.mjs'])
+  configure('orchestration-tests', 'node', ['--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs', 'tests/workflow-policy.test.mjs'])
   configure('orchestration-structural', 'node', ['scripts/orchestration/cli.mjs', 'check'])
   checks.checks.find(check => check.id === 'orchestration-tests').inputs = ['docs.md']
   put(repo, 'engineering/checks.json', checks)
