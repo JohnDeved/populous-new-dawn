@@ -46,9 +46,12 @@ parts of that path; neither is a complete original-game recording.
 ## Natural simulation
 
 `tests/mission2-replacement.test.mjs` starts the shipped Mission 2. Player Braves
-build a Warrior Training Hut and train eight Warriors using normal commands.
-Their real combat reduces Matak to fewer than two Warriors while its population
-remains above ten. After the player army withdraws, the script requests a type-6
+build three Huts, grow to 26 people, build a Warrior Training Hut and train
+sixteen Warriors using normal commands. The test requires the AI's newly built
+home Tower to be complete before attacking. It chooses the nearest defender using
+toroidal distance and reissues direct attacks only to idle survivors after combat
+or panic has released their earlier order. Their real combat reduces Matak to
+fewer than two Warriors while its population remains above ten. After the player army withdraws, the script requests a type-6
 task at the existing Matak school, actual Braves receive training-entry orders,
 and ordinary mana/training conversion creates new Warriors. Producer preferences
 5..8 remain zero throughout.
@@ -63,3 +66,20 @@ No entities, counters, preferences, outcomes or training completions are injecte
 The test runs the shipped simulation in Node. Rendered browser acceptance and full
 Mission 2 or missions 1–3 parity remain separate. This evidence update is not a
 new gameplay feature or a parity-ledger increment.
+
+## Combined-construction regression
+
+On combined source `118b377f9481a7da84b69c67fe59935f656c1217`, the former
+eight-Warrior scenario timed out at turn 11472 during its first assault, before
+replacement training. Its planar-distance sort chose home defender 6 roughly
+111 wrapped world units from the school instead of outpost defender 21 roughly
+49 units away. Seven attackers died and the survivor had no attack order; the
+selected defender remained alive. Wrapped targeting alone also failed to reach
+the home defenders with that army. This was a failed scenario precondition, not
+evidence of a training-owner defect.
+
+The revised ordinary preparation and idle-survivor redirection reach the original
+population/Warrior gates without changing runtime behavior or raising the existing
+per-assault turn ceiling. Each selected target must actually die. The completed
+AI home Tower assertion keeps this proof composed with the construction feature;
+no construction, combat, training, or replacement producer is disabled.
