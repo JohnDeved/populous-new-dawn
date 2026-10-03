@@ -539,12 +539,12 @@
       "id": "orchestration-cache",
       "kind": "disposable",
       "generator": { "executable": "npm", "args": ["run", "orchestration:index"] },
-      "callers": ["scripts/orchestration/cli.mjs", "scripts/orchestration/progress.mjs"],
+      "callers": ["scripts/orchestration/cli.mjs"],
       "inputs": ["engineering/project-map.json", "engineering/checks.json", "parity.json"],
       "outputs": [
         { "path": "work/orchestration", "type": "directory", "tracked": false, "protected": false }
       ],
-      "recording": "Ignored indexes are regenerable; delivery-clock.json contains observed timestamps that cannot be reconstructed. Preserve it across handoffs. Never use a stale fingerprint or commit the cache/receipts."
+      "recording": "Ignored indexes are regenerable. Retain source-bound receipts and prior failed/denied attempts through review; historical timing records need no active maintenance. Never use a stale fingerprint or commit the cache/receipts."
     }
   ]
 }

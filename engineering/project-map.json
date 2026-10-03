@@ -290,6 +290,7 @@
         "app/scene-terrain-runtime.ts",
         "app/viewport-bounds.ts"
       ],
+      "researchPaths": ["scripts/check-browser-zoom-edges.mjs"],
       "sharedPaths": ["app/model.ts", "app/render-view.ts", "app/scene.ts"],
       "entrySymbols": [
         { "path": "app/world-terrain-runtime.ts", "symbol": "syncNativeTerrain" },
@@ -337,6 +338,7 @@
         "terrain-portable",
         "terrain-native",
         "terrain-browser",
+        "zoom-edges-browser",
         "mission18-native",
         "mission18-browser",
         "mission19-native",
@@ -549,6 +551,8 @@
       "decomp/research/mission2-rebuilding.md",
       "scripts/check-native-mission2-rebuilding.py",
       "decomp/generated/004c6da0.c",
+      "decomp/research/mission2-replacement.md",
+      "scripts/check-native-mission2-replacement.py",
       "decomp/research/mission3-person-task.md",
       "scripts/check-native-mission3-person-task.py",
       "scripts/check-native-mission3-preacher-task.py",

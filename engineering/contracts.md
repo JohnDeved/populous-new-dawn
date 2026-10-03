@@ -1,7 +1,9 @@
 # Compact task contract
 
-Use one JSON file for a substantial task. Store per-run contracts and receipts under
-ignored `work/orchestration/`; do not create a database for trivial edits.
+Optional: use one JSON contract when a substantial task benefits from mechanical
+scope/fingerprint verification. The GitHub issue/PR still owns acceptance and status;
+do not duplicate a task board here. Store per-run contracts and receipts under
+ignored `work/orchestration/`. A compact brief is enough for narrow work.
 
 Create the contract only after selecting the implementation milestone. Read-only
 priority triage needs no task spec, contract, or receipt. A gameplay contract covers

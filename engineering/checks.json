@@ -11,17 +11,18 @@
         "Markdown provenance",
         "Git change routing",
         "Contract audit",
-        "Worker closeout and review bundles",
+        "Portable review bundle integrity",
         "Source-bound raw command receipts"
       ],
       "knownLimits": [
         "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
       ],
       "executable": "node",
-      "args": ["--test", "tests/orchestration.test.mjs", "tests/delivery-clock.test.mjs", "tests/workflow-handoff.test.mjs"],
+      "args": ["--test", "tests/orchestration.test.mjs", "tests/workflow-handoff.test.mjs", "tests/workflow-policy.test.mjs"],
       "cwd": ".",
       "env": [],
       "inputs": [
+        ".codex/config.toml",
         ".agents/skills/populous-engineering/SKILL.md",
         "AGENTS.md",
         "GOAL.md",
@@ -96,6 +97,7 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        ".codex/config.toml",
         "package.json",
         "app",
         "engineering",
@@ -3681,6 +3683,23 @@
         "exitCode": 0,
         "artifacts": []
       }
+    },
+    {
+      "id": "zoom-edges-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Inspect intermediate ordinary zoom footprints and added-edge picking in actual WebGL output.",
+      "coveredBehavior": ["Zoom in/out", "reversal", "combined pan/rotation", "shared GPU/CPU footprint", "legacy-cutoff positive control", "resized and torus-seam added-edge picking"],
+      "knownLimits": ["Deterministic rendered consistency is not native raster equivalence or hardware performance proof.", "75 ordinary transition samples are reviewable captures with shared-row assertions; automated pixel comparisons cover three intermediate zoom-out positive controls."],
+      "executable": "node",
+      "args": ["scripts/check-browser-zoom-edges.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": ["scripts/check-browser-zoom-edges.mjs", "scripts/browser-game.mjs", "app/render-view.ts", "app/viewport-bounds.ts", "app/scene.ts", "app/scene-terrain-runtime.ts", "app/terrain-visibility.ts", "app/scene-camera-runtime.ts", "app/scene-input-runtime.ts", "app/camera-view.ts", "app/projection.ts"],
+      "prerequisites": ["Running game server", "Playwright Chromium or POPULOUS_HEADLESS_SHELL"],
+      "sideEffects": ["Writes checkout-local screenshots and JSON report under work/browser-zoom-edges or POPULOUS_ZOOM_ARTIFACTS"],
+      "resources": ["Own browser profile, server port and capture directory"],
+      "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
       "id": "terrain-portable",

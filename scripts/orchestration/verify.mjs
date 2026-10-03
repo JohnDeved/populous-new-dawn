@@ -5,7 +5,6 @@ import { once } from 'node:events'
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname, join, relative } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { observeProgress } from './progress.mjs'
 import {
   ROOT,
   changedPaths,
@@ -308,7 +307,7 @@ async function main() {
   const options = parseOptions(process.argv.slice(2))
   assert(options.contract, 'verify requires --contract')
   const result = await verifyContract(ROOT, options.contract)
-  console.log(JSON.stringify({ ...result, deliveryClock: observeProgress(ROOT) }, null, 2))
+  console.log(JSON.stringify(result, null, 2))
   process.exitCode = result.status === 'passed' ? 0 : result.status === 'failed' ? 1 : 2
 }
 

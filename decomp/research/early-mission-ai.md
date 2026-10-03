@@ -63,8 +63,10 @@ and never assigns training preferences 5..8; Warrior preference 7 stays zero.
 The previously reviewed `00485660` clears CPATR's first 48 bytes and `00486160`
 copies that cleared profile, so the file is not an assumed replacement owner.
 Opcode 1173 remains a spell-interval writer. No fabricated training preference or
-construction target is introduced. Natural replacement Warrior production must
-not be claimed without proving an actual other producer path.
+construction target is introduced. The separately verified [explicit replacement-Warrior path](mission2-replacement.md)
+is CPSCR074 words `551..<577` calling 1095 with `2 - Warrior count`; it does not
+write producer preferences. Its native allocation and natural training evidence
+do not restore the old sustained-growth claim.
 
 Mission 3's later 1168/1074/1103 and 1030(OFF) branches remain outside this raid
 slice. The automatic training availability inversion in `computer-runtime.ts`
