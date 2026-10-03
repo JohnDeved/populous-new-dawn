@@ -52,7 +52,22 @@ export default async function constructionGauge(args) {
         meshVisible: !!group?.visible, gaugeVisible: !!group?.userData.health?.visible }
     })
     const gl = scene.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
-    return { turn: world.turn, tower, towerMeshVisible: !!mesh?.visible, construction,
+    const model = mesh?.children[0]
+    let modelPixels = 0
+    if (model) {
+      scene.renderer.render(scene.scene, scene.camera)
+      const before = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4)
+      const after = new Uint8Array(before.length), visible = model.visible
+      gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, before)
+      model.visible = false
+      scene.renderer.render(scene.scene, scene.camera)
+      gl.readPixels(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight, gl.RGBA, gl.UNSIGNED_BYTE, after)
+      model.visible = visible
+      scene.renderer.render(scene.scene, scene.camera)
+      for (let i = 0; i < before.length; i += 4)
+        if (before[i] !== after[i] || before[i + 1] !== after[i + 1] || before[i + 2] !== after[i + 2]) modelPixels++
+    }
+    return { turn: world.turn, tower, towerMeshVisible: !!mesh?.visible, modelPixels, construction,
       renderer: debug && gl.getParameter(debug.UNMASKED_RENDERER_WEBGL), contextLost: gl.isContextLost() }
   })
   writeFileSync(resolve(output, 'construction-gauge.json'), `${JSON.stringify(result, null, 2)}\n`)
@@ -61,6 +76,7 @@ export default async function constructionGauge(args) {
   assert.equal(result.tower?.team, 'yellow')
   assert.equal(result.tower?.progress, 0.2)
   assert.equal(result.towerMeshVisible, true, 'Natural unfinished Tower geometry remains visible')
+  assert.ok(result.modelPixels > 0, 'Original staged Tower model contributes rendered pixels')
   assert.equal(result.contextLost, false)
   assert.ok(result.construction.length > 0)
   assert.deepEqual(result.construction.filter(b => b.gaugeVisible), [],
