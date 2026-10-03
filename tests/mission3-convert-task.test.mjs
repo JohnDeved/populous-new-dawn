@@ -40,6 +40,8 @@ test('Convert Wild target retains density, wrap, tie, inclusive radius and list-
     [0x1010, { 1: 1 }, [[40, 12]], 0, 31, null],
     [0x1010, { 1: 1 }, [[40, 12]], 32, 200, 0x0c28],
     [0x1010, { 1: 1 }, [[40, 12]], 33, 200, null],
+    [0x7324, { 0: 1 }, [[10, 10]], 0, 100, null],
+    [0x7324, { 0: 1 }, [[10, 10]], 101, 101, 0x0a0a],
   ]
   for (const [origin, sparse, people, minimum, maximum, expected] of cases) {
     const counts = Uint8Array.from({ length: 64 }, (_, i) => sparse[i] ?? 0)

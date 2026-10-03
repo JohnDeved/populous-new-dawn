@@ -45,6 +45,8 @@ for name,origin,sparse,people,minimum,maximum in [
     ('outside_maximum',0x1010,{1:1},[(40,12)],0,31),
     ('inclusive_minimum',0x1010,{1:1},[(40,12)],32,200),
     ('inside_minimum',0x1010,{1:1},[(40,12)],33,200),
+    ('pythagorean_distance_excluded',0x7324,{0:1},[(10,10)],0,100),
+    ('pythagorean_distance_inclusive',0x7324,{0:1},[(10,10)],101,101),
 ]:
     p=Probe();counts=[sparse.get(i,0) for i in range(64)]
     p.cpu.mem_write(0x8e03e4,bytes(counts));p.write(TARGET,'H',origin)
@@ -149,4 +151,4 @@ for counts,standable,reachable in [((0,0,0,0),True,True),((0,0,0,0),True,False),
     rows.append(dict(vehicleCounts=counts,standable=standable,reachable=reachable,phase=expected_phase,routeCalls=len(route_calls)))
 results['phase2WithSuppliedTerrainAndRoute']=rows
 print(json.dumps(results,indent=2))
-print('PASS:12 unhooked target searches,18 unhooked vehicle counts,9 route wrappers,8 standability cases,6 phase2 boundaries')
+print('PASS:14 unhooked target searches,18 unhooked vehicle counts,9 route wrappers,8 standability cases,6 phase2 boundaries')

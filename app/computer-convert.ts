@@ -44,7 +44,10 @@ export function findConvertTarget(
       y = (region >> 3) * 32 + 16,
       dx = Math.abs((origin & 255) - x),
       dy = Math.abs((origin >>> 8) - y),
-      distance = Math.floor(Math.hypot(Math.min(dx, 256 - dx), Math.min(dy, 256 - dy)))
+      wrappedX = Math.min(dx, 256 - dx),
+      wrappedY = Math.min(dy, 256 - dy),
+      // Squared integer input matches fast_sqrt. Math.hypot(20,99) rounds below101.
+      distance = Math.floor(Math.sqrt(wrappedX * wrappedX + wrappedY * wrappedY))
     if (minimum > distance || distance > maximum) continue
     if (count > bestCount || distance < bestDistance) {
       winner = region
