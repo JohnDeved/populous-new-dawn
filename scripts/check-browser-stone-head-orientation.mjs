@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 // Focused heading/direction check; not a repeat of the18-phase worship benchmark.
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
@@ -50,6 +51,7 @@ async function run() {
       const page = await context.newPage();page.setDefaultTimeout(15000)
       page.on('pageerror',error=>report.errors.push(error.stack??error.message))
       await page.goto(url,{waitUntil:'domcontentloaded',timeout:45000})
+      await showAllMissions(page)
       await page.getByRole('button',{name:`Mission ${item.mission}`,exact:true}).press('Enter')
       await bindGame(page)
       await page.evaluate(()=>document.querySelector('.skip-introduction')?.click())

@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { readFile } from 'node:fs/promises'
 import { chromium } from '@playwright/test'
@@ -46,6 +47,7 @@ for (const text of [
   assert.ok(source.includes(text), `expected preserved/replacement page copy: ${text}`)
 
 async function startMission(page, mission) {
+  await showAllMissions(page)
   const button = page.getByRole('button', { name: `Mission ${mission}`, exact: true })
   await button.waitFor()
   await button.focus()
@@ -70,9 +72,9 @@ try {
     await start.waitFor()
     await start.getByText('Populous: The Beginning', { exact: true }).waitFor()
     await start.getByRole('heading', { name: 'Select Level', exact: true }).waitFor()
-    await start.getByText(/^Choose a mission/).waitFor()
+    await start.getByRole('button', { name: 'Campaign worlds', exact: true }).waitFor()
     await start.getByRole('button', { name: 'Tutorial', exact: true }).waitFor()
-    await start.getByRole('button', { name: 'Mission 1', exact: true }).waitFor()
+    await start.getByRole('button', { name: 'Start Mission 1', exact: true }).waitFor()
     assert.deepEqual(errors, [])
     await context.close()
   }

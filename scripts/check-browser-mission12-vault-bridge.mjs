@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 // Mission12-specific, normal-input acceptance for #98. The later Spy combat
 // lifecycle belongs to #97. This checker never grants a spell or changes actors.
 import assert from 'node:assert/strict'
@@ -537,6 +538,7 @@ try {
   page.setDefaultTimeout(15000)
   page.on('pageerror', error => report.errors.push(error.stack ?? error.message))
   await page.goto(process.env.POPULOUS_URL, { waitUntil: 'networkidle', timeout: 60000 })
+  await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 12', exact: true }).focus()
   await page.keyboard.press('Enter')
   await bindGame(page)

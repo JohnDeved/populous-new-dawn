@@ -25,7 +25,9 @@ coverage. Historical research and acceptance records remain evidence, not live q
 5. **Verify the candidate.** Plan from the actual base, inspect commands, and run
    relevant portable, native, local rendered browser, and performance checks. Retain
    exact source/input-bound receipts; changed inputs invalidate them. Use the shared
-   [test queue](performance-queue.md) for competing expensive workloads.
+   [execution model](performance-queue.md) for competing expensive workloads:
+   isolated foreground receipts in fresh cloud tool scopes; the detached queue
+   only when controller, jobs and recovery share a stable execution scope.
 6. **Open/update a draft PR.** Link the issue; include outcome, scope, base/head,
    acceptance, check statuses, evidence, and remaining limits. For partial or dependent
    PRs, use `Refs #N`; use `Closes #N` only when the complete issue acceptance is met.
@@ -71,8 +73,11 @@ npm run orchestration:receipt -- --output work/orchestration/task/build.json -- 
 - `check` validates manifests, paths, ownership, and parity references; it does not
   certify evidence semantics or provide a sandbox.
 - `receipt` records a real command, source HEAD, exit status, raw stdout/stderr and
-  their hashes. Prefer a committed candidate; include dirty diff/input hashes when
-  testing uncommitted work. Never substitute a summary for the underlying evidence.
+  their hashes, plus tracked-diff and explicit `--input` hashes before/after the run.
+  Use a fresh output path for every attempt. Prelaunch state is `unknown`; interrupted
+  runs retain their raw logs without inventing a terminal result. Accept `status:
+  passed`, not merely exit zero, because source drift invalidates evidence. Prefer
+  a committed candidate. Never substitute a summary for the underlying evidence.
 - `review-bundle` exports a committed full diff and bounded redacted receipts for a
   reviewer in another worktree/executor. [Handoff](worker-handoff.md) describes trusted
   caller-supplied identity verification and deletion coverage.

@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 // Timed, isolated issue28 integration check. Reference provenance is explicit:
 // either original-byte static submissions or the separately granted native oracle.
 import assert from 'node:assert/strict'
@@ -35,8 +36,10 @@ try {
   // Development sockets and optional traffic do not define game readiness.
   // Wait for the actual startup UI, retaining a bounded navigation timeout.
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45_000 })
+  await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 23', exact: true }).waitFor({ timeout: 20_000 })
   report.stages.push('Actual Mission23 startup UI ready')
+  await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 23', exact: true }).click()
   await bindGame(page)
   if (await page.evaluate(() => !!window.testScene.world.inputMask)) await page.keyboard.press('Escape')

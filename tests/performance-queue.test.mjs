@@ -413,6 +413,55 @@ test('controller crash retains lock; recovery refuses live owner or job', async 
   await until(() => f.job(b.id).status === 'passed', 'post-crash recovery')
 })
 
+test('foreign or missing execution scope cannot prove a controller stopped or authorize recovery', async t => {
+  const f = fixture(t),
+    job = submit(f.spec('wait'), f.dir),
+    ownerFile = path.join(f.dir, 'controller.lock', 'owner.json')
+  await until(() => f.job(job.id).status === 'running' && fs.existsSync(f.events), 'active scoped job')
+  const owner = read(ownerFile)
+  assert(owner.executionScope)
+  try {
+    for (const executionScope of [undefined, { ...owner.executionScope, pid: 'foreign-fixture-scope' }]) {
+      fs.writeFileSync(ownerFile, JSON.stringify({ ...owner, executionScope }))
+      const deferred = await waitForResult(f.dir, job.id)
+      assert.equal(deferred.status, 'deferred')
+      assert.match(deferred.reason, /Execution scope .*unknown/)
+      await assert.rejects(recover(f.dir), /Execution scope .*unknown/)
+      assert.equal(f.job(job.id).status, 'running')
+      assert.equal(read(ownerFile).token, owner.token)
+    }
+  } finally {
+    fs.writeFileSync(ownerFile, JSON.stringify(owner))
+    fs.writeFileSync(path.join(job.output, 'cancel'), '')
+    await until(() => f.job(job.id).status === 'cancelled', 'owned fixture cleanup')
+    await released(f)
+  }
+})
+
+test('legacy active jobs remain unknown even with no controller lock', async t => {
+  const f = fixture(t), job = submit(f.spec('missing'), f.dir)
+  await until(() => f.job(job.id).status === 'cleanup-blocked', 'fixture cleanup block')
+  await released(f)
+  const original = f.job(job.id), legacy = { ...original }
+  delete legacy.executionScope
+  fs.writeFileSync(path.join(f.dir, 'jobs', `${job.id}.json`), JSON.stringify(legacy))
+  await assert.rejects(recover(f.dir), /Execution scope is missing/)
+  assert.equal(f.job(job.id).status, 'cleanup-blocked')
+  assert(fs.existsSync(path.join(f.dir, 'pause.json')))
+})
+
+test('paused submissions start no transient controller before recovery', async t => {
+  const f = fixture(t)
+  fs.writeFileSync(path.join(f.dir, 'pause.json'), '{}')
+  const job = submit(f.spec(), f.dir)
+  // A paused kick previously created controller.log synchronously, then launched
+  // a delayed idle controller racing the recover() lock check (#146).
+  assert.equal(fs.existsSync(path.join(f.dir, 'controller.log')), false)
+  assert.equal(fs.existsSync(path.join(f.dir, 'controller.lock')), false)
+  await recover(f.dir)
+  await until(() => f.job(job.id).status === 'passed', 'resumed fixture')
+})
+
 test('source drift and busy ports block commands without touching existing server', async t => {
   const f = fixture(t)
   fs.writeFileSync(path.join(f.dir, 'pause.json'), '{}')
@@ -442,11 +491,15 @@ test('all linked worktrees resolve the same queue; invalid specs never launch', 
   assert(!fs.existsSync(f.events))
 })
 
-test('submission preserves PATH and run returns one compact result without agent polling', async t => {
+test('submission preserves PATH under an ESM temp parent and returns one compact result', async t => {
   const f = fixture(t),
     bin = path.join(f.root, 'bin'),
     oldPath = process.env.PATH
   fs.mkdirSync(bin)
+  // An isolated TMPDIR can live under a type:module checkout. The extensionless
+  // executable is CommonJS regardless of the package scope above the fixture.
+  fs.writeFileSync(path.join(f.root, 'package.json'), '{"type":"module"}\n')
+  fs.writeFileSync(path.join(bin, 'package.json'), '{"type":"commonjs"}\n')
   fs.writeFileSync(path.join(bin, 'queue-fixture'), `#!${process.execPath}\n${fixtureSource}`, {
     mode: 0o700,
   })
@@ -461,7 +514,20 @@ test('submission preserves PATH and run returns one compact result without agent
   assert.equal((await waitForResult(f.dir, job.id)).status, 'deferred')
   await released(f)
   await recover(f.dir)
-  assert.equal((await waitForResult(f.dir, job.id)).status, 'passed')
+  const completed = await waitForResult(f.dir, job.id)
+  assert.equal(completed.status, 'passed', JSON.stringify({
+    status: completed.status,
+    reason: completed.reason,
+    error: completed.error,
+    exitCode: completed.exitCode,
+    signal: completed.signal,
+    startedAt: completed.startedAt,
+    finishedAt: completed.finishedAt,
+    commandLog: fs.existsSync(path.join(completed.output, 'command.log'))
+      ? fs.readFileSync(path.join(completed.output, 'command.log'), 'utf8') : null,
+    cleanup: fs.existsSync(path.join(completed.output, 'cleanup.json'))
+      ? fs.readFileSync(path.join(completed.output, 'cleanup.json'), 'utf8') : null,
+  }))
   const spec = path.join(f.root, 'run.json')
   fs.writeFileSync(spec, JSON.stringify(f.spec()))
   const result = await new Promise((resolve, reject) => {

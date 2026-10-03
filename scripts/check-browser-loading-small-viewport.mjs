@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame } from './browser-game.mjs'
@@ -23,6 +24,7 @@ try {
     await route.continue()
   })
   await page.goto(url, { waitUntil: 'networkidle' })
+  await showAllMissions(page)
   const mission = page.getByRole('button', { name: 'Mission 1', exact: true })
   await mission.waitFor()
   await mission.focus()

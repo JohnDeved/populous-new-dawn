@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 // Original Mission17 training-hut appearance, original geometry, lifecycle and
 // input/checkpoint regression. The five completed defect actors are not injected.
 // Construction/damage poses are explicitly controlled inputs to shipped rendering.
@@ -30,6 +31,7 @@ try {
   page.setDefaultTimeout(25000)
   page.on('pageerror', error => report.errors.push(error.stack ?? error.message))
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 45000 })
+  await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 17', exact: true }).click()
   await bindGame(page)
   await page.keyboard.press('Escape')

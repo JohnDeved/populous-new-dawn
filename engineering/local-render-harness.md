@@ -47,3 +47,56 @@ A startup screenshot is not campaign completion, full regression acceptance, or
 performance parity. CPU/SwiftShader timings must not be compared as equivalent to
 Mac hardware-GPU timings. Serialize graphics captures and performance workloads.
 Downloaded binaries and proof images belong outside tracked source.
+
+## Put visual evidence directly in GitHub reviews
+
+Use GitHub CLI's supported media attachment flow when screenshots help reviewers.
+The official CLI gained `--attach` in September 2026; version 2.102.0 was verified
+for this workflow. Check `gh --version` and `gh pr comment --help` first. If an
+older installed CLI lacks the flag, obtain a current release from
+[the official CLI releases](https://github.com/cli/cli/releases), verify its
+published checksum, and use that binary without changing authentication settings.
+Reuse the already authorized account/configuration. Never print tokens or copy
+credentials into commands, reports, or repository files.
+
+Inspect the actual image before publishing. Exclude secrets, account details,
+private download URLs and unrelated personal information. Record the tested
+commit (and tree when useful), mission/scene, camera or phase, renderer, and the
+scope of the check in the comment. Distinguish ordinary UI actions, seeded
+storage fixtures, deterministic tick/frame stepping and genuine real-time play.
+A screenshot does not establish full gameplay acceptance, native pixel parity,
+or hardware-GPU performance. Label before/after commits separately.
+
+For example, a `proof.md` file can include:
+
+```md
+Mission 2, tested commit FULL_SHA, fixed camera angle 1.
+Local WebGL2 / ANGLE–SwiftShader. This is a paused render-placement check;
+occupancy arose in ordinary play, and camera focus is controlled test setup.
+
+![Mission 2 roof-smoke placement at FULL_SHA](work/proof/mission2.png)
+```
+
+Then publish it with the matching path:
+
+```sh
+gh pr comment 123 --repo OWNER/REPO --body-file proof.md \
+  --attach work/proof/mission2.png
+```
+
+Repeat `--attach` for distinct relevant images. `gh issue comment` works the same
+way. The CLI rewrites matching local Markdown references to native GitHub asset
+URLs; unreferenced attachments are appended. Alt text can alternatively be given
+as `--attach 'work/proof/mission2.png#Scene and tested commit'`.
+
+Verify the returned comment and read its body back: the expected image references
+should use GitHub-hosted assets, with no leftover local paths. Check for an
+existing evidence comment before creating another. If publication is uncertain,
+inspect the destination before retrying; do not blindly re-upload a batch. Reuse
+an existing native GitHub asset URL when the same image is relevant in another
+review of the same repository, rather than uploading duplicates. Avoid unrelated
+images, bulky duplicate evidence commits, release spam, private Library URLs,
+and unofficial or reverse-engineered upload endpoints.
+
+See [GitHub's attachment documentation](https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli)
+for current file types, access requirements and command support.
