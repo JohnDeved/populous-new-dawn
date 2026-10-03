@@ -3683,6 +3683,23 @@
       }
     },
     {
+      "id": "zoom-edges-browser",
+      "kind": "browser",
+      "automation": "safe",
+      "purpose": "Inspect intermediate ordinary zoom footprints and added-edge picking in actual WebGL output.",
+      "coveredBehavior": ["Zoom in/out", "reversal", "combined pan/rotation", "shared GPU/CPU footprint", "legacy-cutoff positive control", "resized and torus-seam added-edge picking"],
+      "knownLimits": ["Deterministic rendered consistency is not native raster equivalence or hardware performance proof.", "75 ordinary transition samples are reviewable captures with shared-row assertions; automated pixel comparisons cover three intermediate zoom-out positive controls."],
+      "executable": "node",
+      "args": ["scripts/check-browser-zoom-edges.mjs"],
+      "cwd": ".",
+      "env": [],
+      "inputs": ["scripts/check-browser-zoom-edges.mjs", "scripts/browser-game.mjs", "app/render-view.ts", "app/viewport-bounds.ts", "app/scene.ts", "app/scene-terrain-runtime.ts", "app/terrain-visibility.ts", "app/scene-camera-runtime.ts", "app/scene-input-runtime.ts", "app/camera-view.ts", "app/projection.ts"],
+      "prerequisites": ["Running game server", "Playwright Chromium or POPULOUS_HEADLESS_SHELL"],
+      "sideEffects": ["Writes checkout-local screenshots and JSON report under work/browser-zoom-edges or POPULOUS_ZOOM_ARTIFACTS"],
+      "resources": ["Own browser profile, server port and capture directory"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "terrain-portable",
       "kind": "portable",
       "automation": "safe",
