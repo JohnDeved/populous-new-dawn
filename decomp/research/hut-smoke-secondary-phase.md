@@ -128,7 +128,7 @@ all 256 allocator seeds, precheck boundaries, empty-pool behavior, child expiry,
 and first-eligible-visit offsets.
 
 On 2026-10-03, the unchanged checker passed with Unicorn 2.1.4 / Capstone
-5.0.7: **8,192 producer cases**, **256 allocator seed cases**, **332 capacity
+5.0.6: **8,192 producer cases**, **256 allocator seed cases**, **332 capacity
 prechecks**, first-eligible offsets `[8,7,6,5,4,3,2,1]`, exact secondary-list
 ordering and sixteen-visit child expiry. Exit code was 0. The tested script's
 SHA256 was `456c50c798ce23b20e71fff2a54ac4354cf8a5637804014273e63cab5f42fdb9`;
