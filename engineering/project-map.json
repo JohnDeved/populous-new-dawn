@@ -538,6 +538,8 @@
       "scripts/check-native-early-mission-ai.py",
       "decomp/research/mission3-preaching-message.md",
       "scripts/check-native-mission3-preaching-message.py",
+      "decomp/research/mission3-person-task.md",
+      "scripts/check-native-mission3-person-task.py",
         "decomp/research/mission2-message-103.md",
         "decomp/research/mission4.md",
         "decomp/research/mission5-boat.md",
