@@ -510,7 +510,20 @@ test('submission preserves PATH and run returns one compact result without agent
   assert.equal((await waitForResult(f.dir, job.id)).status, 'deferred')
   await released(f)
   await recover(f.dir)
-  assert.equal((await waitForResult(f.dir, job.id)).status, 'passed')
+  const completed = await waitForResult(f.dir, job.id)
+  assert.equal(completed.status, 'passed', JSON.stringify({
+    status: completed.status,
+    reason: completed.reason,
+    error: completed.error,
+    exitCode: completed.exitCode,
+    signal: completed.signal,
+    startedAt: completed.startedAt,
+    finishedAt: completed.finishedAt,
+    commandLog: fs.existsSync(path.join(completed.output, 'command.log'))
+      ? fs.readFileSync(path.join(completed.output, 'command.log'), 'utf8') : null,
+    cleanup: fs.existsSync(path.join(completed.output, 'cleanup.json'))
+      ? fs.readFileSync(path.join(completed.output, 'cleanup.json'), 'utf8') : null,
+  }))
   const spec = path.join(f.root, 'run.json')
   fs.writeFileSync(spec, JSON.stringify(f.spec()))
   const result = await new Promise((resolve, reject) => {
