@@ -108,3 +108,24 @@ test('type2 timeout clears motion before a blocked state transition and then fre
   stepComputerTasks(world, 2)
   assert.equal(task.flags & 1, 0)
 })
+
+test('type2 reads the active fight person even when its attack animation has no presentation source', () => {
+  const world = createWorld(3)
+  for (const task of world.ai.tasks) task.flags = 0
+  assert.equal(requestConvertTask(world.ai, 4, 1), true)
+  world.ai.tasks[0].phase = 6
+  const shaman = world.units.find(u => u.team === 'yellow' && u.kind === 'shaman')
+  const person = createLivePerson(world, shaman)
+  person.state = 25
+  person.computerAssignment = 99
+  shaman.native = null
+  // Controlled adapter fixture: combat-runtime transfers the real person to
+  // fight.motion and clears native; attack animation is intentionally not idle.
+  shaman.fight = { group: 999, opponent: 1, action: 'attack', animation: 'attack', motion: person }
+  world.ai.cursor = 0
+  world.turn = 1
+  stepComputerTasks(world, 2)
+  assert.equal(world.ai.tasks[0].flags & 1, 0)
+  assert.equal(shaman.fight.motion, person)
+  assert.equal(person.computerAssignment, 99)
+})
