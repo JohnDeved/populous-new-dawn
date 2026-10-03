@@ -73,10 +73,10 @@ On combined source `118b377f9481a7da84b69c67fe59935f656c1217`, the former
 eight-Warrior scenario timed out at turn 11472 during its first assault, before
 replacement training. Its planar-distance sort chose home defender 6 roughly
 111 wrapped world units from the school instead of outpost defender 21 roughly
-49 units away. Seven attackers died and the survivor had no attack order; the
-selected defender remained alive. Wrapped targeting alone also failed to reach
-the home defenders with that army. This was a failed scenario precondition, not
-evidence of a training-owner defect.
+49 units away. Surviving attackers had no attack order and the selected defender
+remained alive. Wrapped targeting alone also failed to reach the home defenders
+with that army. This was a failed scenario precondition, not evidence of a
+training-owner defect.
 
 The revised ordinary preparation and idle-survivor redirection reach the original
 population/Warrior gates without changing runtime behavior or raising the existing
