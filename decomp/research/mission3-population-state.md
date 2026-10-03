@@ -12,11 +12,12 @@ Original executable SHA256:
 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
 CPSCR012 SHA256:
 `d5dfcd826f77909a64cca03ca9d9e3d351d2a7cb3f63eb8ba811b59916e83601`.
-The two new exports, `004c7370.c` and `004e5900.c`, were generated with official
+The six exports, `004c7370.c`, `004e5900.c`, `004f87f0.c`, `004f5d30.c`,
+`004f3a70.c` and `004f6af0.c`, were generated with official
 Ghidra 12.1.3 from the existing fresh-analysis project without community metadata.
 The wrapper verified original file-backed section bytes and successful export/save.
 Their hashes are registered in `decomp/exports.json`; that registry's historical
-metadata description is not provenance for these two exports.
+metadata description is not provenance for these exports.
 
 ## Excluded script block
 
@@ -57,7 +58,7 @@ startup override is AI flag `0x40`, coordinate `+0x5a6` (`0x52dc` in Mission 3).
 An unhooked phase0 case consumes that override and enters phase2 with target
 `0x52dc`, a 360 counter and byte 20, without a cast or RNG draw.
 
-The controller then validates/searches a standable target, checks sibling tasks
+The controller then validates/searches a standable target, checks native vehicle-family counts
 and Shaman reachability, acquires selection, requires an available Shaman,
 enters state14, advances the scheduled phases, issues real movement order3, and
 only reaches Convert Wild checks in phase8. Phase8 includes the already-known
@@ -68,6 +69,36 @@ Crucial negative finding: **the controller does not recheck state bit2**. Two
 unhooked dispatch cases prove an existing phase6 task advances to7 with either
 state2 ON or OFF. Disabling1030 therefore prevents new allocation; it is not a
 per-cast cancellation switch.
+
+## Target and reachability leaves (static trace)
+
+The following observations come from the newly exported callees, not yet from
+paired native comparisons. The earlier probe receipt remains unchanged.
+
+- `004f87f0` scans 64 macroregion count bytes, selecting the greatest nonzero
+  Wildmen density within inclusive minimum/maximum wrapped distance. Equal counts
+  prefer strictly shorter distance; exact ties retain the earlier region. It then
+  averages the even coarse coordinates of the actual Wildmen list in that region.
+  A nonzero count with no matching list member still fails. No RNG call appears.
+- `004f5d30` checks the target's centered 2×2 cell through `00518200`; if blocked,
+  it tests spiral indices 0 through 23 using `0049c890`. The first valid candidate
+  replaces the packed target; success at the initial center leaves it unchanged.
+  Existing resting-cell collision and spiral primitives cover these dependencies.
+- `004f3a70` calls the actual route builder `004ea920`, with the Shaman's raw
+  coarse start and an odd, centered destination. On a zero route result it clears
+  person flags4 bit `0x10000000`. A cost-only or even-masked endpoint query would
+  not preserve this wrapper's side effects.
+- `004f6af0` sums signed shorts `AI+0xba7/+0xba9` for arguments1/2 and
+  `AI+0xbab/+0xbad` for3/4, returning999 otherwise. The existing `004ecac0`
+  class4 writer identifies these as vehicle-model pairs (boats and balloons).
+  This corrects the earlier note's unsupported **sibling-task count** description.
+  The controller uses either nonzero vehicle sum to bypass its route test; this
+  observation does not establish the later transport behavior.
+
+The direct caller `004c7370` justifies all four scoped exports. Its byte `person+0xaf`
+blocker maps to the existing `computerAssignment` field (including marker99's
+assignment99), not a generic casting-state test. Selection/phase scheduling,
+cast timing, transport and full route integration still require live comparisons.
 
 ## Browser gap and next acceptance
 
@@ -82,9 +113,8 @@ Do not change production preferences based on this finding. The earlier
 [Convert Wild note](mission3-convert-wild.md) already bounds the existing one-shot
 path; it is not complete type2 proof.
 
-Before implementation, resolve the actual target search/standability and Shaman
-reachability consumers (`004f87f0`, `004f5d30`, `004f3a70`) against existing native
-terrain/movement primitives. Preserve the marker override, task scheduling,
+Before implementation, compare the now-traced target search/standability and
+Shaman reachability consumers against existing native terrain/movement primitives. Preserve the marker override, task scheduling,
 selection reservations, command3 payload, cast/readiness/payment order and
 cleanup; do not substitute a new spell entry or a fake conversion. Natural
 Mission 3 startup must reach the real task, movement and conversion, then the
