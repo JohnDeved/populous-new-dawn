@@ -70,13 +70,17 @@ The secondary owner must cover more than a per-building timer:
    reconstructed from occupancy; they do not preserve phase, children or list
    order. `effectCounter` itself already survives the ordinary checkpoint store.
    A new secondary owner cannot silently infer its old history on reconstruction.
-5. Separate simulation-turn decisions from render-only random draws deliberately.
+5. Specify the native draw/turn ordering explicitly.
    `animateLightning` in `scene-effects.ts` calls `lightningLines` with the same
    `world.cosmeticRandom` used by hut smoke. The latter function intentionally
    draws every rendered frame. Therefore merely moving child visits to fixed
-   turns leaves their sampled RNG dependent on display rate while lightning is
-   visible. An explicit modern timing correction with a matched workload is
-   needed; inventing an independent smoke seed is not established by this note.
+   turns leaves their sampled RNG dependent on intervening lightning draws.
+   This coupling also exists in the original: draw-polygons case 0x13 in
+   `004673b0` calls `00475350`, which consumes the same `0089bc72` value as
+   `0050c260`. Do not require frame-invariant puff identities or invent an
+   independent smoke seed. Preserve the proved shared-RNG ordering while keeping
+   lifetime/counter visits on game turns. Complete native outer scheduling is
+   still a separate composition boundary.
 
 No broad particle rewrite or fake periodic puff timer is part of this change.
 The issue remains open for the complete primary stream and secondary ownership.
