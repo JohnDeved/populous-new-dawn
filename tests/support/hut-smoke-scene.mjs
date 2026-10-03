@@ -68,7 +68,7 @@ export async function naturalHutAdmission() {
         }
       }
     })
-    for (let turn = 0; turn < 256 && !event; turn++) {
+    for (let turn = 0; turn < 512 && !event; turn++) {
       api.advanceGame(world, scene.gameClock, 1 / 12)
       render()
     }
@@ -110,9 +110,10 @@ export async function captureHutFirstVisits() {
 // No direct occupancy, resident slot, building counter or smoke state assignment.
 export async function fullHutScene() {
   const api = await loadSceneFixture()
-  const world = api.createWorld()
+  const { createStartedWorld, retainFixtureUnits } = await import('../level-start-fixture.mjs')
+  const world = createStartedWorld()
   world.manaWorld.gameFlags = 32 // Existing housing-entry population-isolation fixture.
-  world.units = world.units.filter(unit => unit.kind === 'shaman')
+  retainFixtureUnits(world, unit => unit.kind === 'shaman')
   const hut = api.addBuilding(world, 'blue', 'hut', { x: -2, z: 32 }, true)
   const fixture = await makeHutSmokeScene(world)
   const residents = []

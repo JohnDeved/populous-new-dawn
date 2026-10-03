@@ -1,7 +1,8 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { SpriteMaterial } from 'three'
-import { createWorld, addBuilding, addUnit, command, tick } from '../app/model.ts'
+import { addBuilding, addUnit, command, tick } from '../app/model.ts'
+import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import {
   createHutOccupancySmoke,
   stepHutOccupancySmoke,
@@ -96,9 +97,9 @@ test('multiple presentation consumers unsubscribe independently without resettin
 
 for (const level of [1, 2, 3])
   test('live command8 owner publishes authoritative entry/removal for Hut level ' + level, () => {
-    const w = createWorld()
+    const w = createStartedWorld()
     w.manaWorld.gameFlags = 32 // Same population-isolation fixture as housing-entry.test.mjs.
-    w.units = w.units.filter(u => u.kind === 'shaman')
+    retainFixtureUnits(w, u => u.kind === 'shaman')
     const b = addBuilding(w, 'blue', 'hut', { x: -2, z: 32 }, true, { level })
     const u = addUnit(w, 'blue', 'brave', { x: 7, z: 33 }),
       events = []
