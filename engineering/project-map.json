@@ -557,6 +557,7 @@
       "scripts/check-native-mission3-person-task.py",
       "scripts/check-native-mission3-preacher-task.py",
       "scripts/check-native-mission3-population-state.py",
+      "scripts/check-native-mission3-convert-target.py",
       "decomp/research/mission3-population-state.md",
       "decomp/generated/004c7370.c",
       "decomp/generated/004e5900.c",

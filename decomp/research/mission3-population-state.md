@@ -70,10 +70,16 @@ unhooked dispatch cases prove an existing phase6 task advances to7 with either
 state2 ON or OFF. Disabling1030 therefore prevents new allocation; it is not a
 per-cast cancellation switch.
 
-## Target and reachability leaves (static trace)
+## Target and reachability leaves
 
-The following observations come from the newly exported callees, not yet from
-paired native comparisons. The earlier probe receipt remains unchanged.
+The following observations come from the newly exported callees. The additional
+`check-native-mission3-convert-target.py` comparison now covers 11 unhooked macroregion
+search cases and 18 unhooked signed vehicle-count cases. Nine route-wrapper cases
+supply only the route-builder result; eight standability cases supply only terrain
+height/resting collision while executing the real spiral traversal. Six controller
+phase2 cases execute real vehicle sums with supplied standability/reachability.
+Those supplied-leaf cases do not prove full terrain/pathfinding or transport. The
+earlier population/state probe and receipt remain unchanged.
 
 - `004f87f0` scans 64 macroregion count bytes, selecting the greatest nonzero
   Wildmen density within inclusive minimum/maximum wrapped distance. Equal counts
@@ -113,8 +119,9 @@ Do not change production preferences based on this finding. The earlier
 [Convert Wild note](mission3-convert-wild.md) already bounds the existing one-shot
 path; it is not complete type2 proof.
 
-Before implementation, compare the now-traced target search/standability and
-Shaman reachability consumers against existing native terrain/movement primitives. Preserve the marker override, task scheduling,
+Before implementation, integrate the traced target search/standability and Shaman
+reachability consumers with existing native terrain/movement primitives, then
+compare their live effects; the supplied-leaf probes do not close that boundary. Preserve the marker override, task scheduling,
 selection reservations, command3 payload, cast/readiness/payment order and
 cleanup; do not substitute a new spell entry or a fake conversion. Natural
 Mission 3 startup must reach the real task, movement and conversion, then the
@@ -129,3 +136,12 @@ hash-checks both inputs. Assertions cover six bounded interpreter cases, five
 unhooked allocation cases, two unhooked active-task state boundaries, the unhooked
 marker-override phase0 case, and actual initialization/producer-dispatch wiring.
 It does not execute the installer or launch the original game.
+
+The additional target probe uses the same executable argument and environment. It
+runs the original population/state proof first, then its 52 bounded target/wrapper
+cases. Unhooked search includes empty/count-list mismatch, even-coordinate means,
+density priority, strict distance ties, wrap and inclusive radius boundaries.
+Controller cases include cancellation of opposite signed vehicle sums and prove
+that a failed standability check precedes the vehicle bypass. No RNG change occurs
+in the target/standability/controller cases. No rendered or whole-task acceptance
+is claimed by this research-only change.
