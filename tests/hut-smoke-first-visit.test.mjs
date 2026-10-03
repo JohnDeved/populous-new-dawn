@@ -60,15 +60,21 @@ test('pre-building occupancy removal receives one first visit, including counter
   }
 })
 
-test('out-of-turn and paused full-to-partial commands do not get an early first visit', async () => {
+test('out-of-turn allocation survives pause; commands while paused remain rejected', async () => {
   for (const paused of [false, true]) {
     const fixture = await fullHutScene()
     const { scene, api, residents, smoke, render, close } = fixture
     try {
       scene.world.paused = paused
       scene.world.selected = [residents[0].id]
-      api.command(scene.world, { x: 9, z: 30 })
+      if (paused) {
+        assert.equal(api.command(scene.world, { x: 9, z: 30 }), false)
+        assert.equal(smoke.state.root.mode, 'full', 'paused command must not release a resident')
+        scene.world.paused = false
+      }
+      assert.equal(api.command(scene.world, { x: 9, z: 30 }), true)
       assert.equal(smoke.state.root.lifetime, 16)
+      scene.world.paused = paused
       for (let frame = 0; frame < 3; frame++) render()
       assert.equal(smoke.state.root.lifetime, 16)
       if (paused) {
@@ -165,4 +171,26 @@ test('turn completion callbacks are clock-specific and are discarded on a failed
     false
   )
   assert.deepEqual(calls, ['after', 'current'])
+  calls.length = 0
+  clock.beforeTurn = () => {
+    const expectedTurn = world.turn + 1
+    assert.equal(
+      afterCurrentGameTurn(clock, () => {
+        assert.equal(world.turn, expectedTurn, 'callback must flush before the next catch-up turn')
+        calls.push(`current:${world.turn}`)
+      }),
+      true
+    )
+  }
+  clock.afterTurn = () => calls.push(`after:${world.turn}`)
+  const before = world.turn
+  advanceGame(world, clock, 3 / 12)
+  assert.deepEqual(
+    calls,
+    [1, 2, 3].flatMap(offset => [`after:${before + offset}`, `current:${before + offset}`])
+  )
+  assert.equal(
+    afterCurrentGameTurn(clock, () => calls.push('outside')),
+    false
+  )
 })
