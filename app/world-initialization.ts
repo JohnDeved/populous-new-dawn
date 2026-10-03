@@ -109,6 +109,16 @@ export function createWorld(missionNumber = 1): World {
     }
   }
   for (const o of level.objects) {
+    // Authored effects are primary allocations even when a linked head later
+    // deactivates them. Preserve their seed contribution in the researched
+    // early levels; this does not complete the later class-7 allocation stream.
+    if (
+      missionNumber <= 3 &&
+      o.type === 7 &&
+      o.model !== 83 &&
+      (o.owner === 255 || o.owner < w.tribeCount)
+    )
+      w.effectCounter = (w.effectCounter + 1) & 255
     if (o.type === 2 && o.owner !== 255) {
       const kind =
         o.model === 4
