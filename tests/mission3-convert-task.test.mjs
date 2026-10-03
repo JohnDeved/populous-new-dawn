@@ -129,3 +129,36 @@ test('type2 reads the active fight person even when its attack animation has no 
   assert.equal(shaman.fight.motion, person)
   assert.equal(person.computerAssignment, 99)
 })
+
+test('Convert Wild region lookup normalizes signed browser-native positions to unsigned words', () => {
+  const counts = new Uint8Array(64)
+  counts[7] = 1
+  assert.equal(findConvertTarget(0x10f0, counts, [{ x: -3969, y: 2761 }], 0, 40), 0x0af0)
+})
+
+test('type2 casting preserves the real person flags2 readiness gate', () => {
+  const world = createWorld(3)
+  for (const task of world.ai.tasks) task.flags = 0
+  assert.equal(requestConvertTask(world.ai, 4, 1), true)
+  const shaman = world.units.find(u => u.team === 'yellow' && u.kind === 'shaman')
+  const person = createLivePerson(world, shaman)
+  person.state = 17
+  person.flags2 |= 2
+  shaman.native = person
+  // Controlled density/readiness inputs, corresponding to native phase8 probes.
+  for (const wild of world.units.filter(u => u.team === 'wild').slice(0, 8)) {
+    wild.x = shaman.x
+    wild.z = shaman.z
+  }
+  Object.assign(world.ai.tasks[0], { phase: 8, elapsed: 0, target: ((person.x >>> 8) & 254) | (person.y & 0xfe00) })
+  world.manaTribes[2].mana = rules.spellCharging[17].cost
+  world.castingTribes[2].flags &= ~0x80000
+  world.castingTribes[2].cooldown = 0
+  world.castingTribes[2].aiCooldown = 0
+  world.ai.flags &= ~0x40000
+  world.ai.cursor = 0
+  world.turn = 1
+  stepComputerTasks(world, 2)
+  assert.equal(world.spellCasts[2][17], 0)
+  assert.equal(world.ai.tasks[0].phase, 8)
+})
