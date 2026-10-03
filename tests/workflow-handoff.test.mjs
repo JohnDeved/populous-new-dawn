@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { execFileSync } from 'node:child_process'
+import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
   existsSync,
@@ -575,12 +575,117 @@ test('raw command receipts retain source head and complete stdout/stderr', () =>
       }),
       saved = JSON.parse(readFileSync(join(repo, output), 'utf8'))
     assert.equal(receipt.exitCode, 0)
+    assert.equal(saved.status, 'passed')
+    assert.equal(saved.phase, 'finished')
+    assert.deepEqual(saved.sourceAfter, saved.source)
     assert.equal(saved.source.headOid, run(repo, 'git', 'rev-parse', 'HEAD'))
     assert.match(saved.stdout, /raw-stdout/)
     assert.match(saved.stderr, /raw-stderr/)
     assert.equal(saved.stdoutSha256, sha(saved.stdout))
     assert.equal(saved.stderrSha256, sha(saved.stderr))
+    assert.equal(readFileSync(saved.artifacts.stdout, 'utf8'), saved.stdout)
+    assert.equal(readFileSync(saved.artifacts.stderr, 'utf8'), saved.stderr)
+    assert.throws(() => runCommandReceipt(repo, {
+      output,
+      command: [process.execPath, '-e', 'throw new Error("must not rerun")'],
+    }), { code: 'EEXIST' })
+    assert.equal(JSON.parse(readFileSync(join(repo, output), 'utf8')).runId, saved.runId)
   } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('command receipts bind dirty source and explicit ignored inputs and invalidate drift', () => {
+  const { root, repo } = fixture()
+  try {
+    writeFileSync(join(repo, 'source.txt'), 'dirty input\n')
+    writeFileSync(join(repo, 'work/helper.txt'), 'helper input\n')
+    const receipt = runCommandReceipt(repo, {
+      output: 'work/orchestration/task/drift.json',
+      inputs: ['work/helper.txt'],
+      command: [process.execPath, '-e', "require('node:fs').writeFileSync('work/helper.txt','changed')"],
+    })
+    assert.equal(receipt.exitCode, 0)
+    assert.equal(receipt.status, 'invalidated')
+    assert.equal(receipt.source.inputs['work/helper.txt'], sha('helper input\n'))
+    assert.notEqual(receipt.source.trackedDiffSha256, sha(''))
+    assert.notDeepEqual(receipt.sourceAfter.inputs, receipt.source.inputs)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('receipt CLI preserves repeated input flags and rejects zero-exit input drift', () => {
+  const { root, repo } = fixture()
+  try {
+    const helper = join(repo, 'scripts/orchestration/command-receipt.mjs')
+    mkdirSync(join(repo, 'scripts/orchestration'), { recursive: true })
+    writeFileSync(helper, readFileSync(new URL('../scripts/orchestration/command-receipt.mjs', import.meta.url)))
+    writeFileSync(join(repo, 'work/helper.txt'), 'helper before\n')
+    writeFileSync(join(repo, 'work/config.json'), '{"enabled":true}\n')
+    for (const mutate of [false, true]) {
+      const output = `work/orchestration/task/cli-${mutate ? 'drift' : 'stable'}.json`,
+        result = spawnSync(process.execPath, [
+          helper, '--output', output,
+          '--input', 'work/helper.txt', '--input', 'work/config.json',
+          '--', process.execPath, '-e', mutate
+            ? "require('node:fs').writeFileSync('work/helper.txt','helper after\\n')"
+            : "console.log('unchanged')",
+        ], { cwd: repo, encoding: 'utf8' }),
+        receipt = JSON.parse(readFileSync(join(repo, output), 'utf8'))
+      assert.equal(result.status, mutate ? 1 : 0, result.stderr)
+      assert.equal(receipt.status, mutate ? 'invalidated' : 'passed')
+      assert.equal(receipt.exitCode, 0)
+      assert.deepEqual(receipt.source.inputs, {
+        'work/helper.txt': sha('helper before\n'),
+        'work/config.json': sha('{"enabled":true}\n'),
+      })
+      assert.equal(receipt.sourceAfter.inputs['work/config.json'], sha('{"enabled":true}\n'))
+      assert.equal(receipt.sourceAfter.inputs['work/helper.txt'], sha(mutate ? 'helper after\n' : 'helper before\n'))
+      assert.equal(JSON.parse(result.stdout).status, receipt.status)
+    }
+    const missingOutput = 'work/orchestration/task/cli-missing.json',
+      missing = spawnSync(process.execPath, [
+        helper, '--output', missingOutput, '--input', 'work/missing-input.txt',
+        '--', process.execPath, '-e', "require('node:fs').writeFileSync('work/must-not-launch','started')",
+      ], { cwd: repo, encoding: 'utf8' })
+    assert.notEqual(missing.status, 0)
+    assert.match(missing.stderr, /ENOENT/)
+    assert.equal(existsSync(join(repo, missingOutput)), false)
+    assert.equal(existsSync(join(repo, 'work/must-not-launch')), false)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('a killed foreground wrapper retains unknown state and raw output, never a pass', async () => {
+  const { root, repo } = fixture(),
+    output = 'work/orchestration/task/interrupted.json',
+    helper = new URL('../scripts/orchestration/command-receipt.mjs', import.meta.url).href,
+    childSource = "console.log('started'); setTimeout(() => console.log('finished'), 350)",
+    wrapper = spawn(process.execPath, ['--input-type=module', '-e',
+      `import {runCommandReceipt} from ${JSON.stringify(helper)}; runCommandReceipt(${JSON.stringify(repo)}, ${JSON.stringify({output, command: [process.execPath, '-e', childSource]})})`,
+    ], { stdio: 'ignore' }),
+    exited = new Promise(resolve => wrapper.once('exit', resolve))
+  try {
+    const log = join(repo, `${output}.artifacts/stdout.log`), deadline = Date.now() + 5000
+    while (!existsSync(log) || !readFileSync(log, 'utf8').includes('started')) {
+      assert(Date.now() < deadline, 'fixture command did not start')
+      await new Promise(resolve => setTimeout(resolve, 10))
+    }
+    // This is the exact child handle created by this test, not a saved PID lookup.
+    wrapper.kill('SIGKILL')
+    await exited
+    await new Promise(resolve => setTimeout(resolve, 500))
+    const receipt = JSON.parse(readFileSync(join(repo, output), 'utf8'))
+    assert.equal(receipt.status, 'unknown')
+    assert.equal(receipt.phase, 'prepared')
+    assert.equal(receipt.exitCode, undefined)
+    assert.equal(receipt.finishedAt, undefined)
+    assert.match(readFileSync(log, 'utf8'), /started/)
+  } finally {
+    wrapper.kill('SIGKILL')
+    await exited
     rmSync(root, { recursive: true, force: true })
   }
 })
