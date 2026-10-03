@@ -776,20 +776,43 @@ test('reviewer context fingerprints the actual dirty, renamed, deleted, and untr
   }))
 
 test('real mapped evidence excerpts retain their material performance boundaries', () => {
-  const selection = contextPacket(ROOT, { subsystem: 'selection' })
+  // A subsystem overview may omit a mapped section as check/parity metadata grows.
+  // Ask for the named evidence under test; never raise the budget or drop its limits.
+  const selection = contextPacket(ROOT, { subsystem: 'selection', query: 'Mixed-object picking' })
   assert.match(
     selection.sourceExcerpts.find(item =>
       item.headingTrail.at(-1)?.includes('Mixed-object picking')
     ).excerpt,
     /not a GPU\/frame-rate\s+certification/
   )
-  const terrain = contextPacket(ROOT, { subsystem: 'terrain-performance' })
+  const terrain = contextPacket(ROOT, {
+    subsystem: 'terrain-performance', query: 'Batch terrain notifications',
+  })
   assert.match(
     terrain.sourceExcerpts.find(item =>
       item.headingTrail.at(-1)?.includes('Batch terrain notifications')
     ).excerpt,
     /not hardware frame time|excluding rendering/
   )
+  const { project, checks } = validateRepository(ROOT)
+  const mapping = project.subsystems.find(item => item.id === 'terrain-performance')
+  assert.equal(terrain.budgetBytes, 24_000)
+  assert.equal(terrain.contextBytes, Buffer.byteLength(`${JSON.stringify(terrain, null, 2)}\n`))
+  assert.ok(terrain.contextBytes <= terrain.budgetBytes)
+  assert.deepEqual(terrain.checks.map(check => check.id), mapping.checkIds)
+  for (const projected of terrain.checks) {
+    const original = checks.checks.find(check => check.id === projected.id)
+    for (const key of ['purpose', 'knownLimits', 'prerequisites', 'sideEffects', 'resources'])
+      assert.deepEqual(projected[key], original[key])
+    assert.deepEqual(projected.command, [original.executable, ...original.args])
+  }
+  assert.ok(terrain.omissions.some(item => item.reason === 'context budget' && item.count > 0))
+  const excerpt = terrain.sourceExcerpts.find(item =>
+    item.headingTrail.at(-1)?.includes('Batch terrain notifications'))
+  assert.equal(excerpt.truncated, true)
+  assert.ok(terrain.omissions.some(item => item.path === excerpt.path &&
+    item.reason === 'source section returned as a bounded window' &&
+    item.retainedLines[0] === excerpt.lineStart && item.retainedLines[1] === excerpt.lineEnd))
 })
 
 // Keep Shaman-specific routing out of the terrain packet's mandatory metadata.
