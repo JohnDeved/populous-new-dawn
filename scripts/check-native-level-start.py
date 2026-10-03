@@ -52,13 +52,13 @@ for i in range(32):
  while alive:
   changed=[];allocations=[];call(0x50c840,p)
   raw=cpu.mem_read(0x8a03e4,0x40000);values=[struct.unpack_from('<h',raw,j*16+4)[0] for j in range(16384)]
-  timeline.append({'visits':read(p+0x2d,'B'),'terrainRadius':read(p+0x72,'h'),'visualRadius':read(p+0x74,'h'),'heights':digest(values),'changed':changed,'allocations':allocations,'orbits':[[read(o+0x57,'H'),*struct.unpack('<HHh',cpu.mem_read(o+0x3d,6))] for o in orbits],'alive':alive})
+  timeline.append({'visits':read(p+0x2d,'B'),'terrainRadius':read(p+0x72,'h'),'visualRadius':read(p+0x74,'h'),'heights':digest(values),'changed':changed,'allocations':allocations,'orbits':[[read(o+0x57,'H'),*struct.unpack('<HHh',cpu.mem_read(o+0x3d,6)),*struct.unpack('<hhh',cpu.mem_read(o+0x43,6))] for o in orbits],'alive':alive})
   assert len(timeline)<23
  cases.append(center);expected.append(timeline)
 js=r'''
 import fs from 'node:fs';import crypto from 'node:crypto';import {stepLevelStartWave} from './app/level-start.ts';
 const {heights,cases}=JSON.parse(fs.readFileSync(0,'utf8'));const digest=x=>crypto.createHash('sha256').update(JSON.stringify(x)).digest('hex');
-console.log(JSON.stringify(cases.map(center=>{const land={heights:Int16Array.from(heights)},wave={center,visits:0,terrainRadius:0,visualRadius:0,orbits:[]};let alive=true,id=0,all=[],timeline=[];while(alive){let changed=[],allocations=[],moved=[];alive=stepLevelStartWave(land,wave,{orbit:(p,light)=>{allocations.push([60,center.x,center.y,center.h]);return ++id},cell:()=>false,terrain:c=>changed.push(c),sparkle:(p,a)=>allocations.push([61,p.x,p.y,p.h]),move:(id,p)=>moved.push([((id-1)*64+(wave.visits+1)*91)&2047,p.x,p.y,p.h]),remove:()=>{}});if(wave.orbits.length)all=structuredClone(wave.orbits);timeline.push({visits:wave.visits,terrainRadius:wave.terrainRadius,visualRadius:wave.visualRadius,heights:digest(Array.from(land.heights)),changed,allocations,orbits:moved,alive});}return timeline})))
+console.log(JSON.stringify(cases.map(center=>{const land={heights:Int16Array.from(heights)},wave={center,visits:0,terrainRadius:0,visualRadius:0,orbits:[]};let alive=true,id=0,all=[],timeline=[];while(alive){let changed=[],allocations=[],moved=[];alive=stepLevelStartWave(land,wave,{orbit:(p,light)=>{allocations.push([60,center.x,center.y,center.h]);return ++id},cell:()=>false,terrain:c=>changed.push(c),sparkle:(p,a)=>allocations.push([61,p.x,p.y,p.h]),move:(id,p,d)=>moved.push([((id-1)*64+(wave.visits+1)*91)&2047,p.x,p.y,p.h,d.x,d.y,d.h]),remove:()=>{}});if(wave.orbits.length)all=structuredClone(wave.orbits);timeline.push({visits:wave.visits,terrainRadius:wave.terrainRadius,visualRadius:wave.visualRadius,heights:digest(Array.from(land.heights)),changed,allocations,orbits:moved,alive});}return timeline})))
 '''
 actual=json.loads(subprocess.check_output(['node','--input-type=module','-e',js],input=json.dumps({'heights':heights,'cases':cases}).encode(),cwd=ROOT))
 if actual!=expected:

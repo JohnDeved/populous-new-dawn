@@ -71,8 +71,10 @@ game simulation or browser proof. The phase probe supplies effect8's independent
 compared21-visit lifetime; it does not independently prove cross-class scheduling.
 
 Portable fresh/restart/skip/checkpoint, original-byte append preservation and
-the listed native checks pass. Pending final acceptance: interrupted-cast return
-integration, revised legacy fixture checks, real Mac before/during/after
+the listed native checks pass. Permitted casts at opening turns0/15/40 now enter the existing native state22,
+retain command18 and return through its ordinary initializer, including checkpoint
+continuation. Original orbit displacement is also compared and used for rendering.
+Pending final acceptance: revised legacy fixture checks, real Mac before/during/after
 frames on the exact integrated commit and fresh review. Existing world allocation,
 terrain-notification batching, camera adapter and original-palette browser blend
 limits are not upgraded to native whole-game equivalence by these helper checks.

@@ -133,7 +133,9 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
   const order = currentPersonOrder(w.buildingOrders, p)
   if (
     !order ||
-    ![3, 6, 7, 8, 10, 11, 15, 16, 17, 19, 21, 22, 25, 27, 28, 30, 31, 32, 33].includes(order.model)
+    ![3, 6, 7, 8, 10, 11, 15, 16, 17, 18, 19, 21, 22, 25, 27, 28, 30, 31, 32, 33].includes(
+      order.model
+    )
   )
     unsupported()
   const state = {

@@ -99,3 +99,28 @@ test('opening wave, conversion and stone cues preload their existing original sa
       assert.ok(existsSync(new URL(`../public/original/audio/${data.cues[cue].bank}-${sample}.wav`,import.meta.url)))
   }
 })
+
+test('permitted opening casts enter native state22 and resume command18 without a stuck controller', async () => {
+  const {currentPersonOrder}=await import('../app/person-orders.ts')
+  for(const at of [0,15,40]) {
+    const w=createWorld(2), shaman=w.units.find(u=>u.team==='blue'&&u.kind==='shaman')
+    advance(w,at)
+    const order=currentPersonOrder(w.buildingOrders,shaman.native)
+    assert.equal(order.model,18)
+    assert.equal(cast(w,'blast',{x:shaman.x-10,z:shaman.z}),true)
+    assert.equal(shaman.native.state,22)
+    assert.equal(currentPersonOrder(w.buildingOrders,shaman.native),order)
+    const saved=migrateCheckpoint(structuredClone(w))
+    advance(w,10)
+    assert.equal(shaman.native.state,10)
+    assert.equal(shaman.native.commandStatus,18)
+    assert.ok(shaman.native.flags4&128,'reinitialized opening restores selection exclusion')
+    advance(w,85);advance(saved,95)
+    assert.deepEqual(digest(saved),digest(w),'checkpoint during the cast resumes the same state')
+    assert.equal(shaman.casting,null)
+    assert.equal(w.levelStart.find(s=>s.tribe===0).phase,4)
+    assert.equal(w.levelStart.find(s=>s.tribe===0).stoneTurns.filter(t=>t!==null).length,8)
+    assert.equal(w.sounds.filter(s=>s.cue===5).length,8,'already converted Wildmen never convert twice')
+    assert.equal(w.stats.cast,1)
+  }
+})

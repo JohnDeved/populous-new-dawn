@@ -11,7 +11,7 @@ export type StartCarrier = {
   destination: StartPoint
   visits: number
 }
-export type StartOrbit = StartPoint & { angle: number; id: number }
+export type StartOrbit = StartPoint & { angle: number; id: number; displacement: StartPoint }
 export type StartWave = {
   id: number
   center: StartPoint
@@ -78,7 +78,7 @@ export function stepLevelStartWave(
     cell: (packed: number) => boolean
     terrain: (packed: number) => void
     sparkle: (point: StartPoint, angle: number) => void
-    move: (id: number, point: StartPoint) => void
+    move: (id: number, point: StartPoint, displacement: StartPoint) => void
     remove: (id: number) => void
   }
 ) {
@@ -86,7 +86,12 @@ export function stepLevelStartWave(
     wave.terrainRadius = wave.visualRadius = 160
     for (let i = 0; i < 32; i++) {
       const p = { ...wave.center, h: wave.center.h - 40 }
-      wave.orbits.push({ ...p, angle: i * 64, id: effects.orbit(p, i % 5 === 0) })
+      wave.orbits.push({
+        ...p,
+        angle: i * 64,
+        id: effects.orbit(p, i % 5 === 0),
+        displacement: { x: 0, y: 0, h: 0 },
+      })
     }
   }
   let sceneryPending = false
@@ -110,8 +115,10 @@ export function stepLevelStartWave(
     orbit.angle = (orbit.angle + 91) & 2047
     const position = { ...wave.center }
     movePosition(position, orbit.angle, wave.visualRadius)
+    // 0x50c840 explicitly writes XY displacement; vertical displacement stays zero.
+    orbit.displacement = { x: short(position.x - orbit.x), y: short(position.y - orbit.y), h: 0 }
     Object.assign(orbit, position)
-    effects.move(orbit.id, position)
+    effects.move(orbit.id, position, orbit.displacement)
   }
   wave.visits = (wave.visits + 1) & 255
   if (wave.visits > 20) {

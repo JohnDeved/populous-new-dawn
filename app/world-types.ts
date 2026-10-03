@@ -335,7 +335,7 @@ export type Effect = Point & {
     | 'angel'
   height?: number
   sprite?: { sequence: string; frame: number; fixed?: boolean }
-  animation?: AnimatedUnit | SpellTrail
+  animation?: (AnimatedUnit & { displacement?: { x: number; y: number; h: number } }) | SpellTrail
   lightning?: Lightning
   smoke?: BuildingSmoke
   debris?: BuildingDebris

@@ -240,9 +240,13 @@ export function stepLevelStarts(w: World) {
             const fx = animatedStartEffect(w, point, 'hit', 1294, 46, 6)
             fx.team = team
           },
-          move: (id, point) => {
+          move: (id, point, displacement) => {
             const fx = w.effects.find(f => f.id === id)
-            if (fx) moveVisual(fx, point)
+            if (fx) {
+              moveVisual(fx, point)
+              fx.animation!.flags3 |= 0x300
+              fx.animation!.displacement = { ...displacement }
+            }
           },
           remove: id => {
             const fx = w.effects.find(f => f.id === id)
@@ -302,9 +306,13 @@ export function stepLevelStarts(w: World) {
   }
   for (const site of [...w.levelStart].reverse()) {
     if (site.phase === 4) continue
-    const u = w.units.find(u => u.id === site.shaman && u.hp > 0)
-    if (!u?.native) {
-      finishStart(w, site, u)
+    const u = w.units.find(u => u.id === site.shaman)
+    if (!u?.native || u.hp <= 0) {
+      // Death cancels the order; it must not mark an unfinished site completed
+      // or run the living person's idle initializer.
+      site.phase = 4
+      if (u?.native && currentPersonOrder(w.buildingOrders, u.native)?.model === 18)
+        removePersonOrder(w.buildingOrders, u.native, u.native.commandCursor, orderEffects(w))
       continue
     }
     const p = u.native
