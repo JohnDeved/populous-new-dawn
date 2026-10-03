@@ -155,6 +155,11 @@ worship, its visit delay, and later lessons remain open.
 
 ## Mission 18 sky static evidence
 
+[Campaign sky audit](research/sky-rendering-audit.md) records the October 3
+read-only inventory: early c/s/p selection is present, fourteen supported later
+missions still use c across thirteen other supplied banks, and native-command
+coverage does not establish matched original-device frames.
+
 [Early-mission skies](research/early-mission-skies.md) records the original palette-gated c/s/p filename selection, isolated success/failure execution, and six exact Mission 2/3 sky assets. Reproduce with `python scripts/check-native-early-mission-skies.py /path/to/d3dpoptb.exe`; OS opens, decoder/device execution, and matched original frames remain outside this proof.
 
 [Mission 18 sky](research/mission18-sky.md) records palette-open-gated filename selection, alternate-root policy and failed-image return paths. Reproduce the original-byte proof from a fresh checkout with Python 3.9+ and the existing Capstone 5 dependency (validated 5.0.7):
@@ -5089,3 +5094,12 @@ corrects the earlier conflation of capacity with the native descriptor's separat
 socket selector. `python scripts/check-native-hut-smoke-placement.py EXE`
 executes 288 composed initializer/socket cases; browser integration and complete
 original-frame matching remain separate evidence requirements.
+
+## Residential hut secondary smoke allocation phase
+
+[Secondary puff research](research/hut-smoke-secondary-phase.md) distinguishes
+the primary class-7 seed from secondary root/child allocations, the eight-visit
+root gate, exact cosmetic RNG threshold, capacity reserve, traversal order and
+sixteen-visit child expiry. `python -B scripts/check-native-hut-smoke-puffs.py EXE`
+checks bounded original instructions without executing the surrounding world
+loop. The browser allocation adapter remains an explicit implementation gap.
