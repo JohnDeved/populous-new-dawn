@@ -131,7 +131,7 @@ function parseArgs(args) {
   }
   assert(options.output, 'receipt command requires --output')
   assert(command.length, 'receipt command cannot be empty')
-  return { output: options.output, command }
+  return { ...options, command }
 }
 
 function main() {

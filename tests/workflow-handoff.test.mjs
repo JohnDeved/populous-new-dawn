@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { execFileSync, spawn } from 'node:child_process'
+import { execFileSync, spawn, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
   existsSync,
@@ -610,6 +610,40 @@ test('command receipts bind dirty source and explicit ignored inputs and invalid
     assert.equal(receipt.source.inputs['work/helper.txt'], sha('helper input\n'))
     assert.notEqual(receipt.source.trackedDiffSha256, sha(''))
     assert.notDeepEqual(receipt.sourceAfter.inputs, receipt.source.inputs)
+  } finally {
+    rmSync(root, { recursive: true, force: true })
+  }
+})
+
+test('receipt CLI preserves repeated input flags and rejects zero-exit input drift', () => {
+  const { root, repo } = fixture()
+  try {
+    const helper = join(repo, 'scripts/orchestration/command-receipt.mjs')
+    mkdirSync(join(repo, 'scripts/orchestration'), { recursive: true })
+    writeFileSync(helper, readFileSync(new URL('../scripts/orchestration/command-receipt.mjs', import.meta.url)))
+    writeFileSync(join(repo, 'work/helper.txt'), 'helper before\n')
+    writeFileSync(join(repo, 'work/config.json'), '{"enabled":true}\n')
+    for (const mutate of [false, true]) {
+      const output = `work/orchestration/task/cli-${mutate ? 'drift' : 'stable'}.json`,
+        result = spawnSync(process.execPath, [
+          helper, '--output', output,
+          '--input', 'work/helper.txt', '--input', 'work/config.json',
+          '--', process.execPath, '-e', mutate
+            ? "require('node:fs').writeFileSync('work/helper.txt','helper after\\n')"
+            : "console.log('unchanged')",
+        ], { cwd: repo, encoding: 'utf8' }),
+        receipt = JSON.parse(readFileSync(join(repo, output), 'utf8'))
+      assert.equal(result.status, mutate ? 1 : 0, result.stderr)
+      assert.equal(receipt.status, mutate ? 'invalidated' : 'passed')
+      assert.equal(receipt.exitCode, 0)
+      assert.deepEqual(receipt.source.inputs, {
+        'work/helper.txt': sha('helper before\n'),
+        'work/config.json': sha('{"enabled":true}\n'),
+      })
+      assert.equal(receipt.sourceAfter.inputs['work/config.json'], sha('{"enabled":true}\n'))
+      assert.equal(receipt.sourceAfter.inputs['work/helper.txt'], sha(mutate ? 'helper after\n' : 'helper before\n'))
+      assert.equal(JSON.parse(result.stdout).status, receipt.status)
+    }
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
