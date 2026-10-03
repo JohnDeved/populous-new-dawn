@@ -70,3 +70,35 @@ verified original section bytes. The useful entry points are named above; one
 exploratory `004121d0` export landed inside `00411790` and is excluded from evidence.
 No installer, Wine, original process, Actions, parity recording, shared art
 regeneration, or original binary publication was used.
+
+## Delivered first-three UI and verification boundary
+
+The dedicated selector is reachable at startup and through Select Level during a
+mission or at its result screen. Back returns to the existing paused world/menu;
+merely opening the selector does not replace it. Actual mission launch uses the
+existing `startMission` entry, and Continue on the victory screen remains intact.
+The modern campaign view enforces the bounded opening availability adapter. The
+explicit All missions tab preserves all 23 existing direct-access worlds.
+
+The flat opening-orbit map, responsive HTML buttons, and CSS circular texture
+preview are modern adaptations. The map shows native parent/radius/opening-angle
+relationships, but does not reproduce the original perspective camera, orbital
+motion, sphere UVs or shading. The original three texture maps are decoded by
+`scripts/import-world-selector.py`, with exact header/palette/texture/output hashes
+in `public/original/world-selector/provenance.json`. No background or star artwork
+was guessed or substituted.
+
+On clean `d52e7f9aa73833b1edce7d0a0cd6d1b32a04b028`, sandboxed local Headless Shell
+154.0.8037.92 with SwiftShader passed the first focused acceptance: initial locked
+world state, pointer Mission 1 launch, responsive no-overflow checks, return/Back
+without advancing or replacing the paused world, and a fresh-session persisted
+completion fixture showing replay/next-world state. This is not a natural campaign
+victory proof. Typecheck, native static/layout checks, focused portable tests, and
+production build passed. The initial aggregate and one authorized retry were
+interrupted by automatic review cancellation and are not counted as passes.
+
+Review identified legacy browser checks with independent direct-Mission button
+selectors. Their setup now explicitly opens All missions through one shared public
+UI helper. Campaign selection checks continue through Select Mission and Start;
+checkpoint completion/replay assertions were updated to that real flow instead of
+silently bypassing campaign availability. Final browser receipts accompany the PR.

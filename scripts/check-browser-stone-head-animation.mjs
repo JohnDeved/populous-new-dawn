@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 // Run only in the canonical queue, using the owned headless page and output path.
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
@@ -33,6 +34,7 @@ try {
   await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 60000 })
   // Existing startup layout can position this button outside pointer viewport;
   // activate its real keyboard handler inside the owned headless page.
+  await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 1', exact: true }).press('Enter')
   await bindGame(page)
   const skip = page.getByRole('button', { name: /Skip introduction/ })

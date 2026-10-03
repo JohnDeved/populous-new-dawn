@@ -1,3 +1,12 @@
+// Explicit public-UI setup for checks that start an arbitrary mission.
+// Campaign progression acceptance must use Select Mission + Start instead.
+export async function showAllMissions(page) {
+  const startup = page.getByRole('dialog', { name: 'Start game', exact: true })
+  await startup.waitFor({ state: 'visible' })
+  const allMissions = startup.getByRole('button', { name: 'All missions', exact: true })
+  if (await allMissions.getAttribute('aria-pressed') !== 'true') await allMissions.click()
+}
+
 export async function bindGame(page) {
   await page.waitForSelector('.world-viewport canvas')
   await page.waitForFunction(
@@ -38,7 +47,7 @@ export async function openGame(browser, mission = 1) {
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
   // Direct-access setup is explicit; campaign selector checks exercise its gating separately.
-  await page.getByRole('button', { name: 'All missions', exact: true }).click()
+  await showAllMissions(page)
   await page.getByRole('button', { name: `Mission ${mission}`, exact: true }).focus()
   await page.keyboard.press('Enter')
   await bindGame(page)
