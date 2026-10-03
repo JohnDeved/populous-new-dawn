@@ -6,6 +6,7 @@ import { spiralCell } from '../app/native-math.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { createWorld } from '../app/model.ts'
 import { stepComputerTasks } from '../app/computer-runtime.ts'
+import { campaignCommand } from '../app/campaign-command-runtime.ts'
 
 // Controlled cases pair with check-native-mission3-convert-target.py; these are
 // helper boundaries, separate from the natural mission journey below.
@@ -33,6 +34,7 @@ test('Convert Wild target retains density, wrap, tie, inclusive radius and list-
     [0x1010, { 1: 1, 3: 1 }, [[40, 12], [100, 10]], 0, 200, 0x0c28],
     [0x1030, { 0: 1, 2: 1 }, [[10, 10], [70, 10]], 0, 200, 0x0a0a],
     [0x1000, { 0: 1, 7: 1 }, [[10, 10], [240, 10]], 0, 200, 0x0a0a],
+    [0x1000, { 1: 1, 7: 1 }, [[40, 10], [240, 10]], 0, 200, 0x0af0],
     [0x1010, { 1: 1 }, [[40, 12]], 0, 32, 0x0c28],
     [0x1010, { 1: 1 }, [[40, 12]], 0, 31, null],
     [0x1010, { 1: 1 }, [[40, 12]], 32, 200, 0x0c28],
@@ -66,7 +68,8 @@ test('Mission3 active type2 advances after allocation state is switched off', ()
   for (const task of world.ai.tasks) task.flags = 0
   assert.equal(requestConvertTask(world.ai, 4, 1), true)
   world.ai.tasks[0].phase = 6
-  world.ai.states &= ~4
+  campaignCommand(world, 1030, [1023])
+  assert.equal(world.ai.states & 4, 0)
   world.ai.cursor = 0
   world.turn = 1
   const seed = world.randomState

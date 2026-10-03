@@ -100,6 +100,7 @@ export function campaignCommand(
   const arity = (
     {
       1028: 1,
+      1030: 1,
       1038: 3,
       1059: 13,
       1064: 3,
@@ -199,9 +200,10 @@ export function campaignCommand(
     throw new RangeError('Unsupported tutorial interface record')
   }
 
-  if (opcode === 1028) {
-    if (args[0] === 1022) w.ai.states = (w.ai.states | 1) >>> 0
-    else if (args[0] === 1023) w.ai.states = (w.ai.states & ~1) >>> 0
+  if (opcode === 1028 || opcode === 1030) {
+    const bit = 1 << (opcode - 1028)
+    if (args[0] === 1022) w.ai.states = (w.ai.states | bit) >>> 0
+    else if (args[0] === 1023) w.ai.states = (w.ai.states & ~bit) >>> 0
     return
   }
   if (opcode === 1172) {

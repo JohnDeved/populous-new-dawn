@@ -40,6 +40,7 @@ for name,origin,sparse,people,minimum,maximum in [
     ('equal_density_nearer',0x1010,{1:1,3:1},[(40,12),(100,10)],0,200),
     ('equal_distance_first_region',0x1030,{0:1,2:1},[(10,10),(70,10)],0,200),
     ('wrapped_distance',0x1000,{0:1,7:1},[(10,10),(240,10)],0,200),
+    ('wrapped_distance_changes_winner',0x1000,{1:1,7:1},[(40,10),(240,10)],0,200),
     ('inclusive_maximum',0x1010,{1:1},[(40,12)],0,32),
     ('outside_maximum',0x1010,{1:1},[(40,12)],0,31),
     ('inclusive_minimum',0x1010,{1:1},[(40,12)],32,200),
@@ -148,4 +149,4 @@ for counts,standable,reachable in [((0,0,0,0),True,True),((0,0,0,0),True,False),
     rows.append(dict(vehicleCounts=counts,standable=standable,reachable=reachable,phase=expected_phase,routeCalls=len(route_calls)))
 results['phase2WithSuppliedTerrainAndRoute']=rows
 print(json.dumps(results,indent=2))
-print('PASS:11 unhooked target searches,18 unhooked vehicle counts,9 route wrappers,8 standability cases,6 phase2 boundaries')
+print('PASS:12 unhooked target searches,18 unhooked vehicle counts,9 route wrappers,8 standability cases,6 phase2 boundaries')
