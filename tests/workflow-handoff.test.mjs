@@ -644,6 +644,15 @@ test('receipt CLI preserves repeated input flags and rejects zero-exit input dri
       assert.equal(receipt.sourceAfter.inputs['work/helper.txt'], sha(mutate ? 'helper after\n' : 'helper before\n'))
       assert.equal(JSON.parse(result.stdout).status, receipt.status)
     }
+    const missingOutput = 'work/orchestration/task/cli-missing.json',
+      missing = spawnSync(process.execPath, [
+        helper, '--output', missingOutput, '--input', 'work/missing-input.txt',
+        '--', process.execPath, '-e', "require('node:fs').writeFileSync('work/must-not-launch','started')",
+      ], { cwd: repo, encoding: 'utf8' })
+    assert.notEqual(missing.status, 0)
+    assert.match(missing.stderr, /ENOENT/)
+    assert.equal(existsSync(join(repo, missingOutput)), false)
+    assert.equal(existsSync(join(repo, 'work/must-not-launch')), false)
   } finally {
     rmSync(root, { recursive: true, force: true })
   }
