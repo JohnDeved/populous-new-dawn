@@ -600,6 +600,8 @@
       "decomp/research/mission3-convert-task.md",
       "decomp/research/early-mission-producer-schedule.md",
       "scripts/check-native-ai-producer-schedule.py",
+      "scripts/check-native-ai-training-capacity.py",
+      "tests/ai-training-capacity.test.mjs",
       "decomp/generated/0043b2a0.c",
       "decomp/generated/004c8c50.c",
       "decomp/generated/004f3280.c",

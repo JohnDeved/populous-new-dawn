@@ -89,3 +89,23 @@ At this research checkpoint, runtime behavior remains unchanged. The intended
 next implementation is exact table scheduling around the existing Mission1–3
 producer adapters, with missing producer/response semantics explicitly retained
 as open boundaries. Later missions remain outside this slice.
+
+## Automatic-training threshold correction
+
+The existing early-mission `produceMissionTraining` adapter inverted the native
+capacity gate. `004e59a0` requires the signed32-bit sum of idle and housing-order
+people to be at least the selected school's capacity. Twelve executable cases
+cover below/equal/above capacity, negative values, and signed addition overflow.
+The state gate, candidate loop, real completed-building lookup, native RNG and
+record writer run; model availability and the two people-count leaves are supplied.
+Every eligible candidate case consumes the same single native RNG step before the
+capacity test, including rejected low-capacity cases.
+
+`check-native-ai-training-capacity.py --compare` pairs those cases with the actual
+live predicate. `tests/ai-training-capacity.test.mjs` separately exercises the
+Mission3 runtime adapter with controlled world fixtures. The old runtime fails
+at four available people and wrongly accepts the request; five and six now pass.
+This change is limited to Missions1–3; Mission6 already used the correct direction,
+and other later mission predicates retain their previous behavior. Candidate
+model selection, preferences, permission/building predicates and downstream
+training timing are unchanged and not certified by this threshold proof.

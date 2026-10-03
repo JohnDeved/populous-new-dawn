@@ -55,6 +55,7 @@ import {
   computerPhase,
   acquireSelection,
   dispatchComputerTask,
+  hasComputerTrainingCapacity,
   releaseSelection,
   requestConstruction,
   requestPreacherTask,
@@ -599,8 +600,14 @@ function produceMissionTraining(w: World, tribe: number) {
   const selection = computerSelectionWorld(w, tribe),
     available = availableTrainingPeople(selection.world),
     capacity = rules.buildingCapacity[building]
-  // ponytail: preserve Mission 1's established gate until that producer is re-probed.
-  if (w.outcome.level === 6 ? available < capacity : available >= capacity) return
+  // Original 0x4e59a0 requires capacity, including equality. Later-mission
+  // adapters outside the already proved Mission6 path retain their current gate.
+  if (
+    w.outcome.level <= 3 || w.outcome.level === 6
+      ? !hasComputerTrainingCapacity(available, capacity)
+      : available >= capacity
+  )
+    return
   requestTraining(w.ai, 0, model, available, candidate => (candidate === building ? target : 0))
 }
 

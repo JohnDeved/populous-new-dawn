@@ -259,6 +259,11 @@ export function dispatchComputerTask(ai: ComputerQueue, process: (index: number)
   ai.cursor = (ai.cursor + 1) % 10
 }
 
+// 0x4e59a0: compare the signed32-bit sum of idle and housing-order people.
+export function hasComputerTrainingCapacity(available: number, capacity: number) {
+  return (available | 0) >= capacity
+}
+
 // 0x4e6640 / 0x462730 / 0x462790. Availability and first completed building
 // come from the native person/building lists, not a nearest-building heuristic.
 export function requestTraining(
