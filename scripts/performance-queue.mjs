@@ -5,6 +5,7 @@ import { spawn, spawnSync, execFileSync } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
 import fs from 'node:fs'
 import net from 'node:net'
+import os from 'node:os'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { isDeepStrictEqual } from 'node:util'
@@ -26,6 +27,30 @@ function write(file, value) {
 function identity(pid) {
   const r = spawnSync('ps', ['-p', String(pid), '-o', 'lstart='], { encoding: 'utf8' })
   return r.status === 0 ? r.stdout.trim() : null
+}
+function executionScope() {
+  // Inspect only this process's namespaces. A PID from another tool invocation
+  // may be invisible or refer to an unrelated process; absence is not cleanup.
+  if (process.platform === 'linux')
+    return {
+      platform: process.platform,
+      boot: fs.readFileSync('/proc/sys/kernel/random/boot_id', 'utf8').trim(),
+      pid: fs.readlinkSync('/proc/self/ns/pid'),
+      network: fs.readlinkSync('/proc/self/ns/net'),
+    }
+  if (process.platform === 'darwin')
+    return {
+      platform: process.platform,
+      host: os.hostname(),
+      boot: execFileSync('sysctl', ['-n', 'kern.boottime'], { encoding: 'utf8' }).trim(),
+    }
+  throw new Error('Cannot establish the current execution scope')
+}
+function scopeProblem(record) {
+  if (!record.executionScope) return 'Execution scope is missing; terminal status and cleanup are unknown'
+  if (!isDeepStrictEqual(record.executionScope, executionScope()))
+    return 'Execution scope differs; terminal status and cleanup are unknown'
+  return null
 }
 function processTable() {
   const r = spawnSync('ps', ['-axo', 'pid=,ppid=,pgid=,lstart='], { encoding: 'utf8' })
@@ -422,6 +447,9 @@ export async function superviseBrowserCheck({
   if (failure) throw failure
 }
 function kick(dir) {
+  // Paused submissions do not need idle controllers. Besides wasting processes,
+  // delayed starts raced recover after callers observed a released lock (#146).
+  if (exists(path.join(dir, 'pause.json')) || exists(path.join(dir, 'recovery.lock'))) return
   const log = fs.openSync(path.join(dir, 'controller.log'), 'a', 0o600)
   try {
     const child = spawn(process.execPath, [script, 'drain', '--dir', dir], {
@@ -455,7 +483,7 @@ export function submit(spec, dir = queueDirectory(spec.cwd)) {
   }
   let job
   try {
-    fs.writeFileSync(fd, JSON.stringify({ pid: process.pid, identity: identity(process.pid) }))
+    fs.writeFileSync(fd, JSON.stringify({ pid: process.pid, identity: identity(process.pid), executionScope: executionScope() }))
     // Serialize only admission: a lost client must not enqueue the same active work twice.
     job = ordered(dir).find(
       previous =>
@@ -495,6 +523,8 @@ function enqueue(spec, inputs, dir) {
   return job
 }
 async function cleaned(job) {
+  const scope = scopeProblem(job)
+  if (scope) return scope
   if (job.pid && alive(job.pid, true)) return 'Command process group is still alive'
   for (const port of job.spec.ports)
     if (!(await portFree(port))) return `Port ${port} is still occupied`
@@ -544,6 +574,7 @@ async function execute(job, dir) {
     return
   }
   job.status = 'starting'
+  job.executionScope = executionScope()
   write(file, job)
   const log = fs.openSync(path.join(job.output, 'command.log'), 'wx', 0o600)
   let child,
@@ -610,7 +641,7 @@ async function execute(job, dir) {
 }
 export async function drain(dir) {
   initialize(dir)
-  if (exists(path.join(dir, 'recovery.lock'))) return
+  if (exists(path.join(dir, 'pause.json')) || exists(path.join(dir, 'recovery.lock'))) return
   const lock = path.join(dir, 'controller.lock')
   try {
     fs.mkdirSync(lock)
@@ -619,7 +650,7 @@ export async function drain(dir) {
     throw e
   }
   const token = randomUUID()
-  write(path.join(lock, 'owner.json'), { pid: process.pid, identity: identity(process.pid), token })
+  write(path.join(lock, 'owner.json'), { pid: process.pid, identity: identity(process.pid), token, executionScope: executionScope() })
   // A crash deliberately leaves the lock and active job. Recovery never expires a live owner.
   let cleanExit = false
   try {
@@ -651,7 +682,7 @@ export async function drain(dir) {
 export async function recover(dir) {
   const recovery = path.join(dir, 'recovery.lock')
   const fd = fs.openSync(recovery, 'wx', 0o600)
-  fs.writeFileSync(fd, JSON.stringify({ pid: process.pid, identity: identity(process.pid) }))
+  fs.writeFileSync(fd, JSON.stringify({ pid: process.pid, identity: identity(process.pid), executionScope: executionScope() }))
   fs.closeSync(fd)
   try {
     await recoverLocked(dir)
@@ -670,6 +701,8 @@ async function recoverLocked(dir) {
       'Incomplete controller identity; inspect manually, do not expire the lock'
     )
     const r = json(owner)
+    const scope = scopeProblem(r)
+    assert(!scope, scope)
     assert(identity(r.pid) !== r.identity, 'Controller is still alive')
     previousOwner = r.token
   }
@@ -708,8 +741,10 @@ export async function waitForResult(dir, id) {
       owner = readOptional(path.join(dir, 'controller.lock', 'owner.json'))
     const reason = paused
       ? paused.reason || 'Queue paused'
-      : owner && !alive(owner.pid)
-        ? 'Controller stopped; verified recovery required'
+      : owner && scopeProblem(owner)
+        ? scopeProblem(owner)
+        : owner && (!alive(owner.pid) || identity(owner.pid) !== owner.identity)
+          ? 'Controller stopped in this execution scope; verified recovery required'
         : !owner && Date.now() - started > 5000
           ? 'Controller unavailable; inspect status before recovery'
           : null

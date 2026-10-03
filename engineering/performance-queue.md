@@ -1,5 +1,58 @@
 # Shared test queue
 
+## Choose the execution model first
+
+The detached queue below requires one stable host, PID namespace, and network
+namespace for its controller, jobs, and recovery commands. A shared filesystem or
+Git common directory does **not** establish that scope. Some cloud tool calls use
+fresh namespaces: a later `ps`, PID lookup, or missing tool session cannot prove an
+earlier process stopped. Use the foreground path for functional checks there.
+
+### Foreground functional checks in isolated cloud invocations
+
+Use one parent-coordinated foreground run at a time, with a fresh detached worktree
+at the exact candidate commit. Keep writable `node_modules`, build output, tool
+caches, and `TMPDIR` private to that run; do not symlink/hardlink writable dependency
+trees or reuse a checkout belonging to an unknown run. Read-only native data can be
+shared when the inspected checks do not modify it. Inspect every command's writes;
+no shared fixed ports, profiles, capture paths, or record modes. The receipt helper
+does not enforce isolation or manage arbitrary daemons.
+
+Run the existing command receipt helper directly, without the detached queue:
+
+```sh
+node scripts/orchestration/command-receipt.mjs \
+  --output work/orchestration/unique-attempt/check.json \
+  --input scripts/orchestration/command-receipt.mjs \
+  --input package-lock.json --input node_modules/.package-lock.json \
+  -- npm run check
+```
+
+Include every ignored/untracked helper, configuration and external input read by
+the command using repeatable `--input` arguments (or the `inputs` array in
+`runCommandReceipt`). If the candidate lacks the repaired helper, use a frozen
+copy as an explicit input and call `runCommandReceipt(candidateRoot, options)`;
+do not edit the candidate under verification. HEAD, tracked diff, and explicit
+input hashes are captured before and after execution. A changed input produces
+`invalidated`, even when the command exits zero. Accept `status: passed`, not just
+an exit code. Advisory failures still need their actual failed status and limits.
+
+Before launching, the helper saves `status: unknown`, `phase: prepared` and the
+command/source identity. Raw stdout/stderr stream to adjacent `.artifacts` logs.
+Only the same foreground invocation can replace that record with a terminal
+receipt after the child returns. Reusing an output path is refused. A lost session,
+cancelled wait, stale timestamp, or prelaunch record without terminal fields is
+still **unknown**, never a pass or a cleanup receipt. Use the supported existing
+tool session to await it when available; do not guess PIDs from another invocation.
+
+If an old queue job has unknown cleanup, retain its checkout, lock and receipts.
+The parent may authorize fresh isolated functional checks after checking that they
+share no writable resources with that job. This does not recover the old queue or
+establish machine idleness; timing/performance claims remain blocked. Browser work
+also needs its reviewed same-invocation process guardian and private resources.
+
+## Stable-scope detached queue
+
 Use `node scripts/performance-queue.mjs run job.json` for **prepared, authorized**
 performance/browser jobs and competing native/build/full-check workloads. Submission
 starts a background controller; it runs jobs FIFO without an agent waiting, a service
@@ -134,7 +187,11 @@ There is no blind lock expiry or global process-name kill.
 A controller crash deliberately leaves its lock and active job. After the **existing
 runner** completes cleanup, `recover` verifies the old controller is gone and the
 active job is clean, marks it interrupted and resumes queued work. It refuses to
-recover a live owner/job. If startup crashed before recording its PID, or a recovery
+recover a live owner/job. Controller and job records must first match the caller's
+execution scope; old records without that evidence also fail closed. Neither a
+foreign-namespace PID absence nor `Unknown process id` from an executor supplies
+the missing proof. Keep those jobs unknown and use supported original-session
+evidence or an authorized isolated functional run. If startup crashed before recording its PID, or a recovery
 process itself crashed leaving `recovery.lock`, inspect the exact process ownership
 and repair the receipt/lock under one operator; do not automatically delete it on age.
 PID reuse can conservatively block recovery; it must never authorize killing another
