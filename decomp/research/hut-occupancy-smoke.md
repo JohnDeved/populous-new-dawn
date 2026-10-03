@@ -63,10 +63,12 @@ does not currently model the complete native class-7 allocation stream. Guessing
 zero, tying it to render count, or deriving it from gameplay RNG would fabricate
 timing.
 
-This slice therefore restores the occupancy-driven **root** visual and its fully
-proved partial/full lifecycle, but does not synthesize model-74 child puffs. That
-remaining secondary phase is a separate allocator/presentation dependency, not a
-reason to invent particle timing.
+This slice therefore restores the occupancy-driven **root** visual and its
+bounded partial/full lifecycle, but does not synthesize model-74 child puffs.
+Complete allocation-turn equivalence is not established: the follow-up identifies
+an [initial partial-root visit caveat](hut-smoke-secondary-phase.md#existing-partial-root-allocation-turn-caveat).
+The remaining secondary phase is a separate allocator/presentation dependency,
+not a reason to invent particle timing.
 
 ## Browser binding
 

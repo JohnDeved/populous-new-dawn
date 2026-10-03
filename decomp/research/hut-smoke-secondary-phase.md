@@ -64,6 +64,24 @@ the same seed, and their later first eligible world turn depends on allocation
 and traversal timing. The LIFO secondary order also determines the order of
 cosmetic RNG draws among roots already eligible on the same visit.
 
+### Existing partial-root allocation-turn caveat
+
+The same traversal ownership reveals a separate source-level timing mismatch.
+If an ordinary building pass allocates a partial root before `004ec924`, that
+root is already at the secondary-list head. Its lifetime 16 is decremented to
+15 by `0050c260` in that turn. Current `stepHutOccupancySmoke` instead skips
+`stepPartialRoot` when periodic reconciliation allocated a root at the building's
+32-count boundary. Its comment treats all newly allocated roots as though they
+were inserted during the secondary traversal itself, which only describes the
+child-puff insertion case proved above.
+
+This is a source-composition finding, not a whole-game native turn execution or
+a newly reproduced browser defect. A future repair must bind the ordinary
+building/admission callback timing and scene sampling before changing the
+first-visit behavior; the current research does not modify the helper or weaken
+its tests. Consequently the prior root lifecycle proof must not be described
+as complete allocation-turn equivalence.
+
 ## Current adapter gap and bounded next step
 
 At base `a4aff01ffb9b53599aee48277a38e67669399108`:
