@@ -44,7 +44,7 @@ export function unitAnimationSource(u: Unit) {
   if (
     u.native &&
     (u.native.state !== 10 ||
-      [3, 6, 15, 16, 17, 19, 21, 27, 30, 31, 32, 33].includes(u.native.commandStatus))
+      [3, 6, 15, 16, 17, 18, 19, 21, 27, 30, 31, 32, 33].includes(u.native.commandStatus))
   )
     return u.native
   if (u.entry) return u.entry.person
@@ -111,7 +111,9 @@ export function selectionBuilding(w: World, point: { x: number; y: number }) {
 }
 
 export function canOrder(u: Unit) {
-  return u.hp > 0 && !((unitAnimationSource(u)?.flags2 ?? 0) & 0x100000)
+  const p = unitAnimationSource(u)
+  return u.hp > 0 && !(p?.flags2 && p.flags2 & 0x100000) &&
+    !(p?.commandStatus === 18 && p.flags4 & 128)
 }
 
 export function select(w: World, kind: UnitKind | 'all') {

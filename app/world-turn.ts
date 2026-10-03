@@ -1,3 +1,4 @@
+import { levelStartOwnsShaman, stepLevelStarts } from './level-start-runtime.ts'
 import { setShamanDeathPhase } from './shaman-death-vfx.ts'
 import { syncStoneHeadPresentation } from './stone-head-animation.ts'
 import {
@@ -1208,8 +1209,10 @@ function stepTurn(w: World) {
       previous: u.flight ? { x: u.flight.x, y: u.flight.y, h: u.flight.h } : nativePosition(w, u),
     }))
   syncLandscapeObjects(w)
+  stepLevelStarts(w)
   const armageddon = w.effects.find(fx => fx.armageddon)?.armageddon
   for (const u of w.units) {
+    if (levelStartOwnsShaman(w, u)) continue
     if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)
     u.fighting = false
     const spy = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person

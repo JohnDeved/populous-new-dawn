@@ -1,3 +1,4 @@
+import { initializeLevelStart } from './level-start-runtime.ts'
 import type { Point, Shrine, World } from './world-types.ts'
 import { addBuilding } from './construction-runtime.ts'
 import { campaignPosition, withCampaignTribe } from './campaign-runtime.ts'
@@ -135,9 +136,7 @@ export function createWorld(missionNumber = 1): World {
     if (o.type === 1)
       addUnit(
         w,
-        o.owner === 255 && missionNumber === 2 && distance(o, campaignPosition(w, 'blue')) < 6
-          ? 'blue'
-          : o.owner === 255
+        o.owner === 255
             ? 'wild'
             : teamForTribe(o.owner),
         unitKindFromModel(o.model),
@@ -476,5 +475,6 @@ export function createWorld(missionNumber = 1): World {
   syncLandscapeObjects(w)
   w.lightView = nativePosition(w, campaignPosition(w, 'blue'))
   for (const shrine of w.shrines) initializeStoneHead(shrine, missionNumber)
+  initializeLevelStart(w)
   return w
 }

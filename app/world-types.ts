@@ -1,3 +1,4 @@
+import type { LevelStartSite } from './level-start.ts'
 import type { LiveFormation } from './live-movement.ts'
 import type { Footprints } from './footprints.ts'
 import type { CombatMarch } from './combat-order-search.ts'
@@ -465,6 +466,8 @@ export type World = {
   replants: Replant[]
   indexedSearch: Uint8Array
   fights: Battle[]
+  levelStart: LevelStartSite[]
+  levelStartStoneSound: number
   sounds: SoundEvent[]
   soundSerial: number
   mana: number

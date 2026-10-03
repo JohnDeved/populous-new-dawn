@@ -5056,3 +5056,11 @@ This is static evidence, not native execution or full loading-screen fidelity.
 ## Vault side-fire evidence
 
 [Vault side-fire research](research/vault-side-fire.md) traces generic ignition, the Vault descriptor protection bit and empty original fire attachments. It separates those static exclusions from the unobserved full Mission 7 effect timeline; no decorative flame implementation is justified by this evidence.
+
+## 2026-10-03 — Mission1–3 level-start site sequence
+
+The original startup command18, terrain/conversion wave, stone carriers and rise
+are traced in [level-start-sequence.md](research/level-start-sequence.md), including
+mission-specific reincarnation-disabled skips. New exports and the isolated native
+checker are indexed there. Live integration and exact-commit Mac acceptance remain
+under issue #20; this entry makes no whole-sequence parity completion claim.
