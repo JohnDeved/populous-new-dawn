@@ -9,7 +9,11 @@ unless load flag `0x200` is set (restoring a save). `00419810` snaps each Shaman
 reincarnation center to a 512-unit cell center. `00419880` queues command18 with
 flags32. `00432590` dispatches that command to `00433a10`. `00432df0` sets the
 person's flags4 bit128; ordinary state initialization clears it (`00432260`).
-This is independent of the campaign's flyby camera/input commands. Bit128 is
+Fresh camera initializer `00419790` snaps X to the Shaman's cell edge and Y to
+its cell center, setting angle256 unless game flag32 preserves the old angle.
+Native `00448ec0`/`00448ee0` and six `00449320` warmup frames retain this seed;
+the early-mission scene now does too. Restored turn>0 scenes keep their existing
+camera behavior. This is independent of the campaign's later flyby camera/input commands. Bit128 is
 selection-only: `004c2d80` and player target entry `004c24f0` both permit casting
 while command18 is running. `004c1b80` enters state22 while retaining the order
 queue, so a generic casting ban is unsupported and was removed during research.
@@ -76,5 +80,5 @@ retain command18 and return through its ordinary initializer, including checkpoi
 continuation. Original orbit displacement is also compared and used for rendering.
 Pending final acceptance: revised legacy fixture checks, local Linux HeadlessShell before/during/after
 frames on the exact integrated commit and fresh review. Existing world allocation,
-terrain-notification batching, camera adapter and original-palette browser blend
+terrain-notification batching, restored camera persistence and original-palette browser blend
 limits are not upgraded to native whole-game equivalence by these helper checks.

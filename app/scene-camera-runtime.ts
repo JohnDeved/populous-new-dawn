@@ -419,9 +419,13 @@ export function updateFlyby(scene: GameScene, dt: number) {
     scene.flybyCamera = {
       x: Math.round((scene.viewPoint.x + 8) * 256),
       y: Math.round((-scene.viewPoint.z - 8) * 256),
-      angle: 0,
+      // 0x448ee0/0x449320 retain the fresh tribe camera through all six warmup frames.
+      angle: scene.levelStartCameraSeeded
+        ? Math.round((scene.cameraBearing * 1024) / Math.PI) & 2047
+        : 0,
       zoom: 0,
     }
+    scene.levelStartCameraSeeded = false
     scene.flybyTime = 0
     scene.keys.clear()
   }

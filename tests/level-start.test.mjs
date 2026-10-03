@@ -124,3 +124,10 @@ test('permitted opening casts enter native state22 and resume command18 without 
     assert.equal(w.stats.cast,1)
   }
 })
+
+test('fresh-load camera follows native cell-edge/center snapping and angle retention', async () => {
+  const {levelStartCamera}=await import('../app/level-start.ts')
+  assert.deepEqual(levelStartCamera({x:4352,y:55040,h:128},64),{x:4096,y:55040,angle:256})
+  assert.deepEqual(levelStartCamera({x:65535,y:65535,h:0},0),{x:65024,y:65280,angle:256})
+  assert.deepEqual(levelStartCamera({x:0,y:0,h:0},32,777),{x:0,y:256,angle:777})
+})

@@ -160,3 +160,13 @@ export function levelStartBurstParticle(rng: { randomState: number }) {
     pitch = random(rng) & 2047
   return { remaining, speed: 60, pitch, yaw }
 }
+
+// 0x419790: fresh tribe camera uses the Shaman's cell edge on X and center on Y.
+// +0x32 is the angle consumed by the original ordinary/flyby camera routines.
+export function levelStartCamera(position: StartPoint, gameFlags: number, previousAngle = 0) {
+  return {
+    x: position.x & 0xfe00,
+    y: ((position.y & 0xfe00) + 256) & 65535,
+    angle: gameFlags & 32 ? previousAngle : 256,
+  }
+}

@@ -231,3 +231,37 @@ for seed in [0,1,0x12345678,0xffffffff,0x50ccd0]:
 js="""import fs from 'node:fs';import {levelStartBurstParticle} from './app/level-start.ts';const cases=JSON.parse(fs.readFileSync(0,'utf8'));for(const c of cases){const rng={randomState:c.seed};const particles=Array.from({length:32},()=>levelStartBurstParticle(rng));if(JSON.stringify(particles)!==JSON.stringify(c.particles)||rng.randomState!==c.randomState)throw new Error('effect9 burst mismatch '+c.seed)}"""
 subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(burst_cases).encode(),cwd=ROOT,check=True)
 print('PASS: five complete original effect9 bursts:160 particles, lifetime/speed/yaw/pitch and gameplay RNG')
+
+# Real load camera initializer. The original camera consumers use these exact
+# tribe+24/+26/+32 fields; ordinary and first flyby warmup must retain the seed.
+cpu,identity=native_cpu(exe);cpu.mem_map(0x2000000,0x40000)
+camera_cases=[]
+for flags in [0,32,64,96]:
+ for point in [{'x':4352,'y':55040,'h':128},{'x':65535,'y':0,'h':0},{'x':0,'y':65535,'h':1024},{'x':32769,'y':32768,'h':-1}]:
+  cpu.mem_write(p,bytes(0xc65));cpu.mem_write(p+0x2000,bytes(256))
+  write(p+0x89d,'I',p+0x2000);write(p+0x2000+0x3d,'HHh',point['x'],point['y'],point['h'])
+  write(p+0x32,'H',777);write(0x89d17c,'I',flags);call(0x419790,p)
+  camera_cases.append({'position':point,'flags':flags,'expected':{'x':read(p+0x24,'H'),'y':read(p+0x26,'H'),'angle':read(p+0x32,'H')}})
+js="""import fs from 'node:fs';import {levelStartCamera} from './app/level-start.ts';for(const c of JSON.parse(fs.readFileSync(0,'utf8'))){const actual=levelStartCamera(c.position,c.flags,777);if(JSON.stringify(actual)!==JSON.stringify(c.expected))throw new Error('fresh camera mismatch '+JSON.stringify({c,actual}))}"""
+subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(camera_cases).encode(),cwd=ROOT,check=True)
+print('PASS:16 original fresh-load camera seeds: wrapped cell edge/center and angle-preservation flag')
+
+# Opcode1205/1206 helpers and all six actual warmup visits preserve the newly
+# loaded camera. Input-mask/UI leaves are supplied as in check-native-flyby.py.
+cpu,identity=native_cpu(exe);cpu.mem_map(0x2000000,0x40000)
+def camera_ui_hook(c,address,size,user):
+ sp=c.reg_read(UC_X86_REG_ESP);c.reg_write(UC_X86_REG_EIP,read(sp,'I'));c.reg_write(UC_X86_REG_ESP,sp+4)
+for a in [0x4af0a0,0x41cdc0,0x41d4b0]:cpu.hook_add(UC_HOOK_CODE,camera_ui_hook,begin=a,end=a)
+for owner in [0,1,2,3]:
+ tribe=0x89d1c8+owner*0xc65;cpu.mem_write(tribe,bytes(0xc65));cpu.mem_write(p,bytes(256))
+ write(tribe+0x89d,'I',p);write(p+0x3d,'HHh',4352+owner*512,55040-owner*512,128)
+ write(0x89d17c,'I',0);write(0x89c6f0,'B',owner);write(0x89c661,'I',0);write(0x98f746,'B',0);write(0x5ca850,'i',24)
+ call(0x419790,tribe)
+ seed=[read(tribe+0x24,'H'),read(tribe+0x26,'H'),read(tribe+0x32,'H')]
+ call(0x448ec0);call(0x448ee0)
+ for visit in range(6):
+  assert [read(tribe+0x24,'H'),read(tribe+0x26,'H'),read(tribe+0x32,'H')]==seed
+  call(0x449320)
+ assert read(0x969bd4,'B')==0
+ assert [read(tribe+0x24,'H'),read(tribe+0x26,'H'),read(tribe+0x32,'H')]==seed
+print('PASS: all four native camera stores retain their fresh-load seed through flyby creation/start and six warmup frames')

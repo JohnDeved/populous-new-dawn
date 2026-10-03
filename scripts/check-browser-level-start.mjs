@@ -23,12 +23,16 @@ try {
   await page.getByRole('button',{name:`Mission ${level}`,exact:true}).click()
   await bindGame(page)
   const frames=[]
-  for(const [label,turn] of [['before',0],['shaman-pose',8],['terrain-conversion',24],['stones-rising',44],['after',80]]) {
+  for(const [label,turn] of [['before',0],['flyby-warmup',1],['shaman-pose',8],['terrain-conversion',24],['stones-rising',44],['after',80]]) {
    await page.evaluate(turn=>{
     const scene=window.testScene
     scene.world.speed=1
     let attempts=0
-    while(scene.world.turn<turn&&attempts++<turn*4+10)scene.animate(scene.previous+1000/24)
+    while(scene.world.turn<turn&&attempts++<turn*4+10) {
+      scene.animate(scene.previous+1000/24)
+      if(scene.world.flyby.warmup>0 && scene.flybyCamera.angle!==256)
+        throw new Error(`Fresh camera angle lost during flyby warmup: ${scene.flybyCamera.angle}`)
+    }
     if(scene.world.turn!==turn)throw new Error(`Could not reach requested native turn${turn}: ${scene.world.turn}`)
     scene.animate(scene.previous)
    },turn)
@@ -37,11 +41,11 @@ try {
     return {turn:w.turn,sites:structuredClone(w.levelStart),blue:w.units.filter(u=>u.team==='blue').length,wild:w.units.filter(u=>u.team==='wild').length,
       height:Array.from(w.land.heights),pose:{object:u.native?.object,frame:u.native?.f2,draw:g?.userData.draw,state:g?.userData.state},
       stones:s.decorations.children.filter(g=>g.name==='reincarnation-stone'&&g.visible).map(g=>({tribe:g.userData.startTribe,index:g.userData.startStone,y:g.position.y})),
-      effects:w.effects.map(f=>f.sprite?.sequence).filter(Boolean),inputMask:w.inputMask,flyby:{flags:w.flyby.flags,cursor:w.flyby.cursor},
+      effects:w.effects.map(f=>f.sprite?.sequence).filter(Boolean),inputMask:w.inputMask,flyby:{flags:w.flyby.flags,cursor:w.flyby.cursor,warmup:w.flyby.warmup,camera:{...s.flybyCamera}},
       camera:{x:s.cameraPosition.x,y:s.cameraPosition.y,angle:s.cameraPosition.angle}}
    })
    const heightHash=createHash('sha256').update(JSON.stringify(state.height)).digest('hex');delete state.height
-   if(turn===0)assert.equal(state.stones.length,0)
+   if(turn===0){assert.equal(state.stones.length,0);const site=state.sites.find(s=>s.tribe===0);assert.deepEqual(state.camera,{x:(site.center.x-256)&65535,y:site.center.y,angle:256})}
    if(turn===8)assert.equal(state.pose.object,520)
    if(turn===24)assert.ok(state.effects.includes('sparkle'))
    if(turn===80){assert.equal(state.stones.length,level===3?16:8);assert.ok(state.sites.every(s=>s.phase===4));assert.equal(state.blue,[0,7,9,13][level])}
