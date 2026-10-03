@@ -5,6 +5,7 @@ import { requestConvertTask, findConvertTarget, standableConvertTarget } from '.
 import { spiralCell } from '../app/native-math.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { createWorld } from '../app/model.ts'
+import { createLivePerson } from '../app/live-people.ts'
 import { stepComputerTasks } from '../app/computer-runtime.ts'
 import { campaignCommand } from '../app/campaign-command-runtime.ts'
 
@@ -87,7 +88,7 @@ test('type2 timeout clears motion before a blocked state transition and then fre
   const task = world.ai.tasks[0]
   Object.assign(task, { phase: 8, elapsed: 600, target: 0x52dc })
   const shaman = world.units.find(u => u.team === 'yellow' && u.kind === 'shaman')
-  const person = shaman.native
+  const person = shaman.native ??= createLivePerson(world, shaman)
   person.flags2 |= 0x100000
   person.motionTimer = 7
   person.motionMode = 3
