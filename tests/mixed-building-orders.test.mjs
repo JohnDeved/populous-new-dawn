@@ -1,7 +1,7 @@
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createWorld, addBuilding, addUnit, command, tick } from '../app/model.ts'
+import { addBuilding, addUnit, command, tick } from '../app/model.ts'
 import { stepLiveTraining } from '../app/live-building-entry.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import captures from './fixtures/building-entry-orders.json' with { type: 'json' }

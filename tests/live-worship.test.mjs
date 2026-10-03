@@ -1,7 +1,7 @@
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createWorld, command, tick, unitAnimationSource, nativePosition } from '../app/model.ts'
+import { command, tick, unitAnimationSource, nativePosition } from '../app/model.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import { liveWorshippers, selectWorshippers, worshipHeadPose } from '../app/live-worship.ts'
 import { countWorshippers, worshipPositions } from '../app/worship.ts'

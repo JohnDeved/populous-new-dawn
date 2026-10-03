@@ -12,7 +12,7 @@ import {automaticMeleeTarget} from '../app/live-combat.ts'
 import {buildingCounterattack,cancelLiveBuildingAttack,startLiveCombatResponse} from '../app/live-building-combat.ts'
 import {createLivePerson,enterLiveCombat,syncLivePersonCells} from '../app/live-people.ts'
 import {startLiveOrders} from '../app/live-movement.ts'
-import {createWorld,addUnit,addBuilding,command,nativePosition,syncLandscapeObjects,tick,unitAnimationSource} from '../app/model.ts'
+import {addUnit,addBuilding,command,nativePosition,syncLandscapeObjects,tick,unitAnimationSource} from '../app/model.ts'
 
 const unsupported = () => {throw Error('Unexpected world consumer')}
 test('original automatic commands preserve normal queues, share one reference-counted record and handle allocation exhaustion', () => {

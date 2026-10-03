@@ -1,7 +1,7 @@
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import {createWorld,addBuilding,addUnit,command,tick,buildingStage} from '../app/model.ts'
+import {addBuilding,addUnit,command,tick,buildingStage} from '../app/model.ts'
 import {dismantleBuilding,selectBuildingOccupants,isDismantling} from '../app/live-building-entry.ts'
 import {startLiveCombatResponse} from '../app/live-building-combat.ts'
 import {currentPersonOrder} from '../app/person-orders.ts'

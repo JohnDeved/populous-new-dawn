@@ -4,7 +4,7 @@ import test from 'node:test'
 import captures from './fixtures/combat-targets.json' with { type: 'json' }
 import { detectCombatThreat, selectCombatTarget, stepAttackReservation } from '../app/combat-targets.ts'
 import { automaticMeleeTarget } from '../app/live-combat.ts'
-import { createWorld, addUnit, addBuilding, tick, syncLandscapeObjects } from '../app/model.ts'
+import { addUnit, addBuilding, tick, syncLandscapeObjects } from '../app/model.ts'
 
 test('mixed target collection, native distance bands, fight admission and reservations replay executable captures', () => {
   for (const capture of captures.cases) {

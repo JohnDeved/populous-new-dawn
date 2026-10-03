@@ -3,8 +3,12 @@ import { movePosition, nativeAngle, positionDistanceSquared, random, short } fro
 import { nativeStep3D, shotAngles } from './world-coordinates.ts'
 import type { NativeTerrain } from './native-terrain.ts'
 
-export type StartPoint = { x: number; y: number; h: number }
-export type StartCarrier = {
+export interface StartPoint {
+  x: number
+  y: number
+  h: number
+}
+export interface StartCarrier {
   id: number
   index: number
   position: StartPoint
@@ -12,7 +16,7 @@ export type StartCarrier = {
   visits: number
 }
 export type StartOrbit = StartPoint & { angle: number; id: number; displacement: StartPoint }
-export type StartWave = {
+export interface StartWave {
   id: number
   center: StartPoint
   visits: number
@@ -20,7 +24,7 @@ export type StartWave = {
   visualRadius: number
   orbits: StartOrbit[]
 }
-export type LevelStartSite = {
+export interface LevelStartSite {
   tribe: number
   shaman: number
   center: StartPoint
@@ -83,7 +87,8 @@ export function stepLevelStartWave(
   }
 ) {
   if (wave.visits === 0) {
-    wave.terrainRadius = wave.visualRadius = 160
+    wave.terrainRadius = 160
+    wave.visualRadius = 160
     for (let i = 0; i < 32; i++) {
       const p = { ...wave.center, h: wave.center.h - 40 }
       wave.orbits.push({

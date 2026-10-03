@@ -1,7 +1,7 @@
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import {createWorld,addUnit,command,tick,unitAnimationSource} from '../app/model.ts'
+import {addUnit,command,tick,unitAnimationSource} from '../app/model.ts'
 import {advanceGame} from '../app/game-clock.ts'
 import {createRestingSlots} from '../app/resting-slots.ts'
 import {idleSlotPosition} from '../app/person-idle.ts'

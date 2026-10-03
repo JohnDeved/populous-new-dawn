@@ -1,7 +1,7 @@
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {createWorld,addUnit,command,nativePosition,supportsFollower,GRID} from '../app/model.ts'
+import {addUnit,command,nativePosition,supportsFollower,GRID} from '../app/model.ts'
 import {queueTerrain,updateWalkMasks} from '../app/native-terrain.ts'
 import {advanceGame} from '../app/game-clock.ts'
 import {unitPosition} from '../app/unit-motion.ts'

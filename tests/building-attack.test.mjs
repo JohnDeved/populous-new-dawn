@@ -28,7 +28,7 @@ test('an entirely occupied world cancels special positioning instead of hanging'
   assert.ok(probes > 0 && probes <= 65536)
 })
 
-import {createWorld,addBuilding,addUnit,command,tick} from '../app/model.ts'
+import {addBuilding,addUnit,command,tick} from '../app/model.ts'
 import {advanceGame} from '../app/game-clock.ts'
 import {currentPersonOrder} from '../app/person-orders.ts'
 

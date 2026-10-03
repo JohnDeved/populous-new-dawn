@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { createFirestorm, stepFirestorm } from '../app/firestorm.ts'
 import { createLivePerson } from '../app/live-people.ts'
-import { addBuilding, addUnit, browserPosition, cast, createWorld, tick } from '../app/model.ts'
+import { addBuilding, addUnit, browserPosition, cast, tick } from '../app/model.ts'
 
 const land = () => ({ heights: new Int16Array(16384), flags: new Uint32Array(16384) })
 const nextRandom = seed => {

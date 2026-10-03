@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import captures from './fixtures/movement-order.json' with { type: 'json' }
 import manifest from '../decomp/exports.json' with { type: 'json' }
-import { createWorld, addBuilding, addUnit, campaignPersonCount, command, disguiseSelectedSpies, entrance, tick, housing, manaRate, unitAnimationSource, nativePosition, buildingPose } from '../app/model.ts'
+import { addBuilding, addUnit, campaignPersonCount, command, disguiseSelectedSpies, entrance, tick, housing, manaRate, unitAnimationSource, nativePosition, buildingPose } from '../app/model.ts'
 import { nativePersonModel } from '../app/live-combat.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { currentPersonOrder } from '../app/person-orders.ts'

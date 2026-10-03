@@ -1,7 +1,7 @@
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import {createWorld,addUnit,command,tick,cancelInteraction} from '../app/model.ts'
+import {addUnit,command,tick,cancelInteraction} from '../app/model.ts'
 import {advanceGame} from '../app/game-clock.ts'
 import {currentPersonOrder} from '../app/person-orders.ts'
 

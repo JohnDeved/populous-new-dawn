@@ -1,7 +1,7 @@
 import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mjs'
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createWorld, addBuilding, addUnit, command, tick, buildingPose } from '../app/model.ts'
+import { addBuilding, addUnit, command, tick, buildingPose } from '../app/model.ts'
 import { buildingInsidePoint, buildingSocketPoint } from '../app/building-shapes.ts'
 import { unitPosition } from '../app/unit-motion.ts'
 import { advanceGame } from '../app/game-clock.ts'

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict'
 import fixture from './fixtures/building-validity.json' with { type: 'json' }
 import manifest from '../decomp/exports.json' with { type: 'json' }
 import { buildingCellValid } from '../app/building-validity.ts'
-import { createWorld, placementError, placeBuilding, tick, buildingPose } from '../app/model.ts'
+import { placementError, placeBuilding, tick, buildingPose } from '../app/model.ts'
 import { buildingFootprintCells } from '../app/building-shapes.ts'
 
 test('complete native cell validity and exact placement feedback', () => {

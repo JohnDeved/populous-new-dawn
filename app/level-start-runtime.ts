@@ -1,5 +1,4 @@
-import type { World, Unit, Effect } from './world-types.ts'
-import { teamForTribe, tribeForTeam } from './world-types.ts'
+import { teamForTribe, tribeForTeam, type World, type Unit, type Effect } from './world-types.ts'
 import { missionData } from './mission-data.ts'
 import {
   changeLivePersonState,
@@ -107,7 +106,8 @@ export function initializeLevelStart(w: World) {
   const people = missionData(w.outcome.level).level.objects.filter(o => o.type === 1)
   for (const u of w.units) {
     if (u.kind !== 'shaman' || u.team === 'wild') continue
-    const p = (u.native ??= createLivePerson(w, u)),
+    u.native ??= createLivePerson(w, u)
+    const p = u.native,
       position = nativePosition(w, u)
     setLivePersonAnimation(w, p, rules.personAnimationObjects[7])
     p.counter = people.findIndex(o => o.model === 7 && o.owner === tribeForTeam(u.team)) & 255
@@ -387,7 +387,8 @@ export function stepLevelStarts(w: World) {
         p.velocity = { x: 0, y: 0, z: 0 }
         p.speed = 0
         setLivePersonAnimation(w, p, 0x5d)
-        p.f1 = p.f2 = 0
+        p.f1 = 0
+        p.f2 = 0
         site.timer = 12
       }
       if (site.timer) site.timer--
@@ -443,7 +444,8 @@ export function stepLevelStarts(w: World) {
       }
       const index = --site.timer,
         destination = reincarnationStones(w.land, site.center)[index]
-      p.angle = p.heading = levelStartStoneHeading(site.center, destination)
+      p.heading = levelStartStoneHeading(site.center, destination)
+      p.angle = p.heading
       u.heading = Math.PI - (p.angle * Math.PI) / 1024
       site.carriers.push({
         id: w.nextId++,

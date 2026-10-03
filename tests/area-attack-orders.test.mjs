@@ -2,7 +2,6 @@ import { createStartedWorld, retainFixtureUnits } from './level-start-fixture.mj
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
-  createWorld,
   addUnit,
   addBuilding,
   command,

@@ -4,6 +4,8 @@
   ],
   "ignorePatterns": [
     "app/level-*.ts",
+    "!app/level-start.ts",
+    "!app/level-start-runtime.ts",
     "app/original-*.json",
     "decomp/**",
     "work/**",

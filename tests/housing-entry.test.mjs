@@ -7,7 +7,7 @@ import manifest from '../decomp/exports.json' with { type: 'json' }
 import rules from '../app/original-rules.json' with { type: 'json' }
 import { stepBuildingEntryClocks } from '../app/training.ts'
 import { buildingInsidePoint } from '../app/building-shapes.ts'
-import { createWorld, addBuilding, addUnit, command, tick, buildingPose, nativePosition, unitAnimationSource } from '../app/model.ts'
+import { addBuilding, addUnit, command, tick, buildingPose, nativePosition, unitAnimationSource } from '../app/model.ts'
 import { initializeLivePanic } from '../app/live-people.ts'
 import { advanceGame } from '../app/game-clock.ts'
 import { buildingAdmission } from '../app/live-building-entry.ts'

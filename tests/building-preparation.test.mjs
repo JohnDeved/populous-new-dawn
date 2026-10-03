@@ -10,7 +10,7 @@ import {setPersonAnimation} from '../app/animation.ts'
 import sprites from '../app/original-units.json' with {type:'json'}
 import rules from '../app/original-rules.json' with {type:'json'}
 import {createMotionRoutes,setDirectPersonDestination} from '../app/person-routes.ts'
-import {createWorld,placeBuilding,tick,buildingPose,command,browserPosition,nativePosition} from '../app/model.ts'
+import {placeBuilding,tick,buildingPose,command,browserPosition,nativePosition} from '../app/model.ts'
 import {buildingGradeVertices,buildingFootprintCells} from '../app/building-shapes.ts'
 import {AUDIO_CUES} from '../app/audio.ts'
 import {currentPersonOrder} from '../app/person-orders.ts'
