@@ -5075,6 +5075,13 @@ are traced in [level-start-sequence.md](research/level-start-sequence.md), inclu
 mission-specific reincarnation-disabled skips. New exports and the isolated native
 checker are indexed there. Native and local Linux browser acceptance remain
 source-bound under issue #20; this entry makes no whole-game parity completion claim.
+## Residential hut smoke allocation-turn lifetime
+
+[First-visit research and repair](research/hut-smoke-first-visit.md) binds the
+ordinary Mission 2 admission callback to original root allocation and secondary
+processing. It preserves the sixteen-visit lifetime while counting the allocation
+turn once, including pre-building removal and paused/out-of-turn boundaries.
+
 ## Residential hut smoke attachment correction
 
 [Hut smoke attachment selector](research/hut-occupancy-smoke.md#attachment-selector-correction-2026-10-03)
