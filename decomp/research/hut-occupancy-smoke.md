@@ -47,6 +47,10 @@ uses the separate presentation RNG and becomes visible again when
 
 ## Secondary full-hut puffs: deliberately not claimed here
 
+The [secondary allocation phase follow-up](hut-smoke-secondary-phase.md)
+binds the primary/secondary allocator distinction, exact visit order and shared
+pool gates. The runtime omission described here remains unchanged.
+
 Model 74 also has a secondary child-puff producer: on
 `effect.class_counter & 7 == 0`, `random & 31 < 2` allocates a child model 75
 with the child flag set, and that child deallocates after 16 visits.
