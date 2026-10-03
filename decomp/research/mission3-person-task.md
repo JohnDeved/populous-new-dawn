@@ -128,3 +128,10 @@ actual command17 and arrival at marker3. No units, completed structures, populat
 or outcomes are injected in that natural case. Controlled fixtures are separate.
 Existing conversion-warning and periodic three-Brave raid tests remain regression
 coverage. Rendered acceptance and complete Mission1–3 parity remain separate gates.
+
+The focused rendered checker is
+`POPULOUS_URL=http://localhost:<owned-port> node scripts/check-browser-mission3-preacher-task.mjs`.
+It uses the shipped mission selector, ordinary ticks and camera focus, then verifies
+the actual Preacher mesh contributes WebGL pixels and saves selected/arrival
+screenshots under the isolated task output directory. This checker being present
+or syntax-valid is not a passed rendered result; record its actual execution.

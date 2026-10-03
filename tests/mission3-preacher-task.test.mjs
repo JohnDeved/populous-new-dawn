@@ -155,6 +155,10 @@ test('type11 waits for selection ownership and cancellation safely releases stat
   const { world, unit } = controlledPreacher()
   assert.equal(requestPreacherTask(world.ai, unit.id, 0x1234, 0x800, 1), true)
   const task = world.ai.tasks[0]
+  Object.assign(world.ai.tasks[1], { flags: 1, type: 20, phase: 2 })
+  stepComputerTasks(world, 2)
+  assert.equal(task.phase, 4)
+  world.ai.tasks[1].flags = 0
   world.ai.flags |= 2
   world.ai.selectionOwner = 1
   stepComputerTasks(world, 2)
