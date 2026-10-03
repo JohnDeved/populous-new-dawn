@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 // Issue97 normal Spy lifecycle. PR108 acquisition helpers and stages are reused
 // from their exact reviewed source; the original checker is not modified.
 import assert from 'node:assert/strict'
@@ -1182,6 +1183,7 @@ try {
   page.setDefaultTimeout(15000)
   page.on('pageerror', error => report.errors.push(error.stack ?? error.message))
   await page.goto(process.env.POPULOUS_URL, { waitUntil: 'networkidle', timeout: 60000 })
+  await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 12', exact: true }).focus()
   await page.keyboard.press('Enter')
   await bindGame(page)

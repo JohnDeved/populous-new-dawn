@@ -22,11 +22,17 @@ import {
   deselectPerson,
   emptyPersonOrder,
   writePersonOrder,
+  commitPersonOrders,
+  clearPersonOrders,
+  queuePersonOrder,
 } from './person-orders.ts'
 import {
   appendLiveOrders,
   appendLiveGuardOrders,
   startLiveConstructionOrder,
+  returnLivePerson,
+  orderEffects,
+  adoptLiveOrders,
 } from './live-movement.ts'
 import { cellDistanceSquared, random, spiralCell } from './native-math.ts'
 import { isShaman, SPELLS } from './world-rules.ts'
@@ -40,6 +46,7 @@ import {
 import {
   availableTrainingPeople,
   selectComputerPeople,
+  selectComputerPerson,
   type SelectionUnit,
   type SelectionWorld,
 } from './computer-selection.ts'
@@ -49,6 +56,7 @@ import {
   dispatchComputerTask,
   releaseSelection,
   requestConstruction,
+  requestPreacherTask,
   requestTraining,
   stepAttackTask,
   stepMarkerTask,
@@ -76,6 +84,7 @@ import {
   type SpellTargetUnit,
   type SpellTargetWorld,
 } from './computer-spells.ts'
+import { defaultPersonState, resetPersonMotion } from './person-state.ts'
 import { refreshBuildingTerritory } from './territory.ts'
 import { addBuilding, checkBuildingSite } from './construction-runtime.ts'
 import { entrance, findPath, route } from './live-command.ts'
@@ -85,13 +94,13 @@ const mission11TowerRequested = 0x80000000,
   mission11HousingRequested = 0x40000000,
   mission12TowerRequested = 0x20000000
 
-export function computerSelectionWorld(w: World, tribe: number) {
+export function computerSelectionWorld(w: World, tribe: number, rawNative = false) {
   const team = campaignTeam(w, tribe),
     sources = new Map<number, LivePerson>(),
     people: SelectionUnit[] = []
   for (const u of w.units) {
     if (u.team !== team || u.hp <= 0) continue
-    const source = unitAnimationSource(u),
+    const source = unitAnimationSource(u) ?? (rawNative ? u.native : null),
       position = source ?? nativePosition(w, u)
     if (source) sources.set(u.id, source)
     people.push({
@@ -163,6 +172,124 @@ export function computerSelectionWorld(w: World, tribe: number) {
       w.land.buildingIds[((cell & 0xfe00) >>> 9) * 128 + ((cell & 254) >>> 1)] & 1023,
   }
   return { world, sources }
+}
+
+//0x4f5680/0x4df0e0: this predicate is about active preaching orders,
+//not the transient preaching/listening animation states.
+export function computerPreachingAt(w: World, tribe: number, marker: number) {
+  for (const u of w.units) {
+    if (u.hp <= 0 || u.team !== campaignTeam(w, tribe)) continue
+    const p = unitAnimationSource(u) ?? u.native
+    if (!p || ![10, 33].includes(p.state)) continue
+    const order = currentPersonOrder(w.buildingOrders, p)
+    if (!order || order.flags & 1 || ![17, 31, 32].includes(order.model)) continue
+    const cell = ((p.x >>> 8) & 254) | (p.y & 0xfe00)
+    if (cell === (marker & 0xfefe) || (p.model === 4 && order.a === marker)) return true
+  }
+  return false
+}
+
+//0x4f4520. Selection happens before the native slot/state gate and retains its
+//flags3 side effect even when the task cannot subsequently be allocated.
+export function requestComputerPreacher(w: World, tribe: number, marker: number) {
+  if (computerPreachingAt(w, tribe, marker)) return false
+  const selected = computerSelectionWorld(w, tribe, true),
+    id = selectComputerPerson(selected.world, 4, 4, -1, 1, marker, 0x47)
+  if (id === null) return false
+  const source = selected.sources.get(id)
+  if (source) source.flags3 = selected.world.units.get(id)!.flags3
+  return requestPreacherTask(w.ai, id, marker, w.ai.states, campaignPersonCount(w, tribe, 4))
+}
+
+//0x4f3280: only current order30 people return, with uncentered even coordinates.
+export function returnComputerGuards(w: World, tribe: number) {
+  const team = campaignTeam(w, tribe),
+    shaman = w.units.find(u => u.hp > 0 && u.team === team && isShaman(u)),
+    p = shaman && nativePosition(w, shaman),
+    cell = w.ai.constructionBase ?? (p ? ((p.x >>> 8) & 254) | (p.y & 0xfe00) : 0),
+    point = { x: (cell & 254) << 8, y: cell & 0xfe00 }
+  for (const u of w.units) {
+    if (u.hp <= 0 || u.team !== team) continue
+    const source = unitAnimationSource(u) ?? u.native
+    if (!source || ![10, 33].includes(source.state)) continue
+    const order = currentPersonOrder(w.buildingOrders, source)
+    if (order && !(order.flags & 1) && order.model === 30) returnLivePerson(w, u, point)
+  }
+}
+
+function finishPreacherSelection(w: World, tribe: number, cleanup: boolean) {
+  for (const u of w.units) {
+    if (u.hp <= 0 || u.team !== campaignTeam(w, tribe)) continue
+    const p = unitAnimationSource(u) ?? u.native
+    if (!p || p.state !== 14) continue
+    if (cleanup) clearPersonOrders(w.buildingOrders, p, orderEffects(w))
+    resetPersonMotion(p)
+    if (!(p.flags2 & 0x100000)) {
+      u.native = p
+      changeLivePersonState(w, u, defaultPersonState(p, w.manaWorld.gameFlags))
+    }
+    adoptLiveOrders(w, u, p)
+    if (cleanup) {
+      const cell = (p.y >>> 9) * 128 + (p.x >>> 9),
+        building =
+          w.land.flags[cell] & 512
+            ? w.buildings.find(b => b.id === (w.land.buildingIds[cell] & 1023))
+            : undefined,
+        point = building ? buildingOutsidePoint(buildingPose(building)) : p
+      //0x405090 snaps the idle anchor, not the active goal/route fields.
+      p.anchorX = (point.x & 0xfe00) + 0x100
+      p.anchorY = (point.y & 0xfe00) + 0x100
+      p.anchorFlags = 0
+    }
+  }
+}
+
+//0x4c8c50, authored1074 phase4 path only; no unrelated phase2 RNG/search.
+function stepComputerPreacher(w: World, tribe: number, index: number) {
+  const task = w.ai.tasks[index],
+    unit = w.units.find(u => u.id === task.entity && u.hp > 0),
+    source = unit && (unitAnimationSource(unit) ?? unit.native)
+  if (!unit || (source?.flags2 ?? 0) & 1 || task.flags & 2 || task.phase === 7) {
+    if (acquireSelection(w.ai, index)) {
+      finishPreacherSelection(w, tribe, true)
+      releaseSelection(w.ai, index)
+    }
+    task.flags &= ~3
+    return
+  }
+  if (task.phase === 4) {
+    if (!acquireSelection(w.ai, index)) return
+    task.phase = 5
+    w.ai.commandDelay = 20
+    const p = source ?? createLivePerson(w, unit)
+    if (!(p.flags2 & 0x100000)) {
+      unit.native = p
+      changeLivePersonState(w, unit, 14)
+    }
+    return
+  }
+  if (task.phase === 5) {
+    task.phase = 6
+    return
+  }
+  if (task.phase === 6) {
+    const group = { records: Array.from({ length: 8 }, emptyPersonOrder), count: 0, cursor: 0 }
+    queuePersonOrder(group, 17, 0, task.target)
+    releaseSelection(w.ai, index)
+    const people = w.units.flatMap(u => {
+      const p = unitAnimationSource(u) ?? u.native
+      return u.hp > 0 && u.team === campaignTeam(w, tribe) && p ? [p] : []
+    })
+    commitPersonOrders(w.buildingOrders, group, people, [-1, -1, -1], {
+      ...orderEffects(w),
+      prepare: (order, model, a, b, flags = 0) => {
+        if (model !== 17) throw new Error('Unexpected marker Preacher command')
+        Object.assign(order, { model, a, b, flags: order.flags | flags })
+      },
+    })
+    finishPreacherSelection(w, tribe, false)
+    task.phase = 7
+  }
 }
 
 export function computerTrainingBuilding(w: World, model: number, tribe = campaignTribe(w)) {
@@ -524,13 +651,13 @@ function stepComputerConstruction(w: World, tribe: number, index: number) {
       task.target = cell
       task.entity = building.id
       task.retries = 0
-      task.phase = w.outcome.level === 2 && task.requested === 4 ? 3 : 4
+      task.phase = [2, 3].includes(w.outcome.level) && task.requested === 4 ? 3 : 4
       return
     }
     if (task.elapsed >= task.remaining) cleanup()
     return
   }
-  if (task.phase === 3 && w.outcome.level === 2) {
+  if (task.phase === 3 && [2, 3].includes(w.outcome.level)) {
     const building = w.buildings.find(b => b.id === task.entity && b.hp > 0)
     if (!task.extra && w.ai.constructionBase === undefined && building) {
       const outside = buildingOutsidePoint(buildingPose(building))
@@ -715,6 +842,10 @@ export function stepComputerTasks(w: World, tribe: number) {
   if (phase !== 'dispatch') return
   dispatchComputerTask(w.ai, index => {
     const task = w.ai.tasks[index]
+    if (task.type === 11) {
+      stepComputerPreacher(w, tribe, index)
+      return
+    }
     if (task.type === 0) {
       stepComputerConstruction(w, tribe, index)
       return

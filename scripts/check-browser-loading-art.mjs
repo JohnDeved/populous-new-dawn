@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync } from 'node:fs'
@@ -65,6 +66,7 @@ async function waitForCount(read, expected, timeout = 10000) {
 }
 
 async function selectMission(page, mission) {
+  await showAllMissions(page)
   const button = page.getByRole('button', { name: `Mission ${mission}`, exact: true })
   await button.waitFor()
   await button.focus()

@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { mkdirSync, openSync, renameSync, writeFileSync } from 'node:fs'
 import { spawn } from 'node:child_process'
@@ -89,6 +90,7 @@ async function openMissionInContext(context, mission, errors) {
     if (message.type() === 'error') errors.push(message.text())
   })
   await page.goto(process.env.POPULOUS_URL, { waitUntil: 'networkidle' })
+  await showAllMissions(page)
   await page.getByRole('button', { name: `Mission ${mission}`, exact: true }).click()
   await bindGame(page)
   await page.waitForFunction(

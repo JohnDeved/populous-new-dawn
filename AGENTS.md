@@ -22,7 +22,9 @@ behavior, evidence quality, and existing user work. Read `GOAL.md` for direction
   mandatory Local Dev project binding or release ritual.
 - Serialize shared Ghidra projects, full checks/builds, fixture recording, fixed
   ports/capture paths, and performance measurements. Independent source work can
-  proceed concurrently. Use `engineering/performance-queue.md` when jobs compete.
+  proceed concurrently. Use `engineering/performance-queue.md` when jobs compete:
+  isolated foreground receipts for fresh cloud execution scopes, detached queue
+  only within a stable shared process/network scope. Preserve unknown old runs.
 
 ## Evidence and acceptance
 

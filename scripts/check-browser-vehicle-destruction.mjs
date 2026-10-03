@@ -1,3 +1,4 @@
+import { showAllMissions } from './browser-game.mjs'
 import assert from 'node:assert/strict'
 import { chromium } from '@playwright/test'
 import { bindGame } from './browser-game.mjs'
@@ -10,6 +11,7 @@ try {
   page.on('pageerror', error => errors.push(error.stack ?? error.message))
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
   await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
+  await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 10', exact: true }).click()
   await bindGame(page)
   page.setDefaultTimeout(20_000)
