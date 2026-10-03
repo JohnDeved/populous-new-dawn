@@ -20,6 +20,11 @@ export function requestConvertTask(ai: ComputerQueue, states: number, wildCount:
   return true
 }
 
+// Native fields are unsigned words; browser nativePosition can supply signed shorts.
+export function convertWildRegion(p: { x: number; y: number }) {
+  return ((p.x & 65535) >>> 13) + (((p.y & 65535) >>> 10) & 56)
+}
+
 // 0x4f87f0: maximum macroregion density, then strictly nearest region.
 // List positions supply the centroid; they do not replace the native byte counts.
 export function findConvertTarget(
@@ -52,7 +57,7 @@ export function findConvertTarget(
     y = 0,
     count = 0
   for (const p of wild)
-    if ((p.x >>> 13) + ((p.y >>> 10) & 56) === winner) {
+    if (convertWildRegion(p) === winner) {
       x += (p.x >>> 8) & 254
       y += (p.y >>> 8) & 254
       count++

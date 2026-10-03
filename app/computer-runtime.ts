@@ -81,6 +81,7 @@ import { clearLivePath, planLivePath } from './live-pathfinding.ts'
 import { nativeCellPoint, browserPosition } from './world-coordinates.ts'
 import {
   requestConvertTask,
+  convertWildRegion,
   findConvertTarget,
   standableConvertTarget,
 } from './computer-convert.ts'
@@ -339,7 +340,7 @@ function stepComputerConvert(w: World, tribe: number, index: number) {
           .filter(u => u.hp > 0 && u.team === 'wild')
           .map(u => nativePosition(w, u)),
         counts = new Uint8Array(64)
-      for (const person of wild) counts[(person.x >>> 13) + ((person.y >>> 10) & 56)]++
+      for (const person of wild) counts[convertWildRegion(person)]++
       target = findConvertTarget(task.target, counts, wild, 0, w.ai.attributes[0] & 255)
     }
     if (target === null) task.phase = 3
@@ -429,6 +430,7 @@ function stepComputerConvert(w: World, tribe: number, index: number) {
         caster = {
           ...spellCaster(w, unit),
           state: p.state,
+          flags2: p.flags2 | (unit.inside === null ? 0 : 0x800000),
           flags4: p.flags4 | (unit.casting ? 0x400 : 0),
         },
         range = Math.trunc(nativeSpellRange(w.manaWorld.gameFlags, casting.flags, caster, 17) / 512)
