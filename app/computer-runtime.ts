@@ -56,6 +56,7 @@ import {
   acquireSelection,
   dispatchComputerTask,
   hasComputerTrainingCapacity,
+  produceComputerTasks,
   releaseSelection,
   requestConstruction,
   requestPreacherTask,
@@ -578,8 +579,8 @@ function computerAttackTargetsRemain(w: World, tribe: number, target: number) {
 }
 
 function produceMissionTraining(w: World, tribe: number) {
-  if (w.ai.tasks.every(task => task.flags & 1)) return
-  if (!(w.ai.states & (1 << 6))) return
+  if (w.ai.tasks.every(task => task.flags & 1)) return false
+  if (!(w.ai.states & (1 << 6))) return false
   const population = campaignPersonCount(w, tribe),
     eligible = [
       ...(w.outcome.level === 6 && tribe === 2 ? [{ model: 4, building: 5, preference: 6 }] : []),
@@ -595,7 +596,7 @@ function produceMissionTraining(w: World, tribe: number) {
           Math.trunc((w.ai.attributes[candidate.preference] * population) / 100) >
             campaignPersonCount(w, tribe, candidate.model)
       )
-  if (!eligible.length) return
+  if (!eligible.length) return false
   const { model, building, target } = eligible[random(w) % eligible.length]
   const selection = computerSelectionWorld(w, tribe),
     available = availableTrainingPeople(selection.world),
@@ -603,12 +604,14 @@ function produceMissionTraining(w: World, tribe: number) {
   // Original 0x4e59a0 requires capacity, including equality. Later-mission
   // adapters outside the already proved Mission6 path retain their current gate.
   if (
-    w.outcome.level <= 3 || w.outcome.level === 6
+    (w.outcome.level >= 1 && w.outcome.level <= 3) || w.outcome.level === 6
       ? !hasComputerTrainingCapacity(available, capacity)
       : available >= capacity
   )
-    return
-  requestTraining(w.ai, 0, model, available, candidate => (candidate === building ? target : 0))
+    return false
+  return requestTraining(w.ai, 0, model, available, candidate =>
+    candidate === building ? target : 0
+  )
 }
 
 // The ordinary 0x4e5580 producer reaches training buildings before housing.
@@ -1002,18 +1005,24 @@ export function stepComputerTasks(w: World, tribe: number) {
   const level = missionData(w.outcome.level).level
   const phase = computerPhase(w.turn, tribe)
   if (phase === 'produce') {
-    if (produceMissionBuilding(w, tribe)) return
-    // Preserve current construction priority. Full native producer-table fairness
-    // remains a separate timing boundary; this integrates the proved type2 producer.
-    if (
-      w.outcome.level === 3 &&
-      requestConvertTask(
-        w.ai,
-        w.ai.states,
-        w.units.filter(u => u.hp > 0 && u.team === 'wild').length
-      )
-    )
+    if (w.outcome.level >= 1 && w.outcome.level <= 3) {
+      produceComputerTasks(w.ai, id => {
+        if (id === 1) return produceMissionBuilding(w, tribe)
+        if (id === 0 && w.outcome.level === 3)
+          return requestConvertTask(
+            w.ai,
+            w.ai.states,
+            w.units.filter(u => u.hp > 0 && u.team === 'wild').length
+          )
+        if (id === 3) return produceMissionTraining(w, tribe)
+        // These other native producer bodies, and the pre-table type9 response,
+        // remain unbound. Count their unsuccessful adapter visits, but do not
+        // invent tasks. This is table fairness, not complete allocation timing.
+        return false
+      })
       return
+    }
+    if (produceMissionBuilding(w, tribe)) return
     produceMissionTraining(w, tribe)
     return
   }

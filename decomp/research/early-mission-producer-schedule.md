@@ -85,10 +85,8 @@ first-free selection, one-pass versus complete sorting, and signed counter wrap.
 The unhooked cases cover both enabled, either state disabled, last-slot priority
 and full-pool rejection, including exact radius7/base payload and unchanged RNG.
 
-At this research checkpoint, runtime behavior remains unchanged. The intended
-next implementation is exact table scheduling around the existing Mission1–3
-producer adapters, with missing producer/response semantics explicitly retained
-as open boundaries. Later missions remain outside this slice.
+The following runtime sections describe the later implementation checkpoint;
+the research evidence above is independent of those changes.
 
 ## Automatic-training threshold correction
 
@@ -109,3 +107,34 @@ This change is limited to Missions1–3; Mission6 already used the correct direc
 and other later mission predicates retain their previous behavior. Candidate
 model selection, preferences, permission/building predicates and downstream
 training timing are unchanged and not certified by this threshold proof.
+
+## Runtime integration and remaining boundaries
+
+`computer.ts` now retains the original twelve producer IDs, signed attempt counts
+and group boundaries, and performs the actual one-pass rotation. Missions1–3 call
+this scheduler around their existing construction, Convert Wild and training
+adapters. Other producer IDs still return unsuccessful **adapter** outcomes; their
+native eligibility and effects are not implemented by this change. The pre-table
+type9 hook is deliberately unbound in the live caller. No placeholder task consumes
+slots or simulates enemy-response timing.
+
+The portable scheduler exposes the pre-table callback solely as the real original
+boundary, and executable/portable tests supply its result explicitly. Eight
+controlled cases are paired with that actual helper, while the five unhooked
+allocator cases remain separate original-only evidence. This must not be described
+as full original allocation timing or whole native producer equivalence.
+
+The live controlled regression now reaches the existing original-style task2 and
+task6 writers in successive producer opportunities, where the old fixed order
+repeated type2. Genuine original training capacity is used in this fixture, while
+task completion is explicitly supplied to isolate competition. Ordinary Mission1–3
+starts additionally verify two actual construction-producer attempts by turn140,
+Mission3 Convert Wild table allocation, and preservation of normal playing state.
+No entity, building or outcome injection is used in those authored-start cases.
+
+Producer history is ordinary checkpoint state. Migration initializes only missing
+history for each independent stored AI; saved order/counters are retained. A paired
+continuation test preserves the next allocation, full AI state and RNG. Later-mission
+producer dispatch remains unchanged. Natural training/raid/convert regression and
+rendered verification are required before acceptance; no timing assertions are
+weakened merely because the scheduler changes.

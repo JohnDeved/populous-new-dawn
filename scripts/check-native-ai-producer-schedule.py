@@ -5,6 +5,7 @@ allocation cases execute their real leaves. Neither proves complete mission timi
 """
 import json
 import struct
+import subprocess
 import sys
 from pathlib import Path
 
@@ -79,6 +80,7 @@ def scheduler_case(name, success, active=(), special=False, attempts=None, round
     if attempts:
         for i, count in enumerate(attempts):
             p.write(AI + 0x376 + 20 * i, 'i', count)
+    initial = p.table()
     calls, special_calls, snapshots = [], [], []
     by_address = {address: id_ for id_, address, _, _ in TABLE}
 
@@ -101,7 +103,7 @@ def scheduler_case(name, success, active=(), special=False, attempts=None, round
         p.call(0x4625E0, AI)
         snapshots.append(dict(calls=calls[before:], table=p.table()))
     assert p.read(0x89D178) == 0x12345678
-    row = dict(name=name, success=list(success), active=list(active), special=special,
+    row = dict(name=name, initial=initial, success=list(success), active=list(active), special=special,
                specialCalls=special_calls, snapshots=snapshots)
     results['controlledTableCases'].append(row)
     return row
@@ -149,6 +151,35 @@ for name, states, active in [('both', 0x204, ()), ('type9 only', 0x200, ()),
         assert added[0]['target'] == 7 and added[0]['requested'] == 0x52DC
     assert p.read(0x89D178) == 0x12345678
     results['unhookedAllocationCases'].append(dict(name=name, added=added, table=p.table()))
+
+if '--compare' in sys.argv:
+    js = """
+import {createComputerQueue,produceComputerTasks} from './app/computer.ts';
+let input='';for await(const chunk of process.stdin)input+=chunk;
+const results=JSON.parse(input).map(c=>{
+  const ai=createComputerQueue(),specialCalls=[],snapshots=[];
+  ai.producers=c.initial.map(({id,attempts,group})=>({id,attempts,group}));
+  for(const slot of c.active)ai.tasks[slot].flags=1;
+  for(const _ of c.snapshots){
+    const calls=[];
+    produceComputerTasks(ai,(id,slot)=>{calls.push([id,slot]);return c.success.includes(id)},slot=>{
+      specialCalls.push(slot);if(c.special)ai.tasks[slot].flags=1;return c.special;
+    });
+    snapshots.push({calls,table:structuredClone(ai.producers)});
+  }
+  return {specialCalls,snapshots};
+});
+console.log(JSON.stringify(results));
+"""
+    comparison = subprocess.run(['node', '--input-type=module', '-e', js],
+        input=json.dumps(results['controlledTableCases']), text=True, capture_output=True,
+        cwd=Path(__file__).resolve().parents[1])
+    assert comparison.returncode == 0, comparison.stderr
+    for case, actual in zip(results['controlledTableCases'], json.loads(comparison.stdout), strict=True):
+        expected = dict(specialCalls=case['specialCalls'], snapshots=[dict(calls=s['calls'],
+            table=[{k: t[k] for k in ('id', 'attempts', 'group')} for t in s['table']])
+            for s in case['snapshots']])
+        assert actual == expected, (case['name'], actual, expected)
 
 print(json.dumps(results, indent=2))
 print('PASS: 8 controlled scheduler cases; 5 unhooked type9/type2 allocation cases. '
