@@ -11,7 +11,12 @@ import {
   campaignTribe,
   markerHeight,
 } from './campaign-runtime.ts'
-import { computerSelectionWorld, computerTrainingBuilding } from './computer-runtime.ts'
+import {
+  computerSelectionWorld,
+  computerTrainingBuilding,
+  requestComputerPreacher,
+  returnComputerGuards,
+} from './computer-runtime.ts'
 import { availableTrainingPeople } from './computer-selection.ts'
 import {
   requestAttack,
@@ -105,6 +110,8 @@ export function campaignCommand(
       1082: 2,
       1091: 7,
       1092: 4,
+      1074: 1,
+      1103: 0,
       1095: 2,
       1097: 3,
       1102: 1,
@@ -272,6 +279,16 @@ export function campaignCommand(
   }
   if (opcode === 1117) {
     w.ai.flags = (w.ai.flags | 0x800) >>> 0
+    return
+  }
+  if (opcode === 1074) {
+    const marker = missionData(w.outcome.level).level.markers[read(args[0])]
+    if (marker === undefined) throw new RangeError('Invalid Preacher marker')
+    requestComputerPreacher(w, campaignTribe(w), marker)
+    return
+  }
+  if (opcode === 1103) {
+    returnComputerGuards(w, campaignTribe(w))
     return
   }
   if (opcode === 1092) {
@@ -779,6 +796,7 @@ export function campaignRules(w: World) {
                     ...script.codes.slice(457, 460),
                     ...script.codes.slice(504, 530),
                     1004,
+                    ...script.codes.slice(570, 715),
                     ...script.codes.slice(729, 768),
                     ...script.codes.slice(796, 833),
                     ...script.codes.slice(833, 984),

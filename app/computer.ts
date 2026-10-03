@@ -97,6 +97,35 @@ export function requestConstruction(
   return true
 }
 
+//0x4f4520/0x4627f0: caller has already performed duplicate and person selection.
+export function requestPreacherTask(
+  ai: ComputerQueue,
+  person: number,
+  marker: number,
+  states: number,
+  preachers: number
+) {
+  const free = ai.tasks.filter(task => !(task.flags & 1))
+  if (
+    !(states & 0x800) ||
+    (preachers << 16) >> 16 <= 0 ||
+    free.length < 5 ||
+    ai.tasks.some(task => task.flags & 1 && task.type === 11)
+  )
+    return false
+  Object.assign(free[0], {
+    flags: ((free[0].flags & ~2) | 1) >>> 0,
+    type: 11,
+    phase: 4,
+    entity: person & 65535,
+    target: marker & 65535,
+    extra: 0,
+    mode: 0,
+    members: [],
+  })
+  return true
+}
+
 // 0x4e67b0: command 1097 allocates one tower-staffing task in the first free slot.
 export function requestTowerStaffing(ai: ComputerQueue, target: number, model: number) {
   const task = ai.tasks.find(t => !(t.flags & 1))

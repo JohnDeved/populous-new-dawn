@@ -78,22 +78,14 @@ function defendingBase(w: SelectionWorld, p: SelectionUnit, command: number | un
   return cellDistanceSquared(cell(p), base) <= tribe.radius * tribe.radius
 }
 
-// 0x4f8490 / 0x4f8390. Mode 0 keeps traversal order; mode 1 ranks by wrapped
-// Manhattan distance. Stable sorting preserves the native strict-< insertion
-// tie order across priority bands. Only the returned prefix is observable here;
-// native scratch writes beyond that prefix are not represented as world memory.
-export function selectComputerPeople(
+// Shared eligibility leaves of0x4f7dc0/0x4f8490. Yield native band/list order.
+function* eligibleComputerPeople(
   w: SelectionWorld,
   model: number,
   alternative: number,
   target: number,
-  mode: number,
-  destination: number,
-  flags: number,
-  requested: number
+  flags: number
 ) {
-  const candidates: { person: SelectionUnit; distance: number }[] = []
-  const count = Math.max(0, Math.min(100, requested | 0))
   for (let priority = 0; priority < 7; priority++) {
     if ((flags & 32 && priority >= 2 && priority <= 5) || (flags & 8 && priority === 5)) continue
     for (const p of w.people) {
@@ -129,14 +121,63 @@ export function selectComputerPeople(
         )
       )
         continue
-      if (mode !== 0 && mode !== 1) continue
+      yield p
+    }
+  }
+}
+
+//0x4f7dc0: unlike the multi-person selector, the first nearby candidate wins
+// immediately, even when a later candidate would have smaller Manhattan distance.
+export function selectComputerPerson(
+  w: SelectionWorld,
+  model: number,
+  alternative: number,
+  target: number,
+  mode: number,
+  destination: number,
+  flags: number
+) {
+  if (mode !== 0 && mode !== 1) return null
+  let selected: SelectionUnit | undefined,
+    distance = 0x10000
+  for (const p of eligibleComputerPeople(w, model, alternative, target, flags)) {
+    const location = cell(p),
+      dx = delta(location, destination),
+      dy = delta(location >> 8, destination >> 8)
+    if (mode === 0 || (dx < 19 && dy < 19)) {
+      selected = p
+      break
+    }
+    if (dx + dy < distance) {
+      selected = p
+      distance = dx + dy
+    }
+  }
+  if (selected) selected.flags3 = (selected.flags3 & ~1) >>> 0
+  return selected?.id ?? null
+}
+
+//0x4f8490/0x4f8390. Preserve stable distance ordering and returned-prefix effects.
+export function selectComputerPeople(
+  w: SelectionWorld,
+  model: number,
+  alternative: number,
+  target: number,
+  mode: number,
+  destination: number,
+  flags: number,
+  requested: number
+) {
+  const candidates: { person: SelectionUnit; distance: number }[] = []
+  const count = Math.max(0, Math.min(100, requested | 0))
+  if (mode === 0 || mode === 1)
+    for (const p of eligibleComputerPeople(w, model, alternative, target, flags)) {
       const location = cell(p)
       candidates.push({
         person: p,
         distance: delta(location, destination) + delta(location >> 8, destination >> 8),
       })
     }
-  }
   if (mode === 1) candidates.sort((a, b) => a.distance - b.distance)
   const selected = candidates.slice(0, count).map(c => c.person)
   for (const person of selected) person.flags3 = (person.flags3 & ~1) >>> 0
