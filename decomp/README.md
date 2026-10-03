@@ -5080,3 +5080,12 @@ corrects the earlier conflation of capacity with the native descriptor's separat
 socket selector. `python scripts/check-native-hut-smoke-placement.py EXE`
 executes 288 composed initializer/socket cases; browser integration and complete
 original-frame matching remain separate evidence requirements.
+
+## Residential hut secondary smoke allocation phase
+
+[Secondary puff research](research/hut-smoke-secondary-phase.md) distinguishes
+the primary class-7 seed from secondary root/child allocations, the eight-visit
+root gate, exact cosmetic RNG threshold, capacity reserve, traversal order and
+sixteen-visit child expiry. `python -B scripts/check-native-hut-smoke-puffs.py EXE`
+checks bounded original instructions without executing the surrounding world
+loop. The browser allocation adapter remains an explicit implementation gap.
