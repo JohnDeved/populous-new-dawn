@@ -24,6 +24,14 @@ export function notifyHutOccupancy(building: Building) {
 
 export type HutSmokeSequence = 'hutSmokePartial' | 'hutSmokeFull'
 
+// 0x50c150 reads building descriptor +0x33, not occupancy capacity (+0x20).
+// Residential models 1/2/3 select corrected shape sockets 0/1/2 respectively.
+export function hutOccupancySmokeSocket(model: number) {
+  const socket = [0, 1, 2][model - 1]
+  if (socket === undefined) throw new RangeError('Invalid residential hut model')
+  return socket
+}
+
 interface RootSmoke {
   mode: 'partial' | 'full'
   visible: boolean

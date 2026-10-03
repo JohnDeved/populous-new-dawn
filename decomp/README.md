@@ -155,6 +155,8 @@ worship, its visit delay, and later lessons remain open.
 
 ## Mission 18 sky static evidence
 
+[Early-mission skies](research/early-mission-skies.md) records the original palette-gated c/s/p filename selection, isolated success/failure execution, and six exact Mission 2/3 sky assets. Reproduce with `python scripts/check-native-early-mission-skies.py /path/to/d3dpoptb.exe`; OS opens, decoder/device execution, and matched original frames remain outside this proof.
+
 [Mission 18 sky](research/mission18-sky.md) records palette-open-gated filename selection, alternate-root policy and failed-image return paths. Reproduce the original-byte proof from a fresh checkout with Python 3.9+ and the existing Capstone 5 dependency (validated 5.0.7):
 
 ```sh
@@ -250,6 +252,12 @@ Blue target are documented in the
 The imported owner layout, rechargeable Swarm, Temple Vault reward, linked Erosion
 head, and explicitly deferred recurring script for the next campaign world are
 recorded in the [Mission 3 opening note](research/mission3-opening.md).
+The complete periodic three-Brave raid block and its natural recruitment/combat
+path are documented in [early mission AI](research/early-mission-ai.md); later
+Mission 3 command blocks and rendered acceptance remain separate.
+The state-23 listener warning is documented separately in
+[Mission 3 anti-preaching notification](research/mission3-preaching-message.md),
+including the scoped original message-107 import and one-shot checkpoint path.
 Its ordinary one-shot Chumara conversion is documented in the
 [Mission 3 Convert Wild note](research/mission3-convert-wild.md).
 
@@ -5050,3 +5058,11 @@ This is static evidence, not native execution or full loading-screen fidelity.
 ## Vault side-fire evidence
 
 [Vault side-fire research](research/vault-side-fire.md) traces generic ignition, the Vault descriptor protection bit and empty original fire attachments. It separates those static exclusions from the unobserved full Mission 7 effect timeline; no decorative flame implementation is justified by this evidence.
+
+## Residential hut smoke attachment correction
+
+[Hut smoke attachment selector](research/hut-occupancy-smoke.md#attachment-selector-correction-2026-10-03)
+corrects the earlier conflation of capacity with the native descriptor's separate
+socket selector. `python scripts/check-native-hut-smoke-placement.py EXE`
+executes 288 composed initializer/socket cases; browser integration and complete
+original-frame matching remain separate evidence requirements.

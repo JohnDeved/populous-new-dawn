@@ -38,6 +38,7 @@ import {
   observeHutOccupancy,
   reconcileHutOccupancySmoke,
   hutOccupancySmokeLayer,
+  hutOccupancySmokeSocket,
   stepHutOccupancySmoke,
   type HutOccupancySmokeState,
 } from './hut-occupancy-smoke.ts'
@@ -270,7 +271,7 @@ function updateHutOccupancySmoke(
     smoke.occupants = occupants
   }
 
-  const socket = buildingSocketPoint(buildingPose(b), capacity),
+  const socket = buildingSocketPoint(buildingPose(b), hutOccupancySmokeSocket(model)),
     point = browserPosition(socket),
     height = terrainPointHeight(scene.world.land, socket) + socket.heightOffset
   scene.locate(smoke.group, point, height / 45)

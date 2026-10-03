@@ -711,6 +711,7 @@
       "env": [],
       "inputs": [
         "scripts/check-browser-campaign-natural-victory.mjs",
+        "scripts/campaign-swarm-target.mjs",
         "scripts/browser-game.mjs",
         "app/combat-runtime.ts",
         "app/live-building-combat.ts",
@@ -3567,6 +3568,119 @@
       "sideEffects": ["May write fixed /private/tmp captures"],
       "resources": ["Fixed server/capture resources; run serially"],
       "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "early-mission-skies-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check early mission sky selection and exact source PNGs while preserving sky horizon and motion.",
+      "coveredBehavior": [
+        "Mission 1/2/3 bank mapping",
+        "existing d/g modes",
+        "six exact PNG assets",
+        "sky horizon and motion"
+      ],
+      "knownLimits": [
+        "Does not prove browser integration or original rendered pixels."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/sky-environment.test.mjs",
+        "tests/sky-horizon.test.mjs",
+        "tests/sky-motion.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/sky-environment.ts",
+        "app/scene-camera-runtime.ts",
+        "app/mission-data.ts",
+        "app/level-one.ts",
+        "app/level-two.ts",
+        "app/level-three.ts",
+        "public/original/sky-s.png",
+        "public/original/clouds-s.png",
+        "public/original/clouds-high-s.png",
+        "public/original/sky-p.png",
+        "public/original/clouds-p.png",
+        "public/original/clouds-high-p.png",
+        "tests/sky-environment.test.mjs",
+        "tests/sky-horizon.test.mjs",
+        "tests/sky-motion.test.mjs",
+        "app/sky.ts",
+        "app/sky-motion.ts",
+        "tests/fixtures/sky-horizon.json",
+        "app/original-camera.json",
+        "app/original-rules.json"
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "early-mission-skies-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Execute original palette-conditioned sky filename selection and verify supplied early mission assets.",
+      "coveredBehavior": [
+        "original 0042a140 success/failure for banks c/s/p/d/g",
+        "default filename reset",
+        "header and palette identity",
+        "six exact original PNGs and decoded pixel differences from c",
+        "normal mission-data selector"
+      ],
+      "knownLimits": [
+        "Palette reset, message cleanup, path resolution, open and close are intercepted; no Windows decoder/device or original-frame parity."
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-early-mission-skies.py",
+        "$POPULOUS_EXE"
+      ],
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/sky-environment.ts",
+        "app/scene-camera-runtime.ts",
+        "app/mission-data.ts",
+        "app/level-one.ts",
+        "app/level-two.ts",
+        "app/level-three.ts",
+        "public/original/sky-s.png",
+        "public/original/clouds-s.png",
+        "public/original/clouds-high-s.png",
+        "public/original/sky-p.png",
+        "public/original/clouds-p.png",
+        "public/original/clouds-high-p.png",
+        "scripts/check-native-early-mission-skies.py",
+        "scripts/decomp.py",
+        "decomp/tools.json",
+        "decomp/requirements.txt",
+        "public/original/sky.png",
+        "public/original/clouds.png",
+        "public/original/clouds-high.png"
+      ],
+      "prerequisites": [
+        "Pinned Unicorn and Pillow Python environment",
+        "Hash-verified original EXE and adjacent Mission 1/2/3 headers, palettes c/s/p, D3D s/p images"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only original executable and game assets"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "terrain-portable",

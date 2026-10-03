@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { texture } from './scene-assets.ts'
 import { defeatSky, updateSkyArray, fillSkyArray, skyCloudLayer } from './sky.ts'
 import { advanceSkyMotion } from './sky-motion.ts'
+import { skyEnvironment } from './sky-environment.ts'
 import skyPalette from './original-sky.json'
 import { nativePosition, browserPosition, sound, HOME, campaignPosition, type Point } from './model'
 import { cameraPreset, cameraConfigIndex } from './projection.ts'
@@ -34,10 +35,9 @@ import { teamForTribe, type TribeTeam } from './world-types.ts'
 import { missionData } from './mission-data.ts'
 
 export function makeSky(scene: GameScene) {
-  const bank = missionData(scene.world.outcome.level).level.landscapeBank,
-    typeOne = bank === 16,
-    suffix = bank === 13 ? '-d' : ''
-  scene.skyBackdrop.material.uniforms.map.value = texture(`sky${suffix}`)
+  const environment = skyEnvironment(missionData(scene.world.outcome.level).level.landscapeBank)
+  const { typeOne } = environment
+  scene.skyBackdrop.material.uniforms.map.value = texture(environment.backdrop)
   // Native sky commands precede land and receive a farther depth (0x47c7e0).
   // Draw before other transparent objects, with opaque land still occluding it.
   scene.skyFlash.renderOrder = -10000
@@ -49,7 +49,7 @@ export function makeSky(scene: GameScene) {
   scene.skyBackdrop.frustumCulled = false
   scene.skyBackdrop.userData.nativeIgnore = true
   scene.scene.add(scene.skyBackdrop)
-  for (const [i, name] of [`clouds${suffix}`, `clouds-high${suffix}`].entries()) {
+  for (const [i, name] of environment.clouds.entries()) {
     // Bank g has no backdrop: 00517630 draws only one opaque 256-size type-1 lens.
     const opaque = typeOne && i === 0
     const geo = new THREE.BufferGeometry()
@@ -95,7 +95,7 @@ export function commitSky(
 }
 
 export function updateSky(scene: GameScene) {
-  const typeOne = missionData(scene.world.outcome.level).level.landscapeBank === 16
+  const { typeOne } = skyEnvironment(missionData(scene.world.outcome.level).level.landscapeBank)
   const camera = {
     x: (scene.viewPoint.x + 8) * 256,
     y: (-scene.viewPoint.z - 8) * 256,
