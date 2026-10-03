@@ -29,7 +29,12 @@ coverage. Historical research and acceptance records remain evidence, not live q
 6. **Open/update a draft PR.** Link the issue; include outcome, scope, base/head,
    acceptance, check statuses, evidence, and remaining limits. For partial or dependent
    PRs, use `Refs #N`; use `Closes #N` only when the complete issue acceptance is met.
-   Workers own repairs and evidence publication through review.
+   For visual changes, include before/after images in the PR and relevant issue
+   whenever possible (or link the same retained pair from both). Use comparable
+   scenarios/viewports and caption each with its exact commit SHA, what it shows,
+   and renderer/capture limitations. Distinguish original-game references; never
+   fabricate a before image. If a pair is unavailable, state why. Docs/tooling-only
+   changes need no images. Workers own repairs and evidence publication through review.
 7. **Review and integrate.** A fresh internal reviewer inspects the actual full diff
    and evidence, returning findings plus ACCEPT/REJECT. The parent reviews the PR,
    resolves findings, validates the combined tree, and performs authorized main

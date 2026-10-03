@@ -25,6 +25,10 @@ test('live aggregate coverage includes every maintained workflow integrity suite
     '--test', 'tests/orchestration.test.mjs', 'tests/workflow-handoff.test.mjs',
     'tests/workflow-policy.test.mjs',
   ])
+  for (const id of ['orchestration-tests', 'repository-check']) {
+    assert.ok(checks.find(check => check.id === id).inputs.includes('.codex/config.toml'),
+      `${id} must fingerprint the configuration read by this suite`)
+  }
   assert.deepEqual(repositoryCheckCoverage(process.cwd()), [
     'orchestration-tests', 'orchestration-structural',
   ])

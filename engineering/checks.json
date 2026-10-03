@@ -22,6 +22,7 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        ".codex/config.toml",
         ".agents/skills/populous-engineering/SKILL.md",
         "AGENTS.md",
         "GOAL.md",
@@ -96,6 +97,7 @@
       "cwd": ".",
       "env": [],
       "inputs": [
+        ".codex/config.toml",
         "package.json",
         "app",
         "engineering",
