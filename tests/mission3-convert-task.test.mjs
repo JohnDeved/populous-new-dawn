@@ -8,6 +8,8 @@ import { createWorld } from '../app/model.ts'
 import { createLivePerson } from '../app/live-people.ts'
 import { stepComputerTasks } from '../app/computer-runtime.ts'
 import { campaignCommand } from '../app/campaign-command-runtime.ts'
+import { returnLivePerson } from '../app/live-movement.ts'
+import { currentPersonOrder } from '../app/person-orders.ts'
 
 // Controlled cases pair with check-native-mission3-convert-target.py; these are
 // helper boundaries, separate from the natural mission journey below.
@@ -163,4 +165,34 @@ test('type2 casting preserves the real person flags2 readiness gate', () => {
   stepComputerTasks(world, 2)
   assert.equal(world.spellCasts[2][17], 0)
   assert.equal(world.ai.tasks[0].phase, 8)
+})
+
+// Native0043b2a0 receives the actual person pointer, independent of its adapter owner.
+test('explicit flight person receives the allocation-safe return order without restarting its state', () => {
+  const world = createWorld(3)
+  const shaman = world.units.find(u => u.team === 'yellow' && u.kind === 'shaman')
+  const person = createLivePerson(world, shaman)
+  person.state = 26
+  shaman.native = null
+  shaman.flight = person
+  const seed = world.randomState
+  assert.equal(returnLivePerson(world, shaman, { x: person.x, y: person.y }, person), true)
+  assert.equal(currentPersonOrder(world.buildingOrders, person)?.model, 3)
+  assert.equal(person.state, 26)
+  assert.ok(person.flags2 & 16)
+  assert.equal(shaman.flight, person)
+  assert.equal(world.randomState, seed)
+})
+
+test('explicit flight return preserves the complete world on order allocation exhaustion', () => {
+  const world = createWorld(3)
+  const shaman = world.units.find(u => u.team === 'yellow' && u.kind === 'shaman')
+  const person = createLivePerson(world, shaman)
+  person.state = 26
+  shaman.native = null
+  shaman.flight = person
+  for (const order of world.buildingOrders.records) order.references = 1
+  const before = structuredClone(world)
+  assert.equal(returnLivePerson(world, shaman, { x: person.x, y: person.y }, person), false)
+  assert.deepEqual(world, before)
 })
