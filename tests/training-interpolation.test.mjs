@@ -74,6 +74,9 @@ test('hidden admission, exit, replacement and explicit placement remain discrete
   discrete(() => { u.inside = b.id; u.kind = 'warrior' })
   discrete(() => { u.inside = null })
   discrete(() => { u.inside = b.id; u.team = 'red' })
+  discrete(() => { u.inside = null })
+  const tower = addBuilding(w, 'blue', 'tower', { x: 20, z: 32 }, true)
+  discrete(() => { u.inside = tower.id }) // A visible tower socket may reposition its occupant.
   u.x += 20 // Placement outside a turn cannot use retained interpolation history.
   assert.deepEqual(motion.position(w, u), unitPosition(w, u))
   const replacement = addUnit(w, 'blue', 'brave', { x: 50, z: 50 })
