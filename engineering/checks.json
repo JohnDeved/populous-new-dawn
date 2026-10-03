@@ -4005,7 +4005,8 @@
         "Terrain mean, wave, orbit geometry and expiry",
         "Carrier RNG and stone rise/sound",
         "Replacement-brave conversion allocation",
-        "Fresh camera initializer and six-frame flyby warmup retain original coordinates/angle"
+        "Fresh camera initializer and six-frame flyby warmup retain original coordinates/angle",
+        "One native person counter increment through command18 completion"
       ],
       "knownLimits": [
         "Supplied allocation, registration, notification and animation leaves; not full original game execution."
@@ -4034,11 +4035,13 @@
         "app/scene-camera-runtime.ts",
         "app/spell-casting.ts",
         "app/live-people.ts",
-        "app/live-movement.ts"
+        "app/live-movement.ts",
+        "scripts/check-native-formation-phase.py"
       ],
       "prerequisites": [
         "Hash-matching supplied original EXE and adjacent mwsearch data",
-        "Explicit isolated native-execution authorization"
+        "Explicit isolated native-execution authorization",
+        "Python with Unicorn and Capstone"
       ]
     },
     {

@@ -54,6 +54,9 @@ The live binding is restricted to these three researched missions.
   dust uses source1160/draw37/palette4 for20 visits, beginning at f1=76. Effect9
   (`0050ccd0`) emits32 model3 sparks with original gameplay RNG and motion.
 - Command completion releases the Shaman while the final stones finish rising.
+  The pre-visit ownership snapshot prevents a second same-turn idle visit;
+  `004ec6f0` increments each active person once, including its completion turn.
+  Native outer-loop traces and all six live startup counters cover this boundary.
   Camera and mission input remain with their separate authored script owners.
 
 ## Evidence and current boundaries

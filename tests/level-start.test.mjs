@@ -131,3 +131,28 @@ test('fresh-load camera follows native cell-edge/center snapping and angle reten
   assert.deepEqual(levelStartCamera({x:65535,y:65535,h:0},0),{x:65024,y:65280,angle:256})
   assert.deepEqual(levelStartCamera({x:0,y:0,h:0},32,777),{x:0,y:256,angle:777})
 })
+
+test('the command18 completion turn owns exactly one native person visit', () => {
+  for(const level of [1,2,3]) {
+    const w=createWorld(level), people=w.levelStart.map(site=>({site,unit:w.units.find(u=>u.id===site.shaman),initial:site.counter}))
+    for(let turn=1;turn<=56;turn++) {
+      tick(w,1/12)
+      for(const {site,unit,initial} of people)
+        assert.equal(unit.native.counter,(initial+turn)&255,`level${level}/tribe${site.tribe}/turn${turn}`)
+    }
+  }
+})
+
+test('permitted state22 interruption and completion retain one counter increment per turn', () => {
+  for(const at of [0,15,40]) {
+    const w=createWorld(2),site=w.levelStart.find(s=>s.tribe===0),u=w.units.find(u=>u.id===site.shaman),initial=site.counter
+    for(let turn=0;turn<at;turn++)tick(w,1/12)
+    assert.ok(cast(w,'blast',{x:u.x-10,z:u.z}))
+    for(let turn=at+1;turn<=at+100;turn++) {
+      tick(w,1/12)
+      assert.equal(u.native.counter,(initial+turn)&255,`cast${at}/turn${turn}/state${u.native.state}`)
+      if(site.phase===4)break
+    }
+    assert.equal(site.phase,4)
+  }
+})

@@ -1209,10 +1209,13 @@ function stepTurn(w: World) {
       previous: u.flight ? { x: u.flight.x, y: u.flight.y, h: u.flight.h } : nativePosition(w, u),
     }))
   syncLandscapeObjects(w)
+  // 0x4ec6f0 visits each person once. Completion still consumes this turn's
+  // command18 visit; its new idle state first runs on the following turn.
+  const startingPeople = new Set(w.units.filter(u => levelStartOwnsShaman(w, u)).map(u => u.id))
   stepLevelStarts(w)
   const armageddon = w.effects.find(fx => fx.armageddon)?.armageddon
   for (const u of w.units) {
-    if (levelStartOwnsShaman(w, u)) continue
+    if (startingPeople.has(u.id)) continue
     if (u.attackReservation) stepAttackReservation(u.attackReservation, w.turn)
     u.fighting = false
     const spy = u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person ?? u.builder?.person

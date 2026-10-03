@@ -133,7 +133,7 @@ def phase_hook(c,address,size,user):
 for a in [0x4ed8a0,0x4d4040,0x4d4f40,0x4e9d80,0x4d47a0,0x44ff80,0x4ef180]:cpu.hook_add(UC_HOOK_CODE,phase_hook,begin=a,end=a)
 # Locate unit_clear_vec_2 from the reviewed function's call instruction.
 # It is safe to execute its pure field clears; no external OS calls are involved.
-js="""import {createWorld,tick} from './app/model.ts';const out=[];for(let level=1;level<=3;level++){const w=createWorld(level);const initial=Array.from(w.land.heights);const sites=w.levelStart.map(s=>({tribe:s.tribe,center:s.center,counter:s.counter,enabled:!s.tribe||w.campaignAIs[s.tribe]?.reincarnation!==false}));let timeline=[];for(let t=1;t<=56;t++){tick(w,1/12);timeline.push(w.levelStart.map(s=>({phase:s.phase,timer:s.timer,entering:s.entering,center:s.center})));}out.push({level,initial,sites,timeline})}console.log(JSON.stringify(out));"""
+js="""import {createWorld,tick} from './app/model.ts';const out=[];for(let level=1;level<=3;level++){const w=createWorld(level);const initial=Array.from(w.land.heights);const sites=w.levelStart.map(s=>({tribe:s.tribe,center:s.center,counter:s.counter,enabled:!s.tribe||w.campaignAIs[s.tribe]?.reincarnation!==false}));let timeline=[];for(let t=1;t<=56;t++){tick(w,1/12);timeline.push(w.levelStart.map(s=>({phase:s.phase,timer:s.timer,entering:s.entering,center:s.center,personCounter:w.units.find(u=>u.id===s.shaman)?.native?.counter})));}out.push({level,initial,sites,timeline})}console.log(JSON.stringify(out));"""
 worlds=json.loads(subprocess.check_output(['node','--input-type=module','-e',js],cwd=ROOT))
 for world in worlds:
  for index,site in enumerate(world['sites']):
@@ -152,6 +152,7 @@ for world in worlds:
     write(p+0x2e,'B',(site['counter']+turn)&255);call(0x433a10,p,order);complete=bool(cpu.reg_read(UC_X86_REG_EAX)&255)
    expected_phase=4 if complete else read(p+0x2d,'B')
    actual=world['timeline'][turn-1][index]
+   assert actual['personCounter']==(site['counter']+turn)&255,('one native person visit',world['level'],owner,turn,actual['personCounter'])
    assert actual['phase']==expected_phase,(world['level'],owner,turn,actual,expected_phase,read(p+0x70,'h'))
    if not complete:assert actual['timer']==read(p+0x70,'h'),(world['level'],owner,turn,actual,read(p+0x70,'h'))
 print('PASS: original command18 phase/timer transitions at every opening turn for all six authored Mission1–3 shamans, including two disabled enemy sites')
@@ -265,3 +266,8 @@ for owner in [0,1,2,3]:
  assert read(0x969bd4,'B')==0
  assert [read(tribe+0x24,'H'),read(tribe+0x26,'H'),read(tribe+0x32,'H')]==seed
 print('PASS: all four native camera stores retain their fresh-load seed through flyby creation/start and six warmup frames')
+
+# Independently execute the original outer traversal and byte increments; its
+# processors are supplied; list traversal, dispatch count and byte counters execute.
+subprocess.run([sys.executable,'-B','scripts/check-native-formation-phase.py',str(exe)],cwd=ROOT,check=True)
+print('PASS: all six startup people retain the original one-visit counter cadence through command completion')
