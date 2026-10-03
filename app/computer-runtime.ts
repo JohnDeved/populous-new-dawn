@@ -94,13 +94,13 @@ const mission11TowerRequested = 0x80000000,
   mission11HousingRequested = 0x40000000,
   mission12TowerRequested = 0x20000000
 
-export function computerSelectionWorld(w: World, tribe: number) {
+export function computerSelectionWorld(w: World, tribe: number, rawNative = false) {
   const team = campaignTeam(w, tribe),
     sources = new Map<number, LivePerson>(),
     people: SelectionUnit[] = []
   for (const u of w.units) {
     if (u.team !== team || u.hp <= 0) continue
-    const source = unitAnimationSource(u),
+    const source = unitAnimationSource(u) ?? (rawNative ? u.native : null),
       position = source ?? nativePosition(w, u)
     if (source) sources.set(u.id, source)
     people.push({
@@ -193,7 +193,7 @@ export function computerPreachingAt(w: World, tribe: number, marker: number) {
 //flags3 side effect even when the task cannot subsequently be allocated.
 export function requestComputerPreacher(w: World, tribe: number, marker: number) {
   if (computerPreachingAt(w, tribe, marker)) return false
-  const selected = computerSelectionWorld(w, tribe),
+  const selected = computerSelectionWorld(w, tribe, true),
     id = selectComputerPerson(selected.world, 4, 4, -1, 1, marker, 0x47)
   if (id === null) return false
   const source = selected.sources.get(id)

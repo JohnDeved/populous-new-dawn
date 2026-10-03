@@ -3,7 +3,7 @@
 ## Provenance and scope
 
 Question: bind CPSCR012's complete later AI block rather than isolated 1074/1103 stubs.
-Research baseline: `145768b54bca43e4b763c4d682028bf9fff505ec`. This evidence-only handoff is preserved on top of `5599760904c90adc8c4cc397bb11c9ee8b65b936`; no task adapter is implemented here.
+Research baseline: `145768b54bca43e4b763c4d682028bf9fff505ec`. This evidence-only handoff is preserved on top of `5599760904c90adc8c4cc397bb11c9ee8b65b936`; the original evidence below predates the runtime integration described at the end.
 Executable: original `d3dpoptb.exe`, SHA256 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
 Script: `levels/cpscr012.dat`, SHA256 `d5dfcd826f77909a64cca03ca9d9e3d351d2a7cb3f63eb8ba811b59916e83601`.
 Prior boundary: `decomp/research/mission3-recurring.md#Later-block reachability and PND02 boundary`.
@@ -88,3 +88,43 @@ The portable probe adds exact order17 payload and retarget-coordinate assertions
 to the original bounded handoff. Original record allocation and final person
 movement remain the explicitly listed boundaries. This is reusable native
 evidence; gameplay integration and rendered acceptance remain open.
+
+## Runtime integration and extended proof
+
+The browser now executes the complete `570..<715` block before the later training
+and periodic raid blocks. Existing message71/73, marker patrol, count and Shaman
+guard hosts remain in authored order; opcode1074 requests marker3/type11 and1103
+retargets only active order30 people in states10/33.
+
+`computer-selection.ts` shares eligibility but retains the distinct single-person
+selection rule: first eligible within strictly19 coarse units on **both** wrapped
+axes, otherwise strict-less Manhattan nearest. The selected flags3 bit is cleared
+before the later allocation gate. `computer-runtime.ts` executes the authored
+four task visits, ownership/reservation checks, state14 selection, actual command17
+commit/default-state restoration and cancelled/dead cleanup. It does not substitute
+an attack or random phase2 search. Ordinary Mission3 Tower phase3 establishes the
+same original construction-base field used by1103; defence coordinates are separate.
+`returnLivePerson` uses the original allocate-before-clear/attach ordering and does
+not restart person state when issuing1103. Pool exhaustion leaves old state intact.
+
+Run `python scripts/check-native-mission3-preacher-task.py /path/to/d3dpoptb.exe`:
+-9 single-person selector cases run without intercepted leaves, including ordering,
+  strict-axis boundary, wrap, invalid mode and selected-only flags3 effects.
+-7 complete-block schedule/gate/ordering cases supply internal world reads and
+  intercept command hosts, including both advisory message branches. This is not
+  native message presentation or RNG proof.
+-6 opcode1103 cases run the full original list walk, allocation, preparation,
+  cancellation and attachment without intercepted leaves. Both target sources,
+  immediate/queued lookup, rejection cases and allocation exhaustion are covered.
+  Person state is retained, exact uncentered coordinates are observed, and RNG is
+  unchanged in these controlled cases. This extends the earlier intercepted-helper
+  result without claiming live native movement equivalence.
+
+`tests/mission3-preacher-task.test.mjs` pairs these boundaries and tests task locking,
+cancellation, duplicate raw payloads, failed-allocation selection effects and
+checkpoint continuation. Its natural case waits for the shipped Chumara Tower and
+Temple/training path, observes the newly trained Preacher's type11 request, then
+actual command17 and arrival at marker3. No units, completed structures, population
+or outcomes are injected in that natural case. Controlled fixtures are separate.
+Existing conversion-warning and periodic three-Brave raid tests remain regression
+coverage. Rendered acceptance and complete Mission1–3 parity remain separate gates.

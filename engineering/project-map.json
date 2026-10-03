@@ -551,6 +551,8 @@
       "decomp/generated/004c6da0.c",
       "decomp/research/mission3-person-task.md",
       "scripts/check-native-mission3-person-task.py",
+      "scripts/check-native-mission3-preacher-task.py",
+      "tests/mission3-preacher-task.test.mjs",
       "decomp/generated/0043b2a0.c",
       "decomp/generated/004c8c50.c",
       "decomp/generated/004f3280.c",

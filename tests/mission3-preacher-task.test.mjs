@@ -1,4 +1,6 @@
 import assert from 'node:assert/strict'
+import script from '../app/original-script-three.json' with { type: 'json' }
+import { runScript, scriptState, scriptValue } from '../app/popscript.ts'
 import test from 'node:test'
 import { createWorld, tick } from '../app/model.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
@@ -186,7 +188,8 @@ test('duplicate raw payload and failed allocator preserve native selection side 
   world.buildingOrders.records[1].a = 0x3480
   assert.equal(computerPreachingAt(world, 2, 0x1234), false)
   p.immediateCommand = 0
-  p.state = 17
+  p.state = 10
+  p.commandStatus = 0
   p.flags3 |= 1
   world.ai.states &= ~0x800
   assert.equal(requestComputerPreacher(world, 2, 0x1234), false)
@@ -258,4 +261,89 @@ test('natural Chumara training reaches marker3 Preacher task, checkpoint phases 
     ((preacher.native.x >>> 8) & 254) | (preacher.native.y & 0xfe00),
     task.target & 0xfefe
   )
+})
+
+// Paired with the original interpreter probe; this isolates schedule/control only.
+test('complete128-turn block preserves strict gates, command ordering and message lifetime', () => {
+  const block = { ...script, codes: [12, 1003, ...script.codes.slice(570, 715), 1004, 1019] }
+  for (const [
+    turn,
+    pop,
+    priests,
+    near,
+    warriors,
+    blueWarriors,
+    bluePriests,
+    camps,
+    bluePop,
+    expected,
+  ] of [
+    [122, 9, 1, 0, 0, 0, 0, 2, 20, []],
+    [123, 8, 1, 0, 0, 0, 0, 2, 20, [1136, 1068, 1103]],
+    [123, 9, 1, 0, 3, 0, 0, 2, 20, [1136, 1092, 1074, 1068, 1103]],
+    [123, 7, 1, 4, 0, 0, 0, 2, 20, [1136, 1068, 1102]],
+    [123, 9, 0, 4, 0, 0, 0, 2, 20, [1136, 1068, 1103]],
+    [251, 9, 1, 0, 0, 10, 10, 2, 20, [1176, 1180, 1179, 1136, 1074, 1068, 1103]],
+    [123, 9, 1, 0, 0, 0, 0, 0, 26, [1136, 1176, 1180, 1179, 1074, 1068, 1103]],
+  ]) {
+    const state = scriptState(script),
+      calls = []
+    const readInternal = id => {
+      const values = {
+        1: pop,
+        1148: priests,
+        1147: warriors,
+        1153: blueWarriors,
+        1154: bluePriests,
+        1088: camps,
+        2: bluePop,
+      }
+      assert.ok(id in values, `unexpected internal${id}`)
+      return values[id]
+    }
+    runScript(block, state, {
+      turn,
+      tribe: 2,
+      readInternal,
+      command: (opcode, args) => {
+        calls.push(opcode)
+        const values = args.map(index =>
+          index === 1118 ? 0 : scriptValue(script, state, index, readInternal)
+        )
+        if (opcode === 1068) state.variables[9] = near
+        if (opcode === 1092) assert.deepEqual(values, [1, 2, 3, -1])
+        if (opcode === 1074) assert.deepEqual(values, [3])
+        if (opcode === 1179) assert.deepEqual(values, [256])
+        if (opcode === 1176) assert.deepEqual(values, [blueWarriors > 9 ? 73 : 71])
+        if (opcode === 1102) assert.deepEqual(values, [pop])
+      },
+    })
+    assert.deepEqual(calls, expected)
+    assert.equal(state.variables[10], 0)
+  }
+})
+
+test('1103 retargets only active order30 in native state10/33 without restarting state', () => {
+  for (const [state, model, flags, queued, matching] of [
+    [10, 30, 0, false, true],
+    [33, 30, 0, true, true],
+    [17, 30, 0, false, false],
+    [10, 30, 1, false, false],
+    [10, 17, 0, false, false],
+  ]) {
+    const { world, unit } = controlledPreacher(),
+      p = unit.native
+    p.state = state
+    p.commandStatus = model
+    if (queued) p.commands[0] = 1
+    else p.immediateCommand = 1
+    Object.assign(world.buildingOrders.records[1], { model, flags, references: 1, a: 0, b: 0 })
+    world.ai.constructionBase = 0x8234
+    const before = structuredClone(p)
+    returnComputerGuards(world, 2)
+    if (matching) {
+      assert.equal(currentPersonOrder(world.buildingOrders, p).model, 3)
+      assert.equal(p.state, state)
+    } else assert.deepEqual(p, before)
+  }
 })
