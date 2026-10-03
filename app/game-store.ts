@@ -327,8 +327,13 @@ export function createGameStore() {
     restoreCheckpoint: async () => {
       try {
         const saved = await readStoredState()
-        if (!checkpoint && saved.checkpoint)
-          checkpoint = migrateCheckpoint(structuredClone(saved.checkpoint))
+        if (!checkpoint && saved.checkpoint) {
+          try {
+            checkpoint = migrateCheckpoint(structuredClone(saved.checkpoint))
+          } catch {
+            // A malformed checkpoint must not suppress the independent campaign profile.
+          }
+        }
         for (const mission of saved.completed) completedMissions.add(mission)
         update()
       } catch {

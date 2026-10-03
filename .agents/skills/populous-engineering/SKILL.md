@@ -1,108 +1,36 @@
 ---
 name: populous-engineering
-description: Evidence-driven engineering workflow for Populous New Dawn parity, native executable research, browser integration, and modern desktop performance work. Use for substantial gameplay, rendering, input, native-comparison, evidence, or profiling changes in this repository.
+description: Evidence-driven engineering for Populous New Dawn using GitHub issues and reviewed PRs, local native research, rendered QA, and source-bound verification.
 ---
 
-# Populous engineering workflow
+# Populous engineering
 
-Invoke explicitly as `$populous-engineering` before a substantial repository task.
+Read root `AGENTS.md`, `GOAL.md`, and `engineering/README.md`. A delegated specialist
+starts from the parent's bounded brief and relevant evidence, not whole task history.
 
-1. The parent reads root `AGENTS.md`, `GOAL.md`, and the applicable sections linked
-   from `engineering/README.md`. Delegated specialists start with their brief or role packet
-   and relevant source expansion. Record HEAD and working-tree changes before editing.
-2. Continue a valid feature lock. Only when no objective is fixed, perform one bounded
-   triage before choosing a subsystem. The parent may ask `pnd-scout` directly, without
-   a contract or role packet, to compare at most five candidates and return the top
-   three plus one evidence-backed recommendation. Rank
-   player-visible/playability impact and unblock value first; then live integration
-   gap, evidence/check confidence, effort, risk, and prerequisites. The parent makes
-   the final choice. Reuse that choice across behavior-neutral work. Use the parity
-   percentage to measure delivered progress; do not derive priority from checkpoint
-   weight or document position alone.
-3. Retrieve bounded current context:
+1. Continue the assigned GitHub issue/feature outcome. Record actual base/head and
+   existing dirty paths. Use one writer per isolated branch/worktree; the parent
+   coordinates up to six workers and owns integration.
+2. Read existing topic findings and actual callers. Use `orchestration:context` when
+   helpful; follow omissions or contradictions. For native work, use
+   `engineering/native-research.md`, verify local inputs/tools, and preserve useful
+   exports/probes in indexed durable evidence.
+3. Implement a playable live path. Keep acceptance and limits in the linked issue/PR.
+   Optional contracts and role packets in `engineering/contracts.md` help complex
+   scope; they are not required for every assignment.
+4. Select checks with `orchestration:plan -- --base <actual-base>`, inspect side
+   effects, and serialize expensive/shared work. Preserve standard gates, affected
+   native/browser/performance checks, rendered QA, and generated ownership.
+5. Commit coherent checkpoints, push the feature branch, and open/update a linked
+   draft PR. Capture exact source/input-bound raw receipts; use
+   `engineering/worker-handoff.md` for portable bundles when needed.
+6. Give a fresh internal reviewer the full diff, acceptance, and completed evidence.
+   Repair findings on the same branch; the parent reviews/integrates and performs
+   authorized main merges. Workers never push main. Report useful results and
+   concrete blockers, not repeated status snapshots.
 
-   ```sh
-   npm run orchestration:context -- --subsystem <id> --query "<question>"
-   ```
-
-   For performance work, read the packet's cited sections of
-   `references/modern-performance.md`; expand only for relevant corrections or an
-   explicitly broad historical audit.
-   Cite exact headings for long evidence logs and keep whole files out of task-spec
-   `inputPaths` unless every section is genuinely required. If mandatory context
-   overflows, narrow the contract/query before increasing the packet budget.
-
-4. After selecting a non-trivial milestone, write one implementation task spec as
-   described in `engineering/contracts.md`, then run `orchestration:prepare` before
-   editing. Acceptance must reach the absent behavior through the shipped UI,
-   campaign, or normal system path; injection and isolated helpers are not stopping
-   conditions.
-5. Keep one implementation owner through focused checker repair, evidence publication,
-   branch/PR update, and final handoff when practical. Delegate only independent
-   native/performance research or a fresh final review using the focused project agents in
-   `.codex/agents/`. Start those specialists with no inherited thread history and
-   supply one validated role packet:
-
-   ```sh
-   npm run orchestration:context -- --subsystem <id> --query "<question>" --role <role> --contract <task-contract.json>
-   ```
-
-   Start with packet-cited paths/headings; refine the packet query for a disclosed
-   candidate path when needed. Do not send whole project history,
-   `GOAL.md`, native notes, or the performance log. Do not recursively delegate.
-   Use the role packet's compact response format instead of requesting prose: ranked
-   path/line findings for scouts, evidence/limit blocks for native and performance,
-   and finding lines plus receipt status and ACCEPT/REJECT for reviewers.
-   For native work, follow `engineering/native-research.md`: verify live prerequisites,
-   reuse indexed findings, give new research a contract-allowed `--research-output`
-   directory, and integrate useful artifacts into durable evidence before deferral.
-
-   Apply the automatic stall triggers and recovery in `engineering/efficiency-review.md`
-   at resumption and progress boundaries, even before a slice finishes. The parent
-   applies supported local corrections and resumes gameplay without user prompting;
-   an optional scout uses the compact brief. Keep required proof and final review.
-   Use its persistent `orchestration:progress` clock before implementation and at
-   least every 10 active minutes; act on stall warnings and delivery-time feedback.
-6. Before verification, select checks without executing them:
-
-   ```sh
-   npm run orchestration:plan -- --base <actual-base-ref>
-   ```
-
-7. Inspect selected commands, prerequisites, side effects, and resource conflicts.
-   Probe external native/browser prerequisites before starting the aggregate run;
-   do not rerun unchanged portable/build checks merely to discover a missing asset.
-   For a task contract, execute its allowlisted requirements and record their
-   fingerprints with:
-
-   ```sh
-   npm run orchestration:verify -- --contract <task-contract.json>
-   ```
-
-   Unclassified or recording checks remain manual. Never append `--record` unless
-   recording is the explicitly authorized task. Receipts persist after each result;
-   interrupted checks remain explicit. Use one final aggregate run for its reviewed
-   constituent coverage, retaining separate native/browser/performance evidence.
-   Give the fresh final reviewer the finished diff, acceptance, and receipts together;
-   repeat review for substantive repairs or unresolved findings.
-8. Audit scope and generated ownership:
-
-   ```sh
-   npm run orchestration:audit -- --contract <task-contract.json>
-   ```
-
-9. Report conclusions, exact sources/symbols, remaining limits, changed files, and
-   every required check as passed/failed/blocked/not-run/not-applicable with the
-   tested fingerprint. A denied operation blocks only that operation; preserve its
-   receipt, do not retry or circumvent it, and continue independent authorized work.
-   Use `BLOCKED` only when no meaningful scoped work or useful review-ready partial
-   remains. Before the final reply, use `engineering/worker-handoff.md` to export a
-   portable review bundle when needed and release/verify the Local Dev project binding.
-
-`engineering/README.md` governs architecture, evidence boundaries, resource
-serialization, performance records, and parity bookkeeping. The manifests there
-are reviewed routing aids; `parity.json` remains the only gameplay and game-mechanics
-parity percentage and project-progress ledger. Do not use refactoring as fallback
-work: permit at most one independently revertible prerequisite refactor commit for a
-named blocker, then return to the locked feature. Old extraction plans are not a
-standing backlog, and a bounded feature may cross files or subsystems.
+GitHub owns task status; `parity.json` owns verified gameplay coverage. No delivery
+clock, browser watcher, separate reviewer chat, or Local Dev release step is required.
+Retain all evidence boundaries and permissions. A denied operation does not authorize
+another route around the safeguard. Follow `engineering/efficiency-review.md` if
+work repeats without reducing uncertainty or delivering accepted behavior.

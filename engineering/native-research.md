@@ -5,13 +5,41 @@ prerequisites: object class plus model, mission availability, acquisition/unlock
 and existing implementation. Research a missing prerequisite deliberately; do not
 assume a model number alone identifies a playable person.
 
+## Current cloud setup example (verified 2026-10-03)
+
+On the current shared Linux executor, use the existing environment rather than
+re-downloading tools or treating an unset variable as a missing game:
+
+```sh
+source /workspace/shared/populous-prerequisites/env.sh
+python -c 'import unicorn; print(unicorn.__version__)'
+sha256sum "$POPULOUS_EXE"
+"$JAVA_HOME/bin/java" -version
+```
+
+This example resolves the game to
+`/workspace/shared/populous-prerequisites/game/d3dpoptb.exe`, Python to that root's
+`venv/bin/python`, Ghidra 12.1.3, Temurin JDK 21.0.12.1, and Unicorn 2.1.4. Verify
+these paths/versions in the actual executor; they are not portable installation
+requirements. `decomp/tools.json` pins original EXE SHA-256
+`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
+The archive at `/workspace/shared/populous-prerequisites/PopulousTB-Setup.zip` has
+SHA-256 `6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702`.
+
+Retain platform/tool download provenance. `decomp/tools.json`'s bootstrap JDK entry
+is macOS-specific; on Linux supply the verified `GHIDRA_HOME` and `JAVA_HOME` rather
+than claiming that archive is portable. Confirm required adjacent data and actual
+probe imports. Ghidra exports must record tool version, executable hash, command,
+project/input identity, and completion evidence. Serialize access to each project.
+
 ## Resolve supplied inputs before declaring a blocker
 
 Missing from the checkout or an unset `POPULOUS_EXE` means **unconfigured or not
 extracted**, not unavailable. The parent owns recovery from supplied readable inputs;
 do not defer gameplay or ask for another copy before checking the archive.
 
-This checkout's supplied sources (all ignored, repository-relative paths):
+Earlier checkout input locations (retained for recovery/provenance; verify existence
+before using them, and prefer the current executor handoff):
 
 - Archive: `work/orchestration/ceo-release/inputs/PopulousTB-Setup.zip`.
   SHA256 `6aa6c366809ea1d9575ec1d31a24527a95c7332f0a1d2ab692f7a602e7e10702`.
@@ -69,10 +97,10 @@ Search `decomp/research/`, the subsystem's mapped evidence, `decomp/exports.json
 existing probes first. Reuse valid findings; ask a specialist only the unresolved
 question and identify the decision it will change. An audit may remain read-only.
 
-For new research, add one task-specific ignored directory to the contract's allowed
-paths and generate the native packet with `--research-output
-work/orchestration/<task>/native` (on the same command line). The native specialist
-may write only there. The parent grants exclusive use of the existing Ghidra project
+For new research, assign one task-specific ignored directory such as
+`work/orchestration/<task>/native` in the compact brief. If using a contract/role
+packet, include that directory in allowed paths and pass `--research-output` on
+the packet command. The native specialist may write only in its assigned directory. The parent grants exclusive use of the existing Ghidra project
 before an export; other source work may continue. The write-enabled role is not an
 OS-level directory sandbox; packet ownership and review still apply.
 
