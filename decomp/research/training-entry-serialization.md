@@ -635,3 +635,20 @@ interpolation, admission, capacity, training, or gameplay conclusion changes,
 and PR115 remains unresolved/draft. The next bounded prerequisite is the genuine
 selected backend object/method consumed through slot `+0x38`; do not host-write
 the call target or infer pixels from the 47 queued triangles.
+
+## Admission-to-interpolation boundary — October 2026
+
+The bounded checker `scripts/check-native-training-interpolation.py EXE` composes
+real `0x407150` admission, `0x4d80e0` occupancy and `0x46f080` sprite-queue
+interpolation for all four training models (5–8), four movement directions and
+five turn fractions. All 80 cases preserve displacement, interpolation flags,
+presentation stamp and projection inputs across successful mode-3 admission.
+The original render-hide bit remains clear. The projection inputs before and
+after admission are identical, including intermediate fractions.
+
+This proves an occupancy-only transition does not snap the original sprite queue
+to the completed position. It reuses the reviewed occupant oracle's supplied
+transport/indicator leaves and supplies the final camera projection consumer.
+It does not execute original group motion, the complete painter, framebuffer
+pixels or throughput. It therefore does not supersede the earlier formation
+trace, claim a one-person admission rule, or close issue 29.
