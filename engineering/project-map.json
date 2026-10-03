@@ -534,6 +534,8 @@
         "decomp/README.md",
         "decomp/exports.json",
         "decomp/research/mission2-enemy-marker.md",
+      "decomp/research/early-mission-ai.md",
+      "scripts/check-native-early-mission-ai.py",
         "decomp/research/mission2-message-103.md",
         "decomp/research/mission4.md",
         "decomp/research/mission5-boat.md",
