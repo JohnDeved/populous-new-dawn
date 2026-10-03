@@ -308,7 +308,16 @@ function stepComputerPreacher(w: World, tribe: number, index: number) {
 function stepComputerConvert(w: World, tribe: number, index: number) {
   const task = w.ai.tasks[index],
     unit = w.units.find(u => u.hp > 0 && u.team === campaignTeam(w, tribe) && isShaman(u)),
-    p = unit && (unitAnimationSource(unit) ?? unit.native ?? createLivePerson(w, unit))
+    // The simulator's person may live in a fight/flight record even when its
+    // current animation intentionally has no selectable presentation source.
+    p =
+      unit &&
+      (unit.builder?.person ??
+        unit.flight ??
+        unit.fight?.motion ??
+        unit.native ??
+        unit.entry?.person ??
+        (unit.native = createLivePerson(w, unit)))
   if (!p || p.computerAssignment) task.phase = 3
   if (task.phase === 3) {
     if (acquireSelection(w.ai, index)) {

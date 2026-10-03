@@ -79,3 +79,11 @@ for driver in [False,True]:
     rows.append(dict(driver=driver,phase=3,elapsed=601,cleanup=not driver))
 print(json.dumps(rows,indent=2))
 print('PASS:2 unhooked phase8 timeout/first-passenger cleanup boundaries')
+
+# Existing native Shaman record owns assignment even while in fighting state25.
+p=Probe();p.shaman();p.write(PERSON+0x2c,'B',25);p.write(PERSON+0xaf,'B',99)
+p.write(AI+0x74,'I',1);p.write(AI+0x85,'B',2);p.write(AI+0x78,'H',6)
+p.call(0x4623e0,AI)
+assert not p.read(AI+0x74)&1 and p.read(PERSON+0xaf,'B')==99
+assert p.read(0x89d178)==0x12345678
+print('PASS:unhooked assigned fighting-Shaman task cancellation')
