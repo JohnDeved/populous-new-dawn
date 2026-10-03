@@ -1,5 +1,5 @@
-import { tribeForTeam } from './world-types.ts'
 import {
+  tribeForTeam,
   type World,
   type Point,
   type NativePoint,
