@@ -289,6 +289,7 @@
         "app/scene-terrain-runtime.ts",
         "app/viewport-bounds.ts"
       ],
+      "researchPaths": ["scripts/check-browser-zoom-edges.mjs"],
       "sharedPaths": ["app/model.ts", "app/render-view.ts", "app/scene.ts"],
       "entrySymbols": [
         { "path": "app/world-terrain-runtime.ts", "symbol": "syncNativeTerrain" },
