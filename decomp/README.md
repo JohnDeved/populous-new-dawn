@@ -5105,3 +5105,8 @@ root gate, exact cosmetic RNG threshold, capacity reserve, traversal order and
 sixteen-visit child expiry. `python -B scripts/check-native-hut-smoke-puffs.py EXE`
 checks bounded original instructions without executing the surrounding world
 loop. The browser allocation adapter remains an explicit implementation gap.
+
+[Early-level authored phase contribution](research/hut-smoke-initial-phase.md)
+binds the level reset and record allocator to the corrected Mission 1–3 initial
+adapter contribution. It preserves a failed-before/passed-after native comparison
+and names the remaining primary-stream, secondary-list and render-RNG boundaries.

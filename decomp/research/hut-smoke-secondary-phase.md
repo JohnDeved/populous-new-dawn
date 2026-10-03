@@ -1,5 +1,10 @@
 # Hut smoke secondary allocation phase
 
+Follow-on: [early-level authored phase contribution](hut-smoke-initial-phase.md)
+repairs one proved loader omission. The remaining full-stream and secondary-owner
+limits below still apply; the initial partial-root visit caveat was separately
+repaired by [the first-visit change](hut-smoke-first-visit.md).
+
 This is the remaining child-puff question under issue 73, after the corrected
 [attachment selector](hut-occupancy-smoke.md#attachment-selector-correction-2026-10-03)
 landed. It adds no runtime, asset or parity-ledger change. The question is whether
