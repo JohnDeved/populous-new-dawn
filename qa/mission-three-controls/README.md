@@ -272,3 +272,11 @@ checkpoint-continuation and cannot be described as a fresh uninterrupted run;
 previous failed attempt receipts remain failed. Three isolated host-only tests
 cover mismatched source/profile/origin/digest, failed prefixes and resumed actor
 identity. Runtime acceptance of this entry remains pending.
+
+The Mission3 continuation entry deliberately keeps an exact full source fingerprint
+requirement, even if the shared harness later supports reviewed QA-only profile
+correspondence. Initial retries may change hashed tactical command files only.
+A driver/source change requires a separately reviewed future boundary; this
+entry does not silently adopt the harness's broader correspondence option.
+Generic checkpoint commands are rejected while the preparation slot is protected,
+so an exploratory command cannot erase the genuine early save before a failure.

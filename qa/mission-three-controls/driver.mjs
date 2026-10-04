@@ -694,7 +694,10 @@ export default async function missionThreeControls({ page, output, root, signal,
         if (condition.preacherId !== undefined) condition.preacherId = resolveId(condition.preacherId)
         return waitFor(condition, command.scope, (command.watchIds ?? []).map(resolveId))
       }
-      case 'checkpoint': return saveCheckpoint(`checkpoint-${safeLabel(command.name)}`)
+      case 'checkpoint':
+        assert.ok(!protectedPreparation || savedSermon,
+          'Generic checkpoint cannot overwrite the protected preparation; only the explicit sermon save may replace it')
+        return saveCheckpoint(`checkpoint-${safeLabel(command.name)}`)
       case 'preparation-checkpoint': return preparationCheckpoint()
       case 'prove-victory': return proveVictory()
       case 'finish': {
@@ -706,7 +709,7 @@ export default async function missionThreeControls({ page, output, root, signal,
         await endEpoch()
         return { finished: true, inputs, ids, milestones, epochs, failures, final, continuation, inheritedActiveSeconds,
           entryMode: continuation ? 'checkpoint-continuation' : 'fresh',
-          limits: 'Fresh independent Mission 3, ordinary mouse/keyboard controls, normal RAF with UI pauses and a labelled checkpoint reload. No Mission 2 continuation, whole native-game parity, native pixel equivalence or hardware-performance claim.' }
+          limits: `${continuation ? 'Checkpoint continuation of the recorded ordinary acquisition prefix; only the current segment is newly observed here.' : 'Fresh independent Mission 3.'} Ordinary mouse/keyboard controls, normal RAF with UI pauses and a labelled checkpoint reload. No Mission 2 continuation, whole native-game parity, native pixel equivalence or hardware-performance claim.` }
       }
       default: throw Error(`Unsupported input action ${command.action}`)
     }
