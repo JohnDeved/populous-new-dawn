@@ -1,6 +1,14 @@
 import rules from './original-rules.json' with { type: 'json' }
 import { cellDelta as delta, cellDistanceSquared } from './native-math.ts'
 
+//0x4de7b0. Share person visibility without depending on spell/world adapters.
+export function spyDisguisedFrom(
+  p: { model: number; tribe: number; disguise: number },
+  tribe: number
+) {
+  return p.model === 5 && (p.disguise & 63 ? p.tribe === tribe : p.disguise >>> 6 === tribe)
+}
+
 // Native person/command fields consumed by 0x4f8490 and its eligibility leaves.
 // The people array is in native tribe-list order; spatial queries use coarse cells.
 export type SelectionUnit = {
