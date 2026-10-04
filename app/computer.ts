@@ -18,6 +18,7 @@ export type ComputerTask = {
   damage: number
   retries: number
   retreatPercent: number
+  responseScan?: { category: number; tribe: number; entity: number; cell: number }
   spells?: number[]
   quotas: number[]
   members: number[]
@@ -306,6 +307,74 @@ export function produceComputerTasks(
     }
     start = end
   }
+}
+
+// 0x4e5b60/0x4627f0, bound only to authored Missions1/2. The radius/origin
+// payload becomes unused scratch in 0x4c5cf0; the scanner reads territory bits.
+export function requestEarlyResponseTask(ai: ComputerQueue, states: number) {
+  if (!(states & 512) || ai.tasks.some(task => task.flags & 1 && task.type === 9)) return false
+  const task = ai.tasks.find(task => !(task.flags & 1))
+  if (!task) return false
+  Object.assign(task, {
+    flags: ((task.flags & ~2) | 1) >>> 0,
+    type: 9,
+    phase: 0,
+    responseScan: { category: 0, tribe: 0, entity: 0, cell: 0 },
+  })
+  return true
+}
+
+export type EarlyResponseInput = {
+  tribe: number
+  tribeCount: number
+  alliances: number
+  responseFlag: boolean
+  entities: (category: number, tribe: number) => Iterable<{ id: number; cell: number }>
+  territory: (cell: number) => boolean
+}
+
+// 0x4c5cf0/0x4f8e10: complete authored Missions1/2 branch. Their full programs
+// keep state8 disabled and attribute31 zero, and have no Spy acquisition path.
+// Mission3 needs the real type8 consumer before this can be bound there.
+// Return true only at the original cleanup boundary; the caller owns people.
+export function stepEarlyResponseTask(ai: ComputerQueue, index: number, input: EarlyResponseInput) {
+  const task = ai.tasks[index]
+  if (task.phase === 0) {
+    task.responseScan = { category: 0, tribe: 0, entity: 0, cell: 0 }
+    task.phase = 2
+    ai.flags = (ai.flags & ~8) >>> 0
+  }
+  const scan = task.responseScan!
+  if (task.phase === 2) {
+    if (scan.category > 1) {
+      task.phase = 3
+      return false
+    }
+    while (scan.tribe < input.tribeCount) {
+      const tribe = scan.tribe++
+      if (tribe === input.tribe || input.alliances & (1 << tribe)) continue
+      for (const entity of input.entities(scan.category, tribe)) {
+        if (!input.territory(entity.cell)) continue
+        scan.entity = entity.id
+        scan.cell = entity.cell & 0xfefe
+        task.phase = 3
+        return false
+      }
+      // Each call scans one enemy tribe, even when that tribe's list is empty.
+      break
+    }
+    if (scan.tribe >= input.tribeCount) {
+      scan.tribe = 0
+      scan.category++
+    }
+  } else if (task.phase === 3) {
+    if (scan.entity) {
+      if (input.responseFlag) ai.flags = (ai.flags | 4) >>> 0
+      ai.flags = (ai.flags | 8) >>> 0
+    } else if (!(ai.flags & 8)) ai.flags = (ai.flags & ~4) >>> 0
+    task.phase = 5
+  } else if (task.phase === 5) return true
+  return false
 }
 
 // 0x4e59a0: compare the signed32-bit sum of idle and housing-order people.

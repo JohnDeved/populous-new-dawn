@@ -59,9 +59,11 @@ import {
   produceComputerTasks,
   releaseSelection,
   requestConstruction,
+  requestEarlyResponseTask,
   requestPreacherTask,
   requestTraining,
   stepAttackTask,
+  stepEarlyResponseTask,
   stepMarkerTask,
   stepShamanGuardTask,
   stepTrainingTask,
@@ -1003,23 +1005,41 @@ function castAttackTaskSpell(w: World, tribe: number, task: ComputerTask) {
 
 export function stepComputerTasks(w: World, tribe: number) {
   const level = missionData(w.outcome.level).level
+  const earlyResponse = w.outcome.level === 1 || w.outcome.level === 2
+  if (earlyResponse) {
+    // 0x461f90 clears a lost type9 candidate before the controller's next visit.
+    for (const task of w.ai.tasks) {
+      const scan = task.responseScan
+      if (
+        task.flags & 1 &&
+        task.type === 9 &&
+        scan?.entity &&
+        !w.units.some(u => u.id === scan.entity && u.hp > 0) &&
+        !w.buildings.some(b => b.id === scan.entity && b.hp > 0)
+      )
+        scan.entity = 0
+    }
+  }
   const phase = computerPhase(w.turn, tribe)
   if (phase === 'produce') {
     if (w.outcome.level >= 1 && w.outcome.level <= 3) {
-      produceComputerTasks(w.ai, id => {
-        if (id === 1) return produceMissionBuilding(w, tribe)
-        if (id === 0 && w.outcome.level === 3)
-          return requestConvertTask(
-            w.ai,
-            w.ai.states,
-            w.units.filter(u => u.hp > 0 && u.team === 'wild').length
-          )
-        if (id === 3) return produceMissionTraining(w, tribe)
-        // These other native producer bodies, and the pre-table type9 response,
-        // remain unbound. Count their unsuccessful adapter visits, but do not
-        // invent tasks. This is table fairness, not complete allocation timing.
-        return false
-      })
+      produceComputerTasks(
+        w.ai,
+        id => {
+          if (id === 1) return produceMissionBuilding(w, tribe)
+          if (id === 0 && w.outcome.level === 3)
+            return requestConvertTask(
+              w.ai,
+              w.ai.states,
+              w.units.filter(u => u.hp > 0 && u.team === 'wild').length
+            )
+          if (id === 3) return produceMissionTraining(w, tribe)
+          // Other producer bodies and Mission3's type9/type8 response remain
+          // unbound. Count unsuccessful adapter visits without inventing tasks.
+          return false
+        },
+        earlyResponse ? () => requestEarlyResponseTask(w.ai, w.ai.states) : undefined
+      )
       return
     }
     if (produceMissionBuilding(w, tribe)) return
@@ -1029,6 +1049,33 @@ export function stepComputerTasks(w: World, tribe: number) {
   if (phase !== 'dispatch') return
   dispatchComputerTask(w.ai, index => {
     const task = w.ai.tasks[index]
+    if (earlyResponse && task.type === 9) {
+      const cleanup = stepEarlyResponseTask(w.ai, index, {
+        tribe,
+        tribeCount: w.tribeCount,
+        alliances: w.outcome.alliances[tribe],
+        responseFlag: !!w.ai.attributes[15],
+        entities: (category, owner) => {
+          const team = campaignTeam(w, owner)
+          const entities = category === 0 ? w.units : w.buildings
+          return entities
+            .filter(entity => entity.team === team && entity.hp > 0)
+            .map(entity => {
+              const p = nativePosition(w, entity)
+              return { id: entity.id, cell: ((p.x >>> 8) & 254) | (p.y & 0xfe00) }
+            })
+        },
+        territory: cell => !!(w.land.regions[nativeCellIndex(cell)] & (1 << (tribe + 4))),
+      })
+      if (cleanup) {
+        if (acquireSelection(w.ai, index)) {
+          finishPreacherSelection(w, tribe, true)
+          releaseSelection(w.ai, index)
+        }
+        task.flags &= ~3
+      }
+      return
+    }
     if (w.outcome.level === 3 && task.type === 2) {
       stepComputerConvert(w, tribe, index)
       return

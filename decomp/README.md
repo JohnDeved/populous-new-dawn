@@ -5118,3 +5118,10 @@ and names the remaining primary-stream, secondary-list and render-RNG boundaries
 the inherited Mission 3 Tower line, executes the staged mesh/overlay queue, and
 separates construction presentation from original person-health and activity panels.
 No full original-frame raster parity is claimed.
+
+## Early Mission1/2 response scanner
+
+[Pre-table type9 lifecycle](research/early-mission-response-task.md) binds the
+complete authored Mission1/2 branch to normal allocation, people/building scans,
+territory/alliance filters, response flags, cleanup and checkpoint continuation.
+Unhooked native cases retain the separate Mission3/type8 and Spy boundaries.
