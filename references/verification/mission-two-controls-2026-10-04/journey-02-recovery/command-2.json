@@ -1,0 +1,49 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "skip"
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": -99,
+      "z": -105
+    }
+  },
+  {
+    "action": "select",
+    "kind": "brave",
+    "modifier": "Control"
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.selected.length===5",
+    "timeout": 1000
+  },
+  {
+    "action": "read",
+    "expression": "(() => { const w=window.testSceneRef.current.world; return {turn:w.turn,trainees:[...w.selected],retained:w.units.filter(u=>u.team===\"blue\"&&u.kind===\"brave\"&&!w.selected.includes(u.id)).map(u=>({id:u.id,x:u.x,z:u.z,inside:u.inside,work:u.work}))} })()"
+  },
+  {
+    "action": "entity",
+    "collection": "buildings",
+    "id": 1022,
+    "options": {
+      "focus": false
+    }
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.units.filter(u=>u.inside===1022).length>=5",
+    "timeout": 60000
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "five-trainees-admitted"
+  }
+]

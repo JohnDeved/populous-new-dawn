@@ -1,0 +1,156 @@
+[
+  {
+    "x": 812,
+    "y": 402.8125,
+    "point": {
+      "x": -99.00610218575468,
+      "z": -104.98178825070676
+    }
+  },
+  {
+    "turn": 1038,
+    "blue": [
+      {
+        "id": 54,
+        "kind": "shaman",
+        "x": -113,
+        "z": 114.75,
+        "inside": null,
+        "work": null
+      },
+      {
+        "id": 278,
+        "kind": "brave",
+        "x": -98.19140625,
+        "z": -105.66796875,
+        "inside": null,
+        "work": 1022
+      },
+      {
+        "id": 319,
+        "kind": "brave",
+        "x": -99.90625,
+        "z": -107.77734375,
+        "inside": null,
+        "work": 1022
+      },
+      {
+        "id": 281,
+        "kind": "brave",
+        "x": -97.37109375,
+        "z": -106.33984375,
+        "inside": null,
+        "work": 1022
+      },
+      {
+        "id": 284,
+        "kind": "brave",
+        "x": -100.79296875,
+        "z": -106.60546875,
+        "inside": null,
+        "work": 1022
+      },
+      {
+        "id": 170,
+        "kind": "brave",
+        "x": -95.4765625,
+        "z": -106.21484375,
+        "inside": null,
+        "work": 1022
+      },
+      {
+        "id": 173,
+        "kind": "brave",
+        "x": -100.1796875,
+        "z": -109.1171875,
+        "inside": null,
+        "work": 1022
+      },
+      {
+        "id": 176,
+        "kind": "brave",
+        "x": -102.4296875,
+        "z": -106.4765625,
+        "inside": null,
+        "work": 1022
+      },
+      {
+        "id": 275,
+        "kind": "brave",
+        "x": -99.078125,
+        "z": -106.75,
+        "inside": null,
+        "work": 1022
+      },
+      {
+        "id": 1247,
+        "kind": "brave",
+        "x": -99.86328125,
+        "z": -106.48046875,
+        "inside": null,
+        "work": 1022
+      }
+    ],
+    "buildings": [
+      {
+        "id": 72,
+        "kind": "hut",
+        "x": -101.078125,
+        "z": -112.9375,
+        "progress": 1,
+        "logs": 3
+      },
+      {
+        "id": 1022,
+        "kind": "camp",
+        "x": -99.296875,
+        "z": -104.921875,
+        "progress": 1,
+        "logs": 8
+      }
+    ],
+    "bridge": {
+      "work": 0,
+      "target": 45,
+      "required": 1,
+      "remaining": 0,
+      "growth": 1,
+      "grown": false,
+      "enabled": true,
+      "reset": false,
+      "cooldown": 0,
+      "active": false,
+      "nextSlot": 0,
+      "slotTimer": 0,
+      "range": 1,
+      "followers": 1,
+      "forced": false,
+      "morph": null,
+      "mode": 0,
+      "model": 45,
+      "angle": 0.7853981633974483,
+      "id": 55,
+      "x": -113,
+      "z": 113,
+      "kind": "bridgeEffect",
+      "bridgeStart": {
+        "x": -77,
+        "z": -105
+      },
+      "bridgeTarget": {
+        "x": -61,
+        "z": -105
+      },
+      "name": "Land raising stone head",
+      "progress": 0,
+      "duration": 15,
+      "uses": 1,
+      "stoneHead": null,
+      "panelActivity": {
+        "turn": 736,
+        "count": 1
+      },
+      "rewardRecipient": 0
+    }
+  }
+]

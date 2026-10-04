@@ -1,0 +1,40 @@
+{
+  "capturedAt": "2026-10-04T15:47:34.520147+00:00",
+  "source": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+  "state": "active run; no terminal receipt",
+  "milestones": [
+    {
+      "at": "2026-10-04T15:43:44.489Z",
+      "turn": 1038,
+      "observed": [
+        "corrected bridge used",
+        "Blue camp1022 complete with8logs"
+      ]
+    },
+    {
+      "at": "2026-10-04T15:45:32.371Z",
+      "turn": 1119,
+      "observed": [
+        "five trainees inside camp1022"
+      ],
+      "traineeIds": [
+        278,
+        281,
+        284,
+        275,
+        1247
+      ],
+      "retainedOriginalBraveIds": [
+        319,
+        170,
+        173,
+        176
+      ]
+    }
+  ],
+  "limits": [
+    "Admission is not completed training",
+    "No Tornado stock/checkpoint/combat/victory yet",
+    "Original interrupted23001 remains unknown; this run is21477"
+  ]
+}
