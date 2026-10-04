@@ -56,6 +56,9 @@ export function assertSelectedCrews(selection, craft, expectedCount, model = 0) 
 // atlas/frame pixels on the regular logical grid. This is not old Windows raster
 // rounding, painter-order, a native-runtime screenshot, or hardware evidence.
 async function sourcePixels(page, output, kind, column, pressed = false, suffix = '') {
+  // Escape may leave a neighboring cell's keyboard focus outline active.
+  // Normalize focus through the DOM, preserving the unchanged strict pixel oracle.
+  await page.evaluate(() => document.activeElement?.blur())
   const button = cell(page, kind, column), name = `transport-${kind}-${column}-${pressed ? 'pressed' : 'normal'}${suffix}`
   if (pressed) await button.hover(); else await page.mouse.move(900, 400)
   const bytes = await button.screenshot({ path: resolve(output, `${name}.png`) })
@@ -160,6 +163,24 @@ export default async function followerTransports({ browser, page, url, openMissi
     }, { id, crew })
     assert.equal(boarding.count, 2, JSON.stringify(boarding)); assert.equal(boarding.team, 'blue')
     assert.ok(boarding.people.every(p => p.alive && p.vehicle === id), JSON.stringify(boarding))
+    // Preserve the actual boarding result before the explicit supporting hold.
+    // This capture protocol is identical in baseline and candidate runs.
+    writeFileSync(resolve(output, `transport-authored-${kind}-boarding-before-support-hold.json`), JSON.stringify(boarding, null, 2) + '\n')
+    await page.screenshot({ path: resolve(output, `transport-authored-${kind}-boarding-before-support-hold.png`) })
+    boarding.supportingHold = await page.evaluate(async ({ id, crew }) => {
+      const s = window.testSceneRef.current, w = s.world,
+        { cancelLiveOrder } = await import('/app/live-movement.ts'),
+        { changeLivePersonState } = await import('/app/live-people.ts')
+      // Boarding can publish an active command22 route. Hold this added crew
+      // before later craft ticks; this is fixture staging, not a gameplay repair.
+      const held = crew.map(({ id }) => {
+        const u = w.units.find(u => u.id === id)
+        cancelLiveOrder(w, u); changeLivePersonState(w, u, 30)
+        return { id, state: u.native.state, speed: u.native.speed, assignment: u.native.assignment, vehicle: u.native.vehicle }
+      })
+      s.onChange(); return { craft: id, held }
+    }, { id, crew })
+    assert.ok(boarding.supportingHold.held.every(p => p.state === 30 && p.speed === 0 && p.assignment & 1 && p.vehicle === id), JSON.stringify(boarding.supportingHold))
     craft.push({ id, kind, crew }); result.boarding.push(boarding)
     await clear(page)
     if (baseline) {
@@ -204,15 +225,10 @@ export default async function followerTransports({ browser, page, url, openMissi
     const s = window.testSceneRef.current, w = s.world,
       { addUnit, browserPosition } = await import('/app/model.ts'),
       { createLivePerson, changeLivePersonState } = await import('/app/live-people.ts'),
-      { boardLiveVehicle } = await import('/app/live-vehicles.ts'),
-      { cancelLiveOrder } = await import('/app/live-movement.ts')
+      { boardLiveVehicle } = await import('/app/live-vehicles.ts')
     const records = [], pairs = [['brave', 2], ['firewarrior', 6], ['preacher', 4], ['spy', 5], ['warrior', 3]]
     for (const original of originals) {
       const template = w.vehicles.find(v => v.id === original.id)
-      for (const id of template.passengers) {
-        const u = w.units.find(u => u.id === id); cancelLiveOrder(w, u); changeLivePersonState(w, u, 30)
-        if (u.native.state !== 30 || u.native.speed !== 0 || !(u.native.assignment & 1)) throw Error('Authored-craft crew did not enter the supported aboard hold')
-      }
       for (let i = 0; i < pairs.length; i++) {
         const v = { ...structuredClone(template), id: w.nextId++, x: (template.x + (i + 1) * 1024) & 65535,
           passengers: [], passengerCount: 0, speed: -1, navigationFlags: 0, reservation: 0, team: 'blue', apparentTribe: 0 }
