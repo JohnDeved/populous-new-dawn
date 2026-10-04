@@ -75,7 +75,7 @@ try {
 
 // Execute the maintained candidate finder against test-only geometry outside its
 // old anchor window. These tests never render or advance a game.
-async function geometryPoint({ actualHit = 55, canvasOwnsPoint = true, stalePanel = false, changeWorldOnRefresh = false, changeSlotOnRefresh = false, staleReservations = false } = {}) {
+async function geometryPoint({ actualHit = 55, canvasOwnsPoint = true, stalePanel = false, changeWorldOnRefresh = false, changeSlotOnRefresh = false, changeMapOnRefresh = false, staleReservations = false } = {}) {
   let refreshed = false
   const { default: vm } = await import('node:vm')
   const start = checker.indexOf('async function entityPoint(')
@@ -85,7 +85,7 @@ async function geometryPoint({ actualHit = 55, canvasOwnsPoint = true, stalePane
   const canvas = { closest: () => null }, child = { userData: { nativeModel: 149 }, visible: true }
   const mesh = { position: { toArray: () => [0, 1, 0] }, visible: true, traverse: fn => fn(child) }
   const scene = {
-    world: { turn: 6734, selected: [], randomState: 123,
+    world: { turn: 6734, selected: [], randomState: 123, buildingFootprints: new Map([[1, [42]]]),
       secondaryEffects: { slots: [null], free: [0], order: [], nextSerial: 1, animationFrame: 1, lastTurn: 6734,
         reservations: stalePanel && !staleReservations ? ['building-panel:7'] : [] },
       shrines: [{ id: 55, x: 0, z: 0, model: 45 }] },
@@ -95,6 +95,7 @@ async function geometryPoint({ actualHit = 55, canvasOwnsPoint = true, stalePane
       refreshed = true
       if (stalePanel) { this.buildingPanels.get(7).hidden = true; this.world.secondaryEffects.reservations = [] }
       if (changeWorldOnRefresh) this.world.turn++
+      if (changeMapOnRefresh) this.world.buildingFootprints.set(1, [99])
       if (changeSlotOnRefresh) this.world.secondaryEffects.slots[0] = { kind: 'unexpected allocation' }
     },
     focus() {}, onChange() {}, screen: () => ({ x: -0.75, y: 2 / 3 }),
@@ -108,7 +109,7 @@ async function geometryPoint({ actualHit = 55, canvasOwnsPoint = true, stalePane
     ] },
     pickWorldObject: ({ clientX: x, clientY: y }) => x >= 275 && x <= 285 && y >= 195 && y <= 205 ? { id: actualHit } : null,
   }
-  const sandbox = { testScene: scene, structuredClone, cancelAnimationFrame() {},
+  const sandbox = { testScene: scene, structuredClone, Map, Set, ArrayBuffer, Uint8Array, cancelAnimationFrame() {},
     document: { elementFromPoint: () => canvasOwnsPoint || (stalePanel && refreshed) ? canvas : { closest: () => stalePanel ? panel : null } } }
   vm.runInNewContext(source + '\nglobalThis.findPoint = entityPoint', sandbox)
   return sandbox.findPoint({ evaluate: (fn, args) => fn(args) }, 'shrines', 55)
@@ -154,4 +155,10 @@ test('presentation reservation exception cannot conceal secondary slot allocatio
 test('stale pre-refresh reservations fail instead of being normalized by the checker', async () => {
   await assert.rejects(geometryPoint({ canvasOwnsPoint: false, stalePanel: true, staleReservations: true }),
     /Pre-refresh UI reservations do not match actual panel owners/)
+})
+
+
+test('presentation refresh cannot conceal changed world Map entries', async () => {
+  await assert.rejects(geometryPoint({ canvasOwnsPoint: false, stalePanel: true, changeMapOnRefresh: true }),
+    /Zero-dt presentation refresh changed world state.*buildingFootprints/)
 })

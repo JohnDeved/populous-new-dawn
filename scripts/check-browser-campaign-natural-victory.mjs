@@ -268,6 +268,17 @@ async function entityPoint(page, collection, id) {
           ...[...(scene.buildingPanels ?? [])].flatMap(([id, panel]) => panel.hidden ? [] : [`building-panel:${id}`]),
           ...(scene.cursor?.visible ? ['placement-preview'] : []),
         ]
+        const serialize = value => JSON.stringify(value, (_key, item) => {
+          if (item instanceof Map) return { mapEntries: [...item] }
+          if (item instanceof Set) return { setEntries: [...item] }
+          if (ArrayBuffer.isView(item)) return { arrayType: item.constructor.name,
+            bytes: [...new Uint8Array(item.buffer, item.byteOffset, item.byteLength)] }
+          if (item instanceof ArrayBuffer) return { arrayBuffer: [...new Uint8Array(item)] }
+          if (typeof item === 'number' && (!Number.isFinite(item) || Object.is(item, -0)))
+            return { numericValue: Object.is(item, -0) ? '-0' : String(item) }
+          if (item === undefined) return { undefinedValue: true }
+          return item
+        })
         const before = structuredClone(world), ownersBefore = reservations()
         if (before.secondaryEffects && JSON.stringify(before.secondaryEffects.reservations) !== JSON.stringify(ownersBefore))
           throw new Error('Pre-refresh UI reservations do not match actual panel owners')
@@ -279,7 +290,7 @@ async function entityPoint(page, collection, id) {
             ? { ...world, secondaryEffects: { ...world.secondaryEffects, reservations: before.secondaryEffects.reservations } }
             : world,
           changedWorldKeys = [...new Set([...Object.keys(before), ...Object.keys(world)])].filter(key =>
-            JSON.stringify(afterComparable[key]) !== JSON.stringify(before[key]))
+            serialize(afterComparable[key]) !== serialize(before[key]))
         diagnostic.frameRefresh = { turnBefore: before.turn, turnAfter: world.turn,
           randomBefore: before.randomState, randomAfter: world.randomState,
           selectedBefore: before.selected, selectedAfter: [...world.selected], changedWorldKeys,
