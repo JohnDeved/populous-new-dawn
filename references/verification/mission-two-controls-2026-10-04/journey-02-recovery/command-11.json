@@ -1,0 +1,81 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused && !window.testSceneRef.current.cameraMotion.active",
+    "timeout": 10000
+  },
+  {
+    "action": "read",
+    "expression": "(() => {const s=window.testSceneRef.current,e={clientX:820,clientY:270};return {turn:s.world.turn,point:e,person:s.picking.pickPerson(e),object:s.pickWorldObject(e)?.id,canvasOwns:document.elementFromPoint(820,270)===s.renderer.domElement,cameraMotion:s.cameraMotion.active}})()"
+  },
+  {
+    "action": "until",
+    "expression": "(() => {const s=window.testSceneRef.current;return s.pickWorldObject({clientX:820,clientY:270})?.id===22&&document.elementFromPoint(820,270)===s.renderer.domElement})()",
+    "timeout": 1000
+  },
+  {
+    "action": "click",
+    "x": 820,
+    "y": 270
+  },
+  {
+    "action": "until",
+    "expression": "(() => {const w=window.testSceneRef.current.world;return w.lastOrderTurn>5805&&w.units.some(u=>{if(u.team!==\"blue\"||u.kind!==\"warrior\")return false;const n=u.native??u.entry?.person;if(!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor];return !!id&&w.buildingOrders.records[id]?.model===19})})()",
+    "timeout": 2000
+  },
+  {
+    "action": "move",
+    "x": 400,
+    "y": 780
+  },
+  {
+    "action": "read",
+    "expression": "(async()=>{const w=window.testSceneRef.current.world,{currentPersonOrder}=await import(\"/app/person-orders.ts\");return {turn:w.turn,lastOrderTurn:w.lastOrderTurn,message:w.message,army:w.units.filter(u=>u.team===\"blue\"&&u.kind===\"warrior\").map(u=>({id:u.id,x:u.x,z:u.z,order:u.native&&currentPersonOrder(w.buildingOrders,u.native)}))}})()"
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": 106.17865495892073,
+      "z": 124.46134876009029
+    }
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null",
+    "timeout": 10000
+  },
+  {
+    "action": "ground",
+    "point": {
+      "x": 106.17865495892073,
+      "z": 124.46134876009029
+    },
+    "options": {
+      "focus": false
+    }
+  },
+  {
+    "action": "until",
+    "expression": "(() => {const w=window.testSceneRef.current.world,u=w.units.find(u=>u.id===54),n=u?.native;if(!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor];return !!id&&w.buildingOrders.records[id]?.model===3})()",
+    "timeout": 2000
+  },
+  {
+    "action": "until",
+    "expression": "(() => {const u=window.testSceneRef.current.world.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0),wrap=v=>((v+128)%256+256)%256-128;return !u||u.hp<75||Math.hypot(wrap(u.x-106.17865495892073),wrap(u.z-124.46134876009029))<2})()",
+    "timeout": 150000
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "first-attack-and-shaman-approach"
+  }
+]

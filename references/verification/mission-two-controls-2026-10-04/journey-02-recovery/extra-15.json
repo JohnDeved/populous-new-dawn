@@ -1,0 +1,40 @@
+[
+  {
+    "turn": 6644,
+    "shaman": {
+      "id": 54,
+      "x": 101,
+      "z": 123,
+      "hp": 84.35,
+      "lift": 0,
+      "casting": null
+    },
+    "blastRange": 10.3125,
+    "blastError": {
+      "code": -2,
+      "message": "Beyond your reach. Move your shaman closer."
+    },
+    "tornadoError": null
+  },
+  {
+    "turn": 6691,
+    "reinforcementTrainees": [
+      3554,
+      3562,
+      3567,
+      3569,
+      3606
+    ],
+    "retainedBraves": [
+      173,
+      176,
+      3541,
+      3551,
+      3556,
+      3558,
+      3584,
+      4262,
+      4545
+    ]
+  }
+]

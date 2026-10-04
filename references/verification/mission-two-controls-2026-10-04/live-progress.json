@@ -1,63 +1,37 @@
 {
-  "capturedAt": "2026-10-04T16:02:14.596031+00:00",
+  "capturedAt": "2026-10-04T16:52:29.338887+00:00",
   "source": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
   "state": "active run; no terminal receipt",
-  "milestones": [
-    {
-      "at": "2026-10-04T15:43:44.489Z",
-      "turn": 1038,
-      "observed": [
-        "corrected bridge used",
-        "Blue camp1022 complete with8logs"
-      ]
-    },
-    {
-      "at": "2026-10-04T15:45:32.371Z",
-      "turn": 1119,
-      "observed": [
-        "five trainees inside camp1022"
-      ],
-      "traineeIds": [
-        278,
-        281,
-        284,
-        275,
-        1247
-      ],
-      "retainedOriginalBraveIds": [
-        319,
-        170,
-        173,
-        176
-      ]
-    },
-    {
-      "at": "2026-10-04T15:49:45.426Z",
-      "turn": 2675,
-      "observed": [
-        "five Warriors naturally trained",
-        "three Tornado shots acquired",
-        "first added Hut complete"
-      ]
-    },
-    {
-      "at": "2026-10-04T15:54:49.156Z",
-      "turn": 4921,
-      "disposition": "retained checker failure",
-      "reason": "minimap focus cleared Hut targeting; final input moved selected Braves, so construction wait correctly timed out"
-    },
-    {
-      "at": "2026-10-04T15:57:29.366Z",
-      "turn": 5344,
-      "observed": [
-        "ordinary corrected input completed second added Hut",
-        "three Blue Huts total plus one camp"
-      ]
-    }
+  "lastCompletedBatch": 19,
+  "turn": 8108,
+  "stats": {
+    "built": 4,
+    "cast": 3,
+    "bridges": 1,
+    "trained": 15,
+    "battlesWon": [
+      17,
+      0,
+      0,
+      8
+    ]
+  },
+  "remainingGreenFollowers": 7,
+  "remainingGreenBuildings": 1,
+  "checkpoint": {
+    "savedTurn": 5729,
+    "freshLoadObservedTurn": 5747,
+    "committedReadback": true
+  },
+  "retainedFailedCommands": [
+    4,
+    9,
+    14
   ],
   "limits": [
-    "One attributed checker/input-order failure retained; whole process cannot be called a clean pass",
-    "No checkpoint/combat/victory yet",
-    "Original interrupted23001 remains unknown; new21477 remains active"
+    "No victory yet",
+    "Whole checker run will retain failed commands",
+    "Old session23001 terminal and cleanup unknown; new21477 active",
+    "Software renderer; no hardware/full native parity claim"
   ]
 }

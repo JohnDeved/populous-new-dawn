@@ -1,0 +1,1153 @@
+{
+  "at": "2026-10-04T16:40:28.635Z",
+  "level": 2,
+  "turn": 7347,
+  "time": 612.25,
+  "speed": 1,
+  "paused": false,
+  "status": "playing",
+  "inputMask": 0,
+  "selected": [
+    54
+  ],
+  "mode": null,
+  "stats": {
+    "built": 4,
+    "cast": 3,
+    "bridges": 1,
+    "trained": 15,
+    "battlesWon": [
+      7,
+      0,
+      0,
+      7
+    ]
+  },
+  "shots": {
+    "blast": 4,
+    "convertWild": 0,
+    "hypnotise": 0,
+    "ghostArmy": 0,
+    "bridge": 0,
+    "lightning": 0,
+    "flatten": 0,
+    "erosion": 0,
+    "swamp": 0,
+    "firestorm": 0,
+    "earthquake": 0,
+    "angel": 0,
+    "volcano": 0,
+    "tornado": 1,
+    "shield": 0,
+    "invisibility": 0,
+    "armageddon": 0,
+    "bloodlust": 0,
+    "teleport": 0,
+    "swarm": 0
+  },
+  "mana": 0,
+  "message": "Your followers are on the move.",
+  "unlockedCamp": true,
+  "campaignCompleted": [],
+  "camera": {
+    "point": {
+      "x": 76.48828125,
+      "z": 112.6484375
+    },
+    "bearing": 0,
+    "overview": null
+  },
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "units": [
+    {
+      "id": 4,
+      "team": "green",
+      "kind": "brave",
+      "x": 85.0078125,
+      "z": 100.5078125,
+      "hp": 50,
+      "inside": 2,
+      "work": 2,
+      "target": null,
+      "point": {
+        "x": 995.25,
+        "y": 339.75
+      }
+    },
+    {
+      "id": 6,
+      "team": "green",
+      "kind": "warrior",
+      "x": 52.66015625,
+      "z": 113.19921875,
+      "hp": 90,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 215.68749999999997,
+        "y": 488.25
+      }
+    },
+    {
+      "id": 7,
+      "team": "green",
+      "kind": "warrior",
+      "x": 53.3359375,
+      "z": 113.1953125,
+      "hp": 90,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 232.81250000000003,
+        "y": 485.0625
+      }
+    },
+    {
+      "id": 8,
+      "team": "green",
+      "kind": "brave",
+      "x": 85.01171875,
+      "z": 100.5,
+      "hp": 50,
+      "inside": 2,
+      "work": 2,
+      "target": null,
+      "point": {
+        "x": 995.375,
+        "y": 339.5625
+      }
+    },
+    {
+      "id": 9,
+      "team": "green",
+      "kind": "brave",
+      "x": 67,
+      "z": 93,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 644.6875,
+        "y": 321.375
+      }
+    },
+    {
+      "id": 12,
+      "team": "green",
+      "kind": "brave",
+      "x": 49,
+      "z": 115,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 96.75000000000001,
+        "y": 520.0625
+      }
+    },
+    {
+      "id": 14,
+      "team": "green",
+      "kind": "warrior",
+      "x": 53,
+      "z": 112.609375,
+      "hp": 90,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 230.5,
+        "y": 479.5
+      }
+    },
+    {
+      "id": 15,
+      "team": "green",
+      "kind": "brave",
+      "x": 76.98828125,
+      "z": 113.0078125,
+      "hp": 50,
+      "inside": 3,
+      "work": 3,
+      "target": null,
+      "point": {
+        "x": 832.625,
+        "y": 411.9375
+      }
+    },
+    {
+      "id": 16,
+      "team": "green",
+      "kind": "brave",
+      "x": 76.57421875,
+      "z": 113.015625,
+      "hp": 50,
+      "inside": 3,
+      "work": 3,
+      "target": null,
+      "point": {
+        "x": 822.125,
+        "y": 412.125
+      }
+    },
+    {
+      "id": 17,
+      "team": "green",
+      "kind": "brave",
+      "x": 69,
+      "z": 109,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 643,
+        "y": 384.3125
+      }
+    },
+    {
+      "id": 18,
+      "team": "green",
+      "kind": "brave",
+      "x": 76.765625,
+      "z": 113.01953125,
+      "hp": 50,
+      "inside": 3,
+      "work": 3,
+      "target": null,
+      "point": {
+        "x": 826.8749999999999,
+        "y": 412.125
+      }
+    },
+    {
+      "id": 20,
+      "team": "green",
+      "kind": "shaman",
+      "x": 91.4765625,
+      "z": -121.36328125,
+      "hp": 58.05,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 1455.5625,
+        "y": 851.5625
+      }
+    },
+    {
+      "id": 54,
+      "team": "blue",
+      "kind": "shaman",
+      "x": 85.32421875,
+      "z": 113.26953125,
+      "hp": 101.05,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 1045.8125,
+        "y": 414.875
+      }
+    },
+    {
+      "id": 173,
+      "team": "blue",
+      "kind": "brave",
+      "x": -95,
+      "z": -125.0078125,
+      "hp": 50,
+      "inside": 1021,
+      "work": 1021,
+      "target": null,
+      "point": {
+        "x": 4044.125,
+        "y": 1842.4375
+      }
+    },
+    {
+      "id": 176,
+      "team": "blue",
+      "kind": "brave",
+      "x": -61,
+      "z": -105,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 11158.875,
+        "y": 7165.25
+      }
+    },
+    {
+      "id": 1245,
+      "team": "green",
+      "kind": "brave",
+      "x": 76.6171875,
+      "z": 113.00390625,
+      "hp": 50,
+      "inside": 3,
+      "work": 3,
+      "target": null,
+      "point": {
+        "x": 823.125,
+        "y": 411.9375
+      }
+    },
+    {
+      "id": 1249,
+      "team": "green",
+      "kind": "brave",
+      "x": 85.00390625,
+      "z": 100.5,
+      "hp": 50,
+      "inside": 2,
+      "work": 2,
+      "target": null,
+      "point": {
+        "x": 995.25,
+        "y": 339.5625
+      }
+    },
+    {
+      "id": 1251,
+      "team": "green",
+      "kind": "brave",
+      "x": 76.65234375,
+      "z": 113.00390625,
+      "hp": 50,
+      "inside": 3,
+      "work": 3,
+      "target": null,
+      "point": {
+        "x": 824.125,
+        "y": 411.9375
+      }
+    },
+    {
+      "id": 1261,
+      "team": "green",
+      "kind": "brave",
+      "x": 84.62890625,
+      "z": 100.5546875,
+      "hp": 50,
+      "inside": 2,
+      "work": 2,
+      "target": null,
+      "point": {
+        "x": 987.625,
+        "y": 339.375
+      }
+    },
+    {
+      "id": 1263,
+      "team": "green",
+      "kind": "brave",
+      "x": 73,
+      "z": 115,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 727.9375,
+        "y": 432.3125
+      }
+    },
+    {
+      "id": 3500,
+      "team": "green",
+      "kind": "brave",
+      "x": 84.609375,
+      "z": 100.546875,
+      "hp": 50,
+      "inside": 2,
+      "work": 2,
+      "target": null,
+      "point": {
+        "x": 987.125,
+        "y": 339.1875
+      }
+    },
+    {
+      "id": 3515,
+      "team": "blue",
+      "kind": "warrior",
+      "x": 80.2421875,
+      "z": 107.3046875,
+      "hp": 63.6,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 906,
+        "y": 367.8125
+      }
+    },
+    {
+      "id": 3516,
+      "team": "blue",
+      "kind": "warrior",
+      "x": -126.6796875,
+      "z": 122.4609375,
+      "hp": 90.2,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 2469.75,
+        "y": 844.625
+      }
+    },
+    {
+      "id": 3517,
+      "team": "blue",
+      "kind": "warrior",
+      "x": 80.44140625,
+      "z": 106.40234375,
+      "hp": 81.3,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 909.3125,
+        "y": 363.875
+      }
+    },
+    {
+      "id": 3541,
+      "team": "blue",
+      "kind": "brave",
+      "x": -95.00390625,
+      "z": -125.00390625,
+      "hp": 50,
+      "inside": 1021,
+      "work": 1021,
+      "target": null,
+      "point": {
+        "x": 4044.875,
+        "y": 1842.75
+      }
+    },
+    {
+      "id": 3551,
+      "team": "blue",
+      "kind": "brave",
+      "x": -95.00390625,
+      "z": -124.859375,
+      "hp": 50,
+      "inside": 1021,
+      "work": 1021,
+      "target": null,
+      "point": {
+        "x": 4057,
+        "y": 1850.5
+      }
+    },
+    {
+      "id": 3556,
+      "team": "blue",
+      "kind": "brave",
+      "x": -95,
+      "z": -125.01171875,
+      "hp": 50,
+      "inside": 1021,
+      "work": 1021,
+      "target": null,
+      "point": {
+        "x": 4044.125,
+        "y": 1842.4375
+      }
+    },
+    {
+      "id": 3558,
+      "team": "blue",
+      "kind": "brave",
+      "x": -94.98828125,
+      "z": -124.58984375,
+      "hp": 50,
+      "inside": 1021,
+      "work": 1021,
+      "target": null,
+      "point": {
+        "x": 4082.875,
+        "y": 1867.375
+      }
+    },
+    {
+      "id": 3573,
+      "team": "blue",
+      "kind": "warrior",
+      "x": 79.11328125,
+      "z": 103.09375,
+      "hp": 83.55,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 876.1875,
+        "y": 345.375
+      }
+    },
+    {
+      "id": 3574,
+      "team": "blue",
+      "kind": "warrior",
+      "x": 104.3828125,
+      "z": 99.46484375,
+      "hp": 57.35,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 1389.6875,
+        "y": 367
+      }
+    },
+    {
+      "id": 3575,
+      "team": "blue",
+      "kind": "warrior",
+      "x": 79.92578125,
+      "z": 105.43359375,
+      "hp": 74.8,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 896.4375,
+        "y": 357.875
+      }
+    },
+    {
+      "id": 3584,
+      "team": "blue",
+      "kind": "brave",
+      "x": -91,
+      "z": -127,
+      "hp": 50,
+      "inside": null,
+      "work": 1020,
+      "target": null,
+      "point": {
+        "x": 4015.9374999999995,
+        "y": 1838.625
+      }
+    },
+    {
+      "id": 4262,
+      "team": "blue",
+      "kind": "brave",
+      "x": -91,
+      "z": -116.89453125,
+      "hp": 50,
+      "inside": 1020,
+      "work": 1020,
+      "target": null,
+      "point": {
+        "x": 5191.5625,
+        "y": 2610.625
+      }
+    },
+    {
+      "id": 4545,
+      "team": "blue",
+      "kind": "brave",
+      "x": -101.6953125,
+      "z": -114.58203125,
+      "hp": 50,
+      "inside": 72,
+      "work": 72,
+      "target": null,
+      "point": {
+        "x": 5012.3125,
+        "y": 2478.375
+      }
+    },
+    {
+      "id": 4547,
+      "team": "blue",
+      "kind": "brave",
+      "x": -91,
+      "z": -117.015625,
+      "hp": 50,
+      "inside": 1020,
+      "work": 1020,
+      "target": null,
+      "point": {
+        "x": 5171.75,
+        "y": 2597.25
+      }
+    },
+    {
+      "id": 4595,
+      "team": "blue",
+      "kind": "brave",
+      "x": -93,
+      "z": -121,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 4537.8125,
+        "y": 2169.6875
+      }
+    },
+    {
+      "id": 4602,
+      "team": "blue",
+      "kind": "warrior",
+      "x": -115.6796875,
+      "z": -126.1328125,
+      "hp": 90,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 3194.625,
+        "y": 1288.0625
+      }
+    },
+    {
+      "id": 4603,
+      "team": "blue",
+      "kind": "warrior",
+      "x": -114.8046875,
+      "z": -126.75390625,
+      "hp": 90,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 3194.1875,
+        "y": 1272.75
+      }
+    },
+    {
+      "id": 4604,
+      "team": "blue",
+      "kind": "warrior",
+      "x": -116.015625,
+      "z": -126.234375,
+      "hp": 90,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 3172.4999999999995,
+        "y": 1279.875
+      }
+    },
+    {
+      "id": 4605,
+      "team": "blue",
+      "kind": "warrior",
+      "x": -116.625,
+      "z": -125.453125,
+      "hp": 90,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 3195.8125,
+        "y": 1305.625
+      }
+    },
+    {
+      "id": 4606,
+      "team": "blue",
+      "kind": "warrior",
+      "x": -115.05859375,
+      "z": -125.1953125,
+      "hp": 90,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 3290.6250000000005,
+        "y": 1331.6875
+      }
+    }
+  ],
+  "buildings": [
+    {
+      "id": 1,
+      "team": "green",
+      "kind": "camp",
+      "x": 68.921875,
+      "z": 100.703125,
+      "hp": 260,
+      "progress": 1,
+      "logs": 8,
+      "point": {
+        "x": 663.6875,
+        "y": 339.1875
+      }
+    },
+    {
+      "id": 2,
+      "team": "green",
+      "kind": "hut",
+      "x": 82.8828125,
+      "z": 100.921875,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "point": {
+        "x": 952.3125,
+        "y": 338.75
+      }
+    },
+    {
+      "id": 3,
+      "team": "green",
+      "kind": "hut",
+      "x": 76.8828125,
+      "z": 112.9296875,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "point": {
+        "x": 829.875,
+        "y": 411.375
+      }
+    },
+    {
+      "id": 72,
+      "team": "blue",
+      "kind": "hut",
+      "x": -101.078125,
+      "z": -112.9375,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "point": {
+        "x": 5339.6875,
+        "y": 2698.4375
+      }
+    },
+    {
+      "id": 1023,
+      "team": "green",
+      "kind": "tower",
+      "x": 44.83203125,
+      "z": 114.97265625,
+      "hp": 260,
+      "progress": 1,
+      "logs": 5,
+      "point": {
+        "x": -13.312499999999972,
+        "y": 543.375
+      }
+    },
+    {
+      "id": 1022,
+      "team": "blue",
+      "kind": "camp",
+      "x": -99.296875,
+      "z": -104.921875,
+      "hp": 260,
+      "progress": 1,
+      "logs": 8,
+      "point": {
+        "x": 7916.375,
+        "y": 4408.5
+      }
+    },
+    {
+      "id": 1021,
+      "team": "blue",
+      "kind": "hut",
+      "x": -95.0703125,
+      "z": -124.9453125,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "point": {
+        "x": 4046.8124999999995,
+        "y": 1843.875
+      }
+    },
+    {
+      "id": 1020,
+      "team": "blue",
+      "kind": "hut",
+      "x": -91.0703125,
+      "z": -116.9453125,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "point": {
+        "x": 5180.1875,
+        "y": 2602.375
+      }
+    }
+  ],
+  "shrines": [
+    {
+      "id": 23,
+      "kind": "vault",
+      "x": 89,
+      "z": 111,
+      "required": 1,
+      "work": 0,
+      "target": 32,
+      "progress": 0,
+      "uses": 0,
+      "remaining": 1,
+      "followers": 0,
+      "active": true,
+      "point": {
+        "x": 1126.5,
+        "y": 403.6875
+      }
+    },
+    {
+      "id": 55,
+      "kind": "bridgeEffect",
+      "x": -113,
+      "z": 113,
+      "required": 1,
+      "work": 0,
+      "target": 45,
+      "progress": 0,
+      "uses": 1,
+      "remaining": 0,
+      "followers": 1,
+      "active": false,
+      "point": {
+        "x": 2513.4375,
+        "y": 872.625
+      }
+    },
+    {
+      "id": 56,
+      "kind": "tornado",
+      "x": -59,
+      "z": -105,
+      "required": 2,
+      "work": 0,
+      "target": 82,
+      "progress": 0,
+      "uses": 3,
+      "remaining": 0,
+      "followers": 2,
+      "active": false,
+      "point": {
+        "x": 11288.499999999998,
+        "y": 7323.875
+      }
+    }
+  ],
+  "effects": [
+    {
+      "id": 3733,
+      "kind": "buildingSmoke",
+      "x": 117.625,
+      "z": 122.25,
+      "duration": null
+    },
+    {
+      "id": 3847,
+      "kind": "buildingSmoke",
+      "x": 117.625,
+      "z": 123.375,
+      "duration": null
+    },
+    {
+      "id": 3942,
+      "kind": "buildingSmoke",
+      "x": 117.625,
+      "z": 123.375,
+      "duration": null
+    },
+    {
+      "id": 4266,
+      "kind": "buildingSmoke",
+      "x": 117.625,
+      "z": 122.25,
+      "duration": null
+    },
+    {
+      "id": 4478,
+      "kind": "buildingSmoke",
+      "x": 117.625,
+      "z": 123.375,
+      "duration": null
+    },
+    {
+      "id": 4592,
+      "kind": "death",
+      "x": 115.25390625,
+      "z": 124.1171875,
+      "duration": null
+    },
+    {
+      "id": 4601,
+      "kind": "death",
+      "x": 114.66015625,
+      "z": 123.6171875,
+      "duration": null
+    },
+    {
+      "id": 4607,
+      "kind": "death",
+      "x": -99.00390625,
+      "z": -107.51171875,
+      "duration": null
+    },
+    {
+      "id": 4608,
+      "kind": "death",
+      "x": -99.0234375,
+      "z": -107.3828125,
+      "duration": null
+    },
+    {
+      "id": 4609,
+      "kind": "death",
+      "x": -99.00390625,
+      "z": -107.49609375,
+      "duration": null
+    },
+    {
+      "id": 4610,
+      "kind": "death",
+      "x": -99.00390625,
+      "z": -107.50390625,
+      "duration": null
+    },
+    {
+      "id": 4611,
+      "kind": "death",
+      "x": -99.01171875,
+      "z": -107.5078125,
+      "duration": null
+    },
+    {
+      "id": 4696,
+      "kind": "death",
+      "x": 81.8125,
+      "z": 106.63671875,
+      "duration": null
+    },
+    {
+      "id": 4710,
+      "kind": "death",
+      "x": 82.4921875,
+      "z": 106.51171875,
+      "duration": null
+    }
+  ],
+  "messages": [
+    641,
+    null,
+    642,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "dom": [
+    {
+      "text": "×",
+      "aria": "Dismiss campaign message",
+      "title": "",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "×",
+      "aria": "Dismiss campaign message",
+      "title": "",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "buildings B",
+      "title": "buildings",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "spells 1–3",
+      "title": "spells",
+      "disabled": false,
+      "pressed": "true"
+    },
+    {
+      "text": "",
+      "aria": "followers ",
+      "title": "followers",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Planet overview",
+      "title": "Planet overview · Enter",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "Select and focus shaman",
+      "title": "Shaman · H",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "?",
+      "aria": "Menu",
+      "title": "Help and game menu",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "Focus Matak tribe",
+      "title": "Matak: 18 followers",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "Select follower",
+      "title": "Select follower · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "Select brave",
+      "title": "Braves · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Select warrior",
+      "title": "Warriors · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Select firewarrior",
+      "title": "Firewarriors · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Select preacher",
+      "title": "Preachers · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Select spy",
+      "title": "Spies · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Blast, 4 shots",
+      "title": "Blast · Right-click to pause or resume charging",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Undiscovered spell",
+      "title": "Undiscovered spell",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Tornado, 1 shots",
+      "title": "Tornado",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Armageddon, 0 shots",
+      "title": "Armageddon · Right-click to pause or resume charging",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Bloodlust, 0 shots",
+      "title": "Bloodlust · Right-click to pause or resume charging",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Teleport, 0 shots",
+      "title": "Teleport · Right-click to pause or resume charging",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "♫",
+      "aria": "Enable sound",
+      "title": "Enable sound",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "Ⅱ",
+      "aria": "Pause game",
+      "title": "Pause / resume · Space",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "☰",
+      "aria": "Game settings",
+      "title": "Game settings",
+      "disabled": false,
+      "pressed": null
+    }
+  ],
+  "body": "✧Your followers are on the move.\n?\n♫\nⅡ\n☰"
+}

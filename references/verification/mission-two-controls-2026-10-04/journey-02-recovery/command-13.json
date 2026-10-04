@@ -1,0 +1,76 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused",
+    "timeout": 1000
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": 103.1171875,
+      "z": 117.0703125
+    }
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.cameraMotion.active",
+    "timeout": 10000
+  },
+  {
+    "action": "title",
+    "name": "spells"
+  },
+  {
+    "action": "button",
+    "name": "Tornado, 3 shots"
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.mode===\"tornado\"",
+    "timeout": 1000
+  },
+  {
+    "action": "ground",
+    "point": {
+      "x": 103.1171875,
+      "z": 117.0703125
+    },
+    "options": {
+      "focus": false,
+      "spell": "tornado"
+    }
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.shots.tornado===2",
+    "timeout": 2000
+  },
+  {
+    "action": "mark",
+    "name": "first-tornado-cast"
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")",
+    "timeout": 10000
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")",
+    "timeout": 60000
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "first-tornado-resolved"
+  }
+]

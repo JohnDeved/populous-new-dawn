@@ -1,0 +1,6 @@
+[
+  {
+    "action": "read",
+    "expression": "(async()=>{const s=window.testSceneRef.current,w=s.world,probe=structuredClone(w),{liveCommandContext}=await import(\"/app/live-command.ts\"),{currentPersonOrder}=await import(\"/app/person-orders.ts\"),{unitAnimationSource,canOrder}=await import(\"/app/model.ts\");return {turn:w.turn,paused:w.paused,inputMask:w.inputMask,mode:w.mode,message:w.message,lastOrderTurn:w.lastOrderTurn,context:liveCommandContext(probe,probe.buildings.find(b=>b.id===22)),selected:w.selected,army:w.units.filter(u=>w.selected.includes(u.id)).map(u=>{const n=unitAnimationSource(u)??u.native??u.entry?.person;return{id:u.id,canOrder:canOrder(u),x:u.x,z:u.z,path:u.path,native:n,order:n&&currentPersonOrder(w.buildingOrders,n)}})}})()"
+  }
+]

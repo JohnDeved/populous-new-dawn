@@ -1,0 +1,93 @@
+[
+  {
+    "name": "camp-built",
+    "at": "2026-10-04T15:43:43.742Z",
+    "turn": 1038
+  },
+  {
+    "name": "five-trainees-admitted",
+    "at": "2026-10-04T15:45:31.655Z",
+    "turn": 1119
+  },
+  {
+    "name": "two-worshippers-active",
+    "at": "2026-10-04T15:48:19.426Z",
+    "turn": 1656
+  },
+  {
+    "name": "tornado-acquired",
+    "at": "2026-10-04T15:49:44.516Z",
+    "turn": 2675
+  },
+  {
+    "name": "three-huts-complete",
+    "at": "2026-10-04T15:57:28.680Z",
+    "turn": 5344
+  },
+  {
+    "name": "ten-warriors-three-tornado",
+    "at": "2026-10-04T16:05:41.696Z",
+    "turn": 5729
+  },
+  {
+    "name": "fresh-page-checkpoint",
+    "savedTurn": 5729,
+    "restoredTurn": 5747,
+    "at": "2026-10-04T16:05:50.698Z"
+  },
+  {
+    "name": "first-attack-and-shaman-approach",
+    "at": "2026-10-04T16:19:13.469Z",
+    "turn": 6258
+  },
+  {
+    "name": "first-tornado-cast",
+    "at": "2026-10-04T16:23:14.371Z",
+    "turn": 6333
+  },
+  {
+    "name": "first-tornado-resolved",
+    "at": "2026-10-04T16:23:34.349Z",
+    "turn": 6570
+  },
+  {
+    "name": "five-reinforcements-trained",
+    "at": "2026-10-04T16:32:25.414Z",
+    "turn": 7044
+  },
+  {
+    "name": "blast-after-range-correction",
+    "at": "2026-10-04T16:36:05.496Z",
+    "turn": 7170
+  },
+  {
+    "name": "second-tornado-cast",
+    "at": "2026-10-04T16:40:28.635Z",
+    "turn": 7347
+  },
+  {
+    "name": "second-tornado-resolved",
+    "at": "2026-10-04T16:40:48.776Z",
+    "turn": 7587
+  },
+  {
+    "name": "enemy-camp-under-attack",
+    "at": "2026-10-04T16:45:28.160Z",
+    "turn": 7761
+  },
+  {
+    "name": "enemy-camp-destroyed",
+    "at": "2026-10-04T16:45:44.022Z",
+    "turn": 7950
+  },
+  {
+    "name": "last-enemy-hut-destroyed",
+    "at": "2026-10-04T16:51:13.213Z",
+    "turn": 8108
+  },
+  {
+    "name": "enemy-last-tower-destroyed",
+    "at": "2026-10-04T16:52:00.725Z",
+    "turn": 8442
+  }
+]

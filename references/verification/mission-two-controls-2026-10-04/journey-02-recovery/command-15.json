@@ -1,0 +1,65 @@
+[
+  {
+    "action": "read",
+    "expression": "(async()=>{const w=window.testSceneRef.current.world,probe=structuredClone(w),{spellTargetError,spellRange}=await import(\"/app/model.ts\"),u=probe.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0),target=probe.units.find(u=>u.id===20);return{turn:w.turn,shaman:u&&{id:u.id,x:u.x,z:u.z,hp:u.hp,lift:u.lift,casting:u.casting},blastRange:u&&spellRange(probe,u,2),blastError:target&&spellTargetError(probe,\"blast\",target),tornadoError:target&&spellTargetError(probe,\"tornado\",target)}})()"
+  },
+  {
+    "action": "resume"
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused",
+    "timeout": 1000
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": -99,
+      "z": -105
+    }
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.cameraMotion.active",
+    "timeout": 10000
+  },
+  {
+    "action": "select",
+    "kind": "brave",
+    "modifier": "Control"
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.selected.length===5 && window.testSceneRef.current.world.mode===null",
+    "timeout": 1000
+  },
+  {
+    "action": "read",
+    "expression": "(() => {const w=window.testSceneRef.current.world;return{turn:w.turn,reinforcementTrainees:w.selected,retainedBraves:w.units.filter(u=>u.team===\"blue\"&&u.kind===\"brave\"&&!w.selected.includes(u.id)).map(u=>u.id)}})()"
+  },
+  {
+    "action": "entity",
+    "collection": "buildings",
+    "id": 1022,
+    "options": {
+      "focus": false
+    }
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.units.filter(u=>u.inside===1022).length>=5",
+    "timeout": 60000
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.stats.trained>=15",
+    "timeout": 200000
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "five-reinforcements-trained"
+  }
+]

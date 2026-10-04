@@ -1,0 +1,59 @@
+[
+  {
+    "turn": 5367,
+    "trainees": [
+      319,
+      170,
+      3503,
+      3538,
+      3545
+    ],
+    "retainedOriginalBraves": [
+      173,
+      176
+    ]
+  },
+  {
+    "turn": 5378,
+    "lastOrderTurn": 5373,
+    "selected": [
+      319,
+      170,
+      3503,
+      3538,
+      3545
+    ],
+    "work": [
+      {
+        "id": 319,
+        "kind": "brave",
+        "inside": null,
+        "work": 1022
+      },
+      {
+        "id": 170,
+        "kind": "brave",
+        "inside": null,
+        "work": 1022
+      },
+      {
+        "id": 3503,
+        "kind": "brave",
+        "inside": null,
+        "work": 1022
+      },
+      {
+        "id": 3538,
+        "kind": "brave",
+        "inside": null,
+        "work": 1022
+      },
+      {
+        "id": 3545,
+        "kind": "brave",
+        "inside": null,
+        "work": 1022
+      }
+    ]
+  }
+]

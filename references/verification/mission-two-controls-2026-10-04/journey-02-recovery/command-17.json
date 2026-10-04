@@ -1,0 +1,133 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused",
+    "timeout": 1000
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "modifier": "Shift"
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": 82.8828125,
+      "z": 100.921875
+    }
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null",
+    "timeout": 10000
+  },
+  {
+    "action": "entity",
+    "collection": "buildings",
+    "id": 2,
+    "options": {
+      "focus": false
+    }
+  },
+  {
+    "action": "until",
+    "expression": "(() => {const w=window.testSceneRef.current.world;return w.units.some(u=>{const n=u.native;if(u.team!==\"blue\"||u.kind!==\"warrior\"||!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor],o=id&&w.buildingOrders.records[id];return o?.model===19&&o.a===37722})})()",
+    "timeout": 2000
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": 85,
+      "z": 113
+    }
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.cameraMotion.active",
+    "timeout": 10000
+  },
+  {
+    "action": "ground",
+    "point": {
+      "x": 85,
+      "z": 113
+    },
+    "options": {
+      "focus": false
+    }
+  },
+  {
+    "action": "until",
+    "expression": "(() => {const u=window.testSceneRef.current.world.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0);return !!u&&Math.hypot(u.x-85,u.z-113)<1.5})()",
+    "timeout": 90000
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": 76.8828125,
+      "z": 112.9296875
+    }
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.cameraMotion.active",
+    "timeout": 10000
+  },
+  {
+    "action": "title",
+    "name": "spells"
+  },
+  {
+    "action": "button",
+    "name": "Tornado, 2 shots"
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.mode===\"tornado\"",
+    "timeout": 1000
+  },
+  {
+    "action": "ground",
+    "point": {
+      "x": 76.8828125,
+      "z": 112.9296875
+    },
+    "options": {
+      "focus": false,
+      "spell": "tornado"
+    }
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.shots.tornado===1",
+    "timeout": 2000
+  },
+  {
+    "action": "mark",
+    "name": "second-tornado-cast"
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")",
+    "timeout": 10000
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")",
+    "timeout": 60000
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "second-tornado-resolved"
+  }
+]

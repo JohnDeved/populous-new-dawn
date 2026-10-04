@@ -1,0 +1,6 @@
+[
+  {
+    "action": "read",
+    "expression": "(async()=>{const w=window.testSceneRef.current.world,probe=structuredClone(w),{spellTargetError}=await import(\"/app/model.ts\");return{turn:w.turn,shaman:w.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0),targets:[{spell:\"tornado\",target:probe.buildings.find(b=>b.id===71)},{spell:\"blast\",target:probe.units.find(u=>u.id===20)}].map(({spell,target})=>({spell,id:target?.id,x:target?.x,z:target?.z,error:target?spellTargetError(probe,spell,target):\"missing\"}))}})()"
+  }
+]

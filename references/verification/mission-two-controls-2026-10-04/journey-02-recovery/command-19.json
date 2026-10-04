@@ -1,0 +1,47 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "modifier": "Shift"
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": 82.8828125,
+      "z": 100.921875
+    }
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null",
+    "timeout": 10000
+  },
+  {
+    "action": "entity",
+    "collection": "buildings",
+    "id": 2,
+    "options": {
+      "focus": false
+    }
+  },
+  {
+    "action": "until",
+    "expression": "(() => {const w=window.testSceneRef.current.world;return w.units.some(u=>{const n=u.native;if(u.team!==\"blue\"||u.kind!==\"warrior\"||!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor],o=id&&w.buildingOrders.records[id];return o?.model===19&&o.a===37722})})()",
+    "timeout": 2000
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.world.buildings.some(b=>b.id===2&&b.hp>0)",
+    "timeout": 120000
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "last-enemy-hut-destroyed"
+  }
+]

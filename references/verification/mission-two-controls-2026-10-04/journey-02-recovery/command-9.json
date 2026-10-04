@@ -1,0 +1,67 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused",
+    "timeout": 1000
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "modifier": "Shift"
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.selected.length===10 && window.testSceneRef.current.world.mode===null",
+    "timeout": 1000
+  },
+  {
+    "action": "entity",
+    "collection": "buildings",
+    "id": 22
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.units.some(u=>u.team===\"blue\"&&u.kind===\"warrior\"&&u.target===22)",
+    "timeout": 1000
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": 106.17865495892073,
+      "z": 124.46134876009029
+    }
+  },
+  {
+    "action": "ground",
+    "point": {
+      "x": 106.17865495892073,
+      "z": 124.46134876009029
+    },
+    "options": {
+      "focus": false
+    }
+  },
+  {
+    "action": "read",
+    "expression": "(() => {const w=window.testSceneRef.current.world,u=w.units.find(u=>u.id===54);return {turn:w.turn,lastOrderTurn:w.lastOrderTurn,message:w.message,shaman:{id:u.id,x:u.x,z:u.z,path:u.path,work:u.work,native:u.native},army:w.units.filter(u=>u.team===\"blue\"&&u.kind===\"warrior\").map(u=>({id:u.id,target:u.target}))}})()"
+  },
+  {
+    "action": "until",
+    "expression": "(() => {const u=window.testSceneRef.current.world.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0),wrap=v=>((v+128)%256+256)%256-128; return !u || Math.hypot(wrap(u.x-106.17865495892073),wrap(u.z-124.46134876009029))<2})()",
+    "timeout": 150000
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "first-attack-and-shaman-approach"
+  }
+]

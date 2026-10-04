@@ -1,0 +1,93 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused",
+    "timeout": 1000
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": 97,
+      "z": 123
+    }
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.cameraMotion.active",
+    "timeout": 10000
+  },
+  {
+    "action": "ground",
+    "point": {
+      "x": 97,
+      "z": 123
+    },
+    "options": {
+      "focus": false
+    }
+  },
+  {
+    "action": "until",
+    "expression": "(() => {const u=window.testSceneRef.current.world.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0);return !!u&&Math.hypot(u.x-97,u.z-123)<0.75})()",
+    "timeout": 20000
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": 91,
+      "z": 119
+    }
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.cameraMotion.active",
+    "timeout": 10000
+  },
+  {
+    "action": "title",
+    "name": "spells"
+  },
+  {
+    "action": "button",
+    "name": "Blast, 4 shots"
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.mode===\"blast\"",
+    "timeout": 1000
+  },
+  {
+    "action": "ground",
+    "point": {
+      "x": 91,
+      "z": 119
+    },
+    "options": {
+      "focus": false,
+      "spell": "blast"
+    }
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.stats.cast===2 && window.testSceneRef.current.world.mode===null",
+    "timeout": 2000
+  },
+  {
+    "action": "wait",
+    "ms": 1500
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "blast-after-range-correction"
+  }
+]

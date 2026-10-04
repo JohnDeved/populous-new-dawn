@@ -1,42 +1,101 @@
 {
-  "recordedAt": "2026-10-04T15:58:16.614113+00:00",
-  "method": "Hash retained unmodified interactive command bytes; actions.jsonl independently records each executed parsed command. The frozen driver is bound by the outer receipt.",
-  "files": [
+  "capturedAt": "2026-10-04T16:52:29.338062+00:00",
+  "status": "unfinished run; no terminal receipt",
+  "commands": [
     {
       "path": "command-1.json",
-      "bytes": 1333,
       "sha256": "07b783fa4cfc7e69dbdf69a0d910eb7865913f69e2562dbfae5597f11503b05c",
-      "fileMtimeNs": 1791128143745866199
+      "bytes": 1333
+    },
+    {
+      "path": "command-10.json",
+      "sha256": "27a526b8a2e17a8a24098306f70fdc9a9a87dea78b0f6a47ab125df64502334a",
+      "bytes": 768
+    },
+    {
+      "path": "command-11.json",
+      "sha256": "ad2efeeacaa6f028cb021242331b66b9d9d9322cfcf4a48199fed14cf23d6106",
+      "bytes": 2952
+    },
+    {
+      "path": "command-12.json",
+      "sha256": "fb8cd394ee8f736bdb4b89f26d0b5a47d0925776d1c7d816a40c0cce0c916c06",
+      "bytes": 539
+    },
+    {
+      "path": "command-13.json",
+      "sha256": "37a648bbbb9cbeabe34534d55e94c33b89dca4de1a93d24f0b4a095a43420234",
+      "bytes": 1469
+    },
+    {
+      "path": "command-14.json",
+      "sha256": "80adcad6488a37d8e893d257ed945ffbe8344cc1f7fbbde3659417f2fb93228c",
+      "bytes": 2115
+    },
+    {
+      "path": "command-15.json",
+      "sha256": "52ead8faf937f59a0786c75ae83ee51b47065a198f605f2e481f5a57106058a8",
+      "bytes": 1990
+    },
+    {
+      "path": "command-16.json",
+      "sha256": "185bc496bf2e296e5613dfd4f36b6d92f0919e12368351d3b9bd414e54457afb",
+      "bytes": 1737
+    },
+    {
+      "path": "command-17.json",
+      "sha256": "a8715a462b64836ad0f28620d0d0356929646bc4ea16fdad5fa5c2b0abef99cd",
+      "bytes": 2860
+    },
+    {
+      "path": "command-18.json",
+      "sha256": "c3a35184735eeb82dd9767e8d9e72d9bab7a894452c102b797bfc8cbbef4d160",
+      "bytes": 1482
+    },
+    {
+      "path": "command-19.json",
+      "sha256": "8d387ba13ce977bb8c751995f5a7073c6702dfa8cb61515c725ba37f538c3fa5",
+      "bytes": 1107
     },
     {
       "path": "command-2.json",
-      "bytes": 1037,
       "sha256": "4362785bd7057b8e36178317dba9af0649b734339466c6382abacb6f51f914ec",
-      "fileMtimeNs": 1791128724349814924
+      "bytes": 1037
     },
     {
       "path": "command-3.json",
-      "bytes": 2450,
       "sha256": "12ff35bf484feb7fae295f8267965a58cfedbcbeb2de658969f32a673b75697d",
-      "fileMtimeNs": 1791128854000343031
+      "bytes": 2450
     },
     {
       "path": "command-4.json",
-      "bytes": 1371,
       "sha256": "a44b477571755eaabceae1cf37679f66fc7cdafea42aa926335c33fe05acb897",
-      "fileMtimeNs": 1791129101460611285
+      "bytes": 1371
     },
     {
       "path": "command-5.json",
-      "bytes": 619,
       "sha256": "53c6f9124942743d0f64ba80b53a708ec0e73ef7db080a43466862a8ab0a289c",
-      "fileMtimeNs": 1791129295442903205
+      "bytes": 619
     },
     {
       "path": "command-6.json",
-      "bytes": 1269,
       "sha256": "d911df0a91d0b0535dc29d8427d331cd5a7d528d79237717641018fb5326972d",
-      "fileMtimeNs": 1791129412426534468
+      "bytes": 1269
+    },
+    {
+      "path": "command-7.json",
+      "sha256": "aa7367b8dea14cdebb3f9243508a311677c9732801537fbd0dea6ce3247131e6",
+      "bytes": 1825
+    },
+    {
+      "path": "command-8.json",
+      "sha256": "a692223b9f22b3c4ec736261bb0f12ab91ea0b60d906db582702f1b6fdef3f2f",
+      "bytes": 1501
+    },
+    {
+      "path": "command-9.json",
+      "sha256": "71ed5d6c181c59c61ef425071d0bafa11901e558e2d79b8bc57b45e827f97381",
+      "bytes": 1827
     }
   ]
 }

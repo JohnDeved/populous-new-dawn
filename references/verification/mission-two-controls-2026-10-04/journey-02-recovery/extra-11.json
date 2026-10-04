@@ -1,0 +1,158 @@
+[
+  {
+    "turn": 5810,
+    "point": {
+      "clientX": 820,
+      "clientY": 270
+    },
+    "person": null,
+    "object": 22,
+    "canvasOwns": true,
+    "cameraMotion": 0
+  },
+  {
+    "turn": 5824,
+    "lastOrderTurn": 5815,
+    "message": "Your followers are on the move.",
+    "army": [
+      {
+        "id": 3513,
+        "x": -99.1875,
+        "z": -101.0703125,
+        "order": {
+          "model": 19,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 31869,
+          "b": 0
+        }
+      },
+      {
+        "id": 3514,
+        "x": -98.7265625,
+        "z": -101.2109375,
+        "order": {
+          "model": 19,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 31869,
+          "b": 0
+        }
+      },
+      {
+        "id": 3515,
+        "x": -99.4921875,
+        "z": -101.19921875,
+        "order": {
+          "model": 19,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 31869,
+          "b": 0
+        }
+      },
+      {
+        "id": 3516,
+        "x": -98.6328125,
+        "z": -100.54296875,
+        "order": {
+          "model": 19,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 31869,
+          "b": 0
+        }
+      },
+      {
+        "id": 3517,
+        "x": -99.39453125,
+        "z": -100.71875,
+        "order": {
+          "model": 19,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 31869,
+          "b": 0
+        }
+      },
+      {
+        "id": 3573,
+        "x": -96.58984375,
+        "z": -100.765625,
+        "order": {
+          "model": 19,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 31869,
+          "b": 0
+        }
+      },
+      {
+        "id": 3574,
+        "x": -97.28515625,
+        "z": -100.8828125,
+        "order": {
+          "model": 19,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 31869,
+          "b": 0
+        }
+      },
+      {
+        "id": 3575,
+        "x": -98.66796875,
+        "z": -101.60546875,
+        "order": {
+          "model": 19,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 31869,
+          "b": 0
+        }
+      },
+      {
+        "id": 3576,
+        "x": -95,
+        "z": -103.28125,
+        "order": {
+          "model": 19,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 31869,
+          "b": 0
+        }
+      },
+      {
+        "id": 3577,
+        "x": -95.0859375,
+        "z": -105.4375,
+        "order": {
+          "model": 19,
+          "flags": 0,
+          "references": 10,
+          "object": 0,
+          "a": 31869,
+          "b": 0
+        }
+      }
+    ]
+  },
+  {
+    "x": 672.125,
+    "y": 397.0625,
+    "point": {
+      "x": 106.18294274448823,
+      "z": 124.46105681124004
+    }
+  }
+]

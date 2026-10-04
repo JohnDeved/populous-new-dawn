@@ -1,0 +1,9 @@
+[
+  {
+    "action": "pause"
+  },
+  {
+    "action": "read",
+    "expression": "(async () => { const w=window.testSceneRef.current.world, {findPath,supportsFollower,spellTargetError}=await import(\"/app/model.ts\"), wrap=v=>((v+128)%256+256)%256-128, army=w.units.filter(u=>u.team===\"blue\"&&u.kind===\"warrior\"&&u.hp>0), shaman=w.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0), targets=w.buildings.filter(b=>b.team===\"green\"&&b.hp>0).map(b=>({id:b.id,kind:b.kind,x:b.x,z:b.z,hp:b.hp,distanceFromArmy:Math.hypot(wrap(b.x-army[0].x),wrap(b.z-army[0].z))})).sort((a,b)=>a.distanceFromArmy-b.distanceFromArmy), probe=structuredClone(w), actor=probe.units.find(u=>u.id===shaman.id), approaches=[]; for (const target of targets.slice(0,3)) { const candidates=[]; for(let angle=0;angle<Math.PI*2;angle+=Math.PI/8){ const point={x:wrap(target.x+Math.cos(angle)*8),z:wrap(target.z+Math.sin(angle)*8)}; if(!supportsFollower(probe,point))continue; const path=findPath(probe,actor,point); if(path.length)candidates.push({...point,pathLength:path.length}) } candidates.sort((a,b)=>a.pathLength-b.pathLength);approaches.push({target,candidates}) } return {turn:w.turn,status:w.status,paused:w.paused,inputMask:w.inputMask,army:army.map(u=>({id:u.id,x:u.x,z:u.z,hp:u.hp})),shaman:{id:shaman.id,x:shaman.x,z:shaman.z,hp:shaman.hp},shots:w.shots,targets,approaches,enemies:w.units.filter(u=>u.team===\"green\"&&u.hp>0).map(u=>({id:u.id,kind:u.kind,x:u.x,z:u.z,hp:u.hp,inside:u.inside}))} })()"
+  }
+]

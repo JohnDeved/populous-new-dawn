@@ -1,0 +1,435 @@
+{"at":"2026-10-04T15:42:22.070Z","operation":"wait-start","expression":"window.missionTwoObserveReady(window.testSceneRef.current.world).ready","timeout":60000,"turn":76}
+{"at":"2026-10-04T15:42:43.459Z","operation":"wait-complete","expression":"window.missionTwoObserveReady(window.testSceneRef.current.world).ready","turn":332}
+{"at":"2026-10-04T15:42:44.963Z","commandIndex":1,"command":{"action":"resume"}}
+{"at":"2026-10-04T15:42:45.559Z","commandIndex":1,"command":{"action":"skip"}}
+{"at":"2026-10-04T15:42:45.724Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.inputMask","timeout":45000,"turn":343}
+{"at":"2026-10-04T15:42:45.895Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.inputMask","turn":345}
+{"at":"2026-10-04T15:42:45.895Z","commandIndex":1,"command":{"action":"select","kind":"shaman"}}
+{"at":"2026-10-04T15:42:46.855Z","operation":"selected","kind":"shaman","modifier":"Control","ids":[54],"turn":356}
+{"at":"2026-10-04T15:42:46.855Z","commandIndex":1,"command":{"action":"entity","collection":"shrines","id":55}}
+{"at":"2026-10-04T15:42:47.128Z","operation":"minimap-click","point":{"id":55,"kind":"bridgeEffect","x":-113,"z":113,"required":1,"work":0,"target":45,"progress":0,"uses":0,"remaining":1,"followers":0,"active":true,"point":{"x":1654.875,"y":469.1875}},"input":{"d":139.08630414242805,"x":140,"y":89}}
+{"at":"2026-10-04T15:42:48.918Z","operation":"entity-pick","attempt":0,"x":815.125,"y":324.5,"center":{"x":815.125,"y":424.5},"collection":"shrines","id":55,"turn":373}
+{"at":"2026-10-04T15:42:49.342Z","operation":"worship-order-accepted","id":55,"selected":[54],"turn":386}
+{"at":"2026-10-04T15:42:49.342Z","commandIndex":1,"command":{"action":"select","kind":"brave","modifier":"Shift"}}
+{"at":"2026-10-04T15:42:50.404Z","operation":"selected","kind":"brave","modifier":"Shift","ids":[278,319,281,284,170,173,176,275,1247],"turn":399}
+{"at":"2026-10-04T15:42:50.404Z","commandIndex":1,"command":{"action":"map","point":{"x":-99,"z":-105}}}
+{"at":"2026-10-04T15:42:50.569Z","operation":"minimap-click","point":{"x":-99,"z":-105},"input":{"d":108.97706180660222,"x":69,"y":114}}
+{"at":"2026-10-04T15:42:51.673Z","commandIndex":1,"command":{"action":"title","name":"buildings"}}
+{"at":"2026-10-04T15:42:52.223Z","commandIndex":1,"command":{"action":"button","name":"Warrior Training Hut, 8 wood"}}
+{"at":"2026-10-04T15:42:52.873Z","commandIndex":1,"command":{"action":"ground","point":{"x":-99,"z":-105},"options":{"focus":false,"kind":"camp","maxRadius":8}}}
+{"at":"2026-10-04T15:42:53.301Z","operation":"ground-pick","x":812,"y":402.8125,"point":{"x":-99.00610218575468,"z":-104.98178825070676}}
+{"at":"2026-10-04T15:42:53.467Z","commandIndex":1,"command":{"action":"until","expression":"window.testSceneRef.current.world.buildings.some(b=>b.team===\"blue\"&&b.kind===\"camp\"&&b.progress===1)","timeout":180000}}
+{"at":"2026-10-04T15:42:53.544Z","operation":"wait-start","expression":"window.testSceneRef.current.world.buildings.some(b=>b.team===\"blue\"&&b.kind===\"camp\"&&b.progress===1)","timeout":180000,"turn":437}
+{"at":"2026-10-04T15:43:43.163Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.buildings.some(b=>b.team===\"blue\"&&b.kind===\"camp\"&&b.progress===1)","turn":1032}
+{"at":"2026-10-04T15:43:43.163Z","commandIndex":1,"command":{"action":"pause"}}
+{"at":"2026-10-04T15:43:43.742Z","commandIndex":1,"command":{"action":"mark","name":"camp-built"}}
+{"at":"2026-10-04T15:43:44.446Z","commandIndex":1,"command":{"action":"read","expression":"(() => {const w=window.testSceneRef.current.world;return {turn:w.turn,blue:w.units.filter(u=>u.team===\"blue\").map(u=>({id:u.id,kind:u.kind,x:u.x,z:u.z,inside:u.inside,work:u.work})),buildings:w.buildings.filter(b=>b.team===\"blue\").map(b=>({id:b.id,kind:b.kind,x:b.x,z:b.z,progress:b.progress,logs:b.logs})),bridge:w.shrines.find(s=>s.id===55)}})()"}}
+{"at":"2026-10-04T15:45:24.411Z","commandIndex":2,"command":{"action":"resume"}}
+{"at":"2026-10-04T15:45:24.885Z","commandIndex":2,"command":{"action":"skip"}}
+{"at":"2026-10-04T15:45:25.028Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.inputMask","timeout":45000,"turn":1041}
+{"at":"2026-10-04T15:45:25.149Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.inputMask","turn":1042}
+{"at":"2026-10-04T15:45:25.149Z","commandIndex":2,"command":{"action":"map","point":{"x":-99,"z":-105}}}
+{"at":"2026-10-04T15:45:25.279Z","operation":"minimap-click","point":{"x":-99,"z":-105},"input":{"d":141.59802258506295,"x":86,"y":118}}
+{"at":"2026-10-04T15:45:26.366Z","commandIndex":2,"command":{"action":"select","kind":"brave","modifier":"Control"}}
+{"at":"2026-10-04T15:45:27.271Z","operation":"selected","kind":"brave","modifier":"Control","ids":[278,281,284,275,1247],"turn":1068}
+{"at":"2026-10-04T15:45:27.271Z","commandIndex":2,"command":{"action":"until","expression":"window.testSceneRef.current.world.selected.length===5","timeout":1000}}
+{"at":"2026-10-04T15:45:27.320Z","operation":"wait-start","expression":"window.testSceneRef.current.world.selected.length===5","timeout":1000,"turn":1068}
+{"at":"2026-10-04T15:45:27.479Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.selected.length===5","turn":1070}
+{"at":"2026-10-04T15:45:27.479Z","commandIndex":2,"command":{"action":"read","expression":"(() => { const w=window.testSceneRef.current.world; return {turn:w.turn,trainees:[...w.selected],retained:w.units.filter(u=>u.team===\"blue\"&&u.kind===\"brave\"&&!w.selected.includes(u.id)).map(u=>({id:u.id,x:u.x,z:u.z,inside:u.inside,work:u.work}))} })()"}}
+{"at":"2026-10-04T15:45:27.523Z","commandIndex":2,"command":{"action":"entity","collection":"buildings","id":1022,"options":{"focus":false}}}
+{"at":"2026-10-04T15:45:27.771Z","operation":"entity-pick","attempt":0,"x":835.375,"y":286,"center":{"x":810.375,"y":406},"collection":"buildings","id":1022,"turn":1071}
+{"at":"2026-10-04T15:45:28.018Z","commandIndex":2,"command":{"action":"until","expression":"window.testSceneRef.current.world.units.filter(u=>u.inside===1022).length>=5","timeout":60000}}
+{"at":"2026-10-04T15:45:28.076Z","operation":"wait-start","expression":"window.testSceneRef.current.world.units.filter(u=>u.inside===1022).length>=5","timeout":60000,"turn":1077}
+{"at":"2026-10-04T15:45:31.009Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.units.filter(u=>u.inside===1022).length>=5","turn":1113}
+{"at":"2026-10-04T15:45:31.009Z","commandIndex":2,"command":{"action":"pause"}}
+{"at":"2026-10-04T15:45:31.654Z","commandIndex":2,"command":{"action":"mark","name":"five-trainees-admitted"}}
+{"at":"2026-10-04T15:47:34.277Z","commandIndex":3,"command":{"action":"resume"}}
+{"at":"2026-10-04T15:47:34.858Z","commandIndex":3,"command":{"action":"clear"}}
+{"at":"2026-10-04T15:47:35.070Z","commandIndex":3,"command":{"action":"entity","collection":"units","id":319}}
+{"at":"2026-10-04T15:47:35.267Z","operation":"minimap-click","point":{"id":319,"team":"blue","kind":"brave","x":-95.08203125,"z":-101.87890625,"hp":50,"inside":null,"work":null,"target":null,"point":{"x":925.1875,"y":395.25}},"input":{"d":51.62363799656123,"x":103,"y":92}}
+{"at":"2026-10-04T15:47:36.424Z","operation":"entity-pick","attempt":0,"x":812.0625,"y":401.125,"center":{"x":812.0625,"y":431.125},"collection":"units","id":319,"turn":1139}
+{"at":"2026-10-04T15:47:36.638Z","commandIndex":3,"command":{"action":"entity","collection":"units","id":170,"options":{"modifiers":["Control"]}}}
+{"at":"2026-10-04T15:47:36.838Z","operation":"minimap-click","point":{"id":170,"team":"blue","kind":"brave","x":-97,"z":-101.46875,"hp":50,"inside":null,"work":null,"target":null,"point":{"x":801.5,"y":421}},"input":{"d":171.81967291320282,"x":97,"y":95}}
+{"at":"2026-10-04T15:47:38.172Z","operation":"entity-pick","attempt":0,"error":"No canvas-owned rendered hit","collection":"units","id":170,"center":{"x":833.3125,"y":406.5625},"misses":[null,176,173,319]}
+{"at":"2026-10-04T15:47:38.216Z","operation":"camera-right-drag","delta":512,"before":{"canvasOwns":true,"selected":[319],"turn":1158,"bearing":1.0799224746714913}}
+{"at":"2026-10-04T15:47:40.107Z","operation":"entity-pick","attempt":1,"error":"No canvas-owned rendered hit","collection":"units","id":170,"center":{"x":830.6875,"y":398.625},"misses":[null,1247]}
+{"at":"2026-10-04T15:47:40.158Z","operation":"camera-right-drag","delta":512,"before":{"canvasOwns":true,"selected":[319],"turn":1180,"bearing":2.6261751088602177}}
+{"at":"2026-10-04T15:47:41.914Z","operation":"entity-pick","attempt":2,"error":"No canvas-owned rendered hit","collection":"units","id":170,"center":{"x":807.25,"y":399.1875},"misses":[null,173,176]}
+{"at":"2026-10-04T15:47:41.957Z","operation":"camera-right-drag","delta":512,"before":{"canvasOwns":true,"selected":[319],"turn":1202,"bearing":4.172427743048944}}
+{"at":"2026-10-04T15:47:43.536Z","operation":"entity-pick","attempt":3,"x":798.1875,"y":377.125,"center":{"x":808.1875,"y":407.125},"collection":"units","id":170,"turn":1224}
+{"at":"2026-10-04T15:47:43.970Z","commandIndex":3,"command":{"action":"entity","collection":"units","id":173,"options":{"modifiers":["Control"]}}}
+{"at":"2026-10-04T15:47:44.185Z","operation":"minimap-click","point":{"id":173,"team":"blue","kind":"brave","x":-97,"z":-100.53125,"hp":50,"inside":null,"work":null,"target":null,"point":{"x":794.9375,"y":420.8125}},"input":{"d":146.12323566086263,"x":102,"y":97}}
+{"at":"2026-10-04T15:47:45.387Z","operation":"entity-pick","attempt":0,"x":802.125,"y":376.625,"center":{"x":812.125,"y":406.625},"collection":"units","id":173,"turn":1246}
+{"at":"2026-10-04T15:47:45.870Z","commandIndex":3,"command":{"action":"until","expression":"window.testSceneRef.current.world.selected.length===3 && [319,170,173].every(id=>window.testSceneRef.current.world.selected.includes(id))","timeout":1000}}
+{"at":"2026-10-04T15:47:45.932Z","operation":"wait-start","expression":"window.testSceneRef.current.world.selected.length===3 && [319,170,173].every(id=>window.testSceneRef.current.world.selected.includes(id))","timeout":1000,"turn":1253}
+{"at":"2026-10-04T15:47:46.090Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.selected.length===3 && [319,170,173].every(id=>window.testSceneRef.current.world.selected.includes(id))","turn":1255}
+{"at":"2026-10-04T15:47:46.090Z","commandIndex":3,"command":{"action":"map","point":{"x":-96,"z":-124}}}
+{"at":"2026-10-04T15:47:46.183Z","operation":"minimap-click","point":{"x":-96,"z":-124},"input":{"d":123.22743201089602,"x":113.99999999999999,"y":78}}
+{"at":"2026-10-04T15:47:47.285Z","commandIndex":3,"command":{"action":"title","name":"buildings"}}
+{"at":"2026-10-04T15:47:47.843Z","commandIndex":3,"command":{"action":"button","name":"Hut, 3 wood"}}
+{"at":"2026-10-04T15:47:48.410Z","commandIndex":3,"command":{"action":"ground","point":{"x":-96,"z":-124},"options":{"focus":false,"kind":"hut","maxRadius":6}}}
+{"at":"2026-10-04T15:47:48.802Z","operation":"ground-pick","x":831.375,"y":418.6875,"point":{"x":-96,"z":-124}}
+{"at":"2026-10-04T15:47:48.937Z","commandIndex":3,"command":{"action":"read","expression":"(() => {const w=window.testSceneRef.current.world;return {turn:w.turn,retainedBuilders:[319,170,173].map(id=>{const u=w.units.find(u=>u.id===id);return {id,kind:u.kind,work:u.work}}),blueBuildings:w.buildings.filter(b=>b.team===\"blue\").map(b=>({id:b.id,kind:b.kind,progress:b.progress,x:b.x,z:b.z}))}})()"}}
+{"at":"2026-10-04T15:47:48.991Z","commandIndex":3,"command":{"action":"select","kind":"shaman"}}
+{"at":"2026-10-04T15:47:49.833Z","operation":"selected","kind":"shaman","modifier":"Control","ids":[54],"turn":1300}
+{"at":"2026-10-04T15:47:49.833Z","commandIndex":3,"command":{"action":"entity","collection":"units","id":176,"options":{"modifiers":["Control"]}}}
+{"at":"2026-10-04T15:47:50.050Z","operation":"minimap-click","point":{"id":176,"team":"blue","kind":"brave","x":-97,"z":-101,"hp":50,"inside":null,"work":null,"target":null,"point":{"x":223.81250000000003,"y":1182.375}},"input":{"d":166.07528413343147,"x":94,"y":128}}
+{"at":"2026-10-04T15:47:51.214Z","operation":"entity-pick","attempt":0,"x":862.625,"y":402.8125,"center":{"x":872.625,"y":432.8125},"collection":"units","id":176,"turn":1316}
+{"at":"2026-10-04T15:47:51.594Z","commandIndex":3,"command":{"action":"until","expression":"window.testSceneRef.current.world.selected.length===2 && [54,176].every(id=>window.testSceneRef.current.world.selected.includes(id))","timeout":1000}}
+{"at":"2026-10-04T15:47:51.653Z","operation":"wait-start","expression":"window.testSceneRef.current.world.selected.length===2 && [54,176].every(id=>window.testSceneRef.current.world.selected.includes(id))","timeout":1000,"turn":1322}
+{"at":"2026-10-04T15:47:51.813Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.selected.length===2 && [54,176].every(id=>window.testSceneRef.current.world.selected.includes(id))","turn":1324}
+{"at":"2026-10-04T15:47:51.814Z","commandIndex":3,"command":{"action":"entity","collection":"shrines","id":56}}
+{"at":"2026-10-04T15:47:52.005Z","operation":"minimap-click","point":{"id":56,"kind":"tornado","x":-59,"z":-105,"required":2,"work":0,"target":82,"progress":0,"uses":0,"remaining":3,"followers":0,"active":true,"point":{"x":2260.125,"y":958.5625}},"input":{"d":26.400757564888174,"x":137,"y":114}}
+{"at":"2026-10-04T15:47:53.226Z","operation":"entity-pick","attempt":0,"x":827.3125,"y":292.8125,"center":{"x":822.3125,"y":412.8125},"collection":"shrines","id":56,"turn":1340}
+{"at":"2026-10-04T15:47:53.571Z","operation":"worship-order-accepted","id":56,"selected":[54,176],"turn":1345}
+{"at":"2026-10-04T15:47:53.571Z","commandIndex":3,"command":{"action":"until","expression":"[54,176].every(id=>window.testSceneRef.current.world.units.find(u=>u.id===id)?.work===56)","timeout":1000}}
+{"at":"2026-10-04T15:47:53.625Z","operation":"wait-start","expression":"[54,176].every(id=>window.testSceneRef.current.world.units.find(u=>u.id===id)?.work===56)","timeout":1000,"turn":1346}
+{"at":"2026-10-04T15:47:53.771Z","operation":"wait-complete","expression":"[54,176].every(id=>window.testSceneRef.current.world.units.find(u=>u.id===id)?.work===56)","turn":1347}
+{"at":"2026-10-04T15:47:53.771Z","commandIndex":3,"command":{"action":"until","expression":"window.testSceneRef.current.world.shrines.find(s=>s.id===56).followers>=2","timeout":150000}}
+{"at":"2026-10-04T15:47:53.822Z","operation":"wait-start","expression":"window.testSceneRef.current.world.shrines.find(s=>s.id===56).followers>=2","timeout":150000,"turn":1348}
+{"at":"2026-10-04T15:48:19.426Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.shrines.find(s=>s.id===56).followers>=2","turn":1655}
+{"at":"2026-10-04T15:48:19.426Z","commandIndex":3,"command":{"action":"mark","name":"two-worshippers-active"}}
+{"at":"2026-10-04T15:48:20.316Z","commandIndex":3,"command":{"action":"until","expression":"window.testSceneRef.current.world.shots.tornado>=3","timeout":140000}}
+{"at":"2026-10-04T15:48:20.396Z","operation":"wait-start","expression":"window.testSceneRef.current.world.shots.tornado>=3","timeout":140000,"turn":1667}
+{"at":"2026-10-04T15:49:43.891Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.shots.tornado>=3","turn":2669}
+{"at":"2026-10-04T15:49:43.891Z","commandIndex":3,"command":{"action":"pause"}}
+{"at":"2026-10-04T15:49:44.516Z","commandIndex":3,"command":{"action":"mark","name":"tornado-acquired"}}
+{"at":"2026-10-04T15:51:41.479Z","commandIndex":4,"command":{"action":"resume"}}
+{"at":"2026-10-04T15:51:42.005Z","commandIndex":4,"command":{"action":"skip"}}
+{"at":"2026-10-04T15:51:42.152Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.inputMask","timeout":45000,"turn":2678}
+{"at":"2026-10-04T15:51:42.284Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.inputMask","turn":2679}
+{"at":"2026-10-04T15:51:42.284Z","commandIndex":4,"command":{"action":"clear"}}
+{"at":"2026-10-04T15:51:42.495Z","commandIndex":4,"command":{"action":"map","point":{"x":-96,"z":-116}}}
+{"at":"2026-10-04T15:51:42.643Z","operation":"minimap-click","point":{"x":-96,"z":-116},"input":{"d":63.12685640834653,"x":78,"y":68}}
+{"at":"2026-10-04T15:51:43.754Z","commandIndex":4,"command":{"action":"title","name":"followers"}}
+{"at":"2026-10-04T15:51:44.302Z","commandIndex":4,"command":{"action":"button","name":"Housed Braves","options":{"modifiers":["Control"]}}}
+{"at":"2026-10-04T15:51:45.013Z","commandIndex":4,"command":{"action":"until","expression":"window.testSceneRef.current.world.selected.length===5","timeout":1000}}
+{"at":"2026-10-04T15:51:45.079Z","operation":"wait-start","expression":"window.testSceneRef.current.world.selected.length===5","timeout":1000,"turn":2713}
+{"at":"2026-10-04T15:51:45.260Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.selected.length===5","turn":2715}
+{"at":"2026-10-04T15:51:45.260Z","commandIndex":4,"command":{"action":"read","expression":"(() => {const w=window.testSceneRef.current.world;return {turn:w.turn,builders:[...w.selected],retainedOriginalBraves:w.units.filter(u=>[319,170,173,176].includes(u.id)&&u.kind===\"brave\"&&!w.selected.includes(u.id)).map(u=>({id:u.id,x:u.x,z:u.z,inside:u.inside}))}})()"}}
+{"at":"2026-10-04T15:51:45.294Z","commandIndex":4,"command":{"action":"title","name":"buildings"}}
+{"at":"2026-10-04T15:51:45.903Z","commandIndex":4,"command":{"action":"button","name":"Hut, 3 wood"}}
+{"at":"2026-10-04T15:51:46.493Z","commandIndex":4,"command":{"action":"ground","point":{"x":-92,"z":-116},"options":{"kind":"hut","maxRadius":6}}}
+{"at":"2026-10-04T15:51:46.652Z","operation":"minimap-click","point":{"x":-92,"z":-116},"input":{"d":148.43180252223578,"x":107,"y":96}}
+{"at":"2026-10-04T15:51:48.183Z","operation":"ground-pick","x":830.0624999999999,"y":416.6875,"point":{"x":-92,"z":-116}}
+{"at":"2026-10-04T15:51:48.421Z","commandIndex":4,"command":{"action":"until","expression":"window.testSceneRef.current.world.buildings.filter(b=>b.team===\"blue\"&&b.kind===\"hut\"&&b.progress===1).length>=3","timeout":180000}}
+{"at":"2026-10-04T15:51:48.497Z","operation":"wait-start","expression":"window.testSceneRef.current.world.buildings.filter(b=>b.team===\"blue\"&&b.kind===\"hut\"&&b.progress===1).length>=3","timeout":180000,"turn":2753}
+{"at":"2026-10-04T15:54:55.941Z","commandIndex":5,"command":{"action":"pause"}}
+{"at":"2026-10-04T15:54:55.968Z","commandIndex":5,"command":{"action":"read","expression":"(async () => { const w=window.testSceneRef.current.world,{unitAnimationSource,canOrder}=await import(\"/app/model.ts\"); return {turn:w.turn,paused:w.paused,status:w.status,mode:w.mode,message:w.message,lastOrderTurn:w.lastOrderTurn,selected:[...w.selected],buildings:w.buildings.filter(b=>b.team===\"blue\"),braves:w.units.filter(u=>u.team===\"blue\"&&u.kind===\"brave\").map(u=>({id:u.id,x:u.x,z:u.z,inside:u.inside,work:u.work,path:u.path,builder:u.builder,entry:u.entry,canOrder:canOrder(u),source:unitAnimationSource(u)}))} })()"}}
+{"at":"2026-10-04T15:56:52.776Z","commandIndex":6,"command":{"action":"resume"}}
+{"at":"2026-10-04T15:56:53.386Z","commandIndex":6,"command":{"action":"map","point":{"x":-92,"z":-116}}}
+{"at":"2026-10-04T15:56:53.546Z","operation":"minimap-click","point":{"x":-92,"z":-116},"input":{"d":140.60227594174998,"x":103,"y":96}}
+{"at":"2026-10-04T15:56:54.651Z","commandIndex":6,"command":{"action":"title","name":"buildings"}}
+{"at":"2026-10-04T15:56:55.244Z","commandIndex":6,"command":{"action":"button","name":"Hut, 3 wood"}}
+{"at":"2026-10-04T15:56:55.910Z","commandIndex":6,"command":{"action":"until","expression":"window.testSceneRef.current.world.mode===\"hut\"","timeout":1000}}
+{"at":"2026-10-04T15:56:55.974Z","operation":"wait-start","expression":"window.testSceneRef.current.world.mode===\"hut\"","timeout":1000,"turn":4953}
+{"at":"2026-10-04T15:56:56.142Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.mode===\"hut\"","turn":4955}
+{"at":"2026-10-04T15:56:56.142Z","commandIndex":6,"command":{"action":"ground","point":{"x":-92,"z":-116},"options":{"focus":false,"kind":"hut","maxRadius":6}}}
+{"at":"2026-10-04T15:56:56.549Z","operation":"ground-pick","x":820.9375,"y":417.6875,"point":{"x":-92,"z":-116}}
+{"at":"2026-10-04T15:56:56.719Z","commandIndex":6,"command":{"action":"until","expression":"window.testSceneRef.current.world.buildings.filter(b=>b.team===\"blue\"&&b.kind===\"hut\").length>=3","timeout":1000}}
+{"at":"2026-10-04T15:56:56.795Z","operation":"wait-start","expression":"window.testSceneRef.current.world.buildings.filter(b=>b.team===\"blue\"&&b.kind===\"hut\").length>=3","timeout":1000,"turn":4962}
+{"at":"2026-10-04T15:56:56.964Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.buildings.filter(b=>b.team===\"blue\"&&b.kind===\"hut\").length>=3","turn":4965}
+{"at":"2026-10-04T15:56:56.964Z","commandIndex":6,"command":{"action":"read","expression":"(() => { const w=window.testSceneRef.current.world; return {turn:w.turn,selected:w.selected,plans:w.buildings.filter(b=>b.team===\"blue\"&&b.kind===\"hut\").map(b=>({id:b.id,x:b.x,z:b.z,progress:b.progress,logs:b.logs}))} })()"}}
+{"at":"2026-10-04T15:56:57.015Z","commandIndex":6,"command":{"action":"until","expression":"window.testSceneRef.current.world.buildings.filter(b=>b.team===\"blue\"&&b.kind===\"hut\"&&b.progress===1).length>=3","timeout":180000}}
+{"at":"2026-10-04T15:56:57.078Z","operation":"wait-start","expression":"window.testSceneRef.current.world.buildings.filter(b=>b.team===\"blue\"&&b.kind===\"hut\"&&b.progress===1).length>=3","timeout":180000,"turn":4966}
+{"at":"2026-10-04T15:57:28.055Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.buildings.filter(b=>b.team===\"blue\"&&b.kind===\"hut\"&&b.progress===1).length>=3","turn":5338}
+{"at":"2026-10-04T15:57:28.055Z","commandIndex":6,"command":{"action":"pause"}}
+{"at":"2026-10-04T15:57:28.680Z","commandIndex":6,"command":{"action":"mark","name":"three-huts-complete"}}
+{"at":"2026-10-04T16:05:08.469Z","commandIndex":7,"command":{"action":"resume"}}
+{"at":"2026-10-04T16:05:09.099Z","commandIndex":7,"command":{"action":"until","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000}}
+{"at":"2026-10-04T16:05:09.164Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000,"turn":5346}
+{"at":"2026-10-04T16:05:09.323Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","turn":5348}
+{"at":"2026-10-04T16:05:09.323Z","commandIndex":7,"command":{"action":"map","point":{"x":-99,"z":-105}}}
+{"at":"2026-10-04T16:05:09.487Z","operation":"minimap-click","point":{"x":-99,"z":-105},"input":{"d":123.94353553130554,"x":92,"y":101}}
+{"at":"2026-10-04T16:05:10.592Z","commandIndex":7,"command":{"action":"until","expression":"window.testSceneRef.current.world.mode===null && window.testSceneRef.current.world.selected.length===5","timeout":1000}}
+{"at":"2026-10-04T16:05:10.624Z","operation":"wait-start","expression":"window.testSceneRef.current.world.mode===null && window.testSceneRef.current.world.selected.length===5","timeout":1000,"turn":5364}
+{"at":"2026-10-04T16:05:10.792Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.mode===null && window.testSceneRef.current.world.selected.length===5","turn":5366}
+{"at":"2026-10-04T16:05:10.793Z","commandIndex":7,"command":{"action":"read","expression":"(() => {const w=window.testSceneRef.current.world;return {turn:w.turn,trainees:[...w.selected],retainedOriginalBraves:w.units.filter(u=>[319,170,173,176].includes(u.id)&&u.kind===\"brave\"&&!w.selected.includes(u.id)).map(u=>u.id)}})()"}}
+{"at":"2026-10-04T16:05:10.840Z","commandIndex":7,"command":{"action":"entity","collection":"buildings","id":1022,"options":{"focus":false}}}
+{"at":"2026-10-04T16:05:11.259Z","operation":"entity-pick","attempt":0,"x":868.375,"y":307.1875,"center":{"x":818.375,"y":402.1875},"collection":"buildings","id":1022,"turn":5367}
+{"at":"2026-10-04T16:05:11.537Z","commandIndex":7,"command":{"action":"until","expression":"window.testSceneRef.current.world.lastOrderTurn>5344","timeout":1000}}
+{"at":"2026-10-04T16:05:11.611Z","operation":"wait-start","expression":"window.testSceneRef.current.world.lastOrderTurn>5344","timeout":1000,"turn":5376}
+{"at":"2026-10-04T16:05:11.783Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.lastOrderTurn>5344","turn":5378}
+{"at":"2026-10-04T16:05:11.783Z","commandIndex":7,"command":{"action":"read","expression":"(() => {const w=window.testSceneRef.current.world;return {turn:w.turn,lastOrderTurn:w.lastOrderTurn,selected:w.selected,work:w.units.filter(u=>w.selected.includes(u.id)).map(u=>({id:u.id,kind:u.kind,inside:u.inside,work:u.work}))}})()"}}
+{"at":"2026-10-04T16:05:11.828Z","commandIndex":7,"command":{"action":"until","expression":"window.testSceneRef.current.world.units.filter(u=>u.inside===1022).length>=5","timeout":60000}}
+{"at":"2026-10-04T16:05:11.890Z","operation":"wait-start","expression":"window.testSceneRef.current.world.units.filter(u=>u.inside===1022).length>=5","timeout":60000,"turn":5379}
+{"at":"2026-10-04T16:05:18.436Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.units.filter(u=>u.inside===1022).length>=5","turn":5457}
+{"at":"2026-10-04T16:05:18.436Z","commandIndex":7,"command":{"action":"until","expression":"window.testSceneRef.current.world.units.filter(u=>u.team===\"blue\"&&u.kind===\"warrior\"&&u.hp>0&&u.inside===null).length>=10","timeout":200000}}
+{"at":"2026-10-04T16:05:18.502Z","operation":"wait-start","expression":"window.testSceneRef.current.world.units.filter(u=>u.team===\"blue\"&&u.kind===\"warrior\"&&u.hp>0&&u.inside===null).length>=10","timeout":200000,"turn":5458}
+{"at":"2026-10-04T16:05:40.485Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.units.filter(u=>u.team===\"blue\"&&u.kind===\"warrior\"&&u.hp>0&&u.inside===null).length>=10","turn":5722}
+{"at":"2026-10-04T16:05:40.485Z","commandIndex":7,"command":{"action":"pause"}}
+{"at":"2026-10-04T16:05:41.176Z","commandIndex":7,"command":{"action":"title","name":"spells"}}
+{"at":"2026-10-04T16:05:41.696Z","commandIndex":7,"command":{"action":"mark","name":"ten-warriors-three-tornado"}}
+{"at":"2026-10-04T16:05:42.475Z","commandIndex":7,"command":{"action":"checkpoint"}}
+{"at":"2026-10-04T16:05:50.697Z","operation":"post-load-construction-count","saved":4,"restored":4}
+{"at":"2026-10-04T16:05:50.698Z","operation":"natural-post-load-newborns","units":[],"savedTurn":5729,"restoredTurn":5747}
+{"at":"2026-10-04T16:07:18.091Z","commandIndex":8,"command":{"action":"pause"}}
+{"at":"2026-10-04T16:07:18.122Z","commandIndex":8,"command":{"action":"read","expression":"(async () => { const w=window.testSceneRef.current.world, {findPath,supportsFollower,spellTargetError}=await import(\"/app/model.ts\"), wrap=v=>((v+128)%256+256)%256-128, army=w.units.filter(u=>u.team===\"blue\"&&u.kind===\"warrior\"&&u.hp>0), shaman=w.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0), targets=w.buildings.filter(b=>b.team===\"green\"&&b.hp>0).map(b=>({id:b.id,kind:b.kind,x:b.x,z:b.z,hp:b.hp,distanceFromArmy:Math.hypot(wrap(b.x-army[0].x),wrap(b.z-army[0].z))})).sort((a,b)=>a.distanceFromArmy-b.distanceFromArmy), probe=structuredClone(w), actor=probe.units.find(u=>u.id===shaman.id), approaches=[]; for (const target of targets.slice(0,3)) { const candidates=[]; for(let angle=0;angle<Math.PI*2;angle+=Math.PI/8){ const point={x:wrap(target.x+Math.cos(angle)*8),z:wrap(target.z+Math.sin(angle)*8)}; if(!supportsFollower(probe,point))continue; const path=findPath(probe,actor,point); if(path.length)candidates.push({...point,pathLength:path.length}) } candidates.sort((a,b)=>a.pathLength-b.pathLength);approaches.push({target,candidates}) } return {turn:w.turn,status:w.status,paused:w.paused,inputMask:w.inputMask,army:army.map(u=>({id:u.id,x:u.x,z:u.z,hp:u.hp})),shaman:{id:shaman.id,x:shaman.x,z:shaman.z,hp:shaman.hp},shots:w.shots,targets,approaches,enemies:w.units.filter(u=>u.team===\"green\"&&u.hp>0).map(u=>({id:u.id,kind:u.kind,x:u.x,z:u.z,hp:u.hp,inside:u.inside}))} })()"}}
+{"at":"2026-10-04T16:09:59.858Z","commandIndex":9,"command":{"action":"resume"}}
+{"at":"2026-10-04T16:10:00.377Z","commandIndex":9,"command":{"action":"until","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000}}
+{"at":"2026-10-04T16:10:00.435Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000,"turn":5749}
+{"at":"2026-10-04T16:10:00.605Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","turn":5751}
+{"at":"2026-10-04T16:10:00.605Z","commandIndex":9,"command":{"action":"select","kind":"warrior","modifier":"Shift"}}
+{"at":"2026-10-04T16:10:01.422Z","operation":"selected","kind":"warrior","modifier":"Shift","ids":[3513,3514,3515,3516,3517,3573,3574,3575,3576,3577],"turn":5761}
+{"at":"2026-10-04T16:10:01.423Z","commandIndex":9,"command":{"action":"until","expression":"window.testSceneRef.current.world.selected.length===10 && window.testSceneRef.current.world.mode===null","timeout":1000}}
+{"at":"2026-10-04T16:10:01.475Z","operation":"wait-start","expression":"window.testSceneRef.current.world.selected.length===10 && window.testSceneRef.current.world.mode===null","timeout":1000,"turn":5762}
+{"at":"2026-10-04T16:10:01.615Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.selected.length===10 && window.testSceneRef.current.world.mode===null","turn":5764}
+{"at":"2026-10-04T16:10:01.615Z","commandIndex":9,"command":{"action":"entity","collection":"buildings","id":22}}
+{"at":"2026-10-04T16:10:01.808Z","operation":"minimap-click","point":{"id":22,"team":"green","kind":"tower","x":117.16796875,"z":123.02734375,"hp":260,"progress":1,"logs":5,"point":{"x":-472.2499999999999,"y":707.9375}},"input":{"d":40.71854614300466,"x":28.999999999999996,"y":69}}
+{"at":"2026-10-04T16:10:03.009Z","operation":"entity-pick","attempt":0,"x":801.125,"y":235.75,"center":{"x":806.125,"y":385.75},"collection":"buildings","id":22,"turn":5779}
+{"at":"2026-10-04T16:10:03.280Z","commandIndex":9,"command":{"action":"until","expression":"window.testSceneRef.current.world.units.some(u=>u.team===\"blue\"&&u.kind===\"warrior\"&&u.target===22)","timeout":1000}}
+{"at":"2026-10-04T16:10:03.349Z","operation":"wait-start","expression":"window.testSceneRef.current.world.units.some(u=>u.team===\"blue\"&&u.kind===\"warrior\"&&u.target===22)","timeout":1000,"turn":5784}
+{"at":"2026-10-04T16:13:35.813Z","commandIndex":10,"command":{"action":"read","expression":"(async()=>{const s=window.testSceneRef.current,w=s.world,probe=structuredClone(w),{liveCommandContext}=await import(\"/app/live-command.ts\"),{currentPersonOrder}=await import(\"/app/person-orders.ts\"),{unitAnimationSource,canOrder}=await import(\"/app/model.ts\");return {turn:w.turn,paused:w.paused,inputMask:w.inputMask,mode:w.mode,message:w.message,lastOrderTurn:w.lastOrderTurn,context:liveCommandContext(probe,probe.buildings.find(b=>b.id===22)),selected:w.selected,army:w.units.filter(u=>w.selected.includes(u.id)).map(u=>{const n=unitAnimationSource(u)??u.native??u.entry?.person;return{id:u.id,canOrder:canOrder(u),x:u.x,z:u.z,path:u.path,native:n,order:n&&currentPersonOrder(w.buildingOrders,n)}})}})()"}}
+{"at":"2026-10-04T16:18:34.950Z","commandIndex":11,"command":{"action":"resume"}}
+{"at":"2026-10-04T16:18:35.691Z","commandIndex":11,"command":{"action":"until","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused && !window.testSceneRef.current.cameraMotion.active","timeout":10000}}
+{"at":"2026-10-04T16:18:35.762Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused && !window.testSceneRef.current.cameraMotion.active","timeout":10000,"turn":5807}
+{"at":"2026-10-04T16:18:35.944Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused && !window.testSceneRef.current.cameraMotion.active","turn":5809}
+{"at":"2026-10-04T16:18:35.944Z","commandIndex":11,"command":{"action":"read","expression":"(() => {const s=window.testSceneRef.current,e={clientX:820,clientY:270};return {turn:s.world.turn,point:e,person:s.picking.pickPerson(e),object:s.pickWorldObject(e)?.id,canvasOwns:document.elementFromPoint(820,270)===s.renderer.domElement,cameraMotion:s.cameraMotion.active}})()"}}
+{"at":"2026-10-04T16:18:36.031Z","commandIndex":11,"command":{"action":"until","expression":"(() => {const s=window.testSceneRef.current;return s.pickWorldObject({clientX:820,clientY:270})?.id===22&&document.elementFromPoint(820,270)===s.renderer.domElement})()","timeout":1000}}
+{"at":"2026-10-04T16:18:36.099Z","operation":"wait-start","expression":"(() => {const s=window.testSceneRef.current;return s.pickWorldObject({clientX:820,clientY:270})?.id===22&&document.elementFromPoint(820,270)===s.renderer.domElement})()","timeout":1000,"turn":5811}
+{"at":"2026-10-04T16:18:36.349Z","operation":"wait-complete","expression":"(() => {const s=window.testSceneRef.current;return s.pickWorldObject({clientX:820,clientY:270})?.id===22&&document.elementFromPoint(820,270)===s.renderer.domElement})()","turn":5814}
+{"at":"2026-10-04T16:18:36.349Z","commandIndex":11,"command":{"action":"click","x":820,"y":270}}
+{"at":"2026-10-04T16:18:36.503Z","commandIndex":11,"command":{"action":"until","expression":"(() => {const w=window.testSceneRef.current.world;return w.lastOrderTurn>5805&&w.units.some(u=>{if(u.team!==\"blue\"||u.kind!==\"warrior\")return false;const n=u.native??u.entry?.person;if(!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor];return !!id&&w.buildingOrders.records[id]?.model===19})})()","timeout":2000}}
+{"at":"2026-10-04T16:18:36.584Z","operation":"wait-start","expression":"(() => {const w=window.testSceneRef.current.world;return w.lastOrderTurn>5805&&w.units.some(u=>{if(u.team!==\"blue\"||u.kind!==\"warrior\")return false;const n=u.native??u.entry?.person;if(!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor];return !!id&&w.buildingOrders.records[id]?.model===19})})()","timeout":2000,"turn":5816}
+{"at":"2026-10-04T16:18:36.920Z","operation":"wait-complete","expression":"(() => {const w=window.testSceneRef.current.world;return w.lastOrderTurn>5805&&w.units.some(u=>{if(u.team!==\"blue\"||u.kind!==\"warrior\")return false;const n=u.native??u.entry?.person;if(!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor];return !!id&&w.buildingOrders.records[id]?.model===19})})()","turn":5820}
+{"at":"2026-10-04T16:18:36.920Z","commandIndex":11,"command":{"action":"move","x":400,"y":780}}
+{"at":"2026-10-04T16:18:37.014Z","commandIndex":11,"command":{"action":"read","expression":"(async()=>{const w=window.testSceneRef.current.world,{currentPersonOrder}=await import(\"/app/person-orders.ts\");return {turn:w.turn,lastOrderTurn:w.lastOrderTurn,message:w.message,army:w.units.filter(u=>u.team===\"blue\"&&u.kind===\"warrior\").map(u=>({id:u.id,x:u.x,z:u.z,order:u.native&&currentPersonOrder(w.buildingOrders,u.native)}))}})()"}}
+{"at":"2026-10-04T16:18:37.197Z","commandIndex":11,"command":{"action":"select","kind":"shaman"}}
+{"at":"2026-10-04T16:18:38.334Z","operation":"selected","kind":"shaman","modifier":"Control","ids":[54],"turn":5838}
+{"at":"2026-10-04T16:18:38.334Z","commandIndex":11,"command":{"action":"map","point":{"x":106.17865495892073,"z":124.46134876009029}}}
+{"at":"2026-10-04T16:18:38.519Z","operation":"minimap-click","point":{"x":106.17865495892073,"z":124.46134876009029},"input":{"d":104.04326023342406,"x":35,"y":75}}
+{"at":"2026-10-04T16:18:39.646Z","commandIndex":11,"command":{"action":"until","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","timeout":10000}}
+{"at":"2026-10-04T16:18:39.691Z","operation":"wait-start","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","timeout":10000,"turn":5854}
+{"at":"2026-10-04T16:18:39.919Z","operation":"wait-complete","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","turn":5857}
+{"at":"2026-10-04T16:18:39.919Z","commandIndex":11,"command":{"action":"ground","point":{"x":106.17865495892073,"z":124.46134876009029},"options":{"focus":false}}}
+{"at":"2026-10-04T16:18:40.404Z","operation":"ground-pick","x":672.125,"y":397.0625,"point":{"x":106.18294274448823,"z":124.46105681124004}}
+{"at":"2026-10-04T16:18:40.676Z","commandIndex":11,"command":{"action":"until","expression":"(() => {const w=window.testSceneRef.current.world,u=w.units.find(u=>u.id===54),n=u?.native;if(!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor];return !!id&&w.buildingOrders.records[id]?.model===3})()","timeout":2000}}
+{"at":"2026-10-04T16:18:40.759Z","operation":"wait-start","expression":"(() => {const w=window.testSceneRef.current.world,u=w.units.find(u=>u.id===54),n=u?.native;if(!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor];return !!id&&w.buildingOrders.records[id]?.model===3})()","timeout":2000,"turn":5867}
+{"at":"2026-10-04T16:18:40.938Z","operation":"wait-complete","expression":"(() => {const w=window.testSceneRef.current.world,u=w.units.find(u=>u.id===54),n=u?.native;if(!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor];return !!id&&w.buildingOrders.records[id]?.model===3})()","turn":5869}
+{"at":"2026-10-04T16:18:40.939Z","commandIndex":11,"command":{"action":"until","expression":"(() => {const u=window.testSceneRef.current.world.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0),wrap=v=>((v+128)%256+256)%256-128;return !u||u.hp<75||Math.hypot(wrap(u.x-106.17865495892073),wrap(u.z-124.46134876009029))<2})()","timeout":150000}}
+{"at":"2026-10-04T16:18:41.013Z","operation":"wait-start","expression":"(() => {const u=window.testSceneRef.current.world.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0),wrap=v=>((v+128)%256+256)%256-128;return !u||u.hp<75||Math.hypot(wrap(u.x-106.17865495892073),wrap(u.z-124.46134876009029))<2})()","timeout":150000,"turn":5870}
+{"at":"2026-10-04T16:19:12.781Z","operation":"wait-complete","expression":"(() => {const u=window.testSceneRef.current.world.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0),wrap=v=>((v+128)%256+256)%256-128;return !u||u.hp<75||Math.hypot(wrap(u.x-106.17865495892073),wrap(u.z-124.46134876009029))<2})()","turn":6251}
+{"at":"2026-10-04T16:19:12.782Z","commandIndex":11,"command":{"action":"pause"}}
+{"at":"2026-10-04T16:19:13.469Z","commandIndex":11,"command":{"action":"mark","name":"first-attack-and-shaman-approach"}}
+{"at":"2026-10-04T16:21:16.286Z","commandIndex":12,"command":{"action":"read","expression":"(async()=>{const w=window.testSceneRef.current.world,probe=structuredClone(w),{spellTargetError}=await import(\"/app/model.ts\");return{turn:w.turn,shaman:w.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0),targets:[{spell:\"tornado\",target:probe.buildings.find(b=>b.id===71)},{spell:\"blast\",target:probe.units.find(u=>u.id===20)}].map(({spell,target})=>({spell,id:target?.id,x:target?.x,z:target?.z,error:target?spellTargetError(probe,spell,target):\"missing\"}))}})()"}}
+{"at":"2026-10-04T16:23:07.679Z","commandIndex":13,"command":{"action":"resume"}}
+{"at":"2026-10-04T16:23:08.315Z","commandIndex":13,"command":{"action":"until","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000}}
+{"at":"2026-10-04T16:23:08.381Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000,"turn":6260}
+{"at":"2026-10-04T16:23:08.558Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","turn":6262}
+{"at":"2026-10-04T16:23:08.559Z","commandIndex":13,"command":{"action":"select","kind":"shaman"}}
+{"at":"2026-10-04T16:23:09.693Z","operation":"selected","kind":"shaman","modifier":"Control","ids":[54],"turn":6276}
+{"at":"2026-10-04T16:23:09.694Z","commandIndex":13,"command":{"action":"map","point":{"x":103.1171875,"z":117.0703125}}}
+{"at":"2026-10-04T16:23:09.890Z","operation":"minimap-click","point":{"x":103.1171875,"z":117.0703125},"input":{"d":83.7615663654877,"x":100,"y":86}}
+{"at":"2026-10-04T16:23:10.948Z","commandIndex":13,"command":{"action":"until","expression":"!window.testSceneRef.current.cameraMotion.active","timeout":10000}}
+{"at":"2026-10-04T16:23:10.980Z","operation":"wait-start","expression":"!window.testSceneRef.current.cameraMotion.active","timeout":10000,"turn":6291}
+{"at":"2026-10-04T16:23:11.664Z","operation":"wait-complete","expression":"!window.testSceneRef.current.cameraMotion.active","turn":6299}
+{"at":"2026-10-04T16:23:11.664Z","commandIndex":13,"command":{"action":"title","name":"spells"}}
+{"at":"2026-10-04T16:23:12.333Z","commandIndex":13,"command":{"action":"button","name":"Tornado, 3 shots"}}
+{"at":"2026-10-04T16:23:13.006Z","commandIndex":13,"command":{"action":"until","expression":"window.testSceneRef.current.world.mode===\"tornado\"","timeout":1000}}
+{"at":"2026-10-04T16:23:13.080Z","operation":"wait-start","expression":"window.testSceneRef.current.world.mode===\"tornado\"","timeout":1000,"turn":6316}
+{"at":"2026-10-04T16:23:13.270Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.mode===\"tornado\"","turn":6319}
+{"at":"2026-10-04T16:23:13.270Z","commandIndex":13,"command":{"action":"ground","point":{"x":103.1171875,"z":117.0703125},"options":{"focus":false,"spell":"tornado"}}}
+{"at":"2026-10-04T16:23:13.771Z","operation":"ground-pick","x":877.5625,"y":416.125,"point":{"x":103.10182302844106,"z":117.0266880520478}}
+{"at":"2026-10-04T16:23:14.000Z","commandIndex":13,"command":{"action":"until","expression":"window.testSceneRef.current.world.shots.tornado===2","timeout":2000}}
+{"at":"2026-10-04T16:23:14.178Z","operation":"wait-start","expression":"window.testSceneRef.current.world.shots.tornado===2","timeout":2000,"turn":6328}
+{"at":"2026-10-04T16:23:14.371Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.shots.tornado===2","turn":6332}
+{"at":"2026-10-04T16:23:14.371Z","commandIndex":13,"command":{"action":"mark","name":"first-tornado-cast"}}
+{"at":"2026-10-04T16:23:15.338Z","commandIndex":13,"command":{"action":"until","expression":"window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")","timeout":10000}}
+{"at":"2026-10-04T16:23:15.403Z","operation":"wait-start","expression":"window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")","timeout":10000,"turn":6344}
+{"at":"2026-10-04T16:23:15.596Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")","turn":6347}
+{"at":"2026-10-04T16:23:15.596Z","commandIndex":13,"command":{"action":"until","expression":"!window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")","timeout":60000}}
+{"at":"2026-10-04T16:23:15.652Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")","timeout":60000,"turn":6347}
+{"at":"2026-10-04T16:23:33.687Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")","turn":6564}
+{"at":"2026-10-04T16:23:33.687Z","commandIndex":13,"command":{"action":"pause"}}
+{"at":"2026-10-04T16:23:34.349Z","commandIndex":13,"command":{"action":"mark","name":"first-tornado-resolved"}}
+{"at":"2026-10-04T16:27:34.837Z","commandIndex":14,"command":{"action":"resume"}}
+{"at":"2026-10-04T16:27:35.465Z","commandIndex":14,"command":{"action":"until","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000}}
+{"at":"2026-10-04T16:27:35.524Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000,"turn":6572}
+{"at":"2026-10-04T16:27:35.696Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","turn":6574}
+{"at":"2026-10-04T16:27:35.696Z","commandIndex":14,"command":{"action":"select","kind":"shaman"}}
+{"at":"2026-10-04T16:27:36.599Z","operation":"selected","kind":"shaman","modifier":"Control","ids":[54],"turn":6585}
+{"at":"2026-10-04T16:27:36.599Z","commandIndex":14,"command":{"action":"map","point":{"x":91,"z":119}}}
+{"at":"2026-10-04T16:27:36.772Z","operation":"minimap-click","point":{"x":91,"z":119},"input":{"d":136.0036764208968,"x":92,"y":92}}
+{"at":"2026-10-04T16:27:37.897Z","commandIndex":14,"command":{"action":"until","expression":"!window.testSceneRef.current.cameraMotion.active","timeout":10000}}
+{"at":"2026-10-04T16:27:37.923Z","operation":"wait-start","expression":"!window.testSceneRef.current.cameraMotion.active","timeout":10000,"turn":6601}
+{"at":"2026-10-04T16:27:38.088Z","operation":"wait-complete","expression":"!window.testSceneRef.current.cameraMotion.active","turn":6603}
+{"at":"2026-10-04T16:27:38.088Z","commandIndex":14,"command":{"action":"title","name":"spells"}}
+{"at":"2026-10-04T16:27:38.669Z","commandIndex":14,"command":{"action":"button","name":"Blast, 4 shots"}}
+{"at":"2026-10-04T16:27:39.349Z","commandIndex":14,"command":{"action":"until","expression":"window.testSceneRef.current.world.mode===\"blast\"","timeout":1000}}
+{"at":"2026-10-04T16:27:39.444Z","operation":"wait-start","expression":"window.testSceneRef.current.world.mode===\"blast\"","timeout":1000,"turn":6619}
+{"at":"2026-10-04T16:27:39.638Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.mode===\"blast\"","turn":6621}
+{"at":"2026-10-04T16:27:39.638Z","commandIndex":14,"command":{"action":"ground","point":{"x":91,"z":119},"options":{"focus":false,"spell":"blast"}}}
+{"at":"2026-10-04T16:27:40.837Z","operation":"ground-pick","error":"No valid rendered ground target","point":{"x":91,"z":119}}
+{"at":"2026-10-04T16:31:51.054Z","commandIndex":15,"command":{"action":"read","expression":"(async()=>{const w=window.testSceneRef.current.world,probe=structuredClone(w),{spellTargetError,spellRange}=await import(\"/app/model.ts\"),u=probe.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0),target=probe.units.find(u=>u.id===20);return{turn:w.turn,shaman:u&&{id:u.id,x:u.x,z:u.z,hp:u.hp,lift:u.lift,casting:u.casting},blastRange:u&&spellRange(probe,u,2),blastError:target&&spellTargetError(probe,\"blast\",target),tornadoError:target&&spellTargetError(probe,\"tornado\",target)}})()"}}
+{"at":"2026-10-04T16:31:51.341Z","commandIndex":15,"command":{"action":"resume"}}
+{"at":"2026-10-04T16:31:52.044Z","commandIndex":15,"command":{"action":"until","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000}}
+{"at":"2026-10-04T16:31:52.166Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000,"turn":6646}
+{"at":"2026-10-04T16:31:52.376Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","turn":6649}
+{"at":"2026-10-04T16:31:52.376Z","commandIndex":15,"command":{"action":"map","point":{"x":-99,"z":-105}}}
+{"at":"2026-10-04T16:31:52.569Z","operation":"minimap-click","point":{"x":-99,"z":-105},"input":{"d":183.99184764548673,"x":164,"y":123}}
+{"at":"2026-10-04T16:31:53.711Z","commandIndex":15,"command":{"action":"until","expression":"!window.testSceneRef.current.cameraMotion.active","timeout":10000}}
+{"at":"2026-10-04T16:31:53.730Z","operation":"wait-start","expression":"!window.testSceneRef.current.cameraMotion.active","timeout":10000,"turn":6665}
+{"at":"2026-10-04T16:31:54.532Z","operation":"wait-complete","expression":"!window.testSceneRef.current.cameraMotion.active","turn":6675}
+{"at":"2026-10-04T16:31:54.533Z","commandIndex":15,"command":{"action":"select","kind":"brave","modifier":"Control"}}
+{"at":"2026-10-04T16:31:55.592Z","operation":"selected","kind":"brave","modifier":"Control","ids":[3554,3562,3567,3569,3606],"turn":6688}
+{"at":"2026-10-04T16:31:55.592Z","commandIndex":15,"command":{"action":"until","expression":"window.testSceneRef.current.world.selected.length===5 && window.testSceneRef.current.world.mode===null","timeout":1000}}
+{"at":"2026-10-04T16:31:55.650Z","operation":"wait-start","expression":"window.testSceneRef.current.world.selected.length===5 && window.testSceneRef.current.world.mode===null","timeout":1000,"turn":6688}
+{"at":"2026-10-04T16:31:55.849Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.selected.length===5 && window.testSceneRef.current.world.mode===null","turn":6691}
+{"at":"2026-10-04T16:31:55.849Z","commandIndex":15,"command":{"action":"read","expression":"(() => {const w=window.testSceneRef.current.world;return{turn:w.turn,reinforcementTrainees:w.selected,retainedBraves:w.units.filter(u=>u.team===\"blue\"&&u.kind===\"brave\"&&!w.selected.includes(u.id)).map(u=>u.id)}})()"}}
+{"at":"2026-10-04T16:31:55.891Z","commandIndex":15,"command":{"action":"entity","collection":"buildings","id":1022,"options":{"focus":false}}}
+{"at":"2026-10-04T16:31:56.270Z","operation":"entity-pick","attempt":0,"x":856,"y":290.4375,"center":{"x":801,"y":395.4375},"collection":"buildings","id":1022,"turn":6692}
+{"at":"2026-10-04T16:31:56.591Z","commandIndex":15,"command":{"action":"until","expression":"window.testSceneRef.current.world.units.filter(u=>u.inside===1022).length>=5","timeout":60000}}
+{"at":"2026-10-04T16:31:56.665Z","operation":"wait-start","expression":"window.testSceneRef.current.world.units.filter(u=>u.inside===1022).length>=5","timeout":60000,"turn":6700}
+{"at":"2026-10-04T16:32:04.260Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.units.filter(u=>u.inside===1022).length>=5","turn":6792}
+{"at":"2026-10-04T16:32:04.260Z","commandIndex":15,"command":{"action":"until","expression":"window.testSceneRef.current.world.stats.trained>=15","timeout":200000}}
+{"at":"2026-10-04T16:32:04.312Z","operation":"wait-start","expression":"window.testSceneRef.current.world.stats.trained>=15","timeout":200000,"turn":6792}
+{"at":"2026-10-04T16:32:24.672Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.stats.trained>=15","turn":7037}
+{"at":"2026-10-04T16:32:24.672Z","commandIndex":15,"command":{"action":"pause"}}
+{"at":"2026-10-04T16:32:25.414Z","commandIndex":15,"command":{"action":"mark","name":"five-reinforcements-trained"}}
+{"at":"2026-10-04T16:35:54.347Z","commandIndex":16,"command":{"action":"resume"}}
+{"at":"2026-10-04T16:35:55.093Z","commandIndex":16,"command":{"action":"until","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000}}
+{"at":"2026-10-04T16:35:55.172Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000,"turn":7047}
+{"at":"2026-10-04T16:35:55.387Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","turn":7049}
+{"at":"2026-10-04T16:35:55.387Z","commandIndex":16,"command":{"action":"select","kind":"shaman"}}
+{"at":"2026-10-04T16:35:56.255Z","operation":"selected","kind":"shaman","modifier":"Control","ids":[54],"turn":7060}
+{"at":"2026-10-04T16:35:56.255Z","commandIndex":16,"command":{"action":"map","point":{"x":97,"z":123}}}
+{"at":"2026-10-04T16:35:56.420Z","operation":"minimap-click","point":{"x":97,"z":123},"input":{"d":133.1465358167459,"x":84,"y":87}}
+{"at":"2026-10-04T16:35:57.524Z","commandIndex":16,"command":{"action":"until","expression":"!window.testSceneRef.current.cameraMotion.active","timeout":10000}}
+{"at":"2026-10-04T16:35:57.589Z","operation":"wait-start","expression":"!window.testSceneRef.current.cameraMotion.active","timeout":10000,"turn":7076}
+{"at":"2026-10-04T16:35:57.766Z","operation":"wait-complete","expression":"!window.testSceneRef.current.cameraMotion.active","turn":7078}
+{"at":"2026-10-04T16:35:57.766Z","commandIndex":16,"command":{"action":"ground","point":{"x":97,"z":123},"options":{"focus":false}}}
+{"at":"2026-10-04T16:35:58.065Z","operation":"ground-pick","x":929.9375,"y":415.8125,"point":{"x":97.01893089132119,"z":122.97378544989834}}
+{"at":"2026-10-04T16:35:58.292Z","commandIndex":16,"command":{"action":"until","expression":"(() => {const u=window.testSceneRef.current.world.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0);return !!u&&Math.hypot(u.x-97,u.z-123)<0.75})()","timeout":20000}}
+{"at":"2026-10-04T16:35:58.370Z","operation":"wait-start","expression":"(() => {const u=window.testSceneRef.current.world.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0);return !!u&&Math.hypot(u.x-97,u.z-123)<0.75})()","timeout":20000,"turn":7085}
+{"at":"2026-10-04T16:35:59.649Z","operation":"wait-complete","expression":"(() => {const u=window.testSceneRef.current.world.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0);return !!u&&Math.hypot(u.x-97,u.z-123)<0.75})()","turn":7101}
+{"at":"2026-10-04T16:35:59.649Z","commandIndex":16,"command":{"action":"map","point":{"x":91,"z":119}}}
+{"at":"2026-10-04T16:35:59.799Z","operation":"minimap-click","point":{"x":91,"z":119},"input":{"d":152.27934856703322,"x":99,"y":92}}
+{"at":"2026-10-04T16:36:00.906Z","commandIndex":16,"command":{"action":"until","expression":"!window.testSceneRef.current.cameraMotion.active","timeout":10000}}
+{"at":"2026-10-04T16:36:00.965Z","operation":"wait-start","expression":"!window.testSceneRef.current.cameraMotion.active","timeout":10000,"turn":7116}
+{"at":"2026-10-04T16:36:01.128Z","operation":"wait-complete","expression":"!window.testSceneRef.current.cameraMotion.active","turn":7118}
+{"at":"2026-10-04T16:36:01.128Z","commandIndex":16,"command":{"action":"title","name":"spells"}}
+{"at":"2026-10-04T16:36:01.684Z","commandIndex":16,"command":{"action":"button","name":"Blast, 4 shots"}}
+{"at":"2026-10-04T16:36:02.266Z","commandIndex":16,"command":{"action":"until","expression":"window.testSceneRef.current.world.mode===\"blast\"","timeout":1000}}
+{"at":"2026-10-04T16:36:02.339Z","operation":"wait-start","expression":"window.testSceneRef.current.world.mode===\"blast\"","timeout":1000,"turn":7133}
+{"at":"2026-10-04T16:36:02.526Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.mode===\"blast\"","turn":7135}
+{"at":"2026-10-04T16:36:02.526Z","commandIndex":16,"command":{"action":"ground","point":{"x":91,"z":119},"options":{"focus":false,"spell":"blast"}}}
+{"at":"2026-10-04T16:36:02.965Z","operation":"ground-pick","x":825.25,"y":387.1875,"point":{"x":90.98177960813678,"z":119.00736303506807}}
+{"at":"2026-10-04T16:36:03.122Z","commandIndex":16,"command":{"action":"until","expression":"window.testSceneRef.current.world.stats.cast===2 && window.testSceneRef.current.world.mode===null","timeout":2000}}
+{"at":"2026-10-04T16:36:03.187Z","operation":"wait-start","expression":"window.testSceneRef.current.world.stats.cast===2 && window.testSceneRef.current.world.mode===null","timeout":2000,"turn":7143}
+{"at":"2026-10-04T16:36:03.373Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.stats.cast===2 && window.testSceneRef.current.world.mode===null","turn":7145}
+{"at":"2026-10-04T16:36:03.374Z","commandIndex":16,"command":{"action":"wait","ms":1500}}
+{"at":"2026-10-04T16:36:04.876Z","commandIndex":16,"command":{"action":"pause"}}
+{"at":"2026-10-04T16:36:05.496Z","commandIndex":16,"command":{"action":"mark","name":"blast-after-range-correction"}}
+{"at":"2026-10-04T16:40:13.430Z","commandIndex":17,"command":{"action":"resume"}}
+{"at":"2026-10-04T16:40:14.020Z","commandIndex":17,"command":{"action":"until","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000}}
+{"at":"2026-10-04T16:40:14.077Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000,"turn":7171}
+{"at":"2026-10-04T16:40:14.239Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","turn":7173}
+{"at":"2026-10-04T16:40:14.239Z","commandIndex":17,"command":{"action":"select","kind":"warrior","modifier":"Shift"}}
+{"at":"2026-10-04T16:40:15.139Z","operation":"selected","kind":"warrior","modifier":"Shift","ids":[3515,3516,3517,3573,3574,3575,4602,4603,4604,4605,4606],"turn":7184}
+{"at":"2026-10-04T16:40:15.139Z","commandIndex":17,"command":{"action":"map","point":{"x":82.8828125,"z":100.921875}}}
+{"at":"2026-10-04T16:40:15.284Z","operation":"minimap-click","point":{"x":82.8828125,"z":100.921875},"input":{"d":101.96568050084304,"x":94,"y":78}}
+{"at":"2026-10-04T16:40:16.389Z","commandIndex":17,"command":{"action":"until","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","timeout":10000}}
+{"at":"2026-10-04T16:40:16.405Z","operation":"wait-start","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","timeout":10000,"turn":7199}
+{"at":"2026-10-04T16:40:16.547Z","operation":"wait-complete","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","turn":7201}
+{"at":"2026-10-04T16:40:16.547Z","commandIndex":17,"command":{"action":"entity","collection":"buildings","id":2,"options":{"focus":false}}}
+{"at":"2026-10-04T16:40:16.690Z","operation":"entity-pick","attempt":0,"x":858.5625,"y":323.6875,"center":{"x":818.5625,"y":403.6875},"collection":"buildings","id":2,"turn":7202}
+{"at":"2026-10-04T16:40:16.961Z","commandIndex":17,"command":{"action":"until","expression":"(() => {const w=window.testSceneRef.current.world;return w.units.some(u=>{const n=u.native;if(u.team!==\"blue\"||u.kind!==\"warrior\"||!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor],o=id&&w.buildingOrders.records[id];return o?.model===19&&o.a===37722})})()","timeout":2000}}
+{"at":"2026-10-04T16:40:17.034Z","operation":"wait-start","expression":"(() => {const w=window.testSceneRef.current.world;return w.units.some(u=>{const n=u.native;if(u.team!==\"blue\"||u.kind!==\"warrior\"||!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor],o=id&&w.buildingOrders.records[id];return o?.model===19&&o.a===37722})})()","timeout":2000,"turn":7207}
+{"at":"2026-10-04T16:40:17.193Z","operation":"wait-complete","expression":"(() => {const w=window.testSceneRef.current.world;return w.units.some(u=>{const n=u.native;if(u.team!==\"blue\"||u.kind!==\"warrior\"||!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor],o=id&&w.buildingOrders.records[id];return o?.model===19&&o.a===37722})})()","turn":7209}
+{"at":"2026-10-04T16:40:17.193Z","commandIndex":17,"command":{"action":"select","kind":"shaman"}}
+{"at":"2026-10-04T16:40:18.092Z","operation":"selected","kind":"shaman","modifier":"Control","ids":[54],"turn":7220}
+{"at":"2026-10-04T16:40:18.092Z","commandIndex":17,"command":{"action":"map","point":{"x":85,"z":113}}}
+{"at":"2026-10-04T16:40:18.244Z","operation":"minimap-click","point":{"x":85,"z":113},"input":{"d":168.80758276807353,"x":92,"y":89}}
+{"at":"2026-10-04T16:40:19.359Z","commandIndex":17,"command":{"action":"until","expression":"!window.testSceneRef.current.cameraMotion.active","timeout":10000}}
+{"at":"2026-10-04T16:40:19.410Z","operation":"wait-start","expression":"!window.testSceneRef.current.cameraMotion.active","timeout":10000,"turn":7235}
+{"at":"2026-10-04T16:40:19.560Z","operation":"wait-complete","expression":"!window.testSceneRef.current.cameraMotion.active","turn":7237}
+{"at":"2026-10-04T16:40:19.560Z","commandIndex":17,"command":{"action":"ground","point":{"x":85,"z":113},"options":{"focus":false}}}
+{"at":"2026-10-04T16:40:19.933Z","operation":"ground-pick","x":829.75,"y":396.625,"point":{"x":84.98334446283229,"z":112.95456261069012}}
+{"at":"2026-10-04T16:40:20.108Z","commandIndex":17,"command":{"action":"until","expression":"(() => {const u=window.testSceneRef.current.world.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0);return !!u&&Math.hypot(u.x-85,u.z-113)<1.5})()","timeout":90000}}
+{"at":"2026-10-04T16:40:20.197Z","operation":"wait-start","expression":"(() => {const u=window.testSceneRef.current.world.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0);return !!u&&Math.hypot(u.x-85,u.z-113)<1.5})()","timeout":90000,"turn":7244}
+{"at":"2026-10-04T16:40:24.842Z","operation":"wait-complete","expression":"(() => {const u=window.testSceneRef.current.world.units.find(u=>u.team===\"blue\"&&u.kind===\"shaman\"&&u.hp>0);return !!u&&Math.hypot(u.x-85,u.z-113)<1.5})()","turn":7301}
+{"at":"2026-10-04T16:40:24.842Z","commandIndex":17,"command":{"action":"map","point":{"x":76.8828125,"z":112.9296875}}}
+{"at":"2026-10-04T16:40:24.983Z","operation":"minimap-click","point":{"x":76.8828125,"z":112.9296875},"input":{"d":124.03628501370072,"x":94,"y":93}}
+{"at":"2026-10-04T16:40:26.088Z","commandIndex":17,"command":{"action":"until","expression":"!window.testSceneRef.current.cameraMotion.active","timeout":10000}}
+{"at":"2026-10-04T16:40:26.126Z","operation":"wait-start","expression":"!window.testSceneRef.current.cameraMotion.active","timeout":10000,"turn":7316}
+{"at":"2026-10-04T16:40:26.298Z","operation":"wait-complete","expression":"!window.testSceneRef.current.cameraMotion.active","turn":7318}
+{"at":"2026-10-04T16:40:26.298Z","commandIndex":17,"command":{"action":"title","name":"spells"}}
+{"at":"2026-10-04T16:40:26.871Z","commandIndex":17,"command":{"action":"button","name":"Tornado, 2 shots"}}
+{"at":"2026-10-04T16:40:27.482Z","commandIndex":17,"command":{"action":"until","expression":"window.testSceneRef.current.world.mode===\"tornado\"","timeout":1000}}
+{"at":"2026-10-04T16:40:27.556Z","operation":"wait-start","expression":"window.testSceneRef.current.world.mode===\"tornado\"","timeout":1000,"turn":7333}
+{"at":"2026-10-04T16:40:27.729Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.mode===\"tornado\"","turn":7335}
+{"at":"2026-10-04T16:40:27.729Z","commandIndex":17,"command":{"action":"ground","point":{"x":76.8828125,"z":112.9296875},"options":{"focus":false,"spell":"tornado"}}}
+{"at":"2026-10-04T16:40:28.176Z","operation":"ground-pick","x":829.875,"y":411.375,"point":{"x":76.86610473242382,"z":112.89551624493015}}
+{"at":"2026-10-04T16:40:28.390Z","commandIndex":17,"command":{"action":"until","expression":"window.testSceneRef.current.world.shots.tornado===1","timeout":2000}}
+{"at":"2026-10-04T16:40:28.466Z","operation":"wait-start","expression":"window.testSceneRef.current.world.shots.tornado===1","timeout":2000,"turn":7344}
+{"at":"2026-10-04T16:40:28.635Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.shots.tornado===1","turn":7346}
+{"at":"2026-10-04T16:40:28.635Z","commandIndex":17,"command":{"action":"mark","name":"second-tornado-cast"}}
+{"at":"2026-10-04T16:40:29.668Z","commandIndex":17,"command":{"action":"until","expression":"window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")","timeout":10000}}
+{"at":"2026-10-04T16:40:29.731Z","operation":"wait-start","expression":"window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")","timeout":10000,"turn":7359}
+{"at":"2026-10-04T16:40:29.898Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")","turn":7361}
+{"at":"2026-10-04T16:40:29.898Z","commandIndex":17,"command":{"action":"until","expression":"!window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")","timeout":60000}}
+{"at":"2026-10-04T16:40:29.955Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")","timeout":60000,"turn":7362}
+{"at":"2026-10-04T16:40:48.145Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.effects.some(f=>f.kind===\"tornado\")","turn":7580}
+{"at":"2026-10-04T16:40:48.145Z","commandIndex":17,"command":{"action":"pause"}}
+{"at":"2026-10-04T16:40:48.776Z","commandIndex":17,"command":{"action":"mark","name":"second-tornado-resolved"}}
+{"at":"2026-10-04T16:45:13.197Z","commandIndex":18,"command":{"action":"resume"}}
+{"at":"2026-10-04T16:45:13.765Z","commandIndex":18,"command":{"action":"until","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000}}
+{"at":"2026-10-04T16:45:13.833Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","timeout":1000,"turn":7589}
+{"at":"2026-10-04T16:45:14.003Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.inputMask && !window.testSceneRef.current.world.paused","turn":7591}
+{"at":"2026-10-04T16:45:14.003Z","commandIndex":18,"command":{"action":"select","kind":"warrior","modifier":"Shift"}}
+{"at":"2026-10-04T16:45:14.968Z","operation":"selected","kind":"warrior","modifier":"Shift","ids":[3515,3516,3517,3573,3574,3575,4602,4603,4604,4605,4606],"turn":7602}
+{"at":"2026-10-04T16:45:14.968Z","commandIndex":18,"command":{"action":"map","point":{"x":68.921875,"z":100.703125}}}
+{"at":"2026-10-04T16:45:15.134Z","operation":"minimap-click","point":{"x":68.921875,"z":100.703125},"input":{"d":73.76313442364011,"x":94,"y":82}}
+{"at":"2026-10-04T16:45:16.244Z","commandIndex":18,"command":{"action":"until","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","timeout":10000}}
+{"at":"2026-10-04T16:45:16.272Z","operation":"wait-start","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","timeout":10000,"turn":7618}
+{"at":"2026-10-04T16:45:16.439Z","operation":"wait-complete","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","turn":7620}
+{"at":"2026-10-04T16:45:16.439Z","commandIndex":18,"command":{"action":"entity","collection":"buildings","id":1,"options":{"focus":false}}}
+{"at":"2026-10-04T16:45:16.561Z","operation":"entity-pick","attempt":0,"x":816.9375,"y":319.375,"center":{"x":821.9375,"y":409.375},"collection":"buildings","id":1,"turn":7621}
+{"at":"2026-10-04T16:45:16.832Z","commandIndex":18,"command":{"action":"until","expression":"(() => {const w=window.testSceneRef.current.world;return w.units.some(u=>{const n=u.native;if(u.team!==\"blue\"||u.kind!==\"warrior\"||!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor],o=id&&w.buildingOrders.records[id];return o?.model===19&&o.a===37708})})()","timeout":2000}}
+{"at":"2026-10-04T16:45:17.015Z","operation":"wait-start","expression":"(() => {const w=window.testSceneRef.current.world;return w.units.some(u=>{const n=u.native;if(u.team!==\"blue\"||u.kind!==\"warrior\"||!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor],o=id&&w.buildingOrders.records[id];return o?.model===19&&o.a===37708})})()","timeout":2000,"turn":7626}
+{"at":"2026-10-04T16:45:17.221Z","operation":"wait-complete","expression":"(() => {const w=window.testSceneRef.current.world;return w.units.some(u=>{const n=u.native;if(u.team!==\"blue\"||u.kind!==\"warrior\"||!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor],o=id&&w.buildingOrders.records[id];return o?.model===19&&o.a===37708})})()","turn":7629}
+{"at":"2026-10-04T16:45:17.221Z","commandIndex":18,"command":{"action":"until","expression":"!window.testSceneRef.current.world.buildings.some(b=>b.id===1&&b.hp>=260)","timeout":90000}}
+{"at":"2026-10-04T16:45:17.287Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.buildings.some(b=>b.id===1&&b.hp>=260)","timeout":90000,"turn":7630}
+{"at":"2026-10-04T16:45:28.160Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.buildings.some(b=>b.id===1&&b.hp>=260)","turn":7761}
+{"at":"2026-10-04T16:45:28.160Z","commandIndex":18,"command":{"action":"mark","name":"enemy-camp-under-attack"}}
+{"at":"2026-10-04T16:45:28.910Z","commandIndex":18,"command":{"action":"until","expression":"!window.testSceneRef.current.world.buildings.some(b=>b.id===1&&b.hp>0)","timeout":120000}}
+{"at":"2026-10-04T16:45:28.967Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.buildings.some(b=>b.id===1&&b.hp>0)","timeout":120000,"turn":7770}
+{"at":"2026-10-04T16:45:43.440Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.buildings.some(b=>b.id===1&&b.hp>0)","turn":7944}
+{"at":"2026-10-04T16:45:43.440Z","commandIndex":18,"command":{"action":"pause"}}
+{"at":"2026-10-04T16:45:44.021Z","commandIndex":18,"command":{"action":"mark","name":"enemy-camp-destroyed"}}
+{"at":"2026-10-04T16:50:59.479Z","commandIndex":19,"command":{"action":"resume"}}
+{"at":"2026-10-04T16:51:00.084Z","commandIndex":19,"command":{"action":"select","kind":"warrior","modifier":"Shift"}}
+{"at":"2026-10-04T16:51:01.125Z","operation":"selected","kind":"warrior","modifier":"Shift","ids":[3515,3516,3517,3573,3574,3575,4602,4603,4604,4605,4606],"turn":7964}
+{"at":"2026-10-04T16:51:01.125Z","commandIndex":19,"command":{"action":"map","point":{"x":82.8828125,"z":100.921875}}}
+{"at":"2026-10-04T16:51:01.279Z","operation":"minimap-click","point":{"x":82.8828125,"z":100.921875},"input":{"d":120.30378215168464,"x":113.99999999999999,"y":93}}
+{"at":"2026-10-04T16:51:02.375Z","commandIndex":19,"command":{"action":"until","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","timeout":10000}}
+{"at":"2026-10-04T16:51:02.418Z","operation":"wait-start","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","timeout":10000,"turn":7980}
+{"at":"2026-10-04T16:51:02.597Z","operation":"wait-complete","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","turn":7981}
+{"at":"2026-10-04T16:51:02.598Z","commandIndex":19,"command":{"action":"entity","collection":"buildings","id":2,"options":{"focus":false}}}
+{"at":"2026-10-04T16:51:02.718Z","operation":"entity-pick","attempt":0,"x":870.625,"y":328.625,"center":{"x":830.625,"y":408.625},"collection":"buildings","id":2,"turn":7982}
+{"at":"2026-10-04T16:51:02.998Z","commandIndex":19,"command":{"action":"until","expression":"(() => {const w=window.testSceneRef.current.world;return w.units.some(u=>{const n=u.native;if(u.team!==\"blue\"||u.kind!==\"warrior\"||!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor],o=id&&w.buildingOrders.records[id];return o?.model===19&&o.a===37722})})()","timeout":2000}}
+{"at":"2026-10-04T16:51:03.076Z","operation":"wait-start","expression":"(() => {const w=window.testSceneRef.current.world;return w.units.some(u=>{const n=u.native;if(u.team!==\"blue\"||u.kind!==\"warrior\"||!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor],o=id&&w.buildingOrders.records[id];return o?.model===19&&o.a===37722})})()","timeout":2000,"turn":7987}
+{"at":"2026-10-04T16:51:03.291Z","operation":"wait-complete","expression":"(() => {const w=window.testSceneRef.current.world;return w.units.some(u=>{const n=u.native;if(u.team!==\"blue\"||u.kind!==\"warrior\"||!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor],o=id&&w.buildingOrders.records[id];return o?.model===19&&o.a===37722})})()","turn":7990}
+{"at":"2026-10-04T16:51:03.291Z","commandIndex":19,"command":{"action":"until","expression":"!window.testSceneRef.current.world.buildings.some(b=>b.id===2&&b.hp>0)","timeout":120000}}
+{"at":"2026-10-04T16:51:03.359Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.buildings.some(b=>b.id===2&&b.hp>0)","timeout":120000,"turn":7991}
+{"at":"2026-10-04T16:51:12.595Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.buildings.some(b=>b.id===2&&b.hp>0)","turn":8102}
+{"at":"2026-10-04T16:51:12.596Z","commandIndex":19,"command":{"action":"pause"}}
+{"at":"2026-10-04T16:51:13.213Z","commandIndex":19,"command":{"action":"mark","name":"last-enemy-hut-destroyed"}}
+{"at":"2026-10-04T16:51:32.317Z","commandIndex":20,"command":{"action":"resume"}}
+{"at":"2026-10-04T16:51:32.920Z","commandIndex":20,"command":{"action":"select","kind":"warrior","modifier":"Shift"}}
+{"at":"2026-10-04T16:51:33.872Z","operation":"selected","kind":"warrior","modifier":"Shift","ids":[3515,3516,3517,3573,3574,3575,4602,4603,4604,4605,4606],"turn":8121}
+{"at":"2026-10-04T16:51:33.872Z","commandIndex":20,"command":{"action":"map","point":{"x":44.83203125,"z":114.97265625}}}
+{"at":"2026-10-04T16:51:34.007Z","operation":"minimap-click","point":{"x":44.83203125,"z":114.97265625},"input":{"d":120.14990636700472,"x":66,"y":106}}
+{"at":"2026-10-04T16:51:35.127Z","commandIndex":20,"command":{"action":"until","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","timeout":10000}}
+{"at":"2026-10-04T16:51:35.157Z","operation":"wait-start","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","timeout":10000,"turn":8136}
+{"at":"2026-10-04T16:51:35.306Z","operation":"wait-complete","expression":"!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null","turn":8138}
+{"at":"2026-10-04T16:51:35.306Z","commandIndex":20,"command":{"action":"entity","collection":"buildings","id":1023,"options":{"focus":false}}}
+{"at":"2026-10-04T16:51:35.378Z","operation":"entity-pick","attempt":0,"x":788.1875,"y":261.0625,"center":{"x":808.1875,"y":411.0625},"collection":"buildings","id":1023,"turn":8138}
+{"at":"2026-10-04T16:51:35.630Z","commandIndex":20,"command":{"action":"until","expression":"(() => {const w=window.testSceneRef.current.world;return w.units.some(u=>{const n=u.native;if(u.team!==\"blue\"||u.kind!==\"warrior\"||!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor],o=id&&w.buildingOrders.records[id];return o?.model===19&&o.a===34100})})()","timeout":2000}}
+{"at":"2026-10-04T16:51:35.720Z","operation":"wait-start","expression":"(() => {const w=window.testSceneRef.current.world;return w.units.some(u=>{const n=u.native;if(u.team!==\"blue\"||u.kind!==\"warrior\"||!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor],o=id&&w.buildingOrders.records[id];return o?.model===19&&o.a===34100})})()","timeout":2000,"turn":8142}
+{"at":"2026-10-04T16:51:35.905Z","operation":"wait-complete","expression":"(() => {const w=window.testSceneRef.current.world;return w.units.some(u=>{const n=u.native;if(u.team!==\"blue\"||u.kind!==\"warrior\"||!n)return false;const id=n.immediateCommand||n.commands[n.commandCursor],o=id&&w.buildingOrders.records[id];return o?.model===19&&o.a===34100})})()","turn":8145}
+{"at":"2026-10-04T16:51:35.905Z","commandIndex":20,"command":{"action":"until","expression":"!window.testSceneRef.current.world.buildings.some(b=>b.id===1023&&b.hp>0)","timeout":180000}}
+{"at":"2026-10-04T16:51:35.962Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.buildings.some(b=>b.id===1023&&b.hp>0)","timeout":180000,"turn":8146}
+{"at":"2026-10-04T16:52:00.136Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.buildings.some(b=>b.id===1023&&b.hp>0)","turn":8436}
+{"at":"2026-10-04T16:52:00.137Z","commandIndex":20,"command":{"action":"pause"}}
+{"at":"2026-10-04T16:52:00.725Z","commandIndex":20,"command":{"action":"mark","name":"enemy-last-tower-destroyed"}}
