@@ -109,6 +109,26 @@
     {
       "path": "decomp/research/mission3-person-task.md",
       "sha256": "9231ae425b9d03c545b37c54f5717fd37035f77018b11d13998a5feb53e89324"
+    },
+    {
+      "path": "app/game-store.ts",
+      "sha256": "5912b579e31993ec426dbd1406baded642f65019da11bd1d8f4c27bcfaac6214"
+    },
+    {
+      "path": "app/scene-camera-runtime.ts",
+      "sha256": "72e419cb58a4682b62c7611f0f0ba4f51e2f61a2c1e1ea254a84db436d272880"
+    },
+    {
+      "path": "app/selection-runtime.ts",
+      "sha256": "999dfa2becc4bf884239b79cf9edeef75a6d74ee5f588b29aff57178ab7deeb6"
+    },
+    {
+      "path": "app/world-initialization.ts",
+      "sha256": "6b00311e4d64886f35803bca8059661f6c19fa67a5dddb0b4c83a14c2d0458f6"
+    },
+    {
+      "path": "app/world-state.ts",
+      "sha256": "09336732c58ac2cba009ebdc8547837e6674363a06a43d4d4aa21ce31bb0472f"
     }
   ]
 }

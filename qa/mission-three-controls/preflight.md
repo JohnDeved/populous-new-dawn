@@ -123,9 +123,16 @@ Important controls:
 
 ### A. Fresh entry and resources
 
-Use All missions → Mission 3 through the startup UI. This is an explicit
-independent-entry setup, not campaign progression proof. Wait for startup
-readiness and capture the screen, HUD stocks, initial/authored IDs, population,
+Use a fresh owned browser profile and record initial completedMissions, requiring
+Mission 3 to be absent before starting. Use All missions → Mission 3 through the
+startup UI. This is an explicit independent-entry setup, not campaign progression
+proof. Capture the authored Yellow Brave's ID at the first obtainable world epoch,
+before startup-readiness waiting. Imported object index52 begins at `(-43,-107)`;
+trace that object through ordinary createWorld allocation and retain the actual
+ID, without assuming it stays at that position until readiness. A missing early
+identity is an evidence gap, never a reason to inject or substitute an actor.
+
+Then wait for startup readiness and capture the screen, HUD stocks, population,
 world/input state, renderer/browser identity, and wall/game clocks. Assert normal
 speed and a live RAF owner. Read-only diagnostic bindings must not expose a
 shipping test API or modify the application.
@@ -160,9 +167,17 @@ exact saved victim/preacher IDs and state23 ownership. Close the menu through
 Continue Game. A normal Preacher move should cancel the listener link and leave
 that same Yellow Brave alive; assert cleared ownership/listener flags.
 
-Reload the page and use Load Game. Verify actual saved sermon ownership, paused
-state, normal speed and all retained object identities before resuming through
-UI. Observe the conversion: preceding state23 with this Blue Preacher, old ID
+Reload the page and use Load Game. The shipped beginLoad path explicitly sets
+paused=false: loading auto-resumes, even if the saved checkpoint was paused.
+Rebind on the new scene and inspect actual saved sermon ownership, normal speed
+and retained object identities from its first obtainable observation epoch.
+If stable inspection is needed, click Pause game and later Resume game as
+separately logged UI actions; do not assume Load itself leaves the game paused.
+Do not halt RAF or alter clocks to recover an observation missed during loading.
+A listener that converted before the new observer attached has not produced the
+required resumed conversion witness.
+
+Observe the conversion: preceding state23 with this exact Blue Preacher, old ID
 removed, newly allocated Blue same-kind replacement with native flags3/0x1000000
 and flags4/0x40000. Require singleton victim/replacement pairing for the authored
 Brave. Both callback and source must be source-bound.
@@ -170,11 +185,21 @@ Brave. Both callback and source must be source-bound.
 The existing conversion observer needs adjacent turns; slow polling alone cannot
 prove this under catch-up frames. A reviewed diagnostic after-turn observer may
 chain the existing callback unchanged and collect copied snapshots into a
-separate diagnostic object. It must never change World, clock counters, RNG,
-orders, scheduling, or the original callback's invocation count. Save/load needs
-rebinding to the new scene and a fresh observation epoch. If review rejects this
-instrumentation, report that conversion identity is unproved rather than treating
-an arbitrary poll/disappearance as equivalent evidence.
+separate diagnostic object. Call the original callback exactly once, preserving
+its normal semantics, then execute only synchronous diagnostic work. Catch every
+diagnostic exception out of band, record it in the separate diagnostic state and
+invalidate the affected proof; never throw it into afterTurn or allow it to stop
+the next RAF. Do not swallow or relabel an original application exception. No
+async work belongs inside the callback. It must never change World, clock
+counters, RNG, orders or scheduling.
+
+Save/load requires rebinding to the new scene and a fresh observation epoch;
+never pair a pre-reload victim snapshot with a post-load replacement. Sum forward
+simulation-time intervals separately for each scene/load epoch, recording wall
+and paused duration alongside them. End-minus-start across a checkpoint rewind
+undercounts actual play. If review rejects this instrumentation, report that
+conversion identity is unproved rather than treating an arbitrary
+poll/disappearance as equivalent evidence.
 
 ### D. Erosion, economy and sustained combat
 
@@ -206,10 +231,15 @@ training/building only when the economy still supports it.
 ### E. Actual result and durable completion
 
 Require world.status=won, ordinary outcome-camera completion, the victory UI,
-Mission 3 in the durable campaign profile, and visible Continue to Mission 4.
-Read the saved profile after the normal result path; optionally verify fresh-page
-selector completion without overwriting the earlier checkpoint. Do not require
-starting Mission 4 to prove its offer. Retain screenshots plus source-bound raw
+Mission 3 newly added to the initially M3-absent profile, and visible Continue to
+Mission 4. The store launches its profile write without awaiting it, so the
+victory UI and in-memory completedMissions alone do not establish durability.
+After the normal result path, explicitly await repeated sequential read-only
+IndexedDB profile reads until the correct persisted profile contains Mission 3.
+Apply the same awaited-read principle as checkpoint verification; never use an
+async Playwright predicate as a persistence assertion. Optionally verify
+fresh-page selector completion without overwriting the earlier checkpoint. Do
+not require starting Mission 4 to prove its offer. Retain screenshots plus source-bound raw
 receipt, action journal, timings, conversions and any prior failed commands.
 A run with unresolved failed assertions is an exploratory result, not a clean
 passing acceptance. A later clean replay can only claim what it actually repeats.
@@ -219,11 +249,12 @@ passing acceptance. A later clean replay can only claim what it actually repeats
 At 12 simulation turns per second, the old sermon milestone at turn2526 is about
 210.5 seconds of game time. The historical Vault/training approaches are therefore
 minute-scale, but the real input route, headless rendering, UI interruptions and
-live defense can change timing. Start with a 20-minute wall watchdog for each
-acquisition/build/training/approach stage; record active game seconds and actual
-turns. This is a diagnostic threshold, not a proof that gameplay is broken or a
-fixed sleep. If orders and progress are advancing, report/extend the stage in the
-same owned session instead of restarting or changing the clock.
+live defense can change timing. Use an initial pooled 10 active minutes for
+opening through saved/reloaded conversion, followed by 30 active minutes for
+Erosion, economy, combat and result. These are diagnostic budgets, not measured
+ETAs, gameplay deadlines or fixed sleeps. Record active game time per scene/load
+epoch, actual turns, paused intervals and wall time. Check accepted actions
+immediately; compare meaningful progress in 30–60-second observation windows.
 
 The inspected immutable #181 packet records Mission 3 victory at turn17568,
 time1464 seconds (24.4 active minutes), and profile `[2,3]`, then its result at
@@ -235,12 +266,20 @@ RAF and direct ticks, so it is not a current browser ETA. Its route source is
 
 A single historical 2400-turn combat wait represents 200 seconds. The former
 10-wave × 80-target loop has a many-hour theoretical maximum and is not a useful
-real-clock victory bound. Predeclare a six-hour process safety envelope for the
-owned exploratory run, with event-driven action windows and a diagnosis after
-roughly five minutes of unchanged target/order/economy state. Record whether the
-simulation itself advanced; a browser/server stall differs from a valid failed
-route or combat stalemate. These values are conservative operating limits, not
-observed performance results. Do not shorten native timers to meet them.
+real-clock victory bound. Predeclare an initial 90-minute wall resource envelope
+for the owned exploratory run. Diagnose roughly two active minutes without
+relevant changes in movement, route, delivered wood, construction progress,
+stored training mana, HP, population or sermon timer. Advancing stochastic sermon
+timers remain progress even if conversion has not yet occurred. Record whether
+the simulation itself advanced; a browser/server stall differs from a valid
+failed route or combat stalemate.
+
+Extend a diagnostic budget or the resource envelope only with recorded advancing
+evidence and coordinator resource ownership, retaining the same owned session
+where practical. At the outer cap, preserve a player-made checkpoint through
+ordinary UI when possible and report the incomplete result; any later checkpoint
+continuation is labelled. These are operating bounds, not observed performance
+results. Do not shorten native timers or change the clock to meet them.
 
 The purpose ends at observed victory with durable completion, observed defeat,
 a reproducible gameplay/control blocker requiring application work outside this
