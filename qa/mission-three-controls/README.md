@@ -25,7 +25,7 @@ node --check qa/mission-three-controls/driver.mjs
 node --test qa/mission-three-controls/observation.test.mjs
 ```
 
-The seventeen isolated tests cover original callback receiver/arguments/return and
+The eighteen isolated tests cover original callback receiver/arguments/return and
 exact invocation count; diagnostic exception isolation versus real application
 exceptions; idempotent detach; separate reload/time epochs; strict singleton
 conversion identity; rejecting death/poll gaps; and progress that ignores a
@@ -37,6 +37,8 @@ wall-clock diagnostic boundaries and terminal observed-defeat classification at
 all batch/wait/catch boundaries. Temporal cases preserve an actually observed
 secondary-owned ground marker after its four-turn expiry, reject stale or missing
 witnesses and cross-reload history, and verify the bounded512-marker cursor window.
+The minimap regression rejects a geometrically nearest pixel covered by a HUD tab,
+requires real canvas ownership, and rejects unowned or overly distant alternatives.
 The tests use isolated plain JS data, not the
 game simulation, browser, assets, native executable or installed packages.
 
@@ -58,7 +60,8 @@ active budgets are 10 pooled game minutes through reloaded conversion, then 30
 from that conversion milestone through the result. Changing a budget requires a
 reviewed checker revision and coordinator ownership, not a runtime clock change.
 The marker observation repair is described in `marker-expiry.md`; its failed
-first run remains failed. Each wait checks state each second and reports stage progress at 30-active-second
+first run remains failed. The separate minimap repair and failed second run are documented in
+`minimap-ownership.md`. Each wait checks state each second and reports stage progress at 30-active-second
 intervals. Two active minutes without relevant progress, 30 wall seconds without clock/RAF
 advancement, or a stage/resource budget stop ends as an explicitly incomplete
 observation and best-effort UI checkpoint. These do not become gameplay assertion
@@ -137,7 +140,12 @@ retained screenshots/snapshots and journal, then choose ordinary commands:
 - `prove-victory`, then `finish`
 
 Start tactical batches with `resume`; batch boundaries are intentionally paused.
-Camera preparation must precede mode selection. A selected plan/spell must not
+Camera preparation must precede mode selection. The minimap helper waits for
+ordinary camera settlement, chooses an actually canvas-owned pixel within8 world
+units of the requested camera point, and verifies the observed focus destination.
+Only Shaman home return searches a radius2 ground neighborhood; its actual click
+is less than3.5 units from home and the unchanged arrival condition requires≤4.
+Preacher approach/cancellation and tactical moves retain their exact-point probes. A selected plan/spell must not
 be followed by a minimap helper that clears its mode. Entity clicks require a fresh dispatch timestamp/pointer acknowledgement and
 a matching selected follower work/target/order. Ground orders require a new marker
 at the requested coarse cell, either still live or actually captured after the

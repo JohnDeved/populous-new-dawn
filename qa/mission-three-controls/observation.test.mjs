@@ -1,8 +1,22 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
-import { createEpoch, recordTurn, attachObserver, requireConversion, progressKey, checkCondition, observeBuilding, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated } from './observation.mjs'
+import { createEpoch, recordTurn, attachObserver, requireConversion, progressKey, checkCondition, observeBuilding, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated, minimapInput } from './observation.mjs'
 const world = () => ({ turn: 0, time: 0, speed: 1, outcome: { level: 3 }, units: [] })
+
+test('minimap inverse rejects the closest pixel hidden by a tab and never chooses a non-canvas point', () => {
+  const input = { width: 10, height: 10, rect: { x: 0, y: 0, width: 100, height: 100 },
+    center: { x: 0, y: 0 }, heading: 0, target: { x: 5 * 256, y: 7 * 256 } }
+  const original = structuredClone(input)
+  const pick = (_w, _h, _center, _heading, p) => ({ x: p.x * 256, y: p.y * 256 })
+  const canvasOwns = p => p.y < 65
+  const selected = minimapInput(input, pick, canvasOwns)
+  assert.equal(canvasOwns(selected), true, 'The geometrically closest pixel is covered by a HUD tab')
+  assert.deepEqual(selected, { x: 50, y: 60, distance: 256, native: { x: 1280, y: 1536 } })
+  assert.equal(minimapInput(input, pick, () => false), null)
+  assert.equal(minimapInput({ ...input, maxDistance: 128 }, pick, canvasOwns), null)
+  assert.deepEqual(input, original)
+})
 
 test('observer chains original exactly once with receiver, arguments and return preserved', () => {
   const w = world(), epoch = createEpoch('entry'), calls = []

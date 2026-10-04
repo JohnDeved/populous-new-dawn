@@ -63,7 +63,8 @@ export default async function missionThreeControls({ page, output, root, signal,
       status: w.status, inputMask: w.inputMask, lastOrderTurn: w.lastOrderTurn, pointerAck: copy(s.pointerAck), selected: [...w.selected], mode: w.mode,
       stats: copy(w.stats), shots: copy(w.shots), unlockedTemple: w.unlockedTemple,
       completedMissions: store.getCompletedMissions(), readiness: campaignShamanReadiness(w),
-      camera: { point: copy(s.viewPoint), bearing: s.cameraBearing, overview: s.overviewStage },
+      camera: { point: copy(s.viewPoint), position: copy(s.cameraPosition), bearing: s.cameraBearing,
+        motion: copy(s.cameraMotion), overview: s.overviewStage },
       animationFrame: s.gameClock.animationFrame, frame: s.frame,
       units: w.units.filter(u => u.hp > 0).map(u => {
         const p = person(u)
@@ -159,24 +160,32 @@ export default async function missionThreeControls({ page, output, root, signal,
   const map = async point => {
     assert.ok(Number.isFinite(point.x) && Number.isFinite(point.z))
     assert.equal((await read()).mode, null, 'Camera preparation must precede mode selection')
+    const settle = () => page.waitForFunction(() => {
+      const s = window.testSceneRef.current
+      return !s.world.inputMask && !s.cameraMotion.active && !s.resultCamera.active && !s.viewTransition
+    }, null, { timeout: 30_000 })
+    await settle()
     const input = await page.evaluate(async p => {
       const s = window.testSceneRef.current, { minimapPick } = await import('/app/minimap.ts')
+      const { minimapInput } = await import('/qa/mission-three-controls/observation.mjs')
       const r = s.mini.getBoundingClientRect(), width = s.mini.width, height = s.mini.height
       const center = { x: Math.round((s.viewPoint.x + 8) * 256), y: Math.round((-s.viewPoint.z - 8) * 256) }
       const target = { x: Math.round((p.x + 8) * 256), y: Math.round((-p.z - 8) * 256) }
       const heading = Math.round(s.cameraBearing * 1024 / Math.PI)
-      const wrap = v => ((v + 32768) % 65536 + 65536) % 65536 - 32768
-      let best = { distance: Infinity }
-      for (let y = 2; y < height - 2; y++) for (let x = 2; x < width - 2; x++) {
-        const n = minimapPick(width, height, center, heading, { x, y })
-        const distance = Math.hypot(wrap(n.x - target.x), wrap(n.y - target.y))
-        if (distance < best.distance) best = { distance, x: r.x + x / width * r.width, y: r.y + y / height * r.height }
-      }
-      return best
+      const best = minimapInput({ width, height, rect: r, center, heading, target, maxDistance: 8 * 256 },
+        minimapPick, p => document.elementFromPoint(p.x, p.y) === s.mini)
+      return best && { ...best, cameraBefore: { point: { ...s.viewPoint }, position: { ...s.cameraPosition },
+        bearing: s.cameraBearing, motionActive: s.cameraMotion.active } }
     }, point)
+    assert.ok(input, 'Minimap has a visible owned pixel mapping within8 world units of the requested camera point')
+    assert.equal(await page.evaluate(p => document.elementFromPoint(p.x, p.y) === window.testSceneRef.current.mini, input), true)
     log({ action: 'minimap-click', target: point, input })
     await page.mouse.click(input.x, input.y); await page.mouse.move(400, 780)
-    await page.waitForTimeout(900)
+    await settle()
+    const cameraAfter = (await read()).camera, short = n => n << 16 >> 16
+    log({ action: 'minimap-camera-observed', requested: point, input, cameraAfter })
+    assert.ok(Math.hypot(short(cameraAfter.position.x - input.native.x),
+      short(cameraAfter.position.y - input.native.y)) <= 1, 'Ordinary camera reached the actually clicked minimap destination')
   }
   const rotate = async () => {
     const corridor = await page.evaluate(() => {
@@ -284,10 +293,14 @@ export default async function missionThreeControls({ page, output, root, signal,
     }
     return null
   }, { point, kind, spell, radius })
-  const move = async point => {
+  const move = async (point, searchRadius = 0) => {
+    assert.ok(searchRadius === 0 || searchRadius === 2, 'Only the home-return caller permits a radius2 search')
     await map(point)
-    const hit = await groundHit(point)
+    const hit = await groundHit(point, null, null, searchRadius)
+    log({ action: 'movement-ground-probe', requested: point, searchRadius, hit })
     assert.ok(hit, 'Visible ground with no competing object')
+    const wrap = v => ((v + 128) % 256 + 256) % 256 - 128
+    assert.ok(Math.hypot(wrap(hit.point.x - point.x), wrap(hit.point.z - point.z)) < searchRadius + 1.5)
     return clickOrder(hit)
   }
   const build = async (kind, point, alias) => {
@@ -442,7 +455,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     await clickOrder(await targetEntity('shrines', 'vault'))
     await waitFor({ type: 'temple-unlocked' }, 'worship', [ids.vault, shaman])
     await mark('vault')
-    await select('shaman'); await move({ x: 35, z: 81 })
+    await select('shaman'); await move({ x: 35, z: 81 }, 2)
     await waitFor({ type: 'units-near', id: shaman, point: { x: 35, z: 81 }, distance: 4 }, 'movement', [shaman])
     await mark('shaman-home')
     const builders = await select('brave', 'five')
