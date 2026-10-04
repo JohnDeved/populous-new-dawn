@@ -396,18 +396,25 @@ try {
     height: globalThis.testScene.world.land.heights[0],
     hp: globalThis.testScene.world.units[0].hp,
   }))
-  const committed = await waitForCheckpointReadback(() => page.evaluate(async () => {
-    const database = await new Promise((resolve, reject) => {
-      const request = indexedDB.open('populous-new-dawn', 1)
-      request.addEventListener('success', () => resolve(request.result))
-      request.addEventListener('error', () => reject(request.error))
-    })
-    const request = database.transaction('checkpoints').objectStore('checkpoints').get('latest')
-    return new Promise((resolve, reject) => {
-      request.addEventListener('success', () => resolve(request.result?.version === 1))
-      request.addEventListener('error', () => reject(request.error))
-    })
-  }))
+  const committed = await waitForCheckpointReadback(
+    () => page.evaluate(async () => {
+      const database = await new Promise((resolve, reject) => {
+        const request = indexedDB.open('populous-new-dawn', 1)
+        request.addEventListener('success', () => resolve(request.result))
+        request.addEventListener('error', () => reject(request.error))
+      })
+      try {
+        const request = database.transaction('checkpoints').objectStore('checkpoints').get('latest')
+        return await new Promise((resolve, reject) => {
+          request.addEventListener('success', () => resolve(request.result?.version === 1))
+          request.addEventListener('error', () => reject(request.error))
+        })
+      } finally {
+        database.close()
+      }
+    }),
+    { attempts: 300, pause: () => page.waitForTimeout(100) }
+  )
   assert.equal(committed, true, 'Checkpoint must commit before reloading')
   await page.reload({ waitUntil: 'networkidle' })
   const startup = page.getByRole('dialog', { name: 'Start game' })
