@@ -175,13 +175,13 @@ class Bootstrap:
             if candidate.exists():
                 verify(candidate, item['sha256'])
                 return candidate
-        if self.args.offline:
-            raise ValueError(f'Offline cache miss: {item["archive"]}')
         self.cache.mkdir(parents=True, exist_ok=True)
         partial = target.with_name(target.name + '.part')
         if partial.exists() and digest(partial) == item['sha256']:
             partial.rename(target)
             return target
+        if self.args.offline:
+            raise ValueError(f'Offline cache miss: {item["archive"]}')
         self.run(['curl', '--fail', '--location', '--proto', '=https', '--proto-redir', '=https',
                   '--connect-timeout', '30', '--max-time', '1800', '--retry', '3',
                   '--continue-at', '-', '--output', partial, item['url']])

@@ -168,6 +168,7 @@ class BootstrapTests(unittest.TestCase):
         self.assertEqual([p.suffix for p in runner.cache.iterdir()], ['.part'])
 
     def test_complete_partial_is_promoted_without_network(self):
+        self.args.offline = True
         runner, item = self.runner(), self.item()
         target = runner.cache / (item['sha256'] + '-' + item['archive'])
         target.with_name(target.name + '.part').write_bytes(b'archive')
