@@ -256,6 +256,7 @@
       "evidence": [
         { "path": "references/modern-performance.md", "heading": "Chronological game clock" },
         { "path": "decomp/research/camera-bookmarks.md", "heading": "Camera bookmarks" },
+        { "path": "decomp/research/minimap-frame.md", "heading": "Minimap frame composition" },
         {
           "path": "references/modern-performance.md",
           "heading": "Ground camera presentation between native steps"
