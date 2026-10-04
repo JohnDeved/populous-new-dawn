@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
-import { createEpoch, recordTurn, attachObserver, requireConversion, progressKey, checkCondition, observeBuilding, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated, minimapInput } from './observation.mjs'
+import { createEpoch, recordTurn, attachObserver, requireConversion, progressKey, checkCondition, observeBuilding, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated, minimapInput, requiredActorStop, selectSermonVictim, inOrdinaryPreachingCells } from './observation.mjs'
 const world = () => ({ turn: 0, time: 0, speed: 1, outcome: { level: 3 }, units: [] })
 
 test('minimap inverse rejects the closest pixel hidden by a tab and never chooses a non-canvas point', () => {
@@ -82,6 +82,49 @@ test('ordinary death or polling gaps do not satisfy conversion', () => {
       native: { flags3: missingFlag ? 0 : 0x1000000, flags4: 0x40000 } }]
     recordTurn(e, w); assert.throws(() => requireConversion(e, 53, 8), /No exact/)
   }
+})
+
+test('required sermon actors fail fast while completed conversion and unrelated lifecycles remain valid', () => {
+  const preacher = { id: 3162, team: 'blue', kind: 'preacher', hp: 55 }
+  const victim = { id: 53, team: 'yellow', kind: 'brave', hp: 50, x: -43, z: -107 }
+  const s = { units: [preacher, victim], buildings: [], shrines: [], observation: { conversions: { events: [] } } }
+  const condition = { type: 'listener', id: 53, preacherId: 3162 }
+  assert.equal(requiredActorStop(s, condition), null)
+  for (const movingVictim of [victim, { ...victim, x: -27, inside: 1017 }]) {
+    const missing = { ...s, units: [movingVictim] }
+    assert.equal(requiredActorStop(missing, condition).code, 'required-preacher-unavailable')
+    assert.equal(checkCondition({ ...missing, units: [{ ...movingVictim, nativeState: 23, owner: 3162 }] }, condition), false)
+  }
+  assert.equal(requiredActorStop({ ...s, units: [preacher] }, condition).code, 'required-victim-unavailable')
+  assert.equal(requiredActorStop({ ...s, units: [{ ...preacher, team: 'yellow' }, victim] }, condition).code, 'required-preacher-unavailable')
+  const converted = { ...s, units: [], observation: { conversions: { events: [{
+    victims: [{ id: 53, workTarget: 3162 }], replacements: [{ id: 700, team: 'blue' }]
+  }] } } }
+  assert.equal(requiredActorStop(converted, { ...condition, type: 'conversion' }), null)
+  for (const type of ['trained-kind', 'shaman-ready', 'target-gone'])
+    assert.equal(requiredActorStop({ ...s, units: [] }, { type }), null)
+})
+
+test('sermon victim selection is prospective, conservative and deterministic', () => {
+  const brave = (id, x, z, extra = {}) => ({ id, x, z, kind: 'brave', team: 'yellow', hp: 50,
+    inside: null, nativeState: 19, preachingEligible: true, ...extra })
+  const s = { units: [brave(53, -43, -107), brave(48, -45, -107), brave(47, -41, -107)] }
+  const original = structuredClone(s)
+  assert.equal(selectSermonVictim(s, 53).victim.id, 53)
+  s.units[0].inside = 1017
+  assert.equal(selectSermonVictim(s, 53).victim.id, 47, 'Equal distances break on ID before the sermon')
+  assert.equal(selectSermonVictim({ units: [...s.units].reverse() }, 53).victim.id, 47)
+  assert.throws(() => selectSermonVictim({ units: [brave(53, -43, -107, { preachingEligible: false })] }, 53), /No observed/)
+  assert.throws(() => selectSermonVictim({ units: [brave(53, 35, 81)] }, 53), /No observed/)
+  assert.throws(() => selectSermonVictim({ units: Array.from({ length: 201 }, (_, id) => brave(id, -43, -107)) }, 53), /bounded200/)
+  assert.deepEqual(original.units[1], s.units[1])
+})
+
+test('prospective sermon approaches stay in the actual ordinary native cell square', () => {
+  const victim = { x: -43, z: -107 }
+  assert.equal(inOrdinaryPreachingCells({ x: -41, z: -109 }, victim), true)
+  assert.equal(inOrdinaryPreachingCells({ x: -39, z: -110 }, victim), false)
+  assert.equal(inOrdinaryPreachingCells({ x: -127, z: -127 }, { x: 127, z: 127 }), true)
 })
 
 test('progress ignores turn-only changes but retains training mana and sermon timer', () => {

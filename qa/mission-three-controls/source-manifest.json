@@ -181,8 +181,16 @@
     {
       "path": "app/globals.css",
       "sha256": "e4db6b5cf3ebffe59be61dc3cf72fc572098d19cfb0b32765383776c1e8fbe04"
+    },
+    {
+      "path": "app/original-rules.json",
+      "sha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    },
+    {
+      "path": "app/melee-engagement.ts",
+      "sha256": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde"
     }
   ],
   "originalInspectionCommit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
-  "sourceRefresh": "Accepted main through PR185/196. Four guarded callers refreshed after inspecting transport-only additions, unchanged ordinary dispatch/load/clock paths, and rendered-geometry helpers. Other guard hashes and driver bytes unchanged; production build corresponds to accepted cf43509. Marker-expiry repair guards the actual secondary owner, four-turn lifetime, and native/coarse-cell coordinate adapters. Minimap ownership repair additionally guards inverse projection, actual focus completion, and the overlapping HUD tabs."
+  "sourceRefresh": "Accepted main through PR185/196. Four guarded callers refreshed after inspecting transport-only additions, unchanged ordinary dispatch/load/clock paths, and rendered-geometry helpers. Other guard hashes and driver bytes unchanged; production build corresponds to accepted cf43509. Marker-expiry repair guards the actual secondary owner, four-turn lifetime, and native/coarse-cell coordinate adapters. Minimap ownership repair additionally guards inverse projection, actual focus completion, and the overlapping HUD tabs. Protected approach uses the actual victim eligibility flags and ordinary preaching cell square; required-actor diagnostics do not change application state."
 }

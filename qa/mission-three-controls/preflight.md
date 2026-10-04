@@ -7,6 +7,9 @@ No browser, game simulation, native executable, build, dependency installation,
 application edit, or parity recording was performed for this preflight. The
 source manifest beside this file fingerprints the code and retained evidence used.
 A future driver must be reviewed before it occupies the serialized browser slot.
+The later ordinary Run03 tactical outcome and the prospective target-selection
+amendment are documented in `protected-sermon-strategy.md`; that amendment governs
+the next protected approach while retaining exact identity through the sermon.
 
 The missing witness is a fresh public Mission 3 journey whose game-affecting
 inputs are actual mouse/keyboard controls and whose simulation remains owned by
@@ -41,7 +44,8 @@ another worker's server, browser, cache or profile.
    Preacher to `(-39,-110)`, near the authored Yellow Brave initially at
    `(-43,-107)`. The reference identified that victim from its imported position
    before it moved. Identify it during fresh entry, preserve its ID in evidence,
-   and do not later select a convenient substitute while claiming that witness.
+   and never retrospectively substitute another actor while claiming that witness.
+   Current prospective fallback selection is separately recorded before the sermon.
 4. The prior successful #188 acquisition milestones were turns 1327 (Vault),
    1820 (Temple complete), 2036 (Preacher), and 2526 (listener). Those are
    historical observations from a different exact source and a fixed-turn
@@ -155,13 +159,18 @@ to preserve the trainee's ID.
 
 ### C. Ordinary conversion and interruption
 
-Select the new Preacher by normal controls and move near `(-39,-110)`. Observe
-actual state23 and workTarget ownership on the recorded authored Yellow Brave.
-If that Brave was naturally killed or recruited before this point, preserve the
-failed witness and diagnose timing/strategy; do not inject or quietly relabel it.
+Select the new Preacher by normal controls. Prospectively select the current
+victim and approach clear ground in its actual native preaching-cell square,
+then observe state23 and exact workTarget ownership.
+Before the protected approach, inspect that Brave's current idle/unhoused eligibility.
+If unavailable, preselect another observed eligible Yellow Brave deterministically
+as documented in `protected-sermon-strategy.md`, and record the decision before
+any sermon. Once selected, retain that exact ID through interruption and conversion;
+never inject an actor or relabel a witness after the fact.
 Do not Swarm this witness before its sermon, since its flight changes the route.
 
-Capture the visible sermon and save through Game settings → Save checkpoint.
+Use ordinary Pause promptly on the first listener observation, then capture the
+visible sermon and save through Game settings → Save checkpoint.
 Await each IndexedDB read sequentially with `waitForCheckpointReadback`, requiring
 exact saved victim/preacher IDs and state23 ownership. Close the menu through
 Continue Game. A normal Preacher move should cancel the listener link and leave
@@ -179,7 +188,7 @@ required resumed conversion witness.
 
 Observe the conversion: preceding state23 with this exact Blue Preacher, old ID
 removed, newly allocated Blue same-kind replacement with native flags3/0x1000000
-and flags4/0x40000. Require singleton victim/replacement pairing for the authored
+and flags4/0x40000. Require singleton victim/replacement pairing for the preselected
 Brave. Both callback and source must be source-bound.
 
 The existing conversion observer needs adjacent turns; slow polling alone cannot

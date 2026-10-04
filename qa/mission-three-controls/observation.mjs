@@ -132,6 +132,38 @@ export class IncompleteRun extends Error {
   constructor(code, message) { super(message); this.name = 'IncompleteRun'; this.code = code }
 }
 
+export function requiredActorStop(snapshot, condition) {
+  if (!['listener', 'conversion'].includes(condition.type)) return null
+  if (condition.type === 'conversion' && checkCondition(snapshot, condition)) return null
+  const preacher = snapshot.units.find(u => u.id === condition.preacherId)
+  const victim = snapshot.units.find(u => u.id === condition.id)
+  if (!preacher || preacher.hp <= 0 || preacher.team !== 'blue' || preacher.kind !== 'preacher')
+    return new IncompleteRun('required-preacher-unavailable', `Required Blue Preacher${condition.preacherId} is absent or unavailable`)
+  if (!victim || victim.hp <= 0 || victim.team !== 'yellow' || victim.kind !== 'brave')
+    return new IncompleteRun('required-victim-unavailable', `Required Yellow Brave${condition.id} is absent or unavailable without conversion evidence`)
+  return null
+}
+
+export function selectSermonVictim(snapshot, authoredId) {
+  const yellow = snapshot.units.filter(u => u.team === 'yellow')
+  if (yellow.length > 200) throw new IncompleteRun('victim-search-limit', 'Yellow population exceeds the bounded200-person search')
+  const candidates = yellow.filter(u => u.kind === 'brave' && u.hp > 0 && u.inside === null &&
+    u.nativeState === 19 && u.preachingEligible === true && near(u, { x: -43, z: -107 }, 32))
+  candidates.sort((a, b) => Math.hypot(wrapped(a.x + 43), wrapped(a.z + 107)) -
+    Math.hypot(wrapped(b.x + 43), wrapped(b.z + 107)) || a.id - b.id)
+  const victim = candidates.find(u => u.id === authoredId) ?? candidates[0]
+  if (!victim) throw new IncompleteRun('no-eligible-victim', 'No observed idle eligible Yellow Brave in the bounded target area')
+  return { victim, candidateIds: candidates.map(u => u.id),
+    reason: victim.id === authoredId ? 'authored victim remains eligible' : 'nearest eligible idle Yellow Brave, then lowest ID' }
+}
+
+export function inOrdinaryPreachingCells(point, victim) {
+  // Same whole-cell square as inEngagementArea with ordinary commandAux=3.
+  const delta = (a, b) => (((((a >>> 8) & 254) - ((b >>> 8) & 254)) + 128) & 255) - 128
+  return Math.abs(delta(Math.round((point.x + 8) * 256), Math.round((victim.x + 8) * 256))) <= 2 &&
+    Math.abs(delta(Math.round((-point.z - 8) * 256), Math.round((-victim.z - 8) * 256))) <= 2
+}
+
 export function waitDiagnosticStop({ now, clockAdvancedAt, animationAdvancedAt, wallElapsed,
   wallLimit, active, budget, changedAt, scope }) {
   if (now - clockAdvancedAt >= 30_000 || now - animationAdvancedAt >= 30_000)
@@ -176,7 +208,7 @@ export function requireConversion(epoch, victimId, preacherId) {
   const event = epoch.conversions?.events.find(event =>
     event.victims.length === 1 && event.replacements.length === 1 &&
     event.victims[0].id === victimId && event.victims[0].workTarget === preacherId)
-  if (!event) throw Error('No exact singleton authored-victim/Blue-preacher conversion')
+  if (!event) throw Error('No exact singleton preselected-victim/Blue-preacher conversion')
   return event
 }
 
@@ -220,7 +252,8 @@ export function checkCondition(snapshot, condition) {
     case 'building-complete': return !!b && b.progress === 1
     case 'trained-kind': return snapshot.units.some(u => u.team === 'blue' && u.kind === condition.kind &&
       !(condition.existingIds ?? []).includes(u.id))
-    case 'listener': return !!u && u.team === 'yellow' && u.nativeState === 23 && u.owner === condition.preacherId
+    case 'listener': return !!u && u.team === 'yellow' && u.nativeState === 23 && u.owner === condition.preacherId &&
+      snapshot.units.some(p => p.id === condition.preacherId && p.team === 'blue' && p.kind === 'preacher' && p.hp > 0)
     case 'conversion': return !!snapshot.observation.conversions?.events.some(e =>
       e.victims.length === 1 && e.replacements.length === 1 &&
       e.victims[0].id === condition.id && e.victims[0].workTarget === condition.preacherId)

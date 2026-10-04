@@ -25,7 +25,7 @@ node --check qa/mission-three-controls/driver.mjs
 node --test qa/mission-three-controls/observation.test.mjs
 ```
 
-The eighteen isolated tests cover original callback receiver/arguments/return and
+The twenty-one isolated tests cover original callback receiver/arguments/return and
 exact invocation count; diagnostic exception isolation versus real application
 exceptions; idempotent detach; separate reload/time epochs; strict singleton
 conversion identity; rejecting death/poll gaps; and progress that ignores a
@@ -39,7 +39,9 @@ secondary-owned ground marker after its four-turn expiry, reject stale or missin
 witnesses and cross-reload history, and verify the bounded512-marker cursor window.
 The minimap regression rejects a geometrically nearest pixel covered by a HUD tab,
 requires real canvas ownership, and rejects unowned or overly distant alternatives.
-The tests use isolated plain JS data, not the
+Additional cases cover immediate required-actor stops, successful conversion before
+expected victim disappearance, prospective deterministic victim selection and native
+preaching-cell limits. The tests use isolated plain JS data, not the
 game simulation, browser, assets, native executable or installed packages.
 
 ## Reserved future launch
@@ -86,18 +88,23 @@ observation epoch, including its forward game-time accounting.
 
 ## Acquisition batches
 
-First batch:
+The complete `acquire` wrapper still executes preparation, training and approach.
+The protected strategy now uses split actions so real combat decisions can occur
+while the trainee trains. See `protected-sermon-strategy.md`. First batch:
 
 ```
-[{ "action": "acquire" }]
+[{ "action": "prepare-temple" }, { "action": "start-preacher-training" }]
 ```
 
 This executes Vault → Shaman home → Temple built by five existing Braves → one
-actual trainee → recorded authored Yellow Brave listening → ordinary persisted
-sermon checkpoint. Original untrained Braves must remain. Shaman home arrival is observed before construction and checked again before
+verified training order. Inspect the paused snapshot for the actual hostile
+Preacher. Use ordinary Shaman movement/Blast and current target results while
+training advances, then `return-shaman-home`, `finish-preacher-training` and
+`approach-sermon` (with `resume` at the start of each new batch). Original untrained Braves must remain. Shaman home arrival is observed before construction and checked again before
 Preacher intrusion. Every meaningful order/plan is asserted immediately; it does not accept unrelated AI construction.
 
-Second batch:
+Once `approach-sermon` has recorded and saved the exact preselected listener,
+the interruption batch is:
 
 ```
 [
@@ -109,11 +116,14 @@ Second batch:
 
 Load auto-resumes. The new observer must attach while the original saved sermon
 is still observable. A missed conversion before attachment is not a pass. The
-conversion milestone requires the same named victim and Preacher, adjacent-turn
+conversion milestone requires the same prospectively selected victim and named Preacher, adjacent-turn
 state23 ownership, singleton same-kind flagged replacement, and an actual new
-Blue Brave. The screenshot uses ordinary minimap positioning.
+Blue Brave. The screenshot uses ordinary minimap positioning. The authored victim53 is
+preferred only if still idle, unhoused and eligible. Otherwise choose the nearest
+currently eligible idle Yellow Brave within32 world units of its authored area,
+breaking ties by ID; record this once before any sermon. Never relabel after conversion.
 
-Third batch:
+After the conversion witness, the Erosion batch is:
 
 ```
 [{ "action": "erosion" }]
@@ -127,6 +137,8 @@ protected conversion witness.
 Combat remains an observed tactical session, not a huge fixed-turn loop. Read the
 retained screenshots/snapshots and journal, then choose ordinary commands:
 
+- `prepare-temple`, `start-preacher-training`, `finish-preacher-training`,
+  `return-shaman-home`, `approach-sermon`
 - `resume`, `pause`, `clear`
 - `select`: kind `shaman`, `brave`, `preacher`, `warrior`; count `one`, `five`, `all`
 - `map`: point `{x,z}`; `rotate`: one actual right-button camera drag
@@ -145,7 +157,10 @@ ordinary camera settlement, chooses an actually canvas-owned pixel within8 world
 units of the requested camera point, and verifies the observed focus destination.
 Only Shaman home return searches a radius2 ground neighborhood; its actual click
 is less than3.5 units from home and the unchanged arrival condition requires≤4.
-Preacher approach/cancellation and tactical moves retain their exact-point probes. A selected plan/spell must not
+Preacher approach checks at most eight exact ground candidates in the current
+preselected victim's actual native preaching-cell square. Cancellation uses an
+exact move offset from the saved Preacher's current position; tactical moves retain
+exact-point probes. A selected plan/spell must not
 be followed by a minimap helper that clears its mode. Entity clicks require a fresh dispatch timestamp/pointer acknowledgement and
 a matching selected follower work/target/order. Ground orders require a new marker
 at the requested coarse cell, either still live or actually captured after the

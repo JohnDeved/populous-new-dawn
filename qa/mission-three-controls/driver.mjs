@@ -8,7 +8,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { bindGame, showAllMissions } from '../../scripts/browser-game.mjs'
 import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs'
-import { checkCondition, progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated } from './observation.mjs'
+import { checkCondition, progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonVictim, inOrdinaryPreachingCells } from './observation.mjs'
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -36,7 +36,7 @@ export default async function missionThreeControls({ page, output, root, signal,
   const log = entry => appendFileSync(resolve(output, 'actions.jsonl'),
     JSON.stringify({ at: new Date().toISOString(), wallMs: Date.now() - startWall, ...entry }) + '\n')
   const saveProgress = (status = 'in-progress') => writeFileSync(resolve(output, 'journey.json'), JSON.stringify({
-    status, inputs, ids, epochs, milestones, failures, controlStops,
+    status, inputs, ids, epochs, milestones, failures, controlStops, training, victimSelection,
     limits: 'Ordinary UI inputs and normal RAF only; independent Mission 3, software/headless renderer.'
   }, null, 2) + '\n')
   const button = async (name, options = {}) => {
@@ -55,6 +55,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     const { currentPersonOrder } = await import('/app/person-orders.ts')
     const { observeBuilding } = await import('/qa/mission-three-controls/observation.mjs')
     const { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs')
+    const { default: rules } = await import('/app/original-rules.json')
     const w = s.world, gl = s.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
     const person = u => u.builder?.person ?? u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
     const copy = o => o === undefined ? null : JSON.parse(JSON.stringify(o))
@@ -67,8 +68,13 @@ export default async function missionThreeControls({ page, output, root, signal,
         motion: copy(s.cameraMotion), overview: s.overviewStage },
       animationFrame: s.gameClock.animationFrame, frame: s.frame,
       units: w.units.filter(u => u.hp > 0).map(u => {
-        const p = person(u)
+        const p = person(u), n = u.native
         return { id: u.id, team: u.team, kind: u.kind, x: u.x, z: u.z, hp: u.hp,
+          conversionNative: n && { model: n.model, tribe: n.tribe, life: n.life, state: n.state, vehicle: n.vehicle },
+          preachingEligible: !!n && u.kind === 'brave' && n.model === 2 && n.tribe === 2 && n.life > 0 &&
+            u.inside === null && !u.flight && !(w.outcome.alliances[0] & (1 << n.tribe)) &&
+            !!(rules.personModels[n.model].flags & 32) && !(rules.personStateFlags[n.state] & 32) &&
+            !(n.flags2 & 0x102004) && !(n.flags4 & 8) && !n.vehicle,
           inside: u.inside, work: u.work, target: copy(u.target), cargo: u.cargo,
           harvest: copy(u.harvest), delivery: copy(u.delivery), tree: u.tree, builder: u.builder &&
             { task: u.builder.task, phase: u.builder.phase, busy: u.builder.busy },
@@ -355,6 +361,12 @@ export default async function missionThreeControls({ page, output, root, signal,
       if (s.animationFrame !== lastAnimation) { lastAnimation = s.animationFrame; animationAdvancedAt = Date.now() }
       if (s.inputMask) { await skipFlyby(); continue }
       if (checkCondition(s, condition)) { log({ action: 'condition-complete', condition, turn: s.turn }); return s }
+      const actorStop = requiredActorStop(s, condition)
+      if (actorStop) {
+        log({ action: 'required-actor-unavailable', condition, code: actorStop.code, turn: s.turn,
+          units: s.units.filter(u => [condition.id, condition.preacherId].includes(u.id)), stats: s.stats })
+        throw actorStop
+      }
       const active = currentActive(s), conversion = milestones.find(m => m.name === 'conversion')
       const budget = conversion ? conversion.activeSeconds + 1800 : 600
       const next = progressKey(s, scope, watchIds)
@@ -446,47 +458,93 @@ export default async function missionThreeControls({ page, output, root, signal,
     log({ action: 'victory-persisted', profile: await readStorage('profile') })
     await mark('victory')
   }
-  const acquire = async () => {
+  let training = null, victimSelection = null
+  const returnShamanHome = async () => {
+    await select('shaman')
+    ids.shaman = (await read()).selected[0]
+    await move({ x: 35, z: 81 }, 2)
+    await waitFor({ type: 'units-near', id: ids.shaman, point: { x: 35, z: 81 }, distance: 4 }, 'movement', [ids.shaman])
+    await mark('shaman-home')
+  }
+  const prepareTemple = async () => {
     assert.ok(!milestones.some(m => m.name === 'vault'), 'Acquisition starts once in this fresh journey')
     await resume(); await skipFlyby()
     await waitFor({ type: 'shaman-ready' }, 'movement')
     await select('shaman')
     const shaman = (await read()).selected[0]
+    ids.shaman = shaman
     await clickOrder(await targetEntity('shrines', 'vault'))
     await waitFor({ type: 'temple-unlocked' }, 'worship', [ids.vault, shaman])
     await mark('vault')
-    await select('shaman'); await move({ x: 35, z: 81 }, 2)
-    await waitFor({ type: 'units-near', id: shaman, point: { x: 35, z: 81 }, distance: 4 }, 'movement', [shaman])
-    await mark('shaman-home')
+    await returnShamanHome()
     const builders = await select('brave', 'five')
     await build('temple', { x: 24, z: 70 }, 'temple')
     await waitFor({ type: 'building-complete', id: ids.temple }, 'construction', [ids.temple, ...builders])
     await mark('temple')
+  }
+  const startPreacherTraining = async () => {
+    assert.ok(milestones.some(m => m.name === 'temple') && !training)
     const before = await read(), oldPreachers = before.units.filter(u => u.team === 'blue' && u.kind === 'preacher').map(u => u.id)
     const selected = await select('brave')
     ids.trainee = selected[0]
     const retained = before.units.filter(u => u.team === 'blue' && u.kind === 'brave' && u.id !== ids.trainee).map(u => u.id)
     assert.ok(retained.length)
     await clickOrder(await targetEntity('buildings', 'temple'))
+    training = { oldPreachers, retained, trainee: ids.trainee }
+    log({ action: 'preacher-training-started', training }); saveProgress()
+  }
+  const finishPreacherTraining = async () => {
+    assert.ok(training && !ids.preacher)
+    const { oldPreachers, retained } = training
     const after = await waitFor({ type: 'trained-kind', kind: 'preacher', existingIds: oldPreachers }, 'training', [ids.temple, ids.trainee])
     const trained = after.units.filter(u => u.team === 'blue' && u.kind === 'preacher' && !oldPreachers.includes(u.id))
     assert.equal(trained.length, 1); assert.ok(!after.units.some(u => u.id === ids.trainee))
     assert.ok(after.units.some(u => retained.includes(u.id) && u.team === 'blue' && u.kind === 'brave'))
     await page.getByRole('button', { name: 'Select brave', exact: true }).isEnabled().then(enabled => assert.equal(enabled, true))
     ids.preacher = trained[0].id; await mark('preacher')
-    const home = (await read()).units.find(u => u.id === shaman)
+  }
+  const approachSermon = async () => {
+    assert.ok(ids.preacher && !victimSelection && !savedSermon, 'Preselect the protected victim exactly once before a sermon')
+    const state = await read()
+    const home = state.units.find(u => u.id === ids.shaman)
     assert.ok(home && Math.hypot(home.x - 35, home.z - 81) <= 4, 'Shaman remains home before the Preacher intrusion')
+    victimSelection = selectSermonVictim(state, ids.authoredVictim)
+    ids.victim = victimSelection.victim.id
+    log({ action: 'sermon-victim-preselected', turn: state.turn, epoch: state.observation.name, selection: victimSelection })
+    saveProgress()
     const chosen = await select('preacher'); assert.deepEqual(chosen, [ids.preacher])
-    await move({ x: -39, z: -110 })
+    let victim = (await read()).units.find(u => u.id === ids.victim)
+    assert.ok(victim?.preachingEligible && victim.inside === null && victim.team === 'yellow', 'Preselected victim remains eligible before approach')
+    await map(victim)
+    victim = (await read()).units.find(u => u.id === ids.victim)
+    assert.ok(victim?.preachingEligible && victim.inside === null && victim.team === 'yellow', 'Same victim remains eligible after camera settlement')
+    let hit
+    for (const [dx, dz] of [[2, -2], [2, 0], [0, -2], [-2, -2], [-2, 0], [0, 2], [2, 2], [-2, 2]]) {
+      const point = { x: victim.x + dx, z: victim.z + dz }
+      const candidate = await groundHit(point)
+      log({ action: 'sermon-approach-probe', victim: ids.victim, point, candidate })
+      if (candidate && inOrdinaryPreachingCells(candidate.point, victim)) { hit = candidate; break }
+    }
+    assert.ok(hit, 'Visible clear ground inside the current victim preaching cells')
+    const currentVictim = (await read()).units.find(u => u.id === ids.victim)
+    assert.ok(currentVictim?.preachingEligible && currentVictim.inside === null &&
+      inOrdinaryPreachingCells(hit.point, currentVictim), 'Actual click still lies in the same eligible victim\'s preaching cells')
+    log({ action: 'sermon-approach-current-target', victim: currentVictim, hit })
+    await clickOrder(hit)
     await waitFor({ type: 'listener', id: ids.victim, preacherId: ids.preacher }, 'sermon', [ids.victim, ids.preacher])
-    await mark('listener'); await saveCheckpoint('sermon-saved', true)
+    await pause(); await mark('listener'); await saveCheckpoint('sermon-saved', true)
     milestones.push({ name: 'sermon-saved', ...savedSermon }); saveProgress()
+  }
+  const acquire = async () => {
+    await prepareTemple(); await startPreacherTraining(); await finishPreacherTraining(); await approachSermon()
   }
   const cancelSermon = async () => {
     assert.ok(savedSermon)
     await resume(); const selected = await select('preacher')
     assert.deepEqual(selected, [ids.preacher])
-    await move({ x: -33, z: -113 })
+    const preacher = (await read()).units.find(u => u.id === ids.preacher)
+    assert.ok(preacher)
+    await move({ x: preacher.x + 6, z: preacher.z - 3 })
     const s = await read(), victim = s.units.find(u => u.id === ids.victim)
     assert.equal(victim?.team, 'yellow'); assert.notEqual(victim.nativeState, 23)
     assert.equal(victim.owner, 0); assert.equal(victim.flags4 & 128, 0); assert.equal(victim.flags2 & 0x200000, 0)
@@ -526,6 +584,11 @@ export default async function missionThreeControls({ page, output, root, signal,
     log({ action: 'requested-command', command })
     switch (command.action) {
       case 'acquire': return acquire()
+      case 'prepare-temple': return prepareTemple()
+      case 'start-preacher-training': return startPreacherTraining()
+      case 'finish-preacher-training': return finishPreacherTraining()
+      case 'return-shaman-home': return returnShamanHome()
+      case 'approach-sermon': return approachSermon()
       case 'cancel-sermon': return cancelSermon()
       case 'reload-sermon': return reloadSermon()
       case 'complete-conversion': return completeConversion()
@@ -573,6 +636,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.ok(!profile?.completed?.includes(3), 'Persistent profile starts without M3 completion')
     const victim = initial.units.find(u => u.id === authoredVictim.id)
     assert.equal(victim?.team, 'yellow'); assert.equal(victim.kind, 'brave')
+    ids.authoredVictim = victim.id
     ids.victim = victim.id
     log({ action: 'authored-victim-identity', authored: authoredVictim,
       observed: { id: victim.id, team: victim.team, kind: victim.kind, x: victim.x, z: victim.z, turn: initial.turn } })
