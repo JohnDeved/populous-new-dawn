@@ -5154,3 +5154,13 @@ remain fully opaque. The executable check runs 500 refresh/render states through
 hover/held/selection, and positive-to-zero totals. It also proves the imported
 15×36 frame pieces do not overlap. The existing population checker intercepts
 before these alpha decisions and cannot establish this result by itself.
+
+## Native Followers lower task panel
+
+[Recovered task-panel evidence](research/follower-task-panel.md) binds the original
+36 descriptors, Selected/Idle/Housed/Busy and occupied-transport rows, eighteen HFX
+sprites, native count/classification owner, category-specific selection/deselection
+and right-click focus. It includes executed native draw-request reconstructions,
+not original-game screenshots. Executable probes include bounded transport interactions, full constructor/refresh
+transitions and disabled draw flags. Full UI painter-order/blend and live browser
+integration remain explicit boundaries.

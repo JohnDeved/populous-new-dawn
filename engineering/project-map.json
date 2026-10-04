@@ -33,6 +33,8 @@
       ],
       "evidence": [
         { "path": "decomp/research/follower-frame-alpha.md", "heading": "Disabled follower frames" },
+
+        { "path": "decomp/research/follower-task-panel.md", "heading": "Native Followers task panel" },
         { "path": "decomp/README.md", "heading": "Native follower selection" },
         {
           "path": "references/reverse-engineering.md",
