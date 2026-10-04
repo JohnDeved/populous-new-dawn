@@ -61,6 +61,7 @@ def hook(_cpu, address, _size, _user):
     sp = cpu.reg_read(UC_X86_REG_ESP)
     if address == 0x4ED8A0:
         class_id, model, owner, point = struct.unpack("<IIII", cpu.mem_read(sp + 4, 16))
+        class_id, model, owner = class_id & 255, model & 255, owner & 255
         assert class_id == 7 and model in (24, 3), (class_id, model)
         if model == 24:
             allocations.append(list(struct.unpack("<HHh", cpu.mem_read(point, 6))))
