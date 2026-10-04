@@ -102,8 +102,25 @@ complete command/order cleanup/ejection with supplied exit and animation leaves,
 including initially physics-frozen passengers. Their exact person fields and RNG
 match the maintained helper. 16 native seating→ejection→first-physics compositions also retain live elevation/impulse. Native helper equivalence is not rendered-game proof.
 
-Current rendered acceptance remains in progress: authored craft inputs, living landing,
-passenger inspection, repeated/stale actions, occupied/airborne checkpoints,
-destruction, modern viewport/DPR and exact source-pixel rendering. Full gates and
-fresh independent review are required before merge. No parity ledger is changed;
+The sandboxed rendered scenario passed on `d18ff90d426b2b54a25fb02f8551b1d7ea13dfb6`
+with Chrome154.0.8037.92 and verified ANGLE/SwiftShader. Actual authored Boat/Balloon
+world clicks and injected mixed-class crews exercised passenger inspection, single/
+group selection, right-click no-camera behavior, stale speed/terrain revalidation,
+occupied and airborne checkpoints, and living landings after4/9 live turns.
+Nine source-pixel comparisons (empty, occupied, hover, pressed and DPR2) had zero
+mismatches. Both craft remained accessible at1280×720,1920×1080 and3440×1440;
+backing-buffer dimensions were verified after ResizeObserver completion. Input-mask
+hiding and inactive-target disposal are supporting state fixtures; the separate
+vehicle-destruction regressions cover the actual destruction owner.
+
+The first rendered attempt stopped in an undefined building-debris model after a
+fixture removed all authored populations; its cause is not proved by the simplified
+base replay. The corrected fixture preserves authored populations and replaces only
+its injected crew. A second attempt exposed frozen-RAF resize readiness; waiting for
+real backing dimensions before the normal render retained the same live hit test.
+Both failures remain in the raw acceptance archive. Baseline0b0719f screenshots
+show the genuine missing panel; no before image is synthesized. The pixel comparison
+uses the independently native-paired layout and original atlas, not a Windows runtime
+screenshot. No hardware frame-performance or natural crew-acquisition claim follows.
+Final aggregate/build/quality receipts and fresh review are tracked in PR#187. No parity ledger is changed;
 #5, #25 and #60 remain broader open acceptance.
