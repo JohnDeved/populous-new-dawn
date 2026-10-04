@@ -1,1 +1,0 @@
-[{"action":"button","name":"Resume game"},{"action":"button","name":"Select warrior","options":{"modifiers":["Shift"]}},{"action":"click","x":707,"y":350},{"action":"move","x":400,"y":700},{"action":"wait","ms":20000},{"action":"button","name":"Pause game"}]

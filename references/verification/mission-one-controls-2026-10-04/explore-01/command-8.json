@@ -1,1 +1,0 @@
-[{"action":"button","name":"Resume game"},{"action":"click","x":854,"y":336},{"action":"move","x":400,"y":700},{"action":"wait","ms":12000},{"action":"button","name":"Pause game"}]

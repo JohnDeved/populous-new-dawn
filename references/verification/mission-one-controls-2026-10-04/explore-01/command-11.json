@@ -1,1 +1,0 @@
-[{"action":"move","x":901,"y":354},{"action":"wait","ms":500},{"action":"read","expression":"({pointer:window.testSceneRef.current.pointer,previewVisible:window.testSceneRef.current.cursor.visible,previewInvalid:window.testSceneRef.current.cursor.userData.invalid,cells:window.testSceneRef.current.cursor.userData.cells})"}]

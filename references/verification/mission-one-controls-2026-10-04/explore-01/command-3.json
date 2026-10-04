@@ -1,1 +1,0 @@
-[{"action":"button","name":"Resume game"},{"action":"until","expression":"window.testSceneRef.current.world.shots.bridge >= 4","timeout":120000},{"action":"button","name":"Pause game"}]

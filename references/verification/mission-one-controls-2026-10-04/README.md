@@ -1,9 +1,18 @@
 # Mission 1 ordinary-control observation, 2026-10-04
 
 Refs [PND-11](https://github.com/JohnDeved/populous-new-dawn/issues/11). This is a
-bounded gameplay observation and evidence archive. It is **not a clean passing
+bounded gameplay observation with a separately pinned evidence archive. It is **not a clean passing
 maintained checker**, a full-campaign acceptance, an original-pixel comparison,
 a hardware-performance result, or a parity-ledger update.
+
+## Evidence location
+
+The complete, unchanged packet is preserved at commit
+[`4186e9d`](https://github.com/JohnDeved/populous-new-dawn/tree/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04)
+and pinned by tag `evidence/mission-one-controls-2026-10-04`. This integration
+contains the report and one selected victory figure; all other images, raw
+receipts, snapshots, logs and frozen inputs link to that exact evidence commit.
+Issue #11 remains open; this is bounded evidence.
 
 ## Result
 
@@ -72,9 +81,9 @@ output, not an original-game reference.*
 The generic harness fingerprints application source, but ignored `work/` scenario
 files are outside that fingerprint. Therefore this archive separately retains
 **the exact executed checker inputs**, commands and SHA-256 values. See
-[manifest.json](manifest.json), [run 2 input hashes](explore-02/scenario-inputs.json),
-[run 2 raw receipt](explore-02/receipt.json), and
-[run 1 raw receipt](explore-01/receipt.json). Archive copies remain byte-identical
+[manifest.json](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/manifest.json), [run 2 input hashes](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/scenario-inputs.json),
+[run 2 raw receipt](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/receipt.json), and
+[run 1 raw receipt](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-01/receipt.json). Archive copies remain byte-identical
 to the retained local raw evidence. The manifest is an integrity inventory, not a
 claim that the exploratory tests passed.
 
@@ -82,19 +91,19 @@ claim that the exploratory tests passed.
 
 | UTC | Turn | Observed event | Evidence |
 | --- | ---: | --- | --- |
-| 12:24:59.844 | 115 | Shipped Select Mission 1 → Start Mission 1; only Hut construction available; Warrior Training Hut locked | [opening pixels](milestone-opening.png), [milestones](explore-02/milestones.json) |
-| 12:25:51.978 | 728 | Shaman worshipped the southern head; four Land Bridge shots acquired | [milestones](explore-02/milestones.json) |
-| 12:26:58.222 | 1523 | First bridge cast and crossed; guard defeated through ordinary combat; Vault knowledge unlocked camp | [exact preparation inputs](prepare-journey.mjs), [milestones](explore-02/milestones.json) |
-| 12:28:13.882 | 2431 | Five selected Braves delivered eight logs and completed the placed camp | [built pixels](milestone-built.png), [milestones](explore-02/milestones.json) |
-| 12:29:19.642 | 3213 | Ordinary completed-camp click trained five Warriors; four Lightning gifts also acquired | [trained pixels](milestone-trained.png), [milestones](explore-02/milestones.json) |
-| 12:29:25.821 | 3229 | Actual Save → committed readback → page reload → Load Game; preserved the same five Warrior IDs, stocks, stats and completed camp | [restored pixels](milestone-restored.png), [milestones](explore-02/milestones.json) |
-| 12:31:51.888 | 3842 | First northern cast had not spent stock or advanced bridge count; the checker wait timed out | [failed state](explore-02/003-failed.json), [failed command](explore-02/command-3.json) |
-| 12:33:28.420 | 4073 | Ordinary retry at nearer dry shore completed the second bridge | [corrected input](explore-02/command-7.json), [state](explore-02/007.json) |
-| 12:34:28.961 | 4329 | HUD-selected trained Warriors crossed north and entered live combat after an ordinary enemy-settlement click | [combat pixels](008.png), [state](explore-02/008.json) |
-| 12:35:34.085 | 4398 | Red Warriors had fallen from 90 HP to 14.45 and 45.75 through normal fighting; Blue Warriors also took damage | [state](explore-02/010.json) |
-| 12:36:39.444 | 4609 | Acquired Lightning killed the Dakini Shaman; regular combat left four enemy Braves | [input](explore-02/command-11.json), [state](explore-02/011.json) |
-| 12:37:41.555 | 4837 | Further ordinary Warrior attack reached won; no Dakini remained; visible result and Continue to Mission 2 offer | [victory pixels](012.png), [state](explore-02/012.json) |
-| 12:39:04.950 | 5838 | Victory celebration continued; awaited profile read confirmed persisted Mission 1 completion | [readback](explore-02/extra-13.json) |
+| 12:24:59.844 | 115 | Shipped Select Mission 1 → Start Mission 1; only Hut construction available; Warrior Training Hut locked | [opening pixels](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/milestone-opening.png), [milestones](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/milestones.json) |
+| 12:25:51.978 | 728 | Shaman worshipped the southern head; four Land Bridge shots acquired | [milestones](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/milestones.json) |
+| 12:26:58.222 | 1523 | First bridge cast and crossed; guard defeated through ordinary combat; Vault knowledge unlocked camp | [exact preparation inputs](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/prepare-journey.mjs), [milestones](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/milestones.json) |
+| 12:28:13.882 | 2431 | Five selected Braves delivered eight logs and completed the placed camp | [built pixels](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/milestone-built.png), [milestones](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/milestones.json) |
+| 12:29:19.642 | 3213 | Ordinary completed-camp click trained five Warriors; four Lightning gifts also acquired | [trained pixels](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/milestone-trained.png), [milestones](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/milestones.json) |
+| 12:29:25.821 | 3229 | Actual Save → committed readback → page reload → Load Game; preserved the same five Warrior IDs, stocks, stats and completed camp | [restored pixels](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/milestone-restored.png), [milestones](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/milestones.json) |
+| 12:31:51.888 | 3842 | First northern cast had not spent stock or advanced bridge count; the checker wait timed out | [failed state](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/003-failed.json), [failed command](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/command-3.json) |
+| 12:33:28.420 | 4073 | Ordinary retry at nearer dry shore completed the second bridge | [corrected input](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/command-7.json), [state](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/007.json) |
+| 12:34:28.961 | 4329 | HUD-selected trained Warriors crossed north and entered live combat after an ordinary enemy-settlement click | [combat pixels](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/008.png), [state](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/008.json) |
+| 12:35:34.085 | 4398 | Red Warriors had fallen from 90 HP to 14.45 and 45.75 through normal fighting; Blue Warriors also took damage | [state](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/010.json) |
+| 12:36:39.444 | 4609 | Acquired Lightning killed the Dakini Shaman; regular combat left four enemy Braves | [input](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/command-11.json), [state](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/011.json) |
+| 12:37:41.555 | 4837 | Further ordinary Warrior attack reached won; no Dakini remained; visible result and Continue to Mission 2 offer | [victory pixels](012.png), [state](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/012.json) |
+| 12:39:04.950 | 5838 | Victory celebration continued; awaited profile read confirmed persisted Mission 1 completion | [readback](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/extra-13.json) |
 
 The final profile diagnostic read observed turn 5837, and the subsequent snapshot
 observed 5838. That one-turn difference is the continuing real celebration clock,
@@ -115,18 +124,18 @@ the loaded world naturally resumed for 16 turns before the next ordinary Pause,
 and the scene re-created its camera. Actor identities and acquired game state are
 the bounded persistence claim.
 
-![Five naturally trained Warriors](milestone-trained.png)
+![Five naturally trained Warriors](https://raw.githubusercontent.com/JohnDeved/populous-new-dawn/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/milestone-trained.png)
 
 *Tested b846500, turn 3213. The follower HUD shows five Warriors, with the built
 camp visible on the home island. Shaman and gifts were also acquired naturally.*
 
-![Fresh-page restoration](milestone-restored.png)
+![Fresh-page restoration](https://raw.githubusercontent.com/JohnDeved/populous-new-dawn/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/milestone-restored.png)
 
 *Tested b846500, turn 3229, after actual startup Load Game. The five Warrior
 identities and acquired state are cross-checked in the raw milestones, rather
 than inferred from a similar-looking screenshot.*
 
-![Ordinary northern attack](008.png)
+![Ordinary northern attack](https://raw.githubusercontent.com/JohnDeved/populous-new-dawn/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/008.png)
 
 *Tested b846500, turn 4329. The trained group has crossed the second raised route
 and is fighting an authored enemy Warrior; Pause was used for the captured frame.*
@@ -135,20 +144,20 @@ and is fighting an authored enemy Warrior; Pause was used for the captured frame
 
 ### Attempt 1: completed training, then wrong startup selector
 
-[First receipt](explore-01/receipt.json) is failed. Its own snapshots show the
+[First receipt](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-01/receipt.json) is failed. Its own snapshots show the
 natural acquisition/build/training milestones, but `command-16.json` incorrectly
 looked for **Load checkpoint** after page reload. That is the in-game menu label;
 the actual startup button is **Load Game**. Its failure capture also attempted to
 read an unbound scene. The later driver made startup failure capture safe.
 
 The first attempt additionally had an early function-valued wait string in
-command 2, preserved in [the limitation note](explore-01/attempt-2-limitation.txt).
+command 2, preserved in [the limitation note](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-01/attempt-2-limitation.txt).
 Command 3 corrected that observation and actually waited for four shots. The first
 attempt's async `waitForFunction` checkpoint read is **not accepted** as committed
 save proof. The second run's sequential awaited read and genuine fresh-page load
 are the persistence evidence used above.
 
-![Wrong-label failure preserved](first-attempt-startup-failure.png)
+![Wrong-label failure preserved](https://raw.githubusercontent.com/JohnDeved/populous-new-dawn/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/first-attempt-startup-failure.png)
 
 *Tested b846500, first attempt. Actual startup UI exposes Load Game. This screenshot
 is a checker-failure record, not an application regression.*
@@ -158,18 +167,18 @@ is a checker-failure record, not an application regression.*
 At Shaman position `(-0.17578125, -6.5546875)`, the current height-dependent Land
 Bridge range was **17.109375** scene units. The first chosen dry destination
 `(0, -24)` was outside that range. Stock stayed at three and `stats.bridges` stayed
-at one. The subsequent [read-only range diagnostic](explore-02/extra-6.json)
+at one. The subsequent [read-only range diagnostic](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/extra-6.json)
 showed that `(0, -22)` was dry and in range. Command 7 clicked that nearer shore
 through the ordinary spell HUD and pointer path; stock became two and the bridge
 count became two. No range, resource, terrain or unit state was changed by the
 checker to make it succeed.
 
 The exact rejected input, failed wait, diagnosis and successful correction remain
-in [actions.jsonl](explore-02/actions.jsonl), the individual command files,
-[command-failures.json](explore-02/command-failures.json), and
-[the correction note](explore-02/attempt-3-limitation.txt). The explicit finish
+in [actions.jsonl](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/actions.jsonl), the individual command files,
+[command-failures.json](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/command-failures.json), and
+[the correction note](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/attempt-3-limitation.txt). The explicit finish
 refused clean success because the failed wait remained in its failure list.
-Accordingly, the [second raw receipt](explore-02/receipt.json) is failed even though
+Accordingly, the [second raw receipt](https://github.com/JohnDeved/populous-new-dawn/blob/4186e9d2173fb865c5663efdf7169c9ca7dd61ea/references/verification/mission-one-controls-2026-10-04/explore-02/receipt.json) is failed even though
 its retained game state and screenshot establish the natural victory above.
 
 ## Deliverable and verification disposition
@@ -188,7 +197,7 @@ its retained game state and screenshot establish the natural victory above.
   source is changed. Structural/integrity checks and a fresh evidence review are
   the publication gates; their receipts remain separate from these historical
   browser receipts.
-- Frozen `.mjs` files here are **archived exploratory inputs**, not a newly
+- Frozen `.mjs` files in the evidence packet are **archived exploratory inputs**, not a newly
   maintained automated regression. The outer harness cap was 30 minutes per run;
   exact launch commands are listed below. Continuation command files were supplied
   while the scenario was paused/observed, and their exact ordinary inputs are
