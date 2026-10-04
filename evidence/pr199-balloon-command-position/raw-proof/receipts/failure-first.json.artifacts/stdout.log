@@ -1,0 +1,25 @@
+✖ shipped Balloon disguise configures its command position and completes aboard (87.088816ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 672.086287
+
+✖ failing tests:
+
+test at tests/transport-idle.test.mjs:59:1
+✖ shipped Balloon disguise configures its command position and completes aboard (87.088816ms)
+  Error: Unported live movement order consumer
+      at Object.unsupported (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/live-movement.ts:95:9)
+      at configurePersonOrder (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/person-order-start.ts:61:27)
+      at startPersonOrders (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/person-order-start.ts:134:3)
+      at startLiveOrders (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/live-movement.ts:216:3)
+      at Object.startOrders (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/live-people.ts:520:9)
+      at initializePersonState (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/person-state.ts:279:36)
+      at initializeLivePerson (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/live-people.ts:447:3)
+      at changeLivePersonState (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/live-people.ts:560:3)
+      at appendLiveOrders (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/live-movement.ts:335:10)
+      at disguiseSelectedSpies (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/live-command.ts:220:18)

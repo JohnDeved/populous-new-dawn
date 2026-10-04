@@ -1,0 +1,118 @@
+{
+  "startedAt": "2026-10-04T19:03:33.125Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position",
+    "commit": "6b6eb684f4f010420a758cfe4fd481b6dfca9545",
+    "tree": "aace5dbe66f68f8b7fdde1bd3936e7949970bd40",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "c406a6f2189a65be47d1eb2b703468ab21f0beba386bf44dff5c77c380cf5c23"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x31fc001cea00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x31fc001cea00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x31fc001cea00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x31fc001cea00]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "status": "passed",
+  "browserVersion": "154.0.8037.92",
+  "result": {
+    "status": "passed",
+    "model": 3,
+    "kind": "Balloon",
+    "label": "Disguise selected spies as Dakini",
+    "boarding": {
+      "accepted": {
+        "model": 22,
+        "target": 1
+      },
+      "turns": 10,
+      "vehicle": 1,
+      "driver": 187,
+      "count": 1,
+      "selected": [
+        187
+      ],
+      "authoredRetained": true,
+      "airborne": true
+    },
+    "accepted": {
+      "order": {
+        "model": 16,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 1,
+        "b": 0
+      },
+      "destination": [
+        1,
+        0
+      ],
+      "state": 10,
+      "vehicle": 1
+    },
+    "completed": {
+      "first": {
+        "state": 30,
+        "disguise": 127,
+        "speed": 0,
+        "position": [
+          -19175,
+          14573
+        ]
+      },
+      "state": 30,
+      "vehicle": 1,
+      "disguise": 64,
+      "passengers": 1,
+      "position": [
+        -19175,
+        14573
+      ],
+      "status": "playing",
+      "authoredRetained": true
+    },
+    "replacementLabel": "Disguise selected spies as Matak",
+    "replacement": {
+      "tribe": 3,
+      "state": 30,
+      "disguise": 255,
+      "vehicle": 1
+    },
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "devicePixelRatio": 1,
+    "scope": "Staged one Spy and selection beside an empty authored Mission22 craft; authored population retained. Actual mesh-click boarding and rendered disguise/replacement controls; deterministic ticks and camera focus are supporting setup.",
+    "limits": "Cloud headless rendering only. No hardware performance, ordinary Spy acquisition, natural campaign, complete vehicle lifecycle, encoded cell/object command positions or non-driver scheduling claim. Checkpoint continuation has separate source coverage."
+  },
+  "finishedAt": "2026-10-04T19:04:44.586Z",
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position",
+    "commit": "6b6eb684f4f010420a758cfe4fd481b6dfca9545",
+    "tree": "aace5dbe66f68f8b7fdde1bd3936e7949970bd40",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "c406a6f2189a65be47d1eb2b703468ab21f0beba386bf44dff5c77c380cf5c23"
+  }
+}

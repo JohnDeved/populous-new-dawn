@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b99c4e41-767a-4642-9cbd-4ff1340c066a",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6b6eb684f4f010420a758cfe4fd481b6dfca9545",
+    "branch": "work/balloon-command-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--check",
+    "scripts/check-browser-transport-idle.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position",
+  "startedAt": "2026-10-04T18:57:49.567Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/checker-syntax-6b6eb68.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/checker-syntax-6b6eb68.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T18:57:49.623Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "6b6eb684f4f010420a758cfe4fd481b6dfca9545",
+    "branch": "work/balloon-command-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

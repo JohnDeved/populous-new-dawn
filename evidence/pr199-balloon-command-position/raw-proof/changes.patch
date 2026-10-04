@@ -1,0 +1,537 @@
+diff --git a/app/live-movement.ts b/app/live-movement.ts
+index 5dc3d9d04d28b26592d345348bed64a1722e38e1..344cd1dce46b5a8463a4fb48706cde010b1c4ad7 100644
+--- a/app/live-movement.ts
++++ b/app/live-movement.ts
+@@ -158,7 +158,11 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
+       const unit = w.units.find(u => u.id === person.id)!
+       replanLivePath(w, unit, person as LivePerson, { x, y })
+     },
+-    commandPosition: unsupported,
++    commandPosition: command => {
++      // 0x4389c0 copies both payload words when no cell/object encoding is set.
++      if (rules.personCommands[command.model].flags & (4 | 0x800 | 0x242)) unsupported()
++      return { x: command.a & 65535, y: command.b & 65535 }
++    },
+     allowVehicleOrder: () => true,
+     initializeCommand: () => {
+       if (order!.model === 6 || order!.model === 7) return
+diff --git a/decomp/README.md b/decomp/README.md
+index 63c7065fb2fb1c69f50a7ecf0404bf0fe5582ed9..7cc1da761b9090f14d4b43adc414a89c02c85fa5 100644
+--- a/decomp/README.md
++++ b/decomp/README.md
+@@ -621,6 +621,11 @@ The Node ownership regression follows two followers through shared assignment,
+ replacement and final-reference deletion. Full eight-slot queue overflow is
+ explicitly rejected; the native out-of-bounds memory write is not represented.
+ 
++Balloon raw-payload startup is documented in
++[`research/balloon-command-position.md`](research/balloon-command-position.md).
++Its native probe executes the real configuration/position composition; packed
++cell and object position branches remain explicit live boundaries.
++
+ ## Person initialization and training handoff
+ 
+ ```sh
+diff --git a/decomp/research/balloon-command-position.md b/decomp/research/balloon-command-position.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..96cfacacd76934c46372bb9cccf6768d9bfdbae9
+--- /dev/null
++++ b/decomp/research/balloon-command-position.md
+@@ -0,0 +1,85 @@
++# Balloon raw command-position startup
++
++## Finding
++
++A staged driver Spy, boarded through the shipped `command` path onto Mission 22's
++actual Balloon, could not issue the ordinary disguise control: live startup threw
++`Unported live movement order consumer` at `configurePersonOrder`'s
++`commandPosition` callback. This is earlier than the separate non-driver command
++scheduling gap. Boat disguise and state 30 were already supported.
++
++Retained exports `decomp/generated/00432df0.c` and
++`decomp/generated/004389c0.c` identify the complete configuration and position
++leaf. No new Ghidra export is needed. Configuration first recomputes flag
++`0x08000000` from the order descriptor (Shaman bit `0x100000`, other people
++bit `0x4000`). If that flag is clear, the person has a vehicle, and flag
++`0x02000000` is set, the real leaf writes the two destination words at
++person offsets `+0x53/+0x55`.
++
++The leaf's branch precedence is:
++
++1. Descriptor bit `4`: center the packed cell in `order.b`.
++2. Otherwise bit `0x800`: center the packed cell in `order.a`.
++3. Otherwise bits `0x242`: resolve the object in `order.a`, using a building's
++   outside point, class 5/model 9 head approach, or other object's position.
++4. Otherwise: copy the raw `order.a/order.b` words.
++
++Command 16's descriptor is `0x400`, so it takes the last branch. For a freshly
++encoded disguise command targeting tribe 2, the resulting destination is `[2,0]`.
++It is **not** the passenger's current position. Existing `personOrderFocus` has
++an object-first focus policy and is not a replacement for this startup leaf.
++
++## Bounded live adapter
++
++Only `orderContext`'s startup consumer changes. It accepts the raw branch when
++`flags & (4 | 0x800 | 0x242)` is zero, masks both payload words to unsigned 16,
++and retains the explicit unsupported boundary for every cell/object branch.
++`configurePersonOrder`, the update consumer, vehicle ownership, and scheduling
++are unchanged. The broader cell/object command-position resolver remains a
++separate prerequisite.
++
++## Verification
++
++`python scripts/check-native-balloon-command-position.py "$POPULOUS_EXE"`
++executes the verified original binary with Unicorn 2.1.4:
++SHA256 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
++It checks all 35 descriptor identities, 126 raw-leaf payload cases across 21
++models, and 1,152 complete `00432df0`→`004389c0` compositions for commands 15/16.
++The matrix covers person models 2/5/6, vehicle presence, airborne/old-special flags,
++cancelled orders, current/immediate records, and word boundaries. The native
++leaf runs without interception; an observation-only hook counts its calls.
++Configuration fields are compared with the production `startLiveOrders`
++adapter, including its new consumer. Startup speed/RNG and vehicle scheduling
++are explicitly outside that field comparison. No fixtures/assets are generated.
++
++`node --test tests/transport-idle.test.mjs` includes a failure-first reproduction
++through real boarding→ordinary disguise. After repair it covers completion,
++63-turn rest, replacement disguise, signed raw command 15 payloads, the three
++retained encoded-position boundaries, and pending-disguise checkpoint
++continuation without replay. The hold assertion starts after the command's
++completion visit; this evidence does not assert zero Balloon movement during
++that visit. The fixture deliberately stages Spy population/location and does
++not prove ordinary Spy acquisition, passenger scheduling, or an entire mission.
++
++Rendered/browser and standard aggregate/build acceptance must be completed by
++the parent-controlled lane; focused native/source results do not establish them.
++No parity credit, complete native-game execution, or hardware performance claim
++is made.
++
++## Rendered acceptance scenario
++
++The maintained `scripts/check-browser-transport-idle.mjs` defaults to Boat model1.
++Set `POPULOUS_TRANSPORT_IDLE_MODEL=3` to exercise this Balloon repair through the
++sandboxed local-render harness. It preserves authored people, stages one selected
++Spy beside the actual empty craft, then uses a real vehicle-mesh click for boarding
++and the visible disguise/replacement buttons. It checks accepted command22 and
++command16 records before advancing deterministic turns, the raw destination words,
++driver identity, completion/rest, and no page errors. Camera focus, staged Spy
++population/location/selection, game flag32, frozen RAF and stepped turns remain
++explicit supporting setup. This is not a natural campaign or acquisition proof.
++
++The before/after PNGs show boarding and completed disguise within the same candidate
++run; they must not be described as baseline-versus-fix screenshots. The preserved
++failure-first source receipt establishes the previous crash. A rendered result is
++claimed only after a source-bound, parent-authorized terminal harness run, with the
++actual browser/renderer identity and cleanup retained.
+diff --git a/decomp/research/follower-task-panel.md b/decomp/research/follower-task-panel.md
+index 0f342c7e24085dda1a3822668a135a7bf6e8093e..4b47b98b7d86d0b9b892b4d7fd3b28a5b8e36636 100644
+--- a/decomp/research/follower-task-panel.md
++++ b/decomp/research/follower-task-panel.md
+@@ -322,7 +322,9 @@ control is established for this driver path. A prior executor observed a queued
+ non-driver command16 unchanged through64 ticks, while driver/sole-Spy completion
+ occurred after one tick. That observation does not prove the complete native
+ non-driver scheduler, and no scheduling repair is folded into these controls.
+-Balloon commandPosition remains separately unported.
++Balloon commandPosition was separately unported for PR185. Its later bounded
++[raw-payload startup repair](balloon-command-position.md) does not change the
++non-driver scheduling boundary.
+ 
+ The source-pixel oracle retains the original panel, frame, icon and each glyph as
+ separate source rectangles at the actual DOM scale, origin and device-pixel ratio.
+diff --git a/decomp/research/transport-idle-state.md b/decomp/research/transport-idle-state.md
+index 26b6d285c08f872a216bb540d4d5ff57398e9020..a0150c304c7205da8042ee84e66a2424a555a75a 100644
+--- a/decomp/research/transport-idle-state.md
++++ b/decomp/research/transport-idle-state.md
+@@ -50,7 +50,9 @@ vehicle destruction/flight, order replacement and checkpoint structures retain o
+ 
+ A separate earlier boundary remains: issuing disguise aboard a Balloon reaches
+ `configurePersonOrder`'s airborne destination branch, whose live `commandPosition`
+-consumer is unported. This change does not claim Balloon disguise command completion.
++consumer was unported in this change. The later bounded
++[raw command-position adapter](balloon-command-position.md) repairs disguise
++startup without changing state30 or the separate passenger scheduler.
+ The Balloon test deliberately enters state30 through the already-ported idle initializer.
+ No transport ownership fields, lower-panel rows, vehicle AI or parity credit changes
+ are included. No complete native game execution or hardware-performance claim is made.
+diff --git a/engineering/project-map.json b/engineering/project-map.json
+index c7655576d000350bb8fd820706ab5f15c04a6968..dd86286276f697b7973bec6bd55b5806afd9b7e3 100644
+--- a/engineering/project-map.json
++++ b/engineering/project-map.json
+@@ -286,6 +286,7 @@
+         { "path": "decomp/research/mission9-boat-house.md", "heading": "Mission 9 Boat House production" },
+         { "path": "decomp/research/vehicle-destruction.md", "heading": "Vehicle damage and destruction" },
+         { "path": "decomp/research/transport-idle-state.md", "heading": "Native behavior" },
++        { "path": "decomp/research/balloon-command-position.md", "heading": "Finding" },
+         { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Terrain changes do not invalidate active person routes" },
+         { "path": "decomp/README.md", "heading": "State-10 order dispatch and resumption" },
+         {
+diff --git a/scripts/check-browser-transport-idle.mjs b/scripts/check-browser-transport-idle.mjs
+index a9b775bb7ca5d91ca8004e402f98477362d306d2..ba3ffad23af4ea720d12a3e0eacd4cac58ecc237 100644
+--- a/scripts/check-browser-transport-idle.mjs
++++ b/scripts/check-browser-transport-idle.mjs
+@@ -1,74 +1,121 @@
+ import assert from 'node:assert/strict'
+ import { mkdirSync, writeFileSync } from 'node:fs'
+ import { resolve } from 'node:path'
++import { vehiclePoint } from './check-browser-vehicle-panel.mjs'
+ 
+ // Scenario for scripts/local-render/harness.mjs; its browser keeps the sandbox.
++// Default preserves the Boat check; model3 selects the bounded Balloon repair.
+ export default async function transportIdle({ page, openMission, output, receipt }) {
++  const model = Number(process.env.POPULOUS_TRANSPORT_IDLE_MODEL ?? 1)
++  assert.ok([1, 3].includes(model), 'transport idle model must be Boat1 or Balloon3')
++  const kind = model === 1 ? 'Boat' : 'Balloon'
+   mkdirSync(output, { recursive: true })
+   await openMission(22)
+-  const ids = await page.evaluate(async () => {
+-    const scene = window.testScene, w = scene.world
+-    const { addUnit, browserPosition, command, tick } = await import('/app/model.ts')
++  const ids = await page.evaluate(async model => {
++    const scene = window.testSceneRef.current, w = scene.world
++    const { addUnit, browserPosition } = await import('/app/model.ts')
++    if (w.paused || w.status !== 'playing' || w.inputMask) throw Error('Mission input is not ready')
+     cancelAnimationFrame(scene.frame)
+     w.speed = 0
+-    w.manaWorld.gameFlags = 32
+-    w.inputMask = 0
+-    const boat = w.vehicles.find(v => v.model === 1)
+-    w.units = []; w.pathfinding.people.clear()
+-    const spy = addUnit(w, 'blue', 'spy', browserPosition(boat))
++    w.manaWorld.gameFlags |= 32
++    const vehicle = w.vehicles.find(v => v.model === model)
++    if (!vehicle || vehicle.passengerCount) throw Error('Authored vehicle is not empty')
++    // Supporting fixture: add one selected driver candidate beside the real craft.
++    // Keep every authored person and route; commands and disguise use actual UI.
++    const authored = w.units.map(u => u.id)
++    const spy = addUnit(w, 'blue', 'spy', browserPosition(vehicle))
+     w.selected = [spy.id]
+-    if (!command(w, { ...browserPosition(boat), id: boat.id })) throw Error('Board command rejected')
+-    for (let i = 0; i < 24 && !spy.native?.vehicle; i++) tick(w, 1 / 12)
+-    if (spy.native?.vehicle !== boat.id) throw Error('Spy did not board')
+-    scene.focus(browserPosition(boat))
+-    for (let i = 0; scene.cameraMotion.active && i < 64; i++) scene.updateCameraMotion(1 / 24)
+-    scene.onChange()
+-    scene.animate(scene.previous)
+-    cancelAnimationFrame(scene.frame)
+-    return { spy: spy.id, boat: boat.id }
+-  })
++    scene.onChange(); scene.animate(scene.previous); cancelAnimationFrame(scene.frame)
++    return { spy: spy.id, vehicle: vehicle.id, authored }
++  }, model)
++  const point = await vehiclePoint(page, ids.vehicle)
++  await page.mouse.click(point.x, point.y)
++  const boarding = await page.evaluate(async ids => {
++    const scene = window.testSceneRef.current, w = scene.world
++    const { tick } = await import('/app/model.ts')
++    const { currentPersonOrder } = await import('/app/person-orders.ts')
++    const spy = w.units.find(u => u.id === ids.spy), vehicle = w.vehicles.find(v => v.id === ids.vehicle)
++    const order = spy.native && currentPersonOrder(w.buildingOrders, spy.native)
++    if (order?.model !== 22 || order.a !== ids.vehicle) throw Error('Mesh click did not accept the boarding command')
++    const accepted = { model: order.model, target: order.a }
++    let turns = 0
++    for (; turns < 24 && !spy.native.vehicle; turns++) tick(w, 1 / 12)
++    scene.onChange(); scene.animate(scene.previous); cancelAnimationFrame(scene.frame)
++    return { accepted, turns, vehicle: spy.native.vehicle, driver: vehicle.passengers[0], count: vehicle.passengerCount,
++      selected: [...w.selected], authoredRetained: ids.authored.every(id => w.units.some(u => u.id === id)),
++      airborne: !!(spy.native.flags4 & 0x2000000) }
++  }, ids)
++  assert.equal(boarding.vehicle, ids.vehicle)
++  assert.equal(boarding.driver, ids.spy)
++  assert.equal(boarding.count, 1)
++  assert.equal(boarding.authoredRetained, true)
++  assert.equal(boarding.airborne, model === 3)
++  assert.deepEqual(boarding.selected, [ids.spy])
+   await page.getByTitle('followers', { exact: true }).click()
+   const buttons = page.locator('.command-dock button[aria-label^="Disguise selected spies as "]')
+   assert.ok(await buttons.count())
+   const label = await buttons.first().getAttribute('aria-label')
+   await page.screenshot({ path: resolve(output, 'aboard-before.png') })
+   await buttons.first().click()
++  const accepted = await page.evaluate(async id => {
++    const w = window.testSceneRef.current.world, p = w.units.find(u => u.id === id).native
++    const { currentPersonOrder } = await import('/app/person-orders.ts')
++    const order = currentPersonOrder(w.buildingOrders, p)
++    return { order, destination: [p.destinationX, p.destinationY], state: p.state, vehicle: p.vehicle }
++  }, ids.spy)
++  assert.equal(accepted.order?.model, 16, 'rendered disguise click accepted command16 before any simulated turn')
++  assert.equal(accepted.order.flags & 1, 0)
++  assert.equal(accepted.vehicle, ids.vehicle)
++  if (model === 3) assert.deepEqual(accepted.destination, [accepted.order.a & 65535, accepted.order.b & 65535])
+   const completed = await page.evaluate(async ids => {
+-    const scene = window.testScene, w = scene.world
++    const scene = window.testSceneRef.current, w = scene.world
+     const { tick } = await import('/app/model.ts')
+-    const spy = w.units.find(u => u.id === ids.spy), boat = w.vehicles.find(v => v.id === ids.boat)
++    const spy = w.units.find(u => u.id === ids.spy), vehicle = w.vehicles.find(v => v.id === ids.vehicle)
+     tick(w, 1 / 12)
+-    const first = { state: spy.native.state, disguise: spy.native.disguise, speed: spy.native.speed }
++    const first = { state: spy.native.state, disguise: spy.native.disguise, speed: spy.native.speed, position: [vehicle.x, vehicle.y] }
+     for (let i = 0; i < 63; i++) tick(w, 1 / 12)
+     scene.onChange(); scene.animate(scene.previous); cancelAnimationFrame(scene.frame)
+-    return { first, state: spy.native.state, vehicle: spy.native.vehicle, disguise: spy.native.disguise, passengers: boat.passengerCount }
++    return { first, state: spy.native.state, vehicle: spy.native.vehicle, disguise: spy.native.disguise,
++      passengers: vehicle.passengerCount, position: [vehicle.x, vehicle.y], status: w.status,
++      authoredRetained: ids.authored.every(id => w.units.some(u => u.id === id)) }
+   }, ids)
+   assert.equal(completed.first.state, 30)
+   assert.equal(completed.first.speed, 0)
+   assert.equal(completed.first.disguise & 63, 63)
+   assert.equal(completed.state, 30)
+-  assert.equal(completed.vehicle, ids.boat)
+-  assert.equal(completed.disguise & 63, 0)
++  assert.equal(completed.vehicle, ids.vehicle)
++  assert.equal(completed.disguise, (accepted.order.a & 3) << 6)
+   assert.equal(completed.passengers, 1)
++  assert.deepEqual(completed.position, completed.first.position, 'rest starts after command completion')
++  assert.equal(completed.status, 'playing')
++  assert.equal(completed.authoredRetained, true)
+   await page.screenshot({ path: resolve(output, 'aboard-after.png') })
++  const replacementLabel = await buttons.last().getAttribute('aria-label')
+   await buttons.last().click()
+-  assert.equal(await page.evaluate(async id => {
+-    const { tick } = await import('/app/model.ts'), w = window.testScene.world
++  const replacement = await page.evaluate(async id => {
++    const { tick } = await import('/app/model.ts'), { currentPersonOrder } = await import('/app/person-orders.ts')
++    const w = window.testSceneRef.current.world, p = w.units.find(u => u.id === id).native
++    const order = currentPersonOrder(w.buildingOrders, p)
++    if (order?.model !== 16) throw Error('Replacement disguise command not accepted')
++    const tribe = order.a & 3
+     tick(w, 1 / 12)
+-    return w.units.find(u => u.id === id).native.state
+-  }, ids.spy), 30)
++    return { tribe, state: p.state, disguise: p.disguise, vehicle: p.vehicle }
++  }, ids.spy)
++  assert.equal(replacement.state, 30)
++  assert.equal(replacement.disguise, (replacement.tribe << 6) | 63)
++  assert.equal(replacement.vehicle, ids.vehicle)
+   assert.deepEqual(receipt.errors, [])
+   const renderer = await page.evaluate(() => {
+-    const gl = window.testScene.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
++    const gl = window.testSceneRef.current.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
+     return debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)
+   })
+   const result = {
+-    status: 'passed', label, completed, renderer, viewport: page.viewportSize(),
+-    devicePixelRatio: await page.evaluate(() => window.devicePixelRatio),
+-    scope: 'Staged Spy population/location; real command boarding and rendered disguise/replacement controls.',
+-    limits: 'Cloud headless rendering only; no hardware performance or ordinary Spy acquisition claim. Balloon command-position boundary is separate.',
++    status: 'passed', model, kind, label, boarding, accepted, completed, replacementLabel, replacement,
++    renderer, viewport: page.viewportSize(), devicePixelRatio: await page.evaluate(() => window.devicePixelRatio),
++    scope: 'Staged one Spy and selection beside an empty authored Mission22 craft; authored population retained. Actual mesh-click boarding and rendered disguise/replacement controls; deterministic ticks and camera focus are supporting setup.',
++    limits: 'Cloud headless rendering only. No hardware performance, ordinary Spy acquisition, natural campaign, complete vehicle lifecycle, encoded cell/object command positions or non-driver scheduling claim. Checkpoint continuation has separate source coverage.',
+   }
+   writeFileSync(resolve(output, 'result.json'), JSON.stringify(result, null, 2) + '\n')
+-  console.log('PASS: rendered Boat disguise control completes to state30, holds 63 turns and accepts replacement without page errors')
++  console.log(`PASS: rendered ${kind} driver disguise accepts command16, completes to state30, holds63 turns and accepts replacement without page errors`)
+   return result
+ }
+diff --git a/scripts/check-native-balloon-command-position.py b/scripts/check-native-balloon-command-position.py
+new file mode 100644
+index 0000000000000000000000000000000000000000..7415ec445fe1fc10805f9b0a96b6427a75be15ad
+--- /dev/null
++++ b/scripts/check-native-balloon-command-position.py
+@@ -0,0 +1,127 @@
++"""Compare raw command-position startup with unmodified native x86.
++
++Usage: python scripts/check-native-balloon-command-position.py EXE
++Runs complete 0x432df0 and its real 0x4389c0 leaf for commands15/16. No native
++leaves are intercepted. Node calls the production startLiveOrders adapter;
++comparison is limited to configuration fields, not startup speed/RNG or vehicle
++scheduling. No fixture, parity, imported asset, or tracked output is written.
++"""
++import json
++import struct
++import subprocess
++import sys
++from pathlib import Path
++
++from unicorn import UC_HOOK_CODE
++from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_EIP, UC_X86_REG_ESP
++
++from decomp import ROOT, native_cpu
++
++cpu, identity = native_cpu(Path(sys.argv[1]))
++cpu.mem_map(0x2000000, 0x10000)
++person, vehicle, point, stack, stop = 0x2000000, 0x2001000, 0x2002000, 0x200e000, 0x200f000
++order = 0x93883a
++
++
++def write(address, fmt, *values):
++    cpu.mem_write(address, struct.pack('<' + fmt, *values))
++
++
++def read(address, fmt):
++    return struct.unpack('<' + fmt, cpu.mem_read(address, struct.calcsize('<' + fmt)))[0]
++
++
++def call(address, *args):
++    write(stack, 'I' * (len(args) + 1), stop, *args)
++    cpu.reg_write(UC_X86_REG_ESP, stack)
++    cpu.emu_start(address, stop, count=100000)
++    assert cpu.reg_read(UC_X86_REG_EIP) == stop, hex(cpu.reg_read(UC_X86_REG_EIP))
++    return cpu.reg_read(UC_X86_REG_EAX) & 255
++
++
++calls = []
++# Observation only: the callback leaves all registers, memory and execution intact.
++cpu.hook_add(UC_HOOK_CODE, lambda *args: calls.append(0x4389c0), begin=0x4389c0, end=0x4389c0)
++payloads = [(0, 0), (2, 0), (0xffff, 0x8000), (0x7fff, 0xffff), (0x8000, 0x7fff), (0xfefe, 0xff01)]
++rules = json.loads((ROOT / 'app/original-rules.json').read_text())['personCommands']
++leaf_count = 0
++raw_models = []
++for model, descriptor in enumerate(rules):
++    flags = read(0x5a7dca + model * 22, 'I')
++    assert flags == descriptor['flags'], (model, flags, descriptor['flags'])
++    if flags & (4 | 0x800 | 0x242):
++        continue
++    raw_models.append(model)
++    for a, b in payloads:
++        write(order, 'BBHHHH', model, 0, 1, 0, a, b)
++        write(point, 'HH', 555, 666)
++        assert call(0x4389c0, order, point) == 1
++        assert (read(point, 'H'), read(point + 2, 'H')) == (a, b)
++        leaf_count += 1
++assert rules[16]['flags'] == 0x400
++print(f'PASS: {leaf_count} native raw-position leaves; descriptor identity and unsigned payload words for models {raw_models}')
++
++fields = {
++    'flags2': (0xc, 'I'), 'flags4': (0x10, 'I'), 'substate': (0x2d, 'B'),
++    'destinationX': (0x53, 'H'), 'destinationY': (0x55, 'H'),
++    'motionTimer': (0x61, 'H'), 'motionMode': (0x66, 'B'),
++    'assignment': (0x76, 'H'), 'workTarget': (0x89, 'H'),
++    'commandStatus': (0xa7, 'B'), 'animationMode': (0xa8, 'B'),
++    'commandAux': (0xa9, 'B'), 'orderDelay': (0xab, 'B'),
++}
++cases = []
++for model in [15, 16]:
++    for person_model in [2, 5, 6]:
++        for craft in [0, 2]:
++            for flags4 in [0, 0x2000000, 0x8000000, 0xa000000]:
++                for cancelled in [False, True]:
++                    for immediate in [False, True]:
++                        for a, b in payloads:
++                            cpu.mem_write(person, bytes(256))
++                            cpu.mem_write(vehicle, bytes(256))
++                            write(0x890398, 'I', vehicle)
++                            write(vehicle + 0x2a, 'BB', 4, 3)
++                            write(person + 0x2a, 'BBB', 1, person_model, 10)
++                            write(person + 0x10, 'I', flags4)
++                            write(person + 0x9f, 'H', craft)
++                            write(person + (0x9b if immediate else 0x8b), 'H', 1)
++                            write(person + 0x53, 'HH', 555, 666)
++                            write(order, 'BBHHHH', model, int(cancelled), 1, 0, a, b)
++                            calls.clear()
++                            call(0x432df0, person)
++                            called = bool(calls)
++                            assert len(calls) <= 1
++                            assert called == (not cancelled and bool(craft) and bool(flags4 & 0x2000000))
++                            assert (read(person + 0x53, 'H'), read(person + 0x55, 'H')) == ((a, b) if called else (555, 666))
++                            cases.append(dict(model=model, personModel=person_model, vehicle=craft,
++                                              flags4=flags4, cancelled=cancelled, immediate=immediate,
++                                              a=a, b=b, expected={name: read(person + offset, fmt)
++                                                                  for name, (offset, fmt) in fields.items()}))
++
++js = """
++import {createWorld,addUnit} from './app/model.ts';
++import {createLivePerson} from './app/live-people.ts';
++import {startLiveOrders} from './app/live-movement.ts';
++import {emptyPersonOrder} from './app/person-orders.ts';
++let input='';for await(const chunk of process.stdin)input+=chunk;
++const w=createWorld(22),unit=addUnit(w,'blue','spy',{x:0,z:0});
++const balloon=w.vehicles.find(v=>v.model===3);
++console.log(JSON.stringify(JSON.parse(input).map(c=>{
++ const p=createLivePerson(w,unit);unit.native=p;
++ Object.assign(p,{model:c.personModel,flags2:0,flags3:0,flags4:c.flags4,
++  vehicle:c.vehicle?balloon.id:0,commands:[c.immediate?0:1,0,0,0,0,0,0,0],
++  commandCursor:0,immediateCommand:c.immediate?1:0,destinationX:555,destinationY:666});
++ w.buildingOrders.records[1]={...emptyPersonOrder(),model:c.model,flags:Number(c.cancelled),references:1,a:c.a,b:c.b};
++ startLiveOrders(w,p,w);
++ return Object.fromEntries(Object.keys(c.expected).map(name=>[name,p[name]]));
++})));
++"""
++result = subprocess.run(['node', '--input-type=module', '-e', js], input=json.dumps(cases),
++                        text=True, capture_output=True, cwd=ROOT)
++assert result.returncode == 0, result.stderr
++actual = json.loads(result.stdout)
++assert len(actual) == len(cases)
++for case, output in zip(cases, actual):
++    assert output == case['expected'], (case, output)
++print(f'PASS: {len(cases)} native configure + command-position compositions match production live startup fields; no native leaves supplied')
++print(f'Executable SHA256: {identity["sha256"]}; startup speed/RNG, full vehicle movement and non-driver scheduling are outside this comparison')
+diff --git a/tests/transport-idle.test.mjs b/tests/transport-idle.test.mjs
+index fcd14dc6f9332677b414e641bb5c2d21eb828cab..0999338e032905c5e545f5198658f95fa934c88f 100644
+--- a/tests/transport-idle.test.mjs
++++ b/tests/transport-idle.test.mjs
+@@ -3,8 +3,9 @@ import assert from 'node:assert/strict'
+ import { addUnit, browserPosition, command, createWorld, disguiseSelectedSpies, nativePosition, tick } from '../app/model.ts'
+ import { migrateCheckpoint } from '../app/game-store.ts'
+ import { changeLivePersonState } from '../app/live-people.ts'
+-import { cancelLiveOrder } from '../app/live-movement.ts'
++import { cancelLiveOrder, startLiveOrders } from '../app/live-movement.ts'
+ import { leaveLiveVehicle } from '../app/live-vehicles.ts'
++import { currentPersonOrder } from '../app/person-orders.ts'
+ 
+ // Staged Spy population/location, authored Mission22 transports, real command/boarding.
+ function aboard(model = 1) {
+@@ -43,7 +44,6 @@ test('shipped disguise completes aboard Boat, holds and accepts another command'
+ 
+ test('Balloon passenger idle entry holds without advancing or consuming orders', () => {
+  const { w, v, spy } = aboard(3)
+- // Balloon disguise has a separate unported command-position consumer.
+  cancelLiveOrder(w, spy)
+  changeLivePersonState(w, spy, 17)
+  assert.equal(spy.native.state, 30)
+@@ -56,6 +56,54 @@ test('Balloon passenger idle entry holds without advancing or consuming orders',
+  assert.deepEqual([v.x, v.y], position)
+ })
+ 
++test('shipped Balloon disguise configures its command position and completes aboard', () => {
++ const { w, v, spy } = aboard(3)
++ assert.ok(spy.native.flags4 & 0x2000000)
++ assert.equal(disguiseSelectedSpies(w, 2), true)
++ assert.deepEqual([spy.native.destinationX, spy.native.destinationY], [2, 0])
++ tick(w, 1 / 12)
++ assert.equal(spy.native.state, 30)
++ assert.equal(spy.native.vehicle, v.id)
++ assert.equal(spy.native.disguise, (2 << 6) | 63)
++ const position = [v.x, v.y]
++ for (let i = 0; i < 63; i++) tick(w, 1 / 12)
++ assert.equal(spy.native.disguise, 2 << 6)
++ assert.deepEqual([v.x, v.y], position)
++ assert.equal(disguiseSelectedSpies(w, 1), true)
++ tick(w, 1 / 12)
++ assert.equal(spy.native.state, 30)
++ assert.equal(spy.native.disguise, (1 << 6) | 63)
++})
++
++test('Balloon raw-coordinate startup wraps payload words and retains unported encodings', () => {
++ const { w, spy } = aboard(3), p = spy.native
++ const order = currentPersonOrder(w.buildingOrders, p)
++ // Command15 has direct coordinate payloads and suppresses ground path setup.
++ Object.assign(order, { model: 15, flags: 0, a: -32768, b: -1 })
++ startLiveOrders(w, p, w)
++ assert.deepEqual([p.destinationX, p.destinationY], [32768, 65535])
++ for (const model of [6, 19, 27]) {
++  // Packed order.b, packed order.a, and object lookup remain explicit boundaries.
++  Object.assign(order, { model, flags: 0 })
++  assert.throws(() => startLiveOrders(w, p, w), /Unported live movement order consumer/)
++ }
++})
++
++test('pending Balloon disguise checkpoint retains command position and resumes once', () => {
++ const initial = aboard(3), { spy } = initial
++ assert.ok(disguiseSelectedSpies(initial.w, 2))
++ assert.deepEqual([spy.native.destinationX, spy.native.destinationY], [2, 0])
++ const w = migrateCheckpoint(structuredClone(initial.w)), u = w.units.find(u => u.id === spy.id)
++ assert.deepEqual([u.native.destinationX, u.native.destinationY], [2, 0])
++ for (let i = 0; i < 8; i++) { tick(initial.w, 1 / 12); tick(w, 1 / 12) }
++ assert.equal(u.native.state, 30)
++ assert.equal(u.native.vehicle, initial.v.id)
++ assert.equal(u.native.disguise, (2 << 6) | 56)
++ assert.deepEqual(u.native, spy.native)
++ assert.equal(w.randomState, initial.w.randomState)
++ assert.deepEqual(w.vehicles, initial.w.vehicles)
++})
++
+ test('occupied state30 checkpoint resumes countdown without reinitializing motion or RNG', () => {
+  const initial = aboard(), { spy } = initial
+  assert.ok(disguiseSelectedSpies(initial.w, 2))

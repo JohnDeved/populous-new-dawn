@@ -37,3 +37,6 @@ Windows screenshots, natural acquisition/campaign completion, full vehicle lifec
 encoded cell/object command positions, non-driver scheduling or hardware-performance
 claim is made. The prior crash remains established by the preserved failure-first
 source receipt. Pending-command checkpoint continuation has separate source coverage.
+
+[Preserved raw proof packet](raw-proof/README.md) includes receipts, exact streams,
+source correspondence, final review and a SHA-256 manifest.

@@ -1,0 +1,79 @@
+{
+  "base": "ea521248b64f0993f4b9884b8e070fb20c4cbbe1",
+  "nativeFocusedSourceHead": "dcc8a851afdad6ac14d033b121f7f382232ca7c2",
+  "testedHead": "6b6eb684f4f010420a758cfe4fd481b6dfca9545",
+  "mergedCommit": "139ec7dec8fc77462a9bbf8a5fc09ad7b9bb9d31",
+  "testedAndMergedTree": "aace5dbe66f68f8b7fdde1bd3936e7949970bd40",
+  "unchangedNativeAndRuntimeInputs": {
+    "app/live-movement.ts": {
+      "dcc8a851afdad6ac14d033b121f7f382232ca7c2": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5",
+      "6b6eb684f4f010420a758cfe4fd481b6dfca9545": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5",
+      "139ec7dec8fc77462a9bbf8a5fc09ad7b9bb9d31": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5"
+    },
+    "scripts/check-native-balloon-command-position.py": {
+      "dcc8a851afdad6ac14d033b121f7f382232ca7c2": "504d95d373fc46174fa75ea75aac0820d4434661ea1bdefbadf4ad3953eaaa24",
+      "6b6eb684f4f010420a758cfe4fd481b6dfca9545": "504d95d373fc46174fa75ea75aac0820d4434661ea1bdefbadf4ad3953eaaa24",
+      "139ec7dec8fc77462a9bbf8a5fc09ad7b9bb9d31": "504d95d373fc46174fa75ea75aac0820d4434661ea1bdefbadf4ad3953eaaa24"
+    },
+    "tests/transport-idle.test.mjs": {
+      "dcc8a851afdad6ac14d033b121f7f382232ca7c2": "19159acc6649cd7c7f70baef49ab4fa46062530e852d1a7534bbf1da4f946b2b",
+      "6b6eb684f4f010420a758cfe4fd481b6dfca9545": "19159acc6649cd7c7f70baef49ab4fa46062530e852d1a7534bbf1da4f946b2b",
+      "139ec7dec8fc77462a9bbf8a5fc09ad7b9bb9d31": "19159acc6649cd7c7f70baef49ab4fa46062530e852d1a7534bbf1da4f946b2b"
+    },
+    "decomp/generated/00432df0.c": {
+      "dcc8a851afdad6ac14d033b121f7f382232ca7c2": "275beb61e5d2c1a6380fdb9f1066754a47761701ab9be7002cbe2f500a2fe0d9",
+      "6b6eb684f4f010420a758cfe4fd481b6dfca9545": "275beb61e5d2c1a6380fdb9f1066754a47761701ab9be7002cbe2f500a2fe0d9",
+      "139ec7dec8fc77462a9bbf8a5fc09ad7b9bb9d31": "275beb61e5d2c1a6380fdb9f1066754a47761701ab9be7002cbe2f500a2fe0d9"
+    },
+    "decomp/generated/004389c0.c": {
+      "dcc8a851afdad6ac14d033b121f7f382232ca7c2": "2fe5d730a28bc18e090557b12fe239afbea1706226231cbf384e45ec6a903799",
+      "6b6eb684f4f010420a758cfe4fd481b6dfca9545": "2fe5d730a28bc18e090557b12fe239afbea1706226231cbf384e45ec6a903799",
+      "139ec7dec8fc77462a9bbf8a5fc09ad7b9bb9d31": "2fe5d730a28bc18e090557b12fe239afbea1706226231cbf384e45ec6a903799"
+    },
+    "app/original-rules.json": {
+      "dcc8a851afdad6ac14d033b121f7f382232ca7c2": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "6b6eb684f4f010420a758cfe4fd481b6dfca9545": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "139ec7dec8fc77462a9bbf8a5fc09ad7b9bb9d31": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    }
+  },
+  "changedSource": {
+    "app/live-movement.ts": {
+      "sha256": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5",
+      "blobOid": "344cd1dce46b5a8463a4fb48706cde010b1c4ad7"
+    },
+    "decomp/README.md": {
+      "sha256": "e4d6d98c2f90f5e3903ea1e6748de893497f7ad01a7babef311e002da102b3a9",
+      "blobOid": "7cc1da761b9090f14d4b43adc414a89c02c85fa5"
+    },
+    "decomp/research/balloon-command-position.md": {
+      "sha256": "5afa83bdb46999b10594b9ff9bf0d49d2a08aeb708c2b403ec13557dd545fb09",
+      "blobOid": "96cfacacd76934c46372bb9cccf6768d9bfdbae9"
+    },
+    "decomp/research/follower-task-panel.md": {
+      "sha256": "2f94011297dd1447f6e0e9abfb9cbc142f057abd8383ba4eff1afce02d598af4",
+      "blobOid": "4b47b98b7d86d0b9b892b4d7fd3b28a5b8e36636"
+    },
+    "decomp/research/transport-idle-state.md": {
+      "sha256": "451f5772a0071442cfd3b0363ce615b5322ae5b4ff400615fb0fadcdd220f290",
+      "blobOid": "a0150c304c7205da8042ee84e66a2424a555a75a"
+    },
+    "engineering/project-map.json": {
+      "sha256": "9982d36bc0a7575bd5bcf124af68d3662dc9632872e71731086c03b61a01abfa",
+      "blobOid": "dd86286276f697b7973bec6bd55b5806afd9b7e3"
+    },
+    "scripts/check-browser-transport-idle.mjs": {
+      "sha256": "c9aa26de24ab7d2c9efb74e36a58b0bc1b0435516574fd528984a288c817be01",
+      "blobOid": "ba3ffad23af4ea720d12a3e0eacd4cac58ecc237"
+    },
+    "scripts/check-native-balloon-command-position.py": {
+      "sha256": "504d95d373fc46174fa75ea75aac0820d4434661ea1bdefbadf4ad3953eaaa24",
+      "blobOid": "7415ec445fe1fc10805f9b0a96b6427a75be15ad"
+    },
+    "tests/transport-idle.test.mjs": {
+      "sha256": "19159acc6649cd7c7f70baef49ab4fa46062530e852d1a7534bbf1da4f946b2b",
+      "blobOid": "0999338e032905c5e545f5198658f95fa934c88f"
+    }
+  },
+  "changesPatchSha256": "7f8db0166251c865e549bd0610d7b585ad4870f395badb4b80289a372d1aa467",
+  "method": "Git object bytes only. No installed dependency tree, game executable or browser binary read during preservation."
+}

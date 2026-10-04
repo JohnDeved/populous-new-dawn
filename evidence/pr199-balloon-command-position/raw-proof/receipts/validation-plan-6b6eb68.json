@@ -1,0 +1,53 @@
+{
+  "status": "prepared only; no heavy command launched",
+  "head": "6b6eb684f4f010420a758cfe4fd481b6dfca9545",
+  "base": "ea521248b64f0993f4b9884b8e070fb20c4cbbe1",
+  "port": 4367,
+  "timeoutMilliseconds": 180000,
+  "temporary": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/tmp-balloon-6b6eb68-run01",
+  "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/rendered-6b6eb68-run01",
+  "browser": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+  "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+  "scenario": "scripts/check-browser-transport-idle.mjs",
+  "scenarioSha256": "c9aa26de24ab7d2c9efb74e36a58b0bc1b0435516574fd528984a288c817be01",
+  "unchangedReviewedInputs": {
+    "app/live-movement.ts": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5",
+    "scripts/check-native-balloon-command-position.py": "504d95d373fc46174fa75ea75aac0820d4434661ea1bdefbadf4ad3953eaaa24",
+    "tests/transport-idle.test.mjs": "19159acc6649cd7c7f70baef49ab4fa46062530e852d1a7534bbf1da4f946b2b",
+    "decomp/generated/00432df0.c": "275beb61e5d2c1a6380fdb9f1066754a47761701ab9be7002cbe2f500a2fe0d9",
+    "decomp/generated/004389c0.c": "2fe5d730a28bc18e090557b12fe239afbea1706226231cbf384e45ec6a903799",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+  },
+  "commands": [
+    [
+      "npm",
+      "run",
+      "check"
+    ],
+    [
+      "npm",
+      "run",
+      "build"
+    ],
+    [
+      "env",
+      "POPULOUS_TRANSPORT_IDLE_MODEL=3",
+      "TMPDIR=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/tmp-balloon-6b6eb68-run01",
+      "node",
+      "scripts/local-render/harness.mjs",
+      "--game-root",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position",
+      "--browser",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+      "--port",
+      "4367",
+      "--output",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/rendered-6b6eb68-run01",
+      "--timeout",
+      "180000",
+      "--scenario",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/scripts/check-browser-transport-idle.mjs"
+    ]
+  ],
+  "receiptWrapper": "scripts/orchestration/command-receipt.mjs; bind package-lock, installed lock, scenario/harness/helpers and browser binary inputs; private TMP for all phases"
+}

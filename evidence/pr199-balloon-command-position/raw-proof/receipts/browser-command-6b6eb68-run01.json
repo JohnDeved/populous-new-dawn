@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "679388f4-04cf-4d29-a62a-1787722fa9a7",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6b6eb684f4f010420a758cfe4fd481b6dfca9545",
+    "branch": "work/balloon-command-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "work/orchestration/balloon-command-position/validation-plan-6b6eb68.json": "5e8d8d9e9f2fa89191afb0ba5e761291bf3a04aba3da78ba985968d821036a38",
+      "scripts/check-browser-transport-idle.mjs": "c9aa26de24ab7d2c9efb74e36a58b0bc1b0435516574fd528984a288c817be01",
+      "scripts/check-browser-vehicle-panel.mjs": "250d3d8d5bfeb35f71c779b2d3ff7197a9bd3463d176b69b5b4a4bcc2ea32cb2",
+      "scripts/local-render/harness.mjs": "204d20a791b77183b44ca35d39e3f96c641545ad3618c449994a4226f4ab38f3",
+      "scripts/local-render/vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27",
+      "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  },
+  "command": [
+    "env",
+    "POPULOUS_TRANSPORT_IDLE_MODEL=3",
+    "TMPDIR=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/tmp-balloon-6b6eb68-run01",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--port",
+    "4367",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/rendered-6b6eb68-run01",
+    "--timeout",
+    "180000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/scripts/check-browser-transport-idle.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position",
+  "startedAt": "2026-10-04T19:03:33.017Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/browser-command-6b6eb68-run01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/browser-command-6b6eb68-run01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T19:04:47.511Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "PASS: rendered Balloon driver disguise accepts command16, completes to state30, holds63 turns and accepts replacement without page errors\n{\"status\":\"passed\",\"source\":{\"root\":\"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position\",\"commit\":\"6b6eb684f4f010420a758cfe4fd481b6dfca9545\",\"tree\":\"aace5dbe66f68f8b7fdde1bd3936e7949970bd40\",\"status\":\"\",\"trackedDiffSha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"untracked\":[],\"fingerprint\":\"c406a6f2189a65be47d1eb2b703468ab21f0beba386bf44dff5c77c380cf5c23\"},\"result\":{\"status\":\"passed\",\"model\":3,\"kind\":\"Balloon\",\"label\":\"Disguise selected spies as Dakini\",\"boarding\":{\"accepted\":{\"model\":22,\"target\":1},\"turns\":10,\"vehicle\":1,\"driver\":187,\"count\":1,\"selected\":[187],\"authoredRetained\":true,\"airborne\":true},\"accepted\":{\"order\":{\"model\":16,\"flags\":0,\"references\":1,\"object\":0,\"a\":1,\"b\":0},\"destination\":[1,0],\"state\":10,\"vehicle\":1},\"completed\":{\"first\":{\"state\":30,\"disguise\":127,\"speed\":0,\"position\":[-19175,14573]},\"state\":30,\"vehicle\":1,\"disguise\":64,\"passengers\":1,\"position\":[-19175,14573],\"status\":\"playing\",\"authoredRetained\":true},\"replacementLabel\":\"Disguise selected spies as Matak\",\"replacement\":{\"tribe\":3,\"state\":30,\"disguise\":255,\"vehicle\":1},\"renderer\":\"ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)\",\"viewport\":{\"width\":1440,\"height\":1000},\"devicePixelRatio\":1,\"scope\":\"Staged one Spy and selection beside an empty authored Mission22 craft; authored population retained. Actual mesh-click boarding and rendered disguise/replacement controls; deterministic ticks and camera focus are supporting setup.\",\"limits\":\"Cloud headless rendering only. No hardware performance, ordinary Spy acquisition, natural campaign, complete vehicle lifecycle, encoded cell/object command positions or non-driver scheduling claim. Checkpoint continuation has separate source coverage.\"}}\n",
+  "stderr": "",
+  "stdoutSha256": "3b373b8e00fac5c1d6392f5dfced63a24cbb824c329acfe8cec521bae56ecd0d",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "6b6eb684f4f010420a758cfe4fd481b6dfca9545",
+    "branch": "work/balloon-command-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "work/orchestration/balloon-command-position/validation-plan-6b6eb68.json": "5e8d8d9e9f2fa89191afb0ba5e761291bf3a04aba3da78ba985968d821036a38",
+      "scripts/check-browser-transport-idle.mjs": "c9aa26de24ab7d2c9efb74e36a58b0bc1b0435516574fd528984a288c817be01",
+      "scripts/check-browser-vehicle-panel.mjs": "250d3d8d5bfeb35f71c779b2d3ff7197a9bd3463d176b69b5b4a4bcc2ea32cb2",
+      "scripts/local-render/harness.mjs": "204d20a791b77183b44ca35d39e3f96c641545ad3618c449994a4226f4ab38f3",
+      "scripts/local-render/vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27",
+      "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "beforeHead": "dcc8a851afdad6ac14d033b121f7f382232ca7c2",
+  "toolingMain": "ea521248b64f0993f4b9884b8e070fb20c4cbbe1",
+  "inputs": {
+    "app/live-movement.ts": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5",
+    "scripts/check-native-balloon-command-position.py": "504d95d373fc46174fa75ea75aac0820d4434661ea1bdefbadf4ad3953eaaa24",
+    "tests/transport-idle.test.mjs": "19159acc6649cd7c7f70baef49ab4fa46062530e852d1a7534bbf1da4f946b2b",
+    "decomp/generated/00432df0.c": "275beb61e5d2c1a6380fdb9f1066754a47761701ab9be7002cbe2f500a2fe0d9",
+    "decomp/generated/004389c0.c": "2fe5d730a28bc18e090557b12fe239afbea1706226231cbf384e45ec6a903799",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+  },
+  "afterHead": "5ab25f1c16345f17190edfa5705cf00e37c2191c",
+  "inputsAfter": {
+    "app/live-movement.ts": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5",
+    "scripts/check-native-balloon-command-position.py": "504d95d373fc46174fa75ea75aac0820d4434661ea1bdefbadf4ad3953eaaa24",
+    "tests/transport-idle.test.mjs": "19159acc6649cd7c7f70baef49ab4fa46062530e852d1a7534bbf1da4f946b2b",
+    "decomp/generated/00432df0.c": "275beb61e5d2c1a6380fdb9f1066754a47761701ab9be7002cbe2f500a2fe0d9",
+    "decomp/generated/004389c0.c": "2fe5d730a28bc18e090557b12fe239afbea1706226231cbf384e45ec6a903799",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+  },
+  "status": "passed: runtime/native/transport tests and exports unchanged"
+}

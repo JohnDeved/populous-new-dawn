@@ -1,0 +1,18 @@
+app/live-movement.ts:75:34: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-movement.ts:28:8: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-movement.ts:22:42: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-movement.ts:29:62: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-movement.ts:21:8: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-movement.ts:23:33: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-movement.ts:12:8: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-movement.ts:2:30: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-movement.ts:1:30: error import(no-duplicates): Modules should not be imported multiple times in the same file help: Merge these imports into a single import statement
+app/live-movement.ts:31:38: error eslint(no-duplicate-imports): './building-shapes.ts' import is duplicated help: Merge the duplicated import into a single import statement
+app/live-movement.ts:690:32: warning eslint(no-shadow): 'building' is already declared in the upper scope. help: Consider renaming 'building' to avoid shadowing the variable from the outer scope.
+app/live-movement.ts:708:36: warning eslint(no-shadow): 'building' is already declared in the upper scope. help: Consider renaming 'building' to avoid shadowing the variable from the outer scope.
+app/live-movement.ts:721:16: warning eslint(no-shadow): 'target' is already declared in the upper scope. help: Consider renaming 'target' to avoid shadowing the variable from the outer scope.
+app/live-movement.ts:511:7: warning unicorn(consistent-existence-index-check): Prefer `=== -1` over `< 0` to check non-existence. help: Replace index check with strict equality check
+app/live-movement.ts:709:24: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement
+app/live-movement.ts:822:19: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement
+app/live-movement.ts:823:19: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement
+app/live-movement.ts:841:9: warning unicorn(no-lonely-if): Unexpected `if` as the only statement in a `if` block without `else`. help: Move the inner `if` test to the outer `if` test.

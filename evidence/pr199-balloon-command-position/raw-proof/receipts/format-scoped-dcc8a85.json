@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "d9a7561f-aaed-4c6f-a611-d6a0534d82bd",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dcc8a851afdad6ac14d033b121f7f382232ca7c2",
+    "branch": "work/balloon-command-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "node_modules/oxfmt/bin/oxfmt",
+    "--check",
+    "app/live-movement.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position",
+  "startedAt": "2026-10-04T18:37:40.458Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/format-scoped-dcc8a85.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/format-scoped-dcc8a85.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T18:37:40.595Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 3ms on 1 files using 9 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "37d0de696117fd0cb6a4d2459237bf08a39f24ddcacc989e6210fe8300a5ab96",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "dcc8a851afdad6ac14d033b121f7f382232ca7c2",
+    "branch": "work/balloon-command-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

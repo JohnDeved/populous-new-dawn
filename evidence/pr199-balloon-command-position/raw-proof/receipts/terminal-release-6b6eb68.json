@@ -1,0 +1,48 @@
+{
+  "time": "2026-10-04T19:07:52.789274+00:00",
+  "status": "granted serialized sequence terminal; parent notified of lane and port release",
+  "head": "6b6eb684f4f010420a758cfe4fd481b6dfca9545",
+  "foregroundSession": 52843,
+  "foregroundExitCode": 0,
+  "port": 4367,
+  "cleanup": "Accepted local-render harness awaited browser close and stopServer in finally before writing its passed terminal receipt. The outer command then exited0. No additional guardian or machine-wide idleness claim.",
+  "remainingOwnedPackageBrowserJobs": [],
+  "dependencyPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/node_modules",
+  "dependencyInode": 925605,
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "receipts": [
+    {
+      "path": "work/orchestration/balloon-command-position/check-final-6b6eb68.json",
+      "sha256": "e5a9a9a9fa8b736092da1043a59097f6e31efb9aee6f9da6b9fe4cd45d510ab3",
+      "status": "passed",
+      "exitCode": 0,
+      "finishedAt": "2026-10-04T19:03:16.770Z",
+      "stdoutSha256": "4d27ae45a23a4c3ddb0a13a15fdabfb174b999113a81df6a2c444222ef20a56f",
+      "stderrSha256": "02285cf98c9d88b48ecc3ef7fa38f35659b7c27d82ad3139b4a57f8bed24e9b1"
+    },
+    {
+      "path": "work/orchestration/balloon-command-position/build-final-6b6eb68.json",
+      "sha256": "6ddc4bf5ab3124d9504440d465834700503c662283b7611764dc4b84866e1033",
+      "status": "passed",
+      "exitCode": 0,
+      "finishedAt": "2026-10-04T19:03:32.730Z",
+      "stdoutSha256": "4f3a955038a319c865db476d31fd183e6d0c0d4c7252e8facc8de99e5dd4cd29",
+      "stderrSha256": "ec8515daf959b98815e9176660a4daaf9416be0665a0de77258f36ada3e97af9"
+    },
+    {
+      "path": "work/orchestration/balloon-command-position/browser-command-6b6eb68-run01.json",
+      "sha256": "a0f6fe96d7f67c0b9cda73e209b38ee08574da80c64ee20cf6a0908ebf834646",
+      "status": "passed",
+      "exitCode": 0,
+      "finishedAt": "2026-10-04T19:04:47.511Z",
+      "stdoutSha256": "3b373b8e00fac5c1d6392f5dfced63a24cbb824c329acfe8cec521bae56ecd0d",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/balloon-command-position/rendered-6b6eb68-run01/receipt.json",
+      "sha256": "8cd16e17fd7754ca5dddd232d3e0d770d6d6fa8e8bc1df471a46442b3be4b4e0",
+      "status": "passed",
+      "finishedAt": "2026-10-04T19:04:44.586Z"
+    }
+  ]
+}

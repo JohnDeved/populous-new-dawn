@@ -1,0 +1,16 @@
+✔ shipped disguise completes aboard Boat, holds and accepts another command (97.132163ms)
+✔ Balloon passenger idle entry holds without advancing or consuming orders (60.303291ms)
+✔ shipped Balloon disguise configures its command position and completes aboard (42.030011ms)
+✔ Balloon raw-coordinate startup wraps payload words and retains unported encodings (35.531073ms)
+✔ pending Balloon disguise checkpoint retains command position and resumes once (42.472345ms)
+✔ occupied state30 checkpoint resumes countdown without reinitializing motion or RNG (63.826971ms)
+✔ ordinary disembark clears vehicle and state30 returns to orders for one visit (42.24875ms)
+✔ replacement disguise interrupts pending and partially completed aboard commands (37.077505ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1079.838777

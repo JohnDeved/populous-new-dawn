@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "cf96061b-3ae6-4fb3-b4d6-8256cc17d0ca",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "76df601a76c54b291cc7867021c45022382720dd",
+    "branch": "work/balloon-command-position",
+    "trackedDiffSha256": "d9aa121637ee0306e29ba561cc07be6e72336c914e31f306819870d857fa2f30",
+    "inputs": {
+      "tests/transport-idle.test.mjs": "8ac4aca7735b195704062e3cdfce2f41f56d4475a2b1ae5cfd9123a271f818ac"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern=shipped Balloon disguise",
+    "tests/transport-idle.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position",
+  "startedAt": "2026-10-04T18:26:34.292Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/failure-first.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/failure-first.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T18:26:35.027Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ shipped Balloon disguise configures its command position and completes aboard (87.088816ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 672.086287\n\n✖ failing tests:\n\ntest at tests/transport-idle.test.mjs:59:1\n✖ shipped Balloon disguise configures its command position and completes aboard (87.088816ms)\n  Error: Unported live movement order consumer\n      at Object.unsupported (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/live-movement.ts:95:9)\n      at configurePersonOrder (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/person-order-start.ts:61:27)\n      at startPersonOrders (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/person-order-start.ts:134:3)\n      at startLiveOrders (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/live-movement.ts:216:3)\n      at Object.startOrders (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/live-people.ts:520:9)\n      at initializePersonState (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/person-state.ts:279:36)\n      at initializeLivePerson (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/live-people.ts:447:3)\n      at changeLivePersonState (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/live-people.ts:560:3)\n      at appendLiveOrders (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/live-movement.ts:335:10)\n      at disguiseSelectedSpies (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/app/live-command.ts:220:18)\n",
+  "stderr": "",
+  "stdoutSha256": "9d55c71ce6522aec9c0797f8ae02544b5f444d424de3743b838705a08d5adff3",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "76df601a76c54b291cc7867021c45022382720dd",
+    "branch": "work/balloon-command-position",
+    "trackedDiffSha256": "d9aa121637ee0306e29ba561cc07be6e72336c914e31f306819870d857fa2f30",
+    "inputs": {
+      "tests/transport-idle.test.mjs": "8ac4aca7735b195704062e3cdfce2f41f56d4475a2b1ae5cfd9123a271f818ac"
+    }
+  }
+}

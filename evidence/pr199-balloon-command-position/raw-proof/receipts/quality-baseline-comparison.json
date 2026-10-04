@@ -1,0 +1,13 @@
+{
+  "status": "passed",
+  "candidate": "dcc8a851afdad6ac14d033b121f7f382232ca7c2",
+  "unchangedOxlintDiagnostics": 18,
+  "candidateReceipt": "oxlint-scoped-dcc8a85.json",
+  "baselineReceipt": "oxlint-baseline-absolute-dcc8a85.json",
+  "baselineFileSha256": "bdb1d320a2299e35ca68f611d1454a1444f6524dbc1aea8798134df5cea8e3bd",
+  "unmodifiedFormatFailures": [
+    "app/render-view.ts",
+    "app/viewport-bounds.ts"
+  ],
+  "note": "Raw tool statuses remain failed; normalized rule/message diagnostics are identical to the exact-base source, and both full-format failures match exact base bytes."
+}

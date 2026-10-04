@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ac2d867c-7b08-4e1c-8ab1-8b063ed4e176",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dcc8a851afdad6ac14d033b121f7f382232ca7c2",
+    "branch": "work/balloon-command-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "node_modules/oxlint/bin/oxlint",
+    "app/live-movement.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position",
+  "startedAt": "2026-10-04T18:37:40.448Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/oxlint-scoped-dcc8a85.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/oxlint-scoped-dcc8a85.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T18:37:40.571Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "app/live-movement.ts:75:34: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/live-movement.ts:28:8: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/live-movement.ts:22:42: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/live-movement.ts:29:62: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/live-movement.ts:21:8: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/live-movement.ts:23:33: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/live-movement.ts:12:8: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/live-movement.ts:2:30: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.\napp/live-movement.ts:1:30: error import(no-duplicates): Modules should not be imported multiple times in the same file help: Merge these imports into a single import statement\napp/live-movement.ts:31:38: error eslint(no-duplicate-imports): './building-shapes.ts' import is duplicated help: Merge the duplicated import into a single import statement\napp/live-movement.ts:690:32: warning eslint(no-shadow): 'building' is already declared in the upper scope. help: Consider renaming 'building' to avoid shadowing the variable from the outer scope.\napp/live-movement.ts:708:36: warning eslint(no-shadow): 'building' is already declared in the upper scope. help: Consider renaming 'building' to avoid shadowing the variable from the outer scope.\napp/live-movement.ts:721:16: warning eslint(no-shadow): 'target' is already declared in the upper scope. help: Consider renaming 'target' to avoid shadowing the variable from the outer scope.\napp/live-movement.ts:511:7: warning unicorn(consistent-existence-index-check): Prefer `=== -1` over `< 0` to check non-existence. help: Replace index check with strict equality check\napp/live-movement.ts:709:24: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement\napp/live-movement.ts:822:19: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement\napp/live-movement.ts:823:19: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement\napp/live-movement.ts:841:9: warning unicorn(no-lonely-if): Unexpected `if` as the only statement in a `if` block without `else`. help: Move the inner `if` test to the outer `if` test.\n",
+  "stderr": "",
+  "stdoutSha256": "7b4e785ae1470e4a32215578a80577e54f24a5b403f1fbe84d65df1778bd8d02",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "dcc8a851afdad6ac14d033b121f7f382232ca7c2",
+    "branch": "work/balloon-command-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

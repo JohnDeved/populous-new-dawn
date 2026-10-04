@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "6ea8ba02-e381-4e61-b307-fc2348c3ab22",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dcc8a851afdad6ac14d033b121f7f382232ca7c2",
+    "branch": "work/balloon-command-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/transport-idle.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position",
+  "startedAt": "2026-10-04T18:37:41.557Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/source-final-dcc8a85.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/source-final-dcc8a85.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T18:37:42.701Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ shipped disguise completes aboard Boat, holds and accepts another command (97.132163ms)\n✔ Balloon passenger idle entry holds without advancing or consuming orders (60.303291ms)\n✔ shipped Balloon disguise configures its command position and completes aboard (42.030011ms)\n✔ Balloon raw-coordinate startup wraps payload words and retains unported encodings (35.531073ms)\n✔ pending Balloon disguise checkpoint retains command position and resumes once (42.472345ms)\n✔ occupied state30 checkpoint resumes countdown without reinitializing motion or RNG (63.826971ms)\n✔ ordinary disembark clears vehicle and state30 returns to orders for one visit (42.24875ms)\n✔ replacement disguise interrupts pending and partially completed aboard commands (37.077505ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1079.838777\n",
+  "stderr": "",
+  "stdoutSha256": "df65d8467f4a2adffa597568126ff3ee6be19e547c5ba6d6f6918bc3c4052968",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "dcc8a851afdad6ac14d033b121f7f382232ca7c2",
+    "branch": "work/balloon-command-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2"
+    }
+  }
+}

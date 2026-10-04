@@ -1,0 +1,3 @@
+PASS: 126 native raw-position leaves; descriptor identity and unsigned payload words for models [0, 1, 2, 3, 5, 7, 9, 12, 13, 15, 16, 17, 18, 20, 23, 24, 25, 26, 31, 32, 34]
+PASS: 1152 native configure + command-position compositions match production live startup fields; no native leaves supplied
+Executable SHA256: 3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f; startup speed/RNG, full vehicle movement and non-driver scheduling are outside this comparison
