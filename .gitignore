@@ -38,6 +38,8 @@ yarn-error.log*
 /.wrangler/
 /outputs/
 /work/
+# Task-owned game browser storage is private local state, never review evidence.
+/work/local-render-profiles/
 
 # Local QA captures and downloaded research images
 /qa/*.png
