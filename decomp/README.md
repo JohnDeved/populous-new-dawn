@@ -5195,3 +5195,12 @@ comparisons and 180 real switch-body cases cover route release, zero speed and t
 detached return to orders. The live regression covers actual command boarding and
 Boat disguise completion/countdown/checkpoints; the earlier Balloon command-position
 boundary remains separate.
+
+## 2026-10-04 — Ordinary reincarnation site wave
+
+[Composed mode2 evidence](research/reincarnation-site-wave.md) executes the original
+model12 producer, real effect8 allocator/initializer, site wave, state26 initializer,
+and damage leaf. It proves next-turn first processing, continued lifetime at spawn,
+exact height quantization, exclusions, repeated protected-transition damage, busy
+duplicate cleanup and allocation failure without retry. Startup mode1 conversion
+remains separate. This evidence alone does not claim live browser completion.

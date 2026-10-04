@@ -5121,6 +5121,173 @@
         "exitCode": 0,
         "artifacts": []
       }
+    },
+    {
+      "id": "reincarnation-wave-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Verify ordinary mode2 site-wave ownership, native target response and checkpoint continuity.",
+      "coveredBehavior": [
+        "One-shot failed/busy allocation and saved height",
+        "Native eligible targets, panic and repeated protected damage",
+        "Same-turn older Swamp cleanup",
+        "Ordinary death, deferred first visit and independent post-spawn lifetime",
+        "Active encounter, entry queue and Boat/Balloon passenger handoffs",
+        "Checkpoint continuation without duplicated controller/orbits"
+      ],
+      "knownLimits": [
+        "Supporting fixtures and source integration do not establish rendered acceptance."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/reincarnation-wave.test.mjs",
+        "tests/level-start.test.mjs",
+        "tests/person-panic.test.mjs"
+      ],
+      "inputs": [
+        "app/reincarnation-wave-runtime.ts",
+        "app/site-wave-effects.ts",
+        "app/level-start.ts",
+        "app/level-start-runtime.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts",
+        "app/world-state.ts",
+        "app/game-store.ts",
+        "app/live-people.ts",
+        "app/live-building-entry.ts",
+        "app/live-vehicles.ts",
+        "app/person-state.ts",
+        "app/person-update.ts",
+        "tests/reincarnation-wave.test.mjs",
+        "tests/level-start.test.mjs",
+        "tests/person-panic.test.mjs"
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
+      "cwd": ".",
+      "env": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "reincarnation-wave-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute the composed original model12 producer, allocator, mode2 wave, panic and damage with mapped-input integrity guards.",
+      "coveredBehavior": [
+        "Real allocator, height quantization, busy/failure branches",
+        "Real panic/damage with eligibility and repeated ring endpoints",
+        "First cross-class traversal and spawn-request order",
+        "Terrain/orbit/sound lifetime and Swamp removal traversal",
+        "Passenger deselection and unchanged seat/order identity"
+      ],
+      "knownLimits": [
+        "Supplied rendering, sound, removal and unrelated world leaves; spawn requests are supplied, not a successful native spawn.",
+        "Earlier corrupt-search receipts through94e88b4 are superseded."
+      ],
+      "executable": "$POPULOUS_PYTHON",
+      "args": [
+        "-B",
+        "scripts/check-native-reincarnation-wave.py",
+        "$POPULOUS_EXE"
+      ],
+      "inputs": [
+        "scripts/check-native-reincarnation-wave.py",
+        "scripts/decomp.py",
+        "decomp/tools.json",
+        "app/original-constants.json",
+        "decomp/research/reincarnation-site-wave.md"
+      ],
+      "prerequisites": [
+        "Hash-verified original EXE, levels/constant.dat and data/mwsearch.dat",
+        "Pinned Unicorn environment"
+      ],
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE",
+        "POPULOUS_PYTHON"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
+    },
+    {
+      "id": "reincarnation-wave-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Verify rendered ordinary reincarnation after real Mission2 combat death and saved-wave restoration.",
+      "coveredBehavior": [
+        "Shipped setup/H-selection/ordinary attack and natural model12 lifecycle",
+        "Deferred wave visit, orbit pixels, successful respawn and cleanup",
+        "Fresh-page checkpoint and responsive rendering",
+        "Separately labeled staged intrusion targets and rendered Swamp removal/neighbor survival",
+        "No remaining wave-owned lights after cleanup"
+      ],
+      "knownLimits": [
+        "Command adapter is not pointer-picking proof.",
+        "Staged intruders are separate from natural gameplay acceptance.",
+        "Linux headless rendering cannot establish hardware performance."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "--mission",
+        "2",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR"
+      ],
+      "inputs": [
+        "app/reincarnation-wave-runtime.ts",
+        "app/site-wave-effects.ts",
+        "app/level-start.ts",
+        "app/level-start-runtime.ts",
+        "app/world-turn.ts",
+        "app/world-types.ts",
+        "app/world-state.ts",
+        "app/game-store.ts",
+        "app/live-people.ts",
+        "app/live-building-entry.ts",
+        "app/live-vehicles.ts",
+        "app/person-state.ts",
+        "app/person-update.ts",
+        "app/scene-effects.ts",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "scripts/browser-game.mjs",
+        "scripts/campaign-start-readiness.mjs",
+        "scripts/local-render/harness.mjs"
+      ],
+      "prerequisites": [
+        "Owned local game server",
+        "Supported sandboxed Playwright browser"
+      ],
+      "cwd": ".",
+      "env": [
+        "POPULOUS_ARTIFACT_DIR",
+        "POPULOUS_HEADLESS_SHELL"
+      ],
+      "sideEffects": [
+        "Writes source-bound captures/report to unique artifact directory"
+      ],
+      "resources": [
+        "Shared browser/server lane; serialize"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     }
   ]
 }

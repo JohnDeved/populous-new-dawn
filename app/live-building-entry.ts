@@ -430,11 +430,13 @@ export function dismantleBuilding(w: World, b: Building) {
   }
 }
 
-export function cancelBuildingEntry(w: World, u: Unit) {
+export function cancelBuildingEntry(w: World, u: Unit, preserveOrders = false) {
   if (!u.entry) return
   const p = u.entry.person
-  clearPersonOrders(w.buildingOrders, p, orderEffects)
-  if (p.flags3 & 32) rebuildLiveTrainingQueue(w, p.workTarget)
+  if (!preserveOrders) {
+    clearPersonOrders(w.buildingOrders, p, orderEffects)
+    if (p.flags3 & 32) rebuildLiveTrainingQueue(w, p.workTarget)
+  }
   releasePersonRoute(w.motionRoutes, p)
   u.supportHeight = p.supportHeight || undefined
   u.entry = undefined

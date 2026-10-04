@@ -825,6 +825,7 @@ test('Shaman appearance context keeps its complete checks and evidence within th
     'shaman-appearance-portable', 'shaman-assets-static',
     'shaman-appearance-browser', 'shaman-appearance-native',
     'level-start-portable', 'level-start-native', 'level-start-static', 'level-start-browser',
+    'reincarnation-wave-portable', 'reincarnation-wave-native', 'reincarnation-wave-browser',
   ]
   assert.deepEqual(shamanMapping.checkIds, expectedChecks)
   assert.ok(expectedChecks.every(id => !terrainMapping.checkIds.includes(id)))

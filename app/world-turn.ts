@@ -1,3 +1,4 @@
+import { createReincarnationWave, stepReincarnationWave } from './reincarnation-wave-runtime.ts'
 import { reconcileWorldHutSmoke, stepSecondaryEffects } from './hut-smoke-runtime.ts'
 import {
   levelStartOwnsShaman,
@@ -560,8 +561,9 @@ function stepTurn(w: World) {
   // Native allocated-object order is newest first; terrain and RNG effects are noncommutative.
   for (let index = effectCount - 1; index >= 0; index--) {
     const fx = w.effects[index]
-    if (fx.kind === 'orderMarker') continue
+    if (fx.kind === 'orderMarker' || (fx.swamp && fx.age >= fx.duration)) continue
     fx.age += dt
+    if (fx.reincarnationWave) stepReincarnationWave(w, fx)
     if (fx.armageddon) stepArmageddon(w, fx)
     if (fx.corpse) {
       const step = stepReincarnation(fx.corpse.remaining, true, false)
@@ -1747,7 +1749,7 @@ function stepTurn(w: World) {
         visual.height = (visual.reincarnation.ground + step.height) / 45
       }
       if (step.event === 'splash') effect(w, 'splash', point ?? site)
-      else if (step.event === 'rise') effect(w, 'birth', site)
+      else if (step.event === 'rise') createReincarnationWave(w, tribe)
       else if (step.event === 'spawn') {
         const u = addUnit(w, team, 'shaman', site)
         if (tribe === w.manaWorld.playerTribe) sound(w, 0x6b, site)

@@ -1,3 +1,4 @@
+import { deselectLiveVehiclePassengers } from './live-vehicles.ts'
 import { latchShamanDeathFrame } from './shaman-death-vfx.ts'
 import { buildingPose } from './building-shapes.ts'
 import { effect, emitGroundSpark, requestTutorial, sound } from './world-effects.ts'
@@ -498,7 +499,7 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
     celebrate: () => stepCelebration(state, p, effects),
     setAnimation: (p, o) => effects.animation(p as LivePerson, o, true),
     releaseMotion: p => effects.releaseMotion(p as LivePerson),
-    deselectPassengers: unexpected,
+    deselectPassengers: person => deselectLiveVehiclePassengers(w, person),
     rebuildTrainingQueue: id => rebuildLiveTrainingQueue(w, id),
     rebuildFormation: cell => rebuildLiveRestingSlots(w, cell),
     idleApproach: () =>
@@ -565,10 +566,11 @@ export function initializeLivePanic(
   w: World,
   u: Unit,
   p = u.flight ?? u.native ?? createLivePerson(w, u),
-  transitioned = false
+  transitioned = false,
+  entryOrders: 'cancel' | 'preserve' = 'cancel'
 ) {
   if (p.flags2 & 0x100000) return
-  cancelBuildingEntry(w, u)
+  cancelBuildingEntry(w, u, entryOrders === 'preserve')
   u.native = p
   if (!transitioned) {
     p.previousState = p.state
@@ -1033,7 +1035,7 @@ function updateLivePanic(w: World, u: Unit, ctx: ReturnType<typeof context>, p: 
     if (!currentPersonOrder(w.buildingOrders, p)) {
       u.native = null
       releasePersonRoute(w.motionRoutes, p)
-    }
+    } else if (p.state === 10) adoptLiveOrders(w, u, p)
   }
 }
 
