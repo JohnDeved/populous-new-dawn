@@ -1,0 +1,27 @@
+{
+  "candidate": "fb12687d2bbad9bd817f12d8cda63209626a8f11",
+  "build": "passed via verified unchanged production input correspondence, not rerun",
+  "originalBuild": "6b6eb684f4f010420a758cfe4fd481b6dfca9545",
+  "originalReceipt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/build-final-6b6eb68.json",
+  "productionObjectsVerified": 13,
+  "rootAndInstalledLocksVerified": true,
+  "rawBuildLogsVerified": true,
+  "changedPathsSinceBuild": [
+    ".gitignore",
+    "engineering/local-render-harness.md",
+    "scripts/check-browser-building-menu.mjs",
+    "scripts/check-browser-building-panel-hover.mjs",
+    "scripts/check-browser-mission4-natural-victory.mjs",
+    "scripts/check-browser-worship-panel-live.mjs",
+    "scripts/hud-texture-readiness.mjs",
+    "scripts/local-render/checkpoint-observer.mjs",
+    "scripts/local-render/checkpoint-restart.mjs",
+    "scripts/local-render/harness.mjs",
+    "scripts/local-render/hud-texture-readiness.mjs",
+    "scripts/local-render/owned-profile.mjs",
+    "tests/browser-mission4-profile-readback.test.mjs",
+    "tests/hud-texture-readiness.test.mjs",
+    "tests/local-render-harness.test.mjs",
+    "tests/owned-game-profile.test.mjs"
+  ]
+}

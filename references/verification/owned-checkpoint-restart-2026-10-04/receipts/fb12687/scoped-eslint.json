@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "bef6dbe4-f894-4fef-a0f6-54095ef22c35",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "fb12687d2bbad9bd817f12d8cda63209626a8f11",
+    "branch": "fix/owned-game-checkpoint-profile",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "scripts/local-render/harness.mjs",
+    "scripts/local-render/owned-profile.mjs",
+    "scripts/local-render/checkpoint-observer.mjs",
+    "scripts/local-render/checkpoint-restart.mjs",
+    "tests/local-render-harness.test.mjs",
+    "tests/owned-game-profile.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile",
+  "startedAt": "2026-10-04T20:45:44.409Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-fb12687/scoped-eslint.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-fb12687/scoped-eslint.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T20:45:46.417Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/scripts/local-render/harness.mjs\n  111:133  error  Empty block statement           no-empty\n  197:31   error  Unsafe usage of ThrowStatement  no-unsafe-finally\n  211:147  error  Unsafe usage of ThrowStatement  no-unsafe-finally\n\n✖ 3 problems (3 errors, 0 warnings)\n\n",
+  "stderr": "",
+  "stdoutSha256": "c96ed0cbe0c1dcfaafbe6fe7ec67753daf54580aa0f56a0aaa51f86d2ce3afe8",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "fb12687d2bbad9bd817f12d8cda63209626a8f11",
+    "branch": "fix/owned-game-checkpoint-profile",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

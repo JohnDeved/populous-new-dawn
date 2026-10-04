@@ -1,0 +1,197 @@
+{
+  "startedAt": "2026-10-04T20:41:48.793Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile",
+    "commit": "fb12687d2bbad9bd817f12d8cda63209626a8f11",
+    "tree": "b804f4a8b271b7019d032e6fb04d77f0d2f9872a",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "6ce19a4a842c83c014f2f87fbce035d34250701d31f533ed9061e23b2075adde"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe",
+      "--user-data-dir=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/local-render-profiles/restart-fb12687/browser",
+      "about:blank"
+    ],
+    "timeout": 30000,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "acceptDownloads": false,
+    "serviceWorkers": "block"
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x23e400d60800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x23e400d60800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x23e400d60800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x23e400d60800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "status": "passed",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "54036c1c3a13f4b9cf243fa9b18e9090aedc832edc9d28f5af6a193a841acd24",
+      "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenario": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/scripts/local-render/checkpoint-restart.mjs",
+    "sha256": "42ab799b979eaf0a9d84ee91037d5306c2bd8464d264a14e0480b3b5b20c7b2b"
+  },
+  "profile": {
+    "id": "d52cd650-d928-48ea-b22e-2cb229757cb2",
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/local-render-profiles/restart-fb12687",
+    "runId": "84ca1bff-c2d3-4a8b-a373-d454ea15dbff",
+    "mode": "reused",
+    "origin": "http://127.0.0.1:4371",
+    "inputs": {
+      "application": "5763bf7e308e9322edc61f617b95d6116830f570114add28cfa2294b8b5f49cc",
+      "checker": "8501ae90b3935d2caaba8ce409c55399c377d2fda737cd3308241c1ad5ccdf46"
+    },
+    "correspondence": null,
+    "previousRun": {
+      "runId": "c607748d-cafc-4b71-9f5b-e90a6a0c8984",
+      "sourceFingerprint": "6ce19a4a842c83c014f2f87fbce035d34250701d31f533ed9061e23b2075adde",
+      "sourceCommit": "fb12687d2bbad9bd817f12d8cda63209626a8f11",
+      "checker": "8501ae90b3935d2caaba8ce409c55399c377d2fda737cd3308241c1ad5ccdf46",
+      "receiptPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-fb12687/save/receipt.json",
+      "receiptSha256": "ea738a8bddccea04d75e5ee39967c2a989b15c7a826529715f3176a548975a77",
+      "status": "passed",
+      "cleanupVerified": true,
+      "continuationVerified": true,
+      "checkpointAtEnd": {
+        "version": 1,
+        "level": 1,
+        "turn": 121,
+        "time": 10.083333333333334,
+        "checkpointSha256": "2f0cccb69a1b02201ce15c03d59d991ab441ca683beccc92f21e0ed0b9884174",
+        "actorsSha256": "43a8f83f4f5db09d78cf06fde854e886484cc4d73c747eeff2a95a8afd602711",
+        "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+        "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+      }
+    },
+    "checkpoints": [
+      {
+        "label": "After shipped Load",
+        "observedAt": "2026-10-04T20:42:13.444Z",
+        "profileId": "d52cd650-d928-48ea-b22e-2cb229757cb2",
+        "runId": "84ca1bff-c2d3-4a8b-a373-d454ea15dbff",
+        "sourceFingerprint": "6ce19a4a842c83c014f2f87fbce035d34250701d31f533ed9061e23b2075adde",
+        "checkpoint": {
+          "version": 1,
+          "level": 1,
+          "turn": 121,
+          "time": 10.083333333333334,
+          "checkpointSha256": "2f0cccb69a1b02201ce15c03d59d991ab441ca683beccc92f21e0ed0b9884174",
+          "actorsSha256": "43a8f83f4f5db09d78cf06fde854e886484cc4d73c747eeff2a95a8afd602711",
+          "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+          "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+        }
+      }
+    ],
+    "checkpointAtStart": {
+      "version": 1,
+      "level": 1,
+      "turn": 121,
+      "time": 10.083333333333334,
+      "checkpointSha256": "2f0cccb69a1b02201ce15c03d59d991ab441ca683beccc92f21e0ed0b9884174",
+      "actorsSha256": "43a8f83f4f5db09d78cf06fde854e886484cc4d73c747eeff2a95a8afd602711",
+      "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+      "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+    },
+    "checkpointAtEnd": {
+      "version": 1,
+      "level": 1,
+      "turn": 121,
+      "time": 10.083333333333334,
+      "checkpointSha256": "2f0cccb69a1b02201ce15c03d59d991ab441ca683beccc92f21e0ed0b9884174",
+      "actorsSha256": "43a8f83f4f5db09d78cf06fde854e886484cc4d73c747eeff2a95a8afd602711",
+      "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+      "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+    },
+    "cleanupVerified": true,
+    "continuationVerified": true
+  },
+  "browserVersion": "154.0.8037.92",
+  "runtimeAfter": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "54036c1c3a13f4b9cf243fa9b18e9090aedc832edc9d28f5af6a193a841acd24",
+      "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenarioAfter": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/scripts/local-render/checkpoint-restart.mjs",
+    "sha256": "42ab799b979eaf0a9d84ee91037d5306c2bd8464d264a14e0480b3b5b20c7b2b"
+  },
+  "result": {
+    "phase": "loaded-after-browser-restart",
+    "method": "Ordinary UI and real RAF only. Committed IndexedDB and store subscription are read-only observations. No world/tick/storage injection.",
+    "saved": {
+      "version": 1,
+      "level": 1,
+      "turn": 121,
+      "time": 10.083333333333334,
+      "checkpointSha256": "2f0cccb69a1b02201ce15c03d59d991ab441ca683beccc92f21e0ed0b9884174",
+      "actorsSha256": "43a8f83f4f5db09d78cf06fde854e886484cc4d73c747eeff2a95a8afd602711",
+      "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+      "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+    },
+    "loaded": {
+      "version": 1,
+      "level": 1,
+      "turn": 121,
+      "time": 10.083333333333334,
+      "checkpointSha256": "2f0cccb69a1b02201ce15c03d59d991ab441ca683beccc92f21e0ed0b9884174",
+      "actorsSha256": "43a8f83f4f5db09d78cf06fde854e886484cc4d73c747eeff2a95a8afd602711",
+      "terrainSha256": "5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109",
+      "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+    },
+    "resumed": {
+      "turn": 137,
+      "paused": false
+    },
+    "normalAutoResume": true,
+    "priorRun": "c607748d-cafc-4b71-9f5b-e90a6a0c8984"
+  },
+  "finishedAt": "2026-10-04T20:42:14.232Z",
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile",
+    "commit": "fb12687d2bbad9bd817f12d8cda63209626a8f11",
+    "tree": "b804f4a8b271b7019d032e6fb04d77f0d2f9872a",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "6ce19a4a842c83c014f2f87fbce035d34250701d31f533ed9061e23b2075adde"
+  }
+}

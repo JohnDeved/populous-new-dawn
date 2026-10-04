@@ -1,0 +1,86 @@
+{
+  "current": "76257087cf746b1083e114b236f18bd64d292add",
+  "result": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-fb12687/full-check.json",
+      "head": "fb12687d2bbad9bd817f12d8cda63209626a8f11",
+      "status": "passed",
+      "exitCode": 0,
+      "receiptSha256": "458e5c65f297bcf2680885647c8ec852da20f8cd0b7b3775e25f12096df7ed81",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "stdout": "es.ts\",\n    \"app/painter.ts\",\n    \"app/path-geometry.ts\",\n    \"app/path-search.ts\",\n    \"app/path-solver.ts\",\n    \"app/person-collision.ts\",\n    \"app/person-idle.ts\",\n    \"app/person-motion.ts\",\n    \"app/person-panel.ts\",\n    \"app/person-physics.ts\",\n    \"app/person-route-recovery.ts\",\n    \"app/person-state.ts\",\n    \"app/preacher-conversion.ts\",\n    \"app/projectile-motion.ts\",\n    \"app/projection.ts\",\n    \"app/resting-slots.ts\",\n    \"app/scene-hud-runtime.ts\",\n    \"app/scene-secondary-effects.ts\",\n    \"app/scenery-fire.ts\",\n    \"app/secondary-effects.ts\",\n    \"app/selection-raster.ts\",\n    \"app/shaman-death-vfx.ts\",\n    \"app/sky-motion.ts\",\n    \"app/sky.ts\",\n    \"app/special-battle.ts\",\n    \"app/spell-button.ts\",\n    \"app/spell-halo.ts\",\n    \"app/spell-trails.ts\",\n    \"app/spell-visibility.ts\",\n    \"app/sprite-layers.ts\",\n    \"app/stone-head-149.ts\",\n    \"app/stone-head-animation.ts\",\n    \"app/stone-head-orientation.ts\",\n    \"app/swamp.ts\",\n    \"app/swarm.ts\",\n    \"app/terrain-ambience.ts\",\n    \"app/terrain-light.ts\",\n    \"app/territory.ts\",\n    \"app/tooltip-layout.ts\",\n    \"app/tornado-runtime.ts\",\n    \"app/tornado.ts\",\n    \"app/training-conversion.ts\",\n    \"app/training-hut-appearance.ts\",\n    \"app/training.ts\",\n    \"app/tree-growth.ts\",\n    \"app/unit-health.ts\",\n    \"app/vault-appearance.ts\",\n    \"app/vehicle-appearance.ts\",\n    \"app/vehicle-routing.ts\",\n    \"app/volcano.ts\",\n    \"app/water.ts\",\n    \"app/workshop-panel.ts\",\n    \"app/world-coordinates.ts\",\n    \"app/world-initialization.ts\",\n    \"app/world-selector-data.ts\",\n    \"app/world-selector.module.css\",\n    \"app/world-selector.tsx\",\n    \"app/world-state.ts\",\n    \"app/world-tasks.ts\",\n    \"app/worship-appearance.ts\",\n    \"app/worship-panel-activity.ts\",\n    \"app/worship-panel.ts\"\n  ],\n  \"cacheRequired\": false\n}\n",
+      "rawHashesVerified": true
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-fb12687/scoped-eslint.json",
+      "head": "fb12687d2bbad9bd817f12d8cda63209626a8f11",
+      "status": "failed",
+      "exitCode": 1,
+      "receiptSha256": "a88ed651622abc64813bf3475d0021ab59d0aecf33db3a7506ae268e5ca81487",
+      "command": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "scripts/local-render/harness.mjs",
+        "scripts/local-render/owned-profile.mjs",
+        "scripts/local-render/checkpoint-observer.mjs",
+        "scripts/local-render/checkpoint-restart.mjs",
+        "tests/local-render-harness.test.mjs",
+        "tests/owned-game-profile.test.mjs"
+      ],
+      "stdout": "\n/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/scripts/local-render/harness.mjs\n  111:133  error  Empty block statement           no-empty\n  197:31   error  Unsafe usage of ThrowStatement  no-unsafe-finally\n  211:147  error  Unsafe usage of ThrowStatement  no-unsafe-finally\n\n✖ 3 problems (3 errors, 0 warnings)\n\n",
+      "rawHashesVerified": true
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-error-path/focused.json",
+      "head": "76257087cf746b1083e114b236f18bd64d292add",
+      "status": "passed",
+      "exitCode": 0,
+      "receiptSha256": "bc5f7f3761a6faea48f6282242a5bba5951974dcd38a4b00a13fb29942b0edfa",
+      "command": [
+        "node",
+        "--test",
+        "tests/local-render-harness.test.mjs",
+        "tests/owned-game-profile.test.mjs"
+      ],
+      "stdout": "e Playwright defaults (2.238513ms)\n✔ CLI accepts separate game root, owned output, browser and bounded settings (0.344738ms)\n✔ CLI rejects unknown flags, missing values and unbounded inputs (0.273801ms)\n✔ source fingerprint catches dirty tracked and untracked byte drift with unchanged porcelain (75.275103ms)\n✔ active scenario completing during timeout diagnostics cannot turn failure into pass (104.890093ms)\n✔ active scenario completing during interrupt diagnostics cannot turn failure into pass (3.999107ms)\n✔ ephemeral default stays opt-in; persistent launch keeps sandbox and explicit data-dir (2.248958ms)\n✔ unknown personal, noncanonical, existing unmarked and symlink directories fail before adoption (16.85441ms)\n✔ symlink ancestor and evidence overlap are rejected (6.22389ms)\n✔ an output symlink cannot alias profile data before preflight creates logs (8.800892ms)\n✔ exclusive live and unknown locks are never recovered, and failed cleanup keeps ownership (16.571855ms)\n✔ normal terminal cleanup retains checkpoint identity across a new exclusive run (12.198465ms)\n✔ source/runtime/origin drift cannot silently adopt a game save (24.505183ms)\n✔ symlinked source bytes and external or ignored scenarios cannot bypass input binding (12.897706ms)\n✔ checker-only correspondence must bind prior run and both exact source identities (11.52594ms)\n✔ unverified source and changed terminal ownership remain blocked (9.232779ms)\n✔ lease refuses a replaced lock and leaves that owner untouched (7.700459ms)\n✔ leftover Chromium ownership and replaced data directory block reuse (11.327537ms)\n✔ committed readback is readonly, awaits completion, and hashes typed arrays/Map/Set contents (68.54941ms)\nℹ tests 19\nℹ suites 0\nℹ pass 19\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 311.662439\n",
+      "rawHashesVerified": true
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-error-path/scoped-eslint.json",
+      "head": "76257087cf746b1083e114b236f18bd64d292add",
+      "status": "failed",
+      "exitCode": 1,
+      "receiptSha256": "1112682ee2c18aa86b799547547b59620f23f6c4144dabed438257852658a565",
+      "command": [
+        "node",
+        "node_modules/eslint/bin/eslint.js",
+        "scripts/local-render/harness.mjs",
+        "scripts/local-render/owned-profile.mjs",
+        "scripts/local-render/checkpoint-observer.mjs",
+        "scripts/local-render/checkpoint-restart.mjs",
+        "tests/local-render-harness.test.mjs",
+        "tests/owned-game-profile.test.mjs"
+      ],
+      "stdout": "\n/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/scripts/local-render/harness.mjs\n  111:133  error  Empty block statement  no-empty\n\n✖ 1 problem (1 error, 0 warnings)\n\n",
+      "rawHashesVerified": true
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-error-path/fault-cases.json",
+      "head": "76257087cf746b1083e114b236f18bd64d292add",
+      "status": "passed",
+      "exitCode": 0,
+      "receiptSha256": "69a480b069f4efbaf4498dea9068d071aa61580f8d7e345f0ceececccc18132e",
+      "command": [
+        "node",
+        "work/orchestration/owned-profile-review-69e3e33/fault-probe-expanded.mjs",
+        "76257087cf746b1083e114b236f18bd64d292add"
+      ],
+      "stdout": "    {\n      \"mode\": \"terminal-read-timeout\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": true,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": true,\n      \"continuationVerified\": true\n    },\n    {\n      \"mode\": \"source-drift\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": true,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": true,\n      \"continuationVerified\": false,\n      \"checkpointAtEnd\": {\n        \"checkpointSha256\": \"expected\",\n        \"level\": 1,\n        \"turn\": 10,\n        \"time\": 1\n      }\n    },\n    {\n      \"mode\": \"runtime-drift\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": true,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": true,\n      \"continuationVerified\": false,\n      \"checkpointAtEnd\": {\n        \"checkpointSha256\": \"expected\",\n        \"level\": 1,\n        \"turn\": 10,\n        \"time\": 1\n      }\n    },\n    {\n      \"mode\": \"navigation-fails\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": false,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": true,\n      \"continuationVerified\": false,\n      \"checkpointAtEnd\": {\n        \"checkpointSha256\": \"expected\",\n        \"level\": 1,\n        \"turn\": 10,\n        \"time\": 1\n      }\n    },\n    {\n      \"mode\": \"launch-rejects\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": false,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": false,\n      \"continuationVerified\": false\n    }\n  ]\n}\n",
+      "rawHashesVerified": true
+    }
+  ]
+}

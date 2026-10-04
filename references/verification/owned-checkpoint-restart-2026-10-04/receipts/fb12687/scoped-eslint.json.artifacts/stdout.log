@@ -1,0 +1,8 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/scripts/local-render/harness.mjs
+  111:133  error  Empty block statement           no-empty
+  197:31   error  Unsafe usage of ThrowStatement  no-unsafe-finally
+  211:147  error  Unsafe usage of ThrowStatement  no-unsafe-finally
+
+✖ 3 problems (3 errors, 0 warnings)
+

@@ -1,0 +1,23 @@
+{
+  "status": "terminal; browser/heavy lane and dependency tree released for coordinated transfer",
+  "time": "2026-10-04T20:46:51.448611+00:00",
+  "head": "fb12687d2bbad9bd817f12d8cda63209626a8f11",
+  "foregroundSessions": {
+    "save": 31871,
+    "load": 75479,
+    "fullCheck": 91302,
+    "scopedQuality": 32308
+  },
+  "commands": {
+    "save-command.json": "passed",
+    "load-command.json": "passed",
+    "full-check.json": "passed",
+    "scoped-eslint.json": "failed"
+  },
+  "ownedBrowserOrServerProcesses": [],
+  "heavyLaneReleased": true,
+  "dependencyPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/node_modules",
+  "dependencyInode": 925605,
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "notes": "Two harness receipts verify owned browser closure and lease release; all foreground child commands are terminal. Scoped lint has one baseline no-empty plus two caught-throw false-positive candidates under review. No process discovery or unknown cleanup inferred."
+}

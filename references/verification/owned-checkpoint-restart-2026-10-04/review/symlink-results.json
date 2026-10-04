@@ -1,0 +1,14 @@
+{
+  "commit": "7153bcc51eaf542ce5e55ecdea139078fe814ff6",
+  "noBrowserLaunched": true,
+  "command": "node work/orchestration/owned-profile-review-69e3e33/symlink-probe.mjs",
+  "before": {
+    "application": "1a3332526a77e0915f1d8ae4760e917999d71723874e6015914857b35be91f97",
+    "checker": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "after": {
+    "application": "1a3332526a77e0915f1d8ae4760e917999d71723874e6015914857b35be91f97",
+    "checker": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+  },
+  "changedRuntimeBytesWereUnnoticed": true
+}

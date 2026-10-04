@@ -1,0 +1,25 @@
+{
+  "commit": "7153bcc51eaf542ce5e55ecdea139078fe814ff6",
+  "noBrowserLaunched": true,
+  "command": "node work/orchestration/owned-profile-review-69e3e33/digest-probe.mjs",
+  "results": [
+    {
+      "name": "actual-effect-duration-Infinity-vs-null",
+      "firstSha256": "bb1ae20f45b3ed64262861113f01501fb01fdaae403bc35c1038ba5cb1a2fae2",
+      "secondSha256": "bb1ae20f45b3ed64262861113f01501fb01fdaae403bc35c1038ba5cb1a2fae2",
+      "collision": true
+    },
+    {
+      "name": "map-vs-object",
+      "firstSha256": "9d32ef86381ed517d9dd3cb5ad33828946acbf8babc18f56e28f1b9e94c0e8a5",
+      "secondSha256": "9d32ef86381ed517d9dd3cb5ad33828946acbf8babc18f56e28f1b9e94c0e8a5",
+      "collision": true
+    },
+    {
+      "name": "different-DataView-bytes",
+      "firstSha256": "b140fcdd76012faad1bcb4aed720c820fe6af2938a3328e09ba7f962cc74889c",
+      "secondSha256": "b140fcdd76012faad1bcb4aed720c820fe6af2938a3328e09ba7f962cc74889c",
+      "collision": true
+    }
+  ]
+}

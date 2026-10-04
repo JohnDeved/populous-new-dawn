@@ -1,0 +1,184 @@
+{
+  "commit": "76257087cf746b1083e114b236f18bd64d292add",
+  "command": "node work/orchestration/owned-profile-review-69e3e33/fault-probe-expanded.mjs 76257087cf746b1083e114b236f18bd64d292add",
+  "noBrowserOrServerLaunched": true,
+  "results": [
+    {
+      "mode": "normal",
+      "error": null,
+      "called": true,
+      "finished": true,
+      "status": "passed",
+      "cleanupVerified": true,
+      "continuationVerified": true,
+      "checkpointAtEnd": {
+        "checkpointSha256": "expected",
+        "level": 1,
+        "turn": 10,
+        "time": 1
+      }
+    },
+    {
+      "mode": "scenario-fails",
+      "error": "Error: Error: ordinary assertion failed\n    at scenario (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-review-69e3e33/fault-probe-expanded.mjs:42:86)\n    at work (evalmachine.<anonymous>:161:12)\n    at async Object.runLocalBrowser (evalmachine.<anonymous>:164:20)\n    at async probe (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-review-69e3e33/fault-probe-expanded.mjs:44:9)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-review-69e3e33/fault-probe-expanded.mjs:48:278",
+      "called": true,
+      "finished": true,
+      "status": "failed",
+      "cleanupVerified": true,
+      "continuationVerified": true,
+      "checkpointAtEnd": {
+        "checkpointSha256": "expected",
+        "level": 1,
+        "turn": 10,
+        "time": 1
+      }
+    },
+    {
+      "mode": "start-mismatch",
+      "error": "Error: Profile cleanup/checkpoint provenance is unverified; lock retained",
+      "called": false,
+      "finished": false,
+      "status": "failed",
+      "cleanupVerified": true,
+      "continuationVerified": false,
+      "checkpointAtEnd": {
+        "checkpointSha256": "unknown-changed",
+        "level": 1,
+        "turn": 20,
+        "time": 2
+      }
+    },
+    {
+      "mode": "close-throws",
+      "error": "Error: Profile cleanup/checkpoint provenance is unverified; lock retained",
+      "called": true,
+      "finished": false,
+      "status": "failed",
+      "cleanupVerified": false,
+      "continuationVerified": true,
+      "checkpointAtEnd": {
+        "checkpointSha256": "expected",
+        "level": 1,
+        "turn": 10,
+        "time": 1
+      }
+    },
+    {
+      "mode": "close-timeout",
+      "error": "Error: Profile cleanup/checkpoint provenance is unverified; lock retained",
+      "called": true,
+      "finished": false,
+      "status": "failed",
+      "cleanupVerified": false,
+      "continuationVerified": true,
+      "checkpointAtEnd": {
+        "checkpointSha256": "expected",
+        "level": 1,
+        "turn": 10,
+        "time": 1
+      }
+    },
+    {
+      "mode": "connected-after-close",
+      "error": "Error: Profile cleanup/checkpoint provenance is unverified; lock retained",
+      "called": true,
+      "finished": false,
+      "status": "failed",
+      "cleanupVerified": false,
+      "continuationVerified": true,
+      "checkpointAtEnd": {
+        "checkpointSha256": "expected",
+        "level": 1,
+        "turn": 10,
+        "time": 1
+      }
+    },
+    {
+      "mode": "terminal-read-fails",
+      "error": "Error: Profile cleanup/checkpoint provenance is unverified; lock retained",
+      "called": true,
+      "finished": false,
+      "status": "failed",
+      "cleanupVerified": true,
+      "continuationVerified": true
+    },
+    {
+      "mode": "start-read-fails",
+      "error": "Error: Profile cleanup/checkpoint provenance is unverified; lock retained",
+      "called": false,
+      "finished": false,
+      "status": "failed",
+      "cleanupVerified": true,
+      "continuationVerified": false,
+      "checkpointAtEnd": {
+        "checkpointSha256": "expected",
+        "level": 1,
+        "turn": 10,
+        "time": 1
+      }
+    },
+    {
+      "mode": "terminal-read-timeout",
+      "error": "Error: Profile cleanup/checkpoint provenance is unverified; lock retained",
+      "called": true,
+      "finished": false,
+      "status": "failed",
+      "cleanupVerified": true,
+      "continuationVerified": true
+    },
+    {
+      "mode": "source-drift",
+      "error": "Error: Profile cleanup/checkpoint provenance is unverified; lock retained",
+      "called": true,
+      "finished": false,
+      "status": "failed",
+      "cleanupVerified": true,
+      "continuationVerified": false,
+      "checkpointAtEnd": {
+        "checkpointSha256": "expected",
+        "level": 1,
+        "turn": 10,
+        "time": 1
+      }
+    },
+    {
+      "mode": "runtime-drift",
+      "error": "Error: Profile cleanup/checkpoint provenance is unverified; lock retained",
+      "called": true,
+      "finished": false,
+      "status": "failed",
+      "cleanupVerified": true,
+      "continuationVerified": false,
+      "checkpointAtEnd": {
+        "checkpointSha256": "expected",
+        "level": 1,
+        "turn": 10,
+        "time": 1
+      }
+    },
+    {
+      "mode": "navigation-fails",
+      "error": "Error: Profile cleanup/checkpoint provenance is unverified; lock retained",
+      "called": false,
+      "finished": false,
+      "status": "failed",
+      "cleanupVerified": true,
+      "continuationVerified": false,
+      "checkpointAtEnd": {
+        "checkpointSha256": "expected",
+        "level": 1,
+        "turn": 10,
+        "time": 1
+      }
+    },
+    {
+      "mode": "launch-rejects",
+      "error": "Error: Profile cleanup/checkpoint provenance is unverified; lock retained",
+      "called": false,
+      "finished": false,
+      "status": "failed",
+      "cleanupVerified": false,
+      "continuationVerified": false
+    }
+  ]
+}

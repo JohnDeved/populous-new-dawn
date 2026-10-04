@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "6506779b-bd94-4211-aa3d-5af7d6ef404d",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "fb12687d2bbad9bd817f12d8cda63209626a8f11",
+    "branch": "fix/owned-game-checkpoint-profile",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--port",
+    "4371",
+    "--timeout",
+    "180000",
+    "--profile",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/local-render-profiles/restart-fb12687",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/scripts/local-render/checkpoint-restart.mjs",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-fb12687/load"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile",
+  "startedAt": "2026-10-04T20:41:48.492Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-fb12687/load-command.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-fb12687/load-command.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T20:42:16.947Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"source\":{\"root\":\"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile\",\"commit\":\"fb12687d2bbad9bd817f12d8cda63209626a8f11\",\"tree\":\"b804f4a8b271b7019d032e6fb04d77f0d2f9872a\",\"status\":\"\",\"trackedDiffSha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"untracked\":[],\"fingerprint\":\"6ce19a4a842c83c014f2f87fbce035d34250701d31f533ed9061e23b2075adde\"},\"result\":{\"phase\":\"loaded-after-browser-restart\",\"method\":\"Ordinary UI and real RAF only. Committed IndexedDB and store subscription are read-only observations. No world/tick/storage injection.\",\"saved\":{\"version\":1,\"level\":1,\"turn\":121,\"time\":10.083333333333334,\"checkpointSha256\":\"2f0cccb69a1b02201ce15c03d59d991ab441ca683beccc92f21e0ed0b9884174\",\"actorsSha256\":\"43a8f83f4f5db09d78cf06fde854e886484cc4d73c747eeff2a95a8afd602711\",\"terrainSha256\":\"5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109\",\"stockSha256\":\"4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0\"},\"loaded\":{\"version\":1,\"level\":1,\"turn\":121,\"time\":10.083333333333334,\"checkpointSha256\":\"2f0cccb69a1b02201ce15c03d59d991ab441ca683beccc92f21e0ed0b9884174\",\"actorsSha256\":\"43a8f83f4f5db09d78cf06fde854e886484cc4d73c747eeff2a95a8afd602711\",\"terrainSha256\":\"5abb688e9200d582bcc87c627f117f885747d40089cb4a2ea2657bb07f18d109\",\"stockSha256\":\"4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0\"},\"resumed\":{\"turn\":137,\"paused\":false},\"normalAutoResume\":true,\"priorRun\":\"c607748d-cafc-4b71-9f5b-e90a6a0c8984\"}}\n",
+  "stderr": "",
+  "stdoutSha256": "98f8add29d96b5d46f0354c418556af8ded91fe42e9742f2476a5f3333bc50f4",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "fb12687d2bbad9bd817f12d8cda63209626a8f11",
+    "branch": "fix/owned-game-checkpoint-profile",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

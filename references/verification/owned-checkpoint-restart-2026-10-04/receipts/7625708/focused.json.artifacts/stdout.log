@@ -1,0 +1,27 @@
+✔ local launch preserves sandbox and removes all unsafe Playwright defaults (2.238513ms)
+✔ CLI accepts separate game root, owned output, browser and bounded settings (0.344738ms)
+✔ CLI rejects unknown flags, missing values and unbounded inputs (0.273801ms)
+✔ source fingerprint catches dirty tracked and untracked byte drift with unchanged porcelain (75.275103ms)
+✔ active scenario completing during timeout diagnostics cannot turn failure into pass (104.890093ms)
+✔ active scenario completing during interrupt diagnostics cannot turn failure into pass (3.999107ms)
+✔ ephemeral default stays opt-in; persistent launch keeps sandbox and explicit data-dir (2.248958ms)
+✔ unknown personal, noncanonical, existing unmarked and symlink directories fail before adoption (16.85441ms)
+✔ symlink ancestor and evidence overlap are rejected (6.22389ms)
+✔ an output symlink cannot alias profile data before preflight creates logs (8.800892ms)
+✔ exclusive live and unknown locks are never recovered, and failed cleanup keeps ownership (16.571855ms)
+✔ normal terminal cleanup retains checkpoint identity across a new exclusive run (12.198465ms)
+✔ source/runtime/origin drift cannot silently adopt a game save (24.505183ms)
+✔ symlinked source bytes and external or ignored scenarios cannot bypass input binding (12.897706ms)
+✔ checker-only correspondence must bind prior run and both exact source identities (11.52594ms)
+✔ unverified source and changed terminal ownership remain blocked (9.232779ms)
+✔ lease refuses a replaced lock and leaves that owner untouched (7.700459ms)
+✔ leftover Chromium ownership and replaced data directory block reuse (11.327537ms)
+✔ committed readback is readonly, awaits completion, and hashes typed arrays/Map/Set contents (68.54941ms)
+ℹ tests 19
+ℹ suites 0
+ℹ pass 19
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 311.662439

@@ -1,0 +1,16 @@
+{
+  "exactCommit": "d9f518e830cd8a6848ea0ed220733607c0e270d4",
+  "status": "passed",
+  "scenario": "Synthetic Node createWorld(1) read-only encoder plus structuredClone equality; no gameplay/browser claim",
+  "milliseconds": 172.00352699999996,
+  "checkpoint": {
+    "version": 1,
+    "level": 1,
+    "turn": 0,
+    "time": 0,
+    "checkpointSha256": "b222ccead0c93b0c2aa68d2c107c5606d346104c05a17dfb21e739abcde9bc42",
+    "actorsSha256": "1f598391617b5da45741ce4d16eb7f216c01aa72d2758c11c49183fcc1e26ca4",
+    "terrainSha256": "33323cfeecfc0fc822481ed73a3a94939c42ad23cca4c9160f782a23a9dc0a14",
+    "stockSha256": "4369697845b0f3503debcf150b76b0fab1f596e34e60d2635217defd191f9af0"
+  }
+}

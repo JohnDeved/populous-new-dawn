@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e87cde6f-2e07-4cd3-b722-1785b1f66681",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "76257087cf746b1083e114b236f18bd64d292add",
+    "branch": "fix/owned-game-checkpoint-profile",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/local-render-harness.test.mjs",
+    "tests/owned-game-profile.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile",
+  "startedAt": "2026-10-04T20:47:34.696Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-error-path/focused.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-error-path/focused.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T20:47:35.072Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ local launch preserves sandbox and removes all unsafe Playwright defaults (2.238513ms)\n✔ CLI accepts separate game root, owned output, browser and bounded settings (0.344738ms)\n✔ CLI rejects unknown flags, missing values and unbounded inputs (0.273801ms)\n✔ source fingerprint catches dirty tracked and untracked byte drift with unchanged porcelain (75.275103ms)\n✔ active scenario completing during timeout diagnostics cannot turn failure into pass (104.890093ms)\n✔ active scenario completing during interrupt diagnostics cannot turn failure into pass (3.999107ms)\n✔ ephemeral default stays opt-in; persistent launch keeps sandbox and explicit data-dir (2.248958ms)\n✔ unknown personal, noncanonical, existing unmarked and symlink directories fail before adoption (16.85441ms)\n✔ symlink ancestor and evidence overlap are rejected (6.22389ms)\n✔ an output symlink cannot alias profile data before preflight creates logs (8.800892ms)\n✔ exclusive live and unknown locks are never recovered, and failed cleanup keeps ownership (16.571855ms)\n✔ normal terminal cleanup retains checkpoint identity across a new exclusive run (12.198465ms)\n✔ source/runtime/origin drift cannot silently adopt a game save (24.505183ms)\n✔ symlinked source bytes and external or ignored scenarios cannot bypass input binding (12.897706ms)\n✔ checker-only correspondence must bind prior run and both exact source identities (11.52594ms)\n✔ unverified source and changed terminal ownership remain blocked (9.232779ms)\n✔ lease refuses a replaced lock and leaves that owner untouched (7.700459ms)\n✔ leftover Chromium ownership and replaced data directory block reuse (11.327537ms)\n✔ committed readback is readonly, awaits completion, and hashes typed arrays/Map/Set contents (68.54941ms)\nℹ tests 19\nℹ suites 0\nℹ pass 19\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 311.662439\n",
+  "stderr": "",
+  "stdoutSha256": "dcf65ec17ea2106a43ea762f88cedf7421f75e378fb2549278c26b012e7479e5",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "76257087cf746b1083e114b236f18bd64d292add",
+    "branch": "fix/owned-game-checkpoint-profile",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

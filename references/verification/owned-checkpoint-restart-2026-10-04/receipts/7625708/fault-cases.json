@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e72e73f6-5c3e-4679-b5fd-b46119792935",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "76257087cf746b1083e114b236f18bd64d292add",
+    "branch": "fix/owned-game-checkpoint-profile",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/owned-profile-review-69e3e33/fault-probe-expanded.mjs": "11952893d76a3892bd3703083784a1c612a3094208d36a154bbd64a5cc934974"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/owned-profile-review-69e3e33/fault-probe-expanded.mjs",
+    "76257087cf746b1083e114b236f18bd64d292add"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile",
+  "startedAt": "2026-10-04T20:48:28.759Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-error-path/fault-cases.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-error-path/fault-cases.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T20:48:28.893Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"commit\": \"76257087cf746b1083e114b236f18bd64d292add\",\n  \"command\": \"node work/orchestration/owned-profile-review-69e3e33/fault-probe-expanded.mjs 76257087cf746b1083e114b236f18bd64d292add\",\n  \"noBrowserOrServerLaunched\": true,\n  \"results\": [\n    {\n      \"mode\": \"normal\",\n      \"error\": null,\n      \"called\": true,\n      \"finished\": true,\n      \"status\": \"passed\",\n      \"cleanupVerified\": true,\n      \"continuationVerified\": true,\n      \"checkpointAtEnd\": {\n        \"checkpointSha256\": \"expected\",\n        \"level\": 1,\n        \"turn\": 10,\n        \"time\": 1\n      }\n    },\n    {\n      \"mode\": \"scenario-fails\",\n      \"error\": \"Error: Error: ordinary assertion failed\\n    at scenario (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-review-69e3e33/fault-probe-expanded.mjs:42:86)\\n    at work (evalmachine.<anonymous>:161:12)\\n    at async Object.runLocalBrowser (evalmachine.<anonymous>:164:20)\\n    at async probe (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-review-69e3e33/fault-probe-expanded.mjs:44:9)\\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-review-69e3e33/fault-probe-expanded.mjs:48:278\",\n      \"called\": true,\n      \"finished\": true,\n      \"status\": \"failed\",\n      \"cleanupVerified\": true,\n      \"continuationVerified\": true,\n      \"checkpointAtEnd\": {\n        \"checkpointSha256\": \"expected\",\n        \"level\": 1,\n        \"turn\": 10,\n        \"time\": 1\n      }\n    },\n    {\n      \"mode\": \"start-mismatch\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": false,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": true,\n      \"continuationVerified\": false,\n      \"checkpointAtEnd\": {\n        \"checkpointSha256\": \"unknown-changed\",\n        \"level\": 1,\n        \"turn\": 20,\n        \"time\": 2\n      }\n    },\n    {\n      \"mode\": \"close-throws\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": true,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": false,\n      \"continuationVerified\": true,\n      \"checkpointAtEnd\": {\n        \"checkpointSha256\": \"expected\",\n        \"level\": 1,\n        \"turn\": 10,\n        \"time\": 1\n      }\n    },\n    {\n      \"mode\": \"close-timeout\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": true,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": false,\n      \"continuationVerified\": true,\n      \"checkpointAtEnd\": {\n        \"checkpointSha256\": \"expected\",\n        \"level\": 1,\n        \"turn\": 10,\n        \"time\": 1\n      }\n    },\n    {\n      \"mode\": \"connected-after-close\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": true,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": false,\n      \"continuationVerified\": true,\n      \"checkpointAtEnd\": {\n        \"checkpointSha256\": \"expected\",\n        \"level\": 1,\n        \"turn\": 10,\n        \"time\": 1\n      }\n    },\n    {\n      \"mode\": \"terminal-read-fails\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": true,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": true,\n      \"continuationVerified\": true\n    },\n    {\n      \"mode\": \"start-read-fails\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": false,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": true,\n      \"continuationVerified\": false,\n      \"checkpointAtEnd\": {\n        \"checkpointSha256\": \"expected\",\n        \"level\": 1,\n        \"turn\": 10,\n        \"time\": 1\n      }\n    },\n    {\n      \"mode\": \"terminal-read-timeout\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": true,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": true,\n      \"continuationVerified\": true\n    },\n    {\n      \"mode\": \"source-drift\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": true,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": true,\n      \"continuationVerified\": false,\n      \"checkpointAtEnd\": {\n        \"checkpointSha256\": \"expected\",\n        \"level\": 1,\n        \"turn\": 10,\n        \"time\": 1\n      }\n    },\n    {\n      \"mode\": \"runtime-drift\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": true,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": true,\n      \"continuationVerified\": false,\n      \"checkpointAtEnd\": {\n        \"checkpointSha256\": \"expected\",\n        \"level\": 1,\n        \"turn\": 10,\n        \"time\": 1\n      }\n    },\n    {\n      \"mode\": \"navigation-fails\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": false,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": true,\n      \"continuationVerified\": false,\n      \"checkpointAtEnd\": {\n        \"checkpointSha256\": \"expected\",\n        \"level\": 1,\n        \"turn\": 10,\n        \"time\": 1\n      }\n    },\n    {\n      \"mode\": \"launch-rejects\",\n      \"error\": \"Error: Profile cleanup/checkpoint provenance is unverified; lock retained\",\n      \"called\": false,\n      \"finished\": false,\n      \"status\": \"failed\",\n      \"cleanupVerified\": false,\n      \"continuationVerified\": false\n    }\n  ]\n}\n",
+  "stderr": "",
+  "stdoutSha256": "26ec6b825c3f054a45714951823d688e4e3174cfb7da2827641510f6d304da98",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "76257087cf746b1083e114b236f18bd64d292add",
+    "branch": "fix/owned-game-checkpoint-profile",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/owned-profile-review-69e3e33/fault-probe-expanded.mjs": "11952893d76a3892bd3703083784a1c612a3094208d36a154bbd64a5cc934974"
+    }
+  }
+}

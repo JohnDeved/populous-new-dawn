@@ -1,0 +1,825 @@
+diff --git a/.gitignore b/.gitignore
+index c0fd631..2b2a042 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -38,6 +38,8 @@ yarn-error.log*
+ /.wrangler/
+ /outputs/
+ /work/
++# Task-owned game browser storage is private local state, never review evidence.
++/work/local-render-profiles/
+ 
+ # Local QA captures and downloaded research images
+ /qa/*.png
+diff --git a/engineering/local-render-harness.md b/engineering/local-render-harness.md
+index ef79158..da0f657 100644
+--- a/engineering/local-render-harness.md
++++ b/engineering/local-render-harness.md
+@@ -48,6 +48,96 @@ performance parity. CPU/SwiftShader timings must not be compared as equivalent t
+ Mac hardware-GPU timings. Serialize graphics captures and performance workloads.
+ Downloaded binaries and proof images belong outside tracked source.
+ 
++## Opt-in task-owned checkpoint persistence
++
++Use `--profile /absolute/game-checkout/work/local-render-profiles/task-name` only
++for ordinary game checkpoint journeys. With no option the browser stays ephemeral.
++This creates a private, ignored, game-only directory, or reopens a recognized one;
++it never adopts an existing unmarked directory, personal profile, or symlink path.
++Keep every output directory separate from the profile. Never commit, attach, copy,
++or export its browser data. Only bounded receipts/manifests are review evidence.
++This preserves saves across normal harness termination on this machine; it does
++not promise survival of a cloud workspace reset.
++
++Persistent runs must name `--scenario`. The official Headless Shell runs through
++Playwright's `launchPersistentContext`, with the existing sandbox and explicit
++`--remote-debugging-pipe`, `--user-data-dir=<owned-directory>/browser`, and blank
++startup page. All Playwright default arguments remain disabled. HTTP/WebSocket
++requests are restricted to the exact loopback game origin, downloads are disabled,
++and service workers are blocked. This is for game QA only, with no login or auth.
++
++`owner.lock` is exclusive. Never delete or recover a live, stale, unknown, or
++interrupted lock automatically. Browser close must complete and disconnect before
++the lock can be released; timeout, failed close, changed ownership, or missing
++terminal checkpoint observation retains the lock and a failed receipt. Browser
++Singleton ownership markers also block reuse. A failed gameplay assertion can
++still preserve a genuine save when terminal cleanup and source identity are known.
++No process is killed by name or port.
++
++The manifest binds the canonical game root, exact origin (including port), game
++input bytes, browser binary, installed dependency lock, Playwright runtime, Node
++version, and harness bytes. Receipts retain exact source commit/tree/diff/untracked
++fingerprints and scenario hashes before/after execution. Changed game/runtime
++inputs always require a new profile. Only `qa/` and non-runtime scenarios under
++`scripts/local-render/` are checker inputs; other repository files fail closed as
++game inputs. A changed source identity or checker additionally requires
++`--profile-correspondence /absolute/review.json` naming:
++
++```json
++{
++  "priorRunId": "previous terminal run ID",
++  "previousSourceFingerprint": "previous exact source fingerprint",
++  "currentSourceFingerprint": "current exact source fingerprint",
++  "previousChecker": "previous receipt.profile.inputs.checker",
++  "currentChecker": "current profileInputReceipt(root).checker",
++  "decision": "ACCEPT",
++  "reviewer": "independent reviewer identity",
++  "reference": "retained exact-source review location"
++}
++```
++
++This file records an actual independent review; it is not an approval generator
++or a game-input migration override. Each changed-source continuation names its
++immediately preceding run. Same-source retries need no correspondence. A journey
++may impose a stricter same-source-only boundary on its own checkpoint milestones.
++
++Before the scenario executes, `receipt.profile.checkpointAtStart` is read from the
++committed IndexedDB `latest` record and compared with the previous terminal record.
++`receipt.profile` includes `id`, `path`, `runId`, `mode` (`created`/`reused`),
++`inputs`, `previousRun`, `checkpoints`, and final cleanup/continuation status.
++`previousRun` includes the preceding receipt path/hash, exact source fingerprint,
++commit, checker digest, run ID, status, and `checkpointAtEnd`.
++
++The scenario receives `observeCheckpoint(label)`, which only reads committed
++IndexedDB. It returns `{ label, observedAt, profileId, runId, sourceFingerprint,
++checkpoint }`, where `checkpoint` is null or `{ version, level, turn, time,
++checkpointSha256, actorsSha256, terrainSha256, stockSha256 }`. Hashing retains typed
++array type/values and Map/Set entries. No raw checkpoint storage is exported.
++The stable full-record identity is `observed.checkpoint.checkpointSha256`.
++Use ordinary Save and await the readback; observation alone does not prove the Save
++UI action. Use ordinary Load and synchronously observe the store replacement to
++check the saved turn boundary before the normal clock automatically resumes.
++
++For the small restart proof, run the same command twice with different outputs:
++
++```sh
++node scripts/local-render/harness.mjs --game-root "$PWD" \
++  --browser "$POPULOUS_BROWSER" --port 4188 --timeout 180000 \
++  --profile "$PWD/work/local-render-profiles/checkpoint-restart" \
++  --scenario "$PWD/scripts/local-render/checkpoint-restart.mjs" \
++  --output "$PWD/work/orchestration/checkpoint-restart/save"
++# After the first receipt verifies terminal browser cleanup, repeat with:
++# --output "$PWD/work/orchestration/checkpoint-restart/load"
++```
++
++The first run starts Mission 1 through shipped controls, awaits Shaman readiness,
++opens Game settings, clicks Save checkpoint, and checks committed readback. It then
++terminates its browser. The second launch reopens the same owned profile, clicks
++Load Game, and compares saved level, turn/time, actor identity/position/HP, terrain,
++and stock at the actual replacement boundary. Load's normal auto-resume is recorded,
++then the ordinary Pause control is used for a screenshot. No tick, world, or storage
++injection occurs. This proves restart continuity only, not mission completion.
++
+ ## Ordinary-control scenario preflight
+ 
+ Read this before writing or extending a journey. These contracts were checked
+diff --git a/scripts/local-render/checkpoint-observer.mjs b/scripts/local-render/checkpoint-observer.mjs
+new file mode 100644
+index 0000000..a53f74c
+--- /dev/null
++++ b/scripts/local-render/checkpoint-observer.mjs
+@@ -0,0 +1,77 @@
++// Page-serializable, read-only observer shared by committed IDB and an already
++// captured store-replacement snapshot. No database creation or storage export.
++export async function checkpointObservation({ observationName } = {}) {
++  const canonical = value => {
++    const seen = new Map()
++    let nodes = 0
++    const encode = (value, depth = 0) => {
++      if (++nodes > 2_000_000 || depth > 128) throw Error('Checkpoint exceeds observation bounds')
++      if (value === null) return ['null']
++      const type = typeof value
++      if (type === 'undefined') return ['undefined']
++      if (type === 'number') return ['number', Number.isFinite(value) && !Object.is(value, -0) ? value : String(value) === '0' ? '-0' : String(value)]
++      if (type === 'string' || type === 'boolean') return [type, value]
++      if (type === 'bigint') return [type, value.toString()]
++      if (type !== 'object') throw Error(`Unsupported checkpoint value: ${type}`)
++      if (seen.has(value)) return ['reference', seen.get(value)]
++      const id = seen.size
++      seen.set(value, id)
++      const child = entry => encode(entry, depth + 1)
++      if (Array.isArray(value)) return ['array', id, Array.from({ length: value.length }, (_, index) => index in value ? child(value[index]) : ['hole'])]
++      if (value instanceof Map) return ['map', id, [...value].map(([key, entry]) => [child(key), child(entry)])]
++      if (value instanceof Set) return ['set', id, [...value].map(child)]
++      if (value instanceof ArrayBuffer) return ['buffer', id, Array.from(new Uint8Array(value))]
++      if (ArrayBuffer.isView(value)) return ['view', id, value.constructor.name, value.byteOffset, value.byteLength, child(value.buffer)]
++      if (value instanceof Date) return ['date', id, child(value.getTime())]
++      const prototype = Object.getPrototypeOf(value)
++      if (prototype !== Object.prototype && prototype !== null) throw Error('Unsupported checkpoint object prototype')
++      if (Reflect.ownKeys(value).length !== Object.keys(value).length) throw Error('Unsupported checkpoint object properties')
++      return ['object', id, prototype === null ? 'null-prototype' : 'plain', Object.keys(value).map(key => [key, child(value[key])])]
++    }
++    const text = JSON.stringify(encode(value))
++    if (text.length > 64 * 1024 * 1024) throw Error('Checkpoint encoding exceeds observation bounds')
++    return text
++  }
++  const digest = async value => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(canonical(value)))), byte => byte.toString(16).padStart(2, '0')).join('')
++  let record, db
++  if (observationName) {
++    // The scenario installs this read-only clone synchronously in a subscription.
++    // Never read or replace a live model reference through this path.
++    record = globalThis[observationName]
++    if (!record) throw Error('Store replacement observation is missing')
++  } else {
++    if (!(await indexedDB.databases()).some(db => db.name === 'populous-new-dawn')) return null
++    db = await new Promise((resolve, reject) => {
++      const request = indexedDB.open('populous-new-dawn')
++      request.onupgradeneeded = () => { request.transaction.abort(); reject(Error('Checkpoint database unexpectedly missing')) }
++      request.onsuccess = () => resolve(request.result)
++      request.onerror = () => reject(request.error)
++    })
++  }
++  try {
++    if (db) {
++      if (!db.objectStoreNames.contains('checkpoints')) return null
++      record = await new Promise((resolve, reject) => {
++        const transaction = db.transaction('checkpoints', 'readonly')
++        const request = transaction.objectStore('checkpoints').get('latest')
++        transaction.oncomplete = () => resolve(request.result)
++        transaction.onerror = () => reject(transaction.error)
++        transaction.onabort = () => reject(transaction.error ?? Error('Checkpoint read aborted'))
++      })
++    }
++    if (!record) return null
++    const w = record.world
++    if (!w || !Number.isInteger(w.turn) || !Number.isInteger(w.outcome?.level)) throw Error('Malformed committed checkpoint')
++    return {
++      version: record.version, level: w.outcome.level, turn: w.turn, time: w.time,
++      checkpointSha256: await digest(record),
++      actorsSha256: await digest(w.units.map(u => [u.id, u.team, u.kind, u.hp, u.x, u.z])),
++      terrainSha256: await digest(w.terrain),
++      stockSha256: await digest({ mana: w.mana, wood: w.wood, shots: w.shots, giftCounts: w.giftCounts }),
++    }
++  } finally { db?.close() }
++}
++
++export async function readCommittedCheckpoint(page) {
++  return page.evaluate(checkpointObservation)
++}
+diff --git a/scripts/local-render/checkpoint-restart.mjs b/scripts/local-render/checkpoint-restart.mjs
+new file mode 100644
+index 0000000..67c9d36
+--- /dev/null
++++ b/scripts/local-render/checkpoint-restart.mjs
+@@ -0,0 +1,68 @@
++import assert from 'node:assert/strict'
++import { resolve } from 'node:path'
++import { pathToFileURL } from 'node:url'
++import { checkpointObservation } from './checkpoint-observer.mjs'
++
++// Run twice with the same --profile/origin/source and separate output paths.
++// First run saves via UI and exits; the second uses shipped Load Game.
++export default async function ({ page, root, output, receipt, openMission, observeCheckpoint, signal }) {
++  assert.ok(receipt.profile, 'This scenario requires --profile')
++  const { bindGame, waitForShamanReadiness } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
++  const { waitForCheckpointReadback } = await import(pathToFileURL(resolve(root, 'scripts/checkpoint-readback.mjs')).href)
++  const method = 'Ordinary UI and real RAF only. Committed IndexedDB and store subscription are read-only observations. No world/tick/storage injection.'
++  if (receipt.profile.mode === 'created') {
++    assert.equal(receipt.profile.checkpointAtStart, null)
++    await openMission(1)
++    const readiness = await waitForShamanReadiness(page)
++    await page.getByRole('button', { name: 'Game settings', exact: true }).click()
++    const menu = page.locator('dialog.game-dialog')
++    await menu.waitFor({ state: 'visible' })
++    const savedTurn = await page.evaluate(() => window.testStore.getWorld().turn)
++    await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
++    let observed
++    assert.equal(await waitForCheckpointReadback(async () => {
++      signal.throwIfAborted()
++      observed = await observeCheckpoint('UI save committed')
++      return observed.checkpoint?.turn === savedTurn && observed.checkpoint?.level === 1
++    }), true, 'Shipped Save must commit the paused checkpoint')
++    await page.screenshot({ path: resolve(output, 'saved-settings.png') })
++    return { phase: 'saved-before-browser-termination', method, readiness, saved: observed }
++  }
++  const saved = receipt.profile.checkpointAtStart
++  assert.ok(saved && saved.level === 1, 'Restart proof needs the first run’s genuine Mission 1 save')
++  assert.ok(receipt.profile.previousRun.cleanupVerified)
++  // Capture the replacement synchronously, before normal Load auto-resume and
++  // asynchronous scene readiness can advance real turns. Only observe, never pause
++  // or replace the world through the model/store API.
++  await page.evaluate(() => {
++    const main = document.querySelector('main')
++    let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))], store
++    for (; fiber && !store; fiber = fiber.return)
++      for (let hook = fiber.memoizedState; hook; hook = hook.next)
++        if (hook.memoizedState?.getWorld && hook.memoizedState?.subscribe) { store = hook.memoizedState; break }
++    if (!store) throw Error('Store unavailable before public Load')
++    const before = store.getWorld()
++    window.restartCheckpointBoundary = null
++    window.restartCheckpointObservationError = null
++    const unsubscribe = store.subscribe(() => {
++      const w = store.getWorld()
++      if (w === before) return
++      try { window.restartCheckpointBoundary = { version: 1, world: structuredClone(w) } }
++      catch (error) { window.restartCheckpointObservationError = String(error) }
++      finally { unsubscribe() }
++    })
++  })
++  await page.getByRole('dialog', { name: 'Start game', exact: true }).getByRole('button', { name: 'Load Game', exact: true }).click()
++  assert.equal(await page.evaluate(() => window.restartCheckpointObservationError), null, 'Load-boundary observer must not interfere with shipped resume')
++  const loaded = await page.evaluate(checkpointObservation, { observationName: 'restartCheckpointBoundary' })
++  for (const key of ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']) assert.deepEqual(loaded[key], saved[key], `Load boundary ${key} must match the committed save`)
++  await bindGame(page)
++  const resumed = await page.evaluate(() => ({ turn: window.testStore.getWorld().turn, paused: window.testStore.getWorld().paused }))
++  assert.equal(resumed.paused, false, 'Shipped Load resumes the normal clock')
++  await page.waitForFunction(turn => window.testStore.getWorld().turn > turn, saved.turn)
++  await page.getByRole('button', { name: 'Pause game', exact: true }).click()
++  await page.screenshot({ path: resolve(output, 'loaded-paused.png') })
++  const observed = await observeCheckpoint('After shipped Load')
++  assert.equal(observed.checkpoint.checkpointSha256, saved.checkpointSha256, 'Loading must not replace the committed save')
++  return { phase: 'loaded-after-browser-restart', method, saved, loaded, resumed, normalAutoResume: true, priorRun: receipt.profile.previousRun.runId }
++}
+diff --git a/scripts/local-render/harness.mjs b/scripts/local-render/harness.mjs
+index 2ccc719..d4480fe 100644
+--- a/scripts/local-render/harness.mjs
++++ b/scripts/local-render/harness.mjs
+@@ -4,6 +4,8 @@ import { createHash } from 'node:crypto'
+ import { resolve, dirname } from 'node:path'
+ import { fileURLToPath, pathToFileURL } from 'node:url'
+ import { createRequire } from 'node:module'
++import { acquireProfile, persistentLaunchOptions, profileInputReceipt, sha256, validateProfilePaths } from './owned-profile.mjs'
++import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
+ const here = dirname(fileURLToPath(import.meta.url))
+ export function launchOptions(browserPath) {
+   if (!browserPath) throw Error('Set --browser or POPULOUS_BROWSER to an installed official Chrome Headless Shell')
+@@ -12,7 +14,7 @@ export function launchOptions(browserPath) {
+ }
+ export function parseOptions(args) {
+   const options = { gameRoot: process.cwd(), port: 4188, output: 'work/orchestration/local-render', mission: 1, timeout: 120000, browserPath: process.env.POPULOUS_BROWSER }
+-  const keys = { '--game-root': 'gameRoot', '--port': 'port', '--output': 'output', '--browser': 'browserPath', '--mission': 'mission', '--timeout': 'timeout', '--scenario': 'scenario' }
++  const keys = { '--game-root': 'gameRoot', '--port': 'port', '--output': 'output', '--browser': 'browserPath', '--mission': 'mission', '--timeout': 'timeout', '--scenario': 'scenario', '--profile': 'profile', '--profile-correspondence': 'profileCorrespondence' }
+   for (let i = 0; i < args.length; i += 2) {
+     const key = keys[args[i]], value = args[i + 1]
+     if (!key || !value || value.startsWith('--')) throw Error(`Unknown or missing option: ${args[i]}`)
+@@ -21,6 +23,7 @@ export function parseOptions(args) {
+   if (!Number.isInteger(options.port) || options.port < 1024 || options.port > 65535) throw Error('Port must be an integer from 1024 to 65535')
+   if (!Number.isInteger(options.mission) || options.mission < 1 || options.mission > 25) throw Error('Mission must be 1–25')
+   if (!Number.isFinite(options.timeout) || options.timeout < 1000) throw Error('Timeout must be at least 1000ms')
++  if (options.profileCorrespondence && !options.profile) throw Error('Profile correspondence requires --profile')
+   return options
+ }
+ export function sourceReceipt(root) {
+@@ -34,6 +37,16 @@ export function sourceReceipt(root) {
+   const source = { root, commit: git('rev-parse', 'HEAD').trim(), tree: git('rev-parse', 'HEAD^{tree}').trim(), status: git('status', '--porcelain').trim(), trackedDiffSha256: digest(git('diff', '--binary', 'HEAD', '--')), untracked }
+   return { ...source, fingerprint: digest(JSON.stringify(source)) }
+ }
++function profileRuntimeReceipt(root, browserPath, require) {
++  return {
++    node: process.version, platform: process.platform, arch: process.arch,
++    browserPath, browserSha256: sha256(readFileSync(browserPath)),
++    playwright: require('@playwright/test/package.json').version,
++    playwrightCoreSha256: sha256(readFileSync(resolve(dirname(require.resolve('playwright-core/package.json')), 'lib/coreBundle.js'))),
++    installedLockSha256: sha256(readFileSync(resolve(root, 'node_modules/.package-lock.json'))),
++    harness: Object.fromEntries(['harness.mjs', 'owned-profile.mjs', 'checkpoint-observer.mjs', 'vite.config.mjs'].map(name => [name, sha256(readFileSync(resolve(here, name)))])),
++  }
++}
+ const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
+ async function stopServer(server) {
+   if (!server?.pid) return
+@@ -44,18 +57,44 @@ async function stopServer(server) {
+ }
+ export async function runLocalBrowser(options, scenario) {
+   const root = resolve(options.gameRoot), output = resolve(options.output)
++  if (options.profile) {
++    validateProfilePaths(root, options.profile, output)
++    if (existsSync(resolve(output, 'receipt.json')) || existsSync(resolve(output, 'server.log'))) throw Error('Persistent runs require a fresh evidence output directory')
++  }
+   mkdirSync(output, { recursive: true })
+   const receipt = { startedAt: new Date().toISOString(), source: sourceReceipt(root), launch: launchOptions(options.browserPath), softwarePerformanceOnly: true, errors: [], warnings: [], status: 'running' }
+   if (!existsSync(receipt.launch.executablePath)) throw Error(`Browser binary does not exist: ${receipt.launch.executablePath}`)
+   const require = createRequire(resolve(root, 'package.json'))
+   const { chromium } = require('@playwright/test')
+-  let browser, server, timer, launchPromise, outcome, finalReceipt
++  let browser, context, page, server, timer, launchPromise, outcome, finalReceipt, lease
++  let launchAttempted = false, cleanupVerified = false, checkpointIdentityVerified = false
+   const log = createWriteStream(resolve(output, 'server.log'))
+   const abort = new AbortController()
+   const onSignal = () => abort.abort(Error('Interrupted'))
+   process.once('SIGINT', onSignal); process.once('SIGTERM', onSignal)
+   const url = `http://127.0.0.1:${options.port}`
++  const observeCheckpoint = async label => {
++    if (!lease) throw Error('Checkpoint provenance requires an owned profile')
++    abort.signal.throwIfAborted()
++    if (typeof label !== 'string' || !/^[a-zA-Z0-9][a-zA-Z0-9 -]{0,79}$/.test(label)) throw Error('Checkpoint label must be short plain text')
++    const checkpoint = await readCommittedCheckpoint(page)
++    abort.signal.throwIfAborted()
++    if (receipt.profile.checkpoints.length >= 256) throw Error('Checkpoint receipt limit reached')
++    const observed = { label, observedAt: new Date().toISOString(), profileId: lease.profile.id, runId: lease.profile.runId, sourceFingerprint: receipt.source.fingerprint, checkpoint }
++    receipt.profile.checkpoints.push(observed)
++    return structuredClone(observed)
++  }
+   const work = async () => {
++    if (options.profile) {
++      if (!options.scenario) throw Error('Persistent runs must name their scenario source with --scenario')
++      const inputs = profileInputReceipt(root, options.scenario)
++      if ((await import(pathToFileURL(resolve(options.scenario)).href)).default !== scenario) throw Error('Persistent scenario must be the named module’s default export')
++      receipt.runtime = profileRuntimeReceipt(root, receipt.launch.executablePath, require)
++      receipt.scenario = { path: resolve(options.scenario), sha256: sha256(readFileSync(resolve(options.scenario))) }
++      lease = acquireProfile({ path: options.profile, root, origin: url, source: receipt.source, inputs, runtime: receipt.runtime, output, correspondence: options.profileCorrespondence })
++      receipt.profile = lease.profile
++      receipt.launch = persistentLaunchOptions(receipt.launch, lease.dataDir)
++    }
+     server = spawn(resolve(root, 'node_modules/.bin/vite'), ['--config', resolve(here, 'vite.config.mjs'), '--host', '127.0.0.1', '--port', String(options.port), '--strictPort'], {
+       cwd: root, detached: true, stdio: ['ignore', 'pipe', 'pipe'],
+       env: { ...process.env, POPULOUS_GAME_ROOT: root, CLOUDFLARE_CF_FETCH_ENABLED: 'false', WRANGLER_SEND_METRICS: 'false', WRANGLER_WRITE_LOGS: 'false', WRANGLER_LOG_PATH: resolve(output, 'wrangler.log'), MINIFLARE_REGISTRY_PATH: resolve(output, 'registry') },
+@@ -73,19 +112,38 @@ export async function runLocalBrowser(options, scenario) {
+       await delay(250)
+     }
+     abort.signal.throwIfAborted()
+-    launchPromise = chromium.launch(receipt.launch)
+-    browser = await launchPromise
++    launchAttempted = true
++    launchPromise = lease ? chromium.launchPersistentContext(lease.dataDir, receipt.launch) : chromium.launch(receipt.launch)
++    const launched = await launchPromise
++    if (lease) { context = launched; browser = context.browser() }
++    else { browser = launched; context = await browser.newContext({ viewport: { width: 1440, height: 1000 } }) }
+     abort.signal.throwIfAborted()
+     receipt.browserVersion = browser.version()
+-    const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } })
+-    context.on('page', page => {
++    if (lease) {
++      // Persistent state belongs solely to this game's loopback origin.
++      await context.route('**/*', route => new URL(route.request().url()).origin === url ? route.continue() : route.abort('blockedbyclient'))
++      await context.routeWebSocket('**/*', route => {
++        if (new URL(route.url()).origin === url.replace('http:', 'ws:')) route.connectToServer()
++        else route.close()
++      })
++    }
++    const watchPage = page => {
+       page.on('pageerror', error => receipt.errors.push(String(error)))
+       page.on('console', message => { if (message.type() === 'error') receipt.errors.push(message.text()); if (message.type() === 'warning') receipt.warnings.push(message.text()) })
+-    })
+-    const page = await context.newPage()
++    }
++    context.on('page', watchPage)
++    for (const existing of context.pages()) watchPage(existing)
++    page = context.pages()[0] ?? await context.newPage()
+     page.setDefaultTimeout(45000)
+     await page.goto(url, { waitUntil: 'domcontentloaded' })
+     await page.getByRole('dialog', { name: 'Start game', exact: true }).waitFor({ state: 'visible' })
++    if (lease) {
++      receipt.profile.checkpointAtStart = await readCommittedCheckpoint(page)
++      const previous = receipt.profile.previousRun
++      if (previous && JSON.stringify(receipt.profile.checkpointAtStart) !== JSON.stringify(previous.checkpointAtEnd)) throw Error('Stored checkpoint differs from the previous terminal receipt; continuation is unverified')
++      if (!previous && receipt.profile.checkpointAtStart !== null) throw Error('New task profile unexpectedly contains a checkpoint')
++      checkpointIdentityVerified = true
++    }
+     const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
+     const openMission = async mission => {
+       const button = page.getByRole('button', { name: `Mission ${mission}`, exact: true })
+@@ -100,7 +158,7 @@ export async function runLocalBrowser(options, scenario) {
+       await page.waitForFunction(() => !window.testStore.getWorld().inputMask)
+       await page.evaluate(() => { window.testScene = window.testSceneRef.current })
+     }
+-    return scenario({ browser, context, page, url, root, output, openMission, receipt, signal: abort.signal })
++    return scenario({ browser, context, page, url, root, output, openMission, receipt, observeCheckpoint, signal: abort.signal })
+   }
+   try {
+     const result = await Promise.race([work(), new Promise((_, reject) => {
+@@ -117,17 +175,60 @@ export async function runLocalBrowser(options, scenario) {
+     }
+   } finally {
+     clearTimeout(timer); abort.abort()
+-    if (launchPromise) browser = await launchPromise.catch(() => null)
+-    if (browser) await browser.close().catch(() => {})
+-    await stopServer(server)
++    if (launchPromise) {
++      const launched = await launchPromise.catch(() => null)
++      if (lease && launched) { context = launched; browser = context.browser() }
++      else if (launched) browser = launched
++    }
++    if (lease && page && !page.isClosed()) {
++      try {
++        let timeout
++        try { receipt.profile.checkpointAtEnd = await Promise.race([readCommittedCheckpoint(page), new Promise((_, reject) => { timeout = setTimeout(() => reject(Error('Terminal checkpoint read timed out')), 5000) })]) }
++        finally { clearTimeout(timeout) }
++      } catch (error) { receipt.profile.checkpointReadFailure = String(error) }
++    }
++    if (lease && !launchAttempted) receipt.profile.checkpointAtEnd = receipt.profile.previousRun?.checkpointAtEnd ?? null
++    try {
++      if (browser) {
++        let timeout
++        try { await Promise.race([lease ? context.close() : browser.close(), new Promise((_, reject) => { timeout = setTimeout(() => reject(Error('Owned browser close timed out')), 10000) })]) }
++        finally { clearTimeout(timeout) }
++        cleanupVerified = !browser.isConnected()
++        if (!cleanupVerified) outcome = { status: 'failed', failure: 'Error: Owned browser remains connected after close', previousFailure: outcome.failure }
++      } else cleanupVerified = !launchAttempted
++    } catch (error) { outcome = { status: 'failed', failure: String(error), previousFailure: outcome.failure } }
++    try { await stopServer(server) } catch (error) { outcome = { status: 'failed', failure: String(error), previousFailure: outcome.failure } }
+     log.end()
+     process.removeListener('SIGINT', onSignal); process.removeListener('SIGTERM', onSignal)
+     const sourceAfter = sourceReceipt(root)
+     if (receipt.source.fingerprint !== sourceAfter.fingerprint) outcome = { status: 'failed', failure: 'Source bytes changed during execution', previousFailure: outcome.failure }
++    if (lease) {
++      receipt.profile.cleanupVerified = cleanupVerified
++      receipt.profile.continuationVerified = (!launchAttempted || checkpointIdentityVerified) && receipt.source.fingerprint === sourceAfter.fingerprint
++      try {
++        receipt.runtimeAfter = profileRuntimeReceipt(root, receipt.launch.executablePath, require)
++        receipt.scenarioAfter = { path: receipt.scenario.path, sha256: sha256(readFileSync(receipt.scenario.path)) }
++        if (JSON.stringify(receipt.runtimeAfter) !== JSON.stringify(receipt.runtime) || receipt.scenarioAfter.sha256 !== receipt.scenario.sha256) {
++          receipt.profile.continuationVerified = false
++          outcome = { status: 'failed', failure: 'Error: Runtime/scenario bytes changed during execution', previousFailure: outcome.failure }
++        }
++      } catch (error) {
++        receipt.profile.continuationVerified = false
++        outcome = { status: 'failed', failure: String(error), previousFailure: outcome.failure }
++      }
++      if (!cleanupVerified || !receipt.profile.continuationVerified || !Object.hasOwn(receipt.profile, 'checkpointAtEnd')) outcome = { status: 'failed', failure: 'Profile cleanup/checkpoint provenance is unverified; lock retained', previousFailure: outcome.failure }
++    }
+     // Detach nested arrays/results from scenario-owned references before writing.
+     finalReceipt = structuredClone({ ...receipt, ...outcome, finishedAt: new Date().toISOString(), sourceAfter })
+     if (finalReceipt.status !== 'passed') delete finalReceipt.result
+     writeFileSync(resolve(output, 'receipt.json'), JSON.stringify(finalReceipt, null, 2) + '\n')
++    if (lease && cleanupVerified && finalReceipt.profile.continuationVerified && Object.hasOwn(finalReceipt.profile, 'checkpointAtEnd')) {
++      try { lease.finish(finalReceipt, cleanupVerified) }
++      catch (error) {
++        finalReceipt.status = 'failed'; finalReceipt.failure = String(error); delete finalReceipt.result
++        writeFileSync(resolve(output, 'receipt.json'), JSON.stringify(finalReceipt, null, 2) + '\n')
++      }
++    }
+   }
+   if (finalReceipt.status !== 'passed') throw Error(finalReceipt.failure)
+   return finalReceipt
+@@ -145,6 +246,7 @@ export async function smoke({ page, openMission, output }, mission = 1) {
+ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+   try {
+     const options = parseOptions(process.argv.slice(2))
++    if (options.profile) profileInputReceipt(resolve(options.gameRoot), options.scenario)
+     const scenario = options.scenario ? (await import(pathToFileURL(resolve(options.scenario)).href)).default : args => smoke(args, options.mission)
+     const receipt = await runLocalBrowser(options, scenario)
+     console.log(JSON.stringify({ status: receipt.status, source: receipt.source, result: receipt.result }))
+diff --git a/scripts/local-render/owned-profile.mjs b/scripts/local-render/owned-profile.mjs
+new file mode 100644
+index 0000000..4988876
+--- /dev/null
++++ b/scripts/local-render/owned-profile.mjs
+@@ -0,0 +1,129 @@
++// One game-only profile lease. No stale-lock recovery or personal-profile adoption.
++import { execFileSync } from 'node:child_process'
++import { createHash, randomUUID } from 'node:crypto'
++import { lstatSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs'
++import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path'
++import { hostname } from 'node:os'
++import { isDeepStrictEqual } from 'node:util'
++
++export const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
++const json = value => JSON.stringify(value, null, 2) + '\n'
++const markerName = 'populous-profile.json', lockName = 'owner.lock'
++const runtimeScripts = new Set(['harness.mjs', 'owned-profile.mjs', 'checkpoint-observer.mjs', 'vite.config.mjs'])
++const checkerPath = path => path.startsWith('qa/') ||
++  (path.startsWith('scripts/local-render/') && !runtimeScripts.has(basename(path)))
++
++export function profileInputReceipt(root, scenario) {
++  const names = execFileSync('git', ['-C', root, 'ls-files', '--cached', '--others', '--exclude-standard', '-z'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
++  const inputs = [...new Set(names.split('\0').filter(Boolean))].sort().map(path => {
++    let stat
++    try { stat = lstatSync(resolve(root, path)) } catch (error) { if (error.code === 'ENOENT') return { path, missing: true }; throw error }
++    if (!stat.isFile() || stat.isSymbolicLink()) throw Error(`Persistent profile inputs must be regular nonsymlink files: ${path}`)
++    return { path, mode: stat.mode, sha256: sha256(readFileSync(resolve(root, path))) }
++  })
++  if (scenario) {
++    const path = relative(root, resolve(scenario))
++    if (!checkerPath(path) || !inputs.some(input => input.path === path && !input.missing)) throw Error('Persistent scenario must be a repository-enumerated QA/scenario file')
++  }
++  return {
++    application: sha256(JSON.stringify(inputs.filter(input => !checkerPath(input.path)))),
++    checker: sha256(JSON.stringify(inputs.filter(input => checkerPath(input.path)))),
++  }
++}
++
++// Do not follow even an ancestor symlink. Only the final task directory is new;
++// an existing directory must carry this harness's matching provenance.
++function inspectPath(path, { create = false, privateOwner = false } = {}) {
++  for (const part of path.split(sep).filter(Boolean).reduce((all, part) => [...all, resolve(all.at(-1) ?? sep, part)], [])) {
++    let stat
++    try { stat = lstatSync(part) } catch (error) {
++      if (error.code !== 'ENOENT' || !create) throw error
++      mkdirSync(part, { mode: 0o700 }); stat = lstatSync(part)
++    }
++    if (!stat.isDirectory() || stat.isSymbolicLink()) throw Error(`Profile path is not a real directory: ${part}`)
++    if (privateOwner && part === path && (stat.uid !== process.getuid() || (stat.mode & 0o077))) throw Error('Profile must be private and owned by this user')
++  }
++}
++function readOwnedJson(path) {
++  const stat = lstatSync(path)
++  if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1 || stat.uid !== process.getuid() || (stat.mode & 0o077) || stat.size > 65536) throw Error(`Unrecognized profile metadata: ${path}`)
++  return JSON.parse(readFileSync(path, 'utf8'))
++}
++export function validateProfilePaths(root, path, output) {
++  root = resolve(root)
++  const parent = resolve(root, 'work/local-render-profiles')
++  if (!isAbsolute(path) || path !== resolve(path) || dirname(path) !== parent || !/^[a-z0-9][a-z0-9-]{0,79}$/.test(basename(path))) throw Error('Profile must be a canonical absolute task directory under gameRoot/work/local-render-profiles')
++  if (relative(path, resolve(output)).split(sep)[0] !== '..' || relative(resolve(output), path).split(sep)[0] !== '..') throw Error('Evidence output must not overlap the private profile')
++  for (const target of [path, resolve(output)]) {
++    for (const part of target.split(sep).filter(Boolean).reduce((all, part) => [...all, resolve(all.at(-1) ?? sep, part)], [])) {
++      let stat
++      try { stat = lstatSync(part) } catch (error) { if (error.code === 'ENOENT') break; throw error }
++      if (!stat.isDirectory() || stat.isSymbolicLink()) throw Error(`Profile/output path is not a real directory: ${part}`)
++    }
++  }
++  execFileSync('git', ['-C', root, 'check-ignore', '-q', '--', path])
++  return parent
++}
++
++export function acquireProfile({ path, root, origin, source, inputs, runtime, output, correspondence }) {
++  root = resolve(root)
++  const parent = validateProfilePaths(root, path, output)
++  inspectPath(parent, { create: true })
++  let created = false
++  try { mkdirSync(path, { mode: 0o700 }); created = true } catch (error) { if (error.code !== 'EEXIST') throw error }
++  inspectPath(path, { privateOwner: true })
++  const marker = resolve(path, markerName), lock = resolve(path, lockName), dataDir = resolve(path, 'browser')
++  const binding = { root, origin, application: inputs.application, runtime }
++  let manifest
++  if (created) {
++    manifest = { version: 1, purpose: 'populous-local-render-game-only', id: randomUUID(), path, createdAt: new Date().toISOString(), binding, lastRun: null }
++    writeFileSync(marker, json(manifest), { flag: 'wx', mode: 0o600 })
++    mkdirSync(dataDir, { mode: 0o700 })
++  } else {
++    manifest = readOwnedJson(marker)
++    if (manifest.version !== 1 || manifest.purpose !== 'populous-local-render-game-only' || !/^[0-9a-f-]{36}$/.test(manifest.id ?? '') || manifest.path !== path || !isDeepStrictEqual(manifest.binding, binding)) throw Error('Profile ownership or game/runtime/origin inputs do not match; use a new task profile')
++    if (!manifest.lastRun?.cleanupVerified || !manifest.lastRun.continuationVerified || !Object.hasOwn(manifest.lastRun, 'checkpointAtEnd')) throw Error('Profile has no verified terminal provenance; preserve it for review')
++    inspectPath(dataDir, { privateOwner: true })
++    for (const name of ['SingletonLock', 'SingletonSocket', 'SingletonCookie']) {
++      try { lstatSync(resolve(dataDir, name)) } catch (error) { if (error.code === 'ENOENT') continue; throw error }
++      throw Error('Existing browser ownership marker; preserve the profile for review')
++    }
++  }
++  let review = null
++  if (!created && (manifest.lastRun.sourceFingerprint !== source.fingerprint || manifest.lastRun.checker !== inputs.checker)) {
++    if (!correspondence) throw Error('Changed checker/source requires an explicit reviewed correspondence')
++    const bytes = readFileSync(correspondence), value = JSON.parse(bytes)
++    if (value.priorRunId !== manifest.lastRun.runId || value.previousSourceFingerprint !== manifest.lastRun.sourceFingerprint || value.currentSourceFingerprint !== source.fingerprint || value.previousChecker !== manifest.lastRun.checker || value.currentChecker !== inputs.checker || value.decision !== 'ACCEPT' || !value.reviewer || !value.reference) throw Error('Reviewed correspondence does not match this exact continuation')
++    review = { ...value, sha256: sha256(bytes) }
++    if (JSON.stringify(review).length > 4096) throw Error('Correspondence must be bounded')
++  }
++  const runId = randomUUID(), owner = { version: 1, profileId: manifest.id, runId, pid: process.pid, hostname: hostname(), startedAt: new Date().toISOString(), output }
++  // wx refuses live, stale, corrupt, or symlink locks alike. Never infer ownership
++  // from a PID, kill an unknown process, or automatically remove a stale lock.
++  writeFileSync(lock, json(owner), { flag: 'wx', mode: 0o600 })
++  const profile = { id: manifest.id, path, runId, mode: created ? 'created' : 'reused', origin, inputs, correspondence: review, previousRun: manifest.lastRun, checkpoints: [] }
++  let finished = false
++  return { dataDir, profile,
++    finish(receipt, cleanupVerified) {
++      if (finished) throw Error('Profile lease already finished')
++      if (!cleanupVerified) throw Error('Browser cleanup is unverified; profile lock retained')
++      if (!receipt.profile?.continuationVerified) throw Error('Checkpoint/source provenance is unverified; profile lock retained')
++      inspectPath(path, { privateOwner: true })
++      if (!isDeepStrictEqual(readOwnedJson(lock), owner) || readOwnedJson(marker).id !== manifest.id) throw Error('Profile ownership changed; lock retained')
++      const text = readFileSync(resolve(output, 'receipt.json'), 'utf8')
++      if (sha256(text) !== sha256(json(receipt))) throw Error('Terminal receipt changed; lock retained')
++      const lastRun = { runId, sourceFingerprint: source.fingerprint, sourceCommit: source.commit, checker: inputs.checker, receiptPath: resolve(output, 'receipt.json'), receiptSha256: sha256(text), status: receipt.status, cleanupVerified, continuationVerified: receipt.profile.continuationVerified, checkpointAtEnd: receipt.profile.checkpointAtEnd }
++      const temp = resolve(path, `manifest-${runId}.tmp`)
++      writeFileSync(temp, json({ ...manifest, lastRun }), { flag: 'wx', mode: 0o600 })
++      renameSync(temp, marker)
++      unlinkSync(lock)
++      finished = true
++    },
++  }
++}
++
++// Passing ignoreDefaultArgs:true also omits Playwright's user-data-dir flag.
++// Explicitly retain only the owned data directory and the debugging pipe.
++export function persistentLaunchOptions(launch, dataDir) {
++  return { ...launch, args: [...launch.args, `--user-data-dir=${dataDir}`, 'about:blank'], viewport: { width: 1440, height: 1000 }, acceptDownloads: false, serviceWorkers: 'block' }
++}
+diff --git a/tests/local-render-harness.test.mjs b/tests/local-render-harness.test.mjs
+index b6927e8..112e124 100644
+--- a/tests/local-render-harness.test.mjs
++++ b/tests/local-render-harness.test.mjs
+@@ -64,7 +64,7 @@ async function lateScenarioResult(trigger) {
+   server.stdout = stream; server.stderr = new EventEmitter(); server.stderr.pipe = () => {}
+   const page = { on() {}, setDefaultTimeout() {}, async goto() {}, getByRole: () => ({ async waitFor() {} }), async screenshot() { screenshotCalls++; await lateCompletion } }
+   const context = { on() {}, async newPage() { return page }, pages: () => [page] }
+-  const browser = { version: () => 'test-only', async newContext() { return context }, contexts: () => [context], async close() { browserClosed = true } }
++  const browser = { version: () => 'test-only', isConnected: () => !browserClosed, async newContext() { return context }, contexts: () => [context], async close() { browserClosed = true } }
+   let source = readFileSync(new URL('../scripts/local-render/harness.mjs', import.meta.url), 'utf8')
+   source = source.slice(0, source.indexOf('\nif (process.argv[1]'))
+     .replace(/^import .*$/gm, '').replaceAll('export ', '')
+diff --git a/tests/owned-game-profile.test.mjs b/tests/owned-game-profile.test.mjs
+new file mode 100644
+index 0000000..0be6743
+--- /dev/null
++++ b/tests/owned-game-profile.test.mjs
+@@ -0,0 +1,181 @@
++import test from 'node:test'
++import assert from 'node:assert/strict'
++import { execFileSync } from 'node:child_process'
++import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
++import { tmpdir } from 'node:os'
++import { resolve } from 'node:path'
++import { acquireProfile, persistentLaunchOptions, profileInputReceipt, validateProfilePaths } from '../scripts/local-render/owned-profile.mjs'
++import { launchOptions, parseOptions } from '../scripts/local-render/harness.mjs'
++import { readCommittedCheckpoint } from '../scripts/local-render/checkpoint-observer.mjs'
++
++function fixture(fn) {
++  const root = mkdtempSync(resolve(tmpdir(), 'owned-game-profile-'))
++  try {
++    execFileSync('git', ['init', root], { stdio: 'pipe' })
++    writeFileSync(resolve(root, '.gitignore'), '/work/\n')
++    mkdirSync(resolve(root, 'app')); writeFileSync(resolve(root, 'app/game.ts'), 'genuine game input')
++    mkdirSync(resolve(root, 'qa')); writeFileSync(resolve(root, 'qa/driver.mjs'), 'checker source')
++    const output = resolve(root, 'work/evidence/run-1'); mkdirSync(output, { recursive: true })
++    const args = { path: resolve(root, 'work/local-render-profiles/mission-three'), root, origin: 'http://127.0.0.1:4366', source: { fingerprint: 'source-1', commit: 'commit-1' }, inputs: profileInputReceipt(root), runtime: { browser: 'official-binary-hash', playwright: 'installed-package-hash' }, output }
++    return fn(args)
++  } finally { rmSync(root, { recursive: true, force: true }) }
++}
++function finish(lease, args, extra = {}) {
++  const receipt = { status: 'passed', profile: { ...lease.profile, cleanupVerified: true, continuationVerified: true, checkpointAtEnd: { checkpointSha256: 'committed-save', level: 3, turn: 2450 }, ...extra } }
++  writeFileSync(resolve(args.output, 'receipt.json'), JSON.stringify(receipt, null, 2) + '\n')
++  lease.finish(receipt, true)
++  return receipt
++}
++
++test('ephemeral default stays opt-in; persistent launch keeps sandbox and explicit data-dir', () => {
++  assert.equal(parseOptions([]).profile, undefined)
++  assert.throws(() => parseOptions(['--profile-correspondence', '/tmp/review.json']), /requires --profile/)
++  const launch = persistentLaunchOptions(launchOptions('/official-shell'), '/owned/browser')
++  assert.equal(launch.chromiumSandbox, true); assert.equal(launch.ignoreDefaultArgs, true)
++  assert.deepEqual(launch.args, ['--remote-debugging-pipe', '--user-data-dir=/owned/browser', 'about:blank'])
++  assert.equal(launch.acceptDownloads, false)
++})
++test('unknown personal, noncanonical, existing unmarked and symlink directories fail before adoption', () => fixture(args => {
++  for (const path of ['/tmp/personal-profile', args.path + '/../mission-three', 'work/local-render-profiles/mission-three']) assert.throws(() => acquireProfile({ ...args, path }), /canonical absolute/)
++  mkdirSync(args.path, { recursive: true, mode: 0o700 })
++  writeFileSync(resolve(args.path, 'personal-data'), 'must remain untouched')
++  assert.throws(() => acquireProfile(args))
++  assert.equal(readFileSync(resolve(args.path, 'personal-data'), 'utf8'), 'must remain untouched')
++  rmSync(args.path, { recursive: true })
++  symlinkSync(args.output, args.path)
++  assert.throws(() => acquireProfile(args), /real directory/)
++}))
++test('symlink ancestor and evidence overlap are rejected', () => fixture(args => {
++  symlinkSync(args.output, resolve(args.root, 'work/local-render-profiles'))
++  assert.throws(() => acquireProfile(args), /real directory/)
++  assert.throws(() => acquireProfile({ ...args, output: args.path }), /overlap/)
++  assert.throws(() => acquireProfile({ ...args, output: resolve(args.root, 'work') }), /overlap/)
++}))
++test('an output symlink cannot alias profile data before preflight creates logs', () => fixture(args => {
++  const lease = acquireProfile(args), alias = resolve(args.root, 'work/profile-alias')
++  symlinkSync(lease.dataDir, alias)
++  assert.throws(() => validateProfilePaths(args.root, args.path, alias), /real directory/)
++  assert.equal(existsSync(resolve(lease.dataDir, 'server.log')), false)
++}))
++test('exclusive live and unknown locks are never recovered, and failed cleanup keeps ownership', () => fixture(args => {
++  const lease = acquireProfile(args), lock = resolve(args.path, 'owner.lock')
++  assert.throws(() => acquireProfile(args), /terminal provenance/)
++  assert.throws(() => lease.finish({}, false), /lock retained/)
++  assert.equal(existsSync(lock), true)
++  finish(lease, args)
++  writeFileSync(lock, 'unknown owner', { mode: 0o600 })
++  assert.throws(() => acquireProfile(args), /EEXIST/)
++  assert.equal(readFileSync(lock, 'utf8'), 'unknown owner')
++}))
++test('normal terminal cleanup retains checkpoint identity across a new exclusive run', () => fixture(args => {
++  const first = acquireProfile(args), original = finish(first, args)
++  assert.equal(existsSync(resolve(args.path, 'owner.lock')), false)
++  const second = acquireProfile(args)
++  assert.equal(second.profile.id, first.profile.id)
++  assert.notEqual(second.profile.runId, first.profile.runId)
++  assert.equal(second.profile.mode, 'reused')
++  assert.equal(second.profile.previousRun.runId, first.profile.runId)
++  assert.deepEqual(second.profile.previousRun.checkpointAtEnd, original.profile.checkpointAtEnd)
++  assert.throws(() => acquireProfile(args), /EEXIST/)
++  finish(second, args)
++}))
++test('source/runtime/origin drift cannot silently adopt a game save', () => fixture(args => {
++  finish(acquireProfile(args), args)
++  for (const changes of [{ origin: 'http://127.0.0.1:9999' }, { runtime: { browser: 'changed' } }, { inputs: { ...args.inputs, application: 'changed-app' } }]) assert.throws(() => acquireProfile({ ...args, ...changes }), /do not match/)
++  assert.throws(() => acquireProfile({ ...args, source: { fingerprint: 'source-2' } }), /reviewed correspondence/)
++  const before = profileInputReceipt(args.root)
++  writeFileSync(resolve(args.root, 'qa/driver.mjs'), 'changed strategy')
++  const checkerChanged = profileInputReceipt(args.root)
++  assert.equal(checkerChanged.application, before.application)
++  assert.notEqual(checkerChanged.checker, before.checker)
++  writeFileSync(resolve(args.root, 'app/game.ts'), 'changed game')
++  assert.notEqual(profileInputReceipt(args.root).application, before.application)
++}))
++test('symlinked source bytes and external or ignored scenarios cannot bypass input binding', () => fixture(args => {
++  const outside = resolve(args.root, 'work/actual-game.ts'), linked = resolve(args.root, 'app/game.ts')
++  writeFileSync(outside, 'runtime bytes'); rmSync(linked); symlinkSync(outside, linked)
++  assert.throws(() => profileInputReceipt(args.root), /regular nonsymlink/)
++  rmSync(linked); writeFileSync(linked, 'restored fixture')
++  assert.throws(() => profileInputReceipt(args.root, outside), /repository-enumerated/)
++  assert.throws(() => profileInputReceipt(args.root, '/tmp/external-scenario.mjs'), /repository-enumerated/)
++  assert.doesNotThrow(() => profileInputReceipt(args.root, resolve(args.root, 'qa/driver.mjs')))
++}))
++test('checker-only correspondence must bind prior run and both exact source identities', () => fixture(args => {
++  const first = acquireProfile(args); finish(first, args)
++  const next = { ...args, source: { fingerprint: 'source-2', commit: 'commit-2' }, inputs: { ...args.inputs, checker: 'checker-2' }, correspondence: resolve(args.output, 'review.json') }
++  const review = { priorRunId: first.profile.runId, previousSourceFingerprint: args.source.fingerprint, currentSourceFingerprint: next.source.fingerprint, previousChecker: args.inputs.checker, currentChecker: next.inputs.checker, decision: 'ACCEPT', reviewer: 'independent-reviewer', reference: 'retained exact-source review' }
++  writeFileSync(next.correspondence, JSON.stringify({ ...review, currentSourceFingerprint: 'wrong' }))
++  assert.throws(() => acquireProfile(next), /exact continuation/)
++  writeFileSync(next.correspondence, JSON.stringify(review))
++  const second = acquireProfile(next)
++  assert.equal(second.profile.correspondence.decision, 'ACCEPT')
++  finish(second, next)
++}))
++test('unverified source and changed terminal ownership remain blocked', () => fixture(args => {
++  const first = acquireProfile(args), marker = readFileSync(resolve(args.path, 'populous-profile.json'), 'utf8')
++  assert.throws(() => finish(first, args, { continuationVerified: false }), /lock retained/)
++  assert.equal(readFileSync(resolve(args.path, 'populous-profile.json'), 'utf8'), marker)
++  assert.equal(existsSync(resolve(args.path, 'owner.lock')), true)
++  assert.throws(() => acquireProfile(args), /terminal provenance/)
++}))
++test('lease refuses a replaced lock and leaves that owner untouched', () => fixture(args => {
++  const lease = acquireProfile(args), lock = resolve(args.path, 'owner.lock')
++  writeFileSync(lock, JSON.stringify({ runId: 'another owner' }))
++  assert.throws(() => finish(lease, args), /ownership changed/)
++  assert.deepEqual(JSON.parse(readFileSync(lock, 'utf8')), { runId: 'another owner' })
++}))
++test('leftover Chromium ownership and replaced data directory block reuse', () => fixture(args => {
++  finish(acquireProfile(args), args)
++  const data = resolve(args.path, 'browser'), singleton = resolve(data, 'SingletonLock')
++  symlinkSync('/unknown-owner', singleton)
++  assert.throws(() => acquireProfile(args), /browser ownership marker/)
++  rmSync(singleton)
++  rmSync(data, { recursive: true }); symlinkSync(args.output, data)
++  assert.throws(() => acquireProfile(args), /real directory/)
++}))
++test('committed readback is readonly, awaits completion, and hashes typed arrays/Map/Set contents', async () => {
++  let record = { version: 1, world: { outcome: { level: 3 }, turn: 45, time: 2, units: [], terrain: [1, 2], mana: 10, wood: 3, shots: {}, giftCounts: {}, typed: new Uint16Array([1, 2]), map: new Map([[4, { flags: 7 }]]), set: new Set([5]) } }
++  let reads = 0, closed = 0, complete = false
++  const original = globalThis.indexedDB
++  globalThis.indexedDB = {
++    databases: async () => [{ name: 'populous-new-dawn' }],
++    open() {
++      const request = {}
++      setTimeout(() => {
++        request.result = { objectStoreNames: { contains: () => true }, close: () => closed++, transaction(name, mode) {
++          assert.equal(name, 'checkpoints'); assert.equal(mode, 'readonly'); reads++
++          const transaction = { objectStore: () => ({ get(key) { assert.equal(key, 'latest'); return { result: structuredClone(record) } } }) }
++          setTimeout(() => { complete = true; transaction.oncomplete() }, 1)
++          return transaction
++        } }
++        request.onsuccess()
++      }, 0)
++      return request
++    },
++  }
++  try {
++    const page = { evaluate: fn => fn() }
++    const first = await readCommittedCheckpoint(page)
++    assert.equal(complete, true); assert.equal(reads, 1); assert.equal(closed, 1)
++    assert.equal((await readCommittedCheckpoint(page)).checkpointSha256, first.checkpointSha256)
++    for (const mutate of [() => record.world.typed[0]++, () => record.world.map.get(4).flags++, () => record.world.set.add(6)]) {
++      const before = await readCommittedCheckpoint(page); mutate()
++      assert.notEqual((await readCommittedCheckpoint(page)).checkpointSha256, before.checkpointSha256)
++    }
++    for (const [left, right] of [[Infinity, null], [-Infinity, null], [undefined, null], [-0, 0], [NaN, null], [new Map([[1, 2]]), { map: [[1, 2]] }], [new DataView(new Uint8Array([1]).buffer), new DataView(new Uint8Array([2]).buffer)]]) {
++      record.world.edge = left
++      const before = await readCommittedCheckpoint(page)
++      record.world.edge = right
++      assert.notEqual((await readCommittedCheckpoint(page)).checkpointSha256, before.checkpointSha256)
++    }
++    const shared = { identity: 1 }
++    record.world.edge = [shared, shared]
++    const aliases = await readCommittedCheckpoint(page)
++    record.world.edge = [{ identity: 1 }, { identity: 1 }]
++    assert.notEqual((await readCommittedCheckpoint(page)).checkpointSha256, aliases.checkpointSha256)
++    globalThis.indexedDB.databases = async () => []
++    const before = reads
++    assert.equal(await readCommittedCheckpoint(page), null)
++    assert.equal(reads, before, 'Missing database must not be opened/created')
++  } finally { globalThis.indexedDB = original }
++})

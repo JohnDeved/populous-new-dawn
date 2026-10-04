@@ -1,0 +1,93 @@
+{
+  "status": "carried passed build; not rerun",
+  "verifiedAt": "2026-10-04T20:41:11.981967+00:00",
+  "candidate": "fb12687d2bbad9bd817f12d8cda63209626a8f11",
+  "candidateTree": "b804f4a8b271b7019d032e6fb04d77f0d2f9872a",
+  "testedBuildSource": "6b6eb684f4f010420a758cfe4fd481b6dfca9545",
+  "testedBuildTree": "aace5dbe66f68f8b7fdde1bd3936e7949970bd40",
+  "receipt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/build-final-6b6eb68.json",
+  "receiptSha256": "6ddc4bf5ab3124d9504440d465834700503c662283b7611764dc4b84866e1033",
+  "receiptSourceStable": true,
+  "identicalBuildInputs": [
+    {
+      "path": "app",
+      "testedObject": "198ff14040007f3fb65bc907281a3c2ac56e3e5c",
+      "candidateObject": "198ff14040007f3fb65bc907281a3c2ac56e3e5c"
+    },
+    {
+      "path": "public",
+      "testedObject": "49f080b8608cf5a954fc54440e44db23a027311b",
+      "candidateObject": "49f080b8608cf5a954fc54440e44db23a027311b"
+    },
+    {
+      "path": "worker",
+      "testedObject": "534262246ef7d02635110a3989accfbd8a3494c9",
+      "candidateObject": "534262246ef7d02635110a3989accfbd8a3494c9"
+    },
+    {
+      "path": "build",
+      "testedObject": "e4caf579c58061db70eac981f9475c4b07b702f8",
+      "candidateObject": "e4caf579c58061db70eac981f9475c4b07b702f8"
+    },
+    {
+      "path": "package.json",
+      "testedObject": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1",
+      "candidateObject": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1"
+    },
+    {
+      "path": "package-lock.json",
+      "testedObject": "97cd9ade0190af96e99b389c93d4ee20bef5065c",
+      "candidateObject": "97cd9ade0190af96e99b389c93d4ee20bef5065c"
+    },
+    {
+      "path": "tsconfig.json",
+      "testedObject": "76481812c25a92deb97ca2e5ad91f120751a848e",
+      "candidateObject": "76481812c25a92deb97ca2e5ad91f120751a848e"
+    },
+    {
+      "path": "next-env.d.ts",
+      "testedObject": "c986d49faa6a311fc28b5c66f6b7155975007920",
+      "candidateObject": "c986d49faa6a311fc28b5c66f6b7155975007920"
+    },
+    {
+      "path": "next.config.ts",
+      "testedObject": "e9ffa3083ad279ecf95fd8eae59cb253e9a539c4",
+      "candidateObject": "e9ffa3083ad279ecf95fd8eae59cb253e9a539c4"
+    },
+    {
+      "path": "vite.config.ts",
+      "testedObject": "21c69948143439c7950eb45126341ad293e009cd",
+      "candidateObject": "21c69948143439c7950eb45126341ad293e009cd"
+    },
+    {
+      "path": "postcss.config.mjs",
+      "testedObject": "61e36849cf7cfa9f1f71b4a3964a4953e3e243d3",
+      "candidateObject": "61e36849cf7cfa9f1f71b4a3964a4953e3e243d3"
+    },
+    {
+      "path": "wrangler.cloudflare.jsonc",
+      "testedObject": "6280db8db7afe28829a639416af34f9afad2b1cf",
+      "candidateObject": "6280db8db7afe28829a639416af34f9afad2b1cf"
+    },
+    {
+      "path": ".openai/hosting.json",
+      "testedObject": "b7d6a5b51f87bfdb3e7db9d3d1f2b4bf9d45f669",
+      "candidateObject": "b7d6a5b51f87bfdb3e7db9d3d1f2b4bf9d45f669"
+    }
+  ],
+  "locks": {
+    "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+    "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+  },
+  "rawArtifacts": {
+    "stdout": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/build-final-6b6eb68.json.artifacts/stdout.log",
+      "sha256": "4f3a955038a319c865db476d31fd183e6d0c0d4c7252e8facc8de99e5dd4cd29"
+    },
+    "stderr": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/build-final-6b6eb68.json.artifacts/stderr.log",
+      "sha256": "ec8515daf959b98815e9176660a4daaf9416be0665a0de77258f36ada3e97af9"
+    }
+  },
+  "scope": "All 13 production objects and root/installed locks remain identical to the original passed build. Candidate changes local QA harness/profile/proof/tests/docs only. This carries the original build; no fresh build was run."
+}

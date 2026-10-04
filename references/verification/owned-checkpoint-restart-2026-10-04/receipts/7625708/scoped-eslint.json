@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "32c99514-cc54-4045-a138-46973acb04b3",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "76257087cf746b1083e114b236f18bd64d292add",
+    "branch": "fix/owned-game-checkpoint-profile",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "scripts/local-render/harness.mjs",
+    "scripts/local-render/owned-profile.mjs",
+    "scripts/local-render/checkpoint-observer.mjs",
+    "scripts/local-render/checkpoint-restart.mjs",
+    "tests/local-render-harness.test.mjs",
+    "tests/owned-game-profile.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile",
+  "startedAt": "2026-10-04T20:47:35.155Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-error-path/scoped-eslint.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/work/orchestration/owned-profile-error-path/scoped-eslint.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T20:47:36.872Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n/workspace/scratch/69fd8163d94e/cloud-dev-20261004/owned-game-checkpoint-profile/scripts/local-render/harness.mjs\n  111:133  error  Empty block statement  no-empty\n\n✖ 1 problem (1 error, 0 warnings)\n\n",
+  "stderr": "",
+  "stdoutSha256": "9d92a4da5272c30b60d2513a0a3c02907b136988baee577caad8b5b0623b37ae",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "76257087cf746b1083e114b236f18bd64d292add",
+    "branch": "fix/owned-game-checkpoint-profile",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

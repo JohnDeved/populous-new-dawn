@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "079f59a7-053d-443f-b925-f0d495b2291c",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6b6eb684f4f010420a758cfe4fd481b6dfca9545",
+    "branch": "work/balloon-command-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "work/orchestration/balloon-command-position/validation-plan-6b6eb68.json": "5e8d8d9e9f2fa89191afb0ba5e761291bf3a04aba3da78ba985968d821036a38"
+    }
+  },
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position",
+  "startedAt": "2026-10-04T19:03:16.856Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/build-final-6b6eb68.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/build-final-6b6eb68.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T19:03:32.730Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n[1/5] analyze client references...\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n✓ built in 3.07s\n[2/5] analyze server references...\n\u001b[2K\rtransforming...✓ 377 modules transformed.\nrendering chunks...\n✓ built in 1.64s\n[3/5] build rsc environment...\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 4.13s\n[4/5] build client environment...\n\u001b[2K\rtransforming...✓ 418 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.91s\n[5/5] build ssr environment...\n\u001b[2K\rtransforming...✓ 383 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.45s\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (25%)\n  - vinext:og-inline-fetch-assets (18%)\n  - vinext:middleware-server-only (11%)\n  - vinext:css-data-url (11%)\n  - rsc:react-server-dom-webpack-alias (5%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:middleware-server-only (43%)\n  - rsc:virtual-client-package (22%)\n  - rsc:load-environment-module (9%)\n  - vinext:og-inline-fetch-assets (6%)\n  - vinext:css-data-url (5%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\n",
+  "stdoutSha256": "4f3a955038a319c865db476d31fd183e6d0c0d4c7252e8facc8de99e5dd4cd29",
+  "stderrSha256": "ec8515daf959b98815e9176660a4daaf9416be0665a0de77258f36ada3e97af9",
+  "sourceAfter": {
+    "headOid": "6b6eb684f4f010420a758cfe4fd481b6dfca9545",
+    "branch": "work/balloon-command-position",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "work/orchestration/balloon-command-position/validation-plan-6b6eb68.json": "5e8d8d9e9f2fa89191afb0ba5e761291bf3a04aba3da78ba985968d821036a38"
+    }
+  }
+}
