@@ -31,7 +31,7 @@ Mission 2 DAT has SHA-256
 visits on authored terrain. Mission 2 produces native endpoints `(47872,24832)` →
 `(51968,24832)` and modifies 36 unique terrain vertices with the supplied zero flags.
 The probe compares the original endpoints against `createWorld`'s live shrine data.
-It also audits the other four imported authored bridge sources:
+It also audits the other four currently live campaign bridge sources:
 
 | Mission | Trigger record | Effect record | Browser source | Browser target |
 | --- | --- | --- | --- | --- |
@@ -41,7 +41,9 @@ It also audits the other four imported authored bridge sources:
 | 6 | 355 | 356 | -93, 63 | -77, 63 |
 | 9 | 215 | 228 | 103, 95 | 103, 79 |
 
-Missions 1 and 3 have no linked class-7/model-24 heads. Mission 5 trigger 96
+Missions 1 and 3 have no linked class-7/model-24 heads. Tutorial 79 also authors
+head 70 → effect 72, but its later lesson is not bound by the current initializer;
+it is outside this five-live-head repair. Mission 5 trigger 96
 happens to share the effect's origin, so its previous output already matched.
 
 ## Reproduction and boundaries

@@ -20,7 +20,7 @@ function worshipBridge(world) {
   return world.effects.find(effect => effect.bridge)
 }
 
-test('authored origins survive initialization for every currently imported bridge head', () => {
+test('authored origins survive initialization for all five currently live campaign bridge heads', () => {
   const expected = [
     [2, -113, 113, -77, -105],
     [5, -89, 15, -89, 15],
@@ -97,6 +97,15 @@ test('pre-activation legacy save and mid-bridge checkpoint continue once at the 
   world = store.getWorld()
   assert.deepEqual(world.effects.find(effect => effect.bridge).bridge, state)
   stepUntil(world, () => !world.effects.some(effect => effect.bridge), 64)
+  assert.equal(world.stats.bridges, 1)
+  assert.equal(bridgeHead(world).uses, 1)
+  const completedHeights = world.land.heights.slice()
+  await store.saveCheckpoint()
+  assert.ok(store.loadCheckpoint())
+  world = store.getWorld()
+  assert.deepEqual(world.land.heights, completedHeights)
+  assert.equal(world.effects.some(effect => effect.bridge), false)
+  for (let turn = 0; turn < 100; turn++) tick(world, 1 / 12)
   assert.equal(world.stats.bridges, 1)
   assert.equal(bridgeHead(world).uses, 1)
 })
