@@ -886,6 +886,10 @@ export function stepLiveOrderQueue(
       vehicleReady: unsupported,
       changeTribe: tribe => {
         p.disguise = ((tribe & 3) << 6) | constants.SPY_DISGUISE_DELAY
+        // Command16 publishes the target tribe immediately, independently of
+        // the person's disguise countdown and the vehicle's real count owner.
+        const vehicle = w.vehicles.find(v => v.id === p.vehicle && v.active)
+        if (vehicle) vehicle.apparentTribe = p.disguise >>> 6
       },
       effectiveTribe: () => (p.disguise & 63 ? p.tribe : p.disguise >>> 6),
       cellObjects: unsupported,

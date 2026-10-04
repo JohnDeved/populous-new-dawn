@@ -236,3 +236,121 @@ Original-game runtime screenshots, full tab/input-loop and painter-order behavio
 all transport gameplay/ownership transitions, disabled lower-cell blend raster, live
 browser classification adapters and playable UI integration remain open. Those limits block
 production/parity claims, not the scoped recovered evidence above.
+
+## Occupied-transport live integration
+
+The transport-row work uses the actual `World.vehicles` and passenger slot owners,
+not the follower-task classifier. `hud-transports.ts` compares directly with the
+native count rebuild, complete command handler and focus owner in
+`check-native-follower-transports.py`: 480 deterministic mixed-owner, mixed-class,
+blocked/selected, model-variant, nearby and six-click focus cases. The global vehicle
+list rebuild prepends each vehicle; browser search/cycling therefore traverses the
+creation array in reverse without mutating that array.
+
+`check-native-transport-ownership.py` adds 39 executed owner-transition cases.
+Native vehicle `+0xa1` is the real count/presence owner; `+0x2f` is the apparent
+selection/focus owner. Every successful boarding writes both; Spies publish their
+disguise target bits immediately, even during the countdown. Every unboarding
+writes the departing person's real tribe to `+0xa1` and preserves `+0x2f`.
+Command16 changes only `+0x2f`, immediately. Countdown expiry and the isolated reveal
+leaf do not write either vehicle owner. Destruction's passenger loop ends with the
+last departed person's real owner; retained empty wrecks still establish row
+presence until actual disposal.
+
+The browser keeps `Vehicle.team` as its existing real-owner interpretation and adds
+optional `apparentTribe` for the proved apparent-owner consumers. Missing legacy
+values fall back to team; an unboarding captures that fallback before updating team.
+The field is stored by the existing structured-clone checkpoint. The shared fallback
+also feeds vehicle UV creation/frame-cache refresh, damage immunity (`00466f00`)
+and the class4 Blast projection. Full native model dispatch in
+`check-native-vehicle-materials.py` establishes that tribe textures consume `+0x2f`;
+its live-model input must be genuinely captured, not synthesized. Computer inventory
+and presence/count consumers retain real team. Tooltip owner is unused, and the
+movement adapter's synthesized Boat bit has no proved apparent-owner contract;
+neither is changed by this slice. This is not blanket vehicle-rendering or combat parity.
+
+The owner probe executes initializer, boarding, unboarding, driver promotion,
+destruction passenger loops, target-bit computation, count rebuild and search.
+It supplies animation/list/terrain leaves, a fixed ejection destination, object
+storage and animation tables. Command16 stops at its shared completion boundary;
+Spy countdown executes only the updater prefix. It does not establish final
+terrain-dependent disposal, allocator reuse, arbitrary mixed-tribe boarding
+eligibility, or complete game-loop behavior.
+
+The previously blocking state30 initializer and kind9 passenger panel/unload path
+were accepted separately in PRs #186 and #187, now on main `b8465001`. Transport
+right-focus therefore reaches the real vehicle panel. The new voluntary-unload
+owner writer also captures a missing legacy apparent-owner fallback before changing
+real team; a failure-first restored mixed-owner checkpoint demonstrates why this is
+required. The optional field does not replace the real count/presence owner.
+
+Controls use the accepted 18-sprite source atlas without regenerating assets. Each
+kind appears only while a real-owned craft exists (including an empty retained wreck),
+counts each occupied craft once for every class aboard, and retains global class
+presence for enabled columns. Nearby inclusion uses craft position while acquisition
+ranking uses the matching passenger position. The new per-kind/class remembered
+focus is independent of population and task memories and clears naturally with a
+new scene/checkpoint, matching those existing browser controller lifetimes. Inactive
+zero-passenger wrecks cannot be acquired. Selection/drag/input gates retain the
+accepted task-row behavior; only selection exits construction/spell modes directly,
+while successful right-focus uses the existing camera focus cancellation owner.
+
+Supporting tests cover current passenger class transitions, mixed-tribe first/later
+boarding, exits and reuse, legacy/new checkpoints, Spy disguise completion aboard a
+Boat, and count/read nonmutation. They do not claim arbitrary mixed-tribe gameplay
+admission or a native boarding countdown. Full rendered and aggregate acceptance
+is tracked in PR #185; issue #60 stays open until its complete acceptance is met.
+
+### Modern height budget
+
+The native Followers dock ends at logical y481. At720px and the previous1.5
+HUD scale, the modern14px footer at bottom3 began at logical y463 and covered
+the last Balloon digits. The scale helper preserves the original nominal auto
+steps and saved manual preference, then clamps actual fit to a500px logical
+height budget. That places the footer at y483 or lower without moving native
+art or controls. Fractional-scale source pixels, footer nonoverlap, and actual
+center/digit hit targets remain required rendered acceptance.
+
+### Rendered fixture and owner-consumer boundaries
+
+The rendered checker preserves the authored Mission22 population. Added crews
+first board the actual authored craft through mesh clicks; it captures that result
+before explicitly cancelling their command22 routes and putting those supporting
+crews into state30. Extra craft/crews are controlled state, not natural acquisition.
+Only the Boat containing the test Spy boards that Spy first. The ordinary disguise
+control is established for this driver path. A prior executor observed a queued
+non-driver command16 unchanged through64 ticks, while driver/sole-Spy completion
+occurred after one tick. That observation does not prove the complete native
+non-driver scheduler, and no scheduling repair is folded into these controls.
+Balloon commandPosition remains separately unported.
+
+The source-pixel oracle retains the original panel, frame, icon and each glyph as
+separate source rectangles at the actual DOM scale, origin and device-pixel ratio.
+At fractional scales, each rectangle has its own partial physical-pixel clip-edge
+coverage. Sequential normal-alpha composition preserves those edges and shared
+glyph boundaries; flattening first incorrectly removes their coverage. The reference uses the recorded Chrome154 Linux/x64 raster rules:24.8 fixed-point
+rectangle coverage and premultiplied byte interpolation. Its Chromium DEPS pins
+Skia `2466dcf3937437e217e7f284afe0e1aae15891ce`; `SkScan_Antihair.cpp`,
+`SkBitmapProcState.cpp`, and the SSE2 paths in `SkBlitRow_D32.cpp` establish the
+rounding and blend operations. An independent source-only prototype matches all18
+retained normal/pressed/disabled/nearby and fractional-DPR crops byte for byte.
+This is a pinned browser consistency oracle, not a universal browser or original
+Windows GPU rasterization claim. Element screenshots round clips outward in CSS pixels;
+padding is included without stretching, masking or changing the >1 error threshold. Responsive acceptance
+also checks footer separation and actual center/digit elementFromPoint ownership.
+The safe rendered run captures only the two already-focused actual vehicle meshes
+for the maintained full native geometry/material consumer. Its live UV checks cover
+creation, disguise refresh, checkpoint reload and the inverse real/apparent fixture.
+
+After an executor reset, the unpublished historical screenshots/receipts and local
+commits9f662ef/199ed20 were unavailable. The recovered branch starts from the verified
+remote35c6075. Reconstructed changes have new hashes and new failure-first receipts;
+historical failed attempts are not relabelled as a successful current run. Final
+source-bound native/rendered/aggregate evidence must be collected again.
+
+
+Pinned modern-raster sources:
+- [Chromium154.0.8037.92 DEPS](https://chromium.googlesource.com/chromium/src/+/refs/tags/154.0.8037.92/DEPS)
+- [Skia fixed-point rectangle raster](https://github.com/google/skia/blob/2466dcf3937437e217e7f284afe0e1aae15891ce/src/core/SkScan_Antihair.cpp)
+- [Skia bitmap paint alpha](https://github.com/google/skia/blob/2466dcf3937437e217e7f284afe0e1aae15891ce/src/core/SkBitmapProcState.cpp)
+- [Skia x64 byte interpolation](https://github.com/google/skia/blob/2466dcf3937437e217e7f284afe0e1aae15891ce/src/core/SkBlitRow_D32.cpp)

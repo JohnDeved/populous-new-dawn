@@ -1,3 +1,5 @@
+import { hudTransports, selectFollowerTransport } from './follower-transports-runtime.ts'
+import { focusTransport, type TransportKind } from './hud-transports.ts'
 import { liveVehiclePassengers } from './vehicle-panel-runtime.ts'
 import { hudTaskPeople, selectFollowerTask } from './follower-tasks-runtime.ts'
 import { focusTaskFollower, type FollowerTask } from './hud-tasks.ts'
@@ -579,6 +581,46 @@ export function chooseFollowers(
     else if (modifiers.ctrlKey && model !== 7) mode = 'five'
     if (category) selectFollowerTask(w, model, category, scene.cameraPosition, mode)
     else selectFollowers(w, model, scene.cameraPosition, mode)
+  }
+  scene.onChange()
+}
+
+export function chooseTransport(
+  scene: GameScene,
+  kind: TransportKind,
+  model: number,
+  modifiers: { shiftKey: boolean; ctrlKey: boolean },
+  focus = false
+) {
+  const w = scene.world
+  if (w.inputMask || scene.overviewStage) return
+  if (
+    !focus &&
+    (scene.overviewActive || w.manaWorld.gameFlags & 32 || scene.drag || scene.pointerButtons)
+  )
+    return
+  if (focus) {
+    const index = (kind === 1 ? 0 : 8) + model,
+      id = focusTransport(
+        hudTransports(w),
+        hudTaskPeople(w, false),
+        kind,
+        model,
+        scene.cameraPosition,
+        scene.hudTransportFocus[index],
+        !!(w.castingTribes[0].flags & 128)
+      )
+    scene.hudTransportFocus[index] = id
+    const vehicle = w.vehicles.find(v => v.id === id)
+    if (vehicle) {
+      scene.focus(browserPosition(vehicle), { animate: true })
+      scene.objectPanels.open(id)
+    }
+  } else {
+    let mode: 'all' | 'five' | 'single' = 'single'
+    if (modifiers.shiftKey) mode = 'all'
+    else if (modifiers.ctrlKey) mode = 'five'
+    selectFollowerTransport(w, kind, model, scene.cameraPosition, mode)
   }
   scene.onChange()
 }
