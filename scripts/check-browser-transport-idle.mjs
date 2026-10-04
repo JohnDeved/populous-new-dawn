@@ -11,7 +11,6 @@ mkdirSync(output, { recursive: true })
 const browser = await chromium.launch({
   executablePath: process.env.POPULOUS_BROWSER,
   headless: true,
-  args: ['--no-sandbox'],
 })
 try {
   const { page, errors } = await openGame(browser, 22)
