@@ -153,6 +153,17 @@ test('committed readback is readonly, awaits completion, and hashes typed arrays
       const before = await readCommittedCheckpoint(page); mutate()
       assert.notEqual((await readCommittedCheckpoint(page)).checkpointSha256, before.checkpointSha256)
     }
+    for (const [left, right] of [[Infinity, null], [undefined, null], [-0, 0], [NaN, null], [new Map([[1, 2]]), { map: [[1, 2]] }], [new DataView(new Uint8Array([1]).buffer), new DataView(new Uint8Array([2]).buffer)]]) {
+      record.world.edge = left
+      const before = await readCommittedCheckpoint(page)
+      record.world.edge = right
+      assert.notEqual((await readCommittedCheckpoint(page)).checkpointSha256, before.checkpointSha256)
+    }
+    const shared = { identity: 1 }
+    record.world.edge = [shared, shared]
+    const aliases = await readCommittedCheckpoint(page)
+    record.world.edge = [{ identity: 1 }, { identity: 1 }]
+    assert.notEqual((await readCommittedCheckpoint(page)).checkpointSha256, aliases.checkpointSha256)
     globalThis.indexedDB.databases = async () => []
     const before = reads
     assert.equal(await readCommittedCheckpoint(page), null)

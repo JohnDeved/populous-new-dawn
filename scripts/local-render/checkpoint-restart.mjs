@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
-import { createHash } from 'node:crypto'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { checkpointObservation } from './checkpoint-observer.mjs'
 
 // Run twice with the same --profile/origin/source and separate output paths.
 // First run saves via UI and exits; the second uses shipped Load Game.
@@ -46,21 +46,13 @@ export default async function ({ page, root, output, receipt, openMission, obser
     const unsubscribe = store.subscribe(() => {
       const w = store.getWorld()
       if (w === before) return
-      window.restartCheckpointBoundary = structuredClone({
-        level: w.outcome.level, turn: w.turn, time: w.time,
-        actors: w.units.map(u => [u.id, u.team, u.kind, u.hp, u.x, u.z]),
-        terrain: w.terrain,
-        stock: { mana: w.mana, wood: w.wood, shots: w.shots, giftCounts: w.giftCounts },
-      })
+      window.restartCheckpointBoundary = { version: 1, world: structuredClone(w) }
       unsubscribe()
     })
   })
   await page.getByRole('dialog', { name: 'Start game', exact: true }).getByRole('button', { name: 'Load Game', exact: true }).click()
-  const boundary = await page.evaluate(() => window.restartCheckpointBoundary)
-  assert.ok(boundary, 'Public Load must replace the stored world')
-  const digest = value => createHash('sha256').update(JSON.stringify(value)).digest('hex')
-  const loaded = { level: boundary.level, turn: boundary.turn, time: boundary.time, actorsSha256: digest(boundary.actors), terrainSha256: digest(boundary.terrain), stockSha256: digest(boundary.stock) }
-  for (const key of Object.keys(loaded)) assert.deepEqual(loaded[key], saved[key], `Load boundary ${key} must match the committed save`)
+  const loaded = await page.evaluate(checkpointObservation, { observationName: 'restartCheckpointBoundary' })
+  for (const key of ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']) assert.deepEqual(loaded[key], saved[key], `Load boundary ${key} must match the committed save`)
   await bindGame(page)
   const resumed = await page.evaluate(() => ({ turn: window.testStore.getWorld().turn, paused: window.testStore.getWorld().paused }))
   assert.equal(resumed.paused, false, 'Shipped Load resumes the normal clock')
