@@ -1,4 +1,4 @@
-import type { Effect, Unit, World } from './world-types.ts'
+import type { Effect, TribeTeam, Unit, World } from './world-types.ts'
 import { teamForTribe } from './world-types.ts'
 import { campaignPosition } from './campaign-runtime.ts'
 import { effect, sound } from './world-effects.ts'
@@ -56,7 +56,7 @@ export function createReincarnationWave(
   // when present; otherwise keep their existing authored-site/ground fallback.
   const site = (w.reincarnationSites[tribe] ??= {
       ...(w.levelStart.find(start => start.tribe === tribe)?.center ??
-        nativePosition(w, campaignPosition(w, teamForTribe(tribe)))),
+        nativePosition(w, campaignPosition(w, teamForTribe(tribe) as TribeTeam))),
     }),
     fx = allocate({ ...site })
   if (!fx) return
