@@ -8,6 +8,10 @@ reachable type9 branch for authored Missions1/2 only. Mission3/type8 defense and
 other unbound producers remain open; this does not close issue165 or claim full
 original AI allocation timing.
 
+The subsequent [Mission3 defense slice](mission3-defense-task.md) recovers and
+binds its actual type8 consumer. The observations below retain the accepted
+Missions1/2 checkpoint's scope and proof boundaries.
+
 Original EXE SHA256: `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
 Reuse [producer scheduling](early-mission-producer-schedule.md), `004e5b60`,
 `004c5cf0`, `004f8e10`, `00461f90`, `004f6840`, `00462770`, and their indexed exports.
@@ -106,6 +110,10 @@ order; exact original whole-world list ownership remains a broader adapter bound
 Do not bind this helper to Mission3 or custom missions by removing its scope guard:
 first implement type8 response and applicable type11/15/Spy consumers. This work
 changes no parity percentages, smoke/pool/clock/motion behavior, or deployment.
+
+The later Mission3 integration satisfies its type8 dependency and proves complete
+authored invariants excluding the idle type11/15 and Spy branches. Custom/later
+mission binding remains unsupported; see the linked defense note.
 
 ## Composition regression attribution
 
