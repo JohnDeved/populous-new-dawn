@@ -139,6 +139,7 @@ class Bootstrap:
         self.run_id = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ-') + uuid.uuid4().hex[:8]
         self.receipt = self.root / 'receipts' / self.run_id
         self.commands = []
+        self.lock_fd = None
         self.result = {'schema': 1, 'status': 'unknown', 'run': self.run_id,
                        'manifestSha256': digest(MANIFEST), 'scriptSha256': digest(Path(__file__)),
                        'inputSha256': {name: digest(SOURCE / name) for name in [
@@ -157,8 +158,14 @@ class Bootstrap:
         self.commands.append(record)
         atomic_json(self.receipt / 'result.json', self.result)
         with prefix.with_suffix('.stdout').open('w') as out, prefix.with_suffix('.stderr').open('w') as err:
-            run_env = dict(os.environ if env is None else env, GIT_TERMINAL_PROMPT='0', GH_PROMPT_DISABLED='1')
-            completed = subprocess.run(record['argv'], cwd=cwd, env=run_env, stdout=out, stderr=err, timeout=1800)
+            temporary = self.root / 'runtime' / self.run_id / 'tmp'
+            temporary.mkdir(parents=True, exist_ok=True)
+            run_env = dict(os.environ if env is None else env, GIT_TERMINAL_PROMPT='0',
+                           GH_PROMPT_DISABLED='1', TMPDIR=str(temporary))
+            # A surviving direct child retains ownership if this controller is interrupted.
+            inherited = () if self.lock_fd is None else (self.lock_fd,)
+            completed = subprocess.run(record['argv'], cwd=cwd, env=run_env, stdout=out, stderr=err,
+                                       timeout=1800, pass_fds=inherited)
         record.update(exitCode=completed.returncode, status='passed' if completed.returncode == 0 else 'failed',
                       stdoutSha256=digest(prefix.with_suffix('.stdout')),
                       stderrSha256=digest(prefix.with_suffix('.stderr')))
@@ -387,7 +394,8 @@ class Bootstrap:
                            tools={name: str(path) for name, path in paths.items()})
 
     def execute(self):
-        if any((parent / 'package.json').exists() for parent in [self.root, *self.root.parents]):
+        ancestors = [self.root, *self.root.parents, self.root.resolve(), *self.root.resolve().parents]
+        if any((parent / 'package.json').exists() for parent in ancestors):
             raise ValueError('Root must be outside every Node package scope (ancestor package.json)')
         if self.root.is_symlink():
             raise ValueError('Root must not be a symlink')
@@ -397,6 +405,7 @@ class Bootstrap:
         with (self.root / 'bootstrap.lock').open('a') as lock:
             try:
                 fcntl.flock(lock, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                self.lock_fd = lock.fileno()
             except BlockingIOError:
                 raise ValueError('Another bootstrap owns this root; no lock was removed') from None
             if marker.exists():

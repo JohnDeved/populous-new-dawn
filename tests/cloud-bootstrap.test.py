@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import subprocess
+import sys
 import tarfile
 import tempfile
 import unittest
@@ -289,6 +290,17 @@ class BootstrapTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Node package scope'):
             b.Bootstrap(self.args, self.manifest).execute()
         self.assertFalse(self.args.root.exists())
+
+    def test_child_inherits_root_lock_and_private_tmpdir(self):
+        runner = b.Bootstrap(self.args, self.manifest)
+        def recover():
+            code = ('import os,sys; assert os.fstat(int(sys.argv[1])).st_ino == os.stat(sys.argv[2]).st_ino; '
+                    'print(os.environ["TMPDIR"])')
+            value = runner.run([sys.executable, '-c', code, str(runner.lock_fd), runner.root / 'bootstrap.lock'])
+            self.assertEqual(Path(value), runner.root / 'runtime' / runner.run_id / 'tmp')
+            runner.result['status'] = 'passed'
+        runner.recover = recover
+        runner.execute()
 
     def test_build_tools_include_refinery_metadata_dependencies(self):
         build = (SOURCE / 'engineering/cloud-python-build.lock').read_text()
