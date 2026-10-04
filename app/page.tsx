@@ -1,5 +1,6 @@
+'use client'
+
 import { hudScale } from './hud-layout.ts'
-;('use client')
 
 import { MinimapFrame } from './minimap-frame-view'
 import {
