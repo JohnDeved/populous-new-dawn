@@ -1,0 +1,209 @@
+{
+  "version": 1,
+  "pr": "https://github.com/JohnDeved/populous-new-dawn/pull/186",
+  "testedSource": "e8d302827bbd12a6870c224cbe01cce8558d22d1",
+  "integrationCommit": "0b0719f270649f688a07b791a8ff831ed0c91a46",
+  "sourceTree": "abbdf1301f71f433a74348aa65ee7b66ad4eacd6",
+  "featureBase": "14077605612ccf2572c63b5a66356cf3e7967976",
+  "archive": {
+    "name": "pr186-proof.tar.gz",
+    "sha256": "529279a6028fed73dddcd726db2dce5a5ee9f17a24bfc1152cbab9781cec86d2",
+    "bytes": 144230
+  },
+  "images": {
+    "boat-before-disguise-action.png": {
+      "sha256": "31a78b06fd58331beabf939aec9740547d5a2475a5dd7ad1138b624864d74650",
+      "bytes": 1676426,
+      "source": "e8d302827bbd12a6870c224cbe01cce8558d22d1",
+      "meaning": "Before the disguise action in a staged Mission22 Boat fixture on the repaired build; not a before-fix/after-fix comparison."
+    },
+    "boat-after-disguise-action.png": {
+      "sha256": "1ca2d550618027e1403a1f3ec4cb55f70defeb6ce7b63075dd189ec53b14d695",
+      "bytes": 1675380,
+      "source": "e8d302827bbd12a6870c224cbe01cce8558d22d1",
+      "meaning": "After the disguise action in a staged Mission22 Boat fixture on the repaired build; not a before-fix/after-fix comparison."
+    }
+  },
+  "archiveEntries": {
+    "browser/receipt.json": {
+      "sha256": "ad3c39bee5f483a1dc3dfcdd629a2e2493076da0f2d2d91805310ea8f8dccada",
+      "bytes": 2968
+    },
+    "browser/result.json": {
+      "sha256": "101b27a1e05a652262337a65361855d9e5ab1768b7a44dbcb0a7819f0c7f25f9",
+      "bytes": 710
+    },
+    "browser/server.log": {
+      "sha256": "5e98956ee64551671b74c06db5f1888bcb42f9dd1bc0eaa7cf9958ffa17f3186",
+      "bytes": 463
+    },
+    "quality-comparison.json": {
+      "sha256": "82c270c95db8dcc7d3da4aa35d502f38a368d60ee4d5bcc6e6e9e21fd05d57b5",
+      "bytes": 76518
+    },
+    "receipts/failure-first.json": {
+      "sha256": "b73f1b19be730c3cb0da391bdeafcdd7dfa86bba1c5bce31609eba8af8756343",
+      "bytes": 6835
+    },
+    "receipts/failure-first.json.artifacts/stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "receipts/failure-first.json.artifacts/stdout.log": {
+      "sha256": "578d94f5db52713f4cdb236d26b23017aad32149e721c29bed046849b348160d",
+      "bytes": 5106
+    },
+    "receipts/final-format.json": {
+      "sha256": "b1020cf39a672ddab0df79f2c3b4e449153c62cfa0beeaf5183a7393a5cf40b3",
+      "bytes": 2043
+    },
+    "receipts/final-format.json.artifacts/stderr.log": {
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "bytes": 99
+    },
+    "receipts/final-format.json.artifacts/stdout.log": {
+      "sha256": "7cb7b76e1bd5dfd658a57b5bdabbd9f400e66cc9c1459d4a9f7e601db108074b",
+      "bytes": 273
+    },
+    "receipts/final-lint.json": {
+      "sha256": "ab635f87ce6e304cd820fb49be5eb9b55413432374065cf538718216090b582d",
+      "bytes": 39575
+    },
+    "receipts/final-lint.json.artifacts/stderr.log": {
+      "sha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65",
+      "bytes": 307
+    },
+    "receipts/final-lint.json.artifacts/stdout.log": {
+      "sha256": "360abfa6d5986cc45b12789ae84eb1e82d8d8c6746e4becc92a7fe0ad7621cd7",
+      "bytes": 37216
+    },
+    "receipts/focused-first.json": {
+      "sha256": "d21c93abc052b25977b6cc2c467ba9839ef97d1386a59ad0acb0a294b4ec0e48",
+      "bytes": 4641
+    },
+    "receipts/focused-first.json.artifacts/stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "receipts/focused-first.json.artifacts/stdout.log": {
+      "sha256": "44e4636cc64ebf420fb9d0f224ae9e347bbeb4c32ee627a35349ca22c866a3e2",
+      "bytes": 2919
+    },
+    "receipts/repaired-baseline-lint.json": {
+      "sha256": "33363ec59819f2a27e2b8f115f1a0b793d9fdd2756615d3ee464ecb4586f9f1b",
+      "bytes": 2090
+    },
+    "receipts/repaired-baseline-lint.json.artifacts/stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "receipts/repaired-baseline-lint.json.artifacts/stdout.log": {
+      "sha256": "548a4ed543f1f5f9051992d8a07270ba561c66525cde265c240c6a0fd49248ff",
+      "bytes": 121
+    },
+    "receipts/repaired-browser.json": {
+      "sha256": "c720c304fa41552ef857474a272fe231630f6fa4c2d2179a9c3a7070203f75cc",
+      "bytes": 3715
+    },
+    "receipts/repaired-browser.json.artifacts/stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "receipts/repaired-browser.json.artifacts/stdout.log": {
+      "sha256": "1c5450a86c84268dca657280a5a2627fd00e4a73ed033583df3d8aa23ce37070",
+      "bytes": 1136
+    },
+    "receipts/repaired-build.json": {
+      "sha256": "812528879447701a2df27699a18a29387c4cbb42c3d5f69f72810459cb30c665",
+      "bytes": 4093
+    },
+    "receipts/repaired-build.json.artifacts/stderr.log": {
+      "sha256": "b60d8034ee863c0f7f6ed29e009f54a49de8cefa77fa3b0c4834ace9521569dd",
+      "bytes": 1152
+    },
+    "receipts/repaired-build.json.artifacts/stdout.log": {
+      "sha256": "e4273ebc76dfa2859f726216cf7d2629132714da15ba1814a00f9153f1c96a4b",
+      "bytes": 1143
+    },
+    "receipts/repaired-check.json": {
+      "sha256": "ac46baa9aaad164ad937acce770dfb0b4267a49424fb9744a799ef727a3eba4f",
+      "bytes": 104194
+    },
+    "receipts/repaired-check.json.artifacts/stderr.log": {
+      "sha256": "02285cf98c9d88b48ecc3ef7fa38f35659b7c27d82ad3139b4a57f8bed24e9b1",
+      "bytes": 1119
+    },
+    "receipts/repaired-check.json.artifacts/stdout.log": {
+      "sha256": "33c18201da72f7742281840ecb096868cc75633abd57e454466287d2fa3bccc3",
+      "bytes": 99828
+    },
+    "receipts/repaired-native.json": {
+      "sha256": "64585dfea0545224fcd8403f26f8a1c40193339f3c46de5f0f248e2175ce0832",
+      "bytes": 2909
+    },
+    "receipts/repaired-native.json.artifacts/stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "receipts/repaired-native.json.artifacts/stdout.log": {
+      "sha256": "4eef8633395558881244f115beeac026b1749744b38a2431b884674112ccc96b",
+      "bytes": 700
+    },
+    "receipts/repaired-oxlint.json": {
+      "sha256": "f4b209460566cf145abd06bfd612a74c496f90ccb02cf4f73dcd0caa0040e8d8",
+      "bytes": 276290
+    },
+    "receipts/repaired-oxlint.json.artifacts/stderr.log": {
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "bytes": 99
+    },
+    "receipts/repaired-oxlint.json.artifacts/stdout.log": {
+      "sha256": "39c95b6bed490c7f4f7d281f22c4287da195116c5060df4949c73ffe507eeadb",
+      "bytes": 273130
+    },
+    "receipts/repaired-scoped-format.json": {
+      "sha256": "d32d1ecc36dcf3bd313ac84eceee6684b0b6d2a0013c345bdbd4eb5b524eb1c9",
+      "bytes": 1845
+    },
+    "receipts/repaired-scoped-format.json.artifacts/stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "receipts/repaired-scoped-format.json.artifacts/stdout.log": {
+      "sha256": "a19c6b993d548f6964caf1fd932b4e3cea844b5bd3966753605551843e3da40b",
+      "bytes": 110
+    },
+    "receipts/repaired-scoped-lint.json": {
+      "sha256": "8d3c09d641b704a89c5d4ccbfdf9b715cfdd778109fa409a23a626afa2627242",
+      "bytes": 1773
+    },
+    "receipts/repaired-scoped-lint.json.artifacts/stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "receipts/repaired-scoped-lint.json.artifacts/stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "source/feature.patch": {
+      "sha256": "c21c82767ccc1107fd2d6f4182c7afbf21d9b759f57b1601feb20327a12a91b5",
+      "bytes": 20572
+    },
+    "tools/compare-quality.mjs": {
+      "sha256": "e322867b06dc0143828963f56f76132ab7e45a2c8a8d5d6feba980f63b0f3466",
+      "bytes": 1368
+    }
+  },
+  "limits": [
+    "Staged Spy population/location beside authored Mission22 Boat; real command boarding and rendered disguise/replacement controls.",
+    "Images show before/after the action on the repaired build, not before/after the fix.",
+    "Boat disguise completion verified; Balloon disguise is blocked earlier by a separate unported commandPosition consumer.",
+    "Bounded native world leaves, direct detach regression and SwiftShader headless rendering; no complete acquisition/landing or hardware-performance claim."
+  ],
+  "exclusions": [
+    "Original game binaries and data",
+    "Credentials or authentication configuration",
+    "Caches and dependencies",
+    "Private handoff/review notes"
+  ]
+}
