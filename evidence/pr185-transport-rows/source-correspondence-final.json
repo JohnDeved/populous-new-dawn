@@ -1,0 +1,65 @@
+{
+  "oldHead": "416d2c40b4b2f133f7d2aea14febc800fcdd3434",
+  "newHead": "cf4350944ac2d77fbe97ab5dfe9f78b4aa71c3b8",
+  "adoptedMain": "b219c63be33c440cea0927c487f16573e5a1c0ec",
+  "changedPaths": [
+    "references/verification/mission-two-controls-2026-10-04/README.md",
+    "references/verification/mission-two-controls-2026-10-04/victory.png",
+    "scripts/browser-game.mjs",
+    "scripts/local-render/readiness-lifecycle.mjs",
+    "tests/browser-game-readiness.test.mjs"
+  ],
+  "identicalInputs": {
+    "app": {
+      "old": "dddf7f38d3bd92090afbbfb77134d020f3aa3c19",
+      "new": "dddf7f38d3bd92090afbbfb77134d020f3aa3c19"
+    },
+    "public": {
+      "old": "49f080b8608cf5a954fc54440e44db23a027311b",
+      "new": "49f080b8608cf5a954fc54440e44db23a027311b"
+    },
+    "package.json": {
+      "old": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1",
+      "new": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1"
+    },
+    "package-lock.json": {
+      "old": "97cd9ade0190af96e99b389c93d4ee20bef5065c",
+      "new": "97cd9ade0190af96e99b389c93d4ee20bef5065c"
+    },
+    "scripts/check-browser-follower-transports.mjs": {
+      "old": "cff7dfaec94eb373b856389c00b11ed2f07e8a91",
+      "new": "cff7dfaec94eb373b856389c00b11ed2f07e8a91"
+    },
+    "scripts/check-browser-vehicle-panel.mjs": {
+      "old": "6b2785ca17637b2f793cf0febdcac052006716e2",
+      "new": "6b2785ca17637b2f793cf0febdcac052006716e2"
+    },
+    "scripts/checkpoint-readback.mjs": {
+      "old": "1d75197cd96402d1e5d72106d47027a83ff874a1",
+      "new": "1d75197cd96402d1e5d72106d47027a83ff874a1"
+    },
+    "scripts/transport-pixel-reference.mjs": {
+      "old": "d7e6707fe6cba9dcf818100f38e2b4f23f1be378",
+      "new": "d7e6707fe6cba9dcf818100f38e2b4f23f1be378"
+    },
+    "scripts/local-render/harness.mjs": {
+      "old": "2ccc71991d2fcd7f0f3a1d01e34df46ede0755c8",
+      "new": "2ccc71991d2fcd7f0f3a1d01e34df46ede0755c8"
+    },
+    "scripts/local-render/vite.config.mjs": {
+      "old": "91570f6eec1e01f3ee98eb3dfdfb4a7db1203262",
+      "new": "91570f6eec1e01f3ee98eb3dfdfb4a7db1203262"
+    }
+  },
+  "browserGameOldBytesUnchangedAfterRemovingAddedDeclarations": true,
+  "addedDeclarations": [
+    "readShamanReadiness",
+    "waitForShamanReadiness"
+  ],
+  "addedDeclarationSHA256": "fbf1020318198a6a6196e2fc3d4b15e344e31f3ee44898cadf21ecb51acf9c90",
+  "materialCaptureHashes": {
+    "725d57e": "1e1d2cde2c4f1594ae33ba4cbf05797ebc26ac5d8384bddc82b538c2b262db91",
+    "416d2c4": "1e1d2cde2c4f1594ae33ba4cbf05797ebc26ac5d8384bddc82b538c2b262db91"
+  },
+  "scope": "Carry original416d2c4 browser only through identical runtime/assets/harness/checker/reference/readback helpers. New main declarations have no top-level effects and are not called by the transport checker."
+}

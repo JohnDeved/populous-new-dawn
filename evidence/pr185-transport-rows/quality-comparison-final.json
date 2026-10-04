@@ -1,0 +1,19 @@
+{
+  "head": "cf4350944ac2d77fbe97ab5dfe9f78b4aa71c3b8",
+  "baseline": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+  "tools": {
+    "eslint": {
+      "candidate": 5,
+      "baseline": 5,
+      "added": [],
+      "removed": []
+    },
+    "oxlint": {
+      "candidate": 139,
+      "baseline": 139,
+      "added": [],
+      "removed": []
+    }
+  },
+  "mainAppStillEqualsQualityBaseline": true
+}

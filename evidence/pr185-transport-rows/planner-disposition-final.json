@@ -1,0 +1,766 @@
+{
+  "head": "cf4350944ac2d77fbe97ab5dfe9f78b4aa71c3b8",
+  "base": "b219c63be33c440cea0927c487f16573e5a1c0ec",
+  "unknownPaths": [],
+  "selectedChecks": 119,
+  "note": "Final source-scope disposition. Raw failed attempts stay failed; complete final browser and aggregate supply the previously pending proof.",
+  "checks": [
+    {
+      "id": "automatic-boat-crossing-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "building-counterattack-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "camera-browser",
+      "kind": "browser",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "camera-native",
+      "kind": "native",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "campaign-natural-victory-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "checkpoint-browser",
+      "kind": "browser",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "clock-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "computer-attack-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "computer-direct-attack-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "construction-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "construction-live-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "construction-native-fetch",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "construction-native-order",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "construction-native-timber-search",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "construction-research-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "early-mission-skies-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "early-mission-skies-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "firewarrior-building-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "follower-task-adapters-native",
+      "kind": "native",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "follower-task-art-native",
+      "kind": "native",
+      "disposition": "passed",
+      "reason": "Affected transport/native contract executed on exact frozen source.",
+      "receipt": "native-art-7d2c0a0.json"
+    },
+    {
+      "id": "follower-tasks-browser",
+      "kind": "browser",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "follower-tasks-native",
+      "kind": "native",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "follower-tasks-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "follower-transports-browser",
+      "kind": "browser",
+      "disposition": "passed-carried-with-correspondence",
+      "reason": "Complete default run; all18 pixels max0,12 responsive layouts plusDPR2,312 center/digit hit checks,57 authored people and playing status retained. Runtime/checker/harness identities to final source are verified.",
+      "receipt": "candidate-render-416d2c4.json"
+    },
+    {
+      "id": "follower-transports-native",
+      "kind": "native",
+      "disposition": "passed",
+      "reason": "Affected transport/native contract executed on exact frozen source.",
+      "receipt": "native-rows-7d2c0a0.json"
+    },
+    {
+      "id": "follower-transports-portable",
+      "kind": "portable",
+      "disposition": "passed",
+      "reason": "Exact source row/owner/layout/checker cases are included in the36-test focused run; aggregate still required.",
+      "receipt": "portable-7d2c0a0.json"
+    },
+    {
+      "id": "level-start-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "level-start-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "level-start-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "level-start-static",
+      "kind": "static",
+      "disposition": "not-applicable",
+      "reason": "Original level-start/Shaman asset data, imports and initialization contract are unchanged. These independent static-data commands are not part of npm check and are not claimed executed by the aggregate."
+    },
+    {
+      "id": "messages-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "messages-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission10-opening-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission11-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission11-build-at-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission11-housing-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission11-settlement-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission12-opening-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission12-spy-sabotage-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission13-balloon-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission13-opening-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission14-rewards-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission14-rewards-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission14-rewards-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "mission15-prison-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission15-prison-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission15-prison-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "mission16-bloodlust-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission16-bloodlust-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission16-bloodlust-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "mission17-armageddon-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission17-armageddon-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission17-armageddon-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "mission18-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission18-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission18-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "mission19-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission19-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission19-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "mission20-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission20-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission20-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "mission21-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission21-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission21-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "mission22-browser",
+      "kind": "browser",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "mission22-native",
+      "kind": "native",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "mission22-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "mission23-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission23-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission23-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "mission23-settlement-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission4-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission5-angel-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission5-angel-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "mission7-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission7-opening-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission8-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission8-firewarrior-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission9-boat-house-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "mission9-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "orchestration-structural",
+      "kind": "metadata",
+      "disposition": "passed",
+      "reason": "Structural check executed within exact final aggregate.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "orchestration-tests",
+      "kind": "metadata",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "orders-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "orders-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "orders-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "performance-profile",
+      "kind": "performance",
+      "disposition": "not-applicable",
+      "reason": "No geometry, shader, clock, physics or camera algorithm change. UV cache retains array reuse and skips unchanged owners (focused test); HUD adds bounded12 controls. Software-browser evidence is not hardware performance, and no speedup/FPS claim is made."
+    },
+    {
+      "id": "production-build",
+      "kind": "build",
+      "disposition": "passed",
+      "reason": "Standard production build on exact final source.",
+      "receipt": "build-final-cf43509.json"
+    },
+    {
+      "id": "queued-timber-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "reincarnation-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "reincarnation-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "disposition": "passed",
+      "reason": "991/991 tests, typecheck, parity and orchestration checks on exact final source.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "selection-browser-drag",
+      "kind": "browser",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "selection-native-drag",
+      "kind": "native",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "selection-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "shaman-appearance-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "shaman-appearance-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "shaman-appearance-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "shaman-assets-static",
+      "kind": "static",
+      "disposition": "not-applicable",
+      "reason": "Original level-start/Shaman asset data, imports and initialization contract are unchanged. These independent static-data commands are not part of npm check and are not claimed executed by the aggregate."
+    },
+    {
+      "id": "terrain-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "terrain-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "terrain-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "transport-ownership-native",
+      "kind": "native",
+      "disposition": "passed",
+      "reason": "Affected transport/native contract executed on exact frozen source.",
+      "receipt": "native-owners-7d2c0a0.json"
+    },
+    {
+      "id": "transport-vehicle-materials-native",
+      "kind": "native",
+      "disposition": "passed-identical-captured-input",
+      "reason": "Two genuine captured views/104 triangles plus10 complete native vehicle draws/510 texture selections. The final416 capturedJSON is byte-identical; no synthetic geometry or redundant rerun.",
+      "receipt": "native-materials-725d57e.json"
+    },
+    {
+      "id": "tutorial-first-lesson-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "tutorial-first-lesson-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "vault-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "vehicle-destruction-browser",
+      "kind": "browser",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "vehicle-destruction-native",
+      "kind": "native",
+      "disposition": "passed",
+      "reason": "Affected transport/native contract executed on exact frozen source.",
+      "receipt": "native-vehicle-damage-7d2c0a0.json"
+    },
+    {
+      "id": "vehicle-exit-native",
+      "kind": "native",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "vehicle-panel-browser",
+      "kind": "browser",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "vehicle-panel-native",
+      "kind": "native",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "vehicle-panel-portable",
+      "kind": "portable",
+      "disposition": "passed-in-aggregate",
+      "reason": "Inspected command is node --test on maintained tests/*.test.mjs files, all selected by npm test within the pending standard aggregate. No separate duplicate run needed.",
+      "receipt": "check-final-cf43509.json"
+    },
+    {
+      "id": "vehicle-panel-selection-native",
+      "kind": "native",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "vehicle-seats-native",
+      "kind": "native",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    },
+    {
+      "id": "vehicle-unload-native",
+      "kind": "native",
+      "disposition": "passed",
+      "reason": "Affected transport/native contract executed on exact frozen source.",
+      "receipt": "native-vehicle-unload-7d2c0a0.json"
+    },
+    {
+      "id": "worship-browser",
+      "kind": "browser",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "worship-native",
+      "kind": "native",
+      "disposition": "not-applicable",
+      "reason": "Conservatively routed by shared page, scene, world-types or live files. This slice does not alter this campaign producer, AI, terrain/construction/order algorithm, spell effect, tutorial or imported artwork. Real-team inventory/AI consumers stay unchanged. Native producer/journey proof is not inferred from row fixtures."
+    },
+    {
+      "id": "zoom-edges-browser",
+      "kind": "browser",
+      "disposition": "covered-by-scoped-proof",
+      "reason": "The existing algorithm/asset/panel/geometry contract is unchanged. Native row/art/owner/unload/damage proofs plus focused portable cases cover the changed adapter; the required composed row browser exercises shared actual selection/focus, passenger panels, resize and checkpoint boundaries. Existing producer/destruction/landing or broad camera/drag journeys are not reasserted as new parity."
+    }
+  ],
+  "extraAffectedEvidence": [
+    {
+      "receipt": "native-blast-7d2c0a0.json",
+      "status": "passed",
+      "scope": "256 native indexed Blast passes and512 person damage calls; vehicle projection binding is separately exercised by the maintained source-body test."
+    }
+  ]
+}
