@@ -13,7 +13,10 @@ type TaskSource = Pick<
 > & {
   vehicle: number
 }
-type Point = { x: number; y: number }
+interface Point {
+  x: number
+  y: number
+}
 const centerCell = (p: Point) => ({ x: (p.x & 0xfe00) + 256, y: (p.y & 0xfe00) + 256 })
 const available = (p: TaskPerson, includeReserved: boolean) =>
   !(p.flags4 & (includeReserved ? 128 : 0x880))
@@ -129,15 +132,11 @@ export function selectTaskFollowers(
       if (selected) speaker = p
     }
   }
-  return {
-    speaker: speaker?.id,
-    cues:
-      !speaker || mode === 'five'
-        ? []
-        : mode === 'single'
-          ? [selectedPersonVoice(speaker.model)]
-          : selectedGroupVoices(people.filter(p => p.selectionFlags & 128).map(p => p.model)),
-  }
+  let cues: number[] = []
+  if (speaker && mode === 'single') cues = [selectedPersonVoice(speaker.model)]
+  else if (speaker && mode === 'all')
+    cues = selectedGroupVoices(people.filter(p => p.selectionFlags & 128).map(p => p.model))
+  return { speaker: speaker?.id, cues }
 }
 
 // 0x4de810 remembers each model/category independently. Initial search applies

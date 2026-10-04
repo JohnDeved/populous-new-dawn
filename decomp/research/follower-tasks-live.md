@@ -139,3 +139,21 @@ check metadata was added. Task-specific routing now has its own bounded subsyste
 No assertion, native limit or budget was weakened. Final standard/quality receipts
 and the independent decision are linked from PR #182; later routing/evidence-only
 commits retain byte-identical runtime, artwork, importers and browser scenario.
+
+### Reactive camera snapshot repair
+
+Quality review identified a new ref read in React render. The Followers table now
+receives a state snapshot published by the existing scene/UI update callback at
+its normal cadence, with the same raw native camera coordinates. Startup keeps a
+zero-coordinate fallback; stale disposed scenes cannot publish a replacement
+scene's camera. No lint rule was suppressed. A dedicated rendered fixture crosses
+the strict nearby radius by one native unit at a non-cell-centered coordinate,
+then moves the camera through the real keyboard/motion owner. It checks current
+counts, alternate-font pixels and unchanged people/orders/RNG. This later repair
+is separately verified; the earlier `1a08690` gallery retains its original source
+caption rather than being relabelled as a new-head capture.
+
+The nearby fixture also exposed and repaired the Total-number font choice: native
+nearby mode uses the alternate font for Total as well as class cells. Executed
+native text queues now compare all 96 task-number layouts (font, glyph and logical
+placement) across the four retained renderer cases.

@@ -76,11 +76,7 @@ export function FollowerTasks({
                   <TaskIcon id={sprite + 1} />
                 </span>
               )}
-              <FollowerNumber
-                count={counts.tasks[model][category]}
-                alternate={nearby && model !== 0}
-                y={24}
-              />
+              <FollowerNumber count={counts.tasks[model][category]} alternate={nearby} y={24} />
             </button>
           )
         })

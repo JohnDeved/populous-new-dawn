@@ -94,6 +94,7 @@ export default function Home() {
   const { volume, musicVolume } = audioPreferences
   const [soundPending, setSoundPending] = useState(false)
   const [hudSize, setHudSize] = useState('auto')
+  const [hudCamera, setHudCamera] = useState({ x: 0, y: 0 })
   const [messageViewportHeight, setMessageViewportHeight] = useState(480)
   const [checkpointNotice, setCheckpointNotice] = useState('')
   const [startup, setStartup] = useState<'loading' | 'choice' | 'playing'>('loading')
@@ -214,11 +215,19 @@ export default function Home() {
           minimap.current,
           portrait.current,
           world,
-          update,
+          () => {
+            if (disposed) return
+            if (scene) {
+              const { x, y } = scene.cameraPosition
+              setHudCamera(previous => (previous.x === x && previous.y === y ? previous : { x, y }))
+            }
+            update()
+          },
           (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished)
         )
         scene = created
         engine.current = created
+        setHudCamera({ x: created.cameraPosition.x, y: created.cameraPosition.y })
         if (world.drawMode === 2) created.overview()
         return created.ready.then(() => {
           if (!disposed && engine.current === created && created.start()) setReady(true)
@@ -916,7 +925,7 @@ export default function Home() {
           {tab === 'followers' && (
             <FollowerTasks
               people={hudTaskPeople(world)}
-              center={engine.current?.cameraPosition ?? { x: 0, y: 0 }}
+              center={hudCamera}
               nearby={!!(world.castingTribes[0].flags & 128)}
               control={followerControl}
             />

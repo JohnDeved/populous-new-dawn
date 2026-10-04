@@ -4,6 +4,7 @@ import { writeFileSync } from 'node:fs'
 import { bindGame } from './browser-game.mjs'
 import hud from '../app/original-hud.json' with { type: 'json' }
 import tasks from '../app/original-follower-tasks.json' with { type: 'json' }
+import { followerNumber } from '../app/hud-population.ts'
 
 const columns = ['Followers', 'Braves', 'Warriors', 'Firewarriors', 'Preachers', 'Spies']
 const rows = ['Currently selected', 'Idle', 'Housed', 'Busy']
@@ -21,8 +22,8 @@ const snapshot = page => page.locator('.follower-tasks button').evaluateAll(butt
 
 // Pixel check is against original source atlas/frame pixels at the regular logical
 // grid. It does not claim legacy fixed-point rounding or full Windows painter order.
-async function checkPixels(page, output, row, column, pressed = false) {
-  const control = button(page, row, column), name = `task-${row}-${column}-${pressed ? 'pressed' : 'normal'}`
+async function checkPixels(page, output, row, column, pressed = false, variant = '') {
+  const control = button(page, row, column), name = `task-${row}-${column}-${pressed ? 'pressed' : 'normal'}${variant ? `-${variant}` : ''}`
   if (pressed) await control.hover()
   else await page.mouse.move(900, 400)
   const bytes = await control.screenshot({ path: resolve(output, `${name}.png`) })
@@ -217,6 +218,54 @@ export default async function followerTasks({ browser, page, url, output, openMi
   assert.equal((await snapshot(page))[13].count, guarded[13].count)
   assert.equal((await snapshot(page))[19].count, beforeTower[19].count + 1)
 
+  // Supporting nearby fixture: a non-cell-aligned raw camera crosses the strict
+  // radius by one native unit. Publish through the real scene/UI update owner.
+  const nearbyFixture = await page.evaluate(async () => {
+    const scene=window.testSceneRef.current,world=scene.world,
+      {addUnit,browserPosition}=await import('/app/model.ts'),
+      {createLivePerson}=await import('/app/live-people.ts'),
+      center={x:1234,y:5678}, personPoint={x:center.x+6144,y:center.y},
+      unit=addUnit(world,'blue','spy',browserPosition(personPoint))
+    unit.native=createLivePerson(world,unit);unit.native.state=19
+    const previous={camera:{...scene.cameraPosition},flags:world.castingTribes[0].flags}
+    world.castingTribes[0].flags|=128
+    scene.focus(browserPosition(center));scene.onChange()
+    return {id:unit.id,center,previous,units:JSON.stringify(world.units),orders:JSON.stringify(world.buildingOrders),rng:world.randomState}
+  })
+  await page.waitForFunction(()=>document.querySelector('[aria-label="Idle Spies"] .follower-number')?.getAttribute('aria-label')==='0')
+  const cameraAfter = await page.evaluate(async center => {
+    const scene=window.testSceneRef.current,{browserPosition}=await import('/app/model.ts')
+    scene.focus(browserPosition({x:center.x+1,y:center.y}));scene.onChange()
+    return {...scene.cameraPosition}
+  },nearbyFixture.center)
+  assert.deepEqual([cameraAfter.x,cameraAfter.y],[nearbyFixture.center.x+1,nearbyFixture.center.y])
+  await page.waitForFunction(()=>document.querySelector('[aria-label="Idle Spies"] .follower-number')?.getAttribute('aria-label')==='1')
+  pixels.push(await checkPixels(page,output,1,5,false,'nearby'))
+  pixels.push(await checkPixels(page,output,1,0,false,'nearby'))
+  const totalNearby = (await snapshot(page))[6].count
+  assert.ok(totalNearby > 0)
+  assert.deepEqual(await button(page,1,0).locator('.follower-number .hud-sprite').evaluateAll(nodes=>nodes.map(n=>n.style.backgroundPosition)),
+    followerNumber(totalNearby,false,true).ids.map(id=>`-${hud.rects[id].x}px -${hud.rects[id].y}px`), 'nearby Total uses the alternate native number font too')
+  await page.mouse.move(900,400);await page.keyboard.down('ArrowUp')
+  const movingCamera = await page.evaluate(async id => {
+    const scene=window.testSceneRef.current,{positionDistanceSquared}=await import('/app/native-math.ts')
+    for(let i=0;i<8;i++)scene.updateCameraMotion(1/24)
+    scene.onChange()
+    return {camera:{...scene.cameraPosition},count:Number(positionDistanceSquared(scene.cameraPosition,scene.world.units.find(u=>u.id===id).native)<0x2400000)}
+  },nearbyFixture.id)
+  await page.keyboard.up('ArrowUp')
+  assert.notDeepEqual([movingCamera.camera.x,movingCamera.camera.y],[cameraAfter.x,cameraAfter.y])
+  await page.waitForFunction(count=>Number(document.querySelector('[aria-label="Idle Spies"] .follower-number')?.getAttribute('aria-label'))===count,movingCamera.count)
+  const unchanged=await page.evaluate(()=>{const w=window.testSceneRef.current.world;return {units:JSON.stringify(w.units),orders:JSON.stringify(w.buildingOrders),rng:w.randomState}})
+  assert.deepEqual(unchanged,{units:nearbyFixture.units,orders:nearbyFixture.orders,rng:nearbyFixture.rng})
+  await page.evaluate(async ({id,previous})=>{
+    const scene=window.testSceneRef.current,{browserPosition}=await import('/app/model.ts')
+    scene.world.units=scene.world.units.filter(u=>u.id!==id)
+    scene.world.castingTribes[0].flags=previous.flags
+    scene.focus(browserPosition(previous.camera));scene.onChange()
+  },nearbyFixture)
+  writeFileSync(resolve(output,'nearby-camera.json'),JSON.stringify({start:nearbyFixture.center,boundary:cameraAfter,movingCamera},null,2)+'\n')
+
   const layouts=[]
   for (const viewport of [{width:1280,height:720},{width:1920,height:1080},{width:3440,height:1440}]) {
     await page.setViewportSize(viewport)
@@ -249,5 +298,5 @@ export default async function followerTasks({ browser, page, url, output, openMi
   await dprPage.locator('.native-hud').screenshot({ path: resolve(output, 'followers-mission1-dpr2.png') })
   await dprContext.close()
   assert.deepEqual(receipt.errors, [])
-  return { ...state, opening, guarded, guardTransition:{ids:guardIds,before:guardBefore,after:guardAfter}, pixels, layouts, fixtureLimits:'Injected class/occupancy and targeting-mode state fixtures check presentation/adapters only; opening/selection/focus/G/checkpoint and tab-mode cancellation use real Mission1 followers.' }
+  return { ...state, opening, guarded, guardTransition:{ids:guardIds,before:guardBefore,after:guardAfter}, nearbyCamera:{boundary:cameraAfter,moving:movingCamera}, pixels, layouts, fixtureLimits:'Injected class/occupancy, nearby-camera and targeting-mode state fixtures check presentation/adapters only; opening/selection/focus/G/checkpoint and tab-mode cancellation use real Mission1 followers.' }
 }

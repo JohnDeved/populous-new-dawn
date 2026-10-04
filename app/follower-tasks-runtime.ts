@@ -48,17 +48,12 @@ function taskCategory(w: World, u: Unit, source: ReturnType<typeof unitAnimation
     )
   const independentRoute =
     u.path.length && (route !== source || !source || ![1, 17, 19].includes(source.state))
-  const command = builderActivity(u)
-    ? 6
-    : u.guard
-      ? 30
-      : u.tree !== null || u.harvest || u.delivery
-        ? 7
-        : building
-          ? 8
-          : independentRoute
-            ? 3
-            : 0
+  let command = 0
+  if (builderActivity(u)) command = 6
+  else if (u.guard) command = 30
+  else if (u.tree !== null || u.harvest || u.delivery) command = 7
+  else if (building) command = 8
+  else if (independentRoute) command = 3
   if (command)
     return classifyFollowerTask({
       state: 10,
