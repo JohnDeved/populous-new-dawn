@@ -366,10 +366,9 @@ export default function Home() {
   }
   function followerControl(model: number, category?: FollowerTask, vehicle?: TransportKind) {
     const choose = (event: MouseEvent<HTMLButtonElement>, focus = false) => {
-      if (!event.currentTarget.disabled)
-        vehicle
-          ? engine.current?.chooseTransport(vehicle, model, event, focus)
-          : engine.current?.chooseFollowers(model, event, focus, category)
+      if (event.currentTarget.disabled) return
+      if (vehicle) engine.current?.chooseTransport(vehicle, model, event, focus)
+      else engine.current?.chooseFollowers(model, event, focus, category)
     }
     return {
       onPointerDown: (event: MouseEvent<HTMLButtonElement>) => {

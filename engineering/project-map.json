@@ -218,7 +218,7 @@
         "HUD queries must not allocate or claim native simulation ownership; actual controller precedence matters."
       ],
       "unresolved": [
-        "Occupied Boat/Balloon rows remain separate.",
+        "Occupied Boat/Balloon rows are mapped by the separate follower-transport-controls subsystem.",
         "Logical draw-request and browser consistency do not establish original Windows painter order, complete input-loop or hardware performance.",
         "Legacy task projections preserve explicit category identities without claiming full native work/guard gameplay."
       ]
@@ -1385,6 +1385,94 @@
       ],
       "unresolved": [
         "Original save format, named slots, options, broader profile data and exact front-end presentation remain unported."
+      ]
+    },
+    {
+      "id": "follower-transport-controls",
+      "title": "Occupied Boat and Balloon Followers controls",
+      "mappingStatus": "inferred",
+      "implementationPaths": [
+        "app/hud-transports.ts",
+        "app/follower-transports-runtime.ts"
+      ],
+      "researchPaths": [
+        "scripts/check-native-follower-transports.py",
+        "scripts/check-native-transport-ownership.py",
+        "tests/follower-transports.test.mjs",
+        "tests/follower-transport-runtime.test.mjs",
+        "scripts/check-browser-follower-transports.mjs",
+        "tests/browser-follower-transports-checker.test.mjs",
+        "decomp/research/follower-task-panel.md"
+      ],
+      "sharedPaths": [
+        "app/follower-tasks-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "app/page.tsx",
+        "app/globals.css",
+        "app/scene.ts",
+        "app/scene-input-runtime.ts",
+        "app/live-vehicles.ts",
+        "app/live-movement.ts",
+        "app/vehicle-unload.ts",
+        "app/world-types.ts",
+        "app/original-follower-tasks.json"
+      ],
+      "entrySymbols": [
+        {
+          "path": "app/follower-tasks-view.tsx",
+          "symbol": "FollowerTasks"
+        },
+        {
+          "path": "app/follower-transports-runtime.ts",
+          "symbol": "selectFollowerTransport"
+        },
+        {
+          "path": "app/scene-input-runtime.ts",
+          "symbol": "chooseTransport"
+        }
+      ],
+      "parityIds": [
+        "interface.selection",
+        "interface.commands"
+      ],
+      "evidence": [
+        {
+          "path": "decomp/research/follower-task-panel.md",
+          "heading": "Occupied-transport live integration"
+        }
+      ],
+      "nativeAddresses": [
+        "0x4ecac0",
+        "0x4514f0",
+        "0x4deb40",
+        "0x4e31f0",
+        "0x4a13c0",
+        "0x4a14b0",
+        "0x4a14e0",
+        "0x4a1580",
+        "0x4657d0",
+        "0x4659d0"
+      ],
+      "checkIds": [
+        "follower-transports-portable",
+        "follower-transports-native",
+        "transport-ownership-native",
+        "follower-transports-browser",
+        "follower-task-art-native",
+        "repository-check",
+        "production-build"
+      ],
+      "generatedInputIds": [
+        "imported-runtime-data"
+      ],
+      "risks": [
+        "Real count/presence owner differs from apparent selection/focus owner.",
+        "Class selection selects every eligible passenger; nearby inclusion and distance ranking have different geometry owners.",
+        "Vehicle model2/4 remembered focus intentionally reacquires instead of cycling."
+      ],
+      "unresolved": [
+        "Native boarding countdown and broader vehicle command behavior remain separately scoped.",
+        "Logical/source-pixel and software browser proof do not establish full original-game renderer order or hardware performance."
       ]
     }
   ],

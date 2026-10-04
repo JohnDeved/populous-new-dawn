@@ -616,14 +616,12 @@ export function chooseTransport(
       scene.focus(browserPosition(vehicle), { animate: true })
       scene.objectPanels.open(id)
     }
-  } else
-    selectFollowerTransport(
-      w,
-      kind,
-      model,
-      scene.cameraPosition,
-      modifiers.shiftKey ? 'all' : modifiers.ctrlKey ? 'five' : 'single'
-    )
+  } else {
+    let mode: 'all' | 'five' | 'single' = 'single'
+    if (modifiers.shiftKey) mode = 'all'
+    else if (modifiers.ctrlKey) mode = 'five'
+    selectFollowerTransport(w, kind, model, scene.cameraPosition, mode)
+  }
   scene.onChange()
 }
 

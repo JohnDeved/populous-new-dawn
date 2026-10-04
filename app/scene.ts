@@ -609,9 +609,9 @@ export class GameScene {
     kind: TransportKind,
     model: number,
     modifiers: { shiftKey: boolean; ctrlKey: boolean },
-    focus = false
+    focusNext = false
   ) {
-    chooseTransport(this, kind, model, modifiers, focus)
+    chooseTransport(this, kind, model, modifiers, focusNext)
   }
   focus(p: Point = HOME, { animate = false } = {}) {
     focus(this, p, { animate })

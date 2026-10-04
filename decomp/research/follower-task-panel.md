@@ -237,7 +237,7 @@ all transport gameplay/ownership transitions, disabled lower-cell blend raster, 
 browser classification adapters and playable UI integration remain open. Those limits block
 production/parity claims, not the scoped recovered evidence above.
 
-## Occupied-transport live integration (in progress)
+## Occupied-transport live integration
 
 The transport-row work uses the actual `World.vehicles` and passenger slot owners,
 not the follower-task classifier. `hud-transports.ts` compares directly with the
@@ -272,8 +272,26 @@ Spy countdown executes only the updater prefix. It does not establish final
 terrain-dependent disposal, allocator reuse, arbitrary mixed-tribe boarding
 eligibility, or complete game-loop behavior.
 
-Open live prerequisites before transport-row acceptance: native vehicle panel
-(kind9) and its passenger/unload controls are absent from the existing ObjectPanels
-owner; an aboard Spy disguise can reach the unported person-state30 initializer.
-The row implementation must not be described as complete while those paths or the
-required rendered/aggregate final gates remain unverified. Issue #60 stays open.
+The previously blocking state30 initializer and kind9 passenger panel/unload path
+were accepted separately in PRs #186 and #187, now on main `b8465001`. Transport
+right-focus therefore reaches the real vehicle panel. The new voluntary-unload
+owner writer also captures a missing legacy apparent-owner fallback before changing
+real team; a failure-first restored mixed-owner checkpoint demonstrates why this is
+required. The optional field is not a second count, combat, damage or appearance owner.
+
+Controls use the accepted 18-sprite source atlas without regenerating assets. Each
+kind appears only while a real-owned craft exists (including an empty retained wreck),
+counts each occupied craft once for every class aboard, and retains global class
+presence for enabled columns. Nearby inclusion uses craft position while acquisition
+ranking uses the matching passenger position. The new per-kind/class remembered
+focus is independent of population and task memories and clears naturally with a
+new scene/checkpoint, matching those existing browser controller lifetimes. Inactive
+zero-passenger wrecks cannot be acquired. Selection/drag/input gates retain the
+accepted task-row behavior; only selection exits construction/spell modes directly,
+while successful right-focus uses the existing camera focus cancellation owner.
+
+Supporting tests cover current passenger class transitions, mixed-tribe first/later
+boarding, exits and reuse, legacy/new checkpoints, Spy disguise completion aboard a
+Boat, and count/read nonmutation. They do not claim arbitrary mixed-tribe gameplay
+admission or a native boarding countdown. Full rendered and aggregate acceptance
+is tracked in PR #185; issue #60 stays open until its complete acceptance is met.

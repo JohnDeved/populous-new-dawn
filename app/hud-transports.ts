@@ -77,13 +77,13 @@ function nearestTransport(
     for (const v of vehicles) {
       if (!inRange(v, center, nearby) || (idle && people.get(v.passengers[0])?.commandStatus))
         continue
-      const p = occupants(v, people).find(
+      const passenger = occupants(v, people).find(
         p =>
           (!model || p.model === model) &&
           (focus || (!(p.flags4 & 128) && !(p.selectionFlags & 128)))
       )
-      if (!p) continue
-      const d = positionDistance(center, p)
+      if (!passenger) continue
+      const d = positionDistance(center, passenger)
       if (d < distance) {
         nearest = v
         distance = d

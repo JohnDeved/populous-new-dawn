@@ -7,6 +7,7 @@ import { hudTransports, selectFollowerTransport } from '../app/follower-transpor
 import { hudTaskPeople } from '../app/follower-tasks-runtime.ts'
 import { transportCounts, focusTransport } from '../app/hud-transports.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
+import { canUnloadVehicle, unloadLiveVehicle } from '../app/vehicle-panel-runtime.ts'
 function setup(kind=1) {
  const world=createWorld(22),vehicle=world.vehicles.find(v=>v.model===kind)
  world.units=[];world.pathfinding.people.clear()
@@ -74,4 +75,54 @@ test('shipped disguise command aboard publishes apparent ownership through compl
  for(let i=0;i<63;i++)tick(world,1/12)
  assert.equal(vehicle.apparentTribe,2);assert.equal(spy.native.disguise,2<<6)
  assert.equal(counts(world)[1].counts[5],1)
+})
+
+// Legacy saves have no apparent field. Establish its fallback before the real
+// owner changes, just as native 004659d0 preserves +2f while replacing +a1.
+test('legacy occupied checkpoint retains apparent fallback across voluntary unload',()=>{
+ for(const kind of [1,3]){
+  const {world,vehicle,add}=setup(kind),first=add(),last=add('warrior','red')
+  boardLiveVehicle(world,first.native,vehicle);boardLiveVehicle(world,last.native,vehicle)
+  // Old saves retained the first boarding tribe and had no split owner field.
+  vehicle.team='blue';delete vehicle.apparentTribe
+  world.land.flags.fill(0);world.land.categories.fill(2);world.land.walkMasks[0].fill(255);world.land.heights.fill(0)
+  vehicle.speed=-1
+  const restored=migrateCheckpoint(structuredClone(world)),v=restored.vehicles.find(v=>v.id===vehicle.id)
+  assert.equal(hudTransports(restored).find(item=>item.id===v.id).owner,0)
+  assert.equal(canUnloadVehicle(restored,v),true);assert.equal(unloadLiveVehicle(restored,v),true)
+  assert.equal(v.team,'red');assert.equal(v.passengerCount,0)
+  assert.equal(hudTransports(restored).find(item=>item.id===v.id).owner,0,'unload preserves the pre-exit apparent fallback')
+  assert.equal(v.apparentTribe,0)
+  const again=migrateCheckpoint(structuredClone(restored)),saved=again.vehicles.find(item=>item.id===v.id)
+  assert.equal(saved.apparentTribe,0);assert.equal(saved.team,'red')
+ }
+})
+
+test('first and later boarding, either exit and reuse preserve the native two-owner contract',()=>{
+ for(const kind of [1,3])for(const spy of [false,true])for(const timer of [0,1,63]){
+  const {world,vehicle,add}=setup(kind),first=add(spy?'spy':'brave'),last=add(spy?'spy':'brave','red')
+  first.native.disguise=(2<<6)|timer;last.native.disguise=(3<<6)|timer
+  assert.ok(boardLiveVehicle(world,first.native,vehicle))
+  assert.equal(vehicle.team,'blue');assert.equal(vehicle.apparentTribe,spy?2:0)
+  assert.ok(boardLiveVehicle(world,last.native,vehicle))
+  assert.equal(vehicle.team,'red');assert.equal(vehicle.apparentTribe,spy?3:1)
+  assert.equal(counts(world)[kind].present,false,'real owner follows every successful boarding')
+  leaveLiveVehicle(world,vehicle,first.native,vehicle)
+  assert.equal(vehicle.team,'blue');assert.equal(vehicle.apparentTribe,spy?3:1)
+  assert.equal(counts(world)[kind].present,true,'driver promotion does not replace the departing real owner')
+  leaveLiveVehicle(world,vehicle,last.native,vehicle)
+  assert.equal(vehicle.team,'red');assert.equal(vehicle.apparentTribe,spy?3:1)
+  const next=add('brave','yellow');assert.ok(boardLiveVehicle(world,next.native,vehicle))
+  assert.equal(vehicle.team,'yellow');assert.equal(vehicle.apparentTribe,2)
+ }
+})
+test('occupied class reads rebuild from current passengers rather than stale row totals',()=>{
+ const {world,vehicle,add}=setup(),first=add(),last=add()
+ boardLiveVehicle(world,first.native,vehicle);boardLiveVehicle(world,last.native,vehicle)
+ assert.equal(counts(world)[1].counts[2],1)
+ // Supporting class-transition state: the live unit and person publish their new class.
+ last.kind='warrior';last.native.model=3
+ assert.equal(counts(world)[1].counts[2],1);assert.equal(counts(world)[1].counts[3],1)
+ first.kind='warrior';first.native.model=3
+ assert.equal(counts(world)[1].counts[2],0);assert.equal(counts(world)[1].counts[3],1)
 })
