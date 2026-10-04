@@ -1,0 +1,33 @@
+[
+  {
+    "observerBound": true,
+    "level": 3
+  },
+  {
+    "readiness": {
+      "ready": true,
+      "turn": 594,
+      "inputMask": 0,
+      "selected": [
+        46
+      ],
+      "levelStartPhase": 4,
+      "shaman": {
+        "id": 46,
+        "hp": 100,
+        "canOrder": true,
+        "selectable": true,
+        "state": 19,
+        "flags2": 131072,
+        "flags4": 536871168,
+        "commandStatus": 0
+      }
+    },
+    "sceneStoreMatch": true,
+    "level": 3,
+    "completed": [
+      2
+    ],
+    "paused": false
+  }
+]

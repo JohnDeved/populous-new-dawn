@@ -1,0 +1,50 @@
+{
+  "startedAt": "2026-10-04T15:41:54.775Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered",
+    "commit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+    "tree": "61fd90bb2eef7ae54325b1c8fa7c3a59fd746891",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "3d8be2c406f53e4f4cf0027b8f480b07f40ca0c52a400681fab659d5601522dc"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [
+    "TypeError: window.missionTwoObserveReady is not a function"
+  ],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x3f04007b4200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x3f04007b4200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x3f04007b4200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x3f04007b4200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content."
+  ],
+  "status": "failed",
+  "browserVersion": "154.0.8037.92",
+  "failure": "page.waitForFunction: Timeout 2000ms exceeded.\n    at until (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered/work/orchestration/mission-two-controls/explore.mjs:158:16)\n    at async default (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered/work/orchestration/mission-two-controls/explore.mjs:210:36)\n    at async runLocalBrowser (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered/scripts/local-render/harness.mjs:106:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered/scripts/local-render/harness.mjs:149:21",
+  "finishedAt": "2026-10-04T17:01:21.393Z",
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered",
+    "commit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+    "tree": "61fd90bb2eef7ae54325b1c8fa7c3a59fd746891",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "3d8be2c406f53e4f4cf0027b8f480b07f40ca0c52a400681fab659d5601522dc"
+  }
+}

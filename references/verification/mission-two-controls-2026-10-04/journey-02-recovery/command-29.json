@@ -1,0 +1,14 @@
+[
+  {
+    "action": "button",
+    "name": "1 runtime error \u2014 click to expand"
+  },
+  {
+    "action": "read",
+    "expression": "(() => {const s=document.querySelector(\"[data-vinext-dev-error-overlay]\")?.shadowRoot;return {at:new Date().toISOString(),text:s?.querySelector(\"#__vinext_dev_error_overlay_mount\")?.innerText,buttons:[...s.querySelectorAll(\"button\")].map(b=>({text:b.textContent,aria:b.getAttribute(\"aria-label\"),title:b.title})),html:s?.innerHTML}})()"
+  },
+  {
+    "action": "mark",
+    "name": "continuation-expanded-error"
+  }
+]

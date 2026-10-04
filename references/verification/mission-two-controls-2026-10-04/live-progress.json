@@ -1,37 +1,35 @@
 {
-  "capturedAt": "2026-10-04T16:52:29.338887+00:00",
+  "capturedAt": "2026-10-04T17:03:49.161148+00:00",
   "source": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
-  "state": "active run; no terminal receipt",
-  "lastCompletedBatch": 19,
-  "turn": 8108,
-  "stats": {
-    "built": 4,
-    "cast": 3,
-    "bridges": 1,
-    "trained": 15,
-    "battlesWon": [
-      17,
-      0,
-      0,
-      8
+  "state": "terminal failed exploratory envelope; witnessed M2 victory",
+  "startedAt": "2026-10-04T15:41:54.775Z",
+  "finishedAt": "2026-10-04T17:01:21.393Z",
+  "outerExitCode": 1,
+  "victory": {
+    "at": "2026-10-04T16:54:39.464Z",
+    "turn": 8916,
+    "status": "won",
+    "greenFollowers": 0,
+    "greenBuildings": 0
+  },
+  "profile": {
+    "version": 1,
+    "completed": [
+      2
     ]
   },
-  "remainingGreenFollowers": 7,
-  "remainingGreenBuildings": 1,
-  "checkpoint": {
-    "savedTurn": 5729,
-    "freshLoadObservedTurn": 5747,
-    "committedReadback": true
-  },
-  "retainedFailedCommands": [
+  "failedCommands": [
     4,
     9,
-    14
+    14,
+    21,
+    26,
+    27,
+    30
   ],
-  "limits": [
-    "No victory yet",
-    "Whole checker run will retain failed commands",
-    "Old session23001 terminal and cleanup unknown; new21477 active",
-    "Software renderer; no hardware/full native parity claim"
-  ]
+  "browserErrors": [
+    "TypeError: window.missionTwoObserveReady is not a function"
+  ],
+  "old23001": "unknown; untouched",
+  "cleanup": "private4362 closed; no matching owned runtime processes"
 }

@@ -1,0 +1,13 @@
+page.waitForFunction: TypeError: window.missionTwoObserveReady is not a function
+    at eval (eval at <anonymous> (eval at predicate (eval at evaluate (:311:30))), <anonymous>:1:8)
+    at eval (<anonymous>)
+    at eval (eval at predicate (eval at evaluate (:311:30)), <anonymous>:1:30)
+    at predicate (eval at evaluate (:311:30), <anonymous>:7:27)
+    at next (eval at evaluate (:311:30), <anonymous>:29:33)
+    at eval (eval at evaluate (:311:30), <anonymous>:42:13)
+    at UtilityScript.evaluate (<anonymous>:313:16)
+    at UtilityScript.<anonymous> (<anonymous>:1:44)
+    at until (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered/work/orchestration/mission-two-controls/explore.mjs:158:16)
+    at async default (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered/work/orchestration/mission-two-controls/explore.mjs:210:36)
+    at async runLocalBrowser (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered/scripts/local-render/harness.mjs:106:20)
+    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered/scripts/local-render/harness.mjs:149:21

@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-04T17:02:26.763229+00:00",
+  "originalSession": 21477,
+  "observedExitCode": 1,
+  "terminalReceipt": "work/orchestration/mission-two-controls/journey-02-recovery/receipt.json",
+  "privatePort": 4362,
+  "tcpConnectResult": 111,
+  "portClosed": true,
+  "matchingOwnedRuntimeProcesses": [],
+  "oldSession23001": "unknown; untouched"
+}

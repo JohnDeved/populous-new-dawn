@@ -1,0 +1,17 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.status===\"won\" || !window.testSceneRef.current.world.units.some(u=>u.team===\"green\"&&u.hp>0)",
+    "timeout": 150000
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "natural-outcome-after-last-group"
+  }
+]

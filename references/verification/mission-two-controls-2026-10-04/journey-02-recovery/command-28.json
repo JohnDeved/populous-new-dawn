@@ -1,0 +1,10 @@
+[
+  {
+    "action": "read",
+    "expression": "({at:new Date().toISOString(),level:window.testSceneRef.current.world.outcome.level,turn:window.testSceneRef.current.world.turn,overlay:document.querySelector(\"[data-vinext-dev-error-overlay]\")?.shadowRoot?.textContent,overlayHTML:document.querySelector(\"[data-vinext-dev-error-overlay]\")?.shadowRoot?.innerHTML,body:document.body.innerText})"
+  },
+  {
+    "action": "mark",
+    "name": "continuation-error-overlay"
+  }
+]

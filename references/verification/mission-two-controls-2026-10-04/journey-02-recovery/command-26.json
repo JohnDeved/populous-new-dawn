@@ -1,0 +1,40 @@
+[
+  {
+    "action": "button",
+    "name": "Continue to Mission 3 \u2197"
+  },
+  {
+    "action": "until",
+    "expression": "(() => {const main=document.querySelector('main');if(!main||document.querySelector('.loading-world'))return false;const scenes=[],stores=[];let fiber=main[Object.keys(main).find(k=>k.startsWith('__reactFiber'))];for(;fiber;fiber=fiber.return){for(let h=fiber.memoizedState;h;h=h.next){if(h.memoizedState?.current?.unitMeshes)scenes.push(h.memoizedState);if(h.memoizedState?.getWorld)stores.push(h.memoizedState)}}for(const store of stores){const ref=scenes.find(r=>r.current?.world===store.getWorld());if(!ref?.current?.renderer?.domElement?.isConnected||ref.current.world.outcome.level!==3)continue;window.testSceneRef=ref;window.testScene=ref.current;window.testStore=store;return true}return false})()",
+    "timeout": 90000
+  },
+  {
+    "action": "until",
+    "expression": "!!(window.testSceneRef.current.world.flyby.flags&1)||!window.testSceneRef.current.world.inputMask",
+    "timeout": 60000
+  },
+  {
+    "action": "skip",
+    "timeout": 60000
+  },
+  {
+    "action": "until",
+    "expression": "window.missionTwoObserveReady(window.testSceneRef.current.world).ready",
+    "timeout": 60000
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "mission-three-normal-continuation-ready"
+  },
+  {
+    "action": "read",
+    "expression": "({readiness:window.missionTwoObserveReady(window.testSceneRef.current.world),sceneStoreMatch:window.testSceneRef.current.world===window.testStore.getWorld(),level:window.testSceneRef.current.world.outcome.level,completed:window.testStore.getCompletedMissions(),paused:window.testSceneRef.current.world.paused})"
+  }
+]

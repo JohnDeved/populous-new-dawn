@@ -1,0 +1,51 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "modifier": "Shift"
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": 91.4765625,
+      "z": -121.36328125
+    }
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.cameraMotion.active && window.testSceneRef.current.world.mode===null",
+    "timeout": 10000
+  },
+  {
+    "action": "entity",
+    "collection": "units",
+    "id": 20,
+    "options": {
+      "focus": false
+    }
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.lastOrderTurn>8442",
+    "timeout": 2000
+  },
+  {
+    "action": "mark",
+    "name": "last-enemy-group-pursuit-accepted"
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.status===\"won\" || window.testSceneRef.current.world.units.filter(u=>u.team===\"green\"&&u.hp>0).length<6",
+    "timeout": 150000
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "last-enemy-group-combat"
+  }
+]

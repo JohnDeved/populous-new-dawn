@@ -10,3 +10,6 @@
 11:42:15 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.
 11:42:16 AM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.
  GET / 200 in 151ms (compile: 1791128515.1s, render: 80ms)
+12:57:50 PM [vite] (client) [Unhandled rejection] TypeError: window.missionTwoObserveReady is not a function
+
+  ➜  Tunnel closed

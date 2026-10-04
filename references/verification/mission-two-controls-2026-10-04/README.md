@@ -1,6 +1,6 @@
 # Mission 2 ordinary real-clock evidence
 
-This separate evidence branch preserves the checker and bounded observations. It must not be merged wholesale into main. No Mission 2 victory or full native-parity claim is established yet.
+This separate evidence branch preserves the checker and bounded observations. It must not be merged wholesale into main. Mission 2 natural victory, visible result, fresh-page checkpoint and committed profile are observed. The exploratory checker remains failed; full native parity is not established.
 
 ## Retained interrupted journey
 
@@ -32,3 +32,13 @@ The [wrong-origin baseline](https://github.com/JohnDeved/populous-new-dawn/blob/
 The run naturally built a Camp and two added Huts, trained fifteen Warriors in three groups, acquired all three Tornado shots by two-follower worship, and completed a real Save at turn 5729 followed by fresh-page Load at turn 5747. Exact committed checkpoint readback retained the saved identities, stock and statistics. Subsequent ordinary combat destroyed both eastern Huts, the eastern Tower, the enemy Camp and finally the last enemy Hut. Eleven Blue Warriors survived; seven Green followers and one western Tower remained at turn 8108. These are partial observations, not a victory claim.
 
 Commands 4, 9 and 14 retain failures. Command 4 focused the camera after choosing Hut mode, clearing targeting. Command 9 did not register the first enemy-Tower click and used an unsuitable legacy target assertion; command 11 established an accepted native area-attack order via an ordinary central-roof click. Command 14 legitimately rejected an out-of-range Blast before sending it; command 16 moved closer normally and cast successfully. The final checker envelope must report these failures even if a later mission outcome is observed.
+
+## Terminal result
+
+The ordinary real-clock journey reached `won` at observed turn8916 (16:54:39.464 UTC), with zero Green followers/buildings and eight surviving Blue Warriors. After ordinary Resume let the victory camera complete, [024.png](journey-02-recovery/024.png) visibly shows **Level Won**, **The Matak are defeated**, and **Continue to Mission3**. [The awaited committed read](journey-02-recovery/extra-25.json) returned profile `{version:1,completed:[2]}` atturn9373. The earlier null read is excluded.
+
+The supplied Continue button then loaded Mission3. Actual new scene/store equality and selectable Shaman46 were observed atturn594. Subsequent checker-alias/overlay mistakes mean this is a reached/selectable observation, not a clean continuation pass. See [full failure analysis](failure-analysis.md).
+
+[The inner terminal receipt](journey-02-recovery/receipt.json) and [outer receipt](journey-02-recovery.outer.json) are **failed**, outer exit1. Source fingerprint before/after is `3d8be2c406f53e4f4cf0027b8f480b07f40ca0c52a400681fab659d5601522dc`; source, frozen driver and bound inputs did not change. Browser errors retain the diagnostic TypeError; warnings retain software-WebGL/ReadPixels/texture messages. The run ended17:01:21.393 UTC before its90-minute cap. [Cleanup observation](journey-02-recovery/cleanup-observation.json) records connection-refused on private4362 and no matching owned runtime processes. The old interrupted run remains unknown.
+
+Runtime was real RAF at speed1, using ordinary Pause/Resume during inspection. The approximately73 wall minutes to victory include substantial pauses and diagnostic work; they are not a gameplay-duration estimate or performance benchmark. The frame-driven segment attacking the enemy Camp advanced314turns in26.153seconds (7630→7944), close to the source-owned12turns/active second.

@@ -1,6 +1,6 @@
 {
-  "capturedAt": "2026-10-04T16:52:29.338062+00:00",
-  "status": "unfinished run; no terminal receipt",
+  "capturedAt": "2026-10-04T17:03:49.160269+00:00",
+  "status": "terminal failed; original admitted command bytes retained",
   "commands": [
     {
       "path": "command-1.json",
@@ -68,9 +68,59 @@
       "bytes": 1118
     },
     {
+      "path": "command-21.json",
+      "sha256": "b607659cf271dd95895fb8217c0fd7f8583181b3630af1f513e34d5b1c05c77d",
+      "bytes": 1025
+    },
+    {
+      "path": "command-22.json",
+      "sha256": "0badcb0bf48ebee2e7e0aa8fd56f0e56adcc79d248bff3a201f8dfffe4450c66",
+      "bytes": 1031
+    },
+    {
+      "path": "command-23.json",
+      "sha256": "d55b75bc14d3b2d2175b25a894da2ac570d4f029460e812605782b9ad0de2704",
+      "bytes": 350
+    },
+    {
+      "path": "command-24.json",
+      "sha256": "2e1fe616ab495ad7e76c209ffa72fd74f3844b844ff168d030bb4645e7a4d661",
+      "bytes": 1113
+    },
+    {
+      "path": "command-25.json",
+      "sha256": "dd74faef40150cdcc890f76bc5b208b4b9849326fe543ac9106ea8fd162f934f",
+      "bytes": 905
+    },
+    {
+      "path": "command-26.json",
+      "sha256": "9c5709b8071e9ec001386a9905ce56a0e33db53a88f39b5a151ccb8e4d0e5497",
+      "bytes": 1759
+    },
+    {
+      "path": "command-27.json",
+      "sha256": "e31a56a1e0a3827c6b5b23867eebef3978158faa192cb3a071fd873eeb38d328",
+      "bytes": 1054
+    },
+    {
+      "path": "command-28.json",
+      "sha256": "8ba68e6cc5dae6915bd697b6a80b7c97e3e31c40379809b8aaf8cd435a082b01",
+      "bytes": 473
+    },
+    {
+      "path": "command-29.json",
+      "sha256": "e09aa302b9193eb98ad22af5ae61131b8cad173f24f0dde4651fb89a7fe213dc",
+      "bytes": 557
+    },
+    {
       "path": "command-3.json",
       "sha256": "12ff35bf484feb7fae295f8267965a58cfedbcbeb2de658969f32a673b75697d",
       "bytes": 2450
+    },
+    {
+      "path": "command-30.json",
+      "sha256": "bddb805f6fddd86c0a33a77a4a70a34f046dcb0ae762cb52cd76b856c496e91d",
+      "bytes": 667
     },
     {
       "path": "command-4.json",

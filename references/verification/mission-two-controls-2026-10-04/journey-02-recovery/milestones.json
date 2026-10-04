@@ -89,5 +89,40 @@
     "name": "enemy-last-tower-destroyed",
     "at": "2026-10-04T16:52:00.725Z",
     "turn": 8442
+  },
+  {
+    "name": "visible-enemy-group-pursuit-accepted",
+    "at": "2026-10-04T16:53:51.099Z",
+    "turn": 8601
+  },
+  {
+    "name": "visible-enemy-group-combat",
+    "at": "2026-10-04T16:54:13.587Z",
+    "turn": 8869
+  },
+  {
+    "name": "natural-outcome-after-last-group",
+    "at": "2026-10-04T16:54:38.745Z",
+    "turn": 8916
+  },
+  {
+    "name": "mission-two-rendered-result",
+    "at": "2026-10-04T16:55:57.823Z",
+    "turn": 8928
+  },
+  {
+    "name": "mission-two-complete-paused",
+    "at": "2026-10-04T16:56:35.594Z",
+    "turn": 9379
+  },
+  {
+    "name": "continuation-error-overlay",
+    "at": "2026-10-04T17:00:08.851Z",
+    "turn": 1686
+  },
+  {
+    "name": "continuation-expanded-error",
+    "at": "2026-10-04T17:00:57.257Z",
+    "turn": 2266
   }
 ]

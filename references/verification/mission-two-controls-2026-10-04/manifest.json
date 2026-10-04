@@ -1,0 +1,1070 @@
+{
+  "version": 1,
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered",
+    "commit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+    "tree": "61fd90bb2eef7ae54325b1c8fa7c3a59fd746891",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "3d8be2c406f53e4f4cf0027b8f480b07f40ca0c52a400681fab659d5601522dc"
+  },
+  "frozenDriverSha256": "cfae31661d7c4ec8335e8e6124fae2ee80e4080acbba805e136342be0b349a55",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 7259,
+      "sha256": "08279bc79fac14f49c9d6e57489864225212d59c22b7a5d5bddf74cc8d495b93"
+    },
+    {
+      "path": "driver-syntax-cfae316.json",
+      "bytes": 1801,
+      "sha256": "b4e05266c650b195b1f5918a2cd76b8e38d2ea5ba013a61922b31e9d735b1baa"
+    },
+    {
+      "path": "driver-syntax-cfae316.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "driver-syntax-cfae316.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "explore.mjs",
+      "bytes": 18710,
+      "sha256": "cfae31661d7c4ec8335e8e6124fae2ee80e4080acbba805e136342be0b349a55"
+    },
+    {
+      "path": "failure-analysis.md",
+      "bytes": 3208,
+      "sha256": "2a95b1ac95538d4589e39291f60e7cc0c0765fa04c0c7af5c258b01898c6b875"
+    },
+    {
+      "path": "journey-01-interruption.json",
+      "bytes": 2306,
+      "sha256": "67387828b3b7f19aabc622a5331b44b3946e73c51f909fea78dddf44dc357ac4"
+    },
+    {
+      "path": "journey-02-recovery/000-opening.json",
+      "bytes": 16595,
+      "sha256": "fdcdee2124b6674afcb077bef4b7404daa58100b15579087a2383db209cfea6d"
+    },
+    {
+      "path": "journey-02-recovery/000-opening.png",
+      "bytes": 1761181,
+      "sha256": "59a04b680a6478ee9d618223667067d3303da4d4576be804704d20aa64192010"
+    },
+    {
+      "path": "journey-02-recovery/001.json",
+      "bytes": 18940,
+      "sha256": "e4249d4c4b98fe54ec9db1d86ef8a67b85e0547ebc90a2054458c9eeb859e87a"
+    },
+    {
+      "path": "journey-02-recovery/001.png",
+      "bytes": 1671577,
+      "sha256": "d919dc0b2a6cd8a8043262c5e62612237b869fb799a94214d6536493961ac79f"
+    },
+    {
+      "path": "journey-02-recovery/002.json",
+      "bytes": 20150,
+      "sha256": "cfd028b8c95d42088cd28a40a1c5bf462a2bff0f3b0c2b66c28607ae0fef58a1"
+    },
+    {
+      "path": "journey-02-recovery/002.png",
+      "bytes": 1673612,
+      "sha256": "ec1b4a8603110d30d5447dc367bb5aca45201eda70ea28ab35590e83d22f8a41"
+    },
+    {
+      "path": "journey-02-recovery/003.json",
+      "bytes": 20894,
+      "sha256": "7c68e23e051f1f7a9176ca0cd94de6d747d122656a0d212729f8936629006528"
+    },
+    {
+      "path": "journey-02-recovery/003.png",
+      "bytes": 1489679,
+      "sha256": "d13faa6dcdedf261a5d1f5acf01f373fe78581873ad34dad53ce09949a7320df"
+    },
+    {
+      "path": "journey-02-recovery/004-failed.json",
+      "bytes": 21566,
+      "sha256": "17c634bc0e0324474c72ff2c4bc568545d05ad6b9bac232ac978908184543568"
+    },
+    {
+      "path": "journey-02-recovery/004-failed.png",
+      "bytes": 1995387,
+      "sha256": "3555626c1f11b8b8b685f87938789c96c1bdcbdc8a4a02711a47f668d9d6dcf5"
+    },
+    {
+      "path": "journey-02-recovery/005.json",
+      "bytes": 21566,
+      "sha256": "a9effac98f0691bed022a026e33cb00e9f1b364340aae6e600de0c747a2ebf52"
+    },
+    {
+      "path": "journey-02-recovery/005.png",
+      "bytes": 1990097,
+      "sha256": "feba8e205ad950683d5ad0b96e38b019de3525948e36a4180708bb6a5b6a3379"
+    },
+    {
+      "path": "journey-02-recovery/006.json",
+      "bytes": 22083,
+      "sha256": "1ed7d2142783b8be001a553f93a6a297dbbc48c2660714a124f238a040909435"
+    },
+    {
+      "path": "journey-02-recovery/006.png",
+      "bytes": 1974391,
+      "sha256": "95eb46619adbbf60fa74a543b8346791df7b5c67e0636b26ff7cbfb56ecb1c58"
+    },
+    {
+      "path": "journey-02-recovery/007.json",
+      "bytes": 22878,
+      "sha256": "0fb2da359fbaa05209ae252b410842770ce5d10131b56b7404cc3929c9e6ca87"
+    },
+    {
+      "path": "journey-02-recovery/007.png",
+      "bytes": 1404877,
+      "sha256": "dd1ed9a68d34ee375d17b62617c85e5fc02a77ea819444571b5cadd3abc18792"
+    },
+    {
+      "path": "journey-02-recovery/008.json",
+      "bytes": 22878,
+      "sha256": "fa58e042fc4a93b3df2e87bc057d372b0c74dde97b29e4155930aa44a0b92b0a"
+    },
+    {
+      "path": "journey-02-recovery/008.png",
+      "bytes": 1391593,
+      "sha256": "d1a862dd3a56bfd5367f07f3cf5ba114af50dbf08c8b551bb3278eccce56928b"
+    },
+    {
+      "path": "journey-02-recovery/009-failed.json",
+      "bytes": 22832,
+      "sha256": "677fc80c2ee6c32c9a152c9b0b0d569af4948136df32e50258acef8f5b36f397"
+    },
+    {
+      "path": "journey-02-recovery/009-failed.png",
+      "bytes": 1777924,
+      "sha256": "bd7a8c854b1f77a55464db6578daf78e6b430673c6b1bf1ecdb86a22acd4c4ed"
+    },
+    {
+      "path": "journey-02-recovery/010.json",
+      "bytes": 22832,
+      "sha256": "1dcc4ea5b780478f3aec531190b4be3dc636f23d3f12f846db069f53ee24defb"
+    },
+    {
+      "path": "journey-02-recovery/010.png",
+      "bytes": 1791543,
+      "sha256": "2763faa9ef8ec419c17dd06a7807a205e1fc653049dfb12f0fa6e52c81fcb510"
+    },
+    {
+      "path": "journey-02-recovery/011.json",
+      "bytes": 23035,
+      "sha256": "8e007fbe985b2f0a07a53a5861fb4c07350d1a184c9a6f1b1d6be4bdc812ca91"
+    },
+    {
+      "path": "journey-02-recovery/011.png",
+      "bytes": 1785598,
+      "sha256": "ec4bf447dba674ed87b544b5bedb4aae88438dc5bd450384bc0766942533ac22"
+    },
+    {
+      "path": "journey-02-recovery/012.json",
+      "bytes": 23035,
+      "sha256": "43b94e134ebe3d2171a17bcd45b59c626029885548b222bfc5478e7e98dd6eb5"
+    },
+    {
+      "path": "journey-02-recovery/012.png",
+      "bytes": 1765170,
+      "sha256": "6ba78b7674a5d85108ee57d3a043422047eff7250b3b2812ff022e2042a35c75"
+    },
+    {
+      "path": "journey-02-recovery/013.json",
+      "bytes": 22026,
+      "sha256": "ec25196aea2587a78135553b99b919104bd061cb7d41fa27b1021145f31f41ad"
+    },
+    {
+      "path": "journey-02-recovery/013.png",
+      "bytes": 1822795,
+      "sha256": "9c8b3b84fe357e84d752a21e999bd80dce5f961ca86b0b2821d753fe51eda9e8"
+    },
+    {
+      "path": "journey-02-recovery/014-failed.json",
+      "bytes": 22058,
+      "sha256": "8a549746dc8802c1fee206b833b94622255dd9470c0b5959b71d43830f69d278"
+    },
+    {
+      "path": "journey-02-recovery/014-failed.png",
+      "bytes": 1785569,
+      "sha256": "85f6d681c4fe3463020943184112f05b74fbb28ce8c51ef86cd912a4c7b1499a"
+    },
+    {
+      "path": "journey-02-recovery/015.json",
+      "bytes": 21455,
+      "sha256": "aad0cb1bc8f55b086df1f3097b47c04b5be3840124c70c706e70a31d37e9c6d4"
+    },
+    {
+      "path": "journey-02-recovery/015.png",
+      "bytes": 1624469,
+      "sha256": "a05003e1156f932fd804478efdf21629ea275700d7b8ac2b87a190bfe085bb04"
+    },
+    {
+      "path": "journey-02-recovery/016.json",
+      "bytes": 22378,
+      "sha256": "3fb054842e271ac41c049e4a7fdc626ddc02fd50d108433cc7c1c47f1827861d"
+    },
+    {
+      "path": "journey-02-recovery/016.png",
+      "bytes": 1805104,
+      "sha256": "d715fcea37a5e3d9394177caa5bceed03d0ac96f9e0dbcb82738b54d80701486"
+    },
+    {
+      "path": "journey-02-recovery/017.json",
+      "bytes": 19815,
+      "sha256": "63a3557fab0dee32fd79cf0bc3995bb64ce26232568e9bbb8f5cb79dbc929aee"
+    },
+    {
+      "path": "journey-02-recovery/017.png",
+      "bytes": 1635781,
+      "sha256": "10252880bdc61fb67c40cb8269ccf07e571d416bb188ea7839fd5ce1845c1437"
+    },
+    {
+      "path": "journey-02-recovery/018.json",
+      "bytes": 19468,
+      "sha256": "afa453f58fd18745fb2ca966ee35fdd3e47769f0eec7f62ec3305e3c413be5d0"
+    },
+    {
+      "path": "journey-02-recovery/018.png",
+      "bytes": 1668138,
+      "sha256": "0ff93b8265c9a903e16dd8bd0d43eda49c5ce44f63079c4e38233ae65fe87f91"
+    },
+    {
+      "path": "journey-02-recovery/019.json",
+      "bytes": 18764,
+      "sha256": "5cffaad4921cf01d31c112760e8ebede3b6ea6c9d845caa9c42a9af688d02bb2"
+    },
+    {
+      "path": "journey-02-recovery/019.png",
+      "bytes": 1811616,
+      "sha256": "c943dcd98dd9abb2f24948427f1514e262007126fe06dd91e1cf6394b4319b89"
+    },
+    {
+      "path": "journey-02-recovery/020.json",
+      "bytes": 19602,
+      "sha256": "c20439235f3de05bb5b0fc9c64796174ba9e1f309af6f8240dc356bf0c70fe32"
+    },
+    {
+      "path": "journey-02-recovery/020.png",
+      "bytes": 1395589,
+      "sha256": "d4c2ec7e23bfac4dfe60fd1e6c3bf48efadef6f3aa67c5c4591891cc581009e6"
+    },
+    {
+      "path": "journey-02-recovery/021-failed.json",
+      "bytes": 18120,
+      "sha256": "284ca0b3f81f808136d5d8308691d4b30c69b1f50095d4b7c698f04ba4fd9e95"
+    },
+    {
+      "path": "journey-02-recovery/021-failed.png",
+      "bytes": 1854976,
+      "sha256": "9381af0ab2c266b92a69499f16c4150a2f00a0bf6e061dced7e78b0cf4047265"
+    },
+    {
+      "path": "journey-02-recovery/022.json",
+      "bytes": 18547,
+      "sha256": "28d9315353431c1de05d351d191b4a2792a9f37c7c2d2c4c0ed8c6b5d429a9e8"
+    },
+    {
+      "path": "journey-02-recovery/022.png",
+      "bytes": 1852343,
+      "sha256": "135456e73246d94592d07842713982e11763a7e7c092560452cc3c6e802d0667"
+    },
+    {
+      "path": "journey-02-recovery/023.json",
+      "bytes": 17188,
+      "sha256": "534c6ae0c0d17c2b521c8bcafb887e76e66047e353b279f22ade69658c5cfab9"
+    },
+    {
+      "path": "journey-02-recovery/023.png",
+      "bytes": 1832823,
+      "sha256": "e5aea7a09dc1e700715d55e8eed15abfc0402e48f60984221d5e4a27a5db2260"
+    },
+    {
+      "path": "journey-02-recovery/024.json",
+      "bytes": 17499,
+      "sha256": "13627469b1d7595b886a42675798e75ea4bd2a0c149222671128a0f1bbce9e34"
+    },
+    {
+      "path": "journey-02-recovery/024.png",
+      "bytes": 549136,
+      "sha256": "966395dcd186759ee63724df9a7bd4f5a208d004e7df395a13f64b55cda0c2a4"
+    },
+    {
+      "path": "journey-02-recovery/025.json",
+      "bytes": 16826,
+      "sha256": "33ff15778d72f86b436bc2d238250a6625ae9a053b4adcb74d028f884dfaf910"
+    },
+    {
+      "path": "journey-02-recovery/025.png",
+      "bytes": 543890,
+      "sha256": "87a09dd4ac2eba4058bbc57e1077b4c76d191e7c72939e86401d7adf73832566"
+    },
+    {
+      "path": "journey-02-recovery/026-failed.json",
+      "bytes": 19633,
+      "sha256": "b2938df4cdbd3d95ed8bc9506d5996aca29a93e34ba928cc84e2ffd48e7f0533"
+    },
+    {
+      "path": "journey-02-recovery/026-failed.png",
+      "bytes": 1070983,
+      "sha256": "687d346287c72eb9ea56e7cd1a5d80380a5897c74ecc66ca4eb80177a7227744"
+    },
+    {
+      "path": "journey-02-recovery/027-failed.json",
+      "bytes": 19780,
+      "sha256": "c3a0717084f6d3b7b2c2d5bca54c8789d253108df02c9ca93fec0f3fee93c28d"
+    },
+    {
+      "path": "journey-02-recovery/027-failed.png",
+      "bytes": 1922920,
+      "sha256": "6d9262617597ed730856ad8c09090579bc13459f9f45cc42dc544af42e4730ff"
+    },
+    {
+      "path": "journey-02-recovery/028.json",
+      "bytes": 19761,
+      "sha256": "246f8623cec3b1afc00e2619c87d28c9245af940d12e7a88d19671d5de609b5a"
+    },
+    {
+      "path": "journey-02-recovery/028.png",
+      "bytes": 1926446,
+      "sha256": "94adef316619fcc9feb2b63c3088b7d0e1501719e549cf2134ecada82d349a50"
+    },
+    {
+      "path": "journey-02-recovery/029.json",
+      "bytes": 20127,
+      "sha256": "b6a7e00c74be1e237e421d0d628a43b62ee49f4d6f860baaacb2d784eaeb8efd"
+    },
+    {
+      "path": "journey-02-recovery/029.png",
+      "bytes": 1080153,
+      "sha256": "d44911688a02424203e56865098eded25aec5b8157007c24c89538bb2d5a9dcb"
+    },
+    {
+      "path": "journey-02-recovery/030-failed.json",
+      "bytes": 20325,
+      "sha256": "607baa98d0600894dd5222b092ec6fc9c89986c5ef1d50f3944c82d12cfed6a1"
+    },
+    {
+      "path": "journey-02-recovery/030-failed.png",
+      "bytes": 1928644,
+      "sha256": "c33315fd6850dd466779415a30b9aecb91732e36c02bb8eb73914fda38d8ca98"
+    },
+    {
+      "path": "journey-02-recovery/actions.jsonl",
+      "bytes": 93561,
+      "sha256": "52051a263428d28812d64bd9c3c2ff0a0add4ae0d0c2179e2c7c952e5a090b69"
+    },
+    {
+      "path": "journey-02-recovery/checkpoint-restored.json",
+      "bytes": 22878,
+      "sha256": "617f3f1dfe8542d8b392d919e7a4a8ea53d6eadd3336e08d599b13ff29888e89"
+    },
+    {
+      "path": "journey-02-recovery/checkpoint-restored.png",
+      "bytes": 1406607,
+      "sha256": "65c55efd18f7bb0fc7cb74a2528d3561b2aa62c19395641facb41d3f619596bb"
+    },
+    {
+      "path": "journey-02-recovery/checkpoint-saved.json",
+      "bytes": 22834,
+      "sha256": "48b271776201e1f2b7c99030505704d0e4926f455e75472b05779ed43309225b"
+    },
+    {
+      "path": "journey-02-recovery/checkpoint-saved.png",
+      "bytes": 1762058,
+      "sha256": "ad383c48db2990907d84cb9459f97a7a73f4b59317b68af8d5a1fd1b5889c9ca"
+    },
+    {
+      "path": "journey-02-recovery/cleanup-observation.json",
+      "bytes": 351,
+      "sha256": "1707c8c707df7cc5ef9a53b2f9b6ae72455a496b69188aa2d9daba233aac1be3"
+    },
+    {
+      "path": "journey-02-recovery/command-1.json",
+      "bytes": 1333,
+      "sha256": "07b783fa4cfc7e69dbdf69a0d910eb7865913f69e2562dbfae5597f11503b05c"
+    },
+    {
+      "path": "journey-02-recovery/command-10.json",
+      "bytes": 768,
+      "sha256": "27a526b8a2e17a8a24098306f70fdc9a9a87dea78b0f6a47ab125df64502334a"
+    },
+    {
+      "path": "journey-02-recovery/command-11.json",
+      "bytes": 2952,
+      "sha256": "ad2efeeacaa6f028cb021242331b66b9d9d9322cfcf4a48199fed14cf23d6106"
+    },
+    {
+      "path": "journey-02-recovery/command-12.json",
+      "bytes": 539,
+      "sha256": "fb8cd394ee8f736bdb4b89f26d0b5a47d0925776d1c7d816a40c0cce0c916c06"
+    },
+    {
+      "path": "journey-02-recovery/command-13.json",
+      "bytes": 1469,
+      "sha256": "37a648bbbb9cbeabe34534d55e94c33b89dca4de1a93d24f0b4a095a43420234"
+    },
+    {
+      "path": "journey-02-recovery/command-14-explanation.md",
+      "bytes": 579,
+      "sha256": "fdd38c4aad98de05b2d3db5c5ca22c6831d7ff6c73081c5ba836eea1f39ac96b"
+    },
+    {
+      "path": "journey-02-recovery/command-14.json",
+      "bytes": 2115,
+      "sha256": "80adcad6488a37d8e893d257ed945ffbe8344cc1f7fbbde3659417f2fb93228c"
+    },
+    {
+      "path": "journey-02-recovery/command-15.json",
+      "bytes": 1990,
+      "sha256": "52ead8faf937f59a0786c75ae83ee51b47065a198f605f2e481f5a57106058a8"
+    },
+    {
+      "path": "journey-02-recovery/command-16.json",
+      "bytes": 1737,
+      "sha256": "185bc496bf2e296e5613dfd4f36b6d92f0919e12368351d3b9bd414e54457afb"
+    },
+    {
+      "path": "journey-02-recovery/command-17.json",
+      "bytes": 2860,
+      "sha256": "a8715a462b64836ad0f28620d0d0356929646bc4ea16fdad5fa5c2b0abef99cd"
+    },
+    {
+      "path": "journey-02-recovery/command-18.json",
+      "bytes": 1482,
+      "sha256": "c3a35184735eeb82dd9767e8d9e72d9bab7a894452c102b797bfc8cbbef4d160"
+    },
+    {
+      "path": "journey-02-recovery/command-19.json",
+      "bytes": 1107,
+      "sha256": "8d387ba13ce977bb8c751995f5a7073c6702dfa8cb61515c725ba37f538c3fa5"
+    },
+    {
+      "path": "journey-02-recovery/command-2.json",
+      "bytes": 1037,
+      "sha256": "4362785bd7057b8e36178317dba9af0649b734339466c6382abacb6f51f914ec"
+    },
+    {
+      "path": "journey-02-recovery/command-20.json",
+      "bytes": 1118,
+      "sha256": "ce8f4f93d0d94d78d0d2a8de7b6ebf1353c68e13561bb526bdd3afb8d5079452"
+    },
+    {
+      "path": "journey-02-recovery/command-21.json",
+      "bytes": 1025,
+      "sha256": "b607659cf271dd95895fb8217c0fd7f8583181b3630af1f513e34d5b1c05c77d"
+    },
+    {
+      "path": "journey-02-recovery/command-22.json",
+      "bytes": 1031,
+      "sha256": "0badcb0bf48ebee2e7e0aa8fd56f0e56adcc79d248bff3a201f8dfffe4450c66"
+    },
+    {
+      "path": "journey-02-recovery/command-23.json",
+      "bytes": 350,
+      "sha256": "d55b75bc14d3b2d2175b25a894da2ac570d4f029460e812605782b9ad0de2704"
+    },
+    {
+      "path": "journey-02-recovery/command-24.json",
+      "bytes": 1113,
+      "sha256": "2e1fe616ab495ad7e76c209ffa72fd74f3844b844ff168d030bb4645e7a4d661"
+    },
+    {
+      "path": "journey-02-recovery/command-25.json",
+      "bytes": 905,
+      "sha256": "dd74faef40150cdcc890f76bc5b208b4b9849326fe543ac9106ea8fd162f934f"
+    },
+    {
+      "path": "journey-02-recovery/command-26.json",
+      "bytes": 1759,
+      "sha256": "9c5709b8071e9ec001386a9905ce56a0e33db53a88f39b5a151ccb8e4d0e5497"
+    },
+    {
+      "path": "journey-02-recovery/command-27.json",
+      "bytes": 1054,
+      "sha256": "e31a56a1e0a3827c6b5b23867eebef3978158faa192cb3a071fd873eeb38d328"
+    },
+    {
+      "path": "journey-02-recovery/command-28.json",
+      "bytes": 473,
+      "sha256": "8ba68e6cc5dae6915bd697b6a80b7c97e3e31c40379809b8aaf8cd435a082b01"
+    },
+    {
+      "path": "journey-02-recovery/command-29.json",
+      "bytes": 557,
+      "sha256": "e09aa302b9193eb98ad22af5ae61131b8cad173f24f0dde4651fb89a7fe213dc"
+    },
+    {
+      "path": "journey-02-recovery/command-3.json",
+      "bytes": 2450,
+      "sha256": "12ff35bf484feb7fae295f8267965a58cfedbcbeb2de658969f32a673b75697d"
+    },
+    {
+      "path": "journey-02-recovery/command-30.json",
+      "bytes": 667,
+      "sha256": "bddb805f6fddd86c0a33a77a4a70a34f046dcb0ae762cb52cd76b856c496e91d"
+    },
+    {
+      "path": "journey-02-recovery/command-4-explanation.md",
+      "bytes": 977,
+      "sha256": "29cb967276551ed33bcf7e9a70e374a7ed3e98694ad7eefe69a82b26da81dad9"
+    },
+    {
+      "path": "journey-02-recovery/command-4.json",
+      "bytes": 1371,
+      "sha256": "a44b477571755eaabceae1cf37679f66fc7cdafea42aa926335c33fe05acb897"
+    },
+    {
+      "path": "journey-02-recovery/command-5.json",
+      "bytes": 619,
+      "sha256": "53c6f9124942743d0f64ba80b53a708ec0e73ef7db080a43466862a8ab0a289c"
+    },
+    {
+      "path": "journey-02-recovery/command-6.json",
+      "bytes": 1269,
+      "sha256": "d911df0a91d0b0535dc29d8427d331cd5a7d528d79237717641018fb5326972d"
+    },
+    {
+      "path": "journey-02-recovery/command-7.json",
+      "bytes": 1825,
+      "sha256": "aa7367b8dea14cdebb3f9243508a311677c9732801537fbd0dea6ce3247131e6"
+    },
+    {
+      "path": "journey-02-recovery/command-8.json",
+      "bytes": 1501,
+      "sha256": "a692223b9f22b3c4ec736261bb0f12ab91ea0b60d906db582702f1b6fdef3f2f"
+    },
+    {
+      "path": "journey-02-recovery/command-9-explanation.md",
+      "bytes": 1222,
+      "sha256": "258cb38be40b25edf5a5e8c88a72659e6532d148d0d4b6d90d30cd8a8cc0e9a2"
+    },
+    {
+      "path": "journey-02-recovery/command-9.json",
+      "bytes": 1827,
+      "sha256": "71ed5d6c181c59c61ef425071d0bafa11901e558e2d79b8bc57b45e827f97381"
+    },
+    {
+      "path": "journey-02-recovery/command-failures.json",
+      "bytes": 7616,
+      "sha256": "6ede7cb029b1e9d8d81c4d525c05693d76f4073c4294870ee98ca9501b8e03df"
+    },
+    {
+      "path": "journey-02-recovery/error-14.txt",
+      "bytes": 738,
+      "sha256": "f51ae36453741ae2d7cf139fc7daf507f39323d35e402076ba27f0c893699746"
+    },
+    {
+      "path": "journey-02-recovery/error-21.txt",
+      "bytes": 795,
+      "sha256": "84d0358dc8a14b53f5c926059223df3ed5a91334b13e70f34e6ba8e3eb0a47e4"
+    },
+    {
+      "path": "journey-02-recovery/error-26.txt",
+      "bytes": 1187,
+      "sha256": "e07ca8296e94c9af311f9ef5881f008d5ac8bf4bc939bc75da34b92090c8e8fa"
+    },
+    {
+      "path": "journey-02-recovery/error-27.txt",
+      "bytes": 2256,
+      "sha256": "344f3f17499978da1579f791eab7aaa51ea5f8fb5e56fb8251e0341146b637fb"
+    },
+    {
+      "path": "journey-02-recovery/error-30.txt",
+      "bytes": 661,
+      "sha256": "0c4a5362df9594ac1444896edde529fab1dfadd38ee8e5b7c5eba5facbbcb251"
+    },
+    {
+      "path": "journey-02-recovery/error-4.txt",
+      "bytes": 663,
+      "sha256": "69686d6e5290edb6fd486d767fb7ee07508390b1daa1c91e53511470ce51e1aa"
+    },
+    {
+      "path": "journey-02-recovery/error-9.txt",
+      "bytes": 661,
+      "sha256": "c1fabd8fd09a798e4222898e755d3172da9db1b0f79ba547303efbaa0b238f43"
+    },
+    {
+      "path": "journey-02-recovery/explore.mjs",
+      "bytes": 18710,
+      "sha256": "cfae31661d7c4ec8335e8e6124fae2ee80e4080acbba805e136342be0b349a55"
+    },
+    {
+      "path": "journey-02-recovery/extra-1.json",
+      "bytes": 2957,
+      "sha256": "10f6a5abccd24a215703a51705e1e2cdebac6aa2bfe840edfc06cf9888820d0c"
+    },
+    {
+      "path": "journey-02-recovery/extra-10.json",
+      "bytes": 27866,
+      "sha256": "16aeef1a88490249ed9f2e39a99c32c885e6004698dc5072700124dceb270f34"
+    },
+    {
+      "path": "journey-02-recovery/extra-11.json",
+      "bytes": 2957,
+      "sha256": "8a445c2820ecab1d0c927e6cb68b326e4f96878369faf2bb76958d9bb23988ae"
+    },
+    {
+      "path": "journey-02-recovery/extra-12.json",
+      "bytes": 3628,
+      "sha256": "7f7f751c0e95ca3abc3d5dc2fa8f300f77ec8f38d57bfeefedbeabdd7366b783"
+    },
+    {
+      "path": "journey-02-recovery/extra-13.json",
+      "bytes": 129,
+      "sha256": "ad66847ef7475dbff41a3f2dda7869a36839f4110569b3e62bcae4ba9842a7b7"
+    },
+    {
+      "path": "journey-02-recovery/extra-14.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "journey-02-recovery/extra-15.json",
+      "bytes": 577,
+      "sha256": "268fed2865cfd6c092cb3e0786226d58ea7f0459eee5dd191b983cc414b3f094"
+    },
+    {
+      "path": "journey-02-recovery/extra-16.json",
+      "bytes": 256,
+      "sha256": "4b8f46bafc91e1fdb693e5a621f7c0353def8f96abe7c2e35672b715ff9946ae"
+    },
+    {
+      "path": "journey-02-recovery/extra-17.json",
+      "bytes": 253,
+      "sha256": "de4e1c353d1a5a84dc84fa7d7d7d4fd6041b1fffac60c803d660ce2e099ca975"
+    },
+    {
+      "path": "journey-02-recovery/extra-18.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "journey-02-recovery/extra-19.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "journey-02-recovery/extra-2.json",
+      "bytes": 658,
+      "sha256": "2dff2d22fb936e4b1e51b785d529fd8773aeb78186050cef2994eaf0fd881181"
+    },
+    {
+      "path": "journey-02-recovery/extra-20.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "journey-02-recovery/extra-21.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "journey-02-recovery/extra-22.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "journey-02-recovery/extra-23.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "journey-02-recovery/extra-24.json",
+      "bytes": 10,
+      "sha256": "91204b2a18a03e218088e381728ee3b9a46e7525d233e52a6859fa3b248fa9e8"
+    },
+    {
+      "path": "journey-02-recovery/extra-25.json",
+      "bytes": 824,
+      "sha256": "31c5d2b18f1b1a65d1ddb80bf5688c8cbb448c9e5fa6e80f5f4da383f07b6530"
+    },
+    {
+      "path": "journey-02-recovery/extra-26.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "journey-02-recovery/extra-27.json",
+      "bytes": 537,
+      "sha256": "a89f0921d851be1573701e04e2ba3af58140934179f2b740309857424a783236"
+    },
+    {
+      "path": "journey-02-recovery/extra-28.json",
+      "bytes": 18808,
+      "sha256": "3ba6a55d430fb4d0c39bba141c046bf7806da1facb30adca4b87d726d8355be7"
+    },
+    {
+      "path": "journey-02-recovery/extra-29.json",
+      "bytes": 20244,
+      "sha256": "4be5bf0a0990eb59210c9b7b5d14141319c5d6f405e4f5e756812f2443ecb09c"
+    },
+    {
+      "path": "journey-02-recovery/extra-3.json",
+      "bytes": 829,
+      "sha256": "a7a15e09731cb2f51b268980581c024bcabe419911c17a02757e94f6d0f5c0a0"
+    },
+    {
+      "path": "journey-02-recovery/extra-30.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "journey-02-recovery/extra-4.json",
+      "bytes": 458,
+      "sha256": "fd9a13d9f20f19292ad8c5e0a5def88fb2142e624e84aa722c2cc06e35b5f3da"
+    },
+    {
+      "path": "journey-02-recovery/extra-5.json",
+      "bytes": 24333,
+      "sha256": "86e576346c83d16ae54b4ca988a899a9f031a8fb3e24660d23d13734377bfd3e"
+    },
+    {
+      "path": "journey-02-recovery/extra-6.json",
+      "bytes": 615,
+      "sha256": "4e93d14542f01e8971d04630bc57de92db838ce328d68bb796fae5a0e197dbf5"
+    },
+    {
+      "path": "journey-02-recovery/extra-7.json",
+      "bytes": 858,
+      "sha256": "d7bf101136ab4ec8c8d6b5475cca124041b7013f3e5a620cc23b075864400bf2"
+    },
+    {
+      "path": "journey-02-recovery/extra-8.json",
+      "bytes": 13358,
+      "sha256": "6db7544058b05d937fcce895e5867a6c0c515185b98e51f2a9274e36b21f17ae"
+    },
+    {
+      "path": "journey-02-recovery/extra-9.json",
+      "bytes": 2,
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    {
+      "path": "journey-02-recovery/failure-0.png",
+      "bytes": 1927622,
+      "sha256": "c0a621862a312ffd24f0baa980f4bcbecfaef5a720dc6477e317064dd53857df"
+    },
+    {
+      "path": "journey-02-recovery/interactive-input-manifest.json",
+      "bytes": 4631,
+      "sha256": "11b6149dcf688b7de566e26e4b7985d0ef756d88014adf2c844288a7caffafa6"
+    },
+    {
+      "path": "journey-02-recovery/milestone-blast-after-range-correction.json",
+      "bytes": 22378,
+      "sha256": "0691c7e3fac0d82c2b2d6e5af92cb4739104ac1e439b8e8d7d75d5dacdfbe3cd"
+    },
+    {
+      "path": "journey-02-recovery/milestone-blast-after-range-correction.png",
+      "bytes": 1808641,
+      "sha256": "f2236c503507363542188b621193c4d824239b21c281c8a1212fb4276eca1bbf"
+    },
+    {
+      "path": "journey-02-recovery/milestone-camp-built.json",
+      "bytes": 18940,
+      "sha256": "2146a94189852e4dc39c62380410e040c5c8397def8f4593c8256ac86684ae96"
+    },
+    {
+      "path": "journey-02-recovery/milestone-camp-built.png",
+      "bytes": 1673964,
+      "sha256": "679d494939d28861401a545a161c41cd50db45429418d7cd6d7298697b3443ff"
+    },
+    {
+      "path": "journey-02-recovery/milestone-continuation-error-overlay.json",
+      "bytes": 19763,
+      "sha256": "413b9f711982fed2f9a167b9cf6914a1a9ca10d5bb2e3ebedd47fe15b4c6cf24"
+    },
+    {
+      "path": "journey-02-recovery/milestone-continuation-error-overlay.png",
+      "bytes": 1923714,
+      "sha256": "3ec6f68f54c8a1639a54c3c53202e47e36e7aaf62408b8f689eee72c85923b86"
+    },
+    {
+      "path": "journey-02-recovery/milestone-continuation-expanded-error.json",
+      "bytes": 20124,
+      "sha256": "70497caa252690f5958275ec38dad931ce64035dafcff6d555fc6567a0e92d8e"
+    },
+    {
+      "path": "journey-02-recovery/milestone-continuation-expanded-error.png",
+      "bytes": 1079380,
+      "sha256": "a989906af9f9074a5a9a9cbae29a63b167a159672e87f8013ff0783d7f9f82a7"
+    },
+    {
+      "path": "journey-02-recovery/milestone-enemy-camp-destroyed.json",
+      "bytes": 19468,
+      "sha256": "f065d3e3d01df2a2f99ebb92fc6b9dbf8b2ec29dce1392a3ef47ec829601ccf5"
+    },
+    {
+      "path": "journey-02-recovery/milestone-enemy-camp-destroyed.png",
+      "bytes": 1666069,
+      "sha256": "3aa2a4000c7af84cebf5d3b75ce9357939b0eb2ed20a37e032815ed9df61988c"
+    },
+    {
+      "path": "journey-02-recovery/milestone-enemy-camp-under-attack.json",
+      "bytes": 26072,
+      "sha256": "fd2ec0f4db1038c58fbac623c7c2c9794b2af8bc55c783f235b4d756d758dbde"
+    },
+    {
+      "path": "journey-02-recovery/milestone-enemy-camp-under-attack.png",
+      "bytes": 1691090,
+      "sha256": "4cbb59b8018e50d7cecfd3ae8c829bfdef57e7d80c4c0936dab9da25193971cc"
+    },
+    {
+      "path": "journey-02-recovery/milestone-enemy-last-tower-destroyed.json",
+      "bytes": 19602,
+      "sha256": "725914f3fbc77e1b3378bf7e79acd425f691657be32f6eb78165380a72c1aa4c"
+    },
+    {
+      "path": "journey-02-recovery/milestone-enemy-last-tower-destroyed.png",
+      "bytes": 1397400,
+      "sha256": "2df9cc30c80f616a4dc785895ad32de1158d921ecb3c9db11ab63de896934f35"
+    },
+    {
+      "path": "journey-02-recovery/milestone-first-attack-and-shaman-approach.json",
+      "bytes": 23035,
+      "sha256": "d52c33e2a304afe1a7ee6bd963f3d368df18c32213cfb980d5376fb898c1a696"
+    },
+    {
+      "path": "journey-02-recovery/milestone-first-attack-and-shaman-approach.png",
+      "bytes": 1788228,
+      "sha256": "0b59d5013bdf22d4db58e68980cc5c3d75f7b2e67bf2b96b28b2cb9534237dd4"
+    },
+    {
+      "path": "journey-02-recovery/milestone-first-tornado-cast.json",
+      "bytes": 25993,
+      "sha256": "af3edcbb48eaa84429da0faf15a1dba2d06282226be8bb58a34fec21d4e3f170"
+    },
+    {
+      "path": "journey-02-recovery/milestone-first-tornado-cast.png",
+      "bytes": 1850576,
+      "sha256": "59049cd16f080f1471f5378ffbe37b2880df1f9e18a856fe647726a7e6a4cc1d"
+    },
+    {
+      "path": "journey-02-recovery/milestone-first-tornado-resolved.json",
+      "bytes": 22026,
+      "sha256": "86f98465b0fdf4c34a8cf2d51cab2b6c6fdfdef69b62a72f7d82b85a7870b5ba"
+    },
+    {
+      "path": "journey-02-recovery/milestone-first-tornado-resolved.png",
+      "bytes": 1819929,
+      "sha256": "0ff01fa5a5c065fe8aa2fcf3f19a689e6dfb6e83c54b93be157dde29286a63bd"
+    },
+    {
+      "path": "journey-02-recovery/milestone-five-reinforcements-trained.json",
+      "bytes": 21455,
+      "sha256": "3181ecb69a83c911963d5466bcd80957ea6072cc0caee31fd0ffb1adfcb19b1b"
+    },
+    {
+      "path": "journey-02-recovery/milestone-five-reinforcements-trained.png",
+      "bytes": 1625175,
+      "sha256": "6655cf71b4e7a99ed35adecb555f44da75cd95cc61a402eed62107c80d6401ba"
+    },
+    {
+      "path": "journey-02-recovery/milestone-five-trainees-admitted.json",
+      "bytes": 20150,
+      "sha256": "9814a9038d12e88fde00794c4f441ad259261e5f61266b34dec161144d3d7dc5"
+    },
+    {
+      "path": "journey-02-recovery/milestone-five-trainees-admitted.png",
+      "bytes": 1669203,
+      "sha256": "ac7197ba781a46c13dfcbb870a3fda73abfaa75f61291fe401feb8e18831bf46"
+    },
+    {
+      "path": "journey-02-recovery/milestone-last-enemy-hut-destroyed.json",
+      "bytes": 18764,
+      "sha256": "f03eabc2dca020a4dc59bd8bd9a97d829fcdc8d1d2eb92ac0f0804b9e9243b55"
+    },
+    {
+      "path": "journey-02-recovery/milestone-last-enemy-hut-destroyed.png",
+      "bytes": 1809903,
+      "sha256": "352375607cc847e7e0f57054cef8d5a478dad62579e8be9ee87179b364f5760c"
+    },
+    {
+      "path": "journey-02-recovery/milestone-mission-two-complete-paused.json",
+      "bytes": 16826,
+      "sha256": "920cb8492b882dbfe10fc2077a9d066d1983b018081de0a93b367cbca7988b37"
+    },
+    {
+      "path": "journey-02-recovery/milestone-mission-two-complete-paused.png",
+      "bytes": 542810,
+      "sha256": "ef67fdfb3f01c507d03f28c7d8af3c45a3bdd9473df95d762571f0b046b779f2"
+    },
+    {
+      "path": "journey-02-recovery/milestone-mission-two-rendered-result.json",
+      "bytes": 17502,
+      "sha256": "914d82e11d85980af6f1027ae5fe5761b2083e071bcd41a9f8b0f4549b6505f3"
+    },
+    {
+      "path": "journey-02-recovery/milestone-mission-two-rendered-result.png",
+      "bytes": 551373,
+      "sha256": "3cf3846d608527a139fe9a0023ba69fcee034663c7365b865e6d242abca043b3"
+    },
+    {
+      "path": "journey-02-recovery/milestone-natural-outcome-after-last-group.json",
+      "bytes": 17188,
+      "sha256": "98e33ac7166594490f9854f783693457e7104290c714f68d5c06627c0cc71d58"
+    },
+    {
+      "path": "journey-02-recovery/milestone-natural-outcome-after-last-group.png",
+      "bytes": 1833363,
+      "sha256": "624865e856f51d1bc1143d916274e3c9a55d956b36181b313ae64e6e31940065"
+    },
+    {
+      "path": "journey-02-recovery/milestone-second-tornado-cast.json",
+      "bytes": 21310,
+      "sha256": "6de91fd8612761a0dc2b3ccaadc16910b1371a899ba0ab575a252b25330e5b2c"
+    },
+    {
+      "path": "journey-02-recovery/milestone-second-tornado-cast.png",
+      "bytes": 1682406,
+      "sha256": "5ab2f6ec6347d9ead19f4ac183f4a4fd3a64588fe9cba9d41c87d571c89ee54c"
+    },
+    {
+      "path": "journey-02-recovery/milestone-second-tornado-resolved.json",
+      "bytes": 19815,
+      "sha256": "f98faaaefc8bf38d5c9ad3a74b772fe2927052c33dbbfa85910467f65767121e"
+    },
+    {
+      "path": "journey-02-recovery/milestone-second-tornado-resolved.png",
+      "bytes": 1637978,
+      "sha256": "75d7ef084510d0e28a4aaa1cc3244660ab36c87c451a95be2533bcf3b9823437"
+    },
+    {
+      "path": "journey-02-recovery/milestone-ten-warriors-three-tornado.json",
+      "bytes": 22834,
+      "sha256": "7e33b03e8dbfcf64a2d3acea753a5f51909be6d393277eed551d4b270febd8c3"
+    },
+    {
+      "path": "journey-02-recovery/milestone-ten-warriors-three-tornado.png",
+      "bytes": 1763628,
+      "sha256": "6e6830d71330ff672a84ca9131500d2d5d100717f00c1c3c8fd635bdf22abedc"
+    },
+    {
+      "path": "journey-02-recovery/milestone-three-huts-complete.json",
+      "bytes": 22083,
+      "sha256": "4d7f19b78a0266b049d65a1a91652f93ca9692f7c7b3fe82a8948e4a8bcb47b0"
+    },
+    {
+      "path": "journey-02-recovery/milestone-three-huts-complete.png",
+      "bytes": 1974216,
+      "sha256": "3baf22ea770fc8089ca5711243a9dd35aa45c143e75755c3b051347f6f809a3c"
+    },
+    {
+      "path": "journey-02-recovery/milestone-tornado-acquired.json",
+      "bytes": 20894,
+      "sha256": "3521c6c608c5b5fb590c645334b846d1e33f27e05727185c4390128bd41a3e42"
+    },
+    {
+      "path": "journey-02-recovery/milestone-tornado-acquired.png",
+      "bytes": 1490666,
+      "sha256": "f740c2108d7ea7c2320a84af36c8325f5fd6bff376d7cb7071fe5267bbb97495"
+    },
+    {
+      "path": "journey-02-recovery/milestone-two-worshippers-active.json",
+      "bytes": 21317,
+      "sha256": "4385cb897174eb9c74e864dadd18a86d7f07dcc2b6b4c08f26c6eee2faebcac9"
+    },
+    {
+      "path": "journey-02-recovery/milestone-two-worshippers-active.png",
+      "bytes": 1475048,
+      "sha256": "19f90c46d4149ae43351998f030bef6f8d1dc4e3157a8fdbb6060795136383fe"
+    },
+    {
+      "path": "journey-02-recovery/milestone-visible-enemy-group-combat.json",
+      "bytes": 18547,
+      "sha256": "3925b6040bd970059f60f9a820e1ae95e67cb35b85ce3228ad5f918293efd9ae"
+    },
+    {
+      "path": "journey-02-recovery/milestone-visible-enemy-group-combat.png",
+      "bytes": 1853262,
+      "sha256": "635e6bf4624539da28462cfca7e0e838b4f34ed67d93eaab151cd14171a8874f"
+    },
+    {
+      "path": "journey-02-recovery/milestone-visible-enemy-group-pursuit-accepted.json",
+      "bytes": 17905,
+      "sha256": "ab1167aa2b47b4c54546ac798d3710ac950a177de86640b8f51b9789b0af9764"
+    },
+    {
+      "path": "journey-02-recovery/milestone-visible-enemy-group-pursuit-accepted.png",
+      "bytes": 1863911,
+      "sha256": "0b2162b29baa0fa954cd05b6f4c62259f642ddbcc74d4c08602d0727e9ce42a7"
+    },
+    {
+      "path": "journey-02-recovery/milestones.json",
+      "bytes": 2632,
+      "sha256": "70a572b99ed220d9091c1b70163d766e5caa47f4ca4a888bc20053d45fc81ae6"
+    },
+    {
+      "path": "journey-02-recovery/receipt.json",
+      "bytes": 3400,
+      "sha256": "6471f3946ce40590bd8bb737e8a6bc9c538139e15257416b5a7bafd46f58666e"
+    },
+    {
+      "path": "journey-02-recovery/scenario-inputs.json",
+      "bytes": 119,
+      "sha256": "a2fd1f7455cdf47d2638263ffe12d6db6d0b8172a8af2dcb8f7a3daae20ccc29"
+    },
+    {
+      "path": "journey-02-recovery/scope.json",
+      "bytes": 1005,
+      "sha256": "2958eb8f2ebbac3f2a544f53e927fe2765e8050cd5a8eb4f8dff6c65d9f53f53"
+    },
+    {
+      "path": "journey-02-recovery/server.log",
+      "bytes": 748,
+      "sha256": "b20b63500de6258885de6152127f20abbc9ed666b35b1c335c862338b9a87e5e"
+    },
+    {
+      "path": "journey-02-recovery.outer.json",
+      "bytes": 44459,
+      "sha256": "4a347bcae82720ce09fa295abd3f6175c51cd84ab85b8702751ee579ba4a153d"
+    },
+    {
+      "path": "journey-02-recovery.outer.json.artifacts/stderr.log",
+      "bytes": 3571,
+      "sha256": "9248a4435bc837db2a30a2e51396e0a397db944c60e6f241482e0fb48310322f"
+    },
+    {
+      "path": "journey-02-recovery.outer.json.artifacts/stdout.log",
+      "bytes": 32008,
+      "sha256": "812cb0fd8f3279e0f1baa3aa02691b4262aebdf139a085542d0365426ddb62d9"
+    },
+    {
+      "path": "live-progress.json",
+      "bytes": 789,
+      "sha256": "d243382be702c870dc72ce46b5e2c33e86d0eb646a94f5e80c43862436f7155a"
+    },
+    {
+      "path": "manifest-preflight.json",
+      "bytes": 1584,
+      "sha256": "83009d13dd9c86dc11760b2e7663a47487b583724cfec536ef4f53226793e1e6"
+    },
+    {
+      "path": "npm-ci.json",
+      "bytes": 1982,
+      "sha256": "ad8c2b363678a0380fc550afb1d106d32bc65e1c7c947c98e0892dc9edb4237b"
+    },
+    {
+      "path": "npm-ci.json.artifacts/stderr.log",
+      "bytes": 307,
+      "sha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65"
+    },
+    {
+      "path": "npm-ci.json.artifacts/stdout.log",
+      "bytes": 27,
+      "sha256": "7583728b0492cb05b289c53575ff03f2b77bec221bcaa4ca19f4b189be042678"
+    },
+    {
+      "path": "preflight-review.md",
+      "bytes": 2311,
+      "sha256": "6deb01cfbf90ad641217281ffc6b6d9a423d31c4e1fca9d096764257e5b01969"
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+[
+  {
+    "at": "2026-10-04T16:56:34.963Z",
+    "profile": {
+      "version": 1,
+      "completed": [
+        2
+      ]
+    },
+    "level": 2,
+    "turn": 9373,
+    "status": "won",
+    "outcome": {
+      "campaignTribes": 4,
+      "level": 2,
+      "progressFlags": 1,
+      "lastDefeated": 3,
+      "defeatedCounts": [
+        3,
+        0,
+        0,
+        0
+      ],
+      "alliances": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "cameraTribe": 3,
+      "cameraRequest": 1,
+      "cameraPlaying": false,
+      "completedLevel": 1,
+      "skyCounter": 0
+    },
+    "greenFollowers": 0,
+    "greenBuildings": 0,
+    "body": "?\n♫\nⅡ\n☰\n✺\n\nLevel Complete\n\nLevel Won\n\nThe Matak are defeated.\n\n13:00\nTIME\n3\nSPELLS CAST\n4\nBUILDINGS RAISED\nContinue to Mission 3 ↗\nSelect Level"
+  }
+]

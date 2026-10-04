@@ -1,0 +1,29 @@
+[
+  {
+    "action": "read",
+    "expression": "(async () => {const {campaignShamanReadiness}=await import(\"/scripts/campaign-start-readiness.mjs\"); window.missionTwoObserveReady=campaignShamanReadiness; return {observerBound:typeof window.missionTwoObserveReady===\"function\",level:window.testSceneRef.current.world.outcome.level}})()"
+  },
+  {
+    "action": "resume"
+  },
+  {
+    "action": "until",
+    "expression": "window.missionTwoObserveReady(window.testSceneRef.current.world).ready",
+    "timeout": 60000
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "read",
+    "expression": "({readiness:window.missionTwoObserveReady(window.testSceneRef.current.world),sceneStoreMatch:window.testSceneRef.current.world===window.testStore.getWorld(),level:window.testSceneRef.current.world.outcome.level,completed:window.testStore.getCompletedMissions(),paused:window.testSceneRef.current.world.paused})"
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "mission-three-normal-continuation-ready"
+  }
+]

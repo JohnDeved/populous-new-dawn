@@ -1,0 +1,18 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "until",
+    "expression": "[...document.querySelectorAll(\"button\")].some(b=>b.textContent.includes(\"Continue to Mission 3\")&&b.getBoundingClientRect().width>0)",
+    "timeout": 90000
+  },
+  {
+    "action": "mark",
+    "name": "mission-two-rendered-result"
+  },
+  {
+    "action": "read",
+    "expression": "async () => { const q=indexedDB.open(\"populous-new-dawn\",1); const db=await new Promise((r,j)=>{q.onsuccess=()=>r(q.result);q.onerror=()=>j(q.error)}); try { const tx=db.transaction(\"checkpoints\",\"readonly\"),req=tx.objectStore(\"checkpoints\").get(\"profile\"); const profile=await new Promise((r,j)=>{req.onsuccess=()=>r(req.result);req.onerror=()=>j(req.error)}); const s=window.testSceneRef.current,w=s.world; return {at:new Date().toISOString(),profile,level:w.outcome.level,turn:w.turn,status:w.status,outcome:structuredClone(w.outcome),greenFollowers:w.units.filter(u=>u.team===\"green\"&&u.hp>0).length,greenBuildings:w.buildings.filter(b=>b.team===\"green\"&&b.hp>0).length,body:document.body.innerText};} finally {db.close()} }"
+  }
+]

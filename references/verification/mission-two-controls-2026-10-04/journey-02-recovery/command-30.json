@@ -1,0 +1,25 @@
+[
+  {
+    "action": "button",
+    "name": "Dismiss"
+  },
+  {
+    "action": "until",
+    "expression": "!document.querySelector(\"[data-vinext-dev-error-overlay]\")",
+    "timeout": 2000
+  },
+  {
+    "action": "read",
+    "expression": "({readiness:window.missionTwoObserveReady(window.testSceneRef.current.world),sceneStoreMatch:window.testSceneRef.current.world===window.testStore.getWorld(),level:window.testSceneRef.current.world.outcome.level,completed:window.testStore.getCompletedMissions()})"
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "mission-three-ready-after-diagnostic-error-dismissal"
+  },
+  {
+    "action": "finish"
+  }
+]
