@@ -260,16 +260,34 @@ async function entityPoint(page, collection, id) {
       let hit = samples.find(sample => sample.picked === id && sample.canvasOwnsPoint)
       if (!hit && samples.some(sample => sample.picked === id && !sample.canvasOwnsPoint && sample.panel)) {
         // A direct camera focus renders GPU geometry, but suspended RAF leaves
-        // world-panel DOM at the old camera coordinates. Let the normal frame
-        // owner refresh presentation, without advancing or editing simulation.
-        const before = structuredClone(world)
+        // world-panel DOM at the old camera coordinates. The normal frame owner
+        // refreshes presentation. Its canonical UI reservation list may change
+        // later pool capacity, but simulation slots, clocks and orders may not.
+        const reservations = () => [
+          ...[...(scene.objectPanels?.panels.keys() ?? [])].map(id => `object-panel:${id}`),
+          ...[...(scene.buildingPanels ?? [])].flatMap(([id, panel]) => panel.hidden ? [] : [`building-panel:${id}`]),
+          ...(scene.cursor?.visible ? ['placement-preview'] : []),
+        ]
+        const before = structuredClone(world), ownersBefore = reservations()
+        if (before.secondaryEffects && JSON.stringify(before.secondaryEffects.reservations) !== JSON.stringify(ownersBefore))
+          throw new Error('Pre-refresh UI reservations do not match actual panel owners')
         scene.animate(scene.previous)
         cancelAnimationFrame(scene.frame)
-        const changedWorldKeys = Object.keys(world).filter(key =>
-          JSON.stringify(world[key]) !== JSON.stringify(before[key]))
+        const ownersAfter = reservations(),
+          reservationsValid = !world.secondaryEffects || JSON.stringify(world.secondaryEffects.reservations) === JSON.stringify(ownersAfter),
+          afterComparable = world.secondaryEffects && before.secondaryEffects
+            ? { ...world, secondaryEffects: { ...world.secondaryEffects, reservations: before.secondaryEffects.reservations } }
+            : world,
+          changedWorldKeys = [...new Set([...Object.keys(before), ...Object.keys(world)])].filter(key =>
+            JSON.stringify(afterComparable[key]) !== JSON.stringify(before[key]))
         diagnostic.frameRefresh = { turnBefore: before.turn, turnAfter: world.turn,
           randomBefore: before.randomState, randomAfter: world.randomState,
-          selectedBefore: before.selected, selectedAfter: [...world.selected], changedWorldKeys }
+          selectedBefore: before.selected, selectedAfter: [...world.selected], changedWorldKeys,
+          reservations: { before: before.secondaryEffects?.reservations, after: world.secondaryEffects?.reservations,
+            ownersBefore, ownersAfter, valid: reservationsValid,
+            limit: 'Normal presentation-owned reservation changes affect later secondary-effect pool capacity.' } }
+        if (!reservationsValid)
+          throw new Error(`Refreshed UI reservations do not match actual panel owners: ${JSON.stringify(diagnostic)}`)
         if (changedWorldKeys.length)
           throw new Error(`Zero-dt presentation refresh changed world state: ${JSON.stringify(diagnostic)}`)
         samples = probe()

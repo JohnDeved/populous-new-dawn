@@ -75,7 +75,7 @@ try {
 
 // Execute the maintained candidate finder against test-only geometry outside its
 // old anchor window. These tests never render or advance a game.
-async function geometryPoint({ actualHit = 55, canvasOwnsPoint = true, stalePanel = false, changeWorldOnRefresh = false } = {}) {
+async function geometryPoint({ actualHit = 55, canvasOwnsPoint = true, stalePanel = false, changeWorldOnRefresh = false, changeSlotOnRefresh = false, staleReservations = false } = {}) {
   let refreshed = false
   const { default: vm } = await import('node:vm')
   const start = checker.indexOf('async function entityPoint(')
@@ -85,9 +85,18 @@ async function geometryPoint({ actualHit = 55, canvasOwnsPoint = true, stalePane
   const canvas = { closest: () => null }, child = { userData: { nativeModel: 149 }, visible: true }
   const mesh = { position: { toArray: () => [0, 1, 0] }, visible: true, traverse: fn => fn(child) }
   const scene = {
-    world: { turn: 6734, selected: [], randomState: 123, shrines: [{ id: 55, x: 0, z: 0, model: 45 }] },
+    world: { turn: 6734, selected: [], randomState: 123,
+      secondaryEffects: { slots: [null], free: [0], order: [], nextSerial: 1, animationFrame: 1, lastTurn: 6734,
+        reservations: stalePanel && !staleReservations ? ['building-panel:7'] : [] },
+      shrines: [{ id: 55, x: 0, z: 0, model: 45 }] },
     container: { getBoundingClientRect: () => ({ left: 0, top: 0, width: 400, height: 300 }) },
-    animate() { refreshed = true; if (changeWorldOnRefresh) this.world.turn++ },
+    buildingPanels: new Map(stalePanel ? [[7, { hidden: false }]] : []),
+    animate() {
+      refreshed = true
+      if (stalePanel) { this.buildingPanels.get(7).hidden = true; this.world.secondaryEffects.reservations = [] }
+      if (changeWorldOnRefresh) this.world.turn++
+      if (changeSlotOnRefresh) this.world.secondaryEffects.slots[0] = { kind: 'unexpected allocation' }
+    },
     focus() {}, onChange() {}, screen: () => ({ x: -0.75, y: 2 / 3 }),
     renderer: { domElement: canvas, render() {} },
     shrineMeshes: new Map([[55, { g: mesh }]]),
@@ -119,11 +128,14 @@ test('geometry candidates cannot bypass foreign object or DOM overlay ownership'
 })
 
 
-test('normal zero-dt frame refresh resolves stale panel ownership without editing the world', async () => {
+test('normal zero-dt frame refresh resolves stale panels while retaining simulation slots and clock', async () => {
   const point = await geometryPoint({ canvasOwnsPoint: false, stalePanel: true })
   assert.equal(point.pickingDiagnostic.nativeTargetHits[0].panel.className, 'training-panel')
   assert.equal(point.pickingDiagnostic.nativeTargetHits[0].canvasOwnsPoint, false)
   assert.equal(point.pickingDiagnostic.afterRefreshNativeTargetHits[0].canvasOwnsPoint, true)
+  assert.equal(point.pickingDiagnostic.frameRefresh.reservations.before[0], 'building-panel:7')
+  assert.equal(point.pickingDiagnostic.frameRefresh.reservations.after.length, 0)
+  assert.equal(point.pickingDiagnostic.frameRefresh.reservations.valid, true)
   assert.equal(point.pickingDiagnostic.frameRefresh.changedWorldKeys.length, 0)
   assert.equal(point.pickingDiagnostic.frameRefresh.turnBefore, point.pickingDiagnostic.frameRefresh.turnAfter)
 })
@@ -131,4 +143,15 @@ test('normal zero-dt frame refresh resolves stale panel ownership without editin
 test('presentation refresh cannot conceal a simulation change', async () => {
   await assert.rejects(geometryPoint({ canvasOwnsPoint: false, stalePanel: true, changeWorldOnRefresh: true }),
     /Zero-dt presentation refresh changed world state/)
+})
+
+
+test('presentation reservation exception cannot conceal secondary slot allocation', async () => {
+  await assert.rejects(geometryPoint({ canvasOwnsPoint: false, stalePanel: true, changeSlotOnRefresh: true }),
+    /Zero-dt presentation refresh changed world state/)
+})
+
+test('stale pre-refresh reservations fail instead of being normalized by the checker', async () => {
+  await assert.rejects(geometryPoint({ canvasOwnsPoint: false, stalePanel: true, staleReservations: true }),
+    /Pre-refresh UI reservations do not match actual panel owners/)
 })
