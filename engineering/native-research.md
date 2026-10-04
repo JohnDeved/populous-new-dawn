@@ -5,6 +5,14 @@ prerequisites: object class plus model, mission availability, acquisition/unlock
 and existing implementation. Research a missing prerequisite deliberately; do not
 assume a model number alone identifies a playable person.
 
+## Portable Linux recovery
+
+After a cloud reset, use the reviewed [cloud bootstrap](cloud-bootstrap.md) to
+recreate a fresh isolated checkout and hash-pinned tools/input. It reuses verified
+caches without overwriting unknown worktrees, projects, jobs or receipts. Source
+the exact generated environment file; historical absolute paths below are examples,
+not evidence that an input is unavailable. GitHub authentication remains separate.
+
 ## Current cloud setup example (verified 2026-10-03)
 
 On the current shared Linux executor, use the existing environment rather than
