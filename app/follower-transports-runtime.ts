@@ -1,4 +1,4 @@
-import { tribeForTeam, type World } from './world-types.ts'
+import { tribeForTeam, vehicleApparentTribe, type World } from './world-types.ts'
 import { hudTaskPeople } from './follower-tasks-runtime.ts'
 import { selectTransportPassengers, type TransportKind } from './hud-transports.ts'
 import type { HudSelectionMode } from './hud-selection.ts'
@@ -8,7 +8,7 @@ export function hudTransports(w: World) {
   return w.vehicles.map(v => ({
     ...v,
     active: v.active || !!v.destructionState,
-    owner: v.apparentTribe ?? tribeForTeam(v.team),
+    owner: vehicleApparentTribe(v),
     countOwner: tribeForTeam(v.team),
   }))
 }

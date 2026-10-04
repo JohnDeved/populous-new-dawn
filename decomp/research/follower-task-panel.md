@@ -258,11 +258,16 @@ last departed person's real owner; retained empty wrecks still establish row
 presence until actual disposal.
 
 The browser keeps `Vehicle.team` as its existing real-owner interpretation and adds
-optional `apparentTribe` for these HUD consumers. Missing legacy values fall back to
-team; an unboarding captures that fallback before updating team. The field is stored
-by the existing structured-clone checkpoint, without a second save owner. This is
-not a claim that all vehicle damage/appearance/disguise consumers are native-exact;
-those still use their established real-team behavior.
+optional `apparentTribe` for the proved apparent-owner consumers. Missing legacy
+values fall back to team; an unboarding captures that fallback before updating team.
+The field is stored by the existing structured-clone checkpoint. The shared fallback
+also feeds vehicle UV creation/frame-cache refresh, damage immunity (`00466f00`)
+and the class4 Blast projection. Full native model dispatch in
+`check-native-vehicle-materials.py` establishes that tribe textures consume `+0x2f`;
+its live-model input must be genuinely captured, not synthesized. Computer inventory
+and presence/count consumers retain real team. Tooltip owner is unused, and the
+movement adapter's synthesized Boat bit has no proved apparent-owner contract;
+neither is changed by this slice. This is not blanket vehicle-rendering or combat parity.
 
 The owner probe executes initializer, boarding, unboarding, driver promotion,
 destruction passenger loops, target-bit computation, count rebuild and search.
@@ -277,7 +282,7 @@ were accepted separately in PRs #186 and #187, now on main `b8465001`. Transport
 right-focus therefore reaches the real vehicle panel. The new voluntary-unload
 owner writer also captures a missing legacy apparent-owner fallback before changing
 real team; a failure-first restored mixed-owner checkpoint demonstrates why this is
-required. The optional field is not a second count, combat, damage or appearance owner.
+required. The optional field does not replace the real count/presence owner.
 
 Controls use the accepted 18-sprite source atlas without regenerating assets. Each
 kind appears only while a real-owned craft exists (including an empty retained wreck),
@@ -295,3 +300,13 @@ boarding, exits and reuse, legacy/new checkpoints, Spy disguise completion aboar
 Boat, and count/read nonmutation. They do not claim arbitrary mixed-tribe gameplay
 admission or a native boarding countdown. Full rendered and aggregate acceptance
 is tracked in PR #185; issue #60 stays open until its complete acceptance is met.
+
+### Modern height budget
+
+The native Followers dock ends at logical y481. At720px and the previous1.5
+HUD scale, the modern14px footer at bottom3 began at logical y463 and covered
+the last Balloon digits. The scale helper preserves the original nominal auto
+steps and saved manual preference, then clamps actual fit to a500px logical
+height budget. That places the footer at y483 or lower without moving native
+art or controls. Fractional-scale source pixels, footer nonoverlap, and actual
+center/digit hit targets remain required rendered acceptance.

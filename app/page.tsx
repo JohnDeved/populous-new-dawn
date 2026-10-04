@@ -1,4 +1,5 @@
-'use client'
+import { hudScale } from './hud-layout.ts'
+;('use client')
 
 import { MinimapFrame } from './minimap-frame-view'
 import {
@@ -121,10 +122,10 @@ export default function Home() {
   useEffect(() => {
     const resize = () => {
       // Scale artwork uniformly; extra screen height extends only the panel background.
-      const fit = Math.min(window.innerWidth / 640, window.innerHeight / 480)
-      const preferred =
-        hudSize === 'auto' ? Math.min(2.5, Math.max(1, Math.floor(fit * 2) / 2)) : Number(hudSize)
-      shell.current?.style.setProperty('--hud-scale', String(Math.min(preferred, fit)))
+      shell.current?.style.setProperty(
+        '--hud-scale',
+        String(hudScale(window.innerWidth, window.innerHeight, hudSize))
+      )
 
       // 0x4314c0 + 0x44a1f0: campaign notifications use independent screen
       // parameterization, not the user's uniformly scaled HUD artwork size.

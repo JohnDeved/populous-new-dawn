@@ -1,6 +1,12 @@
 import { seatVehiclePassenger, vehicleSeat } from './vehicle-seats.ts'
 import type { LivePerson } from './live-people.ts'
-import { teamForTribe, tribeForTeam, type Vehicle, type World } from './world-types.ts'
+import {
+  teamForTribe,
+  tribeForTeam,
+  vehicleApparentTribe,
+  type Vehicle,
+  type World,
+} from './world-types.ts'
 import { browserPosition } from './world-coordinates.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import { restingCellCollision, terrainSupportsPerson } from './person-collision.ts'
@@ -134,7 +140,7 @@ export function removeMissingVehiclePassengers(w: World) {
 }
 
 export function damageLiveVehicle(w: World, v: Vehicle, attacker: number, amount: number) {
-  if (w.levelFlags2 & 0x04000000 || tribeForTeam(v.team) === attacker) return
+  if (w.levelFlags2 & 0x04000000 || vehicleApparentTribe(v) === attacker) return
   v.life = short(v.life - short(amount))
 }
 

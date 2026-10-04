@@ -37,6 +37,7 @@ import { release, releaseTasks } from './world-tasks.ts'
 import {
   teamForTribe,
   tribeForTeam,
+  vehicleApparentTribe,
   type Building,
   type Effect,
   type NativePoint,
@@ -662,7 +663,7 @@ export function stepLiveBlastWave(w: World, wave: BlastWave) {
   for (const v of vehicles.values())
     add({
       ...v,
-      tribe: tribeForTeam(v.team),
+      tribe: vehicleApparentTribe(v),
       state: 0,
       previousState: 0,
       flags2: 0,
