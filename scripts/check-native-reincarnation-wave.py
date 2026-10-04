@@ -163,7 +163,7 @@ print('EXE SHA256',identity['sha256'])
 
 # Producer gates execute in the original model12 body, before allocation.
 for timer,model,existing,population in [(6,7,False,1),(5,2,False,1),(5,7,True,1),(5,7,False,0)]:
- setup();write(body+0x6e,'h',timer);write(body+0x74,'B',model)
+ setup();write(body+0x6e,'h',timer);write(body+0x74,'BB',model,7 if model==7 else 1)
  write(tribe+0x89d,'I',0x200a000 if existing else 0);write(tribe+0x91d,'I',population)
  call(0x5029d0,body)
  assert not any(e[:3]==['allocate',7,8] for e in events),(timer,model,existing,population,events)

@@ -29,10 +29,14 @@ All required retained exports were reused; no new Ghidra export was needed.
 
 ## Observed contract
 
-- Model12 phase4 tests timer5 **before** decrement, source model7, absent live
+- Model12 phase4 tests timer5 **before** decrement, source classifier+0x75==7, absent live
   Shaman, and surviving tribe population. It supplies saved tribe+0x911 XYZ to
   class7/model8 allocation and sets mode2 only on a nonzero result. The browser
   equivalent is remaining6; the first spawn request is five model12 visits later.
+- The model12 initializer copies the source model to +0x74 and derives a separate
+  Shaman classifier at +0x75 (7 for source model7;1 otherwise). The producer
+  checks the classifier. A negative fixture must set both consistently; merely
+  changing +0x74 leaves an intentionally Shaman-classified record.
 - The real effect preinitializer first raises supplied height to current sampled
   ground when needed. `0050c780` then rounds to the nearest64 (ties down), clamps
   64..1024, and stores that value back in tribe+0x915. Saved/current-ground cases
@@ -72,6 +76,9 @@ with respect to tracked fixtures/assets. The development composed run passed in
 0.52 seconds before runtime edits. The preceding outer-loop harness attempt
 failed because a supplied terrain-notification leaf had two hooks and returned
 twice; removing the duplicate hook fixed the harness without changing native code.
+A later asserted producer gate exposed an inconsistent fixture that changed +0x74
+but retained Shaman classifier+0x75; the corrected fixture follows the original
+00502910 initializer and leaves both original routines unchanged.
 
 The browser currently has an unbounded general effect allocation adapter. This
 repair must preserve a one-shot allocation-result boundary and failure regression;
