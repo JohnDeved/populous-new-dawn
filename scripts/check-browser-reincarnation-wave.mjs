@@ -27,19 +27,20 @@ try {
   await page.getByRole('button', { name: 'Mission 2', exact: true }).click()
   await bindGame(page)
   const skip = page.getByRole('button', { name: /Skip introduction/i })
-  report.startup = { samples: [], skipClicks: 0 }
+  report.startup = { initial: await readShamanReadiness(page), samples: [], skipTurns: [], batches: 0 }
   for (let batch = 0; batch < 80; batch++) {
     signal.throwIfAborted()
     await page.evaluate(() => {
       const s = window.testSceneRef.current
       for (let frame = 0; frame < 24; frame++) s.animate(s.previous + 1000 / 24)
     })
+    report.startup.batches++
     // RAF is held for deterministic pacing; let React publish the real Skip
     // button after the authored flyby begins, then use that visible control.
     await page.waitForTimeout(25)
     if (await skip.isVisible()) {
+      report.startup.skipTurns.push(await page.evaluate(() => window.testSceneRef.current.world.turn))
       await skip.click()
-      report.startup.skipClicks++
     }
     const readiness = await readShamanReadiness(page)
     report.startup.samples.push(readiness)
@@ -47,6 +48,7 @@ try {
   }
   assert.equal(report.startup.samples.at(-1)?.ready, true,
     `Authored startup did not release Shaman controls: ${JSON.stringify(report.startup.samples.at(-1))}`)
+  assert.equal(report.startup.samples.at(-1).level, 2)
   await page.evaluate(() => { window.testScene.world.speed = 0 })
   await page.locator('.world-viewport canvas.battlefield').focus()
   await page.keyboard.press('h')
