@@ -55,8 +55,8 @@ and Python distributions in the directory or its `python/` child.
   are fixed downloads. An archive/tree mismatch fails closed; no new release,
   alternate build, or silently changed download is accepted.
 - Python locks contain the restored versions, including Unicorn 2.1.4, Capstone
-  5.0.7 and binary-refinery 0.10.11, with official PyPI release hashes. Build tools
-  are installed first. Package installation uses `--require-hashes`, `--no-deps`
+  5.0.7 and binary-refinery 0.10.11, with official PyPI release hashes. The pinned binary dependency closure
+  is installed first because refinery imports its runtime during source metadata generation. Package installation uses `--require-hashes`, `--no-deps`
   and `--no-build-isolation`; `pip check` and actual imports validate the closure.
   An explicitly supplied existing venv is trusted local executable code: its
   package versions/imports are checked, but its provenance is **not** retroactively

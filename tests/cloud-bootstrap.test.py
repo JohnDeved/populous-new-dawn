@@ -293,7 +293,7 @@ class BootstrapTests(unittest.TestCase):
     def test_build_tools_include_refinery_metadata_dependencies(self):
         build = (SOURCE / 'engineering/cloud-python-build.lock').read_text()
         runtime = (SOURCE / 'engineering/cloud-python.lock').read_text()
-        for name in ['setuptools', 'wheel', 'packaging', 'Cython', 'toml']:
+        for name in ['setuptools', 'wheel', 'packaging', 'Cython', 'toml', 'pure-magic-rs', 'msgpack', 'numpy']:
             self.assertIn(name + '==', build)
             self.assertIn(name + '==', runtime)
 
