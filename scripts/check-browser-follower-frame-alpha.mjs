@@ -1,14 +1,21 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
-import { bindGame } from './browser-game.mjs'
+import { bindGame, showAllMissions } from './browser-game.mjs'
+import hud from '../app/original-hud.json' with { type: 'json' }
 
 // Run with scripts/local-render/harness.mjs --scenario <this file>.
 // Exact native ghost alpha: 85/255. Background substitutions and injected live
 // followers are explicit presentation fixtures, not campaign training evidence.
 export default async function followerFrameAlpha({ browser, page, url, output, openMission, receipt }) {
+  const freeze = async page => page.evaluate(() => {
+    window.testStore.change(world => { world.speed = 0 })
+    // Only HUD presentation is under test; retain the real opening frame while
+    // suspending the unrelated software-rendered world between UI interactions.
+    cancelAnimationFrame(window.testSceneRef.current.frame)
+  })
   await openMission(1)
-  await page.evaluate(() => window.testStore.change(world => { world.speed = 0 }))
+  await freeze(page)
   const failures = [], captures = []
   const backgrounds = [{ name: 'black', rgb: [0, 0, 0] }, { name: 'sand', rgb: [219, 184, 133] }]
   const control = (page, kind) => page.getByRole('button', { name: `Select ${kind}`, exact: true })
@@ -26,7 +33,8 @@ export default async function followerFrameAlpha({ browser, page, url, output, o
     const button = control(page, kind)
     const path = resolve(output, `${name}-${background.name}.png`)
     const png = await button.screenshot({ path, animations: 'disabled' })
-    const result = await page.evaluate(async ({ bytes, background, frame, enabled, kind }) => {
+    const icon = enabled ? hud.rects[{ brave: 666, preacher: 672 }[kind] + Number(frame === 'follower-hover')] : null
+    const result = await page.evaluate(async ({ bytes, background, frame, enabled, kind, icon }) => {
       const decode = async blob => {
         const image = await createImageBitmap(blob), canvas = document.createElement('canvas')
         canvas.width = image.width; canvas.height = image.height
@@ -39,10 +47,16 @@ export default async function followerFrameAlpha({ browser, page, url, output, o
       if (!Number.isInteger(sx) || sx !== sy) throw Error(`Nonuniform crop ${actual.width}x${actual.height}`)
       let checked = 0, mismatches = 0, maximumError = 0
       for (let y = 0; y < actual.height; y++) for (let x = 0; x < actual.width; x++) {
-        const logicalY = Math.floor(y / sy)
+        const logicalY = Math.floor(y / sy), logicalX = Math.floor(x / sx)
         // Enabled controls include live icon/count artwork. Their unchanged top
-        // border verifies full strength; disabled frames compare every pixel.
+        // border verifies full strength. Exclude native icon bounds because
+        // its top row at logical y=3 overlaps that border; this is foreground
+        // art, not a frame color. Disabled frames still compare every pixel.
         if (enabled && logicalY >= 4) continue
+        if (icon) {
+          const left = 7 - Math.trunc(icon.w / 2), top = 18 - Math.trunc((icon.h + 8) / 2)
+          if (logicalX >= left && logicalX < left + icon.w && logicalY >= top && logicalY < top + icon.h) continue
+        }
         const at = (y * actual.width + x) * 4
         const native = (logicalY * 15 + Math.floor(x / sx)) * 4
         const alpha = source.data[native + 3] / 255 * (enabled ? 1 : 85 / 255)
@@ -58,7 +72,8 @@ export default async function followerFrameAlpha({ browser, page, url, output, o
       return { width: actual.width, height: actual.height, checked, mismatches, maximumError,
         opacity: getComputedStyle(element).opacity, disabled: element.disabled,
         icons: element.querySelectorAll('.follower-icon').length, counts: element.querySelectorAll('.follower-number').length }
-    }, { bytes: [...png], background: background.rgb, frame, enabled, kind })
+    }, { bytes: [...png], background: background.rgb, frame, enabled, kind, icon })
+    assert.ok(result.checked >= 24, 'enabled frame oracle must retain visible border pixels')
     captures.push({ name, background: background.name, frame, path, ...result })
     if (result.mismatches) failures.push(`${name}/${background.name}: ${result.mismatches} channel mismatches, max ${result.maximumError}`)
     assert.equal(result.disabled, !enabled)
@@ -78,6 +93,7 @@ export default async function followerFrameAlpha({ browser, page, url, output, o
     for (const background of backgrounds) await inspect(page, 'brave', `mission1-enabled-${scale}x`, background, 'follower', true)
     await control(page, 'brave').hover()
     for (const background of backgrounds) await inspect(page, 'brave', `mission1-hover-${scale}x`, background, 'follower-hover', true)
+    await page.keyboard.press('Escape')
     await control(page, 'brave').click()
     await page.mouse.move(1000, 700)
     for (const background of backgrounds) await inspect(page, 'brave', `mission1-selected-${scale}x`, background, 'follower-selected', true)
@@ -86,8 +102,10 @@ export default async function followerFrameAlpha({ browser, page, url, output, o
   await page.screenshot({ path: resolve(output, 'mission1-full.png') })
 
   await page.goto(url, { waitUntil: 'domcontentloaded' })
+  await page.getByRole('dialog', { name: 'Start game', exact: true }).waitFor({ state: 'visible' })
   await openMission(3)
-  await page.evaluate(() => window.testStore.change(world => { world.speed = 0 }))
+  await freeze(page)
+  await page.keyboard.press('Escape')
   const ids = await page.evaluate(async () => {
     const store = window.testStore, world = store.getWorld(), { addUnit } = await import('/app/model.ts')
     const shaman = world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman')
@@ -116,11 +134,13 @@ export default async function followerFrameAlpha({ browser, page, url, output, o
     const widePage = await wide.newPage()
     widePage.on('pageerror', error => receipt.errors.push(String(error)))
     await widePage.goto(url, { waitUntil: 'domcontentloaded' })
-    await widePage.getByRole('button', { name: 'Mission 1', exact: true }).click()
+    await showAllMissions(widePage)
+    await widePage.getByRole('button', { name: 'Mission 1', exact: true }).focus()
+    await widePage.keyboard.press('Enter')
     await bindGame(widePage)
     await widePage.evaluate(() => document.querySelector('.skip-introduction')?.click())
     await widePage.waitForFunction(() => !window.testStore.getWorld().inputMask)
-    await widePage.evaluate(() => window.testStore.change(world => { world.speed = 0 }))
+    await freeze(widePage)
     await setScale(widePage, 2)
     await widePage.mouse.move(1000, 700)
     for (const background of backgrounds) await inspect(widePage, 'warrior', 'wide-2x-dpr2', background)

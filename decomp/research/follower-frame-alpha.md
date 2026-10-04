@@ -108,3 +108,45 @@ raw logs are retained with the task's source-bound check receipts.
 
 Hashes are indexed in `decomp/exports.json`. No full original-game screenshot,
 software renderer equivalence, or broad UI parity is claimed by this bounded work.
+
+## Rendered acceptance — 2026-10-04
+
+The first development run exposed two checker setup errors: initial Shaman
+selection contaminated the selected-frame case, and the native icon's y=3 row
+partly overlaps the top border. The repaired checker clears selection through
+Escape and excludes the known native icon rectangle only for enabled border
+comparisons. Every disabled-frame pixel remains checked. A second unchanged-code
+baseline was captured before applying the production correction.
+
+- **Red:** local `a2c3f8e0934359a4f144bf7f882590923b193349`,
+  inherited opacity `.4`: exactly 12 disabled comparison groups fail, maximum
+  channel error 17 on black / 9 on sand; enabled/hover/selected borders pass.
+- **Green:** local `ac517e53373534ca99433e0261230d2d50c63425`, tree
+  `6e6eb3ea5bb6e1b8ea3e9c389bae0b30ce12909a`: all 26 crops pass with maximum
+  channel error 1 (8-bit compositing rounding), no errors, and computed disabled
+  opacity `0.333333`. Enabled controls remain at opacity 1.
+- Mission 3 injected Preachers select through ordinary Ctrl-click, then returning
+  their live count to zero removes icon/count art while retaining the frame.
+  Disabled Ctrl-pointer/right-click preserves `mode=blast`, empty selection, and
+  every focus cursor. Mission 1 begins with real empty specialist controls.
+- Viewports: 1440×1000 at HUD 1× / 2×, and 1920×1080 at HUD 2× / DPR 2.
+  Chrome Headless Shell 154.0.8037.92 reports actual WebGL2 ANGLE/Vulkan SwiftShader.
+  The world RAF is suspended after real startup; HUD interactions still run through
+  shipped React controls. This is a focused presentation test, not performance QA.
+
+![Mission 1 disabled frame, same black/sand backgrounds before and after](follower-frame-alpha-comparison.png)
+
+The images above are actual browser control screenshots enlarged with nearest-
+neighbor sampling, with their exact before/after source labels. They are not
+original-game captures. The full Mission 1 scene had a frozen sky-facing camera,
+so only its relevant HUD crop is used for review.
+
+![Mission 3 zero-count Preacher frame retained](follower-frame-alpha-mission3.png)
+
+The Mission 3 image is an explicitly labelled crop from the corrected game scene.
+The flat sand backdrop and added followers are presentation fixtures. The unedited
+full screenshots and source-bound raw `browser-red/receipt.json`,
+`browser-red/pixels.json`, `browser-green/receipt.json`, and
+`browser-green/pixels.json` are retained under the task's local review artifacts.
+The production change is one follower-only opacity declaration; the global disabled
+rule, existing assets, enabled artwork, interactions and simulation remain unchanged.
