@@ -71,7 +71,11 @@ export default async function constructionGauge(args) {
       renderer: debug && gl.getParameter(debug.UNMASKED_RENDERER_WEBGL), contextLost: gl.isContextLost() }
   })
   writeFileSync(resolve(output, 'construction-gauge.json'), `${JSON.stringify(result, null, 2)}\n`)
-  assert.equal(result.turn, 260)
+  // Native Convert Wild cadence depends on the allocated effect counter. Inspect
+  // the completed scenario rather than a turn stamped before that seed was fixed.
+  const conversion = JSON.parse(readFileSync(resolve(output, 'result.json'), 'utf8'))
+  assert.equal(result.turn, conversion.converted.turn,
+    "Gauge inspection uses the maintained checker's completed Convert Wild turn")
   assert.equal(result.tower?.kind, 'tower')
   assert.equal(result.tower?.team, 'yellow')
   assert.equal(result.tower?.progress, 0.2)
