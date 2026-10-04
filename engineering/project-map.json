@@ -2,6 +2,84 @@
   "version": 1,
   "subsystems": [
     {
+      "id": "vehicle-passenger-panel",
+      "title": "Native vehicle passenger panel and unload",
+      "mappingStatus": "inferred",
+      "implementationPaths": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py"
+      ],
+      "researchPaths": [
+        "tests/vehicle-panel.test.mjs",
+        "tests/vehicle-panel-runtime.test.mjs",
+        "scripts/check-native-vehicle-panel.py",
+        "scripts/check-native-vehicle-panel-selection.py",
+        "scripts/check-native-vehicle-exit.py",
+        "scripts/check-native-vehicle-unload.py",
+        "scripts/check-native-vehicle-seats.py",
+        "scripts/check-browser-vehicle-panel.mjs",
+        "decomp/research/vehicle-panel.md"
+      ],
+      "sharedPaths": [
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/live-command.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "entrySymbols": [
+        {
+          "path": "app/object-panels.ts",
+          "symbol": "ObjectPanels.open"
+        },
+        {
+          "path": "app/vehicle-panel-runtime.ts",
+          "symbol": "unloadLiveVehicle"
+        }
+      ],
+      "parityIds": ["movement.boats", "movement.balloons"],
+      "evidence": [
+        {
+          "path": "decomp/research/vehicle-panel.md",
+          "heading": "Native vehicle passenger panels"
+        }
+      ],
+      "nativeAddresses": [
+        "0x504060",
+        "0x504590",
+        "0x504bc0",
+        "0x47b460",
+        "0x466f30",
+        "0x466190",
+        "0x4659d0"
+      ],
+      "checkIds": [
+        "vehicle-panel-portable",
+        "vehicle-panel-native",
+        "vehicle-panel-selection-native",
+        "vehicle-exit-native",
+        "vehicle-unload-native",
+        "vehicle-seats-native",
+        "vehicle-panel-browser"
+      ],
+      "generatedInputIds": [
+        "imported-runtime-data"
+      ],
+      "risks": [
+        "Voluntary ejection must retain native physics ownership through landing, independently of destruction."
+      ],
+      "unresolved": [
+        "Exact final rendered acceptance and original countdown boarding interpolation remain separate."
+      ]
+    },
+    {
       "id": "selection",
       "title": "Selection and picking",
       "mappingStatus": "reviewed",

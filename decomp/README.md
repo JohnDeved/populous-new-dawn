@@ -5176,6 +5176,11 @@ not original-game screenshots. Executable probes include bounded transport inter
 transitions and disabled draw flags. Full UI painter-order/blend and live browser
 integration remain explicit boundaries.
 
+## Native vehicle passenger panels
+
+[Vehicle-panel evidence](research/vehicle-panel.md) binds kind9 geometry, original
+HFX60/61, passenger actions, forced unload readiness and voluntary ejection.
+Settled native seats and living-landing regressions are bound separately; final rendered acceptance remains explicit.
 ## Resting transport passengers
 
 [State30 evidence](research/transport-idle-state.md) distinguishes the initializer's
