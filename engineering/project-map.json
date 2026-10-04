@@ -6,13 +6,28 @@
       "title": "Selection and picking",
       "mappingStatus": "reviewed",
       "implementationPaths": [
+        "app/hud-tasks.ts",
+        "app/follower-tasks-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "app/original-follower-tasks.json",
+        "public/original/follower-tasks.png",
+        "public/original/follower-task-normal.png",
+        "public/original/follower-task-pressed.png",
+        "public/original/follower-task-hover.png",
+        "public/original/follower-task-panel.png",
+        "scripts/import-follower-tasks.py",
         "app/drag-selection.ts",
         "app/person-selection.ts",
         "app/scene-picking.ts",
         "app/selection-mesh.ts",
         "app/world-picking.ts"
       ],
-      "researchPaths": ["tests/painter-order.test.mjs"],
+      "researchPaths": [
+        "tests/painter-order.test.mjs", "tests/follower-tasks.test.mjs",
+        "tests/follower-task-runtime.test.mjs", "scripts/check-native-follower-tasks.py",
+        "scripts/check-native-follower-task-art.py", "scripts/check-native-follower-task-adapters.py",
+        "scripts/check-browser-follower-tasks.mjs", "decomp/research/follower-tasks-live.md"
+      ],
       "sharedPaths": ["app/model.ts", "app/scene.ts", "app/render-view.ts"],
       "entrySymbols": [
         { "path": "app/scene.ts", "symbol": "pointerUp" },
@@ -45,6 +60,11 @@
       ],
       "nativeAddresses": ["0x443d30", "0x4440a0", "0x444270", "0x444430", "0x4445d0", "0x4449d0"],
       "checkIds": [
+        "follower-tasks-portable",
+        "follower-tasks-native",
+        "follower-task-art-native",
+        "follower-task-adapters-native",
+        "follower-tasks-browser",
         "selection-portable",
         "selection-native-drag",
         "selection-browser-drag",

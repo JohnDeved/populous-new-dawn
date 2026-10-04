@@ -29,6 +29,32 @@ def install_case(roster, nearby=False, point=None):
                  flags3=r.get('flags3', 0), flags4=r.get('flags4', 0x20000000), selectionFlags=r.get('selected', 0))
             for i, r in enumerate(roster)]
 
+# Classification consumes live state/order/building inputs, not a browser busy flag.
+for state in range(46):
+    for vehicle in [0,1]:
+        install([dict(model=2,state=state)])
+        write(people+0x9f,'H',vehicle)
+        p=dict(model=2,state=state,commandStatus=0,flags2=0,assignment=0,vehicle=vehicle)
+        cases.append(dict(kind='classification', source=p, expected=call(0x4513e0,people)))
+for status in range(35):
+    install([dict(model=2,state=10)]);write(people+0xa7,'B',status)
+    p=dict(model=2,state=10,commandStatus=status,flags2=0,assignment=0,vehicle=0)
+    cases.append(dict(kind='classification', source=p, expected=call(0x4513e0,people)))
+for building in range(1,20):
+    install([dict(model=2,state=21)]);write(people+0xc,'I',0x800000)
+    write(0x8a03ec,'H',1);write(0x890390+4,'I',people+0x100)
+    write(people+0x100+0x2a,'BB',2,building)
+    p=dict(model=2,state=21,commandStatus=0,flags2=0x800000,assignment=0,vehicle=0)
+    cases.append(dict(kind='classification', source=p, building=building, expected=call(0x4513e0,people)))
+for state in [10,19,33]:
+    for model in [17,31,32,8]:
+        for flags in [0,1]:
+            for assignment in [0,64]:
+                install([dict(model=4,state=state,assignment=assignment)])
+                write(people+0x9b,'H',1);write(0x938830+10,'BB4H',model,flags,0,0,0,0)
+                p=dict(model=4,state=state,commandStatus=0,flags2=0,assignment=assignment,vehicle=0)
+                cases.append(dict(kind='classification', source=p, order=dict(model=model,flags=flags),expected=call(0x4513e0,people)))
+
 rng = random.Random(0x4513e0)
 for trial in range(120):
     roster = [dict(model=rng.choice([2,3,4,5,6,7]), state=rng.choice([1,10,11,14,17,19,20,21,22,25,33]),
@@ -72,9 +98,10 @@ for trial in range(120):
     tasks[0] = [sum(tasks[model][category] for model in range(2,7)) for category in range(6)]
     cases.append(dict(kind='counts', people=browser, nearby=nearby, point=point, expected=dict(totals=totals, tasks=tasks)))
 
-script = """import { followerTaskCounts, selectTaskFollowers, focusTaskFollower } from './app/hud-tasks.ts';
+script = """import { classifyFollowerTask, followerTaskCounts, selectTaskFollowers, focusTaskFollower } from './app/hud-tasks.ts';
 let input='';for await(const c of process.stdin) input+=c;
 console.log(JSON.stringify(JSON.parse(input).map(c=>{
+ if(c.kind==='classification')return classifyFollowerTask(c.source,c.building,c.order);
  if(c.kind==='counts')return followerTaskCounts(c.people,c.point,c.nearby);
  if(c.kind==='selection'){selectTaskFollowers(c.people,c.model,c.category,c.point,c.mode,c.nearby);return c.people.map(({flags3,selectionFlags})=>({flags3,selectionFlags}));}
  let previous=0;return c.expected.map(()=>previous=focusTaskFollower(c.people,c.model,c.category,c.point,previous,c.includeReserved,c.nearby));
@@ -84,4 +111,4 @@ assert result.returncode == 0, result.stderr
 actual = json.loads(result.stdout)
 for index, (case, value) in enumerate(zip(cases, actual, strict=True)):
     assert value == case['expected'], (index, case, value)
-print(f'PASS: {len(cases)} native/TypeScript task selection, focus and full count-rebuild cases, including raw camera-radius boundaries')
+print(f'PASS: {len(cases)} native/TypeScript classifier, task selection, focus and full count-rebuild cases, including raw camera-radius boundaries')

@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
+import { writeFileSync } from 'node:fs'
 import { bindGame } from './browser-game.mjs'
 import hud from '../app/original-hud.json' with { type: 'json' }
 import tasks from '../app/original-follower-tasks.json' with { type: 'json' }
@@ -64,7 +65,7 @@ async function checkPixels(page, output, row, column, pressed = false) {
 
 // Run with the reviewed sandboxed local-render harness. Mission1 is the real
 // opening/UI path; later injected classes are explicitly supporting fixtures.
-export default async function followerTasks({ page, output, openMission, receipt }) {
+export default async function followerTasks({ browser, page, url, output, openMission, receipt }) {
   await openMission(1)
   await freeze(page)
   await page.getByTitle('followers', { exact: true }).click()
@@ -87,6 +88,12 @@ export default async function followerTasks({ page, output, openMission, receipt
   pixels.push(await checkPixels(page, output, 1, 0, true))
   pixels.push(await checkPixels(page, output, 1, 1, true))
 
+  writeFileSync(resolve(output, 'opening-pixels.json'), JSON.stringify({ state, opening, pixels }, null, 2) + '\n')
+
+  // Mission1 starts with the Shaman selected. Clear through the shipped cancel
+  // control so the following assertions measure only the task-button additions.
+  await page.keyboard.press('Escape')
+  assert.deepEqual(await selection(page), [])
   // Actual native-backed idle followers selected by shipped controls.
   await button(page, 1, 1).click()
   assert.equal((await selection(page)).length, 1)
@@ -116,11 +123,14 @@ export default async function followerTasks({ page, output, openMission, receipt
   assert.equal(await page.locator('.follower-tasks button').count(), 24)
   assert.equal(await page.evaluate(() => window.testSceneRef.current.hudTaskFocus[14]), nextFocus)
 
-  // A newer targeting mode survives focus, then task selection cancels it.
+  // Shipped tab changes cancel targeting. A supporting mode-state fixture then
+  // verifies the reused scene API: focus preserves it, task selection cancels it.
   await page.getByTitle('spells', { exact: true }).click()
   await page.getByRole('button', { name: /^Blast,/ }).click()
   assert.equal(await page.evaluate(() => window.testSceneRef.current.world.mode), 'blast')
   await page.getByTitle('followers', { exact: true }).click()
+  assert.equal(await page.evaluate(() => window.testSceneRef.current.world.mode), null)
+  await page.evaluate(() => window.testStore.change(w => { w.mode = 'blast' }))
   await button(page, 1, 1).click({ button: 'right' })
   assert.equal(await page.evaluate(() => window.testSceneRef.current.world.mode), 'blast')
   await button(page, 1, 1).click()
@@ -194,6 +204,19 @@ export default async function followerTasks({ page, output, openMission, receipt
       assert.equal(rects.length,24);layouts.push({viewport,size,first:rects[0],last:rects.at(-1)})
     }
   }
+  const dprContext = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 2 }),
+    dprPage = await dprContext.newPage()
+  dprPage.on('pageerror', error => receipt.errors.push(String(error)))
+  await dprPage.goto(url, { waitUntil: 'domcontentloaded' })
+  await dprPage.getByRole('button', { name: 'Mission 1', exact: true }).click()
+  await bindGame(dprPage)
+  await dprPage.waitForFunction(() => window.testSceneRef.current && !window.testSceneRef.current.world.inputMask)
+  await freeze(dprPage)
+  await dprPage.getByTitle('followers', { exact: true }).click()
+  assert.equal(await dprPage.evaluate(() => window.devicePixelRatio), 2)
+  assert.equal(await dprPage.locator('.follower-tasks button').count(), 24)
+  await dprPage.locator('.native-hud').screenshot({ path: resolve(output, 'followers-mission1-dpr2.png') })
+  await dprContext.close()
   assert.deepEqual(receipt.errors, [])
-  return { ...state, opening, guarded, pixels, layouts, fixtureLimits:'Injected class/occupancy fixture checks presentation/adapters only; opening/selection/focus/G/checkpoint use real Mission1 followers.' }
+  return { ...state, opening, guarded, pixels, layouts, fixtureLimits:'Injected class/occupancy and targeting-mode state fixtures check presentation/adapters only; opening/selection/focus/G/checkpoint and tab-mode cancellation use real Mission1 followers.' }
 }

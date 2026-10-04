@@ -97,3 +97,36 @@ test('live task count reads nearby camera coordinates without creating or regist
   assert.equal(counts.tasks[2][2], 0)
   assert.deepEqual(world, before)
 })
+
+test('real boarding through a route owner overrides a dormant native person for Selected task propagation', async () => {
+  const { boardLiveVehicle } = await import('../app/live-vehicles.ts')
+  const world = createWorld(5), boat = world.vehicles[0],
+    units = world.units.filter(u => u.team === 'blue' && u.kind === 'warrior').slice(0,2)
+  boat.active = true
+  const routes = units.map(unit => {
+    unit.native = createLivePerson(world, unit); unit.native.state = 19
+    const route = createLivePerson(world, unit)
+    route.flags3 = 0x123456f8
+    world.pathfinding.people.set(unit.id, route)
+    assert.ok(boardLiveVehicle(world, route, boat))
+    return route
+  })
+  assert.ok(units.every(u => u.native.vehicle === 0))
+  world.selected = units.map(u => u.id)
+  const before = structuredClone(world), people = hudTaskPeople(world)
+  for (let i=0;i<units.length;i++) {
+    const person = people.find(p => p.id === units[i].id)
+    assert.equal(person.source, routes[i]); assert.equal(person.vehicle, boat.id)
+    assert.equal(person.category, 5); assert.deepEqual([person.x,person.y],[boat.x,boat.y])
+  }
+  assert.deepEqual(world, before, 'task reads do not transfer or mutate simulation ownership')
+  selectFollowerTask(world, 3, 1, boat, 'five')
+  assert.deepEqual(world.selected, units.map(u => u.id))
+  assert.ok(routes.every(p => p.flags3 === (0x123456f8 & ~0x10000000)))
+  selectFollowerTask(world, 3, 1, boat, 'single')
+  assert.deepEqual(world.selected, [])
+  assert.ok(routes.every(p => !(p.selectionFlags & 128) && !(p.flags3 & 128)))
+  assert.deepEqual(world.vehicles, before.vehicles)
+  assert.deepEqual(world.buildingOrders, before.buildingOrders)
+  assert.deepEqual(units.map(u => u.native), before.units.filter(u => units.some(t=>t.id===u.id)).map(u=>u.native))
+})
