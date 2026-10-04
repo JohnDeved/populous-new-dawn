@@ -41,9 +41,19 @@ The first source-bound comparison failed with native contributions `[0,1,1]`
 and browser phases `[0,0,0]`. The runtime correction increments the existing
 adapter while reading eligible original class-7 records; it is not a hardcoded
 per-mission offset. Its scope is the three audited early levels. It does not
-activate the linked effects, allocate extra browser IDs, consume random values,
-or directly mutate gameplay state. Later missions retain their existing adapter until
-that loader composition is audited.
+activate the linked effects, allocate extra browser IDs, or itself consume random
+values. The shared phase is also read by gameplay effect processors. Original
+`005122e0` preserves Convert Wild's allocated counter; `00512350` scans only on
+`counter & 7 == 0` and resets an eighteen-visit expiry after a successful conversion.
+A paired natural Mission 3 trace at base `734e496` and seed repair `fc4c718` keeps
+cast requests at turns 139/203 and effect allocations at 147/214, but changes their
+initial counters 76→77 and 204→206. The last conversion moves 242→240, followed by
+expiry 260→258. Both end with two casts, stock 0, population 20 and Tower 1023 at
+progress 0.2. This is a supported timing consequence of the corrected allocation
+phase, not a purely cosmetic change. The paired trace and four original-byte
+counter/lifetime cases are retained with the source-bound integration evidence.
+Later missions retain their existing adapter until that loader composition is
+audited.
 
 ## Presentation ownership required before children
 
