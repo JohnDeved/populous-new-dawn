@@ -24,6 +24,9 @@ test('Mission 2 producer matches native base, loss, capacity and resource bounda
     [false, true, 3, 2, false, true, 0],
   ]) {
     const world = createWorld(2)
+    // Isolate this construction-predicate fixture from the separate native scanner.
+    // ai-response-task.test.mjs covers their ordinary pre-table composition.
+    world.ai.states &= ~512
     if (established) world.ai.constructionBase = 0x8234
     const braves = new Set(world.units.filter(u => u.team === 'green' && u.kind === 'brave').slice(0, available).map(u => u.id))
     world.units = world.units.filter(u => u.team !== 'green' || u.kind === 'shaman' || braves.has(u.id))

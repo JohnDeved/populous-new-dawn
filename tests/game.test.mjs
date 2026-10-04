@@ -1201,7 +1201,9 @@ test('mission-one red AI does not reserve a second brave already committed to wa
  assert.equal(Math.trunc(campaignPersonCount(w,1)*w.ai.attributes[7]/100),1);
  tick(w,1/12);
  const next=w.ai.tasks.find((t,i)=>i!==0&&(t.flags&1)&&t.type===6);assert.ok(next);assert.equal(next.phase,0);
- w.ai.attributes[7]=13;tick(w,1/12);
+ w.ai.attributes[7]=13;
+ // The real pre-table response may own the preceding queue visit.
+ until(w,()=>next.phase!==0,10);
  assert.equal(next.phase,8);assert.equal(next.remaining,0);
  assert.equal(currentPersonOrder(w.buildingOrders,unitAnimationSource(assigned)??assigned.native)?.model,8);
 });

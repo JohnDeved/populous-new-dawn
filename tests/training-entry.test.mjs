@@ -179,6 +179,9 @@ test('a funded Temple trains a native model-4 preacher and sends it outside', ()
 
 test('a funded Spy Training Hut trains an original model-5 Spy and sends it outside', () => {
   const { w, b, people } = schoolScenario('spyHut', 1, 3)
+  // This injected Mission1 Spy/detector fixture is outside authored acquisition.
+  // Keep its pinned state14 detector independent of periodic AI selection cleanup.
+  w.ai.states &= ~512
   until(w, () => people[0].inside === b.id && !people[0].entry?.person.speed)
   w.manaWorld.gameFlags = 0
   b.timer = 65535

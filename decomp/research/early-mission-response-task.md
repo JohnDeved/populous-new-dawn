@@ -106,3 +106,24 @@ order; exact original whole-world list ownership remains a broader adapter bound
 Do not bind this helper to Mission3 or custom missions by removing its scope guard:
 first implement type8 response and applicable type11/15/Spy consumers. This work
 changes no parity percentages, smoke/pool/clock/motion behavior, or deployment.
+
+## Composition regression attribution
+
+The first full check on the type9 checkpoint found four failures; the exact
+unchanged base passed all four. Three were controlled-fixture assumptions: a
+construction predicate expected the entire queue to remain untouched, a training
+reservation expected dispatch on the very next tick, and an artificial Mission1
+Spy test pinned a detector in native state14 while normal type9 cleanup could now
+restore it. The fixtures now isolate the unrelated scanner or wait for the actual
+bounded queue visit; their original assertions remain.
+
+The natural Mission2 Swarm route required separate gameplay diagnosis. Both heads
+reach the preceding Tornado milestone at turn2482 with RNG1470132895. Type9 shifts
+construction/training visits, person IDs and formation positions. On the old deep
+base waypoint83,127 the candidate loses one of its six Warriors to a Matak melee
+opponent at turn2805, and no longer meets the authored spell group threshold.
+A normal nearer staging waypoint109,125 allows the real cast while all six remain
+alive (candidate turn2769, target107,123). Paired exact-base/candidate runs preserve
+all original cast, impact, panic, mana, ownership and count assertions and limits;
+only that ordinary player waypoint changes. No runtime timing, RNG, combat or spell
+threshold was altered to recover acceptance.
