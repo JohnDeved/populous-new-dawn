@@ -265,9 +265,11 @@ passing acceptance. A later clean replay can only claim what it actually repeats
 At 12 simulation turns per second, the old sermon milestone at turn2526 is about
 210.5 seconds of game time. The historical Vault/training approaches are therefore
 minute-scale, but the real input route, headless rendering, UI interruptions and
-live defense can change timing. Use an initial pooled 10 active minutes for
-opening through saved/reloaded conversion, followed by 30 active minutes for
-Erosion, economy, combat and result. These are diagnostic budgets, not measured
+live defense can change timing. After Run08 demonstrated the ordinary Camp/escort strategy, allow up to900
+pooled active seconds through saved/reloaded conversion. Thereafter allow at
+most1800 further active seconds, with the entire journey capped at2400. This
+reallocates time for combat/training moved earlier; it does not change gameplay
+or conversion/result assertions. These are diagnostic budgets, not measured
 ETAs, gameplay deadlines or fixed sleeps. Record active game time per scene/load
 epoch, actual turns, paused intervals and wall time. Check accepted actions
 immediately; compare meaningful progress in 30–60-second observation windows.
@@ -334,3 +336,11 @@ preserves the genuine preparation rather than overwriting it with a dead actor.
 An explicit later sermon save may replace it. Mismatched storage/source/profile
 is a rejection, never permission to rebuild a World or seed IndexedDB. Run05's
 discarded ephemeral checkpoint is unavailable and cannot enter this path.
+
+For the requested QA-only revision, the app/runtime stays on accepted `b381851`.
+The driver may consume one explicit correspondence already validated by the
+maintained profile harness, from the preparation's exact original source to the
+new QA source. Original acquisition identity is retained; a separate admission
+record permits only immediately successive same-source retries. No second
+source migration, arbitrary bypass, app/runtime/origin drift or storage/world
+reconstruction is allowed. See README for the exact forwarded-record contract.

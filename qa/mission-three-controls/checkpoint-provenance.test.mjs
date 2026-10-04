@@ -55,3 +55,31 @@ test('ordinary loaded state must retain acquisition identities without assuming 
   assert.throws(() => validateLoadedPreparation(record, { ...loaded, units: [...loaded.units,
     { id: 3167, team: 'blue', kind: 'preacher', hp: 55 }] }))
 })
+
+test('one harness-admitted QA transition preserves the original preparation and permits only immediate same-source retries', () => {
+  const input = fixture(), original = createPreparationRecord(input)
+  const source = { commit: 'e'.repeat(40), fingerprint: 'e'.repeat(64) }
+  const correspondence = { decision: 'ACCEPT', reviewer: 'independent-reviewer', reference: 'reviewed-exact-head',
+    sha256: 'f'.repeat(64), priorRunId: 'old-run', previousSourceFingerprint: input.source.fingerprint,
+    currentSourceFingerprint: source.fingerprint, previousChecker: '1'.repeat(64), currentChecker: '2'.repeat(64) }
+  const profile = { ...input.profile, mode: 'reused', runId: 'new-run', inputs: { checker: '2'.repeat(64) }, correspondence,
+    previousRun: { runId: 'old-run', sourceFingerprint: input.source.fingerprint,
+      sourceCommit: input.source.commit, checker: '1'.repeat(64) } }
+  const current = { ...input, source, profile }
+  const admitted = validatePreparationRecord(original, current)
+  assert.deepEqual(admitted.source, original.source, 'Acquisition is never relabelled with the new QA source')
+  assert.deepEqual(admitted.checkpoint, original.checkpoint)
+  assert.equal(admitted.qaAdmission.source.fingerprint, source.fingerprint)
+  const retry = { ...profile, correspondence: null, runId: 'retry-run',
+    previousRun: { runId: 'new-run', sourceFingerprint: source.fingerprint, checker: '2'.repeat(64) } }
+  const repeated = validatePreparationRecord(admitted, { ...current, profile: retry })
+  assert.equal(repeated.qaAdmission.recordedByRunId, 'retry-run')
+  assert.throws(() => validatePreparationRecord(original, { ...current, profile: { ...profile, correspondence: null } }))
+  for (const field of ['previousSourceFingerprint', 'currentSourceFingerprint', 'priorRunId', 'previousChecker', 'currentChecker'])
+    assert.throws(() => validatePreparationRecord(original, { ...current,
+      profile: { ...profile, correspondence: { ...correspondence, [field]: 'unrelated' } } }))
+  assert.throws(() => validatePreparationRecord(admitted, { ...current,
+    source: { ...source, fingerprint: '3'.repeat(64) }, profile: retry }), /No second QA/)
+  assert.throws(() => validatePreparationRecord(admitted, { ...current,
+    profile: { ...retry, previousRun: { ...retry.previousRun, runId: 'different-run' } } }))
+})

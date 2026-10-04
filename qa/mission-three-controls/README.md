@@ -30,7 +30,7 @@ node --check qa/mission-three-controls/driver.mjs
 node --test qa/mission-three-controls/observation.test.mjs
 ```
 
-The twenty-five isolated tests cover original callback receiver/arguments/return and
+The twenty-six isolated observer tests cover original callback receiver/arguments/return and
 exact invocation count; diagnostic exception isolation versus real application
 exceptions; idempotent detach; separate reload/time epochs; strict singleton
 conversion identity; rejecting death/poll gaps; and progress that ignores a
@@ -65,8 +65,10 @@ node scripts/local-render/harness.mjs --game-root "$PWD" \
 
 The 95-minute outer harness allowance leaves cleanup/checkpoint margin beyond the
 driver's initial 90-minute wall envelope. It is not a gameplay ETA. The initial
-active budgets are 10 pooled game minutes through reloaded conversion, then 30
-from that conversion milestone through the result. Changing a budget requires a
+active budgets now allow900 pooled seconds through reloaded conversion to cover
+the Camp/escort work moved before it. After conversion, allow at most1800 more
+active seconds while capping the entire inherited-prefix/current-segment journey
+at2400 active seconds. Health and batch boundaries enforce that whole-journey cap. Changing a budget requires a
 reviewed checker revision and coordinator ownership, not a runtime clock change.
 The marker observation repair is described in `marker-expiry.md`; its failed
 first run remains failed. The separate minimap repair and failed second run are documented in
@@ -260,8 +262,8 @@ preparation-only continuation entry.
 A later run may set `M3_PREPARATION_RECORD` to the original task-owned output's
 absolute `preparation-record.json` and pass the same retained `--profile`. Include
 that provenance file as an explicit command-receipt `--input`. The driver requires
-exact source fingerprint, profile ID/path, origin and committed checkpoint digest
-before clicking ordinary Load Game. It copies/hashes the input, logs prior-run
+the source-admission rules below, exact profile ID/path, origin and committed
+checkpoint digest before clicking ordinary Load Game. It copies/hashes the input, logs prior-run
 status, then checks actual resumed actors, completed Temple, knowledge and M3
 profile absence. Load auto-resumes; the observer starts a new epoch at saved game
 time, then the driver ordinarily pauses for a new command batch. Begin continued
@@ -269,17 +271,35 @@ tactics with Resume and start-preacher-training.
 
 Inherited acquisition milestones are explicitly labelled and retain their original
 source/checkpoint. Duration reports separate inherited prefix active time from
-new epoch time and sum them for the unchanged10+30 active budgets. Each run has
+new epoch time and sum them for the900 pre-conversion /2400 whole-journey bounds. Each run has
 its own90-minute wall/95-minute harness cap. A completed continuation is labelled
 checkpoint-continuation and cannot be described as a fresh uninterrupted run;
-previous failed attempt receipts remain failed. Three isolated host-only tests
+previous failed attempt receipts remain failed. Four isolated host-only tests
 cover mismatched source/profile/origin/digest, failed prefixes and resumed actor
 identity. Runtime acceptance of this entry remains pending.
 
-The Mission3 continuation entry deliberately keeps an exact full source fingerprint
-requirement, even if the shared harness later supports reviewed QA-only profile
-correspondence. Initial retries may change hashed tactical command files only.
-A driver/source change requires a separately reviewed future boundary; this
-entry does not silently adopt the harness's broader correspondence option.
-Generic checkpoint commands are rejected while the preparation slot is protected,
-so an exploratory command cannot erase the genuine early save before a failure.
+The game/runtime remains pinned to accepted `b381851`; later main application
+changes cannot be adopted into this profile. By default the complete QA source
+fingerprint must match the original preparation. One transition may instead use
+only the correspondence already validated by the maintained harness, from that
+exact original preparation fingerprint to the independently accepted new QA
+source. Match its prior run/checker, current source/checker, reviewer/reference
+and correspondence digest. The harness still requires unchanged application,
+runtime, root and origin bindings; the driver still requires the original full
+checkpoint digest and retained actors.
+
+The original acquisition source/milestones remain unchanged. A separate
+`qaAdmission` records the accepted QA source and correspondence. Each admitted
+run writes a forwarded `preparation-record.json`; later same-source retries must
+use the immediately preceding run's forwarded record, whose recorded run ID
+matches the profile's verified previous run. No second source transition or
+unvalidated source bypass is supported. This is provenance only, never a World
+export or browser-storage write. Generic checkpoint commands remain rejected
+while preparation is protected, so they cannot erase the genuine early save.
+
+Run08 established real Camp construction, three90HP Warriors, retained builders
+and clearing of the eastern defense pocket, with all three Warriors surviving.
+It ended before any owned sermon and retained its helper failures at573 active
+seconds. The larger pre-conversion allowance reallocates the original overall
+resource envelope for that observed strategy; it does not change gameplay,
+conversion, result, clock, speed or failure-retention requirements.

@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 import { createPreparationRecord, validatePreparationRecord, validateLoadedPreparation } from './checkpoint-provenance.mjs'
 import { bindGame, showAllMissions } from '../../scripts/browser-game.mjs'
 import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs'
-import { checkCondition, progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells } from './observation.mjs'
+import { checkCondition, progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, activeBudget, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells } from './observation.mjs'
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -102,6 +102,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.deepEqual(snapshot.observation?.errors ?? [], [], 'No diagnostic errors')
     assert.deepEqual(snapshot.observation?.speedViolations ?? [], [], 'No speed changes')
     requireNotDefeated(snapshot.status)
+    if (currentActive(snapshot) >= 2400) throw new IncompleteRun('active-budget', 'Whole-journey2400-active-second envelope reached')
   }
   const currentActive = snapshot => inheritedActiveSeconds + epochs.reduce((sum, epoch) => sum + epoch.activeSeconds, 0) +
     (snapshot.observation?.activeSeconds ?? 0)
@@ -371,7 +372,7 @@ export default async function missionThreeControls({ page, output, root, signal,
         throw actorStop
       }
       const active = currentActive(s), conversion = milestones.find(m => m.name === 'conversion')
-      const budget = conversion ? conversion.activeSeconds + 1800 : 600
+      const budget = activeBudget(conversion?.activeSeconds ?? null)
       const next = progressKey(s, scope, watchIds)
       if (next !== progress) { progress = next; changedAt = active }
       const stop = waitDiagnosticStop({ now: Date.now(), clockAdvancedAt, animationAdvancedAt,
@@ -470,6 +471,9 @@ export default async function missionThreeControls({ page, output, root, signal,
     const { observed, checkpoint } = await observePreparationStorage('m3-before-preparation-load')
     continuation = validatePreparationRecord(record, { source: receipt.source, profile: receipt.profile, origin: url, checkpoint })
     protectedPreparation = continuation
+    // Carry the original prefix unchanged; the separate admitted QA source may
+    // be reused only by the next same-source run under the same profile lease.
+    writeFileSync(resolve(output, 'preparation-record.json'), JSON.stringify(continuation, null, 2) + '\n', { flag: 'wx' })
     inheritedActiveSeconds = continuation.activeSeconds
     Object.assign(ids, continuation.ids)
     milestones.push(...continuation.milestones.map(m => ({ ...m, inherited: true,
@@ -765,7 +769,7 @@ export default async function missionThreeControls({ page, output, root, signal,
         }
         await pause()
         const boundary = await snapshot(`batch-${String(index).padStart(4, '0')}`)
-        requireNotDefeated(boundary.status)
+        health(boundary)
       } catch (error) {
         if (error instanceof IncompleteRun || error instanceof MissionDefeat) throw error
         failures.push({ index, inputSha256: hash, at: new Date().toISOString(), error: String(error?.stack ?? error) })

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
-import { createEpoch, recordTurn, attachObserver, requireConversion, progressKey, checkCondition, observeBuilding, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated, minimapInput, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells, armSermonObservation } from './observation.mjs'
+import { createEpoch, recordTurn, attachObserver, requireConversion, progressKey, checkCondition, observeBuilding, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, activeBudget, waitDiagnosticStop, requireNotDefeated, minimapInput, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells, armSermonObservation } from './observation.mjs'
 const world = () => ({ turn: 0, time: 0, speed: 1, outcome: { level: 3 }, units: [] })
 
 test('minimap inverse rejects the closest pixel hidden by a tab and never chooses a non-canvas point', () => {
@@ -377,4 +377,13 @@ test('the shared batch/wait/catch status guard makes every observed defeat termi
     assert.throws(() => requireNotDefeated('lost'), error => error instanceof MissionDefeat)
     if (boundary === 'recoverable catch') assert.deepEqual(retainedFailures, [{ error: 'original helper error' }])
   }
+})
+
+test('escort preparation has900 active seconds while the whole journey stays within2400', () => {
+  assert.equal(activeBudget(), 900)
+  assert.equal(activeBudget(500), 2300)
+  assert.equal(activeBudget(600), 2400)
+  assert.equal(activeBudget(900), 2400)
+  assert.equal(activeBudget(1000), 2400)
+  for (const invalid of [-1, Infinity, NaN]) assert.throws(() => activeBudget(invalid))
 })

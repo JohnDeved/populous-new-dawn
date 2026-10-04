@@ -225,6 +225,13 @@ export function inOrdinaryPreachingCells(point, victim) {
     Math.abs(delta(Math.round((-point.z - 8) * 256), Math.round((-victim.z - 8) * 256))) <= 2
 }
 
+export function activeBudget(conversionActiveSeconds = null) {
+  if (conversionActiveSeconds === null) return 900
+  if (!Number.isFinite(conversionActiveSeconds) || conversionActiveSeconds < 0)
+    throw Error('A conversion budget requires an observed nonnegative active time')
+  return Math.min(2400, conversionActiveSeconds + 1800)
+}
+
 export function waitDiagnosticStop({ now, clockAdvancedAt, animationAdvancedAt, wallElapsed,
   wallLimit, active, budget, changedAt, scope }) {
   if (now - clockAdvancedAt >= 30_000 || now - animationAdvancedAt >= 30_000)

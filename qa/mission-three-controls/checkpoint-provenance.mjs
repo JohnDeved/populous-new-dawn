@@ -38,11 +38,51 @@ export function createPreparationRecord({ source, profile, origin, checkpoint, s
     scope: 'Observed ordinary acquisition prefix through Temple. Loading continues this saved prefix; it is not a fresh entry or evidence that later failed attempts passed.' })
 }
 
+function admitPreparationSource(record, source, profile) {
+  const prior = profile.previousRun, admission = record.qaAdmission
+  if (!admission && source.fingerprint === record.source.fingerprint) {
+    assert.deepEqual(source, record.source)
+    return undefined
+  }
+  if (admission) {
+    const approved = admission.correspondence
+    assert.equal(admission.preparationFingerprint, record.source.fingerprint)
+    assert.equal(admission.checkpointSha256, record.checkpoint.sha256)
+    assert.equal(admission.profileId, profile.id)
+    assert.equal(approved.previousSourceFingerprint, record.source.fingerprint)
+    assert.equal(approved.currentSourceFingerprint, admission.source.fingerprint)
+    assert.equal(approved.currentChecker, admission.checker)
+    assert.equal(approved.decision, 'ACCEPT'); assert.ok(hash(approved.sha256) && approved.reviewer && approved.reference)
+    assert.equal(source.fingerprint, admission.source.fingerprint, 'No second QA source transition is permitted')
+    assert.deepEqual(source, admission.source)
+    assert.equal(prior?.sourceFingerprint, source.fingerprint)
+    assert.equal(prior?.checker, admission.checker); assert.equal(profile.inputs?.checker, admission.checker)
+    assert.equal(prior?.runId, admission.recordedByRunId, 'Use the immediately preceding admitted preparation record')
+    assert.equal(profile.correspondence, null, 'Same admitted source needs no additional correspondence')
+    return copy({ ...admission, recordedByRunId: profile.runId })
+  }
+  // Only consume the object already validated by acquireProfile. A supplied file
+  // or a caller's claimed reviewer string is not independently admitted here.
+  const approved = profile.correspondence
+  assert.ok(approved, 'Changed QA source requires the harness-validated explicit correspondence')
+  assert.equal(approved.decision, 'ACCEPT'); assert.ok(hash(approved.sha256) && approved.reviewer && approved.reference)
+  assert.equal(approved.previousSourceFingerprint, record.source.fingerprint)
+  assert.equal(approved.currentSourceFingerprint, source.fingerprint)
+  assert.equal(prior?.sourceFingerprint, record.source.fingerprint)
+  assert.equal(prior?.sourceCommit, record.source.commit)
+  assert.equal(approved.priorRunId, prior.runId)
+  assert.equal(approved.previousChecker, prior.checker)
+  assert.equal(approved.currentChecker, profile.inputs?.checker)
+  assert.ok(profile.runId && hash(profile.inputs.checker))
+  return copy({ source, checker: profile.inputs.checker, correspondence: approved,
+    preparationFingerprint: record.source.fingerprint, checkpointSha256: record.checkpoint.sha256,
+    profileId: profile.id, recordedByRunId: profile.runId })
+}
+
 export function validatePreparationRecord(record, { source, profile, origin, checkpoint }) {
   assert.equal(record.version, 1); assert.equal(record.kind, 'mission3-ui-preparation')
   assert.equal(record.initialMission3Absent, true)
   assert.ok(hash(record.source?.fingerprint) && hash(record.checkpoint?.sha256))
-  assert.equal(source.fingerprint, record.source.fingerprint, 'Exact source identity must match the saved preparation')
   assert.equal(profile?.mode, 'reused', 'Load requires the previously owned persistent profile')
   assert.equal(profile.id, record.profile.id); assert.equal(profile.path, record.profile.path)
   assert.equal(origin, record.origin)
@@ -51,7 +91,8 @@ export function validatePreparationRecord(record, { source, profile, origin, che
   for (const name of required) assert.equal(record.milestones.filter(m => m.name === name).length, 1)
   assert.ok(Number.isFinite(record.activeSeconds) && record.activeSeconds >= record.checkpoint.time)
   assert.ok(Array.isArray(record.retainedBlueIds) && record.retainedBlueIds.length)
-  return copy(record)
+  const qaAdmission = admitPreparationSource(record, source, profile)
+  return copy({ ...record, ...(qaAdmission ? { qaAdmission } : {}) })
 }
 
 export function validateLoadedPreparation(record, state) {
