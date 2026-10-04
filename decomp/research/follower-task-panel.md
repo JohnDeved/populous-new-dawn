@@ -322,7 +322,9 @@ control is established for this driver path. A prior executor observed a queued
 non-driver command16 unchanged through64 ticks, while driver/sole-Spy completion
 occurred after one tick. That observation does not prove the complete native
 non-driver scheduler, and no scheduling repair is folded into these controls.
-Balloon commandPosition remains separately unported.
+Balloon commandPosition was separately unported for PR185. Its later bounded
+[raw-payload startup repair](balloon-command-position.md) does not change the
+non-driver scheduling boundary.
 
 The source-pixel oracle retains the original panel, frame, icon and each glyph as
 separate source rectangles at the actual DOM scale, origin and device-pixel ratio.

@@ -286,6 +286,7 @@
         { "path": "decomp/research/mission9-boat-house.md", "heading": "Mission 9 Boat House production" },
         { "path": "decomp/research/vehicle-destruction.md", "heading": "Vehicle damage and destruction" },
         { "path": "decomp/research/transport-idle-state.md", "heading": "Native behavior" },
+        { "path": "decomp/research/balloon-command-position.md", "heading": "Finding" },
         { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Terrain changes do not invalidate active person routes" },
         { "path": "decomp/README.md", "heading": "State-10 order dispatch and resumption" },
         {
