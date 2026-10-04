@@ -194,7 +194,7 @@ export async function runLocalBrowser(options, scenario) {
         try { await Promise.race([lease ? context.close() : browser.close(), new Promise((_, reject) => { timeout = setTimeout(() => reject(Error('Owned browser close timed out')), 10000) })]) }
         finally { clearTimeout(timeout) }
         cleanupVerified = !browser.isConnected()
-        if (!cleanupVerified) throw Error('Owned browser remains connected after close')
+        if (!cleanupVerified) outcome = { status: 'failed', failure: 'Error: Owned browser remains connected after close', previousFailure: outcome.failure }
       } else cleanupVerified = !launchAttempted
     } catch (error) { outcome = { status: 'failed', failure: String(error), previousFailure: outcome.failure } }
     try { await stopServer(server) } catch (error) { outcome = { status: 'failed', failure: String(error), previousFailure: outcome.failure } }
@@ -208,7 +208,10 @@ export async function runLocalBrowser(options, scenario) {
       try {
         receipt.runtimeAfter = profileRuntimeReceipt(root, receipt.launch.executablePath, require)
         receipt.scenarioAfter = { path: receipt.scenario.path, sha256: sha256(readFileSync(receipt.scenario.path)) }
-        if (JSON.stringify(receipt.runtimeAfter) !== JSON.stringify(receipt.runtime) || receipt.scenarioAfter.sha256 !== receipt.scenario.sha256) throw Error('Runtime/scenario bytes changed during execution')
+        if (JSON.stringify(receipt.runtimeAfter) !== JSON.stringify(receipt.runtime) || receipt.scenarioAfter.sha256 !== receipt.scenario.sha256) {
+          receipt.profile.continuationVerified = false
+          outcome = { status: 'failed', failure: 'Error: Runtime/scenario bytes changed during execution', previousFailure: outcome.failure }
+        }
       } catch (error) {
         receipt.profile.continuationVerified = false
         outcome = { status: 'failed', failure: String(error), previousFailure: outcome.failure }
