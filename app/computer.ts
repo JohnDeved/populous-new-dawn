@@ -24,8 +24,14 @@ export type ComputerTask = {
   route: MarkerEntry[]
 }
 export type MarkerEntry = { marker: number; secondary: number; quotas: number[] }
+export interface ComputerProducer {
+  id: number
+  attempts: number
+  group: number
+}
 export type ComputerQueue = {
   tasks: ComputerTask[]
+  producers: ComputerProducer[]
   cursor: number
   flags: number
   coordinateLatch: number
@@ -37,8 +43,19 @@ export type ComputerQueue = {
   markerEntries: MarkerEntry[]
 }
 
+// 0x461d70 copies this order from 0x59d878. IDs identify producer entries,
+// not task types; construction and the final producer have singleton groups.
+export function createComputerProducers(): ComputerProducer[] {
+  return [1, 0, 3, 4, 5, 6, 7, 8, 9, 2, 11, 10].map((id, index) => ({
+    id,
+    attempts: 0,
+    group: index === 0 || index === 11 ? 1 : 10,
+  }))
+}
+
 export function createComputerQueue(): ComputerQueue {
   return {
+    producers: createComputerProducers(),
     tasks: Array.from({ length: 10 }, () => ({
       flags: 0,
       type: 0,
@@ -259,6 +276,43 @@ export function dispatchComputerTask(ai: ComputerQueue, process: (index: number)
   ai.cursor = (ai.cursor + 1) % 10
 }
 
+// 0x4625e0: one success per table pass, then one stable adjacent-swap pass
+// per priority group. The optional pre-table producer can use a separate slot.
+export function produceComputerTasks(
+  ai: ComputerQueue,
+  produce: (id: number, slot: number) => boolean,
+  beforeTable?: (slot: number) => boolean
+) {
+  let slot = ai.tasks.findIndex(task => !(task.flags & 1))
+  if (slot < 0) return
+  if (beforeTable?.(slot)) {
+    slot = ai.tasks.findIndex(task => !(task.flags & 1))
+    if (slot < 0) return
+  }
+  // Legacy checkpoints have no producer history; initialize once, never replay
+  // earlier allocations or reset a saved order on subsequent opportunities.
+  ai.producers ??= createComputerProducers()
+  const { producers } = ai
+  for (const producer of producers) {
+    const allocated = produce(producer.id, slot)
+    producer.attempts = (producer.attempts + 1) | 0
+    if (allocated) break
+  }
+  for (let start = 0; start < producers.length;) {
+    const end = start + producers[start].group
+    for (let index = start; index + 1 < end; index++) {
+      if (producers[index + 1].attempts < producers[index].attempts)
+        [producers[index], producers[index + 1]] = [producers[index + 1], producers[index]]
+    }
+    start = end
+  }
+}
+
+// 0x4e59a0: compare the signed32-bit sum of idle and housing-order people.
+export function hasComputerTrainingCapacity(available: number, capacity: number) {
+  return (available | 0) >= capacity
+}
+
 // 0x4e6640 / 0x462730 / 0x462790. Availability and first completed building
 // come from the native person/building lists, not a nearest-building heuristic.
 export function requestTraining(
@@ -269,11 +323,11 @@ export function requestTraining(
   firstBuilding: (model: number) => number
 ) {
   const index = ai.tasks.findIndex(t => !(t.flags & 1))
-  if (index < 0 || !available) return
+  if (index < 0 || !available) return false
   const buildingModel = ({ 3: 7, 4: 5, 5: 6, 6: 8 } as Record<number, number>)[model]
-  if (!buildingModel) return
+  if (!buildingModel) return false
   const target = firstBuilding(buildingModel)
-  if (!target) return
+  if (!target) return false
   const task = ai.tasks[index]
   Object.assign(task, {
     flags: ((task.flags & ~2) | 1) >>> 0,
@@ -284,6 +338,7 @@ export function requestTraining(
     phase: 0,
   })
   // Type 6 has no reset case in 0x462ca0: scratch fields retain their old values.
+  return true
 }
 
 // 0x4e6640 / 0x4c14c0: mission ATTACK allocation is capped separately from

@@ -35,7 +35,8 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 ## Port index
 
-Recent reusable topic notes: [Recorded-demo raw state and unresolved source-map provenance](research/recorded-demo-provenance.md),
+Recent reusable topic notes: [Early-mission producer scheduling and the type9 boundary](research/early-mission-producer-schedule.md),
+[Recorded-demo raw state and unresolved source-map provenance](research/recorded-demo-provenance.md),
 [LEVL2131 Face Off selector and conditional script requirement](research/demo131-entry.md),
 [Tutorial conditional entry and script loading](research/tutorial-entry.md),
 [Tutorial first World View lesson](research/tutorial-first-lesson.md),
@@ -5105,3 +5106,15 @@ root gate, exact cosmetic RNG threshold, capacity reserve, traversal order and
 sixteen-visit child expiry. `python -B scripts/check-native-hut-smoke-puffs.py EXE`
 checks bounded original instructions without executing the surrounding world
 loop. The browser allocation adapter remains an explicit implementation gap.
+
+[Early-level authored phase contribution](research/hut-smoke-initial-phase.md)
+binds the level reset and record allocator to the corrected Mission 1–3 initial
+adapter contribution. It preserves a failed-before/passed-after native comparison
+and names the remaining primary-stream, secondary-list and render-RNG boundaries.
+
+## Building construction-gauge consumer — 2026-10-03
+
+[Bounded native/current comparison](research/building-construction-gauge.md) identifies
+the inherited Mission 3 Tower line, executes the staged mesh/overlay queue, and
+separates construction presentation from original person-health and activity panels.
+No full original-frame raster parity is claimed.
