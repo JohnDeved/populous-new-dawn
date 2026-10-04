@@ -63,6 +63,11 @@
       "bytes": 1037
     },
     {
+      "path": "command-20.json",
+      "sha256": "ce8f4f93d0d94d78d0d2a8de7b6ebf1353c68e13561bb526bdd3afb8d5079452",
+      "bytes": 1118
+    },
+    {
       "path": "command-3.json",
       "sha256": "12ff35bf484feb7fae295f8267965a58cfedbcbeb2de658969f32a673b75697d",
       "bytes": 2450
