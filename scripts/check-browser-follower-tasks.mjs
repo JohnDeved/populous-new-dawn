@@ -236,7 +236,7 @@ export default async function followerTasks({ browser, page, url, output, openMi
   dprPage.on('console', message => { if(message.type()==='error')receipt.errors.push(message.text()) })
   await dprPage.goto(url, { waitUntil: 'domcontentloaded' })
   await dprPage.getByRole('dialog', { name: 'Start game', exact: true }).waitFor({ state: 'visible' })
-  await dprPage.getByRole('button', { name: 'Mission 1', exact: true }).click()
+  await dprPage.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
   await bindGame(dprPage)
   await dprPage.waitForFunction(() => window.testSceneRef.current && (window.testSceneRef.current.world.flyby.flags & 1 || !window.testSceneRef.current.world.inputMask))
   const skip = dprPage.locator('.skip-introduction')
