@@ -5126,12 +5126,34 @@ the inherited Mission 3 Tower line, executes the staged mesh/overlay queue, and
 separates construction presentation from original person-health and activity panels.
 No full original-frame raster parity is claimed.
 
+## Minimap frame composition
+
+[Minimap frame evidence](research/minimap-frame.md) binds both native 512/513-width
+frame descriptors, all twelve corner/edge sprites, the original 100×96 control,
+unchanged corner dimensions, tiled edges, absent center and overlapping draw order.
+The native check executes the existing retained frame routines while intercepting
+only terrain refresh and final raster-queue consumers. Modern uniform outer sizing
+is kept distinct from native independent-axis scaling. The CSS ellipse removal
+explicitly expands pointer reach to the existing rectangular map domain; native
+hit-region parity remains open. Terrain pixels and pick-coordinate math are unchanged;
+no parity credit is added.
+
 ## Early Mission1/2 response scanner
 
 [Pre-table type9 lifecycle](research/early-mission-response-task.md) binds the
 complete authored Mission1/2 branch to normal allocation, people/building scans,
 territory/alliance filters, response flags, cleanup and checkpoint continuation.
 Unhooked native cases retain the separate Mission3/type8 and Spy boundaries.
+
+## Disabled follower frame alpha — 2026-10-04
+
+[The bounded frame trace](research/follower-frame-alpha.md) proves ordinary D3D
+ghost-table frames use white RGB with native alpha 85/255, while enabled frames
+remain fully opaque. The executable check runs 500 refresh/render states through
+4,500 real queue entries and 18,000 final vertices, including edge/corner flags,
+hover/held/selection, and positive-to-zero totals. It also proves the imported
+15×36 frame pieces do not overlap. The existing population checker intercepts
+before these alpha decisions and cannot establish this result by itself.
 
 ## Mission3 pre-table defense response
 
