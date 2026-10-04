@@ -1,0 +1,28 @@
+✔ building menu waits through delayed false images before continuing (8.817722ms)
+✔ building menu exhausts its existing 30000 ms scope without continuing (178.95221ms)
+✔ building menu propagates failed texture acquisition without retrying (2.592404ms)
+✔ building hover Mission 1 waits through delayed false images before continuing (3.116791ms)
+✔ building hover Mission 1 exhausts its existing 30000 ms scope without continuing (162.433188ms)
+✔ building hover Mission 1 propagates failed texture acquisition without retrying (1.657348ms)
+✔ building hover Mission 2 waits through delayed false images before continuing (10.224455ms)
+✔ building hover Mission 2 exhausts its existing 30000 ms scope without continuing (150.597243ms)
+✔ building hover Mission 2 propagates failed texture acquisition without retrying (2.054636ms)
+✔ worship Tutorial waits through delayed false images before continuing (2.74997ms)
+✔ worship Tutorial exhausts its existing 30000 ms scope without continuing (115.433775ms)
+✔ worship Tutorial propagates failed texture acquisition without retrying (1.356947ms)
+✔ worship Mission 1 waits through delayed false images before continuing (2.652413ms)
+✔ worship Mission 1 exhausts its existing 20000 ms scope without continuing (76.361028ms)
+✔ worship Mission 1 propagates failed texture acquisition without retrying (1.352171ms)
+✔ repeated helper calls acquire the replacement document image (1.986293ms)
+✔ only literal true permits readiness, never a truthy observation value (0.396756ms)
+✔ late true is rejected after the awaited read settles, without another observation (1.400784ms)
+✔ the last pause fits the deadline and no read starts after it (1.402947ms)
+✔ invalid wait bounds fail before reading (0.378758ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 20
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 814.6775

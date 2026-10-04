@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "cf42dd22-4f48-4634-ae00-9d7ae5c29eb3",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "40632c29305d928ee17d48b6e25f6127c71702c7",
+    "branch": "fix/hud-texture-readiness",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "scripts/hud-texture-readiness.mjs",
+    "scripts/local-render/hud-texture-readiness.mjs",
+    "scripts/check-browser-building-menu.mjs",
+    "scripts/check-browser-building-panel-hover.mjs",
+    "scripts/check-browser-worship-panel-live.mjs",
+    "tests/hud-texture-readiness.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness",
+  "startedAt": "2026-10-04T19:15:49.010Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-40632c2.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-40632c2.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T19:15:50.997Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/scripts/check-browser-building-panel-hover.mjs\n  31:13  error  Empty block statement  no-empty\n  41:11  error  Empty block statement  no-empty\n  47:13  error  Empty block statement  no-empty\n\n✖ 3 problems (3 errors, 0 warnings)\n\n",
+  "stderr": "",
+  "stdoutSha256": "4b174b531782939dd50d4732b16d3a65155d909d09660703b6b6a64d82cdb18e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "40632c29305d928ee17d48b6e25f6127c71702c7",
+    "branch": "fix/hud-texture-readiness",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

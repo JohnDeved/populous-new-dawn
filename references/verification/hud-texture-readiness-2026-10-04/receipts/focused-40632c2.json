@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "f609641f-cdc0-4917-b67c-ecb0a85085bc",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "40632c29305d928ee17d48b6e25f6127c71702c7",
+    "branch": "fix/hud-texture-readiness",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/hud-texture-readiness.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness",
+  "startedAt": "2026-10-04T19:15:48.036Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/focused-40632c2.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/focused-40632c2.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T19:15:48.907Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ building menu waits through delayed false images before continuing (8.817722ms)\n✔ building menu exhausts its existing 30000 ms scope without continuing (178.95221ms)\n✔ building menu propagates failed texture acquisition without retrying (2.592404ms)\n✔ building hover Mission 1 waits through delayed false images before continuing (3.116791ms)\n✔ building hover Mission 1 exhausts its existing 30000 ms scope without continuing (162.433188ms)\n✔ building hover Mission 1 propagates failed texture acquisition without retrying (1.657348ms)\n✔ building hover Mission 2 waits through delayed false images before continuing (10.224455ms)\n✔ building hover Mission 2 exhausts its existing 30000 ms scope without continuing (150.597243ms)\n✔ building hover Mission 2 propagates failed texture acquisition without retrying (2.054636ms)\n✔ worship Tutorial waits through delayed false images before continuing (2.74997ms)\n✔ worship Tutorial exhausts its existing 30000 ms scope without continuing (115.433775ms)\n✔ worship Tutorial propagates failed texture acquisition without retrying (1.356947ms)\n✔ worship Mission 1 waits through delayed false images before continuing (2.652413ms)\n✔ worship Mission 1 exhausts its existing 20000 ms scope without continuing (76.361028ms)\n✔ worship Mission 1 propagates failed texture acquisition without retrying (1.352171ms)\n✔ repeated helper calls acquire the replacement document image (1.986293ms)\n✔ only literal true permits readiness, never a truthy observation value (0.396756ms)\n✔ late true is rejected after the awaited read settles, without another observation (1.400784ms)\n✔ the last pause fits the deadline and no read starts after it (1.402947ms)\n✔ invalid wait bounds fail before reading (0.378758ms)\nℹ tests 20\nℹ suites 0\nℹ pass 20\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 814.6775\n",
+  "stderr": "",
+  "stdoutSha256": "93394468c4a6f02ac5c78b5e02e18b1c7a679b8e82a1473a8b1d066a31874f80",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "40632c29305d928ee17d48b6e25f6127c71702c7",
+    "branch": "fix/hud-texture-readiness",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

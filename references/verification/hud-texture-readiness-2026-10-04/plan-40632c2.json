@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "base": "139ec7dec8fc77462a9bbf8a5fc09ad7b9bb9d31",
+  "head": "40632c29305d928ee17d48b6e25f6127c71702c7",
+  "changes": [
+    {
+      "path": "scripts/check-browser-building-menu.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "1f4aa105f927777eb69c6a347325ba228cdcd9c5d7a7b051f1da87647f2cbef2",
+      "changeHash": "1d9740c8163d0f3b55f27979e3c558e9a9bbd0063398ac3ec2d6fd9b694bd22a"
+    },
+    {
+      "path": "scripts/check-browser-building-panel-hover.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "8391d33ddff0ad75a29c64dc3f9f831b78b3e1da749fd40d7fd4363e3239f3ae",
+      "changeHash": "d773fb8cb7a29389c4e5b35f7fbb9823078b4039aaa0265c826dcd31c2dca353"
+    },
+    {
+      "path": "scripts/check-browser-worship-panel-live.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "634cf2c2cba3f1ebe47a42b157a5bfcba75e171498d4f7acf714c2d3224ee5d3",
+      "changeHash": "060b3ce03db8d9f7b99419b647ca98dd3ca783becb1e1ddac9d11014ac1f4734"
+    },
+    {
+      "path": "scripts/hud-texture-readiness.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "72e92a34a7b282edea371af92fdcf657a43dc80dbc5bb7fb44293a9b329b24a1",
+      "changeHash": "e338054f594a3c5d0fd9798e49388376ae19fafaf1ca45c411d4b9ef510f81f1"
+    },
+    {
+      "path": "scripts/local-render/hud-texture-readiness.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "e8579afda3debaeeaaaab5beac2dbf420c6d7bdccba7e68b1726063234dacd3a",
+      "changeHash": "a2ff68ce570901678155ac64573279a3d6be545376b8db0c81f4c6b3ed2df9aa"
+    },
+    {
+      "path": "tests/hud-texture-readiness.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "6587cfab4f182abfcba31f3646f931dc530a5a26ee26089da244ffc51d3c57d0",
+      "changeHash": "e06c71393ed0458a254ef6c8a29833ac946bdeb0c9e3e3e38cd8253d59f4624d"
+    }
+  ],
+  "affectedSubsystems": [],
+  "unknownPaths": [
+    "scripts/check-browser-building-menu.mjs",
+    "scripts/check-browser-building-panel-hover.mjs",
+    "scripts/check-browser-worship-panel-live.mjs",
+    "scripts/hud-texture-readiness.mjs",
+    "scripts/local-render/hud-texture-readiness.mjs",
+    "tests/hud-texture-readiness.test.mjs"
+  ],
+  "checks": [
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "reasons": [
+        "unmapped path requires conservative general validation: scripts/check-browser-building-menu.mjs",
+        "unmapped path requires conservative general validation: scripts/check-browser-building-panel-hover.mjs",
+        "unmapped path requires conservative general validation: scripts/check-browser-worship-panel-live.mjs",
+        "unmapped path requires conservative general validation: scripts/hud-texture-readiness.mjs",
+        "unmapped path requires conservative general validation: scripts/local-render/hud-texture-readiness.mjs",
+        "unmapped path requires conservative general validation: tests/hud-texture-readiness.test.mjs"
+      ],
+      "knownLimits": [
+        "Does not run native executable, browser integration, or hardware performance checks."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [
+        "May update ignored tool caches"
+      ],
+      "resources": [
+        "Serialize with other full test runs"
+      ],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    }
+  ],
+  "executesChecks": false
+}

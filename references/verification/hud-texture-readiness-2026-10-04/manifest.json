@@ -1,0 +1,639 @@
+{
+  "version": 1,
+  "scope": "Bounded raw evidence for merged PR201 and narrow issue200; no new execution",
+  "testedHead": "40632c29305d928ee17d48b6e25f6127c71702c7",
+  "acceptedBase": "139ec7dec8fc77462a9bbf8a5fc09ad7b9bb9d31",
+  "mergedMain": "f78e5c17757ce061b8b159da150536ee690e6b6f",
+  "testedAndMergedTree": "1b0070d730d9ec73e6fef0f2d59d20f9b39686f5",
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 5221,
+      "sha256": "776a450b5c9607a80459db0dd53fd004c2e3635899a453dc46aca5ce3fc2a4b1"
+    },
+    {
+      "path": "browser/hud-texture-readiness.json",
+      "bytes": 2593,
+      "sha256": "5a69dec75a801e1e6ab084526d9038e3719c1fed70d5161d80ac66cbb4c5b469"
+    },
+    {
+      "path": "browser/receipt.json",
+      "bytes": 5387,
+      "sha256": "860abd5f19ef9cb3902ad35ad9d7ba88eea0121a66981d8b140f98f2a44cbab8"
+    },
+    {
+      "path": "browser/server.log",
+      "bytes": 1113,
+      "sha256": "2cb5729c884c787a00bf5df38282f0a4f894a6dba629c2792c674d4f5f475f93"
+    },
+    {
+      "path": "build-correspondence-40632c2.json",
+      "bytes": 4290,
+      "sha256": "cffdd56a3daac8274f02826e93466e8b5b438731f7c1ed81e736211d9f9d2fa7"
+    },
+    {
+      "path": "carried-build/build-final-6b6eb68.json",
+      "bytes": 5245,
+      "sha256": "6ddc4bf5ab3124d9504440d465834700503c662283b7611764dc4b84866e1033"
+    },
+    {
+      "path": "carried-build/build-final-6b6eb68.json.artifacts/stderr.log",
+      "bytes": 1506,
+      "sha256": "ec8515daf959b98815e9176660a4daaf9416be0665a0de77258f36ada3e97af9"
+    },
+    {
+      "path": "carried-build/build-final-6b6eb68.json.artifacts/stdout.log",
+      "bytes": 1143,
+      "sha256": "4f3a955038a319c865db476d31fd183e6d0c0d4c7252e8facc8de99e5dd4cd29"
+    },
+    {
+      "path": "carried-build/terminal-release-6b6eb68.json",
+      "bytes": 2439,
+      "sha256": "9d49716ddfdb9fd465bd5358a4db473e61612a8eb87976f402f6dec396115615"
+    },
+    {
+      "path": "dependency-transfer/dependency-from-balloon.json",
+      "bytes": 1097,
+      "sha256": "394aef4fc5e76faf250eacbf049a5083e6d1b0401884f37be8f6f95bad24f694"
+    },
+    {
+      "path": "dependency-transfer/dependency-to-hud.json",
+      "bytes": 1097,
+      "sha256": "394aef4fc5e76faf250eacbf049a5083e6d1b0401884f37be8f6f95bad24f694"
+    },
+    {
+      "path": "failure-first-inputs/scripts/check-browser-building-menu.mjs",
+      "bytes": 16064,
+      "sha256": "8847ba2ac1084081b8382b42c7f714919cfa59c2274189d9ba97658c65ac733e"
+    },
+    {
+      "path": "failure-first-inputs/scripts/check-browser-building-panel-hover.mjs",
+      "bytes": 23325,
+      "sha256": "88fc51abe5bff06f4c3bf91d4f509469d2f2e8c7d9dc56d7eded6646dac3f58b"
+    },
+    {
+      "path": "failure-first-inputs/scripts/check-browser-worship-panel-live.mjs",
+      "bytes": 30686,
+      "sha256": "5dab44fd56a0cce978ffd142d14713d8c560851a8e419285f6170937aa4470b0"
+    },
+    {
+      "path": "failure-first-inputs/scripts/hud-texture-readiness.mjs",
+      "bytes": 1173,
+      "sha256": "72e92a34a7b282edea371af92fdcf657a43dc80dbc5bb7fb44293a9b329b24a1"
+    },
+    {
+      "path": "failure-first-inputs/tests/hud-texture-readiness.test.mjs",
+      "bytes": 7877,
+      "sha256": "25f8d09230c77415c5939c973f80028a2bb49ace94dcfe262c82c222fc6f04a4"
+    },
+    {
+      "path": "failure-first-source-manifest.json",
+      "bytes": 1628,
+      "sha256": "5b3eb39f227c715f14c7389eebe3083c0c3cdd13da9bf56c974c88aafe6b673a"
+    },
+    {
+      "path": "final-handoff-40632c2.md",
+      "bytes": 5499,
+      "sha256": "66d054d613705f4e49a528415454ce33054e3b88c5bcec64ccf627feeab7e134"
+    },
+    {
+      "path": "final-review.md",
+      "bytes": 1497,
+      "sha256": "3113efa77fcead06b74ae29310f56ded07c832e60aea78e1b4cc956304534a2b"
+    },
+    {
+      "path": "final-source/scripts/check-browser-building-menu.mjs",
+      "bytes": 15923,
+      "sha256": "1f4aa105f927777eb69c6a347325ba228cdcd9c5d7a7b051f1da87647f2cbef2"
+    },
+    {
+      "path": "final-source/scripts/check-browser-building-panel-hover.mjs",
+      "bytes": 23187,
+      "sha256": "8391d33ddff0ad75a29c64dc3f9f831b78b3e1da749fd40d7fd4363e3239f3ae"
+    },
+    {
+      "path": "final-source/scripts/check-browser-worship-panel-live.mjs",
+      "bytes": 30586,
+      "sha256": "634cf2c2cba3f1ebe47a42b157a5bfcba75e171498d4f7acf714c2d3224ee5d3"
+    },
+    {
+      "path": "final-source/scripts/hud-texture-readiness.mjs",
+      "bytes": 1173,
+      "sha256": "72e92a34a7b282edea371af92fdcf657a43dc80dbc5bb7fb44293a9b329b24a1"
+    },
+    {
+      "path": "final-source/scripts/local-render/hud-texture-readiness.mjs",
+      "bytes": 3843,
+      "sha256": "e8579afda3debaeeaaaab5beac2dbf420c6d7bdccba7e68b1726063234dacd3a"
+    },
+    {
+      "path": "final-source/tests/hud-texture-readiness.test.mjs",
+      "bytes": 8289,
+      "sha256": "6587cfab4f182abfcba31f3646f931dc530a5a26ee26089da244ffc51d3c57d0"
+    },
+    {
+      "path": "full-40632c2.diff",
+      "bytes": 18060,
+      "sha256": "e6e2c33082fc22681fc20b691876693e71e7f1f69ba43fe5b61f6088628f0e04"
+    },
+    {
+      "path": "plan-40632c2.json",
+      "bytes": 3679,
+      "sha256": "bac0d9de0f3cbfa474920b4aabd03ac4439a9b68c496121fc6ed41f52351202d"
+    },
+    {
+      "path": "receipts/browser-command-40632c2-run01.json",
+      "bytes": 4411,
+      "sha256": "f866025e2649f5f58ea505ee5511782cd05f4056c7655b7077a7d29c1d865eca"
+    },
+    {
+      "path": "receipts/browser-command-40632c2-run01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipts/browser-command-40632c2-run01.json.artifacts/stdout.log",
+      "bytes": 2168,
+      "sha256": "ac98f620810304a3dcc91b2b61024dab199f3ddc91aa28ffbb6eeccd8f849ab4"
+    },
+    {
+      "path": "receipts/check-final-40632c2.json",
+      "bytes": 111700,
+      "sha256": "519e1c39e6c3e114a097be2f04ee8f138f202554297d5cbca72ca54a13615786"
+    },
+    {
+      "path": "receipts/check-final-40632c2.json.artifacts/stderr.log",
+      "bytes": 1119,
+      "sha256": "02285cf98c9d88b48ecc3ef7fa38f35659b7c27d82ad3139b4a57f8bed24e9b1"
+    },
+    {
+      "path": "receipts/check-final-40632c2.json.artifacts/stdout.log",
+      "bytes": 107477,
+      "sha256": "7777cd23861150113631837abfd7b9817e6f6ae2691198216209e722496ba246"
+    },
+    {
+      "path": "receipts/failure-first.json",
+      "bytes": 9171,
+      "sha256": "ef9bd086c01ccb141954cd0d24460308f6d55695f9407c6995d16545a9f199d0"
+    },
+    {
+      "path": "receipts/failure-first.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipts/failure-first.json.artifacts/stdout.log",
+      "bytes": 7100,
+      "sha256": "d818d8b81d007a35a02cf650216fb9ab4815ede53fa280a23f0571625df9c08d"
+    },
+    {
+      "path": "receipts/focused-40632c2.json",
+      "bytes": 3388,
+      "sha256": "07cd64ddd5a040ee0abc7a5fe23d5ddfb8a6f9a82daed6ea22fef64871b2ec07"
+    },
+    {
+      "path": "receipts/focused-40632c2.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipts/focused-40632c2.json.artifacts/stdout.log",
+      "bytes": 1894,
+      "sha256": "93394468c4a6f02ac5c78b5e02e18b1c7a679b8e82a1473a8b1d066a31874f80"
+    },
+    {
+      "path": "receipts/lint-40632c2.json",
+      "bytes": 2048,
+      "sha256": "8dcadac2bea0fee51349c0134b3e6ca1fb791806b41afbb36b8ebcfdce7fd162"
+    },
+    {
+      "path": "receipts/lint-40632c2.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipts/lint-40632c2.json.artifacts/stdout.log",
+      "bytes": 305,
+      "sha256": "4b174b531782939dd50d4732b16d3a65155d909d09660703b6b6a64d82cdb18e"
+    },
+    {
+      "path": "receipts/lint-baseline-hover.json",
+      "bytes": 2230,
+      "sha256": "e5b6f47574de1bcf9a70b20ad81d6b8b191f7c5114de14fb18e6aa6e1135a97f"
+    },
+    {
+      "path": "receipts/lint-baseline-hover.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipts/lint-baseline-hover.json.artifacts/stdout.log",
+      "bytes": 305,
+      "sha256": "947c9393c0efbd7b0817472876817ecc42a2dbb80b0455c4ed4ba8d70c3890aa"
+    },
+    {
+      "path": "receipts/lint-other-five-40632c2.json",
+      "bytes": 1703,
+      "sha256": "a81c0a8d610935aa645d149c07e7e69293e17df9f0458107cfce9046d493d829"
+    },
+    {
+      "path": "receipts/lint-other-five-40632c2.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipts/lint-other-five-40632c2.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipts/smoke-syntax-committed.json",
+      "bytes": 1491,
+      "sha256": "e76c7892d9f71e6260994d2d5a7052936e91f9271d5e24a26f6fbb75d82b69a0"
+    },
+    {
+      "path": "receipts/smoke-syntax-committed.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipts/smoke-syntax-committed.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipts/structural-40632c2.json",
+      "bytes": 6369,
+      "sha256": "abb765e07375310ac2b0bf460ab0ea2612821859b28d39991171146923d47063"
+    },
+    {
+      "path": "receipts/structural-40632c2.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipts/structural-40632c2.json.artifacts/stdout.log",
+      "bytes": 4432,
+      "sha256": "26ce55c4da2cc8c3c7e75ed8dd4475b16a9934b2429dd83ef35f5bc1dda86d81"
+    },
+    {
+      "path": "receipts/syntax-committed.json",
+      "bytes": 1800,
+      "sha256": "e8c7690a44cee862f40a01dfbc52b3602980998f4e2eae08569c7d3138f88fbb"
+    },
+    {
+      "path": "receipts/syntax-committed.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "receipts/syntax-committed.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "terminal-release-40632c2.json",
+      "bytes": 1986,
+      "sha256": "749acaf872b7f7d6821eae704a27f88c2836f2445ef1b37a47b3214ec6bec68e"
+    }
+  ],
+  "originalFiles": [
+    {
+      "path": "receipts/failure-first.json",
+      "bytes": 9171,
+      "sha256": "ef9bd086c01ccb141954cd0d24460308f6d55695f9407c6995d16545a9f199d0",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/failure-first.json"
+    },
+    {
+      "path": "receipts/failure-first.json.artifacts/stdout.log",
+      "bytes": 7100,
+      "sha256": "d818d8b81d007a35a02cf650216fb9ab4815ede53fa280a23f0571625df9c08d",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/failure-first.json.artifacts/stdout.log"
+    },
+    {
+      "path": "receipts/failure-first.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/failure-first.json.artifacts/stderr.log"
+    },
+    {
+      "path": "receipts/focused-40632c2.json",
+      "bytes": 3388,
+      "sha256": "07cd64ddd5a040ee0abc7a5fe23d5ddfb8a6f9a82daed6ea22fef64871b2ec07",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/focused-40632c2.json"
+    },
+    {
+      "path": "receipts/focused-40632c2.json.artifacts/stdout.log",
+      "bytes": 1894,
+      "sha256": "93394468c4a6f02ac5c78b5e02e18b1c7a679b8e82a1473a8b1d066a31874f80",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/focused-40632c2.json.artifacts/stdout.log"
+    },
+    {
+      "path": "receipts/focused-40632c2.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/focused-40632c2.json.artifacts/stderr.log"
+    },
+    {
+      "path": "receipts/check-final-40632c2.json",
+      "bytes": 111700,
+      "sha256": "519e1c39e6c3e114a097be2f04ee8f138f202554297d5cbca72ca54a13615786",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/check-final-40632c2.json"
+    },
+    {
+      "path": "receipts/check-final-40632c2.json.artifacts/stdout.log",
+      "bytes": 107477,
+      "sha256": "7777cd23861150113631837abfd7b9817e6f6ae2691198216209e722496ba246",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/check-final-40632c2.json.artifacts/stdout.log"
+    },
+    {
+      "path": "receipts/check-final-40632c2.json.artifacts/stderr.log",
+      "bytes": 1119,
+      "sha256": "02285cf98c9d88b48ecc3ef7fa38f35659b7c27d82ad3139b4a57f8bed24e9b1",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/check-final-40632c2.json.artifacts/stderr.log"
+    },
+    {
+      "path": "receipts/browser-command-40632c2-run01.json",
+      "bytes": 4411,
+      "sha256": "f866025e2649f5f58ea505ee5511782cd05f4056c7655b7077a7d29c1d865eca",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/browser-command-40632c2-run01.json"
+    },
+    {
+      "path": "receipts/browser-command-40632c2-run01.json.artifacts/stdout.log",
+      "bytes": 2168,
+      "sha256": "ac98f620810304a3dcc91b2b61024dab199f3ddc91aa28ffbb6eeccd8f849ab4",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/browser-command-40632c2-run01.json.artifacts/stdout.log"
+    },
+    {
+      "path": "receipts/browser-command-40632c2-run01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/browser-command-40632c2-run01.json.artifacts/stderr.log"
+    },
+    {
+      "path": "receipts/lint-40632c2.json",
+      "bytes": 2048,
+      "sha256": "8dcadac2bea0fee51349c0134b3e6ca1fb791806b41afbb36b8ebcfdce7fd162",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-40632c2.json"
+    },
+    {
+      "path": "receipts/lint-40632c2.json.artifacts/stdout.log",
+      "bytes": 305,
+      "sha256": "4b174b531782939dd50d4732b16d3a65155d909d09660703b6b6a64d82cdb18e",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-40632c2.json.artifacts/stdout.log"
+    },
+    {
+      "path": "receipts/lint-40632c2.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-40632c2.json.artifacts/stderr.log"
+    },
+    {
+      "path": "receipts/lint-baseline-hover.json",
+      "bytes": 2230,
+      "sha256": "e5b6f47574de1bcf9a70b20ad81d6b8b191f7c5114de14fb18e6aa6e1135a97f",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-baseline-hover.json"
+    },
+    {
+      "path": "receipts/lint-baseline-hover.json.artifacts/stdout.log",
+      "bytes": 305,
+      "sha256": "947c9393c0efbd7b0817472876817ecc42a2dbb80b0455c4ed4ba8d70c3890aa",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-baseline-hover.json.artifacts/stdout.log"
+    },
+    {
+      "path": "receipts/lint-baseline-hover.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-baseline-hover.json.artifacts/stderr.log"
+    },
+    {
+      "path": "receipts/lint-other-five-40632c2.json",
+      "bytes": 1703,
+      "sha256": "a81c0a8d610935aa645d149c07e7e69293e17df9f0458107cfce9046d493d829",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-other-five-40632c2.json"
+    },
+    {
+      "path": "receipts/lint-other-five-40632c2.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-other-five-40632c2.json.artifacts/stdout.log"
+    },
+    {
+      "path": "receipts/lint-other-five-40632c2.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-other-five-40632c2.json.artifacts/stderr.log"
+    },
+    {
+      "path": "receipts/syntax-committed.json",
+      "bytes": 1800,
+      "sha256": "e8c7690a44cee862f40a01dfbc52b3602980998f4e2eae08569c7d3138f88fbb",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/syntax-committed.json"
+    },
+    {
+      "path": "receipts/syntax-committed.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/syntax-committed.json.artifacts/stdout.log"
+    },
+    {
+      "path": "receipts/syntax-committed.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/syntax-committed.json.artifacts/stderr.log"
+    },
+    {
+      "path": "receipts/smoke-syntax-committed.json",
+      "bytes": 1491,
+      "sha256": "e76c7892d9f71e6260994d2d5a7052936e91f9271d5e24a26f6fbb75d82b69a0",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/smoke-syntax-committed.json"
+    },
+    {
+      "path": "receipts/smoke-syntax-committed.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/smoke-syntax-committed.json.artifacts/stdout.log"
+    },
+    {
+      "path": "receipts/smoke-syntax-committed.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/smoke-syntax-committed.json.artifacts/stderr.log"
+    },
+    {
+      "path": "receipts/structural-40632c2.json",
+      "bytes": 6369,
+      "sha256": "abb765e07375310ac2b0bf460ab0ea2612821859b28d39991171146923d47063",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/structural-40632c2.json"
+    },
+    {
+      "path": "receipts/structural-40632c2.json.artifacts/stdout.log",
+      "bytes": 4432,
+      "sha256": "26ce55c4da2cc8c3c7e75ed8dd4475b16a9934b2429dd83ef35f5bc1dda86d81",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/structural-40632c2.json.artifacts/stdout.log"
+    },
+    {
+      "path": "receipts/structural-40632c2.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/structural-40632c2.json.artifacts/stderr.log"
+    },
+    {
+      "path": "build-correspondence-40632c2.json",
+      "bytes": 4290,
+      "sha256": "cffdd56a3daac8274f02826e93466e8b5b438731f7c1ed81e736211d9f9d2fa7",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/build-correspondence-40632c2.json"
+    },
+    {
+      "path": "terminal-release-40632c2.json",
+      "bytes": 1986,
+      "sha256": "749acaf872b7f7d6821eae704a27f88c2836f2445ef1b37a47b3214ec6bec68e",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/terminal-release-40632c2.json"
+    },
+    {
+      "path": "failure-first-source-manifest.json",
+      "bytes": 1628,
+      "sha256": "5b3eb39f227c715f14c7389eebe3083c0c3cdd13da9bf56c974c88aafe6b673a",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/failure-first-source-manifest.json"
+    },
+    {
+      "path": "full-40632c2.diff",
+      "bytes": 18060,
+      "sha256": "e6e2c33082fc22681fc20b691876693e71e7f1f69ba43fe5b61f6088628f0e04",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/full-40632c2.diff"
+    },
+    {
+      "path": "plan-40632c2.json",
+      "bytes": 3679,
+      "sha256": "bac0d9de0f3cbfa474920b4aabd03ac4439a9b68c496121fc6ed41f52351202d",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/plan-40632c2.json"
+    },
+    {
+      "path": "final-handoff-40632c2.md",
+      "bytes": 5499,
+      "sha256": "66d054d613705f4e49a528415454ce33054e3b88c5bcec64ccf627feeab7e134",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/final-handoff-40632c2.md"
+    },
+    {
+      "path": "browser/receipt.json",
+      "bytes": 5387,
+      "sha256": "860abd5f19ef9cb3902ad35ad9d7ba88eea0121a66981d8b140f98f2a44cbab8",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/rendered-40632c2-run01/receipt.json"
+    },
+    {
+      "path": "browser/hud-texture-readiness.json",
+      "bytes": 2593,
+      "sha256": "5a69dec75a801e1e6ab084526d9038e3719c1fed70d5161d80ac66cbb4c5b469",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/rendered-40632c2-run01/hud-texture-readiness.json"
+    },
+    {
+      "path": "browser/server.log",
+      "bytes": 1113,
+      "sha256": "2cb5729c884c787a00bf5df38282f0a4f894a6dba629c2792c674d4f5f475f93",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/rendered-40632c2-run01/server.log"
+    },
+    {
+      "path": "failure-first-inputs/tests/hud-texture-readiness.test.mjs",
+      "bytes": 7877,
+      "sha256": "25f8d09230c77415c5939c973f80028a2bb49ace94dcfe262c82c222fc6f04a4",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/failure-first-inputs/tests/hud-texture-readiness.test.mjs"
+    },
+    {
+      "path": "failure-first-inputs/scripts/check-browser-building-panel-hover.mjs",
+      "bytes": 23325,
+      "sha256": "88fc51abe5bff06f4c3bf91d4f509469d2f2e8c7d9dc56d7eded6646dac3f58b",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/failure-first-inputs/scripts/check-browser-building-panel-hover.mjs"
+    },
+    {
+      "path": "failure-first-inputs/scripts/hud-texture-readiness.mjs",
+      "bytes": 1173,
+      "sha256": "72e92a34a7b282edea371af92fdcf657a43dc80dbc5bb7fb44293a9b329b24a1",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/failure-first-inputs/scripts/hud-texture-readiness.mjs"
+    },
+    {
+      "path": "failure-first-inputs/scripts/check-browser-building-menu.mjs",
+      "bytes": 16064,
+      "sha256": "8847ba2ac1084081b8382b42c7f714919cfa59c2274189d9ba97658c65ac733e",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/failure-first-inputs/scripts/check-browser-building-menu.mjs"
+    },
+    {
+      "path": "failure-first-inputs/scripts/check-browser-worship-panel-live.mjs",
+      "bytes": 30686,
+      "sha256": "5dab44fd56a0cce978ffd142d14713d8c560851a8e419285f6170937aa4470b0",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/failure-first-inputs/scripts/check-browser-worship-panel-live.mjs"
+    },
+    {
+      "path": "final-source/scripts/check-browser-building-menu.mjs",
+      "bytes": 15923,
+      "sha256": "1f4aa105f927777eb69c6a347325ba228cdcd9c5d7a7b051f1da87647f2cbef2",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/scripts/check-browser-building-menu.mjs"
+    },
+    {
+      "path": "final-source/scripts/check-browser-building-panel-hover.mjs",
+      "bytes": 23187,
+      "sha256": "8391d33ddff0ad75a29c64dc3f9f831b78b3e1da749fd40d7fd4363e3239f3ae",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/scripts/check-browser-building-panel-hover.mjs"
+    },
+    {
+      "path": "final-source/scripts/check-browser-worship-panel-live.mjs",
+      "bytes": 30586,
+      "sha256": "634cf2c2cba3f1ebe47a42b157a5bfcba75e171498d4f7acf714c2d3224ee5d3",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/scripts/check-browser-worship-panel-live.mjs"
+    },
+    {
+      "path": "final-source/scripts/hud-texture-readiness.mjs",
+      "bytes": 1173,
+      "sha256": "72e92a34a7b282edea371af92fdcf657a43dc80dbc5bb7fb44293a9b329b24a1",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/scripts/hud-texture-readiness.mjs"
+    },
+    {
+      "path": "final-source/scripts/local-render/hud-texture-readiness.mjs",
+      "bytes": 3843,
+      "sha256": "e8579afda3debaeeaaaab5beac2dbf420c6d7bdccba7e68b1726063234dacd3a",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/scripts/local-render/hud-texture-readiness.mjs"
+    },
+    {
+      "path": "final-source/tests/hud-texture-readiness.test.mjs",
+      "bytes": 8289,
+      "sha256": "6587cfab4f182abfcba31f3646f931dc530a5a26ee26089da244ffc51d3c57d0",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/tests/hud-texture-readiness.test.mjs"
+    },
+    {
+      "path": "carried-build/build-final-6b6eb68.json",
+      "bytes": 5245,
+      "sha256": "6ddc4bf5ab3124d9504440d465834700503c662283b7611764dc4b84866e1033",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/build-final-6b6eb68.json"
+    },
+    {
+      "path": "carried-build/terminal-release-6b6eb68.json",
+      "bytes": 2439,
+      "sha256": "9d49716ddfdb9fd465bd5358a4db473e61612a8eb87976f402f6dec396115615",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/terminal-release-6b6eb68.json"
+    },
+    {
+      "path": "carried-build/build-final-6b6eb68.json.artifacts/stdout.log",
+      "bytes": 1143,
+      "sha256": "4f3a955038a319c865db476d31fd183e6d0c0d4c7252e8facc8de99e5dd4cd29",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/build-final-6b6eb68.json.artifacts/stdout.log"
+    },
+    {
+      "path": "carried-build/build-final-6b6eb68.json.artifacts/stderr.log",
+      "bytes": 1506,
+      "sha256": "ec8515daf959b98815e9176660a4daaf9416be0665a0de77258f36ada3e97af9",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/balloon-command-position/build-final-6b6eb68.json.artifacts/stderr.log"
+    },
+    {
+      "path": "dependency-transfer/dependency-from-balloon.json",
+      "bytes": 1097,
+      "sha256": "394aef4fc5e76faf250eacbf049a5083e6d1b0401884f37be8f6f95bad24f694",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-dependency-transfer/dependency-from-balloon.json"
+    },
+    {
+      "path": "dependency-transfer/dependency-to-hud.json",
+      "bytes": 1097,
+      "sha256": "394aef4fc5e76faf250eacbf049a5083e6d1b0401884f37be8f6f95bad24f694",
+      "originalSource": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/balloon-command-position/work/orchestration/hud-dependency-transfer/dependency-to-hud.json"
+    }
+  ],
+  "excluded": "Dependencies, binaries, browser profiles, caches, credentials, screenshots, unrelated artifacts. Manifest excludes its own hash; commit and Git blob readback bind it."
+}

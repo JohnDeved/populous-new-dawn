@@ -1,0 +1,40 @@
+{
+  "time": "2026-10-04T19:43:16.116081+00:00",
+  "status": "granted sequence terminal; coordinator notified of lane and port release",
+  "head": "40632c29305d928ee17d48b6e25f6127c71702c7",
+  "tree": "1b0070d730d9ec73e6fef0f2d59d20f9b39686f5",
+  "foregroundSession": 48237,
+  "foregroundExitCode": 0,
+  "port": 4368,
+  "cleanup": "Accepted local-render harness awaited browser close and stopServer in finally before writing passed terminal receipt. Outer foreground command exited0. No independent machine-wide process/port census.",
+  "remainingOwnedPackageBrowserJobs": [],
+  "dependencyPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/node_modules",
+  "dependencyInode": 925605,
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "receipts": [
+    {
+      "path": "work/orchestration/hud-readiness/check-final-40632c2.json",
+      "sha256": "519e1c39e6c3e114a097be2f04ee8f138f202554297d5cbca72ca54a13615786",
+      "status": "passed",
+      "exitCode": 0,
+      "finishedAt": "2026-10-04T19:41:51.287Z",
+      "stdoutSha256": "7777cd23861150113631837abfd7b9817e6f6ae2691198216209e722496ba246",
+      "stderrSha256": "02285cf98c9d88b48ecc3ef7fa38f35659b7c27d82ad3139b4a57f8bed24e9b1"
+    },
+    {
+      "path": "work/orchestration/hud-readiness/browser-command-40632c2-run01.json",
+      "sha256": "f866025e2649f5f58ea505ee5511782cd05f4056c7655b7077a7d29c1d865eca",
+      "status": "passed",
+      "exitCode": 0,
+      "finishedAt": "2026-10-04T19:42:37.453Z",
+      "stdoutSha256": "ac98f620810304a3dcc91b2b61024dab199f3ddc91aa28ffbb6eeccd8f849ab4",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/hud-readiness/rendered-40632c2-run01/receipt.json",
+      "sha256": "860abd5f19ef9cb3902ad35ad9d7ba88eea0121a66981d8b140f98f2a44cbab8",
+      "status": "passed",
+      "finishedAt": "2026-10-04T19:42:34.528Z"
+    }
+  ]
+}

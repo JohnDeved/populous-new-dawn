@@ -1,0 +1,8 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/scripts/check-browser-building-panel-hover.mjs
+  31:13  error  Empty block statement  no-empty
+  41:11  error  Empty block statement  no-empty
+  47:13  error  Empty block statement  no-empty
+
+✖ 3 problems (3 errors, 0 warnings)
+

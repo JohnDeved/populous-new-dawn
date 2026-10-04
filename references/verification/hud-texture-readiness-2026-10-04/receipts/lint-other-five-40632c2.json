@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "cb67d183-9a2a-4693-a5d9-e97bdc5b957e",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "40632c29305d928ee17d48b6e25f6127c71702c7",
+    "branch": "fix/hud-texture-readiness",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "scripts/hud-texture-readiness.mjs",
+    "scripts/local-render/hud-texture-readiness.mjs",
+    "scripts/check-browser-building-menu.mjs",
+    "scripts/check-browser-worship-panel-live.mjs",
+    "tests/hud-texture-readiness.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness",
+  "startedAt": "2026-10-04T19:16:36.893Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-other-five-40632c2.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-other-five-40632c2.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T19:16:38.476Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "40632c29305d928ee17d48b6e25f6127c71702c7",
+    "branch": "fix/hud-texture-readiness",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

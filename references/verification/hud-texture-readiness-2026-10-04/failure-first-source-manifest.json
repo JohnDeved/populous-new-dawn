@@ -1,0 +1,27 @@
+{
+  "base": "ea521248b64f0993f4b9884b8e070fb20c4cbbe1",
+  "receipt": "failure-first.json",
+  "testSourceRecovery": "Initial 17-test source reconstructed by reversing the three documented test-only additions; exact bytes verified against original receipt SHA256 before saving. No test rerun or outcome invented.",
+  "inputs": {
+    "tests/hud-texture-readiness.test.mjs": {
+      "sha256": "25f8d09230c77415c5939c973f80028a2bb49ace94dcfe262c82c222fc6f04a4",
+      "retainedPath": "work/orchestration/hud-readiness/failure-first-inputs/tests/hud-texture-readiness.test.mjs"
+    },
+    "scripts/hud-texture-readiness.mjs": {
+      "sha256": "72e92a34a7b282edea371af92fdcf657a43dc80dbc5bb7fb44293a9b329b24a1",
+      "retainedPath": "work/orchestration/hud-readiness/failure-first-inputs/scripts/hud-texture-readiness.mjs"
+    },
+    "scripts/check-browser-building-menu.mjs": {
+      "sha256": "8847ba2ac1084081b8382b42c7f714919cfa59c2274189d9ba97658c65ac733e",
+      "retainedPath": "work/orchestration/hud-readiness/failure-first-inputs/scripts/check-browser-building-menu.mjs"
+    },
+    "scripts/check-browser-building-panel-hover.mjs": {
+      "sha256": "88fc51abe5bff06f4c3bf91d4f509469d2f2e8c7d9dc56d7eded6646dac3f58b",
+      "retainedPath": "work/orchestration/hud-readiness/failure-first-inputs/scripts/check-browser-building-panel-hover.mjs"
+    },
+    "scripts/check-browser-worship-panel-live.mjs": {
+      "sha256": "5dab44fd56a0cce978ffd142d14713d8c560851a8e419285f6170937aa4470b0",
+      "retainedPath": "work/orchestration/hud-readiness/failure-first-inputs/scripts/check-browser-worship-panel-live.mjs"
+    }
+  }
+}

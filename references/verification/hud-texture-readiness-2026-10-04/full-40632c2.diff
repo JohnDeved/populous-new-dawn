@@ -1,0 +1,371 @@
+diff --git a/scripts/check-browser-building-menu.mjs b/scripts/check-browser-building-menu.mjs
+index 6d21e68..a091063 100644
+--- a/scripts/check-browser-building-menu.mjs
++++ b/scripts/check-browser-building-menu.mjs
+@@ -4,6 +4,7 @@ import { mkdirSync, writeFileSync } from 'node:fs'
+ import { createRequire } from 'node:module'
+ import { resolve } from 'node:path'
+ import { bindGame } from './browser-game.mjs'
++import { waitForHudTexture } from './hud-texture-readiness.mjs'
+ 
+ const projectRoot = process.cwd(),
+   requireFromProject = createRequire(resolve(projectRoot, 'package.json')),
+@@ -30,11 +31,7 @@ try {
+   await page.waitForFunction(() => !window.testScene.world.inputMask)
+   await page.waitForFunction(() => window.testSceneRef.current?.world === window.testStore.getWorld())
+   await page.evaluate(() => { window.testScene = window.testSceneRef.current })
+-  await page.waitForFunction(async () => {
+-    const { texture } = await import('/app/scene-assets.ts')
+-    const image = texture('hud').image
+-    return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0
+-  })
++  await waitForHudTexture(page)
+ 
+   const panel = page.locator('.training-panel:not(.construction-panel):not(.tower-panel):not([hidden])')
+   const authored = await page.evaluate(() => {
+diff --git a/scripts/check-browser-building-panel-hover.mjs b/scripts/check-browser-building-panel-hover.mjs
+index 7b562bf..5572704 100644
+--- a/scripts/check-browser-building-panel-hover.mjs
++++ b/scripts/check-browser-building-panel-hover.mjs
+@@ -4,6 +4,7 @@ import { spawn } from 'node:child_process'
+ import { createRequire } from 'node:module'
+ import { resolve } from 'node:path'
+ import { openGame } from './browser-game.mjs'
++import { waitForHudTexture } from './hud-texture-readiness.mjs'
+ 
+ const projectRoot = process.cwd(),
+   requireFromProject = createRequire(resolve(projectRoot, 'package.json')),
+@@ -61,11 +62,7 @@ function cleanupReceipt() {
+ }
+ 
+ async function waitHud(page) {
+-  await page.waitForFunction(async () => {
+-    const { texture } = await import('/app/scene-assets.ts'),
+-      image = texture('hud').image
+-    return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0
+-  })
++  await waitForHudTexture(page)
+ }
+ 
+ async function setHudSize(page, value) {
+diff --git a/scripts/check-browser-worship-panel-live.mjs b/scripts/check-browser-worship-panel-live.mjs
+index eb18270..9715f11 100644
+--- a/scripts/check-browser-worship-panel-live.mjs
++++ b/scripts/check-browser-worship-panel-live.mjs
+@@ -8,6 +8,7 @@ import { resolve } from 'node:path'
+ import { fileURLToPath } from 'node:url'
+ import { chromium } from '@playwright/test'
+ import { bindGame, openGame } from './browser-game.mjs'
++import { waitForHudTexture } from './hud-texture-readiness.mjs'
+ import { superviseBrowserCheck } from './performance-queue.mjs'
+ 
+ const output = resolve(process.env.PND_QUEUE_OUTPUT ?? 'work/orchestration/issue72/browser')
+@@ -42,12 +43,8 @@ async function stage(name, action) {
+   return result
+ }
+ 
+-async function waitHud(page) {
+-  await page.waitForFunction(async () => {
+-    const { texture } = await import('/app/scene-assets.ts'),
+-      image = texture('hud').image
+-    return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0
+-  })
++async function waitHud(page, timeout = 30000) {
++  await waitForHudTexture(page, { timeout })
+ }
+ 
+ async function waitNormalFollowerInput(page) {
+@@ -688,7 +685,7 @@ async function acceptance() {
+     const game = await openGame(browser, 1)
+     page = game.page
+     page.setDefaultTimeout(20_000)
+-    await waitHud(page)
++    await waitHud(page, 20_000)
+     await waitNormalFollowerInput(page)
+     const id = await page.evaluate(
+       () => window.testScene.world.shrines.find(h => h.kind === 'bridge')?.id
+diff --git a/scripts/hud-texture-readiness.mjs b/scripts/hud-texture-readiness.mjs
+new file mode 100644
+index 0000000..0fe8fc5
+--- /dev/null
++++ b/scripts/hud-texture-readiness.mjs
+@@ -0,0 +1,21 @@
++// Await the current document's texture getter on every observation. Async
++// waitForFunction predicates can accept a truthy Promise that resolves false.
++// The deadline covers reads and pauses, but cannot cancel an in-flight evaluate;
++// a stalled import must settle (or the owning browser must close) before we exit.
++export async function waitForHudTexture(page, { timeout = 30000, polling = 100 } = {}) {
++  if (!Number.isFinite(timeout) || timeout <= 0 || !Number.isFinite(polling) || polling <= 0)
++    throw new RangeError('Invalid HUD texture timeout or polling interval')
++  const deadline = performance.now() + timeout
++  while (performance.now() < deadline) {
++    const ready = await page.evaluate(async () => {
++      const { texture } = await import('/app/scene-assets.ts'),
++        image = texture('hud').image
++      return image instanceof HTMLImageElement && image.complete && image.naturalWidth > 0
++    })
++    const remaining = deadline - performance.now()
++    if (remaining <= 0) break
++    if (ready === true) return true
++    await page.waitForTimeout(Math.min(polling, remaining))
++  }
++  throw new Error(`HUD texture readiness timed out after ${timeout} ms`)
++}
+diff --git a/scripts/local-render/hud-texture-readiness.mjs b/scripts/local-render/hud-texture-readiness.mjs
+new file mode 100644
+index 0000000..cab752e
+--- /dev/null
++++ b/scripts/local-render/hud-texture-readiness.mjs
+@@ -0,0 +1,80 @@
++import assert from 'node:assert/strict'
++import { createHash } from 'node:crypto'
++import { readFileSync, writeFileSync } from 'node:fs'
++import { resolve } from 'node:path'
++import { pathToFileURL } from 'node:url'
++
++// Bounded asset-readiness smoke only. The harness owns browser/server cleanup and
++// the terminal outcome. No image, module, world, storage, or clock state is faked.
++export default async function ({ page, openMission, root, output, receipt, signal }) {
++  const helperPath = resolve(root, 'scripts/hud-texture-readiness.mjs'),
++    { waitForHudTexture } = await import(pathToFileURL(helperPath).href),
++    hash = path => createHash('sha256').update(readFileSync(path)).digest('hex'),
++    report = {
++      scenarioSha256: hash(new URL(import.meta.url)),
++      helperSha256: hash(helperPath),
++      method: 'Ordinary Mission 1 startup, repeated HUD reads, then full-page reload and ordinary startup again. Actual page.evaluate, module import, and HTMLImageElement.',
++      limits: 'Asset-readiness smoke, not the full historical building/worship routes, pixel parity, gameplay completion, or hardware performance. False-to-true is claimed only if actually observed.',
++      documents: [],
++    },
++    save = () => writeFileSync(resolve(output, 'hud-texture-readiness.json'), JSON.stringify(report, null, 2) + '\n')
++  save()
++  for (const name of ['initial', 'reloaded']) {
++    signal.throwIfAborted()
++    if (name === 'reloaded') {
++      await page.reload({ waitUntil: 'domcontentloaded' })
++      await page.getByRole('dialog', { name: 'Start game', exact: true }).waitFor({ state: 'visible' })
++    }
++    const timeOrigin = await page.evaluate(() => performance.timeOrigin)
++    if (name === 'reloaded') assert.notEqual(timeOrigin, report.documents[0].timeOrigin, 'Reload must replace the document')
++    const document = { name, timeOrigin, gates: [] }
++    report.documents.push(document)
++    save()
++    await openMission(1)
++    for (const [phase, timeout] of [['startup', 30000], ['repeated', 20000]]) {
++      signal.throwIfAborted()
++      const gate = { phase, timeout, samples: [] }, started = performance.now()
++      document.gates.push(gate)
++      save()
++      // Record actual returned observations without substituting the predicate,
++      // import, image, or clock. The maintained helper still owns all polling.
++      const ready = await waitForHudTexture({
++        async evaluate(observe) {
++          signal.throwIfAborted()
++          const value = await page.evaluate(observe)
++          gate.samples.push({ ready: value, elapsedMs: performance.now() - started })
++          save()
++          return value
++        },
++        async waitForTimeout(ms) {
++          signal.throwIfAborted()
++          await page.waitForTimeout(ms)
++        },
++      }, { timeout })
++      assert.equal(ready, true)
++      gate.elapsedMs = performance.now() - started
++      gate.observedFalseToTrue = gate.samples.some(sample => sample.ready === false)
++      save()
++    }
++    document.state = await page.evaluate(() => {
++      const scene = window.testSceneRef.current, gl = scene.renderer.getContext(),
++        debug = gl.getExtension('WEBGL_debug_renderer_info')
++      return {
++        level: scene.world.outcome.level,
++        status: scene.world.status,
++        attachedCanvas: scene.renderer.domElement.isConnected,
++        contextLost: gl.isContextLost(),
++        webglVersion: gl.getParameter(gl.VERSION),
++        renderer: gl.getParameter(debug ? debug.UNMASKED_RENDERER_WEBGL : gl.RENDERER),
++      }
++    })
++    assert.equal(document.state.level, 1)
++    assert.equal(document.state.status, 'playing')
++    assert.equal(document.state.attachedCanvas, true)
++    assert.equal(document.state.contextLost, false)
++    assert.ok(document.state.webglVersion.startsWith('WebGL 2.0'))
++    save()
++  }
++  assert.deepEqual(receipt.errors, [])
++  return report
++}
+diff --git a/tests/hud-texture-readiness.test.mjs b/tests/hud-texture-readiness.test.mjs
+new file mode 100644
+index 0000000..c63c761
+--- /dev/null
++++ b/tests/hud-texture-readiness.test.mjs
+@@ -0,0 +1,166 @@
++import assert from 'node:assert/strict'
++import { readFileSync } from 'node:fs'
++import test from 'node:test'
++import vm from 'node:vm'
++import { waitForHudTexture } from '../scripts/hud-texture-readiness.mjs'
++
++const callers = [
++  { name: 'building menu', file: 'check-browser-building-menu.mjs', timeout: 30000 },
++  { name: 'building hover Mission 1', file: 'check-browser-building-panel-hover.mjs', timeout: 30000 },
++  { name: 'building hover Mission 2', file: 'check-browser-building-panel-hover.mjs', timeout: 30000 },
++  { name: 'worship Tutorial', file: 'check-browser-worship-panel-live.mjs', timeout: 30000 },
++  { name: 'worship Mission 1', file: 'check-browser-worship-panel-live.mjs', timeout: 20000 },
++]
++
++function callerSource({ name, file }) {
++  const source = readFileSync(new URL(`../scripts/${file}`, import.meta.url), 'utf8')
++  if (source.includes('await waitForHudTexture('))
++    assert.ok(source.includes("import { waitForHudTexture } from './hud-texture-readiness.mjs'"), 'Resolve the production helper import')
++  // Execute the maintained gate and its local wrapper, not a copied predicate.
++  // Keeping the old wrapper executable also makes the regression fail first.
++  if (name === 'building menu') {
++    const marker = '  await page.evaluate(() => { window.testScene = window.testSceneRef.current })'
++    const start = source.indexOf(marker) + marker.length
++    const end = source.indexOf('  const panel = ', start)
++    assert.ok(start >= marker.length && end > start)
++    return source.slice(start, end)
++  }
++  const wrapper = source.slice(source.indexOf('async function waitHud('), source.indexOf('\nasync function ', source.indexOf('async function waitHud(') + 1))
++  const startMarker = name === 'building hover Mission 1' ? 'async function ordinaryMissionOneHouse(page) {'
++    : name === 'building hover Mission 2' ? 'async function ordinaryMissionTwoTrainingHut(page) {'
++    : name === 'worship Mission 1' ? '    page.setDefaultTimeout(20_000)' : "      () => window.testScene.world.ai.variables[9] === 6 && !window.testScene.world.inputMask"
++  const start = source.indexOf('await waitHud(', source.indexOf(startMarker))
++  const end = source.indexOf('\n', start)
++  assert.ok(start >= 0 && end > start && wrapper.startsWith('async function waitHud('))
++  return `${wrapper}\n${source.slice(start, end)}`
++}
++
++function fixture(t, values, { readLatency = 0 } = {}) {
++  let elapsed = 0, reads = 0, imports = 0, getters = 0, pending = false, generation = 0
++  const events = []
++  const clock = t.mock.method(performance, 'now', () => elapsed)
++  t.after(() => clock.mock.restore())
++  const page = {
++    async evaluate(observe) {
++      assert.equal(pending, false, 'Observations must not overlap')
++      pending = true
++      const currentGeneration = generation
++      const value = values[Math.min(reads++, values.length - 1)]
++      const Image = class HTMLImageElement {}
++      // Substitute only the module-loader boundary. Run the real callback in a
++      // fresh document realm, with no window/global function aliases available.
++      const callback = observe.toString().replace("import('/app/scene-assets.ts')", "importSceneAssets('/app/scene-assets.ts')")
++      try {
++        return await vm.runInNewContext(`(${callback})()`, {
++          HTMLImageElement: Image,
++          async importSceneAssets(path) {
++            assert.equal(path, '/app/scene-assets.ts')
++            imports++
++            events.push(['import', currentGeneration])
++            await new Promise(resolve => setImmediate(resolve))
++            elapsed += readLatency
++            if (value instanceof Error) throw value
++            return {
++              texture(kind) {
++                assert.equal(kind, 'hud')
++                assert.equal(pending, true, 'Await the import before acquiring the image')
++                getters++
++                events.push(['texture', currentGeneration])
++                const image = value?.element === false ? {} : new Image()
++                return { image: Object.assign(image, value) }
++              },
++            }
++          },
++        })
++      } finally {
++        pending = false
++      }
++    },
++    async waitForFunction(predicate) {
++      // Installed Playwright 1.63 tests predicate truthiness before adopting its
++      // Promise. A false settlement returns a false handle without another poll.
++      const success = this.evaluate(predicate)
++      assert.ok(success)
++      return { value: await success }
++    },
++    async waitForTimeout(ms) {
++      assert.equal(pending, false, 'Pause only after the previous read settles')
++      assert.ok(ms > 0 && ms <= 100)
++      elapsed += ms
++      generation++
++      events.push(['pause', ms])
++    },
++  }
++  return {
++    page, events,
++    replaceDocument() { generation++ },
++    get elapsed() { return elapsed },
++    get reads() { return reads },
++    get imports() { return imports },
++    get getters() { return getters },
++  }
++}
++const readyImage = { complete: true, naturalWidth: 640 }
++
++for (const caller of callers) {
++  const source = callerSource(caller)
++  const run = page => vm.runInNewContext(`(async () => { ${source} })()`, { page, waitForHudTexture })
++  test(`${caller.name} waits through delayed false images before continuing`, async t => {
++    const f = fixture(t, [{ ...readyImage, element: false }, { ...readyImage, complete: false }, { ...readyImage, naturalWidth: 0 }, readyImage])
++    await run(f.page)
++    assert.equal(f.reads, 4)
++    assert.equal(f.imports, 4, 'Reimport in the current document for every read')
++    assert.equal(f.getters, 4, 'Acquire the current image on every read')
++    assert.deepEqual(f.events.filter(([event]) => event === 'texture').map(([, generation]) => generation), [0, 1, 2, 3])
++  })
++  test(`${caller.name} exhausts its existing ${caller.timeout} ms scope without continuing`, async t => {
++    const f = fixture(t, [{ complete: false, naturalWidth: 0 }])
++    await assert.rejects(run(f.page), new RegExp(`HUD texture readiness timed out after ${caller.timeout} ms`))
++    assert.equal(f.elapsed, caller.timeout)
++    assert.equal(f.reads, caller.timeout / 100)
++  })
++  test(`${caller.name} propagates failed texture acquisition without retrying`, async t => {
++    const f = fixture(t, [new Error('HUD module unavailable')])
++    await assert.rejects(run(f.page), /HUD module unavailable/)
++    assert.equal(f.reads, 1)
++    assert.equal(f.getters, 0)
++    assert.equal(f.events.some(([event]) => event === 'pause'), false)
++  })
++}
++
++test('repeated helper calls acquire the replacement document image', async t => {
++  const f = fixture(t, [readyImage, { ...readyImage, complete: false }, readyImage])
++  assert.equal(await waitForHudTexture(f.page), true)
++  f.replaceDocument()
++  assert.equal(await waitForHudTexture(f.page), true)
++  assert.equal(f.reads, 3)
++  assert.deepEqual(f.events.filter(([event]) => event === 'texture'), [['texture', 0], ['texture', 1], ['texture', 2]])
++})
++
++test('only literal true permits readiness, never a truthy observation value', async t => {
++  const f = fixture(t, [readyImage])
++  const values = ['pending', 1, {}, true]
++  f.page.evaluate = async () => values.shift()
++  assert.equal(await waitForHudTexture(f.page), true)
++  assert.equal(values.length, 0)
++})
++
++test('late true is rejected after the awaited read settles, without another observation', async t => {
++  const f = fixture(t, [readyImage], { readLatency: 25 })
++  await assert.rejects(waitForHudTexture(f.page, { timeout: 20 }), /timed out after 20 ms/)
++  assert.equal(f.elapsed, 25, 'The deadline cannot cancel an in-flight evaluation')
++  assert.equal(f.reads, 1)
++  assert.equal(f.events.some(([event]) => event === 'pause'), false)
++})
++
++test('the last pause fits the deadline and no read starts after it', async t => {
++  const f = fixture(t, [{ ...readyImage, complete: false }])
++  await assert.rejects(waitForHudTexture(f.page, { timeout: 150 }), /timed out after 150 ms/)
++  assert.equal(f.reads, 2)
++  assert.deepEqual(f.events.filter(([event]) => event === 'pause'), [['pause', 100], ['pause', 50]])
++})
++
++test('invalid wait bounds fail before reading', async () => {
++  for (const options of [{ timeout: 0 }, { timeout: NaN }, { timeout: Infinity }, { polling: 0 }, { polling: NaN }, { polling: Infinity }])
++    await assert.rejects(waitForHudTexture({}, options), /Invalid HUD texture/)
++})

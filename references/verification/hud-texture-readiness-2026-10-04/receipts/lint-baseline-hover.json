@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "7a3d7a37-4604-40f5-81ee-c8dbc26a5e9b",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "40632c29305d928ee17d48b6e25f6127c71702c7",
+    "branch": "fix/hud-texture-readiness",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "-e",
+    "const {execFileSync,spawnSync}=require(\"node:child_process\"); const source=execFileSync(\"git\",[\"show\",\"139ec7dec8fc77462a9bbf8a5fc09ad7b9bb9d31:scripts/check-browser-building-panel-hover.mjs\"]); const r=spawnSync(process.execPath,[\"node_modules/eslint/bin/eslint.js\",\"--stdin\",\"--stdin-filename\",\"scripts/check-browser-building-panel-hover.mjs\"],{input:source,encoding:\"utf8\"});process.stdout.write(r.stdout);process.stderr.write(r.stderr);process.exitCode=r.status"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness",
+  "startedAt": "2026-10-04T19:16:35.478Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-baseline-hover.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/work/orchestration/hud-readiness/lint-baseline-hover.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T19:16:36.782Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/scripts/check-browser-building-panel-hover.mjs\n  30:13  error  Empty block statement  no-empty\n  40:11  error  Empty block statement  no-empty\n  46:13  error  Empty block statement  no-empty\n\n✖ 3 problems (3 errors, 0 warnings)\n\n",
+  "stderr": "",
+  "stdoutSha256": "947c9393c0efbd7b0817472876817ecc42a2dbb80b0455c4ed4ba8d70c3890aa",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "40632c29305d928ee17d48b6e25f6127c71702c7",
+    "branch": "fix/hud-texture-readiness",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
