@@ -212,6 +212,35 @@ function observeGuardedFixture({ ids, mode = null, afterTurn = 0, wake = false }
       ids.every(id => residentIds.includes(id)) &&
       !incomingIds.length &&
       !!smokeReady
+  // Read-only game diagnostics: retain the actual births and control latency,
+  // rather than inferring emission from one final snapshot after a timeout.
+  if (mode === 'puff') {
+    const trace = (window.hutSmoke.puffTrace ??= []),
+      previous = trace.at(-1)
+    if (
+      trace.length < 4096 &&
+      (previous?.turn !== world.turn ||
+        previous.paused !== world.paused ||
+        previous.ready !== ready)
+    )
+      trace.push({
+        time: performance.now(),
+        turn: world.turn,
+        paused: world.paused,
+        ready,
+        pendingIds,
+        residentIds,
+        primaryPhase: world.effectCounter,
+        cosmeticRandom: world.cosmeticRandom.randomState,
+        rootRecord: structuredClone(owner.roots[hutId]),
+        rootEntry: structuredClone(rootEntry),
+        entries: owner.order.map(slot => ({ slot, ...structuredClone(owner.slots[slot]) })),
+        freeCount: owner.free.length,
+        reservations: [...owner.reservations],
+        lastTurn: owner.lastTurn,
+        renderedChildren: [...scene.hutSmokePuffs.keys()],
+      })
+  }
   return wake
     ? pendingIds.length > 0 || ready
     : {
@@ -585,7 +614,7 @@ async function smokeSnapshot(page) {
               y: group.position.y,
               z: group.position.z,
             },
-            expectedPosition: { x: point.x, y: entry.position.h / 45, z: point.z },
+            expectedPosition: { x: point.x, y: Math.round(entry.position.h) / 128, z: point.z },
             size: sprite && { x: sprite.scale.x, y: sprite.scale.y },
           },
         ]
@@ -810,6 +839,18 @@ try {
   stage('construction')
   ;({ page, errors } = await openGame(browser, 1))
   page.setDefaultTimeout(30_000)
+  report.environment = await page.evaluate(() => {
+    const gl = window.testScene.renderer.getContext(),
+      debug = gl.getExtension('WEBGL_debug_renderer_info')
+    return {
+      webglVersion: gl.getParameter(gl.VERSION),
+      renderer: debug
+        ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL)
+        : gl.getParameter(gl.RENDERER),
+      canvas: [gl.drawingBufferWidth, gl.drawingBufferHeight],
+      dpr: devicePixelRatio,
+    }
+  })
   await ensureDoubleSpeed(page)
   await focusSettlement(page)
   await pauseGame(page)
@@ -995,6 +1036,7 @@ try {
   )
   assert.ok(puffPixels > 0, 'Allocated children must add rendered pixels over the full root')
   report.secondary = { ...puffState, pixels: puffPixels }
+  report.puffTrace = await page.evaluate(() => window.hutSmoke.puffTrace ?? [])
   await page.screenshot({ path: reportPath.replace('.json', '-secondary.png') })
   writeReport()
 
@@ -1095,6 +1137,9 @@ try {
   report.result = 'FAIL'
   report.failure = { stage: report.stage, message: error.message, stack: error.stack }
   report.lastSnapshot = page ? await smokeSnapshot(page).catch(() => null) : null
+  report.puffTrace = page
+    ? await page.evaluate(() => window.hutSmoke?.puffTrace ?? []).catch(() => [])
+    : []
   report.errors = errors ?? []
   if (page)
     await page.screenshot({ path: reportPath.replace('.json', '-failure.png') }).catch(() => {})

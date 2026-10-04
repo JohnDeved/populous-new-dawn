@@ -62,8 +62,10 @@ test('real command8 full occupancy emits an original-frame child without scene-o
     const restored = migrateCheckpoint(structuredClone(scene.world))
     const savedChild = puffs(restored).find(child => child.serial === emission.serial)
     assert.deepEqual(savedChild, emission)
+    const restoredOwner = structuredClone(restored.secondaryEffects)
     restoredFixture = await makeHutSmokeScene(restored)
     restoredFixture.render()
+    assert.deepEqual(restored.secondaryEffects, restoredOwner)
     assert.ok(restoredFixture.scene.hutSmokePuffs.has(emission.serial))
     assert.equal(savedChild.lifetime, 16, 'scene reconstruction is not another visit')
     for (let visit = 1; visit <= 16; visit++) {
@@ -115,5 +117,42 @@ test('equal elapsed turns preserve secondary state across frame schedules with n
   } finally {
     for (const group of scene.hutSmokePuffs.values()) scene.releaseGroup(group)
     close()
+  }
+})
+
+test('legacy missing-history roots bootstrap on first render without inventing past visits', async () => {
+  const fixture = await fullHutScene()
+  let legacyFixture
+  try {
+    const { world } = fixture.scene
+    const legacy = structuredClone(world)
+    delete legacy.secondaryEffects
+    migrateCheckpoint(legacy)
+    assert.deepEqual(legacy.secondaryEffects.roots, {})
+    assert.deepEqual(legacy.secondaryEffects.order, [])
+    // This real admission fixture is not on the next periodic building sample.
+    assert.notEqual(fixture.hut.counter & 31, 31)
+    const withoutRender = structuredClone(legacy)
+    fixture.api.advanceGame(withoutRender, { animationTime: 0, animationFrame: 0 }, 1 / 12)
+    assert.equal(withoutRender.secondaryEffects.roots[fixture.hut.id], undefined)
+    legacyFixture = await makeHutSmokeScene(legacy)
+    legacyFixture.render()
+    const record = legacy.secondaryEffects.roots[fixture.hut.id]
+    const root = legacy.secondaryEffects.slots[record.slot]
+    assert.equal(record.state.root.mode, 'full')
+    assert.equal(
+      root.counter,
+      legacy.effectCounter,
+      'bootstrap copies the current phase without a visit'
+    )
+    assert.equal(legacy.secondaryEffects.order.length, 1)
+    assert.equal(puffs(legacy).length, 0, 'legacy data contains no historical children')
+    const bootstrapped = structuredClone(legacy.secondaryEffects)
+    legacyFixture.render()
+    assert.deepEqual(legacy.secondaryEffects, bootstrapped)
+  } finally {
+    legacyFixture?.close()
+    for (const group of fixture.scene.hutSmokePuffs.values()) fixture.scene.releaseGroup(group)
+    fixture.close()
   }
 })

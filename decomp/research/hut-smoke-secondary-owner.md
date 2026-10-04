@@ -48,8 +48,10 @@ the primary phase. `hut-smoke-runtime.ts` owns building root references and chil
   final visit can release capacity before an older root; the reverse order does
   not backdate that release.
 - Sprite animation uses the existing 24 Hz presentation clock; lifecycle/counter
-  visits use game turns. Scene rendering only samples state and does not consume
-  smoke RNG or add visits. Partial roots reuse the existing lifetime/restart code.
+  visits use game turns. Rendering samples existing owned roots/children without
+  consuming smoke RNG or adding visits. A missing root record is lazily bootstrapped
+  from occupancy, including legacy restore; this missing-history allocation is
+  explicitly render-timed. Partial roots reuse the existing lifetime/restart code.
 
 The primary byte is the existing `world.effectCounter` allocation adapter, with
 its proved early-level authored omission fixed separately. The conditional native
@@ -103,8 +105,13 @@ DOM panel/preview reservations are rebuilt from their actual adapters.
 
 Legacy checkpoints without this owner have no historical child/phase data. They
 retain the established root reconstruction from current occupancy and register
-any existing destination markers. No past puff history or elapsed visits are
-invented. Existing browser cosmetic-RNG persistence remains unchanged; no native
+any existing destination markers, discarding legacy marker overflow that cannot
+obtain one of the 160 slots. The first scene render bootstraps missing root records
+from occupancy. For an already occupied legacy hut, this can allocate before a
+world-only run reaches the next building sample; no frame-independent legacy
+allocation order is claimed. Current checkpoints retain the owner, so scene
+recreation leaves it byte-for-byte unchanged. No past puff history or elapsed
+visits are invented. Existing browser cosmetic-RNG persistence remains unchanged; no native
 whole-save parity claim is made.
 
 ## Evidence and limitations
