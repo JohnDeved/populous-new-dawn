@@ -123,8 +123,11 @@ export function stepSecondaryEffects(w: World) {
 export function restoreSecondaryEffects(w: World) {
   if (!w.secondaryEffects) {
     w.secondaryEffects = createSecondaryEffects(w.turn)
-    for (const effect of w.effects)
-      if (effect.kind === 'orderMarker') registerSecondaryMarker(w, effect)
+    // Legacy browser markers were unbounded. Discard any that cannot acquire
+    // an owner, otherwise the secondary-only expiry pass would never visit them.
+    w.effects = w.effects.filter(
+      effect => effect.kind !== 'orderMarker' || registerSecondaryMarker(w, effect)
+    )
   }
   rebuildSecondaryLists(w.secondaryEffects)
   // DOM panels/previews are transient and are rebuilt by their actual adapters.
