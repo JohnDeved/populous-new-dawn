@@ -544,11 +544,23 @@ export default async function missionThreeControls({ page, output, root, signal,
   }
   const cancelSermon = async () => {
     assert.ok(savedSermon)
-    await resume(); const selected = await select('preacher')
+    // Ordinary paused selection/camera preparation preserves the short saved
+    // listener timer. Resume normally immediately before the accepted move.
+    await pause(); const selected = await select('preacher')
     assert.deepEqual(selected, [ids.preacher])
-    const preacher = (await read()).units.find(u => u.id === ids.preacher)
-    assert.ok(preacher)
-    await move({ x: preacher.x + 6, z: preacher.z - 3 })
+    const before = await read(), preacher = before.units.find(u => u.id === ids.preacher)
+    const lockedVictim = before.units.find(u => u.id === ids.victim)
+    assert.ok(preacher && lockedVictim?.nativeState === 23 && lockedVictim.owner === ids.preacher)
+    await map(preacher)
+    let hit
+    for (const [dx, dz] of [[6, -3], [6, 3], [-6, -3], [-6, 3], [0, -6], [0, 6], [6, 0], [-6, 0]]) {
+      const point = { x: preacher.x + dx, z: preacher.z + dz }
+      const candidate = await groundHit(point)
+      log({ action: 'sermon-cancel-ground-probe', victim: ids.victim, point, candidate })
+      if (candidate && !inOrdinaryPreachingCells(candidate.point, lockedVictim)) { hit = candidate; break }
+    }
+    assert.ok(hit, 'Visible clear cancellation ground outside the locked victim preaching cells')
+    await resume(); await clickOrder(hit)
     const s = await read(), victim = s.units.find(u => u.id === ids.victim)
     assert.equal(victim?.team, 'yellow'); assert.notEqual(victim.nativeState, 23)
     assert.equal(victim.owner, 0); assert.equal(victim.flags4 & 128, 0); assert.equal(victim.flags2 & 0x200000, 0)

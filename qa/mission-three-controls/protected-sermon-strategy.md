@@ -59,6 +59,10 @@ Split actions permit a protected play strategy:
 
 The selected victim and Preacher then remain fixed for Save, ordinary movement
 cancellation, reload, adjacent-turn singleton replacement and both conversion
-flags. Cancellation uses a real exact ground move offset from the current
-Preacher. No post-conversion substitution, direct model command, clock change,
+flags. Cancellation selects and positions the camera through normal paused controls,
+then examines at most eight exact ground candidates offset6 or sqrt(45) world
+units from the current Preacher. The actual picked point must lie outside the
+locked victim's native preaching-cell square. Resume occurs immediately before
+the accepted move. If no owned clear ground qualifies, the checker fails; it
+never widens the search or changes the victim. No post-conversion substitution, direct model command, clock change,
 application edit, state injection or native-parity claim is introduced.

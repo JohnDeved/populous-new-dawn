@@ -159,8 +159,9 @@ units of the requested camera point, and verifies the observed focus destination
 Only Shaman home return searches a radius2 ground neighborhood; its actual click
 is less than3.5 units from home and the unchanged arrival condition requires≤4.
 Preacher approach checks at most eight exact ground candidates in the current
-preselected victim's actual native preaching-cell square. Cancellation uses an
-exact move offset from the saved Preacher's current position; tactical moves retain
+preselected victim's actual native preaching-cell square. Cancellation prepares at most eight fixed nearby ground candidates through
+normal paused selection/camera controls, chooses one outside the locked victim's
+preaching cells, then resumes for the real accepted move. Tactical moves retain
 exact-point probes. A selected plan/spell must not
 be followed by a minimap helper that clears its mode. Entity clicks require a fresh dispatch timestamp/pointer acknowledgement and
 a matching selected follower work/target/order. Ground orders require a new marker
