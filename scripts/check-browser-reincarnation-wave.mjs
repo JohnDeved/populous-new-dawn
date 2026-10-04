@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
-import { bindGame, showAllMissions, effectPixels } from './browser-game.mjs'
+import { bindGame, showAllMissions, effectPixels, readShamanReadiness } from './browser-game.mjs'
 
 export default async function checkReincarnationWave({ page, url, root, output, signal }) {
 const baseline = process.env.POPULOUS_REINCARNATION_BASELINE === '1'
@@ -26,19 +26,28 @@ try {
   await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 2', exact: true }).click()
   await bindGame(page)
-  await page.evaluate(() => {
-    const s = window.testScene
-    for (let i = 0; s.world.turn < 16 && i < 100; i++) s.animate(s.previous + 1000 / 24)
-  })
   const skip = page.getByRole('button', { name: /Skip introduction/i })
-  if (await skip.isVisible()) await skip.click()
-  await page.evaluate(async () => {
-    const s = window.testScene
-    for (let i = 0; s.world.turn < 80 && i < 400; i++) s.animate(s.previous + 1000 / 24)
-    const { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs')
-    if (!campaignShamanReadiness(s.world).ready || s.world.inputMask) throw Error('Authored startup did not release Shaman controls')
-    s.world.speed = 0
-  })
+  report.startup = { samples: [], skipClicks: 0 }
+  for (let batch = 0; batch < 80; batch++) {
+    signal.throwIfAborted()
+    await page.evaluate(() => {
+      const s = window.testSceneRef.current
+      for (let frame = 0; frame < 24; frame++) s.animate(s.previous + 1000 / 24)
+    })
+    // RAF is held for deterministic pacing; let React publish the real Skip
+    // button after the authored flyby begins, then use that visible control.
+    await page.waitForTimeout(25)
+    if (await skip.isVisible()) {
+      await skip.click()
+      report.startup.skipClicks++
+    }
+    const readiness = await readShamanReadiness(page)
+    report.startup.samples.push(readiness)
+    if (readiness.ready === true) break
+  }
+  assert.equal(report.startup.samples.at(-1)?.ready, true,
+    `Authored startup did not release Shaman controls: ${JSON.stringify(report.startup.samples.at(-1))}`)
+  await page.evaluate(() => { window.testScene.world.speed = 0 })
   await page.locator('.world-viewport canvas.battlefield').focus()
   await page.keyboard.press('h')
   report.death = await page.evaluate(async () => {
