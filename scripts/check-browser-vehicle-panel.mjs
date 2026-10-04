@@ -53,7 +53,8 @@ export default async function vehiclePanels({browser,page,openMission,output,rec
  await openMission(22)
  const ids=await page.evaluate(()=>{const s=window.testSceneRef.current;s.world.speed=0;cancelAnimationFrame(s.frame);return s.world.vehicles.map(v=>({id:v.id,model:v.model}))})
  await page.keyboard.press('Escape')
- const result={method:'Actual authored Mission22 vehicle meshes and shipped world right-click/panel controls. Passenger population/location and deterministic turn advancement are supporting fixtures; no natural acquisition or hardware-performance claim.',vehicles:[],layouts:[],pixels:[]}
+ const graphics=await page.evaluate(()=>{const gl=window.testSceneRef.current.renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');return{renderer:ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER),devicePixelRatio,turn:window.testSceneRef.current.world.turn}})
+ const result={graphics,method:'Actual authored Mission22 vehicle meshes and shipped world right-click/panel controls. Passenger population/location and deterministic turn advancement are supporting fixtures; no natural acquisition or hardware-performance claim.',vehicles:[],layouts:[],pixels:[]}
  for(const model of [1,3]){
   const id=ids.find(v=>v.model===model).id,p=await vehiclePoint(page,id)
   await page.mouse.click(p.x,p.y,{button:'right'});await render(page)
