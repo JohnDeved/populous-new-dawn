@@ -1,0 +1,14 @@
+{
+  "filename": "publication-recovery-selected-20261004.tar.gz",
+  "bytes": 6045355,
+  "sha256": "5da2916ec005af4c9b77ab5bb2c26332860dee94b563106c0377518dd8ffa62e",
+  "files": 137,
+  "selectedImages": [
+    "browser-early-observed/mission-3-restored-paused.png",
+    "browser-response/response-complete.png",
+    "browser-smoke/issue73-fresh-hut-acceptance-secondary.png",
+    "browser-training/training-entry-isolated-0.5.png",
+    "production-smoke/cloud-browser-webgl-disabled.jpg"
+  ],
+  "description": "Source-bound raw verification receipts and tested Git commits; selected screenshots; no original game data, dependencies, caches, credentials or private notes."
+}
