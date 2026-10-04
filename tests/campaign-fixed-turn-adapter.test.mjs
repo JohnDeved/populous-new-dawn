@@ -199,3 +199,27 @@ test('Mission 3 trains a bounded Preacher group and retains identified HUD-reach
   assert.ok(train.includes('await advance(page, turns)'))
   assert.ok(checker.includes("{ type: 'unit-count', team: 'blue', kind: 'preacher', count: 3 }"))
 })
+
+
+test('additive native Ctrl-five requires the ordinary cancel/deselect before reserving workers', async () => {
+  const { createWorld, tick, selectFollowers, cancelInteraction, nativePosition } = await import('../app/model.ts')
+  const { animateLiveObjects } = await import('../app/live-people.ts')
+  const world = createWorld(3)
+  for (let i = 0; i < 70; i++) { tick(world, 1 / 12); animateLiveObjects(world); animateLiveObjects(world) }
+  const point = nativePosition(world, world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'))
+  selectFollowers(world, 2, point, 'all')
+  const all = world.selected.length
+  selectFollowers(world, 2, point, 'five')
+  assert.equal(world.selected.length, all, 'Ctrl selection does not remove already selected builders')
+  world.mode = 'hut'
+  cancelInteraction(world)
+  assert.equal(world.selected.length, all, 'first Escape cancels targeting only')
+  cancelInteraction(world)
+  assert.deepEqual(world.selected, [])
+  selectFollowers(world, 2, point, 'five')
+  assert.equal(world.selected.length, 5)
+  const reserved = world.units.filter(unit => unit.team === 'blue' && unit.kind === 'brave' && !world.selected.includes(unit.id))
+  assert.ok(reserved.length >= 1)
+  const train = checker.slice(checker.indexOf('async function train('), checker.indexOf('async function worship('))
+  assert.ok(train.indexOf("page.keyboard.press('Escape')") < train.indexOf("preserveBraves ? 'Control'"))
+})

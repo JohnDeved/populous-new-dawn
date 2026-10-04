@@ -510,6 +510,17 @@ async function train(page, building, turns = 2500, preserveBraves = false) {
     return false
   let selected = []
   const choose = async () => {
+    if (preserveBraves) {
+      // Original HUD multiple selection is additive. Cancel targeting first,
+      // then clear the previous builders through the shipped Escape control.
+      for (let cancel = 0; cancel < 2; cancel++) {
+        const pending = await page.evaluate(() => !!globalThis.testScene.world.mode || !!globalThis.testScene.world.selected.length)
+        if (!pending) break
+        await page.keyboard.press('Escape')
+      }
+      const cleared = await page.evaluate(() => ({ mode: globalThis.testScene.world.mode, selected: [...globalThis.testScene.world.selected] }))
+      assert.deepEqual(cleared, { mode: null, selected: [] }, 'Ctrl-five starts from an empty ordinary selection')
+    }
     await selectClass(page, 'brave', preserveBraves ? 'Control' : 'Shift')
     selected = await page.evaluate(() => [...globalThis.testScene.world.selected])
     if (preserveBraves) {
