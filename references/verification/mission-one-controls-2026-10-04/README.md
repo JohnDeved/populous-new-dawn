@@ -66,7 +66,7 @@ output, not an original-game reference.*
   does not issue a game order. Camera movement used HUD focus and actual minimap
   clicks, never internal camera setters.
 - No page/console errors were recorded. Retained warnings include software-WebGL
-  fallback, ReadPixels GPU stalls, and two texture-update warnings. They are not
+  fallback, ReadPixels GPU stalls, and texture-update warnings. They are not
   silently treated as hardware performance or original visual-parity proof.
 
 The generic harness fingerprints application source, but ignored `work/` scenario
