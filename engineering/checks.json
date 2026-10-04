@@ -5229,7 +5229,8 @@
         "Shipped setup/H-selection/ordinary attack and natural model12 lifecycle",
         "Deferred wave visit, orbit pixels, successful respawn and cleanup",
         "Fresh-page checkpoint and responsive rendering",
-        "Separately labeled staged intrusion targets"
+        "Separately labeled staged intrusion targets and rendered Swamp removal/neighbor survival",
+        "No remaining wave-owned lights after cleanup"
       ],
       "knownLimits": [
         "Command adapter is not pointer-picking proof.",
@@ -5238,7 +5239,13 @@
       ],
       "executable": "node",
       "args": [
-        "scripts/check-browser-reincarnation-wave.mjs"
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "--mission",
+        "2",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL"
       ],
       "inputs": [
         "app/reincarnation-wave-runtime.ts",
@@ -5257,7 +5264,8 @@
         "app/scene-effects.ts",
         "scripts/check-browser-reincarnation-wave.mjs",
         "scripts/browser-game.mjs",
-        "scripts/campaign-start-readiness.mjs"
+        "scripts/campaign-start-readiness.mjs",
+        "scripts/local-render/harness.mjs"
       ],
       "prerequisites": [
         "Owned local game server",

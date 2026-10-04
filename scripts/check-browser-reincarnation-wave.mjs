@@ -3,35 +3,26 @@
 // the natural phase; pacing, camera and read-only observations are controlled.
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
 import { execFileSync } from 'node:child_process'
-import { chromium } from '@playwright/test'
 import { bindGame, showAllMissions, effectPixels } from './browser-game.mjs'
 
-const output = resolve(process.env.POPULOUS_ARTIFACT_DIR ?? `work/orchestration/reincarnation-wave-browser-${process.pid}`)
-const baseline = process.argv.includes('--baseline')
+export default async function checkReincarnationWave({ page, url, root, output, signal }) {
+const baseline = process.env.POPULOUS_REINCARNATION_BASELINE === '1'
 mkdirSync(output, { recursive: true })
 const report = {
-  commit: execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
+  commit: execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
   baseline,
   stages: [],
   limits: 'Linux headless rendering is not hardware performance evidence. Natural combat uses the existing command adapter; it does not certify pointer picking. Staged intrusion is separate from natural death/spawn acceptance.',
 }
-const executablePath = process.env.POPULOUS_HEADLESS_SHELL
-const browser = await chromium.launch(executablePath ? {
-  executablePath, headless: true, chromiumSandbox: true,
-  ignoreDefaultArgs: true, args: ['--remote-debugging-pipe'],
-} : { headless: true })
-let page
 try {
-  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } })
-  page = await context.newPage()
+  signal.throwIfAborted()
   const errors = []
   page.on('pageerror', error => errors.push(error.stack ?? error.message))
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
   page.setDefaultTimeout(60000)
   await page.addInitScript(() => { window.requestAnimationFrame = () => 0 })
-  await page.goto(process.env.POPULOUS_URL ?? 'http://localhost:3000', { waitUntil: 'networkidle' })
+  await page.goto(url, { waitUntil: 'domcontentloaded' })
   await showAllMissions(page)
   await page.getByRole('button', { name: 'Mission 2', exact: true }).click()
   await bindGame(page)
@@ -72,6 +63,7 @@ try {
   report.stages.push('Shipped Mission2 setup, H selection and ordinary authored combat death')
 
   const drawAtSite = async () => {
+    signal.throwIfAborted()
     await page.evaluate(async () => {
       const s = window.testScene, { campaignPosition } = await import('/app/model.ts')
       s.focus(campaignPosition(s.world, 'blue'))
@@ -91,6 +83,7 @@ try {
       shaman: w.units.find(u => u.team === 'blue' && u.kind === 'shaman')?.id ?? null,
       effects: w.effects.map(f => ({ id:f.id, kind:f.kind, sequence:f.sprite?.sequence })),
       sound158: w.sounds.filter(s => s.cue === 158).length,
+      siteSounds: w.sounds.filter(s => s.cue === 158).map(s=>({serial:s.serial,turn:s.turn})),
       busy: w.castingTribes[0].flags & 1,
       status: w.status,
       controllerChildren: fx ? s.fxMeshes.get(fx.id)?.children.length : null,
@@ -101,7 +94,7 @@ try {
     let turns = 0
     while (Math.round(w.respawns[0] * 12) > 6 && turns++ < 470) tick(w, 1 / 12)
     if (Math.round(w.respawns[0] * 12) !== 6) throw Error('Natural body did not reach the site-wave producer boundary')
-    return { turn:w.turn, randomState:w.randomState, nextId:w.nextId, sounds:w.sounds.filter(s => s.cue===158).length }
+    return { turn:w.turn, randomState:w.randomState, nextId:w.nextId, sounds:w.sounds.filter(s => s.cue===158).length, soundSerial:w.soundSerial }
   })
   await drawAtSite()
   await page.screenshot({ path:`${output}/site-before.png` })
@@ -119,8 +112,13 @@ try {
   } else {
     assert.equal(report.allocated.wave.visits, 0)
     assert.equal(report.allocated.wave.orbits.length, 0)
-    assert.equal(report.allocated.sound158, report.before.sounds + 1)
-    await advance(4)
+    assert.equal(report.allocated.siteSounds.filter(s=>s.serial>report.before.soundSerial).length, 1)
+    await advance(1)
+    report.firstVisit = await read()
+    assert.equal(report.firstVisit.wave.visits, 1)
+    assert.equal(report.firstVisit.wave.orbits.length, 32)
+    assert.equal(report.firstVisit.controllerChildren, 0)
+    await advance(3)
     await drawAtSite()
     report.during = await read()
     assert.equal(report.during.wave.visits, 4)
@@ -141,20 +139,22 @@ try {
     assert.equal(report.paused, true)
     const checkpoint = await page.evaluate(async () => {
       const w = window.testScene.world
-      const digest = { turn:w.turn, rng:w.randomState, nextId:w.nextId, sites:w.reincarnationSites, wave:w.effects.find(f=>f.reincarnationWave).reincarnationWave, heights:Array.from(w.land.heights) }
+      const digest = { turn:w.turn, rng:w.randomState, nextId:w.nextId, sites:w.reincarnationSites, flags:w.castingTribes.map(t=>t.flags), lightOwners:w.lights.filter(Boolean).map(l=>l.owner), wave:w.effects.find(f=>f.reincarnationWave).reincarnationWave, heights:Array.from(w.land.heights) }
       await window.testStore.saveCheckpoint()
       return digest
     })
-    await page.reload({ waitUntil:'networkidle' })
+    await page.reload({ waitUntil:'domcontentloaded' })
     await page.getByRole('button', { name:'Load Game', exact:true }).click()
     await bindGame(page)
     report.checkpoint = await page.evaluate(() => {
       const w = window.testScene.world
-      return { turn:w.turn, rng:w.randomState, nextId:w.nextId, sites:w.reincarnationSites, wave:w.effects.find(f=>f.reincarnationWave).reincarnationWave, heights:Array.from(w.land.heights) }
+      return { turn:w.turn, rng:w.randomState, nextId:w.nextId, sites:w.reincarnationSites, flags:w.castingTribes.map(t=>t.flags), lightOwners:w.lights.filter(Boolean).map(l=>l.owner), wave:w.effects.find(f=>f.reincarnationWave).reincarnationWave, heights:Array.from(w.land.heights) }
     })
     assert.deepEqual(report.checkpoint, checkpoint)
     delete report.checkpoint.heights
     await drawAtSite()
+    report.restoredOrbitPixels = await effectPixels(page, checkpoint.wave.orbits.map(o=>o.id))
+    assert.ok(report.restoredOrbitPixels > 0)
     await page.screenshot({ path:`${output}/site-checkpoint.png` })
     report.stages.push('Deferred first visit, 32 rendered orbits, invisible controller and fresh-page checkpoint continuity')
   }
@@ -173,14 +173,34 @@ try {
       while (w.effects.some(f=>f.id===waveId) && turns++ < 120) tick(w, 1/12)
       for (let i=0;i<6;i++) tick(w,1/12)
       s.animate(s.previous)
-      return { turns, wave:w.effects.some(f=>f.id===waveId), orbits:w.effects.filter(f=>orbits.includes(f.id)).length, meshes:orbits.filter(id=>s.fxMeshes.has(id)).length, busy:w.castingTribes[0].flags&1 }
+      return { turns, wave:w.effects.some(f=>f.id===waveId), orbits:w.effects.filter(f=>orbits.includes(f.id)).length, meshes:orbits.filter(id=>s.fxMeshes.has(id)).length, lights:w.lights.filter(light=>light&&[waveId,...orbits].includes(light.owner)).length, busy:w.castingTribes[0].flags&1 }
     }, {waveId, orbits})
     assert.equal(report.cleanup.wave, false)
     assert.equal(report.cleanup.orbits, 0)
     assert.equal(report.cleanup.meshes, 0)
+    assert.equal(report.cleanup.lights, 0)
     assert.equal(report.cleanup.busy, 0)
     report.stages.push('Successful ordinary Shaman respawn while the wave continues, then independent effect/light/mesh cleanup')
     // Distinct staged cell-consumer coverage after the natural path completed.
+    report.stagedSwamps = await page.evaluate(async () => {
+      const s=window.testScene,w=s.world
+      const {effect,browserPosition}=await import('/app/model.ts')
+      const {createSwamp}=await import('/app/swamp.ts')
+      const center=w.reincarnationSites[0]
+      const traps=[center,{...center,x:(center.x+4096)&65535}].map((point,index)=>{
+        const fx=effect(w,'swamp',browserPosition(point))
+        fx.duration=Infinity;fx.height=point.h/45
+        fx.swamp=createSwamp(point,1,index===0?3:0,w)
+        return fx
+      })
+      s.animate(s.previous)
+      window.stagedSwampReferences = traps
+      return traps.map(fx=>({id:fx.id,remaining:fx.swamp.remaining}))
+    })
+    await drawAtSite()
+    report.swampPixels = await effectPixels(page, [report.stagedSwamps[0].id])
+    assert.ok(report.swampPixels > 0, 'staged older Swamp must be rendered before removal')
+    await page.screenshot({path:`${output}/site-swamp-before.png`})
     report.intrusion = await page.evaluate(async () => {
       const s=window.testScene,w=s.world
       const {addUnit,browserPosition}=await import('/app/model.ts')
@@ -206,6 +226,25 @@ try {
     for (const name of ['friend','wild','shaman']) assert.equal(target(name).hp, target(name).before)
     await drawAtSite()
     await page.screenshot({ path:`${output}/site-intrusion.png` })
+    await advance(1)
+    report.swampCleanup = await page.evaluate(traps => {
+      const s=window.testScene,w=s.world
+      return {
+        inside:w.effects.some(f=>f.id===traps[0].id),
+        insideMesh:s.fxMeshes.has(traps[0].id),
+        insideRemaining:window.stagedSwampReferences[0].swamp.remaining,
+        outside:w.effects.some(f=>f.id===traps[1].id),
+        outsideMesh:s.fxMeshes.has(traps[1].id),
+        outsideRemaining:w.effects.find(f=>f.id===traps[1].id)?.swamp.remaining,
+      }
+    },report.stagedSwamps)
+    assert.equal(report.swampCleanup.inside, false)
+    assert.equal(report.swampCleanup.insideMesh, false)
+    assert.equal(report.swampCleanup.insideRemaining, report.stagedSwamps[0].remaining)
+    assert.equal(report.swampCleanup.outside, true)
+    assert.equal(report.swampCleanup.outsideMesh, true)
+    assert.equal(report.swampCleanup.outsideRemaining, report.stagedSwamps[1].remaining-1)
+    await page.screenshot({path:`${output}/site-swamp-after.png`})
     for (const viewport of [{width:1024,height:768},{width:1920,height:1080}]) {
       await page.setViewportSize(viewport)
       await drawAtSite()
@@ -222,12 +261,12 @@ try {
   report.errors = errors
   report.status = 'passed'
   writeFileSync(`${output}/report.json`, JSON.stringify(report,null,2)+'\n')
-  console.log(JSON.stringify({status:'PASS_BROWSER_REINCARNATION_WAVE',commit:report.commit,baseline,output,stages:report.stages.length}))
+  signal.throwIfAborted()
+  return report
 } catch (error) {
   report.status='failed';report.error=error.stack??String(error)
   writeFileSync(`${output}/report.json`,JSON.stringify(report,null,2)+'\n')
   if(page)await page.screenshot({path:`${output}/failure.png`}).catch(()=>{})
   throw error
-} finally {
-  await browser.close()
+}
 }
