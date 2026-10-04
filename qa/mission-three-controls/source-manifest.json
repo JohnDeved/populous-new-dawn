@@ -1,6 +1,6 @@
 {
   "scope": "source-only ordinary-control Mission 3 preflight; no execution proof",
-  "sourceCommit": "b219c63be33c440cea0927c487f16573e5a1c0ec",
+  "sourceCommit": "76df601a76c54b291cc7867021c45022382720dd",
   "files": [
     {
       "path": "app/level-three.ts",
@@ -12,15 +12,15 @@
     },
     {
       "path": "app/page.tsx",
-      "sha256": "deb19cf562ca2301195d680dbcf61cc4224d230f07a8edfdf6048f703730826a"
+      "sha256": "3659a30a02225deb09f9312f4c1f25ad4675178c0c922681e82ea9a2554c40a5"
     },
     {
       "path": "app/scene-input-runtime.ts",
-      "sha256": "710d9b3d8a0efc9c18b98354d47addcf441d227b4abe781814e33e61139067e3"
+      "sha256": "54def129260b6ffebbb4ddfd23591360ae004abe1adefeaaaf47757eaefd28f5"
     },
     {
       "path": "app/scene.ts",
-      "sha256": "adf54701dd99a928d8da345aaeeddbe25c4d4c2f772e5cea647deaf17a0778a9"
+      "sha256": "a2326dd11bf5e729ba058c8e037b9a486640310b77b6ff679211e0060a96bb1d"
     },
     {
       "path": "app/game-clock.ts",
@@ -40,7 +40,7 @@
     },
     {
       "path": "app/live-movement.ts",
-      "sha256": "8baf538052816d523d5e53a123a2ff79c6cab957a033422890f638c42b204228"
+      "sha256": "bdb1d320a2299e35ca68f611d1454a1444f6524dbc1aea8798134df5cea8e3bd"
     },
     {
       "path": "app/computer-runtime.ts",
@@ -152,5 +152,5 @@
     }
   ],
   "originalInspectionCommit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
-  "sourceRefresh": "Accepted main through PR196; original 36 source hashes and production app bytes unchanged. scripts/browser-game.mjs adds two unused readiness exports; imported bindGame/showAllMissions implementations are unchanged."
+  "sourceRefresh": "Accepted main through PR185/196. Four guarded callers refreshed after inspecting transport-only additions, unchanged ordinary dispatch/load/clock paths, and rendered-geometry helpers. Other guard hashes and driver bytes unchanged; production build corresponds to accepted cf43509."
 }
