@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
 import { bindGame, showAllMissions } from './browser-game.mjs'
+import { waitForCheckpointReadback } from './checkpoint-readback.mjs'
 import { vehiclePoint } from './check-browser-vehicle-panel.mjs'
 import { modelMatrix, modelPoint, projectPoint } from '../app/projection.ts'
 import { modelShade } from '../app/model-lighting.ts'
@@ -224,12 +225,13 @@ async function vehicleAppearance(page, id, apparent) {
 async function checkpoint(page, expected) {
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
-  await page.waitForFunction(async expected => {
+  const persisted = await waitForCheckpointReadback(() => page.evaluate(async expected => {
     const db = await new Promise((resolve, reject) => { const r = indexedDB.open('populous-new-dawn', 1); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error) })
     const saved = await new Promise((resolve, reject) => { const r = db.transaction('checkpoints', 'readonly').objectStore('checkpoints').get('latest'); r.onsuccess = () => resolve(r.result); r.onerror = () => reject(r.error) })
     db.close()
     return saved?.world && JSON.stringify(saved.world.vehicles) === expected.vehicles && JSON.stringify(saved.world.selected) === JSON.stringify(expected.selected)
-  }, expected)
+  }, expected), { attempts: 450 })
+  assert.equal(persisted, true, 'saved transport checkpoint committed before reload')
   await page.getByRole('button', { name: 'Close menu', exact: true }).click()
   await clear(page)
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
