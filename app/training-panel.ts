@@ -142,7 +142,7 @@ export function paintPanel(
       const [, id, x, y, tint, faded] = draw,
         r = rects[tint < 0 ? id : `panel-${id}-${faded ? 'empty' : 'shadow'}`]
       // 0x4f95a0: the tail is submitted with inverse ghost alpha (flag 16).
-      context.globalAlpha = id === 52 ? 170 / 255 : 1
+      context.globalAlpha = id === 52 ? 170 / 255 : tint < 0 && faded ? 85 / 255 : 1
       context.drawImage(atlas, r.x, r.y, r.w, r.h, x, y, r.w, r.h)
       context.globalAlpha = 1
     } else {

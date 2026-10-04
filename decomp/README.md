@@ -5175,3 +5175,9 @@ and right-click focus. It includes executed native draw-request reconstructions,
 not original-game screenshots. Executable probes include bounded transport interactions, full constructor/refresh
 transitions and disabled draw flags. Full UI painter-order/blend and live browser
 integration remain explicit boundaries.
+
+## Native vehicle passenger panels
+
+[Vehicle-panel evidence](research/vehicle-panel.md) binds kind9 geometry, original
+HFX60/61, passenger actions, forced unload readiness and voluntary ejection.
+Settled native seats and living-landing regressions are bound separately; final rendered acceptance remains explicit.

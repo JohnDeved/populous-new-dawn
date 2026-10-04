@@ -332,7 +332,9 @@ export function syncLivePersonCells(w: World) {
       w.objectCells.objects.set(p.id, p)
       insertObjectIntoCell(w.objectCells, p, p)
     }
-    if (u.flight || u.fight?.motion) continue
+    // Vehicle attachment owns seated height/position independently of the
+    // animation-source projection (command22 is not an on-foot pose owner).
+    if (u.flight || u.fight?.motion || p.vehicle) continue
     const to = nativePosition(w, u)
     to.x &= 65535
     to.y &= 65535
@@ -986,7 +988,9 @@ export function stepLivePhysics(w: World, u: Unit, p: LivePerson) {
 export function stepLiveImpulse(w: World, u: Unit) {
   const p = u.flight!
   stepLivePhysics(w, u, p)
-  if (!(p.flags2 & 0x80000) && u.fight?.action !== 'push') {
+  // Voluntary vehicle exits can be airborne through the live impulse flag
+  // without destruction's forced-airborne bit. Keep their physics owner to landing.
+  if (!(p.flags2 & 0x80000) && !(p.flags4 & 0x400) && u.fight?.action !== 'push') {
     u.flight = undefined
     if (
       u.native === p &&

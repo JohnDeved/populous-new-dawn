@@ -1,3 +1,4 @@
+import { liveVehiclePassengers } from './vehicle-panel-runtime.ts'
 import { hudTaskPeople, selectFollowerTask } from './follower-tasks-runtime.ts'
 import { focusTaskFollower, type FollowerTask } from './hud-tasks.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
@@ -206,7 +207,14 @@ export function pointerDown(scene: GameScene, event: PointerEvent) {
     !scene.overviewActive
   ) {
     const object = scene.pickUnit(event) ?? scene.pickWorldObject(event)
-    if (object) scene.objectPanels.open(object.id)
+    const vehicle = scene.world.vehicles.find(v => v.id === object?.id && v.active)
+    if (
+      object &&
+      (!vehicle ||
+        !vehicle.passengerCount ||
+        liveVehiclePassengers(scene.world, vehicle).some(({ person }) => person.tribe === 0))
+    )
+      scene.objectPanels.open(object.id)
   }
   const unit =
     event.button === 0 &&

@@ -1,3 +1,11 @@
+import { vehiclePanel, vehiclePanelGeometry, vehiclePanelInput } from './vehicle-panel.ts'
+import {
+  canUnloadVehicle,
+  liveVehiclePassengers,
+  selectVehiclePassenger,
+  unloadLiveVehicle,
+} from './vehicle-panel-runtime.ts'
+import { originalVehicleMesh } from './vehicle-appearance.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import type { GameScene } from './scene.ts'
 import { browserPosition, effect, maxHp, nativePosition, unitAnimationSource } from './model.ts'
@@ -23,7 +31,7 @@ export class ObjectPanels {
       element: HTMLDivElement
       canvas: HTMLCanvasElement
       offset: number
-      kind: 'person' | 'head'
+      kind: 'person' | 'head' | 'vehicle'
       key: string
       automatic: boolean
     }
@@ -37,34 +45,62 @@ export class ObjectPanels {
     const u = scene.world.units.find(
       person => person.id === id && person.hp > 0 && person.team === 'blue'
     )
-    const head = scene.world.shrines.find(s => s.id === id)
-    if (!u && !head) return
+    const head = scene.world.shrines.find(s => s.id === id),
+      vehicle = scene.world.vehicles.find(v => v.id === id && v.active)
+    if (!u && !head && !vehicle) return
     let panel = this.panels.get(id)
     const first = !this.panels.size
     if (!panel) {
       for (const old of this.panels.values())
-        if (u && old.kind === 'person' && old.phase < 2) {
+        if (
+          ((u && old.kind === 'person') || (vehicle && old.kind === 'vehicle')) &&
+          old.phase < 2
+        ) {
           old.remaining = 0
           old.hold = 0
         }
       const canvas = document.createElement('canvas')
       canvas.setAttribute('aria-hidden', 'true')
       const element = document.createElement('div')
-      element.className = head ? 'person-panel worship-panel' : 'person-panel'
+      element.className = head
+        ? 'person-panel worship-panel'
+        : vehicle
+          ? 'person-panel vehicle-panel'
+          : 'person-panel'
       element.setAttribute('role', 'group')
       element.insertBefore(canvas, null)
-      for (let i = 0; i < (head?.required ?? 8); i++) {
+      for (
+        let i = 0;
+        i < (vehicle ? vehiclePanelGeometry(vehicle.model).capacity + 1 : (head?.required ?? 8));
+        i++
+      ) {
         const button = document.createElement('button')
         button.type = 'button'
         button.hidden = true
         button.addEventListener('contextmenu', event => {
           event.preventDefault()
-          if (head) this.focusWorshipper(id, Number(button.dataset.person))
+          if (vehicle)
+            this.vehicleAction(
+              id,
+              Number(button.dataset.person),
+              button.dataset.unload === 'true',
+              true,
+              event.shiftKey
+            )
+          else if (head) this.focusWorshipper(id, Number(button.dataset.person))
           else this.focusOrder(id, Number(button.dataset.order))
         })
         // Person order icons use right-click; keyboard activation also exposes focus.
         button.addEventListener('click', event => {
-          if (head) {
+          if (vehicle)
+            this.vehicleAction(
+              id,
+              Number(button.dataset.person),
+              button.dataset.unload === 'true',
+              false,
+              event.shiftKey
+            )
+          else if (head) {
             selectWorshippers(scene.world, head, Number(button.dataset.person), event.shiftKey)
             scene.onSound(0x6a)
             scene.onChange()
@@ -78,10 +114,12 @@ export class ObjectPanels {
       panel = {
         element,
         canvas,
-        kind: head ? 'head' : 'person',
-        offset: head
-          ? (models as Record<number, { panelHeight: number }>)[head.model].panelHeight
-          : (scene.unitMeshes.get(id)?.userData.nativeFrameHeight ?? 0) * 8,
+        kind: head ? 'head' : vehicle ? 'vehicle' : 'person',
+        offset: vehicle
+          ? models[originalVehicleMesh(vehicle.model)].panelHeight
+          : head
+            ? (models as Record<number, { panelHeight: number }>)[head.model].panelHeight
+            : (scene.unitMeshes.get(id)?.userData.nativeFrameHeight ?? 0) * 8,
         phase: -1,
         remaining: 0,
         hold: 20,
@@ -91,7 +129,7 @@ export class ObjectPanels {
       this.panels.set(id, panel)
     } else if (automatic) panel.automatic = true
     syncSecondaryReservations(scene)
-    if (immediate) {
+    if (immediate || vehicle) {
       panel.phase = 1
       panel.remaining = panel.hold
     }
@@ -120,8 +158,10 @@ export class ObjectPanels {
     if (!(scene.pointerButtons & 2) && hovered !== this.inspected) this.inspected = null
     for (const [id, panel] of panels) {
       const u = world.units.find(person => person.id === id && person.hp > 0)
-      const head = world.shrines.find(s => s.id === id)
-      if (!u && !head) {
+      const head = world.shrines.find(s => s.id === id),
+        vehicle = world.vehicles.find(v => v.id === id && v.active),
+        target = u ?? head ?? (vehicle && browserPosition(vehicle))
+      if (!target) {
         panel.element.remove()
         panels.delete(id)
         syncSecondaryReservations(scene)
@@ -149,7 +189,7 @@ export class ObjectPanels {
         continue
       }
       const { canvas, element } = panel
-      element.hidden = !!world.inputMask || scene.overviewActive || !scene.visible((u ?? head)!)
+      element.hidden = !!world.inputMask || scene.overviewActive || !scene.visible(target)
       if (element.hidden || !atlas.complete || !atlas.naturalWidth) continue
       const p = u && (unitAnimationSource(u) ?? u.native ?? u.entry?.person ?? u.builder?.person)
       const icons = p ? personOrderIcons(world.buildingOrders, p, world.objectCells.objects) : []
@@ -160,6 +200,15 @@ export class ObjectPanels {
         head?.kind === 'vault'
           ? world.units.find(u => u.team === 'blue' && u.kind === 'shaman' && !u.ghost && u.hp > 0)
           : undefined
+      const passengers = vehicle ? liveVehiclePassengers(world, vehicle) : [],
+        unload = !!vehicle && canUnloadVehicle(world, vehicle),
+        hoveredButton = [...element.querySelectorAll('button')].findIndex(button =>
+          button.matches(':hover')
+        ),
+        vehicleHover =
+          vehicle && hoveredButton === vehiclePanelGeometry(vehicle.model).capacity
+            ? -2
+            : hoveredButton
       const people = head
         ? head.kind === 'vault'
           ? count
@@ -174,7 +223,11 @@ export class ObjectPanels {
               ]
             : []
           : liveWorshippers(world, head, count)
-        : []
+        : passengers.map(({ person }) => ({
+            id: person.id,
+            model: person.model,
+            selectionFlags: world.selected.includes(person.id) ? 128 : 0,
+          }))
       const worship = head && {
         required: head.required,
         enabled: head.enabled,
@@ -205,15 +258,33 @@ export class ObjectPanels {
         head?.followers,
         people.map(person => person?.id),
         vaultStatus,
+        vehicle && [
+          vehicle.model,
+          unload,
+          vehicleHover,
+          passengers.map(({ person }) => person.tribe),
+        ],
+        people.map(person => person?.selectionFlags),
       ])
       if (key !== panel.key) {
-        const layout = worship
-          ? worshipPanel(worship)
-          : personPanel(
-              health,
-              maximum,
-              icons.map(i => i.sprite)
+        const layout = vehicle
+          ? vehiclePanel(
+              vehicle.model,
+              passengers.map(({ person }) => ({
+                model: person.model,
+                selected: world.selected.includes(person.id),
+                own: person.tribe === 0,
+              })),
+              unload,
+              vehicleHover
             )
+          : worship
+            ? worshipPanel(worship)
+            : personPanel(
+                health,
+                maximum,
+                icons.map(i => i.sprite)
+              )
         paintPanel(canvas, atlas, layout)
         // Use the actual main-sprite submissions for hit geometry; no second layout.
         const draws = layout.events.filter(
@@ -221,8 +292,31 @@ export class ObjectPanels {
         )
         const buttons = element.querySelectorAll('button')
         for (let i = 0; i < buttons.length; i++) {
-          const button = buttons[i],
-            person = people[i],
+          const button = buttons[i]
+          if (vehicle) {
+            const g = vehiclePanelGeometry(vehicle.model),
+              person = people[i],
+              isUnload = i === g.capacity
+            button.hidden = !isUnload && !person
+            button.disabled = isUnload ? !unload : passengers[i]?.person.tribe !== 0
+            button.dataset.unload = String(isUnload)
+            button.dataset.person = String(person?.id ?? 0)
+            button.setAttribute(
+              'aria-label',
+              isUnload
+                ? 'Unload all passengers'
+                : `Toggle passenger ${i + 1}; Shift selects the group`
+            )
+            button.title = isUnload
+              ? 'Unload all passengers'
+              : 'Click to select; Shift-click for all passengers; right-click to inspect'
+            button.style.left = `${isUnload ? g.unload.x : g.left + 1 + i * 17}px`
+            button.style.top = `${isUnload ? 0 : 1}px`
+            button.style.width = `${isUnload ? g.unload.w + 1 : 17}px`
+            button.style.height = `${isUnload ? g.rowHeight + 1 : 24}px`
+            continue
+          }
+          const person = people[i],
             icon = head ? person && { id: person.id, sprite: 73 + person.model } : icons[i],
             draw = draws[i]
           if (!icon || head?.kind === 'vault' || draw?.[0] !== 'sprite') {
@@ -249,21 +343,23 @@ export class ObjectPanels {
         }
         element.setAttribute(
           'aria-label',
-          head
-            ? head.kind === 'vault'
-              ? `${head.name}: ${vaultStatus}; ${Math.round(head.progress * 100)}% complete`
-              : `${head.name}: ${head.followers} worshippers; ${Math.round(head.progress * 100)}% complete`
-            : `${u!.kind}: ${Math.max(0, health)} of ${maximum} health; ${icons.length} orders`
+          vehicle
+            ? `${vehicle.model < 3 ? 'Boat' : 'Balloon'}: ${vehicle.passengerCount} passengers`
+            : head
+              ? head.kind === 'vault'
+                ? `${head.name}: ${vaultStatus}; ${Math.round(head.progress * 100)}% complete`
+                : `${head.name}: ${head.followers} worshippers; ${Math.round(head.progress * 100)}% complete`
+              : `${u!.kind}: ${Math.max(0, health)} of ${maximum} health; ${icons.length} orders`
         )
         panel.key = key
       }
       const point =
         (u && scene.unitScreen(id, panel.offset / 128)) ??
         scene.screen(
-          (u ?? head)!,
-          ((p?.h ?? nativePosition(world, (u ?? head)!).h) + panel.offset) / 45
+          target,
+          ((p?.h ?? vehicle?.h ?? nativePosition(world, target).h) + panel.offset) / 45
         )
-      if (head) {
+      if (head || vehicle) {
         const containerRect = scene.container.getBoundingClientRect(),
           rendererRect = scene.renderer.domElement.getBoundingClientRect(),
           scale = Number.parseFloat(getComputedStyle(element).getPropertyValue('--hud-scale')) || 1,
@@ -286,6 +382,32 @@ export class ObjectPanels {
         element.style.top = `${((1 - point.y) * scene.container.clientHeight) / 2}px`
       }
     }
+  }
+  vehicleAction(id: number, personId: number, unload: boolean, right: boolean, all: boolean) {
+    const { scene } = this,
+      { world } = scene
+    if (world.inputMask || scene.overviewActive) return
+    const vehicle = world.vehicles.find(v => v.id === id && v.active)
+    if (!vehicle) return
+    const passenger = liveVehiclePassengers(world, vehicle).find(
+        ({ person }) => person.id === personId && person.tribe === 0
+      ),
+      action = vehiclePanelInput(
+        passenger?.person,
+        unload,
+        right,
+        unload && canUnloadVehicle(world, vehicle)
+      )
+    if (action === 'focus') {
+      this.open(personId, true)
+      return
+    }
+    if (action === 'select') selectVehiclePassenger(world, vehicle, personId, all)
+    else if (action === 'unload') {
+      if (!unloadLiveVehicle(world, vehicle)) return
+    } else return
+    scene.onSound(0x6a)
+    scene.onChange()
   }
   focusWorshipper(headId: number, personId: number) {
     const { scene } = this,

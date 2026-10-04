@@ -28,7 +28,7 @@ HASHES = {
 sha = lambda b: hashlib.sha256(b).hexdigest()
 
 
-def original_frames(source):
+def original_frames(source, ids=IDS):
     raw = {}
     for name, expected in HASHES.items():
         data = (source / name).read_bytes()
@@ -40,7 +40,7 @@ def original_frames(source):
     spec.loader.exec_module(decoder)
     bank = decoder.sprites(raw['data/hfx0-0.dat'], raw['data/pal0-c.dat'])
     result = {}
-    for ident in IDS:
+    for ident in ids:
         width, height, pixels = bank[ident]
         if width <= 0 or height <= 0 or len(pixels) != width * height * 4:
             raise ValueError('Invalid original sprite: ' + str(ident))
