@@ -2,9 +2,12 @@
 
 Prepared source only. A passing syntax/unit-test result is **not** a browser run.
 The plan was accepted at `c01d788` and the actual driver source preflight at
-`e4fc02a`. The run adopts accepted main `d32a184` through PR185/196/197/199/201/202.
+`e4fc02a`. The run adopts accepted main `b381851` through PR185/196/197/199/201/202/205.
 PR202 changes only an independent Mission4 checker/profile test; all50 guarded
-application/direct-import bytes remain identical to `f78e5c1`. Four guarded callers
+application/direct-import bytes remain identical to `f78e5c1`. PR205 adds the
+reviewed owned persistent-profile harness; its three direct callers bring the
+manifest to53 guards. The shared Mission1 Save→close→Load proof establishes
+profile persistence; Mission3 preparation/continuation still needs its own observation. Four guarded callers
 were refreshed after source review of the transport additions; ordinary dispatch,
 load, clock and observer paths are unchanged. The driver reads rendered geometry
 and retains its accepted bytes. The additive PR196 browser helper is also guarded.

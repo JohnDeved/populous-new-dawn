@@ -1,6 +1,6 @@
 {
   "scope": "source-only ordinary-control Mission 3 preflight; no execution proof",
-  "sourceCommit": "d32a1848bdbb60436366c335d1e9c9a1e16ab8bb",
+  "sourceCommit": "b3818511da0b420129b03092f397ad76bc6111a8",
   "files": [
     {
       "path": "app/level-three.ts",
@@ -201,6 +201,18 @@
     {
       "path": "app/live-combat.ts",
       "sha256": "12107b400388222fb75453f86d055d6ea053813da355a75cf6a10ddb3553933a"
+    },
+    {
+      "path": "scripts/local-render/harness.mjs",
+      "sha256": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c"
+    },
+    {
+      "path": "scripts/local-render/owned-profile.mjs",
+      "sha256": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a"
+    },
+    {
+      "path": "scripts/local-render/checkpoint-observer.mjs",
+      "sha256": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947"
     }
   ],
   "originalInspectionCommit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
