@@ -1,0 +1,114 @@
+{
+  "scope": "source-only ordinary-control Mission 3 preflight; no execution proof",
+  "sourceCommit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+  "files": [
+    {
+      "path": "app/level-three.ts",
+      "sha256": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07"
+    },
+    {
+      "path": "app/level-start-runtime.ts",
+      "sha256": "8e4b7c29bee1df980a2d39d05fdd1812e0bd6b6530749d85d35caac047f9db76"
+    },
+    {
+      "path": "app/page.tsx",
+      "sha256": "deb19cf562ca2301195d680dbcf61cc4224d230f07a8edfdf6048f703730826a"
+    },
+    {
+      "path": "app/scene-input-runtime.ts",
+      "sha256": "710d9b3d8a0efc9c18b98354d47addcf441d227b4abe781814e33e61139067e3"
+    },
+    {
+      "path": "app/scene.ts",
+      "sha256": "adf54701dd99a928d8da345aaeeddbe25c4d4c2f772e5cea647deaf17a0778a9"
+    },
+    {
+      "path": "app/game-clock.ts",
+      "sha256": "826025bb4aab92a7ccb86801f854cde5675659e842a6563f585f4e591702c13a"
+    },
+    {
+      "path": "app/training-conversion.ts",
+      "sha256": "6c8cade2447474f1d966cdfad22e9098d2fd4a5535891fe8c942ba7266806bf7"
+    },
+    {
+      "path": "app/building-occupants.ts",
+      "sha256": "24e6458718cd665b52188ac5473bfe265d179bb03ac530217c761addd471797a"
+    },
+    {
+      "path": "app/preacher-conversion.ts",
+      "sha256": "b00e5fa81527600589f3e3bf24c815fa665aba8b1c56b2518c162d9b8f197cae"
+    },
+    {
+      "path": "app/live-movement.ts",
+      "sha256": "8baf538052816d523d5e53a123a2ff79c6cab957a033422890f638c42b204228"
+    },
+    {
+      "path": "app/computer-runtime.ts",
+      "sha256": "7b26c03a301ae0a4e50084bdd9b1cdd1f04a711260f998324ffe6e2b7a2dae72"
+    },
+    {
+      "path": "app/campaign-command-runtime.ts",
+      "sha256": "7721cdb9954edc737d6c13828b42e69dac09b8046db8f93b7a7e92a05e0c908b"
+    },
+    {
+      "path": "app/tribe-turns.ts",
+      "sha256": "9b31e569f690ba2d59eb322614958ef5fcd4a701906ad39209a4fdd48fdea926"
+    },
+    {
+      "path": "app/world-turn.ts",
+      "sha256": "d49e1c7e77b0f0d417739c8dea60410fca56623eb7a8df4b7b6cdee08cbf8fea"
+    },
+    {
+      "path": "scripts/check-browser-campaign-natural-victory.mjs",
+      "sha256": "993a24ea7fb026bec9efa18502eca0daefc835cc930011b711185306b95ffe72"
+    },
+    {
+      "path": "scripts/mission3-natural-preacher-scenario.mjs",
+      "sha256": "71992d08220507993e36ce34c820d9371020b6f343af78bdbc8bd0a843043223"
+    },
+    {
+      "path": "scripts/check-browser-mission3-natural-preacher.mjs",
+      "sha256": "74d8a45327bdbbed6b840aad934bf6733f01b12a62683b883cab1ab51cde5568"
+    },
+    {
+      "path": "scripts/campaign-start-readiness.mjs",
+      "sha256": "214ffc2ce95ea039328e356d493ba8beb887e2d5ef1084b672fb0413fac48d28"
+    },
+    {
+      "path": "scripts/campaign-conversion-observer.mjs",
+      "sha256": "36e6d8a30547f566ed4ba26816d797d0e6dd625c72385bf73aab0e2b988266aa"
+    },
+    {
+      "path": "scripts/checkpoint-readback.mjs",
+      "sha256": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80"
+    },
+    {
+      "path": "tests/mission3-opening.test.mjs",
+      "sha256": "30ab1259fcc92bae19e339ff0257edbd2e9ba96cc70cc36662a26b91d1331030"
+    },
+    {
+      "path": "tests/mission3-recurring.test.mjs",
+      "sha256": "f43afa1204bf1503718c446eccb8c624aedda243641ea98477b6efbf5e713a20"
+    },
+    {
+      "path": "tests/mission3-defense-task.test.mjs",
+      "sha256": "4ab9ce9a2ede8ec77485c10f1354b228fc25197f82705d19b213a186c2b8a36e"
+    },
+    {
+      "path": "tests/mission3-natural-preacher.test.mjs",
+      "sha256": "a84aee5bfc9e904ed1065c69c2bdd0204a2c425722501be3d2c5c3ec3699e390"
+    },
+    {
+      "path": "decomp/research/mission3-natural-blue-preaching.md",
+      "sha256": "ea9b816b33edc592bfa433033b02bf047be21e94a39ab76e6cd7b0c164ed678c"
+    },
+    {
+      "path": "decomp/research/mission3-defense-task.md",
+      "sha256": "154c02a953139ee2180734015e65a49e66e8bb677320de02d3fedadcf75f90ce"
+    },
+    {
+      "path": "decomp/research/mission3-person-task.md",
+      "sha256": "9231ae425b9d03c545b37c54f5717fd37035f77018b11d13998a5feb53e89324"
+    }
+  ]
+}
