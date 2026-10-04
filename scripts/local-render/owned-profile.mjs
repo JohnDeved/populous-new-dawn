@@ -103,6 +103,7 @@ export function acquireProfile({ path, root, origin, source, inputs, runtime, ou
     finish(receipt, cleanupVerified) {
       if (finished) throw Error('Profile lease already finished')
       if (!cleanupVerified) throw Error('Browser cleanup is unverified; profile lock retained')
+      if (!receipt.profile?.continuationVerified) throw Error('Checkpoint/source provenance is unverified; profile lock retained')
       inspectPath(path, { privateOwner: true })
       if (!isDeepStrictEqual(readOwnedJson(lock), owner) || readOwnedJson(marker).id !== manifest.id) throw Error('Profile ownership changed; lock retained')
       const text = readFileSync(resolve(output, 'receipt.json'), 'utf8')

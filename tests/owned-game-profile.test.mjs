@@ -103,7 +103,10 @@ test('checker-only correspondence must bind prior run and both exact source iden
   finish(second, next)
 }))
 test('unverified source and changed terminal ownership remain blocked', () => fixture(args => {
-  const first = acquireProfile(args); finish(first, args, { continuationVerified: false })
+  const first = acquireProfile(args), marker = readFileSync(resolve(args.path, 'populous-profile.json'), 'utf8')
+  assert.throws(() => finish(first, args, { continuationVerified: false }), /lock retained/)
+  assert.equal(readFileSync(resolve(args.path, 'populous-profile.json'), 'utf8'), marker)
+  assert.equal(existsSync(resolve(args.path, 'owner.lock')), true)
   assert.throws(() => acquireProfile(args), /terminal provenance/)
 }))
 test('lease refuses a replaced lock and leaves that owner untouched', () => fixture(args => {

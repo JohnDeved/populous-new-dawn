@@ -67,7 +67,7 @@ export async function runLocalBrowser(options, scenario) {
   const require = createRequire(resolve(root, 'package.json'))
   const { chromium } = require('@playwright/test')
   let browser, context, page, server, timer, launchPromise, outcome, finalReceipt, lease
-  let launchAttempted = false, cleanupVerified = false
+  let launchAttempted = false, cleanupVerified = false, checkpointIdentityVerified = false
   const log = createWriteStream(resolve(output, 'server.log'))
   const abort = new AbortController()
   const onSignal = () => abort.abort(Error('Interrupted'))
@@ -140,6 +140,7 @@ export async function runLocalBrowser(options, scenario) {
       const previous = receipt.profile.previousRun
       if (previous && JSON.stringify(receipt.profile.checkpointAtStart) !== JSON.stringify(previous.checkpointAtEnd)) throw Error('Stored checkpoint differs from the previous terminal receipt; continuation is unverified')
       if (!previous && receipt.profile.checkpointAtStart !== null) throw Error('New task profile unexpectedly contains a checkpoint')
+      checkpointIdentityVerified = true
     }
     const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
     const openMission = async mission => {
@@ -201,7 +202,7 @@ export async function runLocalBrowser(options, scenario) {
     if (receipt.source.fingerprint !== sourceAfter.fingerprint) outcome = { status: 'failed', failure: 'Source bytes changed during execution', previousFailure: outcome.failure }
     if (lease) {
       receipt.profile.cleanupVerified = cleanupVerified
-      receipt.profile.continuationVerified = receipt.source.fingerprint === sourceAfter.fingerprint
+      receipt.profile.continuationVerified = (!launchAttempted || checkpointIdentityVerified) && receipt.source.fingerprint === sourceAfter.fingerprint
       try {
         receipt.runtimeAfter = profileRuntimeReceipt(root, receipt.launch.executablePath, require)
         receipt.scenarioAfter = { path: receipt.scenario.path, sha256: sha256(readFileSync(receipt.scenario.path)) }
@@ -210,13 +211,13 @@ export async function runLocalBrowser(options, scenario) {
         receipt.profile.continuationVerified = false
         outcome = { status: 'failed', failure: String(error), previousFailure: outcome.failure }
       }
-      if (!cleanupVerified || !Object.hasOwn(receipt.profile, 'checkpointAtEnd')) outcome = { status: 'failed', failure: 'Profile cleanup/checkpoint provenance is unverified; lock retained', previousFailure: outcome.failure }
+      if (!cleanupVerified || !receipt.profile.continuationVerified || !Object.hasOwn(receipt.profile, 'checkpointAtEnd')) outcome = { status: 'failed', failure: 'Profile cleanup/checkpoint provenance is unverified; lock retained', previousFailure: outcome.failure }
     }
     // Detach nested arrays/results from scenario-owned references before writing.
     finalReceipt = structuredClone({ ...receipt, ...outcome, finishedAt: new Date().toISOString(), sourceAfter })
     if (finalReceipt.status !== 'passed') delete finalReceipt.result
     writeFileSync(resolve(output, 'receipt.json'), JSON.stringify(finalReceipt, null, 2) + '\n')
-    if (lease && cleanupVerified && Object.hasOwn(finalReceipt.profile, 'checkpointAtEnd')) {
+    if (lease && cleanupVerified && finalReceipt.profile.continuationVerified && Object.hasOwn(finalReceipt.profile, 'checkpointAtEnd')) {
       try { lease.finish(finalReceipt, cleanupVerified) }
       catch (error) {
         finalReceipt.status = 'failed'; finalReceipt.failure = String(error); delete finalReceipt.result
