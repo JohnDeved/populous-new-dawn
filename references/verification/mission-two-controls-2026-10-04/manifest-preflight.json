@@ -5,8 +5,8 @@
   "files": [
     {
       "path": "explore.mjs",
-      "bytes": 18509,
-      "sha256": "e69f44fc0b11cf1cfa4ccff1c823c7f9f49514bf679b994a6713a8b5fbff27e2"
+      "bytes": 18505,
+      "sha256": "9af5e4485ba9d752edbce6ae0e45a9e393db965b06ea69ddb64a62da625979a5"
     },
     {
       "path": "journey-01-interruption.json",
@@ -38,5 +38,7 @@
       "bytes": 27,
       "sha256": "7583728b0492cb05b289c53575ff03f2b77bec221bcaa4ca19f4b189be042678"
     }
-  ]
+  ],
+  "recoveredDriverSha256": "e69f44fc0b11cf1cfa4ccff1c823c7f9f49514bf679b994a6713a8b5fbff27e2",
+  "preflightCorrection": "Read-only campaign completion accessor changed from numeric revision to getCompletedMissions(); source/game actions unchanged."
 }

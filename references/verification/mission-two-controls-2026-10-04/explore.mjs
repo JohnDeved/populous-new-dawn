@@ -24,7 +24,7 @@ export default async function ({ page, output, signal }) {
     return {
       level: w.outcome.level, turn: w.turn, time: w.time, speed: w.speed, paused: w.paused, status: w.status, inputMask: w.inputMask,
       selected: w.selected, mode: w.mode, stats: w.stats, shots: w.shots, mana: w.mana, message: w.message,
-      unlockedCamp: w.unlockedCamp, campaignCompleted: window.testStore.getSnapshot?.()?.completed,
+      unlockedCamp: w.unlockedCamp, campaignCompleted: window.testStore.getCompletedMissions(),
       camera: { point: s.viewPoint, bearing: s.cameraBearing, overview: s.overviewStage },
       renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
       units: w.units.filter(u => u.hp > 0).map(u => ({ id: u.id, team: u.team, kind: u.kind, x: u.x, z: u.z, hp: u.hp, inside: u.inside, work: u.work, target: u.target, state: u.state, task: u.task, flags4: u.flags4, point: project(u) })),
