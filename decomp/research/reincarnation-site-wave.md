@@ -146,3 +146,31 @@ active encounter person and preservation of a nonempty order queue through panic
 and the ordinary encounter cleanup. The pre-existing14 startup regressions pass.
 This is source-level integration evidence; rendered natural-death/site-intrusion
 acceptance and standard final gates are still pending.
+
+## Active-owner prerequisites found by runtime review
+
+Independent review rejected the first port for two newly exercised live seams.
+An eligible seated person reached an unimplemented passenger-deselection callback;
+an active building-entry person lost its retained queue through generic cancellation.
+The original00445750 clears only selection bit128 and flags3/128 for the person
+and valid fellow passengers of its active, occupied vehicle. It does not eject,
+rewrite seats or clear commands. Six composed original wave→panic→deselection
+cases cover Boat/Balloon, active/count gates, a fellow Shaman, unchanged vehicle
+bytes and retained command handles. Search and configured-constant guards remain
+active throughout. The browser uses the existing exact markPersonSelected(false)
+primitive and preserves the other selection bits.
+
+The mode2 handoff explicitly preserves entry orders when retiring its old entry
+wrapper; other cancellation callers keep their existing default behavior. Native
+004a3940 clears work flags/target, not the queued commands. At panic expiry the
+port reuses the established adoptLiveOrders boundary, so resuming entry does not
+allocate a replacement command and orphan the original reference. The regression
+runs ordinary command(hut) to entry substate5, verifies the same person/queue/pool
+through panic, and finishes the original entry after expiry with its reference
+released exactly once. A surviving opposing fixture tribe prevents ordinary
+victory celebration from legitimately interrupting this focused panic scenario.
+
+The initial seated/entry failures and the subsequently diagnosed empty-opponent
+fixture failure are retained. The repaired focused set covers32 tests, including
+all14 existing startup and6 existing panic regressions; standard gates and the
+rendered checker remain separately pending.

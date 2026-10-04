@@ -87,7 +87,7 @@ function affectPerson(w: World, u: Unit, p: LivePerson, tribe: number) {
   if (!reincarnationWaveAffects(p, tribe)) return
   p.life = Math.round(u.hp * 20)
   // Protected transitions still receive damage, including repeated search cells.
-  initializeLivePanic(w, u, p)
+  initializeLivePanic(w, u, p, false, 'preserve')
   damagePerson(p, w.levelFlags2, tribe, Math.floor(maxHp(unitKindFromModel(p.model)) * 10))
   u.hp = p.life / 20
 }

@@ -550,7 +550,9 @@
         "app/shaman-appearance.ts",
         "app/level-start.ts",
         "app/level-start-runtime.ts",
-        "app/reincarnation.ts"
+        "app/reincarnation.ts",
+        "app/reincarnation-wave-runtime.ts",
+        "app/site-wave-effects.ts"
       ],
       "researchPaths": [
         "scripts/import-original.py",
@@ -567,7 +569,11 @@
         "tests/level-start.test.mjs",
         "scripts/check-native-level-start.py",
         "scripts/check-static-level-start.py",
-        "scripts/check-browser-level-start.mjs"
+        "scripts/check-browser-level-start.mjs",
+        "scripts/check-native-reincarnation-wave.py",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "tests/reincarnation-wave.test.mjs",
+        "decomp/research/reincarnation-site-wave.md"
       ],
       "sharedPaths": [
         "app/scene-entities.ts",
@@ -633,7 +639,10 @@
         "level-start-portable",
         "level-start-native",
         "level-start-static",
-        "level-start-browser"
+        "level-start-browser",
+        "reincarnation-wave-portable",
+        "reincarnation-wave-native",
+        "reincarnation-wave-browser"
       ],
       "generatedInputIds": [
         "native-fixtures",

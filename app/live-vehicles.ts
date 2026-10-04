@@ -15,6 +15,7 @@ import { movePosition, nativeAngle } from './native-math.ts'
 import { attachPersonRoute, releasePersonRoute, routeVehicleAvailable } from './person-routes.ts'
 import { boardingVehicle, vehicleReady } from './vehicle-routing.ts'
 import { moveObjectInCells } from './object-cells.ts'
+import { markPersonSelected } from './person-selection.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
 const short = (n: number) => (n << 16) >> 16
@@ -24,6 +25,22 @@ function relocateLivePerson(w: World, p: LivePerson, to: { x: number; y: number;
   if (w.objectCells.objects.get(p.id) === p && p.flags2 & 0x20000)
     moveObjectInCells(w.objectCells, p, to)
   else Object.assign(p, to)
+}
+
+// The state initializer's deselection propagates through the active vehicle's
+// occupied slots. It changes selection only, preserving seats and attachment.
+export function deselectLiveVehiclePassengers(w: World, person: { id: number; vehicle: number }) {
+  const vehicle = w.vehicles.find(v => v.id === person.vehicle && v.active)
+  if (!vehicle?.passengerCount) return
+  const deselected = new Set<number>()
+  for (const id of vehicle.passengers.slice(0, rules.vehicleCapacity[vehicle.model])) {
+    if (!id || id === person.id) continue
+    const passenger = w.pathfinding.people.get(id) ?? w.units.find(u => u.id === id)?.native
+    if (!passenger?.class || passenger.flags2 & 1) continue
+    markPersonSelected(passenger, false)
+    deselected.add(id)
+  }
+  w.selected = w.selected.filter(id => !deselected.has(id))
 }
 
 export const liveVehicles = (w: World) =>

@@ -233,3 +233,28 @@ print('PASS: 18 original visited-cell Swamp cleanup cases; all modes/owners, rad
 
 assert_inputs('at end of complete run')
 print('PASS: original search table and all',len(constant_bytes),'configured constant targets preserved through every setup and native call')
+
+# A mode2 transition reaches real00445750 passenger deselection. It does not
+# eject, rewrite seats or clear the person's existing command references.
+for vehicle_model in [1,3]:
+ for active,occupied in [(True,2),(False,2),(True,0)]:
+  setup();people=[];p=person(state=10);peer=person(model=7,state=10);vehicle=0x200b000
+  write(vehicle+0x24,'H',200);write(vehicle+0x2a,'BB',4,vehicle_model)
+  write(vehicle+0xc,'I',0 if active else 1);write(vehicle+0x9e,'B',occupied)
+  write(vehicle+0x7a,'HH',read(p+0x24,'H'),read(peer+0x24,'H'));write(0x890390+200*4,'I',vehicle)
+  for passenger in [p,peer]:
+   write(passenger+0x9f,'H',200);write(passenger+0x7a,'B',0x84);write(passenger+0x14,'I',0x10000080)
+  commands=struct.pack('<8H',1,2,0,0,0,0,0,0);cpu.mem_write(p+0x8b,commands)
+  seats=bytes(cpu.mem_read(vehicle+0x7a,20));vehicle_before=bytes(cpu.mem_read(vehicle,256))
+  call(0x5029d0,body);call(0x50c840,wave)
+  assert read(p+0x2c,'B')==26 and read(p+0x9f,'H')==200
+  assert read(p+0x7a,'B')==4 and read(p+0x14,'I')&128==0
+  expected_selected=0 if active and occupied else 128
+  assert read(peer+0x7a,'B')==(4|expected_selected)
+  assert read(peer+0x14,'I')&128==expected_selected
+  assert read(peer+0x2c,'B')==10 and read(peer+0x9f,'H')==200
+  assert bytes(cpu.mem_read(p+0x8b,len(commands)))==commands
+  assert bytes(cpu.mem_read(vehicle+0x7a,20))==seats
+  assert bytes(cpu.mem_read(vehicle,256))==vehicle_before
+assert_inputs('after passenger and queue cases')
+print('PASS: 6 real wave/panic passenger deselections; Boat/Balloon active/count gates, attached Shaman selection, unchanged vehicle/seats and retained command references')

@@ -7,6 +7,7 @@ import { browserPosition } from '../app/world-coordinates.ts'
 import { refreshTerrainSurface } from '../app/world-terrain-runtime.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { createSwamp } from '../app/swamp.ts'
+import { queueTerrain, updateWalkMasks } from '../app/native-terrain.ts'
 import { effect } from '../app/world-effects.ts'
 import { stepReincarnation } from '../app/reincarnation.ts'
 import {
@@ -20,6 +21,9 @@ const center = { x: 4096, y: 4096, h: 240 }
 function fixture() {
   const w = createWorldState(1)
   w.land.heights.fill(128)
+  w.land.flags.fill(0)
+  queueTerrain(w.land, 0, 64, 1, {surface(){}, globe(){}})
+  updateWalkMasks(w.land, 0, 64)
   refreshTerrainSurface(w)
   w.reincarnationSites[0] = { ...center }
   w.randomState = 0x12345678
@@ -243,4 +247,73 @@ test('mode2 interrupts the real encounter owner while retaining its person and o
   assert.equal(active.state, 26, 'old encounter must not overwrite panic on a later visit')
   assert.equal(enemy.fight, null, 'ordinary fight cleanup must release the old wrapper')
   assert.deepEqual(active.commands, queue)
+})
+
+test('ordinary Boat and Balloon boarding retain seats and deselect passengers under mode2 panic', async () => {
+  const { selectVehiclePassenger } = await import('../app/vehicle-panel-runtime.ts')
+  for (const model of [1, 3]) {
+    const w = createWorld(22), vehicle = w.vehicles.find(v => v.model === model)
+    const passenger = addUnit(w, 'blue', 'spy', browserPosition(vehicle))
+    const shaman = addUnit(w, 'blue', 'shaman', browserPosition(vehicle))
+    w.inputMask = 0
+    w.selected = [passenger.id, shaman.id]
+    assert.ok(command(w, {...browserPosition(vehicle), id:vehicle.id}))
+    for (let i=0;i<120 && vehicle.passengerCount<2;i++) tick(w,1/12)
+    assert.equal(vehicle.passengerCount, 2)
+    assert.equal(passenger.native.vehicle, vehicle.id)
+    assert.equal(shaman.native.vehicle, vehicle.id)
+    w.selected = []
+    selectVehiclePassenger(w, vehicle, passenger.id, true)
+    assert.ok(w.selected.includes(passenger.id) && w.selected.includes(shaman.id))
+    const active = passenger.native, beforeHP = passenger.hp, seats = [...vehicle.passengers]
+    const queue = structuredClone(active.commands), orders = structuredClone(w.buildingOrders)
+    const peerSelection = shaman.native.selectionFlags
+    w.reincarnationSites[1] = {x:active.x & 0xfe00,y:active.y & 0xfe00,h:active.h}
+    const fx = createReincarnationWave(w, 1)
+    stepReincarnationWave(w, fx)
+    assert.equal(passenger.native, active)
+    assert.equal(active.state, 26)
+    assert.equal(passenger.hp, beforeHP - 15)
+    assert.equal(active.vehicle, vehicle.id)
+    assert.equal(shaman.native.vehicle, vehicle.id)
+    assert.deepEqual(vehicle.passengers, seats)
+    assert.equal(vehicle.passengerCount, 2)
+    assert.ok(!w.selected.includes(passenger.id) && !w.selected.includes(shaman.id))
+    assert.equal(shaman.native.selectionFlags, peerSelection & ~128)
+    assert.deepEqual(active.commands, queue)
+    assert.deepEqual(w.buildingOrders, orders)
+    advance(w, 3)
+    assert.equal(passenger.native.vehicle, vehicle.id)
+    assert.equal(shaman.native.vehicle, vehicle.id)
+    assert.deepEqual(vehicle.passengers, seats)
+  }
+})
+
+test('panic transfers a live building-entry queue and resumes it after expiry', async () => {
+  const {addBuilding} = await import('../app/model.ts')
+  const w = fixture(), hut = addBuilding(w, 'blue', 'hut', {x:13,z:-24}, true)
+  addUnit(w, 'red', 'brave', {x:-50,z:50}) // Keep ordinary victory from interrupting the panic fixture.
+  const u = addUnit(w, 'blue', 'brave', {x:8,z:-24})
+  w.selected = [u.id]
+  assert.ok(command(w, hut))
+  for (let i=0;i<120 && u.entry?.person.substate!==5;i++) tick(w,1/12)
+  assert.equal(u.entry?.person.substate, 5)
+  const p = u.entry.person, queue = structuredClone(p.commands), pool = structuredClone(w.buildingOrders)
+  assert.ok(queue.some(Boolean))
+  w.reincarnationSites[1] = {x:p.x & 0xfe00,y:p.y & 0xfe00,h:p.h}
+  const fx = createReincarnationWave(w, 1)
+  stepReincarnationWave(w, fx)
+  assert.equal(u.native, p)
+  assert.equal(p.state, 26)
+  assert.equal(u.entry, undefined)
+  assert.deepEqual(p.commands, queue)
+  assert.deepEqual(w.buildingOrders, pool)
+  for (let i=0;i<200 && p.state===26;i++) tick(w,1/12)
+  assert.notEqual(p.state, 26)
+  assert.deepEqual(p.commands, queue, 'panic expiry resumes the original queue without allocating a replacement')
+  assert.equal(u.entry?.person, p)
+  assert.deepEqual(w.buildingOrders.records[queue[0]], pool.records[queue[0]])
+  for (let i=0;i<200 && u.inside!==hut.id;i++) tick(w,1/12)
+  assert.equal(u.inside, hut.id, 'the original building-entry command completes after panic')
+  assert.equal(w.buildingOrders.records[queue[0]].references, 0, 'original command ownership is released once on completion')
 })
