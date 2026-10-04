@@ -310,3 +310,31 @@ steps and saved manual preference, then clamps actual fit to a500px logical
 height budget. That places the footer at y483 or lower without moving native
 art or controls. Fractional-scale source pixels, footer nonoverlap, and actual
 center/digit hit targets remain required rendered acceptance.
+
+### Rendered fixture and owner-consumer boundaries
+
+The rendered checker preserves the authored Mission22 population. Added crews
+first board the actual authored craft through mesh clicks; it captures that result
+before explicitly cancelling their command22 routes and putting those supporting
+crews into state30. Extra craft/crews are controlled state, not natural acquisition.
+Only the Boat containing the test Spy boards that Spy first. The ordinary disguise
+control is established for this driver path. A prior executor observed a queued
+non-driver command16 unchanged through64 ticks, while driver/sole-Spy completion
+occurred after one tick. That observation does not prove the complete native
+non-driver scheduler, and no scheduling repair is folded into these controls.
+Balloon commandPosition remains separately unported.
+
+The source-pixel oracle composes the original full native panel and lower cells,
+then uses the actual DOM scale, origin and device-pixel ratio. Element screenshots
+round clips outward in CSS pixels; padding is explicitly included without stretching
+the native reference or changing its channel-error threshold. Responsive acceptance
+also checks footer separation and actual center/digit elementFromPoint ownership.
+The safe rendered run captures only the two already-focused actual vehicle meshes
+for the maintained full native geometry/material consumer. Its live UV checks cover
+creation, disguise refresh, checkpoint reload and the inverse real/apparent fixture.
+
+After an executor reset, the unpublished historical screenshots/receipts and local
+commits9f662ef/199ed20 were unavailable. The recovered branch starts from the verified
+remote35c6075. Reconstructed changes have new hashes and new failure-first receipts;
+historical failed attempts are not relabelled as a successful current run. Final
+source-bound native/rendered/aggregate evidence must be collected again.

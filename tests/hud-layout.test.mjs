@@ -1,4 +1,5 @@
 import test from 'node:test'
+import { readFileSync } from 'node:fs'
 import assert from 'node:assert/strict'
 import { hudScale } from '../app/hud-layout.ts'
 
@@ -21,4 +22,8 @@ test('HUD keeps preferred manual sizes and the original nominal auto steps when 
   assert.equal(hudScale(1920, 1080, '1'), 1)
   assert.equal(hudScale(3440, 2160, '4'), 4)
   assert.equal(hudScale(800, 1200, '4'), 1.25)
+})
+
+test('HUD extraction retains the page client-component directive', () => {
+  assert.match(readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8'), /^'use client'\s/)
 })

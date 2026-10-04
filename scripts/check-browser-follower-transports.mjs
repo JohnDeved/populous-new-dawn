@@ -3,6 +3,9 @@ import { resolve } from 'node:path'
 import { writeFileSync } from 'node:fs'
 import { bindGame, showAllMissions } from './browser-game.mjs'
 import { vehiclePoint } from './check-browser-vehicle-panel.mjs'
+import { modelMatrix, modelPoint, projectPoint } from '../app/projection.ts'
+import { modelShade } from '../app/model-lighting.ts'
+import { modelTriangleVisible, polygonBucket } from '../app/painter-order.ts'
 import hud from '../app/original-hud.json' with { type: 'json' }
 import art from '../app/original-follower-tasks.json' with { type: 'json' }
 
@@ -52,53 +55,170 @@ export function assertSelectedCrews(selection, craft, expectedCount, model = 0) 
   return chosen.map(v => v.id)
 }
 
-// Like the accepted task-row checker, compare actual browser pixels with source
-// atlas/frame pixels on the regular logical grid. This is not old Windows raster
-// rounding, painter-order, a native-runtime screenshot, or hardware evidence.
+// Playwright rounds element clips outward in CSS pixels. Preserve actual HUD
+// scale/origin on the device grid; never stretch a15x34 reference to that box.
+export function transportPixelGrid(target, dock, dpr, scroll = { x: 0, y: 0 }) {
+  const x = Math.floor(target.x + scroll.x), y = Math.floor(target.y + scroll.y)
+  const right = Math.ceil(target.x + scroll.x + target.width)
+  const bottom = Math.ceil(target.y + scroll.y + target.height)
+  const scale = dock.width / 100 * dpr
+  assert.ok(Math.abs(dock.height / 277 * dpr - scale) < 0.0001, 'uniform native dock scale')
+  return { dpr, physicalScale: scale, cssClip: { x, y, width: right - x, height: bottom - y },
+    width: (right - x) * dpr, height: (bottom - y) * dpr,
+    origin: { x: (dock.x + scroll.x - x) * dpr, y: (dock.y + scroll.y - y) * dpr },
+    padding: { left: (target.x + scroll.x - x) * dpr, top: (target.y + scroll.y - y) * dpr,
+      right: (right - target.x - scroll.x - target.width) * dpr,
+      bottom: (bottom - target.y - scroll.y - target.height) * dpr } }
+}
+
+export function assertTransportLayout(layout, viewport) {
+  assert.equal(layout.rectangles.length, 12)
+  assert.ok(layout.dock.y + layout.dock.height <= layout.footer.y, 'native dock clears modern footer')
+  for (const [i, r] of layout.rectangles.entries()) {
+    assert.ok(r.x >= 0 && r.y >= 0 && r.x + r.width <= viewport.width && r.y + r.height <= viewport.height, JSON.stringify({ viewport, r }))
+    assert.ok(Math.abs(r.width / r.height - 15 / 34) < 0.001)
+    assert.equal(r.left, `${(i % 6) * 16}px`); assert.equal(r.top, `${i < 6 ? 190 : 231}px`)
+    assert.ok(r.y + r.height <= layout.footer.y, 'last-row frame and digits clear footer')
+    assert.ok(r.hits.every(hit => hit.owned), `transport center/digit hit: ${JSON.stringify(r)}`)
+  }
+}
+
+async function transportLayout(page) {
+  // The checker owns frozen RAF; let ResizeObserver finish before normal render.
+  await page.waitForFunction(() => {
+    const s = window.testSceneRef.current, r = s.container.getBoundingClientRect(), dpr = s.renderer.getPixelRatio(), canvas = s.renderer.domElement
+    return canvas.width === Math.floor(r.width * dpr) && canvas.height === Math.floor(r.height * dpr)
+  })
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+  await render(page)
+  return page.evaluate(() => {
+    const box = node => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height } }
+    const dock = box(document.querySelector('.followers-dock')), footer = box(document.querySelector('.top-actions'))
+    const rectangles = [...document.querySelectorAll('.follower-tasks button[aria-label*="occupied by"]')].map(b => {
+      const r = box(b)
+      const hits = [17, 30.5].map(y => {
+        const point = { x: r.x + r.width / 2, y: r.y + r.height * y / 34 }, top = document.elementFromPoint(point.x, point.y)
+        return { ...point, owned: top === b || b.contains(top), hit: top?.closest('button')?.getAttribute('aria-label') ?? top?.tagName }
+      })
+      return { ...r, left: b.style.left, top: b.style.top, hits }
+    })
+    return { dock, footer, rectangles, devicePixelRatio }
+  })
+}
+
+// Source-art consistency, not old Windows rasterization or hardware evidence.
 async function sourcePixels(page, output, kind, column, pressed = false, suffix = '') {
-  // Escape may leave a neighboring cell's keyboard focus outline active.
-  // Normalize focus through the DOM, preserving the unchanged strict pixel oracle.
   await page.evaluate(() => document.activeElement?.blur())
   const button = cell(page, kind, column), name = `transport-${kind}-${column}-${pressed ? 'pressed' : 'normal'}${suffix}`
   if (pressed) await button.hover(); else await page.mouse.move(900, 400)
+  const geometry = await button.evaluate(b => {
+    const box = node => { const r = node.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height } }
+    return { target: box(b), dock: box(document.querySelector('.followers-dock')), dpr: devicePixelRatio, scroll: { x: scrollX, y: scrollY } }
+  })
+  const grid = transportPixelGrid(geometry.target, geometry.dock, geometry.dpr, geometry.scroll)
   const bytes = await button.screenshot({ path: resolve(output, `${name}.png`) })
-  const state = await button.evaluate(b => ({ disabled: b.disabled, count: Number(b.querySelector('.follower-number').getAttribute('aria-label')),
+  const states = await transportButtons(page).evaluateAll(buttons => buttons.map(b => ({
+    disabled: b.disabled, count: Number(b.querySelector('.follower-number').getAttribute('aria-label')),
+    x: parseInt(b.style.left, 10), y: parseInt(b.style.top, 10),
     glyphs: [...b.querySelectorAll('.follower-number .hud-sprite')].map(n => n.style.backgroundPosition),
-    glyphX: parseInt(b.querySelector('.follower-number').style.left, 10) }))
+    glyphX: parseInt(b.querySelector('.follower-number').style.left, 10),
+  })))
+  const state = states.find(s => s.x === column * 16 && s.y === (kind === 1 ? 190 : 231))
   const expectedGlyphs = numberGlyphs(state.count, suffix === '-nearby')
   assert.deepEqual(state.glyphs, expectedGlyphs.map(id => `-${hud.rects[id].x}px -${hud.rects[id].y}px`))
   assert.equal(state.glyphX, Math.trunc((15 - expectedGlyphs.reduce((sum, id) => sum + hud.rects[id].w, 0)) / 2), 'native centered digit geometry')
-  const result = await page.evaluate(async ({ bytes, kind, column, pressed, state, hud, art }) => {
+  const result = await page.evaluate(async ({ bytes, kind, column, pressed, states, grid, hud, art }) => {
     const load = async input => createImageBitmap(input instanceof Blob ? input : await (await fetch(input)).blob())
-    const [actual, panel, frame, atlas, font] = await Promise.all([
+    const [actual, panel, normal, down, atlas, font] = await Promise.all([
       load(new Blob([new Uint8Array(bytes)], { type: 'image/png' })), load('/original/follower-task-panel.png'),
-      load(`/original/follower-task-${pressed ? 'pressed' : 'normal'}.png`), load('/original/follower-tasks.png'), load('/original/hud.png'),
+      load('/original/follower-task-normal.png'), load('/original/follower-task-pressed.png'), load('/original/follower-tasks.png'), load('/original/hud.png'),
     ])
-    const reference = document.createElement('canvas'); reference.width = 15; reference.height = 34
-    const c = reference.getContext('2d'); c.imageSmoothingEnabled = false
-    c.drawImage(panel, column * 16, kind === 1 ? 190 : 231, 15, 34, 0, 0, 15, 34)
-    c.globalAlpha = state.disabled ? 85 / 255 : 1; c.drawImage(frame, 0, 0); c.globalAlpha = 1
-    const icon = art.rects[column ? (kind === 1 ? 655 : 1088) : (kind === 1 ? 653 : 647) + Number(pressed)]
-    c.drawImage(atlas, icon.x, icon.y, icon.w, icon.h, 7 - Math.trunc(icon.w / 2), 17 - Math.trunc((icon.h + 8) / 2), icon.w, icon.h)
-    let x = state.glyphX
-    for (const position of state.glyphs) {
-      const [gx, gy] = position.match(/-?\d+/g).map(Number).map(Math.abs)
-      const glyph = Object.entries(hud.rects).find(([id, r]) => id.startsWith('f00t') && r.x === gx && r.y === gy)?.[1]
-      if (!glyph) throw Error(`Unknown glyph ${position}`)
-      c.drawImage(font, glyph.x, glyph.y, glyph.w, glyph.h, x, 24, glyph.w, glyph.h); x += glyph.w
+    const reference = document.createElement('canvas'); reference.width = 100; reference.height = 277
+    const c = reference.getContext('2d'); c.imageSmoothingEnabled = false; c.drawImage(panel, 0, 0)
+    for (const state of states) {
+      const k = state.y === 190 ? 1 : 3, col = state.x / 16
+      const active = pressed && !state.disabled && kind === k && column === col
+      c.globalAlpha = state.disabled ? 85 / 255 : 1; c.drawImage(active ? down : normal, state.x, state.y); c.globalAlpha = 1
+      const icon = art.rects[col ? (k === 1 ? 655 : 1088) : (k === 1 ? 653 : 647) + Number(active)]
+      c.drawImage(atlas, icon.x, icon.y, icon.w, icon.h, state.x + 7 - Math.trunc(icon.w / 2), state.y + 17 - Math.trunc((icon.h + 8) / 2), icon.w, icon.h)
+      let x = state.x + state.glyphX
+      for (const position of state.glyphs) {
+        const [gx, gy] = position.match(/-?\d+/g).map(Number).map(Math.abs)
+        const glyph = Object.entries(hud.rects).find(([id, r]) => id.startsWith('f00t') && r.x === gx && r.y === gy)?.[1]
+        if (!glyph) throw Error(`Unknown glyph ${position}`)
+        c.drawImage(font, glyph.x, glyph.y, glyph.w, glyph.h, x, state.y + 24, glyph.w, glyph.h); x += glyph.w
+      }
     }
     const canvas = document.createElement('canvas'); canvas.width = actual.width; canvas.height = actual.height
     const out = canvas.getContext('2d'); out.imageSmoothingEnabled = false; out.drawImage(actual, 0, 0)
     const got = out.getImageData(0, 0, canvas.width, canvas.height).data
-    out.clearRect(0, 0, canvas.width, canvas.height); out.drawImage(reference, 0, 0, canvas.width, canvas.height)
-    const want = out.getImageData(0, 0, canvas.width, canvas.height).data
+    out.clearRect(0, 0, canvas.width, canvas.height)
+    out.drawImage(reference, grid.origin.x, grid.origin.y, 100 * grid.physicalScale, 277 * grid.physicalScale)
+    const want = out.getImageData(0, 0, canvas.width, canvas.height).data, expected = canvas.toDataURL('image/png')
     let mismatches = 0, maxError = 0
     for (let i = 0; i < got.length; i++) { const e = Math.abs(got[i] - want[i]); if (e > 1) mismatches++; maxError = Math.max(e, maxError) }
-    for (const image of [actual, panel, frame, atlas, font]) image.close()
-    return { width: canvas.width, height: canvas.height, mismatches, maxError }
-  }, { bytes: [...bytes], kind, column, pressed, state, hud, art })
+    for (const image of [actual, panel, normal, down, atlas, font]) image.close()
+    return { width: canvas.width, height: canvas.height, mismatches, maxError, expected }
+  }, { bytes: [...bytes], kind, column, pressed, states, grid, hud, art })
+  writeFileSync(resolve(output, `${name}-expected.png`), Buffer.from(result.expected.split(',')[1], 'base64'))
+  delete result.expected
+  writeFileSync(resolve(output, `${name}-geometry.json`), JSON.stringify({ geometry, grid, states, result }, null, 2) + '\n')
+  assert.equal(result.width, grid.width); assert.equal(result.height, grid.height)
   assert.equal(result.mismatches, 0, `${name}: ${JSON.stringify(result)}`)
-  return { name, ...result }
+  return { name, ...result, grid }
+}
+
+// The maintained live-model capture contract, restricted to the actual craft
+// already focused/rendered by this scenario. It does not launch another browser,
+// move the camera, mutate the world, write fixtures or synthesize geometry.
+async function captureVehicleFrame(page, id, kind) {
+  const frame = await page.evaluate(({ id, kind }) => {
+    const s = window.testSceneRef.current, group = s.vehicleMeshes.get(id), mesh = group?.children[0], d = mesh?.userData
+    if (!mesh || d.nativeModel !== (kind === 1 ? 143 : 144) || d.stage !== 4) throw Error('Missing actual original vehicle mesh')
+    const origin = mesh.getWorldPosition(mesh.position.clone())
+    if (!s.view.visible(origin)) throw Error('Vehicle capture is outside the current view')
+    const attribute = name => Array.from(mesh.geometry.getAttribute(name).array)
+    return { preset: s.viewPreset, bearing: s.cameraBearing,
+      projection: s.view.projection, center: s.view.center, vehicleId: id, models: [{
+        id: d.nativeModel, scale: d.nativeScale, size: d.nativeSize ?? d.nativeScale,
+        heading: group.userData.nativeHeading ?? 0, tilt: group.userData.nativeTilt ?? 0, roll: group.userData.nativeRoll ?? 0,
+        position: [Math.round((origin.x + 8) * 256) & 65535, Math.round((-origin.z - 8) * 256) & 65535, Math.round(origin.y * 128)],
+        relative: s.view.relative(origin, (origin.y * 128) / 45),
+        picking: s.picking.model(mesh, `transport-${id}`).map(c => c.kind === 'bounds'
+          ? { kind: c.kind, bounds: c.bounds, bucket: c.bucket } : { kind: c.kind, points: c.points, bucket: c.bucket }),
+        vertices: attribute('position'), shades: attribute('faceShade'), biases: attribute('painterBias'),
+        submitted: Array.from({ length: mesh.geometry.getAttribute('position').count / 3 }, (_, i) => s.view.painter.depth(mesh, i, 0) <= 1),
+      }] }
+  }, { id, kind })
+  for (const model of frame.models) {
+    const rotation = modelMatrix(model.heading, model.tilt, model.roll), points = []
+    for (let i = 0; i < model.vertices.length; i += 3) {
+      const raw = model.vertices.slice(i, i + 3).map((n, axis) => Math.round(n * model.scale * 3 * (axis === 2 ? -1 : 1)))
+      points.push(projectPoint(modelPoint(raw, model.size, rotation, model.relative), frame.projection))
+    }
+    model.triangles = []
+    for (let i = 0; i < points.length; i += 3) {
+      const p = points.slice(i, i + 3), visible = modelTriangleVisible(p, frame.projection.width, frame.projection.height)
+      assert.equal(model.submitted[i / 3], visible, `actual vehicle${id} painter triangle${i / 3}`)
+      if (visible) model.triangles.push({ screen: p.flatMap(v => [v.screenX, v.screenY]),
+        shade: modelShade(model.shades[i], p[0].z), bucket: polygonBucket(p.map(v => v.z), model.biases[i]) })
+    }
+    assert.ok(model.triangles.length > 0)
+    delete model.vertices; delete model.shades; delete model.biases; delete model.submitted
+  }
+  return frame
+}
+
+async function vehicleAppearance(page, id, apparent) {
+  const result = await page.evaluate(async ({ id, apparent }) => {
+    const s = window.testSceneRef.current, v = s.world.vehicles.find(v => v.id === id), group = s.vehicleMeshes.get(id)
+    const { originalVehicleUV } = await import('/app/vehicle-appearance.ts'), { teamForTribe } = await import('/app/world-types.ts')
+    const expectedTeam = teamForTribe(apparent), actual = group.children[0].geometry.getAttribute('uv').array, expected = originalVehicleUV(v.model, expectedTeam)
+    return { id, realTeam: v.team, apparent: v.apparentTribe, expectedTeam, cacheTeam: group.userData.vehicleTeam,
+      vertices: actual.length / 2, mismatches: actual.length === expected.length ? actual.reduce((n, value, i) => n + Number(value !== expected[i]), 0) : -1 }
+  }, { id, apparent })
+  assert.equal(result.cacheTeam, result.expectedTeam); assert.equal(result.mismatches, 0)
+  return result
 }
 
 async function checkpoint(page, expected) {
@@ -143,7 +263,7 @@ export default async function followerTransports({ browser, page, url, openMissi
 
   // Preserve the authored population, including the Shaman and her routes. Add
   // only a small test crew beside each actual craft; issue boarding by mesh click.
-  const craft = []
+  const craft = [], capturedModels = []
   for (const kind of [1, 3]) {
     const id = opening.vehicles.find(v => v.model === kind)?.id
     assert.ok(id, `authored model ${kind} exists`)
@@ -203,6 +323,9 @@ export default async function followerTransports({ browser, page, url, openMissi
     assert.equal(await panel.getByRole('button', { name: 'Unload all passengers', exact: true }).isEnabled(), true)
     await page.mouse.move(900, 400); await render(page)
     await page.screenshot({ path: resolve(output, `transport-authored-${kind}-occupied.png`) })
+    capturedModels.push(await captureVehicleFrame(page, id, kind))
+    writeFileSync(resolve(output, 'live-vehicle-models.json'), JSON.stringify(capturedModels, null, 2) + '\n')
+    result.controls.push({ kind, appearance: await vehicleAppearance(page, id, 0) })
     await page.evaluate(() => window.testSceneRef.current.objectPanels.dispose())
     await clear(page)
   }
@@ -233,7 +356,11 @@ export default async function followerTransports({ browser, page, url, openMissi
         const v = { ...structuredClone(template), id: w.nextId++, x: (template.x + (i + 1) * 1024) & 65535,
           passengers: [], passengerCount: 0, speed: -1, navigationFlags: 0, reservation: 0, team: 'blue', apparentTribe: 0 }
         v.turnAngle = v.x; v.turnY = v.y; w.vehicles.push(v)
-        const crew = [['brave', 2], pairs[i]].map(([kind, model]) => {
+        // Command16 is established for a driver Spy. Non-driver command
+        // scheduling remains a separate, unproved boundary.
+        const seats = original.kind === 1 && pairs[i][0] === 'spy'
+          ? [pairs[i], ['brave', 2]] : [['brave', 2], pairs[i]]
+        const crew = seats.map(([kind, model]) => {
           const u = addUnit(w, 'blue', kind, browserPosition(v)); u.native = createLivePerson(w, u); w.pathfinding.people.set(u.id, u.native)
           if (!boardLiveVehicle(w, u.native, v)) throw Error('Supporting crew attachment failed')
           changeLivePersonState(w, u, 30)
@@ -412,6 +539,7 @@ export default async function followerTransports({ browser, page, url, openMissi
   const spyBoat = craft.find(v => v.kind === 1 && v.crew.some(p => p.model === 5)), spy = spyBoat.crew.find(p => p.model === 5)
   await clear(page); await cell(page, 1, 5).click()
   assert.deepEqual((await selected(page)).toSorted(), spyBoat.crew.map(p => p.id).toSorted())
+  assert.equal(await page.evaluate(id => window.testSceneRef.current.world.vehicles.find(v => v.id === id).passengers[0], spyBoat.id), spy.id, 'supporting Boat Spy is the actual driver')
   const disguise = page.getByRole('button', { name: /^Disguise selected spies as / }).first()
   const disguiseLabel = await disguise.getAttribute('aria-label'); await disguise.click()
   const owner = await page.evaluate(async ({ id, spy }) => {
@@ -421,6 +549,8 @@ export default async function followerTransports({ browser, page, url, openMissi
     return { real: v.team, apparent: v.apparentTribe, state: p.state, disguise: p.disguise, passengers: [...v.passengers] }
   }, { id: spyBoat.id, spy: spy.id })
   assert.equal(owner.real, 'blue'); assert.notEqual(owner.apparent, 0); assert.equal(owner.state, 30); assert.equal(owner.disguise & 63, 63)
+  await render(page)
+  const disguisedAppearance = await vehicleAppearance(page, spyBoat.id, owner.apparent)
   assert.deepEqual(await counts(page, 1), [6, 6, 2, 1, 1, 1])
   await clear(page); await cell(page, 1, 5).click(); assert.deepEqual(await selected(page), [], 'counted disguised craft is not selectable by apparent owner')
   await cell(page, 1, 5).click({ button: 'right' }); assert.equal((await focusState(page)).transport[5], 0)
@@ -442,13 +572,17 @@ export default async function followerTransports({ browser, page, url, openMissi
   assert.equal(afterCountdown.apparent, owner.apparent); assert.equal(afterCountdown.disguise & 63, 0); assert.equal(afterCountdown.state, 30); assert.equal(afterCountdown.vehicle, spyBoat.id)
   assert.equal(afterCountdown.held.length, craft.flatMap(v => v.crew).length)
   assert.ok(afterCountdown.held.every(p => p.state === 30 && p.speed === 0 && p.vehicle === p.expectedVehicle), JSON.stringify(afterCountdown.held))
-  result.ownership = { disguiseLabel, owner, afterCountdown, checkpointRows: savedRows }
+  result.ownership = { disguiseLabel, owner, afterCountdown, checkpointRows: savedRows, disguisedAppearance,
+    restoredAppearance: await vehicleAppearance(page, spyBoat.id, owner.apparent) }
   await clear(page)
 
   // Supporting inverse-owner fixture: a real enemy craft still accepts row
   // selection when its apparent owner is Blue, while dropping from counts.
   await page.evaluate(id => { const s = window.testSceneRef.current, v = s.world.vehicles.find(v => v.id === id); v.team = 'red'; v.apparentTribe = 0; s.onChange() }, spyBoat.id)
   assert.deepEqual(await counts(page, 1), [5, 5, 2, 1, 1, 0])
+  await render(page)
+  result.ownership.inverseAppearance = await vehicleAppearance(page, spyBoat.id, 0)
+  assert.equal(result.ownership.inverseAppearance.realTeam, 'red')
   await cell(page, 1, 5).click(); assert.deepEqual((await selected(page)).toSorted(), spyBoat.crew.map(p => p.id).toSorted())
   await clear(page)
   await page.evaluate(id => { const s = window.testSceneRef.current; s.world.vehicles.find(v => v.id === id).team = 'blue'; s.onChange() }, spyBoat.id)
@@ -547,14 +681,9 @@ export default async function followerTransports({ browser, page, url, openMissi
       await page.getByRole('button', { name: 'Menu', exact: true }).click()
       await page.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption(size)
       await page.getByRole('button', { name: 'Close menu', exact: true }).click()
-      const rectangles = await transportButtons(page).evaluateAll(buttons => buttons.map(b => { const r = b.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height, left: b.style.left, top: b.style.top } }))
-      assert.equal(rectangles.length, 12)
-      for (const [i, r] of rectangles.entries()) {
-        assert.ok(r.x >= 0 && r.y >= 0 && r.x + r.width <= viewport.width && r.y + r.height <= viewport.height, JSON.stringify({ viewport, size, r }))
-        assert.ok(Math.abs(r.width / r.height - 15 / 34) < 0.001)
-        assert.equal(r.left, `${(i % 6) * 16}px`); assert.equal(r.top, `${i < 6 ? 190 : 231}px`)
-      }
-      result.layouts.push({ viewport, size, first: rectangles[0], last: rectangles.at(-1) })
+      const layout = await transportLayout(page)
+      assertTransportLayout(layout, viewport)
+      result.layouts.push({ viewport, size, ...layout })
     }
   }
   // A separate browser context exercises actual DPR2 backing pixels, not just
@@ -590,8 +719,8 @@ export default async function followerTransports({ browser, page, url, openMissi
     await dp.getByTitle('followers', { exact: true }).click(); await render(dp)
     assert.equal(await dp.evaluate(() => devicePixelRatio), 2)
     assert.equal(await transportButtons(dp).count(), 12)
-    const rectangles = await transportButtons(dp).evaluateAll(buttons => buttons.map(b => { const r = b.getBoundingClientRect(); return { x: r.x, y: r.y, width: r.width, height: r.height } }))
-    for (const r of rectangles) { assert.ok(r.x >= 0 && r.y >= 0 && r.x + r.width <= 1280 && r.y + r.height <= 720); assert.ok(Math.abs(r.width / r.height - 15 / 34) < 0.001) }
+    const layout = await transportLayout(dp)
+    assertTransportLayout(layout, { width: 1280, height: 720 })
     for (const kind of [1, 3]) {
       assert.deepEqual(await counts(dp, kind), [1, 1, 1, 0, 0, 0])
       await cell(dp, kind, 1).click(); assertSelectedCrews(await selected(dp), dprCraft.filter(v => v.kind === kind), 1, 2)
@@ -603,7 +732,7 @@ export default async function followerTransports({ browser, page, url, openMissi
     await dp.mouse.move(900, 400); await render(dp)
     await dp.locator('.native-hud').screenshot({ path: resolve(output, 'transport-dpr2-hud.png') })
     await dp.screenshot({ path: resolve(output, 'transport-dpr2-scene.png') })
-    result.dpr2 = { viewport: dp.viewportSize(), devicePixelRatio: 2, rectangles, craft: dprCraft, supportingCrew: true }
+    result.dpr2 = { viewport: dp.viewportSize(), devicePixelRatio: 2, ...layout, craft: dprCraft, supportingCrew: true }
   } finally { await dprContext.close() }
 
   const retained = await page.evaluate(ids => {

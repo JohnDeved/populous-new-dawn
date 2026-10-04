@@ -1393,7 +1393,8 @@
       "mappingStatus": "inferred",
       "implementationPaths": [
         "app/hud-transports.ts",
-        "app/follower-transports-runtime.ts"
+        "app/follower-transports-runtime.ts",
+        "app/hud-layout.ts"
       ],
       "researchPaths": [
         "scripts/check-native-follower-transports.py",
@@ -1402,7 +1403,10 @@
         "tests/follower-transport-runtime.test.mjs",
         "scripts/check-browser-follower-transports.mjs",
         "tests/browser-follower-transports-checker.test.mjs",
-        "decomp/research/follower-task-panel.md"
+        "decomp/research/follower-task-panel.md",
+        "tests/hud-layout.test.mjs",
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "scripts/check-native-vehicle-materials.py"
       ],
       "sharedPaths": [
         "app/follower-tasks-runtime.ts",
@@ -1415,7 +1419,9 @@
         "app/live-movement.ts",
         "app/vehicle-unload.ts",
         "app/world-types.ts",
-        "app/original-follower-tasks.json"
+        "app/original-follower-tasks.json",
+        "app/scene-entities.ts",
+        "app/spell-effects-runtime.ts"
       ],
       "entrySymbols": [
         {
@@ -1460,7 +1466,9 @@
         "follower-transports-browser",
         "follower-task-art-native",
         "repository-check",
-        "production-build"
+        "production-build",
+        "vehicle-destruction-native",
+        "transport-vehicle-materials-native"
       ],
       "generatedInputIds": [
         "imported-runtime-data"
@@ -1468,7 +1476,9 @@
       "risks": [
         "Real count/presence owner differs from apparent selection/focus owner.",
         "Class selection selects every eligible passenger; nearby inclusion and distance ranking have different geometry owners.",
-        "Vehicle model2/4 remembered focus intentionally reacquires instead of cycling."
+        "Vehicle model2/4 remembered focus intentionally reacquires instead of cycling.",
+        "The apparent tribe also owns vehicle UV/cache, damage immunity and Blast projection; other real-team consumers remain unchanged.",
+        "Fractional HUD scaling must preserve lower-row pixels and hit ownership above the modern footer."
       ],
       "unresolved": [
         "Native boarding countdown and broader vehicle command behavior remain separately scoped.",
