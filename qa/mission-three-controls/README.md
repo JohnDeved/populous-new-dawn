@@ -1,9 +1,12 @@
 # Mission 3 ordinary-controls evidence driver
 
 Prepared source only. A passing syntax/unit-test result is **not** a browser run.
-The accepted preflight is `c01d788`; the actual driver needs independent review
-and coordinator resource release before launch. Do not install packages, reuse
-M2 resources, or run a browser merely because this file contains a command.
+The plan was accepted at `c01d788` and the actual driver source preflight at
+`e4fc02a`. The run adopts accepted main `b219c63`; all original source guards and
+application bytes remain unchanged, and the additive PR196 browser helper is
+newly guarded. Browser execution still needs coordinator resource release.
+Do not install packages, reuse M2 resources, or run a browser merely because
+this file contains a command.
 
 The driver uses the current maintained sandboxed local-render harness, its fresh
 owned browser context, and the ordinary controls described in

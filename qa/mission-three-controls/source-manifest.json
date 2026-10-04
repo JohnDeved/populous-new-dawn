@@ -1,6 +1,6 @@
 {
   "scope": "source-only ordinary-control Mission 3 preflight; no execution proof",
-  "sourceCommit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+  "sourceCommit": "b219c63be33c440cea0927c487f16573e5a1c0ec",
   "files": [
     {
       "path": "app/level-three.ts",
@@ -145,6 +145,12 @@
     {
       "path": "app/person-orders.ts",
       "sha256": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394"
+    },
+    {
+      "path": "scripts/browser-game.mjs",
+      "sha256": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9"
     }
-  ]
+  ],
+  "originalInspectionCommit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+  "sourceRefresh": "Accepted main through PR196; original 36 source hashes and production app bytes unchanged. scripts/browser-game.mjs adds two unused readiness exports; imported bindGame/showAllMissions implementations are unchanged."
 }
