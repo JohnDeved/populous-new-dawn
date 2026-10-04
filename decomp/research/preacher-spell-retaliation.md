@@ -56,6 +56,12 @@ tribe, invisibility, caster cooldown, entry readiness, paused scan, payment and
 stored-Lightning mana. The independent enemy-Shaman Lightning response still spends
 stock with zero mana and preserves pending scan state.
 
+`scripts/check-browser-preacher-retaliation.mjs` uses the same bounded staging and
+calls actual `tick` for all three spell responses, through the tribe processor's
+normal AI dispatch. It checks rendered spell effects, movement-command cancellation
+and invisibility. Its explicit `--scenario before` mode requires the candidate's
+observed capture turn and an actual base application for a comparable screenshot.
+
 Run `node --test tests/preacher-spell-retaliation.test.mjs`. This bounded regression
 stages actors and readiness; it is not natural campaign acquisition or rendered
 acceptance. Full check/build, affected native rerun and rendered validation must be

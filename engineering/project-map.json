@@ -769,6 +769,7 @@
       "decomp/research/mission3-preaching-message.md",
       "decomp/research/preacher-spell-retaliation.md",
       "tests/preacher-spell-retaliation.test.mjs",
+      "scripts/check-browser-preacher-retaliation.mjs",
       "scripts/check-native-mission3-preaching-message.py",
       "decomp/research/mission2-rebuilding.md",
       "scripts/check-native-mission2-rebuilding.py",
