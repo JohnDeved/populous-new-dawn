@@ -1,0 +1,150 @@
+{
+  "version": 1,
+  "kind": "pnd-review-bundle",
+  "taskId": "pr202-mission-four-profile-readback",
+  "repository": {
+    "branch": "fix/mission-four-profile-readback",
+    "baseCommit": "f78e5c17757ce061b8b159da150536ee690e6b6f",
+    "headOid": "dc71b3b8285d9d02bbc73b2e6bda478f41c8f429"
+  },
+  "diff": {
+    "path": "changes.patch",
+    "sha256": "a22994149c851925f193fbe5ee1f1d4a92d5785bd1b13d8233db3677a773f804",
+    "bytes": 11371
+  },
+  "sources": [
+    {
+      "status": "M",
+      "path": "scripts/check-browser-mission4-natural-victory.mjs",
+      "state": "present",
+      "sha256": "9701f010c9e5a7219f4dbd6a2127d6af5b0e5afac91ac465a1f1433c36ef4a6a",
+      "blobOid": "59bc71a65d22c50cffec1336a447d6cf305d402b",
+      "bytes": 29128
+    },
+    {
+      "status": "A",
+      "path": "tests/browser-mission4-profile-readback.test.mjs",
+      "state": "present",
+      "sha256": "f5785fb0563635728f0adf92a863d77c145bbda7544d2bad3c5e630526219609",
+      "blobOid": "01e81ad3a936aea9708c37a8aa26ccd14cc8bafb",
+      "bytes": 8082
+    }
+  ],
+  "receipts": [
+    {
+      "sourcePath": "work/orchestration/mission-four-profile-readback/failure-first.json",
+      "sourceSha256": "af9ca1095bc0c320863f9b57a241a2f9405c4231f0c63228b9c16ba01a36ef14",
+      "sourceBytes": 8377,
+      "bundlePath": "receipts/work/orchestration/mission-four-profile-readback/failure-first.json",
+      "bundleSha256": "fc1bbed3e767d8fe82d25668726fe3e52dc0c22b393167051e7bdb7fe3a22122",
+      "bundleBytes": 7707,
+      "redactions": 10
+    },
+    {
+      "sourcePath": "work/orchestration/mission-four-profile-readback/focused-tests.json",
+      "sourceSha256": "c68451acbc01ee582acbbc13304f376f18dcd6e9028b3f370c9bd2b1931c26a1",
+      "sourceBytes": 3776,
+      "bundlePath": "receipts/work/orchestration/mission-four-profile-readback/focused-tests.json",
+      "bundleSha256": "ec5f62b0906f791e66be34267162103f8d32f6099461b033cce794da3ca6123a",
+      "bundleBytes": 3575,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/mission-four-profile-readback/planner.json",
+      "sourceSha256": "9c19c21a037a0999ef6201a24f8f4876e9dd35c1fdec63d905f5bda2cb7dbcc0",
+      "sourceBytes": 3838,
+      "bundlePath": "receipts/work/orchestration/mission-four-profile-readback/planner.json",
+      "bundleSha256": "325b97ee09b0b6ea6023902d41e720059766693d4d3afedf1932fe7ee04bd572",
+      "bundleBytes": 3637,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/mission-four-profile-readback/source-syntax.json",
+      "sourceSha256": "9b1e26275b1b98491a8041b6910197f5af8f2cf5693b186545e33b64f33528dc",
+      "sourceBytes": 1549,
+      "bundlePath": "receipts/work/orchestration/mission-four-profile-readback/source-syntax.json",
+      "bundleSha256": "12c25f253db9315051655e17aedbbd4bacbf7b9434e4d26e9c850e0b399f9c25",
+      "bundleBytes": 1348,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/mission-four-profile-readback/diff-check.json",
+      "sourceSha256": "b633e6bba52aa97e4e1becd5b5f131f3a5b7b6fd36729e57ad3fadc35ebbc752",
+      "sourceBytes": 1544,
+      "bundlePath": "receipts/work/orchestration/mission-four-profile-readback/diff-check.json",
+      "bundleSha256": "1d439ba57f93e5f7a598d3da781dcbad357fdf05e2307a8cefe6acc8692b4e47",
+      "bundleBytes": 1343,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/mission-four-profile-readback/full-check.json",
+      "sourceSha256": "b5513085c9b16fe908c7f959d72d145a8afa908601ca00b203cc442f985fc583",
+      "sourceBytes": 112983,
+      "bundlePath": "receipts/work/orchestration/mission-four-profile-readback/full-check.json",
+      "bundleSha256": "ba4d218b4f298ad05716e8fc8d321748aa62259c1513cf40c6b534937a4c79d6",
+      "bundleBytes": 112782,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/mission-four-profile-readback/scoped-eslint.json",
+      "sourceSha256": "52ba34ea10fb8edde71e72fbe9ef9bc055a52069bfeafd442db951f25cedb3fa",
+      "sourceBytes": 2372,
+      "bundlePath": "receipts/work/orchestration/mission-four-profile-readback/scoped-eslint.json",
+      "bundleSha256": "f6c8638afdf4ad6c6e643c0d32457912d91127a94da32bcf48581d1786962098",
+      "bundleBytes": 2104,
+      "redactions": 4
+    },
+    {
+      "sourcePath": "work/orchestration/mission-four-profile-readback/base-scoped-eslint.json",
+      "sourceSha256": "be9093eca303be8c7a2b9f6c45a86f22507faf71e80e88bd4e078ea26cd54904",
+      "sourceBytes": 2488,
+      "bundlePath": "receipts/work/orchestration/mission-four-profile-readback/base-scoped-eslint.json",
+      "bundleSha256": "e8303f04d3f3e928464998d94e7248b3828c9766095e3829a9b0de5158dd8af9",
+      "bundleBytes": 2220,
+      "redactions": 4
+    },
+    {
+      "sourcePath": "work/orchestration/mission-four-profile-readback/build-correspondence.json",
+      "sourceSha256": "dafba69394904e75da95f8b2f9653111ef34ccfcdaa8090e2c2acf45855e85c7",
+      "sourceBytes": 4087,
+      "bundlePath": "receipts/work/orchestration/mission-four-profile-readback/build-correspondence.json",
+      "bundleSha256": "dafba69394904e75da95f8b2f9653111ef34ccfcdaa8090e2c2acf45855e85c7",
+      "bundleBytes": 4087,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/mission-four-profile-readback/carried-build-6b6eb68.json",
+      "sourceSha256": "6ddc4bf5ab3124d9504440d465834700503c662283b7611764dc4b84866e1033",
+      "sourceBytes": 5245,
+      "bundlePath": "receipts/work/orchestration/mission-four-profile-readback/carried-build-6b6eb68.json",
+      "bundleSha256": "6ddc4bf5ab3124d9504440d465834700503c662283b7611764dc4b84866e1033",
+      "bundleBytes": 5245,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/mission-four-profile-readback/dependency-transfer-public.json",
+      "sourceSha256": "c715eba75b311143a06778993d909826c4d47a327f5cdc4c361e7febb040bfc6",
+      "sourceBytes": 1182,
+      "bundlePath": "receipts/work/orchestration/mission-four-profile-readback/dependency-transfer-public.json",
+      "bundleSha256": "4495eed0309fb68e9d99159693cdef7735d29c5dc9379a5e1d01f9ea8eb6aed2",
+      "bundleBytes": 1115,
+      "redactions": 1
+    },
+    {
+      "sourcePath": "work/orchestration/mission-four-profile-readback/terminal-release.json",
+      "sourceSha256": "e5c6175c6bf4ff7cd373b47f0e6a519ec9f30825f3b28264358a54daf10cad32",
+      "sourceBytes": 853,
+      "bundlePath": "receipts/work/orchestration/mission-four-profile-readback/terminal-release.json",
+      "bundleSha256": "2f934fcd4729c16e714bd3fe95ff5a7c7edb343f20d941e44bf59f8f0226b020",
+      "bundleBytes": 786,
+      "redactions": 1
+    }
+  ],
+  "reviewerPreflight": {
+    "instructions": "Open this bundle in a permitted executor and verify it against trusted caller-supplied identities before review.",
+    "verify": [
+      "node",
+      "verify.mjs"
+    ]
+  }
+}

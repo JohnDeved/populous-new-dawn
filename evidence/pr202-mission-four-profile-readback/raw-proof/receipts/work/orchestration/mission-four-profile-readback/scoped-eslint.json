@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b824dfbf-38b9-429e-a1fa-68bd83b50f81",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dc71b3b8285d9d02bbc73b2e6bda478f41c8f429",
+    "branch": "fix/mission-four-profile-readback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "scripts/check-browser-mission4-natural-victory.mjs",
+    "tests/browser-mission4-profile-readback.test.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T20:19:00.494Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/mission-four-profile-readback/scoped-eslint.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/mission-four-profile-readback/scoped-eslint.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T20:19:02.481Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n<SOURCE_ROOT>/scripts/check-browser-mission4-natural-victory.mjs\n  39:13  error  Empty block statement  no-empty\n  68:11  error  Empty block statement  no-empty\n  72:11  error  Empty block statement  no-empty\n\n✖ 3 problems (3 errors, 0 warnings)\n\n",
+  "stderr": "",
+  "stdoutSha256": "cc5914a7166afd0abcb8b7778badd3381c41751883f7f4163097905b19dc5388",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "dc71b3b8285d9d02bbc73b2e6bda478f41c8f429",
+    "branch": "fix/mission-four-profile-readback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

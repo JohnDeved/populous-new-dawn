@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "081e5ae2-9d8c-4c20-9b7a-9c53824571a6",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "f78e5c17757ce061b8b159da150536ee690e6b6f",
+    "branch": "fix/mission-four-profile-readback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-mission4-natural-victory.mjs": "4a3f19ce48e64250be765d6f01bc4262ae73914ff727983ce19f6803dc7d93f2",
+      "tests/browser-mission4-profile-readback.test.mjs": "f5785fb0563635728f0adf92a863d77c145bbda7544d2bad3c5e630526219609",
+      "scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/browser-mission4-profile-readback.test.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T20:11:50.481Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/mission-four-profile-readback/failure-first.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/mission-four-profile-readback/failure-first.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T20:11:50.660Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ maintained Mission 4 callsite awaits valid profile completion before continuing and reloading (6.934504ms)\n✖ maintained Mission 4 callsite exhausts false reads without starting continuation (4.497001ms)\n✖ maintained Mission 4 callsite accepts completion on the last read without a final pause (1.877122ms)\n✔ maintained Mission 4 callsite rejects failed opens without starting continuation (1.648108ms)\n✖ maintained Mission 4 callsite closes rejected reads without starting continuation (1.746174ms)\n✖ maintained Mission 4 callsite closes a database when starting its read throws (3.027631ms)\n✖ maintained Mission 4 callsite closes databases with a missing store and fails closed (1.488288ms)\n✖ maintained Mission 4 callsite requires literal true before starting continuation (2.978297ms)\nℹ tests 8\nℹ suites 0\nℹ pass 1\nℹ fail 7\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 117.374759\n\n✖ failing tests:\n\ntest at tests/browser-mission4-profile-readback.test.mjs:135:1\n✖ maintained Mission 4 callsite awaits valid profile completion before continuing and reloading (6.934504ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  1 !== 6\n  \n      at TestContext.<anonymous> (file://<SOURCE_ROOT>/tests/browser-mission4-profile-readback.test.mjs:139:10)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 1,\n    expected: 6,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/browser-mission4-profile-readback.test.mjs:150:1\n✖ maintained Mission 4 callsite exhausts false reads without starting continuation (4.497001ms)\n  AssertionError [ERR_ASSERTION]: Missing expected rejection.\n      at async TestContext.<anonymous> (file://<SOURCE_ROOT>/tests/browser-mission4-profile-readback.test.mjs:152:3)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: /must commit/,\n    operator: 'rejects',\n    diff: 'simple'\n  }\n\ntest at tests/browser-mission4-profile-readback.test.mjs:159:1\n✖ maintained Mission 4 callsite accepts completion on the last read without a final pause (1.877122ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  1 !== 300\n  \n      at TestContext.<anonymous> (file://<SOURCE_ROOT>/tests/browser-mission4-profile-readback.test.mjs:162:10)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 1,\n    expected: 300,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/browser-mission4-profile-readback.test.mjs:178:1\n✖ maintained Mission 4 callsite closes rejected reads without starting continuation (1.746174ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  0 !== 1\n  \n      at TestContext.<anonymous> (file://<SOURCE_ROOT>/tests/browser-mission4-profile-readback.test.mjs:182:10)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 0,\n    expected: 1,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/browser-mission4-profile-readback.test.mjs:187:1\n✖ maintained Mission 4 callsite closes a database when starting its read throws (3.027631ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  0 !== 1\n  \n      at TestContext.<anonymous> (file://<SOURCE_ROOT>/tests/browser-mission4-profile-readback.test.mjs:191:10)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 0,\n    expected: 1,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/browser-mission4-profile-readback.test.mjs:196:1\n✖ maintained Mission 4 callsite closes databases with a missing store and fails closed (1.488288ms)\n  AssertionError [ERR_ASSERTION]: Missing expected rejection.\n      at async TestContext.<anonymous> (file://<SOURCE_ROOT>/tests/browser-mission4-profile-readback.test.mjs:198:3)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: /must commit/,\n    operator: 'rejects',\n    diff: 'simple'\n  }\n\ntest at tests/browser-mission4-profile-readback.test.mjs:206:1\n✖ maintained Mission 4 callsite requires literal true before starting continuation (2.978297ms)\n  AssertionError [ERR_ASSERTION]: Missing expected rejection.\n      at async TestContext.<anonymous> (file://<SOURCE_ROOT>/tests/browser-mission4-profile-readback.test.mjs:208:3)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: /must commit/,\n    operator: 'rejects',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "2e23f99ade7db368acd2e4899fecc626e98af2ddf87736ba934ca9cf54092479",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "f78e5c17757ce061b8b159da150536ee690e6b6f",
+    "branch": "fix/mission-four-profile-readback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-mission4-natural-victory.mjs": "4a3f19ce48e64250be765d6f01bc4262ae73914ff727983ce19f6803dc7d93f2",
+      "tests/browser-mission4-profile-readback.test.mjs": "f5785fb0563635728f0adf92a863d77c145bbda7544d2bad3c5e630526219609",
+      "scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80"
+    }
+  }
+}

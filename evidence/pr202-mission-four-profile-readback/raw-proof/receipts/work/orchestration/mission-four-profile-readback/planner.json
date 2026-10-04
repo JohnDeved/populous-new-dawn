@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "06d277e6-eca8-4b76-a93e-a5bde03382a6",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dc71b3b8285d9d02bbc73b2e6bda478f41c8f429",
+    "branch": "fix/mission-four-profile-readback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "orchestration:plan",
+    "--",
+    "--base",
+    "f78e5c17757ce061b8b159da150536ee690e6b6f"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T20:13:13.593Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/mission-four-profile-readback/planner.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/mission-four-profile-readback/planner.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T20:13:14.132Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 orchestration:plan\n> node scripts/orchestration/cli.mjs plan --base f78e5c17757ce061b8b159da150536ee690e6b6f\n\n{\n  \"version\": 1,\n  \"base\": \"f78e5c17757ce061b8b159da150536ee690e6b6f\",\n  \"head\": \"dc71b3b8285d9d02bbc73b2e6bda478f41c8f429\",\n  \"changes\": [\n    {\n      \"path\": \"scripts/check-browser-mission4-natural-victory.mjs\",\n      \"status\": \"M\",\n      \"endpoint\": \"path\",\n      \"source\": \"branch\",\n      \"hash\": \"9701f010c9e5a7219f4dbd6a2127d6af5b0e5afac91ac465a1f1433c36ef4a6a\",\n      \"changeHash\": \"42e29908904c728e7da9901f1d1595dbbb925e5f2b479ce668c098a08ab68976\"\n    },\n    {\n      \"path\": \"tests/browser-mission4-profile-readback.test.mjs\",\n      \"status\": \"A\",\n      \"endpoint\": \"path\",\n      \"source\": \"branch\",\n      \"hash\": \"f5785fb0563635728f0adf92a863d77c145bbda7544d2bad3c5e630526219609\",\n      \"changeHash\": \"1951489e602e70ef74439a4e7c2dab3b4d0cc768f0ec1b8abf3e2ad8f888aa41\"\n    }\n  ],\n  \"affectedSubsystems\": [],\n  \"unknownPaths\": [\n    \"scripts/check-browser-mission4-natural-victory.mjs\",\n    \"tests/browser-mission4-profile-readback.test.mjs\"\n  ],\n  \"checks\": [\n    {\n      \"id\": \"repository-check\",\n      \"kind\": \"portable\",\n      \"command\": [\n        \"npm\",\n        \"run\",\n        \"check\"\n      ],\n      \"reasons\": [\n        \"unmapped path requires conservative general validation: scripts/check-browser-mission4-natural-victory.mjs\",\n        \"unmapped path requires conservative general validation: tests/browser-mission4-profile-readback.test.mjs\"\n      ],\n      \"knownLimits\": [\n        \"Does not run native executable, browser integration, or hardware performance checks.\"\n      ],\n      \"prerequisites\": [\n        \"Installed npm dependencies\"\n      ],\n      \"sideEffects\": [\n        \"May update ignored tool caches\"\n      ],\n      \"resources\": [\n        \"Serialize with other full test runs\"\n      ],\n      \"status\": \"not-run\",\n      \"reason\": \"selected only; planning never executes checks\"\n    }\n  ],\n  \"executesChecks\": false\n}\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n",
+  "stdoutSha256": "a1d13375ea8220c955c727c5976b1a0c33fa88d1729f97cc0456e3cc2d88c2c8",
+  "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+  "sourceAfter": {
+    "headOid": "dc71b3b8285d9d02bbc73b2e6bda478f41c8f429",
+    "branch": "fix/mission-four-profile-readback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

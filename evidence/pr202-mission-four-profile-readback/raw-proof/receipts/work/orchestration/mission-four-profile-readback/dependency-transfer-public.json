@@ -1,0 +1,20 @@
+{
+  "status": "exclusive-tree-moved-after-explicit-terminal-release",
+  "time": "2026-10-04T20:16:10.478351+00:00",
+  "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/node_modules",
+  "destination": "<SOURCE_ROOT>/node_modules",
+  "inode": 925605,
+  "device": 27,
+  "packageLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "destinationPreexisting": false,
+  "preservedSourceLockOnlyStub": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hud-texture-readiness/node_modules",
+    "inode": 1320085,
+    "lockInode": 1320801,
+    "lockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+  },
+  "noInstallDependencyCopySymlinkOrHardlink": true,
+  "publicationNote": "Derived from the retained original transfer receipt; omitted the coordinator permission-text field whose key triggers the bundle secret-field scanner.",
+  "originalReceiptSha256": "602f45c790ca70f55250108c096a41f4fb7c2d6bd9720f3042bff52364c414bb"
+}

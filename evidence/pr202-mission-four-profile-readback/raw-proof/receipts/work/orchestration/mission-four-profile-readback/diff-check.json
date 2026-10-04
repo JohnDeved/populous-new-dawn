@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b59cf985-2d4f-4836-9e79-f45b02b5c112",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dc71b3b8285d9d02bbc73b2e6bda478f41c8f429",
+    "branch": "fix/mission-four-profile-readback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "git",
+    "diff",
+    "--check",
+    "f78e5c17757ce061b8b159da150536ee690e6b6f"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T20:14:14.787Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/mission-four-profile-readback/diff-check.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/mission-four-profile-readback/diff-check.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T20:14:14.792Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "dc71b3b8285d9d02bbc73b2e6bda478f41c8f429",
+    "branch": "fix/mission-four-profile-readback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

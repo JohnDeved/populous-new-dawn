@@ -1,0 +1,16 @@
+{
+  "status": "terminal; shared heavy lane and private dependency tree released for coordinated transfer",
+  "time": "2026-10-04T20:20:48.735509+00:00",
+  "head": "dc71b3b8285d9d02bbc73b2e6bda478f41c8f429",
+  "commands": {
+    "full-check.json": "passed",
+    "scoped-eslint.json": "failed",
+    "base-scoped-eslint.json": "failed"
+  },
+  "ownedBrowserOrServerProcesses": [],
+  "heavyLaneReleased": true,
+  "dependencyPath": "<SOURCE_ROOT>/node_modules",
+  "dependencyInode": 925605,
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "notes": "No check/build/browser process remains owned by this task. Full aggregate passed. Scoped lint reproduces only the three pre-existing empty catches; baseline comparison completed. Source frozen."
+}

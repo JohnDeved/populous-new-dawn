@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b4b8414b-07e3-4993-8750-fdd5c768a3c0",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dc71b3b8285d9d02bbc73b2e6bda478f41c8f429",
+    "branch": "fix/mission-four-profile-readback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-mission4-natural-victory.mjs": "9701f010c9e5a7219f4dbd6a2127d6af5b0e5afac91ac465a1f1433c36ef4a6a",
+      "tests/browser-mission4-profile-readback.test.mjs": "f5785fb0563635728f0adf92a863d77c145bbda7544d2bad3c5e630526219609",
+      "scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/browser-mission4-profile-readback.test.mjs",
+    "tests/browser-checkpoint-readback.test.mjs",
+    "tests/checkpoint-readback.test.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T20:13:13.284Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/mission-four-profile-readback/focused-tests.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/mission-four-profile-readback/focused-tests.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T20:13:13.493Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ maintained checkpoint callsite waits for delayed false reads before reloading (18.201802ms)\n✔ maintained checkpoint callsite rejects exhausted false reads without reloading (13.540043ms)\n✔ maintained checkpoint callsite closes rejected reads without reloading (1.740535ms)\n✔ maintained Mission 4 callsite awaits valid profile completion before continuing and reloading (8.749075ms)\n✔ maintained Mission 4 callsite exhausts false reads without starting continuation (12.473051ms)\n✔ maintained Mission 4 callsite accepts completion on the last read without a final pause (10.381728ms)\n✔ maintained Mission 4 callsite rejects failed opens without starting continuation (1.138221ms)\n✔ maintained Mission 4 callsite closes rejected reads without starting continuation (1.003077ms)\n✔ maintained Mission 4 callsite closes a database when starting its read throws (0.952641ms)\n✔ maintained Mission 4 callsite closes databases with a missing store and fails closed (5.281755ms)\n✔ maintained Mission 4 callsite requires literal true before starting continuation (1.808838ms)\n✔ checkpoint readback awaits false reads before the actual true result (2.257502ms)\n✔ checkpoint readback fails closed after bounded asynchronous false results (0.622455ms)\nℹ tests 13\nℹ suites 0\nℹ pass 13\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 142.186908\n",
+  "stderr": "",
+  "stdoutSha256": "e50f8c53318303941470c9180d117a5d491ec4feded9f7105f4e6efa17d9279f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "dc71b3b8285d9d02bbc73b2e6bda478f41c8f429",
+    "branch": "fix/mission-four-profile-readback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-mission4-natural-victory.mjs": "9701f010c9e5a7219f4dbd6a2127d6af5b0e5afac91ac465a1f1433c36ef4a6a",
+      "tests/browser-mission4-profile-readback.test.mjs": "f5785fb0563635728f0adf92a863d77c145bbda7544d2bad3c5e630526219609",
+      "scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80"
+    }
+  }
+}

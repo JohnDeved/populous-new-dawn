@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "79b1d3df-1a03-4123-a13e-5aad041c4b8a",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "dc71b3b8285d9d02bbc73b2e6bda478f41c8f429",
+    "branch": "fix/mission-four-profile-readback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--check",
+    "scripts/check-browser-mission4-natural-victory.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T20:14:14.649Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/mission-four-profile-readback/source-syntax.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/mission-four-profile-readback/source-syntax.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T20:14:14.702Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "dc71b3b8285d9d02bbc73b2e6bda478f41c8f429",
+    "branch": "fix/mission-four-profile-readback",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
