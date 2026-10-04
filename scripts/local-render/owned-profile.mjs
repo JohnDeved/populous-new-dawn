@@ -45,13 +45,25 @@ function readOwnedJson(path) {
   if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1 || stat.uid !== process.getuid() || (stat.mode & 0o077) || stat.size > 65536) throw Error(`Unrecognized profile metadata: ${path}`)
   return JSON.parse(readFileSync(path, 'utf8'))
 }
-
-export function acquireProfile({ path, root, origin, source, inputs, runtime, output, correspondence }) {
+export function validateProfilePaths(root, path, output) {
   root = resolve(root)
   const parent = resolve(root, 'work/local-render-profiles')
   if (!isAbsolute(path) || path !== resolve(path) || dirname(path) !== parent || !/^[a-z0-9][a-z0-9-]{0,79}$/.test(basename(path))) throw Error('Profile must be a canonical absolute task directory under gameRoot/work/local-render-profiles')
   if (relative(path, resolve(output)).split(sep)[0] !== '..' || relative(resolve(output), path).split(sep)[0] !== '..') throw Error('Evidence output must not overlap the private profile')
+  for (const target of [path, resolve(output)]) {
+    for (const part of target.split(sep).filter(Boolean).reduce((all, part) => [...all, resolve(all.at(-1) ?? sep, part)], [])) {
+      let stat
+      try { stat = lstatSync(part) } catch (error) { if (error.code === 'ENOENT') break; throw error }
+      if (!stat.isDirectory() || stat.isSymbolicLink()) throw Error(`Profile/output path is not a real directory: ${part}`)
+    }
+  }
   execFileSync('git', ['-C', root, 'check-ignore', '-q', '--', path])
+  return parent
+}
+
+export function acquireProfile({ path, root, origin, source, inputs, runtime, output, correspondence }) {
+  root = resolve(root)
+  const parent = validateProfilePaths(root, path, output)
   inspectPath(parent, { create: true })
   let created = false
   try { mkdirSync(path, { mode: 0o700 }); created = true } catch (error) { if (error.code !== 'EEXIST') throw error }

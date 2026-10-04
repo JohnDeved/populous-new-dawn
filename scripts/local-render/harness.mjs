@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createRequire } from 'node:module'
-import { acquireProfile, persistentLaunchOptions, profileInputReceipt, sha256 } from './owned-profile.mjs'
+import { acquireProfile, persistentLaunchOptions, profileInputReceipt, sha256, validateProfilePaths } from './owned-profile.mjs'
 import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
 const here = dirname(fileURLToPath(import.meta.url))
 export function launchOptions(browserPath) {
@@ -57,6 +57,10 @@ async function stopServer(server) {
 }
 export async function runLocalBrowser(options, scenario) {
   const root = resolve(options.gameRoot), output = resolve(options.output)
+  if (options.profile) {
+    validateProfilePaths(root, options.profile, output)
+    if (existsSync(resolve(output, 'receipt.json')) || existsSync(resolve(output, 'server.log'))) throw Error('Persistent runs require a fresh evidence output directory')
+  }
   mkdirSync(output, { recursive: true })
   const receipt = { startedAt: new Date().toISOString(), source: sourceReceipt(root), launch: launchOptions(options.browserPath), softwarePerformanceOnly: true, errors: [], warnings: [], status: 'running' }
   if (!existsSync(receipt.launch.executablePath)) throw Error(`Browser binary does not exist: ${receipt.launch.executablePath}`)

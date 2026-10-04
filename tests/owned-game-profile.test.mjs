@@ -4,7 +4,7 @@ import { execFileSync } from 'node:child_process'
 import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { resolve } from 'node:path'
-import { acquireProfile, persistentLaunchOptions, profileInputReceipt } from '../scripts/local-render/owned-profile.mjs'
+import { acquireProfile, persistentLaunchOptions, profileInputReceipt, validateProfilePaths } from '../scripts/local-render/owned-profile.mjs'
 import { launchOptions, parseOptions } from '../scripts/local-render/harness.mjs'
 import { readCommittedCheckpoint } from '../scripts/local-render/checkpoint-observer.mjs'
 
@@ -50,6 +50,12 @@ test('symlink ancestor and evidence overlap are rejected', () => fixture(args =>
   assert.throws(() => acquireProfile(args), /real directory/)
   assert.throws(() => acquireProfile({ ...args, output: args.path }), /overlap/)
   assert.throws(() => acquireProfile({ ...args, output: resolve(args.root, 'work') }), /overlap/)
+}))
+test('an output symlink cannot alias profile data before preflight creates logs', () => fixture(args => {
+  const lease = acquireProfile(args), alias = resolve(args.root, 'work/profile-alias')
+  symlinkSync(lease.dataDir, alias)
+  assert.throws(() => validateProfilePaths(args.root, args.path, alias), /real directory/)
+  assert.equal(existsSync(resolve(lease.dataDir, 'server.log')), false)
 }))
 test('exclusive live and unknown locks are never recovered, and failed cleanup keeps ownership', () => fixture(args => {
   const lease = acquireProfile(args), lock = resolve(args.path, 'owner.lock')
