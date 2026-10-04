@@ -236,3 +236,44 @@ Original-game runtime screenshots, full tab/input-loop and painter-order behavio
 all transport gameplay/ownership transitions, disabled lower-cell blend raster, live
 browser classification adapters and playable UI integration remain open. Those limits block
 production/parity claims, not the scoped recovered evidence above.
+
+## Occupied-transport live integration (in progress)
+
+The transport-row work uses the actual `World.vehicles` and passenger slot owners,
+not the follower-task classifier. `hud-transports.ts` compares directly with the
+native count rebuild, complete command handler and focus owner in
+`check-native-follower-transports.py`: 480 deterministic mixed-owner, mixed-class,
+blocked/selected, model-variant, nearby and six-click focus cases. The global vehicle
+list rebuild prepends each vehicle; browser search/cycling therefore traverses the
+creation array in reverse without mutating that array.
+
+`check-native-transport-ownership.py` adds 39 executed owner-transition cases.
+Native vehicle `+0xa1` is the real count/presence owner; `+0x2f` is the apparent
+selection/focus owner. Every successful boarding writes both; Spies publish their
+disguise target bits immediately, even during the countdown. Every unboarding
+writes the departing person's real tribe to `+0xa1` and preserves `+0x2f`.
+Command16 changes only `+0x2f`, immediately. Countdown expiry and the isolated reveal
+leaf do not write either vehicle owner. Destruction's passenger loop ends with the
+last departed person's real owner; retained empty wrecks still establish row
+presence until actual disposal.
+
+The browser keeps `Vehicle.team` as its existing real-owner interpretation and adds
+optional `apparentTribe` for these HUD consumers. Missing legacy values fall back to
+team; an unboarding captures that fallback before updating team. The field is stored
+by the existing structured-clone checkpoint, without a second save owner. This is
+not a claim that all vehicle damage/appearance/disguise consumers are native-exact;
+those still use their established real-team behavior.
+
+The owner probe executes initializer, boarding, unboarding, driver promotion,
+destruction passenger loops, target-bit computation, count rebuild and search.
+It supplies animation/list/terrain leaves, a fixed ejection destination, object
+storage and animation tables. Command16 stops at its shared completion boundary;
+Spy countdown executes only the updater prefix. It does not establish final
+terrain-dependent disposal, allocator reuse, arbitrary mixed-tribe boarding
+eligibility, or complete game-loop behavior.
+
+Open live prerequisites before transport-row acceptance: native vehicle panel
+(kind9) and its passenger/unload controls are absent from the existing ObjectPanels
+owner; an aboard Spy disguise can reach the unported person-state30 initializer.
+The row implementation must not be described as complete while those paths or the
+required rendered/aggregate final gates remain unverified. Issue #60 stays open.

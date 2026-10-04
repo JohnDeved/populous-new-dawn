@@ -52,6 +52,8 @@ import { followerClassControls } from './hud-population'
 import { FollowerTasks } from './follower-tasks-view'
 import { hudTaskPeople } from './follower-tasks-runtime'
 import type { FollowerTask } from './hud-tasks'
+import type { TransportKind } from './hud-transports'
+import { hudTransports } from './follower-transports-runtime'
 import { spellHudButton, spellHudRoster, spellHudVisibility } from './spell-visibility'
 import { nativeUnitModel } from './unit-kinds'
 import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
@@ -362,10 +364,12 @@ export default function Home() {
       }
     }
   }
-  function followerControl(model: number, category?: FollowerTask) {
+  function followerControl(model: number, category?: FollowerTask, vehicle?: TransportKind) {
     const choose = (event: MouseEvent<HTMLButtonElement>, focus = false) => {
       if (!event.currentTarget.disabled)
-        engine.current?.chooseFollowers(model, event, focus, category)
+        vehicle
+          ? engine.current?.chooseTransport(vehicle, model, event, focus)
+          : engine.current?.chooseFollowers(model, event, focus, category)
     }
     return {
       onPointerDown: (event: MouseEvent<HTMLButtonElement>) => {
@@ -925,6 +929,9 @@ export default function Home() {
           {tab === 'followers' && (
             <FollowerTasks
               people={hudTaskPeople(world)}
+              vehicles={hudTransports(world)}
+              transportPeople={hudTaskPeople(world, false)}
+              transportControl={(model, kind) => followerControl(model, undefined, kind)}
               center={hudCamera}
               nearby={!!(world.castingTribes[0].flags & 128)}
               control={followerControl}

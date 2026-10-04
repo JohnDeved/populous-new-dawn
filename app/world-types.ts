@@ -104,6 +104,8 @@ export type Fight = {
 }
 export type NativePoint = { x: number; y: number; h: number }
 export type Vehicle = NativePoint & {
+  // Native apparent owner (+0x2f); team retains real count owner (+0xa1).
+  apparentTribe?: number
   id: number
   class: 4
   model: number

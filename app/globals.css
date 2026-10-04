@@ -75,7 +75,7 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 
 /* Lower task descriptors use34px frames and preserve opaque disabled silhouettes. */
 .followers-dock{height:277px;bottom:auto;padding:0;border:0;background:url('/original/follower-task-panel.png') no-repeat}
-.follower-tasks{position:relative;width:100px;height:170px}
+.follower-tasks{position:relative;width:100px;height:277px}
 .follower-tasks button{position:absolute;width:15px;height:34px;padding:0;overflow:visible}
 .follower-tasks button:disabled{opacity:1}
 .follower-task-frame{position:absolute;inset:0;background:url('/original/follower-task-normal.png');pointer-events:none}
