@@ -72,7 +72,7 @@ passenger kinds alive, including restored occupied and airborne checkpoints.
 Current browser boarding attaches immediately. It intentionally does not replay
 original slowTurn interpolation on each of the existing passenger/driver sync
 calls.84 complete settled native cases match positions, heading and flags across
-slots, orientations and seams.504 additional full native captures preserve the
+slots, orientations and seams.504 total full native captures (84 settled and420 nonzero-countdown cases) preserve the
 countdown branch for later controller work, without claiming it is implemented.
 
 ## Executable comparisons
