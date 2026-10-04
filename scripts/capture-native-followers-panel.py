@@ -136,6 +136,20 @@ for alternate in (False,True):
    *[1084+row for model in range(5) for row in range(4)],
    653+int(selected),*[655]*5,647+int(selected),*[1088]*5]
 print('PASS: four 36-cell native renderer captures; global/nearby counters, normal/pressed icons, fonts and draw geometry')
+# Disabled lower cells retain the opaque task/vehicle silhouette after the frame
+# helper clears flag 8. Zero values are formatted but render no number glyphs.
+disabled_contracts=[]
+for renderer,key in [(0x4a0e70,10+row) for row in range(4)]+[(0x4a1580,2),(0x4a1580,10)]:
+    cpu.mem_write(0x89d1c8,bytes(4*0xc65));cpu.mem_write(button,bytes(128))
+    write(button+0x10,'I',1);write(button+0x37,'ii',16,210)
+    write(button+0x47,'ii',15,34);write(button+99,'I',key)
+    draws=[];text_draws=[];formatted=[];fills=[]
+    call(renderer,button)
+    assert len(draws)==10 and all(d[-1]&8 for d in draws[:9])
+    assert not draws[-1][-1]&8 and formatted==[0] and not text_draws
+    disabled_contracts.append(dict(renderer=f'{renderer:08x}',key=key,draws=draws))
+print('PASS: six disabled lower cells submit flagged frames, opaque silhouettes and no zero digits')
+
 # Recover only the eighteen actually consumed icons. Do not run broad importer.
 ids=[*range(639,649),653,654,655,*range(1084,1089)]
 from PIL import ImageDraw
@@ -153,7 +167,7 @@ sheet.save(output/'panel-sprite-contact-sheet.png')
  probeSha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
  inputs={name:hashlib.sha256((exe.parent/name).read_bytes()).hexdigest() for name in
  ['data/hfx0-0.dat','data/pal0-c.dat',*[f'data/f00t{i}-0.dat' for i in (4,5,6,7)]]},
- icons=artifacts,captures=all_draws,
+ icons=artifacts,captures=all_draws,disabledDrawContracts=disabled_contracts,
  limits=['Reconstructed native draw queues with supplied coordinate adapters, CRT formatting, bank lookup and raster consumers.',
          'Enabled-cell captures only; disabled diffuse is asserted absent, not approximated.',
          'No game runtime screenshot or browser integration claim.']),indent=2)+'\n')

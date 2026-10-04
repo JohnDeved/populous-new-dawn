@@ -1,0 +1,672 @@
+{
+  "executable": {
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "bytes": 2275840,
+    "debugDirectoryRva": 0,
+    "debugDirectorySize": 0
+  },
+  "probeSha256": "f31a0487a9cce987fa2922be4db2be3aab226180a4ea0840130247be40acfeed",
+  "inputs": {
+    "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+    "data/f00t4-0.dat": "2cbebbf772ffa2fceca7ec5e37a08c1c6fe190653bbc3d85ebe126443d4494d0",
+    "data/f00t5-0.dat": "f2bf6b80ce47a517543ea549b5031c2496d272f5920e00fb173a3a0986f15b16",
+    "data/f00t6-0.dat": "bbd44f74ffa109bf9df2420b25be6cb1c2dde520b9e2a590641a3077cad5231b",
+    "data/f00t7-0.dat": "31838b87c4c03bb656375c6fc1eccf3d772953beac53acbd9c62950e58f07bfd"
+  },
+  "icons": [
+    {
+      "id": 639,
+      "width": 18,
+      "height": 23,
+      "rgbaSha256": "6715e9de85fc1ecf732cbf088e611ff9a3183a073ab7e8e775c74a855642a105"
+    },
+    {
+      "id": 640,
+      "width": 18,
+      "height": 23,
+      "rgbaSha256": "0c625e3d6234f1b55bd2a39e9301721a387d779c8e7e3068565bff4649e61f48"
+    },
+    {
+      "id": 641,
+      "width": 17,
+      "height": 23,
+      "rgbaSha256": "1f08afffc64b212a2d37fb39938c58ebe1c0fb8f97df1a036c3eab83cef99669"
+    },
+    {
+      "id": 642,
+      "width": 17,
+      "height": 23,
+      "rgbaSha256": "35127a4a959ac38272d312e60878388c0498770db0a5e353db44d35e7c87cb92"
+    },
+    {
+      "id": 643,
+      "width": 17,
+      "height": 23,
+      "rgbaSha256": "630ff95afe6ac9b15dbb815b466718df86694cf7296993221654a14619444dec"
+    },
+    {
+      "id": 644,
+      "width": 17,
+      "height": 23,
+      "rgbaSha256": "0059a4534fce6a0ab5eb19c9607a572ecd4c32e6801b82a589f8a93749196551"
+    },
+    {
+      "id": 645,
+      "width": 17,
+      "height": 23,
+      "rgbaSha256": "85fb178c4a12fd7c4086916c23f1d3c75043e66c7ceb3e3d04bf0d8593f0f8ad"
+    },
+    {
+      "id": 646,
+      "width": 17,
+      "height": 23,
+      "rgbaSha256": "43ba97ec21365ab8485a861edfddccc22364a4e6ef9d42748e9f9fb1e2ddd38d"
+    },
+    {
+      "id": 647,
+      "width": 17,
+      "height": 23,
+      "rgbaSha256": "26b712f29a350d23a61dbf048ceb4065ad700ed8ac8daf7ca0f889d536c5f37f"
+    },
+    {
+      "id": 648,
+      "width": 17,
+      "height": 23,
+      "rgbaSha256": "2ff3205aa42c7949ffad90621e4f15aabdc21703bac7d72b17ffe2c1d5956448"
+    },
+    {
+      "id": 653,
+      "width": 16,
+      "height": 23,
+      "rgbaSha256": "d6b67f4338bd64a021faac892651459d5cfdc4f177bdc0dbdba7886e3bca2ff7"
+    },
+    {
+      "id": 654,
+      "width": 16,
+      "height": 23,
+      "rgbaSha256": "7f7be76e877b6cef38613242b2cd8b25a1694130c93afaa1138762b4c300ca83"
+    },
+    {
+      "id": 655,
+      "width": 16,
+      "height": 23,
+      "rgbaSha256": "2f1257a52d95d89811cade437a50adf3bc212a21ce53959ba044547f125e7828"
+    },
+    {
+      "id": 1084,
+      "width": 17,
+      "height": 23,
+      "rgbaSha256": "16accb2791da70be4f209a5049dcb63091104f31ef08ff82b5ca573339e48789"
+    },
+    {
+      "id": 1085,
+      "width": 17,
+      "height": 23,
+      "rgbaSha256": "001f42ede2c486254c3d31a57a372f8b484ead3f41b133b6ef9c2b5c27c427b7"
+    },
+    {
+      "id": 1086,
+      "width": 17,
+      "height": 23,
+      "rgbaSha256": "19c820add2d48062c5e1ab07985337c8d5c60f026cf2f6a4491bc9672522926b"
+    },
+    {
+      "id": 1087,
+      "width": 17,
+      "height": 23,
+      "rgbaSha256": "a3c8b2da28d3d3ab2abd2369b7eee4639fd0ecfdf081ef45b4320383f7fb9656"
+    },
+    {
+      "id": 1088,
+      "width": 17,
+      "height": 23,
+      "rgbaSha256": "bc092ae00fc255cc986a2f0869f6e975b539ae6451f1cdfd82efde81fa93aab0"
+    }
+  ],
+  "disabledDrawContracts": [
+    {
+      "renderer": "004a0e70",
+      "key": 10,
+      "draws": [
+        [
+          1013,
+          20,
+          214,
+          7,
+          26,
+          8
+        ],
+        [
+          1009,
+          20,
+          210,
+          7,
+          4,
+          8
+        ],
+        [
+          1010,
+          20,
+          240,
+          7,
+          4,
+          8
+        ],
+        [
+          1011,
+          16,
+          214,
+          4,
+          26,
+          8
+        ],
+        [
+          1012,
+          27,
+          214,
+          4,
+          26,
+          8
+        ],
+        [
+          1005,
+          16,
+          210,
+          4,
+          4,
+          8
+        ],
+        [
+          1006,
+          27,
+          210,
+          4,
+          4,
+          8
+        ],
+        [
+          1007,
+          16,
+          240,
+          4,
+          4,
+          8
+        ],
+        [
+          1008,
+          27,
+          240,
+          4,
+          4,
+          8
+        ],
+        [
+          1084,
+          15,
+          212,
+          17,
+          23,
+          0
+        ]
+      ]
+    },
+    {
+      "renderer": "004a0e70",
+      "key": 11,
+      "draws": [
+        [
+          1013,
+          20,
+          214,
+          7,
+          26,
+          8
+        ],
+        [
+          1009,
+          20,
+          210,
+          7,
+          4,
+          8
+        ],
+        [
+          1010,
+          20,
+          240,
+          7,
+          4,
+          8
+        ],
+        [
+          1011,
+          16,
+          214,
+          4,
+          26,
+          8
+        ],
+        [
+          1012,
+          27,
+          214,
+          4,
+          26,
+          8
+        ],
+        [
+          1005,
+          16,
+          210,
+          4,
+          4,
+          8
+        ],
+        [
+          1006,
+          27,
+          210,
+          4,
+          4,
+          8
+        ],
+        [
+          1007,
+          16,
+          240,
+          4,
+          4,
+          8
+        ],
+        [
+          1008,
+          27,
+          240,
+          4,
+          4,
+          8
+        ],
+        [
+          1085,
+          15,
+          212,
+          17,
+          23,
+          0
+        ]
+      ]
+    },
+    {
+      "renderer": "004a0e70",
+      "key": 12,
+      "draws": [
+        [
+          1013,
+          20,
+          214,
+          7,
+          26,
+          8
+        ],
+        [
+          1009,
+          20,
+          210,
+          7,
+          4,
+          8
+        ],
+        [
+          1010,
+          20,
+          240,
+          7,
+          4,
+          8
+        ],
+        [
+          1011,
+          16,
+          214,
+          4,
+          26,
+          8
+        ],
+        [
+          1012,
+          27,
+          214,
+          4,
+          26,
+          8
+        ],
+        [
+          1005,
+          16,
+          210,
+          4,
+          4,
+          8
+        ],
+        [
+          1006,
+          27,
+          210,
+          4,
+          4,
+          8
+        ],
+        [
+          1007,
+          16,
+          240,
+          4,
+          4,
+          8
+        ],
+        [
+          1008,
+          27,
+          240,
+          4,
+          4,
+          8
+        ],
+        [
+          1086,
+          15,
+          212,
+          17,
+          23,
+          0
+        ]
+      ]
+    },
+    {
+      "renderer": "004a0e70",
+      "key": 13,
+      "draws": [
+        [
+          1013,
+          20,
+          214,
+          7,
+          26,
+          8
+        ],
+        [
+          1009,
+          20,
+          210,
+          7,
+          4,
+          8
+        ],
+        [
+          1010,
+          20,
+          240,
+          7,
+          4,
+          8
+        ],
+        [
+          1011,
+          16,
+          214,
+          4,
+          26,
+          8
+        ],
+        [
+          1012,
+          27,
+          214,
+          4,
+          26,
+          8
+        ],
+        [
+          1005,
+          16,
+          210,
+          4,
+          4,
+          8
+        ],
+        [
+          1006,
+          27,
+          210,
+          4,
+          4,
+          8
+        ],
+        [
+          1007,
+          16,
+          240,
+          4,
+          4,
+          8
+        ],
+        [
+          1008,
+          27,
+          240,
+          4,
+          4,
+          8
+        ],
+        [
+          1087,
+          15,
+          212,
+          17,
+          23,
+          0
+        ]
+      ]
+    },
+    {
+      "renderer": "004a1580",
+      "key": 2,
+      "draws": [
+        [
+          1013,
+          20,
+          214,
+          7,
+          26,
+          8
+        ],
+        [
+          1009,
+          20,
+          210,
+          7,
+          4,
+          8
+        ],
+        [
+          1010,
+          20,
+          240,
+          7,
+          4,
+          8
+        ],
+        [
+          1011,
+          16,
+          214,
+          4,
+          26,
+          8
+        ],
+        [
+          1012,
+          27,
+          214,
+          4,
+          26,
+          8
+        ],
+        [
+          1005,
+          16,
+          210,
+          4,
+          4,
+          8
+        ],
+        [
+          1006,
+          27,
+          210,
+          4,
+          4,
+          8
+        ],
+        [
+          1007,
+          16,
+          240,
+          4,
+          4,
+          8
+        ],
+        [
+          1008,
+          27,
+          240,
+          4,
+          4,
+          8
+        ],
+        [
+          655,
+          15,
+          212,
+          16,
+          23,
+          0
+        ]
+      ]
+    },
+    {
+      "renderer": "004a1580",
+      "key": 10,
+      "draws": [
+        [
+          1013,
+          20,
+          214,
+          7,
+          26,
+          8
+        ],
+        [
+          1009,
+          20,
+          210,
+          7,
+          4,
+          8
+        ],
+        [
+          1010,
+          20,
+          240,
+          7,
+          4,
+          8
+        ],
+        [
+          1011,
+          16,
+          214,
+          4,
+          26,
+          8
+        ],
+        [
+          1012,
+          27,
+          214,
+          4,
+          26,
+          8
+        ],
+        [
+          1005,
+          16,
+          210,
+          4,
+          4,
+          8
+        ],
+        [
+          1006,
+          27,
+          210,
+          4,
+          4,
+          8
+        ],
+        [
+          1007,
+          16,
+          240,
+          4,
+          4,
+          8
+        ],
+        [
+          1008,
+          27,
+          240,
+          4,
+          4,
+          8
+        ],
+        [
+          1088,
+          15,
+          212,
+          17,
+          23,
+          0
+        ]
+      ]
+    }
+  ],
+  "limits": [
+    "Reconstructed native draw queues with supplied coordinate adapters, CRT formatting, bank lookup and raster consumers.",
+    "Enabled-cell captures only; disabled diffuse is asserted absent, not approximated.",
+    "No game runtime screenshot or browser integration claim."
+  ],
+  "captures": [
+    {
+      "name": "panel-global-normal",
+      "drawRequestSha256": "f1409e010b977988fe4768f7599fe4b921624e90f8b99d870e3468cf4d27e828",
+      "pngSha256": "7385508497e3d03b95245c712cb95a7359abcf244a665952b711edfd92c17839"
+    },
+    {
+      "name": "panel-global-pressed",
+      "drawRequestSha256": "ea58fa8dcdfb16cab797c2ad6ae962c0e63d2cf9f5cc496f29ffbaa05d7aec5f",
+      "pngSha256": "462904aa208f49184a057888ac0474bb2e399c5e1bda1d284eab55f3d479d5b4"
+    },
+    {
+      "name": "panel-nearby-normal",
+      "drawRequestSha256": "9d4709966ea8a1e0c28ee64ce97005bd8f96a6516c5fcc68e94b9d681b728987",
+      "pngSha256": "9c91518af3573b4178475bfe689c7e4c85b54bd2d199a2a21f0c6449f956db39"
+    },
+    {
+      "name": "panel-nearby-pressed",
+      "drawRequestSha256": "b25673dddb3f8f34d293b8ef0c38d0a768d6e2de7602d940fdccb966b3d7271b",
+      "pngSha256": "16067453d7d968b9856043d07147171d7acf4910084183c16ca9ebe9aa703dc2"
+    }
+  ]
+}

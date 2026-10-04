@@ -5,7 +5,7 @@
     "debugDirectoryRva": 0,
     "debugDirectorySize": 0
   },
-  "probeSha256": "b4b4a9bf459d112b841386262cb1102e1e6e4a735068c608d28cab31b36abcef",
+  "probeSha256": "ad6df517bfd021746b068a161cb209675d5dd46e964ac9894402c53b60767dca",
   "languageSha256": "e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d",
   "descriptors": [
     {
@@ -785,8 +785,387 @@
     "commands": 36,
     "rebuilds": 184,
     "focus": 16,
-    "edges": 31
+    "edges": 31,
+    "vehicleRefresh": 144,
+    "vehicleCallbacks": 48,
+    "vehicleRebuilds": 2,
+    "vehicleFocus": 8,
+    "vehicleCommands": 6,
+    "vehicleSearch": 6,
+    "constructor": 4
   },
+  "constructorCases": [
+    {
+      "displayMode": 0,
+      "realized640x480": [
+        {
+          "descriptor": "005ccff6",
+          "x": 80,
+          "y": 434
+        },
+        {
+          "descriptor": "005ccfb4",
+          "x": 63,
+          "y": 434
+        },
+        {
+          "descriptor": "005ccf72",
+          "x": 47,
+          "y": 434
+        },
+        {
+          "descriptor": "005ccf30",
+          "x": 31,
+          "y": 434
+        },
+        {
+          "descriptor": "005cceee",
+          "x": 15,
+          "y": 434
+        },
+        {
+          "descriptor": "005cceac",
+          "x": 0,
+          "y": 434
+        },
+        {
+          "descriptor": "005cce6a",
+          "x": 80,
+          "y": 393
+        },
+        {
+          "descriptor": "005cce28",
+          "x": 63,
+          "y": 393
+        },
+        {
+          "descriptor": "005ccde6",
+          "x": 47,
+          "y": 393
+        },
+        {
+          "descriptor": "005ccda4",
+          "x": 31,
+          "y": 393
+        },
+        {
+          "descriptor": "005ccd62",
+          "x": 15,
+          "y": 393
+        },
+        {
+          "descriptor": "005ccd20",
+          "x": 0,
+          "y": 393
+        },
+        {
+          "descriptor": "005cccde",
+          "x": 80,
+          "y": 332
+        },
+        {
+          "descriptor": "005ccc9c",
+          "x": 80,
+          "y": 291
+        },
+        {
+          "descriptor": "005ccc5a",
+          "x": 80,
+          "y": 250
+        },
+        {
+          "descriptor": "005ccc18",
+          "x": 80,
+          "y": 209
+        },
+        {
+          "descriptor": "005ccbd6",
+          "x": 63,
+          "y": 332
+        },
+        {
+          "descriptor": "005ccb94",
+          "x": 63,
+          "y": 291
+        },
+        {
+          "descriptor": "005ccb52",
+          "x": 63,
+          "y": 250
+        },
+        {
+          "descriptor": "005ccb10",
+          "x": 63,
+          "y": 209
+        },
+        {
+          "descriptor": "005ccace",
+          "x": 47,
+          "y": 332
+        },
+        {
+          "descriptor": "005cca8c",
+          "x": 47,
+          "y": 291
+        },
+        {
+          "descriptor": "005cca4a",
+          "x": 47,
+          "y": 250
+        },
+        {
+          "descriptor": "005cca08",
+          "x": 47,
+          "y": 209
+        },
+        {
+          "descriptor": "005cc9c6",
+          "x": 31,
+          "y": 332
+        },
+        {
+          "descriptor": "005cc984",
+          "x": 31,
+          "y": 291
+        },
+        {
+          "descriptor": "005cc942",
+          "x": 31,
+          "y": 250
+        },
+        {
+          "descriptor": "005cc900",
+          "x": 31,
+          "y": 209
+        },
+        {
+          "descriptor": "005cc8be",
+          "x": 15,
+          "y": 332
+        },
+        {
+          "descriptor": "005cc87c",
+          "x": 15,
+          "y": 291
+        },
+        {
+          "descriptor": "005cc83a",
+          "x": 15,
+          "y": 250
+        },
+        {
+          "descriptor": "005cc7f8",
+          "x": 15,
+          "y": 209
+        },
+        {
+          "descriptor": "005cc7b6",
+          "x": 0,
+          "y": 332
+        },
+        {
+          "descriptor": "005cc774",
+          "x": 0,
+          "y": 291
+        },
+        {
+          "descriptor": "005cc732",
+          "x": 0,
+          "y": 250
+        },
+        {
+          "descriptor": "005cc6f0",
+          "x": 0,
+          "y": 209
+        }
+      ]
+    },
+    {
+      "displayMode": 8,
+      "realized640x480": [
+        {
+          "descriptor": "005ccff6",
+          "x": 80,
+          "y": 434
+        },
+        {
+          "descriptor": "005ccfb4",
+          "x": 63,
+          "y": 434
+        },
+        {
+          "descriptor": "005ccf72",
+          "x": 47,
+          "y": 434
+        },
+        {
+          "descriptor": "005ccf30",
+          "x": 31,
+          "y": 434
+        },
+        {
+          "descriptor": "005cceee",
+          "x": 15,
+          "y": 434
+        },
+        {
+          "descriptor": "005cceac",
+          "x": 0,
+          "y": 434
+        },
+        {
+          "descriptor": "005cce6a",
+          "x": 80,
+          "y": 393
+        },
+        {
+          "descriptor": "005cce28",
+          "x": 63,
+          "y": 393
+        },
+        {
+          "descriptor": "005ccde6",
+          "x": 47,
+          "y": 393
+        },
+        {
+          "descriptor": "005ccda4",
+          "x": 31,
+          "y": 393
+        },
+        {
+          "descriptor": "005ccd62",
+          "x": 15,
+          "y": 393
+        },
+        {
+          "descriptor": "005ccd20",
+          "x": 0,
+          "y": 393
+        },
+        {
+          "descriptor": "005cccde",
+          "x": 80,
+          "y": 332
+        },
+        {
+          "descriptor": "005ccc9c",
+          "x": 80,
+          "y": 291
+        },
+        {
+          "descriptor": "005ccc5a",
+          "x": 80,
+          "y": 250
+        },
+        {
+          "descriptor": "005ccc18",
+          "x": 80,
+          "y": 209
+        },
+        {
+          "descriptor": "005ccbd6",
+          "x": 63,
+          "y": 332
+        },
+        {
+          "descriptor": "005ccb94",
+          "x": 63,
+          "y": 291
+        },
+        {
+          "descriptor": "005ccb52",
+          "x": 63,
+          "y": 250
+        },
+        {
+          "descriptor": "005ccb10",
+          "x": 63,
+          "y": 209
+        },
+        {
+          "descriptor": "005ccace",
+          "x": 47,
+          "y": 332
+        },
+        {
+          "descriptor": "005cca8c",
+          "x": 47,
+          "y": 291
+        },
+        {
+          "descriptor": "005cca4a",
+          "x": 47,
+          "y": 250
+        },
+        {
+          "descriptor": "005cca08",
+          "x": 47,
+          "y": 209
+        },
+        {
+          "descriptor": "005cc9c6",
+          "x": 31,
+          "y": 332
+        },
+        {
+          "descriptor": "005cc984",
+          "x": 31,
+          "y": 291
+        },
+        {
+          "descriptor": "005cc942",
+          "x": 31,
+          "y": 250
+        },
+        {
+          "descriptor": "005cc900",
+          "x": 31,
+          "y": 209
+        },
+        {
+          "descriptor": "005cc8be",
+          "x": 15,
+          "y": 332
+        },
+        {
+          "descriptor": "005cc87c",
+          "x": 15,
+          "y": 291
+        },
+        {
+          "descriptor": "005cc83a",
+          "x": 15,
+          "y": 250
+        },
+        {
+          "descriptor": "005cc7f8",
+          "x": 15,
+          "y": 209
+        },
+        {
+          "descriptor": "005cc7b6",
+          "x": 0,
+          "y": 332
+        },
+        {
+          "descriptor": "005cc774",
+          "x": 0,
+          "y": 291
+        },
+        {
+          "descriptor": "005cc732",
+          "x": 0,
+          "y": 250
+        },
+        {
+          "descriptor": "005cc6f0",
+          "x": 0,
+          "y": 209
+        }
+      ]
+    }
+  ],
   "selectedRowCommands": [
     {
       "model": 0,
@@ -935,7 +1314,7 @@
   "limits": [
     "No production implementation or parity claim.",
     "Crafted native states establish arithmetic and predicates, not reachability of every state combination.",
-    "Vehicle descriptors recovered; complete vehicle selection/counter semantics are not exercised by this probe.",
+    "Transport probes cover bounded native count/focus/selection cases, not all vehicle gameplay.",
     "Rendered pixels are handled by the separate bounded raster probe."
   ]
 }

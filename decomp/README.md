@@ -5151,5 +5151,6 @@ Unhooked native cases retain the separate Mission3/type8 and Spy boundaries.
 36 descriptors, Selected/Idle/Housed/Busy and occupied-transport rows, eighteen HFX
 sprites, native count/classification owner, category-specific selection/deselection
 and right-click focus. It includes executed native draw-request reconstructions,
-not original-game screenshots. The task-row probes are executable; complete
-transport interaction and browser integration remain explicit boundaries.
+not original-game screenshots. Executable probes include bounded transport interactions, full constructor/refresh
+transitions and disabled draw flags. Full UI painter-order/blend and live browser
+integration remain explicit boundaries.

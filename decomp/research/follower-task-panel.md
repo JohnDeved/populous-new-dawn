@@ -23,7 +23,9 @@ Canonical EXE SHA-256:
 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
 The Ghidra 12.1.3 project `populous-restored` was exported using Temurin
 21.0.12.1 on 2026-10-04. `ExportFunctions.java` verified every canonical file-backed
-section against `decomp/sections.tsv` before six scoped exports completed.
+section against `decomp/sections.tsv` before scoped six- and ten-routine exports
+completed. The second window added `0044c650`, `00451080`, `004514f0`, `004a0bf0`,
+`004a13c0`, `004a14b0`, `004a14e0`, `004a1580`, `004deb40` and `004e31f0`.
 Preserved existing classifier export `004513e0`; new exports: `004a0200`, `004a0e70`, `004a11e0`,
 `004a1240`, `004a1340`; hashes are indexed in `decomp/exports.json`.
 Pseudocode is not original source; executable probes remain authoritative.
@@ -35,7 +37,7 @@ Root record `005cd178` has ID 4, child pointers `005cc6f0`, logical rectangle
 There are 36 controls, followed by a type-9 terminator at `005cd038`.
 All have 15×34 logical geometry and zero construction-mode byte at record `+65`.
 Columns have x positions 0/16/32/48/64/80. Relative row y positions are
-6/47/88/129/190/231. Root-relative placement gives absolute row y positions
+6/47/88/129/190/231. Root-relative **logical** placement gives row y positions
 210/251/292/333/394/435. The gap before transport is present in original data.
 
 The first 24 descriptors are stored column-major, with key `model*5 + row`, where
@@ -61,6 +63,9 @@ Exactly eighteen missing sprites are consumed:
 
 ![Eighteen exact original sprites, nearest-neighbor enlarged for inspection](follower-task-panel/panel-sprite-contact-sheet.png)
 
+Native input/pixel identities, sprite dimensions/RGBA hashes and disabled draw
+contracts are retained in [native-panel-art.json](follower-task-panel/native-panel-art.json).
+
 The class columns use the **task silhouette**, not repeated follower portraits.
 `004a0e70` chooses `1083+category`, categories 1–4. Total cells use their own normal
 or pressed pairs. Vehicle renderer `004a1580` chooses 655/1088 for class cells,
@@ -70,11 +75,37 @@ while Total cells use the descriptor pair. Some artwork is 17/18px wide despite 
 strip's 36px height. Background/frame uses original root renderer `004a1720`.
 
 The following image is a reconstruction of **executed native draw requests** with
-supplied raster consumers and synthetic counters. It is not a running-game or
+supplied logical-coordinate adapters, raster consumers and synthetic counters. It is not a running-game or
 browser screenshot. Original HFX and font pixels are retained.
 
 ![Native draw-request reconstruction with synthetic global counters](follower-task-panel/panel-global-normal.png)
 ![Native draw-request reconstruction with synthetic nearby counters](follower-task-panel/panel-nearby-normal.png)
+
+## Construction, rounding and empty-cell presentation
+
+Unhooked `0044c650(4)` creates all 36 child controls in both native display modes
+(`0089c661` bit 8 clear/set), copies the exact callback/key data and links the
+runtime child list in reverse descriptor order. Reopening reuses the same root and
+36 controls. Native refresh changes Brave cells to disabled after its live total
+becomes zero and hides transport rows when vehicle-presence flags disappear.
+No construction knowledge gate is present in these records.
+
+The constructor normalizes coordinates using truncated 16.16 fractions. Real
+`0044a1f0/0044a210` conversion at 640×480 realizes column x positions
+**0/15/31/47/63/80** and row y positions **209/250/291/332/393/434**, differing
+from regular logical descriptors by up to one pixel. The exact per-control values
+are in `constructorCases` in the contract JSON. The retained images deliberately
+show logical-coordinate reconstruction, not this old rounding or a complete native
+UI painter-order frame. Modern compatibility can use the regular logical grid,
+but must identify that as a rounding correction rather than exact legacy pixels.
+
+`004a0bf0` draws a frame and an opaque task/vehicle silhouette even for a disabled
+class cell. The frame draws carry disabled flag 8, then `004a1dd0` clears it before
+the silhouette submission. Six executed zero-count cases prove this for all four
+tasks, Boats and Balloons. They format zero but submit **no number glyphs**. A
+lower cell is therefore not visually equivalent to an empty persistent class button,
+whose renderer omits the class portrait. This packet proves draw flags/geometry;
+it does not reconstruct the disabled blend or silently dim the whole control.
 
 ## Task counts and enabled state
 
@@ -106,10 +137,11 @@ members in this particular task keeps its cell enabled. Total task controls have
 no-op refresh `004a13b0`, not the class-live gate.
 
 Vehicle counts are separate matrices: Boats at `0089dd9f/0089ddb1`, Balloons at
-`0089ddc3/0089ddd5` (global/nearby). Static producer evidence counts occupied
-vehicles with at least one matching passenger class, not passenger headcount.
-The first checkpoint has not yet executed complete transport selection/count
-ownership; do not claim that part from the task-row probe.
+`0089ddc3/0089ddd5` (global/nearby). Executed full-producer cases count occupied vehicles with at least one matching
+passenger class, not passenger headcount: two Braves in one Boat add one to Boats
+With Braves. Empty and opposing-owner vehicles do not add occupied counts.
+`004ecac0` uses vehicle `+0xa1` for the count/presence owner; selection/focus use
+`+0x2f`. The test supplies consistent owner fields and does not erase this distinction.
 
 ## Click and focus contracts
 
@@ -147,8 +179,30 @@ or orders. The current browser helper only implements category 0, so merely
 reusing its existing signature would silently omit required task filtering/memory.
 
 Vehicle rows have separate callbacks **`004a13c0/004a14b0`**, refresh `004a14e0`
-and renderer `004a1580`. Their exact descriptor and renderer evidence is retained;
-full vehicle command/focus proof remains explicitly separate at this checkpoint.
+and renderer `004a1580`. Left callback decodes model=`key%8` and vehicle kind
+1 (Boats) / 3 (Balloons), then uses producer `00451080`:
+
+- click emits `0x81`, Ctrl `0x80`, Shift `0x7f` (Shift precedence);
+- model filter means a vehicle containing that class, not selecting only passengers
+  of that class; native `004e31f0` selects every eligible passenger aboard;
+- single/five uses `004514f0`: first prefer vehicles whose first passenger's command
+  status is zero, then fall back to the others. Eligible matching passengers must
+  be unselected/unblocked. Distance ranking uses the matching passenger's position,
+  while nearby inclusion checks the vehicle's position. Both distinctions have
+  targeted executable regressions;
+- Shift iterates matching occupied vehicles and selects their eligible passengers;
+- right click uses `004deb40(kind,model)`, independent per-kind/model memory and
+  list cycling. It opens/focuses the vehicle, preserving passenger and vehicle bytes.
+  The initial lookup uses the same nearest helper with its focus inclusion mode.
+
+Vehicle refresh `004a14e0` shows a row only when tribe+`0x941` has vehicle-presence
+bit `0x100` (Boat) / `0x200` (Balloon). This can be set by an empty owned vehicle;
+it is not a knowledge-unlock or occupied-count gate. Total remains enabled;
+class cells use live global class existence, not count of class-containing vehicles.
+144 refresh cases, 48 left producer cases, two mixed full count rebuilds, eight
+focus cycles, six full passenger-propagating commands and six search-priority cases
+bound this transport evidence. Broader vehicle gameplay/ownership transitions are
+not established by these crafted cases.
 
 ## Reproduction and acceptance
 
@@ -163,14 +217,16 @@ Passed: 36 descriptors/root; 1,152 left callback/producer cases; 48 right callba
 cases; 80 class-refresh cases; 194 native classifier cases; 36 complete task commands;
 184 full native count rebuilds; 16 complete category focus cycles; 31 additional
 Shaman/mixed-category/nearby-cycle cases with exact flags3 masks; four 36-cell
-normal/pressed × global/nearby native renderer captures. The raster probe intercepts
+normal/pressed × global/nearby native renderer captures; six disabled draw-contract
+cases; two complete native constructions plus two reuse/refresh transitions; and
+the bounded transport cases above. The raster probe intercepts
 coordinate adapters, CRT formatting, bank lookup and final raster queues. It executes
 native frame/icon/font-placement routines. Only enabled pixels are reconstructed;
 disabled diffuse is asserted absent rather than approximated.
 
 No runtime source changes means browser checks, app typecheck/build and hardware
 performance are not evidence for this research change and have not been run.
-Original-game runtime screenshots, generic panel construction/state transitions,
-complete transport command/focus behavior, disabled lower-cell raster, live browser
-classification adapters and playable UI integration remain open. Those limits block
+Original-game runtime screenshots, full tab/input-loop and painter-order behavior,
+all transport gameplay/ownership transitions, disabled lower-cell blend raster, live
+browser classification adapters and playable UI integration remain open. Those limits block
 production/parity claims, not the scoped recovered evidence above.

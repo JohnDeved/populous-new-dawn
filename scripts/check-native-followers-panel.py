@@ -340,15 +340,178 @@ for category, state, other in ((1, 19, 19), (2, 19, 20), (3, 21, 19), (4, 20, 19
         edge_cases += 1
 print(f'PASS: {edge_cases} Total/Shaman, nearby-cycle and mixed-category edge cases; exact flags3 masks in 36 commands')
 
+# Vehicle refresh uses presence of a vehicle kind, not training knowledge.
+refresh_count=0
+for d in descriptors[24:]:
+ for flags in (0,0x100,0x200,0x300):
+  for count in (0,1,9):
+   cpu.mem_write(tribe,bytes(4*0xc65));cpu.mem_write(button,bytes(128))
+   write(button+99,'I',d['key']);write(button+0x5f,'I',d['tooltipId'])
+   write(tribe+0x941,'I',flags);write(0x89dbef+d['model']*2,'h',count)
+   call(0x4a14e0,button)
+   assert read(button+0x10,'I')==int(bool(flags & (0x100 if d['row']==4 else 0x200)))
+   assert read(button+8,'I')==int(d['model']==0 or count!=0)
+   assert read(button+0x57,'H')==(d['tooltipId'] if d['model']==0 or count>0 else 0)
+   refresh_count+=1
+print('PASS:',refresh_count,'vehicle refresh cases')
+# Complete vehicle left callback and producer, preserving all inherited gates.
+for d in descriptors[24:]:
+ for shift in (False,True):
+  for ctrl in (False,True):
+   cpu.mem_write(tribe,bytes(4*0xc65));cpu.mem_write(0x984591,bytes(512))
+   write(button+99,'I',d['key']);write(0x9845bb,'B',shift);write(0x9845ae,'B',ctrl)
+   write(0x89d17c,'I',0);write(0x89c6c1,'H',0);write(0x89ce36,'B',0);write(0x89c6e7,'B',0)
+   write(tribe+0x24,'HH',65535,511);observed.clear();call(0x4a13c0,button)
+   kind=1 if d['row']==4 else 3;tag=0x7f if shift else 0x80 if ctrl else 0x81
+   assert observed[0x479cf0]==[[0,tag,(kind<<16)|d['model'],0xfe]]
+print('PASS: 48 complete vehicle left callback/producer cases')
+
+# Native full count owner, with duplicate same-class passengers in a vehicle.
+def install_transport(vehicles,nearby=False):
+ roster=[]
+ for v in vehicles:
+  roster.extend(dict(model=m) for m in v['passengers'])
+ install(roster,nearby)
+ all_count=len(roster)+len(vehicles)
+ for i in range(all_count):
+  p=people+i*256;write(p+4,'I',p+256 if i+1<all_count else 0)
+  write(p+0x24,'H',i+1);write(0x890390+(i+1)*4,'I',p)
+ passenger=1
+ for i,v in enumerate(vehicles):
+  p=people+(len(roster)+i)*256
+  write(p+0x2a,'BB',4,v['model']);write(p+0x10,'I',0x20000000)
+  write(p+0x2f,'B',v.get('owner',0));write(p+0xa1,'B',v.get('owner',0))
+  write(p+0x3d,'HH',v.get('x',256+100*i),256)
+  write(p+0x9e,'B',len(v['passengers']))
+  for n,m in enumerate(v['passengers']):
+   write(p+0x7a+n*2,'H',passenger);write(people+(passenger-1)*256+0x9f,'H',len(roster)+i+1);passenger+=1
+ write(0x890324,'I',people if all_count else 0);write(0x890330,'I',0)
+ write(0x89d17c,'I',32);write(0x89d188,'I',1);call(0x4ecac0);write(0x89d17c,'I',0)
+ return len(roster),all_count
+vehicles=[dict(model=1,passengers=[2,2,3]),dict(model=2,passengers=[6,4],x=6400),
+ dict(model=1,passengers=[]),dict(model=3,passengers=[5,5]),dict(model=4,passengers=[2,3],x=6400),
+ dict(model=3,passengers=[]),dict(model=1,passengers=[2],owner=1),dict(model=3,passengers=[2],owner=1)]
+for nearby in (False,True):
+ install_transport(vehicles,nearby)
+ for kind,base,near in ((1,0x89dd9f,0x89ddb1),(3,0x89ddc3,0x89ddd5)):
+  matching=[v for v in vehicles if v['model'] in (kind,kind+1) and v.get('owner',0)==0 and v['passengers']]
+  for model in (0,2,3,4,5,6,7):
+   assert read(base+model*2,'h')==sum(not model or model in v['passengers'] for v in matching)
+   assert read(near+model*2,'h')==(sum((not model or model in v['passengers']) and v.get('x',256)<6400 for v in matching) if nearby else 0)
+print('PASS: mixed occupied/empty/friendly/enemy transport count rebuilds; duplicate passenger classes count once')
+
+# Full focus owner can target vehicles with selected occupants and cycles per kind/class.
+for kind in (1,3):
+ v=[dict(model=kind,passengers=[2]),dict(model=kind+1,passengers=[2]),dict(model=kind,passengers=[2])]
+ people_count,all_count=install_transport(v)
+ memory=0x899f67 if kind==1 else 0x899f79
+ write(memory+2*2,'H',0)
+ before=bytes(cpu.mem_read(people,all_count*256))
+ ids=[]
+ for _ in range(4):
+  observed.clear();call(0x4deb40,kind,2);ids.append(read(memory+4,'H'))
+  if ids[-1]:
+   assert observed[0x504590]==[[people+(ids[-1]-1)*256,0]]
+   assert observed[0x417ca0][0][0]==people+(ids[-1]-1)*256+0x3d
+  assert bytes(cpu.mem_read(people,all_count*256))==before
+ assert ids==[4,6,5,4],ids # rebuild prepends vehicles to list; nearest first, then wrap
+print('PASS: 8 complete occupied-vehicle focus cycles; no person/vehicle changes')
+# Native selection marks all passengers of the matching vehicle, including other models.
+for kind in (1,3):
+ for tag in (0x81,0x80,0x7f):
+  v=[dict(model=kind,passengers=[2,3]),dict(model=kind,passengers=[2]),dict(model=kind,passengers=[3])]
+  people_count,all_count=install_transport(v)
+  write(command+4,'IIB',(kind<<16)|2,0,tag)
+  call(0x43e8e0,tribe,command)
+  selected=[i+1 for i in range(people_count) if read(people+i*256+0x7a,'B')&128]
+  assert selected==([1,2] if tag==0x81 else [1,2,3]),(kind,tag,selected)
+print('PASS: 6 complete vehicle selection commands and passenger-class propagation')
+
+
+# Vehicle nearest search first prefers an idle first passenger, then falls back.
+# The final nearest metric uses the matching passenger's position, not vehicle pos.
+vehicle_search_cases = 0
+for kind in (1, 3):
+    vehicles = [dict(model=kind, passengers=[2]), dict(model=kind, passengers=[2])]
+    install_transport(vehicles)
+    write(people + 0xa7, 'B', 1)
+    assert call(0x4514f0, 0, kind, 2, tribe + 0x24, 0) == people + 3 * 256
+    write(people + 256 + 0xa7, 'B', 1)
+    assert call(0x4514f0, 0, kind, 2, tribe + 0x24, 0) == people + 2 * 256
+    install_transport(vehicles)
+    write(people + 0x3d, 'H', 3000)
+    write(people + 256 + 0x3d, 'H', 256)
+    write(people + 2 * 256 + 0x3d, 'H', 256)
+    write(people + 3 * 256 + 0x3d, 'H', 3000)
+    assert call(0x4514f0, 0, kind, 2, tribe + 0x24, 0) == people + 3 * 256
+    vehicle_search_cases += 3
+print(f'PASS: {vehicle_search_cases} native vehicle search priority/passenger-distance cases')
+
+# Execute the original constructor and refresh chain, including child allocation.
+# Both native display modes use the same Followers child descriptor array.
+constructor_cases = []
+for display_mode in (0, 8):
+    cpu.mem_write(0x684210, bytes(0x9000))
+    cpu.mem_write(tribe, bytes(4 * 0xc65))
+    write(0x684210, 'I', 1)
+    write(0x89c661, 'I', display_mode)
+    write(0x89c6cf, 'HH', 640, 480)
+    write(0x68450c, 'ii', 300, 300)
+    write(0x89dbef + 2 * 2, 'h', 3)
+    write(tribe + 0x941, 'I', 0x300)
+    root_slot = call(0x44c650, 4) & 0xffff
+    assert root_slot == 1
+    root_control = 0x68425e + root_slot * 0x3e
+    assert struct.unpack('<4i', cpu.mem_read(root_control + 0xe, 16)) == (
+        0, 204 * 65536 // 480, 100 * 65536 // 640, 277 * 65536 // 480)
+    indices = []
+    child = read(root_control + 0x3c, 'H')
+    realized = []
+    while child:
+        indices.append(child)
+        control = 0x68452c + child * 0x71
+        descriptor = descriptors[child - 1]
+        x, y, width, height = descriptor['rectangle']
+        x_fixed = x * 65536 // 640
+        y_fixed = 204 * 65536 // 480 + y * 65536 // 480
+        assert read(control + 0x37, 'I') == x_fixed
+        assert read(control + 0x3b, 'I') == y_fixed
+        assert read(control + 0x47, 'I') == width * 65536 // 640
+        assert read(control + 0x4b, 'I') == height * 65536 // 480
+        assert read(control + 99, 'I') == descriptor['key']
+        assert read(control + 0x53, 'I') == int(descriptor['renderer'], 16)
+        assert read(control + 0x10, 'I') == 1
+        assert read(control + 8, 'I') == int(descriptor['model'] in (0, 2))
+        realized.append(dict(descriptor=descriptor['address'], x=call(0x44a1f0, x_fixed),
+                             y=call(0x44a210, y_fixed)))
+        child = read(control + 0x6d, 'H')
+    assert indices == list(range(36, 0, -1))
+    # Reopen/refresh reuses the existing controls, disabling empty Brave task cells
+    # and hiding transport rows when the native vehicle-presence flags disappear.
+    write(0x89dbef + 2 * 2, 'h', 0)
+    write(tribe + 0x941, 'I', 0)
+    assert call(0x44c650, 4) & 0xffff == root_slot
+    assert read(root_control + 0x3c, 'H') == 36
+    for child in indices:
+        control = 0x68452c + child * 0x71
+        descriptor = descriptors[child - 1]
+        assert read(control + 0x10, 'I') == int(descriptor['row'] < 4)
+        assert read(control + 8, 'I') == int(descriptor['model'] == 0)
+    constructor_cases.append(dict(displayMode=display_mode, realized640x480=realized))
+print('PASS: two unhooked 36-child constructions and two reuse/refresh transitions; real fixed-point converters')
+
 receipt = dict(executable=identity, probeSha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
     languageSha256=hashlib.sha256(lang_raw).hexdigest(), descriptors=descriptors,
     stateCategories=state_categories, commandCategories=command_categories,
     checks=dict(callbacks=callback_cases, refresh=refresh_cases, classifications=classification_cases,
-                commands=len(selection_cases), rebuilds=rebuild_cases, focus=focus_cases, edges=edge_cases),
+                commands=len(selection_cases), rebuilds=rebuild_cases, focus=focus_cases, edges=edge_cases, vehicleRefresh=refresh_count,
+                vehicleCallbacks=48, vehicleRebuilds=2, vehicleFocus=8, vehicleCommands=6,
+                vehicleSearch=vehicle_search_cases, constructor=4),
+    constructorCases=constructor_cases,
     selectedRowCommands=[case for case in selection_cases if case['category'] == 1],
     limits=['No production implementation or parity claim.',
             'Crafted native states establish arithmetic and predicates, not reachability of every state combination.',
-            'Vehicle descriptors recovered; complete vehicle selection/counter semantics are not exercised by this probe.',
+            'Transport probes cover bounded native count/focus/selection cases, not all vehicle gameplay.',
             'Rendered pixels are handled by the separate bounded raster probe.'])
 if args.output:
     args.output.mkdir(parents=True, exist_ok=True)
