@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "5baf3b78-384e-4055-be3c-af8275a74c2c",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "422b0165da1a454324620b7e8200be5ce34ba346",
+    "branch": "recovery/minimap-frame-20261004",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "work/orchestration/minimap-frame/browser-integrated/existing-minimap-browser.json": "ea8b95dd30416367bd0ef12b4ddd451bc6826df619571129e1fc7b431a66af49"
+    }
+  },
+  "command": [
+    "python",
+    "scripts/check-native-minimap.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+    "--browser",
+    "work/orchestration/minimap-frame/browser-integrated/existing-minimap-browser.json"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T07:22:43.397Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/minimap-frame/native-map-integrated.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/minimap-frame/native-map-integrated.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T07:22:47.333Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "PASS: 64 complete native terrain/camera-wrap/quad paths; 1,816,872 indexed pixels, padding and 256 rotated UV vertices\nPASS: 64 complete native mixed-object marker controllers and circle selectors; visibility/fog, inherited sizes, all tribe colors, scale shifts and blinking discoveries\nPASS: 24 live-browser terrain RGBA hashes and Canvas transforms match complete native routines; wrapped RGBA matches original buffers at legacy sizes and dense-row compatibility beyond 256×256\n",
+  "stderr": "",
+  "stdoutSha256": "270e47c814d0d86ed095a514d51be66b5a9fa333f643a28bbf785bcb66b3585a",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "422b0165da1a454324620b7e8200be5ce34ba346",
+    "branch": "recovery/minimap-frame-20261004",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "work/orchestration/minimap-frame/browser-integrated/existing-minimap-browser.json": "ea8b95dd30416367bd0ef12b4ddd451bc6826df619571129e1fc7b431a66af49"
+    }
+  }
+}

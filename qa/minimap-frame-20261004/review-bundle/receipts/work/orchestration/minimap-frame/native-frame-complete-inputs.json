@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "dd53ba03-54dd-4484-86e4-7c4de9246442",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "422b0165da1a454324620b7e8200be5ce34ba346",
+    "branch": "recovery/minimap-frame-20261004",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+      "work/orchestration/minimap-frame/browser-integrated/frame-pixels.json": "6dfafc170a024d40c85263750dcd21d805c411b0b28f51088606657f76161464",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-640-frame.png": "d5409199630f4043d9850ce145b4d69893bd2534959688ab12dc5cdd6a0aab08",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-1280-frame.png": "479d6c7d2bf0247a28fadea1cb8e9058439d1e533726355332829c3cd5fb1520",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-1440-frame.png": "6f7fa6ec75e6ff7e22c80f9f27ecbe5cf53289ff979be5dddb7abf48b1e76972",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-3840-frame.png": "535c16f99281d5041e1ceb08e6d7e89c67c6a27e047fdc08efa7311adefb3c19",
+      "work/orchestration/minimap-frame/browser-integrated/dpr-2-frame.png": "3e16c9106a3addcecf88e3e9143cf2ac493d0701b86242e68caeb7a5a2dc5cab",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-640-terrain.png": "c23815c287f0b6de369ec48693e07a228429e1c62809894990667f770b634258",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-1280-terrain.png": "3651019abf601e1eab907aed7a8830d197eaa5ed96ea1f62e07f93a9042b7b5b",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-1440-terrain.png": "55b96c364df9bd3eea85fb67d6d73c7c5c96c9f5e9ed0cbee8f22d559651df27",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-3840-terrain.png": "d416cd6452d413224bbd459853e451aed16a1244cc2595cfb44e6bcc81b49195",
+      "work/orchestration/minimap-frame/browser-integrated/dpr-2-terrain.png": "3f10b43eb5c905d859e892b30ef2fbc96743e57002d55d3efd5700c19d182076"
+    }
+  },
+  "command": [
+    "python",
+    "scripts/check-native-minimap-frame.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+    "--browser",
+    "work/orchestration/minimap-frame/browser-integrated/frame-pixels.json"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T07:17:56.321Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/minimap-frame/native-frame-complete-inputs.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/minimap-frame/native-frame-complete-inputs.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T07:17:57.239Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Native 512x480: frame 80x96, 6 submissions, first sprite 696\nNative 513x480: frame 80x96, 4 submissions, first sprite 690\nNative 640x480: frame 100x96, 4 submissions, first sprite 690\nNative 1280x720: frame 200x144, 8 submissions, first sprite 694\nNative 1440x1000: frame 225x200, 8 submissions, first sprite 694\nNative 3840x2160: frame 600x432, 8 submissions, first sprite 694\nPASS: 13 original frame call lists; exact two descriptors and all 12 imported sprites; no center fill; native 512/513 boundary; independent native and uniform modern rectangles\nPASS: 11 shipped-browser frame RGBA hashes match native submissions; exposed composed frame and terrain-hole screenshot pixels match at integer CSS sizes\n",
+  "stderr": "",
+  "stdoutSha256": "65cefe7d36bd31a018d3ddbc427d9ab86006e91d47282f30a5467cf923af497a",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "422b0165da1a454324620b7e8200be5ce34ba346",
+    "branch": "recovery/minimap-frame-20261004",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+      "work/orchestration/minimap-frame/browser-integrated/frame-pixels.json": "6dfafc170a024d40c85263750dcd21d805c411b0b28f51088606657f76161464",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-640-frame.png": "d5409199630f4043d9850ce145b4d69893bd2534959688ab12dc5cdd6a0aab08",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-1280-frame.png": "479d6c7d2bf0247a28fadea1cb8e9058439d1e533726355332829c3cd5fb1520",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-1440-frame.png": "6f7fa6ec75e6ff7e22c80f9f27ecbe5cf53289ff979be5dddb7abf48b1e76972",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-3840-frame.png": "535c16f99281d5041e1ceb08e6d7e89c67c6a27e047fdc08efa7311adefb3c19",
+      "work/orchestration/minimap-frame/browser-integrated/dpr-2-frame.png": "3e16c9106a3addcecf88e3e9143cf2ac493d0701b86242e68caeb7a5a2dc5cab",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-640-terrain.png": "c23815c287f0b6de369ec48693e07a228429e1c62809894990667f770b634258",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-1280-terrain.png": "3651019abf601e1eab907aed7a8830d197eaa5ed96ea1f62e07f93a9042b7b5b",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-1440-terrain.png": "55b96c364df9bd3eea85fb67d6d73c7c5c96c9f5e9ed0cbee8f22d559651df27",
+      "work/orchestration/minimap-frame/browser-integrated/viewport-3840-terrain.png": "d416cd6452d413224bbd459853e451aed16a1244cc2595cfb44e6bcc81b49195",
+      "work/orchestration/minimap-frame/browser-integrated/dpr-2-terrain.png": "3f10b43eb5c905d859e892b30ef2fbc96743e57002d55d3efd5700c19d182076"
+    }
+  }
+}

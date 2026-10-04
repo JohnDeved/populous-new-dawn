@@ -1,0 +1,762 @@
+{
+  "startedAt": "2026-10-04T07:20:39.658Z",
+  "source": {
+    "root": "<SOURCE_ROOT>",
+    "commit": "422b0165da1a454324620b7e8200be5ce34ba346",
+    "tree": "8815b79497f6ce31cd80ca119502cbf85a8b7cd3",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "2c3035170d06bea13add93b856d536e905d13d24aec57edc9d527b71749b9dc2"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x299c001d2000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x299c001d2000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x299c001d2000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x299c001d2000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+    "Canvas2D: Multiple readback operations using getImageData are faster with the willReadFrequently attribute set to true. See: https://html.spec.whatwg.org/multipage/canvas.html#concept-canvas-will-read-frequently"
+  ],
+  "status": "passed",
+  "browserVersion": "154.0.8037.92",
+  "result": {
+    "candidate": true,
+    "rect": {
+      "x": 0,
+      "y": 0,
+      "width": 200,
+      "height": 192
+    },
+    "cases": [
+      {
+        "name": "newly-visible-terrain",
+        "heading": 0,
+        "seam": false,
+        "x": 4,
+        "y": 50,
+        "hitCanvas": true,
+        "before": {
+          "x": 0,
+          "y": 0,
+          "angle": 0
+        },
+        "after": {
+          "x": 41654,
+          "y": 2927,
+          "angle": 0
+        },
+        "expected": {
+          "x": 41654,
+          "y": 2927
+        }
+      },
+      {
+        "name": "opaque-corner",
+        "heading": 0,
+        "seam": false,
+        "x": 1,
+        "y": 1,
+        "hitCanvas": true,
+        "before": {
+          "x": 41654,
+          "y": 2927,
+          "angle": 0
+        },
+        "after": {
+          "x": 40876,
+          "y": 16868,
+          "angle": 0
+        },
+        "expected": {
+          "x": 40876,
+          "y": 16868
+        }
+      },
+      {
+        "name": "outside-right",
+        "heading": 0,
+        "seam": false,
+        "x": 202,
+        "y": 50,
+        "hitCanvas": false,
+        "before": {
+          "x": 40876,
+          "y": 16868,
+          "angle": 0
+        },
+        "after": {
+          "x": 40876,
+          "y": 16868,
+          "angle": 0
+        },
+        "expected": {
+          "x": 30184,
+          "y": 2755
+        }
+      },
+      {
+        "name": "outside-bottom",
+        "heading": 0,
+        "seam": false,
+        "x": 198,
+        "y": 194,
+        "hitCanvas": false,
+        "before": {
+          "x": 40876,
+          "y": 16868,
+          "angle": 0
+        },
+        "after": {
+          "x": 40876,
+          "y": 16868,
+          "angle": 0
+        },
+        "expected": {
+          "x": 28971,
+          "y": 27335
+        }
+      },
+      {
+        "name": "newly-visible-terrain",
+        "heading": 512,
+        "seam": false,
+        "x": 4,
+        "y": 50,
+        "hitCanvas": true,
+        "before": {
+          "x": 40876,
+          "y": 16868,
+          "angle": 0
+        },
+        "after": {
+          "x": 14935,
+          "y": 17026,
+          "angle": 512
+        },
+        "expected": {
+          "x": 14935,
+          "y": 17026
+        }
+      },
+      {
+        "name": "opaque-corner",
+        "heading": 512,
+        "seam": false,
+        "x": 1,
+        "y": 1,
+        "hitCanvas": true,
+        "before": {
+          "x": 14935,
+          "y": 17026,
+          "angle": 512
+        },
+        "after": {
+          "x": 28317,
+          "y": 17836,
+          "angle": 512
+        },
+        "expected": {
+          "x": 28317,
+          "y": 17836
+        }
+      },
+      {
+        "name": "outside-right",
+        "heading": 512,
+        "seam": false,
+        "x": 202,
+        "y": 50,
+        "hitCanvas": false,
+        "before": {
+          "x": 28317,
+          "y": 17836,
+          "angle": 512
+        },
+        "after": {
+          "x": 28317,
+          "y": 17836,
+          "angle": 512
+        },
+        "expected": {
+          "x": 14769,
+          "y": 26242
+        }
+      },
+      {
+        "name": "outside-bottom",
+        "heading": 512,
+        "seam": false,
+        "x": 198,
+        "y": 194,
+        "hitCanvas": false,
+        "before": {
+          "x": 28317,
+          "y": 17836,
+          "angle": 512
+        },
+        "after": {
+          "x": 28317,
+          "y": 17836,
+          "angle": 512
+        },
+        "expected": {
+          "x": 40987,
+          "y": 27506
+        }
+      },
+      {
+        "name": "newly-visible-terrain",
+        "heading": 1024,
+        "seam": false,
+        "x": 4,
+        "y": 50,
+        "hitCanvas": true,
+        "before": {
+          "x": 28317,
+          "y": 17836,
+          "angle": 512
+        },
+        "after": {
+          "x": 28469,
+          "y": 42128,
+          "angle": 1024
+        },
+        "expected": {
+          "x": 28469,
+          "y": 42128
+        }
+      },
+      {
+        "name": "opaque-corner",
+        "heading": 1024,
+        "seam": false,
+        "x": 1,
+        "y": 1,
+        "hitCanvas": true,
+        "before": {
+          "x": 28469,
+          "y": 42128,
+          "angle": 1024
+        },
+        "after": {
+          "x": 29247,
+          "y": 28187,
+          "angle": 1024
+        },
+        "expected": {
+          "x": 29247,
+          "y": 28187
+        }
+      },
+      {
+        "name": "outside-right",
+        "heading": 1024,
+        "seam": false,
+        "x": 202,
+        "y": 50,
+        "hitCanvas": false,
+        "before": {
+          "x": 29247,
+          "y": 28187,
+          "angle": 1024
+        },
+        "after": {
+          "x": 29247,
+          "y": 28187,
+          "angle": 1024
+        },
+        "expected": {
+          "x": 39938,
+          "y": 42300
+        }
+      },
+      {
+        "name": "outside-bottom",
+        "heading": 1024,
+        "seam": false,
+        "x": 198,
+        "y": 194,
+        "hitCanvas": false,
+        "before": {
+          "x": 29247,
+          "y": 28187,
+          "angle": 1024
+        },
+        "after": {
+          "x": 29247,
+          "y": 28187,
+          "angle": 1024
+        },
+        "expected": {
+          "x": 41151,
+          "y": 17720
+        }
+      },
+      {
+        "name": "newly-visible-terrain",
+        "heading": 1536,
+        "seam": false,
+        "x": 4,
+        "y": 50,
+        "hitCanvas": true,
+        "before": {
+          "x": 29247,
+          "y": 28187,
+          "angle": 1024
+        },
+        "after": {
+          "x": 55188,
+          "y": 28029,
+          "angle": 1536
+        },
+        "expected": {
+          "x": 55188,
+          "y": 28029
+        }
+      },
+      {
+        "name": "opaque-corner",
+        "heading": 1536,
+        "seam": false,
+        "x": 1,
+        "y": 1,
+        "hitCanvas": true,
+        "before": {
+          "x": 55188,
+          "y": 28029,
+          "angle": 1536
+        },
+        "after": {
+          "x": 41805,
+          "y": 27219,
+          "angle": 1536
+        },
+        "expected": {
+          "x": 41805,
+          "y": 27219
+        }
+      },
+      {
+        "name": "outside-right",
+        "heading": 1536,
+        "seam": false,
+        "x": 202,
+        "y": 50,
+        "hitCanvas": false,
+        "before": {
+          "x": 41805,
+          "y": 27219,
+          "angle": 1536
+        },
+        "after": {
+          "x": 41805,
+          "y": 27219,
+          "angle": 1536
+        },
+        "expected": {
+          "x": 55354,
+          "y": 18813
+        }
+      },
+      {
+        "name": "outside-bottom",
+        "heading": 1536,
+        "seam": false,
+        "x": 198,
+        "y": 194,
+        "hitCanvas": false,
+        "before": {
+          "x": 41805,
+          "y": 27219,
+          "angle": 1536
+        },
+        "after": {
+          "x": 41805,
+          "y": 27219,
+          "angle": 1536
+        },
+        "expected": {
+          "x": 29135,
+          "y": 17549
+        }
+      },
+      {
+        "name": "newly-visible-terrain",
+        "heading": 0,
+        "seam": true,
+        "x": 4,
+        "y": 50,
+        "hitCanvas": true,
+        "before": {
+          "x": 41805,
+          "y": 27219,
+          "angle": 1536
+        },
+        "after": {
+          "x": 7903,
+          "y": 42863,
+          "angle": 0
+        },
+        "expected": {
+          "x": 7903,
+          "y": 42863
+        }
+      },
+      {
+        "name": "opaque-corner",
+        "heading": 0,
+        "seam": true,
+        "x": 1,
+        "y": 1,
+        "hitCanvas": true,
+        "before": {
+          "x": 7903,
+          "y": 42863,
+          "angle": 0
+        },
+        "after": {
+          "x": 7125,
+          "y": 56804,
+          "angle": 0
+        },
+        "expected": {
+          "x": 7125,
+          "y": 56804
+        }
+      },
+      {
+        "name": "outside-right",
+        "heading": 0,
+        "seam": true,
+        "x": 202,
+        "y": 50,
+        "hitCanvas": false,
+        "before": {
+          "x": 7125,
+          "y": 56804,
+          "angle": 0
+        },
+        "after": {
+          "x": 7125,
+          "y": 56804,
+          "angle": 0
+        },
+        "expected": {
+          "x": 61969,
+          "y": 42691
+        }
+      },
+      {
+        "name": "outside-bottom",
+        "heading": 0,
+        "seam": true,
+        "x": 198,
+        "y": 194,
+        "hitCanvas": false,
+        "before": {
+          "x": 7125,
+          "y": 56804,
+          "angle": 0
+        },
+        "after": {
+          "x": 7125,
+          "y": 56804,
+          "angle": 0
+        },
+        "expected": {
+          "x": 60756,
+          "y": 1735
+        }
+      },
+      {
+        "name": "newly-visible-terrain",
+        "heading": 512,
+        "seam": true,
+        "x": 4,
+        "y": 50,
+        "hitCanvas": true,
+        "before": {
+          "x": 7125,
+          "y": 56804,
+          "angle": 0
+        },
+        "after": {
+          "x": 46719,
+          "y": 56962,
+          "angle": 512
+        },
+        "expected": {
+          "x": 46719,
+          "y": 56962
+        }
+      },
+      {
+        "name": "opaque-corner",
+        "heading": 512,
+        "seam": true,
+        "x": 1,
+        "y": 1,
+        "hitCanvas": true,
+        "before": {
+          "x": 46719,
+          "y": 56962,
+          "angle": 512
+        },
+        "after": {
+          "x": 60102,
+          "y": 57772,
+          "angle": 512
+        },
+        "expected": {
+          "x": 60102,
+          "y": 57772
+        }
+      },
+      {
+        "name": "outside-right",
+        "heading": 512,
+        "seam": true,
+        "x": 202,
+        "y": 50,
+        "hitCanvas": false,
+        "before": {
+          "x": 60102,
+          "y": 57772,
+          "angle": 512
+        },
+        "after": {
+          "x": 60102,
+          "y": 57772,
+          "angle": 512
+        },
+        "expected": {
+          "x": 46554,
+          "y": 642
+        }
+      },
+      {
+        "name": "outside-bottom",
+        "heading": 512,
+        "seam": true,
+        "x": 198,
+        "y": 194,
+        "hitCanvas": false,
+        "before": {
+          "x": 60102,
+          "y": 57772,
+          "angle": 512
+        },
+        "after": {
+          "x": 60102,
+          "y": 57772,
+          "angle": 512
+        },
+        "expected": {
+          "x": 7236,
+          "y": 1906
+        }
+      },
+      {
+        "name": "newly-visible-terrain",
+        "heading": 1024,
+        "seam": true,
+        "x": 4,
+        "y": 50,
+        "hitCanvas": true,
+        "before": {
+          "x": 60102,
+          "y": 57772,
+          "angle": 512
+        },
+        "after": {
+          "x": 60254,
+          "y": 16528,
+          "angle": 1024
+        },
+        "expected": {
+          "x": 60254,
+          "y": 16528
+        }
+      },
+      {
+        "name": "opaque-corner",
+        "heading": 1024,
+        "seam": true,
+        "x": 1,
+        "y": 1,
+        "hitCanvas": true,
+        "before": {
+          "x": 60254,
+          "y": 16528,
+          "angle": 1024
+        },
+        "after": {
+          "x": 61032,
+          "y": 2587,
+          "angle": 1024
+        },
+        "expected": {
+          "x": 61032,
+          "y": 2587
+        }
+      },
+      {
+        "name": "outside-right",
+        "heading": 1024,
+        "seam": true,
+        "x": 202,
+        "y": 50,
+        "hitCanvas": false,
+        "before": {
+          "x": 61032,
+          "y": 2587,
+          "angle": 1024
+        },
+        "after": {
+          "x": 61032,
+          "y": 2587,
+          "angle": 1024
+        },
+        "expected": {
+          "x": 6187,
+          "y": 16700
+        }
+      },
+      {
+        "name": "outside-bottom",
+        "heading": 1024,
+        "seam": true,
+        "x": 198,
+        "y": 194,
+        "hitCanvas": false,
+        "before": {
+          "x": 61032,
+          "y": 2587,
+          "angle": 1024
+        },
+        "after": {
+          "x": 61032,
+          "y": 2587,
+          "angle": 1024
+        },
+        "expected": {
+          "x": 7400,
+          "y": 57656
+        }
+      },
+      {
+        "name": "newly-visible-terrain",
+        "heading": 1536,
+        "seam": true,
+        "x": 4,
+        "y": 50,
+        "hitCanvas": true,
+        "before": {
+          "x": 61032,
+          "y": 2587,
+          "angle": 1024
+        },
+        "after": {
+          "x": 21437,
+          "y": 2429,
+          "angle": 1536
+        },
+        "expected": {
+          "x": 21437,
+          "y": 2429
+        }
+      },
+      {
+        "name": "opaque-corner",
+        "heading": 1536,
+        "seam": true,
+        "x": 1,
+        "y": 1,
+        "hitCanvas": true,
+        "before": {
+          "x": 21437,
+          "y": 2429,
+          "angle": 1536
+        },
+        "after": {
+          "x": 8054,
+          "y": 1619,
+          "angle": 1536
+        },
+        "expected": {
+          "x": 8054,
+          "y": 1619
+        }
+      },
+      {
+        "name": "outside-right",
+        "heading": 1536,
+        "seam": true,
+        "x": 202,
+        "y": 50,
+        "hitCanvas": false,
+        "before": {
+          "x": 8054,
+          "y": 1619,
+          "angle": 1536
+        },
+        "after": {
+          "x": 8054,
+          "y": 1619,
+          "angle": 1536
+        },
+        "expected": {
+          "x": 21603,
+          "y": 58749
+        }
+      },
+      {
+        "name": "outside-bottom",
+        "heading": 1536,
+        "seam": true,
+        "x": 198,
+        "y": 194,
+        "hitCanvas": false,
+        "before": {
+          "x": 8054,
+          "y": 1619,
+          "angle": 1536
+        },
+        "after": {
+          "x": 8054,
+          "y": 1619,
+          "angle": 1536
+        },
+        "expected": {
+          "x": 60920,
+          "y": 57485
+        }
+      }
+    ],
+    "scope": "Camera is fixed for each probe. Tests real DOM hit ownership and pointerdown, with unchanged map coordinate transforms. Rectangular corner reach is an intentional browser compatibility correction; native hit-region parity is unproved."
+  },
+  "finishedAt": "2026-10-04T07:21:11.454Z",
+  "sourceAfter": {
+    "root": "<SOURCE_ROOT>",
+    "commit": "422b0165da1a454324620b7e8200be5ce34ba346",
+    "tree": "8815b79497f6ce31cd80ca119502cbf85a8b7cd3",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "2c3035170d06bea13add93b856d536e905d13d24aec57edc9d527b71749b9dc2"
+  }
+}

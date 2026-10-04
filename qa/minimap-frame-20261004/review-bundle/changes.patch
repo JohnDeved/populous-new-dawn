@@ -1,0 +1,932 @@
+diff --git a/app/globals.css b/app/globals.css
+index ea98613..4ef9281 100644
+--- a/app/globals.css
++++ b/app/globals.css
+@@ -18,9 +18,9 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
+ .person-panel.worship-panel{pointer-events:auto}
+ .person-panel button{position:absolute;padding:0;border:0;background:transparent;pointer-events:auto}
+ .spell-pointer{position:absolute;pointer-events:none;z-index:6}.spell-pointer .hud-sprite{position:absolute}.spell-pointer [hidden]{display:none}
+-.minimap-wrap{position:absolute;left:0;top:0;width:100px;height:99px;overflow:hidden;background:#142d38}
+-.minimap-wrap canvas{position:absolute;inset:0;width:100%;height:96px;cursor:crosshair;border-radius:50%}
+-.map-frame{position:absolute;inset:0;width:100px;height:99px;pointer-events:none}
++.minimap-wrap{position:absolute;left:0;top:0;width:100px;height:96px;overflow:hidden;background:#142d38}
++.minimap-wrap>canvas:not(.map-frame){position:absolute;inset:0;width:100%;height:96px;cursor:crosshair}
++.minimap-wrap>.map-frame{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+ .dock-tabs{position:absolute;left:3px;top:85px;display:flex;gap:0;z-index:2}
+ .dock-tabs button{width:31px;height:27px;display:grid;place-content:center;border:8px solid transparent;border-image:url('/original/hud-tab.png') 8 10 fill repeat;padding:0}
+ .dock-tabs button.active{border-image-source:url('/original/hud-tab-active.png')}
+diff --git a/app/minimap-frame-view.tsx b/app/minimap-frame-view.tsx
+new file mode 100644
+index 0000000..8fa4959
+--- /dev/null
++++ b/app/minimap-frame-view.tsx
+@@ -0,0 +1,37 @@
++'use client'
++
++import { useEffect, useRef } from 'react'
++import { drawMinimapFrame } from './minimap-frame'
++
++export function MinimapFrame() {
++  const canvas = useRef<HTMLCanvasElement>(null)
++  useEffect(() => {
++    const frame = canvas.current!
++    const context = frame.getContext('2d')!
++    const atlas = new Image()
++    let pending = 0
++    const draw = () => {
++      pending = 0
++      if (!atlas.complete || !atlas.naturalWidth) return
++      const bounds = frame.getBoundingClientRect()
++      frame.width = Math.max(1, Math.round(bounds.width))
++      frame.height = Math.max(1, Math.round(bounds.height))
++      drawMinimapFrame(context, atlas, frame.width, frame.height, window.innerWidth)
++    }
++    // The parent applies the saved HUD size in the same resize event. Draw afterward.
++    const resize = () => {
++      cancelAnimationFrame(pending)
++      pending = requestAnimationFrame(draw)
++    }
++    atlas.addEventListener('load', resize)
++    atlas.src = '/original/minimap-frame.png'
++    resize()
++    window.addEventListener('resize', resize)
++    return () => {
++      cancelAnimationFrame(pending)
++      atlas.removeEventListener('load', resize)
++      window.removeEventListener('resize', resize)
++    }
++  }, [])
++  return <canvas ref={canvas} className="map-frame" aria-hidden="true" />
++}
+diff --git a/app/minimap-frame.ts b/app/minimap-frame.ts
+new file mode 100644
+index 0000000..1435702
+--- /dev/null
++++ b/app/minimap-frame.ts
+@@ -0,0 +1,56 @@
++import artwork from './original-minimap-frame.json' with { type: 'json' }
++
++type SpriteId = keyof typeof artwork.rects
++export interface MinimapFrameDraw {
++  sprite: SpriteId
++  x: number
++  y: number
++  width: number
++  height: number
++}
++
++// Native corners retain their pixel size as the map grows. The center is absent.
++// The outer rectangle follows the modern, uniformly sized HUD, not native X/Y stretching.
++export function minimapFrameDraws(width: number, height: number, viewportWidth: number) {
++  const ids = artwork.descriptors[viewportWidth < 513 ? 'small' : 'large']
++  const sprite = (index: number) => String(ids[index]) as SpriteId
++  const top = artwork.rects[sprite(0)]
++  const bottom = artwork.rects[sprite(6)]
++  const horizontal = artwork.rects[sprite(1)]
++  const vertical = artwork.rects[sprite(3)]
++  const draws: MinimapFrameDraw[] = []
++  const add = (index: number, x: number, y: number, w: number, h: number) => {
++    if (w > 0 && h > 0) draws.push({ sprite: sprite(index), x, y, width: w, height: h })
++  }
++  if (width < top.w || height < top.h) return draws
++  add(1, top.w, 0, width - top.w * 2, horizontal.h)
++  add(7, top.w, height - horizontal.h, width - top.w * 2, horizontal.h)
++  add(3, 0, top.h, vertical.w, height - top.h - bottom.h)
++  add(5, width - vertical.w, top.h, vertical.w, height - top.h - bottom.h)
++  add(0, 0, 0, top.w, top.h)
++  add(2, width - top.w, 0, top.w, top.h)
++  add(6, 0, height - bottom.h, bottom.w, bottom.h)
++  add(8, width - bottom.w, height - bottom.h, bottom.w, bottom.h)
++  return draws
++}
++
++export function drawMinimapFrame(
++  context: CanvasRenderingContext2D,
++  atlas: CanvasImageSource,
++  width: number,
++  height: number,
++  viewportWidth: number
++) {
++  context.clearRect(0, 0, width, height)
++  context.imageSmoothingEnabled = false
++  for (const draw of minimapFrameDraws(width, height, viewportWidth)) {
++    const source = artwork.rects[draw.sprite]
++    for (let y = 0; y < draw.height; y += source.h) {
++      for (let x = 0; x < draw.width; x += source.w) {
++        const w = Math.min(source.w, draw.width - x)
++        const h = Math.min(source.h, draw.height - y)
++        context.drawImage(atlas, source.x, source.y, w, h, draw.x + x, draw.y + y, w, h)
++      }
++    }
++  }
++}
+diff --git a/app/original-minimap-frame.json b/app/original-minimap-frame.json
+new file mode 100644
+index 0000000..f461b56
+--- /dev/null
++++ b/app/original-minimap-frame.json
+@@ -0,0 +1 @@
++{"executableSha256":"3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f","sha256":{"data/hfx0-0.dat":"681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf","data/pal0-c.dat":"6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"},"width":512,"height":50,"descriptors":{"large":[690,694,691,696,0,697,692,695,693],"small":[86,694,87,696,0,697,88,695,89]},"rects":{"86":{"x":0,"y":0,"w":40,"h":36},"87":{"x":41,"y":0,"w":40,"h":36},"88":{"x":82,"y":0,"w":40,"h":37},"89":{"x":123,"y":0,"w":40,"h":37},"690":{"x":164,"y":0,"w":50,"h":49},"691":{"x":215,"y":0,"w":50,"h":49},"692":{"x":266,"y":0,"w":50,"h":50},"693":{"x":317,"y":0,"w":50,"h":50},"694":{"x":368,"y":0,"w":8,"h":3},"695":{"x":377,"y":0,"w":8,"h":3},"696":{"x":386,"y":0,"w":3,"h":8},"697":{"x":390,"y":0,"w":3,"h":8}}}
+diff --git a/app/page.tsx b/app/page.tsx
+index 9d4ea58..9e5328d 100644
+--- a/app/page.tsx
++++ b/app/page.tsx
+@@ -1,4 +1,6 @@
+ 'use client'
++
++import { MinimapFrame } from './minimap-frame-view'
+ import {
+   useEffect,
+   useRef,
+@@ -807,7 +809,7 @@ export default function Home() {
+             height={96}
+             aria-label="Minimap. Click to move the camera."
+           />
+-          <img className="map-frame" src="/original/hud-map-frame.png" alt="" />
++          <MinimapFrame key={hudSize} />
+         </div>
+         <nav className="dock-tabs" aria-label="Command categories">
+           {(['buildings', 'spells', 'followers'] as const).map((t, i) => (
+diff --git a/decomp/README.md b/decomp/README.md
+index 769a828..08e77ed 100644
+--- a/decomp/README.md
++++ b/decomp/README.md
+@@ -5126,6 +5126,18 @@ the inherited Mission 3 Tower line, executes the staged mesh/overlay queue, and
+ separates construction presentation from original person-health and activity panels.
+ No full original-frame raster parity is claimed.
+ 
++## Minimap frame composition
++
++[Minimap frame evidence](research/minimap-frame.md) binds both native 512/513-width
++frame descriptors, all twelve corner/edge sprites, the original 100×96 control,
++unchanged corner dimensions, tiled edges, absent center and overlapping draw order.
++The native check executes the existing retained frame routines while intercepting
++only terrain refresh and final raster-queue consumers. Modern uniform outer sizing
++is kept distinct from native independent-axis scaling. The CSS ellipse removal
++explicitly expands pointer reach to the existing rectangular map domain; native
++hit-region parity remains open. Terrain pixels and pick-coordinate math are unchanged;
++no parity credit is added.
++
+ ## Early Mission1/2 response scanner
+ 
+ [Pre-table type9 lifecycle](research/early-mission-response-task.md) binds the
+diff --git a/decomp/research/minimap-frame.md b/decomp/research/minimap-frame.md
+new file mode 100644
+index 0000000..4ee8c13
+--- /dev/null
++++ b/decomp/research/minimap-frame.md
+@@ -0,0 +1,86 @@
++# Minimap frame composition
++
++## Native evidence
++
++Canonical executable SHA-256:
++`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
++Retained exports: `decomp/generated/0049d070.c` and
++`decomp/generated/004a1f50.c`. `scripts/check-native-minimap-frame.py` executes both
++routines and the real coordinate converters, intercepting only terrain refresh
++`00523560` and final sprite/quad submission leaves `005162e0` / `0047dfd0`.
++This establishes descriptors, geometry, draw order and submitted UV ratios. It does
++not run Windows, the original D3D rasterizer, or a complete native UI frame.
++
++The packed minimap control at `005cb4e9` is `(0,0,0,0,100,96)`, with renderer
++`0049d070` at `005cb4f9`. After coordinate conversion, viewport width below 513
++selects descriptor `005cab48`; otherwise it selects `005cab30`.
++
++| Descriptor | Top-left / top / top-right | Left / center / right | Bottom-left / bottom / bottom-right |
++| --- | --- | --- | --- |
++| large | 690 / 694 / 691 | 696 / 0 / 697 | 692 / 695 / 693 |
++| small | 86 / 694 / 87 | 696 / 0 / 697 | 88 / 695 / 89 |
++
++Large upper corners are 50×49, lower corners 50×50. Small upper corners are
++40×36, lower corners 40×37. Horizontal edges are 8×3; vertical edges are 3×8.
++There is no center sprite. Corners retain their exact dimensions; edges span the
++remaining gap. Edges draw before top corners, then lower corners. At 100×96 the
++large corners overlap vertically by three pixels, and the bottom corners win at
++opaque pixels. The previous 100×99 four-corner composite incorrectly removed that
++overlap and scaled every corner with the entire HUD.
++
++The submitted horizontal repeat ratio is span/3; the vertical repeat ratio is
++span/3. Every horizontal edge row is constant across all eight columns, and every
++vertical edge column is constant across all eight rows. The probe verifies that
++property from original decoded pixels, so simple unscaled tiling produces the same
++edge pixels regardless of these UV ratios. This is specific to these four sprites,
++not a claim about general native texture repeat behavior.
++
++The narrow importer `scripts/import-minimap-frame.py` owns
++`app/original-minimap-frame.json` and `public/original/minimap-frame.png`. It checks
++the canonical EXE and accepted HFX/palette hashes, copies exactly the twelve
++referenced sprites, and leaves the shared HUD atlas and old composite untouched.
++The native checker compares every imported sprite byte with the original decoder.
++
++## Modern live path and boundary
++
++`app/page.tsx` keeps the existing 100×96 minimap canvas and its engine ref. A
++separate `MinimapFrame` overlay calls `drawMinimapFrame` only on artwork load, saved
++HUD-size changes, and viewport resize. Its backing dimensions follow displayed CSS
++pixels, which cancels the surrounding HUD artwork transform for frame corners.
++The overlay has no pointer events. The former CSS `border-radius:50%` on the
++terrain canvas is removed: it masks the native rounded-rectangle hole into an
++ellipse and leaves background wedges at larger HUD sizes. A failure-first rendered
++comparison observed the wrong pixel at (44,3) for the 1280×720 viewport; native
++frame submissions plus the unchanged terrain buffer require the terrain there.
++This changes the CSS mask and hit region, not canvas pixels, the canvas rectangle,
++or coordinate mapping. The full existing rectangular map domain is now clickable,
++including newly visible terrain outside the old ellipse and opaque artwork corners.
++This is an explicit browser compatibility correction so visible map area is usable;
++it is not new native input parity. Exact native hit-region/dispatcher behavior is
++still unproved and remains open. The old ellipse is not retained as an invisible
++hit mask, and sprite opacity is not used to create a new input mask.
++Canvas terrain, colors, rotation, markers,
++pick-coordinate math, simulation and checkpoints are not modified.
++
++The modern outer rectangle retains the existing bounded, uniform HUD scale rather
++than reproducing native independent-axis stretching. Native frame composition is
++compared separately at its original rectangles and at modern uniform rectangles.
++Fractional displayed sizes round the backing extent to the nearest pixel; the CSS
++box remains aligned to the existing minimap and therefore may resample by less
++than half a pixel. This is a display-size compatibility boundary, not original
++pixel equivalence at fractional CSS scales.
++
++## Runnable verification
++
++`scripts/local-render/minimap-frame-hits.mjs` compares new terrain/corner hit
++ownership with the accepted baseline, four bearings, normal and wrapped centers,
++and points outside the actual right and bottom map bounds. This supplements the
++existing minimap central-click, seam, marker and terrain-invalidation checks.
++
++- `python scripts/check-native-minimap-frame.py "$POPULOUS_EXE"`: 13 native draw
++  lists, both descriptors, 512/513 threshold, 640×480, 1280×720, 1440×1000 and 4K;
++  modern 1×/2×/2.5×, partial tiles and suppressed undersized frames; exact asset bytes.
++- `node --test tests/minimap-frame.test.mjs`: exact 1× overlap, 2×/partial-tile corner
++  and edge pixels, transparent center, frame/input separation.
++- Rendered browser, existing minimap regression, standard check/build and independent
++  review are required before acceptance. No parity credit is added by this repair.
+diff --git a/engineering/generated-files.json b/engineering/generated-files.json
+index d050eed..95ef221 100644
+--- a/engineering/generated-files.json
++++ b/engineering/generated-files.json
+@@ -62,6 +62,7 @@
+         "scripts/import-messages.py",
+         "scripts/import-script.py",
+         "scripts/import-hud.py",
++        "scripts/import-minimap-frame.py",
+         "scripts/import-sound.py",
+         "scripts/import-music.py"
+       ],
+@@ -508,6 +509,8 @@
+           "protected": true,
+           "producer": "scripts/import-original.py"
+         },
++        { "path": "app/original-minimap-frame.json", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-minimap-frame.py" },
++        { "path": "public/original/minimap-frame.png", "type": "file", "tracked": true, "protected": true, "producer": "scripts/import-minimap-frame.py" },
+         { "path": "public/original", "type": "directory", "tracked": true, "protected": true }
+       ],
+       "recording": "Only the documented importer owns each app/original-*.json or public/original asset; do not infer one producer from an original-* name."
+diff --git a/engineering/project-map.json b/engineering/project-map.json
+index 39a9ba2..62bf370 100644
+--- a/engineering/project-map.json
++++ b/engineering/project-map.json
+@@ -256,6 +256,7 @@
+       "evidence": [
+         { "path": "references/modern-performance.md", "heading": "Chronological game clock" },
+         { "path": "decomp/research/camera-bookmarks.md", "heading": "Camera bookmarks" },
++        { "path": "decomp/research/minimap-frame.md", "heading": "Minimap frame composition" },
+         {
+           "path": "references/modern-performance.md",
+           "heading": "Ground camera presentation between native steps"
+diff --git a/public/original/minimap-frame.png b/public/original/minimap-frame.png
+new file mode 100644
+index 0000000000000000000000000000000000000000..b9ce20da9d0cc891c54e775f552866a59e329af3
+GIT binary patch
+literal 4619
+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
+B$gThY
+
+literal 0
+HcmV?d00001
+
+diff --git a/scripts/check-native-minimap-frame.py b/scripts/check-native-minimap-frame.py
+new file mode 100644
+index 0000000..5e4a01f
+--- /dev/null
++++ b/scripts/check-native-minimap-frame.py
+@@ -0,0 +1,169 @@
++"""Compare both original minimap frame descriptors, draw calls and imported pixels.
++Runs 0049d070, its coordinate converters and 004a1f50. Only the terrain refresh
++(00523560) and final sprite/quad submission leaves are intercepted. No recording.
++Usage: python scripts/check-native-minimap-frame.py /path/to/d3dpoptb.exe
++"""
++import hashlib
++import importlib.util
++import json
++import struct
++import subprocess
++import sys
++from pathlib import Path
++from PIL import Image
++from unicorn import UC_HOOK_CODE
++from unicorn.x86_const import UC_X86_REG_ESP, UC_X86_REG_EIP, UC_X86_REG_EAX
++from decomp import ROOT, native_cpu
++
++exe = Path(sys.argv[1])
++cpu, identity = native_cpu(exe)
++cpu.mem_map(0x2000000, 0x100000)
++control, entries, texture, stack, stop = 0x2000000, 0x2010000, 0x2020000, 0x20fd000, 0x20fe000
++
++def write(address, fmt, *values):
++    cpu.mem_write(address, struct.pack('<' + fmt, *values))
++
++def read(address, fmt):
++    return struct.unpack('<' + fmt, cpu.mem_read(address, struct.calcsize('<' + fmt)))[0]
++
++def call(address, *args):
++    write(stack, 'I' * (len(args) + 1), stop, *args)
++    cpu.reg_write(UC_X86_REG_ESP, stack)
++    cpu.emu_start(address, stop, count=100000)
++    assert cpu.reg_read(UC_X86_REG_EIP) == stop
++
++meta = json.loads((ROOT / 'app/original-minimap-frame.json').read_text())
++assert meta['executableSha256'] == identity['sha256']
++raw = (exe.parent / 'data/hfx0-0.dat').read_bytes()
++pal = (exe.parent / 'data/pal0-c.dat').read_bytes()
++for name, data in [('hfx0-0.dat', raw), ('pal0-c.dat', pal)]:
++    assert hashlib.sha256(data).hexdigest() == meta['sha256']['data/' + name]
++spec = importlib.util.spec_from_file_location('assets', ROOT / 'scripts/import-original.py')
++assets = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(assets)
++bank = assets.sprites(raw, pal)
++atlas = Image.open(ROOT / 'public/original/minimap-frame.png').convert('RGBA')
++for key, rect in meta['rects'].items():
++    w, h, pixels = bank[int(key)]
++    assert (w, h) == (rect['w'], rect['h'])
++    assert atlas.crop((rect['x'], rect['y'], rect['x'] + w, rect['y'] + h)).tobytes() == pixels
++for sprite in (694, 695, 696, 697):
++    w, h, data = bank[sprite]
++    for y in range(h):
++        for x in range(w):
++            ref = y * w if w == 8 else x
++            assert data[(y * w + x) * 4:(y * w + x + 1) * 4] == data[ref * 4:(ref + 1) * 4]
++# Quad UV repeat amounts divide by edge thickness (3), not tile length (8).
++# These exact edge pixels are constant along that axis, so either repetition has
++# identical pixels; this does not claim general D3D texture sampling equivalence.
++for name, address in [('large', 0x5cab30), ('small', 0x5cab48)]:
++    assert list(struct.unpack('<9H', cpu.mem_read(address, 18))) == meta['descriptors'][name]
++assert struct.unpack('<6h', cpu.mem_read(0x5cb4e9, 12)) == (0, 0, 0, 0, 100, 96)
++assert read(0x5cb4f9, 'I') == 0x49d070
++for i, (w, h, _) in enumerate(bank):
++    write(entries + i * 8, 'IHH', 0, w, h)
++write(0x59df14, 'I', entries)
++write(0x5ce0bc, 'I', texture)
++write(0x89c6f0, 'B', 0)
++draws, rectangles = [], []
++
++def intercept(c, address, size, user):
++    sp = c.reg_read(UC_X86_REG_ESP)
++    if address == 0x4a1f50:
++        rect = read(sp + 4, 'I')
++        rectangles.append(list(struct.unpack('<4i', c.mem_read(rect, 16))))
++        return  # Observe the real renderer without replacing it.
++    if address == 0x47dfd0:
++        x, y, w, h, u, v = struct.unpack('<6f', c.mem_read(sp + 4, 24))
++        sprite = read(sp + 32, 'I') & 65535
++        if sprite in (694, 695):
++            assert abs(u - w / 3) < 1e-5 and v == 1
++        else:
++            assert sprite in (696, 697) and u == 1 and abs(v - h / 3) < 1e-5
++        draws.append(dict(sprite=str(sprite), x=int(x), y=int(y), width=int(w), height=int(h)))
++    elif address == 0x5162e0:
++        entry = read(sp + 12, 'I')
++        draws.append(dict(sprite=str((entry - entries) // 8), x=read(sp + 4, 'i'), y=read(sp + 8, 'i'),
++                          width=read(entry + 4, 'H'), height=read(entry + 6, 'H')))
++    c.reg_write(UC_X86_REG_EAX, 0)
++    c.reg_write(UC_X86_REG_EIP, read(sp, 'I'))
++    c.reg_write(UC_X86_REG_ESP, sp + (44 if address == 0x47dfd0 else 4))
++
++for address in (0x523560, 0x4a1f50, 0x47dfd0, 0x5162e0):
++    cpu.hook_add(UC_HOOK_CODE, intercept, begin=address, end=address)
++cases, expected = [], []
++for width, height in [(512, 480), (513, 480), (640, 480), (1280, 720), (1440, 1000), (3840, 2160)]:
++    write(0x89c6cf, 'HH', width, height)
++    for offset, value in [(0x37, 0), (0x3b, 0), (0x47, 10240), (0x4b, 13107)]:
++        write(control + offset, 'i', value)
++    draws, rectangles = [], []
++    call(0x49d070, control)
++    left, top, right, bottom = rectangles[0]
++    assert (left, top) == (0, 0)
++    cases.append([right, bottom, width])
++    expected.append(draws)
++    print(f'Native {width}x{height}: frame {right}x{bottom}, {len(draws)} submissions, first sprite {draws[0]["sprite"]}')
++# Exact modern uniform HUD rectangles and partial edge tiles, separately from
++# original independent-axis layout, run through the same original frame routine.
++for width, height, screen in [(100, 96, 640), (200, 192, 1440), (250, 240, 3840), (203, 197, 1440), (80, 77, 512), (49, 96, 513), (100, 48, 513)]:
++    write(control + 256, '4i', 0, 0, width, height)
++    draws = []
++    call(0x4a1f50, control + 256, 0x5cab48 if screen < 513 else 0x5cab30)
++    cases.append([width, height, screen])
++    expected.append(draws)
++js = """import { minimapFrameDraws } from './app/minimap-frame.ts';
++let input='';for await(const part of process.stdin)input+=part;
++console.log(JSON.stringify(JSON.parse(input).map(args=>minimapFrameDraws(...args))));"""
++actual = subprocess.check_output(['node', '--input-type=module', '-e', js], input=json.dumps(cases).encode(), cwd=ROOT)
++assert json.loads(actual) == expected
++print(f'PASS: {len(cases)} original frame call lists; exact two descriptors and all 12 imported sprites; no center fill; native 512/513 boundary; independent native and uniform modern rectangles')
++
++if '--browser' in sys.argv:
++    path = Path(sys.argv[sys.argv.index('--browser') + 1])
++    browser_cases = json.loads(path.read_text())
++    for case in browser_cases:
++        width, height, screen = case['width'], case['height'], case['viewportWidth']
++        write(control + 256, '4i', 0, 0, width, height)
++        draws = []
++        call(0x4a1f50, control + 256, 0x5cab48 if screen < 513 else 0x5cab30)
++        pixels = bytearray(width * height * 4)
++        for draw in draws:
++            sw, sh, data = bank[int(draw['sprite'])]
++            for y in range(draw['height']):
++                for x in range(draw['width']):
++                    dx, dy = draw['x'] + x, draw['y'] + y
++                    if not (0 <= dx < width and 0 <= dy < height):
++                        continue
++                    src = ((y % sh) * sw + x % sw) * 4
++                    if data[src + 3]:
++                        at = (dy * width + dx) * 4
++                        pixels[at:at + 4] = data[src:src + 4]
++        assert hashlib.sha256(pixels).hexdigest() == case['rgbaHash'], case['name']
++        # Actual page screenshots include terrain through the transparent hole and
++        # category tabs over the lower frame. Compare only exposed opaque pixels.
++        if case['dpr'] in (1, 2) and case['displayedWidth'] == width and case['displayedHeight'] == height and (case['name'].startswith('viewport-') or case['name'] == 'dpr-2'):
++            screenshot = Image.open(path.parent / f"{case['name']}-frame.png").convert('RGBA')
++            dpr = case['dpr']
++            assert screenshot.size == (width * dpr, height * dpr)
++            actual = screenshot.tobytes()
++            terrain = Image.open(path.parent / case['terrainFile']).convert('RGBA')
++            assert terrain.size == (width, height)
++            terrain_pixels = terrain.tobytes()
++            cutoff = min(height, int(width * 0.85))  # Existing dock-tabs top=85 logical pixels.
++            for y in range(cutoff):
++                for x in range(width):
++                    at = (y * width + x) * 4
++                    terrain_pixel = terrain_pixels[at:at + 4]
++                    alpha = terrain_pixel[3] / 255
++                    # Rotated terrain has transparent/antialiased outer pixels.
++                    # Browser composition places those over the unchanged #142d38
++                    # wrap background. Native frame art remains exactly opaque.
++                    expected = pixels[at:at + 4] if pixels[at + 3] else bytes([
++                        round(terrain_pixel[c] * alpha + background * (1 - alpha))
++                        for c, background in enumerate((20, 45, 56))] + [255])
++                    tolerance = 1 if not pixels[at + 3] and 0 < alpha < 1 else 0
++                    for oy in range(dpr):
++                        for ox in range(dpr):
++                            dest = ((y * dpr + oy) * width * dpr + x * dpr + ox) * 4
++                            assert all(abs(a - b) <= tolerance for a, b in zip(actual[dest:dest + 4], expected)), (case['name'], x, y, 'frame' if pixels[at + 3] else 'unclipped terrain')
++    print(f'PASS: {len(browser_cases)} shipped-browser frame RGBA hashes match native submissions; exposed composed frame and terrain-hole screenshot pixels match at integer CSS sizes')
+diff --git a/scripts/import-minimap-frame.py b/scripts/import-minimap-frame.py
+new file mode 100644
+index 0000000..68cd3aa
+--- /dev/null
++++ b/scripts/import-minimap-frame.py
+@@ -0,0 +1,42 @@
++"""Import only the two native minimap-frame descriptors and their exact HFX pixels.
++Usage: python scripts/import-minimap-frame.py /path/to/extracted/game
++Does not rewrite the shared HUD atlas or the legacy composite frame.
++"""
++import hashlib
++import importlib.util
++import json
++import struct
++import sys
++from pathlib import Path
++from decomp import ROOT, native_cpu
++
++source = Path(sys.argv[1])
++cpu, identity = native_cpu(source / 'd3dpoptb.exe')
++spec = importlib.util.spec_from_file_location('assets', ROOT / 'scripts/import-original.py')
++assets = importlib.util.module_from_spec(spec)
++spec.loader.exec_module(assets)
++raw = (source / 'data/hfx0-0.dat').read_bytes()
++palette = (source / 'data/pal0-c.dat').read_bytes()
++accepted = json.loads((ROOT / 'app/original-hud.json').read_text())
++inputs = {'data/hfx0-0.dat': raw, 'data/pal0-c.dat': palette}
++hashes = {name: hashlib.sha256(data).hexdigest() for name, data in inputs.items()}
++assert all(accepted['sha256'][name] == digest for name, digest in hashes.items())
++descriptors = {name: list(struct.unpack('<9H', cpu.mem_read(address, 18)))
++               for name, address in [('large', 0x5cab30), ('small', 0x5cab48)]}
++assert descriptors == {'large': [690, 694, 691, 696, 0, 697, 692, 695, 693],
++                       'small': [86, 694, 87, 696, 0, 697, 88, 695, 89]}
++bank = assets.sprites(raw, palette)
++width, height, x, rects = 512, 50, 0, {}
++pixels = bytearray(width * height * 4)
++for sprite in sorted(set(sum(descriptors.values(), [])) - {0}):
++    w, h, data = bank[sprite]
++    rects[str(sprite)] = dict(x=x, y=0, w=w, h=h)
++    for y in range(h):
++        pixels[(y * width + x) * 4:(y * width + x + w) * 4] = data[y * w * 4:(y + 1) * w * 4]
++    x += w + 1
++assert x <= width
++assets.png(ROOT / 'public/original/minimap-frame.png', width, height, pixels)
++meta = dict(executableSha256=identity['sha256'], sha256=hashes, width=width, height=height,
++            descriptors=descriptors, rects=rects)
++(ROOT / 'app/original-minimap-frame.json').write_text(json.dumps(meta, separators=(',', ':')) + '\n')
++print(f'Imported {len(rects)} exact minimap frame sprites from both native descriptors')
+diff --git a/scripts/local-render/minimap-frame-baseline.mjs b/scripts/local-render/minimap-frame-baseline.mjs
+new file mode 100644
+index 0000000..b89174a
+--- /dev/null
++++ b/scripts/local-render/minimap-frame-baseline.mjs
+@@ -0,0 +1,27 @@
++// Run against the exact accepted base, before the overlay repair, for honest screenshots.
++import assert from 'node:assert/strict'
++import { createHash } from 'node:crypto'
++import { readFileSync } from 'node:fs'
++import { resolve } from 'node:path'
++
++export default async function ({ page, openMission, output, receipt }) {
++  await openMission(1)
++  await page.evaluate(() => {
++    const scene = window.testScene
++    scene.world.speed = 0
++    cancelAnimationFrame(scene.frame)
++  })
++  const frames = []
++  for (const [width, height] of [[640, 480], [1440, 1000], [3840, 2160]]) {
++    await page.setViewportSize({ width, height })
++    const proceed = page.getByRole('button', { name: 'Continue anyway', exact: false })
++    if (await proceed.isVisible()) await proceed.click()
++    await page.waitForFunction(() => document.querySelector('img.map-frame')?.complete)
++    await page.evaluate(() => { const scene = window.testScene; scene.animate(scene.previous); cancelAnimationFrame(scene.frame) })
++    await page.locator('.map-frame').screenshot({ path: resolve(output, `viewport-${width}-frame.png`) })
++    await page.screenshot({ path: resolve(output, `viewport-${width}-screen.png`) })
++    frames.push({ width, height, bounds: await page.locator('.map-frame').boundingBox() })
++  }
++  assert.deepEqual(receipt.errors, [])
++  return { frames, scenarioSha256: createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex'), limitation: 'Legacy frame screenshots on exact base; same Mission 1 and viewport as candidate; software rendering only.' }
++}
+diff --git a/scripts/local-render/minimap-frame-hits.mjs b/scripts/local-render/minimap-frame-hits.mjs
+new file mode 100644
+index 0000000..a4da592
+--- /dev/null
++++ b/scripts/local-render/minimap-frame-hits.mjs
+@@ -0,0 +1,58 @@
++// Compare the explicit rectangular-hit compatibility choice with the old CSS ellipse.
++import assert from 'node:assert/strict'
++import { writeFileSync } from 'node:fs'
++import { resolve } from 'node:path'
++
++export default async function ({ page, openMission, output, receipt }) {
++  await openMission(1)
++  await page.evaluate(() => {
++    const scene = window.testScene
++    scene.world.speed = 0
++    cancelAnimationFrame(scene.frame)
++  })
++  await page.setViewportSize({ width: 1440, height: 1000 })
++  const candidate = await page.locator('canvas.map-frame').count() > 0
++  const canvas = page.getByLabel('Minimap. Click to move the camera.', { exact: true })
++  const rect = await canvas.boundingBox()
++  assert.equal(rect.width, 200)
++  assert.equal(rect.height, 192)
++  const cases = []
++  for (const seam of [false, true]) for (const heading of [0, 512, 1024, 1536]) {
++    for (const [name, x, y] of [['newly-visible-terrain', 4, 50], ['opaque-corner', 1, 1], ['outside-right', 202, 50], ['outside-bottom', 198, 194]]) {
++      const before = await page.evaluate(async ({ heading, seam, x, y }) => {
++        const scene = window.testScene
++        scene.focus(seam ? { x: 127, z: -127 } : { x: 2, z: 30 })
++        scene.cameraBearing = heading * Math.PI / 1024
++        scene.drawMinimap()
++        const { nativePosition } = await import('/app/model.ts')
++        const { minimapPick } = await import('/app/minimap.ts')
++        const rect = scene.mini.getBoundingClientRect()
++        const element = document.elementFromPoint(rect.x + x, rect.y + y)
++        return {
++          target: { ...scene.cameraMotion.target },
++          hitCanvas: element === scene.mini,
++          expected: minimapPick(scene.mini.width, scene.mini.height, nativePosition(scene.world, scene.viewPoint), heading, { x, y }),
++        }
++      }, { heading, seam, x, y })
++      const inside = !name.startsWith('outside-')
++      assert.equal(before.hitCanvas, candidate && inside, `${name}: DOM hit mask`)
++      if (candidate && inside) {
++        const alpha = await page.locator('canvas.map-frame').evaluate((frame, { x, y }) => frame.getContext('2d').getImageData(x, y, 1, 1).data[3], { x, y })
++        assert.equal(alpha, name === 'opaque-corner' ? 255 : 0, name)
++      }
++      await page.mouse.click(rect.x + x, rect.y + y)
++      const after = await page.evaluate(() => ({ ...window.testScene.cameraMotion.target }))
++      if (candidate && inside) {
++        assert.equal(after.x, before.expected.x)
++        assert.equal(after.y, before.expected.y)
++        assert.equal(after.angle, heading)
++      } else assert.deepEqual(after, before.target, `${name}: camera target must remain unchanged`)
++      cases.push({ name, heading, seam, x, y, hitCanvas: before.hitCanvas, before: before.target, after, expected: before.expected })
++    }
++  }
++  assert.deepEqual(receipt.errors, [])
++  const result = { candidate, rect, cases, scope: 'Camera is fixed for each probe. Tests real DOM hit ownership and pointerdown, with unchanged map coordinate transforms. Rectangular corner reach is an intentional browser compatibility correction; native hit-region parity is unproved.' }
++  writeFileSync(resolve(output, 'corner-hits.json'), JSON.stringify(result, null, 2))
++  await page.screenshot({ path: resolve(output, 'corner-hit-screen.png') })
++  return result
++}
+diff --git a/scripts/local-render/minimap-frame.mjs b/scripts/local-render/minimap-frame.mjs
+new file mode 100644
+index 0000000..af0865d
+--- /dev/null
++++ b/scripts/local-render/minimap-frame.mjs
+@@ -0,0 +1,118 @@
++// Actual shipped frame pixels and lifecycle; existing map regression assertions run unchanged.
++import assert from 'node:assert/strict'
++import { createHash } from 'node:crypto'
++import { spawn } from 'node:child_process'
++import { readFileSync, writeFileSync } from 'node:fs'
++import { resolve } from 'node:path'
++import { pathToFileURL } from 'node:url'
++import { bindGame } from '../browser-game.mjs'
++
++const digest = data => createHash('sha256').update(data).digest('hex')
++
++async function capture(page, output, name) {
++  await page.waitForFunction(() => {
++    const frame = document.querySelector('canvas.map-frame')
++    if (!frame) return false
++    const bounds = frame.getBoundingClientRect()
++    return frame.width === Math.round(bounds.width) && frame.height === Math.round(bounds.height) && frame.getContext('2d').getImageData(0, 0, 1, 1).data[3] > 0
++  })
++  await page.evaluate(() => { const scene = window.testScene; scene.animate(scene.previous); cancelAnimationFrame(scene.frame) })
++  const result = await page.evaluate(async () => {
++    const frame = document.querySelector('canvas.map-frame'), rect = frame.getBoundingClientRect()
++    const data = frame.getContext('2d').getImageData(0, 0, frame.width, frame.height).data
++    const hash = [...new Uint8Array(await crypto.subtle.digest('SHA-256', data))].map(v => v.toString(16).padStart(2, '0')).join('')
++    const gl = window.testScene.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
++    return { width: frame.width, height: frame.height, viewportWidth: innerWidth, viewportHeight: innerHeight,
++      displayedWidth: rect.width, displayedHeight: rect.height, dpr: devicePixelRatio, rgbaHash: hash,
++      terrainPng: window.testScene.mini.toDataURL(),
++      pointerEvents: getComputedStyle(frame).pointerEvents,
++      renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER) }
++  })
++  const terrainFile = `${name}-terrain.png`
++  writeFileSync(resolve(output, terrainFile), Buffer.from(result.terrainPng.split(',')[1], 'base64'))
++  delete result.terrainPng
++  result.terrainFile = terrainFile
++  assert.equal(result.pointerEvents, 'none')
++  await page.locator('.map-frame').screenshot({ path: resolve(output, `${name}-frame.png`) })
++  await page.screenshot({ path: resolve(output, `${name}-screen.png`) })
++  return { name, ...result }
++}
++
++async function existingRegression(root, output, url) {
++  const source = readFileSync(resolve(root, 'scripts/check-browser-minimap.mjs'), 'utf8')
++  // Only adapt launch and capture destinations to the reviewed cloud harness.
++  // Every original assertion, viewport, heading and click remains byte-for-byte.
++  let adapter = source
++    .replace("from './browser-game.mjs'", `from '${pathToFileURL(resolve(root, 'scripts/browser-game.mjs'))}'`)
++    .replace("from '../app/minimap.ts'", `from '${pathToFileURL(resolve(root, 'app/minimap.ts'))}'`)
++    .replace('await chromium.launch({ headless: true })', 'await chromium.launch(launchOptions(process.env.POPULOUS_BROWSER))')
++    .replaceAll('/private/tmp/populous-minimap-', `${output}/existing-minimap-`)
++  adapter = `import { launchOptions } from '${pathToFileURL(resolve(root, 'scripts/local-render/harness.mjs'))}'\n${adapter}`
++  writeFileSync(resolve(output, 'existing-minimap-adapter.mjs'), adapter)
++  const result = await new Promise((done, reject) => {
++    const child = spawn(process.execPath, ['--input-type=module', '-'], { cwd: root, env: { ...process.env, POPULOUS_URL: url }, stdio: ['pipe', 'pipe', 'pipe'] })
++    let stdout = '', stderr = ''
++    child.stdout.on('data', part => { stdout += part })
++    child.stderr.on('data', part => { stderr += part })
++    child.on('error', reject)
++    child.on('exit', code => done({ code, stdout, stderr }))
++    child.stdin.end(adapter)
++  })
++  writeFileSync(resolve(output, 'existing-minimap-check.json'), JSON.stringify({ sourceSha256: digest(source), adapterSha256: digest(adapter), ...result }, null, 2))
++  assert.equal(result.code, 0, result.stderr)
++  return result.stdout.trim()
++}
++
++export default async function minimapFrameScenario({ browser, page, context, root, output, url, openMission, receipt }) {
++  await openMission(1)
++  await page.evaluate(() => {
++    const scene = window.testScene
++    scene.world.speed = 0
++    cancelAnimationFrame(scene.frame)
++  })
++  const frames = []
++  for (const [width, height] of [[512, 480], [513, 480], [640, 480], [1280, 720], [1440, 1000], [3840, 2160]]) {
++    await page.setViewportSize({ width, height })
++    const proceed = page.getByRole('button', { name: 'Continue anyway', exact: false })
++    if (await proceed.isVisible()) await proceed.click()
++    frames.push(await capture(page, output, `viewport-${width}`))
++  }
++  await page.setViewportSize({ width: 1440, height: 1000 })
++  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
++  const menu = page.locator('dialog.game-dialog')
++  await menu.waitFor({ state: 'visible' })
++  await menu.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption('1')
++  frames.push(await capture(page, output, 'preference-1'))
++  await menu.getByRole('combobox', { name: 'HUD size', exact: true }).selectOption('2')
++  frames.push(await capture(page, output, 'preference-2'))
++  await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
++  await page.waitForFunction(() => !document.querySelector('dialog.game-dialog button')?.disabled && [...document.querySelectorAll('dialog.game-dialog button')].some(b => b.textContent.trim() === 'Load checkpoint' && !b.disabled))
++  await page.reload({ waitUntil: 'domcontentloaded' })
++  await page.getByRole('dialog', { name: 'Start game', exact: true }).getByRole('button', { name: 'Load Game', exact: true }).click()
++  await bindGame(page)
++  await page.evaluate(() => { window.testScene = window.testSceneRef.current; window.testScene.world.speed = 0; cancelAnimationFrame(window.testScene.frame) })
++  frames.push(await capture(page, output, 'checkpoint-loaded'))
++  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
++  await menu.getByRole('button', { name: 'Restart world', exact: true }).click()
++  await bindGame(page)
++  await page.evaluate(() => document.querySelector('.skip-introduction')?.click())
++  await page.evaluate(() => { window.testScene = window.testSceneRef.current; window.testScene.world.speed = 0; cancelAnimationFrame(window.testScene.frame) })
++  frames.push(await capture(page, output, 'restarted'))
++  writeFileSync(resolve(output, 'frame-pixels.json'), JSON.stringify(frames, null, 2))
++  const highDpi = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 2 })
++  const highPage = await highDpi.newPage()
++  await highPage.goto(url, { waitUntil: 'domcontentloaded' })
++  await highPage.getByRole('dialog', { name: 'Start game', exact: true }).waitFor({ state: 'visible' })
++  await highPage.getByRole('button', { name: 'All missions', exact: true }).click()
++  await highPage.getByRole('button', { name: 'Mission 1', exact: true }).focus()
++  await highPage.keyboard.press('Enter')
++  await bindGame(highPage)
++  await highPage.evaluate(() => { window.testScene = window.testSceneRef.current; window.testScene.world.speed = 0; cancelAnimationFrame(window.testScene.frame) })
++  frames.push(await capture(highPage, output, 'dpr-2'))
++  await highDpi.close()
++  writeFileSync(resolve(output, 'frame-pixels.json'), JSON.stringify(frames, null, 2))
++  assert.deepEqual(receipt.errors, [])
++  const existing = await existingRegression(root, output, url)
++  await context.close()
++  return { frames, existing, scope: 'Frame raster and lifecycle only; no hardware performance claim.' }
++}
+diff --git a/tests/minimap-frame.test.mjs b/tests/minimap-frame.test.mjs
+new file mode 100644
+index 0000000..689f3a4
+--- /dev/null
++++ b/tests/minimap-frame.test.mjs
+@@ -0,0 +1,86 @@
++import test from 'node:test'
++import assert from 'node:assert/strict'
++import { readFileSync } from 'node:fs'
++import { inflateSync } from 'node:zlib'
++import artwork from '../app/original-minimap-frame.json' with { type: 'json' }
++import { minimapFrameDraws, drawMinimapFrame } from '../app/minimap-frame.ts'
++
++const png = readFileSync(new URL('../public/original/minimap-frame.png', import.meta.url))
++const blocks = []
++for (let offset = 8; offset < png.length;) {
++  const length = png.readUInt32BE(offset), kind = png.toString('ascii', offset + 4, offset + 8)
++  if (kind === 'IDAT') blocks.push(png.subarray(offset + 8, offset + 8 + length))
++  offset += length + 12
++}
++const raw = inflateSync(Buffer.concat(blocks)), stride = artwork.width * 4 + 1
++assert.equal(raw.length, stride * artwork.height)
++for (let y = 0; y < artwork.height; y++) assert.equal(raw[y * stride], 0)
++const pixel = (x, y) => raw.subarray(y * stride + x * 4 + 1, y * stride + x * 4 + 5)
++const spritePixel = (id, x, y) => pixel(artwork.rects[id].x + x, artwork.rects[id].y + y)
++
++function raster(width, height, viewport) {
++  const pixels = Buffer.alloc(width * height * 4), calls = []
++  const context = {
++    clearRect() { pixels.fill(0) },
++    drawImage(atlas, sx, sy, sw, sh, dx, dy, dw, dh) {
++      assert.equal(sw, dw); assert.equal(sh, dh)
++      calls.push([sx, sy, sw, sh, dx, dy])
++      for (let y = 0; y < sh; y++) for (let x = 0; x < sw; x++) {
++        if (dx + x < 0 || dy + y < 0 || dx + x >= width || dy + y >= height) continue
++        const source = pixel(sx + x, sy + y)
++        if (source[3]) source.copy(pixels, ((dy + y) * width + dx + x) * 4)
++      }
++    },
++  }
++  drawMinimapFrame(context, {}, width, height, viewport)
++  assert.equal(context.imageSmoothingEnabled, false)
++  return { calls, pixel: (x, y) => pixels.subarray((y * width + x) * 4, (y * width + x + 1) * 4) }
++}
++
++test('native descriptor threshold chooses exact small and large corner dimensions', () => {
++  assert.deepEqual(artwork.descriptors.large, [690, 694, 691, 696, 0, 697, 692, 695, 693])
++  assert.deepEqual(artwork.descriptors.small, [86, 694, 87, 696, 0, 697, 88, 695, 89])
++  assert.equal(minimapFrameDraws(80, 96, 512).at(-4).sprite, '86')
++  assert.equal(minimapFrameDraws(80, 96, 513).at(-4).sprite, '690')
++  assert.deepEqual(minimapFrameDraws(49, 96, 513), [])
++  assert.deepEqual(minimapFrameDraws(100, 48, 513), [])
++})
++
++test('1x frame overlaps native corners in a 100x96 rectangle, bottom corners last', () => {
++  assert.deepEqual(minimapFrameDraws(100, 96, 640), [
++    { sprite: '690', x: 0, y: 0, width: 50, height: 49 },
++    { sprite: '691', x: 50, y: 0, width: 50, height: 49 },
++    { sprite: '692', x: 0, y: 46, width: 50, height: 50 },
++    { sprite: '693', x: 50, y: 46, width: 50, height: 50 },
++  ])
++  const result = raster(100, 96, 640)
++  assert.deepEqual(result.pixel(0, 46), spritePixel('692', 0, 0))
++  assert.deepEqual(result.pixel(99, 95), spritePixel('693', 49, 49))
++})
++
++test('2x and partial tiles retain exact 1:1 corner/edge pixels and a transparent center', () => {
++  for (const [width, height] of [[200, 192], [203, 197], [250, 240]]) {
++    const result = raster(width, height, 1440)
++    for (const [id, dx, dy] of [['690', 0, 0], ['691', width - 50, 0], ['692', 0, height - 50], ['693', width - 50, height - 50]]) {
++      const { w, h } = artwork.rects[id]
++      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
++        assert.deepEqual(result.pixel(dx + x, dy + y), spritePixel(id, x, y))
++      }
++    }
++    for (let x = 50; x < width - 50; x++) for (let y = 0; y < 3; y++) {
++      assert.deepEqual(result.pixel(x, y), spritePixel('694', (x - 50) % 8, y))
++      assert.deepEqual(result.pixel(x, height - 3 + y), spritePixel('695', (x - 50) % 8, y))
++    }
++    assert.deepEqual([...result.pixel(Math.floor(width / 2), Math.floor(height / 2))], [0, 0, 0, 0])
++    assert.equal(result.calls.some(([, , w]) => w > 0 && w < 8), true)
++  }
++})
++
++test('frame is a separate overlay and does not change terrain, markers or click ownership', () => {
++  const page = readFileSync(new URL('../app/page.tsx', import.meta.url), 'utf8')
++  const css = readFileSync(new URL('../app/globals.css', import.meta.url), 'utf8')
++  assert.match(page, /<MinimapFrame key=\{hudSize\} \/>/)
++  assert.match(css, /\.minimap-wrap>\.map-frame\{[^}]*pointer-events:none/)
++  assert.match(css, /\.minimap-wrap>canvas:not\(\.map-frame\)\{/)
++  assert.doesNotMatch(css.match(/\.minimap-wrap>canvas:not\(\.map-frame\)\{[^}]*\}/)[0], /border-radius/)
++})

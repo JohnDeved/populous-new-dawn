@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "331a5450-bc5f-4ba2-9a7e-f9f4ba38224d",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "422b0165da1a454324620b7e8200be5ce34ba346",
+    "branch": "recovery/minimap-frame-20261004",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/eslint",
+    "app/minimap-frame.ts",
+    "app/minimap-frame-view.tsx"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T07:15:10.517Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/minimap-frame/eslint-new-frame.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/minimap-frame/eslint-new-frame.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T07:15:12.184Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "422b0165da1a454324620b7e8200be5ce34ba346",
+    "branch": "recovery/minimap-frame-20261004",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

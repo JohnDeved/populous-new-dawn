@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "70a0bd20-4d1c-46f5-9e10-613c9524d2b8",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "0e602dcf14fd9a78e2a6ea0293966e3209dfd3a9",
+    "branch": "recovery/minimap-frame-20261004",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T07:02:32.458Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/minimap-frame/build-integrated.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/minimap-frame/build-integrated.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T07:02:48.222Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n[1/5] analyze client references...\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n✓ built in 3.05s\n[2/5] analyze server references...\n\u001b[2K\rtransforming...✓ 365 modules transformed.\nrendering chunks...\n✓ built in 1.48s\n[3/5] build rsc environment...\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 4.14s\n[4/5] build client environment...\n\u001b[2K\rtransforming...✓ 406 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.93s\n[5/5] build ssr environment...\n\u001b[2K\rtransforming...✓ 371 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.53s\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - alias (52%)\n  - rsc:virtual-client-package (14%)\n  - vinext:og-inline-fetch-assets (9%)\n  - vinext:middleware-server-only (8%)\n  - rsc:react-server-dom-webpack-alias (3%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:middleware-server-only (54%)\n  - rsc:load-environment-module (14%)\n  - rsc:virtual-client-package (10%)\n  - vinext:og-inline-fetch-assets (4%)\n  - rsc:use-server (3%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\n",
+  "stdoutSha256": "8506dcb720fdd186bad48c5a1fbc292c6b32ce893ebb582cff35334bd086f1cb",
+  "stderrSha256": "b4cfd125c91728c9c69e8b8b010856a126a7bf138b51f014040a445c9e074bb9",
+  "sourceAfter": {
+    "headOid": "0e602dcf14fd9a78e2a6ea0293966e3209dfd3a9",
+    "branch": "recovery/minimap-frame-20261004",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

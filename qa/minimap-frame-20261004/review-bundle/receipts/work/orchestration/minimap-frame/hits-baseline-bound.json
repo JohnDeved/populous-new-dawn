@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "6287d0c3-e2c9-4d56-a36e-162ea9573e16",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "422b0165da1a454324620b7e8200be5ce34ba346",
+    "branch": "recovery/minimap-frame-20261004",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/minimap-frame-hits.mjs": "77b6e7e984dbb812b5449d009601e96ff098d5e6c7e61819b45b58ac0c73d08f"
+    }
+  },
+  "command": [
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "../repository",
+    "--port",
+    "4291",
+    "--output",
+    "work/orchestration/minimap-frame/hits-baseline-bound",
+    "--scenario",
+    "scripts/local-render/minimap-frame-hits.mjs",
+    "--timeout",
+    "150000"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T07:22:08.127Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/minimap-frame/hits-baseline-bound.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/minimap-frame/hits-baseline-bound.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T07:22:43.299Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"source\":{\"root\":\"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/repository\",\"commit\":\"7dcd89f9858600d9bd889d00a758fb78baa13f73\",\"tree\":\"c77493163a0ac3a28b5f12344dd9a65acdf3274d\",\"status\":\"\",\"trackedDiffSha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"untracked\":[],\"fingerprint\":\"c47d3bed8e4847b1c81501945baa11d1b42ff7d9d42849e463a2b58d44dd20cd\"},\"result\":{\"candidate\":false,\"rect\":{\"x\":0,\"y\":0,\"width\":200,\"height\":192},\"cases\":[{\"name\":\"newly-visible-terrain\",\"heading\":0,\"seam\":false,\"x\":4,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":41654,\"y\":2927}},{\"name\":\"opaque-corner\",\"heading\":0,\"seam\":false,\"x\":1,\"y\":1,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":40876,\"y\":16868}},{\"name\":\"outside-right\",\"heading\":0,\"seam\":false,\"x\":202,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":30184,\"y\":2755}},{\"name\":\"outside-bottom\",\"heading\":0,\"seam\":false,\"x\":198,\"y\":194,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":28971,\"y\":27335}},{\"name\":\"newly-visible-terrain\",\"heading\":512,\"seam\":false,\"x\":4,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":14935,\"y\":17026}},{\"name\":\"opaque-corner\",\"heading\":512,\"seam\":false,\"x\":1,\"y\":1,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":28317,\"y\":17836}},{\"name\":\"outside-right\",\"heading\":512,\"seam\":false,\"x\":202,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":14769,\"y\":26242}},{\"name\":\"outside-bottom\",\"heading\":512,\"seam\":false,\"x\":198,\"y\":194,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":40987,\"y\":27506}},{\"name\":\"newly-visible-terrain\",\"heading\":1024,\"seam\":false,\"x\":4,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":28469,\"y\":42128}},{\"name\":\"opaque-corner\",\"heading\":1024,\"seam\":false,\"x\":1,\"y\":1,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":29247,\"y\":28187}},{\"name\":\"outside-right\",\"heading\":1024,\"seam\":false,\"x\":202,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":39938,\"y\":42300}},{\"name\":\"outside-bottom\",\"heading\":1024,\"seam\":false,\"x\":198,\"y\":194,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":41151,\"y\":17720}},{\"name\":\"newly-visible-terrain\",\"heading\":1536,\"seam\":false,\"x\":4,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":55188,\"y\":28029}},{\"name\":\"opaque-corner\",\"heading\":1536,\"seam\":false,\"x\":1,\"y\":1,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":41805,\"y\":27219}},{\"name\":\"outside-right\",\"heading\":1536,\"seam\":false,\"x\":202,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":55354,\"y\":18813}},{\"name\":\"outside-bottom\",\"heading\":1536,\"seam\":false,\"x\":198,\"y\":194,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":29135,\"y\":17549}},{\"name\":\"newly-visible-terrain\",\"heading\":0,\"seam\":true,\"x\":4,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":7903,\"y\":42863}},{\"name\":\"opaque-corner\",\"heading\":0,\"seam\":true,\"x\":1,\"y\":1,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":7125,\"y\":56804}},{\"name\":\"outside-right\",\"heading\":0,\"seam\":true,\"x\":202,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":61969,\"y\":42691}},{\"name\":\"outside-bottom\",\"heading\":0,\"seam\":true,\"x\":198,\"y\":194,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":60756,\"y\":1735}},{\"name\":\"newly-visible-terrain\",\"heading\":512,\"seam\":true,\"x\":4,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":46719,\"y\":56962}},{\"name\":\"opaque-corner\",\"heading\":512,\"seam\":true,\"x\":1,\"y\":1,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":60102,\"y\":57772}},{\"name\":\"outside-right\",\"heading\":512,\"seam\":true,\"x\":202,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":46554,\"y\":642}},{\"name\":\"outside-bottom\",\"heading\":512,\"seam\":true,\"x\":198,\"y\":194,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":7236,\"y\":1906}},{\"name\":\"newly-visible-terrain\",\"heading\":1024,\"seam\":true,\"x\":4,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":60254,\"y\":16528}},{\"name\":\"opaque-corner\",\"heading\":1024,\"seam\":true,\"x\":1,\"y\":1,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":61032,\"y\":2587}},{\"name\":\"outside-right\",\"heading\":1024,\"seam\":true,\"x\":202,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":6187,\"y\":16700}},{\"name\":\"outside-bottom\",\"heading\":1024,\"seam\":true,\"x\":198,\"y\":194,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":7400,\"y\":57656}},{\"name\":\"newly-visible-terrain\",\"heading\":1536,\"seam\":true,\"x\":4,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":21437,\"y\":2429}},{\"name\":\"opaque-corner\",\"heading\":1536,\"seam\":true,\"x\":1,\"y\":1,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":8054,\"y\":1619}},{\"name\":\"outside-right\",\"heading\":1536,\"seam\":true,\"x\":202,\"y\":50,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":21603,\"y\":58749}},{\"name\":\"outside-bottom\",\"heading\":1536,\"seam\":true,\"x\":198,\"y\":194,\"hitCanvas\":false,\"before\":{\"x\":0,\"y\":0,\"angle\":0},\"after\":{\"x\":0,\"y\":0,\"angle\":0},\"expected\":{\"x\":60920,\"y\":57485}}],\"scope\":\"Camera is fixed for each probe. Tests real DOM hit ownership and pointerdown, with unchanged map coordinate transforms. Rectangular corner reach is an intentional browser compatibility correction; native hit-region parity is unproved.\"}}\n",
+  "stderr": "",
+  "stdoutSha256": "f6b388182a0c47cf51cc6719a66d845a51543a2ec49da293d22eb54a8f1a113a",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "422b0165da1a454324620b7e8200be5ce34ba346",
+    "branch": "recovery/minimap-frame-20261004",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/minimap-frame-hits.mjs": "77b6e7e984dbb812b5449d009601e96ff098d5e6c7e61819b45b58ac0c73d08f"
+    }
+  }
+}

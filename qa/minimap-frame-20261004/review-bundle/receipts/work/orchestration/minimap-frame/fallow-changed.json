@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "51f0bb76-93b5-4d5e-b180-f27af32176e6",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "422b0165da1a454324620b7e8200be5ce34ba346",
+    "branch": "recovery/minimap-frame-20261004",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/fallow",
+    "--changed-since",
+    "155e591760f5c60325bb7bf47eb8cc5f7021ab04",
+    "health",
+    "--hotspots",
+    "--targets"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T07:20:32.374Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/minimap-frame/fallow-changed.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/minimap-frame/fallow-changed.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T07:20:34.917Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "■ Metrics: 1,913 LOC · dead files 0.0% · dead exports 0.0% · avg cyclomatic 2.5 · p90 cyclomatic 4 · maintainability 89.3 (good) · 1 churn hotspot (since 6 months) · 3 unused deps\n\n  Parameters:    96% low · 3% medium · 1% high · 0% very high  (0-2 / 3-4 / 5-6 / >=7 params)\n\n  Render fan-in: <HudSprite> 4 parents (6 incl. repeats) · <FollowerNumber> 1 parent (2 incl. repeats) · <FollowerIcon> 1 parent (1 incl. repeats) · <ManaMeter> 1 parent (1 incl. repeats) · <PopulationMeter> 1 parent (1 incl. repeats)\n\n● Hotspots (2 files, since 6 months)\n\n  100.0 ▼  app/page.tsx\n          83 commits   3480 churn  0.29 density   2 fan-in  ▼ cooling\n\n    5.8 ▼  scripts/local-render/minimap-frame.mjs\n           5 commits    124 churn  0.24 density   0 fan-in  ▼ cooling\n\n  5 files excluded (< 3 commits)\n\n  Files with high churn and high complexity: https://docs.fallow.tools/explanations/health#hotspot-metrics\n\n● Refactoring targets (2)\n  1 medium · 1 high\n    score = quick-win ROI (higher = better) · pri = absolute priority\n\n   16.6  pri:49.7    app/page.tsx\n         complexity · effort:high · confidence:high  Extract Home (cognitive: 420) in 1452-LOC file into smaller functions\n         importers: scripts/check-browser-invented-ui-copy.mjs (side effect); tests/minimap-frame.test.mjs (side effect)\n         clones: app/page.tsx:1331-1346 dup:6f87acd9; app/page.tsx:1347-1360 dup:6f87acd9\n\n    5.9  pri:11.8    tests/minimap-frame.test.mjs\n         untested risk · effort:medium · confidence:high  2 complex functions lack test coverage path, add tests before modifying\n\n  Prioritized refactoring recommendations based on complexity, churn, and coupling signals: https://docs.fallow.tools/explanations/health#refactoring-targets\n\n",
+  "stderr": "loaded config: <SOURCE_ROOT>/.fallowrc.json\n  note: git churn analysis took 1.8s (cached for next run at same HEAD)\n\n✗ 14 above threshold · 210 analyzed (1.82s)\n",
+  "stdoutSha256": "32a4289a65fd918a1f1385157cc2db93df2ba31e99557bbf20302217457699d4",
+  "stderrSha256": "263fcc4bd092323c68b69f6585734e828fa0edd326bd848f60dab84fa7442eb4",
+  "sourceAfter": {
+    "headOid": "422b0165da1a454324620b7e8200be5ce34ba346",
+    "branch": "recovery/minimap-frame-20261004",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

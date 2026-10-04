@@ -1,0 +1,253 @@
+{
+  "version": 1,
+  "kind": "pnd-review-bundle",
+  "taskId": "minimap-frame-176",
+  "repository": {
+    "branch": "recovery/minimap-frame-20261004",
+    "baseCommit": "155e591760f5c60325bb7bf47eb8cc5f7021ab04",
+    "headOid": "422b0165da1a454324620b7e8200be5ce34ba346"
+  },
+  "diff": {
+    "path": "changes.patch",
+    "sha256": "6f61cc1a9a65f16c23f7fd40e6c1e2fe875e3a13dbfeb8b5ce229eb378b5b7af",
+    "bytes": 52107
+  },
+  "sources": [
+    {
+      "status": "M",
+      "path": "app/globals.css",
+      "state": "present",
+      "sha256": "32a143c96b53a9b3bc8904e9947a82a119c9127082b420c9ba4758a0ba09514f",
+      "blobOid": "4ef928181ba110ef52446563b196a138961f9f7f",
+      "bytes": 13458
+    },
+    {
+      "status": "A",
+      "path": "app/minimap-frame-view.tsx",
+      "state": "present",
+      "sha256": "44e4882d2435eb3d64c4a2a2e557888b0745db97a273bba1823aaec7def2a021",
+      "blobOid": "8fa49593dfe419d0c3978eee1c29386c996aff39",
+      "bytes": 1291
+    },
+    {
+      "status": "A",
+      "path": "app/minimap-frame.ts",
+      "state": "present",
+      "sha256": "6df4c733cafc8fb8fac7dcc807fc4c63eba8d994917a2cb764b85fa5d61138a1",
+      "blobOid": "143570299588e2f3c3432776948b1fea6d7fb5b2",
+      "bytes": 2220
+    },
+    {
+      "status": "A",
+      "path": "app/original-minimap-frame.json",
+      "state": "present",
+      "sha256": "df4ca23395c73fbd6e41e1768ab63ab7dd55fc3e8d0e610022b5f28ef03d9c09",
+      "blobOid": "f461b56ff9d9247c6fed6612e4ac484b57c18b2d",
+      "bytes": 819
+    },
+    {
+      "status": "M",
+      "path": "app/page.tsx",
+      "state": "present",
+      "sha256": "3939fa05a5f20bd42c2f73bc0c9b53d79b3505397718b59d42d573917adba140",
+      "blobOid": "9e5328de0238a8dbc1c7fb298cc179253f001a23",
+      "bytes": 58570
+    },
+    {
+      "status": "M",
+      "path": "decomp/README.md",
+      "state": "present",
+      "sha256": "fe54bd285052b15bda09fa6a51bfd389a5d00496f29d2f50c0f8599cb20a3245",
+      "blobOid": "08e77edafbcafa9d06a53a8e3e09533b36ec0a83",
+      "bytes": 325796
+    },
+    {
+      "status": "A",
+      "path": "decomp/research/minimap-frame.md",
+      "state": "present",
+      "sha256": "9a64966461defcf4be81f7fb4d1be8296b13a69a5510871bfad16ee1cc4a3007",
+      "blobOid": "4ee8c132ded0ed92d4798c0e6b6601651410446e",
+      "bytes": 5352
+    },
+    {
+      "status": "M",
+      "path": "engineering/generated-files.json",
+      "state": "present",
+      "sha256": "c3909916605296a6e7ef5639f93a8ad9e359fe2856fef9ccaf50a92dd1252de1",
+      "blobOid": "95ef2214449e1bf020db4a7caa000d349e2823ff",
+      "bytes": 17438
+    },
+    {
+      "status": "M",
+      "path": "engineering/project-map.json",
+      "state": "present",
+      "sha256": "c31fb50896830851e94088ed1d28d62395bd86ae3894e1cf89b63c15f442ada8",
+      "blobOid": "62bf3709c317d3f4f209953a5f0ce6a81e2695b4",
+      "bytes": 51936
+    },
+    {
+      "status": "A",
+      "path": "public/original/minimap-frame.png",
+      "state": "present",
+      "sha256": "2b840dc9142b2441f1e2c0f60b719637252f6c5a91bdd488efefcb576ebf4b93",
+      "blobOid": "b9ce20da9d0cc891c54e775f552866a59e329af3",
+      "bytes": 4619
+    },
+    {
+      "status": "A",
+      "path": "scripts/check-native-minimap-frame.py",
+      "state": "present",
+      "sha256": "7e25187b413aeea6086cbbec4edd2fdf4571acf5248307e5b2db751c6abcf11a",
+      "blobOid": "5e4a01f277e7659f0c886adeb61c0897e5feeef2",
+      "bytes": 9259
+    },
+    {
+      "status": "A",
+      "path": "scripts/import-minimap-frame.py",
+      "state": "present",
+      "sha256": "607cd5df59939ae22ece535d2aebc5492a8b15bedda06a4b9f218c4405234372",
+      "blobOid": "68cd3aac7bb425ebb1d7949ca3f782461dfcac04",
+      "bytes": 2135
+    },
+    {
+      "status": "A",
+      "path": "scripts/local-render/minimap-frame-baseline.mjs",
+      "state": "present",
+      "sha256": "7967bfd2ac61e1b0b0682753447cc43bb0ec2b388f0ecf98d77b65a7796db082",
+      "blobOid": "b89174ab537c2bda1fbed53aca87a06cbe5eed95",
+      "bytes": 1557
+    },
+    {
+      "status": "A",
+      "path": "scripts/local-render/minimap-frame-hits.mjs",
+      "state": "present",
+      "sha256": "77b6e7e984dbb812b5449d009601e96ff098d5e6c7e61819b45b58ac0c73d08f",
+      "blobOid": "a4da592e33c077b9125fc43f3531546d1c76066a",
+      "bytes": 3305
+    },
+    {
+      "status": "A",
+      "path": "scripts/local-render/minimap-frame.mjs",
+      "state": "present",
+      "sha256": "073409abd7f11cab4a6a30c303afbdecbf90373040f696ce1b146d1587f6324e",
+      "blobOid": "af0865d0713edd05f4849448f04ccdc505ec023b",
+      "bytes": 7684
+    },
+    {
+      "status": "A",
+      "path": "tests/minimap-frame.test.mjs",
+      "state": "present",
+      "sha256": "83b15c5b871e2dee2f82572b1c724d757635fc03730cea35f95494ab0a2b7145",
+      "blobOid": "689f3a4657335dcaf90c50f9a578347f6135cb9a",
+      "bytes": 4490
+    }
+  ],
+  "receipts": [
+    {
+      "sourcePath": "work/orchestration/minimap-frame/check-integrated.json",
+      "sourceSha256": "d83872c6d967f27d8e1169006d47a92bfa6b05fbf34bbf3f2f444ea37425e257",
+      "sourceBytes": 97953,
+      "bundlePath": "receipts/work/orchestration/minimap-frame/check-integrated.json",
+      "bundleSha256": "9de4e0e1ea379dec4845cf8ba3b6e45dbe0cc183ba779bd54687d5c1fea0c6f1",
+      "bundleBytes": 97800,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/minimap-frame/build-integrated.json",
+      "sourceSha256": "45c5d0a7cf7ddd655efd99d9a545c4270d29f342f23ade45b6a84aeaf7375201",
+      "sourceBytes": 4214,
+      "bundlePath": "receipts/work/orchestration/minimap-frame/build-integrated.json",
+      "bundleSha256": "64a2ee2fc9e37a4d12538de68c511e65cf52ae0ad9d9ac053d5f86bd31fa5b79",
+      "bundleBytes": 4061,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/minimap-frame/native-frame-complete-inputs.json",
+      "sourceSha256": "36660189cdc26390c4cf53e7af3bd70431de91333b51e5f1b7b433c257d6e517",
+      "sourceBytes": 6688,
+      "bundlePath": "receipts/work/orchestration/minimap-frame/native-frame-complete-inputs.json",
+      "bundleSha256": "07b155af8141f30b8a590142692610925ff3e8bca7146ab6688198e443cffd98",
+      "bundleBytes": 6535,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/minimap-frame/native-map-integrated.json",
+      "sourceSha256": "b6c6dd8fbc7630e2354a38ad53854a9c421170f188dbce5d7efcadc8e79503fe",
+      "sourceBytes": 2775,
+      "bundlePath": "receipts/work/orchestration/minimap-frame/native-map-integrated.json",
+      "bundleSha256": "d37e64890a6b255e1ee68a91189351706fe712a3777b4f209b6cf90cf6fc9a22",
+      "bundleBytes": 2622,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/minimap-frame/browser-integrated/receipt.json",
+      "sourceSha256": "1ea875645d6a9ad33e8422ecee77864a65b9de678ff9dbb02b1af19435f3089b",
+      "sourceBytes": 9781,
+      "bundlePath": "receipts/work/orchestration/minimap-frame/browser-integrated/receipt.json",
+      "bundleSha256": "d4d01b332c6901f21a26c854775e84074d9611546d42f12f2b83e6ffdfefd267",
+      "bundleBytes": 9679,
+      "redactions": 2
+    },
+    {
+      "sourcePath": "work/orchestration/minimap-frame/hits-final/receipt.json",
+      "sourceSha256": "a8c19ea1102bb4ac5805df391d3a2907ac85053dc0bc74d475b44607773f57cc",
+      "sourceBytes": 16601,
+      "bundlePath": "receipts/work/orchestration/minimap-frame/hits-final/receipt.json",
+      "bundleSha256": "d9f0aba5088c18ed0007dc69558efc62628a3c9fdb9c351ce222701d1118322b",
+      "bundleBytes": 16499,
+      "redactions": 2
+    },
+    {
+      "sourcePath": "work/orchestration/minimap-frame/hits-baseline-bound.json",
+      "sourceSha256": "d6704dbd8453c264988a1285d6ec971e43729e0c30bb5d9171536848caf809fb",
+      "sourceBytes": 9735,
+      "bundlePath": "receipts/work/orchestration/minimap-frame/hits-baseline-bound.json",
+      "bundleSha256": "b29e014aeb06528b74e575dbc0e4f041aa42c2181663c7e9a77c8bfcba865304",
+      "bundleBytes": 9582,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/minimap-frame/format-scoped.json",
+      "sourceSha256": "2b4cc5f03309fb03d5761f3cfedd302781e8bc658bb41ba324dfe7b6077aee69",
+      "sourceBytes": 1622,
+      "bundlePath": "receipts/work/orchestration/minimap-frame/format-scoped.json",
+      "bundleSha256": "b10b67c45cef5eb7fbdeab64e0173ca0649558b2831faf2f668766879f2a4961",
+      "bundleBytes": 1469,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/minimap-frame/eslint-new-frame.json",
+      "sourceSha256": "41724abd842ba72c2ac7ac64117c51505e788df177177db2373174e01ec3d545",
+      "sourceBytes": 1480,
+      "bundlePath": "receipts/work/orchestration/minimap-frame/eslint-new-frame.json",
+      "bundleSha256": "3cd893c03f1bd38a8a50b21d3219d09afc14c2089babaa4564e94d39f0522263",
+      "bundleBytes": 1327,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/minimap-frame/oxlint-new-frame.json",
+      "sourceSha256": "413c40fc46ff6d8f57696ff770489852710ce5ba22a17bb3ceb1640cc33b8451",
+      "sourceBytes": 1480,
+      "bundlePath": "receipts/work/orchestration/minimap-frame/oxlint-new-frame.json",
+      "bundleSha256": "0e43a551dc70ed74b116328389eb77670bb6f781bb6385bbef0f253db9a78133",
+      "bundleBytes": 1327,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/minimap-frame/fallow-changed.json",
+      "sourceSha256": "ef64cb62459613e8be1d7640f5fd1fb50cd855a1a19c4fb9335bb2b720ac2ceb",
+      "sourceBytes": 3553,
+      "bundlePath": "receipts/work/orchestration/minimap-frame/fallow-changed.json",
+      "bundleSha256": "07963b8410836b9e53084ffba600a7fac6136b43910b8814b4a6ba0711e30393",
+      "bundleBytes": 3349,
+      "redactions": 4
+    }
+  ],
+  "reviewerPreflight": {
+    "instructions": "Open this bundle in a permitted executor and verify it against trusted caller-supplied identities before review.",
+    "verify": [
+      "node",
+      "verify.mjs"
+    ]
+  }
+}
