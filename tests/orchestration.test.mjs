@@ -849,6 +849,30 @@ test('Shaman appearance context keeps its complete checks and evidence within th
   assert.equal(packet.executesChecks, false)
 })
 
+// Task-table evidence has its own bounded packet; world picking must retain its limits.
+test('Followers task context retains complete checks without bloating selection context', () => {
+  const { project, checks } = validateRepository(ROOT)
+  const mapping = project.subsystems.find(item => item.id === 'follower-task-controls')
+  const selection = project.subsystems.find(item => item.id === 'selection')
+  const expected = ['follower-tasks-portable', 'follower-tasks-native', 'follower-task-art-native',
+    'follower-task-adapters-native', 'follower-tasks-browser']
+  assert.deepEqual(mapping.checkIds, expected)
+  assert.ok(expected.every(id => !selection.checkIds.includes(id)))
+  const packet = contextPacket(ROOT, { subsystem: 'follower-task-controls' })
+  assert.equal(packet.budgetBytes, 24_000)
+  assert.ok(packet.contextBytes <= packet.budgetBytes)
+  assert.deepEqual(packet.checks.map(check => check.id), expected)
+  for (const projected of packet.checks) {
+    const original = checks.checks.find(check => check.id === projected.id)
+    for (const key of ['purpose', 'knownLimits', 'prerequisites', 'sideEffects', 'resources'])
+      assert.deepEqual(projected[key], original[key])
+    assert.deepEqual(projected.command, [original.executable, ...original.args])
+  }
+  for (const reference of mapping.evidence)
+    assert.ok(packet.sourceExcerpts.some(item => item.path === reference.path && item.headingTrail.at(-1) === reference.heading))
+  assert.equal(packet.executesChecks, false)
+})
+
 test('plan handles cross-cutting edits, renames, deletions, untracked and unsafe inputs without executing checks', () =>
   withRepo(repo => {
     const base = run(repo, 'git', 'rev-parse', 'HEAD').trim()
