@@ -6,9 +6,11 @@ from00890390, overlapping loaded mwsearch.dat at008929cd. The pinned file hash
 was checked before this destructive fixture reset, so it did not protect the
 actual consumed bytes. The repair restricts the unit-table clear to0x2000 and
 asserts intact pinned search bytes after every setup and native invocation. All
-original passes/failures are retained. Revalidation is pending; the three-hit
-claim below must not be treated as accepted evidence or an implementation target.
-Runtime work is paused until an intact-table native run and independent review.
+original passes/failures are retained. An intact-table original run at0d2a434 failed the deliberately retained old
+three-hit assertion and exposed the corrected native row: life3000→2000→1000,
+two actual damage calls per visit, no panic/RNG change. Expectations below are
+derived from that original row and independent decoding of the pinned ring data.
+Complete corrected revalidation and independent review remain pending.
 
 This bounded repair is separate from command18 startup and from the already
 accepted model12 body/spirit presentation. It does not complete issue #30.
@@ -26,7 +28,9 @@ damage `004da080`. The original main loop `004ec6f0` additionally proves the fir
 cross-class processing visits. No damage/state initializer is mocked. Rendering,
 terrain notifications, sound-device operations, final removal, formation/motion
 world consumers, and unrelated main-loop processors are supplied. This is bounded
-original PE execution in Unicorn, not an original-game replay.
+original PE execution in Unicorn, not an original-game replay. Every fixture setup
+and native invocation verifies the full mapped search table and all244 configured
+constant targets; the run repeats the guard at completion.
 
 Inputs: original EXE SHA256
 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`, shipped
@@ -76,7 +80,7 @@ model12 lifecycle checks. No new Ghidra export was needed.
   suppression, Shield, Bloodlust and attacker credit. Shield still permits panic.
 - Flags2/0x100000 prevents the state transition, **not damage**. Native search
   ring endpoints repeat. A protected Brave at the exact centered cell receives
-  three 500-life hits in each of the first two wave visits; state26 naturally
+  two 500-life hits in each of the first two wave visits; state26 naturally
   suppresses these repeats for ordinary people. Do not deduplicate cell visits.
 - Shared terrain changes precede radius growth and orbit movement. An empty-cell
   lifetime uses32 model60 orbits,672 model61 sparkle allocations, sound158 once,
@@ -101,8 +105,8 @@ geometry/rendering does not silently change its conversion or cell consumers.
 ## Reproduction and limits
 
 `python scripts/check-native-reincarnation-wave.py "$POPULOUS_EXE"` is read-only
-with respect to tracked fixtures/assets. The development composed run passed in
-0.52 seconds before runtime edits. The preceding outer-loop harness attempt
+with respect to tracked fixtures/assets. The initial development composed run passed in0.52 seconds before runtime edits,
+but its search-dependent results are superseded as explained above. The preceding outer-loop harness attempt
 failed because a supplied terrain-notification leaf had two hooks and returned
 twice; removing the duplicate hook fixed the harness without changing native code.
 A later asserted producer gate exposed an inconsistent fixture that changed +0x74
@@ -114,3 +118,9 @@ repair must preserve a one-shot allocation-result boundary and failure regressio
 it must not invent a global pool limit or claim full native pool exhaustion parity.
 Native helper composition, live normal-death acceptance, checkpoint continuation,
 rendered pixels, and hardware performance are distinct claims.
+
+The corrected native memory-gap trace records only the one-byte allocation flag
+0089243a read and no writes in00892390..0089290d. This is distinct from the search
+slot reset0089290d..008929cd. All fixture handles fit below00891a10; all configured
+constant targets lie in005a70d2..005aa5e0, outside fixture reset writes. The old
+clear had overwritten2,499 search bytes, including every ring descriptor.

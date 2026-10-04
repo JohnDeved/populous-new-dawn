@@ -134,8 +134,8 @@ for row in rows:
  if excluded:
   assert before==first==second and not row['events'] and len(set(row['rng']))==1,row
  elif case.get('flags2',0)&0x100000:
-  assert first['state']==17 and first['life']==1500 and second['life']==0,row
-  assert row['events']==row['secondEvents']==[['0x4da080',10]]*3,row
+  assert first['state']==17 and first['life']==2000 and second['life']==1000,row
+  assert row['events']==row['secondEvents']==[['0x4da080',10]]*2,row
   assert len(set(row['rng']))==1,row
  else:
   damage=row['descriptor']//2
