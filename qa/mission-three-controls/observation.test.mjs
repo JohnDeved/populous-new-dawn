@@ -151,6 +151,65 @@ test('ground input evidence correlates the requested point, new marker and actua
   assert.throws(() => acceptedOrderEvidence(before, after, { point: { x: 0, z: 0 } }), /recipient/)
 })
 
+test('an actually observed owned marker survives expiry as dispatch-correlated evidence', () => {
+  const w = world(), epoch = createEpoch('entry'), point = { x: 35, z: 81 }
+  w.turn = 120; w.time = 10; w.lastOrderTurn = 119
+  w.effects = []; w.secondaryEffects = { slots: [] }
+  recordTurn(epoch, w)
+  const before = { turn: 120, lastOrderTurn: 119, pointerAck: { target: 0, until: 5 },
+    selected: [46], units: [{ id: 46, order: null }], effects: [], observation: structuredClone(epoch) }
+  w.lastOrderTurn = 120; w.turn = 121; w.time = 121 / 12
+  w.effects = [{ id: 700, kind: 'orderMarker', ...point, turnsRemaining: 3 }]
+  w.secondaryEffects.slots = [{ kind: 'orderMarker', effect: 700, serial: 12 }]
+  const unchanged = structuredClone(w)
+  recordTurn(epoch, w); recordTurn(epoch, w)
+  assert.deepEqual(w, unchanged, 'Observation never extends or changes the live marker')
+  // The normal secondary owner removes the marker at its fourth visit, before
+  // the host's later page snapshot. This fixture does not run or change clocks.
+  w.turn = 130; w.time = 130 / 12; w.effects = []; w.secondaryEffects.slots = []
+  recordTurn(epoch, w)
+  const after = { ...before, turn: 130, lastOrderTurn: 120,
+    pointerAck: { target: 0, until: 6 }, observation: structuredClone(epoch),
+    units: [{ id: 46, order: { model: 3, a: 11008, b: 42752 } }] }
+  const accepted = acceptedOrderEvidence(before, after, { point })
+  assert.equal(accepted.kind, 'fresh-input-new-order')
+  assert.equal(accepted.marker.id, 700)
+  assert.equal(epoch.orderMarkers.length, 1, 'Retain one copied first observation per allocation')
+  assert.equal(epoch.orderMarkers[0].secondarySerial, 12)
+  for (const mutate of [
+    e => { e.orderMarkers = [] },
+    e => { e.name = 'reload' },
+    e => { e.orderMarkers[0].commandTurn = 119 },
+    e => { e.orderMarkers[0].observedTurn = 119 },
+    e => { e.orderMarkers[0].x = 0 },
+  ]) {
+    const invalid = structuredClone(after); mutate(invalid.observation)
+    assert.throws(() => acceptedOrderEvidence(before, invalid, { point }), /marker/)
+  }
+  assert.throws(() => acceptedOrderEvidence({ ...before, observation: structuredClone(epoch) }, after, { point }), /marker/)
+  assert.throws(() => acceptedOrderEvidence(before, { ...after, pointerAck: before.pointerAck }, { point }), /fresh/)
+  assert.throws(() => acceptedOrderEvidence(before, { ...after, units: [] }, { point }), /recipient/)
+})
+
+test('marker history requires actual secondary ownership and retains a bounded cursor window', () => {
+  const w = world(), epoch = createEpoch('entry')
+  w.effects = [{ id: 1, kind: 'orderMarker', x: 35, z: 81 }]
+  w.secondaryEffects = { slots: [] }
+  recordTurn(epoch, w)
+  assert.equal(epoch.orderMarkerCursor, 0)
+  assert.deepEqual(epoch.orderMarkers, [], 'An unowned visual is never invented as an allocated marker')
+  for (let id = 1; id <= 513; id++) {
+    w.turn = id; w.time = id / 12; w.lastOrderTurn = id - 1
+    w.effects = [{ id, kind: 'orderMarker', x: 35, z: 81, turnsRemaining: 3 }]
+    w.secondaryEffects.slots = [{ kind: 'orderMarker', effect: id, serial: id }]
+    recordTurn(epoch, w)
+  }
+  assert.equal(epoch.orderMarkers.length, 512)
+  assert.equal(epoch.orderMarkerCursor, 513)
+  assert.equal(epoch.orderMarkers[0].cursor, 2)
+  assert.equal(createEpoch('reload').orderMarkerCursor, 0)
+})
+
 test('construction progress includes assigned workers while delivered logs remain unchanged', () => {
   const s = { units: [{ id: 5, x: 10, z: 20, work: 7, cargo: 0 }],
     buildings: [{ id: 7, logs: 0, progress: 0, builders: [5] }], status: 'playing' }

@@ -25,7 +25,7 @@ node --check qa/mission-three-controls/driver.mjs
 node --test qa/mission-three-controls/observation.test.mjs
 ```
 
-The fifteen isolated tests cover original callback receiver/arguments/return and
+The seventeen isolated tests cover original callback receiver/arguments/return and
 exact invocation count; diagnostic exception isolation versus real application
 exceptions; idempotent detach; separate reload/time epochs; strict singleton
 conversion identity; rejecting death/poll gaps; and progress that ignores a
@@ -34,7 +34,10 @@ diagnostic exceptions, copied native admission occupancy/queue data, and the
 explicit incomplete-stop classification, authored allocation identity, fresh
 command/recipient/ground-target correlation, worker construction progress and
 wall-clock diagnostic boundaries and terminal observed-defeat classification at
-all batch/wait/catch boundaries. The tests use isolated plain JS data, not the
+all batch/wait/catch boundaries. Temporal cases preserve an actually observed
+secondary-owned ground marker after its four-turn expiry, reject stale or missing
+witnesses and cross-reload history, and verify the bounded512-marker cursor window.
+The tests use isolated plain JS data, not the
 game simulation, browser, assets, native executable or installed packages.
 
 ## Reserved future launch
@@ -54,7 +57,8 @@ driver's initial 90-minute wall envelope. It is not a gameplay ETA. The initial
 active budgets are 10 pooled game minutes through reloaded conversion, then 30
 from that conversion milestone through the result. Changing a budget requires a
 reviewed checker revision and coordinator ownership, not a runtime clock change.
-Each wait checks state each second and reports stage progress at 30-active-second
+The marker observation repair is described in `marker-expiry.md`; its failed
+first run remains failed. Each wait checks state each second and reports stage progress at 30-active-second
 intervals. Two active minutes without relevant progress, 30 wall seconds without clock/RAF
 advancement, or a stage/resource budget stop ends as an explicitly incomplete
 observation and best-effort UI checkpoint. These do not become gameplay assertion
@@ -135,7 +139,11 @@ retained screenshots/snapshots and journal, then choose ordinary commands:
 Start tactical batches with `resume`; batch boundaries are intentionally paused.
 Camera preparation must precede mode selection. A selected plan/spell must not
 be followed by a minimap helper that clears its mode. Entity clicks require a fresh dispatch timestamp/pointer acknowledgement and
-a matching selected follower work/target/order. An unchanged prior assignment is
+a matching selected follower work/target/order. Ground orders require a new marker
+at the requested coarse cell, either still live or actually captured after the
+pre-click observation cursor by the same scene/world epoch. The latter retains
+its allocation serial and dispatch turn through normal four-turn expiry.
+An unchanged prior assignment is
 explicitly labelled existing-order after fresh UI input, rather than a new order; they do not incorrectly demand a
 ground marker (the native context deliberately omits ground markers for objects).
 

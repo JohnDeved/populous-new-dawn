@@ -50,6 +50,8 @@ export default async function missionThreeControls({ page, output, root, signal,
   const read = () => page.evaluate(async () => {
     const s = window.testSceneRef?.current, store = window.testStore
     if (!s || store.getWorld() !== s.world) throw Error('Current scene/store mismatch')
+    if (window.m3Observation?.scene !== s || window.m3Observation.world !== s.world)
+      throw Error('Diagnostic epoch does not belong to the current scene/world')
     const { currentPersonOrder } = await import('/app/person-orders.ts')
     const { observeBuilding } = await import('/qa/mission-three-controls/observation.mjs')
     const { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs')
@@ -110,7 +112,7 @@ export default async function missionThreeControls({ page, output, root, signal,
       const scene = window.testSceneRef.current, epoch = createEpoch(name, baselineGameTime)
       if (window.m3Observation?.scene === scene) throw Error('Duplicate observer on one scene')
       const detach = attachObserver(scene.gameClock, scene.world, epoch)
-      window.m3Observation = { epoch, detach, scene }
+      window.m3Observation = { epoch, detach, scene, world: scene.world }
     }, { name, baselineGameTime })
   }
   const endEpoch = async () => {
@@ -255,6 +257,12 @@ export default async function missionThreeControls({ page, output, root, signal,
     log({ action: 'world-order-click', hit, selected: before.selected })
     await page.mouse.click(hit.x, hit.y); await page.mouse.move(400, 780)
     const after = await read()
+    const commandState = state => ({ turn: state.turn, lastOrderTurn: state.lastOrderTurn,
+      pointerAck: state.pointerAck, selected: state.selected, effects: state.effects,
+      units: state.units.filter(u => before.selected.includes(u.id)),
+      epoch: state.observation.name, orderMarkerCursor: state.observation.orderMarkerCursor,
+      orderMarkers: state.observation.orderMarkers.filter(e => e.cursor > before.observation.orderMarkerCursor) })
+    log({ action: 'world-order-observation', hit, before: commandState(before), after: commandState(after) })
     const acceptance = acceptedOrderEvidence(before, after, hit)
     log({ action: 'world-order-input-observed', hit, acceptance, selected: before.selected,
       orders: after.units.filter(u => before.selected.includes(u.id)).map(u => ({ id: u.id, order: u.order, work: u.work })) })

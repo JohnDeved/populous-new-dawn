@@ -29,6 +29,11 @@ export function requireNotDefeated(status) {
 const wrapped = v => ((v + 128) % 256 + 256) % 256 - 128
 const near = (a, b, radius) => Math.hypot(wrapped(a.x - b.x), wrapped(a.z - b.z)) <= radius
 const short = n => n << 16 >> 16
+const markerCell = point => ({
+  // Read-only equivalent of nativePosition → commandMarkerPoint → browserPosition.
+  x: short(((Math.round((point.x + 8) * 256) & 0xfe00) + 256) - 2048) / 256,
+  z: -short(((Math.round((-point.z - 8) * 256) & 0xfe00) + 256) + 2048) / 256,
+})
 export function acceptedOrderEvidence(before, after, hit) {
   if (!(after.lastOrderTurn > before.lastOrderTurn && after.lastOrderTurn >= before.turn &&
     after.pointerAck.until > before.pointerAck.until && after.pointerAck.target === (hit.id ?? 0)))
@@ -41,8 +46,15 @@ export function acceptedOrderEvidence(before, after, hit) {
   if (!recipients.length) throw Error('No selected recipient carries the requested target')
   let marker = null
   if (!hit.id) {
+    const cell = markerCell(hit.point)
     marker = after.effects.find(e => e.kind === 'orderMarker' &&
-      !before.effects.some(old => old.id === e.id) && near(e, hit.point, 1.5))
+      !before.effects.some(old => old.id === e.id) && near(e, cell, 1 / 256))
+    if (!marker && before.observation?.name === after.observation?.name)
+      marker = after.observation?.orderMarkers.find(e =>
+        e.cursor > before.observation.orderMarkerCursor &&
+        e.commandTurn === after.lastOrderTurn && e.observedTurn >= e.commandTurn &&
+        e.observedTurn <= after.turn && !before.effects.some(old => old.id === e.id) &&
+        near(e, cell, 1 / 256))
     if (!marker) throw Error('No fresh ground marker at the requested cell')
   }
   const unchanged = recipients.every(u => {
@@ -59,7 +71,7 @@ export function createEpoch(name, baselineGameTime = 0) {
     throw Error('Observation epoch requires a name and nonnegative baseline')
   return { name, baselineGameTime, lastGameTime: baselineGameTime, activeSeconds: 0,
     firstTurn: null, lastTurn: null, samples: 0, conversions: null, errors: [],
-    speedViolations: [], firstConversion: null }
+    speedViolations: [], firstConversion: null, orderMarkerCursor: 0, orderMarkers: [] }
 }
 
 export function recordTurn(epoch, world) {
@@ -72,6 +84,17 @@ export function recordTurn(epoch, world) {
   epoch.firstTurn ??= world.turn
   epoch.lastTurn = world.turn
   epoch.samples++
+  for (const effect of world.effects ?? []) {
+    if (effect.kind !== 'orderMarker' || epoch.orderMarkers.some(e => e.id === effect.id)) continue
+    const owner = world.secondaryEffects?.slots.find(s => s?.kind === 'orderMarker' && s.effect === effect.id)
+    if (!owner) continue
+    epoch.orderMarkers.push({ cursor: ++epoch.orderMarkerCursor, id: effect.id,
+      x: effect.x, z: effect.z, observedTurn: world.turn, commandTurn: world.lastOrderTurn,
+      secondarySerial: owner.serial, turnsRemaining: effect.turnsRemaining })
+  }
+  // The secondary pool has160 slots. Keep a bounded observation window; accepted
+  // command logs separately retain each matched witness before it can be evicted.
+  if (epoch.orderMarkers.length > 512) epoch.orderMarkers.splice(0, epoch.orderMarkers.length - 512)
   if (world.speed !== 1 && !epoch.speedViolations.includes(world.speed))
     epoch.speedViolations.push(world.speed)
   epoch.conversions = observeCampaignConversions(world, epoch.conversions)

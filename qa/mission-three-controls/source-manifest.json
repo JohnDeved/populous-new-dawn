@@ -149,8 +149,28 @@
     {
       "path": "scripts/browser-game.mjs",
       "sha256": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9"
+    },
+    {
+      "path": "app/world-effects.ts",
+      "sha256": "4b7229dbb6b62700d0a1f1a7e5f73dbda664f7f7d1da3854d243b15d785b6f85"
+    },
+    {
+      "path": "app/hut-smoke-runtime.ts",
+      "sha256": "db740f09664eb124bba32f95740eb2842fe441bbaaa0653e408f4eba68f2a8c7"
+    },
+    {
+      "path": "app/secondary-effects.ts",
+      "sha256": "d3cd7bcadad17a6bb95204040a1da6a43f66cd7488295ae38440e42420582417"
+    },
+    {
+      "path": "app/world-terrain-runtime.ts",
+      "sha256": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757"
+    },
+    {
+      "path": "app/world-coordinates.ts",
+      "sha256": "5fab890c7ab683323d873c7350700a0bb3bf977f1b6512ddca6fa823f5a5fa4f"
     }
   ],
   "originalInspectionCommit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
-  "sourceRefresh": "Accepted main through PR185/196. Four guarded callers refreshed after inspecting transport-only additions, unchanged ordinary dispatch/load/clock paths, and rendered-geometry helpers. Other guard hashes and driver bytes unchanged; production build corresponds to accepted cf43509."
+  "sourceRefresh": "Accepted main through PR185/196. Four guarded callers refreshed after inspecting transport-only additions, unchanged ordinary dispatch/load/clock paths, and rendered-geometry helpers. Other guard hashes and driver bytes unchanged; production build corresponds to accepted cf43509. Marker-expiry repair guards the actual secondary owner, four-turn lifetime, and native/coarse-cell coordinate adapters."
 }
