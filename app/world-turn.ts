@@ -909,9 +909,10 @@ function stepTurn(w: World) {
       shrine.progress = 0
       if (shrine.kind !== 'mana' && shrine.kind !== 'inert') shrine.uses++
       if (shrine.kind === 'bridgeEffect') {
-        const bridge = effect(w, 'bridge', shrine)
+        const start = shrine.bridgeStart ?? shrine,
+          bridge = effect(w, 'bridge', start)
         bridge.bridge = createLandBridge(
-          nativePosition(w, shrine),
+          nativePosition(w, start),
           nativePosition(w, shrine.bridgeTarget!)
         )
         bridge.team = 'blue'
