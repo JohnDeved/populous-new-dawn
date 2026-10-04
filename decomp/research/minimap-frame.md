@@ -52,9 +52,15 @@ terrain canvas is removed: it masks the native rounded-rectangle hole into an
 ellipse and leaves background wedges at larger HUD sizes. A failure-first rendered
 comparison observed the wrong pixel at (44,3) for the 1280×720 viewport; native
 frame submissions plus the unchanged terrain buffer require the terrain there.
-This changes only the CSS mask, not canvas pixels or its input bounds.
+This changes the CSS mask and hit region, not canvas pixels, the canvas rectangle,
+or coordinate mapping. The full existing rectangular map domain is now clickable,
+including newly visible terrain outside the old ellipse and opaque artwork corners.
+This is an explicit browser compatibility correction so visible map area is usable;
+it is not new native input parity. Exact native hit-region/dispatcher behavior is
+still unproved and remains open. The old ellipse is not retained as an invisible
+hit mask, and sprite opacity is not used to create a new input mask.
 Canvas terrain, colors, rotation, markers,
-picking, simulation and checkpoints are not modified.
+pick-coordinate math, simulation and checkpoints are not modified.
 
 The modern outer rectangle retains the existing bounded, uniform HUD scale rather
 than reproducing native independent-axis stretching. Native frame composition is
@@ -65,6 +71,11 @@ than half a pixel. This is a display-size compatibility boundary, not original
 pixel equivalence at fractional CSS scales.
 
 ## Runnable verification
+
+`scripts/local-render/minimap-frame-hits.mjs` compares new terrain/corner hit
+ownership with the accepted baseline, four bearings, normal and wrapped centers,
+and points outside the actual right and bottom map bounds. This supplements the
+existing minimap central-click, seam, marker and terrain-invalidation checks.
 
 - `python scripts/check-native-minimap-frame.py "$POPULOUS_EXE"`: 13 native draw
   lists, both descriptors, 512/513 threshold, 640×480, 1280×720, 1440×1000 and 4K;

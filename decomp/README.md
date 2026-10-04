@@ -5133,8 +5133,10 @@ frame descriptors, all twelve corner/edge sprites, the original 100×96 control,
 unchanged corner dimensions, tiled edges, absent center and overlapping draw order.
 The native check executes the existing retained frame routines while intercepting
 only terrain refresh and final raster-queue consumers. Modern uniform outer sizing
-is kept distinct from native independent-axis scaling; no terrain/input behavior or
-parity credit changes.
+is kept distinct from native independent-axis scaling. The CSS ellipse removal
+explicitly expands pointer reach to the existing rectangular map domain; native
+hit-region parity remains open. Terrain pixels and pick-coordinate math are unchanged;
+no parity credit is added.
 
 ## Early Mission1/2 response scanner
 
