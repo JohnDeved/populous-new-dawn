@@ -242,15 +242,45 @@ async function entityPoint(page, collection, id) {
         projection: scene.view.projection, models: modelDetails,
         legacyScan: { left: center.x - (unit ? 36 : 100), right: center.x + (unit ? 36 : 100),
           top: center.y - (unit ? 24 : 140), bottom: center.y + (unit ? 24 : 60), step: 4 } }
-      for (const candidate of candidates) {
+      const probe = () => candidates.map(candidate => {
         const event = { clientX: bounds.left + candidate.x, clientY: bounds.top + candidate.y },
           person = scene.picking.pickPerson(event),
-          picked = unit ? person : person !== null ? undefined : scene.pickWorldObject(event)?.id
-        if (picked === id && document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement) {
-          const pickingDiagnostic = { ...diagnostic, hit: event, source: 'actual target triangle geometry' }
-          ;(globalThis.campaignPickDiagnostics ??= []).push(pickingDiagnostic)
-          return { x: event.clientX, y: event.clientY, pickingDiagnostic }
-        }
+          picked = unit ? person : person !== null ? undefined : scene.pickWorldObject(event)?.id,
+          element = document.elementFromPoint(event.clientX, event.clientY),
+          panel = element?.closest('.training-panel, .person-panel'),
+          rect = panel?.getBoundingClientRect()
+        return { event, person, picked, canvasOwnsPoint: element === scene.renderer.domElement,
+          owner: element && { tag: element.tagName, className: element.className },
+          panel: panel && { className: panel.className, label: panel.getAttribute('aria-label'),
+            rect: rect && { x: rect.x, y: rect.y, width: rect.width, height: rect.height } } }
+      })
+      let samples = probe()
+      diagnostic.nativeTargetHits = samples.filter(sample => sample.picked === id)
+      diagnostic.rejectedPickIds = [...new Set(samples.map(sample => sample.picked ?? null))]
+      let hit = samples.find(sample => sample.picked === id && sample.canvasOwnsPoint)
+      if (!hit && samples.some(sample => sample.picked === id && !sample.canvasOwnsPoint && sample.panel)) {
+        // A direct camera focus renders GPU geometry, but suspended RAF leaves
+        // world-panel DOM at the old camera coordinates. Let the normal frame
+        // owner refresh presentation, without advancing or editing simulation.
+        const before = structuredClone(world)
+        scene.animate(scene.previous)
+        cancelAnimationFrame(scene.frame)
+        const changedWorldKeys = Object.keys(world).filter(key =>
+          JSON.stringify(world[key]) !== JSON.stringify(before[key]))
+        diagnostic.frameRefresh = { turnBefore: before.turn, turnAfter: world.turn,
+          randomBefore: before.randomState, randomAfter: world.randomState,
+          selectedBefore: before.selected, selectedAfter: [...world.selected], changedWorldKeys }
+        if (changedWorldKeys.length)
+          throw new Error(`Zero-dt presentation refresh changed world state: ${JSON.stringify(diagnostic)}`)
+        samples = probe()
+        diagnostic.afterRefreshNativeTargetHits = samples.filter(sample => sample.picked === id)
+        hit = samples.find(sample => sample.picked === id && sample.canvasOwnsPoint)
+      }
+      if (hit) {
+        const pickingDiagnostic = { ...diagnostic, hit: hit.event,
+          source: unit ? 'actual person hit bounds' : 'actual target triangle geometry' }
+        ;(globalThis.campaignPickDiagnostics ??= []).push(pickingDiagnostic)
+        return { x: hit.event.clientX, y: hit.event.clientY, pickingDiagnostic }
       }
       ;(globalThis.campaignPickDiagnostics ??= []).push(diagnostic)
       throw new Error(`No rendered hit point for ${collection} object ${id}: ${JSON.stringify(diagnostic)}`)

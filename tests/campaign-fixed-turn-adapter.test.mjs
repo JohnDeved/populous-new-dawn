@@ -75,15 +75,19 @@ try {
 
 // Execute the maintained candidate finder against test-only geometry outside its
 // old anchor window. These tests never render or advance a game.
-async function geometryPoint({ actualHit = 55, canvasOwnsPoint = true } = {}) {
+async function geometryPoint({ actualHit = 55, canvasOwnsPoint = true, stalePanel = false, changeWorldOnRefresh = false } = {}) {
+  let refreshed = false
   const { default: vm } = await import('node:vm')
   const start = checker.indexOf('async function entityPoint(')
   const source = checker.slice(start, checker.indexOf('\nasync function groundPoint(', start))
-  const canvas = {}, child = { userData: { nativeModel: 149 }, visible: true }
+  const panel = { className: 'training-panel', getAttribute: () => 'Warrior Training Hut',
+    getBoundingClientRect: () => ({ x: 200, y: 150, width: 120, height: 80 }) }
+  const canvas = { closest: () => null }, child = { userData: { nativeModel: 149 }, visible: true }
   const mesh = { position: { toArray: () => [0, 1, 0] }, visible: true, traverse: fn => fn(child) }
   const scene = {
-    world: { turn: 6734, shrines: [{ id: 55, x: 0, z: 0, model: 45 }] },
+    world: { turn: 6734, selected: [], randomState: 123, shrines: [{ id: 55, x: 0, z: 0, model: 45 }] },
     container: { getBoundingClientRect: () => ({ left: 0, top: 0, width: 400, height: 300 }) },
+    animate() { refreshed = true; if (changeWorldOnRefresh) this.world.turn++ },
     focus() {}, onChange() {}, screen: () => ({ x: -0.75, y: 2 / 3 }),
     renderer: { domElement: canvas, render() {} },
     shrineMeshes: new Map([[55, { g: mesh }]]),
@@ -95,7 +99,8 @@ async function geometryPoint({ actualHit = 55, canvasOwnsPoint = true } = {}) {
     ] },
     pickWorldObject: ({ clientX: x, clientY: y }) => x >= 275 && x <= 285 && y >= 195 && y <= 205 ? { id: actualHit } : null,
   }
-  const sandbox = { testScene: scene, document: { elementFromPoint: () => canvasOwnsPoint ? canvas : {} } }
+  const sandbox = { testScene: scene, structuredClone, cancelAnimationFrame() {},
+    document: { elementFromPoint: () => canvasOwnsPoint || (stalePanel && refreshed) ? canvas : { closest: () => stalePanel ? panel : null } } }
   vm.runInNewContext(source + '\nglobalThis.findPoint = entityPoint', sandbox)
   return sandbox.findPoint({ evaluate: (fn, args) => fn(args) }, 'shrines', 55)
 }
@@ -111,4 +116,19 @@ test('actual native triangles supplement the historical fixed anchor scan', asyn
 test('geometry candidates cannot bypass foreign object or DOM overlay ownership', async () => {
   await assert.rejects(geometryPoint({ actualHit: 56 }), /No rendered hit point/)
   await assert.rejects(geometryPoint({ canvasOwnsPoint: false }), /No rendered hit point/)
+})
+
+
+test('normal zero-dt frame refresh resolves stale panel ownership without editing the world', async () => {
+  const point = await geometryPoint({ canvasOwnsPoint: false, stalePanel: true })
+  assert.equal(point.pickingDiagnostic.nativeTargetHits[0].panel.className, 'training-panel')
+  assert.equal(point.pickingDiagnostic.nativeTargetHits[0].canvasOwnsPoint, false)
+  assert.equal(point.pickingDiagnostic.afterRefreshNativeTargetHits[0].canvasOwnsPoint, true)
+  assert.equal(point.pickingDiagnostic.frameRefresh.changedWorldKeys.length, 0)
+  assert.equal(point.pickingDiagnostic.frameRefresh.turnBefore, point.pickingDiagnostic.frameRefresh.turnAfter)
+})
+
+test('presentation refresh cannot conceal a simulation change', async () => {
+  await assert.rejects(geometryPoint({ canvasOwnsPoint: false, stalePanel: true, changeWorldOnRefresh: true }),
+    /Zero-dt presentation refresh changed world state/)
 })
