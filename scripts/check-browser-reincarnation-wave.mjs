@@ -195,7 +195,7 @@ try {
       })
       s.animate(s.previous)
       window.stagedSwampReferences = traps
-      return traps.map(fx=>({id:fx.id,remaining:fx.swamp.remaining}))
+      return traps.map(fx=>({id:fx.id,remaining:fx.swamp.remaining,counter:fx.swamp.counter}))
     })
     await drawAtSite()
     report.swampPixels = await effectPixels(page, [report.stagedSwamps[0].id])
@@ -233,6 +233,7 @@ try {
         inside:w.effects.some(f=>f.id===traps[0].id),
         insideMesh:s.fxMeshes.has(traps[0].id),
         insideRemaining:window.stagedSwampReferences[0].swamp.remaining,
+        insideCounter:window.stagedSwampReferences[0].swamp.counter,
         outside:w.effects.some(f=>f.id===traps[1].id),
         outsideMesh:s.fxMeshes.has(traps[1].id),
         outsideRemaining:w.effects.find(f=>f.id===traps[1].id)?.swamp.remaining,
@@ -241,6 +242,7 @@ try {
     assert.equal(report.swampCleanup.inside, false)
     assert.equal(report.swampCleanup.insideMesh, false)
     assert.equal(report.swampCleanup.insideRemaining, report.stagedSwamps[0].remaining)
+    assert.equal(report.swampCleanup.insideCounter, report.stagedSwamps[0].counter)
     assert.equal(report.swampCleanup.outside, true)
     assert.equal(report.swampCleanup.outsideMesh, true)
     assert.equal(report.swampCleanup.outsideRemaining, report.stagedSwamps[1].remaining-1)
