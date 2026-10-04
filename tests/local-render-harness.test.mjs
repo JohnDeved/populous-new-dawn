@@ -64,7 +64,7 @@ async function lateScenarioResult(trigger) {
   server.stdout = stream; server.stderr = new EventEmitter(); server.stderr.pipe = () => {}
   const page = { on() {}, setDefaultTimeout() {}, async goto() {}, getByRole: () => ({ async waitFor() {} }), async screenshot() { screenshotCalls++; await lateCompletion } }
   const context = { on() {}, async newPage() { return page }, pages: () => [page] }
-  const browser = { version: () => 'test-only', async newContext() { return context }, contexts: () => [context], async close() { browserClosed = true } }
+  const browser = { version: () => 'test-only', isConnected: () => !browserClosed, async newContext() { return context }, contexts: () => [context], async close() { browserClosed = true } }
   let source = readFileSync(new URL('../scripts/local-render/harness.mjs', import.meta.url), 'utf8')
   source = source.slice(0, source.indexOf('\nif (process.argv[1]'))
     .replace(/^import .*$/gm, '').replaceAll('export ', '')
