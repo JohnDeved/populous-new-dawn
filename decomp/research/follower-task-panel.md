@@ -193,14 +193,20 @@ and renderer `004a1580`. Left callback decodes model=`key%8` and vehicle kind
 - Shift iterates matching occupied vehicles and selects their eligible passengers;
 - right click uses `004deb40(kind,model)`, independent per-kind/model memory and
   list cycling. It opens/focuses the vehicle, preserving passenger and vehicle bytes.
-  The initial lookup uses the same nearest helper with its focus inclusion mode.
+  The initial lookup uses the same nearest helper with its focus inclusion mode
+  and accepts already-selected passengers. **Native variant caveat:** search/cycle
+  lists include model2/4 as Boat/Balloon variants, but remembered focus validates
+  exact model1/3. With three occupied model2 (or model4) vehicles, four right clicks
+  all reacquire the same nearest vehicle; they do not cycle. Ten additional focus
+  edge cases retain that asymmetry instead of assuming ordinary cycling.
 
 Vehicle refresh `004a14e0` shows a row only when tribe+`0x941` has vehicle-presence
 bit `0x100` (Boat) / `0x200` (Balloon). This can be set by an empty owned vehicle;
 it is not a knowledge-unlock or occupied-count gate. Total remains enabled;
 class cells use live global class existence, not count of class-containing vehicles.
 144 refresh cases, 48 left producer cases, two mixed full count rebuilds, eight
-focus cycles, six full passenger-propagating commands and six search-priority cases
+focus cycles, ten variant/selected-passenger focus edge cases, six full
+passenger-propagating commands and ten search-priority/nearby cases
 bound this transport evidence. Broader vehicle gameplay/ownership transitions are
 not established by these crafted cases.
 

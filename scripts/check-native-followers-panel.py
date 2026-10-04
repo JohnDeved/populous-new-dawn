@@ -416,6 +416,32 @@ for kind in (1,3):
   assert bytes(cpu.mem_read(people,all_count*256))==before
  assert ids==[4,6,5,4],ids # rebuild prepends vehicles to list; nearest first, then wrap
 print('PASS: 8 complete occupied-vehicle focus cycles; no person/vehicle changes')
+# Search accepts kind variants, but remembered focus validates exact model1/3.
+# If nearest is model2/4, each new click invalidates memory and reacquires it.
+vehicle_focus_edges = 0
+for kind in (1, 3):
+    vehicle_people, vehicle_count = install_transport([
+        dict(model=kind + 1, passengers=[2]) for _ in range(3)])
+    memory = 0x899f67 if kind == 1 else 0x899f79
+    write(memory + 4, 'H', 0)
+    before = bytes(cpu.mem_read(people, vehicle_count * 256))
+    for _ in range(4):
+        observed.clear()
+        call(0x4deb40, kind, 2)
+        assert read(memory + 4, 'H') == 4
+        assert observed[0x504590] == [[people + 3 * 256, 0]]
+        assert bytes(cpu.mem_read(people, vehicle_count * 256)) == before
+        vehicle_focus_edges += 1
+    # Focus inclusion mode accepts already-selected matching passengers.
+    install_transport([dict(model=kind, passengers=[2])])
+    write(people + 0x7a, 'B', 128)
+    write(memory + 4, 'H', 0)
+    call(0x4deb40, kind, 2)
+    assert read(memory + 4, 'H') == 2
+    assert read(people + 0x7a, 'B') == 128
+    vehicle_focus_edges += 1
+print(f'PASS: {vehicle_focus_edges} alternate-model memory/selected-passenger focus edge cases')
+
 # Native selection marks all passengers of the matching vehicle, including other models.
 for kind in (1,3):
  for tag in (0x81,0x80,0x7f):
@@ -445,7 +471,17 @@ for kind in (1, 3):
     write(people + 3 * 256 + 0x3d, 'H', 3000)
     assert call(0x4514f0, 0, kind, 2, tribe + 0x24, 0) == people + 3 * 256
     vehicle_search_cases += 3
-print(f'PASS: {vehicle_search_cases} native vehicle search priority/passenger-distance cases')
+    # Nearby acceptance uses the vehicle; distance ranking uses the passenger.
+    install_transport([dict(model=kind, passengers=[2], x=7000),
+                       dict(model=kind, passengers=[2], x=256)], nearby=True)
+    write(people + 0x3d, 'H', 256)
+    write(people + 256 + 0x3d, 'H', 7000)
+    assert call(0x4514f0, 0, kind, 2, tribe + 0x24, 0) == people + 3 * 256
+    write(people + 2 * 256 + 0x3d, 'H', 256)
+    write(people + 3 * 256 + 0x3d, 'H', 7000)
+    assert call(0x4514f0, 0, kind, 2, tribe + 0x24, 0) == people + 2 * 256
+    vehicle_search_cases += 2
+print(f'PASS: {vehicle_search_cases} native vehicle search priority/nearby/passenger-distance cases')
 
 # Execute the original constructor and refresh chain, including child allocation.
 # Both native display modes use the same Followers child descriptor array.
@@ -506,7 +542,7 @@ receipt = dict(executable=identity, probeSha256=hashlib.sha256(Path(__file__).re
     checks=dict(callbacks=callback_cases, refresh=refresh_cases, classifications=classification_cases,
                 commands=len(selection_cases), rebuilds=rebuild_cases, focus=focus_cases, edges=edge_cases, vehicleRefresh=refresh_count,
                 vehicleCallbacks=48, vehicleRebuilds=2, vehicleFocus=8, vehicleCommands=6,
-                vehicleSearch=vehicle_search_cases, constructor=4),
+                vehicleSearch=vehicle_search_cases, vehicleFocusEdges=vehicle_focus_edges, constructor=4),
     constructorCases=constructor_cases,
     selectedRowCommands=[case for case in selection_cases if case['category'] == 1],
     limits=['No production implementation or parity claim.',

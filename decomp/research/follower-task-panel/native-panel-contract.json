@@ -5,7 +5,7 @@
     "debugDirectoryRva": 0,
     "debugDirectorySize": 0
   },
-  "probeSha256": "ad6df517bfd021746b068a161cb209675d5dd46e964ac9894402c53b60767dca",
+  "probeSha256": "a4d460567deb9453e8c007ceb1604aff4234a6bdf309ad946e8a54f56dbb55e2",
   "languageSha256": "e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d",
   "descriptors": [
     {
@@ -791,7 +791,8 @@
     "vehicleRebuilds": 2,
     "vehicleFocus": 8,
     "vehicleCommands": 6,
-    "vehicleSearch": 6,
+    "vehicleSearch": 10,
+    "vehicleFocusEdges": 10,
     "constructor": 4
   },
   "constructorCases": [
