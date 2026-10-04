@@ -50,7 +50,9 @@ vehicle destruction/flight, order replacement and checkpoint structures retain o
 
 A separate earlier boundary remains: issuing disguise aboard a Balloon reaches
 `configurePersonOrder`'s airborne destination branch, whose live `commandPosition`
-consumer is unported. This change does not claim Balloon disguise command completion.
+consumer was unported in this change. The later bounded
+[raw command-position adapter](balloon-command-position.md) repairs disguise
+startup without changing state30 or the separate passenger scheduler.
 The Balloon test deliberately enters state30 through the already-ported idle initializer.
 No transport ownership fields, lower-panel rows, vehicle AI or parity credit changes
 are included. No complete native game execution or hardware-performance claim is made.

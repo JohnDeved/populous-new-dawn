@@ -621,6 +621,11 @@ The Node ownership regression follows two followers through shared assignment,
 replacement and final-reference deletion. Full eight-slot queue overflow is
 explicitly rejected; the native out-of-bounds memory write is not represented.
 
+Balloon raw-payload startup is documented in
+[`research/balloon-command-position.md`](research/balloon-command-position.md).
+Its native probe executes the real configuration/position composition; packed
+cell and object position branches remain explicit live boundaries.
+
 ## Person initialization and training handoff
 
 ```sh
