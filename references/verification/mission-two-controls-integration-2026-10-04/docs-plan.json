@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "base": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+  "head": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+  "changes": [
+    {
+      "path": "references/verification/mission-two-controls-2026-10-04/README.md",
+      "status": "A",
+      "endpoint": "path",
+      "source": "untracked",
+      "hash": "8ddfd3c70b548a81b67bf5cef1f96ece3829bde025e2d89fa19b5652418916ba",
+      "changeHash": "8ddfd3c70b548a81b67bf5cef1f96ece3829bde025e2d89fa19b5652418916ba"
+    },
+    {
+      "path": "references/verification/mission-two-controls-2026-10-04/victory.png",
+      "status": "A",
+      "endpoint": "path",
+      "source": "untracked",
+      "hash": "966395dcd186759ee63724df9a7bd4f5a208d004e7df395a13f64b55cda0c2a4",
+      "changeHash": "966395dcd186759ee63724df9a7bd4f5a208d004e7df395a13f64b55cda0c2a4"
+    }
+  ],
+  "affectedSubsystems": [],
+  "unknownPaths": [
+    "references/verification/mission-two-controls-2026-10-04/README.md",
+    "references/verification/mission-two-controls-2026-10-04/victory.png"
+  ],
+  "checks": [
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "reasons": [
+        "unmapped path requires conservative general validation: references/verification/mission-two-controls-2026-10-04/README.md",
+        "unmapped path requires conservative general validation: references/verification/mission-two-controls-2026-10-04/victory.png"
+      ],
+      "knownLimits": [
+        "Does not run native executable, browser integration, or hardware performance checks."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [
+        "May update ignored tool caches"
+      ],
+      "resources": [
+        "Serialize with other full test runs"
+      ],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    }
+  ],
+  "executesChecks": false
+}

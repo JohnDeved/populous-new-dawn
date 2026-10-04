@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "manifestFiles": 211,
+  "commandPrefixes": 30,
+  "linksAndFigure": 7,
+  "checkpoint": {
+    "saved": 5729,
+    "loaded": 5747,
+    "blueIdentities": 21,
+    "buildings": 4
+  },
+  "victoryTurn": 8916,
+  "profile": [
+    2
+  ],
+  "rawEnvelope": "failed",
+  "failureBatches": [
+    4,
+    9,
+    14,
+    21,
+    26,
+    27,
+    30
+  ],
+  "mainDiff": [
+    "references/verification/mission-two-controls-2026-10-04/README.md",
+    "references/verification/mission-two-controls-2026-10-04/victory.png"
+  ]
+}

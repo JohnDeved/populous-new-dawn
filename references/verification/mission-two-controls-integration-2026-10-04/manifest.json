@@ -1,0 +1,35 @@
+{
+  "candidate": "5a007d12649d88197bca01eddb71f6941ff9ce0b",
+  "files": [
+    {
+      "path": "docs-plan.json",
+      "sha256": "87d5c52682a4ffddd37c0c8127b11cc9c1d19233fca24266f1ef282fb83b0cd2",
+      "bytes": 1953
+    },
+    {
+      "path": "note-validation-final.json",
+      "sha256": "340a4c7b7f3d2c918b762d1d207c68842286d054697b764fd7d55396773957af",
+      "bytes": 2820
+    },
+    {
+      "path": "note-validation-final.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "note-validation-final.json.artifacts/stdout.log",
+      "sha256": "404620960992ce1ee27d482908ba171c9c2d509c1b7ecef8da59b3f41cb66c0b",
+      "bytes": 528
+    },
+    {
+      "path": "review.md",
+      "sha256": "624fc294e2e829cd1b4e1aa7b56010e6a2263c95947f99d4ab0a1e4083708ab2",
+      "bytes": 1719
+    },
+    {
+      "path": "validate-final-note.mjs",
+      "sha256": "6037daa6e9723685f757b1bc88f30213d34c9e7e133fa49a81bcc422e76ead35",
+      "bytes": 4190
+    }
+  ]
+}

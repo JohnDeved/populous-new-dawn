@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "852f41e3-3c2c-499f-9e3e-9a09036df74a",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "5a007d12649d88197bca01eddb71f6941ff9ce0b",
+    "branch": "verify/mission-two-controls-recovered",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/mission-two-controls/validate-final-note.mjs": "6037daa6e9723685f757b1bc88f30213d34c9e7e133fa49a81bcc422e76ead35",
+      "../mission-two-controls-recovered-evidence/references/verification/mission-two-controls-2026-10-04/manifest.json": "730a934eb29b34eaead78c7b69b2774e2d2443b242b09316bfc86c3b9bf90113"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/mission-two-controls/validate-final-note.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered",
+  "startedAt": "2026-10-04T17:10:15.530Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered/work/orchestration/mission-two-controls/note-validation-final.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered/work/orchestration/mission-two-controls/note-validation-final.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T17:10:15.767Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"status\": \"passed\",\n  \"manifestFiles\": 211,\n  \"commandPrefixes\": 30,\n  \"linksAndFigure\": 7,\n  \"checkpoint\": {\n    \"saved\": 5729,\n    \"loaded\": 5747,\n    \"blueIdentities\": 21,\n    \"buildings\": 4\n  },\n  \"victoryTurn\": 8916,\n  \"profile\": [\n    2\n  ],\n  \"rawEnvelope\": \"failed\",\n  \"failureBatches\": [\n    4,\n    9,\n    14,\n    21,\n    26,\n    27,\n    30\n  ],\n  \"mainDiff\": [\n    \"references/verification/mission-two-controls-2026-10-04/README.md\",\n    \"references/verification/mission-two-controls-2026-10-04/victory.png\"\n  ]\n}\n",
+  "stderr": "",
+  "stdoutSha256": "404620960992ce1ee27d482908ba171c9c2d509c1b7ecef8da59b3f41cb66c0b",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "5a007d12649d88197bca01eddb71f6941ff9ce0b",
+    "branch": "verify/mission-two-controls-recovered",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/mission-two-controls/validate-final-note.mjs": "6037daa6e9723685f757b1bc88f30213d34c9e7e133fa49a81bcc422e76ead35",
+      "../mission-two-controls-recovered-evidence/references/verification/mission-two-controls-2026-10-04/manifest.json": "730a934eb29b34eaead78c7b69b2774e2d2443b242b09316bfc86c3b9bf90113"
+    }
+  }
+}
