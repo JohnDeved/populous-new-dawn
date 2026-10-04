@@ -1,0 +1,63 @@
+{
+  "kind": "Recovery note reconstructed from retained tool output, not an original terminal receipt or checkpoint",
+  "recordedAt": "2026-10-04T15:28:23.652554+00:00",
+  "source": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+  "originalExecSession": 23001,
+  "originalPort": 4360,
+  "configuredOuterTimeoutMs": 5400000,
+  "driverSha256": "e69f44fc0b11cf1cfa4ccff1c823c7f9f49514bf679b994a6713a8b5fbff27e2",
+  "lastReturnedObservation": {
+    "snapshot": "001",
+    "at": "2026-10-04T14:05:50.341Z",
+    "turn": 1044,
+    "status": "playing",
+    "paused": true,
+    "population": {
+      "green-brave": 20,
+      "green-warrior": 6,
+      "green-shaman": 1,
+      "blue-shaman": 1,
+      "blue-brave": 9
+    },
+    "stats": {
+      "built": 2,
+      "cast": 0,
+      "bridges": 1,
+      "trained": 0,
+      "battlesWon": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "shots": {
+      "blast": 4,
+      "tornado": 0
+    },
+    "verifiedEvents": [
+      "Ordinary Shaman worship completed the corrected authored bridge",
+      "A Blue Warrior Training Hut completed through ordinary construction controls"
+    ]
+  },
+  "scopeLimits": [
+    "No trained Warriors",
+    "No Tornado acquisition",
+    "No checkpoint was saved in the full journey",
+    "No combat or victory observed",
+    "No terminal receipt or cleanup proof recovered"
+  ],
+  "recoveryObservations": [
+    "Original checkout path is absent in the new executor",
+    "Supported write_stdin for original session failed: exec-server transport disconnected; failed to resume exec-server session: recovery timed out after 25s",
+    "Bounded /workspace/scratch and /workspace/shared inventory found no restored cloud-dev checkout or retained journey receipt",
+    "No new run, process kill or cleanup was attempted"
+  ],
+  "originalRunTerminalStatus": "unknown",
+  "originalRunCleanupStatus": "unknown",
+  "durableEarlierEvidence": [
+    "https://github.com/JohnDeved/populous-new-dawn/blob/2b82cbd603662cac5a0e4079b5fc7897874d5d73/references/verification/mission-two-bridge-baseline-2026-10-04/README.md",
+    "https://github.com/JohnDeved/populous-new-dawn/blob/cfdf764631ab42173b0b4191abdbdd3c34d0d1e5/references/verification/authored-bridge-origin-2026-10-04/README.md"
+  ],
+  "originalLaunchAtApprox": "2026-10-04T14:03:59Z"
+}

@@ -1,0 +1,42 @@
+{
+  "recordedAt": "2026-10-04T15:36:49.875066+00:00",
+  "applicationSource": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+  "purpose": "Pre-run source recovery checkpoint; not gameplay acceptance",
+  "files": [
+    {
+      "path": "explore.mjs",
+      "bytes": 18509,
+      "sha256": "e69f44fc0b11cf1cfa4ccff1c823c7f9f49514bf679b994a6713a8b5fbff27e2"
+    },
+    {
+      "path": "journey-01-interruption.json",
+      "bytes": 2306,
+      "sha256": "67387828b3b7f19aabc622a5331b44b3946e73c51f909fea78dddf44dc357ac4"
+    },
+    {
+      "path": "journey-02-recovery/command-1.json",
+      "bytes": 1333,
+      "sha256": "07b783fa4cfc7e69dbdf69a0d910eb7865913f69e2562dbfae5597f11503b05c"
+    },
+    {
+      "path": "journey-02-recovery/scope.json",
+      "bytes": 1005,
+      "sha256": "2958eb8f2ebbac3f2a544f53e927fe2765e8050cd5a8eb4f8dff6c65d9f53f53"
+    },
+    {
+      "path": "npm-ci.json",
+      "bytes": 1982,
+      "sha256": "ad8c2b363678a0380fc550afb1d106d32bc65e1c7c947c98e0892dc9edb4237b"
+    },
+    {
+      "path": "npm-ci.json.artifacts/stderr.log",
+      "bytes": 307,
+      "sha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65"
+    },
+    {
+      "path": "npm-ci.json.artifacts/stdout.log",
+      "bytes": 27,
+      "sha256": "7583728b0492cb05b289c53575ff03f2b77bec221bcaa4ca19f4b189be042678"
+    }
+  ]
+}

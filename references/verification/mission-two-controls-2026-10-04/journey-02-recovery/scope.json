@@ -1,0 +1,20 @@
+{
+  "scope": "Fresh ordinary Mission 2 journey on accepted authored bridge-origin correction",
+  "source": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+  "recoveryLimit": "Old original session23001 has no recovered terminal receipt or checkpoint; this is a wholly new run, not restoration of its world.",
+  "method": "Real elapsed frame clock, public All missions entry, ordinary HUD/minimap/canvas/keyboard only. Read-only game/terrain/projection/IDB diagnostics.",
+  "milestones": [
+    "bridge worship",
+    "eight-log Warrior Training Hut and two new Huts",
+    "five-Brave training groups with retained builder IDs",
+    "three Tornado gifts with at least two worshippers",
+    "Save/committed exact readback/fresh Load Game and persisted actor identities",
+    "ordinary combat and natural outcome"
+  ],
+  "exclusions": [
+    "M1-to-M2 continuation claim",
+    "native timing or full parity claim",
+    "hardware-performance claim",
+    "any injected clock/world/resource/camera/storage state"
+  ]
+}
