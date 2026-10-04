@@ -48,6 +48,108 @@ performance parity. CPU/SwiftShader timings must not be compared as equivalent t
 Mac hardware-GPU timings. Serialize graphics captures and performance workloads.
 Downloaded binaries and proof images belong outside tracked source.
 
+## Ordinary-control scenario preflight
+
+Read this before writing or extending a journey. These contracts were checked
+against main `ab6e857` on 2026-10-04. Inspect the named callers again when their
+source changes; a successful DOM click alone does not prove an accepted command.
+
+### Selectors depend on the current screen
+
+Use button roles and the actual accessible name, scoped to the visible dialog
+when needed. The [world selector](../app/world-selector.tsx) and
+[game page](../app/page.tsx) own these names:
+
+| Screen/action | Button name |
+| --- | --- |
+| Campaign worlds | `Select Mission N`, then `Start Mission N` or `Replay Mission N` |
+| All missions | `All missions`, then `Mission N` or `Mission N, completed`; direct entry does not prove campaign unlocking |
+| Startup checkpoint | `Load Game` |
+| In-game checkpoint | `Game settings`, then `Save checkpoint` or `Load checkpoint` |
+| Close settings | Name beginning `Continue Game` (includes an arrow glyph) |
+| Explicit pause state | `Pause game` / `Resume game` |
+| Visible introduction | Name beginning `Skip introduction` (includes the ESC hint) |
+
+[showAllMissions](../scripts/browser-game.mjs) waits for the `Start game` dialog
+and chooses the direct-entry view. Do not reuse its `Mission N` selector against
+the campaign-world view. `Game settings` is a top-actions control allowed through
+the authored flyby input mask; ordinary HUD/world input may still be blocked.
+Check the mask and actor readiness before issuing a world order. A visible Skip
+button is not evidence that the input mask or startup actor exclusion has cleared.
+
+### Prepare the view before selecting a command
+
+[scene-camera-runtime.ts](../app/scene-camera-runtime.ts)'s `focus` clears
+`world.mode`. Minimap focus and follower focus can therefore cancel building or
+spell targeting. Position the view and resolve a visible eligible target first;
+then choose the mode, click without another focus operation, and immediately
+assert the accepted plan, order or cast before waiting for completion. An entity
+or ground helper that focuses internally must not run after mode selection.
+
+[live-command.ts](../app/live-command.ts)'s `command` rejects paused/non-playing
+worlds. Resume through the UI before an order and verify the intended selected
+IDs, input mask and mode. Keep route/allocation progress separate from initial
+input acceptance. Diagnose a failed acceptance immediately instead of spending
+the whole construction, travel or combat timeout waiting for an order never made.
+
+Startup can already select the Shaman. Follower class controls add to the existing
+selection; do not assume Ctrl-click yields exactly five people. For a new group,
+use ordinary Escape and inspect the result: one Escape cancels an active mode,
+the next clears selection. Account for visible dialogs/flybys consuming Escape
+first. The owners are `cancelInteraction`/`selectFollowers` in
+[selection-runtime.ts](../app/selection-runtime.ts), the keyboard handler in
+[page.tsx](../app/page.tsx), and the regression in
+[deselection.test.mjs](../tests/deselection.test.mjs).
+
+### Separate saved state, load state and subsequent play
+
+Click `Save checkpoint`, then await committed IndexedDB readback with
+[waitForCheckpointReadback](../scripts/checkpoint-readback.mjs) and assert its
+literal `true` result. Each asynchronous read must finish before the next starts;
+do not use an async `waitForFunction` predicate as the storage completion guard.
+[checkpoint-readback.test.mjs](../tests/checkpoint-readback.test.mjs) covers delayed
+success, non-overlap, bounded false results and rejection.
+
+Both load buttons reach `beginLoad` in [page.tsx](../app/page.tsx), which calls
+`store.loadCheckpoint()` and explicitly clears `paused`. A paused save therefore
+does not imply a paused post-load UI. Rebind the actual new scene/store; record
+the saved turn and first observed loaded turn separately. If inspection needs a
+pause, click `Pause game` and record that additional action. Natural turns between
+load and observation may change timers, positions or short-lived effects; compare
+their valid continuation instead of requiring the later snapshot to equal the
+saved instant. Exact restoration-boundary proof needs a separately reviewed
+observer of that boundary. Count active time across load epochs without double
+counting restored turns, and keep wall time, paused time and game time distinct.
+
+After fresh entry or Continue, use the read-only
+[campaignShamanReadiness](../scripts/campaign-start-readiness.mjs) observer while
+the normal RAF remains active. Preload it once, poll synchronously, and assert the
+final ready result. `canOrder` alone misses the independent native flags4/128
+selection exclusion. [campaign-start-readiness.test.mjs](../tests/campaign-start-readiness.test.mjs)
+and [level-start.test.mjs](../tests/level-start.test.mjs) retain the failed-before /
+ready-after boundary without weakening startup behavior.
+
+### Diagnostics must remain observations
+
+Reading a method name is not a purity proof. `selectionPeople` writes selection
+flags, and `findPath` synchronizes terrain/landscape owners. Run placement, route
+or range validators whose purity is not established on a detached
+`structuredClone(world)`, with actors/targets taken from that same clone. Do not
+pass a live actor into a cloned-world helper. Ordinary journeys must not advance
+ticks, cancel RAF, write camera state, seed entities or invoke model commands.
+
+If adjacent-turn evidence needs a diagnostic observer, review it separately: keep
+it synchronous, chain the existing callback exactly once, copy only the needed
+observations, and contain diagnostic errors so they cannot stop the game's next
+RAF. Report observation errors as evidence failures; do not silently lose them.
+Rebind after load and preserve the original callback's behavior. See
+[game-clock.ts](../app/game-clock.ts) for the callback owner.
+
+Retain every failed command and its exact checker bytes. Correct an attributed
+helper mistake in a separately hashed input; a later exploratory victory does not
+turn the failed outer receipt into a clean pass. Keep bounded stage-progress
+diagnosis, actual game outcomes and resource timeouts distinct.
+
 ## Put visual evidence directly in GitHub reviews
 
 Use GitHub CLI's supported media attachment flow when screenshots help reviewers.
