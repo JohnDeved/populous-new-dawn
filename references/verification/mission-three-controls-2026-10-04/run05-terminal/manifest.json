@@ -1,0 +1,181 @@
+{
+  "capturedAt": "2026-10-04T20:17:34.334890+00:00",
+  "scope": "Terminal failed Run05. Ordinary acquisition, retained missed entity click, defender removal, prospective pool and prompt required-Preacher loss stop. No owned sermon/conversion/interruption/Erosion/victory.",
+  "files": [
+    {
+      "path": "browser-05.outer.json",
+      "bytes": 4504,
+      "sha256": "8516bb489d47b7e46247acd52808a911b8c8f37eb9662aca632c6e86f6247fe2"
+    },
+    {
+      "path": "browser-05.outer.json.artifacts/stderr.log",
+      "bytes": 1418,
+      "sha256": "316bafea02a097d480a5227759545cad2a038e5e09de841353677a05df9b02b1"
+    },
+    {
+      "path": "browser-05.outer.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "browser-05/actions.jsonl",
+      "bytes": 57196,
+      "sha256": "db440d948d3de99e7d75655d0dbf84e5a8a4c1aebaa60bc6015ea5b134039c6e"
+    },
+    {
+      "path": "browser-05/after-blast-one.json",
+      "bytes": 57999,
+      "sha256": "f121a55a79eb95ba84d7670c6ac5729b03d95c5a4b90e2b47ee4eaff0f89e9b3"
+    },
+    {
+      "path": "browser-05/attack-approach.json",
+      "bytes": 57221,
+      "sha256": "9a1f81958c39e2c404db5a1e4302356b07deffb6d8ead25a2f3404c941b28e13"
+    },
+    {
+      "path": "browser-05/batch-0001.json",
+      "bytes": 57662,
+      "sha256": "2f543b973c0187d2558c51c1e75d92254ed00ff715b4a20a6421824a883c471e"
+    },
+    {
+      "path": "browser-05/batch-0002.json",
+      "bytes": 57255,
+      "sha256": "620cf9114bd630018134a57b02696410a4c50876fc0d50715db5152d236a37e9"
+    },
+    {
+      "path": "browser-05/batch-0003.json",
+      "bytes": 56292,
+      "sha256": "88dac9fadec356b11265be76931963301f327b1f43043c7f4c7d724eeb21a973"
+    },
+    {
+      "path": "browser-05/batch-0004-failed.json",
+      "bytes": 56706,
+      "sha256": "7b339778b276eecef915763637595cb3d2089204db38c3018a600453778d3cd4"
+    },
+    {
+      "path": "browser-05/batch-0004-failed.png",
+      "bytes": 1824062,
+      "sha256": "fee4ae2975c66d0e6e0e070c71a7b50b926d9bb3df1bd7d8172e52e14b37cd39"
+    },
+    {
+      "path": "browser-05/batch-0005.json",
+      "bytes": 56189,
+      "sha256": "7850663ffe3c7810ce11778645094fd580e2e002e493c19c1ff44b543d872900"
+    },
+    {
+      "path": "browser-05/cleanup.json",
+      "bytes": 424,
+      "sha256": "186b9df1dd3b9f994db1ef26d1949751a833ef43fb2c969b58fd4576b210ccf6"
+    },
+    {
+      "path": "browser-05/consumed-0001.json",
+      "bytes": 70,
+      "sha256": "062c34dfb8e7a0b342dddc622eb138917bba54309d89d003425bdb8cbe9c308b"
+    },
+    {
+      "path": "browser-05/consumed-0002.json",
+      "bytes": 351,
+      "sha256": "a5bd3232dc2c5da96f3c7aa325f49350899263f0c06109054d85d92a2260c9af"
+    },
+    {
+      "path": "browser-05/consumed-0003.json",
+      "bytes": 128,
+      "sha256": "c52546c1bd07bded145f6036d3a626f82fce2a63349b6937c5219280f095410b"
+    },
+    {
+      "path": "browser-05/consumed-0004.json",
+      "bytes": 290,
+      "sha256": "8b43906a611847b11debdf699d6c16f1fbfe0dcbc7e28a113d273d739ffd23f5"
+    },
+    {
+      "path": "browser-05/consumed-0005.json",
+      "bytes": 211,
+      "sha256": "142c2ee5a2d01bc081dad36e401c55683c99148c1d323c4b1c888f76792e9f09"
+    },
+    {
+      "path": "browser-05/consumed-0006.json",
+      "bytes": 363,
+      "sha256": "e6f1ffcbb321f0369be67aa778eb571079b4fbbc4e5902011c2e47d4b3954aba"
+    },
+    {
+      "path": "browser-05/defender-removed.json",
+      "bytes": 55295,
+      "sha256": "63bd0bdf1acdb7ee04531aa65510a466ed295fdf4667b8f003a376da894bd9f6"
+    },
+    {
+      "path": "browser-05/defender-removed.png",
+      "bytes": 1867583,
+      "sha256": "ba3b5f8f2056f12677e474cf447ea2e8587cc9e9f18e97255b6979c3da0407a1"
+    },
+    {
+      "path": "browser-05/defender-second-blast.json",
+      "bytes": 56059,
+      "sha256": "a56863f02ba0669277c45125e8f538b52217441205352c383a810b84b65e2312"
+    },
+    {
+      "path": "browser-05/driver.mjs",
+      "bytes": 45928,
+      "sha256": "4de0798d32d40c1191aafc09f44fbf373901b4888ebac7c016adcca9766abedf"
+    },
+    {
+      "path": "browser-05/incomplete-checkpoint.json",
+      "bytes": 58566,
+      "sha256": "62f4df4028382af3fe38dbf2251bdc3756dcca78964f861da1f252df2b8419ff"
+    },
+    {
+      "path": "browser-05/incomplete-checkpoint.png",
+      "bytes": 1829839,
+      "sha256": "b13d4da3754c5b8f33649e332ea3907427782ce9570df3bc8b3a70bb8f59c5b8"
+    },
+    {
+      "path": "browser-05/journey.json",
+      "bytes": 11764,
+      "sha256": "500636aba4d739aaa3721fb156574101c4e9504e6652f88fdf3ce6164f016984"
+    },
+    {
+      "path": "browser-05/milestone-preacher.json",
+      "bytes": 54760,
+      "sha256": "0c611aee56e956f62a728a0632ca945ad7ab0ded710c36bb63372ecb5d3d29a7"
+    },
+    {
+      "path": "browser-05/milestone-shaman-home.json",
+      "bytes": 56466,
+      "sha256": "54f4292b8f8b0a8ce6847755de778403ed2d5893a499980bbd5589b48bf34f32"
+    },
+    {
+      "path": "browser-05/milestone-temple.json",
+      "bytes": 58040,
+      "sha256": "f4d795157bff9d459fed08240dadae336ecb65be5b26acf822cd16e80676bbc8"
+    },
+    {
+      "path": "browser-05/milestone-vault.json",
+      "bytes": 56387,
+      "sha256": "9c91560a11357d6b148094d27f71523fb0d84c62d6db057d883252fe7ef29c91"
+    },
+    {
+      "path": "browser-05/observation.mjs",
+      "bytes": 19332,
+      "sha256": "5548f72d17addefbc895b9e945bc0a6b67648a7eb52d16f5cc569021cb9a5c44"
+    },
+    {
+      "path": "browser-05/opening.json",
+      "bytes": 40537,
+      "sha256": "10b3e6ea00347537d0fcdadaacb455382ccdeff1c5b06d014d5b8992539a8e21"
+    },
+    {
+      "path": "browser-05/receipt.json",
+      "bytes": 3354,
+      "sha256": "1abf639eba5995c21a0b9287694fefb9df25b8f5cad6b397b2f90d68fdbd635f"
+    },
+    {
+      "path": "browser-05/scenario-inputs.json",
+      "bytes": 240,
+      "sha256": "e2de47123288f33a2cac24f2d76b52c54ad1a7bd82fcfa895dfd9e868bbfcaa0"
+    },
+    {
+      "path": "browser-05/server.log",
+      "bytes": 577,
+      "sha256": "2950577d98c72d940e4e091dc4afe1b5bbaedf0fd5d8c94582e0396d2ae6f2bb"
+    }
+  ]
+}
