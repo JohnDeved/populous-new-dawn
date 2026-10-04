@@ -1407,7 +1407,9 @@
         "decomp/research/follower-task-panel.md",
         "tests/hud-layout.test.mjs",
         "tests/follower-transport-owner-consumers.test.mjs",
-        "scripts/check-native-vehicle-materials.py"
+        "scripts/check-native-vehicle-materials.py",
+        "scripts/transport-pixel-reference.mjs",
+        "tests/transport-pixel-reference.test.mjs"
       ],
       "sharedPaths": [
         "app/follower-tasks-runtime.ts",

@@ -4890,7 +4890,9 @@
         "app/spell-effects-runtime.ts",
         "app/world-types.ts",
         "tests/hud-layout.test.mjs",
-        "tests/follower-transport-owner-consumers.test.mjs"
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "scripts/transport-pixel-reference.mjs",
+        "tests/transport-pixel-reference.test.mjs"
       ],
       "prerequisites": [],
       "sideEffects": [],
@@ -4922,7 +4924,8 @@
         "tests/follower-transport-runtime.test.mjs",
         "tests/browser-follower-transports-checker.test.mjs",
         "tests/hud-layout.test.mjs",
-        "tests/follower-transport-owner-consumers.test.mjs"
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "tests/transport-pixel-reference.test.mjs"
       ]
     },
     {
@@ -5022,7 +5025,8 @@
         "app/scene-entities.ts",
         "app/spell-effects-runtime.ts",
         "app/vehicle-appearance.ts",
-        "scripts/check-native-live-models.py"
+        "scripts/check-native-live-models.py",
+        "scripts/transport-pixel-reference.mjs"
       ],
       "prerequisites": [
         "Reserved local browser/server lane",

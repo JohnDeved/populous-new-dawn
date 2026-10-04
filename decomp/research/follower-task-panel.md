@@ -324,10 +324,14 @@ occurred after one tick. That observation does not prove the complete native
 non-driver scheduler, and no scheduling repair is folded into these controls.
 Balloon commandPosition remains separately unported.
 
-The source-pixel oracle composes the original full native panel and lower cells,
-then uses the actual DOM scale, origin and device-pixel ratio. Element screenshots
-round clips outward in CSS pixels; padding is explicitly included without stretching
-the native reference or changing its channel-error threshold. Responsive acceptance
+The source-pixel oracle retains the original panel, frame, icon and each glyph as
+separate source rectangles at the actual DOM scale, origin and device-pixel ratio.
+At fractional scales, each rectangle has its own partial physical-pixel clip-edge
+coverage. Sequential normal-alpha composition preserves those edges and shared
+glyph boundaries; flattening first incorrectly removes their coverage. A retained
+44x100 crop independently matches all pixels with maximum channel error1 under this
+source-only construction. Element screenshots round clips outward in CSS pixels;
+padding is included without stretching, masking or changing the >1 error threshold. Responsive acceptance
 also checks footer separation and actual center/digit elementFromPoint ownership.
 The safe rendered run captures only the two already-focused actual vehicle meshes
 for the maintained full native geometry/material consumer. Its live UV checks cover

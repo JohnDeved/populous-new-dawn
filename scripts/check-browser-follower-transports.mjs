@@ -134,28 +134,37 @@ async function sourcePixels(page, output, kind, column, pressed = false, suffix 
       load(new Blob([new Uint8Array(bytes)], { type: 'image/png' })), load('/original/follower-task-panel.png'),
       load('/original/follower-task-normal.png'), load('/original/follower-task-pressed.png'), load('/original/follower-tasks.png'), load('/original/hud.png'),
     ])
-    const reference = document.createElement('canvas'); reference.width = 100; reference.height = 277
-    const c = reference.getContext('2d'); c.imageSmoothingEnabled = false; c.drawImage(panel, 0, 0)
+    const { composePixelLayers } = await import('/scripts/transport-pixel-reference.mjs')
+    const read = image => {
+      const canvas = document.createElement('canvas'); canvas.width = image.width; canvas.height = image.height
+      const context = canvas.getContext('2d'); context.drawImage(image, 0, 0)
+      return { width: image.width, height: image.height, data: context.getImageData(0, 0, image.width, image.height).data }
+    }
+    const sources = new Map([panel, normal, down, atlas, font].map(image => [image, read(image)])), layers = []
+    const draw = (image, sx, sy, width, height, x, y, opacity = 1) => layers.push({ image: sources.get(image),
+      source: { x: sx, y: sy, width, height }, x: grid.origin.x + x * grid.physicalScale,
+      y: grid.origin.y + y * grid.physicalScale, scale: grid.physicalScale, opacity })
+    draw(panel, 0, 0, 100, 277, 0, 0)
     for (const state of states) {
       const k = state.y === 190 ? 1 : 3, col = state.x / 16
       const active = pressed && !state.disabled && kind === k && column === col
-      c.globalAlpha = state.disabled ? 85 / 255 : 1; c.drawImage(active ? down : normal, state.x, state.y); c.globalAlpha = 1
+      draw(active ? down : normal, 0, 0, 15, 34, state.x, state.y, state.disabled ? 85 / 255 : 1)
       const icon = art.rects[col ? (k === 1 ? 655 : 1088) : (k === 1 ? 653 : 647) + Number(active)]
-      c.drawImage(atlas, icon.x, icon.y, icon.w, icon.h, state.x + 7 - Math.trunc(icon.w / 2), state.y + 17 - Math.trunc((icon.h + 8) / 2), icon.w, icon.h)
+      draw(atlas, icon.x, icon.y, icon.w, icon.h, state.x + 7 - Math.trunc(icon.w / 2), state.y + 17 - Math.trunc((icon.h + 8) / 2))
       let x = state.x + state.glyphX
       for (const position of state.glyphs) {
         const [gx, gy] = position.match(/-?\d+/g).map(Number).map(Math.abs)
         const glyph = Object.entries(hud.rects).find(([id, r]) => id.startsWith('f00t') && r.x === gx && r.y === gy)?.[1]
         if (!glyph) throw Error(`Unknown glyph ${position}`)
-        c.drawImage(font, glyph.x, glyph.y, glyph.w, glyph.h, x, state.y + 24, glyph.w, glyph.h); x += glyph.w
+        draw(font, glyph.x, glyph.y, glyph.w, glyph.h, x, state.y + 24); x += glyph.w
       }
     }
     const canvas = document.createElement('canvas'); canvas.width = actual.width; canvas.height = actual.height
     const out = canvas.getContext('2d'); out.imageSmoothingEnabled = false; out.drawImage(actual, 0, 0)
     const got = out.getImageData(0, 0, canvas.width, canvas.height).data
-    out.clearRect(0, 0, canvas.width, canvas.height)
-    out.drawImage(reference, grid.origin.x, grid.origin.y, 100 * grid.physicalScale, 277 * grid.physicalScale)
-    const want = out.getImageData(0, 0, canvas.width, canvas.height).data, expected = canvas.toDataURL('image/png')
+    const want = composePixelLayers(canvas.width, canvas.height, layers)
+    out.putImageData(new ImageData(want, canvas.width, canvas.height), 0, 0)
+    const expected = canvas.toDataURL('image/png')
     let mismatches = 0, maxError = 0
     for (let i = 0; i < got.length; i++) { const e = Math.abs(got[i] - want[i]); if (e > 1) mismatches++; maxError = Math.max(e, maxError) }
     for (const image of [actual, panel, normal, down, atlas, font]) image.close()
@@ -688,6 +697,7 @@ export default async function followerTransports({ browser, page, url, openMissi
       result.layouts.push({ viewport, size, ...layout })
     }
   }
+  writeFileSync(resolve(output, 'follower-transports-desktop-progress.json'), JSON.stringify({ stage: 'desktop-complete-dpr-and-final-invariants-pending', result }, null, 2) + '\n')
   // A separate browser context exercises actual DPR2 backing pixels, not just
   // CSS/HUD scaling. Its Blue crews are explicitly staged on authored craft.
   const dprContext = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 2 })
