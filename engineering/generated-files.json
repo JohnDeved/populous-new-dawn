@@ -62,6 +62,7 @@
         "scripts/import-messages.py",
         "scripts/import-script.py",
         "scripts/import-hud.py",
+        "scripts/import-vehicle-panel-icons.py",
         "scripts/import-follower-tasks.py",
         "scripts/import-minimap-frame.py",
         "scripts/import-sound.py",

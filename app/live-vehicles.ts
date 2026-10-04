@@ -1,3 +1,4 @@
+import { seatVehiclePassenger, vehicleSeat } from './vehicle-seats.ts'
 import type { LivePerson } from './live-people.ts'
 import { teamForTribe, tribeForTeam, type Vehicle, type World } from './world-types.ts'
 import { browserPosition } from './world-coordinates.ts'
@@ -99,6 +100,7 @@ export function leaveLiveVehicle(
   v.passengerCount = v.passengers.filter(Boolean).length
   if (!v.passengerCount) v.speed = -1
   p.vehicle = 0
+  p.flags2 = (p.flags2 & ~0x4000) >>> 0
   p.flags4 = (p.flags4 & ~0x2000000) >>> 0
   relocateLivePerson(w, p, { ...to, h: terrainPointHeight(w.land, to) })
   Object.assign(p, {
@@ -111,11 +113,14 @@ export function leaveLiveVehicle(
 }
 
 export function syncLiveVehiclePassengers(w: World, v: Vehicle) {
-  for (const id of v.passengers) {
+  for (const [slot, id] of v.passengers.entries()) {
     const p = w.pathfinding.people.get(id)
-    if (p) relocateLivePerson(w, p, { x: v.x, y: v.y, h: v.h })
+    if (p) seatVehiclePassenger(p, v, slot, point => relocateLivePerson(w, p, point))
     const unit = w.units.find(u => u.id === id)
-    if (unit) Object.assign(unit, browserPosition(p ?? v))
+    if (unit) {
+      Object.assign(unit, browserPosition(p ?? vehicleSeat(v, slot)))
+      if (p) unit.heading = Math.PI - (p.angle * Math.PI) / 1024
+    }
   }
 }
 
@@ -134,7 +139,7 @@ export function damageLiveVehicle(w: World, v: Vehicle, attacker: number, amount
 }
 
 // 0x466190: one shared ejection target, including coastal and seven-direction fallback.
-export function vehicleExitTarget(w: World, v: Vehicle) {
+export function vehicleExit(w: World, v: Vehicle) {
   const index = ((v.y & 65535) >> 9) * 128 + ((v.x & 65535) >> 9),
     category = w.land.categories[index] & 15,
     airborne = !!(rules.vehicleRestFlags[v.model] & 1),
@@ -168,15 +173,17 @@ export function vehicleExitTarget(w: World, v: Vehicle) {
       true
     )
   }
-  if (!blocked(target)) return target
+  if (!blocked(target)) return { point: target, found: true }
   for (let attempt = 0; attempt < 7; attempt++) {
     angle = (angle + 256) & 2047
     const candidate = { x: v.x & 65535, y: v.y & 65535 }
     movePosition(candidate, angle, airborne ? 1024 : 768)
-    if (!blocked(candidate)) return candidate
+    if (!blocked(candidate)) return { point: candidate, found: true }
   }
-  return { x: v.x & 65535, y: v.y & 65535 }
+  return { point: { x: v.x & 65535, y: v.y & 65535 }, found: false }
 }
+
+export const vehicleExitTarget = (w: World, v: Vehicle) => vehicleExit(w, v).point
 
 function destroyLiveVehicle(w: World, v: Vehicle) {
   v.active = false
@@ -190,7 +197,7 @@ function destroyLiveVehicle(w: World, v: Vehicle) {
     v.apparentTribe ??= tribeForTeam(v.team)
     v.team = teamForTribe(p.tribe)
     p.vehicle = 0
-    p.flags2 = (p.flags2 | 0x80010) >>> 0
+    p.flags2 = ((p.flags2 & ~0x4000) | 0x80010) >>> 0
     p.flags4 = ((p.flags4 & ~0x2000000) | 0x1000400) >>> 0
     p.speed = randomPersonSpeed(w, p)
     const angle = nativeAngle(short(exit.x - p.x), -short(exit.y - p.y))
@@ -231,6 +238,9 @@ export function stepLiveVehicles(w: World) {
     if (v.life < 1) destroyLiveVehicle(w, v)
     else if (v.speed > 0 || v.passengerCount) v.life = rules.vehicleLife[v.model]
   }
+  // The vehicle controller publishes seats after all person route/controller
+  // visits. A boarding route may otherwise overwrite its provisional placement.
+  for (const v of w.vehicles) if (v.active && v.passengerCount) syncLiveVehiclePassengers(w, v)
 }
 
 export function stepLiveVehicle(w: World, p: LivePerson) {

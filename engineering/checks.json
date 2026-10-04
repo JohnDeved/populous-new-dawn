@@ -3,6 +3,360 @@
   "checks": [
     {
       "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py",
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [
+        "Temporary native traces removed on exit"
+      ],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "id": "vehicle-seats-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Compare native settled seats and prove seating/ejection/physics composition.",
+      "coveredBehavior": [
+        "Native settled slot geometry and heading flags",
+        "Seat elevation preserves voluntary launch"
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-vehicle-seats.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py",
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "id": "vehicle-panel-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Vehicle panel, source-alpha, selection, unload and checkpoint invariants.",
+      "coveredBehavior": [
+        "Panel geometry",
+        "Passenger flags",
+        "Live unload ownership",
+        "Checkpoints"
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/vehicle-panel.test.mjs",
+        "tests/vehicle-panel-runtime.test.mjs"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py",
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [
+        "Temporary trace output removed on exit"
+      ],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "id": "vehicle-panel-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute original vehicle-panel owners and compare maintained helpers.",
+      "coveredBehavior": [
+        "Native vehicle-panel contract"
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-vehicle-panel.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py",
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "id": "vehicle-panel-selection-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute original vehicle-panel-selection owners and compare maintained helpers.",
+      "coveredBehavior": [
+        "Native vehicle-panel-selection contract"
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-vehicle-panel-selection.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py",
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "id": "vehicle-exit-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute original vehicle-exit owners and compare maintained helpers.",
+      "coveredBehavior": [
+        "Native vehicle-exit contract"
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-vehicle-exit.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py",
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "id": "vehicle-unload-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute original vehicle-unload owners and compare maintained helpers.",
+      "coveredBehavior": [
+        "Native vehicle-unload contract"
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-vehicle-unload.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_BROWSER"
+      ],
+      "inputs": [
+        "app/vehicle-panel.ts",
+        "app/vehicle-panel-runtime.ts",
+        "app/vehicle-unload.ts",
+        "app/vehicle-seats.ts",
+        "scripts/import-vehicle-panel-icons.py",
+        "app/object-panels.ts",
+        "app/training-panel.ts",
+        "app/live-vehicles.ts",
+        "app/live-people.ts",
+        "app/scene-input-runtime.ts",
+        "app/original-hud.json",
+        "public/original/hud.png",
+        "scripts/import-spell-hud-icons.py"
+      ],
+      "prerequisites": [
+        "Reserved browser/server lane",
+        "Exclusive installed dependencies",
+        "Official sandboxed Headless Shell"
+      ],
+      "sideEffects": [
+        "Writes ignored capture/receipt output and private local server caches"
+      ],
+      "resources": [
+        "Exclusive browser and port4354"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "id": "vehicle-panel-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Render and operate original vehicle panels through shipped controls.",
+      "coveredBehavior": [
+        "Authored craft inspection",
+        "Passenger controls",
+        "Unload landing",
+        "Checkpoints",
+        "Viewport layout"
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        ".",
+        "--scenario",
+        "scripts/check-browser-vehicle-panel.mjs",
+        "--port",
+        "4354",
+        "--output",
+        "work/orchestration/vehicle-panel-browser",
+        "--timeout",
+        "300000"
+      ]
+    },
+    {
+      "cwd": ".",
       "env": [],
       "inputs": [
         "app/hud-tasks.ts",
@@ -915,25 +1269,42 @@
     {
       "id": "campaign-natural-victory-browser",
       "kind": "browser",
-      "automation": "safe",
-      "purpose": "Win Mission 2, continue through the shipped result UI, and win Mission 3 through rendered player controls and ordinary simulation ownership.",
+      "automation": "manual",
+      "purpose": "Run the retained fixed-turn diagnostic: win Mission 2, continue through the shipped result UI, and win Mission 3 with rendered orders and simulation-owned outcomes.",
       "coveredBehavior": [
         "Mission 2 construction, training, Totem worship, Tornado casting, combat, and natural Matak defeat",
         "Mission 2 result presentation and shipped Continue transition into Mission 3",
-        "Mission 3 Vault worship, Swarm and Blast casting, Temple and Preacher use, Erosion worship, conversion, construction, training, combat, and natural Chumara defeat",
-        "Rendered mixed-object picking, campaign camera dismissal, combat animation fallback, and ordinary result ownership across the sequential path"
+        "Mission 3 Vault worship, Swarm and Blast casting, Temple and Preacher use, Erosion worship, construction, training, combat, and natural Chumara defeat",
+        "Rendered mixed-object picking, campaign camera dismissal, combat animation fallback, and ordinary result ownership across the sequential path",
+        "Reports native preacher-victim replacement groups only when they are actually observed"
       ],
       "knownLimits": [
-        "Advances ordinary simulation turns faster than wall time while preserving campaign, AI, RNG, combat, and outcome ownership.",
-        "Does not establish native-equivalent timing or behavior outside the exercised Mission 2 and Mission 3 route."
+        "Suspends RAF and directly calls tick(world, 1/12); internal camera focus and read-only picking/pathfinding assist rendered controls. No injected entities, resources, victory, AI state, or profile.",
+        "Not ordinary real-clock gameplay, native-equivalent timing, full original-game parity, or hardware performance; direct All missions setup starts Mission 2.",
+        "Conversion requires a separately observed native preacher-victim replacement; death/disappearance and victory alone do not prove it.",
+        "A passing route can record zero Blue Preacher conversions; this check alone does not complete conversion acceptance."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-campaign-natural-victory.mjs"],
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--scenario", "scripts/local-render/campaign-fixed-turn.mjs",
+        "--port", "4196",
+        "--timeout", "900000",
+        "--output", "$POPULOUS_CAMPAIGN_OUTPUT"
+      ],
       "cwd": ".",
-      "env": [],
+      "env": ["POPULOUS_BROWSER", "POPULOUS_CAMPAIGN_OUTPUT"],
       "inputs": [
         "scripts/check-browser-campaign-natural-victory.mjs",
+        "scripts/local-render/campaign-fixed-turn.mjs",
+        "scripts/local-render/harness.mjs",
+        "scripts/local-render/vite.config.mjs",
+        "tests/campaign-fixed-turn-adapter.test.mjs",
         "scripts/campaign-swarm-target.mjs",
+        "scripts/campaign-start-readiness.mjs",
+        "scripts/campaign-conversion-observer.mjs",
+        "tests/campaign-conversion-observer.test.mjs",
+        "tests/campaign-start-readiness.test.mjs",
         "scripts/browser-game.mjs",
         "app/combat-runtime.ts",
         "app/live-building-combat.ts",
@@ -947,9 +1318,9 @@
         "app/page.tsx",
         "app/scene.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes only isolated browser-context campaign profile state"],
-      "resources": ["Fixed game server and browser; run serially"],
+      "prerequisites": ["Installed official Chrome Headless Shell", "Private installed dependencies", "Reserved local browser lane", "Unique output directory"],
+      "sideEffects": ["Writes isolated browser-context campaign profile state, owned server caches, screenshots, adapter and source-bound JSON report in the requested output directory"],
+      "resources": ["Owned local server on port 4196 and sandboxed browser; run serially"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {

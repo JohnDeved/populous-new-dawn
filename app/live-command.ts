@@ -57,7 +57,7 @@ import { BUILDINGS, isShaman, SPELLS } from './world-rules.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import { randomPersonSpeed } from './person-state.ts'
 import { changeLivePersonState, registerLivePerson } from './live-people.ts'
-import { vehicleExitTarget } from './live-vehicles.ts'
+import { vehicleExitTarget, syncLiveVehiclePassengers } from './live-vehicles.ts'
 
 // 0x437010's ordinary people/building/head context. Registration is synchronized
 // by the caller once per group order, before any member plans a route.
@@ -486,6 +486,8 @@ export function command(
       acceptLivePath(w, u, path)
       registerLivePerson(w, path)
       changeLivePersonState(w, u, 10)
+      // Route setup can board before publishing its final native person.
+      if (path.vehicle === context.vehicle.id) syncLiveVehiclePassengers(w, context.vehicle)
       count++
     }
     const name = rules.vehicleRestFlags[context.vehicle.model] & 1 ? 'Balloon' : 'Boat'

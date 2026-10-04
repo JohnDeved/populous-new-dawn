@@ -1,3 +1,4 @@
+import { vehicleSeat } from '../app/vehicle-seats.ts'
 import assert from 'node:assert/strict'
 import test from 'node:test'
 
@@ -52,7 +53,7 @@ for (const [label, mission, model] of [
 ]) {
   test(`${label} travel and exit keep registered passenger object-cell membership current`, () => {
     const { world, vehicle, unit, person } = vehicleScenario(mission, model),
-      initialCell = packedCell(person),
+      initialCell = packedCell(vehicleSeat(vehicle,0)),
       beforeOrder = orderState(person),
       randomState = world.randomState
     assert.deepEqual(occupants(world, person).filter(id => id === person.id), [person.id])
@@ -62,16 +63,16 @@ for (const [label, mission, model] of [
 
     person.destinationX = short(person.x + 2_048)
     person.destinationY = person.y
-    for (let turn = 0; packedCell(vehicle) === initialCell && turn < 128; turn++)
+    for (let turn = 0; packedCell(person) === initialCell && turn < 128; turn++)
       assert.ok(stepLiveVehicle(world, person))
-    assert.notEqual(packedCell(vehicle), initialCell, 'ordinary vehicle travel should cross a cell')
+    assert.notEqual(packedCell(person), initialCell, 'ordinary vehicle travel should cross a cell')
     assert.equal(vehicle.passengerCount, 1)
     assert.deepEqual(vehicle.passengers, [person.id])
     assert.equal(person.vehicle, vehicle.id)
     assert.deepEqual(
-      occupants(world, vehicle).filter(id => id === person.id),
+      occupants(world, vehicleSeat(vehicle,0)).filter(id => id === person.id),
       [person.id],
-      'registered passenger should move to the vehicle cell'
+      'registered passenger should move to the native seat cell'
     )
     assert.equal(
       occupants(world, { x: (initialCell & 254) << 8, y: initialCell & 0xfe00 }).includes(person.id),
@@ -119,7 +120,7 @@ test('same-cell passenger sync preserves one linked membership and never allocat
   vehicle.x = short(vehicle.x + 2_048)
   syncLiveVehiclePassengers(world, vehicle)
   assert.equal(world.objectCells.objects.has(unregistered.id), false)
-  assert.deepEqual([unregistered.x, unregistered.y, unregistered.h], [vehicle.x & 65_535, vehicle.y & 65_535, short(vehicle.h)])
+  assert.deepEqual({x:unregistered.x,y:unregistered.y,h:unregistered.h},vehicleSeat(vehicle,0))
 })
 
 test('checkpoint clone retains passenger cell identity and wrapped exit reindexes without duplicates', () => {
@@ -127,7 +128,7 @@ test('checkpoint clone retains passenger cell identity and wrapped exit reindexe
   assert.ok(boardLiveVehicle(world, person, vehicle))
   person.destinationX = short(person.x + 2_048)
   person.destinationY = person.y
-  for (let turn = 0, cell = packedCell(person); packedCell(vehicle) === cell && turn < 128; turn++)
+  for (let turn = 0, cell = packedCell(person); packedCell(person) === cell && turn < 128; turn++)
     assert.ok(stepLiveVehicle(world, person))
 
   const restored = migrateCheckpoint(structuredClone(world)),
