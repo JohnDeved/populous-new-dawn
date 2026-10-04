@@ -25,7 +25,6 @@ import {
   populationLimit,
   isShaman,
   ROUTE_FAILURE_TEXT,
-  type UnitKind,
 } from './model'
 import { createGameStore } from './game-store'
 import { WorldSelector } from './world-selector'
@@ -50,6 +49,9 @@ import {
 } from './hud'
 import { spellOrder } from './spell-button'
 import { followerClassControls } from './hud-population'
+import { FollowerTasks } from './follower-tasks-view'
+import { hudTaskPeople } from './follower-tasks-runtime'
+import type { FollowerTask } from './hud-tasks'
 import { spellHudButton, spellHudRoster, spellHudVisibility } from './spell-visibility'
 import { nativeUnitModel } from './unit-kinds'
 import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
@@ -92,6 +94,7 @@ export default function Home() {
   const { volume, musicVolume } = audioPreferences
   const [soundPending, setSoundPending] = useState(false)
   const [hudSize, setHudSize] = useState('auto')
+  const [hudCamera, setHudCamera] = useState({ x: 0, y: 0 })
   const [messageViewportHeight, setMessageViewportHeight] = useState(480)
   const [checkpointNotice, setCheckpointNotice] = useState('')
   const [startup, setStartup] = useState<'loading' | 'choice' | 'playing'>('loading')
@@ -212,11 +215,19 @@ export default function Home() {
           minimap.current,
           portrait.current,
           world,
-          update,
+          () => {
+            if (disposed) return
+            if (scene) {
+              const { x, y } = scene.cameraPosition
+              setHudCamera(previous => (previous.x === x && previous.y === y ? previous : { x, y }))
+            }
+            update()
+          },
           (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished)
         )
         scene = created
         engine.current = created
+        setHudCamera({ x: created.cameraPosition.x, y: created.cameraPosition.y })
         if (world.drawMode === 2) created.overview()
         return created.ready.then(() => {
           if (!disposed && engine.current === created && created.start()) setReady(true)
@@ -351,10 +362,10 @@ export default function Home() {
       }
     }
   }
-  function followerControl(kind: UnitKind | 'all') {
+  function followerControl(model: number, category?: FollowerTask) {
     const choose = (event: MouseEvent<HTMLButtonElement>, focus = false) => {
       if (!event.currentTarget.disabled)
-        engine.current?.chooseFollowers(kind === 'all' ? 0 : nativeUnitModel(kind), event, focus)
+        engine.current?.chooseFollowers(model, event, focus, category)
     }
     return {
       onPointerDown: (event: MouseEvent<HTMLButtonElement>) => {
@@ -880,7 +891,7 @@ export default function Home() {
             className="population-button"
             aria-label="Select follower"
             title="Select follower · Shift: all · Ctrl: five · Right-click: focus next"
-            {...followerControl('all')}
+            {...followerControl(0)}
           >
             <PopulationMeter
               population={population(world, 'blue')}
@@ -895,7 +906,7 @@ export default function Home() {
               title={`${u.label} · Shift: all · Ctrl: five · Right-click: focus next`}
               disabled={!u.enabled}
               aria-pressed={selected.length > 0 && selected.every(s => s.kind === u.kind)}
-              {...followerControl(u.kind)}
+              {...followerControl(nativeUnitModel(u.kind))}
             >
               {u.enabled && (
                 <>
@@ -907,7 +918,18 @@ export default function Home() {
           ))}
         </section>
         <ManaMeter tribe={world.manaTribes[0]} world={world.manaWorld} />
-        <section className="command-dock" aria-label="Command panel">
+        <section
+          className={`command-dock${tab === 'followers' ? ' followers-dock' : ''}`}
+          aria-label="Command panel"
+        >
+          {tab === 'followers' && (
+            <FollowerTasks
+              people={hudTaskPeople(world)}
+              center={hudCamera}
+              nearby={!!(world.castingTribes[0].flags & 128)}
+              control={followerControl}
+            />
+          )}
           {tab === 'spells' && (
             <div className="spell-list">
               {spellRoster
