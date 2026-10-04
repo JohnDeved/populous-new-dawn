@@ -63,7 +63,8 @@ export default async function transportIdle({ page, openMission, output, receipt
     return debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)
   })
   const result = {
-    status: 'passed', label, completed, renderer,
+    status: 'passed', label, completed, renderer, viewport: page.viewportSize(),
+    devicePixelRatio: await page.evaluate(() => window.devicePixelRatio),
     scope: 'Staged Spy population/location; real command boarding and rendered disguise/replacement controls.',
     limits: 'Cloud headless rendering only; no hardware performance or ordinary Spy acquisition claim. Balloon command-position boundary is separate.',
   }
