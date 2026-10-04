@@ -1,4 +1,6 @@
 'use client'
+
+import { MinimapFrame } from './minimap-frame-view'
 import {
   useEffect,
   useRef,
@@ -807,7 +809,7 @@ export default function Home() {
             height={96}
             aria-label="Minimap. Click to move the camera."
           />
-          <img className="map-frame" src="/original/hud-map-frame.png" alt="" />
+          <MinimapFrame key={hudSize} />
         </div>
         <nav className="dock-tabs" aria-label="Command categories">
           {(['buildings', 'spells', 'followers'] as const).map((t, i) => (
