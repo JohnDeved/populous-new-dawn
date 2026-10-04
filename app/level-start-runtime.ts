@@ -18,25 +18,13 @@ import {
 import { orderEffects } from './live-movement.ts'
 import { startPersonOrders } from './person-order-start.ts'
 import { removeObjectFromCell } from './object-cells.ts'
-import { effect, sound, shotVisual, moveVisual, registerTerrainLight } from './world-effects.ts'
-import {
-  nativePosition,
-  refreshTerrainSurface,
-  notifyHeightChanges,
-  terrainTextures,
-} from './world-terrain-runtime.ts'
+import { effect, sound, shotVisual, moveVisual } from './world-effects.ts'
+import { nativePosition } from './world-terrain-runtime.ts'
 import { browserPosition } from './world-coordinates.ts'
-import {
-  queueTerrain,
-  processTerrain,
-  updateWalkMasks,
-  terrainPointHeight,
-} from './native-terrain.ts'
-import { setAnimationObject } from './animation.ts'
+import { terrainPointHeight } from './native-terrain.ts'
 import { reincarnationStones } from './reincarnation.ts'
 import { short } from './native-math.ts'
 import { createSpellTrail } from './spell-trails.ts'
-import models from './original-models.json' with { type: 'json' }
 import {
   levelStartTargetHeight,
   stepLevelStartWave,
@@ -49,35 +37,13 @@ import {
 } from './level-start.ts'
 import rules from './original-rules.json' with { type: 'json' }
 
-function animatedStartEffect(
-  w: World,
-  p: StartPoint,
-  sequence: string,
-  object: number,
-  draw: number,
-  turns: number
-) {
-  const fx = effect(w, 'trail', browserPosition(p))
-  fx.height = p.h / 45
-  fx.sprite = { sequence, frame: 0 }
-  fx.turnsRemaining = turns
-  fx.duration = Infinity
-  fx.animation = {
-    object: 0,
-    draw: 0,
-    morph: 0,
-    palette: 0,
-    renderFlags: 0,
-    f1: 0,
-    f2: 0,
-    stamp: 0,
-    flags3: 0,
-    morphTimer: 0,
-    morphFrames: 0,
-  }
-  setAnimationObject(fx.animation, draw, object)
-  return fx
-}
+import {
+  animatedSiteEffect,
+  siteWaveEffects,
+  inSiteWaveCell,
+  burnSiteWaveScenery,
+  finishSiteWaveTerrain,
+} from './site-wave-effects.ts'
 
 function stoneBurst(w: World, point: StartPoint, tribe: number) {
   const team = teamForTribe(tribe)
@@ -102,6 +68,16 @@ function stoneBurst(w: World, point: StartPoint, tribe: number) {
 export function initializeLevelStart(w: World) {
   w.levelStart = []
   w.levelStartStoneSound = 0
+  w.reincarnationSites = Array(4).fill(null)
+  for (const u of w.units) {
+    if (u.kind !== 'shaman' || u.team === 'wild') continue
+    const position = nativePosition(w, u)
+    w.reincarnationSites[tribeForTeam(u.team)] = {
+      x: (position.x & 0xfe00) + 256,
+      y: (position.y & 0xfe00) + 256,
+      h: position.h,
+    }
+  }
   if (w.outcome.level < 1 || w.outcome.level > 3) return
   const people = missionData(w.outcome.level).level.objects.filter(o => o.type === 1)
   for (const u of w.units) {
@@ -211,9 +187,9 @@ function convertStartingWildman(w: World, u: Unit, tribe: number) {
   registerLivePerson(w, replacement.native)
   sound(w, 5, replacement)
   // 0x4d7fd0's neutral flash plus 0x50c840's owner flash are separate allocations.
-  const neutral = animatedStartEffect(w, point, 'startConversion', 1240, 45, 8)
+  const neutral = animatedSiteEffect(w, point, 'startConversion', 1240, 45, 8)
   neutral.startConversionLink = replacement.id
-  animatedStartEffect(w, point, 'startConversion', 1240, 45, 8)
+  animatedSiteEffect(w, point, 'startConversion', 1240, 45, 8)
 }
 
 // 0x5138b0, effect58/state45. The common effect loop decrements first; expiry
@@ -244,53 +220,21 @@ export function stepLevelStarts(w: World) {
     const team = teamForTribe(site.tribe)
     if (!carrier) {
       if (site.wave) {
-        const alive = stepLevelStartWave(w.land, site.wave, {
-          orbit: (point, light) => {
-            const fx = animatedStartEffect(w, point, 'sparkle', 1288, 44, 32767)
-            delete fx.turnsRemaining
-            if (light) registerTerrainLight(w, fx, 1)
-            return fx.id
-          },
-          cell: cell => {
-            const inCell = (point: { x: number; z: number }) => {
-              const p = nativePosition(w, point)
-              return (((p.x >>> 8) & 254) | (p.y & 0xfe00)) === cell
-            }
+        const alive = stepLevelStartWave(
+          w.land,
+          site.wave,
+          siteWaveEffects(w, site.tribe, changed, cell => {
             for (const u of [...w.units].reverse())
-              if (u.team === 'wild' && u.hp > 0 && u.inside === null && inCell(u))
+              if (
+                u.team === 'wild' &&
+                u.hp > 0 &&
+                u.inside === null &&
+                inSiteWaveCell(w, cell, u)
+              )
                 convertStartingWildman(w, u, site.tribe)
-            let pending = false
-            for (const tree of w.trees)
-              if (tree.logs > 0 && inCell(tree) && !(rules.sceneryFlags[tree.model] & 0x200)) {
-                pending = true
-                if (rules.sceneryFlags[tree.model] & 0x20 && !tree.burn)
-                  tree.burn = {
-                    remaining: 76,
-                    started: false,
-                    wood: Math.round(tree.logs * 100),
-                    scale: models[(tree.model + 12) as unknown as keyof typeof models].scale,
-                  }
-              }
-            return pending
-          },
-          terrain: cell => changed.add(cell),
-          sparkle: point => {
-            const fx = animatedStartEffect(w, point, 'hit', 1294, 46, 6)
-            fx.team = team
-          },
-          move: (id, point, displacement) => {
-            const fx = w.effects.find(f => f.id === id)
-            if (fx) {
-              moveVisual(fx, point)
-              fx.animation!.flags3 |= 0x300
-              fx.animation!.displacement = { ...displacement }
-            }
-          },
-          remove: id => {
-            const fx = w.effects.find(f => f.id === id)
-            if (fx) fx.duration = fx.age
-          },
-        })
+            return burnSiteWaveScenery(w, cell)
+          })
+        )
         if (!alive) {
           site.wave = null
           w.castingTribes[site.tribe].flags &= ~1
@@ -318,7 +262,7 @@ export function stepLevelStarts(w: World) {
         ...carrier.destination,
         h: terrainPointHeight(w.land, carrier.destination) - 112,
       }
-      const fx = animatedStartEffect(w, point, 'startStoneDust', 1160, 37, 20)
+      const fx = animatedSiteEffect(w, point, 'startStoneDust', 1160, 37, 20)
       fx.animation!.palette = 4
       fx.animation!.f1 = 76 // 0x4a7eb0: hold*4-step, before the first animation pass.
       if (++w.levelStartStoneSound & 1) sound(w, 0x9f, browserPosition(point))
@@ -404,6 +348,7 @@ export function stepLevelStarts(w: World) {
         site.timer = 10
         p.flags2 |= 0x4000
         site.center.h = levelStartTargetHeight(w.land, site.center)
+        w.reincarnationSites[site.tribe] = { ...site.center }
         w.effectCounter = (w.effectCounter + 1) & 255 // effect8 allocation
         const allocation = w.nextId++
         site.awaitedWave = null
@@ -457,14 +402,5 @@ export function stepLevelStarts(w: World) {
     }
     p.substate = site.phase
   }
-  if (changed.size) {
-    for (const cell of changed) queueTerrain(w.land, cell, 2, 1, terrainTextures)
-    processTerrain(w.land, terrainTextures)
-    for (const cell of changed) updateWalkMasks(w.land, cell, 2)
-    refreshTerrainSurface(w)
-    notifyHeightChanges(
-      w,
-      [...changed].map(cell => ({ cell, radius: 1 }))
-    )
-  }
+  finishSiteWaveTerrain(w, changed)
 }

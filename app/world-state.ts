@@ -202,6 +202,7 @@ export function createWorldState(missionNumber = 1): World {
     routeNotice: null,
     levelStart: [],
     levelStartStoneSound: 0,
+    reincarnationSites: [],
     terrain: makeTerrain(land),
     terrainVersion: 0,
     units: [],

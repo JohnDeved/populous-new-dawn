@@ -136,6 +136,7 @@ export function migrateCheckpoint(world: World) {
   // An old checkpoint has already passed startup. Never replay terrain or conversion.
   world.levelStart ??= []
   world.levelStartStoneSound ??= 0
+  world.reincarnationSites ??= []
   const computerTribe = missionEnemyTribe(world.outcome.level),
     legacySingleAI = !world.campaignAIs
   world.vehicles ??= []

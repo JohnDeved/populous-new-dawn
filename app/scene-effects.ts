@@ -100,6 +100,7 @@ export function makeFx(scene: GameScene, f: Effect) {
   }
   if (
     f.wave ||
+    f.reincarnationWave ||
     f.bridge ||
     f.flatten ||
     f.erosion ||
@@ -299,6 +300,7 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
   }
   if (
     f.wave ||
+    f.reincarnationWave ||
     f.bridge ||
     f.flatten ||
     f.erosion ||

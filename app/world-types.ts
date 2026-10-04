@@ -1,5 +1,5 @@
 import type { SecondaryEffects } from './secondary-effects.ts'
-import type { LevelStartSite } from './level-start.ts'
+import type { LevelStartSite, StartPoint, StartWave } from './level-start.ts'
 import type { LiveFormation } from './live-movement.ts'
 import type { Footprints } from './footprints.ts'
 import type { CombatMarch } from './combat-order-search.ts'
@@ -350,6 +350,7 @@ export type Effect = Point & {
   sinking?: SinkingBuilding & { stage: number }
   wave?: BlastWave
   startConversionLink?: number
+  reincarnationWave?: StartWave & { tribe: number; mode: 2 }
   turnsRemaining?: number
   groundVersion?: number
   age: number
@@ -476,6 +477,7 @@ export type World = {
   fights: Battle[]
   levelStart: LevelStartSite[]
   levelStartStoneSound: number
+  reincarnationSites: (StartPoint | null)[]
   sounds: SoundEvent[]
   soundSerial: number
   mana: number
