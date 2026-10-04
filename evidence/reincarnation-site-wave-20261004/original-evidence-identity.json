@@ -1,0 +1,13 @@
+{
+  "archive": "original-evidence-8fe6631.tar.gz",
+  "sha256": "b02d4b15f07527c6e93579be52ad19c1d19db554d406e6f179cc1a24f5fc46a5",
+  "bytes": 16066071,
+  "members": 148,
+  "originalFiles": 146,
+  "originalBytes": 17446102,
+  "commandReceipts": 37,
+  "inventorySha256": "a9086b2c1a546dd8d45e285dc9812b560d4da4666af5eb518b746a898efb976c",
+  "scope": "bounded original technical evidence, no path redaction; distinct from 19-receipt portable bundle",
+  "verifiedOriginalBytes": true,
+  "verifiedArchiveMembers": true
+}

@@ -41,3 +41,20 @@ The original allocator/classifier fixture failure, corrupted-search passes, inta
 This is a bounded mode 2 port. Startup mode 1 conversion and its existing Swamp omission are separate. Original full-game execution, whole-game pool exhaustion, original-versus-browser raster parity, pointer-picking acceptance and hardware performance are not claimed. Native helper composition, rendered behavior and software performance remain distinct evidence.
 
 [Portable source/receipt bundle](bundle/README.md)
+
+## Original reset-survival archive
+
+[Download the bounded original-evidence archive](original-evidence-8fe6631.tar.gz)
+([inventory](original-evidence-inventory.json), [archive identity](original-evidence-identity.json)).
+This is separate from the portable bundle above: it preserves **146 original
+files and 37 command receipts with raw streams**, full browser receipts/reports,
+technical reviews, screenshots and failed/superseded correction history without
+redacting original workspace paths. The portable bundle remains a selection of
+19 path-redacted receipts with its own transport-verification contract.
+
+Archive: `16066071` bytes; SHA-256
+`b02d4b15f07527c6e93579be52ad19c1d19db554d406e6f179cc1a24f5fc46a5`. All148 archive members (146 originals plus the archive
+README/inventory) were verified against the allowed inventory and original bytes.
+The37 command receipts' stdout/stderr hashes match their retained raw streams.
+No game/tool binaries, dependencies, caches, profiles, auth or unrelated data are
+included. The tested feature head and merge commit remain unchanged.

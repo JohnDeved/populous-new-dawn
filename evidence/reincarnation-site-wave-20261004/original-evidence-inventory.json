@@ -1,0 +1,889 @@
+{
+  "version": 1,
+  "kind": "original-evidence-archive",
+  "featureHead": "8fe6631979f81dd462c6fa10468fca98d3b82361",
+  "mergedCommit": "dcfb0dc2afe3e2501f964b109933e43d8bdbd451",
+  "originalBytesPreserved": true,
+  "pathRedactions": 0,
+  "selectedReceiptCount": 37,
+  "fileCount": 146,
+  "totalOriginalBytes": 17446102,
+  "files": [
+    {
+      "path": "originals/decomp/research/reincarnation-site-wave.md",
+      "sourcePath": "decomp/research/reincarnation-site-wave.md",
+      "bytes": 11798,
+      "sha256": "e51e3c60907b9c34d54fdb890733e3979127223de8d5ce4cf2b323d60fc77173"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/checker-startup-preflight-8fe6631.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/checker-startup-preflight-8fe6631.json",
+      "bytes": 1548,
+      "sha256": "e823567b0e2086596034767ba145edcc3c62927aefc614f51a005aa84f8a5a72"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/checker-startup-preflight-8fe6631.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/checker-startup-preflight-8fe6631.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/checker-startup-preflight-8fe6631.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/checker-startup-preflight-8fe6631.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/context-repair-frozen.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/context-repair-frozen.json",
+      "bytes": 4410,
+      "sha256": "3346c8f8d8e5fe89d4ce672ffd06af97c024f014e151f8d9afbd4c2b9b0414d7"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/context-repair-frozen.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/context-repair-frozen.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/context-repair-frozen.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/context-repair-frozen.json.artifacts/stdout.log",
+      "bytes": 2873,
+      "sha256": "f6d99cfc26d4a7309103e5410203102e8be1c485de300c6877b150faa98e78e9"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/cycle-graph-7b96393.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/cycle-graph-7b96393.json",
+      "bytes": 4857,
+      "sha256": "b94701d4fbcc64048e5414f1107d8f1ae4c6150c9bbd00577a8340d4c9eb1719"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/entry-populated-before.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/entry-populated-before.log",
+      "bytes": 206,
+      "sha256": "dea9acbfdda7c50badb4d5ca8a071e67c97a1c64ebb8f1c52c50d8cc140c5cb0"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/entry-valid-terrain-before.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/entry-valid-terrain-before.log",
+      "bytes": 927,
+      "sha256": "c776b5692fcab5ebc1718b37f25ee5971ca6b2b775886e079e27137a94bb0c7f"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-07ec3a1/check.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-07ec3a1/check.json",
+      "bytes": 111617,
+      "sha256": "0241ead1513e414ef9022081b28031ae2cd8676237d42cc9c970dccd1a778afe"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-07ec3a1/check.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-07ec3a1/check.json.artifacts/stderr.log",
+      "bytes": 713,
+      "sha256": "efdf75004b77fd876ce2f2fba9f01b78f59b07837609890386f6c68a0b063131"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-07ec3a1/check.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-07ec3a1/check.json.artifacts/stdout.log",
+      "bytes": 107777,
+      "sha256": "89b65a752dbc32e57970ba46fba1cf9999fd78cbba5994acdeea95b1de9865f2"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/build.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/build.json",
+      "bytes": 4293,
+      "sha256": "aa3460baa8f73dcdd1e9ceff719640d4e83b89fac2dc8b6e1826f12214e77ff5"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/build.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/build.json.artifacts/stderr.log",
+      "bytes": 1117,
+      "sha256": "0ea215c8060ad65d876713c4a29cb208da093f305ad6b48498e4aee997cbe9f3"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/build.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/build.json.artifacts/stdout.log",
+      "bytes": 1143,
+      "sha256": "af197db7a68478b514af639854b8603ea08b3821eb8dd9ceb7bacdd81624c2c9"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/check.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/check.json",
+      "bytes": 115352,
+      "sha256": "17cfedeab31fbbd97bd916b5b06d013f6dbd3663ba1c733592da7569e991c846"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/check.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/check.json.artifacts/stderr.log",
+      "bytes": 1119,
+      "sha256": "02285cf98c9d88b48ecc3ef7fa38f35659b7c27d82ad3139b4a57f8bed24e9b1"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/check.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/check.json.artifacts/stdout.log",
+      "bytes": 110648,
+      "sha256": "c9294b75558745fc1b65676476584f1440b4bba954c9aed3de442b47264a43bc"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/eslint-baseline-compare.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/eslint-baseline-compare.json",
+      "bytes": 1742,
+      "sha256": "b29be5d888034a369957eecd30032a48c2e7aa5621108068e5637f4f05331d83"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/eslint-baseline-compare.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/eslint-baseline-compare.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/eslint-baseline-compare.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/eslint-baseline-compare.json.artifacts/stdout.log",
+      "bytes": 166,
+      "sha256": "ee5b6cd8865a6e10304e749f46a90b438b5c787f46143098a4a4f2c10961e400"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/format-baseline-correspondence.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/format-baseline-correspondence.json",
+      "bytes": 2438,
+      "sha256": "a2f2c1d4b84035b920e6afd64e1766b93ed43ef4f76328b654682a757ed0c6e2"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/format-baseline-correspondence.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/format-baseline-correspondence.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/format-baseline-correspondence.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/format-baseline-correspondence.json.artifacts/stdout.log",
+      "bytes": 292,
+      "sha256": "384af43f3d90df420d68daef2c9c0375ae4dbc7060cc931aaa4a6232b3ed6ef2"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/format-changed.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/format-changed.json",
+      "bytes": 2293,
+      "sha256": "3e0379cff610b7bea952ad72c9cf55118d71da917e6e164d17ef8cfd00fcbcfb"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/format-changed.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/format-changed.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/format-changed.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/format-changed.json.artifacts/stdout.log",
+      "bytes": 383,
+      "sha256": "c353282444f78295ff5db9eb1ea0cb3fd27535d3306b417924d2f530f43cc29e"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/format.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/format.json",
+      "bytes": 2284,
+      "sha256": "43f37ebf2ca7db94d9114ef0a015b7fd580aada9e5da4b540fd95c4001e85e6f"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/format.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/format.json.artifacts/stderr.log",
+      "bytes": 99,
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/format.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/format.json.artifacts/stdout.log",
+      "bytes": 273,
+      "sha256": "35816b66464b0439314c649119bbcf592f3c80e93b07fb153e22910665f6f114"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/lint-standard.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/lint-standard.json",
+      "bytes": 278584,
+      "sha256": "807c5ea38f4e82d885e39dd4412a6f8d675077136629f30577d1d8282c34bf84"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/lint-standard.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/lint-standard.json.artifacts/stderr.log",
+      "bytes": 99,
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/lint-standard.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/lint-standard.json.artifacts/stdout.log",
+      "bytes": 275165,
+      "sha256": "7529d47efbdf5647b75c074eeebdad70c3d5b045f808b4b77755188b04c3f2bc"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/lint.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/lint.json",
+      "bytes": 39964,
+      "sha256": "5ab00b63ba7e23b2178db14a12ed06d3cbd82e18fc7319e716ee7e7a1c62cfad"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/lint.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/lint.json.artifacts/stderr.log",
+      "bytes": 307,
+      "sha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-32e511b/lint.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-32e511b/lint.json.artifacts/stdout.log",
+      "bytes": 37364,
+      "sha256": "97affe1d717e9c2a121f98358f5a3102edb21053bdf7a94fd0ae3b0840f75584"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-6293323/check.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-6293323/check.json",
+      "bytes": 2962,
+      "sha256": "05c605073f1e5a6f583ca2ec19e26c7aa939f97bd3e0c3e6ee78a10efccdc829"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-6293323/check.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-6293323/check.json.artifacts/stderr.log",
+      "bytes": 614,
+      "sha256": "dd6afc7e3d3b90109c8433444b35a1ba2ee8c2df7fef9954fb4cd343c4179107"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-6293323/check.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-6293323/check.json.artifacts/stdout.log",
+      "bytes": 417,
+      "sha256": "6158318e0ad4884b525edbb09a10fb0886f47a3446d816cf744c1d054ba78103"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/browser-command.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/browser-command.json",
+      "bytes": 3983,
+      "sha256": "0b73f63978c9a2111d3db145617aba9f4c10e1bd096067999f3c0046f577fb9d"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/browser-command.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/browser-command.json.artifacts/stderr.log",
+      "bytes": 973,
+      "sha256": "79e986d943f28d58c5a603b7f80d05c362d2b324c3432c0eea72ba7f9e28f320"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/browser-command.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/browser-command.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/browser/failure.png",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/browser/failure.png",
+      "bytes": 1580762,
+      "sha256": "865c69ddf7f015b368451d4e8fb30078641666eaf785b87f31cde38f8b584a10"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/browser/receipt.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/browser/receipt.json",
+      "bytes": 5197,
+      "sha256": "894ccc8e01d900be2cc1db81b79286ba46a5691191a7d4f892c5e7aad2c3e652"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/browser/report.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/browser/report.json",
+      "bytes": 969,
+      "sha256": "878e789ed38ec0145fc0c3036d6b10267ae5d64ce460ed559ef49f6699a34114"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/cleanup.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/cleanup.json",
+      "bytes": 2551,
+      "sha256": "fd61fa3faf30458ae41a7e3ce2f97ff236f7fc94bfb0e9a88b9bae94a1557904"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/cleanup.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/cleanup.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/cleanup.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/cleanup.json.artifacts/stdout.log",
+      "bytes": 205,
+      "sha256": "d6257a1e1cb0da6f1f31c1819887b00f989644a2e06e2b20fb603735b56d0353"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/native-level-start.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/native-level-start.json",
+      "bytes": 4361,
+      "sha256": "fe1549b8115e00b4aa67daa1a9e300a0f37a5c035261f8a08574c453e01a8a65"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/native-level-start.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/native-level-start.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/native-level-start.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/native-level-start.json.artifacts/stdout.log",
+      "bytes": 1521,
+      "sha256": "a44f87a397c9f9d1444037de69de5b46c2a6b8082d4feedc64cbd72f7c149fd9"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/native-reincarnation.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/native-reincarnation.json",
+      "bytes": 3440,
+      "sha256": "c5df0d3fe357c27c283923f9f697c50b97c97503eade04bf711cba7be5302670"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/native-reincarnation.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/native-reincarnation.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/native-reincarnation.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/native-reincarnation.json.artifacts/stdout.log",
+      "bytes": 599,
+      "sha256": "3ae22833620fa09e6af57b2a792326a758294eb2e996cc8966fc17607e268764"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/quality-dupes.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/quality-dupes.json",
+      "bytes": 13347,
+      "sha256": "e5a3fc3bd780f4ce35b5ac59659759f1d38e71ba917b39d2b3fb48b4a4dc46fa"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/quality-dupes.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/quality-dupes.json.artifacts/stderr.log",
+      "bytes": 448,
+      "sha256": "7dd83c4af60202b46ec25a429365c136106bc3e07d8e3ebd77670453a157783b"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/quality-dupes.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/quality-dupes.json.artifacts/stdout.log",
+      "bytes": 10766,
+      "sha256": "ceadf65af4cb63f5782a9cd8a4755b2fb096c7290e48249ced7fbd16ff67d14b"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/quality-health.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/quality-health.json",
+      "bytes": 47363,
+      "sha256": "e2d63ee3338dbd329daa5dd22213ca40dbb5bcd8118a3f9a38e41a22aecbef30"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/quality-health.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/quality-health.json.artifacts/stderr.log",
+      "bytes": 328,
+      "sha256": "f2ea55b632a525a7d58f4f1dd385b7d622af87f877348c9cc287aad3693c29c1"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/quality-health.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/quality-health.json.artifacts/stdout.log",
+      "bytes": 44070,
+      "sha256": "5e728a03c379938a04561800da906e28730bfec385b66ad514476f4e9e99ddb7"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/quality-unused.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/quality-unused.json",
+      "bytes": 6756,
+      "sha256": "74de758a59fce304e8cb68dd6bb94c97238c183e6662a597d27f76793881a469"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/quality-unused.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/quality-unused.json.artifacts/stderr.log",
+      "bytes": 409,
+      "sha256": "465346b2f0a97ce5a4258d97371f981adb3be1867e2929d501ba3ba5394743f5"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/final-7b96393/quality-unused.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/final-7b96393/quality-unused.json.artifacts/stdout.log",
+      "bytes": 4324,
+      "sha256": "e4859dc4f6a9e48a79f6353a9fa3f4ac4657bb8337271de2e6dec1883c8ade97"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/focused-02.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/focused-02.log",
+      "bytes": 1083,
+      "sha256": "32a6de288c153f1ddfeadd9d0c57a1bb9a5a32ef18c33f61bef57c6dd0cee581"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/focused-03.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/focused-03.log",
+      "bytes": 2466,
+      "sha256": "2ab446ecbdff64dccfc72b1f9373f960b442d8190837ae3a5f925c0c4feeef6c"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/focused-8f915ad.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/focused-8f915ad.json",
+      "bytes": 4028,
+      "sha256": "e696c2668ed3dea1feacca471281d57c82ef967e5d3680ba5298634ee51d425e"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/focused-8f915ad.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/focused-8f915ad.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/focused-8f915ad.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/focused-8f915ad.json.artifacts/stdout.log",
+      "bytes": 2467,
+      "sha256": "b9f3a32b28d97b67da35571b705da5f833097d7083f542a9db48edb3801c6a87"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/focused-d0e4510.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/focused-d0e4510.json",
+      "bytes": 4941,
+      "sha256": "fb73b1fa4949b12fbd0665f5dae08fc982394b27853b0235a3a4879766060765"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/focused-d0e4510.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/focused-d0e4510.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/focused-d0e4510.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/focused-d0e4510.json.artifacts/stdout.log",
+      "bytes": 3337,
+      "sha256": "f919c29a2e2ab872a1428750c3256f2c98e861e7b3988be9ccb5ef57ff2396c2"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/format-repair-07ec3a1.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/format-repair-07ec3a1.json",
+      "bytes": 1641,
+      "sha256": "3d07597f4b593f1639d14568a15b23f443a19992c70c6079c1c617f3b1f77211"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/format-repair-07ec3a1.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/format-repair-07ec3a1.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/format-repair-07ec3a1.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/format-repair-07ec3a1.json.artifacts/stdout.log",
+      "bytes": 110,
+      "sha256": "33671699a286b5446c0851d7ccc55ecee0a5d5abaeeed28e3094d8fab5bf1e4a"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/gate-evidence-final-8fe6631.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/gate-evidence-final-8fe6631.json",
+      "bytes": 12615,
+      "sha256": "2c78b093d17ceda866007755da315417629e8246a494c5178210dbbd327e3c6d"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/intact-native-0d2a434-01.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/intact-native-0d2a434-01.json",
+      "bytes": 4224,
+      "sha256": "7dbf7d157b96cb894812eab38e59e82dc6f0c14fd1a28801d704ffb17d28b7af"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/intact-native-0d2a434-01.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/intact-native-0d2a434-01.json.artifacts/stderr.log",
+      "bytes": 1151,
+      "sha256": "581e8d72ec7d37294c739efe2b5e383519cda55544b6468711febdf943d3eadb"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/intact-native-0d2a434-01.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/intact-native-0d2a434-01.json.artifacts/stdout.log",
+      "bytes": 232,
+      "sha256": "7de9bc3e2c14930a2d3a7694b15ee552643c1b61d28f285cd034e96e5df8c57b"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/intact-native-3b947c1.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/intact-native-3b947c1.json",
+      "bytes": 3916,
+      "sha256": "c1cc063ee888a8b0aeac5b5e587998037cb33d4fbf6752e967e06059feb5cb81"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/intact-native-3b947c1.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/intact-native-3b947c1.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/intact-native-3b947c1.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/intact-native-3b947c1.json.artifacts/stdout.log",
+      "bytes": 1081,
+      "sha256": "3c21e030e4eb8e5bf2df3417eeb8844ef5c42d7c0a5329985789c57c45a7dbf9"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native-d0e4510.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native-d0e4510.json",
+      "bytes": 4093,
+      "sha256": "01c0f88912fce0b1417903d26335b21d173311cdc69b9bb40839fcfe40af661f"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native-d0e4510.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native-d0e4510.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native-d0e4510.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native-d0e4510.json.artifacts/stdout.log",
+      "bytes": 1245,
+      "sha256": "a06fd55577008fdf8ee15be577f1a6df770915a2309fd4682fae9f74eac025e1"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native-passenger-01.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native-passenger-01.json",
+      "bytes": 4103,
+      "sha256": "26dd5ef7a3f8076937d0a466f5f34545eb695f32fe63f4ec5f0bf81d8ba54fbd"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native-passenger-01.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native-passenger-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native-passenger-01.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native-passenger-01.json.artifacts/stdout.log",
+      "bytes": 1245,
+      "sha256": "a06fd55577008fdf8ee15be577f1a6df770915a2309fd4682fae9f74eac025e1"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native-proof-331f162.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native-proof-331f162.json",
+      "bytes": 3339,
+      "sha256": "b526fb3ab13759a59a82c29013229105b3e7eea687d734d80bd84813a870151c"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native-proof-331f162.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native-proof-331f162.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native-proof-331f162.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native-proof-331f162.json.artifacts/stdout.log",
+      "bytes": 749,
+      "sha256": "bca17ab25ea9579257b0cb55a62bc5f543764c1d86977e12076238751ec04582"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native-proof-e566cef.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native-proof-e566cef.json",
+      "bytes": 3756,
+      "sha256": "e060f10ba2d46683f9efc265747b0797789b288036d42cfdf339f9dc02662e6f"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native-proof-e566cef.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native-proof-e566cef.json.artifacts/stderr.log",
+      "bytes": 494,
+      "sha256": "a838d2cc99dc69db779bd8dc2c6fb55c9d8554c8df223fc544d07f53dfccf09f"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native-proof-e566cef.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native-proof-e566cef.json.artifacts/stdout.log",
+      "bytes": 666,
+      "sha256": "c5fcc42e9879d6dded4d0425c8ad3be12fae2e3ed87bbe1bd6f795b5556a4188"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native/probe-01.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native/probe-01.log",
+      "bytes": 532,
+      "sha256": "7aaaaa3bf3e82ecb712b263a19f15208249118719f8553dd3f85f68da13823ec"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native/probe-02.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native/probe-02.log",
+      "bytes": 12029,
+      "sha256": "0eb88202d7e77efc20fff7bab3ed47ee9695508d56137bbf17c8ce7368b3606c"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/native/probe-03.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/native/probe-03.log",
+      "bytes": 11516,
+      "sha256": "833108cbfb3a7a10a0c182ba025658c72fd01eb92577caca9e3259539b89a748"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/owner-seams-after-01.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/owner-seams-after-01.log",
+      "bytes": 1033,
+      "sha256": "e70dee9608fe2541834ba7344d57dbcde647baf4318377ecca33ec5eacfcfca3"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/owner-seams-before.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/owner-seams-before.log",
+      "bytes": 2870,
+      "sha256": "e4ea793b8ebc1986082d3721336add5625fcc86f575bc7bb5dff9e5c735de72f"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/quality-repair-focused.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/quality-repair-focused.json",
+      "bytes": 4268,
+      "sha256": "7bf15b68db716eb60866c4299b01aa758ceff0465c4855797dca52ce4f0aefd2"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/quality-repair-focused.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/quality-repair-focused.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/quality-repair-focused.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/quality-repair-focused.json.artifacts/stdout.log",
+      "bytes": 2663,
+      "sha256": "63e1f325bb3ec79afee1ac8bdc0e52d3592c405c47dff88d1f8d528896a6e2ce"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/quality-repair-oxlint.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/quality-repair-oxlint.json",
+      "bytes": 2586,
+      "sha256": "0d1e8a7c7aa205789219d3c10b3de95bc47beb12f4a2ff50609c685f3d2ec23a"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/quality-repair-oxlint.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/quality-repair-oxlint.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/quality-repair-oxlint.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/quality-repair-oxlint.json.artifacts/stdout.log",
+      "bytes": 1036,
+      "sha256": "3b7058bc3190fa4df7ddf8505fc5840723f2b0979e30d0aade87400230aa0b26"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/quality-repair-person-panic.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/quality-repair-person-panic.json",
+      "bytes": 2309,
+      "sha256": "5f4c658dde09cd2813d73c13b5c036fd5a5ac50ea1ad5f81fa17f7ab5211907b"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/quality-repair-person-panic.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/quality-repair-person-panic.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/quality-repair-person-panic.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/quality-repair-person-panic.json.artifacts/stdout.log",
+      "bytes": 782,
+      "sha256": "3799cb05782e79d04ce38d5b05ab912b27c9ea0d5791b899dcd67355418cec97"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/quality-repair-typecheck.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/quality-repair-typecheck.json",
+      "bytes": 1859,
+      "sha256": "124ecb3b1efe1e6a8bb87d68e10cd489053bd7e243ccf9d33aa40b977e9951ac"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/quality-repair-typecheck.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/quality-repair-typecheck.json.artifacts/stderr.log",
+      "bytes": 307,
+      "sha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/quality-repair-typecheck.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/quality-repair-typecheck.json.artifacts/stdout.log",
+      "bytes": 55,
+      "sha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/browser-command.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/browser-command.json",
+      "bytes": 50108,
+      "sha256": "5ef5268b625dcad4bcec4b31774045d73039f8058a83047a9ac1fdda79fee782"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/browser-command.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/browser-command.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/browser-command.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/browser-command.json.artifacts/stdout.log",
+      "bytes": 39281,
+      "sha256": "171625aa0a50d936b1fe58f32800b085f4c766f8ede6636296c1f0242612e5f3"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/browser/receipt.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/browser/receipt.json",
+      "bytes": 97145,
+      "sha256": "707859c04e62e13f762ab24f1d2ea6e1f6fa95a4fa26eae64cde9a395fecb631"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/browser/report.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/browser/report.json",
+      "bytes": 83951,
+      "sha256": "150ea9418c07f8ce2abd4aa4c6a793bdf76c6883bddf299ef5b4f3440683981b"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-1024.png",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-1024.png",
+      "bytes": 974283,
+      "sha256": "15c35ae71f73adc003fea04be7fbb2509d9574fbdfe39e42e9c86634e92a435c"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-1920.png",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-1920.png",
+      "bytes": 2181101,
+      "sha256": "3f720521f58b33f88a79f784b7927304dc3970b8340cd9fe13e680a1de0749bb"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-before.png",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-before.png",
+      "bytes": 1591213,
+      "sha256": "60046d48b5b271a100a156a02c2aa2d08f52443405f9e39823313c3d909c7ab3"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-checkpoint.png",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-checkpoint.png",
+      "bytes": 1577850,
+      "sha256": "ff8d09cec4375b184f72d1f0083db5aebb80a3ef3decafe3cccdfd193e5908d8"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-during.png",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-during.png",
+      "bytes": 1588181,
+      "sha256": "d61b731b942e64159a2ede3318b72d31b03c85834f6ee24d51ee57dd467e37a9"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-intrusion.png",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-intrusion.png",
+      "bytes": 1570095,
+      "sha256": "e33827fcc5abf8494affc620546779d841161078a3eee570fa0586c9ef5af93e"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-respawn.png",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-respawn.png",
+      "bytes": 1562343,
+      "sha256": "fb0843695bd717bd609a28aded09ffc8bcdbe4ed86d37b5d793db005679ef864"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-swamp-after.png",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-swamp-after.png",
+      "bytes": 1572994,
+      "sha256": "25e4800bfddb9eacbcef992040804d9959b7b2892e9d29a0de1dd2db4fbb1fdc"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-swamp-before.png",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/browser/site-swamp-before.png",
+      "bytes": 1550064,
+      "sha256": "653feb733cbd54b836616ca321b5045140b481f96e405aef658d0195552e6d88"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/cleanup.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/cleanup.json",
+      "bytes": 2332,
+      "sha256": "ca5594dda287702e7e0e871ba4a3e871f3854b63e5fa75508970b2967c0a38e7"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/cleanup.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/cleanup.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/render-8fe6631/cleanup.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/render-8fe6631/cleanup.json.artifacts/stdout.log",
+      "bytes": 109,
+      "sha256": "d172989a3f2939bdfa0a54e69d98c4ae068607b69414d7e21f6368383454e437"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/review-checker-5b8c56e.md",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/review-checker-5b8c56e.md",
+      "bytes": 2713,
+      "sha256": "2bd0f937a72c0aedde85e8b21a12d852def9e85e9db494e1c18051d1cc7cd121"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/review-checker-startup-8fe6631.md",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/review-checker-startup-8fe6631.md",
+      "bytes": 1567,
+      "sha256": "34c26a810fff21d1142a17be7ff13e8e413099102419a4b55e192091f5dce794"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/review-context-repair-32e511b.md",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/review-context-repair-32e511b.md",
+      "bytes": 1070,
+      "sha256": "ae00a6ae3e5662a151333ac93f68fe4bf4bfbaaac5b8438ad382516d8722900f"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/review-final-8fe6631.md",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/review-final-8fe6631.md",
+      "bytes": 7838,
+      "sha256": "f4e57a3dfeb73f704f315a2309b01280c98cfa6d18b688cf0049c452d96168b4"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/review-quality-cycles-7b96393.md",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/review-quality-cycles-7b96393.md",
+      "bytes": 5582,
+      "sha256": "a9aa364d66d29884d2e39102b4eb0bfdbe12c92950bfa12c3364b6b5c88ea62d"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/review-runtime-8f915ad.md",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/review-runtime-8f915ad.md",
+      "bytes": 5009,
+      "sha256": "15566cde2d6c0d8fd84138c4ce05892eea6caf1515d37e70c3625080ebac6bad"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/review-runtime-d0e4510.md",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/review-runtime-d0e4510.md",
+      "bytes": 4270,
+      "sha256": "051190ba54ed03dac5bf5c2ad01b7a1cd3c7b30bade9538975e5eb6f525f2be7"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/review-startup-proposal-7b96393.md",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/review-startup-proposal-7b96393.md",
+      "bytes": 1363,
+      "sha256": "1d2a1917ecd1dfabcb5886cc295bfbe2779378a7b7bd3b685ac47c0e97b425db"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/review-type-repair-07ec3a1.md",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/review-type-repair-07ec3a1.md",
+      "bytes": 1265,
+      "sha256": "844d49736448c606bfda60a9000b2fb8f5bcc40814f33b194bf312b09ec965b0"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/swamp-extension-01.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/swamp-extension-01.json",
+      "bytes": 3499,
+      "sha256": "705911f333e410112b25c4113f0633969d2a0298a39bb0120d0fce7bca67bf95"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/swamp-extension-01.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/swamp-extension-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/swamp-extension-01.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/swamp-extension-01.json.artifacts/stdout.log",
+      "bytes": 912,
+      "sha256": "3adcc5fe8b0d14afe53d9884865c2a5f79f0df860189e62db66f1571d0a6e328"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/type-only-correspondence-07ec3a1.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/type-only-correspondence-07ec3a1.json",
+      "bytes": 2218,
+      "sha256": "08e60287250889c26c5002030371d30e9f45f201ba4cf2b8dfcec6d6e55b6401"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/type-only-correspondence-07ec3a1.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/type-only-correspondence-07ec3a1.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/type-only-correspondence-07ec3a1.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/type-only-correspondence-07ec3a1.json.artifacts/stdout.log",
+      "bytes": 82,
+      "sha256": "9fe65f71002a3c9f8c676fc06fd25e3ecf16d88b82c1642b05eba9a7918ef889"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/typecheck-repair.json",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/typecheck-repair.json",
+      "bytes": 2259,
+      "sha256": "ff1470ea7d048d0adb8095ee11655d29f71998787d8320f3095e49d9bc17f86f"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/typecheck-repair.json.artifacts/stderr.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/typecheck-repair.json.artifacts/stderr.log",
+      "bytes": 307,
+      "sha256": "7d61cb2e2deb776dfec4d6f54693f9edeed0af5c4da52f091c53c995d862fb65"
+    },
+    {
+      "path": "originals/work/orchestration/reincarnation-site-wave/typecheck-repair.json.artifacts/stdout.log",
+      "sourcePath": "work/orchestration/reincarnation-site-wave/typecheck-repair.json.artifacts/stdout.log",
+      "bytes": 55,
+      "sha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5"
+    }
+  ]
+}
