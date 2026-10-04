@@ -105,11 +105,7 @@ export function stepReincarnationWave(w: World, fx: Effect) {
       // Swamps use the existing effect store rather than the person-cell chain.
       // Removing one must not skip a linked person or let that old effect run later.
       for (const swamp of w.effects)
-        if (
-          swamp.swamp &&
-          swamp.age < swamp.duration &&
-          inSiteWaveCell(w, cell, swamp)
-        )
+        if (swamp.swamp && swamp.age < swamp.duration && inSiteWaveCell(w, cell, swamp))
           swamp.duration = swamp.age
       for (const object of objectsInCell(w.objectCells, cell)) {
         const u = units.get(object.id)
@@ -118,12 +114,7 @@ export function stepReincarnationWave(w: World, fx: Effect) {
       // Unmigrated browser people have no native cell record yet. Only an actual
       // hit hands them to the native panic owner; unrelated people are untouched.
       for (const u of [...w.units].reverse())
-        if (
-          !registered.has(u.id) &&
-          u.hp > 0 &&
-          u.inside === null &&
-          inSiteWaveCell(w, cell, u)
-        ) {
+        if (!registered.has(u.id) && u.hp > 0 && u.inside === null && inSiteWaveCell(w, cell, u)) {
           const p = u.builder?.person ?? createLivePerson(w, u)
           affectPerson(w, u, p, wave.tribe)
           if (u.native === p) registered.set(u.id, p)

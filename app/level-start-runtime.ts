@@ -225,12 +225,7 @@ export function stepLevelStarts(w: World) {
           site.wave,
           siteWaveEffects(w, site.tribe, changed, cell => {
             for (const u of [...w.units].reverse())
-              if (
-                u.team === 'wild' &&
-                u.hp > 0 &&
-                u.inside === null &&
-                inSiteWaveCell(w, cell, u)
-              )
+              if (u.team === 'wild' && u.hp > 0 && u.inside === null && inSiteWaveCell(w, cell, u))
                 convertStartingWildman(w, u, site.tribe)
             return burnSiteWaveScenery(w, cell)
           })

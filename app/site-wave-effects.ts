@@ -111,5 +111,8 @@ export function finishSiteWaveTerrain(w: World, changed: Set<number>) {
   processTerrain(w.land, terrainTextures)
   for (const cell of changed) updateWalkMasks(w.land, cell, 2)
   refreshTerrainSurface(w)
-  notifyHeightChanges(w, [...changed].map(cell => ({ cell, radius: 1 })))
+  notifyHeightChanges(
+    w,
+    [...changed].map(cell => ({ cell, radius: 1 }))
+  )
 }

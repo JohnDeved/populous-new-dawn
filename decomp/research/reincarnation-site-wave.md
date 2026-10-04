@@ -10,7 +10,10 @@ original passes/failures are retained. An intact-table original run at0d2a434 fa
 three-hit assertion and exposed the corrected native row: life3000→2000→1000,
 two actual damage calls per visit, no panic/RNG change. Expectations below are
 derived from that original row and independent decoding of the pinned ring data.
-Complete corrected revalidation and independent review remain pending.
+The complete corrected matrix passed on3b947c1 with intact mapped search bytes
+and all244 configured constants verified at each boundary. A second independent
+execution and source/data review accepted that corrected native contract. WIP
+runtime code is a separate, still-pending gameplay/rendered acceptance claim.
 
 This bounded repair is separate from command18 startup and from the already
 accepted model12 body/spirit presentation. It does not complete issue #30.
@@ -124,3 +127,22 @@ The corrected native memory-gap trace records only the one-byte allocation flag
 slot reset0089290d..008929cd. All fixture handles fit below00891a10; all configured
 constant targets lie in005a70d2..005aa5e0, outside fixture reset writes. The old
 clear had overwritten2,499 search bytes, including every ring descriptor.
+
+## Browser integration scope
+
+The mode2 controller is owned by the existing newest-first Effect loop. Its model12
+producer runs later in the turn, so the stored controller first processes next turn.
+Its stable id, explicit mode2/tribe, saved XYZ, visits/radii and orbit identities are
+checkpoint state. Actual orbit/sparkle effects use the shared startup presentation
+adapter; the controller itself has an empty scene group. Startup mode1's conversion
+consumer and its existing Swamp omission are unchanged. A removed older Swamp is
+skipped if the same effect-loop traversal reaches it later that turn.
+
+Focused portable cases cover failure without retry, busy allocation identity, exact
+height arithmetic, native target/damage/RNG cases, repeated protected hits, Swamp
+removal, ordinary death-to-successful-spawn timing, post-spawn lifetime and checkpoint
+continuation. A real move command followed by joinBattle verifies adoption of the
+active encounter person and preservation of a nonempty order queue through panic
+and the ordinary encounter cleanup. The pre-existing14 startup regressions pass.
+This is source-level integration evidence; rendered natural-death/site-intrusion
+acceptance and standard final gates are still pending.

@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { createWorld, tick } from '../app/model.ts'
+import { createWorld, tick, joinBattle, command } from '../app/model.ts'
 import { createWorldState, addUnit } from '../app/world-state.ts'
 import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
 import { browserPosition } from '../app/world-coordinates.ts'
@@ -139,10 +139,10 @@ test('mode2 uses native eligibility, panic, descriptor damage and RNG without Sw
 test('protected transitions retain repeated native cell hits and consume no panic RNG', () => {
   const w = fixture(), u = person(w, 'brave', {person:{flags2:0x100000}}), fx = createReincarnationWave(w, 0)
   stepReincarnationWave(w, fx)
-  assert.equal(u.hp, 75)
+  assert.equal(u.hp, 100)
   assert.equal(u.native.state, 17)
   stepReincarnationWave(w, fx)
-  assert.equal(u.hp, 0)
+  assert.equal(u.hp, 50)
   assert.equal(u.native.state, 17)
   assert.equal(w.randomState, 0x12345678)
 })
@@ -218,4 +218,29 @@ test('checkpoints preserve mode2 identity, sites, orbits, terrain and RNG withou
     assert.equal(fx.reincarnationWave.orbits.length, 0)
     assert.equal(w.castingTribes[0].flags & 1, 0)
   }
+})
+
+test('mode2 interrupts the real encounter owner while retaining its person and order queue', () => {
+  const w = fixture(), enemy = person(w, 'warrior', {team:'blue'}), friendly = person(w, 'brave')
+  w.reincarnationSites[1] = { ...center }
+  w.selected = [enemy.id]
+  assert.ok(command(w, {x:enemy.x + 4, z:enemy.z}))
+  assert.ok(enemy.native.commands.some(Boolean), 'ordinary move command must create a real queue')
+  joinBattle(w, enemy, friendly)
+  assert.equal(enemy.fight.action, 'encounter')
+  const active = enemy.fight.motion, queue = structuredClone(active.commands), orders = structuredClone(w.buildingOrders)
+  assert.equal(active.state, 29)
+  assert.equal(enemy.native, null, 'encounter owns the live person')
+  const fx = createReincarnationWave(w, 1)
+  stepReincarnationWave(w, fx)
+  assert.equal(active.state, 26)
+  assert.equal(enemy.native, active, 'panic must adopt the actual active person')
+  assert.deepEqual(active.commands, queue)
+  assert.deepEqual(w.buildingOrders, orders)
+  assert.equal(enemy.hp, 105)
+  advance(w, 2)
+  assert.equal(enemy.native, active)
+  assert.equal(active.state, 26, 'old encounter must not overwrite panic on a later visit')
+  assert.equal(enemy.fight, null, 'ordinary fight cleanup must release the old wrapper')
+  assert.deepEqual(active.commands, queue)
 })
