@@ -1,3 +1,4 @@
+import { reconcileWorldHutSmoke, stepSecondaryEffects } from './hut-smoke-runtime.ts'
 import {
   levelStartOwnsShaman,
   stepLevelStarts,
@@ -558,6 +559,7 @@ function stepTurn(w: World) {
   // Native allocated-object order is newest first; terrain and RNG effects are noncommutative.
   for (let index = effectCount - 1; index >= 0; index--) {
     const fx = w.effects[index]
+    if (fx.kind === 'orderMarker') continue
     fx.age += dt
     if (fx.armageddon) stepArmageddon(w, fx)
     if (fx.corpse) {
@@ -1062,6 +1064,7 @@ function stepTurn(w: World) {
       prepareBuildingSite(w, b, constructionWorkers(w, b))
       continue
     }
+    if (!(b.counter & 31)) reconcileWorldHutSmoke(w, b)
     const inhabitants = w.units.filter(u => u.inside === b.id && u.hp > 0)
     if (b.progress < 1 || b.builders?.some(Boolean)) {
       const wasIncomplete = b.progress < 1
@@ -1747,6 +1750,7 @@ function stepTurn(w: World) {
       }
     }
   }
+  stepSecondaryEffects(w)
   refreshTerrainLights(w) // 0x4ec6f0: lighting follows the completed object turn.
   ageFailedRoutes(w.motionRoutes) // 0x4ec6f0: after object and terrain work.
   // The result overlay remains while followers continue their native celebration.

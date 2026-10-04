@@ -431,7 +431,10 @@ test('Mission 2 naturally funds the Matak Shaman and casts Swarm through player 
   )
   const inactive = { mana: w.manaTribes[1].mana, available: w.manaTribes[1].available },
     matakMana = w.manaTribes[3].mana
-  assert.ok(command(w, { x: 83, z: 127 }))
+  // Stage before the deep-base crossing: the original target can lose one of
+  // the six Warriors to a Matak patrol before the native group threshold is met.
+  // Both base and type9-candidate retain the complete cast/impact/panic/payment proof.
+  assert.ok(command(w, { x: 109, z: 125 }))
   stepUntil(
     w,
     () =>

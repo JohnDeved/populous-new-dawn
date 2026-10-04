@@ -1,3 +1,4 @@
+import type { SecondaryEffects } from './secondary-effects.ts'
 import type { LevelStartSite } from './level-start.ts'
 import type { LiveFormation } from './live-movement.ts'
 import type { Footprints } from './footprints.ts'
@@ -491,6 +492,7 @@ export type World = {
   randomState: number
   cosmeticRandom: { randomState: number }
   effectCounter: number
+  secondaryEffects: SecondaryEffects
   nextId: number
   footprints: Footprints
   selected: number[]

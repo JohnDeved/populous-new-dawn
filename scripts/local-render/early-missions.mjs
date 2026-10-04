@@ -212,7 +212,39 @@ export default async function ({
         await page.reload({ waitUntil: 'domcontentloaded' })
         const selector = page.getByRole('dialog', { name: 'Start game', exact: true })
         await selector.waitFor()
+        // Observe replacement synchronously; scene binding may span real turns.
+        await page.evaluate(() => {
+          const main = document.querySelector('main')
+          let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))]
+          let store
+          for (; fiber && !store; fiber = fiber.return)
+            for (let hook = fiber.memoizedState; hook; hook = hook.next)
+              if (hook.memoizedState?.getWorld && hook.memoizedState?.subscribe) {
+                store = hook.memoizedState
+                break
+              }
+          if (!store) throw Error('Checkpoint store unavailable before public Load')
+          const before = store.getWorld()
+          window.journeyLoadedCheckpoint = null
+          const unsubscribe = store.subscribe(() => {
+            const world = store.getWorld()
+            if (world === before) return
+            window.journeyLoadedCheckpoint = structuredClone({
+              turn: world.turn,
+              level: world.outcome.level,
+              stats: world.stats,
+              blue: world.units.filter(u => u.team === 'blue' && u.hp > 0).map(u => [u.id, u.kind]),
+            })
+            unsubscribe()
+          })
+        })
         await selector.getByRole('button', { name: 'Load Game', exact: true }).click()
+        const loaded = await page.evaluate(() => window.journeyLoadedCheckpoint)
+        assert.ok(loaded, 'Public Load must replace the actual stored world')
+        assert.equal(loaded.turn, saved.turn)
+        assert.equal(loaded.level, level)
+        assert.deepEqual(loaded.blue, saved.blue.map(u => [u.id, u.kind]))
+        assert.deepEqual(loaded.stats, saved.stats)
         await bindGame(page)
         const restored = await snap(page)
         assert.equal(restored.level, level)
@@ -225,7 +257,6 @@ export default async function ({
           restored.blue.map(u => [u.id, u.kind]),
           saved.blue.map(u => [u.id, u.kind])
         )
-        assert.deepEqual(restored.stats, saved.stats)
         assert.equal(restored.contextLost, false)
         await page.getByRole('button', { name: 'Pause game', exact: true }).click()
         const paused = await snap(page)
@@ -234,7 +265,7 @@ export default async function ({
         await page.screenshot({ path: resolve(output, `mission-${level}-restored-paused.png`) })
         await page.getByRole('button', { name: 'Resume game', exact: true }).click()
         await page.waitForFunction(t => window.testScene.world.turn > t, paused.turn)
-        return { saved, restored, resumed: await snap(page) }
+        return { saved, loaded, restored, resumed: await snap(page) }
       })
       assert.equal(receipt.errors.length, entry.errorsBefore, 'Browser error during mission')
     } catch (error) {

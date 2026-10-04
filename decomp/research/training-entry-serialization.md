@@ -635,3 +635,37 @@ interpolation, admission, capacity, training, or gameplay conclusion changes,
 and PR115 remains unresolved/draft. The next bounded prerequisite is the genuine
 selected backend object/method consumed through slot `+0x38`; do not host-write
 the call target or infer pixels from the 47 queued triangles.
+
+## Admission-to-interpolation boundary — October 2026
+
+The bounded checker `scripts/check-native-training-interpolation.py EXE` composes
+real `0x407150` admission, `0x4d80e0` occupancy and `0x46f080` sprite-queue
+interpolation for all four training models (5–8), four movement directions and
+five turn fractions. All 80 cases preserve displacement, interpolation flags,
+presentation stamp and projection inputs across successful mode-3 admission.
+The original render-hide bit remains clear. The projection inputs before and
+after admission are identical, including intermediate fractions.
+
+This proves an occupancy-only transition does not snap the original sprite queue
+to the completed position. It reuses the reviewed occupant oracle's supplied
+transport/indicator leaves and supplies the final camera projection consumer.
+It does not execute original group motion, the complete painter, framebuffer
+pixels or throughput. It therefore does not supersede the earlier formation
+trace, claim a one-person admission rule, or close issue 29.
+
+The current live-path regression then checks ordinary human group commands and
+the shared command-8 producer boundary for all four training types. Before the
+repair each case snaps on its first visible admission; after it, all five
+admissions interpolate normally at fractions 0, 1/4, 1/2, 3/4 and 1. A cloned
+simulation without presentation snapshots remains deeply equal every turn,
+including RNG, five occupants and three overflow followers. Hidden admission,
+exit, class/team replacement, explicit placement and reused IDs retain their
+discrete behavior. The repair is confined to `UnitMotion.afterTurn`; neither
+admission timing nor movement/formation/capacity/conversion is changed.
+
+Focused reproduction: `node --test tests/training-interpolation.test.mjs
+ tests/unit-motion.test.mjs`. The local-render scenario
+`scripts/local-render/training-entry.mjs` uses an explicitly manipulated
+unobstructed training fixture, a real pointer group command and fixed-turn /
+fractional-frame sampling. Its isolated-sprite captures remove hut coverage as
+a labelled diagnostic; they are not original-game pixel evidence.

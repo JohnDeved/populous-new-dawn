@@ -1,3 +1,4 @@
+import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
 import {
@@ -77,6 +78,7 @@ export function updatePlacement(scene: GameScene) {
     p = scene.pointer
   scene.cursor.visible =
     !!p && !!kind && !SPELLS.some(s => s.id === w.mode) && !w.inputMask && w.status === 'playing'
+  syncSecondaryReservations(scene)
   if (!p || !scene.cursor.visible) {
     scene.placementState = ''
     return

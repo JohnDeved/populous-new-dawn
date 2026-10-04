@@ -5112,9 +5112,23 @@ binds the level reset and record allocator to the corrected Mission 1–3 initia
 adapter contribution. It preserves a failed-before/passed-after native comparison
 and names the remaining primary-stream, secondary-list and render-RNG boundaries.
 
+## Shared secondary hut smoke owner
+
+[Secondary owner and evidence](research/hut-smoke-secondary-owner.md) binds the
+160-slot mixed pool, actual original draw/processor RNG coupling, deferred child
+visits and checkpoint slot reconstruction to the bounded runtime owner. Its
+primary-stream and current UI-adapter limits remain explicit.
+
 ## Building construction-gauge consumer — 2026-10-03
 
 [Bounded native/current comparison](research/building-construction-gauge.md) identifies
 the inherited Mission 3 Tower line, executes the staged mesh/overlay queue, and
 separates construction presentation from original person-health and activity panels.
 No full original-frame raster parity is claimed.
+
+## Early Mission1/2 response scanner
+
+[Pre-table type9 lifecycle](research/early-mission-response-task.md) binds the
+complete authored Mission1/2 branch to normal allocation, people/building scans,
+territory/alliance filters, response flags, cleanup and checkpoint continuation.
+Unhooked native cases retain the separate Mission3/type8 and Spy boundaries.
