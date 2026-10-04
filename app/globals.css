@@ -34,6 +34,8 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .tribe-flag{position:absolute;left:78px;width:19px;height:10px;border:2px ridge #e9b451}.dakini{top:1px;background:#bd4239}.chumara{top:14px;background:#efd96b}.matak{top:26px;background:#43c286}
 .tribe-classes{position:absolute;left:0;top:153px;width:95px;display:grid;grid-template-columns:repeat(6,15px);gap:1px}
 .tribe-classes button{position:relative;width:15px;height:36px;padding:0;background:url('/original/hud-follower.png');image-rendering:pixelated}
+/* Original disabled follower frames retain RGB and use alpha 85/255. */
+.tribe-classes button:disabled{opacity:calc(85 / 255)}
 .tribe-classes button[aria-pressed=true]{background-image:url('/original/hud-follower-selected.png')}
 .tribe-classes button:enabled:is(:hover,:active){background-image:url('/original/hud-follower-hover.png')}
 .follower-icon{pointer-events:none}.follower-icon>span{position:absolute}.follower-icon>span:last-child{display:none}.tribe-classes button:is(:hover,:active) .follower-icon>span:first-child{display:none}.tribe-classes button:is(:hover,:active) .follower-icon>span:last-child{display:block}
