@@ -11,6 +11,11 @@ import { command, setSelection } from '../app/model.ts'
 import { select, placeBuilding } from '../app/model.ts'
 import { finishLevelStart } from './level-start-fixture.mjs'
 import { currentPersonOrder } from '../app/person-orders.ts'
+import { createLivePerson } from '../app/live-people.ts'
+import { stepComputerTasks } from '../app/computer-runtime.ts'
+import { requestEarlyResponseTask } from '../app/computer.ts'
+import { nativeSpellRange, spellCaster } from '../app/spell-casting.ts'
+import rules from '../app/original-rules.json' with { type: 'json' }
 
 // Full imported-program invariants, rather than startup-only observations, bound
 // the Mission3 response path. These do not replace original-byte native probes.
@@ -106,6 +111,79 @@ test('native defense no-force fallback is a finite seven-visit lifecycle', () =>
   assert.deepEqual(requests, [[3, 1], [3, 1], [6, 1]])
   assert.deepEqual(task.quotas, [0, 1, 1, 0])
   assert.equal(ai.selectionOwner, 10)
+})
+
+// These controlled flags/dispatch fixtures complement the ordinary routes below.
+test('defense cleanup clears only matching assignment and native flag bits while preserving another lock', () => {
+  const world = createWorld(3), personUnit = world.units.find(u => u.team === 'yellow' && u.kind === 'brave')
+  const p = personUnit.native ??= createLivePerson(world, personUnit)
+  for (const task of world.ai.tasks) task.flags = 0
+  requestDefenseTask(world.ai, 256, 1, 1, 0x6464, () => area([0, 1, 0, 0]))
+  const task = world.ai.tasks[0]
+  task.phase = 7
+  p.state = 17
+  p.computerAssignment = 1
+  p.flags3 = 0x2004
+  personUnit.nativeFlags7f = 255
+  world.ai.flags |= 2
+  world.ai.selectionOwner = 2
+  world.turn = 1
+  world.ai.cursor = 0
+  stepComputerTasks(world, 2)
+  assert.equal(p.computerAssignment, 0)
+  assert.equal(p.flags3, 4)
+  assert.equal(personUnit.nativeFlags7f, 254)
+  assert.equal(p.state, 17)
+  assert.equal(task.flags & 3, 0)
+  assert.equal(world.ai.selectionOwner, 2)
+  assert.ok(world.ai.flags & 2)
+})
+
+test('lost early defense targets are invalidated before a different task dispatch', () => {
+  const world = createWorld(3), target = world.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+  for (const task of world.ai.tasks) task.flags = 0
+  requestEarlyResponseTask(world.ai, 512)
+  requestDefenseTask(world.ai, 256, 1, target.id, 0x6464, () => area([0, 1, 0, 0]))
+  target.hp = 0
+  world.turn = 1
+  world.ai.cursor = 0
+  stepComputerTasks(world, 2)
+  assert.equal(world.ai.tasks[1].phase, 0)
+  assert.equal(world.ai.tasks[1].flags & 3, 3)
+  stepComputerTasks(world, 2)
+  assert.equal(world.ai.tasks[1].phase, 7)
+  assert.equal(world.ai.tasks[1].flags & 3, 0)
+})
+
+test('defense Blast uses signed active-person height for native and flight-owned Shamans', () => {
+  for (const owner of ['native', 'flight']) for (const height of [896, -256]) {
+    const world = createWorld(3), shaman = world.units.find(u => u.team === 'yellow' && u.kind === 'shaman'),
+      target = world.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
+      person = createLivePerson(world, shaman)
+    Object.assign(person, { state: 17, flags2: 0, flags4: 0, h: height })
+    shaman.native = null
+    shaman[owner] = person
+    for (const task of world.ai.tasks) task.flags = 0
+    world.ai.flags &= ~(2 | 0x40000)
+    world.ai.selectionOwner = 10
+    world.manaWorld.gameFlags &= ~32
+    const casting = world.castingTribes[2]
+    casting.flags &= ~0x80000
+    casting.cooldown = casting.aiCooldown = 0
+    const caster = spellCaster(world, shaman),
+      terrainRange = Math.trunc(nativeSpellRange(world.manaWorld.gameFlags, casting.flags, caster, 2) / 512),
+      personRange = Math.trunc(nativeSpellRange(world.manaWorld.gameFlags, casting.flags, { ...caster, height }, 2) / 512),
+      distance = Math.min(terrainRange, personRange) + 1,
+      cell = (((((person.x >>> 8) & 254) + distance * 2) & 255)) | (person.y & 0xfe00)
+    assert.notEqual(terrainRange, personRange)
+    requestDefenseTask(world.ai, 256, 1, target.id, cell, () => area([0, 1, 0, 0]))
+    world.manaTribes[2].mana = rules.spellCharging[2].cost + 50001
+    world.turn = 1
+    world.ai.cursor = 0
+    stepComputerTasks(world, 2)
+    assert.equal(!!shaman.casting, personRange > terrainRange, `${owner}, signed height${height}`)
+    assert.equal(world.ai.tasks[0].phase, 3)
+  }
 })
 
 test('defense target collection preserves category caps, rejection rules and the omitted last spiral cell', () => {

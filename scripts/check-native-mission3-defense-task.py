@@ -498,16 +498,19 @@ def blast_cases(executable):
         dict(name='Shaman outside Blast range', cell=0xC0C0, expected=False),
         dict(name='usage limit reached', limited=True, used=255, expected=False),
         dict(name='usage limit available', limited=True, used=0, expected=True),
+        dict(name='elevated Shaman uses live signed height', height=896, cell=0x6470, expected=True),
+        dict(name='negative live height reduces Blast range', height=-256, cell=0x646C, expected=False),
     ]
     for definition in definitions:
         case = dict(attribute=128, mana=60001, exists=True, state=17, flags2=0,
-                    flags4=0, cooldown=0, aiCooldown=0, limited=False, used=0, cell=0x6666)
+                    flags4=0, cooldown=0, aiCooldown=0, limited=False, used=0, cell=0x6666, height=0)
         case.update(definition)
         p = Probe(executable)
         p.entity()
         if case['exists']:
             shaman = p.entity(tribe=TRIBE, model=7, cell=case['cell'], state=case['state'], flags=case['flags2'])
             p.write(shaman + 0x10, 'I', case['flags4'])
+            p.write(shaman + 0x41, 'h', case['height'])
             p.write(AI + 0x89D, 'I', shaman)
         p.write(0x96080A + TRIBE * 48, 'B', case['attribute'])
         p.write(AI + 0x94D, 'I', case['mana'])
@@ -590,7 +593,7 @@ function fixture(people) {
       x: (cell & 255) - 8, z: -(cell >> 8) - 8 }
     const p = createLivePerson(w, u)
     Object.assign(p, { state: row.state ?? 17, flags2: row.flags2 ?? 0, flags3: 1,
-      flags4: row.flags4 ?? 0, life: 1000, angle: 0, heading: 0 })
+      flags4: row.flags4 ?? 0, h: row.height ?? 0, life: 1000, angle: 0, heading: 0 })
     u.native = p; w.units.push(u); registerLivePerson(w, p)
   }
   w.randomState = 0x12345678

@@ -1134,6 +1134,8 @@ function stepComputerDefense(w: World, tribe: number, index: number) {
         caster = {
           ...spellCaster(w, u),
           ...person,
+          //0x4c2e30 reads the active person's signed height, including flight.
+          height: defensePerson(u)?.h ?? spellCaster(w, u).height,
           flags4: person.flags4 | (u.casting ? 0x400 : 0),
         }
       if (
