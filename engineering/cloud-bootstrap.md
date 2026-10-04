@@ -63,7 +63,9 @@ and Python distributions in the directory or its `python/` child.
   certified by download hashes. New environments use the hash-locked path.
 - `npm ci` uses the chosen revision's committed lockfile and integrity hashes.
   No writable `node_modules` copy or symlink is adopted. A reused worktree must
-  retain its recorded commit/lock, dependencies and clean tracked/untracked state.
+  retain its recorded commit/lock, complete dependency content/executable-mode
+  fingerprint, and clean tracked/untracked state. Only disposable top-level
+  `node_modules/.cache`, `.vite` and `.vite-temp` are excluded from that fingerprint.
 - Java and Chrome are invoked only for versions; the Ghidra launcher/tree is
   checked. Native `decomp.py check` verifies the EXE, exports and native tables
   in a full workspace recovery. This is not Ghidra project initialization or a

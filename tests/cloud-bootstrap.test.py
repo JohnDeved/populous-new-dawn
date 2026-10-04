@@ -123,6 +123,23 @@ class BootstrapTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             b.unpack(archive, self.path / 'special', 'tar')
 
+    def test_tar_link_chain_cannot_write_outside_staging(self):
+        outside = self.path / 'outside'
+        outside.mkdir()
+        marker = outside / 'keep'
+        marker.write_text('unchanged')
+        archive, target = self.path / 'links.tar', self.path / 'staging'
+        target.mkdir()
+        with tarfile.open(archive, 'w') as tar:
+            for name, value in [('a', '.'), ('b', 'a/../outside'), ('b/created', '.')]:
+                link = tarfile.TarInfo(name)
+                link.type, link.linkname = tarfile.SYMTYPE, value
+                tar.addfile(link)
+        with self.assertRaisesRegex(ValueError, 'Escaping archive link|symlinked parent'):
+            b.unpack(archive, target, 'tar')
+        self.assertEqual(sorted(p.name for p in outside.iterdir()), ['keep'])
+        self.assertEqual(marker.read_text(), 'unchanged')
+
     def test_cache_is_verified_read_only_and_offline_miss_blocks(self):
         cache = self.path / 'cache'
         cache.mkdir()
@@ -254,6 +271,7 @@ class BootstrapTests(unittest.TestCase):
         def git(*args):
             return subprocess.check_output(['git', '-C', str(origin), *args], stderr=subprocess.DEVNULL, text=True).strip()
         git('init', '-b', 'main')
+        (origin / '.gitignore').write_text('/node_modules\n')
         (origin / 'package.json').write_text('{"name":"bootstrap-fixture","version":"1.0.0"}')
         (origin / 'package-lock.json').write_text('{"name":"bootstrap-fixture","version":"1.0.0","lockfileVersion":3,"packages":{"":{"name":"bootstrap-fixture","version":"1.0.0"}}}')
         git('add', '.')
@@ -262,15 +280,14 @@ class BootstrapTests(unittest.TestCase):
         runner = self.runner()
         worktree, commit = runner.repository()
         self.assertEqual(commit, git('rev-parse', 'HEAD'))
-        # npm's no-dependency fixture may omit node_modules. Real project always has dependencies.
-        (worktree / 'node_modules').mkdir(exist_ok=True)
-        (worktree / '.gitignore').write_text('/node_modules\n')
-        # Keep fixture tracked tree unchanged for idempotent comparison.
-        (worktree / '.gitignore').unlink()
         self.args.offline = True
         npm_count = sum(c['argv'][0] == 'npm' for c in runner.commands)
         self.assertEqual(runner.repository(), (worktree, commit))
         self.assertEqual(sum(c['argv'][0] == 'npm' for c in runner.commands), npm_count)
+        (worktree / 'node_modules/changed.js').write_text('unexpected change')
+        with self.assertRaisesRegex(ValueError, 'dependency contents changed'):
+            runner.repository()
+        (worktree / 'node_modules/changed.js').unlink()
         (worktree / 'package.json').write_text('user changes')
         with self.assertRaisesRegex(ValueError, 'has changes'):
             runner.repository()
@@ -284,6 +301,21 @@ class BootstrapTests(unittest.TestCase):
         runner = b.Bootstrap(self.args, self.manifest)
         self.assertEqual(runner.root, SOURCE.parent / 'fixture-sibling')
         self.assertNotIn(SOURCE, runner.root.parents)
+
+    def test_dependency_hash_tracks_contents_and_modes_but_not_disposable_cache(self):
+        modules = self.path / 'node_modules'
+        modules.mkdir()
+        code = modules / 'runtime.js'
+        code.write_text('runtime')
+        original = b.dependency_digest(modules)
+        cache = modules / '.vite'
+        cache.mkdir()
+        (cache / 'generated').write_text('cache')
+        self.assertEqual(b.dependency_digest(modules), original)
+        code.chmod(0o755)
+        self.assertNotEqual(b.dependency_digest(modules), original)
+        code.unlink()
+        self.assertNotEqual(b.dependency_digest(modules), original)
 
     def test_root_inside_esm_package_is_rejected(self):
         (self.path / 'package.json').write_text('{"type":"module"}')

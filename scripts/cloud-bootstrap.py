@@ -40,23 +40,33 @@ def verify(path, expected):
         raise ValueError(f'SHA-256 mismatch or missing file: {path}')
 
 
-def tree_digest(root):
+def tree_digest(root, ignored=(), executable_bits=False):
     """Content identity without timestamps, permissions, or absolute paths."""
     h = hashlib.sha256()
     for path in sorted(root.rglob('*')):
-        name = path.relative_to(root).as_posix()
+        relative = path.relative_to(root)
+        if relative.parts[0] in ignored:
+            continue
+        name = relative.as_posix()
         if path.is_symlink():
             if not path.resolve().is_relative_to(root.resolve()):
                 raise ValueError(f'External symlink in tool tree: {name}')
             value = 'link:' + os.readlink(path)
         elif path.is_file():
             value = 'file:' + digest(path)
+            if executable_bits:
+                value += ':exec=' + oct(path.stat().st_mode & 0o111)
         elif path.is_dir():
             continue
         else:
             raise ValueError(f'Unsupported file in tool tree: {name}')
         h.update((name + '\0' + value + '\n').encode())
     return h.hexdigest()
+
+
+def dependency_digest(root):
+    # These are disposable bundler/tool caches, never installed package source.
+    return tree_digest(root, ignored={'.cache', '.vite', '.vite-temp'}, executable_bits=True)
 
 
 def atomic_json(path, data):
@@ -124,8 +134,19 @@ def unpack(archive, destination, kind):
                     raise ValueError(f'Unsupported tar member: {name}')
             # Never follow archive-supplied symlinks while creating files.
             for target, value in links:
+                parent = target.parent
+                while parent != destination:
+                    if parent.is_symlink():
+                        raise ValueError(f'Archive link has a symlinked parent: {target}')
+                    parent = parent.parent
+                # Earlier links can change how later relative targets resolve.
+                if not (target.parent / value).resolve().is_relative_to(destination.resolve()):
+                    raise ValueError(f'Escaping archive link: {target}')
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.symlink_to(value)
+            for target, _ in links:
+                if not target.resolve().is_relative_to(destination.resolve()):
+                    raise ValueError(f'Escaping final archive link: {target}')
     else:
         raise ValueError(f'Unknown archive format: {kind}')
 
@@ -313,6 +334,8 @@ class Bootstrap:
                 raise ValueError('Existing worktree has changes; preserved untouched, choose a new --worktree')
             if (target / 'node_modules').is_symlink() or not (target / 'node_modules').is_dir() or digest(target / 'package-lock.json') != state['lockSha256']:
                 raise ValueError('Existing dependencies are missing/different; choose a new --worktree name')
+            if dependency_digest(target / 'node_modules') != state.get('dependencyTreeSha256'):
+                raise ValueError('Existing dependency contents changed; preserved untouched, choose a new --worktree')
             return target, commit
         staging = self.root / 'staging' / ('worktree-' + uuid.uuid4().hex)
         self.run(['git', '-C', repository, 'worktree', 'add', '--detach', staging, commit])
@@ -323,9 +346,12 @@ class Bootstrap:
         if self.args.offline:
             command.append('--offline')
         self.run(command, cwd=staging, env=env)
+        (staging / 'node_modules').mkdir(exist_ok=True)
+        dependency_hash = dependency_digest(staging / 'node_modules')
         target.parent.mkdir(parents=True, exist_ok=True)
         self.run(['git', '-C', repository, 'worktree', 'move', staging, target])
-        atomic_json(marker, {'commit': commit, 'lockSha256': digest(target / 'package-lock.json')})
+        atomic_json(marker, {'commit': commit, 'lockSha256': digest(target / 'package-lock.json'),
+                             'dependencyTreeSha256': dependency_hash})
         return target, commit
 
     def environment(self, paths, python, repository):
