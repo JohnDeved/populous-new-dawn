@@ -925,6 +925,9 @@ occupancy flags and complete global scheduling remain integration gaps.
 
 ## Complete general and emergency spell controller
 
+The live assignment adapter repair and failure-first producer-to-controller
+regression are documented in [active Preacher retaliation](research/preacher-spell-retaliation.md).
+
 ```sh
 .tools/decomp/oracle/bin/python scripts/check-native-emergency-spells.py /path/to/d3dpoptb.exe
 ```
