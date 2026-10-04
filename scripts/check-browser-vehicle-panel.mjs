@@ -55,6 +55,7 @@ export default async function vehiclePanels({browser,page,openMission,output,rec
  await page.keyboard.press('Escape')
  const graphics=await page.evaluate(()=>{const gl=window.testSceneRef.current.renderer.getContext(),ext=gl.getExtension('WEBGL_debug_renderer_info');return{renderer:ext?gl.getParameter(ext.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER),devicePixelRatio,turn:window.testSceneRef.current.world.turn}})
  const result={graphics,method:'Actual authored Mission22 vehicle meshes and shipped world right-click/panel controls. Passenger population/location and deterministic turn advancement are supporting fixtures; no natural acquisition or hardware-performance claim.',vehicles:[],layouts:[],pixels:[]}
+ let priorCrew=[]
  for(const model of [1,3]){
   const id=ids.find(v=>v.model===model).id,p=await vehiclePoint(page,id)
   await page.mouse.click(p.x,p.y,{button:'right'});await render(page)
@@ -65,13 +66,15 @@ export default async function vehiclePanels({browser,page,openMission,output,rec
   result.pixels.push(await sourcePixels(panel,model,[],false,output,`vehicle-${model}-empty-pixels`))
   await page.screenshot({path:resolve(output,`vehicle-${model}-empty.png`)})
   // Supporting mixed-class roster; subsequent boarding is an actual terrain/model click.
-  const roster=await page.evaluate(async id=>{
+  const roster=await page.evaluate(async ({id,remove})=>{
    const s=window.testSceneRef.current,w=s.world,{addUnit,browserPosition}=await import('/app/model.ts'),v=w.vehicles.find(v=>v.id===id)
-   w.units=[];w.pathfinding.people.clear();w.selected=[];s.objectPanels.dispose()
+   // Keep authored populations, Shamans and their routes; only replace the prior test crew.
+   w.units=w.units.filter(u=>!remove.includes(u.id));for(const id of remove)w.pathfinding.people.delete(id);w.selected=[];s.objectPanels.dispose()
    const point=browserPosition(v),units=['brave','warrior'].map((kind,i)=>addUnit(w,'blue',kind,{x:point.x+0.2*i,z:point.z}))
    s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame)
    return units.map(u=>u.id)
-  },id)
+  },{id,remove:priorCrew})
+  priorCrew=roster
   await page.getByRole('button',{name:'Select follower',exact:true}).click({modifiers:['Shift']})
   assert.deepEqual((await selection(page)).toSorted(),roster.toSorted())
   const boardingPoint=await vehiclePoint(page,id);await page.mouse.click(boardingPoint.x,boardingPoint.y)
