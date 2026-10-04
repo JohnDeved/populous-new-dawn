@@ -155,12 +155,32 @@ export default async function followerTasks({ browser, page, url, output, openMi
 
   // G is an ordinary shipped command whose task classification is native-grounded.
   await button(page, 1, 1).click({ modifiers: ['Shift'] })
+  const guardPeople = () => page.evaluate(async () => {
+    const w=window.testSceneRef.current.world, { hudTaskPeople }=await import('/app/follower-tasks-runtime.ts')
+    return hudTaskPeople(w).map(p=>({id:p.id,model:p.model,category:p.category,guard:w.units.find(u=>u.id===p.id).guard}))
+  })
+  const beforeGuard = await snapshot(page), guardIds = await selection(page), guardBefore = await guardPeople()
+  assert.ok(guardIds.every(id=>guardBefore.find(p=>p.id===id)?.category===2))
   await page.keyboard.press('g')
-  assert.equal((await snapshot(page))[19].count, opening[7].count)
+  const guardAfter = await guardPeople()
+  writeFileSync(resolve(output,'guard-transition.json'),JSON.stringify({guardIds,before:guardBefore,after:guardAfter},null,2)+'\n')
+  for(const before of guardBefore){
+    const after=guardAfter.find(p=>p.id===before.id)
+    assert.deepEqual(after,guardIds.includes(before.id)?{...before,category:4,guard:true}:before)
+  }
+  assert.equal((await snapshot(page))[19].count, beforeGuard[19].count + guardIds.length)
   const guarded = await snapshot(page), savedSelection = await selection(page)
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   await page.waitForFunction(() => window.testStore.hasCheckpoint())
+  // Successful saves have no success banner. Verify the completed IndexedDB
+  // transaction directly before the shipped load action, without a second save.
+  await page.waitForFunction(async selected => {
+    const db=await new Promise((resolve,reject)=>{const request=indexedDB.open('populous-new-dawn',1);request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)})
+    const saved=await new Promise((resolve,reject)=>{const request=db.transaction('checkpoints','readonly').objectStore('checkpoints').get('latest');request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error)})
+    db.close()
+    return JSON.stringify(saved?.world?.selected)===JSON.stringify(selected) && selected.every(id=>saved.world.units.find(u=>u.id===id)?.guard)
+  }, savedSelection)
   await page.getByRole('button', { name: 'Close menu', exact: true }).click()
   await button(page, 0, 1).click({ modifiers: ['Shift'] })
   await page.getByRole('button', { name: 'Menu', exact: true }).click()
@@ -190,10 +210,12 @@ export default async function followerTasks({ browser, page, url, output, openMi
   assert.equal((await snapshot(page))[8].count, 1)
   assert.equal((await snapshot(page))[14].count, 0, 'a zero task count does not disable a globally existing class')
   assert.equal(await button(page, 2, 2).isEnabled(), true)
-  assert.ok((await snapshot(page))[13].count > 0)
+  assert.equal((await snapshot(page))[13].count, guarded[13].count + 1)
+  const beforeTower = await snapshot(page)
   await page.evaluate(({warrior,hut})=>{const s=window.testSceneRef.current;s.world.units.find(u=>u.id===warrior).hp=0;s.world.buildings.find(b=>b.id===hut).kind='tower';s.onChange()},fixture)
   assert.equal(await button(page, 1, 2).isDisabled(), true)
-  assert.equal((await snapshot(page))[13].count, 0)
+  assert.equal((await snapshot(page))[13].count, guarded[13].count)
+  assert.equal((await snapshot(page))[19].count, beforeTower[19].count + 1)
 
   const layouts=[]
   for (const viewport of [{width:1280,height:720},{width:1920,height:1080},{width:3440,height:1440}]) {
@@ -209,11 +231,17 @@ export default async function followerTasks({ browser, page, url, output, openMi
   }
   const dprContext = await browser.newContext({ viewport: { width: 1280, height: 720 }, deviceScaleFactor: 2 }),
     dprPage = await dprContext.newPage()
+  dprPage.setDefaultTimeout(45000)
   dprPage.on('pageerror', error => receipt.errors.push(String(error)))
+  dprPage.on('console', message => { if(message.type()==='error')receipt.errors.push(message.text()) })
   await dprPage.goto(url, { waitUntil: 'domcontentloaded' })
+  await dprPage.getByRole('dialog', { name: 'Start game', exact: true }).waitFor({ state: 'visible' })
   await dprPage.getByRole('button', { name: 'Mission 1', exact: true }).click()
   await bindGame(dprPage)
-  await dprPage.waitForFunction(() => window.testSceneRef.current && !window.testSceneRef.current.world.inputMask)
+  await dprPage.waitForFunction(() => window.testSceneRef.current && (window.testSceneRef.current.world.flyby.flags & 1 || !window.testSceneRef.current.world.inputMask))
+  const skip = dprPage.locator('.skip-introduction')
+  if(await skip.isVisible())await skip.click()
+  await dprPage.waitForFunction(() => !window.testSceneRef.current.world.inputMask)
   await freeze(dprPage)
   await dprPage.getByTitle('followers', { exact: true }).click()
   assert.equal(await dprPage.evaluate(() => window.devicePixelRatio), 2)
@@ -221,5 +249,5 @@ export default async function followerTasks({ browser, page, url, output, openMi
   await dprPage.locator('.native-hud').screenshot({ path: resolve(output, 'followers-mission1-dpr2.png') })
   await dprContext.close()
   assert.deepEqual(receipt.errors, [])
-  return { ...state, opening, guarded, pixels, layouts, fixtureLimits:'Injected class/occupancy and targeting-mode state fixtures check presentation/adapters only; opening/selection/focus/G/checkpoint and tab-mode cancellation use real Mission1 followers.' }
+  return { ...state, opening, guarded, guardTransition:{ids:guardIds,before:guardBefore,after:guardAfter}, pixels, layouts, fixtureLimits:'Injected class/occupancy and targeting-mode state fixtures check presentation/adapters only; opening/selection/focus/G/checkpoint and tab-mode cancellation use real Mission1 followers.' }
 }
