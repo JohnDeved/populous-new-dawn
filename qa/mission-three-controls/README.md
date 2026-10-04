@@ -218,3 +218,55 @@ the authoritative harness failed receipt, never a successful result. All
 failures and exact inputs remain in `journey.json`, `actions.jsonl`, screenshots
 and consumed command copies. The normal harness owns process cleanup. Nothing in
 this driver stops unknown sessions or alters the deployment/parity sources.
+
+## Owned preparation checkpoint and labelled continuation
+
+This entry requires the separately reviewed maintained-harness `--profile` option
+using one task-owned profile and the same localhost origin/port. A fresh profile
+starts normally; a reused profile requires explicit provenance. No IndexedDB
+seed, storageState import or reconstructed World is supported. Run05's discarded
+nonpersistent save cannot be resumed.
+
+For a new persistent run, save after the Temple and before selecting a trainee:
+
+```
+[
+  { "action": "prepare-temple" },
+  { "action": "preparation-checkpoint" },
+  { "action": "resume" },
+  { "action": "start-preacher-training" }
+]
+```
+
+The preparation action requires the exact Vault/home/Temple milestones and no
+retained failure. It ordinarily pauses and saves, awaits the committed readback,
+and obtains the maintained profile observer's full-checkpoint digest. It writes
+`preparation-record.json` in the run output with the profile/source/origin,
+checkpoint turn/time/digest, actor IDs, input hashes and observed milestones.
+This file is provenance, not a save or state input to the application.
+
+On tactical failure before a successful sermon save, the driver ordinarily pauses
+and captures the terminal state while preserving the preparation in the game's
+single latest slot. It observes and logs whether the actual committed digest
+still matches. It does not overwrite that slot with the failed world. A successful
+sermon Save explicitly replaces latest; that later state is not accepted by the
+preparation-only continuation entry.
+
+A later run may set `M3_PREPARATION_RECORD` to the original task-owned output's
+absolute `preparation-record.json` and pass the same retained `--profile`. Include
+that provenance file as an explicit command-receipt `--input`. The driver requires
+exact source fingerprint, profile ID/path, origin and committed checkpoint digest
+before clicking ordinary Load Game. It copies/hashes the input, logs prior-run
+status, then checks actual resumed actors, completed Temple, knowledge and M3
+profile absence. Load auto-resumes; the observer starts a new epoch at saved game
+time, then the driver ordinarily pauses for a new command batch. Begin continued
+tactics with Resume and start-preacher-training.
+
+Inherited acquisition milestones are explicitly labelled and retain their original
+source/checkpoint. Duration reports separate inherited prefix active time from
+new epoch time and sum them for the unchanged10+30 active budgets. Each run has
+its own90-minute wall/95-minute harness cap. A completed continuation is labelled
+checkpoint-continuation and cannot be described as a fresh uninterrupted run;
+previous failed attempt receipts remain failed. Three isolated host-only tests
+cover mismatched source/profile/origin/digest, failed prefixes and resumed actor
+identity. Runtime acceptance of this entry remains pending.

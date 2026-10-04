@@ -6,6 +6,7 @@ import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync } fr
 import { createHash } from 'node:crypto'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { createPreparationRecord, validatePreparationRecord, validateLoadedPreparation } from './checkpoint-provenance.mjs'
 import { bindGame, showAllMissions } from '../../scripts/browser-game.mjs'
 import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs'
 import { checkCondition, progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells } from './observation.mjs'
@@ -16,7 +17,7 @@ const normalKinds = new Set(['shaman', 'brave', 'preacher', 'warrior'])
 const buildLabels = { temple: 'Temple, 8 wood', hut: 'Hut, 3 wood', camp: 'Warrior Training Hut, 8 wood' }
 const spellLabels = { blast: 'Blast', swarm: 'Swarm' }
 
-export default async function missionThreeControls({ page, output, root, signal, receipt }) {
+export default async function missionThreeControls({ page, output, root, signal, receipt, url, observeCheckpoint }) {
   assert.equal(resolve(root), resolve(fileURLToPath(new URL('../../', import.meta.url))),
     'Browser source and archived scenario/observer must share the same worktree')
   const manifest = JSON.parse(readFileSync(resolve(root, 'qa/mission-three-controls/source-manifest.json'), 'utf8'))
@@ -26,8 +27,9 @@ export default async function missionThreeControls({ page, output, root, signal,
   const authoredVictim = authoredVictimIdentity(level.objects)
   const startWall = Date.now(), wallLimit = 90 * 60_000, inputs = [], failures = [], milestones = []
   const epochs = [], controlStops = [], ids = Object.create(null), commandsPath = resolve(output, 'commands')
+  let continuation = null, protectedPreparation = null, inheritedActiveSeconds = 0
   mkdirSync(commandsPath, { recursive: true })
-  for (const name of ['driver.mjs', 'observation.mjs']) {
+  for (const name of ['driver.mjs', 'observation.mjs', 'checkpoint-provenance.mjs']) {
     const bytes = readFileSync(new URL(name, import.meta.url))
     writeFileSync(resolve(output, name), bytes)
     inputs.push({ name, sha256: sha256(bytes) })
@@ -37,6 +39,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     JSON.stringify({ at: new Date().toISOString(), wallMs: Date.now() - startWall, ...entry }) + '\n')
   const saveProgress = (status = 'in-progress') => writeFileSync(resolve(output, 'journey.json'), JSON.stringify({
     status, inputs, ids, epochs, milestones, failures, controlStops, training, victimSelection, sermonPlan,
+    entryMode: continuation ? 'checkpoint-continuation' : 'fresh', continuation, protectedPreparation, inheritedActiveSeconds,
     limits: 'Ordinary UI inputs and normal RAF only; independent Mission 3, software/headless renderer.'
   }, null, 2) + '\n')
   const button = async (name, options = {}) => {
@@ -100,7 +103,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.deepEqual(snapshot.observation?.speedViolations ?? [], [], 'No speed changes')
     requireNotDefeated(snapshot.status)
   }
-  const currentActive = snapshot => epochs.reduce((sum, epoch) => sum + epoch.activeSeconds, 0) +
+  const currentActive = snapshot => inheritedActiveSeconds + epochs.reduce((sum, epoch) => sum + epoch.activeSeconds, 0) +
     (snapshot.observation?.activeSeconds ?? 0)
   const snapshot = async name => {
     safeLabel(name)
@@ -430,6 +433,60 @@ export default async function missionThreeControls({ page, output, root, signal,
       preacherId: ids.preacher, blueIds: saved.units.filter(u => u.team === 'blue').map(u => u.id) }
     return saved
   }
+  // This digest comes from the maintained profile observer; it never writes storage.
+  const observePreparationStorage = async label => {
+    assert.ok(receipt.profile && typeof observeCheckpoint === 'function', 'A retained checkpoint requires the reviewed owned persistent profile')
+    const observed = await observeCheckpoint(label)
+    const committed = observed.checkpoint
+    assert.ok(committed, 'A committed latest checkpoint was observed')
+    return { observed, checkpoint: { sha256: committed.checkpointSha256, level: committed.level,
+      turn: committed.turn, time: committed.time } }
+  }
+  const preparationCheckpoint = async () => {
+    assert.ok(!continuation && !protectedPreparation && !training && !savedSermon && !sermonPlan,
+      'Preparation checkpoint is created once after Temple and before training')
+    const before = await read()
+    // Validate all prefix conditions before replacing the profile's latest save.
+    assert.ok(receipt.profile && typeof observeCheckpoint === 'function')
+    assert.deepEqual(failures, []); assert.deepEqual(controlStops, [])
+    assert.deepEqual(milestones.map(m => m.name), ['vault', 'shaman-home', 'temple'])
+    assert.ok(!before.units.some(u => u.team === 'blue' && u.kind === 'preacher'))
+    const saved = await saveCheckpoint('preparation-checkpoint')
+    const { observed, checkpoint } = await observePreparationStorage('m3-preparation-saved')
+    protectedPreparation = createPreparationRecord({ source: receipt.source, profile: receipt.profile, origin: url,
+      checkpoint, state: saved, ids, milestones, activeSeconds: currentActive(saved), inputs, failures, controlStops })
+    writeFileSync(resolve(output, 'preparation-record.json'), JSON.stringify(protectedPreparation, null, 2) + '\n', { flag: 'wx' })
+    log({ action: 'preparation-checkpoint-recorded', observed, record: protectedPreparation,
+      preservation: 'Keep this committed preparation on later tactical failure; explicit sermon Save may replace it.' })
+    saveProgress()
+  }
+  const loadPreparation = async recordPath => {
+    const base = resolve(root, 'work/orchestration/mission-three-controls') + '/'
+    const path = resolve(recordPath)
+    assert.ok(path.startsWith(base) && path.endsWith('/preparation-record.json'), 'Load provenance belongs to this task output')
+    const bytes = readFileSync(path), hash = sha256(bytes), record = JSON.parse(bytes)
+    inputs.push({ name: path, sha256: hash })
+    writeFileSync(resolve(output, 'loaded-preparation-record.json'), bytes, { flag: 'wx' })
+    const { observed, checkpoint } = await observePreparationStorage('m3-before-preparation-load')
+    continuation = validatePreparationRecord(record, { source: receipt.source, profile: receipt.profile, origin: url, checkpoint })
+    protectedPreparation = continuation
+    inheritedActiveSeconds = continuation.activeSeconds
+    Object.assign(ids, continuation.ids)
+    milestones.push(...continuation.milestones.map(m => ({ ...m, inherited: true,
+      acquisitionSource: continuation.source.commit, checkpointSha256: continuation.checkpoint.sha256 })))
+    log({ action: 'preparation-load-provenance-accepted', recordPath: path, sha256: hash, observed,
+      priorRun: receipt.profile.previousRun ?? null, scope: continuation.scope })
+    await button('Load Game'); await bindGame(page)
+    await bindObservation('continuation-entry', checkpoint.time)
+    const loaded = await read(); health(loaded); validateLoadedPreparation(continuation, loaded)
+    const profile = await readStorage('profile')
+    assert.ok(!profile?.completed?.includes(3), 'M3 is still absent in the retained profile before continued play')
+    assert.equal(sha256(readFileSync(path)), hash, 'Input provenance remains unchanged')
+    log({ action: 'preparation-loaded-first-epoch', savedTurn: checkpoint.turn, loadedTurn: loaded.turn,
+      loadedTime: loaded.time, inheritedActiveSeconds, epoch: loaded.observation.name,
+      retainedBlueIds: continuation.retainedBlueIds })
+    await pause(); await snapshot('continuation-opening'); saveProgress()
+  }
   const reloadSermon = async () => {
     assert.ok(savedSermon, 'Require an observed committed sermon save')
     assert.ok(milestones.some(m => m.name === 'sermon-cancelled'), 'Record cancellation before reload')
@@ -638,6 +695,7 @@ export default async function missionThreeControls({ page, output, root, signal,
         return waitFor(condition, command.scope, (command.watchIds ?? []).map(resolveId))
       }
       case 'checkpoint': return saveCheckpoint(`checkpoint-${safeLabel(command.name)}`)
+      case 'preparation-checkpoint': return preparationCheckpoint()
       case 'prove-victory': return proveVictory()
       case 'finish': {
         for (const name of ['vault', 'shaman-home', 'temple', 'preacher', 'listener', 'sermon-saved', 'sermon-cancelled', 'sermon-reloaded', 'conversion', 'erosion', 'victory'])
@@ -646,7 +704,8 @@ export default async function missionThreeControls({ page, output, root, signal,
         assert.deepEqual(receipt.errors, [], 'No browser errors')
         const final = await snapshot('final'); health(final); assert.equal(final.status, 'won')
         await endEpoch()
-        return { finished: true, inputs, ids, milestones, epochs, failures, final,
+        return { finished: true, inputs, ids, milestones, epochs, failures, final, continuation, inheritedActiveSeconds,
+          entryMode: continuation ? 'checkpoint-continuation' : 'fresh',
           limits: 'Fresh independent Mission 3, ordinary mouse/keyboard controls, normal RAF with UI pauses and a labelled checkpoint reload. No Mission 2 continuation, whole native-game parity, native pixel equivalence or hardware-performance claim.' }
       }
       default: throw Error(`Unsupported input action ${command.action}`)
@@ -654,23 +713,27 @@ export default async function missionThreeControls({ page, output, root, signal,
   }
   let index = 0
   try {
-    await showAllMissions(page)
-    await button('Mission 3'); await bindGame(page)
-    await bindObservation('entry', 0)
-    const initial = await read()
-    assert.ok(!initial.completedMissions.includes(3), 'Fresh owned profile starts without M3 completion')
-    const profile = await readStorage('profile')
-    assert.ok(!profile?.completed?.includes(3), 'Persistent profile starts without M3 completion')
-    const victim = initial.units.find(u => u.id === authoredVictim.id)
-    assert.equal(victim?.team, 'yellow'); assert.equal(victim.kind, 'brave')
-    ids.authoredVictim = victim.id
-    log({ action: 'authored-victim-identity', authored: authoredVictim,
-      observed: { id: victim.id, team: victim.team, kind: victim.kind, x: victim.x, z: victim.z, turn: initial.turn } })
-    ids.vault = initial.shrines.find(h => h.kind === 'vault')?.id
-    ids.erosion = initial.shrines.find(h => h.kind === 'erosionEffect')?.id
-    assert.ok(ids.vault && ids.erosion); saveProgress()
-    await skipFlyby(); await waitFor({ type: 'shaman-ready' }, 'movement')
-    await pause(); await snapshot('opening')
+    if (process.env.M3_PREPARATION_RECORD) await loadPreparation(process.env.M3_PREPARATION_RECORD)
+    else {
+      assert.ok(!receipt.profile || receipt.profile.mode === 'created', 'A reused profile requires explicit preparation provenance')
+      await showAllMissions(page)
+      await button('Mission 3'); await bindGame(page)
+      await bindObservation('entry', 0)
+      const initial = await read()
+      assert.ok(!initial.completedMissions.includes(3), 'Fresh owned profile starts without M3 completion')
+      const profile = await readStorage('profile')
+      assert.ok(!profile?.completed?.includes(3), 'Persistent profile starts without M3 completion')
+      const victim = initial.units.find(u => u.id === authoredVictim.id)
+      assert.equal(victim?.team, 'yellow'); assert.equal(victim.kind, 'brave')
+      ids.authoredVictim = victim.id
+      log({ action: 'authored-victim-identity', authored: authoredVictim,
+        observed: { id: victim.id, team: victim.team, kind: victim.kind, x: victim.x, z: victim.z, turn: initial.turn } })
+      ids.vault = initial.shrines.find(h => h.kind === 'vault')?.id
+      ids.erosion = initial.shrines.find(h => h.kind === 'erosionEffect')?.id
+      assert.ok(ids.vault && ids.erosion); saveProgress()
+      await skipFlyby(); await waitFor({ type: 'shaman-ready' }, 'movement')
+      await pause(); await snapshot('opening')
+    }
     requireNotDefeated((await read()).status)
     log({ action: 'awaiting-input', directory: commandsPath, next: '0001.json', paused: true })
     for (index = 1; index <= 500; index++) {
@@ -721,8 +784,18 @@ export default async function missionThreeControls({ page, output, root, signal,
       error: String(error?.stack ?? error) }
     if (incomplete) controlStops.push(record)
     else failures.push(record)
-    if (!signal.aborted) await saveCheckpoint('incomplete-checkpoint').catch(checkpointError =>
-      log({ action: 'incomplete-checkpoint-failed', error: String(checkpointError) }))
+    if (!signal.aborted) {
+      if (protectedPreparation && !savedSermon) {
+        // Latest is a single shipped slot. Preserve the real early save for UI Load.
+        await pause().catch(() => {})
+        await snapshot('terminal-with-preparation-preserved').catch(() => {})
+        const retained = await observePreparationStorage('m3-preparation-retained-on-stop').catch(() => null)
+        log({ action: 'preparation-preserved-on-stop', expected: protectedPreparation.checkpoint,
+          actual: retained?.checkpoint ?? null, matches: !!retained &&
+            JSON.stringify(retained.checkpoint) === JSON.stringify(protectedPreparation.checkpoint) })
+      } else await saveCheckpoint('incomplete-checkpoint').catch(checkpointError =>
+        log({ action: 'incomplete-checkpoint-failed', error: String(checkpointError) }))
+    }
     const terminalStatus = failures.length ? 'failed' : incomplete ? 'incomplete' : 'failed'
     saveProgress(terminalStatus)
     log({ action: 'terminal-result', status: terminalStatus, ...record,

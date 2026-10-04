@@ -317,3 +317,20 @@ appropriate orchestration planning and affected validation; full application
 check/build can reuse only coordinator-approved identical-input receipts.
 Software/headless evidence does not establish hardware FPS, original-game pixel
 matching, complete native live-game timing, or all Mission 1–3 parity.
+
+## Preparation continuation boundary
+
+The reviewed persistent-profile path may retain an actual ordinary preparation
+save after the completed Temple and before training. Its host provenance retains
+the original input hashes, exact source/profile/origin and full saved-record
+digest. Later entry must verify this unchanged committed record before ordinary
+Load, validate retained actor/Temple identities and M3 profile absence, and start
+a new observation epoch. Inherited acquisition milestones and their active-time
+prefix stay explicitly separate from new observations. The continuation provides
+no fresh-start claim and does not rehabilitate prior failed attempts.
+
+Because the shipped store has one latest slot, pre-sermon tactical termination
+preserves the genuine preparation rather than overwriting it with a dead actor.
+An explicit later sermon save may replace it. Mismatched storage/source/profile
+is a rejection, never permission to rebuild a World or seed IndexedDB. Run05's
+discarded ephemeral checkpoint is unavailable and cannot enter this path.
