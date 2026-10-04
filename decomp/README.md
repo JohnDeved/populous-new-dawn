@@ -5125,3 +5125,14 @@ No full original-frame raster parity is claimed.
 complete authored Mission1/2 branch to normal allocation, people/building scans,
 territory/alliance filters, response flags, cleanup and checkpoint continuation.
 Unhooked native cases retain the separate Mission3/type8 and Spy boundaries.
+
+## Mission3 pre-table defense response
+
+[Mission3 type8 lifecycle](research/mission3-defense-task.md) binds the original
+response allocator, area assessment, selection/fallback, actual group orders,
+ongoing target collection, retarget/return and cleanup. Complete authored-program
+invariants exclude idle follow-ups and auto-training without enabling later
+missions. Native instruction probes retain their supplied-world/animation limits;
+ordinary Temple/Preacher acquisition, intrusion, defender movement and checkpoint
+continuation provide separate live coverage. Full original AI timing and complete
+Mission1–3 parity remain open.
