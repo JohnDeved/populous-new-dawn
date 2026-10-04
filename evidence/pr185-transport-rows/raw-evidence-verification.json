@@ -1,0 +1,8 @@
+{
+  "archive": "raw-evidence.tar.gz",
+  "sha256": "4086290c69fba31ba8c98b97b22371b74bb6a8b634acdd340aeeec5f26e00604",
+  "bytes": 27573137,
+  "entries": 343,
+  "manifestSha256": "03529be4a3a439261dff3e113c8b31deca814d4c98346664279875b6ab610611",
+  "verification": "Every archived byte read back and compared to allowlisted original; secret-pattern scan passed."
+}
