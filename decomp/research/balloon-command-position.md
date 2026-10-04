@@ -65,3 +65,21 @@ Rendered/browser and standard aggregate/build acceptance must be completed by
 the parent-controlled lane; focused native/source results do not establish them.
 No parity credit, complete native-game execution, or hardware performance claim
 is made.
+
+## Rendered acceptance scenario
+
+The maintained `scripts/check-browser-transport-idle.mjs` defaults to Boat model1.
+Set `POPULOUS_TRANSPORT_IDLE_MODEL=3` to exercise this Balloon repair through the
+sandboxed local-render harness. It preserves authored people, stages one selected
+Spy beside the actual empty craft, then uses a real vehicle-mesh click for boarding
+and the visible disguise/replacement buttons. It checks accepted command22 and
+command16 records before advancing deterministic turns, the raw destination words,
+driver identity, completion/rest, and no page errors. Camera focus, staged Spy
+population/location/selection, game flag32, frozen RAF and stepped turns remain
+explicit supporting setup. This is not a natural campaign or acquisition proof.
+
+The before/after PNGs show boarding and completed disguise within the same candidate
+run; they must not be described as baseline-versus-fix screenshots. The preserved
+failure-first source receipt establishes the previous crash. A rendered result is
+claimed only after a source-bound, parent-authorized terminal harness run, with the
+actual browser/renderer identity and cleanup retained.
