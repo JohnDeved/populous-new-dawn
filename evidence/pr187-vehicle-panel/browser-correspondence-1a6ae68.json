@@ -1,0 +1,15 @@
+{
+  "head": "1a6ae6835f2491fd2287b910e421744964066d1c",
+  "renderedHead": "d18ff90d426b2b54a25fb02f8551b1d7ea13dfb6",
+  "baselineHead": "0b0719f270649f688a07b791a8ff831ed0c91a46",
+  "renderedCorrespondence": "Fresh reviewer inspected equivalent DOM class/branch construction, paint key/alpha branching, plain-record projection preserving the entire consumed/mutated field set; all source assets/browser scenario/harness/package files unchanged. Final exact native/layout/portable checks are required to carry rendered proof.",
+  "affectedDiffSha256": "3d8b720d60b39d936ab0a800e5b0a99d79ac82672e1e42bfe7ffab32a5f972cf",
+  "changedPaths": [
+    "app/object-panels.ts",
+    "app/training-panel.ts",
+    "app/vehicle-panel-runtime.ts",
+    "app/vehicle-panel.ts",
+    "app/vehicle-unload.ts"
+  ],
+  "baselineToToolingMainChangedRuntime": ""
+}
