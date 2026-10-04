@@ -1,0 +1,236 @@
+{
+  "capturedAt": "2026-10-04T21:12:37.096132+00:00",
+  "scope": "Terminal failed Run06; genuine ordinary preparation checkpoint preserved through verified browser closure. No Mission3 resumed-load, owned sermon, conversion or victory proof.",
+  "files": [
+    {
+      "path": "browser-06.outer.json",
+      "bytes": 4756,
+      "sha256": "0e3b2812887c01db9715c235d9755e1f688d01a3bc3a503cdade3c704b4bbb61"
+    },
+    {
+      "path": "browser-06.outer.json.artifacts/stderr.log",
+      "bytes": 1255,
+      "sha256": "848539593735ea6dc4746ee4694b1c985d8a73d5b7515f7f8b92010945b7dbfc"
+    },
+    {
+      "path": "browser-06.outer.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "browser-06/actions.jsonl",
+      "bytes": 61744,
+      "sha256": "30e086640b3f8569803b8557128796c80bc8c46ed6c4b6172fb9f2d0ef8abe24"
+    },
+    {
+      "path": "browser-06/batch-0001.json",
+      "bytes": 56869,
+      "sha256": "e2dcfea199fa90ec7a1cecf82990c76edaa4716e24ef9da2eef5636037b3f292"
+    },
+    {
+      "path": "browser-06/batch-0002.json",
+      "bytes": 56209,
+      "sha256": "c8d5da7cb83168e2ad6c57c07e0f1b8c7310a495ff4dccacc269b9c7fb5cc909"
+    },
+    {
+      "path": "browser-06/batch-0003.json",
+      "bytes": 55271,
+      "sha256": "ed2c049d1851cffed7154a230efff8a8a8f23a92bb8eacc16d5d319869def393"
+    },
+    {
+      "path": "browser-06/batch-0004.json",
+      "bytes": 55588,
+      "sha256": "1a78a974e997dab91c53e5ac21e0f067c9beaa7f7f457d9ff2a82c73b51bbd89"
+    },
+    {
+      "path": "browser-06/batch-0005.json",
+      "bytes": 55377,
+      "sha256": "db8d20066897fc616f169dbf6074ca9f3111a481137b83fb7d4fab533967a02c"
+    },
+    {
+      "path": "browser-06/batch-0006.json",
+      "bytes": 55441,
+      "sha256": "daeaa000390680b2451c1501e9b344ccd697fc9668926c8a56978434876cfdd2"
+    },
+    {
+      "path": "browser-06/batch-0007-failed.json",
+      "bytes": 55442,
+      "sha256": "20f1ef26aa64e2e9f9e00e6190c1d550a6f70b247f758aa345938b0c89828ac7"
+    },
+    {
+      "path": "browser-06/batch-0008.json",
+      "bytes": 53436,
+      "sha256": "34825bf5377c06442e71b66d62b90a35c77c6d5b4248911da72a242b5b65e77c"
+    },
+    {
+      "path": "browser-06/checkpoint-provenance.mjs",
+      "bytes": 4187,
+      "sha256": "81010c4d952fdb0b4ced21aa247aa1517e789fc82599431fbd738b9786ff592a"
+    },
+    {
+      "path": "browser-06/cleanup-and-profile.json",
+      "bytes": 5638,
+      "sha256": "91e2b9c54d0227ab2280462b46239fa1a0ee6feb1759600075765a121754012e"
+    },
+    {
+      "path": "browser-06/consumed-0001.json",
+      "bytes": 91,
+      "sha256": "aea26620944b98c5acf25e6c90142517fb1338e15ba54fbe575f44b665de3ee7"
+    },
+    {
+      "path": "browser-06/consumed-0002.json",
+      "bytes": 562,
+      "sha256": "664498ab203f53e04b4810dbb51862487afe2a063a49c6ce9fb69dfa39bfb6dd"
+    },
+    {
+      "path": "browser-06/consumed-0003.json",
+      "bytes": 177,
+      "sha256": "ffffc47b60d3c8e3a5b7d8f1867ffab16a8d73122ed228a230261b2fc339d0be"
+    },
+    {
+      "path": "browser-06/consumed-0004.json",
+      "bytes": 539,
+      "sha256": "de937c7ba4d1a42ea87ae39b101bac75d4a502ed76549b3d8d2a140d9413b700"
+    },
+    {
+      "path": "browser-06/consumed-0005.json",
+      "bytes": 220,
+      "sha256": "e3019eb5ce31a085e81ba9556692583c93099c846c0d7b2381bd27a2f3bfe173"
+    },
+    {
+      "path": "browser-06/consumed-0006.json",
+      "bytes": 398,
+      "sha256": "0cf786b70b80c2dff7876f825beff5bd2e922c5725596d14f07367da567b5003"
+    },
+    {
+      "path": "browser-06/consumed-0007.json",
+      "bytes": 407,
+      "sha256": "3ca412b5e53bf437bc864f8a2cbc6c6103814ebeacd05c24969474ad171a4791"
+    },
+    {
+      "path": "browser-06/consumed-0008.json",
+      "bytes": 407,
+      "sha256": "4c3f1090b1b6eb37915730d7bd71474acccdf9c3bbd2121515a1b03e18f9ced6"
+    },
+    {
+      "path": "browser-06/consumed-0009.json",
+      "bytes": 495,
+      "sha256": "cb6c10051b532a53129f1d34168baba92c295b9b23c1d905bcc4fcb6d93bda25"
+    },
+    {
+      "path": "browser-06/cover-anchor-preview.json",
+      "bytes": 2797,
+      "sha256": "54c2164d15a5f5b57c9537ae734e5a96d88ef9b3bc2b25603ab74bee340df8c4"
+    },
+    {
+      "path": "browser-06/defender-approach.json",
+      "bytes": 57163,
+      "sha256": "813d5e43d2d20aeafcba09d4eae0815ba55a9f36a46e8a0d7801706c4bda4c83"
+    },
+    {
+      "path": "browser-06/defender-first-blast.json",
+      "bytes": 57069,
+      "sha256": "028b11fc1474f9c3c99676080c954bc64ffa05b8a516ddb3fd3b95a4e09d443c"
+    },
+    {
+      "path": "browser-06/defender-following-approach.json",
+      "bytes": 55585,
+      "sha256": "a09224cc9f795a408f4ee70c6ab1c128b342331a0fcb3490f486f83935809d91"
+    },
+    {
+      "path": "browser-06/defender-removed.json",
+      "bytes": 53416,
+      "sha256": "625828399922b4ffe1e58b565c44fea357b3add6fb52dc323993c2c7cbad0042"
+    },
+    {
+      "path": "browser-06/defender-removed.png",
+      "bytes": 1877713,
+      "sha256": "2ae0d6a54c866b847686265fdebd69bb0b7c3b2a052e74138559b787a2f9f832"
+    },
+    {
+      "path": "browser-06/defender-returned-to-post.json",
+      "bytes": 55441,
+      "sha256": "127792916a49db02dfa251b5343739f130772079af0cc2ac9118c98a4779ffa8"
+    },
+    {
+      "path": "browser-06/defender-second-blast.json",
+      "bytes": 55933,
+      "sha256": "5cfc8e1e8cd2f8c8f44c09f622deaff50b3669930f8572275eb780458a52f3a5"
+    },
+    {
+      "path": "browser-06/driver.mjs",
+      "bytes": 52024,
+      "sha256": "b9b5f64b7b34caa8d4edd6bcd200740a8d5bf63658b91a41d35a715f2aaf9bbc"
+    },
+    {
+      "path": "browser-06/journey.json",
+      "bytes": 7541,
+      "sha256": "28a89544a52290d66f5c6589e156fd71429236713590aded922c31736837ce1b"
+    },
+    {
+      "path": "browser-06/milestone-shaman-home.json",
+      "bytes": 56660,
+      "sha256": "d7c3a1cb0fc74b1affd0a663d8f9e2078ef448127a66cd6c8540eac781d7f6a3"
+    },
+    {
+      "path": "browser-06/milestone-temple.json",
+      "bytes": 57467,
+      "sha256": "00cc948f6a446f7cbb2b2aeb83b3c665dda124bfca3a3d67dd028f4e5b8a97c6"
+    },
+    {
+      "path": "browser-06/milestone-vault.json",
+      "bytes": 56429,
+      "sha256": "45852caab286d8651c162bed325e311a1a73ff6f996739c78db8baf80f66d4dc"
+    },
+    {
+      "path": "browser-06/observation.mjs",
+      "bytes": 20308,
+      "sha256": "6aeaf67ea7ffce5d674f8ec48b9ac16cefce691be6618e6a358419313e744174"
+    },
+    {
+      "path": "browser-06/opening.json",
+      "bytes": 40537,
+      "sha256": "2a41bd35da130d116b622906554abe494463d4720b87b77ad96b677ec485f278"
+    },
+    {
+      "path": "browser-06/preparation-checkpoint.json",
+      "bytes": 57117,
+      "sha256": "d6a98f0b17ea3d08d178717a564f7759efae4082639091869ca25968d6a913f8"
+    },
+    {
+      "path": "browser-06/preparation-checkpoint.png",
+      "bytes": 2054794,
+      "sha256": "7a9b3b1be70924a735e1383ca27a117d38c6d0ea92fa72e94b3e5d1b9e118e84"
+    },
+    {
+      "path": "browser-06/preparation-record.json",
+      "bytes": 2572,
+      "sha256": "db74eaa73ae5b9950f2e2b5340f058f30e3772c5c588331624f51bc6754a0244"
+    },
+    {
+      "path": "browser-06/receipt.json",
+      "bytes": 8826,
+      "sha256": "f73bf7a7e55a451e634c98b316c318d4f846d6c8d4ccb2da28559aef1b2123b4"
+    },
+    {
+      "path": "browser-06/scenario-inputs.json",
+      "bytes": 371,
+      "sha256": "761fa5c2d5033fa37beef01db84b24e1000efcda130a15e5631d9b8ec144c270"
+    },
+    {
+      "path": "browser-06/server.log",
+      "bytes": 689,
+      "sha256": "6cad7fb06cbda32b2d1a850b997b5f5bcf000f8b9dc124432eff432e02c2f56b"
+    },
+    {
+      "path": "browser-06/terminal-with-preparation-preserved.json",
+      "bytes": 55210,
+      "sha256": "1f257b8411f64e0113a5aaa7e54245c5926829f2b5286805bf2c135531b51e00"
+    },
+    {
+      "path": "browser-06/terminal-with-preparation-preserved.png",
+      "bytes": 1790624,
+      "sha256": "327875bc0735d28e65899892b29047a412b86a82893ff5c678f4f11d72fe744c"
+    }
+  ]
+}
