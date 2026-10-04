@@ -54,3 +54,36 @@ test('Continue readiness waits on real RAF before suspension with the existing t
   assert.ok(wait.includes('page.waitForFunction(sample, true)'))
   assert.ok(!wait.includes('tick(') && !wait.includes('cancelAnimationFrame'))
 })
+
+
+test('the production wait polls synchronous false until native selection readiness', async () => {
+  const { default: vm } = await import('node:vm')
+  const checker = readFileSync(new URL('../scripts/check-browser-campaign-natural-victory.mjs', import.meta.url), 'utf8')
+  const source = checker.slice(checker.indexOf('async function waitForSelectableShaman'), checker.indexOf('async function suspendOwnedFrame'))
+  let ready = false, evaluations = 0, waited = false
+  const sandbox = { assert, console: { log() {} }, testScene: { world: {} },
+    campaignObserveShaman: () => ({ ready, turn: ready ? 52 : 21 }) }
+  vm.runInNewContext(source + '\nglobalThis.waitForShaman = waitForSelectableShaman', sandbox)
+  const page = {
+    async evaluate(fn, arg) {
+      if (++evaluations === 1) {
+        assert.ok(fn.toString().includes('globalThis.campaignObserveShaman = campaignShamanReadiness'))
+        return // Fixture supplies the imported observer above; no browser module is loaded.
+      }
+      return fn(arg)
+    },
+    async waitForFunction(predicate, arg) {
+      assert.notEqual(predicate.constructor.name, 'AsyncFunction')
+      // Match the installed Playwright's synchronous truthy check.
+      assert.equal(predicate(arg), false)
+      waited = true; ready = true
+      const result = predicate(arg)
+      assert.equal(result.ready, true)
+      return { async jsonValue() { return result }, async dispose() {} }
+    },
+  }
+  await sandbox.waitForShaman(page, 'fixture')
+  assert.equal(waited, true)
+  assert.equal(sandbox.campaignStartupReadiness[0].before.ready, false)
+  assert.equal(sandbox.campaignStartupReadiness[0].after.ready, true)
+})

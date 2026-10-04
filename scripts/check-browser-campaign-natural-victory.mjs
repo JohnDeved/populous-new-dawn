@@ -51,9 +51,14 @@ async function state(page) {
 }
 
 async function waitForSelectableShaman(page, label) {
-  const sample = async required => {
+  await page.evaluate(async () => {
     const { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs')
-    const snapshot = campaignShamanReadiness(globalThis.testScene.world)
+    globalThis.campaignObserveShaman = campaignShamanReadiness
+  })
+  // This installed Playwright polls synchronously; an async predicate would be
+  // truthy before its promise resolved and could accept an unready actor.
+  const sample = required => {
+    const snapshot = globalThis.campaignObserveShaman(globalThis.testScene.world)
     return required && !snapshot.ready ? false : snapshot
   }
   const before = await page.evaluate(sample, false)
@@ -62,6 +67,7 @@ async function waitForSelectableShaman(page, label) {
   const ready = await page.waitForFunction(sample, true)
   const after = await ready.jsonValue()
   await ready.dispose()
+  assert.equal(after.ready, true, 'Startup Shaman is selectable before suspending RAF')
   const evidence = { label, before, after, method: 'real RAF; existing default wait timeout; observation only' }
   await page.evaluate(evidence => { (globalThis.campaignStartupReadiness ??= []).push(evidence) }, evidence)
   console.log(JSON.stringify({ startupReadiness: evidence }))
