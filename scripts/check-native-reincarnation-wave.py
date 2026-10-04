@@ -7,10 +7,10 @@ No recording, asset writes, or original game/OS launch. Real 004ed8a0 allocation
 removal, terrain notifications and motion/formation world consumers are supplied.
 The outer traversal runs original 004ec6f0 with unrelated processors supplied.
 """
-import sys,struct,hashlib
+import sys,struct,hashlib,json,atexit
 from pathlib import Path
-from decomp import native_cpu,configure_native_constants
-from unicorn import UC_HOOK_CODE
+from decomp import ROOT,native_cpu,configure_native_constants
+from unicorn import UC_HOOK_CODE,UC_HOOK_MEM_READ,UC_HOOK_MEM_WRITE
 from unicorn.x86_const import UC_X86_REG_EAX,UC_X86_REG_EIP,UC_X86_REG_ESP
 from capstone import Cs,CS_ARCH_X86,CS_MODE_32
 exe=Path(sys.argv[1]);cpu,identity=native_cpu(exe);configure_native_constants(cpu,exe)
@@ -27,7 +27,7 @@ def call(a,*args):
  except Exception:
   print('ERROR',hex(cpu.reg_read(UC_X86_REG_EIP)),events[-20:]);raise
  assert cpu.reg_read(UC_X86_REG_EIP)==stop,hex(cpu.reg_read(UC_X86_REG_EIP))
- assert bytes(cpu.mem_read(0x8929cd,len(search)))==search,'Native invocation corrupted search input'
+ assert_inputs('after native invocation')
 events=[];removed=set();wave=0
 
 def hook(c,a,size,user):
@@ -53,12 +53,29 @@ leaf_hooks={a:cpu.hook_add(UC_HOOK_CODE,hook,begin=a,end=a) for a in leaves+[0x4
 search=(exe.parent/'data/mwsearch.dat').read_bytes()
 assert hashlib.sha256(search).hexdigest()=='0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0'
 cpu.mem_write(0x8929cd,search)
+constants=json.loads((ROOT/'app/original-constants.json').read_text())
+constant_bytes=[]
+for index in range(512):
+ descriptor=bytes(cpu.mem_read(0x5aa5f0+index*31,31))
+ name=descriptor[:25].split(b'\0')[0].decode('ascii')
+ if not name:break
+ if name in constants:
+  size=descriptor[25];address=struct.unpack('<I',descriptor[27:])[0]
+  constant_bytes.append((address,bytes(cpu.mem_read(address,size))))
+def assert_inputs(where):
+ assert bytes(cpu.mem_read(0x8929cd,len(search)))==search,(where,'native search input changed')
+ for address,expected in constant_bytes:
+  assert bytes(cpu.mem_read(address,len(expected)))==expected,(where,'configured constant changed',hex(address))
+preserved_reads,preserved_writes=set(),set()
+def preserved_access(c,access,address,size,value,user):
+ (preserved_reads if access==16 else preserved_writes).add((hex(address),size))
+cpu.hook_add(UC_HOOK_MEM_READ|UC_HOOK_MEM_WRITE,preserved_access,begin=0x892390,end=0x89290c)
+atexit.register(lambda:print('Preserved-gap native reads/writes',sorted(preserved_reads),sorted(preserved_writes)))
 def setup(busy=False,fail=False,height=240,ground=128):
  global events,removed,wave
  events=[];removed=set();wave=0
  cpu.mem_write(0x2000000,bytes(0x1c0000));cpu.mem_write(tribe,bytes(4*0xc65));cpu.mem_write(0x890390,bytes(0x2000))
  cpu.mem_write(0x89290d,bytes(16*12))
- assert bytes(cpu.mem_read(0x8929cd,len(search)))==search,'Fixture reset corrupted native search input'
  cpu.mem_write(0x8a03e4,b''.join(struct.pack('<IhH8x',0,ground,0) for _ in range(16384)))
  for a in [0x890324,0x890328,0x890330,0x890358,0x89035c,0x890360,0x895dbb,0x89c651,0x89c659]:write(a,'I',0)
  cpu.mem_write(0x96eac1,bytes(16));write(0x89d178,'I',0x12345678);write(0x89d17c,'I',32);write(0x89c661,'I',0);write(0x895da4,'I',0)
@@ -69,6 +86,7 @@ def setup(busy=False,fail=False,height=240,ground=128):
  for i in range(800):
   p=0x2010000+i*256;write(p,'II',p-256 if i else 0,p+256 if i<799 else 0);write(p+0x24,'H',640+i);write(0x890390+(640+i)*4,'I',p)
  write(0x89031c,'I',0 if fail else 0x2010000);write(0x890320,'I',0)
+ assert_inputs('at end of fixture setup')
 for busy,fail in [(False,False),(True,False),(False,True)]:
  setup(busy,fail);call(0x5029d0,body)
  assert read(body+0x6e,'h')==4
@@ -212,3 +230,6 @@ for mode in [0,1,2]:
     assert next(i for i,e in enumerate(events) if e[0]=='terrain') < next(i for i,e in enumerate(events) if e[0]=='swamp-remove') < next(i for i,e in enumerate(events) if e[:3]==['allocate',7,61])
 for h in removal_hooks:cpu.hook_del(h)
 print('PASS: 18 original visited-cell Swamp cleanup cases; all modes/owners, radius exclusion, retained neighboring effect, real cell/global unlink before orbit sparkles')
+
+assert_inputs('at end of complete run')
+print('PASS: original search table and all',len(constant_bytes),'configured constant targets preserved through every setup and native call')
