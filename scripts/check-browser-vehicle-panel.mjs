@@ -57,7 +57,7 @@ export default async function vehiclePanels({browser,page,openMission,output,rec
  for(const model of [1,3]){
   const id=ids.find(v=>v.model===model).id,p=await vehiclePoint(page,id)
   await page.mouse.click(p.x,p.y,{button:'right'});await render(page)
-  const panel=page.getByRole('group',{name:new RegExp(`^${model===1?'Boat':'Balloon'}: \\d+ passengers$`)})
+  const panel=page.getByRole('group',{name:new RegExp(`^${model===1?'Boat':'Balloon'}: [0-9]+ passengers$`)})
   await panel.waitFor({state:'visible'})
   assert.equal(await panel.getByRole('button',{name:'Unload all passengers',exact:true}).isDisabled(),true)
   await page.mouse.move(900,400);await render(page)
