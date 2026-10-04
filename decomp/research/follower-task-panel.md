@@ -328,9 +328,14 @@ The source-pixel oracle retains the original panel, frame, icon and each glyph a
 separate source rectangles at the actual DOM scale, origin and device-pixel ratio.
 At fractional scales, each rectangle has its own partial physical-pixel clip-edge
 coverage. Sequential normal-alpha composition preserves those edges and shared
-glyph boundaries; flattening first incorrectly removes their coverage. A retained
-44x100 crop independently matches all pixels with maximum channel error1 under this
-source-only construction. Element screenshots round clips outward in CSS pixels;
+glyph boundaries; flattening first incorrectly removes their coverage. The reference uses the recorded Chrome154 Linux/x64 raster rules:24.8 fixed-point
+rectangle coverage and premultiplied byte interpolation. Its Chromium DEPS pins
+Skia `2466dcf3937437e217e7f284afe0e1aae15891ce`; `SkScan_Antihair.cpp`,
+`SkBitmapProcState.cpp`, and the SSE2 paths in `SkBlitRow_D32.cpp` establish the
+rounding and blend operations. An independent source-only prototype matches all18
+retained normal/pressed/disabled/nearby and fractional-DPR crops byte for byte.
+This is a pinned browser consistency oracle, not a universal browser or original
+Windows GPU rasterization claim. Element screenshots round clips outward in CSS pixels;
 padding is included without stretching, masking or changing the >1 error threshold. Responsive acceptance
 also checks footer separation and actual center/digit elementFromPoint ownership.
 The safe rendered run captures only the two already-focused actual vehicle meshes
@@ -342,3 +347,10 @@ commits9f662ef/199ed20 were unavailable. The recovered branch starts from the ve
 remote35c6075. Reconstructed changes have new hashes and new failure-first receipts;
 historical failed attempts are not relabelled as a successful current run. Final
 source-bound native/rendered/aggregate evidence must be collected again.
+
+
+Pinned modern-raster sources:
+- [Chromium154.0.8037.92 DEPS](https://chromium.googlesource.com/chromium/src/+/refs/tags/154.0.8037.92/DEPS)
+- [Skia fixed-point rectangle raster](https://github.com/google/skia/blob/2466dcf3937437e217e7f284afe0e1aae15891ce/src/core/SkScan_Antihair.cpp)
+- [Skia bitmap paint alpha](https://github.com/google/skia/blob/2466dcf3937437e217e7f284afe0e1aae15891ce/src/core/SkBitmapProcState.cpp)
+- [Skia x64 byte interpolation](https://github.com/google/skia/blob/2466dcf3937437e217e7f284afe0e1aae15891ce/src/core/SkBlitRow_D32.cpp)
