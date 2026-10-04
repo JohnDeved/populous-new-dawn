@@ -74,7 +74,8 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
       scene.animate(scene.previous)
       cancelAnimationFrame(scene.frame)
       const gl = scene.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
-      return { producer, cancelled, renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
+      return { producer, cancelled, casterId: shaman.id, target: { x: preacher.x, z: preacher.z },
+        renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
         contextLost: gl.isContextLost(), canvas: [gl.drawingBufferWidth, gl.drawingBufferHeight] }
     }, { available, mode })
     assert.equal(prepared.contextLost, false)
@@ -96,7 +97,11 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
     assert.equal(dispatched.casts[model], expected)
     assert.equal(dispatched.casts.reduce((a, b) => a + b, 0), expected)
     assert.equal(dispatched.projectiles.length, expected)
-    if (expected) assert.equal(dispatched.projectiles[0].spell, spell)
+    if (expected) {
+      assert.equal(dispatched.projectiles[0].spell, spell)
+      assert.equal(dispatched.projectiles[0].caster, prepared.casterId)
+      assert.deepEqual(dispatched.projectiles[0].target, prepared.target)
+    }
     let effect = null, pixels = 0
     if (expected || before) {
       effect = await page.evaluate(async ({ spell, before, captureTurn }) => {
@@ -118,7 +123,8 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
         scene.animate(scene.previous)
         cancelAnimationFrame(scene.frame)
         return { turn: w.turn, id: fx?.id ?? null, kind: fx?.kind ?? null,
-          mesh: fx ? scene.fxMeshes.get(fx.id)?.name : null, casts: [...w.spellCasts[1]] }
+          mesh: fx ? scene.fxMeshes.has(fx.id) : false,
+          meshName: fx ? scene.fxMeshes.get(fx.id)?.name : null, casts: [...w.spellCasts[1]] }
       }, { spell, before, captureTurn })
       if (expected) {
         assert.ok(effect.id && effect.mesh, 'The real effect must have a scene mesh')
