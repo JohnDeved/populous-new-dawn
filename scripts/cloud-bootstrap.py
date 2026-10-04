@@ -78,7 +78,7 @@ def atomic_json(path, data):
 
 def member_path(name):
     path = PurePosixPath(name)
-    if path.is_absolute() or '..' in path.parts or '\\' in name or '\0' in name:
+    if not path.parts or path.is_absolute() or '..' in path.parts or '\\' in name or '\0' in name:
         raise ValueError(f'Unsafe archive member: {name!r}')
     return path
 

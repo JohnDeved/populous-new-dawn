@@ -72,7 +72,7 @@ class BootstrapTests(unittest.TestCase):
         self.assertTrue((target / entry.filename).stat().st_mode & 0o100)
 
     def test_zip_rejects_traversal_symlinks_and_duplicates(self):
-        for index, name in enumerate(['../outside', '/outside', 'a\\outside', 'link', 'duplicate']):
+        for index, name in enumerate(['../outside', '/outside', 'a\\outside', '.', 'link', 'duplicate']):
             archive, target = self.path / f'{index}.zip', self.path / f'out{index}'
             with zipfile.ZipFile(archive, 'w') as z:
                 info = zipfile.ZipInfo(name)
