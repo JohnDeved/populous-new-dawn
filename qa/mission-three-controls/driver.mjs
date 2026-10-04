@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 import { createPreparationRecord, validatePreparationRecord, validateLoadedPreparation } from './checkpoint-provenance.mjs'
 import { bindGame, showAllMissions } from '../../scripts/browser-game.mjs'
 import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs'
-import { checkCondition, progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, activeBudget, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells } from './observation.mjs'
+import { checkCondition, progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, activeBudget, requireActiveBudget, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells } from './observation.mjs'
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -102,7 +102,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.deepEqual(snapshot.observation?.errors ?? [], [], 'No diagnostic errors')
     assert.deepEqual(snapshot.observation?.speedViolations ?? [], [], 'No speed changes')
     requireNotDefeated(snapshot.status)
-    if (currentActive(snapshot) >= 2400) throw new IncompleteRun('active-budget', 'Whole-journey2400-active-second envelope reached')
+    requireActiveBudget(currentActive(snapshot), milestones.find(m => m.name === 'conversion')?.activeSeconds ?? null)
   }
   const currentActive = snapshot => inheritedActiveSeconds + epochs.reduce((sum, epoch) => sum + epoch.activeSeconds, 0) +
     (snapshot.observation?.activeSeconds ?? 0)
@@ -391,7 +391,7 @@ export default async function missionThreeControls({ page, output, root, signal,
   }
   const requireOrderableForWait = state => { health(state); assert.equal(state.paused, false) }
   const mark = async name => {
-    safeLabel(name); const s = await snapshot(`milestone-${name}`)
+    safeLabel(name); const s = await snapshot(`milestone-${name}`); health(s)
     milestones.push({ name, turn: s.turn, time: s.time, epoch: s.observation.name,
       activeSeconds: currentActive(s), at: new Date().toISOString() }); saveProgress()
     return s

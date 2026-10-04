@@ -232,6 +232,12 @@ export function activeBudget(conversionActiveSeconds = null) {
   return Math.min(2400, conversionActiveSeconds + 1800)
 }
 
+export function requireActiveBudget(active, conversionActiveSeconds = null) {
+  const budget = activeBudget(conversionActiveSeconds)
+  if (active >= budget) throw new IncompleteRun('active-budget',
+    `Active resource envelope reached at ${active}s (limit ${budget}s)`)
+}
+
 export function waitDiagnosticStop({ now, clockAdvancedAt, animationAdvancedAt, wallElapsed,
   wallLimit, active, budget, changedAt, scope }) {
   if (now - clockAdvancedAt >= 30_000 || now - animationAdvancedAt >= 30_000)

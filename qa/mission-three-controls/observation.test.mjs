@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
-import { createEpoch, recordTurn, attachObserver, requireConversion, progressKey, checkCondition, observeBuilding, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, activeBudget, waitDiagnosticStop, requireNotDefeated, minimapInput, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells, armSermonObservation } from './observation.mjs'
+import { createEpoch, recordTurn, attachObserver, requireConversion, progressKey, checkCondition, observeBuilding, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, activeBudget, requireActiveBudget, waitDiagnosticStop, requireNotDefeated, minimapInput, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells, armSermonObservation } from './observation.mjs'
 const world = () => ({ turn: 0, time: 0, speed: 1, outcome: { level: 3 }, units: [] })
 
 test('minimap inverse rejects the closest pixel hidden by a tab and never chooses a non-canvas point', () => {
@@ -386,4 +386,18 @@ test('escort preparation has900 active seconds while the whole journey stays wit
   assert.equal(activeBudget(900), 2400)
   assert.equal(activeBudget(1000), 2400)
   for (const invalid of [-1, Infinity, NaN]) assert.throws(() => activeBudget(invalid))
+})
+
+test('a newly satisfied condition cannot bypass the current resource envelope', () => {
+  const satisfied = { units: [], buildings: [], shrines: [], status: 'won' }
+  assert.equal(checkCondition(satisfied, { type: 'won' }), true)
+  const accept = (active, conversion = null) => {
+    requireActiveBudget(active, conversion)
+    return checkCondition(satisfied, { type: 'won' })
+  }
+  assert.equal(accept(899.9), true)
+  for (const active of [900, 900.1])
+    assert.throws(() => accept(active), error => error.code === 'active-budget')
+  assert.equal(accept(2399.9, 900), true)
+  assert.throws(() => accept(2400, 900), error => error.code === 'active-budget')
 })
