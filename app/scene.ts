@@ -1,3 +1,4 @@
+import type { FollowerTask } from './hud-tasks.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import * as THREE from 'three'
 import type { SoundEnvironment } from './ambient-sound.ts'
@@ -243,6 +244,7 @@ export class GameScene {
   objectPanels = new ObjectPanels(this)
   picking = new ScenePicking(this)
   hudFocus = Array<number>(8).fill(0)
+  hudTaskFocus = Array<number>(48).fill(0)
   buildingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
   drag: { start: { x: number; y: number }; end: { x: number; y: number }; active: boolean } | null =
@@ -595,9 +597,10 @@ export class GameScene {
   chooseFollowers(
     model: number,
     modifiers: { shiftKey: boolean; ctrlKey: boolean },
-    focus = false
+    focus = false,
+    category?: FollowerTask
   ) {
-    chooseFollowers(this, model, modifiers, focus)
+    chooseFollowers(this, model, modifiers, focus, category)
   }
   focus(p: Point = HOME, { animate = false } = {}) {
     focus(this, p, { animate })
