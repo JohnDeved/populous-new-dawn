@@ -24,6 +24,9 @@ supplied to record requests and apply delay 12. The retained result is 17 Blast,
 4 Lightning, 1 Swarm and 4 Preacher responses. See the **Complete general and
 emergency spell controller** section of [the decompilation index](../README.md)
 and `references/reverse-engineering.md:1943-1982` for the original scope.
+The probe now accepts `--failure-output` for an owned diagnostic path (defaulting
+to ignored `work/native-emergency-failure.json`); fixtures, comparisons and native
+execution are unchanged.
 
 Exports are bound by `decomp/exports.json` to executable SHA-256
 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`, Ghidra 12.1.3:
