@@ -236,6 +236,7 @@ import {
   faceTribe,
   personAnimationObject,
   recoverPersonMovement,
+  stateAfterTransportRest,
   setPersonAnimationRow,
   stopPersonMovement,
 } from './person-state.ts'
@@ -1256,6 +1257,15 @@ function stepTurn(w: World) {
     }
     if (!u.native?.vehicle && !supportsFollower(w, u)) {
       u.hp = 0
+      continue
+    }
+    if (u.native?.state === 30) {
+      const next = stateAfterTransportRest(u.native, w.manaWorld.gameFlags)
+      if (next) changeLivePersonState(w, u, next)
+      else {
+        const vehicle = w.vehicles.find(vehicle => vehicle.id === u.native!.vehicle)
+        if (vehicle) syncLiveVehiclePassengers(w, vehicle)
+      }
       continue
     }
     if (u.native?.state === 23) {
