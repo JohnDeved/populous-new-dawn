@@ -5245,7 +5245,9 @@
         "--mission",
         "2",
         "--browser",
-        "$POPULOUS_HEADLESS_SHELL"
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR"
       ],
       "inputs": [
         "app/reincarnation-wave-runtime.ts",
@@ -5273,7 +5275,6 @@
       ],
       "cwd": ".",
       "env": [
-        "POPULOUS_URL",
         "POPULOUS_ARTIFACT_DIR",
         "POPULOUS_HEADLESS_SHELL"
       ],
