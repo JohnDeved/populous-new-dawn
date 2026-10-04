@@ -87,9 +87,11 @@ export async function runLocalBrowser(options, scenario) {
   const work = async () => {
     if (options.profile) {
       if (!options.scenario) throw Error('Persistent runs must name their scenario source with --scenario')
+      const inputs = profileInputReceipt(root, options.scenario)
+      if ((await import(pathToFileURL(resolve(options.scenario)).href)).default !== scenario) throw Error('Persistent scenario must be the named module’s default export')
       receipt.runtime = profileRuntimeReceipt(root, receipt.launch.executablePath, require)
       receipt.scenario = { path: resolve(options.scenario), sha256: sha256(readFileSync(resolve(options.scenario))) }
-      lease = acquireProfile({ path: options.profile, root, origin: url, source: receipt.source, inputs: profileInputReceipt(root), runtime: receipt.runtime, output, correspondence: options.profileCorrespondence })
+      lease = acquireProfile({ path: options.profile, root, origin: url, source: receipt.source, inputs, runtime: receipt.runtime, output, correspondence: options.profileCorrespondence })
       receipt.profile = lease.profile
       receipt.launch = persistentLaunchOptions(receipt.launch, lease.dataDir)
     }
@@ -241,6 +243,7 @@ export async function smoke({ page, openMission, output }, mission = 1) {
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const options = parseOptions(process.argv.slice(2))
+    if (options.profile) profileInputReceipt(resolve(options.gameRoot), options.scenario)
     const scenario = options.scenario ? (await import(pathToFileURL(resolve(options.scenario)).href)).default : args => smoke(args, options.mission)
     const receipt = await runLocalBrowser(options, scenario)
     console.log(JSON.stringify({ status: receipt.status, source: receipt.source, result: receipt.result }))

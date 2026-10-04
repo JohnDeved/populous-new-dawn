@@ -1,7 +1,7 @@
 // One game-only profile lease. No stale-lock recovery or personal-profile adoption.
 import { execFileSync } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
-import { lstatSync, mkdirSync, readFileSync, readlinkSync, renameSync, unlinkSync, writeFileSync } from 'node:fs'
+import { lstatSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs'
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path'
 import { hostname } from 'node:os'
 import { isDeepStrictEqual } from 'node:util'
@@ -13,14 +13,18 @@ const runtimeScripts = new Set(['harness.mjs', 'owned-profile.mjs', 'checkpoint-
 const checkerPath = path => path.startsWith('qa/') ||
   (path.startsWith('scripts/local-render/') && !runtimeScripts.has(basename(path)))
 
-export function profileInputReceipt(root) {
+export function profileInputReceipt(root, scenario) {
   const names = execFileSync('git', ['-C', root, 'ls-files', '--cached', '--others', '--exclude-standard', '-z'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
   const inputs = [...new Set(names.split('\0').filter(Boolean))].sort().map(path => {
     let stat
     try { stat = lstatSync(resolve(root, path)) } catch (error) { if (error.code === 'ENOENT') return { path, missing: true }; throw error }
-    if (!stat.isFile() && !stat.isSymbolicLink()) throw Error(`Unsupported input: ${path}`)
-    return { path, mode: stat.mode, sha256: sha256(stat.isSymbolicLink() ? readlinkSync(resolve(root, path)) : readFileSync(resolve(root, path))) }
+    if (!stat.isFile() || stat.isSymbolicLink()) throw Error(`Persistent profile inputs must be regular nonsymlink files: ${path}`)
+    return { path, mode: stat.mode, sha256: sha256(readFileSync(resolve(root, path))) }
   })
+  if (scenario) {
+    const path = relative(root, resolve(scenario))
+    if (!checkerPath(path) || !inputs.some(input => input.path === path && !input.missing)) throw Error('Persistent scenario must be a repository-enumerated QA/scenario file')
+  }
   return {
     application: sha256(JSON.stringify(inputs.filter(input => !checkerPath(input.path)))),
     checker: sha256(JSON.stringify(inputs.filter(input => checkerPath(input.path)))),

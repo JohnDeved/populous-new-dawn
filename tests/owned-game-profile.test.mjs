@@ -91,6 +91,15 @@ test('source/runtime/origin drift cannot silently adopt a game save', () => fixt
   writeFileSync(resolve(args.root, 'app/game.ts'), 'changed game')
   assert.notEqual(profileInputReceipt(args.root).application, before.application)
 }))
+test('symlinked source bytes and external or ignored scenarios cannot bypass input binding', () => fixture(args => {
+  const outside = resolve(args.root, 'work/actual-game.ts'), linked = resolve(args.root, 'app/game.ts')
+  writeFileSync(outside, 'runtime bytes'); rmSync(linked); symlinkSync(outside, linked)
+  assert.throws(() => profileInputReceipt(args.root), /regular nonsymlink/)
+  rmSync(linked); writeFileSync(linked, 'restored fixture')
+  assert.throws(() => profileInputReceipt(args.root, outside), /repository-enumerated/)
+  assert.throws(() => profileInputReceipt(args.root, '/tmp/external-scenario.mjs'), /repository-enumerated/)
+  assert.doesNotThrow(() => profileInputReceipt(args.root, resolve(args.root, 'qa/driver.mjs')))
+}))
 test('checker-only correspondence must bind prior run and both exact source identities', () => fixture(args => {
   const first = acquireProfile(args); finish(first, args)
   const next = { ...args, source: { fingerprint: 'source-2', commit: 'commit-2' }, inputs: { ...args.inputs, checker: 'checker-2' }, correspondence: resolve(args.output, 'review.json') }
@@ -153,7 +162,7 @@ test('committed readback is readonly, awaits completion, and hashes typed arrays
       const before = await readCommittedCheckpoint(page); mutate()
       assert.notEqual((await readCommittedCheckpoint(page)).checkpointSha256, before.checkpointSha256)
     }
-    for (const [left, right] of [[Infinity, null], [undefined, null], [-0, 0], [NaN, null], [new Map([[1, 2]]), { map: [[1, 2]] }], [new DataView(new Uint8Array([1]).buffer), new DataView(new Uint8Array([2]).buffer)]]) {
+    for (const [left, right] of [[Infinity, null], [-Infinity, null], [undefined, null], [-0, 0], [NaN, null], [new Map([[1, 2]]), { map: [[1, 2]] }], [new DataView(new Uint8Array([1]).buffer), new DataView(new Uint8Array([2]).buffer)]]) {
       record.world.edge = left
       const before = await readCommittedCheckpoint(page)
       record.world.edge = right

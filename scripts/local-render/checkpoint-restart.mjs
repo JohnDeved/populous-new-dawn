@@ -43,14 +43,17 @@ export default async function ({ page, root, output, receipt, openMission, obser
     if (!store) throw Error('Store unavailable before public Load')
     const before = store.getWorld()
     window.restartCheckpointBoundary = null
+    window.restartCheckpointObservationError = null
     const unsubscribe = store.subscribe(() => {
       const w = store.getWorld()
       if (w === before) return
-      window.restartCheckpointBoundary = { version: 1, world: structuredClone(w) }
-      unsubscribe()
+      try { window.restartCheckpointBoundary = { version: 1, world: structuredClone(w) } }
+      catch (error) { window.restartCheckpointObservationError = String(error) }
+      finally { unsubscribe() }
     })
   })
   await page.getByRole('dialog', { name: 'Start game', exact: true }).getByRole('button', { name: 'Load Game', exact: true }).click()
+  assert.equal(await page.evaluate(() => window.restartCheckpointObservationError), null, 'Load-boundary observer must not interfere with shipped resume')
   const loaded = await page.evaluate(checkpointObservation, { observationName: 'restartCheckpointBoundary' })
   for (const key of ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']) assert.deepEqual(loaded[key], saved[key], `Load boundary ${key} must match the committed save`)
   await bindGame(page)
