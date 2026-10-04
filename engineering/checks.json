@@ -724,6 +724,8 @@
         "scripts/local-render/vite.config.mjs",
         "tests/campaign-fixed-turn-adapter.test.mjs",
         "scripts/campaign-swarm-target.mjs",
+        "scripts/campaign-start-readiness.mjs",
+        "tests/campaign-start-readiness.test.mjs",
         "scripts/browser-game.mjs",
         "app/combat-runtime.ts",
         "app/live-building-combat.ts",

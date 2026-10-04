@@ -50,6 +50,23 @@ async function state(page) {
   })
 }
 
+async function waitForSelectableShaman(page, label) {
+  const sample = async required => {
+    const { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs')
+    const snapshot = campaignShamanReadiness(globalThis.testScene.world)
+    return required && !snapshot.ready ? false : snapshot
+  }
+  const before = await page.evaluate(sample, false)
+  // Keep the shipped RAF alive: Skip introduction releases camera input before
+  // native command18 releases the Shaman's independent flags4/128 selection gate.
+  const ready = await page.waitForFunction(sample, true)
+  const after = await ready.jsonValue()
+  await ready.dispose()
+  const evidence = { label, before, after, method: 'real RAF; existing default wait timeout; observation only' }
+  await page.evaluate(evidence => { (globalThis.campaignStartupReadiness ??= []).push(evidence) }, evidence)
+  console.log(JSON.stringify({ startupReadiness: evidence }))
+}
+
 async function suspendOwnedFrame(page) {
   await page.evaluate(() => cancelAnimationFrame(globalThis.testScene.frame))
 }
@@ -981,6 +998,7 @@ async function missionThree(page) {
 try {
   const { page, errors } = await openGame(browser, swarmOnly ? 3 : 2)
   page.setDefaultTimeout(20_000)
+  await waitForSelectableShaman(page, swarmOnly ? 'Mission 3 direct entry' : 'Mission 2 direct entry')
   await suspendOwnedFrame(page)
   if (swarmOnly) {
     await missionThreeSwarm(page)
@@ -1005,6 +1023,7 @@ try {
     await page.waitForFunction(() => globalThis.testScene.world.flyby.flags & 1)
     await page.keyboard.press('Escape')
     await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
+    await waitForSelectableShaman(page, 'Mission 3 after Continue')
     await suspendOwnedFrame(page)
     await missionThree(page)
     await advanceOutcome(page)
