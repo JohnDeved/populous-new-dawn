@@ -96,7 +96,9 @@ Startup can already select the Shaman. Follower class controls add to the existi
 selection; do not assume Ctrl-click yields exactly five people. For a new group,
 use ordinary Escape and inspect the result: one Escape cancels an active mode,
 the next clears selection. Account for visible dialogs/flybys consuming Escape
-first. The owners are `cancelInteraction`/`selectFollowers` in
+first. Tutorial Escape opens its menu instead; use that mode's actual control
+contract rather than this early-campaign selection sequence. The owners are
+`cancelInteraction`/`selectFollowers` in
 [selection-runtime.ts](../app/selection-runtime.ts), the keyboard handler in
 [page.tsx](../app/page.tsx), and the regression in
 [deselection.test.mjs](../tests/deselection.test.mjs).
@@ -121,7 +123,7 @@ saved instant. Exact restoration-boundary proof needs a separately reviewed
 observer of that boundary. Count active time across load epochs without double
 counting restored turns, and keep wall time, paused time and game time distinct.
 
-After fresh entry or Continue, use the read-only
+For Missions 1–3 after fresh entry or Continue, use the read-only
 [campaignShamanReadiness](../scripts/campaign-start-readiness.mjs) observer while
 the normal RAF remains active. Preload it once, poll synchronously, and assert the
 final ready result. `canOrder` alone misses the independent native flags4/128
