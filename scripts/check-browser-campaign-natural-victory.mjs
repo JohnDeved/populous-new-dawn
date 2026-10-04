@@ -83,8 +83,16 @@ async function advance(page, turns) {
     const scene = globalThis.testScene,
       world = scene.world
     cancelAnimationFrame(scene.frame)
+    const { observeCampaignConversions } = await import('/scripts/campaign-conversion-observer.mjs')
+    const observe = () => {
+      globalThis.campaignConversionTracker = observeCampaignConversions(world, globalThis.campaignConversionTracker)
+    }
+    observe()
     const { tick } = await import('/app/model.ts')
-    for (let turn = 0; turn < turns && world.status === 'playing'; turn++) tick(world, 1 / 12)
+    for (let turn = 0; turn < turns && world.status === 'playing'; turn++) {
+      tick(world, 1 / 12)
+      observe()
+    }
     globalThis.testStore.update()
     scene.animate(scene.previous)
     cancelAnimationFrame(scene.frame)
@@ -108,6 +116,11 @@ async function advanceUntil(page, condition, limit, label, required = true) {
       const scene = globalThis.testScene,
         world = scene.world
       cancelAnimationFrame(scene.frame)
+      const { observeCampaignConversions } = await import('/scripts/campaign-conversion-observer.mjs')
+      const observe = () => {
+        globalThis.campaignConversionTracker = observeCampaignConversions(world, globalThis.campaignConversionTracker)
+      }
+      observe()
       const { tick } = await import('/app/model.ts'),
         ready = () => {
           if (condition.type === 'building')
@@ -178,8 +191,10 @@ async function advanceUntil(page, condition, limit, label, required = true) {
           if (condition.type === 'status') return world.status === condition.status
           throw new Error(`Unknown condition ${condition.type}`)
         }
-      for (let turn = 0; turn < limit && world.status === 'playing' && !ready(); turn++)
+      for (let turn = 0; turn < limit && world.status === 'playing' && !ready(); turn++) {
         tick(world, 1 / 12)
+        observe()
+      }
       globalThis.testStore.update()
       scene.animate(scene.previous)
       cancelAnimationFrame(scene.frame)
@@ -1118,6 +1133,9 @@ try {
       'Mission 3 victory is recorded in the campaign profile'
     )
     await page.getByRole('button', { name: 'Continue to Mission 4', exact: false }).waitFor()
+    const conversions = await page.evaluate(() => globalThis.campaignConversionTracker?.events ?? [])
+    console.log(JSON.stringify({ mission3ConversionObservation: { observed: conversions.length > 0, events: conversions,
+      limit: 'Separate observation; no death/disappearance or victory-only inference of conversion.' } }))
     assert.deepEqual(errors, [])
     console.log('PASS: rendered player actions win Mission 2, continue, and naturally win Mission 3')
   }

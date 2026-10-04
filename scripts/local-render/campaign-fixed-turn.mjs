@@ -54,6 +54,7 @@ export default async function campaignFixedTurn({ root, page, openMission, outpu
         startupReadiness: window.campaignStartupReadiness ?? [],
         cameraAdjustments: window.campaignCameraAdjustments ?? [],
         trainingOwnership: window.campaignTrainingOwnership ?? [],
+        conversions: window.campaignConversionTracker?.events ?? [],
         blueRoster: world.units.filter(unit => unit.team === 'blue' && unit.hp > 0).map(({ id, kind, inside, work }) => ({ id, kind, inside, work })),
         contextLost: gl.isContextLost(), renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
       }
