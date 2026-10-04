@@ -25,7 +25,10 @@ Inputs: original EXE SHA256
 `0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0`.
 The existing [startup evidence](level-start-sequence.md) independently compares the
 shared 21-visit terrain/radius/orbit geometry at 32 wrapped positions.
-All required retained exports were reused; no new Ghidra export was needed.
+Indexed allocator, wave, state initializer and damage exports were reused. The old
+00502910/005029d0 scratch exports were unavailable; their producer/classifier bytes
+were read directly from the pinned PE, alongside the executable probe and earlier
+model12 lifecycle checks. No new Ghidra export was needed.
 
 ## Observed contract
 
@@ -49,6 +52,8 @@ All required retained exports were reused; no new Ghidra export was needed.
   model12 next pointer, so the wave is first processed on the **next** turn.
   It then precedes the older model12 body. At the first spawn request, the wave
   has completed only five of its processing visits and must remain independent.
+  The spawn leaf004da0f0 returns zero in this probe: this proves request timing,
+  while actual successful Shaman spawning remains a live acceptance requirement.
 - Mode1 converts neutral model1 Wildmen. Mode2 instead visits other-tribe,
   non-neutral class1 models2..6 whose state is not26. Friendly people, Wildmen,
   Shamans, and already-panicking people are unchanged. It does not apply Swarm's
@@ -68,6 +73,20 @@ All required retained exports were reused; no new Ghidra export was needed.
   no gameplay RNG, and33 final removals after21 visits; busy clears on final
   controller cleanup. Surviving scenery may extend the controller as documented
   in the startup evidence.
+
+## Visited-cell Swamp cleanup
+
+An additional18-case original probe covers modes0/1/2, owners0/1/255 and the first
+radius boundary. Wave0050c840 removes class7/model18 in any included cell, without
+an owner or mode check. Real004ef180 and004ee4f0 remove cell/global membership,
+set class0 and removal flag1, and set counter3; only final lighting cleanup is
+supplied. Removal follows that cell's terrain change and precedes orbit sparkles.
+The removed record retains its next-cell handle, and the next linked enemy still
+receives mode2 panic/damage. A neighboring model17 and out-of-radius Swamp survive.
+
+The bounded browser repair includes this consumer for its new mode2 path. The
+existing startup mode1 adapter's omission is explicitly retained; extracting shared
+geometry/rendering does not silently change its conversion or cell consumers.
 
 ## Reproduction and limits
 

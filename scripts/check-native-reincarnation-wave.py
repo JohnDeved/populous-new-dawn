@@ -42,6 +42,7 @@ def hook(c,a,size,user):
  if a==0x48a810:events.append(['sound-mode',read(sp+8,'I')])
  if a==0x4edcf0:removed.add(p);write(p+0x2a,'B',0);events.append(['remove',read(p+0x24,'H')])
  if a==0x4ee580:c.mem_write(p+0x3d,bytes(c.mem_read(read(sp+8,'I'),6)))
+ if a==0x44ddf0:events.append(['terrain',read(sp+4,'H')])
  if a==0x4da0f0:events.append(['spawn']);ret(0);return
  ret()
 # Supplied rendering/audio/world leaves; allocation, mode initializer, panic,
@@ -168,3 +169,43 @@ for timer,model,existing,population in [(6,7,False,1),(5,2,False,1),(5,7,True,1)
  call(0x5029d0,body)
  assert not any(e[:3]==['allocate',7,8] for e in events),(timer,model,existing,population,events)
 print('PASS: timer, source model, surviving population and existing Shaman producer gates')
+
+# Native wave removal is unconditional for class7/model18 in a visited cell.
+# Execute the real 004ef180 branch, cell unlink and global-list removal; only
+# the final lighting cleanup is supplied. This proof does not broaden startup.
+def removal_trace(c,a,size,user):
+ p=read(c.reg_read(UC_X86_REG_ESP)+4,'I')
+ events.append(['swamp-remove' if a==0x4ef180 else 'swamp-light',read(p+0x24,'H')])
+ if a==0x4ee190:ret()
+removal_hooks=[cpu.hook_add(UC_HOOK_CODE,removal_trace,begin=a,end=a) for a in [0x4ef180,0x4ee190]]
+for mode in [0,1,2]:
+ for owner in [0,1,255]:
+  for outside in [False,True]:
+   setup();trap,other,neighbor=0x2009000,0x2009100,0x2009200;cell=8*128+(9 if outside else 8)
+   for p,id,model in [(trap,100,18),(other,101,17)]:
+    write(p+0x24,'H',id);write(p+0x2a,'BB',7,model);write(p+0x2f,'B',owner)
+    write(p+0x3d,'HHh',4608 if outside else 4096,4096,128);write(p+0xc,'I',0x20000)
+    write(0x890390+id*4,'I',p)
+   write(neighbor+0x24,'H',102);write(neighbor+0x2a,'BBB',1,2,17);write(neighbor+0x2f,'BB',1,2)
+   write(neighbor+0x6e,'h',3000);write(neighbor+0x3d,'HHh',4608 if outside else 4096,4096,128)
+   write(0x890390+102*4,'I',neighbor)
+   write(trap+0x20,'HH',101,0);write(other+0x20,'HH',102,100);write(neighbor+0x20,'HH',0,101)
+   write(0x8a03e4+cell*16+6,'H',100)
+   write(trap,'II',0,other);write(other,'II',trap,neighbor);write(neighbor,'II',other,body);write(body,'I',neighbor);write(0x890324,'I',trap)
+   call(0x5029d0,body);write(wave+0x76,'I',mode);events=[];call(0x50c840,wave)
+   removals=[e for e in events if e[0].startswith('swamp-')]
+   assert read(other+0x2a,'B')==7 and read(other+0xc,'I')==0x20000
+   if outside:
+    assert read(trap+0x2a,'B')==7 and not removals and read(0x8a03e4+cell*16+6,'H')==100
+    assert read(neighbor+0x2c,'B')==17 and read(neighbor+0x6e,'h')==3000
+   else:
+    assert removals==[['swamp-remove',100],['swamp-light',100]],removals
+    assert read(trap+0x2a,'B')==0 and read(trap+0xc,'I')==1 and read(trap+0x2e,'B')==3
+    assert read(0x8a03e4+cell*16+6,'H')==101 and read(other+0x22,'H')==0
+    assert read(wave+4,'I')==other and read(other,'I')==wave
+    assert read(trap+0x20,'H')==101
+    assert read(neighbor+0x2c,'B')==(26 if mode==2 else 17)
+    assert read(neighbor+0x6e,'h')==(2500 if mode==2 else 3000)
+    assert next(i for i,e in enumerate(events) if e[0]=='terrain') < next(i for i,e in enumerate(events) if e[0]=='swamp-remove') < next(i for i,e in enumerate(events) if e[:3]==['allocate',7,61])
+for h in removal_hooks:cpu.hook_del(h)
+print('PASS: 18 original visited-cell Swamp cleanup cases; all modes/owners, radius exclusion, retained neighboring effect, real cell/global unlink before orbit sparkles')
