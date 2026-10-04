@@ -1,3 +1,4 @@
+import { registerSecondaryMarker } from './hut-smoke-runtime.ts'
 import {
   tribeForTeam,
   type World,
@@ -130,6 +131,7 @@ export function effect(w: World, kind: Effect['kind'], p: Point, silent = false)
       setAnimationObject(f.animation, kind === 'blast' ? 30 : 41, kind === 'blast' ? 1099 : 0x650)
     }
   }
+  if (kind === 'orderMarker' && !registerSecondaryMarker(w, f)) return f
   w.effects.push(f)
   if (kind === 'blast') registerTerrainLight(w, f, 4)
   return f

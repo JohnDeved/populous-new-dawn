@@ -1,3 +1,4 @@
+import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import * as THREE from 'three'
 import type { SoundEnvironment } from './ambient-sound.ts'
 import { orderSound, playWorldSounds, soundEnvironment } from './audio'
@@ -198,6 +199,7 @@ export class GameScene {
   unitMeshes = new Map<number, THREE.Group>()
   vehicleMeshes = new Map<number, THREE.Group>()
   buildingMeshes = new Map<number, THREE.Group>()
+  hutSmokePuffs = new Map<number, THREE.Group>()
   hoveredObject: number | null = null
   pointerAck = { target: 0, until: 0 }
   pointerSignature = ''
@@ -670,6 +672,7 @@ export class GameScene {
       dt = Math.max(0, now - previous) / 1000
     if (this.fpsGraph) this.fpsGraph.update(document.hidden ? 0 : dt * 1000)
     this.previous = now
+    syncSecondaryReservations(this)
     advanceGame(this.world, this.gameClock, dt)
     this.playWorldSounds()
     this.updateTerrainFrame()

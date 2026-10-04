@@ -183,10 +183,32 @@ function observeGuardedFixture({ ids, mode = null, afterTurn = 0, wake = false }
       const u = world.units.find(u => u.id === id)
       return { id, hp: u?.hp ?? 0, inside: u?.inside, work: u?.work, guard: u?.guard }
     }),
+    owner = world.secondaryEffects,
+    rootEntry = owner?.slots[owner.roots[hutId]?.slot],
+    puffWake = window.hutSmoke.puffWake,
+    // Wake early, then retain that exact still-live child after the real Pause
+    // action. Requiring ten visits again rejected valid children during UI latency.
+    readyPuffs = rootEntry
+      ? owner.order
+          .map(slot => owner.slots[slot])
+          .filter(
+            entry =>
+              entry?.kind === 'hutPuff' &&
+              entry.lifetime >= (wake || !puffWake ? 10 : 1) &&
+              (wake || !puffWake || puffWake.serials.includes(entry.serial)) &&
+              entry.position.x === rootEntry.position.x &&
+              entry.position.y === rootEntry.position.y &&
+              entry.position.h === rootEntry.position.h &&
+              scene.hutSmokePuffs?.has(entry.serial)
+          )
+      : [],
+    puffReady = readyPuffs.length > 0,
     smokeReady =
-      mode === 'absent'
-        ? smoke?.state.root === null && !smoke.group.visible
-        : smoke?.state.root?.mode === mode && smoke.group.visible,
+      mode === 'puff'
+        ? smoke?.state.root?.mode === 'full' && smoke.group.visible && puffReady
+        : mode === 'absent'
+          ? smoke?.state.root === null && !smoke.group.visible
+          : smoke?.state.root?.mode === mode && smoke.group.visible,
     ready =
       !pendingIds.length &&
       world.turn >= afterTurn &&
@@ -195,6 +217,37 @@ function observeGuardedFixture({ ids, mode = null, afterTurn = 0, wake = false }
       ids.every(id => residentIds.includes(id)) &&
       !incomingIds.length &&
       !!smokeReady
+  if (mode === 'puff' && wake && ready)
+    window.hutSmoke.puffWake = { turn: world.turn, serials: readyPuffs.map(puff => puff.serial) }
+  // Read-only game diagnostics: retain the actual births and control latency,
+  // rather than inferring emission from one final snapshot after a timeout.
+  if (mode === 'puff') {
+    const trace = (window.hutSmoke.puffTrace ??= []),
+      previous = trace.at(-1)
+    if (
+      trace.length < 4096 &&
+      (previous?.turn !== world.turn ||
+        previous.paused !== world.paused ||
+        previous.ready !== ready)
+    )
+      trace.push({
+        time: performance.now(),
+        turn: world.turn,
+        paused: world.paused,
+        ready,
+        pendingIds,
+        residentIds,
+        primaryPhase: world.effectCounter,
+        cosmeticRandom: world.cosmeticRandom.randomState,
+        rootRecord: structuredClone(owner.roots[hutId]),
+        rootEntry: structuredClone(rootEntry),
+        entries: owner.order.map(slot => ({ slot, ...structuredClone(owner.slots[slot]) })),
+        freeCount: owner.free.length,
+        reservations: [...owner.reservations],
+        lastTurn: owner.lastTurn,
+        renderedChildren: [...scene.hutSmokePuffs.keys()],
+      })
+  }
   return wake
     ? pendingIds.length > 0 || ready
     : {
@@ -492,7 +545,7 @@ async function smokeSnapshot(page) {
       frame =
         root === null
           ? null
-          : (((scene.gameClock.animationFrame - root.frameStart) % 16) + 16) % 16,
+          : (((world.secondaryEffects.animationFrame - root.frameStart) % 16) + 16) % 16,
       asset =
         sequence === null || frame === null ? null : originalEffects.animations[sequence][frame],
       atlas = smoke.sprite.userData.atlasTransform
@@ -533,9 +586,145 @@ async function smokeSnapshot(page) {
       size: { x: smoke.sprite.scale.x, y: smoke.sprite.scale.y },
       gameplayRandom: world.randomState,
       cosmeticRandom: world.cosmeticRandom.randomState,
-      animationFrame: scene.gameClock.animationFrame,
+      animationFrame: world.secondaryEffects.animationFrame,
+      puffs: world.secondaryEffects.order.flatMap(slot => {
+        const entry = world.secondaryEffects.slots[slot],
+          rootEntry = world.secondaryEffects.slots[world.secondaryEffects.roots[hut.id]?.slot]
+        if (
+          entry?.kind !== 'hutPuff' ||
+          !rootEntry ||
+          entry.position.x !== rootEntry.position.x ||
+          entry.position.y !== rootEntry.position.y ||
+          entry.position.h !== rootEntry.position.h
+        )
+          return []
+        const group = scene.hutSmokePuffs.get(entry.serial),
+          sprite = group?.children[0],
+          frame = (((world.secondaryEffects.animationFrame - entry.frameStart) % 16) + 16) % 16,
+          asset = originalEffects.animations.hutSmokePartial[frame],
+          uv = sprite?.userData.atlasTransform,
+          point = browserPosition(entry.position)
+        return [
+          {
+            ...structuredClone(entry),
+            frameSource: asset.source,
+            atlas: uv?.toArray(),
+            expectedAtlas: [
+              asset.w / originalEffects.width,
+              asset.h / originalEffects.height,
+              ((asset.index % 8) * 256) / originalEffects.width,
+              1 - (Math.floor(asset.index / 8) * 256 + asset.h) / originalEffects.height,
+            ],
+            rendered: !!group?.visible,
+            renderedPosition: group && {
+              x: group.position.x,
+              y: group.position.y,
+              z: group.position.z,
+            },
+            expectedPosition: { x: point.x, y: Math.round(entry.position.h) / 128, z: point.z },
+            size: sprite && { x: sprite.scale.x, y: sprite.scale.y },
+          },
+        ]
+      }),
     }
   })
+}
+
+// Observe the real load before slow software-renderer readiness and pointer
+// acknowledgement can outlast a 16-turn child. Neither observer changes game state.
+async function observeCheckpointLoad(page, savedSerials) {
+  await page.evaluate(savedSerials => {
+    const store = window.testStore,
+      previous = store.getWorld(),
+      started = performance.now()
+    const observation = (window.hutSmoke.checkpointLoad = {})
+    let restored, frame
+    const unsubscribe = store.subscribe(() => {
+      const world = store.getWorld()
+      if (world === previous || restored) return
+      restored = world
+      observation.restored = {
+        turn: world.turn,
+        owner: structuredClone(world.secondaryEffects),
+        gameplayRandom: world.randomState,
+        cosmeticRandom: world.cosmeticRandom.randomState,
+      }
+      unsubscribe()
+    })
+    const inspect = () => {
+      const scene = window.testSceneRef.current
+      if (restored && scene?.world === restored) {
+        const rendered = savedSerials.filter(serial => scene.hutSmokePuffs.has(serial))
+        if (rendered.length) {
+          observation.firstRendered = {
+            turn: restored.turn,
+            children: restored.secondaryEffects.order.flatMap(slot => {
+              const entry = restored.secondaryEffects.slots[slot]
+              if (entry?.kind !== 'hutPuff' || !savedSerials.includes(entry.serial)) return []
+              const group = scene.hutSmokePuffs.get(entry.serial)
+              return [{ ...structuredClone(entry), rendered: !!group?.visible }]
+            }),
+          }
+          return
+        }
+      }
+      if (performance.now() - started < 60000) frame = requestAnimationFrame(inspect)
+      else observation.expired = true
+    }
+    frame = requestAnimationFrame(inspect)
+    window.hutSmoke.stopCheckpointObservation = () => {
+      unsubscribe()
+      cancelAnimationFrame(frame)
+    }
+  }, savedSerials)
+}
+
+async function renderedPuffPixels(page, serials) {
+  return page.evaluate(serials => {
+    const scene = window.testScene,
+      gl = scene.renderer.getContext(),
+      groups = serials.map(id => scene.hutSmokePuffs.get(id)).filter(Boolean),
+      before = new Uint8Array(gl.drawingBufferWidth * gl.drawingBufferHeight * 4),
+      after = new Uint8Array(before.length)
+    scene.renderer.render(scene.scene, scene.camera)
+    gl.readPixels(
+      0,
+      0,
+      gl.drawingBufferWidth,
+      gl.drawingBufferHeight,
+      gl.RGBA,
+      gl.UNSIGNED_BYTE,
+      before
+    )
+    const visibility = groups.map(group => group.visible)
+    try {
+      for (const group of groups) group.visible = false
+      scene.renderer.render(scene.scene, scene.camera)
+      gl.readPixels(
+        0,
+        0,
+        gl.drawingBufferWidth,
+        gl.drawingBufferHeight,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        after
+      )
+    } finally {
+      groups.forEach((group, index) => {
+        group.visible = visibility[index]
+      })
+      scene.renderer.render(scene.scene, scene.camera)
+    }
+    let changed = 0
+    for (let i = 0; i < before.length; i += 4)
+      if (
+        before[i] !== after[i] ||
+        before[i + 1] !== after[i + 1] ||
+        before[i + 2] !== after[i + 2]
+      )
+        changed++
+    return changed
+  }, serials)
 }
 
 async function renderedPixels(page) {
@@ -706,6 +895,18 @@ try {
   stage('construction')
   ;({ page, errors } = await openGame(browser, 1))
   page.setDefaultTimeout(30_000)
+  report.environment = await page.evaluate(() => {
+    const gl = window.testScene.renderer.getContext(),
+      debug = gl.getExtension('WEBGL_debug_renderer_info')
+    return {
+      webglVersion: gl.getParameter(gl.VERSION),
+      renderer: debug
+        ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL)
+        : gl.getParameter(gl.RENDERER),
+      canvas: [gl.drawingBufferWidth, gl.drawingBufferHeight],
+      dpr: devicePixelRatio,
+    }
+  })
   await ensureDoubleSpeed(page)
   await focusSettlement(page)
   await pauseGame(page)
@@ -874,6 +1075,27 @@ try {
   await page.screenshot({ path: reportPath.replace('.json', '-full.png') })
   writeReport()
 
+  stage('full-root secondary puff')
+  const puffState = await waitForGuardedSmoke(page, residentIds, 'puff')
+  assert.ok(puffState.puffs.length)
+  for (const puff of puffState.puffs) {
+    assert.ok(puff.lifetime > 0 && puff.lifetime <= 16)
+    assert.ok(puff.frameSource >= 1385 && puff.frameSource <= 1400)
+    assert.equal(puff.rendered, true)
+    assert.deepEqual(puff.atlas, puff.expectedAtlas)
+    assert.deepEqual(puff.renderedPosition, puff.expectedPosition)
+    assert.deepEqual(puff.size, { x: 32, y: 64 })
+  }
+  const puffPixels = await renderedPuffPixels(
+    page,
+    puffState.puffs.map(puff => puff.serial)
+  )
+  assert.ok(puffPixels > 0, 'Allocated children must add rendered pixels over the full root')
+  report.secondary = { ...puffState, pixels: puffPixels }
+  report.puffTrace = await page.evaluate(() => window.hutSmoke.puffTrace ?? [])
+  await page.screenshot({ path: reportPath.replace('.json', '-secondary.png') })
+  writeReport()
+
   stage('pause and checkpoint save')
   const pausedBefore = await smokeSnapshot(page)
   await page.waitForTimeout(300)
@@ -883,12 +1105,14 @@ try {
     {
       counter: pausedAfter.counter,
       root: pausedAfter.root,
+      puffs: pausedAfter.puffs,
       cosmeticRandom: pausedAfter.cosmeticRandom,
       animationFrame: pausedAfter.animationFrame,
     },
     {
       counter: pausedBefore.counter,
       root: pausedBefore.root,
+      puffs: pausedBefore.puffs,
       cosmeticRandom: pausedBefore.cosmeticRandom,
       animationFrame: pausedBefore.animationFrame,
     }
@@ -931,29 +1155,84 @@ try {
 
   stage('checkpoint restore')
   await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+  await observeCheckpointLoad(
+    page,
+    pausedBefore.puffs.map(puff => puff.serial)
+  )
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
+  // Use the ordinary Pause control before the more expensive full scene bind.
+  await page.getByRole('button', { name: 'Pause game', exact: true }).click()
   await bindGame(page)
   state = await waitForGuardedSmoke(page, residentIds, 'full')
+  report.checkpointLoad = await page.evaluate(() => window.hutSmoke.checkpointLoad)
+  await page.evaluate(() => window.hutSmoke.stopCheckpointObservation())
   assert.equal(state.occupants, 3)
   assert.equal(state.root.mode, 'full')
   assert.deepEqual(state.position, state.expected)
   assert.equal(state.frameSource >= 1329 && state.frameSource <= 1344, true)
   assert.deepEqual(state.atlas, state.expectedAtlas)
   assert.deepEqual(errors, [])
+  const loaded = report.checkpointLoad.restored,
+    firstRendered = report.checkpointLoad.firstRendered
+  assert.equal(loaded.turn, pausedBefore.turn)
+  assert.equal(loaded.gameplayRandom, pausedBefore.gameplayRandom)
+  assert.equal(loaded.cosmeticRandom, pausedBefore.cosmeticRandom)
+  assert.ok(firstRendered, 'The restored scene must render a saved child before its native expiry')
+  const firstElapsed = firstRendered.turn - pausedBefore.turn
+  assert.ok(
+    pausedBefore.puffs.some(puff => puff.lifetime > firstElapsed),
+    'Checkpoint must be observed while one saved child is still alive'
+  )
+  for (const saved of pausedBefore.puffs) {
+    const entry = loaded.owner.slots.find(entry => entry?.serial === saved.serial)
+    assert.ok(entry, 'Actual Load restores the saved child before scene readiness')
+    for (const key of ['counter', 'lifetime', 'frameStart', 'position'])
+      assert.deepEqual(entry[key], saved[key])
+    if (saved.lifetime > firstElapsed) {
+      const rendered = firstRendered.children.find(puff => puff.serial === saved.serial)
+      assert.ok(rendered?.rendered, 'First restored presentation retains the saved child identity')
+      assert.equal(rendered.lifetime, saved.lifetime - firstElapsed)
+      assert.equal(rendered.counter, (saved.counter + firstElapsed) & 255)
+      assert.equal(rendered.frameStart, saved.frameStart)
+      assert.deepEqual(rendered.position, saved.position)
+    }
+  }
+  const elapsed = state.turn - pausedBefore.turn
+  for (const saved of pausedBefore.puffs) {
+    const restored = state.puffs.find(puff => puff.serial === saved.serial)
+    if (saved.lifetime > elapsed) {
+      assert.ok(restored, 'Saved child identity survives actual checkpoint load')
+      assert.equal(restored.lifetime, saved.lifetime - elapsed)
+      assert.equal(restored.counter, (saved.counter + elapsed) & 255)
+      assert.equal(restored.frameStart, saved.frameStart)
+      assert.deepEqual(restored.position, saved.position)
+    } else assert.equal(restored, undefined)
+  }
   report.checkpoint = state
   report.errors = errors
   report.stage = 'complete'
   report.result =
-    'PASS rendered construction; continuous newcomer Guard with protected cohort; absent/partial/full/reverse native HFX/socket smoke; pause; checkpoint'
+    'PASS rendered construction; continuous newcomer Guard with protected cohort; absent/partial/full/reverse native HFX/socket smoke; secondary children; pause; checkpoint'
   writeReport()
   console.log(
-    'PASS: rendered Mission 1 hut construction followed by shipped Guard release establishes zero occupancy; real resident input drives model75 partial HFX1385-1400 then model74 full HFX1329-1344 at attachment socket 0; full→partial→empty, pause and checkpoint restoration pass; hut models 1/2/3 use sockets 0/1/2 independently of capacity 3/4/5; secondary full-hut child puffs remain excluded; evidence ' +
+    'PASS: rendered Mission 1 hut construction followed by shipped Guard release establishes zero occupancy; real resident input drives model75 partial HFX1385-1400 then model74 full HFX1329-1344 at attachment socket 0; full→partial→empty, pause and checkpoint restoration pass; hut models 1/2/3 use sockets 0/1/2 independently of capacity 3/4/5; original full-hut secondary children, pixel contribution and checkpoint lifetime pass; evidence ' +
       reportPath
   )
 } catch (error) {
   report.result = 'FAIL'
   report.failure = { stage: report.stage, message: error.message, stack: error.stack }
   report.lastSnapshot = page ? await smokeSnapshot(page).catch(() => null) : null
+  report.puffTrace = page
+    ? await page.evaluate(() => window.hutSmoke?.puffTrace ?? []).catch(() => [])
+    : []
+  report.checkpointLoad = page
+    ? await page
+        .evaluate(() => {
+          window.hutSmoke?.stopCheckpointObservation?.()
+          return window.hutSmoke?.checkpointLoad
+        })
+        .catch(() => null)
+    : null
   report.errors = errors ?? []
   if (page)
     await page.screenshot({ path: reportPath.replace('.json', '-failure.png') }).catch(() => {})

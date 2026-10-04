@@ -76,6 +76,7 @@ export function advanceGame(w: World, clock: GameClock, seconds: number) {
       animateStoneHeads(w)
       stepMessages(w.messages, () => sound(w, 0xe4, HOME))
       clock.animationFrame++
+      w.secondaryEffects.animationFrame++
     }
   }
 }

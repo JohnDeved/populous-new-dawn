@@ -110,7 +110,11 @@ export function completeHutSmokeAllocationVisit(
     root.lifetime--
 }
 
-function stepPartialRoot(root: RootSmoke, drawRandom: () => number, animationFrame: number) {
+export function stepHutSmokeRoot(
+  root: RootSmoke,
+  drawRandom: () => number,
+  animationFrame: number
+) {
   if (root.mode === 'full') return
   if (!root.visible && (drawRandom() & 15) < 3) {
     root.visible = true
@@ -137,7 +141,7 @@ export function stepHutOccupancySmoke(
     // in the same turn. Only children born during that secondary traversal wait.
     if (!(state.lastBuildingCounter & 31))
       reconcileHutOccupancySmoke(state, occupants, capacity, animationFrame)
-    if (state.root) stepPartialRoot(state.root, drawRandom, animationFrame)
+    if (state.root) stepHutSmokeRoot(state.root, drawRandom, animationFrame)
   }
 }
 

@@ -12,27 +12,12 @@
         "app/selection-mesh.ts",
         "app/world-picking.ts"
       ],
-      "researchPaths": [
-        "tests/painter-order.test.mjs"
-      ],
-      "sharedPaths": [
-        "app/model.ts",
-        "app/scene.ts",
-        "app/render-view.ts"
-      ],
+      "researchPaths": ["tests/painter-order.test.mjs"],
+      "sharedPaths": ["app/model.ts", "app/scene.ts", "app/render-view.ts"],
       "entrySymbols": [
-        {
-          "path": "app/scene.ts",
-          "symbol": "pointerUp"
-        },
-        {
-          "path": "app/model.ts",
-          "symbol": "selectArea"
-        },
-        {
-          "path": "app/scene-picking.ts",
-          "symbol": "ScenePicking.pick"
-        }
+        { "path": "app/scene.ts", "symbol": "pointerUp" },
+        { "path": "app/model.ts", "symbol": "selectArea" },
+        { "path": "app/scene-picking.ts", "symbol": "ScenePicking.pick" }
       ],
       "parityIds": [
         "interface.selection",
@@ -47,41 +32,22 @@
         "graphics.raster.queue"
       ],
       "evidence": [
-        {
-          "path": "decomp/README.md",
-          "heading": "Native follower selection"
-        },
+        { "path": "decomp/README.md", "heading": "Native follower selection" },
         {
           "path": "references/reverse-engineering.md",
           "heading": "Camera-oriented world drag selection"
         },
-        {
-          "path": "references/modern-performance.md",
-          "heading": "Building-aware drag release"
-        },
-        {
-          "path": "references/modern-performance.md",
-          "heading": "Mixed-object picking"
-        }
+        { "path": "references/modern-performance.md", "heading": "Building-aware drag release" },
+        { "path": "references/modern-performance.md", "heading": "Mixed-object picking" }
       ],
-      "nativeAddresses": [
-        "0x443d30",
-        "0x4440a0",
-        "0x444270",
-        "0x444430",
-        "0x4445d0",
-        "0x4449d0"
-      ],
+      "nativeAddresses": ["0x443d30", "0x4440a0", "0x444270", "0x444430", "0x4445d0", "0x4449d0"],
       "checkIds": [
         "selection-portable",
         "selection-native-drag",
         "selection-browser-drag",
         "campaign-natural-victory-browser"
       ],
-      "generatedInputIds": [
-        "native-fixtures",
-        "imported-runtime-data"
-      ],
+      "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
       "risks": [
         "Painter-order hits and selection state cross rendering, input, audio, and shared command ownership."
       ],
@@ -126,26 +92,11 @@
         "app/tooltips.ts"
       ],
       "entrySymbols": [
-        {
-          "path": "app/live-command.ts",
-          "symbol": "command"
-        },
-        {
-          "path": "app/live-command.ts",
-          "symbol": "findPath"
-        },
-        {
-          "path": "app/live-command.ts",
-          "symbol": "guardShaman"
-        },
-        {
-          "path": "app/live-movement.ts",
-          "symbol": "appendLiveOrders"
-        },
-        {
-          "path": "app/world-turn.ts",
-          "symbol": "stepTurn"
-        }
+        { "path": "app/live-command.ts", "symbol": "command" },
+        { "path": "app/live-command.ts", "symbol": "findPath" },
+        { "path": "app/live-command.ts", "symbol": "guardShaman" },
+        { "path": "app/live-movement.ts", "symbol": "appendLiveOrders" },
+        { "path": "app/world-turn.ts", "symbol": "stepTurn" }
       ],
       "parityIds": [
         "simulation.orders",
@@ -161,38 +112,14 @@
         "world.wrap.lifecycle"
       ],
       "evidence": [
-        {
-          "path": "decomp/README.md",
-          "heading": "Shared person commands"
-        },
-        {
-          "path": "decomp/research/firewarrior.md",
-          "heading": "Firewarrior launch and open boundaries"
-        },
-        {
-          "path": "decomp/research/command-28-attacking-shaman.md",
-          "heading": "Finding"
-        },
-        {
-          "path": "decomp/research/mission5-boat.md",
-          "heading": "Mission 5 granted Boat"
-        },
-        {
-          "path": "decomp/research/mission9-boat-house.md",
-          "heading": "Mission 9 Boat House production"
-        },
-        {
-          "path": "decomp/research/vehicle-destruction.md",
-          "heading": "Vehicle damage and destruction"
-        },
-        {
-          "path": "decomp/research/rejected-adapter-candidates.md",
-          "heading": "Terrain changes do not invalidate active person routes"
-        },
-        {
-          "path": "decomp/README.md",
-          "heading": "State-10 order dispatch and resumption"
-        },
+        { "path": "decomp/README.md", "heading": "Shared person commands" },
+        { "path": "decomp/research/firewarrior.md", "heading": "Firewarrior launch and open boundaries" },
+        { "path": "decomp/research/command-28-attacking-shaman.md", "heading": "Finding" },
+        { "path": "decomp/research/mission5-boat.md", "heading": "Mission 5 granted Boat" },
+        { "path": "decomp/research/mission9-boat-house.md", "heading": "Mission 9 Boat House production" },
+        { "path": "decomp/research/vehicle-destruction.md", "heading": "Vehicle damage and destruction" },
+        { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Terrain changes do not invalidate active person routes" },
+        { "path": "decomp/README.md", "heading": "State-10 order dispatch and resumption" },
         {
           "path": "references/reverse-engineering.md",
           "heading": "Live ordinary marching orders and formation handoff"
@@ -202,27 +129,7 @@
           "heading": "Native marching integration and collision snapshots"
         }
       ],
-      "nativeAddresses": [
-        "0x406600",
-        "0x40b6d0",
-        "0x463370",
-        "0x463780",
-        "0x463cb0",
-        "0x463e80",
-        "0x465580",
-        "0x4657d0",
-        "0x465c50",
-        "0x466190",
-        "0x4663c0",
-        "0x466920",
-        "0x466f00",
-        "0x4d42a0",
-        "0x4e9d80",
-        "0x4ee470",
-        "0x4ec810",
-        "0x4ef510",
-        "0x51fce0"
-      ],
+      "nativeAddresses": ["0x406600", "0x40b6d0", "0x463370", "0x463780", "0x463cb0", "0x463e80", "0x465580", "0x4657d0", "0x465c50", "0x466190", "0x4663c0", "0x466920", "0x466f00", "0x4d42a0", "0x4e9d80", "0x4ee470", "0x4ec810", "0x4ef510", "0x51fce0"],
       "checkIds": [
         "orders-portable",
         "orders-native",
@@ -241,9 +148,7 @@
         "queued-timber-browser",
         "campaign-natural-victory-browser"
       ],
-      "generatedInputIds": [
-        "native-fixtures"
-      ],
+      "generatedInputIds": ["native-fixtures"],
       "risks": [
         "Shared command/person identity, RNG order, route ownership, and render-rate independence span sibling controllers."
       ],
@@ -270,24 +175,11 @@
         "app/construction-order.ts",
         "app/timber-search.ts"
       ],
-      "sharedPaths": [
-        "app/model.ts",
-        "app/native-terrain.ts",
-        "app/scene.ts"
-      ],
+      "sharedPaths": ["app/model.ts", "app/native-terrain.ts", "app/scene.ts"],
       "entrySymbols": [
-        {
-          "path": "app/scene-input-runtime.ts",
-          "symbol": "pointerUp"
-        },
-        {
-          "path": "app/live-command.ts",
-          "symbol": "placeBuilding"
-        },
-        {
-          "path": "app/live-construction-runtime.ts",
-          "symbol": "processBuilderWork"
-        }
+        { "path": "app/scene-input-runtime.ts", "symbol": "pointerUp" },
+        { "path": "app/live-command.ts", "symbol": "placeBuilding" },
+        { "path": "app/live-construction-runtime.ts", "symbol": "processBuilderWork" }
       ],
       "parityIds": [
         "economy.plans",
@@ -300,48 +192,19 @@
         "simulation.orders.lifecycle"
       ],
       "evidence": [
-        {
-          "path": "decomp/README.md",
-          "heading": "Construction command wrapper"
-        },
-        {
-          "path": "decomp/README.md",
-          "heading": "Construction timber hauling"
-        },
-        {
-          "path": "decomp/README.md",
-          "heading": "Shared construction resource searches"
-        },
-        {
-          "path": "decomp/research/mission9-boat-house.md",
-          "heading": "Mission 9 Boat House production"
-        },
-        {
-          "path": "decomp/research/rejected-adapter-candidates.md",
-          "heading": "Terrain changes do not invalidate active person routes"
-        },
-        {
-          "path": "decomp/research/rejected-adapter-candidates.md",
-          "heading": "Building damage does not dispatch repairers"
-        },
+        { "path": "decomp/README.md", "heading": "Construction command wrapper" },
+        { "path": "decomp/README.md", "heading": "Construction timber hauling" },
+        { "path": "decomp/README.md", "heading": "Shared construction resource searches" },
+        { "path": "decomp/research/mission9-boat-house.md", "heading": "Mission 9 Boat House production" },
+        { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Terrain changes do not invalidate active person routes" },
+        { "path": "decomp/research/rejected-adapter-candidates.md", "heading": "Building damage does not dispatch repairers" },
         {
           "path": "references/modern-performance.md",
           "heading": "Construction research checkpoints"
         },
-        {
-          "path": "references/modern-performance.md",
-          "heading": "Shared timber cache"
-        }
+        { "path": "references/modern-performance.md", "heading": "Shared timber cache" }
       ],
-      "nativeAddresses": [
-        "0x406600",
-        "0x40b6d0",
-        "0x496750",
-        "0x4935c0",
-        "0x493910",
-        "0x493f10",
-        "0x494d10"
-      ],
+      "nativeAddresses": ["0x406600", "0x40b6d0", "0x496750", "0x4935c0", "0x493910", "0x493f10", "0x494d10"],
       "checkIds": [
         "construction-live-portable",
         "construction-research-portable",
@@ -355,10 +218,7 @@
         "queued-timber-browser",
         "campaign-natural-victory-browser"
       ],
-      "generatedInputIds": [
-        "native-fixtures",
-        "imported-runtime-data"
-      ],
+      "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
       "risks": [
         "Plan/person identity, resource reservations, path ownership, generated fixtures, and terrain changes are cross-cutting."
       ],
@@ -378,25 +238,11 @@
         "app/game-clock.ts",
         "app/unit-motion.ts"
       ],
-      "sharedPaths": [
-        "app/flyby.ts",
-        "app/model.ts",
-        "app/render-view.ts",
-        "app/scene.ts"
-      ],
+      "sharedPaths": ["app/flyby.ts", "app/model.ts", "app/render-view.ts", "app/scene.ts"],
       "entrySymbols": [
-        {
-          "path": "app/scene.ts",
-          "symbol": "animate"
-        },
-        {
-          "path": "app/game-clock.ts",
-          "symbol": "GameClock"
-        },
-        {
-          "path": "app/world-turn.ts",
-          "symbol": "tick"
-        }
+        { "path": "app/scene.ts", "symbol": "animate" },
+        { "path": "app/game-clock.ts", "symbol": "GameClock" },
+        { "path": "app/world-turn.ts", "symbol": "tick" }
       ],
       "parityIds": [
         "world.camera",
@@ -408,37 +254,17 @@
         "interface.hud.minimap-input"
       ],
       "evidence": [
-        {
-          "path": "references/modern-performance.md",
-          "heading": "Chronological game clock"
-        },
-        {
-          "path": "decomp/research/camera-bookmarks.md",
-          "heading": "Camera bookmarks"
-        },
+        { "path": "references/modern-performance.md", "heading": "Chronological game clock" },
+        { "path": "decomp/research/camera-bookmarks.md", "heading": "Camera bookmarks" },
         {
           "path": "references/modern-performance.md",
           "heading": "Ground camera presentation between native steps"
         },
-        {
-          "path": "decomp/README.md",
-          "heading": "Native desktop camera input"
-        }
+        { "path": "decomp/README.md", "heading": "Native desktop camera input" }
       ],
-      "nativeAddresses": [
-        "0x439950",
-        "0x438ae0",
-        "0x4199b0"
-      ],
-      "checkIds": [
-        "clock-portable",
-        "camera-native",
-        "camera-browser"
-      ],
-      "generatedInputIds": [
-        "native-fixtures",
-        "imported-runtime-data"
-      ],
+      "nativeAddresses": ["0x439950", "0x438ae0", "0x4199b0"],
+      "checkIds": ["clock-portable", "camera-native", "camera-browser"],
+      "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
       "risks": [
         "Simulation, input, animation, effects, audio, and high-refresh preview clocks must remain independent."
       ],
@@ -464,35 +290,14 @@
         "app/scene-terrain-runtime.ts",
         "app/viewport-bounds.ts"
       ],
-      "researchPaths": [
-        "scripts/check-browser-zoom-edges.mjs"
-      ],
-      "sharedPaths": [
-        "app/model.ts",
-        "app/render-view.ts",
-        "app/scene.ts"
-      ],
+      "researchPaths": ["scripts/check-browser-zoom-edges.mjs"],
+      "sharedPaths": ["app/model.ts", "app/render-view.ts", "app/scene.ts"],
       "entrySymbols": [
-        {
-          "path": "app/world-terrain-runtime.ts",
-          "symbol": "syncNativeTerrain"
-        },
-        {
-          "path": "app/world-terrain-runtime.ts",
-          "symbol": "syncLandscapeObjects"
-        },
-        {
-          "path": "app/render-view.ts",
-          "symbol": "RenderView"
-        },
-        {
-          "path": "app/scene-terrain-runtime.ts",
-          "symbol": "initializeTerrain"
-        },
-        {
-          "path": "app/scene.ts",
-          "symbol": "updateTerrainTexture"
-        }
+        { "path": "app/world-terrain-runtime.ts", "symbol": "syncNativeTerrain" },
+        { "path": "app/world-terrain-runtime.ts", "symbol": "syncLandscapeObjects" },
+        { "path": "app/render-view.ts", "symbol": "RenderView" },
+        { "path": "app/scene-terrain-runtime.ts", "symbol": "initializeTerrain" },
+        { "path": "app/scene.ts", "symbol": "updateTerrainTexture" }
       ],
       "parityIds": [
         "world.terrain",
@@ -507,10 +312,7 @@
         "graphics.raster.frames"
       ],
       "evidence": [
-        {
-          "path": "references/modern-performance.md",
-          "heading": "Measurement rules"
-        },
+        { "path": "references/modern-performance.md", "heading": "Measurement rules" },
         {
           "path": "references/modern-performance.md",
           "heading": "Indexed terrain submission and picking"
@@ -519,30 +321,12 @@
           "path": "references/modern-performance.md",
           "heading": "Painter geometry work on the Mac GPU"
         },
-        {
-          "path": "references/modern-performance.md",
-          "heading": "Batch terrain notifications"
-        },
-        {
-          "path": "decomp/README.md",
-          "heading": "Terrain texel-center sampling"
-        },
-        {
-          "path": "decomp/research/mission18.md",
-          "heading": "Bank-g sky"
-        },
-        {
-          "path": "decomp/research/mission19.md",
-          "heading": "Bank-d authored sky inputs"
-        },
-        {
-          "path": "decomp/research/sky-rendering-audit.md",
-          "heading": "Result"
-        },
-        {
-          "path": "decomp/research/building-construction-gauge.md",
-          "heading": "Native consumer and bounded evidence"
-        },
+        { "path": "references/modern-performance.md", "heading": "Batch terrain notifications" },
+        { "path": "decomp/README.md", "heading": "Terrain texel-center sampling" },
+        { "path": "decomp/research/mission18.md", "heading": "Bank-g sky" },
+        { "path": "decomp/research/mission19.md", "heading": "Bank-d authored sky inputs" },
+        { "path": "decomp/research/sky-rendering-audit.md", "heading": "Result" },
+        { "path": "decomp/research/building-construction-gauge.md", "heading": "Native consumer and bounded evidence" },
         {
           "path": "decomp/research/hut-smoke-first-visit.md",
           "heading": "Bounded live repair"
@@ -560,17 +344,12 @@
           "heading": "Failure-first original record witness"
         },
         {
-          "path": "decomp/research/early-mission-skies.md",
-          "heading": "Original selection and bounded correction"
-        }
+          "path": "decomp/research/hut-smoke-secondary-owner.md",
+          "heading": "Runtime contract"
+        },
+        { "path": "decomp/research/early-mission-skies.md", "heading": "Original selection and bounded correction" }
       ],
-      "nativeAddresses": [
-        "0x4306d0",
-        "0x44df40",
-        "0x44e940",
-        "0x4f9380",
-        "0x4b5f40"
-      ],
+      "nativeAddresses": ["0x4306d0", "0x44df40", "0x44e940", "0x4f9380", "0x4b5f40"],
       "checkIds": [
         "early-mission-skies-portable",
         "early-mission-skies-native",
@@ -584,10 +363,7 @@
         "mission19-browser",
         "performance-profile"
       ],
-      "generatedInputIds": [
-        "native-fixtures",
-        "performance-records"
-      ],
+      "generatedInputIds": ["native-fixtures", "performance-records"],
       "risks": [
         "Renderer batching, terrain mutation, picking, GPU identity, shared capture paths, and performance noise require separate evidence."
       ],
@@ -707,7 +483,7 @@
         "app/campaign-command-runtime.ts",
         "app/computer.ts",
         "app/computer-runtime.ts",
-        "app/computer-defense.ts",
+      "app/computer-defense.ts",
         "app/computer-convert.ts",
         "app/computer-spells.ts",
         "app/campaign-runtime.ts",
@@ -804,76 +580,76 @@
         "decomp/README.md",
         "decomp/exports.json",
         "decomp/research/mission2-enemy-marker.md",
-        "decomp/research/early-mission-ai.md",
-        "scripts/check-native-early-mission-ai.py",
-        "decomp/research/mission3-preaching-message.md",
-        "scripts/check-native-mission3-preaching-message.py",
-        "decomp/research/mission2-rebuilding.md",
-        "scripts/check-native-mission2-rebuilding.py",
-        "decomp/generated/004c6da0.c",
-        "decomp/research/mission2-replacement.md",
-        "scripts/check-native-mission2-replacement.py",
-        "decomp/research/mission3-person-task.md",
-        "scripts/check-native-mission3-person-task.py",
-        "scripts/check-native-mission3-preacher-task.py",
-        "scripts/check-native-mission3-population-state.py",
-        "scripts/check-native-mission3-convert-target.py",
-        "scripts/check-native-mission3-convert-task.py",
-        "decomp/research/mission3-population-state.md",
-        "decomp/generated/004c7370.c",
-        "decomp/generated/004e5900.c",
-        "decomp/generated/004f87f0.c",
-        "decomp/generated/004f5d30.c",
-        "decomp/generated/004f3a70.c",
-        "decomp/generated/004f6af0.c",
-        "scripts/check-browser-mission3-preacher-task.mjs",
-        "tests/mission3-preacher-task.test.mjs",
-        "tests/mission3-convert-task.test.mjs",
-        "tests/mission3-convert-wild.test.mjs",
-        "scripts/check-browser-mission3-convert-task.mjs",
-        "decomp/research/mission3-convert-task.md",
-        "decomp/research/early-mission-producer-schedule.md",
-        "decomp/research/early-mission-response-task.md",
-        "decomp/research/mission3-defense-task.md",
-        "scripts/check-native-mission3-defense-task.py",
-        "scripts/check-browser-mission3-defense-task.mjs",
-        "tests/mission3-defense-task.test.mjs",
-        "decomp/generated/004c5f70.c",
-        "decomp/generated/004f2440.c",
-        "decomp/generated/0041b180.c",
-        "decomp/generated/004f5950.c",
-        "decomp/generated/004f2460.c",
-        "decomp/generated/0043b540.c",
-        "decomp/generated/004f39f0.c",
-        "decomp/generated/004f2520.c",
-        "scripts/check-native-ai-response-task.py",
-        "tests/ai-response-task.test.mjs",
-        "decomp/generated/004f35b0.c",
-        "decomp/generated/004f3f20.c",
-        "decomp/generated/004f6800.c",
-        "decomp/generated/004c5cf0.c",
-        "decomp/generated/004e5810.c",
-        "decomp/generated/004e58b0.c",
-        "decomp/generated/004e5950.c",
-        "decomp/generated/004e5b60.c",
-        "decomp/generated/004e5bf0.c",
-        "decomp/generated/004e5c40.c",
-        "decomp/generated/004e5ca0.c",
-        "decomp/generated/004e5ee0.c",
-        "decomp/generated/004e5f30.c",
-        "decomp/generated/004e5f80.c",
-        "decomp/generated/004f52b0.c",
-        "decomp/generated/004f8e10.c",
-        "scripts/check-native-ai-producer-schedule.py",
-        "scripts/check-native-ai-training-capacity.py",
-        "tests/ai-training-capacity.test.mjs",
-        "tests/ai-producer-schedule.test.mjs",
-        "decomp/generated/0043b2a0.c",
-        "decomp/generated/004c8c50.c",
-        "decomp/generated/004f3280.c",
-        "decomp/generated/004f4520.c",
-        "decomp/generated/004f5680.c",
-        "decomp/generated/004f63a0.c",
+      "decomp/research/early-mission-ai.md",
+      "scripts/check-native-early-mission-ai.py",
+      "decomp/research/mission3-preaching-message.md",
+      "scripts/check-native-mission3-preaching-message.py",
+      "decomp/research/mission2-rebuilding.md",
+      "scripts/check-native-mission2-rebuilding.py",
+      "decomp/generated/004c6da0.c",
+      "decomp/research/mission2-replacement.md",
+      "scripts/check-native-mission2-replacement.py",
+      "decomp/research/mission3-person-task.md",
+      "scripts/check-native-mission3-person-task.py",
+      "scripts/check-native-mission3-preacher-task.py",
+      "scripts/check-native-mission3-population-state.py",
+      "scripts/check-native-mission3-convert-target.py",
+      "scripts/check-native-mission3-convert-task.py",
+      "decomp/research/mission3-population-state.md",
+      "decomp/generated/004c7370.c",
+      "decomp/generated/004e5900.c",
+      "decomp/generated/004f87f0.c",
+      "decomp/generated/004f5d30.c",
+      "decomp/generated/004f3a70.c",
+      "decomp/generated/004f6af0.c",
+      "scripts/check-browser-mission3-preacher-task.mjs",
+      "tests/mission3-preacher-task.test.mjs",
+      "tests/mission3-convert-task.test.mjs",
+      "tests/mission3-convert-wild.test.mjs",
+      "scripts/check-browser-mission3-convert-task.mjs",
+      "decomp/research/mission3-convert-task.md",
+      "decomp/research/early-mission-producer-schedule.md",
+      "decomp/research/early-mission-response-task.md",
+      "decomp/research/mission3-defense-task.md",
+      "scripts/check-native-mission3-defense-task.py",
+      "scripts/check-browser-mission3-defense-task.mjs",
+      "tests/mission3-defense-task.test.mjs",
+      "decomp/generated/004c5f70.c",
+      "decomp/generated/004f2440.c",
+      "decomp/generated/0041b180.c",
+      "decomp/generated/004f5950.c",
+      "decomp/generated/004f2460.c",
+      "decomp/generated/0043b540.c",
+      "decomp/generated/004f39f0.c",
+      "decomp/generated/004f2520.c",
+      "scripts/check-native-ai-response-task.py",
+      "tests/ai-response-task.test.mjs",
+      "decomp/generated/004f35b0.c",
+      "decomp/generated/004f3f20.c",
+      "decomp/generated/004f6800.c",
+      "decomp/generated/004c5cf0.c",
+      "decomp/generated/004e5810.c",
+      "decomp/generated/004e58b0.c",
+      "decomp/generated/004e5950.c",
+      "decomp/generated/004e5b60.c",
+      "decomp/generated/004e5bf0.c",
+      "decomp/generated/004e5c40.c",
+      "decomp/generated/004e5ca0.c",
+      "decomp/generated/004e5ee0.c",
+      "decomp/generated/004e5f30.c",
+      "decomp/generated/004e5f80.c",
+      "decomp/generated/004f52b0.c",
+      "decomp/generated/004f8e10.c",
+      "scripts/check-native-ai-producer-schedule.py",
+      "scripts/check-native-ai-training-capacity.py",
+      "tests/ai-training-capacity.test.mjs",
+      "tests/ai-producer-schedule.test.mjs",
+      "decomp/generated/0043b2a0.c",
+      "decomp/generated/004c8c50.c",
+      "decomp/generated/004f3280.c",
+      "decomp/generated/004f4520.c",
+      "decomp/generated/004f5680.c",
+      "decomp/generated/004f63a0.c",
         "decomp/research/mission2-message-103.md",
         "decomp/research/mission4.md",
         "decomp/research/mission5-boat.md",
@@ -1063,30 +839,12 @@
         "app/scene-terrain-runtime.ts"
       ],
       "entrySymbols": [
-        {
-          "path": "app/armageddon.ts",
-          "symbol": "startArmageddon"
-        },
-        {
-          "path": "app/angel.ts",
-          "symbol": "stepAngel"
-        },
-        {
-          "path": "app/campaign-runtime.ts",
-          "symbol": "missionAI"
-        },
-        {
-          "path": "app/campaign-command-runtime.ts",
-          "symbol": "campaignCommand"
-        },
-        {
-          "path": "app/campaign-command-runtime.ts",
-          "symbol": "campaignRules"
-        },
-        {
-          "path": "app/computer-runtime.ts",
-          "symbol": "stepComputerTasks"
-        }
+        { "path": "app/armageddon.ts", "symbol": "startArmageddon" },
+        { "path": "app/angel.ts", "symbol": "stepAngel" },
+        { "path": "app/campaign-runtime.ts", "symbol": "missionAI" },
+        { "path": "app/campaign-command-runtime.ts", "symbol": "campaignCommand" },
+        { "path": "app/campaign-command-runtime.ts", "symbol": "campaignRules" },
+        { "path": "app/computer-runtime.ts", "symbol": "stepComputerTasks" }
       ],
       "parityIds": [
         "campaign.mission-one",
@@ -1101,10 +859,7 @@
         "effects.reincarnation"
       ],
       "evidence": [
-        {
-          "path": "decomp/README.md",
-          "heading": "Campaign interpreter comparison"
-        },
+        { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
         {
           "path": "decomp/research/recorded-demo-provenance.md",
           "heading": "Reproduce the static boundary proof"
@@ -1137,42 +892,18 @@
           "path": "decomp/research/mission18-sky.md",
           "heading": "Fresh-checkout static verification"
         },
-        {
-          "path": "decomp/research/campaign-progression.md",
-          "heading": "Campaign progression snapshot"
-        },
-        {
-          "path": "decomp/research/mission2-positioned-message.md",
-          "heading": "Mission 2 positioned message"
-        },
-        {
-          "path": "decomp/research/mission2-enemy-marker.md",
-          "heading": "Mission 2 enemy-marker counterattack"
-        },
-        {
-          "path": "decomp/research/mission2-message-103.md",
-          "heading": "Mission 2 Tornado instruction"
-        },
-        {
-          "path": "decomp/research/mission4.md",
-          "heading": "Mission 4 data and objective"
-        },
-        {
-          "path": "decomp/research/mission5-boat.md",
-          "heading": "Mission 5 granted Boat"
-        },
-        {
-          "path": "decomp/research/mission5-angel.md",
-          "heading": "Observed native facts"
-        },
+        { "path": "decomp/research/campaign-progression.md", "heading": "Campaign progression snapshot" },
+        { "path": "decomp/research/mission2-positioned-message.md", "heading": "Mission 2 positioned message" },
+        { "path": "decomp/research/mission2-enemy-marker.md", "heading": "Mission 2 enemy-marker counterattack" },
+        { "path": "decomp/research/mission2-message-103.md", "heading": "Mission 2 Tornado instruction" },
+        { "path": "decomp/research/mission4.md", "heading": "Mission 4 data and objective" },
+        { "path": "decomp/research/mission5-boat.md", "heading": "Mission 5 granted Boat" },
+        { "path": "decomp/research/mission5-angel.md", "heading": "Observed native facts" },
         {
           "path": "decomp/research/mission6-economy.md",
           "heading": "Mission 6 autonomous construction"
         },
-        {
-          "path": "decomp/research/mission6.md",
-          "heading": "Mission 6 opening and tribes"
-        },
+        { "path": "decomp/research/mission6.md", "heading": "Mission 6 opening and tribes" },
         {
           "path": "decomp/research/mission7.md",
           "heading": "Mission 7 opening and Invisibility path"
@@ -1259,32 +990,17 @@
         },
         {
           "path": "references/reverse-engineering.md",
-          "heading": "Reincarnation stone layout \u2014 2026-09-08"
+          "heading": "Reincarnation stone layout — 2026-09-08"
         },
         {
           "path": "references/reverse-engineering.md",
           "heading": "Worship work and delayed gifts (2026-09-07)"
         },
-        {
-          "path": "decomp/research/loading-art.md",
-          "heading": "Reproduce from a fresh checkout"
-        },
-        {
-          "path": "decomp/research/loading-art.md",
-          "heading": "New caller evidence: real resource-loading entry, not a percentage"
-        },
-        {
-          "path": "decomp/research/loading-art.md",
-          "heading": "Resource descriptor and failure propagation"
-        },
-        {
-          "path": "decomp/research/vault-side-fire.md",
-          "heading": "Model-18 Vault excludes generic attached fire"
-        },
-        {
-          "path": "decomp/research/vault-side-fire.md",
-          "heading": "Known / unknown boundary"
-        }
+        {"path": "decomp/research/loading-art.md", "heading": "Reproduce from a fresh checkout"},
+        {"path": "decomp/research/loading-art.md", "heading": "New caller evidence: real resource-loading entry, not a percentage"},
+        {"path": "decomp/research/loading-art.md", "heading": "Resource descriptor and failure propagation"},
+        {"path": "decomp/research/vault-side-fire.md", "heading": "Model-18 Vault excludes generic attached fire"},
+        {"path": "decomp/research/vault-side-fire.md", "heading": "Known / unknown boundary"}
       ],
       "nativeAddresses": [
         "0x40bce0",
@@ -1442,10 +1158,7 @@
         "repository-check",
         "production-build"
       ],
-      "generatedInputIds": [
-        "native-fixtures",
-        "imported-runtime-data"
-      ],
+      "generatedInputIds": ["native-fixtures", "imported-runtime-data"],
       "risks": [
         "A bound command must preserve script evaluation order, native field widths, and its real world or presentation owner."
       ],
@@ -1469,36 +1182,16 @@
       "id": "persistence",
       "title": "Checkpoints and startup",
       "mappingStatus": "reviewed",
-      "implementationPaths": [
-        "app/game-store.ts"
-      ],
-      "sharedPaths": [
-        "app/page.tsx"
-      ],
-      "researchPaths": [
-        "engineering/single-player-feasibility.md"
-      ],
+      "implementationPaths": ["app/game-store.ts"],
+      "sharedPaths": ["app/page.tsx"],
+      "researchPaths": ["engineering/single-player-feasibility.md"],
       "entrySymbols": [
-        {
-          "path": "app/game-store.ts",
-          "symbol": "createGameStore"
-        },
-        {
-          "path": "app/page.tsx",
-          "symbol": "Home"
-        }
+        { "path": "app/game-store.ts", "symbol": "createGameStore" },
+        { "path": "app/page.tsx", "symbol": "Home" }
       ],
-      "parityIds": [
-        "persistence.save",
-        "persistence.load",
-        "persistence.profile",
-        "interface.menus"
-      ],
+      "parityIds": ["persistence.save", "persistence.load", "persistence.profile", "interface.menus"],
       "evidence": [
-        {
-          "path": "decomp/README.md",
-          "heading": "Defeat and victory decisions"
-        }
+        { "path": "decomp/README.md", "heading": "Defeat and victory decisions" }
       ],
       "nativeAddresses": [],
       "checkIds": [
@@ -1528,51 +1221,18 @@
   "crossCutting": [
     {
       "path": "app/world-state.ts",
-      "subsystemIds": [
-        "campaign",
-        "movement-orders",
-        "persistence"
-      ],
-      "checkIds": [
-        "orders-portable",
-        "orders-browser",
-        "checkpoint-browser",
-        "mission9-browser",
-        "repository-check",
-        "production-build"
-      ]
+      "subsystemIds": ["campaign", "movement-orders", "persistence"],
+      "checkIds": ["orders-portable", "orders-browser", "checkpoint-browser", "mission9-browser", "repository-check", "production-build"]
     },
     {
       "path": "app/world-types.ts",
-      "subsystemIds": [
-        "campaign",
-        "movement-orders",
-        "persistence",
-        "selection"
-      ],
-      "checkIds": [
-        "orders-portable",
-        "orders-browser",
-        "checkpoint-browser",
-        "mission9-browser",
-        "repository-check",
-        "production-build"
-      ]
+      "subsystemIds": ["campaign", "movement-orders", "persistence", "selection"],
+      "checkIds": ["orders-portable", "orders-browser", "checkpoint-browser", "mission9-browser", "repository-check", "production-build"]
     },
     {
       "path": "app/world-initialization.ts",
-      "subsystemIds": [
-        "construction-resources",
-        "terrain-performance",
-        "campaign",
-        "persistence"
-      ],
-      "checkIds": [
-        "checkpoint-browser",
-        "mission9-browser",
-        "repository-check",
-        "production-build"
-      ]
+      "subsystemIds": ["construction-resources", "terrain-performance", "campaign", "persistence"],
+      "checkIds": ["checkpoint-browser", "mission9-browser", "repository-check", "production-build"]
     },
     {
       "path": "app/model.ts",
@@ -1584,9 +1244,7 @@
         "terrain-performance",
         "campaign"
       ],
-      "checkIds": [
-        "repository-check"
-      ]
+      "checkIds": ["repository-check"]
     },
     {
       "path": "app/world-turn.ts",
@@ -1616,10 +1274,7 @@
         "terrain-performance",
         "campaign"
       ],
-      "checkIds": [
-        "repository-check",
-        "production-build"
-      ]
+      "checkIds": ["repository-check", "production-build"]
     },
     {
       "path": "app/scene-input-runtime.ts",
@@ -1629,96 +1284,50 @@
         "construction-resources",
         "camera-clocks"
       ],
-      "checkIds": [
-        "repository-check",
-        "production-build"
-      ]
+      "checkIds": ["repository-check", "production-build"]
     },
     {
       "path": "app/scene-entities.ts",
-      "subsystemIds": [
-        "selection",
-        "camera-clocks",
-        "terrain-performance"
-      ],
-      "checkIds": [
-        "repository-check",
-        "production-build",
-        "camera-browser"
-      ]
+      "subsystemIds": ["selection", "camera-clocks", "terrain-performance"],
+      "checkIds": ["repository-check", "production-build", "camera-browser"]
     },
     {
       "path": "app/native-terrain.ts",
-      "subsystemIds": [
-        "movement-orders",
-        "construction-resources",
-        "terrain-performance"
-      ],
-      "checkIds": [
-        "repository-check"
-      ]
+      "subsystemIds": ["movement-orders", "construction-resources", "terrain-performance"],
+      "checkIds": ["repository-check"]
     },
     {
       "path": "app/person-orders.ts",
-      "subsystemIds": [
-        "movement-orders",
-        "construction-resources"
-      ],
-      "checkIds": [
-        "repository-check"
-      ]
+      "subsystemIds": ["movement-orders", "construction-resources"],
+      "checkIds": ["repository-check"]
     },
     {
       "path": "app/game-clock.ts",
-      "subsystemIds": [
-        "camera-clocks",
-        "terrain-performance"
-      ],
-      "checkIds": [
-        "repository-check"
-      ]
+      "subsystemIds": ["camera-clocks", "terrain-performance"],
+      "checkIds": ["repository-check"]
     },
     {
       "path": "app/flyby.ts",
-      "subsystemIds": [
-        "camera-clocks",
-        "campaign"
-      ],
-      "checkIds": [
-        "repository-check",
-        "production-build",
-        "camera-browser"
-      ]
+      "subsystemIds": ["camera-clocks", "campaign"],
+      "checkIds": ["repository-check", "production-build", "camera-browser"]
     },
     {
       "path": "app/render-view.ts",
-      "subsystemIds": [
-        "selection",
-        "camera-clocks",
-        "terrain-performance"
-      ],
-      "checkIds": [
-        "production-build"
-      ]
+      "subsystemIds": ["selection", "camera-clocks", "terrain-performance"],
+      "checkIds": ["production-build"]
     }
   ],
   "unmappedAreas": [
     {
       "id": "audio",
       "mappingStatus": "unmapped",
-      "paths": [
-        "app/audio.ts",
-        "app/music.ts"
-      ],
+      "paths": ["app/audio.ts", "app/music.ts"],
       "note": "Mechanically inventoried; no reviewed workflow mapping in this initial slice."
     },
     {
       "id": "combat",
       "mappingStatus": "inferred",
-      "paths": [
-        "app/combat-orders.ts",
-        "app/melee.ts"
-      ],
+      "paths": ["app/combat-orders.ts", "app/melee.ts"],
       "note": "Known shared-order consumers, but full combat evidence/check routing was not reviewed for this infrastructure delivery."
     },
     {
@@ -1736,9 +1345,7 @@
     {
       "id": "vehicles",
       "mappingStatus": "unmapped",
-      "paths": [
-        "app/vehicle-routing.ts"
-      ],
+      "paths": ["app/vehicle-routing.ts"],
       "note": "Vehicle construction, ownership, and integration remain outside the reviewed slice."
     }
   ]

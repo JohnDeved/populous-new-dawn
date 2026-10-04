@@ -1,3 +1,4 @@
+import { createSecondaryEffects } from './secondary-effects.ts'
 import {
   tribeForTeam,
   type World,
@@ -256,6 +257,7 @@ export function createWorldState(missionNumber = 1): World {
     randomState: 1,
     cosmeticRandom: { randomState: 1 },
     effectCounter: 0,
+    secondaryEffects: createSecondaryEffects(),
     nextId: 1,
     footprints: createFootprints(),
     selected: [],
