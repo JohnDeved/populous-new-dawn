@@ -5154,3 +5154,14 @@ remain fully opaque. The executable check runs 500 refresh/render states through
 hover/held/selection, and positive-to-zero totals. It also proves the imported
 15×36 frame pieces do not overlap. The existing population checker intercepts
 before these alpha decisions and cannot establish this result by itself.
+
+## Mission3 pre-table defense response
+
+[Mission3 type8 lifecycle](research/mission3-defense-task.md) binds the original
+response allocator, area assessment, selection/fallback, actual group orders,
+ongoing target collection, retarget/return and cleanup. Complete authored-program
+invariants exclude idle follow-ups and auto-training without enabling later
+missions. Native instruction probes retain their supplied-world/animation limits;
+ordinary Temple/Preacher acquisition, intrusion, defender movement and checkpoint
+continuation provide separate live coverage. Full original AI timing and complete
+Mission1–3 parity remain open.

@@ -19,6 +19,7 @@ export type ComputerTask = {
   retries: number
   retreatPercent: number
   responseScan?: { category: number; tribe: number; entity: number; cell: number }
+  defense?: { center: number; recenter: boolean; cursor: number; fallback: boolean }
   spells?: number[]
   quotas: number[]
   members: number[]
@@ -309,7 +310,7 @@ export function produceComputerTasks(
   }
 }
 
-// 0x4e5b60/0x4627f0, bound only to authored Missions1/2. The radius/origin
+// 0x4e5b60/0x4627f0, bound only to authored Missions1–3. The radius/origin
 // payload becomes unused scratch in 0x4c5cf0; the scanner reads territory bits.
 export function requestEarlyResponseTask(ai: ComputerQueue, states: number) {
   if (!(states & 512) || ai.tasks.some(task => task.flags & 1 && task.type === 9)) return false
@@ -331,11 +332,13 @@ export interface EarlyResponseInput {
   responseFlag: boolean
   entities: (category: number, tribe: number) => Iterable<{ id: number; cell: number }>
   territory: (cell: number) => boolean
+  defended?: (cell: number) => boolean
+  defend?: (entity: number, cell: number) => void
 }
 
-// 0x4c5cf0/0x4f8e10: complete authored Missions1/2 branch. Their full programs
-// keep state8 disabled and attribute31 zero, and have no Spy acquisition path.
-// Mission3 needs the real type8 consumer before this can be bound there.
+//0x4c5cf0/0x4f8e10: authored Missions1–3 keep attribute31 zero and have no
+//Spy acquisition. Missions1/2 disable state8; Mission3 supplies its real defense
+//consumer and active-response filter through the synchronous caller inputs.
 // Return true only at the original cleanup boundary; the caller owns people.
 export function stepEarlyResponseTask(ai: ComputerQueue, index: number, input: EarlyResponseInput) {
   const task = ai.tasks[index]
@@ -354,7 +357,7 @@ export function stepEarlyResponseTask(ai: ComputerQueue, index: number, input: E
       const tribe = scan.tribe++
       if (tribe === input.tribe || input.alliances & (1 << tribe)) continue
       for (const entity of input.entities(scan.category, tribe)) {
-        if (!input.territory(entity.cell)) continue
+        if (!input.territory(entity.cell) || input.defended?.(entity.cell)) continue
         scan.entity = entity.id
         scan.cell = entity.cell & 0xfefe
         task.phase = 3
@@ -371,6 +374,7 @@ export function stepEarlyResponseTask(ai: ComputerQueue, index: number, input: E
     if (scan.entity) {
       if (input.responseFlag) ai.flags = (ai.flags | 4) >>> 0
       ai.flags = (ai.flags | 8) >>> 0
+      input.defend?.(scan.entity, scan.cell)
     } else if (!(ai.flags & 8)) ai.flags = (ai.flags & ~4) >>> 0
     task.phase = 5
   } else if (task.phase === 5) return true
