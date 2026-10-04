@@ -1,0 +1,119 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "clear"
+  },
+  {
+    "action": "entity",
+    "collection": "units",
+    "id": 319
+  },
+  {
+    "action": "entity",
+    "collection": "units",
+    "id": 170,
+    "options": {
+      "modifiers": [
+        "Control"
+      ]
+    }
+  },
+  {
+    "action": "entity",
+    "collection": "units",
+    "id": 173,
+    "options": {
+      "modifiers": [
+        "Control"
+      ]
+    }
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.selected.length===3 && [319,170,173].every(id=>window.testSceneRef.current.world.selected.includes(id))",
+    "timeout": 1000
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": -96,
+      "z": -124
+    }
+  },
+  {
+    "action": "title",
+    "name": "buildings"
+  },
+  {
+    "action": "button",
+    "name": "Hut, 3 wood"
+  },
+  {
+    "action": "ground",
+    "point": {
+      "x": -96,
+      "z": -124
+    },
+    "options": {
+      "focus": false,
+      "kind": "hut",
+      "maxRadius": 6
+    }
+  },
+  {
+    "action": "read",
+    "expression": "(() => {const w=window.testSceneRef.current.world;return {turn:w.turn,retainedBuilders:[319,170,173].map(id=>{const u=w.units.find(u=>u.id===id);return {id,kind:u.kind,work:u.work}}),blueBuildings:w.buildings.filter(b=>b.team===\"blue\").map(b=>({id:b.id,kind:b.kind,progress:b.progress,x:b.x,z:b.z}))}})()"
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "entity",
+    "collection": "units",
+    "id": 176,
+    "options": {
+      "modifiers": [
+        "Control"
+      ]
+    }
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.selected.length===2 && [54,176].every(id=>window.testSceneRef.current.world.selected.includes(id))",
+    "timeout": 1000
+  },
+  {
+    "action": "entity",
+    "collection": "shrines",
+    "id": 56
+  },
+  {
+    "action": "until",
+    "expression": "[54,176].every(id=>window.testSceneRef.current.world.units.find(u=>u.id===id)?.work===56)",
+    "timeout": 1000
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.shrines.find(s=>s.id===56).followers>=2",
+    "timeout": 150000
+  },
+  {
+    "action": "mark",
+    "name": "two-worshippers-active"
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.shots.tornado>=3",
+    "timeout": 140000
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "tornado-acquired"
+  }
+]

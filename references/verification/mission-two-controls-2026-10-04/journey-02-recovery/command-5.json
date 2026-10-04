@@ -1,0 +1,9 @@
+[
+  {
+    "action": "pause"
+  },
+  {
+    "action": "read",
+    "expression": "(async () => { const w=window.testSceneRef.current.world,{unitAnimationSource,canOrder}=await import(\"/app/model.ts\"); return {turn:w.turn,paused:w.paused,status:w.status,mode:w.mode,message:w.message,lastOrderTurn:w.lastOrderTurn,selected:[...w.selected],buildings:w.buildings.filter(b=>b.team===\"blue\"),braves:w.units.filter(u=>u.team===\"blue\"&&u.kind===\"brave\").map(u=>({id:u.id,x:u.x,z:u.z,inside:u.inside,work:u.work,path:u.path,builder:u.builder,entry:u.entry,canOrder:canOrder(u),source:unitAnimationSource(u)}))} })()"
+  }
+]

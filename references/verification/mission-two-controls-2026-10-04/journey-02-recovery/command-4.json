@@ -1,0 +1,71 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "skip"
+  },
+  {
+    "action": "clear"
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": -96,
+      "z": -116
+    }
+  },
+  {
+    "action": "title",
+    "name": "followers"
+  },
+  {
+    "action": "button",
+    "name": "Housed Braves",
+    "options": {
+      "modifiers": [
+        "Control"
+      ]
+    }
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.selected.length===5",
+    "timeout": 1000
+  },
+  {
+    "action": "read",
+    "expression": "(() => {const w=window.testSceneRef.current.world;return {turn:w.turn,builders:[...w.selected],retainedOriginalBraves:w.units.filter(u=>[319,170,173,176].includes(u.id)&&u.kind===\"brave\"&&!w.selected.includes(u.id)).map(u=>({id:u.id,x:u.x,z:u.z,inside:u.inside}))}})()"
+  },
+  {
+    "action": "title",
+    "name": "buildings"
+  },
+  {
+    "action": "button",
+    "name": "Hut, 3 wood"
+  },
+  {
+    "action": "ground",
+    "point": {
+      "x": -92,
+      "z": -116
+    },
+    "options": {
+      "kind": "hut",
+      "maxRadius": 6
+    }
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.buildings.filter(b=>b.team===\"blue\"&&b.kind===\"hut\"&&b.progress===1).length>=3",
+    "timeout": 180000
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "three-huts-complete"
+  }
+]

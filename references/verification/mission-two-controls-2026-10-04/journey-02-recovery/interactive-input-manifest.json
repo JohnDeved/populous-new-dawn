@@ -1,0 +1,42 @@
+{
+  "recordedAt": "2026-10-04T15:58:16.614113+00:00",
+  "method": "Hash retained unmodified interactive command bytes; actions.jsonl independently records each executed parsed command. The frozen driver is bound by the outer receipt.",
+  "files": [
+    {
+      "path": "command-1.json",
+      "bytes": 1333,
+      "sha256": "07b783fa4cfc7e69dbdf69a0d910eb7865913f69e2562dbfae5597f11503b05c",
+      "fileMtimeNs": 1791128143745866199
+    },
+    {
+      "path": "command-2.json",
+      "bytes": 1037,
+      "sha256": "4362785bd7057b8e36178317dba9af0649b734339466c6382abacb6f51f914ec",
+      "fileMtimeNs": 1791128724349814924
+    },
+    {
+      "path": "command-3.json",
+      "bytes": 2450,
+      "sha256": "12ff35bf484feb7fae295f8267965a58cfedbcbeb2de658969f32a673b75697d",
+      "fileMtimeNs": 1791128854000343031
+    },
+    {
+      "path": "command-4.json",
+      "bytes": 1371,
+      "sha256": "a44b477571755eaabceae1cf37679f66fc7cdafea42aa926335c33fe05acb897",
+      "fileMtimeNs": 1791129101460611285
+    },
+    {
+      "path": "command-5.json",
+      "bytes": 619,
+      "sha256": "53c6f9124942743d0f64ba80b53a708ec0e73ef7db080a43466862a8ab0a289c",
+      "fileMtimeNs": 1791129295442903205
+    },
+    {
+      "path": "command-6.json",
+      "bytes": 1269,
+      "sha256": "d911df0a91d0b0535dc29d8427d331cd5a7d528d79237717641018fb5326972d",
+      "fileMtimeNs": 1791129412426534468
+    }
+  ]
+}
