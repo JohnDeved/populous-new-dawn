@@ -8,7 +8,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { bindGame, showAllMissions } from '../../scripts/browser-game.mjs'
 import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs'
-import { checkCondition, progressKey } from './observation.mjs'
+import { checkCondition, progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop } from './observation.mjs'
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -19,8 +19,13 @@ const spellLabels = { blast: 'Blast', swarm: 'Swarm' }
 export default async function missionThreeControls({ page, output, root, signal, receipt }) {
   assert.equal(resolve(root), resolve(fileURLToPath(new URL('../../', import.meta.url))),
     'Browser source and archived scenario/observer must share the same worktree')
+  const manifest = JSON.parse(readFileSync(resolve(root, 'qa/mission-three-controls/source-manifest.json'), 'utf8'))
+  for (const source of manifest.files) assert.equal(sha256(readFileSync(resolve(root, source.path))), source.sha256,
+    `Preflight source drift requires review: ${source.path}`)
+  const level = JSON.parse(readFileSync(resolve(root, 'app/level-three.ts'), 'utf8').split('export default ')[1].trim().replace(/;$/, ''))
+  const authoredVictim = authoredVictimIdentity(level.objects)
   const startWall = Date.now(), wallLimit = 90 * 60_000, inputs = [], failures = [], milestones = []
-  const epochs = [], ids = Object.create(null), commandsPath = resolve(output, 'commands')
+  const epochs = [], controlStops = [], ids = Object.create(null), commandsPath = resolve(output, 'commands')
   mkdirSync(commandsPath, { recursive: true })
   for (const name of ['driver.mjs', 'observation.mjs']) {
     const bytes = readFileSync(new URL(name, import.meta.url))
@@ -30,8 +35,8 @@ export default async function missionThreeControls({ page, output, root, signal,
   writeFileSync(resolve(output, 'scenario-inputs.json'), JSON.stringify(inputs, null, 2) + '\n')
   const log = entry => appendFileSync(resolve(output, 'actions.jsonl'),
     JSON.stringify({ at: new Date().toISOString(), wallMs: Date.now() - startWall, ...entry }) + '\n')
-  const saveProgress = () => writeFileSync(resolve(output, 'journey.json'), JSON.stringify({
-    status: 'in-progress', inputs, ids, epochs, milestones, failures,
+  const saveProgress = (status = 'in-progress') => writeFileSync(resolve(output, 'journey.json'), JSON.stringify({
+    status, inputs, ids, epochs, milestones, failures, controlStops,
     limits: 'Ordinary UI inputs and normal RAF only; independent Mission 3, software/headless renderer.'
   }, null, 2) + '\n')
   const button = async (name, options = {}) => {
@@ -46,13 +51,14 @@ export default async function missionThreeControls({ page, output, root, signal,
     const s = window.testSceneRef?.current, store = window.testStore
     if (!s || store.getWorld() !== s.world) throw Error('Current scene/store mismatch')
     const { currentPersonOrder } = await import('/app/person-orders.ts')
+    const { observeBuilding } = await import('/qa/mission-three-controls/observation.mjs')
     const { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs')
     const w = s.world, gl = s.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
     const person = u => u.builder?.person ?? u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
     const copy = o => o === undefined ? null : JSON.parse(JSON.stringify(o))
     return {
       level: w.outcome.level, turn: w.turn, time: w.time, paused: w.paused, speed: w.speed,
-      status: w.status, inputMask: w.inputMask, selected: [...w.selected], mode: w.mode,
+      status: w.status, inputMask: w.inputMask, lastOrderTurn: w.lastOrderTurn, pointerAck: copy(s.pointerAck), selected: [...w.selected], mode: w.mode,
       stats: copy(w.stats), shots: copy(w.shots), unlockedTemple: w.unlockedTemple,
       completedMissions: store.getCompletedMissions(), readiness: campaignShamanReadiness(w),
       camera: { point: copy(s.viewPoint), bearing: s.cameraBearing, overview: s.overviewStage },
@@ -60,14 +66,15 @@ export default async function missionThreeControls({ page, output, root, signal,
       units: w.units.filter(u => u.hp > 0).map(u => {
         const p = person(u)
         return { id: u.id, team: u.team, kind: u.kind, x: u.x, z: u.z, hp: u.hp,
-          inside: u.inside, work: u.work, target: copy(u.target), nativeState: p?.state,
+          inside: u.inside, work: u.work, target: copy(u.target), cargo: u.cargo,
+          harvest: copy(u.harvest), delivery: copy(u.delivery), tree: u.tree, builder: u.builder &&
+            { task: u.builder.task, phase: u.builder.phase, busy: u.builder.busy },
+          route: p && { motionIndex: p.motionIndex, destinationX: p.destinationX, destinationY: p.destinationY,
+            goalX: p.goalX, goalY: p.goalY }, nativeState: p?.state,
           owner: p?.workTarget, timer: p?.timer, flags2: p?.flags2, flags3: p?.flags3,
           flags4: p?.flags4, order: p && copy(currentPersonOrder(w.buildingOrders, p)) }
       }),
-      buildings: w.buildings.filter(b => b.hp > 0).map(b => ({ id: b.id, kind: b.kind, team: b.team,
-        x: b.x, z: b.z, hp: b.hp, progress: b.progress, logs: b.logs, occupants: copy(b.occupants),
-        trainingMana: b.admission?.storedMana, trainingCost: b.admission?.trainingCost,
-        queue: b.admission?.queueHead })),
+      buildings: w.buildings.filter(b => b.hp > 0).map(observeBuilding),
       shrines: w.shrines.map(h => ({ id: h.id, kind: h.kind, x: h.x, z: h.z, active: h.active,
         uses: h.uses, work: h.work, progress: h.progress, followers: h.followers, remaining: h.remaining })),
       effects: w.effects.map(e => ({ id: e.id, kind: e.kind, x: e.x, z: e.z, age: e.age })),
@@ -82,7 +89,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.equal(snapshot.contextLost, false, 'Live WebGL context')
     assert.deepEqual(snapshot.observation?.errors ?? [], [], 'No diagnostic errors')
     assert.deepEqual(snapshot.observation?.speedViolations ?? [], [], 'No speed changes')
-    assert.notEqual(snapshot.status, 'lost', 'Player was defeated')
+    if (snapshot.status === 'lost') throw new MissionDefeat()
   }
   const currentActive = snapshot => epochs.reduce((sum, epoch) => sum + epoch.activeSeconds, 0) +
     (snapshot.observation?.activeSeconds ?? 0)
@@ -235,19 +242,21 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.equal(state.mode, null); assert.ok(state.selected.length, 'Ordinary order needs selected followers')
   }
   const clickOrder = async hit => {
-    const before = await read(); requireOrderable(before)
+    let before = await read(); requireOrderable(before)
+    // Separate this dispatch from a previous command on the same turn without
+    // advancing the simulation ourselves. This makes lastOrderTurn a fresh witness.
+    if (before.turn <= before.lastOrderTurn) {
+      await page.waitForFunction(() => {
+        const w = window.testSceneRef.current.world
+        return w.turn > w.lastOrderTurn
+      }, null, { timeout: 5000 })
+      before = await read(); requireOrderable(before)
+    }
     log({ action: 'world-order-click', hit, selected: before.selected })
     await page.mouse.click(hit.x, hit.y); await page.mouse.move(400, 780)
     const after = await read()
-    const marker = after.effects.find(e => e.kind === 'orderMarker' && !before.effects.some(old => old.id === e.id))
-    const recipients = after.units.filter(u => before.selected.includes(u.id))
-    if (hit.id) assert.ok(recipients.some(u => u.work === hit.id || u.target === hit.id || u.order?.a === hit.id),
-      'Selected follower accepted the exact entity order')
-    else {
-      assert.ok(marker, 'Shipped pointer handler emitted an accepted ground order marker')
-      assert.ok(recipients.some(u => [3, 17, 31, 32].includes(u.order?.model)), 'Selected follower has a movement/preaching order')
-    }
-    log({ action: 'world-order-accepted', hit, marker, selected: before.selected,
+    const acceptance = acceptedOrderEvidence(before, after, hit)
+    log({ action: 'world-order-input-observed', hit, acceptance, selected: before.selected,
       orders: after.units.filter(u => before.selected.includes(u.id)).map(u => ({ id: u.id, order: u.order, work: u.work })) })
     return after
   }
@@ -315,24 +324,31 @@ export default async function missionThreeControls({ page, output, root, signal,
     const started = await read(); requireOrderableForWait(started)
     const startActive = currentActive(started)
     let progress = progressKey(started, scope, watchIds), changedAt = startActive, sampledAt = startActive
+    let lastTurn = started.turn, lastAnimation = started.animationFrame
+    let clockAdvancedAt = Date.now(), animationAdvancedAt = Date.now()
     for (;;) {
       signal.throwIfAborted()
       const s = await read(); health(s)
       assert.equal(s.paused, false, 'A paused game cannot satisfy an active wait')
+      if (s.turn !== lastTurn) { lastTurn = s.turn; clockAdvancedAt = Date.now() }
+      if (s.animationFrame !== lastAnimation) { lastAnimation = s.animationFrame; animationAdvancedAt = Date.now() }
       if (s.inputMask) { await skipFlyby(); continue }
       if (checkCondition(s, condition)) { log({ action: 'condition-complete', condition, turn: s.turn }); return s }
-      assert.ok(Date.now() - startWall < wallLimit, 'Outer wall resource envelope reached')
       const active = currentActive(s), conversion = milestones.find(m => m.name === 'conversion')
       const budget = conversion ? conversion.activeSeconds + 1800 : 600
-      assert.ok(active < budget, `Pooled active-time diagnostic budget reached at ${active}s`)
       const next = progressKey(s, scope, watchIds)
       if (next !== progress) { progress = next; changedAt = active }
+      const stop = waitDiagnosticStop({ now: Date.now(), clockAdvancedAt, animationAdvancedAt,
+        wallElapsed: Date.now() - startWall, wallLimit, active, budget, changedAt, scope })
+      if (stop) {
+        log({ action: 'diagnostic-stop', code: stop.code, activeSeconds: active, budget, condition, progress })
+        throw stop
+      }
       if (active - sampledAt >= 30) {
         log({ action: 'progress-observation', condition, scope, turn: s.turn, activeSeconds: active,
           unchangedActiveSeconds: active - changedAt, progress })
         sampledAt = active
       }
-      assert.ok(active - changedAt < 120, `No relevant ${scope} progress for two active minutes`)
       await sleep(1000)
     }
   }
@@ -419,8 +435,11 @@ export default async function missionThreeControls({ page, output, root, signal,
     await waitFor({ type: 'temple-unlocked' }, 'worship', [ids.vault, shaman])
     await mark('vault')
     await select('shaman'); await move({ x: 35, z: 81 })
-    await select('brave', 'five'); await build('temple', { x: 24, z: 70 }, 'temple')
-    await waitFor({ type: 'building-complete', id: ids.temple }, 'construction', [ids.temple])
+    await waitFor({ type: 'units-near', id: shaman, point: { x: 35, z: 81 }, distance: 4 }, 'movement', [shaman])
+    await mark('shaman-home')
+    const builders = await select('brave', 'five')
+    await build('temple', { x: 24, z: 70 }, 'temple')
+    await waitFor({ type: 'building-complete', id: ids.temple }, 'construction', [ids.temple, ...builders])
     await mark('temple')
     const before = await read(), oldPreachers = before.units.filter(u => u.team === 'blue' && u.kind === 'preacher').map(u => u.id)
     const selected = await select('brave')
@@ -434,6 +453,8 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.ok(after.units.some(u => retained.includes(u.id) && u.team === 'blue' && u.kind === 'brave'))
     await page.getByRole('button', { name: 'Select brave', exact: true }).isEnabled().then(enabled => assert.equal(enabled, true))
     ids.preacher = trained[0].id; await mark('preacher')
+    const home = (await read()).units.find(u => u.id === shaman)
+    assert.ok(home && Math.hypot(home.x - 35, home.z - 81) <= 4, 'Shaman remains home before the Preacher intrusion')
     const chosen = await select('preacher'); assert.deepEqual(chosen, [ids.preacher])
     await move({ x: -39, z: -110 })
     await waitFor({ type: 'listener', id: ids.victim, preacherId: ids.preacher }, 'sermon', [ids.victim, ids.preacher])
@@ -508,7 +529,7 @@ export default async function missionThreeControls({ page, output, root, signal,
       case 'checkpoint': return saveCheckpoint(`checkpoint-${safeLabel(command.name)}`)
       case 'prove-victory': return proveVictory()
       case 'finish': {
-        for (const name of ['vault', 'temple', 'preacher', 'listener', 'sermon-saved', 'sermon-cancelled', 'sermon-reloaded', 'conversion', 'erosion', 'victory'])
+        for (const name of ['vault', 'shaman-home', 'temple', 'preacher', 'listener', 'sermon-saved', 'sermon-cancelled', 'sermon-reloaded', 'conversion', 'erosion', 'victory'])
           assert.ok(milestones.some(m => m.name === name), `Missing required milestone ${name}`)
         assert.equal(failures.length, 0, 'Retained command failures prevent a clean pass')
         assert.deepEqual(receipt.errors, [], 'No browser errors')
@@ -529,9 +550,11 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.ok(!initial.completedMissions.includes(3), 'Fresh owned profile starts without M3 completion')
     const profile = await readStorage('profile')
     assert.ok(!profile?.completed?.includes(3), 'Persistent profile starts without M3 completion')
-    const victim = initial.units.find(u => u.team === 'yellow' && u.kind === 'brave' && u.x === -43 && u.z === -107)
-    assert.ok(victim, 'Capture authored victim before readiness waiting, without substitution')
+    const victim = initial.units.find(u => u.id === authoredVictim.id)
+    assert.equal(victim?.team, 'yellow'); assert.equal(victim.kind, 'brave')
     ids.victim = victim.id
+    log({ action: 'authored-victim-identity', authored: authoredVictim,
+      observed: { id: victim.id, team: victim.team, kind: victim.kind, x: victim.x, z: victim.z, turn: initial.turn } })
     ids.vault = initial.shrines.find(h => h.kind === 'vault')?.id
     ids.erosion = initial.shrines.find(h => h.kind === 'erosionEffect')?.id
     assert.ok(ids.vault && ids.erosion); saveProgress()
@@ -542,7 +565,7 @@ export default async function missionThreeControls({ page, output, root, signal,
       const path = resolve(commandsPath, `${String(index).padStart(4, '0')}.json`)
       while (!existsSync(path)) {
         signal.throwIfAborted()
-        assert.ok(Date.now() - startWall < wallLimit, 'Outer wall resource envelope reached awaiting commands')
+        if (Date.now() - startWall >= wallLimit) throw new IncompleteRun('wall-envelope', 'Outer wall resource envelope reached awaiting commands')
         await sleep(1000)
       }
       const bytes = readFileSync(path), hash = sha256(bytes)
@@ -552,7 +575,8 @@ export default async function missionThreeControls({ page, output, root, signal,
         const commands = JSON.parse(bytes)
         assert.ok(Array.isArray(commands) && commands.length > 0 && commands.length <= 32)
         for (const command of commands) {
-          signal.throwIfAborted(); assert.ok(Date.now() - startWall < wallLimit, 'Outer resource limit reached')
+          signal.throwIfAborted()
+          if (Date.now() - startWall >= wallLimit) throw new IncompleteRun('wall-envelope', 'Outer resource limit reached')
           const result = await dispatch(command)
           assert.equal(sha256(readFileSync(path)), hash, 'Consumed input bytes did not change')
           if (result?.finished) {
@@ -562,7 +586,8 @@ export default async function missionThreeControls({ page, output, root, signal,
         }
         await pause(); await snapshot(`batch-${String(index).padStart(4, '0')}`)
       } catch (error) {
-        failures.push({ index, inputSha256: hash, at: new Date().toISOString(), error: String(error.stack ?? error) })
+        if (error instanceof IncompleteRun || error instanceof MissionDefeat) throw error
+        failures.push({ index, inputSha256: hash, at: new Date().toISOString(), error: String(error?.stack ?? error) })
         saveProgress(); await pause().catch(() => {})
         await snapshot(`batch-${String(index).padStart(4, '0')}-failed`).catch(() => {})
         log({ action: 'command-failed', index, error: String(error), retained: true })
@@ -572,12 +597,19 @@ export default async function missionThreeControls({ page, output, root, signal,
       }
       log({ action: 'awaiting-input', next: `${String(index + 1).padStart(4, '0')}.json`, paused: true })
     }
-    throw Error('Command count limit reached without completed acceptance')
+    throw new IncompleteRun('command-limit', 'Command count limit reached without completed acceptance')
   } catch (error) {
-    failures.push({ index, at: new Date().toISOString(), outer: true, error: String(error.stack ?? error) })
-    saveProgress()
+    const incomplete = error instanceof IncompleteRun
+    const record = { index, at: new Date().toISOString(), outer: true, code: error?.code,
+      error: String(error?.stack ?? error) }
+    if (incomplete) controlStops.push(record)
+    else failures.push(record)
     if (!signal.aborted) await saveCheckpoint('incomplete-checkpoint').catch(checkpointError =>
       log({ action: 'incomplete-checkpoint-failed', error: String(checkpointError) }))
+    const terminalStatus = failures.length ? 'failed' : incomplete ? 'incomplete' : 'failed'
+    saveProgress(terminalStatus)
+    log({ action: 'terminal-result', status: terminalStatus, ...record,
+      harnessResult: 'Thrown error preserves the authoritative harness failed receipt; no successful result is returned.' })
     throw error
   } finally {
     // No RAF cancellation or application cleanup here; the maintained harness

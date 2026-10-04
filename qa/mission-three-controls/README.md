@@ -20,11 +20,15 @@ node --check qa/mission-three-controls/driver.mjs
 node --test qa/mission-three-controls/observation.test.mjs
 ```
 
-The six observer tests cover original callback receiver/arguments/return and
+The fourteen isolated tests cover original callback receiver/arguments/return and
 exact invocation count; diagnostic exception isolation versus real application
 exceptions; idempotent detach; separate reload/time epochs; strict singleton
 conversion identity; rejecting death/poll gaps; and progress that ignores a
-merely advancing simulation clock. The tests use isolated plain JS data, not the
+merely advancing simulation clock. Additional cases cover null/undefined/hostile
+diagnostic exceptions, copied native admission occupancy/queue data, and the
+explicit incomplete-stop classification, authored allocation identity, fresh
+command/recipient/ground-target correlation, worker construction progress and
+wall-clock diagnostic boundaries. The tests use isolated plain JS data, not the
 game simulation, browser, assets, native executable or installed packages.
 
 ## Reserved future launch
@@ -45,12 +49,14 @@ active budgets are 10 pooled game minutes through reloaded conversion, then 30
 from that conversion milestone through the result. Changing a budget requires a
 reviewed checker revision and coordinator ownership, not a runtime clock change.
 Each wait checks state each second and reports stage progress at 30-active-second
-intervals. Two active minutes without relevant progress raises a diagnostic
-failure, pauses through UI and retains the failed command. Stochastic sermon
-countdowns count as meaningful progress. Ordinary defeat is a failed journey.
+intervals. Two active minutes without relevant progress, 30 wall seconds without clock/RAF
+advancement, or a stage/resource budget stop ends as an explicitly incomplete
+observation and best-effort UI checkpoint. These do not become gameplay assertion
+failures, nor do they return a successful harness result. Stochastic sermon
+countdowns count as meaningful progress. Ordinary defeat terminates the failed journey promptly instead of awaiting another batch.
 
-The driver opens All missions → Mission 3, captures the authored victim before
-startup readiness waiting, waits for the real selection gate, and pauses using
+The driver opens All missions → Mission 3, derives the authored victim ID from the source-verified allocation prefix before
+startup readiness waiting, without requiring its current position to stay fixed, waits for the real selection gate, and pauses using
 the HUD. It then consumes task-owned numbered JSON command batches at
 `OUTPUT/commands/0001.json`, `0002.json`, etc. Each file must be an array of at
 most 32 commands; create it atomically when ready. The driver copies and hashes
@@ -75,8 +81,8 @@ First batch:
 
 This executes Vault → Shaman home → Temple built by five existing Braves → one
 actual trainee → recorded authored Yellow Brave listening → ordinary persisted
-sermon checkpoint. Original untrained Braves must remain. Every meaningful
-order/plan is asserted immediately; it does not accept unrelated AI construction.
+sermon checkpoint. Original untrained Braves must remain. Shaman home arrival is observed before construction and checked again before
+Preacher intrusion. Every meaningful order/plan is asserted immediately; it does not accept unrelated AI construction.
 
 Second batch:
 
@@ -122,8 +128,9 @@ retained screenshots/snapshots and journal, then choose ordinary commands:
 
 Start tactical batches with `resume`; batch boundaries are intentionally paused.
 Camera preparation must precede mode selection. A selected plan/spell must not
-be followed by a minimap helper that clears its mode. Entity clicks require a
-matching accepted follower work/target/order; they do not incorrectly demand a
+be followed by a minimap helper that clears its mode. Entity clicks require a fresh dispatch timestamp/pointer acknowledgement and
+a matching selected follower work/target/order. An unchanged prior assignment is
+explicitly labelled existing-order after fresh UI input, rather than a new order; they do not incorrectly demand a
 ground marker (the native context deliberately omits ground markers for objects).
 
 Wait types are `temple-unlocked`, `building-complete`, `trained-kind`, `listener`,
@@ -161,9 +168,10 @@ command failures, no browser/observer errors, and actual victory. It archives th
 final diagnostic epoch and result. A late win after a helper error remains an
 exploratory failure; use a separately hashed repaired input/replay for clean proof.
 
-On the outer cap or unhandled failure, the driver best-effort saves an incomplete
+On a diagnostic budget/stall, outer cap or unhandled failure, the driver best-effort saves an incomplete
 checkpoint through normal UI before the harness closes its own processes. Later
-continuation must be labelled; it is not an uninterrupted fresh journey. All
+continuation must be labelled; it is not an uninterrupted fresh journey. The journal ends with explicit failed/incomplete status; the thrown stop retains
+the authoritative harness failed receipt, never a successful result. All
 failures and exact inputs remain in `journey.json`, `actions.jsonl`, screenshots
 and consumed command copies. The normal harness owns process cleanup. Nothing in
 this driver stops unknown sessions or alters the deployment/parity sources.

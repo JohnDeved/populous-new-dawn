@@ -129,6 +129,22 @@
     {
       "path": "app/world-state.ts",
       "sha256": "09336732c58ac2cba009ebdc8547837e6674363a06a43d4d4aa21ce31bb0472f"
+    },
+    {
+      "path": "app/construction-runtime.ts",
+      "sha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653"
+    },
+    {
+      "path": "app/live-command.ts",
+      "sha256": "c613176708e99a19243e10ccaf2af4b83eba73a259c8ac6623e12f31f70ca324"
+    },
+    {
+      "path": "app/command-context.ts",
+      "sha256": "b418b37bef71210052645cdba946fc12612a63ec0962c98c65d6ae199a760700"
+    },
+    {
+      "path": "app/person-orders.ts",
+      "sha256": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394"
     }
   ]
 }

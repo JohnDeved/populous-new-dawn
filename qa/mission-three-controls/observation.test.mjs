@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { createEpoch, recordTurn, attachObserver, requireConversion, progressKey, checkCondition } from './observation.mjs'
+import { readFileSync } from 'node:fs'
+import { createEpoch, recordTurn, attachObserver, requireConversion, progressKey, checkCondition, observeBuilding, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop } from './observation.mjs'
 const world = () => ({ turn: 0, time: 0, speed: 1, outcome: { level: 3 }, units: [] })
 
 test('observer chains original exactly once with receiver, arguments and return preserved', () => {
@@ -77,4 +78,96 @@ test('progress ignores turn-only changes but retains training mana and sermon ti
   assert.notEqual(progressKey(s, 'sermon'), progressKey({ ...s, units: [{ id: 53, timer: 97 }] }, 'sermon'))
   assert.throws(() => checkCondition(s, { type: 'arbitrary-expression' }), /Unsupported/)
   assert.equal(checkCondition(s, { type: 'won' }), false)
+})
+
+
+test('null, undefined and hostile diagnostic exceptions cannot escape afterTurn', () => {
+  const failures = [null, undefined, { get stack() { throw Error('getter') } },
+    { toString() { throw Error('formatter') } }]
+  for (const failure of failures) {
+    let calls = 0
+    const clock = { afterTurn() { calls++ } }, epoch = createEpoch('entry')
+    attachObserver(clock, world(), epoch, () => { throw failure })
+    assert.doesNotThrow(() => clock.afterTurn())
+    assert.equal(calls, 1); assert.equal(epoch.errors.length, 2)
+    assert.ok(epoch.errors.every(item => typeof item.error === 'string'))
+  }
+})
+
+test('building snapshots copy real admission occupancy and queue data', () => {
+  const building = Object.freeze({ id: 9, kind: 'temple', team: 'yellow', hp: 100,
+    occupants: ['not a real Building field'], admission: Object.freeze({
+      occupants: Object.freeze([53, 54, 0, 0, 0]), inside: 2, storedMana: 15, trainingCost: 40, queueHead: 55
+    }) })
+  const observed = observeBuilding(building)
+  assert.deepEqual(observed.occupants, [53, 54, 0, 0, 0])
+  assert.equal(observed.inside, 2); assert.equal(observed.queue, 55)
+  assert.equal(observed.trainingMana, 15); assert.equal(observed.trainingCost, 40)
+  observed.occupants[0] = 99
+  assert.equal(building.admission.occupants[0], 53)
+  assert.deepEqual(observeBuilding({ id: 10 }).occupants, [])
+})
+
+test('budget stops have an explicit incomplete classification, not a gameplay assertion', () => {
+  const stop = new IncompleteRun('active-budget', 'Advancing route reached diagnostic budget')
+  assert.equal(stop.name, 'IncompleteRun'); assert.equal(stop.code, 'active-budget')
+  assert.ok(stop instanceof Error)
+})
+
+
+test('authored identity follows only the reviewed imported allocation prefix, not current position', () => {
+  const level = JSON.parse(readFileSync(new URL('../../app/level-three.ts', import.meta.url), 'utf8')
+    .split('export default ')[1].trim().replace(/;$/, ''))
+  const identity = authoredVictimIdentity(level.objects)
+  assert.equal(identity.id, 53); assert.equal(identity.objectIndex, 52)
+  const changed = structuredClone(level.objects)
+  changed[0].type = 6
+  assert.throws(() => authoredVictimIdentity(changed), /Unreviewed/)
+  assert.throws(() => authoredVictimIdentity(level.objects.slice(1)), /prefix changed/)
+})
+
+test('entity order evidence rejects missed input and separately labels an existing assignment', () => {
+  const actor = { id: 5, work: 42, target: null, order: { model: 8, a: 42, b: 0 } }
+  const before = { turn: 10, lastOrderTurn: 9, pointerAck: { target: 42, until: 5 },
+    selected: [5], units: [actor], effects: [] }
+  assert.throws(() => acceptedOrderEvidence(before, before, { id: 42 }), /Missing fresh/)
+  const after = { ...before, lastOrderTurn: 10, pointerAck: { target: 42, until: 6 } }
+  assert.equal(acceptedOrderEvidence(before, after, { id: 42 }).kind, 'fresh-input-existing-order')
+  assert.throws(() => acceptedOrderEvidence(before, after, { id: 43 }), /Missing fresh/)
+  const changed = { ...after, pointerAck: { target: 43, until: 6 },
+    units: [{ ...actor, work: 43, order: { model: 8, a: 43, b: 0 } }] }
+  assert.equal(acceptedOrderEvidence(before, changed, { id: 43 }).kind, 'fresh-input-new-order')
+  assert.throws(() => acceptedOrderEvidence({ ...before, selected: [6] }, changed, { id: 43 }), /No selected/)
+})
+
+test('ground input evidence correlates the requested point, new marker and actual recipient', () => {
+  const before = { turn: 10, lastOrderTurn: 9, pointerAck: { target: 0, until: 5 },
+    selected: [5], units: [{ id: 5, order: { model: 3, a: 0, b: 0 } }], effects: [] }
+  const point = { x: 35, z: 81 }, native = { a: (35 + 8) * 256, b: ((-81 - 8) * 256) & 65535 }
+  const after = { ...before, lastOrderTurn: 10, pointerAck: { target: 0, until: 6 },
+    units: [{ id: 5, order: { model: 3, ...native } }], effects: [{ id: 8, kind: 'orderMarker', ...point }] }
+  assert.equal(acceptedOrderEvidence(before, after, { point }).kind, 'fresh-input-new-order')
+  assert.throws(() => acceptedOrderEvidence(before, { ...after, effects: [] }, { point }), /marker/)
+  assert.throws(() => acceptedOrderEvidence(before, after, { point: { x: 0, z: 0 } }), /recipient/)
+})
+
+test('construction progress includes assigned workers while delivered logs remain unchanged', () => {
+  const s = { units: [{ id: 5, x: 10, z: 20, work: 7, cargo: 0 }],
+    buildings: [{ id: 7, logs: 0, progress: 0, builders: [5] }], status: 'playing' }
+  const moved = { ...s, units: [{ ...s.units[0], x: 12 }] }
+  const carrying = { ...s, units: [{ ...s.units[0], cargo: 1 }] }
+  assert.notEqual(progressKey(s, 'construction', [7]), progressKey(moved, 'construction', [7]))
+  assert.notEqual(progressKey(s, 'construction', [7]), progressKey(carrying, 'construction', [7]))
+})
+
+test('wall-clock stalls and active budget stops are incomplete; defeat is terminal failure', () => {
+  const input = { now: 29999, clockAdvancedAt: 0, animationAdvancedAt: 0,
+    wallElapsed: 29999, wallLimit: 5400000, active: 0, budget: 600, changedAt: 0, scope: 'training' }
+  assert.equal(waitDiagnosticStop(input), null)
+  assert.equal(waitDiagnosticStop({ ...input, now: 30000 }).code, 'clock-stall')
+  assert.equal(waitDiagnosticStop({ ...input, active: 600, changedAt: 600 }).code, 'active-budget')
+  assert.equal(waitDiagnosticStop({ ...input, active: 120 }).code, 'progress-stall')
+  assert.equal(waitDiagnosticStop({ ...input, wallElapsed: 5400000 }).code, 'wall-envelope')
+  assert.ok(new MissionDefeat() instanceof Error)
+  assert.equal(new MissionDefeat() instanceof IncompleteRun, false)
 })
