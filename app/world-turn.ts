@@ -1263,7 +1263,7 @@ function stepTurn(w: World) {
       const next = stateAfterTransportRest(u.native, w.manaWorld.gameFlags)
       if (next) changeLivePersonState(w, u, next)
       else {
-        const vehicle = w.vehicles.find(vehicle => vehicle.id === u.native!.vehicle)
+        const vehicle = w.vehicles.find(candidate => candidate.id === u.native!.vehicle)
         if (vehicle) syncLiveVehiclePassengers(w, vehicle)
       }
       continue
