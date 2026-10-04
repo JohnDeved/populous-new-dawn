@@ -1,0 +1,191 @@
+{
+  "version": 1,
+  "kind": "pnd-review-bundle",
+  "taskId": "mission3-natural-preacher",
+  "repository": {
+    "branch": "test/mission3-natural-preacher",
+    "baseCommit": "0b0719f270649f688a07b791a8ff831ed0c91a46",
+    "headOid": "794cfa04e6cb73453159dd3bc7332594a655cfd9"
+  },
+  "diff": {
+    "path": "changes.patch",
+    "sha256": "a5dcf8eb311feb8627d444f82c9642ef89d940a2e35a39fff652f6996c2a09fd",
+    "bytes": 28668
+  },
+  "sources": [
+    {
+      "status": "A",
+      "path": "decomp/research/mission3-natural-blue-preaching.md",
+      "state": "present",
+      "sha256": "ea9b816b33edc592bfa433033b02bf047be21e94a39ab76e6cd7b0c164ed678c",
+      "blobOid": "268bc5c2730b6348339aced35e003cb940514fe2",
+      "bytes": 7056
+    },
+    {
+      "status": "A",
+      "path": "scripts/check-browser-mission3-natural-preacher.mjs",
+      "state": "present",
+      "sha256": "74d8a45327bdbbed6b840aad934bf6733f01b12a62683b883cab1ab51cde5568",
+      "blobOid": "cc18da274f8eb951f1a16062a78421365844b225",
+      "bytes": 9963
+    },
+    {
+      "status": "A",
+      "path": "scripts/checkpoint-readback.mjs",
+      "state": "present",
+      "sha256": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80",
+      "blobOid": "1d75197cd96402d1e5d72106d47027a83ff874a1",
+      "bytes": 568
+    },
+    {
+      "status": "A",
+      "path": "scripts/mission3-natural-preacher-scenario.mjs",
+      "state": "present",
+      "sha256": "71992d08220507993e36ce34c820d9371020b6f343af78bdbc8bd0a843043223",
+      "blobOid": "8cfd6b369445c202689854a3f5e7f1d370cfe1fd",
+      "bytes": 3117
+    },
+    {
+      "status": "A",
+      "path": "tests/checkpoint-readback.test.mjs",
+      "state": "present",
+      "sha256": "bdd1ba7aa1bf9d87676287d00b2224320be995a633038f0c435c820127af9c47",
+      "blobOid": "433662bd562b328c61c54ee9599eb3d291eeb521",
+      "bytes": 1190
+    },
+    {
+      "status": "A",
+      "path": "tests/mission3-natural-preacher.test.mjs",
+      "state": "present",
+      "sha256": "a84aee5bfc9e904ed1065c69c2bdd0204a2c425722501be3d2c5c3ec3699e390",
+      "blobOid": "6e15908fd1955a9df19cc062540569fc81121b2e",
+      "bytes": 4976
+    }
+  ],
+  "receipts": [
+    {
+      "sourcePath": "work/orchestration/mission3-preacher/final-check.json",
+      "sourceSha256": "90e09b128d0ffbaf4996932598d525dacde8d5ba21bfb2be5d82b8dbe911554a",
+      "sourceBytes": 104609,
+      "bundlePath": "receipts/work/orchestration/mission3-preacher/final-check.json",
+      "bundleSha256": "03bbf5695c201664c15f77f93a35e7a1037d34d423e557efdd6174de4c63009e",
+      "bundleBytes": 104405,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/mission3-preacher/carried-build.json",
+      "sourceSha256": "812528879447701a2df27699a18a29387c4cbb42c3d5f69f72810459cb30c665",
+      "sourceBytes": 4093,
+      "bundlePath": "receipts/work/orchestration/mission3-preacher/carried-build.json",
+      "bundleSha256": "812528879447701a2df27699a18a29387c4cbb42c3d5f69f72810459cb30c665",
+      "bundleBytes": 4093,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/mission3-preacher/browser-a-command.json",
+      "sourceSha256": "4a678ace6d14a9aa15460c236c5c61d9775891ef8271694917217f0792bd0f0d",
+      "sourceBytes": 3445,
+      "bundlePath": "receipts/work/orchestration/mission3-preacher/browser-a-command.json",
+      "bundleSha256": "a67dec572b4b2ecab986414bc6bf031daa1297866bb707950cb3bb3d893674fe",
+      "bundleBytes": 2833,
+      "redactions": 9
+    },
+    {
+      "sourcePath": "work/orchestration/mission3-preacher/browser-b-command.json",
+      "sourceSha256": "a5b56f5ab2ac34f04f5fc1614f3ede8d0d06738b975e25a8325194c7006ae6d0",
+      "sourceBytes": 5265,
+      "bundlePath": "receipts/work/orchestration/mission3-preacher/browser-b-command.json",
+      "bundleSha256": "e05ec3dde678703d6ecf4fa20dbcfdefbcab6d4252ffb729b387b2644a46aaaf",
+      "bundleBytes": 5061,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/mission3-preacher/browser-b/receipt.json",
+      "sourceSha256": "097817c0ff940ff6d11f639cd4b11b3fcd97f2fb026c22f4a509af5cee1e3578",
+      "sourceBytes": 5350,
+      "bundlePath": "receipts/work/orchestration/mission3-preacher/browser-b/receipt.json",
+      "bundleSha256": "998d0e92b5036e69d24fb9eacbb0f4cd26993085e04365ac3e819aed84c34788",
+      "bundleBytes": 5214,
+      "redactions": 2
+    },
+    {
+      "sourcePath": "work/orchestration/mission3-preacher/browser-b/natural-preacher.json",
+      "sourceSha256": "4e1cb56823dd22c624d3e232205dd918767907c3fcfbd6639529c974f72d4092",
+      "sourceBytes": 2498,
+      "bundlePath": "receipts/work/orchestration/mission3-preacher/browser-b/natural-preacher.json",
+      "bundleSha256": "4e1cb56823dd22c624d3e232205dd918767907c3fcfbd6639529c974f72d4092",
+      "bundleBytes": 2498,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/mission3-preacher/repaired-focused.json",
+      "sourceSha256": "9b6d7832c5a1121a927ec29f87f6b91e3b7a8ce630c650b62d60252bfaa264b6",
+      "sourceBytes": 2442,
+      "bundlePath": "receipts/work/orchestration/mission3-preacher/repaired-focused.json",
+      "bundleSha256": "029ec499dd6b322d9d0d98e67ffc0f10a823a9bade40cc95739a38bfc4972574",
+      "bundleBytes": 2238,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/mission3-preacher/repaired-structure.json",
+      "sourceSha256": "0c64d045828bfccb9c3290dac8aca03b4b24c266631c1db581d90cc1a36e9d66",
+      "sourceBytes": 6506,
+      "bundlePath": "receipts/work/orchestration/mission3-preacher/repaired-structure.json",
+      "bundleSha256": "835de2baaa32f2795cb25785f9d69da527cd1ab45b1a32ed52b20b8701a35ef9",
+      "bundleBytes": 6302,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/mission3-preacher/repaired-lint.json",
+      "sourceSha256": "79823897a30968d9e7f3bceada330b3bc042dcf98791fe16648f0bfa087cf8d9",
+      "sourceBytes": 1958,
+      "bundlePath": "receipts/work/orchestration/mission3-preacher/repaired-lint.json",
+      "bundleSha256": "f8347bb5850a7844ea856b216aba3f9952b8ed5bc2a0e806e2430df5b7a71bd4",
+      "bundleBytes": 1754,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/mission3-preacher/repaired-syntax.json",
+      "sourceSha256": "58fd7feed803d07d34815846b52a7c3e67b7a03fda84a840d6ebb706f01da9dc",
+      "sourceBytes": 1730,
+      "bundlePath": "receipts/work/orchestration/mission3-preacher/repaired-syntax.json",
+      "bundleSha256": "d81a87fd81b5114a07e8827ec617d0e273603bf8baa78f6da14751242288ae29",
+      "bundleBytes": 1526,
+      "redactions": 3
+    },
+    {
+      "sourcePath": "work/orchestration/mission3-preacher/repaired-correspondence.json",
+      "sourceSha256": "a677869dbfcb7c3b99ea69c0f4189c8cb95d87f5a88692de0081031bf9872204",
+      "sourceBytes": 7074,
+      "bundlePath": "receipts/work/orchestration/mission3-preacher/repaired-correspondence.json",
+      "bundleSha256": "a677869dbfcb7c3b99ea69c0f4189c8cb95d87f5a88692de0081031bf9872204",
+      "bundleBytes": 7074,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/mission3-preacher/plan-repaired.json",
+      "sourceSha256": "6eb1b172b9a0dde51310012438c648a8a85a39d5576eaba3f54d101c22f9447e",
+      "sourceBytes": 3703,
+      "bundlePath": "receipts/work/orchestration/mission3-preacher/plan-repaired.json",
+      "bundleSha256": "6eb1b172b9a0dde51310012438c648a8a85a39d5576eaba3f54d101c22f9447e",
+      "bundleBytes": 3703,
+      "redactions": 0
+    },
+    {
+      "sourcePath": "work/orchestration/mission3-preacher/independent-repaired-review.txt",
+      "sourceSha256": "d635057b0dfd9e00482762659b4183bd4a60df4624fa051b034300bcc0a9678e",
+      "sourceBytes": 1004,
+      "bundlePath": "receipts/work/orchestration/mission3-preacher/independent-repaired-review.txt",
+      "bundleSha256": "d635057b0dfd9e00482762659b4183bd4a60df4624fa051b034300bcc0a9678e",
+      "bundleBytes": 1004,
+      "redactions": 0
+    }
+  ],
+  "reviewerPreflight": {
+    "instructions": "Open this bundle in a permitted executor and verify it against trusted caller-supplied identities before review.",
+    "verify": [
+      "node",
+      "verify.mjs"
+    ]
+  }
+}

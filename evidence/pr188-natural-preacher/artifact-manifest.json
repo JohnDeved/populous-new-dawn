@@ -1,0 +1,31 @@
+{
+  "codeHead": "794cfa04e6cb73453159dd3bc7332594a655cfd9",
+  "browserHead": "c4e47046940ff5eda87a35f8a8dc9a5cf7344983",
+  "files": [
+    {
+      "path": "converted-blue-brave.png",
+      "bytes": 1912116,
+      "sha256": "2e7239bcb11f0041eb25501183b3ac26f3eb45eb73afb24298f25b4a46d855c3"
+    },
+    {
+      "path": "natural-blue-sermon.png",
+      "bytes": 1828567,
+      "sha256": "80edca5e0b74d603f8d851d74c7add4f6cfa12f9661823cf1760278f910ce6e6"
+    },
+    {
+      "path": "review-manifest.json",
+      "bytes": 8182,
+      "sha256": "aabdc53b3d87f3334c9f1fb9641d30bbbb57f4257f5beee8771df555c46ea2d8"
+    },
+    {
+      "path": "review-proof.tar.gz",
+      "bytes": 59833,
+      "sha256": "ccc2b62adab803d14f9f5113f4c4f65fc1498f52ef7786949f8e649e0ecb6cc8"
+    },
+    {
+      "path": "sermon-cancelled.png",
+      "bytes": 1828775,
+      "sha256": "0775fe95782c5c1ce3a14badab9a9d8aaf6f8fc89c64873d997764bd5ff447b4"
+    }
+  ]
+}
