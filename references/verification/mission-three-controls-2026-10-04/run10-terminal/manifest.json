@@ -1,0 +1,151 @@
+{
+  "capturedAt": "2026-10-04T23:02:10.676936+00:00",
+  "scope": "Run10 genuine five-Warrior training followed by retained operator wait-for-sixth error. No Preacher or approach. Automatic no-progress stop preserved preparation2909 with verified terminal cleanup.",
+  "files": [
+    {
+      "path": "browser-10/actions.jsonl",
+      "bytes": 34201,
+      "sha256": "cec9b2301d36bba18ae5755e0f79fb5de10005afda9f72537d63a7d31bcf722b"
+    },
+    {
+      "path": "browser-10/batch-0001.json",
+      "bytes": 56015,
+      "sha256": "c50388288c002614559234b170885621fa27a7f9eeed74160e9124433569ae56"
+    },
+    {
+      "path": "browser-10/batch-0002.json",
+      "bytes": 57724,
+      "sha256": "537af2df6ff571e99b40f36569e04bb9a97910d10e0601c5bf59dff14a7ab04e"
+    },
+    {
+      "path": "browser-10/checkpoint-provenance.mjs",
+      "bytes": 6863,
+      "sha256": "fa08fcb847f8bc9faf5767f4df4980034084241e0d1f1e2898c10a80e915a767"
+    },
+    {
+      "path": "browser-10/cleanup-verification.json",
+      "bytes": 899,
+      "sha256": "b5375b2064be8ef9ce2a4bb9d433df863fbb9dfaad9b2db89d93937ff0d2ee90"
+    },
+    {
+      "path": "browser-10/command-probes.mjs",
+      "bytes": 936,
+      "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f"
+    },
+    {
+      "path": "browser-10/consumed-0001.json",
+      "bytes": 847,
+      "sha256": "56fdfd187b80363e80c8e162d4116e578b6190a9fa6417dc97a56248381b2aea"
+    },
+    {
+      "path": "browser-10/consumed-0002.json",
+      "bytes": 479,
+      "sha256": "0e5d835a9f41622cf9a3319706989f263b9b928e441ad8570029e2459bdd2526"
+    },
+    {
+      "path": "browser-10/consumed-0003.json",
+      "bytes": 388,
+      "sha256": "fdcdbd141f8e7e12fc9030ee205aeab6fd21d6c36ce279d10a2936ddce76d4e7"
+    },
+    {
+      "path": "browser-10/continuation-opening.json",
+      "bytes": 58221,
+      "sha256": "e97561545bd0f389382c0cbb3ab9afe05d976bcf3f43365cbff98b801b7efa7a"
+    },
+    {
+      "path": "browser-10/driver.mjs",
+      "bytes": 53635,
+      "sha256": "5b3498fd704a67acb7d415f4092ab113bb9d67c125c8cf4981faea070df4e791"
+    },
+    {
+      "path": "browser-10/escort-camp-ready.json",
+      "bytes": 55966,
+      "sha256": "7884e4a927046832f2c92e44ddea2b34f551e43d38464b37bfeae9faf9c04b34"
+    },
+    {
+      "path": "browser-10/escort-training-first.json",
+      "bytes": 58350,
+      "sha256": "ce4cddcecea9902b4c680649f371d298c5762066f5feede3914795a7606fe97c"
+    },
+    {
+      "path": "browser-10/escort-training-first.png",
+      "bytes": 1805681,
+      "sha256": "1361d37afa29e30ace3f46501038ffb5e860bf64bb8d89a5d26b7aede29b24b1"
+    },
+    {
+      "path": "browser-10/journey.json",
+      "bytes": 12970,
+      "sha256": "a34b9771ff4c5db7b21a4d1cceff0316a1da9b734b49c5ae20337dba6c45e89c"
+    },
+    {
+      "path": "browser-10/loaded-preparation-record.json",
+      "bytes": 4178,
+      "sha256": "f383d50899f44eaaf80f7fb312e1e91cbfed4ea4c2556cb8f3b7836df078161b"
+    },
+    {
+      "path": "browser-10/milestone-shaman-home.json",
+      "bytes": 56426,
+      "sha256": "fb90c4b0dd024a25f2374a45a262e1aa80fb6556ccdf07aaa950038040787ee7"
+    },
+    {
+      "path": "browser-10/observation.mjs",
+      "bytes": 21281,
+      "sha256": "b10dafc76189c0a94cba590983cec716159c3def4d5d0f78d7145c883904a5d6"
+    },
+    {
+      "path": "browser-10/preparation-record.json",
+      "bytes": 4178,
+      "sha256": "8c0714f69db00b7335b3c0b5647fd638642b9b662ffde17323c233656625f64c"
+    },
+    {
+      "path": "browser-10/receipt.json",
+      "bytes": 11010,
+      "sha256": "c0803f8c27a907d29ddb7861185f53364e40af11e4f191ddbd99e6da926fed5b"
+    },
+    {
+      "path": "browser-10/scenario-inputs.json",
+      "bytes": 495,
+      "sha256": "b2e9f96b4489a3fe1427a7f2d0bc1fb0e48be75c6b749aee7e523e82986835e3"
+    },
+    {
+      "path": "browser-10/terminal-with-preparation-preserved.json",
+      "bytes": 60205,
+      "sha256": "c8ce0a8f32475db7c93a6916ce44036103ba7f13651a1365726d3107fcca49ae"
+    },
+    {
+      "path": "browser-10/terminal-with-preparation-preserved.png",
+      "bytes": 1791888,
+      "sha256": "779f3916930f5c415cfc1ee95714220d26543831930d6d6082f5cc277a9705dd"
+    },
+    {
+      "path": "browser-10.outer.json",
+      "bytes": 5622,
+      "sha256": "1bd727a33316f8234c5f5d221bc8f39266da031b6e8f8651ee1e3313598b7f79"
+    },
+    {
+      "path": "browser-10.outer.json.artifacts/stderr.log",
+      "bytes": 1255,
+      "sha256": "742e108cbc91de6bb55c1d410376a361f50dc26a0a253b646189a12e602b145b"
+    },
+    {
+      "path": "browser-10.outer.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "run10-escort-arrival-plan-frozen.json",
+      "bytes": 5646,
+      "sha256": "d2f78d52bb5e8fe868ae57df163544620badd6b2dff87a45c62681e17ce5b21a"
+    },
+    {
+      "path": "run11-training-batch-proposed.json",
+      "bytes": 485,
+      "sha256": "c64b5444df40f08ee76469b3962b8c27633f9df6aa681cb309f91fe69425aa7c"
+    },
+    {
+      "path": "run11-training-preflight.json",
+      "bytes": 2367,
+      "sha256": "91dc1ac3f2ccf8ceb934dedddcdba0b1869e124971bc709b40409730c1100191"
+    }
+  ]
+}
