@@ -6,7 +6,7 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 
 export default async function secondaryHutSmoke(args) {
-  const { root, page, openMission, output, receipt, signal } = args
+  const { root, openMission, output, receipt, signal } = args
   signal.throwIfAborted()
   await openMission(1)
   const original = readFileSync(

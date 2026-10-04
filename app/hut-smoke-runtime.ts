@@ -39,16 +39,17 @@ export function hutSmokeState(w: World, b: Building) {
 export function reconcileWorldHutSmoke(w: World, b: Building) {
   const owner = w.secondaryEffects
   if (!eligible(b) && !owner.roots[b.id]) return
-  const record = (owner.roots[b.id] ??= {
+  owner.roots[b.id] ??= {
     slot: null,
     state: createHutOccupancySmoke(b.counter, 0, 0, owner.animationFrame),
-  })
+  }
+  const record = owner.roots[b.id]
   const occupants = eligible(b) ? w.units.filter(u => u.inside === b.id && u.hp > 0).length : 0,
     capacity = eligible(b) ? rules.buildingCapacity[buildingModel(b)] : 0
   if (!reconcileHutOccupancySmoke(record.state, occupants, capacity, owner.animationFrame)) return
   if (record.slot !== null) releaseSecondaryEffect(owner, record.slot)
   record.slot = null
-  const root = record.state.root
+  const { root } = record.state
   if (!root) return
   record.slot = allocateSecondaryEffect(
     owner,
@@ -83,7 +84,8 @@ export function stepSecondaryEffects(w: World) {
     }
     if (building) record.state.lastBuildingCounter = building.counter & 255
   }
-  for (const slot of [...owner.order]) {
+  const visits = [...owner.order]
+  for (const slot of visits) {
     const effect = owner.slots[slot]
     if (!effect) continue
     effect.counter = (effect.counter + 1) & 255
