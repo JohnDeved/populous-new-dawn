@@ -1,3 +1,5 @@
+import { hudTaskPeople, selectFollowerTask } from './follower-tasks-runtime.ts'
+import { focusTaskFollower, type FollowerTask } from './hud-tasks.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
@@ -526,24 +528,38 @@ export function chooseFollowers(
   scene: GameScene,
   model: number,
   modifiers: { shiftKey: boolean; ctrlKey: boolean },
-  focus = false
+  focus = false,
+  category?: FollowerTask
 ) {
   const w = scene.world
   if (w.inputMask || scene.overviewStage) return
   if (!focus && (scene.overviewActive || w.manaWorld.gameFlags & 32)) return
+  if (category && !focus && (scene.drag || scene.pointerButtons)) return
   if (model === 7 && w.units.some(u => u.team === 'blue' && isShaman(u) && u.hp > 0))
     w.castingTribes[0].flags |= focus ? 0x1000 : 0x800
   if (focus) {
-    const people = hudPeople(w)
-    const id = focusHudPerson(
-      people,
-      model,
-      scene.cameraPosition,
-      scene.hudFocus[model],
-      modifiers.shiftKey,
-      !!(w.castingTribes[0].flags & 128)
-    )
-    scene.hudFocus[model] = id
+    const taskPeople = category ? hudTaskPeople(w) : [],
+      people = category ? taskPeople : hudPeople(w)
+    const id = category
+      ? focusTaskFollower(
+          taskPeople,
+          model,
+          category,
+          scene.cameraPosition,
+          scene.hudTaskFocus[model * 6 + category],
+          modifiers.shiftKey,
+          !!(w.castingTribes[0].flags & 128)
+        )
+      : focusHudPerson(
+          people,
+          model,
+          scene.cameraPosition,
+          scene.hudFocus[model],
+          modifiers.shiftKey,
+          !!(w.castingTribes[0].flags & 128)
+        )
+    if (category) scene.hudTaskFocus[model * 6 + category] = id
+    else scene.hudFocus[model] = id
     const person = people.find(p => p.id === id)
     if (person) {
       scene.focus(browserPosition(person), { animate: true })
@@ -553,7 +569,8 @@ export function chooseFollowers(
     let mode: 'all' | 'five' | 'single' = 'single'
     if (modifiers.shiftKey) mode = 'all'
     else if (modifiers.ctrlKey && model !== 7) mode = 'five'
-    selectFollowers(w, model, scene.cameraPosition, mode)
+    if (category) selectFollowerTask(w, model, category, scene.cameraPosition, mode)
+    else selectFollowers(w, model, scene.cameraPosition, mode)
   }
   scene.onChange()
 }

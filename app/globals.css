@@ -72,3 +72,17 @@ button:focus-visible,a:focus-visible,summary:focus-visible,input:focus-visible,s
 .native-tooltip canvas { display: block; image-rendering: pixelated; }
 
 .hud-settings{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:20px 0}.hud-settings select{font:inherit;color:#e9dcbb;background:#24291e;border:1px solid #a89667;padding:6px}.hud-settings span{font-size:11px}
+
+/* Lower task descriptors use34px frames and preserve opaque disabled silhouettes. */
+.followers-dock{height:277px;bottom:auto;padding:0;border:0;background:url('/original/follower-task-panel.png') no-repeat}
+.follower-tasks{position:relative;width:100px;height:170px}
+.follower-tasks button{position:absolute;width:15px;height:34px;padding:0;overflow:visible}
+.follower-tasks button:disabled{opacity:1}
+.follower-task-frame{position:absolute;inset:0;background:url('/original/follower-task-normal.png');pointer-events:none}
+.follower-tasks button:disabled .follower-task-frame{opacity:calc(85 / 255)}
+.follower-tasks button:enabled:is(:hover,:active) .follower-task-frame{background-image:url('/original/follower-task-pressed.png')}
+.follower-task-icon{position:absolute;background-image:url('/original/follower-tasks.png');background-repeat:no-repeat;pointer-events:none;image-rendering:pixelated}
+.follower-task-pressed{display:none}
+.follower-tasks button:enabled:is(:hover,:active) .follower-task-normal:has(+.follower-task-pressed){display:none}
+.follower-tasks button:enabled:is(:hover,:active) .follower-task-pressed{display:contents}
+.followers-dock .follower-list{margin:0 2px}

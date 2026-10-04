@@ -2,6 +2,226 @@
   "version": 1,
   "checks": [
     {
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/hud-tasks.ts",
+        "app/follower-tasks-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "tests/follower-tasks.test.mjs",
+        "tests/follower-task-runtime.test.mjs"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-tasks-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check native task contracts and live controller projection.",
+      "coveredBehavior": [
+        "Classifier tables",
+        "counts and enabled-state inputs",
+        "selection flags",
+        "task focus",
+        "legacy work projections",
+        "non-mutating reads"
+      ],
+      "knownLimits": [
+        "Controlled state fixtures do not prove campaign acquisition or original UI painter order."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/follower-tasks.test.mjs",
+        "tests/follower-task-runtime.test.mjs"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/hud-tasks.ts",
+        "app/follower-tasks-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "scripts/check-native-follower-tasks.py"
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-tasks-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Compare task helpers with original executed routines.",
+      "coveredBehavior": [
+        "Native classification",
+        "whole task-count rebuild",
+        "task selection and focus",
+        "raw-radius versus centered acquisition"
+      ],
+      "knownLimits": [
+        "UI/sound leaves are intercepted; live browser composition is separate."
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-follower-tasks.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/hud-tasks.ts",
+        "app/follower-tasks-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "scripts/check-native-follower-task-art.py"
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-task-art-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Verify imported task artwork against executed native logical draws.",
+      "coveredBehavior": [
+        "Native root/frame geometry",
+        "18 exact sprite regions"
+      ],
+      "knownLimits": [
+        "Supplied raster/coordinate leaves; no original-game runtime or complete painter-order claim."
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-follower-task-art.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/hud-tasks.ts",
+        "app/follower-tasks-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "scripts/check-native-follower-task-adapters.py"
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-task-adapters-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute native G producer and explicit legacy command categories.",
+      "coveredBehavior": [
+        "G keyboard dispatch and command30 producer",
+        "native task categories for projected legacy command identities"
+      ],
+      "knownLimits": [
+        "Allocator/queue consumers are supplied; category projections do not migrate legacy gameplay."
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-follower-task-adapters.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_BROWSER"
+      ],
+      "inputs": [
+        "app/hud-tasks.ts",
+        "app/follower-tasks-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "scripts/local-render/harness.mjs",
+        "scripts/check-browser-follower-tasks.mjs"
+      ],
+      "prerequisites": [
+        "Reserved local browser/server lane",
+        "Exclusive installed dependencies",
+        "Official sandboxed Headless Shell"
+      ],
+      "sideEffects": [
+        "Writes ignored capture/receipt output and private local server caches"
+      ],
+      "resources": [
+        "Exclusive browser and port4189"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-tasks-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Exercise task rows through the shipped local UI.",
+      "coveredBehavior": [
+        "Mission1 task controls",
+        "source-pixel crops",
+        "focus memory",
+        "disrupted tabs and modes",
+        "guard task",
+        "checkpoint reload",
+        "HUD scaling"
+      ],
+      "knownLimits": [
+        "Supporting injected-class/occupancy fixture is explicitly labelled.",
+        "Headless SwiftShader does not establish hardware performance."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        ".",
+        "--scenario",
+        "scripts/check-browser-follower-tasks.mjs",
+        "--port",
+        "4189",
+        "--output",
+        "work/orchestration/follower-tasks-browser",
+        "--timeout",
+        "300000"
+      ]
+    },
+    {
       "id": "orchestration-tests",
       "kind": "metadata",
       "automation": "safe",
