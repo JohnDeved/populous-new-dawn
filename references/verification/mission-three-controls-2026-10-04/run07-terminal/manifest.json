@@ -1,0 +1,141 @@
+{
+  "capturedAt": "2026-10-04T21:28:26.056081+00:00",
+  "scope": "Terminal incomplete Run07, ordinary Mission3 Load from genuine preparation2909 plus a retained lethal solo approach. No owned sermon, conversion or victory.",
+  "files": [
+    {
+      "path": "browser-07.outer.json",
+      "bytes": 5228,
+      "sha256": "f2d6e8dcea7e3bd1a1f2a6ed9b648ddfefbfd3eea88b31abab7074b2538631e5"
+    },
+    {
+      "path": "browser-07.outer.json.artifacts/stderr.log",
+      "bytes": 1418,
+      "sha256": "ead5c2567b4a89ba7911837ea6d2316cff558ee8725eb6b2a2f001bdadea756f"
+    },
+    {
+      "path": "browser-07.outer.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "browser-07/actions.jsonl",
+      "bytes": 33938,
+      "sha256": "c88992acfb73f827b3cf9ee5c22631ec1019e83eee50f3aad701f1e06c2db57e"
+    },
+    {
+      "path": "browser-07/batch-0001.json",
+      "bytes": 54894,
+      "sha256": "a0dadbc3eebb9bcd4693749518bb5f0423b9aabbd67a38c862e359da1fc1e22b"
+    },
+    {
+      "path": "browser-07/batch-0002.json",
+      "bytes": 53877,
+      "sha256": "de86132b2c22247aacd2e1eb0e26553e59f65b35f120ffab021c1374d9c5f15b"
+    },
+    {
+      "path": "browser-07/checkpoint-provenance.mjs",
+      "bytes": 4187,
+      "sha256": "81010c4d952fdb0b4ced21aa247aa1517e789fc82599431fbd738b9786ff592a"
+    },
+    {
+      "path": "browser-07/cleanup-and-profile.json",
+      "bytes": 4813,
+      "sha256": "2f7a095b4217ea295608305ef466e0f05bbe3d9875df7874e80ee145ea8b3f66"
+    },
+    {
+      "path": "browser-07/consumed-0001.json",
+      "bytes": 456,
+      "sha256": "6edb12937837a157d8eeb66ccace1eee5e16986cf54a6f736bfcdbbab34f4016"
+    },
+    {
+      "path": "browser-07/consumed-0002.json",
+      "bytes": 201,
+      "sha256": "6befbd5b9c3ddd7dfd4d02fc4ef84f471c20c572d93035c041fdab2baf3d76d3"
+    },
+    {
+      "path": "browser-07/consumed-0003.json",
+      "bytes": 76,
+      "sha256": "07dca5a9bb7a6c0a1b6b9e5c6fd48aa8e21f7cbba336f9ceb9c163314b004832"
+    },
+    {
+      "path": "browser-07/continuation-opening.json",
+      "bytes": 56627,
+      "sha256": "6eb5d2b887e2766fe0378a16627c167d763c0d07572e95171793960b1566722c"
+    },
+    {
+      "path": "browser-07/continuation-opening.png",
+      "bytes": 1898489,
+      "sha256": "672837272af6e8b8112dd00f1920b5b3adcf5983cf60d9ba5f6af0b8adfe207f"
+    },
+    {
+      "path": "browser-07/defender-removed.json",
+      "bytes": 54851,
+      "sha256": "ed0264af565fcc6dbbf59c82adbe9acd551d89634f8f4f8997391bef69064e49"
+    },
+    {
+      "path": "browser-07/defender-removed.png",
+      "bytes": 1806886,
+      "sha256": "a4f11984a31a694ab5aa5bc0bef363bea8be54b2f83f0d44ff4bf2682cf8ed8c"
+    },
+    {
+      "path": "browser-07/driver.mjs",
+      "bytes": 52024,
+      "sha256": "b9b5f64b7b34caa8d4edd6bcd200740a8d5bf63658b91a41d35a715f2aaf9bbc"
+    },
+    {
+      "path": "browser-07/journey.json",
+      "bytes": 18602,
+      "sha256": "f50860d7d078b5ee29ee8f04728f0f28da3605f4d66ea291df620394a70d5ca3"
+    },
+    {
+      "path": "browser-07/loaded-preparation-record.json",
+      "bytes": 2572,
+      "sha256": "db74eaa73ae5b9950f2e2b5340f058f30e3772c5c588331624f51bc6754a0244"
+    },
+    {
+      "path": "browser-07/milestone-preacher.json",
+      "bytes": 54873,
+      "sha256": "895dc4a0ba04db671f62f22dcd4396acaa904e135a586b17a89ecca8b216e0c9"
+    },
+    {
+      "path": "browser-07/milestone-shaman-home.json",
+      "bytes": 54924,
+      "sha256": "378c80b5a8ed9a3fc81ed9bcccfebefdfcec25368d0984ce0c9a85f4ff93576b"
+    },
+    {
+      "path": "browser-07/observation.mjs",
+      "bytes": 20308,
+      "sha256": "6aeaf67ea7ffce5d674f8ec48b9ac16cefce691be6618e6a358419313e744174"
+    },
+    {
+      "path": "browser-07/protected-home-staging.json",
+      "bytes": 53885,
+      "sha256": "8bb0b064051db766c0795bec8362f49676d0bfd8e783f4a0b7b5ee06e6c504bb"
+    },
+    {
+      "path": "browser-07/receipt.json",
+      "bytes": 11569,
+      "sha256": "68bfa6059eb8587181aba4fe7a5dcac4566c1a3eb90e13b6a34b78aace26685a"
+    },
+    {
+      "path": "browser-07/scenario-inputs.json",
+      "bytes": 371,
+      "sha256": "761fa5c2d5033fa37beef01db84b24e1000efcda130a15e5631d9b8ec144c270"
+    },
+    {
+      "path": "browser-07/server.log",
+      "bytes": 2057,
+      "sha256": "23f181c740fc5df36ad5f17066a651073874fe512a41cd39f4557e434e2799f7"
+    },
+    {
+      "path": "browser-07/terminal-with-preparation-preserved.json",
+      "bytes": 60136,
+      "sha256": "22915acd9e55c1efda8aedfbb12b851bedb36821a17e0db6a1b833fdb43b3020"
+    },
+    {
+      "path": "browser-07/terminal-with-preparation-preserved.png",
+      "bytes": 1537525,
+      "sha256": "fb04e0c802799d2698e2d2b944744f25d41206ec2057f277c3b0b2ea24ea1416"
+    }
+  ]
+}
