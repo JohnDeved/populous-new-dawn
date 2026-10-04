@@ -158,7 +158,11 @@ function orderContext(w: World, p: LivePerson, rng: { randomState: number }) {
       const unit = w.units.find(u => u.id === person.id)!
       replanLivePath(w, unit, person as LivePerson, { x, y })
     },
-    commandPosition: unsupported,
+    commandPosition: order => {
+      // 0x4389c0 copies both payload words when no cell/object encoding is set.
+      if (rules.personCommands[order.model].flags & (4 | 0x800 | 0x242)) unsupported()
+      return { x: order.a & 65535, y: order.b & 65535 }
+    },
     allowVehicleOrder: () => true,
     initializeCommand: () => {
       if (order!.model === 6 || order!.model === 7) return
