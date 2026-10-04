@@ -1,5 +1,4 @@
-import type { Effect, World } from './world-types.ts'
-import { teamForTribe } from './world-types.ts'
+import { teamForTribe, type Effect, type World } from './world-types.ts'
 import { effect, moveVisual, registerTerrainLight } from './world-effects.ts'
 import { browserPosition } from './world-coordinates.ts'
 import { setAnimationObject } from './animation.ts'
@@ -60,7 +59,7 @@ export function siteWaveEffects(
       return fx.id
     },
     cell,
-    terrain: cell => changed.add(cell),
+    terrain: packed => changed.add(packed),
     sparkle: point => {
       const fx = animatedSiteEffect(w, point, 'hit', 1294, 46, 6)
       fx.team = teamForTribe(tribe)

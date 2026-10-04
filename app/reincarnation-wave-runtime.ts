@@ -1,5 +1,4 @@
-import type { Effect, TribeTeam, Unit, World } from './world-types.ts'
-import { teamForTribe } from './world-types.ts'
+import { teamForTribe, type Effect, type TribeTeam, type Unit, type World } from './world-types.ts'
 import { campaignPosition } from './campaign-runtime.ts'
 import { effect, sound } from './world-effects.ts'
 import { browserPosition } from './world-coordinates.ts'
@@ -54,10 +53,11 @@ export function createReincarnationWave(
 ) {
   // Old saves lacked a separate saved-site height. Reuse retained startup state
   // when present; otherwise keep their existing authored-site/ground fallback.
-  const site = (w.reincarnationSites[tribe] ??= {
-      ...(w.levelStart.find(start => start.tribe === tribe)?.center ??
-        nativePosition(w, campaignPosition(w, teamForTribe(tribe) as TribeTeam))),
-    }),
+  w.reincarnationSites[tribe] ??= {
+    ...(w.levelStart.find(start => start.tribe === tribe)?.center ??
+      nativePosition(w, campaignPosition(w, teamForTribe(tribe) as TribeTeam))),
+  }
+  const site = w.reincarnationSites[tribe],
     fx = allocate({ ...site })
   if (!fx) return
   if (w.castingTribes[tribe].flags & 1) {
@@ -113,7 +113,7 @@ export function stepReincarnationWave(w: World, fx: Effect) {
       }
       // Unmigrated browser people have no native cell record yet. Only an actual
       // hit hands them to the native panic owner; unrelated people are untouched.
-      for (const u of [...w.units].reverse())
+      for (const u of w.units.toReversed())
         if (!registered.has(u.id) && u.hp > 0 && u.inside === null && inSiteWaveCell(w, cell, u)) {
           const p = u.builder?.person ?? createLivePerson(w, u)
           affectPerson(w, u, p, wave.tribe)
