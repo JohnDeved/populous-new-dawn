@@ -220,12 +220,13 @@ def install(roster, nearby=False):
 
 
 # Real command handler: selected row deselects one/all; Ctrl's five command is a
-# native no-op on selected people (it repeatedly sets, not toggles, selected bit).
+# selection-bit no-op on selected people, but still clears flags3 bit 0x10000000.
 selection_cases = []
 for model in (0, 2, 3):
     for category, state in ((1, 19), (2, 19), (3, 21), (4, 20)):
         for mode, tag in (('single', 0x7d), ('five', 0x72), ('all', 0x55 if model else 0x54)):
-            roster = [dict(model=2 + i // 6, state=state, selected=128 if category == 1 else 0)
+            roster = [dict(model=2 + i // 6, state=state, selected=128 if category == 1 else 0,
+                           flags3=0x123456f8)
                       for i in range(12)]
             before = install(roster)
             write(command + 4, 'IIB', (model << 16) | category, 0, tag)
@@ -240,6 +241,10 @@ for model in (0, 2, 3):
             assert selected == expected, (model, category, mode, selected, expected)
             for i in range(12):
                 raw = bytearray(cpu.mem_read(people + i * 256, 256))
+                changed = (i in removed if mode != 'five' else i == matches[0]) if category == 1 else i in expected
+                mask = 0x80 if category == 1 and mode != 'five' else 0x10000000
+                expected_flags3 = 0x123456f8 & ~mask if changed else 0x123456f8
+                assert struct.unpack_from('<I', raw, 0x14)[0] == expected_flags3
                 raw[0x14:0x18] = before[i][0x14:0x18]
                 raw[0x7a] = before[i][0x7a]
                 assert bytes(raw) == before[i], 'command changed unrelated person state'
@@ -289,11 +294,57 @@ for category, state in ((1, 19), (2, 19), (3, 21), (4, 20)):
         focus_cases += 1
 print(f'PASS: {focus_cases} native task-category focus cycles; exact camera/panel targets and unchanged people')
 
+# Total display excludes Shaman, but nearest task acquisition/focus includes it.
+edge_cases = 0
+for category, state in ((1, 19), (2, 19), (3, 21), (4, 20)):
+    roster = [dict(model=model, state=state, selected=128 if category == 1 else 0,
+                   flags3=0x123456f8) for model in (7, 2)]
+    for mode, tag in (('single', 0x7d), ('five', 0x72), ('all', 0x54)):
+        install(roster)
+        write(command + 4, 'IIB', category, 0, tag)
+        call(0x43e8e0, tribe, command)
+        selected = [bool(read(people + i * 256 + 0x7a, 'B') & 128) for i in range(2)]
+        expected = ([False, True] if mode == 'single' else [True, False] if mode == 'all' else [True, True]) if category == 1 else (
+            [True, False] if mode == 'single' else [False, True] if mode == 'all' else [True, True])
+        assert selected == expected, (category, mode, selected)
+        edge_cases += 1
+    before = install(roster)
+    write(0x899ed3 + category * 2, 'H', 0)
+    observed.clear()
+    call(0x4de810, 0, category, 0)
+    assert read(0x899ed3 + category * 2, 'H') == 1
+    assert observed[0x504590] == [[people, 0]]
+    assert before == [bytes(cpu.mem_read(people + i * 256, 256)) for i in range(2)]
+    edge_cases += 1
+# Initial focus uses nearest radius, but later cycle predicate exempts Shaman.
+install([dict(model=7, state=19, x=7000), dict(model=2, state=19, x=356)], nearby=True)
+write(0x899ed3 + 2 * 2, 'H', 0)
+for expected in (2, 1, 2):
+    call(0x4de810, 0, 2, 0)
+    assert read(0x899ed3 + 2 * 2, 'H') == expected
+    edge_cases += 1
+# A closer wrong-category person is skipped; no homogeneous-roster shortcut.
+for category, state, other in ((1, 19, 19), (2, 19, 20), (3, 21, 19), (4, 20, 19)):
+    for model in (0, 2, 3):
+        roster = [dict(model=2, state=other, selected=0),
+                  dict(model=2, state=state, selected=128 if category == 1 else 0),
+                  dict(model=3, state=state, selected=128 if category == 1 else 0)]
+        install(roster)
+        write(command + 4, 'IIB', (model << 16) | category, 0, 0x7d)
+        call(0x43e8e0, tribe, command)
+        selected = [bool(read(people + i * 256 + 0x7a, 'B') & 128) for i in range(3)]
+        target = 2 if model == 3 else 1
+        expected = [False, category == 1, category == 1]
+        expected[target] = category != 1
+        assert selected == expected
+        edge_cases += 1
+print(f'PASS: {edge_cases} Total/Shaman, nearby-cycle and mixed-category edge cases; exact flags3 masks in 36 commands')
+
 receipt = dict(executable=identity, probeSha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
     languageSha256=hashlib.sha256(lang_raw).hexdigest(), descriptors=descriptors,
     stateCategories=state_categories, commandCategories=command_categories,
     checks=dict(callbacks=callback_cases, refresh=refresh_cases, classifications=classification_cases,
-                commands=len(selection_cases), rebuilds=rebuild_cases, focus=focus_cases),
+                commands=len(selection_cases), rebuilds=rebuild_cases, focus=focus_cases, edges=edge_cases),
     selectedRowCommands=[case for case in selection_cases if case['category'] == 1],
     limits=['No production implementation or parity claim.',
             'Crafted native states establish arithmetic and predicates, not reachability of every state combination.',
