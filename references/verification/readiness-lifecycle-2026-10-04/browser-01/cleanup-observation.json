@@ -1,0 +1,9 @@
+{
+  "at": "2026-10-04T17:40:42.513220+00:00",
+  "originalSession": 9146,
+  "observedExitCode": 0,
+  "privatePort": 4364,
+  "tcpConnectResult": 111,
+  "portClosed": true,
+  "matchingOwnedRuntimeProcesses": []
+}

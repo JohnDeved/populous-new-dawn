@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ed305e94-4498-4031-b335-e8962dc112de",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "8ef89e38fce059082419b8a86538132c28a8d417",
+    "branch": "fix/checker-readiness-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/browser-game-readiness.test.mjs",
+    "tests/campaign-start-readiness.test.mjs",
+    "tests/checkpoint-readback.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle",
+  "startedAt": "2026-10-04T17:23:24.086Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/work/orchestration/readiness-lifecycle/portable-scenario-dependencies.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/work/orchestration/readiness-lifecycle/portable-scenario-dependencies.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T17:23:25.164Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ readiness reads rebind after fresh page reload and on repeated calls (3.731849ms)\n✔ readiness wait sequentially awaits false samples before accepting literal true (3.812721ms)\n✔ a truthy non-boolean readiness field does not pass the wait (3.02706ms)\n✔ read errors propagate and repeated unready samples time out without mutation (17.344661ms)\n✔ camera release alone does not make the startup Shaman selectable; observation is read-only (248.753457ms)\n✔ readiness still rejects absent actors, global input locks and paused play (155.399114ms)\n✔ Continue readiness waits on real RAF before suspension with the existing timeout (0.883378ms)\n✔ the production wait polls synchronous false until native selection readiness (2.419717ms)\n✔ checkpoint readback awaits false reads before the actual true result (2.955993ms)\n✔ checkpoint readback fails closed after bounded asynchronous false results (0.882757ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1016.562348\n",
+  "stderr": "",
+  "stdoutSha256": "eeccdfb4539b28fb33284e404a70ed76b2256e9342fd9f5be8e9f0d30bb08237",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "8ef89e38fce059082419b8a86538132c28a8d417",
+    "branch": "fix/checker-readiness-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ae4de2db-da9c-4790-9c84-613b37c13104",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+    "branch": "fix/checker-readiness-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/browser-game-readiness.test.mjs": "9885c21fbe58af6148f39edf8e268665a5ad75a086a7563ed8bb8a5d719da52f"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/browser-game-readiness.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle",
+  "startedAt": "2026-10-04T17:16:43.751Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/work/orchestration/readiness-lifecycle/failure-first.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/work/orchestration/readiness-lifecycle/failure-first.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T17:16:43.927Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ readiness reads rebind after fresh page reload and on repeated calls (1.622856ms)\n✖ readiness wait sequentially awaits false samples before accepting literal true (0.37306ms)\n✖ a truthy non-boolean readiness field does not pass the wait (0.325067ms)\n✖ read errors propagate and repeated unready samples time out without mutation (0.229985ms)\nℹ tests 4\nℹ suites 0\nℹ pass 0\nℹ fail 4\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 102.713309\n\n✖ failing tests:\n\ntest at tests/browser-game-readiness.test.mjs:47:1\n✖ readiness reads rebind after fresh page reload and on repeated calls (1.622856ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + 'undefined'\n  - 'function'\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/tests/browser-game-readiness.test.mjs:48:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'undefined',\n    expected: 'function',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/browser-game-readiness.test.mjs:58:1\n✖ readiness wait sequentially awaits false samples before accepting literal true (0.37306ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + 'undefined'\n  - 'function'\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/tests/browser-game-readiness.test.mjs:59:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 'undefined',\n    expected: 'function',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/browser-game-readiness.test.mjs:69:1\n✖ a truthy non-boolean readiness field does not pass the wait (0.325067ms)\n  TypeError: browserGame.waitForShamanReadiness is not a function\n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/tests/browser-game-readiness.test.mjs:71:36)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)\n\ntest at tests/browser-game-readiness.test.mjs:76:1\n✖ read errors propagate and repeated unready samples time out without mutation (0.229985ms)\n  TypeError: browserGame.waitForShamanReadiness is not a function\n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/tests/browser-game-readiness.test.mjs:78:36)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)\n",
+  "stderr": "",
+  "stdoutSha256": "4ea2e09b1d3b000d575d206b718267399a10047a45e655c823a926cc1c587a74",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+    "branch": "fix/checker-readiness-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/browser-game-readiness.test.mjs": "9885c21fbe58af6148f39edf8e268665a5ad75a086a7563ed8bb8a5d719da52f"
+    }
+  }
+}

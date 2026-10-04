@@ -1,0 +1,11 @@
+{
+  "at": "2026-10-04T17:37:46.160303+00:00",
+  "ownerRelease": "/root/finish_reviewed_pr_batch granted terminal tree for PR196 at17:36:52 UTC",
+  "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-contract-guidance",
+  "target": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle",
+  "method": "rename real owned directory; no copying/linking",
+  "inode": 925630,
+  "entries": 372,
+  "packageLock": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLock": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+}

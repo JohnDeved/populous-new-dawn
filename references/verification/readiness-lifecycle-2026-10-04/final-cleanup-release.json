@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-04T17:44:23.523121+00:00",
+  "sessions": [
+    {
+      "id": 9146,
+      "gate": "browser",
+      "exitCode": 0
+    },
+    {
+      "id": 88119,
+      "gate": "npm check",
+      "exitCode": 0
+    },
+    {
+      "id": 8343,
+      "gate": "scoped ESLint",
+      "exitCode": 0
+    }
+  ],
+  "privatePort": 4364,
+  "tcpConnectResult": 111,
+  "portClosed": true,
+  "matchingOwnedRuntimeProcesses": [],
+  "dependencyTreeReleased": true,
+  "dependencyInode": 925630,
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+}

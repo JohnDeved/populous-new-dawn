@@ -1,0 +1,10 @@
+{
+  "at": "2026-10-04T17:37:46.162541+00:00",
+  "targetInode": 925630,
+  "targetIsSymlink": false,
+  "targetInstalledLock": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "sourceStubEntries": [
+    ".package-lock.json"
+  ],
+  "sourceStubLock": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+}

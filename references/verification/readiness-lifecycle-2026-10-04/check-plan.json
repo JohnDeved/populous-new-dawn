@@ -1,0 +1,495 @@
+{
+  "version": 1,
+  "base": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+  "head": "8ef89e38fce059082419b8a86538132c28a8d417",
+  "changes": [
+    {
+      "path": "scripts/browser-game.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+      "changeHash": "cd95ed71baf1ae2816e7d7994d2df0739cb3d1651d4d5565f5f1e80a95456c05"
+    },
+    {
+      "path": "scripts/local-render/readiness-lifecycle.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "4ef91a8704017d1f9c68824d6666fb36b684c8ffc5fbe245488da97dd42da289",
+      "changeHash": "73839db7e99088bfb740c6326f5ec9fd628d58bc88f2693df8b917ba00af4052"
+    },
+    {
+      "path": "tests/browser-game-readiness.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "be3bdd61227601b58cf79675eaddb7ac530866bf6b723a57a17711bc9f4cfe17",
+      "changeHash": "d75eb10b49e7a2e3d260a15f99e687066d5f93d2feb2dfe4a2335cf13f0fe6e4"
+    }
+  ],
+  "affectedSubsystems": [
+    "movement-orders"
+  ],
+  "unknownPaths": [
+    "scripts/local-render/readiness-lifecycle.mjs",
+    "tests/browser-game-readiness.test.mjs"
+  ],
+  "checks": [
+    {
+      "id": "automatic-boat-crossing-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/automatic-boat-crossing.test.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "The real multi-person command, matching-leg driver wait, checkpoint, sailing, landing, and retained objective completion are covered by mission9-browser.",
+        "Full or unavailable Boat retry is established only by native route evidence; this portable check covers exclusion, not the live retry schedule."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "campaign-natural-victory-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/local-render/campaign-fixed-turn.mjs",
+        "--port",
+        "4196",
+        "--timeout",
+        "900000",
+        "--output",
+        "$POPULOUS_CAMPAIGN_OUTPUT"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "Suspends RAF and directly calls tick(world, 1/12); internal camera focus and read-only picking/pathfinding assist rendered controls. No injected entities, resources, victory, AI state, or profile.",
+        "Not ordinary real-clock gameplay, native-equivalent timing, full original-game parity, or hardware performance; direct All missions setup starts Mission 2.",
+        "Conversion requires a separately observed native preacher-victim replacement; death/disappearance and victory alone do not prove it.",
+        "A passing route can record zero Blue Preacher conversions; this check alone does not complete conversion acceptance."
+      ],
+      "prerequisites": [
+        "Installed official Chrome Headless Shell",
+        "Private installed dependencies",
+        "Reserved local browser lane",
+        "Unique output directory"
+      ],
+      "sideEffects": [
+        "Writes isolated browser-context campaign profile state, owned server caches, screenshots, adapter and source-bound JSON report in the requested output directory"
+      ],
+      "resources": [
+        "Owned local server on port 4196 and sandboxed browser; run serially"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_BROWSER, POPULOUS_CAMPAIGN_OUTPUT"
+    },
+    {
+      "id": "computer-attack-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-computer-attack.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "Phase-16 target collection remains a controlled world input; damage success and empty-target retry branches are not executed end-to-end."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent levels/cpscr010.dat and levels/cpscr058.dat are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "computer-direct-attack-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-command-28.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "Does not execute the command-28 combat body, target lifecycle, attacking-shaman branch, vehicles, or ranged members."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "firewarrior-building-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-firewarrior-building.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "Accelerates training mana and positions the trained Firewarrior and authentic hostile people to isolate the authored building target.",
+        "Broad terrain line-of-fire, plans, Bloodlust, tower-origin building attacks, and building destruction remain deferred."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission8-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission8.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "Seeds Mission 7 victory, positions the authentic Shaman at the remote Vault entrance, clears construction/Firewarrior selections, accelerates training mana, and positions authentic enemies in range.",
+        "Mission 8 AI, tutorials, victory, and broader Firewarrior Bloodlust, terrain line-of-fire, target damage, and trail behavior remain deferred."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission8-firewarrior-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-firewarrior.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "Global order/projectile allocation, audio, trail, and the downstream kill-credit consumer are intercepted; the completed-building branch is established by indexed byte-verified exports rather than a constructed native probe; browser terrain occlusion, the special level-flag range, Bloodlust, broad target damage, and complete native play remain deferred."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent constant.dat",
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission9-boat-house-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-boat-house.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "Shape enumeration, allocation storage, height, routing, boarding, motion, and removal leaves are supplied; the external work increment and full native world remain outside this probe."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent game data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission9-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission9.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "Seeds Mission 8 and Mission 9 victory before exercising Mission 10 through rendered player input.",
+        "Mission 9 AI, victory, tutorials, recurring Boat production, Boat combat targeting/feedback, and exact replacement hull art remain deferred; destruction is covered separately.",
+        "The complete native simultaneous multi-person crossing schedule is not byte-executed end to end; native route/vehicle probes and the live Mission 10 composition divide that evidence.",
+        "After four rendered Blasts, surviving nearby defenders are removed to isolate second-Totem checkpoint continuation; this check does not prove fully player-driven defender clearance.",
+        "Mission 10 full AI, Shaman-loss branch, natural endgame victory, and exact model-90/model-26 terrain equivalence remain deferred."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "orders-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-ground-waypoints.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "Does not prove Boat construction, combat, native artwork, or mixed transport queues."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "May write /private/tmp captures"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "orders-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-orders.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "World consumers and full scheduling are supplied or separately checked."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [
+        "Writes tracked player-order and ground-input fixtures even without --record"
+      ],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "orders-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/player-orders.test.mjs",
+        "tests/ground-waypoints.test.mjs",
+        "tests/live-movement.test.mjs",
+        "tests/world-movement.test.mjs",
+        "tests/command-context.test.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "Does not cover every command class, vehicle, allocator, or scheduler path."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "queued-timber-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-command-target.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "Does not cover loose-log mode, automatic timber search, or every scenery chain collision."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "reasons": [
+        "unmapped path requires conservative general validation: scripts/local-render/readiness-lifecycle.mjs",
+        "unmapped path requires conservative general validation: tests/browser-game-readiness.test.mjs"
+      ],
+      "knownLimits": [
+        "Does not run native executable, browser integration, or hardware performance checks."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [
+        "May update ignored tool caches"
+      ],
+      "resources": [
+        "Serialize with other full test runs"
+      ],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "vault-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-vault.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "Movement, adjacency, trigger association, animation, audio, and decorative consumers are supplied; browser pathfinding adapts those leaves."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "vehicle-destruction-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-vehicle-destruction.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "The authored Boat owner is changed to an enemy tribe for the bounded interaction because supported campaign content does not yet produce an enemy vehicle.",
+        "Occupied ejection is native/portable evidence; downstream passenger terrain fate, exact effects, audio, and enemy vehicle AI remain open."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "vehicle-destruction-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-vehicle-damage.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "movement-orders path changed: scripts/browser-game.mjs"
+      ],
+      "knownLimits": [
+        "Exit-target search, asset-backed animation, and generic initialization leaves are supplied; audiovisual effects, final removal, and downstream passenger water/land survival remain portable/static evidence or open."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    }
+  ],
+  "executesChecks": false
+}

@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "92beaec5-04c4-4bd0-9e1b-da8899eb8e93",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "8ef89e38fce059082419b8a86538132c28a8d417",
+    "branch": "fix/checker-readiness-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "scripts/browser-game.mjs",
+    "scripts/local-render/readiness-lifecycle.mjs",
+    "tests/browser-game-readiness.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle",
+  "startedAt": "2026-10-04T17:43:03.693Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/work/orchestration/readiness-lifecycle/eslint-final.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/work/orchestration/readiness-lifecycle/eslint-final.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T17:43:05.365Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "8ef89e38fce059082419b8a86538132c28a8d417",
+    "branch": "fix/checker-readiness-lifecycle",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

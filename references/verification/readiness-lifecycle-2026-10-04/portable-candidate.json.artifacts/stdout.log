@@ -1,0 +1,16 @@
+✔ readiness reads rebind after fresh page reload and on repeated calls (3.965961ms)
+✔ readiness wait sequentially awaits false samples before accepting literal true (4.393203ms)
+✔ a truthy non-boolean readiness field does not pass the wait (1.853536ms)
+✔ read errors propagate and repeated unready samples time out without mutation (16.940762ms)
+✔ camera release alone does not make the startup Shaman selectable; observation is read-only (225.412642ms)
+✔ readiness still rejects absent actors, global input locks and paused play (134.275815ms)
+✔ Continue readiness waits on real RAF before suspension with the existing timeout (1.013694ms)
+✔ the production wait polls synchronous false until native selection readiness (2.531004ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 8
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 945.836513

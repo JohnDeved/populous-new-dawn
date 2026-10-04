@@ -1,0 +1,12 @@
+✔ readiness reads rebind after fresh page reload and on repeated calls (4.214527ms)
+✔ readiness wait sequentially awaits false samples before accepting literal true (3.801618ms)
+✔ a truthy non-boolean readiness field does not pass the wait (3.296219ms)
+✔ read errors propagate and repeated unready samples time out without mutation (17.877461ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 123.257347

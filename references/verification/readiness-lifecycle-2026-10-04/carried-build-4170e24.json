@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "c05acb26-ef07-414f-ad1d-8bc840f995f6",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4170e24f91026b9b3fce69ff3a49c0242f9896ef",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin",
+  "startedAt": "2026-10-04T13:53:41.130Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/build-final.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/build-final.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T13:53:56.814Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n[1/5] analyze client references...\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n✓ built in 3.31s\n[2/5] analyze server references...\n\u001b[2K\rtransforming...✓ 374 modules transformed.\nrendering chunks...\n✓ built in 1.56s\n[3/5] build rsc environment...\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 4.11s\n[4/5] build client environment...\n\u001b[2K\rtransforming...✓ 415 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.78s\n[5/5] build ssr environment...\n\u001b[2K\rtransforming...✓ 380 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.32s\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (23%)\n  - vinext:middleware-server-only (21%)\n  - alias (19%)\n  - vinext:og-inline-fetch-assets (11%)\n  - vinext:css-data-url (9%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:middleware-server-only (20%)\n  - rsc:virtual-client-package (18%)\n  - rsc:load-environment-module (18%)\n  - vinext:og-inline-fetch-assets (9%)\n  - alias (7%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\n",
+  "stdoutSha256": "dc19c0c5b06739d3fecc5c6110a4617f0a678bda11e5eddfc834d2c11260fe70",
+  "stderrSha256": "573baadb8094e972a3dc4010b4300f47db7af49b01b418622aa5b80f5a733ac5",
+  "sourceAfter": {
+    "headOid": "4170e24f91026b9b3fce69ff3a49c0242f9896ef",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

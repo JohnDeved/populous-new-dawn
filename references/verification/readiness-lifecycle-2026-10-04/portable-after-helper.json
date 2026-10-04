@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "25186ae5-7700-413b-b34d-d97f12980363",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+    "branch": "fix/checker-readiness-lifecycle",
+    "trackedDiffSha256": "cd95ed71baf1ae2816e7d7994d2df0739cb3d1651d4d5565f5f1e80a95456c05",
+    "inputs": {
+      "tests/browser-game-readiness.test.mjs": "9885c21fbe58af6148f39edf8e268665a5ad75a086a7563ed8bb8a5d719da52f",
+      "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/browser-game-readiness.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle",
+  "startedAt": "2026-10-04T17:17:22.417Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/work/orchestration/readiness-lifecycle/portable-after-helper.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/work/orchestration/readiness-lifecycle/portable-after-helper.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T17:17:22.616Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ readiness reads rebind after fresh page reload and on repeated calls (4.214527ms)\n✔ readiness wait sequentially awaits false samples before accepting literal true (3.801618ms)\n✔ a truthy non-boolean readiness field does not pass the wait (3.296219ms)\n✔ read errors propagate and repeated unready samples time out without mutation (17.877461ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 123.257347\n",
+  "stderr": "",
+  "stdoutSha256": "56c228044213f44d97b3964a25165fcdbeca472834fd1926317f9c1a133d2cce",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+    "branch": "fix/checker-readiness-lifecycle",
+    "trackedDiffSha256": "cd95ed71baf1ae2816e7d7994d2df0739cb3d1651d4d5565f5f1e80a95456c05",
+    "inputs": {
+      "tests/browser-game-readiness.test.mjs": "9885c21fbe58af6148f39edf8e268665a5ad75a086a7563ed8bb8a5d719da52f",
+      "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9"
+    }
+  }
+}
