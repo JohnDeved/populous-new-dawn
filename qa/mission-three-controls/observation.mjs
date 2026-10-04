@@ -22,6 +22,10 @@ export class MissionDefeat extends Error {
   constructor() { super('Observed Mission 3 defeat'); this.name = 'MissionDefeat' }
 }
 
+export function requireNotDefeated(status) {
+  if (status === 'lost') throw new MissionDefeat()
+}
+
 const wrapped = v => ((v + 128) % 256 + 256) % 256 - 128
 const near = (a, b, radius) => Math.hypot(wrapped(a.x - b.x), wrapped(a.z - b.z)) <= radius
 const short = n => n << 16 >> 16

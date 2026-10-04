@@ -8,7 +8,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { bindGame, showAllMissions } from '../../scripts/browser-game.mjs'
 import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs'
-import { checkCondition, progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop } from './observation.mjs'
+import { checkCondition, progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated } from './observation.mjs'
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -89,7 +89,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.equal(snapshot.contextLost, false, 'Live WebGL context')
     assert.deepEqual(snapshot.observation?.errors ?? [], [], 'No diagnostic errors')
     assert.deepEqual(snapshot.observation?.speedViolations ?? [], [], 'No speed changes')
-    if (snapshot.status === 'lost') throw new MissionDefeat()
+    requireNotDefeated(snapshot.status)
   }
   const currentActive = snapshot => epochs.reduce((sum, epoch) => sum + epoch.activeSeconds, 0) +
     (snapshot.observation?.activeSeconds ?? 0)
@@ -560,13 +560,13 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.ok(ids.vault && ids.erosion); saveProgress()
     await skipFlyby(); await waitFor({ type: 'shaman-ready' }, 'movement')
     await pause(); await snapshot('opening')
-    if ((await read()).status === 'lost') throw new MissionDefeat()
+    requireNotDefeated((await read()).status)
     log({ action: 'awaiting-input', directory: commandsPath, next: '0001.json', paused: true })
     for (index = 1; index <= 500; index++) {
       const path = resolve(commandsPath, `${String(index).padStart(4, '0')}.json`)
       while (!existsSync(path)) {
         signal.throwIfAborted()
-        if (await page.evaluate(() => window.testSceneRef.current.world.status === 'lost')) throw new MissionDefeat()
+        requireNotDefeated(await page.evaluate(() => window.testSceneRef.current.world.status))
         if (Date.now() - startWall >= wallLimit) throw new IncompleteRun('wall-envelope', 'Outer wall resource envelope reached awaiting commands')
         await sleep(1000)
       }
@@ -588,19 +588,19 @@ export default async function missionThreeControls({ page, output, root, signal,
         }
         await pause()
         const boundary = await snapshot(`batch-${String(index).padStart(4, '0')}`)
-        if (boundary.status === 'lost') throw new MissionDefeat()
+        requireNotDefeated(boundary.status)
       } catch (error) {
         if (error instanceof IncompleteRun || error instanceof MissionDefeat) throw error
         failures.push({ index, inputSha256: hash, at: new Date().toISOString(), error: String(error?.stack ?? error) })
         saveProgress(); await pause().catch(() => {})
         const diagnostic = await snapshot(`batch-${String(index).padStart(4, '0')}-failed`).catch(() => null)
-        if (diagnostic?.status === 'lost') throw new MissionDefeat()
+        requireNotDefeated(diagnostic?.status)
         log({ action: 'command-failed', index, error: String(error), retained: true })
         let finishing = false
         try { const parsed = JSON.parse(bytes); finishing = Array.isArray(parsed) && parsed.some(command => command.action === 'finish') } catch {}
         if (finishing) throw error
       }
-      if (await page.evaluate(() => window.testSceneRef.current.world.status === 'lost')) throw new MissionDefeat()
+      requireNotDefeated(await page.evaluate(() => window.testSceneRef.current.world.status))
       log({ action: 'awaiting-input', next: `${String(index + 1).padStart(4, '0')}.json`, paused: true })
     }
     throw new IncompleteRun('command-limit', 'Command count limit reached without completed acceptance')

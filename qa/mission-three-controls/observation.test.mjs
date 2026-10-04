@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
-import { createEpoch, recordTurn, attachObserver, requireConversion, progressKey, checkCondition, observeBuilding, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop } from './observation.mjs'
+import { createEpoch, recordTurn, attachObserver, requireConversion, progressKey, checkCondition, observeBuilding, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated } from './observation.mjs'
 const world = () => ({ turn: 0, time: 0, speed: 1, outcome: { level: 3 }, units: [] })
 
 test('observer chains original exactly once with receiver, arguments and return preserved', () => {
@@ -170,4 +170,14 @@ test('wall-clock stalls and active budget stops are incomplete; defeat is termin
   assert.equal(waitDiagnosticStop({ ...input, wallElapsed: 5400000 }).code, 'wall-envelope')
   assert.ok(new MissionDefeat() instanceof Error)
   assert.equal(new MissionDefeat() instanceof IncompleteRun, false)
+})
+
+
+test('the shared batch/wait/catch status guard makes every observed defeat terminal', () => {
+  for (const status of ['playing', 'won', undefined]) assert.doesNotThrow(() => requireNotDefeated(status))
+  for (const boundary of ['wait', 'batch snapshot', 'recoverable catch', 'awaiting input']) {
+    const retainedFailures = boundary === 'recoverable catch' ? [{ error: 'original helper error' }] : []
+    assert.throws(() => requireNotDefeated('lost'), error => error instanceof MissionDefeat)
+    if (boundary === 'recoverable catch') assert.deepEqual(retainedFailures, [{ error: 'original helper error' }])
+  }
 })

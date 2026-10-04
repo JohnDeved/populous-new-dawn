@@ -20,7 +20,7 @@ node --check qa/mission-three-controls/driver.mjs
 node --test qa/mission-three-controls/observation.test.mjs
 ```
 
-The fourteen isolated tests cover original callback receiver/arguments/return and
+The fifteen isolated tests cover original callback receiver/arguments/return and
 exact invocation count; diagnostic exception isolation versus real application
 exceptions; idempotent detach; separate reload/time epochs; strict singleton
 conversion identity; rejecting death/poll gaps; and progress that ignores a
@@ -28,7 +28,8 @@ merely advancing simulation clock. Additional cases cover null/undefined/hostile
 diagnostic exceptions, copied native admission occupancy/queue data, and the
 explicit incomplete-stop classification, authored allocation identity, fresh
 command/recipient/ground-target correlation, worker construction progress and
-wall-clock diagnostic boundaries. The tests use isolated plain JS data, not the
+wall-clock diagnostic boundaries and terminal observed-defeat classification at
+all batch/wait/catch boundaries. The tests use isolated plain JS data, not the
 game simulation, browser, assets, native executable or installed packages.
 
 ## Reserved future launch
