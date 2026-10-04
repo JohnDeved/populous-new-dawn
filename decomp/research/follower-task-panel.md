@@ -121,19 +121,28 @@ Key decoding is model=`key/5`, category=`key%5+1`. Left dispatch goes through
 - Ctrl: `0x72`, up to five through category-aware nearest selection;
 - Shift: `0x54` for Total, `0x55` for one class; Shift takes precedence;
 - Selected row ordinary click **deselects one**; Shift **deselects all matching**;
-- Selected-row Ctrl is a verified native **no-op**, because the five command sets
-  the already-selected bit rather than toggling it. Its tooltip does not advertise
-  Ctrl. Do not invent Ctrl-deselect-five as an original behavior.
+- Selected-row Ctrl leaves selection bits unchanged: the five command sets the
+  already-selected bit rather than toggling it. It still clears `flags3` bit
+  `0x10000000` on the nearest selected target, so it is **not** an unconditional
+  no-op. Its tooltip does not advertise Ctrl. Do not invent Ctrl-deselect-five.
 
 The persistent strip's assignment-priority search does **not** govern these task
 cells: nonzero category branches directly from `00451720` to category-aware
 `004518c0`. Same original input gates remain: overview mode, level lock, blocked
-input, drag/press modes. Selection and deselection preserve unrelated person state.
+input, drag/press modes. Exact allowed `flags3` changes are tested: selection clears
+`0x10000000`; deselection clears `0x80`. Other person bytes are preserved.
+
+**Total is asymmetric:** counts and Shift-all exclude the Shaman, but single/Ctrl
+nearest task search and right-focus can include a matching model-7 Shaman. The
+probe places a Shaman nearer than a matching Brave in every category and verifies
+all four actions. Do not add an unconditional Shaman exclusion to the Total filter.
 
 Right click dispatches `004de810(model, category, shift)` and remembers a separate
 person per **model+category** pair. It finds a nearest match, cycles native tribe
-list order and wraps, respects nearby filtering, and lets Shift include reserved
-people. It focuses camera and opens the person panel without changing selection
+list order and wraps, and lets Shift include reserved people. Initial nearest
+focus applies nearby radius, while later cycle matching uses `00451ac0`, which
+exempts the Shaman from the distance gate. The regression first focuses a nearby
+Brave and then cycles to a matching Shaman outside the radius. It focuses camera and opens the person panel without changing selection
 or orders. The current browser helper only implements category 0, so merely
 reusing its existing signature would silently omit required task filtering/memory.
 
@@ -152,7 +161,8 @@ python scripts/capture-native-followers-panel.py "$POPULOUS_EXE" work/orchestrat
 
 Passed: 36 descriptors/root; 1,152 left callback/producer cases; 48 right callback
 cases; 80 class-refresh cases; 194 native classifier cases; 36 complete task commands;
-184 full native count rebuilds; 16 complete category focus cycles; four 36-cell
+184 full native count rebuilds; 16 complete category focus cycles; 31 additional
+Shaman/mixed-category/nearby-cycle cases with exact flags3 masks; four 36-cell
 normal/pressed × global/nearby native renderer captures. The raster probe intercepts
 coordinate adapters, CRT formatting, bank lookup and final raster queues. It executes
 native frame/icon/font-placement routines. Only enabled pixels are reconstructed;
