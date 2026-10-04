@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "f6bc6dc1-c81e-4b58-a657-e928505fa1a7",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4170e24f91026b9b3fce69ff3a49c0242f9896ef",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    }
+  },
+  "command": [
+    "python",
+    "scripts/decomp.py",
+    "check",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin",
+  "startedAt": "2026-10-04T13:54:43.346Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/decomp-check-final.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/decomp-check-final.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T13:54:43.465Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"sha256\": \"3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f\",\n  \"bytes\": 2275840,\n  \"debugDirectoryRva\": 0,\n  \"debugDirectorySize\": 0\n}\nVerified 1340 exports, native tables and unknown-build rejection\n",
+  "stderr": "",
+  "stdoutSha256": "ac74ca326b7db3a163217bcd6199fcf6e5ac0aeef19ece5cc5afec7c50ea4b28",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "4170e24f91026b9b3fce69ff3a49c0242f9896ef",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    }
+  }
+}

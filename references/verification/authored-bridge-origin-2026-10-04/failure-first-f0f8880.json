@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "f94d0a6c-1bb8-44e8-a5d5-5e304751c2a1",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "678cce1d79370d63db497aeb81b1b2ecf2e12583",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "64324a1692878ec7c11341bc97edf29bfb8e9f15daed5f3adb6812219e33fbde",
+    "inputs": {
+      "work/orchestration/authored-bridge-origin/failure-first.mjs": "604e8a3633a3559c6feba0b1cdbd3be3c226582f5a63d23d91548ff64f8b5c2d",
+      "../mission-two-controls/app/world-initialization.ts": "c5f55c9e1b0aabab4f0a7f84e731a23297c313fb8c192449b08889a2bef9718a",
+      "../mission-two-controls/app/world-turn.ts": "d521eb6bbb14d6feb06ef79052355725831b628bc886dcd09ceb7dd471032d1d",
+      "../mission-two-controls/app/model.ts": "fc32041efee0a34ae32e26653dd8b45c2b54df8389d4e32ea11fa58e3cde4682"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/authored-bridge-origin/failure-first.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin",
+  "startedAt": "2026-10-04T13:29:38.624Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/failure-first-f0f8880.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/failure-first-f0f8880.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T13:29:39.658Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "{\n  \"baseline\": \"f0f8880127409df0c2aee569c48cfad45351faf0\",\n  \"runtimeParent\": \"b8465001a618b97ded7d7a7cd4afc4a1fc7240f5\",\n  \"turn\": 472,\n  \"uses\": 1,\n  \"shrine\": {\n    \"x\": -113,\n    \"z\": 113\n  },\n  \"bridge\": {\n    \"start\": {\n      \"x\": 38656,\n      \"y\": 34560\n    },\n    \"target\": {\n      \"x\": 51968,\n      \"y\": 24832\n    },\n    \"turn\": 0,\n    \"alongY\": false,\n    \"startCell\": 0,\n    \"endCell\": 0,\n    \"direction\": 0,\n    \"crossStep\": 0,\n    \"heightStep\": 0,\n    \"raiseWater\": true\n  }\n}\n",
+  "stderr": "node:internal/modules/run_main:107\n    triggerUncaughtException(\n    ^\n\nAssertionError [ERR_ASSERTION]: Authored native origin must match ordinary Mission2 reward\n+ actual - expected\n\n  {\n+   x: 38656,\n+   y: 34560\n-   x: 47872,\n-   y: 24832\n  }\n\n    at file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/failure-first.mjs:10:8\n    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)\n    at async node:internal/modules/esm/loader:643:26\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {\n  generatedMessage: false,\n  code: 'ERR_ASSERTION',\n  actual: { x: 38656, y: 34560 },\n  expected: { x: 47872, y: 24832 },\n  operator: 'deepStrictEqual',\n  diff: 'simple'\n}\n\nNode.js v24.19.0\n",
+  "stdoutSha256": "f9a7008484e177e5de30acc9c992e62fa41bf7a8436f9ba7249ab2e9db1213dc",
+  "stderrSha256": "1373da34c92c6e9ba0d06718b243cebb486837baca20119f1932d30b2f3232a0",
+  "sourceAfter": {
+    "headOid": "678cce1d79370d63db497aeb81b1b2ecf2e12583",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "64324a1692878ec7c11341bc97edf29bfb8e9f15daed5f3adb6812219e33fbde",
+    "inputs": {
+      "work/orchestration/authored-bridge-origin/failure-first.mjs": "604e8a3633a3559c6feba0b1cdbd3be3c226582f5a63d23d91548ff64f8b5c2d",
+      "../mission-two-controls/app/world-initialization.ts": "c5f55c9e1b0aabab4f0a7f84e731a23297c313fb8c192449b08889a2bef9718a",
+      "../mission-two-controls/app/world-turn.ts": "d521eb6bbb14d6feb06ef79052355725831b628bc886dcd09ceb7dd471032d1d",
+      "../mission-two-controls/app/model.ts": "fc32041efee0a34ae32e26653dd8b45c2b54df8389d4e32ea11fa58e3cde4682"
+    }
+  }
+}

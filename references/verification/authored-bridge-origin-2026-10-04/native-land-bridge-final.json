@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "5bda6110-7053-40f5-9cd4-4182e64633ca",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4170e24f91026b9b3fce69ff3a49c0242f9896ef",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24"
+    }
+  },
+  "command": [
+    "python",
+    "scripts/check-native-land-bridge.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin",
+  "startedAt": "2026-10-04T13:53:56.910Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/native-land-bridge-final.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/native-land-bridge-final.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T13:54:41.424Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "PASS: 96 complete native Land Bridge lifetimes (6048 turns), all terrain heights, ordered trails, notifications and controller state\n",
+  "stderr": "",
+  "stdoutSha256": "31b2c9eca0fd81fba53dbed8e7bfdcf74a8cf870b97f59a018dae0dc3c76f9b7",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "4170e24f91026b9b3fce69ff3a49c0242f9896ef",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24"
+    }
+  }
+}

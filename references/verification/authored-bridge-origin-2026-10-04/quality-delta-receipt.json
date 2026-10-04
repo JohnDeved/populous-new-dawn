@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "bcd9109a-b668-4bfd-b247-036b64ba43fc",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "30e671e8e1ec53ee1624ae85e207a6e60798ca45",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/authored-bridge-origin/compare-quality.mjs": "aded70e89ac79442406d5b37859185c6bc44c73c42a7ea21df2059244555506a",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "../mission-two-controls/app/game-store.ts": "38de73d27c324c17c77312c604bd90265bfba68fc8dfef1f3e4e69323ba7752f",
+      "../mission-two-controls/app/world-initialization.ts": "c5f55c9e1b0aabab4f0a7f84e731a23297c313fb8c192449b08889a2bef9718a",
+      "../mission-two-controls/app/world-turn.ts": "d521eb6bbb14d6feb06ef79052355725831b628bc886dcd09ceb7dd471032d1d",
+      "../mission-two-controls/app/world-types.ts": "287d82d8deca7bf79887d481fe4e15aca641d15257bf57a967400c0008ca4103"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/authored-bridge-origin/compare-quality.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin",
+  "startedAt": "2026-10-04T13:37:55.432Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/quality-delta-receipt.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/quality-delta-receipt.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T13:37:55.731Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"baseline\":{\"head\":\"f0f8880127409df0c2aee569c48cfad45351faf0\",\"exit\":1,\"diagnostics\":341},\"candidate\":{\"head\":\"30e671e8e1ec53ee1624ae85e207a6e60798ca45\",\"exit\":1,\"diagnostics\":341},\"added\":[]}\n",
+  "stderr": "",
+  "stdoutSha256": "d81c02426ba427c0115844d7ae0b95ae33c04312b35788b85f8095333c1d0497",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "30e671e8e1ec53ee1624ae85e207a6e60798ca45",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/authored-bridge-origin/compare-quality.mjs": "aded70e89ac79442406d5b37859185c6bc44c73c42a7ea21df2059244555506a",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "../mission-two-controls/app/game-store.ts": "38de73d27c324c17c77312c604bd90265bfba68fc8dfef1f3e4e69323ba7752f",
+      "../mission-two-controls/app/world-initialization.ts": "c5f55c9e1b0aabab4f0a7f84e731a23297c313fb8c192449b08889a2bef9718a",
+      "../mission-two-controls/app/world-turn.ts": "d521eb6bbb14d6feb06ef79052355725831b628bc886dcd09ceb7dd471032d1d",
+      "../mission-two-controls/app/world-types.ts": "287d82d8deca7bf79887d481fe4e15aca641d15257bf57a967400c0008ca4103"
+    }
+  }
+}

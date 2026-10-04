@@ -1,0 +1,7 @@
+{"at":"2026-10-04T13:46:50.401Z","operation":"selected","kind":"shaman","modifier":"Control","ids":[54],"turn":333}
+{"at":"2026-10-04T13:46:51.400Z","operation":"minimap-click","point":{"id":55,"kind":"bridgeEffect","x":-113,"z":113,"required":1,"work":0,"target":45,"progress":0,"uses":0,"remaining":1,"followers":0,"active":true,"point":{"x":1768.1875,"y":518.9375}},"input":{"d":53.907327887774215,"x":140,"y":92}}
+{"at":"2026-10-04T13:46:53.357Z","operation":"entity-pick","attempt":0,"x":815.625,"y":300.25,"center":{"x":815.625,"y":395.25},"collection":"shrines","id":55,"turn":351}
+{"at":"2026-10-04T13:46:53.910Z","operation":"worship-order-accepted","id":55,"selected":[54],"turn":367}
+{"at":"2026-10-04T13:47:09.499Z","operation":"minimap-click","point":{"x":-69,"z":-105},"input":{"d":55.57877292636101,"x":69,"y":139}}
+{"at":"2026-10-04T13:47:34.464Z","operation":"minimap-click","point":{"x":-69,"z":-105},"input":{"d":115.11733144926528,"x":150,"y":112}}
+{"at":"2026-10-04T13:47:42.615Z","operation":"minimap-click","point":{"x":-69,"z":-105},"input":{"d":126.43575443678898,"x":147,"y":73}}

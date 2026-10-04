@@ -1,0 +1,8 @@
+{
+  "candidate": "4170e24f91026b9b3fce69ff3a49c0242f9896ef",
+  "renderedCandidate": "30e671e8e1ec53ee1624ae85e207a6e60798ca45",
+  "adoptedMain": "f0f8880127409df0c2aee569c48cfad45351faf0",
+  "method": "Normal no-fast-forward merge of docs-only main; git diff --exit-code 30e671e HEAD -- app scripts tests package.json package-lock.json .oxlintrc.json returned exit0.",
+  "onlyAdoptedPaths": ["references/README.md", "references/verification/mission-one-controls-2026-10-04/README.md", "references/verification/mission-one-controls-2026-10-04/012.png"],
+  "claim": "Browser and native terrain replay remain labeled with their actual source30e671e. Runtime, probes, tests and dependency declarations are byte-identical in final candidate4170e24. Full check/build run against final candidate."
+}

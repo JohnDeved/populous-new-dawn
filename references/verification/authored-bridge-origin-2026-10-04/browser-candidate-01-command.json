@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "59a6622f-0166-4dff-928a-c292d687e222",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "30e671e8e1ec53ee1624ae85e207a6e60798ca45",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/authored-bridge-origin/candidate.mjs": "204cbabf7b72ebc77fd80431a4140d0460a62f8fc32b5bfeeb8df2be9ebe27cd",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  },
+  "command": [
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin",
+    "--port",
+    "4362",
+    "--output",
+    "work/orchestration/authored-bridge-origin/browser-candidate-01",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--timeout",
+    "240000",
+    "--scenario",
+    "work/orchestration/authored-bridge-origin/candidate.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin",
+  "startedAt": "2026-10-04T13:41:10.885Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/browser-candidate-01-command.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/browser-candidate-01-command.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T13:43:11.637Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "{\"snapshot\":\"opening\",\"at\":\"2026-10-04T13:41:42.861Z\",\"turn\":110,\"status\":\"playing\",\"paused\":true,\"population\":{\"green-brave\":13,\"green-warrior\":6,\"green-shaman\":1,\"blue-shaman\":1,\"blue-brave\":9},\"stats\":{\"built\":0,\"cast\":0,\"bridges\":0,\"trained\":0,\"battlesWon\":[0,0,0,0]},\"shots\":{\"blast\":4,\"convertWild\":0,\"hypnotise\":0,\"ghostArmy\":0,\"bridge\":0,\"lightning\":0,\"flatten\":0,\"erosion\":0,\"swamp\":0,\"firestorm\":0,\"earthquake\":0,\"angel\":0,\"volcano\":0,\"tornado\":0,\"shield\":0,\"invisibility\":0,\"armageddon\":0,\"bloodlust\":0,\"teleport\":0,\"swarm\":0}}\n{\"snapshot\":\"authored-crossing-before\",\"at\":\"2026-10-04T13:42:04.483Z\",\"turn\":320,\"status\":\"playing\",\"paused\":true,\"population\":{\"green-brave\":14,\"green-warrior\":6,\"green-shaman\":1,\"blue-shaman\":1,\"blue-brave\":9},\"stats\":{\"built\":0,\"cast\":0,\"bridges\":0,\"trained\":0,\"battlesWon\":[0,0,0,0]},\"shots\":{\"blast\":4,\"convertWild\":0,\"hypnotise\":0,\"ghostArmy\":0,\"bridge\":0,\"lightning\":0,\"flatten\":0,\"erosion\":0,\"swamp\":0,\"firestorm\":0,\"earthquake\":0,\"angel\":0,\"volcano\":0,\"tornado\":0,\"shield\":0,\"invisibility\":0,\"armageddon\":0,\"bloodlust\":0,\"teleport\":0,\"swarm\":0}}\n{\"snapshot\":\"authored-crossing-active\",\"at\":\"2026-10-04T13:42:21.430Z\",\"turn\":499,\"status\":\"playing\",\"paused\":true,\"population\":{\"green-brave\":16,\"green-warrior\":6,\"green-shaman\":1,\"blue-shaman\":1,\"blue-brave\":9},\"stats\":{\"built\":1,\"cast\":0,\"bridges\":1,\"trained\":0,\"battlesWon\":[0,0,0,0]},\"shots\":{\"blast\":4,\"convertWild\":0,\"hypnotise\":0,\"ghostArmy\":0,\"bridge\":0,\"lightning\":0,\"flatten\":0,\"erosion\":0,\"swamp\":0,\"firestorm\":0,\"earthquake\":0,\"angel\":0,\"volcano\":0,\"tornado\":0,\"shield\":0,\"invisibility\":0,\"armageddon\":0,\"bloodlust\":0,\"teleport\":0,\"swarm\":0}}\n",
+  "stderr": "Error: locator.click: Timeout 45000ms exceeded.\nCall log:\n\u001b[2m  - waiting for getByRole('button', { name: 'Save checkpoint', exact: true })\u001b[22m\n\n    at button (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/candidate.mjs:47:85)\n    at default (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/candidate.mjs:165:30)\n    at async runLocalBrowser (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/scripts/local-render/harness.mjs:106:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/scripts/local-render/harness.mjs:149:21\n    at runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/scripts/local-render/harness.mjs:132:47)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/scripts/local-render/harness.mjs:149:21\n",
+  "stdoutSha256": "06646898ee97856a3ef600af9626bb0832035b21bc21fb2ed2dfb7ad68854cad",
+  "stderrSha256": "98a0a9ca745a5d733ea1f9c273bf5b563c77bff65afea0cfa97186abd857217b",
+  "sourceAfter": {
+    "headOid": "30e671e8e1ec53ee1624ae85e207a6e60798ca45",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/authored-bridge-origin/candidate.mjs": "204cbabf7b72ebc77fd80431a4140d0460a62f8fc32b5bfeeb8df2be9ebe27cd",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  }
+}

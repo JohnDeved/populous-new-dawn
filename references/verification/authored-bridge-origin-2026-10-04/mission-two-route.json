@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "819fc84b-356b-419f-ad88-ac061e0e60cd",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "69fa290cf8f7430f7eaff4e51d09f0b350fa6b6d",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-name-pattern",
+    "mission-two Totem|mission-one victory continuation",
+    "tests/game.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin",
+  "startedAt": "2026-10-04T13:34:33.476Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/mission-two-route.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/mission-two-route.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T13:34:35.552Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ mission-one victory continuation creates and restarts the recovered mission-two world (396.50638ms)\n✔ mission-two Totem route reaches the Tornado guidance and use instruction (1034.855924ms)\nℹ tests 2\nℹ suites 0\nℹ pass 2\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2018.073414\n",
+  "stderr": "",
+  "stdoutSha256": "4249918b8570f817819d3d1c7078b64d4d208fc025c96d3236fa0d37643eb94c",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "69fa290cf8f7430f7eaff4e51d09f0b350fa6b6d",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

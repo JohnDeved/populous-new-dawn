@@ -1,0 +1,11 @@
+Error: locator.click: Timeout 45000ms exceeded.
+Call log:
+[2m  - waiting for getByRole('button', { name: 'Save checkpoint', exact: true })[22m
+
+    at button (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/candidate.mjs:47:85)
+    at default (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/candidate.mjs:165:30)
+    at async runLocalBrowser (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/scripts/local-render/harness.mjs:106:20)
+    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/scripts/local-render/harness.mjs:149:21
+    at runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/scripts/local-render/harness.mjs:132:47)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/scripts/local-render/harness.mjs:149:21

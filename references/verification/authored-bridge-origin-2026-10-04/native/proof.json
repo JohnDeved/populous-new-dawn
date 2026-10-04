@@ -1,0 +1,48 @@
+{
+  "identity": {
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "bytes": 2275840,
+    "debugDirectoryRva": 0,
+    "debugDirectorySize": 0
+  },
+  "levelSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+  "nativeTrace": [
+    "0x485b00",
+    "0x509c10",
+    "0x4fb270",
+    "0x4ede10",
+    "0x4ed700",
+    "0x50a750",
+    "0x50ee00"
+  ],
+  "allocations": [
+    {
+      "model": 24,
+      "position": [
+        47872,
+        24832,
+        0
+      ]
+    }
+  ],
+  "start": [
+    47872,
+    24832
+  ],
+  "target": [
+    51968,
+    24832
+  ],
+  "turns": 63,
+  "changedCells": 36,
+  "head": [
+    38656,
+    34560
+  ],
+  "terrainSha256": "b515bfbebca3b15f845eba1778b54664642143e227b94497eeeac70e99305ed7",
+  "limits": [
+    "Forced completion supplies worship admission; native executes authored record decode, effect state initializer, head clone dispatch, clone copier, class dispatcher, bridge controller and all terrain arithmetic.",
+    "Allocator storage/world registration, class init callbacks, sound/presentation, shared-link scan, deletion, trail allocation and terrain notification/render leaves intercepted.",
+    "Raw authored Mission2 heights with supplied zero terrain flags, not rendered native game."
+  ]
+}

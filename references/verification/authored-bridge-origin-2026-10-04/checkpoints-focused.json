@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "9ddebd68-6149-4046-ab95-ca9704c4dbd5",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "69fa290cf8f7430f7eaff4e51d09f0b350fa6b6d",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/authored-bridges.test.mjs",
+    "tests/land-bridge.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin",
+  "startedAt": "2026-10-04T13:34:30.422Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/checkpoints-focused.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/checkpoints-focused.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T13:34:33.384Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ authored origins survive initialization for all five currently live campaign bridge heads (388.168838ms)\n✔ ordinary Mission 2 worship creates the authored crossing and every live terrain turn matches it (704.452429ms)\n✔ legacy migration recovers only missing immutable origins without replaying active terrain (318.062191ms)\n✔ pre-activation legacy save and mid-bridge checkpoint continue once at the authored origin (855.969495ms)\n✔ complete Land Bridge lifetimes match native terrain, ordered trails and notifications (403.539537ms)\n✔ live bridge terrain and particle cleanup are identical across refresh rates and stalls (1809.713546ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2900.018576\n",
+  "stderr": "",
+  "stdoutSha256": "d037ece12826bcc74f96704b6f3094d356723ea86b8d2487ff775c195eba8895",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "69fa290cf8f7430f7eaff4e51d09f0b350fa6b6d",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

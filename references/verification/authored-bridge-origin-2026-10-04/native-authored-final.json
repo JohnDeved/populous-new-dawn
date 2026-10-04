@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "642f1177-7121-413e-9988-300c0731bbec",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4170e24f91026b9b3fce69ff3a49c0242f9896ef",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/authored-bridge-origin/browser-candidate-02/native-terrain.json": "01f4ad1948cc30123d8ed0bf2bb28bb2294f272a8faaa2ca1a286559c7067b7c",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2001.dat": "97cdb6e170f68b462b5b36c42c99a598b0466e0131a105f30612f50d7f16e40c",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2002.dat": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2003.dat": "eb239eabebbcde37c1e1633b149d48977cedf432348a12fc5ee6b4be74c049bf",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2005.dat": "fce3c6555933d9e6d04490739a90f0cd188bc561a977c0c28e04aa265955f90b",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2006.dat": "264d69d98965465325a4b0e6ec1b1f9145d2a407e68ca9472e6a76a60a1a8a62",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2009.dat": "ce84c652e4ed135e8d789c19aa2f6d57170642ff2b59dc57251485ae5da16d19"
+    }
+  },
+  "command": [
+    "python",
+    "scripts/check-native-authored-bridges.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+    "--browser",
+    "work/orchestration/authored-bridge-origin/browser-candidate-02/native-terrain.json",
+    "--output",
+    "work/orchestration/authored-bridge-origin/native/final-4170e24.json"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin",
+  "startedAt": "2026-10-04T13:54:41.518Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/native-authored-final.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-origin/work/orchestration/authored-bridge-origin/native-authored-final.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T13:54:43.252Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "PASS: 5 authored bridge producers, real clone/dispatch, 315 native terrain turns; Missions 1 and 3 have none\nPASS: ordinary Mission 2 rendered bridge endpoints and all 16,384 final terrain heights match native producer/controller replay\n",
+  "stderr": "",
+  "stdoutSha256": "bbaf8723e0a3181261f65e299250d6ea907f381f2bff3ffbf5efb1fcedd2c92d",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "4170e24f91026b9b3fce69ff3a49c0242f9896ef",
+    "branch": "fix/authored-bridge-origin",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/authored-bridge-origin/browser-candidate-02/native-terrain.json": "01f4ad1948cc30123d8ed0bf2bb28bb2294f272a8faaa2ca1a286559c7067b7c",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2001.dat": "97cdb6e170f68b462b5b36c42c99a598b0466e0131a105f30612f50d7f16e40c",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2002.dat": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2003.dat": "eb239eabebbcde37c1e1633b149d48977cedf432348a12fc5ee6b4be74c049bf",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2005.dat": "fce3c6555933d9e6d04490739a90f0cd188bc561a977c0c28e04aa265955f90b",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2006.dat": "264d69d98965465325a4b0e6ec1b1f9145d2a407e68ca9472e6a76a60a1a8a62",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2009.dat": "ce84c652e4ed135e8d789c19aa2f6d57170642ff2b59dc57251485ae5da16d19"
+    }
+  }
+}

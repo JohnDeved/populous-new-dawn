@@ -1,0 +1,28 @@
+{
+  "baseline": "f0f8880127409df0c2aee569c48cfad45351faf0",
+  "runtimeParent": "b8465001a618b97ded7d7a7cd4afc4a1fc7240f5",
+  "turn": 472,
+  "uses": 1,
+  "shrine": {
+    "x": -113,
+    "z": 113
+  },
+  "bridge": {
+    "start": {
+      "x": 38656,
+      "y": 34560
+    },
+    "target": {
+      "x": 51968,
+      "y": 24832
+    },
+    "turn": 0,
+    "alongY": false,
+    "startCell": 0,
+    "endCell": 0,
+    "direction": 0,
+    "crossStep": 0,
+    "heightStep": 0,
+    "raiseWater": true
+  }
+}

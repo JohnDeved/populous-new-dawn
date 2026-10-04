@@ -1,0 +1,273 @@
+{
+  "identity": {
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "bytes": 2275840,
+    "debugDirectoryRva": 0,
+    "debugDirectorySize": 0
+  },
+  "cases": [
+    {
+      "mission": 2,
+      "headIndex": 59,
+      "sourceIndex": 60,
+      "authoredLinks": [
+        61,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bridgeOnlyLinkSlice": false,
+      "levelSha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+      "head": {
+        "x": -113.0,
+        "z": 113.0
+      },
+      "start": {
+        "x": 47872,
+        "y": 24832
+      },
+      "target": {
+        "x": 51968,
+        "y": 24832
+      },
+      "turns": 63,
+      "changedCells": 36,
+      "nativeTrace": [
+        "0x485b00",
+        "0x509c10",
+        "0x4fb270",
+        "0x4ede10",
+        "0x4ed700",
+        "0x50a750",
+        "0x50ee00"
+      ],
+      "terrainSha256": "2d4cc397f0ee01ab9b986d8d73d41d95a48892917cf8fd76171ce8a282c6a082"
+    },
+    {
+      "mission": 5,
+      "headIndex": 96,
+      "sourceIndex": 126,
+      "authoredLinks": [
+        127,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bridgeOnlyLinkSlice": false,
+      "levelSha256": "fce3c6555933d9e6d04490739a90f0cd188bc561a977c0c28e04aa265955f90b",
+      "head": {
+        "x": -89.0,
+        "z": 15.0
+      },
+      "start": {
+        "x": 44800,
+        "y": 59648
+      },
+      "target": {
+        "x": 44800,
+        "y": 55552
+      },
+      "turns": 63,
+      "changedCells": 34,
+      "nativeTrace": [
+        "0x485b00",
+        "0x509c10",
+        "0x4fb270",
+        "0x4ede10",
+        "0x4ed700",
+        "0x50a750",
+        "0x50ee00"
+      ],
+      "terrainSha256": "b914f9e8ebf82ef21345e20a29d7f9da96ee549a5486e3396cdea2c82015530a"
+    },
+    {
+      "mission": 5,
+      "headIndex": 113,
+      "sourceIndex": 115,
+      "authoredLinks": [
+        116,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bridgeOnlyLinkSlice": false,
+      "levelSha256": "fce3c6555933d9e6d04490739a90f0cd188bc561a977c0c28e04aa265955f90b",
+      "head": {
+        "x": -53.0,
+        "z": -5.0
+      },
+      "start": {
+        "x": 54528,
+        "y": 64768
+      },
+      "target": {
+        "x": 50432,
+        "y": 64768
+      },
+      "turns": 63,
+      "changedCells": 34,
+      "nativeTrace": [
+        "0x485b00",
+        "0x509c10",
+        "0x4fb270",
+        "0x4ede10",
+        "0x4ed700",
+        "0x50a750",
+        "0x50ee00"
+      ],
+      "terrainSha256": "3eb3f482dc00afe0ba0254652a32a8f1563dff55d2111dc316db466f7342bfdc"
+    },
+    {
+      "mission": 6,
+      "headIndex": 355,
+      "sourceIndex": 356,
+      "authoredLinks": [
+        357,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bridgeOnlyLinkSlice": false,
+      "levelSha256": "264d69d98965465325a4b0e6ec1b1f9145d2a407e68ca9472e6a76a60a1a8a62",
+      "head": {
+        "x": 113.0,
+        "z": -127.0
+      },
+      "start": {
+        "x": 43776,
+        "y": 47360
+      },
+      "target": {
+        "x": 47872,
+        "y": 47360
+      },
+      "turns": 63,
+      "changedCells": 36,
+      "nativeTrace": [
+        "0x485b00",
+        "0x509c10",
+        "0x4fb270",
+        "0x4ede10",
+        "0x4ed700",
+        "0x50a750",
+        "0x50ee00"
+      ],
+      "terrainSha256": "3809ab9520c59e4c6ec87d345a2e032d0753b8293d8acfc3c36d5667063bbdec"
+    },
+    {
+      "mission": 9,
+      "headIndex": 215,
+      "sourceIndex": 228,
+      "authoredLinks": [
+        20,
+        229,
+        225,
+        226,
+        3,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "bridgeOnlyLinkSlice": true,
+      "levelSha256": "ce84c652e4ed135e8d789c19aa2f6d57170642ff2b59dc57251485ae5da16d19",
+      "head": {
+        "x": 113.0,
+        "z": 111.0
+      },
+      "start": {
+        "x": 28416,
+        "y": 39168
+      },
+      "target": {
+        "x": 28416,
+        "y": 43264
+      },
+      "turns": 63,
+      "changedCells": 36,
+      "nativeTrace": [
+        "0x485b00",
+        "0x509c10",
+        "0x4fb270",
+        "0x4ede10",
+        "0x4ed700",
+        "0x50a750",
+        "0x50ee00"
+      ],
+      "terrainSha256": "e0f66199f9c7da599b668534b1e17f5626d5342498622f8574b0b98ace4d63bc"
+    }
+  ],
+  "inventory": {
+    "1": [],
+    "2": [
+      [
+        59,
+        60
+      ]
+    ],
+    "3": [],
+    "5": [
+      [
+        96,
+        126
+      ],
+      [
+        113,
+        115
+      ]
+    ],
+    "6": [
+      [
+        355,
+        356
+      ]
+    ],
+    "9": [
+      [
+        215,
+        228
+      ]
+    ]
+  },
+  "intercepted": [
+    "0x4ed8a0",
+    "0x4ef180",
+    "0x4edcf0",
+    "0x4fc290",
+    "0x4fbd20",
+    "0x50bcd0",
+    "0x4ed6f0",
+    "0x4ed640",
+    "0x48a050",
+    "0x44ddf0",
+    "0x44f2f0",
+    "0x4be230",
+    "0x4bdff0"
+  ],
+  "limits": "Compare authored head -> linked bridge origins with native clone dispatch.\n\nWorship completion is supplied. Original record decoding, model-24 state setup,\nhead dispatch, clone copy, class dispatch, and complete bridge terrain arithmetic\nexecute. Allocation storage, world registration/class callbacks, shared-link scan,\npresentation/audio, trail allocation, deletion and terrain notifications are\nintercepted. This is not a complete native-game or renderer execution.\nMixed-link later heads are explicitly reduced to their authored bridge slots.\n"
+}

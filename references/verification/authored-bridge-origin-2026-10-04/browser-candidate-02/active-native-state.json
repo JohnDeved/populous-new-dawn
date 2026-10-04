@@ -1,0 +1,26 @@
+{
+  "turn": 732,
+  "bridge": {
+    "start": {
+      "x": 47872,
+      "y": 24832
+    },
+    "target": {
+      "x": 51968,
+      "y": 24832
+    },
+    "turn": 12,
+    "alongY": false,
+    "startCell": 24762,
+    "endCell": 24778,
+    "direction": 2,
+    "crossStep": 0,
+    "heightStep": 2,
+    "raiseWater": true
+  },
+  "effectPosition": {
+    "x": -77,
+    "z": -105
+  },
+  "uses": 1
+}

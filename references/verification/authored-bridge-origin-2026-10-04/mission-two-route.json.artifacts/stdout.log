@@ -1,0 +1,10 @@
+✔ mission-one victory continuation creates and restarts the recovered mission-two world (396.50638ms)
+✔ mission-two Totem route reaches the Tornado guidance and use instruction (1034.855924ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2018.073414
