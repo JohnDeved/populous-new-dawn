@@ -17,7 +17,7 @@ The logical canvas is120×62 for Boats and72×62 for Balloons. Boat seat frame i
 (2,0,89,28), unload frame(91,0,27,28); Balloon frames are(3,0,38,28) and(41,0,27,28).
 Slots are17px apart. HFX60/61 are the23×23 unload normal/hover art. Disabled unload
 uses the untinted source sprite at alpha85; tail52 uses alpha170. Scoped
-`import-vehicle-panel-icons.py` appends only60/61 using the existing checked atlas
+`import-vehicle-panel-icons.py` appends only60/61 plus source-alpha palette130 passenger pressed masks using the existing checked atlas
 append routine and verifies that every prior rectangle and pixel is preserved.
 The complete HUD importer is not rerun.
 
@@ -95,7 +95,7 @@ Existing decompilation exports suffice; no Ghidra project or generated export wa
 modified. The native renderer intercepts palette and final raster consumers; its
 24 draw traces match the maintained layout. It separately captures16 hover,
 48 input,384 cached/forced-readiness combinations and two anchor heights.
-256 full selection commands compare with the maintained selection adapter.
+16 additional own/foreign, selected/unselected, hovered/pressed native traces match the maintained layout; hover fills palette154 behind the icon, while only the real selected bit draws53.256 full selection commands compare with the maintained selection adapter.
 320 exit/forced-readiness cases execute the complete native terrain/collision
 composition with supplied category/flag/mask inputs.96 unload comparisons execute
 complete command/order cleanup/ejection with supplied exit and animation leaves,

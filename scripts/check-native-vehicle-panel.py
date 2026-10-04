@@ -51,6 +51,19 @@ for ready in [False,True]:
   events=[];call(0x504bc0,panel,building,0,0,panel+0x12,panel+0x14,0,1)
   hover.append(dict(ready=ready,x=x,y=y,hit=read(0x895fb0,'B'),slot=read(0x895fb5,'h'),events=events))
 result['hover']=hover
+# Exact own/foreign, selected/unselected and primary-pressed hover presentation.
+hover_variants=[]
+for selected in [0,128]:
+ for owner in [0,1]:
+  for pressed in [0,1]:
+   for slot in [0,1]:
+    ready=True
+    for i in [0,1]:write(building+256+i*256+0x7a,'B',selected);write(building+256+i*256+0x2f,'B',owner)
+    write(0x984580,'ii',3+17*slot,1);write(0x895faf,'B',pressed)
+    events=[];call(0x504bc0,panel,building,0,0,panel+0x12,panel+0x14,0,1)
+    hover_variants.append(dict(selected=bool(selected),own=owner==0,pressed=bool(pressed),slot=slot,events=events))
+result['hoverVariants']=hover_variants
+
 input_events=[]
 def terminal(cpu,a,size,user):
  sp=cpu.reg_read(UC_X86_REG_ESP)
@@ -104,3 +117,9 @@ assert result_ts.returncode==0,result_ts.stderr
 for original,actual in zip(cases,json.loads(result_ts.stdout),strict=True):
  assert actual=={k:original[k] for k in ['width','height','events']},(original,actual)
 print('PASS: 24 native/TypeScript vehicle-panel layouts')
+
+hover_script="""import {vehiclePanel} from './app/vehicle-panel.ts';let s='';for await(const c of process.stdin)s+=c;console.log(JSON.stringify(JSON.parse(s).map(c=>vehiclePanel(1,[2,3].map(model=>({model,selected:c.selected,own:c.own})),true,c.slot,c.pressed).events)));"""
+run=subprocess.run(['node','--input-type=module','-e',hover_script],cwd=root,input=json.dumps(hover_variants),text=True,capture_output=True)
+assert run.returncode==0,run.stderr
+for c,actual in zip(hover_variants,json.loads(run.stdout),strict=True):assert actual==c['events'],(c,actual)
+print('PASS: 16 native/TypeScript selected/unselected own/foreign passenger hover/pressed traces')

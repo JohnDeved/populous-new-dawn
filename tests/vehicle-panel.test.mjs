@@ -44,3 +44,11 @@ test('stale unload failure repeatedly clears only current driver orders, without
  const count=unloadVehiclePeople({randomState:1},v,new Map([[1,p],[2,{id:2,savedVehicle:9}]]),{exit:()=>({point:{x:0,y:0},found:false}),clearOrders:p=>calls.push(p.id),launched:()=>assert.fail('no launch')})
  assert.equal(count,0);assert.deepEqual(calls,[1,1,1,1,1]);assert.deepEqual(v.passengers,[1,2]);assert.equal(p.savedVehicle,0)
 })
+
+test('hover adds a native fill, never a false selected marker; pressed overlays palette130',()=>{
+ const people=[{model:2,selected:false,own:true}],hovered=vehiclePanel(1,people,true,0),pressed=vehiclePanel(1,people,true,0,true)
+ assert.equal(hovered.events.some(e=>e[0]==='sprite'&&e[1]===53),false)
+ assert.ok(hovered.events.some(e=>e[0]==='fill'&&e[3]===255&&JSON.stringify(e[2])===JSON.stringify([4,2,20,26])))
+ assert.ok(pressed.events.some(e=>e[0]==='sprite'&&e[1]===75&&e[4]===130))
+ assert.equal(vehiclePanel(1,[{...people[0],own:false}],true,0,true).events.some(e=>e[0]==='sprite'&&e[4]===130),false)
+})

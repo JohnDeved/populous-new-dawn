@@ -140,7 +140,14 @@ export function paintPanel(
   for (const draw of layout.events) {
     if (draw[0] === 'sprite') {
       const [, id, x, y, tint, faded] = draw,
-        r = rects[tint < 0 ? id : `panel-${id}-${faded ? 'empty' : 'shadow'}`]
+        r =
+          rects[
+            tint === 130
+              ? `vehicle-${id}-pressed`
+              : tint < 0
+                ? id
+                : `panel-${id}-${faded ? 'empty' : 'shadow'}`
+          ]
       // 0x4f95a0: the tail is submitted with inverse ghost alpha (flag 16).
       context.globalAlpha = id === 52 ? 170 / 255 : tint < 0 && faded ? 85 / 255 : 1
       context.drawImage(atlas, r.x, r.y, r.w, r.h, x, y, r.w, r.h)

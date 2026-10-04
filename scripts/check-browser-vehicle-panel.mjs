@@ -33,13 +33,13 @@ async function restore(page) {
  await page.waitForFunction(()=>window.testSceneRef.current?.world===window.testStore.getWorld())
  await page.evaluate(()=>{const s=window.testSceneRef.current;s.world.speed=0;cancelAnimationFrame(s.frame)})
 }
-async function sourcePixels(panel,model,people,ready,output,name) {
- const layout=nativePairedLayout(model,people,ready), canvas=panel.locator('canvas')
+async function sourcePixels(panel,model,people,ready,output,name,hover=-1,pressed=false) {
+ const layout=nativePairedLayout(model,people,ready,hover,pressed), canvas=panel.locator('canvas')
  const result=await canvas.evaluate(async(canvas,{layout,hud})=>{
   const image=await createImageBitmap(await(await fetch('/original/hud.png')).blob()),expected=document.createElement('canvas');expected.width=layout.width;expected.height=layout.height
   const c=expected.getContext('2d');c.imageSmoothingEnabled=false
   for(const draw of layout.events){
-   if(draw[0]==='sprite'){const[,id,x,y,tint,faded]=draw,r=hud.rects[tint<0?id:`panel-${id}-${faded?'empty':'shadow'}`];c.globalAlpha=id===52?170/255:tint<0&&faded?85/255:1;c.drawImage(image,r.x,r.y,r.w,r.h,x,y,r.w,r.h);c.globalAlpha=1}
+   if(draw[0]==='sprite'){const[,id,x,y,tint,faded]=draw,r=hud.rects[tint===130?`vehicle-${id}-pressed`:tint<0?id:`panel-${id}-${faded?'empty':'shadow'}`];c.globalAlpha=id===52?170/255:tint<0&&faded?85/255:1;c.drawImage(image,r.x,r.y,r.w,r.h,x,y,r.w,r.h);c.globalAlpha=1}
    else{const[k,color,[l,t,r,b]]=draw;c.fillStyle=hud.colors[color];c.globalAlpha=k==='fill'?draw[3]/255:1;c.fillRect(l,t,k==='fill'?r-l:Math.max(1,r-l),k==='fill'?b-t:Math.max(1,b-t));c.globalAlpha=1}
   }
   image.close();const actual=canvas.getContext('2d').getImageData(0,0,canvas.width,canvas.height).data,want=c.getImageData(0,0,expected.width,expected.height).data
@@ -82,7 +82,11 @@ export default async function vehiclePanels({browser,page,openMission,output,rec
   result.pixels.push(await sourcePixels(panel,model,[{model:2,selected:false,own:true},{model:3,selected:false,own:true}],true,output,`vehicle-${model}-occupied-pixels`))
   await page.screenshot({path:resolve(output,`vehicle-${model}-occupied.png`)})
   const first=panel.getByRole('button',{name:'Toggle passenger 1; Shift selects the group',exact:true}),second=panel.getByRole('button',{name:'Toggle passenger 2; Shift selects the group',exact:true})
-  await first.click();assert.deepEqual(await selection(page),[roster[0]])
+  await first.hover();await render(page)
+  result.pixels.push(await sourcePixels(panel,model,[{model:2,selected:false,own:true},{model:3,selected:false,own:true}],true,output,`vehicle-${model}-hover-pixels`,0))
+  await page.mouse.down();await render(page)
+  result.pixels.push(await sourcePixels(panel,model,[{model:2,selected:false,own:true},{model:3,selected:false,own:true}],true,output,`vehicle-${model}-pressed-pixels`,0,true))
+  await page.mouse.up();assert.deepEqual(await selection(page),[roster[0]])
   await second.click({modifiers:['Shift']});assert.deepEqual((await selection(page)).toSorted(),roster.toSorted())
   await first.click();assert.deepEqual(await selection(page),[])
   const camera=await page.evaluate(()=>({...window.testSceneRef.current.cameraPosition}))

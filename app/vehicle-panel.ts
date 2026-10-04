@@ -34,7 +34,8 @@ export function vehiclePanel(
   model: number,
   people: { model: number; selected: boolean; own: boolean }[],
   canUnload: boolean,
-  hover = -1
+  hover = -1,
+  pressed = false
 ) {
   const g = vehiclePanelGeometry(model),
     events: PanelDraw[] = []
@@ -44,9 +45,11 @@ export function vehiclePanel(
       x = g.left + 1 + i * (hud.rects[75].w + 1)
     if (!p) events.push(['sprite', 75, x, 1, 172, true])
     else {
-      const sprite = 73 + p.model
+      const sprite = 73 + p.model,
+        highlighted = p.own && hover === i
+      if (highlighted) events.push(['fill', 154, [x + 1, 2, x + 17, 26], 255])
       events.push(['sprite', sprite, x + 1, 2, 172, false], ['sprite', sprite, x, 1, -1, false])
-      if (p.selected || (p.own && hover === i))
+      if (p.selected)
         events.push([
           'sprite',
           53,
@@ -55,6 +58,7 @@ export function vehiclePanel(
           -1,
           false,
         ])
+      if (highlighted && pressed) events.push(['sprite', sprite, x, 1, 130, false])
     }
   }
   panelFrame(events, g.unload.x, 0, g.unload.w, g.rowHeight)

@@ -262,6 +262,7 @@ export class ObjectPanels {
           vehicle.model,
           unload,
           vehicleHover,
+          element.matches(':has(button:active)'),
           passengers.map(({ person }) => person.tribe),
         ],
         people.map(person => person?.selectionFlags),
@@ -276,7 +277,8 @@ export class ObjectPanels {
                 own: person.tribe === 0,
               })),
               unload,
-              vehicleHover
+              vehicleHover,
+              element.matches(':has(button:active)')
             )
           : worship
             ? worshipPanel(worship)
