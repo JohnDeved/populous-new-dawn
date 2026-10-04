@@ -278,6 +278,12 @@ class BootstrapTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, 'Unowned worktree'):
             runner.repository()
 
+    def test_relative_sibling_root_does_not_inherit_source_package(self):
+        self.args.root = SOURCE / '..' / 'fixture-sibling'
+        runner = b.Bootstrap(self.args, self.manifest)
+        self.assertEqual(runner.root, SOURCE.parent / 'fixture-sibling')
+        self.assertNotIn(SOURCE, runner.root.parents)
+
     def test_root_inside_esm_package_is_rejected(self):
         (self.path / 'package.json').write_text('{"type":"module"}')
         with self.assertRaisesRegex(ValueError, 'Node package scope'):

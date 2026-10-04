@@ -133,7 +133,7 @@ def unpack(archive, destination, kind):
 class Bootstrap:
     def __init__(self, args, manifest):
         self.args, self.manifest = args, manifest
-        self.root = args.root.absolute()
+        self.root = Path(os.path.abspath(args.root))
         self.tools = self.root / 'prerequisites'
         self.cache = self.root / 'downloads'
         self.run_id = datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%SZ-') + uuid.uuid4().hex[:8]
