@@ -1,6 +1,6 @@
 {
   "scope": "source-only ordinary-control Mission 3 preflight; no execution proof",
-  "sourceCommit": "76df601a76c54b291cc7867021c45022382720dd",
+  "sourceCommit": "139ec7dec8fc77462a9bbf8a5fc09ad7b9bb9d31",
   "files": [
     {
       "path": "app/level-three.ts",
@@ -40,7 +40,7 @@
     },
     {
       "path": "app/live-movement.ts",
-      "sha256": "bdb1d320a2299e35ca68f611d1454a1444f6524dbc1aea8798134df5cea8e3bd"
+      "sha256": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5"
     },
     {
       "path": "app/computer-runtime.ts",
@@ -189,8 +189,12 @@
     {
       "path": "app/melee-engagement.ts",
       "sha256": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde"
+    },
+    {
+      "path": "app/person-order-start.ts",
+      "sha256": "8d0ebf7c58bce163b372a78430c7697f39138bc5cc6c30a9fbc81622d72c85cc"
     }
   ],
   "originalInspectionCommit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
-  "sourceRefresh": "Accepted main through PR185/196. Four guarded callers refreshed after inspecting transport-only additions, unchanged ordinary dispatch/load/clock paths, and rendered-geometry helpers. Other guard hashes and driver bytes unchanged; production build corresponds to accepted cf43509. Marker-expiry repair guards the actual secondary owner, four-turn lifetime, and native/coarse-cell coordinate adapters. Minimap ownership repair additionally guards inverse projection, actual focus completion, and the overlapping HUD tabs. Protected approach uses the actual victim eligibility flags and ordinary preaching cell square; required-actor diagnostics do not change application state."
+  "sourceRefresh": "Accepted main through PR185/196/197/199. Four guarded callers refreshed after inspecting transport-only additions, unchanged ordinary dispatch/load/clock paths, and rendered-geometry helpers. Other guard hashes and driver bytes unchanged; production build now corresponds to accepted6b6eb68. Marker-expiry repair guards the actual secondary owner, four-turn lifetime, and native/coarse-cell coordinate adapters. Minimap ownership repair additionally guards inverse projection, actual focus completion, and the overlapping HUD tabs. Protected approach uses the actual victim eligibility flags and ordinary preaching cell square; required-actor diagnostics do not change application state. The only PR199 runtime delta fills commandPosition for configurePersonOrder's aboard-airborne branch (person-order-start.ts:60\u201364); Mission3 has no authored vehicles. The inspected descriptor mask preserves unsupported non-raw payloads."
 }
