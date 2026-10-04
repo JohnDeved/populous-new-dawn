@@ -1,5 +1,15 @@
 # Ordinary reincarnation site wave (#30)
 
+**Evidence correction, 2026-10-04:** the passes through proof head94e88b4 are
+superseded for all search-dependent claims. The fixture reset zeroed0x3000 bytes
+from00890390, overlapping loaded mwsearch.dat at008929cd. The pinned file hash
+was checked before this destructive fixture reset, so it did not protect the
+actual consumed bytes. The repair restricts the unit-table clear to0x2000 and
+asserts intact pinned search bytes after every setup and native invocation. All
+original passes/failures are retained. Revalidation is pending; the three-hit
+claim below must not be treated as accepted evidence or an implementation target.
+Runtime work is paused until an intact-table native run and independent review.
+
 This bounded repair is separate from command18 startup and from the already
 accepted model12 body/spirit presentation. It does not complete issue #30.
 

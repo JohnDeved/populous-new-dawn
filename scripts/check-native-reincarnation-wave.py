@@ -27,6 +27,7 @@ def call(a,*args):
  except Exception:
   print('ERROR',hex(cpu.reg_read(UC_X86_REG_EIP)),events[-20:]);raise
  assert cpu.reg_read(UC_X86_REG_EIP)==stop,hex(cpu.reg_read(UC_X86_REG_EIP))
+ assert bytes(cpu.mem_read(0x8929cd,len(search)))==search,'Native invocation corrupted search input'
 events=[];removed=set();wave=0
 
 def hook(c,a,size,user):
@@ -55,7 +56,9 @@ cpu.mem_write(0x8929cd,search)
 def setup(busy=False,fail=False,height=240,ground=128):
  global events,removed,wave
  events=[];removed=set();wave=0
- cpu.mem_write(0x2000000,bytes(0x1c0000));cpu.mem_write(tribe,bytes(4*0xc65));cpu.mem_write(0x890390,bytes(0x3000))
+ cpu.mem_write(0x2000000,bytes(0x1c0000));cpu.mem_write(tribe,bytes(4*0xc65));cpu.mem_write(0x890390,bytes(0x2000))
+ cpu.mem_write(0x89290d,bytes(16*12))
+ assert bytes(cpu.mem_read(0x8929cd,len(search)))==search,'Fixture reset corrupted native search input'
  cpu.mem_write(0x8a03e4,b''.join(struct.pack('<IhH8x',0,ground,0) for _ in range(16384)))
  for a in [0x890324,0x890328,0x890330,0x890358,0x89035c,0x890360,0x895dbb,0x89c651,0x89c659]:write(a,'I',0)
  cpu.mem_write(0x96eac1,bytes(16));write(0x89d178,'I',0x12345678);write(0x89d17c,'I',32);write(0x89c661,'I',0);write(0x895da4,'I',0)
