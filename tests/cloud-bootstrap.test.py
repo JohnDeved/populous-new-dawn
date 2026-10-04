@@ -290,6 +290,13 @@ class BootstrapTests(unittest.TestCase):
             b.Bootstrap(self.args, self.manifest).execute()
         self.assertFalse(self.args.root.exists())
 
+    def test_build_tools_include_refinery_metadata_dependencies(self):
+        build = (SOURCE / 'engineering/cloud-python-build.lock').read_text()
+        runtime = (SOURCE / 'engineering/cloud-python.lock').read_text()
+        for name in ['setuptools', 'wheel', 'packaging', 'Cython', 'toml']:
+            self.assertIn(name + '==', build)
+            self.assertIn(name + '==', runtime)
+
     def test_manifest_matches_native_executable_and_tools(self):
         native = json.loads((SOURCE / 'decomp/tools.json').read_text())
         self.assertEqual(self.manifest['executableSha256'], native['executableSha256'])

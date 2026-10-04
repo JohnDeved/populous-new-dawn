@@ -237,12 +237,12 @@ class Bootstrap:
         links = [wheel_cache, *(p / 'python' for p in self.args.cache), *self.args.cache]
         for lock in [build, requirements]:
             if not self.args.offline:
-                command = [python, '-m', 'pip', '--isolated', 'download', '--disable-pip-version-check', '--no-deps',
+                command = [python, '-m', 'pip', '--isolated', '--cache-dir', self.cache / 'pip', 'download', '--disable-pip-version-check', '--no-deps',
                            '--no-build-isolation', '--require-hashes', '--dest', wheel_cache, '-r', lock]
                 if lock == build:
                     command.append('--only-binary=:all:')
                 self.run(command)
-            command = [python, '-m', 'pip', '--isolated', 'install', '--disable-pip-version-check', '--no-index',
+            command = [python, '-m', 'pip', '--isolated', '--cache-dir', self.cache / 'pip', 'install', '--disable-pip-version-check', '--no-index',
                        '--no-deps', '--no-build-isolation', '--require-hashes', '-r', lock]
             for link in links:
                 if link.is_dir():
@@ -263,7 +263,7 @@ class Bootstrap:
                 'actual={k:m.version(k) for k in expected}; '
                 'assert actual==expected,(actual,expected); print(json.dumps(actual,sort_keys=True))')
         self.run([python, '-c', code, json.dumps(expected)])
-        self.run([python, '-m', 'pip', '--isolated', 'check'])
+        self.run([python, '-m', 'pip', '--isolated', '--cache-dir', self.cache / 'pip', 'check'])
 
     def repository(self):
         repository = self.root / 'repository.git'
@@ -291,8 +291,13 @@ class Bootstrap:
         target = self.root / 'worktrees' / name
         marker = self.root / 'worktree-state' / (name + '.json')
         if target.exists():
+            if target.is_symlink():
+                raise ValueError(f'Symlinked worktree preserved: {target}')
             if not marker.is_file():
                 raise ValueError(f'Unowned worktree preserved: {target}')
+            common = Path(self.run(['git', '-C', target, 'rev-parse', '--git-common-dir']))
+            if (target / common).resolve() != repository.resolve():
+                raise ValueError('Worktree belongs to another repository; preserved untouched')
             state = json.loads(marker.read_text())
             head = self.run(['git', '-C', target, 'rev-parse', 'HEAD'])
             if head != commit or state['commit'] != commit:
@@ -372,8 +377,9 @@ class Bootstrap:
         env = self.environment(paths, python, repository)
         self.run([paths['jdk'] / 'bin/java', '-version'], env=env)
         self.run([paths['browser'] / 'chrome-headless-shell', '--version'], env=env)
-        if not (paths['ghidra'] / 'support/analyzeHeadless').is_file():
-            raise ValueError('Ghidra headless launcher missing')
+        for executable in ['support/analyzeHeadless', 'Ghidra/Features/Decompiler/os/linux_x86_64/decompile']:
+            if not os.access(paths['ghidra'] / executable, os.X_OK):
+                raise ValueError(f'Ghidra executable missing or not executable: {executable}')
         if repository:
             self.run([python, repository / 'scripts/decomp.py', 'check', paths['game'] / 'd3dpoptb.exe'], cwd=repository, env=env)
         self.result.update(status='passed', scope='prerequisites' if self.args.prerequisites_only else 'workspace',
