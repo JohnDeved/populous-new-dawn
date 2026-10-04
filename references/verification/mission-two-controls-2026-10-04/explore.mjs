@@ -135,13 +135,15 @@ export default async function ({ page, output, signal }) {
     }
   }
   const groundHit = (point,kind,maxRadius=0,spell) => page.evaluate(async ({point,kind,maxRadius,spell}) => {
-    const s=window.testSceneRef.current,r=s.container.getBoundingClientRect(), { placementError, spellTargetError }=await import('/app/model.ts')
+    const s=window.testSceneRef.current,r=s.container.getBoundingClientRect(), probe=structuredClone(s.world), { placementError, spellTargetError }=await import('/app/model.ts')
+    // Shipped validators synchronize terrain/registries internally; constrain those
+    // diagnostic writes to a detached clone. The subsequent mouse input owns live changes.
     const wrap=v=>((v+128)%256+256)%256-128
     for(let radius=0;radius<=maxRadius;radius+=1)for(let angle=0;angle<Math.PI*2;angle+=Math.PI/12){
       const p={x:point.x+Math.cos(angle)*radius,z:point.z+Math.sin(angle)*radius},q=s.screen(p),e={clientX:r.x+(q.x+1)*r.width/2,clientY:r.y+(1-q.y)*r.height/2}
       if(e.clientX<210||e.clientX>=1430||e.clientY<5||e.clientY>=920||document.elementFromPoint(e.clientX,e.clientY)!==s.renderer.domElement)continue
       const picked=s.pick(e),object=s.picking.pick(e)
-      if(picked&&(spell||object===null)&&Math.hypot(wrap(picked.x-p.x),wrap(picked.z-p.z))<1.5&&(!kind||!placementError(s.world,kind,picked))&&(!spell||!spellTargetError(s.world,spell,picked)))return {x:e.clientX,y:e.clientY,point:picked}
+      if(picked&&(spell||object===null)&&Math.hypot(wrap(picked.x-p.x),wrap(picked.z-p.z))<1.5&&(!kind||!placementError(probe,kind,picked))&&(!spell||!spellTargetError(probe,spell,picked)))return {x:e.clientX,y:e.clientY,point:picked}
     }
     return {error:'No valid rendered ground target',point,kind}
   },{point,kind,maxRadius,spell})

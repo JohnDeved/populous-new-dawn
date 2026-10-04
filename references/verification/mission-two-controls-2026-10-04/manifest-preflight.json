@@ -5,8 +5,8 @@
   "files": [
     {
       "path": "explore.mjs",
-      "bytes": 18505,
-      "sha256": "9af5e4485ba9d752edbce6ae0e45a9e393db965b06ea69ddb64a62da625979a5"
+      "bytes": 18710,
+      "sha256": "cfae31661d7c4ec8335e8e6124fae2ee80e4080acbba805e136342be0b349a55"
     },
     {
       "path": "journey-01-interruption.json",
@@ -40,5 +40,5 @@
     }
   ],
   "recoveredDriverSha256": "e69f44fc0b11cf1cfa4ccff1c823c7f9f49514bf679b994a6713a8b5fbff27e2",
-  "preflightCorrection": "Read-only campaign completion accessor changed from numeric revision to getCompletedMissions(); source/game actions unchanged."
+  "preflightCorrection": "Use getCompletedMissions and validate placement/range on one detached world clone per evaluation. Live game input unchanged."
 }

@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "680dac37-fd5e-478a-87ea-4da57fa6f7ba",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+    "branch": "verify/mission-two-controls-recovered",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/mission-two-controls/explore.mjs": "cfae31661d7c4ec8335e8e6124fae2ee80e4080acbba805e136342be0b349a55"
+    }
+  },
+  "command": [
+    "node",
+    "--check",
+    "work/orchestration/mission-two-controls/explore.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered",
+  "startedAt": "2026-10-04T15:41:04.898Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered/work/orchestration/recovery/driver-syntax-cfae316.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-two-controls-recovered/work/orchestration/recovery/driver-syntax-cfae316.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T15:41:04.947Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
+    "branch": "verify/mission-two-controls-recovered",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/mission-two-controls/explore.mjs": "cfae31661d7c4ec8335e8e6124fae2ee80e4080acbba805e136342be0b349a55"
+    }
+  }
+}

@@ -12,11 +12,12 @@ After the preview interruption and executor reset, the original checkout/artifac
 
 - A fresh isolated checkout is on the same accepted main `ab6e857`.
 - The reconstructed driver at evidence commit `2519fe8638fa4c9fe4aceb25ec7dc2b03a340df6` is byte-identical to the pre-reset driver (SHA-256 `e69f44fc0b11cf1cfa4ccff1c823c7f9f49514bf679b994a6713a8b5fbff27e2`).
-- Fresh preflight corrected one read-only observation: `getSnapshot()` returns a revision number, so campaign completion now reads the existing `getCompletedMissions()` accessor. [The actual new-run driver](explore.mjs) SHA-256 is `9af5e4485ba9d752edbce6ae0e45a9e393db965b06ea69ddb64a62da625979a5`. No game input or application code changed.
+- Fresh preflight corrected one read-only observation: `getSnapshot()` returns a revision number, so campaign completion now reads the existing `getCompletedMissions()` accessor. [The actual new-run driver](explore.mjs) SHA-256 is `cfae31661d7c4ec8335e8e6124fae2ee80e4080acbba805e136342be0b349a55`.
+- Fresh preflight also found that shipped placement/range validators synchronize terrain internally. Those diagnostic validations now use a detached world clone; actual changes still occur only through normal mouse inputs. The [readiness review](preflight-review.md) accepts this corrected driver. No application code changed.
 - [The first ordinary command batch](journey-02-recovery/command-1.json) is also byte-identical: SHA-256 `07b783fa4cfc7e69dbdf69a0d910eb7865913f69e2562dbfae5597f11503b05c`.
 - [Private npm installation](npm-ci.json) passed with unchanged source. Package lock SHA-256 is `c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba`; installed lock SHA-256 is `65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8`. No writable dependency tree is shared or linked.
 - The new run has separate output, browser profile, TMPDIR and port 4362. The original port/session are untouched.
-- Fresh read-only driver preflight and actual sandbox/WebGL startup remain gates before gameplay continues.
+- Fresh read-only driver preflight and a source/input-bound syntax check passed. Actual sandbox/WebGL startup remains the first stage of the new run.
 
 The fresh route uses public All missions → Mission 2, normal Shaman/follower HUD selection, minimap and canvas inputs, real elapsed-frame simulation, and ordinary Pause/Resume/Skip controls. It will record building/training, Tornado acquisition, actual committed Save/fresh Load, combat, and natural outcome as they occur. It does not inject resources, actors, terrain, storage, camera state or turns.
 
