@@ -30,11 +30,11 @@ with tempfile.TemporaryDirectory(prefix='follower-task-art-') as output:
         call(0x4a0e70,b)
         g['draws'] = g['draws'][:9]
         assert n['raster'](15,34).tobytes() == Image.open(root/f'public/original/follower-task-{name}.png').convert('RGBA').tobytes()
-    # First24 descriptors are implemented task controls. Compare font identity,
+    # All36 task/transport descriptors now share the maintained number helper. Compare font identity,
     # glyph indices and absolute logical placement to the maintained number helper.
-    descriptors = json.loads((root/'decomp/research/follower-task-panel/native-panel-contract.json').read_text())['descriptors'][:24]
-    glyph_cases = [dict(nearby='nearby' in c['name'],counts=c['formatted'][:24],descriptors=descriptors,
-                        expected=[glyph for glyph in c['text'] if glyph[3] < 394])
+    descriptors = json.loads((root/'decomp/research/follower-task-panel/native-panel-contract.json').read_text())['descriptors']
+    glyph_cases = [dict(nearby='nearby' in c['name'],counts=c['formatted'],descriptors=descriptors,
+                        expected=c['text'])
                    for c in n['all_draws']]
     # Adjacent two/three-digit font boundary, including Total in nearby mode.
     for nearby in (False,True):
@@ -52,6 +52,23 @@ with tempfile.TemporaryDirectory(prefix='follower-task-art-') as output:
                 assert not count or all(glyph[0]==(6 if count>=100 else 4)+int(nearby) for glyph in expected)
                 glyph_cases.append(dict(nearby=nearby,counts=[count],root=0,
                     descriptors=[dict(rectangle=[0,0,15,34])],expected=expected))
+    # Vehicle Total and class cells use the same two/three-digit fonts, including nearby.
+    for nearby in (False,True):
+        for kind in (1,3):
+            for model in (0,2):
+                for count in (0,99,100):
+                    cpu.mem_write(0x89d1c8,bytes(4*0xc65));cpu.mem_write(n['button'],bytes(128))
+                    write(0x89c6f0,'B',0);write(0x89d1c8+0x93d,'I',128 if nearby else 0)
+                    base=(0x89ddb1 if nearby else 0x89dd9f) if kind==1 else (0x89ddd5 if nearby else 0x89ddc3)
+                    write(base+model*2,'h',count)
+                    b=n['button'];write(b+8,'I',1);write(b+0x10,'I',1)
+                    write(b+0x37,'ii',0,0);write(b+0x47,'ii',15,34);write(b+99,'I',model+(8 if kind==3 else 0))
+                    g['draws']=[];g['text_draws']=[];g['fills']=[];g['formatted']=[]
+                    call(0x4a1580,b)
+                    expected=list(g['text_draws'])
+                    assert not count or all(glyph[0]==(6 if count>=100 else 4)+int(nearby) for glyph in expected)
+                    glyph_cases.append(dict(nearby=nearby,counts=[count],root=0,
+                        descriptors=[dict(rectangle=[0,0,15,34])],expected=expected))
     script = r"""import {followerNumber} from './app/hud-population.ts';
 import hud from './app/original-hud.json' with {type:'json'};
 let input='';for await(const c of process.stdin)input+=c;
@@ -69,4 +86,4 @@ console.log(JSON.stringify(JSON.parse(input).map(c=>c.descriptors.flatMap((d,i)=
         r = meta['rects'][str(icon['id'])]
         w,h,data = n['art'][icon['id']]
         assert atlas.crop((r['x'],r['y'],r['x']+w,r['y']+h)).tobytes() == bytes(data)
-print('PASS: imported root, normal/pressed34px frames and18 exact original sprites plus96 task number layouts and12 zero/99/100 font-boundary cases match native logical draw requests')
+print('PASS: imported root, normal/pressed34px frames and18 exact original sprites plus144 task/transport number layouts and36 zero/99/100 font-boundary cases match native logical draw requests')

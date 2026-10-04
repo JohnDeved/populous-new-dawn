@@ -60,7 +60,7 @@ import { originalTrainingHutObject } from './training-hut-appearance.ts'
 import { shamanAppearance, shamanNativeDirections } from './shaman-appearance.ts'
 import nativeEffects from './original-effects.json'
 import rules from './original-rules.json'
-import { animationTeam, teamForTribe, tribeForTeam } from './world-types.ts'
+import { animationTeam, teamForTribe, tribeForTeam, vehicleApparentTribe } from './world-types.ts'
 import {
   vaultKnowledgeFrame,
   vaultKnowledgePlacement,
@@ -605,12 +605,13 @@ export function updateVehiclesFrame(scene: GameScene) {
       scene.vehicleMeshes.set(v.id, g)
       scene.objects.add(g)
     }
-    if (g.userData.vehicleTeam !== v.team) {
+    const appearanceTeam = teamForTribe(vehicleApparentTribe(v))
+    if (g.userData.vehicleTeam !== appearanceTeam) {
       const mesh = g.children[0] as THREE.Mesh<THREE.BufferGeometry>
       const uv = mesh.geometry.getAttribute('uv') as THREE.BufferAttribute
-      uv.copyArray(originalVehicleUV(v.model, v.team))
+      uv.copyArray(originalVehicleUV(v.model, appearanceTeam))
       uv.needsUpdate = true
-      g.userData.vehicleTeam = v.team
+      g.userData.vehicleTeam = appearanceTeam
     }
     scene.locate(g, browserPosition(v), v.h / 45)
     scene.orientModel(g, v.heading)

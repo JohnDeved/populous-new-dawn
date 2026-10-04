@@ -1,3 +1,4 @@
+import type { TransportKind } from './hud-transports.ts'
 import type { FollowerTask } from './hud-tasks.ts'
 import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import * as THREE from 'three'
@@ -79,6 +80,7 @@ import { updateHudFrame } from './scene-hud-runtime.ts'
 import {
   acknowledgePointer,
   chooseFollowers,
+  chooseTransport,
   drawPointer,
   installInputListeners,
   keyDown,
@@ -245,6 +247,7 @@ export class GameScene {
   picking = new ScenePicking(this)
   hudFocus = Array<number>(8).fill(0)
   hudTaskFocus = Array<number>(48).fill(0)
+  hudTransportFocus = Array<number>(16).fill(0)
   buildingPanels = new Map<number, HTMLDivElement>()
   down = { x: 0, y: 0, button: 0, unit: undefined as number | undefined, extend: false }
   drag: { start: { x: number; y: number }; end: { x: number; y: number }; active: boolean } | null =
@@ -601,6 +604,14 @@ export class GameScene {
     category?: FollowerTask
   ) {
     chooseFollowers(this, model, modifiers, focus, category)
+  }
+  chooseTransport(
+    kind: TransportKind,
+    model: number,
+    modifiers: { shiftKey: boolean; ctrlKey: boolean },
+    focusNext = false
+  ) {
+    chooseTransport(this, kind, model, modifiers, focusNext)
   }
   focus(p: Point = HOME, { animate = false } = {}) {
     focus(this, p, { animate })

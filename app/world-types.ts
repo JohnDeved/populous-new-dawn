@@ -58,6 +58,9 @@ export type Team = TribeTeam | 'wild'
 export const teamForTribe = (tribe: number): Team =>
   tribe === -1 || tribe === 255 ? 'wild' : (TRIBE_TEAMS[tribe] ?? 'wild')
 export const tribeForTeam = (team: Team) => (team === 'wild' ? -1 : TRIBE_TEAMS.indexOf(team))
+// Native vehicle +0x2f; old checkpoints have only the real/count owner.
+export const vehicleApparentTribe = (vehicle: Pick<Vehicle, 'team' | 'apparentTribe'>) =>
+  vehicle.apparentTribe ?? tribeForTeam(vehicle.team)
 export const animationTeam = (team: Team): 'blue' | 'red' | 'wild' =>
   team === 'yellow' || team === 'green' ? 'red' : team
 export type BuildingKind =
@@ -104,6 +107,8 @@ export type Fight = {
 }
 export type NativePoint = { x: number; y: number; h: number }
 export type Vehicle = NativePoint & {
+  // Native apparent owner (+0x2f); team retains real count owner (+0xa1).
+  apparentTribe?: number
   id: number
   class: 4
   model: number
