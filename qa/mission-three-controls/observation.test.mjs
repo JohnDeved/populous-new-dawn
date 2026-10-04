@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
-import { createEpoch, recordTurn, attachObserver, requireConversion, progressKey, checkCondition, observeBuilding, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated, minimapInput, requiredActorStop, selectSermonVictim, inOrdinaryPreachingCells } from './observation.mjs'
+import { createEpoch, recordTurn, attachObserver, requireConversion, progressKey, checkCondition, observeBuilding, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated, minimapInput, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells, armSermonObservation } from './observation.mjs'
 const world = () => ({ turn: 0, time: 0, speed: 1, outcome: { level: 3 }, units: [] })
 
 test('minimap inverse rejects the closest pixel hidden by a tab and never chooses a non-canvas point', () => {
@@ -105,19 +105,79 @@ test('required sermon actors fail fast while completed conversion and unrelated 
     assert.equal(requiredActorStop({ ...s, units: [] }, { type }), null)
 })
 
-test('sermon victim selection is prospective, conservative and deterministic', () => {
+test('sermon approach anchor is prospective, conservative and deterministic', () => {
   const brave = (id, x, z, extra = {}) => ({ id, x, z, kind: 'brave', team: 'yellow', hp: 50,
     inside: null, nativeState: 19, preachingEligible: true, ...extra })
   const s = { units: [brave(53, -43, -107), brave(48, -45, -107), brave(47, -41, -107)] }
   const original = structuredClone(s)
-  assert.equal(selectSermonVictim(s, 53).victim.id, 53)
+  assert.equal(selectSermonAnchor(s, 53).anchor.id, 53)
   s.units[0].inside = 1017
-  assert.equal(selectSermonVictim(s, 53).victim.id, 47, 'Equal distances break on ID before the sermon')
-  assert.equal(selectSermonVictim({ units: [...s.units].reverse() }, 53).victim.id, 47)
-  assert.throws(() => selectSermonVictim({ units: [brave(53, -43, -107, { preachingEligible: false })] }, 53), /No observed/)
-  assert.throws(() => selectSermonVictim({ units: [brave(53, 35, 81)] }, 53), /No observed/)
-  assert.throws(() => selectSermonVictim({ units: Array.from({ length: 201 }, (_, id) => brave(id, -43, -107)) }, 53), /bounded200/)
+  assert.equal(selectSermonAnchor(s, 53).anchor.id, 47, 'Equal distances break on ID before the sermon')
+  assert.equal(selectSermonAnchor({ units: [...s.units].reverse() }, 53).anchor.id, 47)
+  assert.throws(() => selectSermonAnchor({ units: [brave(53, -43, -107, { preachingEligible: false })] }, 53), /No observed/)
+  assert.throws(() => selectSermonAnchor({ units: [brave(53, 35, 81)] }, 53), /No observed/)
+  assert.throws(() => selectSermonAnchor({ units: Array.from({ length: 201 }, (_, id) => brave(id, -43, -107)) }, 53), /bounded200/)
   assert.deepEqual(original.units[1], s.units[1])
+})
+
+test('a declared pool locks the first actual owned sermon and preserves a same-turn ID tie', () => {
+  const w = world(), epoch = createEpoch('entry')
+  const preacher = { id: 3169, team: 'blue', kind: 'preacher', hp: 55, inside: null,
+    native: { model: 4, tribe: 0, state: 19, workTarget: 0 } }
+  const brave = (id, inside = null) => ({ id, team: 'yellow', kind: 'brave', hp: 50, x: -43, z: -107, inside,
+    ...(inside === null ? { native: { model: 2, tribe: 2, state: 19, workTarget: 0 } } : {}) })
+  w.turn = 10; w.time = 10 / 12; w.units = [preacher, brave(2495, 1017), brave(48), brave(40)]
+  recordTurn(epoch, w)
+  const original = structuredClone(w), declaration = armSermonObservation(epoch, w, 3169)
+  assert.deepEqual(w, original)
+  assert.deepEqual(declaration.candidateIds, [40, 48, 2495])
+  assert.equal(declaration.candidates.find(u => u.id === 2495).inside, 1017,
+    'Housing at declaration does not falsely claim current sermon eligibility')
+  assert.throws(() => armSermonObservation(epoch, w, 3169), /re-armed/)
+  w.turn = 11; w.time = 11 / 12
+  for (const u of w.units.filter(u => [48, 2495].includes(u.id))) {
+    u.inside = null; u.native = { model: 2, tribe: 2, state: 23, workTarget: 3169, timer: 100 }
+  }
+  const atOnset = structuredClone(w); recordTurn(epoch, w)
+  assert.deepEqual(w, atOnset)
+  assert.equal(epoch.sermon.firstOwned.victim.id, 48)
+  assert.deepEqual(epoch.sermon.firstOwned.sameTurnIds, [48, 2495])
+  assert.equal(epoch.sermon.firstOwned.before.state, 19)
+  assert.equal(epoch.sermon.firstOwned.turnBefore, 10)
+  assert.equal(epoch.sermon.firstOwned.turnAfter, 11)
+  w.turn = 12; w.time = 1
+  w.units.find(u => u.id === 40).native = { model: 2, tribe: 2, state: 23, workTarget: 3169, timer: 99 }
+  recordTurn(epoch, w)
+  assert.equal(epoch.sermon.firstOwned.victim.id, 48, 'A later lower ID cannot replace the locked onset')
+  const snapshot = { buildings: [], shrines: [], observation: structuredClone(epoch), units: w.units.map(u =>
+    ({ ...u, nativeState: u.native?.state, owner: u.native?.workTarget })) }
+  const condition = { type: 'first-owned-sermon', preacherId: 3169 }
+  assert.equal(checkCondition(snapshot, condition), true)
+  snapshot.units = snapshot.units.filter(u => u.id !== 48)
+  assert.equal(checkCondition(snapshot, condition), false)
+  assert.equal(requiredActorStop(snapshot, condition).code, 'missed-sermon-window',
+    'Remaining listeners cannot be selected after the first one disappeared')
+  assert.equal(createEpoch('reload').sermon, null)
+})
+
+test('sermon policy cannot be armed after an owned listener or a conversion already exists', () => {
+  const w = world(), epoch = createEpoch('entry')
+  w.units = [{ id: 8, team: 'blue', kind: 'preacher', hp: 55 },
+    { id: 53, team: 'yellow', kind: 'brave', hp: 50, inside: null,
+      native: { model: 2, tribe: 2, state: 23, workTarget: 8 } }]
+  recordTurn(epoch, w)
+  assert.throws(() => armSermonObservation(epoch, w, 8), error => error.code === 'retrospective-sermon-arm')
+  w.units[1].native.state = 19
+  epoch.conversions.events.push({ victims: [{ id: 50, workTarget: 8 }] })
+  assert.throws(() => armSermonObservation(epoch, w, 8), error => error.code === 'retrospective-sermon-arm')
+  assert.equal(epoch.sermon, null)
+})
+
+test('an idle Preacher timer is not progress toward a housed candidate', () => {
+  const s = { buildings: [], units: [{ id: 53, team: 'yellow', hp: 50, x: -27, z: -107, inside: 1017 },
+    { id: 3169, team: 'blue', hp: 55, x: -41, z: -109, nativeState: 10, timer: 100 }] }
+  const after = structuredClone(s); after.units[1].timer = 600
+  assert.equal(progressKey(s, 'sermon'), progressKey(after, 'sermon'))
 })
 
 test('prospective sermon approaches stay in the actual ordinary native cell square', () => {
@@ -128,11 +188,11 @@ test('prospective sermon approaches stay in the actual ordinary native cell squa
 })
 
 test('progress ignores turn-only changes but retains training mana and sermon timer', () => {
-  const s = { turn: 1, units: [{ id: 53, timer: 98 }], buildings: [{ id: 4, trainingMana: 4 }],
+  const s = { turn: 1, units: [{ id: 53, nativeState: 23, timer: 98 }], buildings: [{ id: 4, trainingMana: 4 }],
     shrines: [], effects: [], status: 'playing', observation: {} }
   assert.equal(progressKey(s, 'training'), progressKey({ ...s, turn: 100 }, 'training'))
   assert.notEqual(progressKey(s, 'training'), progressKey({ ...s, buildings: [{ id: 4, trainingMana: 5 }] }, 'training'))
-  assert.notEqual(progressKey(s, 'sermon'), progressKey({ ...s, units: [{ id: 53, timer: 97 }] }, 'sermon'))
+  assert.notEqual(progressKey(s, 'sermon'), progressKey({ ...s, units: [{ id: 53, nativeState: 23, timer: 97 }] }, 'sermon'))
   assert.throws(() => checkCondition(s, { type: 'arbitrary-expression' }), /Unsupported/)
   assert.equal(checkCondition(s, { type: 'won' }), false)
 })

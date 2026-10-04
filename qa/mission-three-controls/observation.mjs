@@ -82,7 +82,7 @@ export function createEpoch(name, baselineGameTime = 0) {
     throw Error('Observation epoch requires a name and nonnegative baseline')
   return { name, baselineGameTime, lastGameTime: baselineGameTime, activeSeconds: 0,
     firstTurn: null, lastTurn: null, samples: 0, conversions: null, errors: [],
-    speedViolations: [], firstConversion: null, orderMarkerCursor: 0, orderMarkers: [] }
+    speedViolations: [], firstConversion: null, orderMarkerCursor: 0, orderMarkers: [], sermon: null }
 }
 
 export function recordTurn(epoch, world) {
@@ -108,7 +108,26 @@ export function recordTurn(epoch, world) {
   if (epoch.orderMarkers.length > 512) epoch.orderMarkers.splice(0, epoch.orderMarkers.length - 512)
   if (world.speed !== 1 && !epoch.speedViolations.includes(world.speed))
     epoch.speedViolations.push(world.speed)
-  epoch.conversions = observeCampaignConversions(world, epoch.conversions)
+  const previous = epoch.conversions
+  const sermon = epoch.sermon
+  if (sermon && !sermon.firstOwned) {
+    const preacher = world.units.find(u => u.id === sermon.preacherId && u.team === 'blue' && u.kind === 'preacher' && u.hp > 0)
+    const listeners = preacher ? world.units.filter(u => sermon.candidateIds.includes(u.id) &&
+      u.team === 'yellow' && u.kind === 'brave' && u.hp > 0 && u.inside === null &&
+      u.native?.model === 2 && u.native.tribe === 2 && u.native.state === 23 &&
+      u.native.workTarget === sermon.preacherId).sort((a, b) => a.id - b.id) : []
+    if (listeners.length) {
+      if (previous?.turn !== world.turn - 1) throw Error('Missing adjacent pre-sermon observation')
+      const victim = listeners[0], before = previous.units.find(u => u.id === victim.id)
+      if (!before || before.team !== 'yellow' || before.kind !== 'brave' || before.hp <= 0 ||
+        before.state === 23 && before.workTarget === sermon.preacherId)
+        throw Error('First owned sermon lacks a new prospective onset')
+      sermon.firstOwned = { turnBefore: previous.turn, turnAfter: world.turn, gameTime: world.time,
+        preacherId: preacher.id, sameTurnIds: listeners.map(u => u.id), before: { ...before },
+        victim: sermonCandidate(victim) }
+    }
+  }
+  epoch.conversions = observeCampaignConversions(world, previous)
   if (!epoch.firstConversion && epoch.conversions.events.length)
     epoch.firstConversion = { turn: world.turn, time: world.time, observedAt: Date.now() }
 }
@@ -132,19 +151,46 @@ export class IncompleteRun extends Error {
   constructor(code, message) { super(message); this.name = 'IncompleteRun'; this.code = code }
 }
 
+const sermonCandidate = u => ({ id: u.id, team: u.team, kind: u.kind, hp: u.hp,
+  x: u.x, z: u.z, inside: u.inside, state: u.native?.state, workTarget: u.native?.workTarget,
+  model: u.native?.model, tribe: u.native?.tribe, timer: u.native?.timer,
+  flags2: u.native?.flags2, flags3: u.native?.flags3, flags4: u.native?.flags4 })
+
+export function armSermonObservation(epoch, world, preacherId) {
+  if (epoch.sermon) throw Error('Sermon candidate policy cannot be re-armed')
+  const preacher = world.units.find(u => u.id === preacherId && u.team === 'blue' && u.kind === 'preacher' && u.hp > 0)
+  if (!preacher) throw new IncompleteRun('required-preacher-unavailable', 'Cannot arm without the actual live Blue Preacher')
+  if (epoch.conversions?.events.some(e => e.victims.some(v => v.workTarget === preacherId)))
+    throw new IncompleteRun('retrospective-sermon-arm', 'This Preacher already converted someone before the candidate declaration')
+  const candidates = world.units.filter(u => u.team === 'yellow' && u.kind === 'brave' && u.hp > 0).sort((a, b) => a.id - b.id)
+  if (!candidates.length || candidates.length > 200)
+    throw new IncompleteRun('victim-search-limit', 'Candidate declaration requires1–200 current living Yellow Braves')
+  if (candidates.some(u => u.native?.state === 23 && u.native.workTarget === preacherId))
+    throw new IncompleteRun('retrospective-sermon-arm', 'An owned sermon already began before candidate declaration')
+  epoch.sermon = { armedAtTurn: world.turn, armedAtGameTime: world.time, preacherId,
+    rule: 'First new owned state23 among these current living Yellow Braves; lowest ID on a same-turn tie. No re-arming or post-conversion selection.',
+    candidateIds: candidates.map(u => u.id), candidates: candidates.map(sermonCandidate), firstOwned: null }
+  return epoch.sermon
+}
+
 export function requiredActorStop(snapshot, condition) {
-  if (!['listener', 'conversion'].includes(condition.type)) return null
+  if (!['first-owned-sermon', 'listener', 'conversion'].includes(condition.type)) return null
   if (condition.type === 'conversion' && checkCondition(snapshot, condition)) return null
   const preacher = snapshot.units.find(u => u.id === condition.preacherId)
   const victim = snapshot.units.find(u => u.id === condition.id)
   if (!preacher || preacher.hp <= 0 || preacher.team !== 'blue' || preacher.kind !== 'preacher')
     return new IncompleteRun('required-preacher-unavailable', `Required Blue Preacher${condition.preacherId} is absent or unavailable`)
+  if (condition.type === 'first-owned-sermon') {
+    if (snapshot.observation.sermon?.firstOwned)
+      return new IncompleteRun('missed-sermon-window', 'The first observed candidate is no longer an actual owned listener; no replacement may be selected')
+    return null
+  }
   if (!victim || victim.hp <= 0 || victim.team !== 'yellow' || victim.kind !== 'brave')
     return new IncompleteRun('required-victim-unavailable', `Required Yellow Brave${condition.id} is absent or unavailable without conversion evidence`)
   return null
 }
 
-export function selectSermonVictim(snapshot, authoredId) {
+export function selectSermonAnchor(snapshot, authoredId) {
   const yellow = snapshot.units.filter(u => u.team === 'yellow')
   if (yellow.length > 200) throw new IncompleteRun('victim-search-limit', 'Yellow population exceeds the bounded200-person search')
   const candidates = yellow.filter(u => u.kind === 'brave' && u.hp > 0 && u.inside === null &&
@@ -153,7 +199,7 @@ export function selectSermonVictim(snapshot, authoredId) {
     Math.hypot(wrapped(b.x + 43), wrapped(b.z + 107)) || a.id - b.id)
   const victim = candidates.find(u => u.id === authoredId) ?? candidates[0]
   if (!victim) throw new IncompleteRun('no-eligible-victim', 'No observed idle eligible Yellow Brave in the bounded target area')
-  return { victim, candidateIds: candidates.map(u => u.id),
+  return { anchor: victim, candidateIds: candidates.map(u => u.id),
     reason: victim.id === authoredId ? 'authored victim remains eligible' : 'nearest eligible idle Yellow Brave, then lowest ID' }
 }
 
@@ -208,7 +254,7 @@ export function requireConversion(epoch, victimId, preacherId) {
   const event = epoch.conversions?.events.find(event =>
     event.victims.length === 1 && event.replacements.length === 1 &&
     event.victims[0].id === victimId && event.victims[0].workTarget === preacherId)
-  if (!event) throw Error('No exact singleton preselected-victim/Blue-preacher conversion')
+  if (!event) throw Error('No exact singleton locked-victim/Blue-preacher conversion')
   return event
 }
 
@@ -237,7 +283,8 @@ export function progressKey(snapshot, scope, ids = []) {
       [h.id, h.work, h.progress, h.uses, h.followers]),
     units.map(u => [u.id, Math.round(u.x * 4), Math.round(u.z * 4), u.work])])
   if (scope === 'sermon') return JSON.stringify(units.map(u =>
-    [u.id, u.team, u.hp, Math.round(u.x * 4), Math.round(u.z * 4), u.nativeState, u.owner, u.timer]))
+    [u.id, u.team, u.hp, Math.round(u.x * 4), Math.round(u.z * 4), u.nativeState, u.owner,
+      u.nativeState === 23 ? u.timer : null]))
   return JSON.stringify([units.map(u => [u.id, u.team, u.kind, u.hp,
     Math.round(u.x * 4), Math.round(u.z * 4), u.order, u.inside, u.work]),
   buildings.map(b => [b.id, b.hp, b.progress, b.logs, b.inside, b.occupants, b.queue]), snapshot.status])
@@ -254,6 +301,13 @@ export function checkCondition(snapshot, condition) {
       !(condition.existingIds ?? []).includes(u.id))
     case 'listener': return !!u && u.team === 'yellow' && u.nativeState === 23 && u.owner === condition.preacherId &&
       snapshot.units.some(p => p.id === condition.preacherId && p.team === 'blue' && p.kind === 'preacher' && p.hp > 0)
+    case 'first-owned-sermon': {
+      const first = snapshot.observation.sermon?.firstOwned
+      return !!first && first.preacherId === condition.preacherId &&
+        snapshot.units.some(v => v.id === first.victim.id && v.team === 'yellow' && v.kind === 'brave' &&
+          v.hp > 0 && v.nativeState === 23 && v.owner === condition.preacherId) &&
+        snapshot.units.some(p => p.id === condition.preacherId && p.team === 'blue' && p.kind === 'preacher' && p.hp > 0)
+    }
     case 'conversion': return !!snapshot.observation.conversions?.events.some(e =>
       e.victims.length === 1 && e.replacements.length === 1 &&
       e.victims[0].id === condition.id && e.victims[0].workTarget === condition.preacherId)

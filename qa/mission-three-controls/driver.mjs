@@ -8,7 +8,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { bindGame, showAllMissions } from '../../scripts/browser-game.mjs'
 import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs'
-import { checkCondition, progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonVictim, inOrdinaryPreachingCells } from './observation.mjs'
+import { checkCondition, progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells } from './observation.mjs'
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -36,7 +36,7 @@ export default async function missionThreeControls({ page, output, root, signal,
   const log = entry => appendFileSync(resolve(output, 'actions.jsonl'),
     JSON.stringify({ at: new Date().toISOString(), wallMs: Date.now() - startWall, ...entry }) + '\n')
   const saveProgress = (status = 'in-progress') => writeFileSync(resolve(output, 'journey.json'), JSON.stringify({
-    status, inputs, ids, epochs, milestones, failures, controlStops, training, victimSelection,
+    status, inputs, ids, epochs, milestones, failures, controlStops, training, victimSelection, sermonPlan,
     limits: 'Ordinary UI inputs and normal RAF only; independent Mission 3, software/headless renderer.'
   }, null, 2) + '\n')
   const button = async (name, options = {}) => {
@@ -458,7 +458,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     log({ action: 'victory-persisted', profile: await readStorage('profile') })
     await mark('victory')
   }
-  let training = null, victimSelection = null
+  let training = null, victimSelection = null, sermonPlan = null
   const returnShamanHome = async () => {
     await select('shaman')
     ids.shaman = (await read()).selected[0]
@@ -504,7 +504,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     ids.preacher = trained[0].id; await mark('preacher')
   }
   const approachSermon = async () => {
-    assert.ok(ids.preacher && !victimSelection && !savedSermon, 'Preselect the protected victim exactly once before a sermon')
+    assert.ok(ids.preacher && !victimSelection && !savedSermon, 'Declare the protected sermon once before locking an observed listener')
     const state = await read()
     assert.ok(milestones.some(m => m.name === 'shaman-home'), 'Retain the observed opening home arrival')
     const shaman = state.units.find(u => u.id === ids.shaman)
@@ -512,30 +512,36 @@ export default async function missionThreeControls({ page, output, root, signal,
       'The actual Shaman remains alive before the protected approach')
     log({ action: 'sermon-shaman-position', turn: state.turn, shaman,
       tactic: Math.hypot(shaman.x - 35, shaman.z - 81) <= 4 ? 'home' : 'prospective covering position' })
-    victimSelection = selectSermonVictim(state, ids.authoredVictim)
-    ids.victim = victimSelection.victim.id
-    log({ action: 'sermon-victim-preselected', turn: state.turn, epoch: state.observation.name, selection: victimSelection })
+    assert.ok(!sermonPlan, 'The prospective candidate declaration is made once')
+    const anchorChoice = selectSermonAnchor(state, ids.authoredVictim)
+    const declaration = await page.evaluate(async preacherId => {
+      const { armSermonObservation } = await import('/qa/mission-three-controls/observation.mjs')
+      const observer = window.m3Observation, scene = window.testSceneRef.current
+      if (observer.scene !== scene || observer.world !== scene.world) throw Error('Sermon epoch identity mismatch')
+      return armSermonObservation(observer.epoch, scene.world, preacherId)
+    }, ids.preacher)
+    sermonPlan = { anchorChoice, declaration }
+    log({ action: 'sermon-candidates-declared', epoch: state.observation.name, plan: sermonPlan })
     saveProgress()
     const chosen = await select('preacher'); assert.deepEqual(chosen, [ids.preacher])
-    let victim = (await read()).units.find(u => u.id === ids.victim)
-    assert.ok(victim?.preachingEligible && victim.inside === null && victim.team === 'yellow', 'Preselected victim remains eligible before approach')
-    await map(victim)
-    victim = (await read()).units.find(u => u.id === ids.victim)
-    assert.ok(victim?.preachingEligible && victim.inside === null && victim.team === 'yellow', 'Same victim remains eligible after camera settlement')
+    const anchor = anchorChoice.anchor
+    await map(anchor)
     let hit
     for (const [dx, dz] of [[2, -2], [2, 0], [0, -2], [-2, -2], [-2, 0], [0, 2], [2, 2], [-2, 2]]) {
-      const point = { x: victim.x + dx, z: victim.z + dz }
+      const point = { x: anchor.x + dx, z: anchor.z + dz }
       const candidate = await groundHit(point)
-      log({ action: 'sermon-approach-probe', victim: ids.victim, point, candidate })
-      if (candidate && inOrdinaryPreachingCells(candidate.point, victim)) { hit = candidate; break }
+      log({ action: 'sermon-approach-probe', anchor: anchor.id, point, candidate })
+      if (candidate && inOrdinaryPreachingCells(candidate.point, anchor)) { hit = candidate; break }
     }
-    assert.ok(hit, 'Visible clear ground inside the current victim preaching cells')
-    const currentVictim = (await read()).units.find(u => u.id === ids.victim)
-    assert.ok(currentVictim?.preachingEligible && currentVictim.inside === null &&
-      inOrdinaryPreachingCells(hit.point, currentVictim), 'Actual click still lies in the same eligible victim\'s preaching cells')
-    log({ action: 'sermon-approach-current-target', victim: currentVictim, hit })
+    assert.ok(hit, 'Visible clear ground in the prospectively recorded approach area')
+    log({ action: 'sermon-approach-area', anchor, hit })
     await clickOrder(hit)
-    await waitFor({ type: 'listener', id: ids.victim, preacherId: ids.preacher }, 'sermon', [ids.victim, ids.preacher])
+    const listening = await waitFor({ type: 'first-owned-sermon', preacherId: ids.preacher }, 'sermon', [ids.preacher])
+    victimSelection = listening.observation.sermon.firstOwned
+    ids.victim = victimSelection.victim.id
+    log({ action: 'sermon-victim-locked-at-onset', epoch: listening.observation.name,
+      observedAtTurn: listening.turn, selection: victimSelection })
+    saveProgress()
     await pause(); await mark('listener'); await saveCheckpoint('sermon-saved', true)
     milestones.push({ name: 'sermon-saved', ...savedSermon }); saveProgress()
   }
@@ -653,7 +659,6 @@ export default async function missionThreeControls({ page, output, root, signal,
     const victim = initial.units.find(u => u.id === authoredVictim.id)
     assert.equal(victim?.team, 'yellow'); assert.equal(victim.kind, 'brave')
     ids.authoredVictim = victim.id
-    ids.victim = victim.id
     log({ action: 'authored-victim-identity', authored: authoredVictim,
       observed: { id: victim.id, team: victim.team, kind: victim.kind, x: victim.x, z: victim.z, turn: initial.turn } })
     ids.vault = initial.shrines.find(h => h.kind === 'vault')?.id

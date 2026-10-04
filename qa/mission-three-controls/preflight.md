@@ -163,12 +163,14 @@ to preserve the trainee's ID.
 
 Select the new Preacher by normal controls. Prospectively select the current
 victim and approach clear ground in its actual native preaching-cell square,
-then observe state23 and exact workTarget ownership.
-Before the protected approach, inspect that Brave's current idle/unhoused eligibility.
-If unavailable, preselect another observed eligible Yellow Brave deterministically
-as documented in `protected-sermon-strategy.md`, and record the decision before
-any sermon. Once selected, retain that exact ID through interruption and conversion;
-never inject an actor or relabel a witness after the fact.
+then observe the first new state23 and exact workTarget ownership under the
+prospectively declared candidate rule.
+Before intrusion, record the actual Blue Preacher and all current living Yellow
+Brave IDs as a bounded candidate pool, including presently housed/work-assigned
+people. An eligible idle Brave guides movement only. The passive observer locks
+the first new actual owned state23 onset, breaking same-turn ties by ID; the
+listener must still exist before Pause/Save. No retrospective arming, re-arming,
+post-conversion selection or later replacement of that locked identity is allowed.
 Do not Swarm this witness before its sermon, since its flight changes the route.
 
 Use ordinary Pause promptly on the first listener observation, then capture the
@@ -190,7 +192,7 @@ required resumed conversion witness.
 
 Observe the conversion: preceding state23 with this exact Blue Preacher, old ID
 removed, newly allocated Blue same-kind replacement with native flags3/0x1000000
-and flags4/0x40000. Require singleton victim/replacement pairing for the preselected
+and flags4/0x40000. Require singleton victim/replacement pairing for the locked
 Brave. Both callback and source must be source-bound.
 
 The existing conversion observer needs adjacent turns; slow polling alone cannot

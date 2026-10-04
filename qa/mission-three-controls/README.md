@@ -25,7 +25,7 @@ node --check qa/mission-three-controls/driver.mjs
 node --test qa/mission-three-controls/observation.test.mjs
 ```
 
-The twenty-one isolated tests cover original callback receiver/arguments/return and
+The twenty-four isolated tests cover original callback receiver/arguments/return and
 exact invocation count; diagnostic exception isolation versus real application
 exceptions; idempotent detach; separate reload/time epochs; strict singleton
 conversion identity; rejecting death/poll gaps; and progress that ignores a
@@ -40,8 +40,10 @@ witnesses and cross-reload history, and verify the bounded512-marker cursor wind
 The minimap regression rejects a geometrically nearest pixel covered by a HUD tab,
 requires real canvas ownership, and rejects unowned or overly distant alternatives.
 Additional cases cover immediate required-actor stops, successful conversion before
-expected victim disappearance, prospective deterministic victim selection and native
-preaching-cell limits. The tests use isolated plain JS data, not the
+expected victim disappearance, prospective deterministic approach anchors, a declared candidate pool, first
+owned-sermon onset locking, rejection of retrospective arming or a missed
+listener, and native preaching-cell limits. Idle Preacher timers do not count
+as progress toward a sermon. The tests use isolated plain JS data, not the
 game simulation, browser, assets, native executable or installed packages.
 
 ## Reserved future launch
@@ -104,7 +106,7 @@ training advances, then `finish-preacher-training` and `approach-sermon` (with
 position or use `return-shaman-home` as a prospective tactical choice. Original untrained Braves must remain. Shaman home arrival is observed before construction. Before the protected
 approach, the actual Shaman must be alive and its current position is recorded. Every meaningful order/plan is asserted immediately; it does not accept unrelated AI construction.
 
-Once `approach-sermon` has recorded and saved the exact preselected listener,
+Once `approach-sermon` has recorded and saved the exact first-onset locked listener,
 the interruption batch is:
 
 ```
@@ -117,12 +119,14 @@ the interruption batch is:
 
 Load auto-resumes. The new observer must attach while the original saved sermon
 is still observable. A missed conversion before attachment is not a pass. The
-conversion milestone requires the same prospectively selected victim and named Preacher, adjacent-turn
+conversion milestone requires the same victim locked at its first observed owned-sermon onset and named Preacher, adjacent-turn
 state23 ownership, singleton same-kind flagged replacement, and an actual new
-Blue Brave. The screenshot uses ordinary minimap positioning. The authored victim53 is
-preferred only if still idle, unhoused and eligible. Otherwise choose the nearest
-currently eligible idle Yellow Brave within32 world units of its authored area,
-breaking ties by ID; record this once before any sermon. Never relabel after conversion.
+Blue Brave. The screenshot uses ordinary minimap positioning. An eligible idle Brave supplies only a prospective movement anchor. Before
+intrusion, the observer records the complete bounded pool of current living
+Yellow Brave IDs (including workers/housed people) and the actual Blue Preacher.
+It locks the first new owned state23 onset, choosing lowest ID on a same-turn
+tie. That exact listener must still exist before ordinary Pause/Save; no
+retrospective arming, re-arming or substitution after disappearance is allowed.
 
 After the conversion witness, the Erosion batch is:
 
@@ -158,8 +162,8 @@ ordinary camera settlement, chooses an actually canvas-owned pixel within8 world
 units of the requested camera point, and verifies the observed focus destination.
 Only Shaman home return searches a radius2 ground neighborhood; its actual click
 is less than3.5 units from home and the unchanged arrival condition requires≤4.
-Preacher approach checks at most eight exact ground candidates in the current
-preselected victim's actual native preaching-cell square. Cancellation prepares at most eight fixed nearby ground candidates through
+Preacher approach checks at most eight exact ground candidates in the
+prospectively recorded anchor area; that anchor is not a fixed victim requirement. Cancellation prepares at most eight fixed nearby ground candidates through
 normal paused selection/camera controls, chooses one outside the locked victim's
 preaching cells, then resumes for the real accepted move. Tactical moves retain
 exact-point probes. A selected plan/spell must not
@@ -172,7 +176,7 @@ An unchanged prior assignment is
 explicitly labelled existing-order after fresh UI input, rather than a new order; they do not incorrectly demand a
 ground marker (the native context deliberately omits ground markers for objects).
 
-Wait types are `temple-unlocked`, `building-complete`, `trained-kind`, `listener`,
+Wait types are `temple-unlocked`, `building-complete`, `trained-kind`, `first-owned-sermon`, `listener`,
 `conversion`, `shrine-used`, `effect-present`, `effect-finished`, `target-gone`,
 `units-near`, `won`, `shaman-ready`. These accept explicit fields from
 `observation.mjs`, never expression strings. For a meaningful disappearance

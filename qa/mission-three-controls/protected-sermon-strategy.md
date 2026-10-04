@@ -44,18 +44,23 @@ Split actions permit a protected play strategy:
    arrival remains required; the protected approach records the actual live
    Shaman's identity, health and present position. It does not claim that an
    away-from-home tactic preserves the isolated reference's defender priority.
-5. `approach-sermon` chooses a victim once from current observations, before any
-   sermon. Prefer authored53 when still eligible; otherwise sort eligible idle
-   Yellow Braves within32 wrapped world units of `(-43,-107)` by distance then
-   ID. Inspect at most the game's200 Yellow people. Record full selected identity,
-   team/kind/HP/position/state/flags, candidate IDs and decision reason. The read
-   predicate conservatively requires a real native Brave, no housing/flight or
-   vehicle, nonallied tribe, valid model/state flags, and no cancelling status.
-6. Probe at most eight exact nearby ground points, retaining canvas ownership and
-   no competing object. Accept only actual picked coordinates within the same
-   native whole-cell preaching square as `commandAux=3`. Never expand the square
-   to obtain a pass. Pause normally immediately after observing the selected
-   listener, before screenshot/save can consume its brief stochastic timer.
+5. `approach-sermon` records the actual Blue Preacher and all current living
+   Yellow Brave IDs (at most200), including workers/housed people, before intrusion.
+   This declaration does not claim that every candidate is presently eligible.
+   An eligible idle Brave guides the movement area only; authored53 is preferred
+   for this anchor when available, otherwise distance/ID determines the anchor.
+6. The existing passive afterTurn observer records the first new genuine
+   state23/workTarget onset among the declared candidates, choosing the lowest ID
+   on a same-turn tie. It retains adjacent-turn before/after identity evidence.
+   This exact victim is locked before conversion/save and must still be a live
+   owned listener when the host sees it. Retrospective arming, an already-owned
+   sermon, previous conversion, re-arming or a missed listener window is rejected.
+7. Probe at most eight exact nearby ground points with canvas ownership and no
+   competing object, using the ordinary native preaching-cell square around the
+   prospective movement anchor. Pause normally immediately on the first observed
+   owned sermon, before screenshot/save consumes its stochastic timer. A changing
+   idle Preacher timer is not meaningful sermon progress; an actual state23
+   victim countdown remains progress.
 
 The selected victim and Preacher then remain fixed for Save, ordinary movement
 cancellation, reload, adjacent-turn singleton replacement and both conversion
@@ -66,3 +71,14 @@ locked victim's native preaching-cell square. Resume occurs immediately before
 the accepted move. If no owned clear ground qualifies, the checker fails; it
 never widens the search or changes the victim. No post-conversion substitution, direct model command, clock change,
 application edit, state injection or native-parity claim is introduced.
+
+## Run04 amendment
+
+Run04 at `2f5869b` preserved ordinary Temple/training/protection and six genuine
+singleton Blue conversions (first2495→3266 at5288→5289, then48,2699,52,2529,51).
+The preselected53 instead took a housing job, so the named interruption journey
+never started and the600-active-second bound ended incomplete. Its authoritative
+failed envelope is preserved in the separate immutable evidence packet at
+`1ef8e21`. The first-owned-sermon rule above is prospective for a new run; it does
+not relabel any of those completed events or claim a saved/reloaded sermon or
+victory from Run04.
