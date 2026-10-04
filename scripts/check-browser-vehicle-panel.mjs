@@ -18,6 +18,20 @@ export async function vehiclePoint(page,id){
 }
 const render=page=>page.evaluate(()=>{const s=window.testSceneRef.current;s.onChange();s.animate(s.previous);cancelAnimationFrame(s.frame)})
 const selection=page=>page.evaluate(()=>window.testSceneRef.current.world.selected)
+async function resizeViewport(page,viewport) {
+ await page.setViewportSize(viewport)
+ // ResizeObserver updates/clears the drawing buffer asynchronously while this
+ // checker owns a frozen RAF. Wait for real dimensions before the normal draw.
+ await page.waitForFunction(()=>{
+  const s=window.testSceneRef.current,r=s.container.getBoundingClientRect(),dpr=s.renderer.getPixelRatio(),canvas=s.renderer.domElement
+  return canvas.width===Math.floor(r.width*dpr)&&canvas.height===Math.floor(r.height*dpr)
+ })
+ await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))))
+ return page.evaluate(()=>{
+  const s=window.testSceneRef.current,r=s.container.getBoundingClientRect(),dpr=s.renderer.getPixelRatio()
+  return{backing:[s.renderer.domElement.width,s.renderer.domElement.height],expected:[Math.floor(r.width*dpr),Math.floor(r.height*dpr)],dpr}
+ })
+}
 async function save(page, id, airborne) {
  await page.getByRole('button',{name:'Menu',exact:true}).click();await page.getByRole('button',{name:'Save checkpoint',exact:true}).click()
  await page.waitForFunction(async ({id,airborne})=>{
@@ -99,11 +113,11 @@ export default async function vehiclePanels({browser,page,openMission,output,rec
   assert.equal(await page.evaluate(id=>window.testSceneRef.current.objectPanels.panels.has(id),roster[1]),true)
   assert.equal(await panel.isVisible(),true,'passenger and vehicle panels coexist')
   for(const viewport of [{width:1280,height:720},{width:1920,height:1080},{width:3440,height:1440}]){
-   await page.setViewportSize(viewport);await vehiclePoint(page,id);await render(page)
+   const dimensions=await resizeViewport(page,viewport);assert.deepEqual(dimensions.backing,dimensions.expected);await vehiclePoint(page,id);await render(page)
    const bounds=await panel.boundingBox();assert.ok(bounds.x>=0&&bounds.y>=0&&bounds.x+bounds.width<=viewport.width&&bounds.y+bounds.height<=viewport.height)
-   result.layouts.push({model,viewport,bounds})
+   result.layouts.push({model,viewport,bounds,dimensions})
   }
-  await page.setViewportSize({width:1440,height:1000})
+  await resizeViewport(page,{width:1440,height:1000});await render(page)
   await save(page,id,false);await restore(page)
   assert.equal(await page.evaluate(id=>window.testSceneRef.current.world.vehicles.find(v=>v.id===id).passengerCount,id),2)
   await page.keyboard.press('Escape');let point=await vehiclePoint(page,id);await page.mouse.click(point.x,point.y,{button:'right'});await render(page)
