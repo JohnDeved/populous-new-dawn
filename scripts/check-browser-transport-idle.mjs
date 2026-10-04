@@ -1,19 +1,11 @@
 import assert from 'node:assert/strict'
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { chromium } from '@playwright/test'
-import { openGame } from './browser-game.mjs'
 
-// Run through performance-queue's same-invocation supervisor with private output/port.
-const output = process.env.PND_QUEUE_OUTPUT
-assert.ok(output, 'PND_QUEUE_OUTPUT is required')
-mkdirSync(output, { recursive: true })
-const browser = await chromium.launch({
-  executablePath: process.env.POPULOUS_BROWSER,
-  headless: true,
-})
-try {
-  const { page, errors } = await openGame(browser, 22)
+// Scenario for scripts/local-render/harness.mjs; its browser keeps the sandbox.
+export default async function transportIdle({ page, openMission, output, receipt }) {
+  mkdirSync(output, { recursive: true })
+  await openMission(22)
   const ids = await page.evaluate(async () => {
     const scene = window.testScene, w = scene.world
     const { addUnit, browserPosition, command, tick } = await import('/app/model.ts')
@@ -65,13 +57,17 @@ try {
     tick(w, 1 / 12)
     return w.units.find(u => u.id === id).native.state
   }, ids.spy), 30)
-  assert.deepEqual(errors, [])
-  writeFileSync(resolve(output, 'result.json'), JSON.stringify({
-    status: 'passed', label, completed,
+  assert.deepEqual(receipt.errors, [])
+  const renderer = await page.evaluate(() => {
+    const gl = window.testScene.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
+    return debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER)
+  })
+  const result = {
+    status: 'passed', label, completed, renderer,
     scope: 'Staged Spy population/location; real command boarding and rendered disguise/replacement controls.',
     limits: 'Cloud headless rendering only; no hardware performance or ordinary Spy acquisition claim. Balloon command-position boundary is separate.',
-  }, null, 2) + '\n')
+  }
+  writeFileSync(resolve(output, 'result.json'), JSON.stringify(result, null, 2) + '\n')
   console.log('PASS: rendered Boat disguise control completes to state30, holds 63 turns and accepts replacement without page errors')
-} finally {
-  await browser.close()
+  return result
 }
