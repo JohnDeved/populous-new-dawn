@@ -56,6 +56,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     if (window.m3Observation?.scene !== s || window.m3Observation.world !== s.world)
       throw Error('Diagnostic epoch does not belong to the current scene/world')
     const { currentPersonOrder } = await import('/app/person-orders.ts')
+    const { liveBuildingAttackTarget } = await import('/app/live-building-combat.ts')
     const { observeBuilding } = await import('/qa/mission-three-controls/observation.mjs')
     const { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs')
     const { default: rules } = await import('/app/original-rules.json')
@@ -84,7 +85,8 @@ export default async function missionThreeControls({ page, output, root, signal,
           route: p && { motionIndex: p.motionIndex, destinationX: p.destinationX, destinationY: p.destinationY,
             goalX: p.goalX, goalY: p.goalY }, nativeState: p?.state,
           owner: p?.workTarget, timer: p?.timer, flags2: p?.flags2, flags3: p?.flags3,
-          flags4: p?.flags4, order: p && copy(currentPersonOrder(w.buildingOrders, p)) }
+          flags4: p?.flags4, order: p && copy(currentPersonOrder(w.buildingOrders, p)),
+          attackBuildingId: p ? liveBuildingAttackTarget(w, p)?.id ?? null : null }
       }),
       buildings: w.buildings.filter(b => b.hp > 0).map(observeBuilding),
       shrines: w.shrines.map(h => ({ id: h.id, kind: h.kind, x: h.x, z: h.z, active: h.active,
@@ -284,7 +286,8 @@ export default async function missionThreeControls({ page, output, root, signal,
     log({ action: 'world-order-observation', hit, before: commandState(before), after: commandState(after) })
     const acceptance = acceptedOrderEvidence(before, after, hit)
     log({ action: 'world-order-input-observed', hit, acceptance, selected: before.selected,
-      orders: after.units.filter(u => before.selected.includes(u.id)).map(u => ({ id: u.id, order: u.order, work: u.work })) })
+      orders: after.units.filter(u => before.selected.includes(u.id)).map(u => ({ id: u.id, order: u.order, work: u.work,
+        attackBuildingId: u.attackBuildingId })) })
     return after
   }
   const groundHit = async (point, kind = null, spell = null, radius = 0) => {

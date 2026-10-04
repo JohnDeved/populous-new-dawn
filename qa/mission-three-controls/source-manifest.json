@@ -225,6 +225,10 @@
     {
       "path": "app/original-shapes.json",
       "sha256": "0d0fcd2252efe0bae7cbb9a7f3a9acc4f6f0bb7a6e6e83eb5fe4e34ec247e094"
+    },
+    {
+      "path": "app/live-building-combat.ts",
+      "sha256": "fa648b2ae6b1708c26f81b4fa019ce3c3ccc5c8813891412742a2ddf71e464a2"
     }
   ],
   "originalInspectionCommit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",

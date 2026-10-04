@@ -323,3 +323,20 @@ and cancellation. Spell/plan validators retain their existing separate semantics
 Two source-bound fixture tests exercise the actual native resolver, including
 the visually unpicked enemy-hut-cell trap, blocked ground and original-World
 noninterference. These isolated fixtures are not browser/gameplay proof.
+
+
+## Building-attack recipient evidence
+
+Run08's actual Hut1020 click had fresh target1020 acknowledgement and selected
+Warriors carrying model19/a21221. The old generic ID comparison rejected that
+packed cell. Snapshots now call the shipped read-only `liveBuildingAttackTarget`
+lookup for each actual person-order owner. A model19 recipient is accepted only
+for a building click with that exact resolved building identity, an uncancelled
+order and the existing fresh dispatch/acknowledgement checks. Work/target remnants
+or coincidentally equal packed values cannot satisfy this branch. Ground moves
+still reject model19, including Run08's separately retained Preacher move failure.
+
+Source-only fixtures exercise a non-center registered footprint cell, absent,
+cancelled, dead, unfinished and friendly targets, stale dispatch/selection, and
+lookup nonmutation. They establish the checker contract; the earlier failed
+browser envelopes remain unchanged. The direct lookup adds the57th source guard.
