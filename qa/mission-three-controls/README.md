@@ -25,7 +25,7 @@ node --check qa/mission-three-controls/driver.mjs
 node --test qa/mission-three-controls/observation.test.mjs
 ```
 
-The twenty-four isolated tests cover original callback receiver/arguments/return and
+The twenty-five isolated tests cover original callback receiver/arguments/return and
 exact invocation count; diagnostic exception isolation versus real application
 exceptions; idempotent detach; separate reload/time epochs; strict singleton
 conversion identity; rejecting death/poll gaps; and progress that ignores a
@@ -42,7 +42,7 @@ requires real canvas ownership, and rejects unowned or overly distant alternativ
 Additional cases cover immediate required-actor stops, successful conversion before
 expected victim disappearance, prospective deterministic approach anchors, a declared candidate pool, first
 owned-sermon onset locking, rejection of retrospective arming or a missed
-listener, and native preaching-cell limits. Idle Preacher timers do not count
+listener, native preaching-cell limits and the bounded specialist-distance anchor tactic. Idle Preacher timers do not count
 as progress toward a sermon. The tests use isolated plain JS data, not the
 game simulation, browser, assets, native executable or installed packages.
 

@@ -47,8 +47,12 @@ Split actions permit a protected play strategy:
 5. `approach-sermon` records the actual Blue Preacher and all current living
    Yellow Brave IDs (at most200), including workers/housed people, before intrusion.
    This declaration does not claim that every candidate is presently eligible.
-   An eligible idle Brave guides the movement area only; authored53 is preferred
-   for this anchor when available, otherwise distance/ID determines the anchor.
+   An eligible idle Brave guides the movement area only. Candidates within8 wrapped
+   world units of an observed living non-Brave Yellow specialist are excluded.
+   Log each specialist position and candidate distance, plus excluded and remaining
+   IDs. Authored53 is preferred only among remaining candidates; otherwise
+   distance/ID determines the anchor. No remaining candidate stops the attempt,
+   without widening the search. This is a prospective tactic, not native immunity.
 6. The existing passive afterTurn observer records the first new genuine
    state23/workTarget onset among the declared candidates, choosing the lowest ID
    on a same-turn tie. It retains adjacent-turn before/after identity evidence.
@@ -82,3 +86,25 @@ failed envelope is preserved in the separate immutable evidence packet at
 `1ef8e21`. The first-owned-sermon rule above is prospective for a new run; it does
 not relabel any of those completed events or claim a saved/reloaded sermon or
 victory from Run04.
+
+## Run05 amendment
+
+Run05 at `6662d2e` retained one rejected moving-entity click: the later ordinary
+dispatch acknowledged ground and produced a new move order/marker. The healthy
+world continued exploratorily through a second coordinate Blast and actual
+defender3156 removal. The observer declared18 Yellow Braves before intrusion,
+but Blue Preacher3167 entered combat and died before any owned sermon. The
+required-actor guard stopped promptly at4786; ordinary UI Save persisted4801.
+The exact killer was not retained. Brave53 was later alive17.4HP and nearby
+Yellow Shaman47 alive100HP; these are not kill-ownership evidence. The failed
+packet is retained at `eb66ebd`. Its nonpersistent browser checkpoint was lost
+on normal harness cleanup and cannot be recreated from the diagnostic JSON.
+
+The next anchor tactic avoids the previously preferred53 beside Shaman47.
+`melee-engagement.ts` converts ordinary Preacher idle range3 into a wrapped
+whole-cell square of radius2; its moving range1 checks the current cell.
+`combat-targets.ts` permits a Preacher's enemy Preacher/Shaman response. A
+Brave's idle range5 covers radius4, so arriving near a Brave can still lead to
+combat before the Preacher settles. The8-unit specialist margin is deliberately
+a tactical policy, not an exact safe radius, path-clearance proof or explanation
+of the unobserved killer. It never changes who may become the first listener.

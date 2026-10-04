@@ -513,7 +513,12 @@ export default async function missionThreeControls({ page, output, root, signal,
     log({ action: 'sermon-shaman-position', turn: state.turn, shaman,
       tactic: Math.hypot(shaman.x - 35, shaman.z - 81) <= 4 ? 'home' : 'prospective covering position' })
     assert.ok(!sermonPlan, 'The prospective candidate declaration is made once')
-    const anchorChoice = selectSermonAnchor(state, ids.authoredVictim)
+    let anchorChoice
+    try { anchorChoice = selectSermonAnchor(state, ids.authoredVictim) }
+    catch (error) {
+      log({ action: 'sermon-anchor-rejected', turn: state.turn, search: error?.search ?? null })
+      throw error
+    }
     const declaration = await page.evaluate(async preacherId => {
       const { armSermonObservation } = await import('/qa/mission-three-controls/observation.mjs')
       const observer = window.m3Observation, scene = window.testSceneRef.current

@@ -167,7 +167,10 @@ then observe the first new state23 and exact workTarget ownership under the
 prospectively declared candidate rule.
 Before intrusion, record the actual Blue Preacher and all current living Yellow
 Brave IDs as a bounded candidate pool, including presently housed/work-assigned
-people. An eligible idle Brave guides movement only. The passive observer locks
+people. An eligible idle Brave guides movement only, excluding candidates within8 wrapped
+world units of observed living non-Brave Yellow specialists. Log positions,
+distances and excluded/remaining IDs; no remaining candidate stops the attempt.
+This prospective tactic does not certify a safe route or native immunity. The passive observer locks
 the first new actual owned state23 onset, breaking same-turn ties by ID; the
 listener must still exist before Pause/Save. No retrospective arming, re-arming,
 post-conversion selection or later replacement of that locked identity is allowed.

@@ -120,6 +120,27 @@ test('sermon approach anchor is prospective, conservative and deterministic', ()
   assert.deepEqual(original.units[1], s.units[1])
 })
 
+test('anchor tactic excludes nearby specialists with logged distances and never silently widens', () => {
+  const brave = (id, x, z) => ({ id, x, z, kind: 'brave', team: 'yellow', hp: 50,
+    inside: null, nativeState: 19, preachingEligible: true })
+  const shaman = { id: 47, x: -45, z: -107, hp: 100, kind: 'shaman', team: 'yellow' }
+  const state = { units: [brave(53, -43, -107), brave(52, -47, -107), brave(2529, -41, -94.6875), shaman] }
+  const original = structuredClone(state), choice = selectSermonAnchor(state, 53)
+  assert.equal(choice.anchor.id, 2529, 'Run05 authored anchor beside the Shaman is excluded prospectively')
+  assert.deepEqual(choice.excludedIds, [53, 52])
+  assert.deepEqual(choice.remainingIds, [2529])
+  assert.deepEqual(choice.assessments[0].distances, [{ id: 47, distance: 2 }])
+  assert.deepEqual(state, original)
+  assert.deepEqual(selectSermonAnchor({ units: [...state.units].reverse() }, 53), choice)
+  assert.throws(() => selectSermonAnchor({ units: [brave(53, -37, -107), shaman] }, 53),
+    error => error.code === 'no-eligible-victim' && error.search.remainingIds.length === 0 &&
+      error.search.assessments[0].distances[0].distance === 8)
+  // Candidate near the world seam; wrapped specialist distance is two, not254.
+  assert.throws(() => selectSermonAnchor({ units: [brave(53, -43, -127),
+    { ...shaman, x: -43, z: 127 }] }, 53), error => error.search.assessments[0].distances[0].distance === 2)
+  assert.equal(selectSermonAnchor({ units: [brave(53, -43, -107), { ...shaman, hp: 0 }] }, 53).anchor.id, 53)
+})
+
 test('a declared pool locks the first actual owned sermon and preserves a same-turn ID tie', () => {
   const w = world(), epoch = createEpoch('entry')
   const preacher = { id: 3169, team: 'blue', kind: 'preacher', hp: 55, inside: null,

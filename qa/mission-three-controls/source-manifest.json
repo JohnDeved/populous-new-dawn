@@ -193,6 +193,14 @@
     {
       "path": "app/person-order-start.ts",
       "sha256": "8d0ebf7c58bce163b372a78430c7697f39138bc5cc6c30a9fbc81622d72c85cc"
+    },
+    {
+      "path": "app/combat-targets.ts",
+      "sha256": "776a455e696905b3d2bad8dd256ab22074cf9c086e3801e935e3caf3ed2d1384"
+    },
+    {
+      "path": "app/live-combat.ts",
+      "sha256": "12107b400388222fb75453f86d055d6ea053813da355a75cf6a10ddb3553933a"
     }
   ],
   "originalInspectionCommit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",

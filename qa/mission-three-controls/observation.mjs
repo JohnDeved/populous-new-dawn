@@ -197,10 +197,25 @@ export function selectSermonAnchor(snapshot, authoredId) {
     u.nativeState === 19 && u.preachingEligible === true && near(u, { x: -43, z: -107 }, 32))
   candidates.sort((a, b) => Math.hypot(wrapped(a.x + 43), wrapped(a.z + 107)) -
     Math.hypot(wrapped(b.x + 43), wrapped(b.z + 107)) || a.id - b.id)
-  const victim = candidates.find(u => u.id === authoredId) ?? candidates[0]
-  if (!victim) throw new IncompleteRun('no-eligible-victim', 'No observed idle eligible Yellow Brave in the bounded target area')
-  return { anchor: victim, candidateIds: candidates.map(u => u.id),
-    reason: victim.id === authoredId ? 'authored victim remains eligible' : 'nearest eligible idle Yellow Brave, then lowest ID' }
+  // Prospective tactic only: this margin does not prove safe routes or immunity.
+  // Keep authored preference only after excluding nearby observed specialists.
+  const specialists = yellow.filter(u => u.kind !== 'brave' && u.hp > 0)
+    .sort((a, b) => a.id - b.id).map(({ id, kind, x, z, hp, inside }) => ({ id, kind, x, z, hp, inside }))
+  const assessments = candidates.map(u => ({ id: u.id, x: u.x, z: u.z,
+    distances: specialists.map(s => ({ id: s.id, distance: Math.hypot(wrapped(s.x - u.x), wrapped(s.z - u.z)) })) }))
+  const excludedIds = assessments.filter(a => a.distances.some(d => d.distance <= 8)).map(a => a.id)
+  const remaining = candidates.filter(u => !excludedIds.includes(u.id))
+  const search = { specialistExclusionRadius: 8, specialists, assessments,
+    candidateIds: candidates.map(u => u.id), excludedIds, remainingIds: remaining.map(u => u.id) }
+  const victim = remaining.find(u => u.id === authoredId) ?? remaining[0]
+  if (!victim) {
+    const error = new IncompleteRun('no-eligible-victim', 'No observed idle eligible Yellow Brave outside the declared specialist margin')
+    error.search = search
+    throw error
+  }
+  return { anchor: victim, ...search,
+    reason: victim.id === authoredId ? 'authored victim remains eligible outside specialist margin' :
+      'nearest eligible idle Yellow Brave outside specialist margin, then lowest ID' }
 }
 
 export function inOrdinaryPreachingCells(point, victim) {
