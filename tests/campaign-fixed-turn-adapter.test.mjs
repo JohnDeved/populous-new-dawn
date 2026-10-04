@@ -187,3 +187,15 @@ test('the shipped right-drag mapping rotates 512 native angle units without pann
     assert.deepEqual(velocity, { turn: 0, forward: 0, side: 0 })
   }
 })
+
+
+test('Mission 3 trains a bounded Preacher group and retains identified HUD-reachable Braves', () => {
+  assert.equal((checker.match(/await train\(page, temple, 5000, true\)/g) ?? []).length, 1)
+  const train = checker.slice(checker.indexOf('async function train('), checker.indexOf('async function worship('))
+  assert.ok(train.includes("preserveBraves ? 'Control' : 'Shift'"))
+  assert.ok(train.includes("assert.equal(selected.length, 5"))
+  assert.ok(train.includes('retainedBefore.includes(unit.id)'))
+  assert.ok(train.includes("getByLabel('Select brave', { exact: true }).isEnabled()"))
+  assert.ok(train.includes('await advance(page, turns)'))
+  assert.ok(checker.includes("{ type: 'unit-count', team: 'blue', kind: 'preacher', count: 3 }"))
+})

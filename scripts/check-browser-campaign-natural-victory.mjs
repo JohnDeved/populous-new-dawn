@@ -449,12 +449,12 @@ async function dismissFlyby(page) {
   }
 }
 
-async function selectClass(page, kind) {
+async function selectClass(page, kind, modifier = 'Shift') {
   await dismissFlyby(page)
   if (kind === 'shaman') await page.getByLabel('followers', { exact: true }).click()
   const button = page.getByLabel(kind === 'shaman' ? 'Select and focus shaman' : `Select ${kind}`, { exact: true })
   if (kind === 'shaman') await button.click()
-  else await button.click({ modifiers: ['Shift'] })
+  else await button.click({ modifiers: [modifier] })
   return page.evaluate(kind => {
     const world = globalThis.testScene.world
     return world.selected.some(id =>
@@ -503,20 +503,40 @@ async function build(page, kind, label, point) {
   return building
 }
 
-async function train(page, building, turns = 2500) {
+async function train(page, building, turns = 2500, preserveBraves = false) {
   const snapshot = await state(page),
     braves = snapshot.units.filter(unit => unit.team === 'blue' && unit.kind === 'brave')
   if (!snapshot.buildings.some(candidate => candidate.id === building.id) || !braves.length)
     return false
-  await selectClass(page, 'brave')
+  let selected = []
+  const choose = async () => {
+    await selectClass(page, 'brave', preserveBraves ? 'Control' : 'Shift')
+    selected = await page.evaluate(() => [...globalThis.testScene.world.selected])
+    if (preserveBraves) {
+      assert.equal(selected.length, 5, 'Ctrl-five selects exactly five Temple trainees')
+      assert.ok(selected.every(id => braves.some(unit => unit.id === id)), 'Temple trainees are actual Braves')
+      assert.ok(braves.some(unit => !selected.includes(unit.id)), 'Retain a Brave outside the training group')
+    }
+  }
+  await choose()
   try {
     await clickEntity(page, 'buildings', building.id)
   } catch {
     await moveSelected(page, building, 600, 48)
-    await selectClass(page, 'brave')
+    await choose()
     await clickEntity(page, 'buildings', building.id)
   }
   await advance(page, turns)
+  if (preserveBraves) {
+    const after = await state(page), retainedBefore = braves.filter(unit => !selected.includes(unit.id)).map(unit => unit.id),
+      retainedAfter = after.units.filter(unit => unit.team === 'blue' && unit.kind === 'brave' && retainedBefore.includes(unit.id)).map(unit => unit.id)
+    assert.ok(retainedAfter.length, 'An original untrained Brave survives for ordinary construction')
+    assert.ok(await page.getByLabel('Select brave', { exact: true }).isEnabled(), 'Retained Brave is reachable from the HUD')
+    const evidence = { building: building.id, turnBefore: snapshot.turn, turnAfter: after.turn,
+      selected, retainedBefore, retainedAfter, modifier: 'Control', turns }
+    await page.evaluate(evidence => { (globalThis.campaignTrainingOwnership ??= []).push(evidence) }, evidence)
+    console.log(JSON.stringify({ trainingOwnership: evidence }))
+  }
   return true
 }
 
@@ -885,7 +905,7 @@ async function missionThree(page) {
     10_000,
     'Mission 3 Braves'
   )
-  await train(page, temple, 5000)
+  await train(page, temple, 5000, true)
   await advanceUntil(
     page,
     { type: 'unit-count', team: 'blue', kind: 'preacher', count: 3 },
