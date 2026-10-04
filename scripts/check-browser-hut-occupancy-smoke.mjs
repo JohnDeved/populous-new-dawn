@@ -185,19 +185,24 @@ function observeGuardedFixture({ ids, mode = null, afterTurn = 0, wake = false }
     }),
     owner = world.secondaryEffects,
     rootEntry = owner?.slots[owner.roots[hutId]?.slot],
-    puffReady =
-      rootEntry &&
-      owner.order.some(slot => {
-        const entry = owner.slots[slot]
-        return (
-          entry?.kind === 'hutPuff' &&
-          entry.lifetime >= 10 &&
-          entry.position.x === rootEntry.position.x &&
-          entry.position.y === rootEntry.position.y &&
-          entry.position.h === rootEntry.position.h &&
-          scene.hutSmokePuffs?.has(entry.serial)
-        )
-      }),
+    puffWake = window.hutSmoke.puffWake,
+    // Wake early, then retain that exact still-live child after the real Pause
+    // action. Requiring ten visits again rejected valid children during UI latency.
+    readyPuffs = rootEntry
+      ? owner.order
+          .map(slot => owner.slots[slot])
+          .filter(
+            entry =>
+              entry?.kind === 'hutPuff' &&
+              entry.lifetime >= (wake || !puffWake ? 10 : 1) &&
+              (wake || !puffWake || puffWake.serials.includes(entry.serial)) &&
+              entry.position.x === rootEntry.position.x &&
+              entry.position.y === rootEntry.position.y &&
+              entry.position.h === rootEntry.position.h &&
+              scene.hutSmokePuffs?.has(entry.serial)
+          )
+      : [],
+    puffReady = readyPuffs.length > 0,
     smokeReady =
       mode === 'puff'
         ? smoke?.state.root?.mode === 'full' && smoke.group.visible && puffReady
@@ -212,6 +217,8 @@ function observeGuardedFixture({ ids, mode = null, afterTurn = 0, wake = false }
       ids.every(id => residentIds.includes(id)) &&
       !incomingIds.length &&
       !!smokeReady
+  if (mode === 'puff' && wake && ready)
+    window.hutSmoke.puffWake = { turn: world.turn, serials: readyPuffs.map(puff => puff.serial) }
   // Read-only game diagnostics: retain the actual births and control latency,
   // rather than inferring emission from one final snapshot after a timeout.
   if (mode === 'puff') {

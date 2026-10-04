@@ -1,5 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { readFileSync } from 'node:fs'
+import { runInNewContext } from 'node:vm'
 import { createHutOccupancySmoke } from '../app/hut-occupancy-smoke.ts'
 import {
   stepSecondaryEffects,
@@ -224,4 +226,70 @@ test('legacy marker overflow cannot leave ownerless immortal effects after resto
   assert.deepEqual(world.effects, [])
   assert.deepEqual(world.secondaryEffects.order, [])
   assert.equal(world.secondaryEffects.free.length, 160)
+})
+
+test('browser capture retains the same live puff across ordinary Pause latency', () => {
+  const source = readFileSync(
+    new URL('../scripts/check-browser-hut-occupancy-smoke.mjs', import.meta.url),
+    'utf8'
+  )
+  const start = source.indexOf('function observeGuardedFixture('),
+    end = source.indexOf('async function focusBrave', start)
+  assert.ok(start >= 0 && end > start)
+  const world = rootWorld(),
+    owner = world.secondaryEffects,
+    hut = world.buildings[0],
+    ids = [101, 102, 103]
+  world.units = ids.map(id => ({
+    id,
+    team: 'blue',
+    kind: 'brave',
+    hp: 50,
+    inside: hut.id,
+    work: hut.id,
+    guard: false,
+  }))
+  hut.admission = { inside: 3 }
+  stepSecondaryEffects(world)
+  const child = children(world)[0],
+    scene = {
+      world,
+      buildingMeshes: new Map([
+        [
+          hut.id,
+          {
+            userData: {
+              hutOccupancySmoke: { state: owner.roots[hut.id].state, group: { visible: true } },
+            },
+          },
+        ],
+      ]),
+      hutSmokePuffs: new Map([[child.serial, {}]]),
+    }
+  const window = { testScene: scene, hutSmoke: { hutId: hut.id } }
+  const observe = runInNewContext('(' + source.slice(start, end) + ')', {
+    window,
+    structuredClone,
+    performance: { now: () => 0 },
+  })
+  world.paused = false
+  assert.equal(observe({ ids, mode: 'puff', wake: true }), true)
+  // Exact retained browser witness: born at turn933/lifetime16; public Pause
+  // acknowledged at turn943/lifetime6. These are supplied checker-only inputs.
+  world.turn += 10
+  child.lifetime = 6
+  world.paused = true
+  assert.equal(observe({ ids, mode: 'puff' }).ready, true)
+  const originalSerial = child.serial
+  child.serial++
+  scene.hutSmokePuffs = new Map([[child.serial, {}]])
+  assert.equal(
+    observe({ ids, mode: 'puff' }).ready,
+    false,
+    'a different child cannot substitute for the wake witness'
+  )
+  child.serial = originalSerial
+  child.lifetime = 0
+  scene.hutSmokePuffs = new Map([[child.serial, {}]])
+  assert.equal(observe({ ids, mode: 'puff' }).ready, false, 'an expired child is never accepted')
 })
