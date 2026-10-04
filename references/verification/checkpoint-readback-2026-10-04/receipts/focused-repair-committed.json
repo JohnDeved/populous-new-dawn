@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "cbff8463-0143-4103-a387-b46f02938ea5",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "fb886ac6b5f759e10f03fb874b08cc1277e6bcbb",
+    "branch": "fix/checkpoint-readback-guard",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-checkpoint.mjs": "712b68140be9f9967b45d946bb75d0279720d5603c0f128a7864dcee22476a32",
+      "tests/browser-checkpoint-readback.test.mjs": "4a7e43fa947cb82155be0a80974af22551cb9402fdc090a017e0f97f39c4eac0",
+      "scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/browser-checkpoint-readback.test.mjs",
+    "tests/checkpoint-readback.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checkpoint-readback-guard",
+  "startedAt": "2026-10-04T18:12:26.927Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checkpoint-readback-guard/work/orchestration/checkpoint-readback/focused-repair-committed.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checkpoint-readback-guard/work/orchestration/checkpoint-readback/focused-repair-committed.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T18:12:27.107Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ maintained checkpoint callsite waits for delayed false reads before reloading (6.14049ms)\n✔ maintained checkpoint callsite rejects exhausted false reads without reloading (14.501317ms)\n✔ maintained checkpoint callsite closes rejected reads without reloading (1.413965ms)\n✔ checkpoint readback awaits false reads before the actual true result (3.238638ms)\n✔ checkpoint readback fails closed after bounded asynchronous false results (0.871801ms)\nℹ tests 5\nℹ suites 0\nℹ pass 5\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 113.170968\n",
+  "stderr": "",
+  "stdoutSha256": "aad60f60575d7a8261315727e7981219130a213627d4bd33a1c8af8d78b1b074",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "fb886ac6b5f759e10f03fb874b08cc1277e6bcbb",
+    "branch": "fix/checkpoint-readback-guard",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-checkpoint.mjs": "712b68140be9f9967b45d946bb75d0279720d5603c0f128a7864dcee22476a32",
+      "tests/browser-checkpoint-readback.test.mjs": "4a7e43fa947cb82155be0a80974af22551cb9402fdc090a017e0f97f39c4eac0",
+      "scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80"
+    }
+  }
+}

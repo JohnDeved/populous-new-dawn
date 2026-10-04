@@ -1,0 +1,13 @@
+✔ maintained checkpoint callsite waits for delayed false reads before reloading (6.14049ms)
+✔ maintained checkpoint callsite rejects exhausted false reads without reloading (14.501317ms)
+✔ maintained checkpoint callsite closes rejected reads without reloading (1.413965ms)
+✔ checkpoint readback awaits false reads before the actual true result (3.238638ms)
+✔ checkpoint readback fails closed after bounded asynchronous false results (0.871801ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 113.170968

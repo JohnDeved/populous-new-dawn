@@ -1,0 +1,18 @@
+{
+  "candidate": "f8a6650d581bb9860598e641c4f862c0284e47fa",
+  "acceptedBase": "76df601a76c54b291cc7867021c45022382720dd",
+  "priorReviewedPublishedHead": "d9db2b884ce71d5d8dd3e76b598337be9ed61a72",
+  "identicalChangedObjects": [
+    {
+      "path": "scripts/check-browser-checkpoint.mjs",
+      "reviewedObject": "342e142bc65ab078205fd152b028475db38ba2e9",
+      "candidateObject": "342e142bc65ab078205fd152b028475db38ba2e9"
+    },
+    {
+      "path": "tests/browser-checkpoint-readback.test.mjs",
+      "reviewedObject": "2d1ada3d970ba3cb4a438cd19dd30d5f9f694e2f",
+      "candidateObject": "2d1ada3d970ba3cb4a438cd19dd30d5f9f694e2f"
+    }
+  ],
+  "status": "accepted main adopted by normal merge; reviewed two-file feature delta unchanged"
+}

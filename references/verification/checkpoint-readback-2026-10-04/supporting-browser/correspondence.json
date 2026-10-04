@@ -1,0 +1,47 @@
+{
+  "status": "supporting prior real-IDB helper evidence; not a new caller browser run",
+  "candidate": "f8a6650d581bb9860598e641c4f862c0284e47fa",
+  "browserSource": "8ef89e38fce059082419b8a86538132c28a8d417",
+  "identicalObjects": [
+    {
+      "path": "scripts/checkpoint-readback.mjs",
+      "browserSourceObject": "1d75197cd96402d1e5d72106d47027a83ff874a1",
+      "candidateObject": "1d75197cd96402d1e5d72106d47027a83ff874a1"
+    },
+    {
+      "path": "scripts/local-render/readiness-lifecycle.mjs",
+      "browserSourceObject": "c825d5adbd5fc1f09f543807558c997051412f12",
+      "candidateObject": "c825d5adbd5fc1f09f543807558c997051412f12"
+    }
+  ],
+  "receipts": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/work/orchestration/readiness-lifecycle/browser-01.outer.json",
+      "sha256": "4453dd6e9eadbcf84e2b56559ce8833cdd25f546aab17ef0e77e17a74335057a"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/work/orchestration/readiness-lifecycle/browser-01/receipt.json",
+      "sha256": "4dc3659b3f54674659fad95a6d2ac70db3899970f2c6e667f29cf10265dc37fc"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/work/orchestration/readiness-lifecycle/browser-01/readiness-lifecycle.json",
+      "sha256": "d26e8adee4a58ed0b6bc85fc49f12bfa7327db5eca3b16aa2c8b3ed504e493e7"
+    }
+  ],
+  "rawArtifacts": {
+    "stdout": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/work/orchestration/readiness-lifecycle/browser-01.outer.json.artifacts/stdout.log",
+      "sha256": "b79d99f5a681dd685c5e042423cc1d3a3642056154c583a3c45e199871632d9f"
+    },
+    "stderr": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checker-readiness-lifecycle/work/orchestration/readiness-lifecycle/browser-01.outer.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "committedSave": {
+    "level": 3,
+    "savedTurn": 122,
+    "committed": true
+  },
+  "scope": "The unchanged waitForCheckpointReadback helper was exercised by the ordinary readiness-lifecycle scenario against browser IndexedDB, then fresh-page load. The current check-browser-checkpoint caller has new failure-first Node actual-callsite coverage and aggregate validation; it was not replayed in a browser. No carry-forward of the entire earlier browser runtime to the changed transport app is claimed."
+}

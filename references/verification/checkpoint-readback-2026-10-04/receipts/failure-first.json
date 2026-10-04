@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "c8eed709-6a46-448c-9775-85fbbb95a084",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "b219c63be33c440cea0927c487f16573e5a1c0ec",
+    "branch": "fix/checkpoint-readback-guard",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-checkpoint.mjs": "df282e87f4f9afcf01ce941620b913142daf99705add01cf58a13513071a6485",
+      "tests/browser-checkpoint-readback.test.mjs": "372a8887f045370fb2da409110d64937202bf3a3fc725d736b3bbbf0baad4705",
+      "scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/browser-checkpoint-readback.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checkpoint-readback-guard",
+  "startedAt": "2026-10-04T18:06:27.718Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checkpoint-readback-guard/work/orchestration/checkpoint-readback/failure-first.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/checkpoint-readback-guard/work/orchestration/checkpoint-readback/failure-first.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T18:06:27.871Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ maintained checkpoint callsite waits for delayed false reads before reloading (4.984784ms)\n✖ maintained checkpoint callsite rejects exhausted false reads without reloading (2.843819ms)\n✔ maintained checkpoint callsite propagates rejected reads without reloading (1.636206ms)\nℹ tests 3\nℹ suites 0\nℹ pass 1\nℹ fail 2\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 87.523189\n\n✖ failing tests:\n\ntest at tests/browser-checkpoint-readback.test.mjs:74:1\n✖ maintained checkpoint callsite waits for delayed false reads before reloading (4.984784ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  1 !== 3\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/checkpoint-readback-guard/tests/browser-checkpoint-readback.test.mjs:77:10)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 1,\n    expected: 3,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/browser-checkpoint-readback.test.mjs:82:1\n✖ maintained checkpoint callsite rejects exhausted false reads without reloading (2.843819ms)\n  AssertionError [ERR_ASSERTION]: Missing expected rejection.\n      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/checkpoint-readback-guard/tests/browser-checkpoint-readback.test.mjs:84:3)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: /must commit/,\n    operator: 'rejects',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "3a83dff59b149c5ca569c2363544625444afb240294497d4ecbe1f33947c2b8b",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "b219c63be33c440cea0927c487f16573e5a1c0ec",
+    "branch": "fix/checkpoint-readback-guard",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-checkpoint.mjs": "df282e87f4f9afcf01ce941620b913142daf99705add01cf58a13513071a6485",
+      "tests/browser-checkpoint-readback.test.mjs": "372a8887f045370fb2da409110d64937202bf3a3fc725d736b3bbbf0baad4705",
+      "scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80"
+    }
+  }
+}

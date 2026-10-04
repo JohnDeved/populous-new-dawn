@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "18261af0-de68-449a-b8a8-538ea4f7e9e3",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "cf4350944ac2d77fbe97ab5dfe9f78b4aa71c3b8",
+    "branch": "feat/follower-transport-recovered",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/follower-transport-rows-recovered",
+  "startedAt": "2026-10-04T18:06:02.129Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/follower-transport-rows-recovered/work/orchestration/transport-recovery/build-final-cf43509.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/follower-transport-rows-recovered/work/orchestration/transport-recovery/build-final-cf43509.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T18:06:17.674Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n[1/5] analyze client references...\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n✓ built in 3.30s\n[2/5] analyze server references...\n\u001b[2K\rtransforming...✓ 377 modules transformed.\nrendering chunks...\n✓ built in 1.47s\n[3/5] build rsc environment...\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 4.19s\n[4/5] build client environment...\n\u001b[2K\rtransforming...✓ 418 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.74s\n[5/5] build ssr environment...\n\u001b[2K\rtransforming...✓ 383 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.27s\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (32%)\n  - vinext:og-inline-fetch-assets (17%)\n  - vinext:middleware-server-only (12%)\n  - alias (5%)\n  - rsc:react-server-dom-webpack-alias (5%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:load-environment-module (21%)\n  - rsc:virtual-client-package (18%)\n  - vinext:jsx-in-js (7%)\n  - vinext:middleware-server-only (7%)\n  - vinext:og-inline-fetch-assets (6%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n",
+  "stdoutSha256": "4ae6fb3667657a2c619a584e24e2594aca255654a88aa61d164fd52326a174ce",
+  "stderrSha256": "58075ffdb30879e5f8d2de6c5d6d712ac593eb7bea96fe6540214816efbc6977",
+  "sourceAfter": {
+    "headOid": "cf4350944ac2d77fbe97ab5dfe9f78b4aa71c3b8",
+    "branch": "feat/follower-transport-recovered",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}
