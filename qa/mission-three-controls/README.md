@@ -2,7 +2,9 @@
 
 Prepared source only. A passing syntax/unit-test result is **not** a browser run.
 The plan was accepted at `c01d788` and the actual driver source preflight at
-`e4fc02a`. The run adopts accepted main `f78e5c1` through PR185/196/197/199/201. Four guarded callers
+`e4fc02a`. The run adopts accepted main `d32a184` through PR185/196/197/199/201/202.
+PR202 changes only an independent Mission4 checker/profile test; all50 guarded
+application/direct-import bytes remain identical to `f78e5c1`. Four guarded callers
 were refreshed after source review of the transport additions; ordinary dispatch,
 load, clock and observer paths are unchanged. The driver reads rendered geometry
 and retains its accepted bytes. The additive PR196 browser helper is also guarded.

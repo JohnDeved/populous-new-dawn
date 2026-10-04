@@ -1,6 +1,6 @@
 {
   "scope": "source-only ordinary-control Mission 3 preflight; no execution proof",
-  "sourceCommit": "f78e5c17757ce061b8b159da150536ee690e6b6f",
+  "sourceCommit": "d32a1848bdbb60436366c335d1e9c9a1e16ab8bb",
   "files": [
     {
       "path": "app/level-three.ts",
