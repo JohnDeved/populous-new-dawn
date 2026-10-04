@@ -1,6 +1,12 @@
 import { seatVehiclePassenger, vehicleSeat } from './vehicle-seats.ts'
 import type { LivePerson } from './live-people.ts'
-import { teamForTribe, tribeForTeam, type Vehicle, type World } from './world-types.ts'
+import {
+  teamForTribe,
+  tribeForTeam,
+  vehicleApparentTribe,
+  type Vehicle,
+  type World,
+} from './world-types.ts'
 import { browserPosition } from './world-coordinates.ts'
 import { terrainPointHeight } from './native-terrain.ts'
 import { restingCellCollision, terrainSupportsPerson } from './person-collision.ts'
@@ -62,7 +68,8 @@ export function boardLiveVehicle(w: World, p: LivePerson, v: Vehicle) {
     i => !v.passengers[i]
   )
   if (slot === undefined) return false
-  if (!v.passengerCount) v.team = teamForTribe(p.tribe)
+  v.team = teamForTribe(p.tribe)
+  v.apparentTribe = p.model === 5 ? p.disguise >>> 6 : p.tribe
   v.passengers[slot] = p.id
   v.passengerCount++
   p.vehicle = v.id
@@ -93,6 +100,8 @@ export function leaveLiveVehicle(
 ) {
   const slot = v.passengers.indexOf(p.id)
   if (slot < 0) return
+  v.apparentTribe ??= tribeForTeam(v.team)
+  v.team = teamForTribe(p.tribe)
   v.passengers.splice(slot, 1)
   v.passengerCount = v.passengers.filter(Boolean).length
   if (!v.passengerCount) v.speed = -1
@@ -131,7 +140,7 @@ export function removeMissingVehiclePassengers(w: World) {
 }
 
 export function damageLiveVehicle(w: World, v: Vehicle, attacker: number, amount: number) {
-  if (w.levelFlags2 & 0x04000000 || tribeForTeam(v.team) === attacker) return
+  if (w.levelFlags2 & 0x04000000 || vehicleApparentTribe(v) === attacker) return
   v.life = short(v.life - short(amount))
 }
 
@@ -191,6 +200,8 @@ function destroyLiveVehicle(w: World, v: Vehicle) {
     const u = w.units.find(unit => unit.id === id),
       p = w.pathfinding.people.get(id) ?? u?.native
     if (!p) continue
+    v.apparentTribe ??= tribeForTeam(v.team)
+    v.team = teamForTribe(p.tribe)
     p.vehicle = 0
     p.flags2 = ((p.flags2 & ~0x4000) | 0x80010) >>> 0
     p.flags4 = ((p.flags4 & ~0x2000000) | 0x1000400) >>> 0

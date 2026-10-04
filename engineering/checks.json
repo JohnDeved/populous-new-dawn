@@ -465,7 +465,8 @@
       "purpose": "Verify imported task artwork against executed native logical draws.",
       "coveredBehavior": [
         "Native root/frame geometry",
-        "18 exact sprite regions"
+        "18 exact sprite regions",
+        "144 task/transport glyph layouts and 36 zero/99/100 boundaries"
       ],
       "knownLimits": [
         "Supplied raster/coordinate leaves; no original-game runtime or complete painter-order claim."
@@ -4871,6 +4872,255 @@
         "Playwright Chromium with verified local launch wrapper",
         "Unique output directory"
       ]
+    },
+    {
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/hud-transports.ts",
+        "app/follower-transports-runtime.ts",
+        "app/live-vehicles.ts",
+        "app/live-movement.ts",
+        "app/vehicle-unload.ts",
+        "tests/follower-transports.test.mjs",
+        "tests/follower-transport-runtime.test.mjs",
+        "tests/browser-follower-transports-checker.test.mjs",
+        "app/hud-layout.ts",
+        "app/scene-entities.ts",
+        "app/spell-effects-runtime.ts",
+        "app/world-types.ts",
+        "tests/hud-layout.test.mjs",
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "scripts/transport-pixel-reference.mjs",
+        "tests/transport-pixel-reference.test.mjs"
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-transports-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Check native transport row contracts and live passenger/owner adapters.",
+      "coveredBehavior": [
+        "Occupied craft counts per passenger class",
+        "All-passenger selection",
+        "Native priority and remembered focus",
+        "First/later boarding, unboarding and disguise owner writes",
+        "Legacy/occupied checkpoints and current class reads",
+        "Real/apparent owner consumers and frame-cache refresh",
+        "Preferred HUD scale and complete lower-panel height budget"
+      ],
+      "knownLimits": [
+        "Supporting class/owner fixtures do not establish natural acquisition or arbitrary mixed-tribe admission."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/follower-transports.test.mjs",
+        "tests/follower-transport-runtime.test.mjs",
+        "tests/browser-follower-transports-checker.test.mjs",
+        "tests/hud-layout.test.mjs",
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "tests/transport-pixel-reference.test.mjs"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/hud-transports.ts",
+        "scripts/check-native-follower-transports.py",
+        "scripts/check-native-followers-panel.py"
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-transports-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Compare occupied craft count, selection and focus helpers with native execution.",
+      "coveredBehavior": [
+        "480 native/TypeScript count, selection and six-click focus cases",
+        "Real/apparent owners",
+        "Driver priority, passenger distance and nearby craft bounds",
+        "Selected/blocked passengers and model variants"
+      ],
+      "knownLimits": [
+        "UI/sound and world leaves are supplied; no full original-game loop proof."
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-follower-transports.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE"
+      ],
+      "inputs": [
+        "app/live-vehicles.ts",
+        "app/live-movement.ts",
+        "app/vehicle-unload.ts",
+        "app/world-types.ts",
+        "scripts/check-native-transport-ownership.py"
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "transport-ownership-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Execute authoritative native vehicle real/apparent owner writers.",
+      "coveredBehavior": [
+        "39 native initialization, boarding, exit, disguise, destruction and count/search cases"
+      ],
+      "knownLimits": [
+        "Native-only writer evidence is composed with live portable/browser adapters; supplied animation/world leaves and truncated command/timer boundaries remain explicit."
+      ],
+      "executable": "python3",
+      "args": [
+        "scripts/check-native-transport-ownership.py",
+        "$POPULOUS_EXE"
+      ]
+    },
+    {
+      "cwd": ".",
+      "env": [
+        "POPULOUS_BROWSER"
+      ],
+      "inputs": [
+        "app/hud-transports.ts",
+        "app/follower-transports-runtime.ts",
+        "app/follower-tasks-view.tsx",
+        "app/scene-input-runtime.ts",
+        "scripts/local-render/harness.mjs",
+        "scripts/check-browser-follower-transports.mjs",
+        "app/hud-layout.ts",
+        "app/scene-entities.ts",
+        "app/spell-effects-runtime.ts",
+        "app/vehicle-appearance.ts",
+        "scripts/check-native-live-models.py",
+        "scripts/transport-pixel-reference.mjs"
+      ],
+      "prerequisites": [
+        "Reserved local browser/server lane",
+        "Exclusive installed dependencies",
+        "Official sandboxed Headless Shell"
+      ],
+      "sideEffects": [
+        "Writes ignored capture/receipt output and private local server caches"
+      ],
+      "resources": [
+        "Exclusive browser and port4357"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      },
+      "id": "follower-transports-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Exercise occupied Boat/Balloon rows through shipped Followers controls.",
+      "coveredBehavior": [
+        "Presence/count and mixed-class selection",
+        "Independent focus and actual vehicle panel",
+        "Disrupted/repeated controls",
+        "Checkpoint and responsive HUD behavior",
+        "Strict physical-grid pixels, footer separation and center/digit hit ownership",
+        "Live apparent-owner UV/cache and genuine Boat/Balloon geometry capture"
+      ],
+      "knownLimits": [
+        "Supporting injected crews/crafts are explicitly labelled; no natural acquisition, Windows full-frame parity or hardware-performance claim.",
+        "Boat driver-Spy disguise is a bounded supporting fixture; non-driver scheduling and Balloon commandPosition remain outside this claim."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        ".",
+        "--scenario",
+        "scripts/check-browser-follower-transports.mjs",
+        "--port",
+        "4357",
+        "--output",
+        "work/orchestration/follower-transports-browser",
+        "--timeout",
+        "600000"
+      ]
+    },
+    {
+      "id": "transport-vehicle-materials-native",
+      "kind": "native",
+      "automation": "manual",
+      "purpose": "Compare genuinely captured live transport geometry with native rendering and apparent-owner texture dispatch.",
+      "coveredBehavior": [
+        "Full native projection, shading, culling, buckets and picking for actual Boat/Balloon meshes",
+        "Original loader flags and all four apparent tribes plus neutral texture handles"
+      ],
+      "knownLimits": [
+        "Requires read-only model capture from the approved browser run; no synthetic input or fixture recording.",
+        "No final native GPU rasterization or hardware-performance claim."
+      ],
+      "executable": "python3",
+      "args": [
+        "-B",
+        "scripts/check-native-vehicle-materials.py",
+        "$POPULOUS_EXE",
+        "$POPULOUS_LIVE_MODEL_INPUT"
+      ],
+      "cwd": ".",
+      "env": [
+        "POPULOUS_EXE",
+        "POPULOUS_LIVE_MODEL_INPUT"
+      ],
+      "inputs": [
+        "scripts/check-native-vehicle-materials.py",
+        "scripts/check-native-live-models.py",
+        "app/vehicle-appearance.ts",
+        "app/scene-entities.ts",
+        "app/world-types.ts",
+        "public/original/provenance.json"
+      ],
+      "prerequisites": [
+        "Verified executable and original objects/objs0-2.dat, facs0-2.dat and pnts0-2.dat",
+        "Actual captured live-vehicle-models.json from the source-bound transport browser run"
+      ],
+      "sideEffects": [
+        "Writes native-vehicle-materials.json beside the captured input with exclusive creation"
+      ],
+      "resources": [
+        "Read-only native inputs; unique capture/output directory"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     }
   ]
 }

@@ -1,5 +1,7 @@
 'use client'
 
+import { hudScale } from './hud-layout.ts'
+
 import { MinimapFrame } from './minimap-frame-view'
 import {
   useEffect,
@@ -52,6 +54,8 @@ import { followerClassControls } from './hud-population'
 import { FollowerTasks } from './follower-tasks-view'
 import { hudTaskPeople } from './follower-tasks-runtime'
 import type { FollowerTask } from './hud-tasks'
+import type { TransportKind } from './hud-transports'
+import { hudTransports } from './follower-transports-runtime'
 import { spellHudButton, spellHudRoster, spellHudVisibility } from './spell-visibility'
 import { nativeUnitModel } from './unit-kinds'
 import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
@@ -119,10 +123,10 @@ export default function Home() {
   useEffect(() => {
     const resize = () => {
       // Scale artwork uniformly; extra screen height extends only the panel background.
-      const fit = Math.min(window.innerWidth / 640, window.innerHeight / 480)
-      const preferred =
-        hudSize === 'auto' ? Math.min(2.5, Math.max(1, Math.floor(fit * 2) / 2)) : Number(hudSize)
-      shell.current?.style.setProperty('--hud-scale', String(Math.min(preferred, fit)))
+      shell.current?.style.setProperty(
+        '--hud-scale',
+        String(hudScale(window.innerWidth, window.innerHeight, hudSize))
+      )
 
       // 0x4314c0 + 0x44a1f0: campaign notifications use independent screen
       // parameterization, not the user's uniformly scaled HUD artwork size.
@@ -362,10 +366,11 @@ export default function Home() {
       }
     }
   }
-  function followerControl(model: number, category?: FollowerTask) {
+  function followerControl(model: number, category?: FollowerTask, vehicle?: TransportKind) {
     const choose = (event: MouseEvent<HTMLButtonElement>, focus = false) => {
-      if (!event.currentTarget.disabled)
-        engine.current?.chooseFollowers(model, event, focus, category)
+      if (event.currentTarget.disabled) return
+      if (vehicle) engine.current?.chooseTransport(vehicle, model, event, focus)
+      else engine.current?.chooseFollowers(model, event, focus, category)
     }
     return {
       onPointerDown: (event: MouseEvent<HTMLButtonElement>) => {
@@ -925,6 +930,9 @@ export default function Home() {
           {tab === 'followers' && (
             <FollowerTasks
               people={hudTaskPeople(world)}
+              vehicles={hudTransports(world)}
+              transportPeople={hudTaskPeople(world, false)}
+              transportControl={(model, kind) => followerControl(model, undefined, kind)}
               center={hudCamera}
               nearby={!!(world.castingTribes[0].flags & 128)}
               control={followerControl}
