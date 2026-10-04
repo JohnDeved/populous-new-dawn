@@ -252,6 +252,20 @@ class BootstrapTests(unittest.TestCase):
         self.assertNotEqual(other.receipt, runner.receipt)
         self.assertEqual(receipt.read_bytes(), original)
 
+    def test_reused_venv_path_is_normalized_without_losing_venv_identity(self):
+        source = self.path / 'temporary-checkout'
+        source.mkdir()
+        environment = self.path / 'existing/venv/bin'
+        environment.mkdir(parents=True)
+        (environment / 'python').symlink_to(sys.executable)
+        self.args.reuse_prerequisites = source / '..' / 'existing'
+        runner = self.runner()
+        runner.verify_python = lambda unused: None
+        python = runner.python()
+        self.assertEqual(python, environment / 'python')
+        source.rmdir()
+        self.assertTrue(python.is_file())
+
     def test_environment_quotes_paths_and_keeps_venv_interpreter(self):
         runner = self.runner()
         paths = {name: self.path / "with ' quote" / name for name in self.manifest['artifacts']}

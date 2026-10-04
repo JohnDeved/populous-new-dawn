@@ -254,7 +254,8 @@ class Bootstrap:
             candidate = self.args.reuse_prerequisites / 'venv/bin/python'
             if candidate.is_file():
                 self.verify_python(candidate)
-                return candidate.resolve() if not candidate.is_symlink() else candidate.absolute()
+                # Normalize '..' without resolving the interpreter symlink out of its venv.
+                return Path(os.path.abspath(candidate))
         environment = Path(tempfile.mkdtemp(prefix='python-', dir=self.tools))
         self.run([sys.executable, '-m', 'venv', environment])
         python = environment / 'bin/python'
