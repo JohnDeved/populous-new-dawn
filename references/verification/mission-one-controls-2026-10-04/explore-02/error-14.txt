@@ -1,0 +1,4 @@
+Error: Exploration had failed commands: [{"command":3,"error":"page.waitForFunction: Timeout 45000ms exceeded.\n    at default (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-one-controls/work/orchestration/mission-one-controls/explore.mjs:33:42)\n    at async runLocalBrowser (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-one-controls/scripts/local-render/harness.mjs:106:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-one-controls/scripts/local-render/harness.mjs:149:21"}]
+    at default (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-one-controls/work/orchestration/mission-one-controls/explore.mjs:36:58)
+    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-one-controls/scripts/local-render/harness.mjs:106:20)
+    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-one-controls/scripts/local-render/harness.mjs:149:21

@@ -1,0 +1,1 @@
+[{"action":"button","name":"Resume game"},{"action":"button","name":"Select and focus shaman"},{"action":"wait","ms":1200},{"action":"button","name":"Pause game"}]

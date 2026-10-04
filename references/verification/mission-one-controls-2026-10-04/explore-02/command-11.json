@@ -1,0 +1,1 @@
+[{"action":"button","name":"Resume game"},{"action":"button","name":"Lightning, 4 shots"},{"action":"click","x":820,"y":356},{"action":"move","x":400,"y":700},{"action":"until","expression":"!window.testSceneRef.current.world.units.some(u=>u.id===32 && u.hp>0)","timeout":45000},{"action":"key","key":"Escape"},{"action":"wait","ms":15000},{"action":"button","name":"Pause game"}]

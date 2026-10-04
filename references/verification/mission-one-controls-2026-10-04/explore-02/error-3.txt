@@ -1,0 +1,4 @@
+page.waitForFunction: Timeout 45000ms exceeded.
+    at default (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-one-controls/work/orchestration/mission-one-controls/explore.mjs:33:42)
+    at async runLocalBrowser (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-one-controls/scripts/local-render/harness.mjs:106:20)
+    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-one-controls/scripts/local-render/harness.mjs:149:21
