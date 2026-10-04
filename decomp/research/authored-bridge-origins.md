@@ -48,6 +48,7 @@ happens to share the effect's origin, so its previous output already matched.
 
 ```sh
 python scripts/check-native-authored-bridges.py "$POPULOUS_EXE" --output work/orchestration/authored-bridges/native.json
+python scripts/check-native-authored-bridges.py "$POPULOUS_EXE" --browser path/to/native-terrain.json
 python scripts/check-native-land-bridge.py "$POPULOUS_EXE"
 node --test tests/authored-bridges.test.mjs tests/land-bridge.test.mjs
 ```
@@ -60,6 +61,10 @@ with mixed links retain the authored bridge slot while other links are zeroed;
 the report marks these as `bridgeOnlyLinkSlice`. No endpoints are supplied or
 rewritten. Raw authored heights with zero flags are a controller test, not native
 rendered-game evidence. Ordinary browser worship owns the input/renderer claim.
+The optional `--browser` path takes initial terrain, actual observed endpoints and
+final heights from an ordinary Mission 2 capture; it executes the native terrain
+queue and compares all 16,384 final heights. It does not claim per-turn browser
+observations or native GPU equivalence.
 
 `004ede10` was exported with Ghidra 12.1.3, Temurin JDK 21.0.12.1 and the existing
 `populous-restored` project on 2026-10-04 using the scoped, byte-checked exporter:

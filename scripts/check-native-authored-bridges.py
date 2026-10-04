@@ -22,7 +22,9 @@ from decomp import native_cpu, configure_native_constants, ROOT
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument("exe", type=Path)
 parser.add_argument("--output", type=Path)
+parser.add_argument("--browser", type=Path, help="Ordinary Mission 2 initial/final rendered terrain capture")
 args = parser.parse_args()
+browser = json.loads(args.browser.read_text()) if args.browser else None
 cpu, identity = native_cpu(args.exe)
 configure_native_constants(cpu, args.exe)
 cpu.mem_map(0x2000000, 0x100000)
@@ -77,6 +79,8 @@ def hook(_cpu, address, _size, _user):
         deleted.append(read(sp + 4))
     if address == 0x44DDF0:
         changed.append(read(sp + 4, "H"))
+        if browser and mission == 2:
+            return  # Execute the real terrain queue for the rendered capture.
     return_from_hook()
 
 
@@ -140,6 +144,12 @@ for mission in (1, 2, 3, 5, 6, 9):
             terrain = bytearray(0x40000)
             for index, height in enumerate(struct.unpack("<16384h", level[:32768])):
                 struct.pack_into("<Ih", terrain, index * 16, 0, height)
+                if browser and mission == 2:
+                    struct.pack_into("<Ih", terrain, index * 16, browser["flags"][index], browser["heights"][index])
+                    for field, offset in (("cliffs", 10), ("categories", 12), ("shadows", 14)):
+                        terrain[index * 16 + offset] = browser[field][index]
+            if browser and mission == 2:
+                write(0x89C661, "I", browser["landFlags"])
             cpu.mem_write(0x8A03E4, bytes(terrain))
             install(level, head_index, HEAD)
             install(level, token - 1, SOURCE)
@@ -161,8 +171,15 @@ for mission in (1, 2, 3, 5, 6, 9):
             turns = 1
             while CLONE not in deleted:
                 invoke(0x4ED700, CLONE)
+                if browser and mission == 2:
+                    invoke(0x44DF40)
                 turns += 1
                 assert turns < 64
+            if browser and mission == 2:
+                assert point(CLONE, 0x3D) == browser["start"], "Rendered bridge origin differs from native authored producer"
+                assert point(CLONE, 0x57) == browser["target"]
+                heights = [read(0x8A03E4 + cell * 16 + 4, "h") for cell in range(16384)]
+                assert heights == browser["finalHeights"], "Rendered final terrain differs from native authored bridge"
             x, y = struct.unpack_from("<hh", head_record, 3)
             cases.append({
                 "mission": mission, "headIndex": head_index, "sourceIndex": token - 1,
@@ -196,3 +213,5 @@ if args.output:
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(report, indent=2) + "\n")
 print(f"PASS: {len(cases)} authored bridge producers, real clone/dispatch, {sum(c['turns'] for c in cases)} native terrain turns; Missions 1 and 3 have none")
+if browser:
+    print("PASS: ordinary Mission 2 rendered bridge endpoints and all 16,384 final terrain heights match native producer/controller replay")

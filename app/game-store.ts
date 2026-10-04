@@ -96,7 +96,7 @@ function migrateLegacyComputerTeam(world: World, tribe: number) {
 }
 
 function migrateLegacyBridgeOrigins(world: World) {
-  const objects = missionData(world.outcome.level).level.objects
+  const { objects } = missionData(world.outcome.level).level
   for (const shrine of world.shrines) {
     if (shrine.kind !== 'bridgeEffect' || shrine.bridgeStart || !shrine.bridgeTarget) continue
     const heading = Math.round((shrine.angle * 2048) / (Math.PI * 2)) & 2047,
@@ -123,7 +123,7 @@ function migrateLegacyBridgeOrigins(world: World) {
             ? [{ x: object.x, z: object.z }]
             : []
         })
-    const start = starts[0]
+    const [start] = starts
     if (start && starts.every(other => other.x === start.x && other.z === start.z))
       shrine.bridgeStart = start
   }
