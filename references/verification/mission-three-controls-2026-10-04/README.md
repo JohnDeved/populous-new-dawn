@@ -1,0 +1,12 @@
+# Ordinary Mission 3 attempts and current checkpoint evidence
+
+This packet preserves three terminal attempts and the fourth attempt only through its ordinary paused first batch. Run04 is **in progress**; it has no terminal receipt or completed-journey claim in this packet. The current runtime source is accepted main139ec7; driver/checker source is2f5869b.
+
+- Run01, source6284a51: **failed checker observation** after ordinary Vault acquisition. The four-turn ground marker was absent from the later host snapshot. The accepted move/paused state and original failure are retained; no retrospective marker proof is claimed.
+- Run02, sourcec151894: **failed checker targeting**. A geometric minimap point overlapped the Buildings tab; no return-home ground order was issued. The actual screenshot and paused camera support that diagnosis.
+- Run03, source76e021b: **incomplete ordinary strategy**, authoritative harness failed. The repaired real minimap/ground-marker crossing passed, followed by home arrival1802, completed Temple2755 and trained Blue Preacher3162 at3174. The Preacher lost its HP in combat and disappeared before the intended sermon. Victim53 later entered housing. The required-actor observations, UI checkpoint6412 and clean process release are retained. This is no application-defect, conversion or victory claim.
+- Run04, source2f5869b: **in progress, ordinarily paused at2979**. Vault1366, home1808, Temple2843 and one accepted training order are retained. The actual-threat protective strategy has not yet run in this packet. Opening profile absence and exact consumed inputs remain recorded.
+
+The archive contains raw terminal inner/outer receipts and streams, actual command inputs, observer/driver copies, journals, key snapshots and selected genuine screenshots. The adjacent manifest and archive hash were verified after creation. The packet excludes browser profiles, caches, game binaries, dependencies and private review notes. Checkpoint persistence was observed through ordinary Save and read-only readback within the owned browser context; normalized snapshots are observational evidence, not portable loadable checkpoint exports.
+
+All gameplay changes used ordinary mouse/keyboard controls and real RAF at normal speed with explicit UI pauses. Headless software rendering supplies functional evidence, not hardware performance, native pixel equivalence or whole-game parity. The current source contains reviewed later diagnostic/strategy repairs; earlier outcomes remain unchanged.
