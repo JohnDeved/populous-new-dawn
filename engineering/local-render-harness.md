@@ -62,7 +62,7 @@ when needed. The [world selector](../app/world-selector.tsx) and
 
 | Screen/action | Button name |
 | --- | --- |
-| Campaign worlds | `Select Mission N`, then `Start Mission N` or `Replay Mission N` |
+| Campaign worlds (Missions 1–3) | `Select Mission N`, then `Start Mission N` or `Replay Mission N` |
 | All missions | `All missions`, then `Mission N` or `Mission N, completed`; direct entry does not prove campaign unlocking |
 | Startup checkpoint | `Load Game` |
 | In-game checkpoint | `Game settings`, then `Save checkpoint` or `Load checkpoint` |
