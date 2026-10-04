@@ -1,0 +1,351 @@
+{
+  "capturedAt": "2026-10-04T23:34:09.047000+00:00",
+  "scope": "Terminal failed Run11: correct five-Warrior training, actual whole-army withdrawal, single escort movement, retained input/short-move assertion failures and unmet final current-cover gate. Healthy Preacher stayed home; no sermon/conversion. Exact preparation2909 preserved.",
+  "files": [
+    {
+      "path": "browser-11/actions.jsonl",
+      "bytes": 124105,
+      "sha256": "38342c45395456aaa8133b38046a5a77a82d9838e26e71359b5b5d5e6dbb4126"
+    },
+    {
+      "path": "browser-11/all-surviving-warriors-home.json",
+      "bytes": 51303,
+      "sha256": "44c150857def40d3affdb25f2c2049a3cc63327adfc19114d972ae5ee38df981"
+    },
+    {
+      "path": "browser-11/army-eastern-staging.json",
+      "bytes": 57293,
+      "sha256": "e0e4d9d1aa39cd6fefaa2932c8253198ed89482411e8fca1a471a1ee7e63fd51"
+    },
+    {
+      "path": "browser-11/batch-0001.json",
+      "bytes": 56007,
+      "sha256": "12503dfc8838d719261321b04b5cb9cd7962de0d282c5fc9db42760d6cc09e13"
+    },
+    {
+      "path": "browser-11/batch-0002.json",
+      "bytes": 56748,
+      "sha256": "50f32adc2df736be5c3f408da6e05d248d0158017093200c1d2ed9190b315d0e"
+    },
+    {
+      "path": "browser-11/batch-0003.json",
+      "bytes": 57026,
+      "sha256": "85fa6714a2772920cd45952baafc6534f403dc8009e2e033ef2918deefb2fe14"
+    },
+    {
+      "path": "browser-11/batch-0003.png",
+      "bytes": 1855059,
+      "sha256": "4ac3a3758fe79eb2be2a692bdd5e45dea352e3836dd60a175eeb81d69492a25d"
+    },
+    {
+      "path": "browser-11/batch-0004.json",
+      "bytes": 57021,
+      "sha256": "3b7daf2efce7a264a591e42e56da359e767f319b50ac04fd482aaad6bff8394b"
+    },
+    {
+      "path": "browser-11/batch-0005.json",
+      "bytes": 51714,
+      "sha256": "29e89717f19c4955f2d979310a85d9b16ff8a80cb77ebcae619ae961326abad8"
+    },
+    {
+      "path": "browser-11/batch-0006-failed.json",
+      "bytes": 51059,
+      "sha256": "57871de05d7422b5d4acc23caa40dcf482f7be16b29a763b881355c1e8619388"
+    },
+    {
+      "path": "browser-11/batch-0007.json",
+      "bytes": 52132,
+      "sha256": "19ad76e6b0975408ac4fc93ea18f2e6a6ae307a385a18cb321ede14fecc03cd1"
+    },
+    {
+      "path": "browser-11/batch-0007.png",
+      "bytes": 1862468,
+      "sha256": "884e5674a6d4daeba78ec64b1c3e6724ce50c2fcfcb5dcf246e1e0ae7cd65e05"
+    },
+    {
+      "path": "browser-11/batch-0008-failed.json",
+      "bytes": 54905,
+      "sha256": "be87ba929b56025eaf837d46f97f8d4709bc5aab8e2c59fcf06d5935065cd7c5"
+    },
+    {
+      "path": "browser-11/batch-0009.json",
+      "bytes": 54285,
+      "sha256": "03b1aeafd629c42f6071dc9aa30ede6e0a38fcc1ee7cf032d78a967ccf760815"
+    },
+    {
+      "path": "browser-11/batch-0010.json",
+      "bytes": 55806,
+      "sha256": "6baf4cc500bcbc04b81b31c652edbb57536a5328116308095bb68d1b67ea80c7"
+    },
+    {
+      "path": "browser-11/batch-0011.json",
+      "bytes": 60698,
+      "sha256": "69b87eeca42084a09534d304dbc46999dd66c1ffcebf200f4c3bd927ca595c9b"
+    },
+    {
+      "path": "browser-11/batch-0012-failed.json",
+      "bytes": 59220,
+      "sha256": "2941e9723c8c18b716a2b28a5adf2889fee7d6652687822fe55767f9d11105c8"
+    },
+    {
+      "path": "browser-11/batch-0013-failed.json",
+      "bytes": 59427,
+      "sha256": "3cf93929370705cbd5de1c3db68d5b769bad9439c35e2668d7a6c7c4d7aec409"
+    },
+    {
+      "path": "browser-11/batch-0014.json",
+      "bytes": 61753,
+      "sha256": "a1d4d23d1e89752771a1cbd641a4ab2443ff878bfc64c2497173e87ce6abff8a"
+    },
+    {
+      "path": "browser-11/batch-0015-failed.json",
+      "bytes": 61753,
+      "sha256": "4d7b4a9e56cccefb544d5edcfa6f074fa12f88aa227170e3ba5f8d66f48bb7f3"
+    },
+    {
+      "path": "browser-11/changed-anchor-escort-correction.json",
+      "bytes": 61143,
+      "sha256": "c1e6bd802afcccd42a5cc9409fb60f1139ce5f1b4bf0ea42410b7ba2c8d8db2e"
+    },
+    {
+      "path": "browser-11/checkpoint-provenance.mjs",
+      "bytes": 6863,
+      "sha256": "fa08fcb847f8bc9faf5767f4df4980034084241e0d1f1e2898c10a80e915a767"
+    },
+    {
+      "path": "browser-11/cleanup-verification.json",
+      "bytes": 899,
+      "sha256": "25feaf3236a3b3cf675daff4f1aa3449d5f5457833a34ac33bb73d7399ca8072"
+    },
+    {
+      "path": "browser-11/command-probes.mjs",
+      "bytes": 936,
+      "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f"
+    },
+    {
+      "path": "browser-11/consumed-0001.json",
+      "bytes": 847,
+      "sha256": "56fdfd187b80363e80c8e162d4116e578b6190a9fa6417dc97a56248381b2aea"
+    },
+    {
+      "path": "browser-11/consumed-0002.json",
+      "bytes": 485,
+      "sha256": "c64b5444df40f08ee76469b3962b8c27633f9df6aa681cb309f91fe69425aa7c"
+    },
+    {
+      "path": "browser-11/consumed-0003.json",
+      "bytes": 211,
+      "sha256": "3f6179ce4006291caf1849ecd6025e3887296e94945ab2ceb657bad13d8363c6"
+    },
+    {
+      "path": "browser-11/consumed-0004.json",
+      "bytes": 587,
+      "sha256": "0bcbeaed8b74819e482e62a1d9a7dd4f68ed4273988a6449472d063c6fc60b69"
+    },
+    {
+      "path": "browser-11/consumed-0005.json",
+      "bytes": 485,
+      "sha256": "a52d4ce92e644acb019f36b326d0832859d92c5d41d3bce89a1a2509cbb8e513"
+    },
+    {
+      "path": "browser-11/consumed-0006.json",
+      "bytes": 486,
+      "sha256": "cf2466ba3ef697a801b976a41ed15675512bb3f11da2156ebdb90f9d87ddcb55"
+    },
+    {
+      "path": "browser-11/consumed-0007.json",
+      "bytes": 1718,
+      "sha256": "09633432159ab84777d69efa3c09b4518e383ad9e70c1562387347019b299ec5"
+    },
+    {
+      "path": "browser-11/consumed-0008.json",
+      "bytes": 294,
+      "sha256": "f38c38820d90a143364ea256ea8edfad26210207d325486925ef85bcd9f8ac0e"
+    },
+    {
+      "path": "browser-11/consumed-0009.json",
+      "bytes": 302,
+      "sha256": "bec3cfe9f2b3ba6b59234959c43360d8a83ae7ccdbf7f2c7a9014dd70a2b95b4"
+    },
+    {
+      "path": "browser-11/consumed-0010.json",
+      "bytes": 350,
+      "sha256": "fdeeb9c5c74bbd2ca1e87661f38a5460627d10cee289b88dc9dcc00456070c2a"
+    },
+    {
+      "path": "browser-11/consumed-0011.json",
+      "bytes": 287,
+      "sha256": "4b34a9e02a0b6bd12a612fd5dfa2bcc20d3f1a1eca7643d1282f44d2912bdc24"
+    },
+    {
+      "path": "browser-11/consumed-0012.json",
+      "bytes": 440,
+      "sha256": "64f811345a388a5b8d3e9ff6c89688c4ba46e4b6b5a69bf3e8c972a1d8b5ec82"
+    },
+    {
+      "path": "browser-11/consumed-0013.json",
+      "bytes": 443,
+      "sha256": "834bee18b5e4f75d9d35c3d2245ed96f3457f2dcbe47fb323f532624c5599969"
+    },
+    {
+      "path": "browser-11/consumed-0014.json",
+      "bytes": 444,
+      "sha256": "ccf1e5802a0a554783578e6864eaae9f79eb2adfa333f7dde11d420a2d5d34b3"
+    },
+    {
+      "path": "browser-11/consumed-0015.json",
+      "bytes": 427,
+      "sha256": "a3b0aa4d270281ebb269942a68d7baf98713d333555416efd4c587ef20cfe6bf"
+    },
+    {
+      "path": "browser-11/continuation-opening.json",
+      "bytes": 58259,
+      "sha256": "34aed35eefdbb9c6d4e4290fb1384684e0a62208e5ef0921f834c628fa02c976"
+    },
+    {
+      "path": "browser-11/driver.mjs",
+      "bytes": 53635,
+      "sha256": "5b3498fd704a67acb7d415f4092ab113bb9d67c125c8cf4981faea070df4e791"
+    },
+    {
+      "path": "browser-11/eastern-hut-cleared.json",
+      "bytes": 50982,
+      "sha256": "442cace60a66f9737ce9c2817b2b9d65f27903abcd949dbac0384bb5a00503c0"
+    },
+    {
+      "path": "browser-11/escort-camp-ready.json",
+      "bytes": 55937,
+      "sha256": "7e863a8e749ac6882219e27a9e29adc3b81eb0cda3d27d0d1dfa522d66679ecf"
+    },
+    {
+      "path": "browser-11/escort-training-observation.json",
+      "bytes": 57372,
+      "sha256": "10c931d5dfad70159b713c21ba5ce10d90ddde5e82ebd43073fb5a6bd44f9f20"
+    },
+    {
+      "path": "browser-11/healthy-specialists-at-home.json",
+      "bytes": 56997,
+      "sha256": "ff30eb2307c78223371e6d09cf2710945fcad4b036c73ba3b2ae2a33f2e4beba"
+    },
+    {
+      "path": "browser-11/journey.json",
+      "bytes": 19488,
+      "sha256": "c9f6b9972a135c050a912767c7b3264835837d01176565f1c293b07cded81c19"
+    },
+    {
+      "path": "browser-11/loaded-preparation-record.json",
+      "bytes": 4178,
+      "sha256": "8c0714f69db00b7335b3c0b5647fd638642b9b662ffde17323c233656625f64c"
+    },
+    {
+      "path": "browser-11/milestone-preacher.json",
+      "bytes": 56973,
+      "sha256": "753087ba7ea599e0cd75842a5fa79fc363825986e93d5e9f5f3d74d340e7088f"
+    },
+    {
+      "path": "browser-11/milestone-shaman-home.json",
+      "bytes": 56087,
+      "sha256": "02c7a40f6ae134dc02813df200ea6f13f0cac9a81907ca8faf84fcb087e4c854"
+    },
+    {
+      "path": "browser-11/observation.mjs",
+      "bytes": 21281,
+      "sha256": "b10dafc76189c0a94cba590983cec716159c3def4d5d0f78d7145c883904a5d6"
+    },
+    {
+      "path": "browser-11/preparation-record.json",
+      "bytes": 4178,
+      "sha256": "8d4417a5f7f27d2f0354192a5f77c70a0b109867a16074f28ab5136f4935c4c9"
+    },
+    {
+      "path": "browser-11/receipt.json",
+      "bytes": 10895,
+      "sha256": "3d94171a991147b95f57491fe71dde7a86805664fbd7409c4b1ed36ee9eea2d6"
+    },
+    {
+      "path": "browser-11/remaining-approach-hut-result.json",
+      "bytes": 60207,
+      "sha256": "adc783dc51327f9c764f07ea44631d89f3e81ff72ffb24c5f326c04f4baf3c18"
+    },
+    {
+      "path": "browser-11/scenario-inputs.json",
+      "bytes": 495,
+      "sha256": "b2e9f96b4489a3fe1427a7f2d0bc1fb0e48be75c6b749aee7e523e82986835e3"
+    },
+    {
+      "path": "browser-11/short-move-cover-observation.json",
+      "bytes": 3920,
+      "sha256": "7883244549cf07169b642a11e3474f63b2c74d8c90b0135a23c441d9d66faee1"
+    },
+    {
+      "path": "browser-11/single-escort-anchor-preview.json",
+      "bytes": 2318,
+      "sha256": "f9746effd5f07abd79f43f1a9d8543587db9f675903868d1d8ebd4a93bdf34b9"
+    },
+    {
+      "path": "browser-11/single-escort-arrival.json",
+      "bytes": 56445,
+      "sha256": "cbd41264a10071c454fa5135d0c0b2c6aad2672c0774f576cb8ceaad177a1279"
+    },
+    {
+      "path": "browser-11/single-escort-order-rotated.json",
+      "bytes": 54845,
+      "sha256": "ad00bb08649eb157f16852b3a3c41015a4e0eb75607c376a82ef2c090932a814"
+    },
+    {
+      "path": "browser-11/terminal-cover-gate-unmet.json",
+      "bytes": 61753,
+      "sha256": "cce9e9ca3cdac825f5f7f5ea45a69389a799e0809d4152bf582f9b74f7b84b22"
+    },
+    {
+      "path": "browser-11/terminal-cover-gate-unmet.png",
+      "bytes": 1818331,
+      "sha256": "5c0774f59b39fe852f52ef97caa55f1c2a4fec052eb25cc1b0e9a6797dc30237"
+    },
+    {
+      "path": "browser-11/terminal-with-preparation-preserved.json",
+      "bytes": 61753,
+      "sha256": "8dc31f8a837353970553c7c5f22057410242b58891a6753f28ee9d2f8558bc2c"
+    },
+    {
+      "path": "browser-11/withdrawal-anchor-preview.json",
+      "bytes": 1667,
+      "sha256": "d1d09c9f5818fd6aac06cc8638ce79bcc32d7a70bec12f68d510b075aae45d75"
+    },
+    {
+      "path": "browser-11.outer.json",
+      "bytes": 6054,
+      "sha256": "174e58fc6dfe69b39a663eaeca917148325556773a51d440ff8828527017e3b6"
+    },
+    {
+      "path": "browser-11.outer.json.artifacts/stderr.log",
+      "bytes": 1082,
+      "sha256": "d4abf1fcdb2bd729ce88a2c5b5ba313349409e8cab64ba9ec7df857d2b891a76"
+    },
+    {
+      "path": "browser-11.outer.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "run10-escort-arrival-plan-frozen.json",
+      "bytes": 5646,
+      "sha256": "d2f78d52bb5e8fe868ae57df163544620badd6b2dff87a45c62681e17ce5b21a"
+    },
+    {
+      "path": "run11-swarm-aware-tactic.json",
+      "bytes": 2096,
+      "sha256": "96e0720ed9cf30fc088a15958bfed09ab736f6973f0bd408ffc139f4ffb7a96b"
+    },
+    {
+      "path": "run11-training-batch-proposed.json",
+      "bytes": 485,
+      "sha256": "c64b5444df40f08ee76469b3962b8c27633f9df6aa681cb309f91fe69425aa7c"
+    },
+    {
+      "path": "run11-training-preflight.json",
+      "bytes": 2367,
+      "sha256": "91dc1ac3f2ccf8ceb934dedddcdba0b1869e124971bc709b40409730c1100191"
+    }
+  ]
+}

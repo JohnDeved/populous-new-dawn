@@ -1,0 +1,15 @@
+# Run11 terminal current-cover failure
+
+Frozen source `02301bce433cf69c1b439e9025d3495ec19e5d5b`, accepted runtime `b381851`. Ordinary Load used Run10's forwarded preparation record; the original acquisition/source remains inherited and no second QA transition occurred.
+
+The corrected five-Brave batch produced five90HP Warriors3236–3240 by4951 with seven original Braves and no pending Camp trainees. No sixth-Warrior wait was issued. One Brave then trained as Preacher3251,55HP, with six original Brave workers retained. The Preacher and Shaman remained home throughout the attempt.
+
+The army cleared the eastern pocket. A requested Hut1020 click was rejected because its later dispatch acknowledged ground0 and moved the group; that exact failed input remains. All five surviving Warriors subsequently received an actual home order and individually arrived near(40,80) by7281, each90.15–90.25HP. The source-derived Swarm amendment explicitly replaced the two-nearby-escort requirement with one healthy specialist escort while reserve Warriors and Shaman stayed home; snapshots showed no current swarm clouds, without ruling out incoming effects.
+
+Single Warrior3238 received an accepted move to(-39,-87). Its first arrival was transient: the next paused snapshot showed automatic native21 activity targeting remaining Hut1020. The hut was then observed removed and the Warrior healed. A later short move to(-39,-85) had fresh dispatch9000/ack0 and actual marker3952, and changed the same Warrior position/route goal to that point. By after9014 its native move order was already gone, so the strict recipient assertion failed. That failure remains; independent arrival facts do not relabel the predicate as passed.
+
+The policy anchor changed to3767(-47,-91). One permitted correction to(-41,-89) had an accepted model3 order/marker3955, but the fresh paused result9703/808.58 active seconds showed the Warrior73.7HP at(-35,-85), outside current cover. The finite tactic stopped there. Preacher3251 was still55HP at home; no pool was armed, no owned sermon or conversion occurred, and there is no exact damage/killer attribution or runtime-defect claim.
+
+Session73975 ended through the supported snapshot/finish boundary. Inner/outer receipts remain failed; browser errors are empty and source/runtime/scenario fingerprints match. Profile cleanup/continuation is verified, owner lock is absent,4366 is closed, and original preparation2909/full SHA `5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a` remains exact. A later same-source continuation must use Run11's forwarded record. No900/2400 active or90/95 wall bound was extended.
+
+All member/archive hashes were verified. Images are genuine headless software-rendered captures. Actual profiles, caches, dependencies, game binaries and private reviews are excluded; these diagnostics do not recreate a loadable save and cannot make the local profile survive a cloud reset. Saved/cancelled/reloaded conversion, Erosion and victory remain unproved.
