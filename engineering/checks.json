@@ -915,25 +915,42 @@
     {
       "id": "campaign-natural-victory-browser",
       "kind": "browser",
-      "automation": "safe",
-      "purpose": "Win Mission 2, continue through the shipped result UI, and win Mission 3 through rendered player controls and ordinary simulation ownership.",
+      "automation": "manual",
+      "purpose": "Run the retained fixed-turn diagnostic: win Mission 2, continue through the shipped result UI, and win Mission 3 with rendered orders and simulation-owned outcomes.",
       "coveredBehavior": [
         "Mission 2 construction, training, Totem worship, Tornado casting, combat, and natural Matak defeat",
         "Mission 2 result presentation and shipped Continue transition into Mission 3",
-        "Mission 3 Vault worship, Swarm and Blast casting, Temple and Preacher use, Erosion worship, conversion, construction, training, combat, and natural Chumara defeat",
-        "Rendered mixed-object picking, campaign camera dismissal, combat animation fallback, and ordinary result ownership across the sequential path"
+        "Mission 3 Vault worship, Swarm and Blast casting, Temple and Preacher use, Erosion worship, construction, training, combat, and natural Chumara defeat",
+        "Rendered mixed-object picking, campaign camera dismissal, combat animation fallback, and ordinary result ownership across the sequential path",
+        "Reports native preacher-victim replacement groups only when they are actually observed"
       ],
       "knownLimits": [
-        "Advances ordinary simulation turns faster than wall time while preserving campaign, AI, RNG, combat, and outcome ownership.",
-        "Does not establish native-equivalent timing or behavior outside the exercised Mission 2 and Mission 3 route."
+        "Suspends RAF and directly calls tick(world, 1/12); internal camera focus and read-only picking/pathfinding assist rendered controls. No injected entities, resources, victory, AI state, or profile.",
+        "Not ordinary real-clock gameplay, native-equivalent timing, full original-game parity, or hardware performance; direct All missions setup starts Mission 2.",
+        "Conversion requires a separately observed native preacher-victim replacement; death/disappearance and victory alone do not prove it.",
+        "A passing route can record zero Blue Preacher conversions; this check alone does not complete conversion acceptance."
       ],
       "executable": "node",
-      "args": ["scripts/check-browser-campaign-natural-victory.mjs"],
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--scenario", "scripts/local-render/campaign-fixed-turn.mjs",
+        "--port", "4196",
+        "--timeout", "900000",
+        "--output", "$POPULOUS_CAMPAIGN_OUTPUT"
+      ],
       "cwd": ".",
-      "env": [],
+      "env": ["POPULOUS_BROWSER", "POPULOUS_CAMPAIGN_OUTPUT"],
       "inputs": [
         "scripts/check-browser-campaign-natural-victory.mjs",
+        "scripts/local-render/campaign-fixed-turn.mjs",
+        "scripts/local-render/harness.mjs",
+        "scripts/local-render/vite.config.mjs",
+        "tests/campaign-fixed-turn-adapter.test.mjs",
         "scripts/campaign-swarm-target.mjs",
+        "scripts/campaign-start-readiness.mjs",
+        "scripts/campaign-conversion-observer.mjs",
+        "tests/campaign-conversion-observer.test.mjs",
+        "tests/campaign-start-readiness.test.mjs",
         "scripts/browser-game.mjs",
         "app/combat-runtime.ts",
         "app/live-building-combat.ts",
@@ -947,9 +964,9 @@
         "app/page.tsx",
         "app/scene.ts"
       ],
-      "prerequisites": ["Running game server", "Playwright Chromium"],
-      "sideEffects": ["Writes only isolated browser-context campaign profile state"],
-      "resources": ["Fixed game server and browser; run serially"],
+      "prerequisites": ["Installed official Chrome Headless Shell", "Private installed dependencies", "Reserved local browser lane", "Unique output directory"],
+      "sideEffects": ["Writes isolated browser-context campaign profile state, owned server caches, screenshots, adapter and source-bound JSON report in the requested output directory"],
+      "resources": ["Owned local server on port 4196 and sandboxed browser; run serially"],
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
