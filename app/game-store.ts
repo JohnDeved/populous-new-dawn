@@ -3,6 +3,7 @@ import { restoreSecondaryEffects } from './hut-smoke-runtime.ts'
 import { campaignCommand, createGift, createWorld, type Gift, type World } from './model.ts'
 import { missionEnemyTribe, missionNumbers } from './mission-data.ts'
 import { teamForTribe } from './world-types.ts'
+import { createComputerProducers } from './computer.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import {
   WORSHIP_STONE_HEAD_MODEL,
@@ -108,6 +109,8 @@ export function migrateCheckpoint(world: World) {
   world.activeCampaignTribe ??= computerTribe
   world.campaignAIs ??= Array(4).fill(null)
   world.campaignAIs[computerTribe] ??= world.ai
+  for (const ai of new Set([world.ai, ...world.campaignAIs]))
+    if (ai) ai.producers ??= createComputerProducers()
   world.spellScans ??= Array.from({ length: 4 }, (_, id) =>
     id === computerTribe
       ? world.spellScan

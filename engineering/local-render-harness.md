@@ -100,3 +100,39 @@ and unofficial or reverse-engineered upload endpoints.
 
 See [GitHub's attachment documentation](https://docs.github.com/en/github-cli/github-cli/attaching-files-with-github-cli)
 for current file types, access requirements and command support.
+
+## Early-mission real-clock journey
+
+Run the maintained bounded scenario through the same harness:
+
+```sh
+node scripts/local-render/harness.mjs \
+  --game-root "$PWD" --browser "$POPULOUS_BROWSER" \
+  --port 4188 --output /absolute/fresh-proof-directory --timeout 480000 \
+  --scenario "$PWD/scripts/local-render/early-missions.mjs"
+```
+
+It uses a fresh browser profile per mission and checks Missions 1–3 public entry,
+HUD group selection/Escape, keyboard/button pause and resume, settings/objective
+visibility, Select Level Back/Escape interruptions, and ordinary checkpoint save
+followed by a full-page reload, Load Game, pause and resume. Mission 1 uses the
+campaign selector; Missions 2–3 explicitly use public All missions. This does not
+claim to prove campaign unlocking, completed objectives or natural victory.
+
+The scenario reuses `browser-game.mjs` public-entry binding. Scene/store/IndexedDB
+references are observation-only: all changes are ordinary UI input and the live
+RAF clock. It does not seed storage, inject entities/outcomes/mana, advance ticks,
+or manipulate camera state. Startup normally preselects the Shaman, so the journey
+uses ordinary Escape before checking that Ctrl-click adds five Braves. Treat a
+failed test precondition separately from a reproduced game defect; retain the
+failed attempt and correct the scenario rather than changing gameplay to satisfy it.
+
+`journey.json` records every completed assertion group and its observations as the
+run progresses, including failures; `receipt.json` contains the harness's terminal
+result and exact game source identity. The report also hashes the scenario bytes,
+which matters when `--game-root` and the scenario come from different checkouts.
+Opening, saved-settings and restored-paused PNGs support visual review. Keep each
+attempt's output separate and inspect images before attaching them to an issue/PR.
+The normal harness owns cleanup and cancellation; the scenario adds no controller.
+Actual software WebGL pixels and real elapsed time establish functional behavior,
+not hardware-GPU performance, native pixel parity or first-three-mission completion.

@@ -79,12 +79,17 @@ try {
     const scene = window.testScene, w = scene.world
     const { tick } = await import('/app/model.ts')
     const castEvents = []
+    let completionReached = false, ticks = 0
     for (let i = 0; i < 12000; i++) {
       const before = w.spellCasts[2][17], manaBefore = w.manaTribes[2].mana
       tick(w, 1 / 12)
+      ticks++
       if (w.spellCasts[2][17] !== before)
         castEvents.push({ count: w.spellCasts[2][17], stock: w.manaWorld.spells[2].stocks[17], manaBefore, manaAfter: w.manaTribes[2].mana })
-      if (w.spellCasts[2][17] && !(w.ai.states & 4) && !w.effects.some(fx => fx.convertWild) && !w.ai.tasks.some(t => t.flags & 1 && t.type === 2)) break
+      if (w.spellCasts[2][17] && !(w.ai.states & 4) && !w.effects.some(fx => fx.convertWild) && !w.ai.tasks.some(t => t.flags & 1 && t.type === 2)) {
+        completionReached = true
+        break
+      }
     }
     const person = w.units.find(u => u.id === window.convertTaskShamanId)
     scene.focus(person)
@@ -92,11 +97,18 @@ try {
     scene.animate(scene.previous)
     cancelAnimationFrame(scene.frame)
     if (scene.renderer.getContext().isContextLost()) throw new Error('WebGL context lost')
-    return { turn: w.turn, castEvents, casts: w.spellCasts[2][17], stock: w.manaWorld.spells[2].stocks[17],
+    return { turn: w.turn, completionReached, ticks,
+      activeConvertEffects: w.effects.filter(fx => fx.convertWild).length,
+      activeConvertTasks: w.ai.tasks.filter(t => t.flags & 1 && t.type === 2).length,
+      castEvents, casts: w.spellCasts[2][17], stock: w.manaWorld.spells[2].stocks[17],
       wild: w.units.filter(u => u.hp > 0 && u.team === 'wild').length,
       population: w.units.filter(u => u.hp > 0 && u.team === 'yellow').length,
       states: w.ai.states, status: w.status }
   })
+  assert.equal(converted.completionReached, true, 'Convert Wild reaches completion within the original tick budget')
+  assert.ok(converted.ticks > 0 && converted.ticks <= 12000, 'Original 12000-tick conversion budget is preserved')
+  assert.equal(converted.activeConvertEffects, 0)
+  assert.equal(converted.activeConvertTasks, 0)
   assert.equal(converted.casts, 2)
   assert.deepEqual(converted.castEvents.map(event => [event.count, event.stock]), [[1, 0], [2, 0]])
   assert.ok(converted.castEvents[1].manaAfter < converted.castEvents[1].manaBefore)

@@ -681,12 +681,13 @@ export function updateBuildingsFrame(scene: GameScene) {
     )
     g.userData.nativeTilt = b.damageState?.tilt ?? 0
     g.userData.nativeRoll = b.damageState?.roll ?? 0
-    g.userData.health.visible = b.hp < buildingHp(b.kind) || b.progress < 1
+    // Original staged models carry construction progress in their geometry;
+    // the always-on horizontal construction box was a browser placeholder.
+    g.userData.health.visible = b.progress >= 1 && b.hp < buildingHp(b.kind)
     g.userData.health.quaternion.copy(
       g.quaternion.clone().invert().multiply(scene.camera.quaternion)
     )
-    g.userData.healthFill.scale.x =
-      b.progress < 1 ? Math.max(0.01, b.progress) : Math.max(0.001, b.hp / buildingHp(b.kind))
+    g.userData.healthFill.scale.x = Math.max(0.001, b.hp / buildingHp(b.kind))
   }
   updateHutSmokePuffs(scene)
 }

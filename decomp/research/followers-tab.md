@@ -5,6 +5,11 @@ The verified D3D executable used by retained/native inspection has SHA-256
 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
 Ghidra pseudocode and static table labels are evidence, not recovered source.
 
+Correction (2026-10-03): the class labels below follow the later verified
+`follower-class-button-visibility.md` binding: model 6 / HFX 670 is Firewarrior,
+model 4 / HFX 672 is Preacher. The shipped-browser descriptions retain their
+historical base; the original descriptor labels must not inherit that old swap.
+
 ## Shipped browser path
 
 `app/page.tsx` owns three category tabs (`buildings`, `spells`, `followers`) and
@@ -46,8 +51,8 @@ prove the original six counted controls:
 | Total | 0 | population meter / no class icon | x=0, y=153, 15x36 | `004a0800` | `004a1090` / `004a1120` |
 | Brave | 2 | 666/667 | x=16, y=153, 15x36 | `004a0510` | `004a0f00` / `004a1010` |
 | Warrior | 3 | 668/669 | x=32, y=153, 15x36 | `004a0510` | `004a0f00` / `004a1010` |
-| Preacher | 6 | 670/671 | x=48, y=153, 15x36 | `004a0510` | `004a0f00` / `004a1010` |
-| Firewarrior | 4 | 672/673 | x=64, y=153, 15x36 | `004a0510` | `004a0f00` / `004a1010` |
+| Firewarrior | 6 | 670/671 | x=48, y=153, 15x36 | `004a0510` | `004a0f00` / `004a1010` |
+| Preacher | 4 | 672/673 | x=64, y=153, 15x36 | `004a0510` | `004a0f00` / `004a1010` |
 | Spy | 5 | 674/675 | x=80, y=153, 15x36 | `004a0510` | `004a0f00` / `004a1010` |
 
 The total display descriptor begins at `005cb213`; its draw callback pointer at
@@ -99,7 +104,7 @@ The player-visible mismatch is the duplicated browser-only roster inside the Fol
 command tab:
 
 - original evidenced follower information/control roster: **Total, Brave, Warrior,
-  Preacher, Firewarrior, Spy**, each with native count/state art; Total also owns the
+  Firewarrior, Preacher, Spy**, each with native count/state art; Total also owns the
   housing meter; Shaman has its separate portrait;
 - shipped lower Followers grid: **Shaman, Brave, Warrior, Firewarrior, Spy, Everyone**;
   it omits Preacher, omits counts/meter, uses generic 43px command buttons instead of
@@ -125,8 +130,8 @@ gameplay change is required for this minimal correction.
 Suggested focused acceptance for that future slice:
 
 1. Followers tab uses HFX 680/681 only for the category tab, never as an Everyone icon.
-2. Exactly one native follower roster is exposed: Total + Brave + Warrior + Preacher +
-   Firewarrior + Spy, in the existing 0/16/32/48/64/80 logical positions with live
+2. Exactly one native follower roster is exposed: Total + Brave + Warrior + Firewarrior +
+   Preacher + Spy, in the existing 0/16/32/48/64/80 logical positions with live
    counts and population meter. No duplicate Shaman/class/Everyone selection grid.
 3. Existing single/Ctrl/Shift/right-click focus semantics remain unchanged; reuse the
    existing HUD-selection tests rather than reimplementing selection logic.

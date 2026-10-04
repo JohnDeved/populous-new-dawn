@@ -47,6 +47,7 @@ import {
   ManaMeter,
 } from './hud'
 import { spellOrder } from './spell-button'
+import { followerClassControls } from './hud-population'
 import { spellHudButton, spellHudRoster, spellHudVisibility } from './spell-visibility'
 import { nativeUnitModel } from './unit-kinds'
 import { missionComputerTribes, missionNumbers, tutorialLevel } from './mission-data'
@@ -349,8 +350,10 @@ export default function Home() {
     }
   }
   function followerControl(kind: UnitKind | 'all') {
-    const choose = (event: MouseEvent<HTMLButtonElement>, focus = false) =>
-      engine.current?.chooseFollowers(kind === 'all' ? 0 : nativeUnitModel(kind), event, focus)
+    const choose = (event: MouseEvent<HTMLButtonElement>, focus = false) => {
+      if (!event.currentTarget.disabled)
+        engine.current?.chooseFollowers(kind === 'all' ? 0 : nativeUnitModel(kind), event, focus)
+    }
     return {
       onPointerDown: (event: MouseEvent<HTMLButtonElement>) => {
         followerPress.current = event.button === 0 ? event.currentTarget : null
@@ -883,26 +886,21 @@ export default function Home() {
             />
             <FollowerNumber count={population(world, 'blue') - 1} total />
           </button>
-          {(
-            [
-              { kind: 'brave', label: 'Braves', sprite: 666 },
-              { kind: 'warrior', label: 'Warriors', sprite: 668 },
-              { kind: 'preacher', label: 'Preachers', sprite: 670 },
-              { kind: 'firewarrior', label: 'Firewarriors', sprite: 672 },
-              { kind: 'spy', label: 'Spies', sprite: 674 },
-            ] as const
-          ).map(u => (
+          {followerClassControls(blue).map(u => (
             <button
               key={u.kind}
               aria-label={`Select ${u.kind}`}
               title={`${u.label} · Shift: all · Ctrl: five · Right-click: focus next`}
+              disabled={!u.enabled}
               aria-pressed={selected.length > 0 && selected.every(s => s.kind === u.kind)}
               {...followerControl(u.kind)}
             >
-              <FollowerIcon sprite={u.sprite} />
-              <FollowerNumber
-                count={blue.filter(b => b.hp > 0 && !b.ghost && b.kind === u.kind).length}
-              />
+              {u.enabled && (
+                <>
+                  <FollowerIcon sprite={u.sprite} />
+                  <FollowerNumber count={u.count} />
+                </>
+              )}
             </button>
           ))}
         </section>
