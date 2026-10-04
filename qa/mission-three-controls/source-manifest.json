@@ -213,6 +213,18 @@
     {
       "path": "scripts/local-render/checkpoint-observer.mjs",
       "sha256": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947"
+    },
+    {
+      "path": "app/building-shapes.ts",
+      "sha256": "8e697a8ac76900bb95183907702323b0d477950c92b3e703744376c0fefc7457"
+    },
+    {
+      "path": "app/person-collision.ts",
+      "sha256": "fb4e3a388cca0a1f15f0cde99122d3d62c82eef14211f96ecba9ae01c0218a1c"
+    },
+    {
+      "path": "app/original-shapes.json",
+      "sha256": "0d0fcd2252efe0bae7cbb9a7f3a9acc4f6f0bb7a6e6e83eb5fe4e34ec247e094"
     }
   ],
   "originalInspectionCommit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",

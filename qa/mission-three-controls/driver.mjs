@@ -29,7 +29,7 @@ export default async function missionThreeControls({ page, output, root, signal,
   const epochs = [], controlStops = [], ids = Object.create(null), commandsPath = resolve(output, 'commands')
   let continuation = null, protectedPreparation = null, inheritedActiveSeconds = 0
   mkdirSync(commandsPath, { recursive: true })
-  for (const name of ['driver.mjs', 'observation.mjs', 'checkpoint-provenance.mjs']) {
+  for (const name of ['driver.mjs', 'observation.mjs', 'checkpoint-provenance.mjs', 'command-probes.mjs']) {
     const bytes = readFileSync(new URL(name, import.meta.url))
     writeFileSync(resolve(output, name), bytes)
     inputs.push({ name, sha256: sha256(bytes) })
@@ -287,22 +287,38 @@ export default async function missionThreeControls({ page, output, root, signal,
       orders: after.units.filter(u => before.selected.includes(u.id)).map(u => ({ id: u.id, order: u.order, work: u.work })) })
     return after
   }
-  const groundHit = (point, kind = null, spell = null, radius = 0) => page.evaluate(async ({ point, kind, spell, radius }) => {
-    const s = window.testSceneRef.current, r = s.container.getBoundingClientRect()
-    const { placementError, spellTargetError } = await import('/app/model.ts')
-    const probe = structuredClone(s.world), wrap = v => ((v + 128) % 256 + 256) % 256 - 128
-    for (let distance = 0; distance <= radius; distance++) for (let a = 0; a < Math.PI * 2; a += Math.PI / 12) {
-      const p = { x: point.x + Math.cos(a) * distance, z: point.z + Math.sin(a) * distance }
-      const q = s.screen(p), e = { clientX: r.x + (q.x + 1) * r.width / 2, clientY: r.y + (1 - q.y) * r.height / 2 }
-      if (document.elementFromPoint(e.clientX, e.clientY) !== s.renderer.domElement) continue
-      const picked = s.pick(e)
-      if (!picked || (!spell && s.picking.pick(e) !== null) || Math.hypot(wrap(picked.x - p.x), wrap(picked.z - p.z)) >= 1.5) continue
-      if (kind && placementError(probe, kind, picked)) continue
-      if (spell && spellTargetError(probe, spell, picked)) continue
-      return { x: e.clientX, y: e.clientY, point: { x: picked.x, z: picked.z } }
-    }
-    return null
-  }, { point, kind, spell, radius })
+  const groundHit = async (point, kind = null, spell = null, radius = 0) => {
+    const result = await page.evaluate(async ({ point, kind, spell, radius }) => {
+      const s = window.testSceneRef.current, r = s.container.getBoundingClientRect()
+      const [{ placementError, spellTargetError }, { createMoveContextProbe, isOrdinaryMoveContext }] = await Promise.all([
+        import('/app/model.ts'), import('/qa/mission-three-controls/command-probes.mjs'),
+      ])
+      const probe = kind || spell ? structuredClone(s.world) : null
+      const inspectMove = !kind && !spell ? createMoveContextProbe(s.world) : null
+      const contextProbes = [], sampled = { turn: s.world.turn, selected: [...s.world.selected] }
+      const wrap = v => ((v + 128) % 256 + 256) % 256 - 128
+      for (let distance = 0; distance <= radius; distance++) for (let a = 0; a < Math.PI * 2; a += Math.PI / 12) {
+        const p = { x: point.x + Math.cos(a) * distance, z: point.z + Math.sin(a) * distance }
+        const q = s.screen(p), e = { clientX: r.x + (q.x + 1) * r.width / 2, clientY: r.y + (1 - q.y) * r.height / 2 }
+        if (document.elementFromPoint(e.clientX, e.clientY) !== s.renderer.domElement) continue
+        const picked = s.pick(e)
+        if (!picked || (!spell && s.picking.pick(e) !== null) || Math.hypot(wrap(picked.x - p.x), wrap(picked.z - p.z)) >= 1.5) continue
+        if (kind && placementError(probe, kind, picked)) continue
+        if (spell && spellTargetError(probe, spell, picked)) continue
+        let nativeContext = null
+        if (inspectMove) {
+          nativeContext = inspectMove(picked)
+          contextProbes.push({ point: { x: picked.x, z: picked.z }, nativeContext })
+          if (!isOrdinaryMoveContext(nativeContext)) continue
+        }
+        return { ...sampled, contextProbes, hit: { x: e.clientX, y: e.clientY,
+          point: { x: picked.x, z: picked.z }, ...(nativeContext ? { nativeContext } : {}) } }
+      }
+      return { ...sampled, contextProbes, hit: null }
+    }, { point, kind, spell, radius })
+    if (!kind && !spell) log({ action: 'movement-native-context-probe', requested: point, radius, ...result })
+    return result.hit
+  }
   const move = async (point, searchRadius = 0) => {
     assert.ok(searchRadius === 0 || searchRadius === 2, 'Only the home-return caller permits a radius2 search')
     await map(point)

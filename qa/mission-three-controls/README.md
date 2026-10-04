@@ -27,10 +27,12 @@ requirements.
 
 ```
 node --check qa/mission-three-controls/driver.mjs
-node --test qa/mission-three-controls/observation.test.mjs
+node --test qa/mission-three-controls/observation.test.mjs \
+  qa/mission-three-controls/checkpoint-provenance.test.mjs \
+  qa/mission-three-controls/command-probes.test.mjs
 ```
 
-The twenty-six isolated observer tests cover original callback receiver/arguments/return and
+The twenty-seven isolated observer tests cover original callback receiver/arguments/return and
 exact invocation count; diagnostic exception isolation versus real application
 exceptions; idempotent detach; separate reload/time epochs; strict singleton
 conversion identity; rejecting death/poll gaps; and progress that ignores a
@@ -303,3 +305,21 @@ It ended before any owned sermon and retained its helper failures at573 active
 seconds. The larger pre-conversion allowance reallocates the original overall
 resource envelope for that observed strategy; it does not change gameplay,
 conversion, result, clock, speed or failure-retention requirements.
+
+## Native move-context preflight
+
+Run08 showed that a terrain hit with no visually picked object can still occupy
+a native building footprint. Its intended Preacher move acknowledged ground0
+and drew a ground marker, but correctly produced enemy-building attack19. That
+movement assertion remains failed. The prospective repair now resolves each
+visible candidate with the shipped liveCommandContext after terrain/footprint
+synchronization on a detached World clone. It accepts only enabled model3, logs
+rejected native contexts, and retains all existing renderer ownership, exact
+point, fresh acknowledgement, recipient and marker requirements.
+
+This probe never calls command, tick or path planning and never synchronizes the
+live World. It applies only to movement, including home return, sermon approach
+and cancellation. Spell/plan validators retain their existing separate semantics.
+Two source-bound fixture tests exercise the actual native resolver, including
+the visually unpicked enemy-hut-cell trap, blocked ground and original-World
+noninterference. These isolated fixtures are not browser/gameplay proof.
