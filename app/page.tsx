@@ -25,7 +25,6 @@ import {
   populationLimit,
   isShaman,
   ROUTE_FAILURE_TEXT,
-  type UnitKind,
 } from './model'
 import { createGameStore } from './game-store'
 import { WorldSelector } from './world-selector'

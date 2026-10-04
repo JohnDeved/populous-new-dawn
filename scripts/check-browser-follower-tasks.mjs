@@ -124,15 +124,18 @@ export default async function followerTasks({ browser, page, url, output, openMi
   assert.equal(await page.evaluate(() => window.testSceneRef.current.hudTaskFocus[14]), nextFocus)
 
   // Shipped tab changes cancel targeting. A supporting mode-state fixture then
-  // verifies the reused scene API: focus preserves it, task selection cancels it.
+  // verifies inherited camera focus cancellation without mutating orders or selection.
   await page.getByTitle('spells', { exact: true }).click()
   await page.getByRole('button', { name: /^Blast,/ }).click()
   assert.equal(await page.evaluate(() => window.testSceneRef.current.world.mode), 'blast')
   await page.getByTitle('followers', { exact: true }).click()
   assert.equal(await page.evaluate(() => window.testSceneRef.current.world.mode), null)
   await page.evaluate(() => window.testStore.change(w => { w.mode = 'blast' }))
+  const beforeFocus = await page.evaluate(() => {const w=window.testSceneRef.current.world;return {selected:w.selected,orders:w.buildingOrders,rng:w.randomState}})
   await button(page, 1, 1).click({ button: 'right' })
-  assert.equal(await page.evaluate(() => window.testSceneRef.current.world.mode), 'blast')
+  assert.equal(await page.evaluate(() => window.testSceneRef.current.world.mode), null)
+  assert.deepEqual(await page.evaluate(() => {const w=window.testSceneRef.current.world;return {selected:w.selected,orders:w.buildingOrders,rng:w.randomState}}),beforeFocus)
+  await page.evaluate(() => window.testStore.change(w => { w.mode = 'blast' }))
   await button(page, 1, 1).click()
   assert.equal(await page.evaluate(() => window.testSceneRef.current.world.mode), null)
   await button(page, 0, 1).click({ modifiers: ['Shift'] })
