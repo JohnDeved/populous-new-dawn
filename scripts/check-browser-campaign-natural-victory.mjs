@@ -4,6 +4,7 @@ import { openGame } from './browser-game.mjs'
 
 const swarmOnly = process.argv.includes('--mission3-swarm-only')
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
+const captureCameraEvidence = async () => {}
 const wrapped = value => ((value + 128) % 256 + 256) % 256 - 128
 
 async function state(page) {
@@ -50,6 +51,29 @@ async function state(page) {
   })
 }
 
+async function waitForSelectableShaman(page, label) {
+  await page.evaluate(async () => {
+    const { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs')
+    globalThis.campaignObserveShaman = campaignShamanReadiness
+  })
+  // This installed Playwright polls synchronously; an async predicate would be
+  // truthy before its promise resolved and could accept an unready actor.
+  const sample = required => {
+    const snapshot = globalThis.campaignObserveShaman(globalThis.testScene.world)
+    return required && !snapshot.ready ? false : snapshot
+  }
+  const before = await page.evaluate(sample, false)
+  // Keep the shipped RAF alive: Skip introduction releases camera input before
+  // native command18 releases the Shaman's independent flags4/128 selection gate.
+  const ready = await page.waitForFunction(sample, true)
+  const after = await ready.jsonValue()
+  await ready.dispose()
+  assert.equal(after.ready, true, 'Startup Shaman is selectable before suspending RAF')
+  const evidence = { label, before, after, method: 'real RAF; existing default wait timeout; observation only' }
+  await page.evaluate(evidence => { (globalThis.campaignStartupReadiness ??= []).push(evidence) }, evidence)
+  console.log(JSON.stringify({ startupReadiness: evidence }))
+}
+
 async function suspendOwnedFrame(page) {
   await page.evaluate(() => cancelAnimationFrame(globalThis.testScene.frame))
 }
@@ -59,8 +83,16 @@ async function advance(page, turns) {
     const scene = globalThis.testScene,
       world = scene.world
     cancelAnimationFrame(scene.frame)
+    const { observeCampaignConversions } = await import('/scripts/campaign-conversion-observer.mjs')
+    const observe = () => {
+      globalThis.campaignConversionTracker = observeCampaignConversions(world, globalThis.campaignConversionTracker)
+    }
+    observe()
     const { tick } = await import('/app/model.ts')
-    for (let turn = 0; turn < turns && world.status === 'playing'; turn++) tick(world, 1 / 12)
+    for (let turn = 0; turn < turns && world.status === 'playing'; turn++) {
+      tick(world, 1 / 12)
+      observe()
+    }
     globalThis.testStore.update()
     scene.animate(scene.previous)
     cancelAnimationFrame(scene.frame)
@@ -84,6 +116,11 @@ async function advanceUntil(page, condition, limit, label, required = true) {
       const scene = globalThis.testScene,
         world = scene.world
       cancelAnimationFrame(scene.frame)
+      const { observeCampaignConversions } = await import('/scripts/campaign-conversion-observer.mjs')
+      const observe = () => {
+        globalThis.campaignConversionTracker = observeCampaignConversions(world, globalThis.campaignConversionTracker)
+      }
+      observe()
       const { tick } = await import('/app/model.ts'),
         ready = () => {
           if (condition.type === 'building')
@@ -154,8 +191,10 @@ async function advanceUntil(page, condition, limit, label, required = true) {
           if (condition.type === 'status') return world.status === condition.status
           throw new Error(`Unknown condition ${condition.type}`)
         }
-      for (let turn = 0; turn < limit && world.status === 'playing' && !ready(); turn++)
+      for (let turn = 0; turn < limit && world.status === 'playing' && !ready(); turn++) {
         tick(world, 1 / 12)
+        observe()
+      }
       globalThis.testStore.update()
       scene.animate(scene.previous)
       cancelAnimationFrame(scene.frame)
@@ -212,7 +251,107 @@ async function entityPoint(page, collection, id) {
           )
             return { x: event.clientX, y: event.clientY }
         }
-      throw new Error(`No rendered hit point for ${collection} object ${id}`)
+      // Original native models need a visible triangle, not merely an anchor or
+      // fixed-size box. Retain the old search first, then sample this target's
+      // current submitted geometry without changing runtime hit ownership.
+      const modelDetails = [], candidates = []
+      if (unit) {
+        const hit = scene.picking.personBounds(id)
+        if (hit) candidates.push({ x: hit.x + hit.width / 2, y: hit.y + hit.height / 2 })
+      } else mesh?.traverse(child => {
+        if (child.userData.nativeModel === undefined || !child.visible) return
+        const commands = scene.picking.model(child, JSON.stringify(scene.view.projection)),
+          faces = commands.filter(command => command.kind === 'model'),
+          hit = commands.find(command => command.kind === 'bounds')?.bounds
+        modelDetails.push({ model: child.userData.nativeModel, bounds: hit,
+          faces: faces.length, submitted: !!scene.view.painter.source(child) })
+        for (const { points } of faces)
+          for (const weights of [[1, 1, 1], [2, 1, 1], [1, 2, 1], [1, 1, 2]]) {
+            const total = weights.reduce((sum, weight) => sum + weight, 0)
+            candidates.push({
+              x: points.reduce((sum, point, i) => sum + point.x * weights[i], 0) / total,
+              y: points.reduce((sum, point, i) => sum + point.y * weights[i], 0) / total,
+            })
+          }
+      })
+      const diagnostic = { collection, id, turn: world.turn, center,
+        object: { x: object.x, z: object.z, model: object.model },
+        mesh: mesh && { position: mesh.position.toArray(), visible: mesh.visible },
+        camera: { position: scene.cameraPosition, viewPoint: scene.viewPoint, bearing: scene.cameraBearing },
+        projection: scene.view.projection, models: modelDetails,
+        legacyScan: { left: center.x - (unit ? 36 : 100), right: center.x + (unit ? 36 : 100),
+          top: center.y - (unit ? 24 : 140), bottom: center.y + (unit ? 24 : 60), step: 4 } }
+      const probe = () => candidates.map(candidate => {
+        const event = { clientX: bounds.left + candidate.x, clientY: bounds.top + candidate.y },
+          person = scene.picking.pickPerson(event),
+          picked = unit ? person : person !== null ? undefined : scene.pickWorldObject(event)?.id,
+          element = document.elementFromPoint(event.clientX, event.clientY),
+          panel = element?.closest('.training-panel, .person-panel'),
+          rect = panel?.getBoundingClientRect()
+        return { event, person, picked, canvasOwnsPoint: element === scene.renderer.domElement,
+          owner: element && { tag: element.tagName, className: element.className },
+          panel: panel && { className: panel.className, label: panel.getAttribute('aria-label'),
+            rect: rect && { x: rect.x, y: rect.y, width: rect.width, height: rect.height } } }
+      })
+      let samples = probe()
+      diagnostic.nativeTargetHits = samples.filter(sample => sample.picked === id)
+      diagnostic.rejectedPickIds = [...new Set(samples.map(sample => sample.picked ?? null))]
+      let hit = samples.find(sample => sample.picked === id && sample.canvasOwnsPoint)
+      if (!hit && samples.some(sample => sample.picked === id && !sample.canvasOwnsPoint && sample.panel)) {
+        // A direct camera focus renders GPU geometry, but suspended RAF leaves
+        // world-panel DOM at the old camera coordinates. The normal frame owner
+        // refreshes presentation. Its canonical UI reservation list may change
+        // later pool capacity, but simulation slots, clocks and orders may not.
+        const reservations = () => [
+          ...[...(scene.objectPanels?.panels.keys() ?? [])].map(id => `object-panel:${id}`),
+          ...[...(scene.buildingPanels ?? [])].flatMap(([id, panel]) => panel.hidden ? [] : [`building-panel:${id}`]),
+          ...(scene.cursor?.visible ? ['placement-preview'] : []),
+        ]
+        const serialize = value => JSON.stringify(value, (_key, item) => {
+          if (item instanceof Map) return { mapEntries: [...item] }
+          if (item instanceof Set) return { setEntries: [...item] }
+          if (ArrayBuffer.isView(item)) return { arrayType: item.constructor.name,
+            bytes: [...new Uint8Array(item.buffer, item.byteOffset, item.byteLength)] }
+          if (item instanceof ArrayBuffer) return { arrayBuffer: [...new Uint8Array(item)] }
+          if (typeof item === 'number' && (!Number.isFinite(item) || Object.is(item, -0)))
+            return { numericValue: Object.is(item, -0) ? '-0' : String(item) }
+          if (item === undefined) return { undefinedValue: true }
+          return item
+        })
+        const before = structuredClone(world), ownersBefore = reservations()
+        if (before.secondaryEffects && JSON.stringify(before.secondaryEffects.reservations) !== JSON.stringify(ownersBefore))
+          throw new Error('Pre-refresh UI reservations do not match actual panel owners')
+        scene.animate(scene.previous)
+        cancelAnimationFrame(scene.frame)
+        const ownersAfter = reservations(),
+          reservationsValid = !world.secondaryEffects || JSON.stringify(world.secondaryEffects.reservations) === JSON.stringify(ownersAfter),
+          afterComparable = world.secondaryEffects && before.secondaryEffects
+            ? { ...world, secondaryEffects: { ...world.secondaryEffects, reservations: before.secondaryEffects.reservations } }
+            : world,
+          changedWorldKeys = [...new Set([...Object.keys(before), ...Object.keys(world)])].filter(key =>
+            serialize(afterComparable[key]) !== serialize(before[key]))
+        diagnostic.frameRefresh = { turnBefore: before.turn, turnAfter: world.turn,
+          randomBefore: before.randomState, randomAfter: world.randomState,
+          selectedBefore: before.selected, selectedAfter: [...world.selected], changedWorldKeys,
+          reservations: { before: before.secondaryEffects?.reservations, after: world.secondaryEffects?.reservations,
+            ownersBefore, ownersAfter, valid: reservationsValid,
+            limit: 'Normal presentation-owned reservation changes affect later secondary-effect pool capacity.' } }
+        if (!reservationsValid)
+          throw new Error(`Refreshed UI reservations do not match actual panel owners: ${JSON.stringify(diagnostic)}`)
+        if (changedWorldKeys.length)
+          throw new Error(`Zero-dt presentation refresh changed world state: ${JSON.stringify(diagnostic)}`)
+        samples = probe()
+        diagnostic.afterRefreshNativeTargetHits = samples.filter(sample => sample.picked === id)
+        hit = samples.find(sample => sample.picked === id && sample.canvasOwnsPoint)
+      }
+      if (hit) {
+        const pickingDiagnostic = { ...diagnostic, hit: hit.event,
+          source: unit ? 'actual person hit bounds' : 'actual target triangle geometry' }
+        ;(globalThis.campaignPickDiagnostics ??= []).push(pickingDiagnostic)
+        return { x: hit.event.clientX, y: hit.event.clientY, pickingDiagnostic }
+      }
+      ;(globalThis.campaignPickDiagnostics ??= []).push(diagnostic)
+      throw new Error(`No rendered hit point for ${collection} object ${id}: ${JSON.stringify(diagnostic)}`)
     },
     { collection, id }
   )
@@ -257,8 +396,56 @@ async function groundPoint(page, point, buildingKind, maxRadius = 12) {
   }, { point, buildingKind, maxRadius })
 }
 
+async function rotateCameraWithPointer(page, id, attempt) {
+  const setup = await page.evaluate(() => {
+    const scene = globalThis.testScene, world = scene.world,
+      canvas = scene.renderer.domElement, rect = canvas.getBoundingClientRect()
+    for (const fraction of [0.75, 0.6, 0.45]) {
+      const start = { x: rect.left + 20, y: rect.top + rect.height * fraction },
+        end = { x: start.x + 512, y: start.y }
+      if (end.x >= rect.right || document.elementFromPoint(start.x, start.y) !== canvas || document.elementFromPoint(end.x, end.y) !== canvas) continue
+      return { start, end, level: world.outcome.level,
+        before: { turn: world.turn, time: world.time, random: world.randomState, selected: [...world.selected],
+          mode: world.mode, angle: scene.cameraPosition.angle, viewPoint: { ...scene.viewPoint } } }
+    }
+    throw new Error('No canvas-owned right-drag corridor for occluded shrine')
+  })
+  assert.ok(setup.before.selected.length, 'Camera drag must not become an unselected-object context click')
+  const label = `mission-${setup.level}-shrine-${id}-rotation-${attempt}`
+  await captureCameraEvidence(`${label}-before`)
+  await page.mouse.move(setup.start.x, setup.start.y)
+  await page.mouse.down({ button: 'right' })
+  try { await page.mouse.move(setup.end.x, setup.end.y, { steps: 8 }) }
+  finally { await page.mouse.up({ button: 'right' }) }
+  const after = await page.evaluate(() => {
+    const scene = globalThis.testScene, world = scene.world
+    scene.renderer.render(scene.scene, scene.camera)
+    return { turn: world.turn, time: world.time, random: world.randomState, selected: [...world.selected],
+      mode: world.mode, angle: scene.cameraPosition.angle, viewPoint: { ...scene.viewPoint } }
+  })
+  assert.equal(after.angle, (setup.before.angle + 512) & 2047, 'Real right-drag rotates one quarter-turn')
+  for (const field of ['turn', 'time', 'random', 'selected', 'mode', 'viewPoint'])
+    assert.deepEqual(after[field], setup.before[field], `Camera-only pointer drag preserves ${field}`)
+  const evidence = { id, attempt, ...setup, after, method: 'ordinary right-button drag; RAF remains suspended' }
+  await page.evaluate(evidence => { (globalThis.campaignCameraAdjustments ??= []).push(evidence) }, evidence)
+  console.log(JSON.stringify({ cameraAdjustment: evidence }))
+  await captureCameraEvidence(`${label}-after`)
+}
+
 async function clickEntity(page, collection, id) {
-  const point = await entityPoint(page, collection, id)
+  let point
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try { point = await entityPoint(page, collection, id); break }
+    catch (error) {
+      const diagnostic = await page.evaluate(() => globalThis.campaignPickDiagnostics?.at(-1))
+      if (collection !== 'shrines' || attempt === 3 || diagnostic?.id !== id ||
+          diagnostic.collection !== collection || !diagnostic.nativeTargetHits || diagnostic.nativeTargetHits.length)
+        throw error
+      await rotateCameraWithPointer(page, id, attempt + 1)
+    }
+  }
+  assert.ok(point, 'A shrine click requires an actually picked, canvas-owned target')
+  if (point.pickingDiagnostic) console.log(JSON.stringify({ pickingDiagnostic: point.pickingDiagnostic }))
   await page.mouse.click(point.x, point.y)
 }
 
@@ -277,12 +464,12 @@ async function dismissFlyby(page) {
   }
 }
 
-async function selectClass(page, kind) {
+async function selectClass(page, kind, modifier = 'Shift') {
   await dismissFlyby(page)
   if (kind === 'shaman') await page.getByLabel('followers', { exact: true }).click()
   const button = page.getByLabel(kind === 'shaman' ? 'Select and focus shaman' : `Select ${kind}`, { exact: true })
   if (kind === 'shaman') await button.click()
-  else await button.click({ modifiers: ['Shift'] })
+  else await button.click({ modifiers: [modifier] })
   return page.evaluate(kind => {
     const world = globalThis.testScene.world
     return world.selected.some(id =>
@@ -331,20 +518,51 @@ async function build(page, kind, label, point) {
   return building
 }
 
-async function train(page, building, turns = 2500) {
+async function train(page, building, turns = 2500, preserveBraves = false) {
   const snapshot = await state(page),
     braves = snapshot.units.filter(unit => unit.team === 'blue' && unit.kind === 'brave')
   if (!snapshot.buildings.some(candidate => candidate.id === building.id) || !braves.length)
     return false
-  await selectClass(page, 'brave')
+  let selected = []
+  const choose = async () => {
+    if (preserveBraves) {
+      // Original HUD multiple selection is additive. Cancel targeting first,
+      // then clear the previous builders through the shipped Escape control.
+      for (let cancel = 0; cancel < 2; cancel++) {
+        const pending = await page.evaluate(() => !!globalThis.testScene.world.mode || !!globalThis.testScene.world.selected.length)
+        if (!pending) break
+        await page.keyboard.press('Escape')
+      }
+      const cleared = await page.evaluate(() => ({ mode: globalThis.testScene.world.mode, selected: [...globalThis.testScene.world.selected] }))
+      assert.deepEqual(cleared, { mode: null, selected: [] }, 'Ctrl-five starts from an empty ordinary selection')
+    }
+    await selectClass(page, 'brave', preserveBraves ? 'Control' : 'Shift')
+    selected = await page.evaluate(() => [...globalThis.testScene.world.selected])
+    if (preserveBraves) {
+      assert.equal(selected.length, 5, 'Ctrl-five selects exactly five Temple trainees')
+      assert.ok(selected.every(id => braves.some(unit => unit.id === id)), 'Temple trainees are actual Braves')
+      assert.ok(braves.some(unit => !selected.includes(unit.id)), 'Retain a Brave outside the training group')
+    }
+  }
+  await choose()
   try {
     await clickEntity(page, 'buildings', building.id)
   } catch {
     await moveSelected(page, building, 600, 48)
-    await selectClass(page, 'brave')
+    await choose()
     await clickEntity(page, 'buildings', building.id)
   }
   await advance(page, turns)
+  if (preserveBraves) {
+    const after = await state(page), retainedBefore = braves.filter(unit => !selected.includes(unit.id)).map(unit => unit.id),
+      retainedAfter = after.units.filter(unit => unit.team === 'blue' && unit.kind === 'brave' && retainedBefore.includes(unit.id)).map(unit => unit.id)
+    assert.ok(retainedAfter.length, 'An original untrained Brave survives for ordinary construction')
+    assert.ok(await page.getByLabel('Select brave', { exact: true }).isEnabled(), 'Retained Brave is reachable from the HUD')
+    const evidence = { building: building.id, turnBefore: snapshot.turn, turnAfter: after.turn,
+      selected, retainedBefore, retainedAfter, modifier: 'Control', turns }
+    await page.evaluate(evidence => { (globalThis.campaignTrainingOwnership ??= []).push(evidence) }, evidence)
+    console.log(JSON.stringify({ trainingOwnership: evidence }))
+  }
   return true
 }
 
@@ -713,7 +931,7 @@ async function missionThree(page) {
     10_000,
     'Mission 3 Braves'
   )
-  await train(page, temple, 5000)
+  await train(page, temple, 5000, true)
   await advanceUntil(
     page,
     { type: 'unit-count', team: 'blue', kind: 'preacher', count: 3 },
@@ -880,6 +1098,7 @@ async function missionThree(page) {
 try {
   const { page, errors } = await openGame(browser, swarmOnly ? 3 : 2)
   page.setDefaultTimeout(20_000)
+  await waitForSelectableShaman(page, swarmOnly ? 'Mission 3 direct entry' : 'Mission 2 direct entry')
   await suspendOwnedFrame(page)
   if (swarmOnly) {
     await missionThreeSwarm(page)
@@ -904,6 +1123,7 @@ try {
     await page.waitForFunction(() => globalThis.testScene.world.flyby.flags & 1)
     await page.keyboard.press('Escape')
     await page.waitForFunction(() => !globalThis.testScene.world.inputMask)
+    await waitForSelectableShaman(page, 'Mission 3 after Continue')
     await suspendOwnedFrame(page)
     await missionThree(page)
     await advanceOutcome(page)
@@ -913,6 +1133,9 @@ try {
       'Mission 3 victory is recorded in the campaign profile'
     )
     await page.getByRole('button', { name: 'Continue to Mission 4', exact: false }).waitFor()
+    const conversions = await page.evaluate(() => globalThis.campaignConversionTracker?.events ?? [])
+    console.log(JSON.stringify({ mission3ConversionObservation: { observed: conversions.length > 0, events: conversions,
+      limit: 'Separate observation; no death/disappearance or victory-only inference of conversion.' } }))
     assert.deepEqual(errors, [])
     console.log('PASS: rendered player actions win Mission 2, continue, and naturally win Mission 3')
   }

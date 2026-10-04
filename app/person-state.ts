@@ -217,7 +217,7 @@ export function initializePersonState(
   p: StatefulPerson,
   effects: PersonStateEffects
 ) {
-  if (![1, 8, 10, 14, 17, 19, 21, 22, 25, 26, 29, 31, 33, 36, 39, 41, 44].includes(p.state))
+  if (![1, 8, 10, 14, 17, 19, 21, 22, 25, 26, 29, 30, 31, 33, 36, 39, 41, 44].includes(p.state))
     throw new RangeError(`Unported person-state initializer ${p.state}`)
   const oldFlags = rules.personStateFlags[p.previousState],
     stateFlags = rules.personStateFlags[p.state]
@@ -309,6 +309,10 @@ export function initializePersonState(
     const enter = p.state === 25 ? effects.fight : effects.encounter
     if (!enter) throw new Error(`State ${p.state} requires its combat initializer`)
     enter()
+  } else if (p.state === 30) {
+    p.assignment |= 1
+    p.speed = 0
+    effects.releaseMotion(p)
   } else if (p.state === 26 || p.state === 31) {
     effects.setAnimation(p, rules.personAnimationObjects[25 * 9 + p.model])
     p.flags4 = (p.flags4 | 128) >>> 0
@@ -347,6 +351,15 @@ export function initializePersonState(
     if (tribe.flags & 64 && !(rules.personStateFlags[p.state] & 0x2000))
       tribe.flags = (tribe.flags | 1024) >>> 0
   }
+}
+
+// 0x4d32b0 switches on state - 1: case 29 is the resting passenger state30.
+// Aboard followers keep their state; detaching returns them to ordinary orders.
+export function stateAfterTransportRest(
+  p: Pick<StatefulPerson, 'model' | 'vehicle'>,
+  gameFlags: number
+) {
+  return p.vehicle ? 0 : defaultPersonState(p, gameFlags)
 }
 
 // 0x4d32b0 state 44: two visits before the shock pose, death on visit eighteen.
