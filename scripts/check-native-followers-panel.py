@@ -1,0 +1,304 @@
+"""Recover original Followers-panel descriptors, counts and callback contracts.
+
+Usage: python scripts/check-native-followers-panel.py EXE [--output DIRECTORY]
+This evidence-only probe executes the verified PE in Unicorn. No browser source,
+imported atlas, fixture or parity ledger is changed. Output is an optional research
+receipt. UI refresh, sound, camera and panel display are intercepted; classification,
+selection, focus search, command dispatch and tribe rebuild execute natively.
+"""
+import argparse
+import hashlib
+import json
+import struct
+from pathlib import Path
+
+from unicorn import UC_HOOK_CODE
+from unicorn.x86_const import UC_X86_REG_EAX, UC_X86_REG_EIP, UC_X86_REG_ESP
+from decomp import configure_native_constants, native_cpu
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('executable', type=Path)
+parser.add_argument('--output', type=Path)
+args = parser.parse_args()
+cpu, identity = native_cpu(args.executable)
+configure_native_constants(cpu, args.executable)
+cpu.mem_map(0x2000000, 0x100000)
+people, button, command, stack, stop = 0x2000000, 0x2008000, 0x2009000, 0x20fd000, 0x20fe000
+tribe = 0x89d1c8
+
+
+def write(address, fmt, *values):
+    cpu.mem_write(address, struct.pack('<' + fmt, *values))
+
+
+def read(address, fmt):
+    return struct.unpack('<' + fmt, cpu.mem_read(address, struct.calcsize('<' + fmt)))[0]
+
+
+def call(address, *values):
+    write(stack, 'I' * (len(values) + 1), stop, *values)
+    cpu.reg_write(UC_X86_REG_ESP, stack)
+    cpu.emu_start(address, stop, count=1000000)
+    assert cpu.reg_read(UC_X86_REG_EIP) == stop, hex(cpu.reg_read(UC_X86_REG_EIP))
+    return cpu.reg_read(UC_X86_REG_EAX)
+
+
+observed = {}
+
+
+def intercept(c, address, size, user):
+    sp = c.reg_read(UC_X86_REG_ESP)
+    counts = {0x479cf0: 4, 0x4de810: 3, 0x417ca0: 3, 0x504590: 2,
+              0x451080: 4, 0x4deb40: 2}
+    if address in counts:
+        observed.setdefault(address, []).append(list(struct.unpack(
+            '<' + 'I' * counts[address], c.mem_read(sp + 4, counts[address] * 4))))
+    c.reg_write(UC_X86_REG_EAX, 0)
+    c.reg_write(UC_X86_REG_EIP, read(sp, 'I'))
+    c.reg_write(UC_X86_REG_ESP, sp + 4)
+
+
+for address in (0x47a550, 0x48a050, 0x417ca0, 0x504590, 0x479cf0):
+    cpu.hook_add(UC_HOOK_CODE, intercept, begin=address, end=address)
+lang_raw = (args.executable.parent / 'language/lang00.dat').read_bytes()
+strings = lang_raw.decode('utf-16le').split('\0')
+models = [0, 2, 3, 6, 4, 5]
+descriptors = []
+for index in range(36):
+    address = 0x5cc6f0 + index * 66
+    raw = bytes(cpu.mem_read(address, 66))
+    u32 = lambda offset: struct.unpack_from('<I', raw, offset)[0]
+    x, y, x2, y2, width, height = struct.unpack_from('<6h', raw, 25)
+    model = models[index // 4] if index < 24 else models[(index - 24) % 6]
+    row = index % 4 if index < 24 else 4 + (index - 24) // 6
+    tooltip = struct.unpack_from('<H', raw, 45)[0]
+    assert (x, y, x2, y2, width, height) == (
+        models.index(model) * 16, [6, 47, 88, 129, 190, 231][row],
+        models.index(model) * 16, [6, 47, 88, 129, 190, 231][row], 15, 34)
+    assert u32(13) == (0x4a1240 if row < 4 else 0x4a13c0)
+    assert u32(17) == (0x4a1340 if row < 4 else 0x4a14b0)
+    assert tooltip == 777 + row * 6 + models.index(model)
+    expected_key = model * 5 + row if row < 4 else model + (8 if row == 5 else 0)
+    assert u32(55) == expected_key
+    assert raw[65] == 0
+    descriptors.append(dict(address=f'{address:08x}', model=model, row=row,
+        rectangle=[x, y, width, height], sprite=u32(37), renderer=f'{u32(41):08x}',
+        left=f'{u32(13):08x}', right=f'{u32(17):08x}', refresh=f'{u32(59):08x}',
+        key=expected_key, tooltipId=tooltip, tooltip=strings[tooltip]))
+assert read(0x5cd178, 'I') == 4
+assert read(0x5cd17e, 'I') == read(0x5cd182, 'I') == 0x5cc6f0
+assert struct.unpack('<4i', cpu.mem_read(0x5cd186, 16)) == (0, 204, 100, 277)
+assert read(0x5cd196, 'I') == 0x4a1720
+print('PASS: 36 original descriptors; six columns, six rows, exact labels/art/callbacks; root (0,204,100,277)')
+
+# Callback/producer contract: no selection consumer is intercepted here.
+callback_cases = 0
+for descriptor in descriptors[:24]:
+    model, category = descriptor['model'], descriptor['row'] + 1
+    write(button + 99, 'I', descriptor['key'])
+    for shift in (False, True):
+        for ctrl in (False, True):
+            for right_keys in (False, True):
+                for gate in ('none', 'overview', 'level', 'input', 'drag', 'press'):
+                    cpu.mem_write(0x984591, bytes(512))
+                    write(0x9845c7 if right_keys else 0x9845bb, 'B', shift)
+                    write(0x98462e if right_keys else 0x9845ae, 'B', ctrl)
+                    write(0x89c6c1, 'H', 2 if gate == 'overview' else 0)
+                    write(0x89d17c, 'I', 32 if gate == 'level' else 0)
+                    write(0x89ce36, 'B', gate == 'input')
+                    write(0x89c6e7, 'B', 9 if gate == 'drag' else 15 if gate == 'press' else 0)
+                    write(tribe + 0x24, 'HH', 65535, 511)
+                    observed.clear()
+                    call(0x4a1240, button)
+                    tag = (0x55 if model else 0x54) if shift else 0x72 if ctrl else 0x7d
+                    expected = [[0, tag, (model << 16) | category, 0xfe]] if gate == 'none' else []
+                    assert observed.get(0x479cf0, []) == expected
+                    callback_cases += 1
+focus_hook = cpu.hook_add(UC_HOOK_CODE, intercept, begin=0x4de810, end=0x4de810)
+for descriptor in descriptors[:24]:
+    for shift in (False, True):
+        cpu.mem_write(0x984591, bytes(512))
+        write(0x9845bb, 'B', shift)
+        write(button + 99, 'I', descriptor['key'])
+        observed.clear()
+        call(0x4a1340, button)
+        assert observed[0x4de810] == [[descriptor['model'], descriptor['row'] + 1, int(shift)]]
+cpu.hook_del(focus_hook)
+print(f'PASS: {callback_cases} task left callback/producer cases and 48 right-focus dispatches')
+
+# A class cell stays visible and its enabled state depends on GLOBAL model total,
+# independently of this category's count or the nearby-mode count table.
+refresh_cases = 0
+for descriptor in descriptors[4:24]:
+    for count in (-1, 0, 1, 200):
+        cpu.mem_write(tribe, bytes(0xc65))
+        cpu.mem_write(button, bytes(128))
+        write(button + 99, 'I', descriptor['key'])
+        write(button + 0x5f, 'I', descriptor['tooltipId'])
+        write(0x89dbef + descriptor['model'] * 2, 'h', count)
+        call(0x4a11e0, button)
+        assert read(button + 0x10, 'I') == 1
+        assert read(button + 8, 'I') == int(count > 0)
+        assert read(button + 0x57, 'H') == (descriptor['tooltipId'] if count > 0 else 0)
+        refresh_cases += 1
+print(f'PASS: {refresh_cases} class-cell visibility/enable/tooltip refresh cases')
+
+# Classifier: state table plus exact order-status, building and preacher exceptions.
+state_categories = [read(0x5a6f78 + state * 5, 'B') for state in range(46)]
+command_categories = [read(0x5a7db8 + status * 22, 'b') for status in range(35)]
+classification_cases = 0
+cpu.mem_write(people, bytes(256))
+write(people + 0x2b, 'B', 2)
+for state in range(46):
+    write(people + 0x2c, 'B', state)
+    for attached in (False, True):
+        write(people + 0x9f, 'H', int(attached))
+        expected = (1 if state_categories[state] == 1 else 5) if attached else (
+            command_categories[0] if state == 10 else state_categories[state])
+        assert call(0x4513e0, people) == expected, (state, attached, call(0x4513e0, people), expected)
+        classification_cases += 1
+write(people + 0x9f, 'H', 0)
+write(people + 0x2c, 'B', 10)
+for status, expected in enumerate(command_categories):
+    write(people + 0xa7, 'B', status)
+    assert call(0x4513e0, people) == expected & 0xffffffff, (status, call(0x4513e0, people), expected)
+    classification_cases += 1
+# State 21 + inside reads the referenced building's category rather than the state.
+write(people + 0x2c, 'B', 21)
+write(people + 0xc, 'I', 0x800000)
+write(0x8a03ec, 'H', 1)
+write(0x890390 + 4, 'I', people + 0x100)
+write(people + 0x100 + 0x2a, 'B', 2)
+for model in range(1, 20):
+    write(people + 0x100 + 0x2b, 'B', model)
+    assert call(0x4513e0, people) == read(0x5a725a + model * 76, 'b')
+    classification_cases += 1
+# Native current-command recognition executes, rather than replacing the predicate.
+write(people + 0xc, 'I', 0)
+write(people + 0x2b, 'B', 4)
+write(people + 0x9b, 'H', 1)
+for state in (10, 19, 33):
+    write(people + 0x2c, 'B', state)
+    write(people + 0xa7, 'B', 0)
+    for model in (17, 31, 32, 8):
+        for cancelled in (False, True):
+            for assigned in (False, True):
+                write(0x938830 + 10, 'BB4H', model, cancelled, 0, 0, 0, 0)
+                write(people + 0x76, 'H', 64 if assigned else 0)
+                expected = 2 if state in (10, 33) and model in (17, 31, 32) and not cancelled and not assigned else (
+                    command_categories[0] if state == 10 else state_categories[state])
+                assert call(0x4513e0, people) == expected
+                classification_cases += 1
+print(f'PASS: {classification_cases} native category classifications including attached, housed and preacher-order cases')
+
+
+def install(roster, nearby=False):
+    cpu.mem_write(tribe, bytes(4 * 0xc65))
+    cpu.mem_write(people, bytes(0x4000))
+    cpu.mem_write(0x984591, bytes(512))
+    write(0x89c6f0, 'B', 0)
+    write(0x89c6c1, 'H', 0)
+    write(0x89d17c, 'I', 0)
+    write(0x89ce36, 'B', 0)
+    write(0x89c6e7, 'B', 0)
+    write(tribe + 0x881, 'I', people if roster else 0)
+    write(tribe + 0x24, 'HH', 0, 0)
+    write(tribe + 0x93d, 'I', 128 if nearby else 0)
+    for i, person in enumerate(roster):
+        p = people + i * 256
+        nxt = p + 256 if i + 1 < len(roster) else 0
+        write(p + 4, 'II', nxt, nxt)
+        write(p + 0x24, 'H', i + 1)
+        write(p + 0x2a, 'BBB', 1, person.get('model', 2), person.get('state', 19))
+        write(p + 0x2f, 'B', person.get('tribe', 0))
+        write(p + 0x10, 'II', person.get('flags4', 0x20000000), person.get('flags3', 0))
+        write(p + 0x3d, 'HH', person.get('x', 256 + i * 20), person.get('y', 256))
+        write(p + 0x76, 'H', person.get('assignment', 0))
+        write(p + 0x7a, 'B', person.get('selected', 0))
+        write(0x890390 + (i + 1) * 4, 'I', p)
+    return [bytes(cpu.mem_read(people + i * 256, 256)) for i in range(len(roster))]
+
+
+# Real command handler: selected row deselects one/all; Ctrl's five command is a
+# native no-op on selected people (it repeatedly sets, not toggles, selected bit).
+selection_cases = []
+for model in (0, 2, 3):
+    for category, state in ((1, 19), (2, 19), (3, 21), (4, 20)):
+        for mode, tag in (('single', 0x7d), ('five', 0x72), ('all', 0x55 if model else 0x54)):
+            roster = [dict(model=2 + i // 6, state=state, selected=128 if category == 1 else 0)
+                      for i in range(12)]
+            before = install(roster)
+            write(command + 4, 'IIB', (model << 16) | category, 0, tag)
+            call(0x43e8e0, tribe, command)
+            selected = [i for i in range(12) if read(people + i * 256 + 0x7a, 'B') & 128]
+            matches = [i for i in range(12) if not model or roster[i]['model'] == model]
+            if category == 1:
+                removed = matches[:1] if mode == 'single' else matches if mode == 'all' else []
+                expected = [i for i in range(12) if i not in removed]
+            else:
+                expected = matches[:1] if mode == 'single' else matches[:5] if mode == 'five' else matches
+            assert selected == expected, (model, category, mode, selected, expected)
+            for i in range(12):
+                raw = bytearray(cpu.mem_read(people + i * 256, 256))
+                raw[0x14:0x18] = before[i][0x14:0x18]
+                raw[0x7a] = before[i][0x7a]
+                assert bytes(raw) == before[i], 'command changed unrelated person state'
+            selection_cases.append(dict(model=model, category=category, mode=mode, selected=selected))
+print(f'PASS: {len(selection_cases)} complete task selection commands, including selected-row deselection and Ctrl behavior')
+
+# Full rebuild counts. Category 1 is both the classifier bucket and the separately
+# incremented selected bit; do not flatten this into a guessed browser action label.
+rebuild_cases = 0
+for nearby in (False, True):
+    for selected in (0, 128):
+        for state, category in enumerate(state_categories):
+            if state == 10:
+                category = command_categories[0]
+            roster = [dict(model=2 + i % 5, state=state, selected=selected,
+                           x=256 if i < 5 else 6400, flags4=0x20000000 | (0x800 if i == 10 else 0))
+                      for i in range(11)]
+            install(roster, nearby)
+            write(0x890324, 'I', people)
+            write(0x890330, 'I', 0)
+            write(0x89d17c, 'I', 32)  # suppress mana side effects; counter owner still executes
+            write(0x89d188, 'I', 1)
+            call(0x4ecac0)
+            for model in range(2, 7):
+                assert read(0x89dbef + model * 2, 'h') == 2
+                for task in range(6):
+                    per_person = int(task == category) + int(task == 1 and bool(selected))
+                    assert read(0x89dc6d + (model * 6 + task) * 2, 'h') == 2 * per_person
+                    assert read(0x89dcd9 + (model * 6 + task) * 2, 'h') == (per_person if nearby else 0)
+            rebuild_cases += 1
+print(f'PASS: {rebuild_cases} full native counter rebuilds; selected overlay, state buckets, ghosts and nearby tables')
+
+# Per-category right-click memory and cycling use actual native search/classifier.
+focus_cases = 0
+for category, state in ((1, 19), (2, 19), (3, 21), (4, 20)):
+    roster = [dict(model=2, state=state, selected=128 if category == 1 else 0) for _ in range(3)]
+    before = install(roster)
+    memory = 0x899ed3 + (2 * 6 + category) * 2
+    write(memory, 'H', 0)
+    for expected in (1, 2, 3, 1):
+        observed.clear()
+        call(0x4de810, 2, category, 0)
+        assert read(memory, 'H') == expected
+        assert observed[0x417ca0][0][0] == people + (expected - 1) * 256 + 0x3d
+        assert observed[0x504590] == [[people + (expected - 1) * 256, 0]]
+        assert before == [bytes(cpu.mem_read(people + i * 256, 256)) for i in range(3)]
+        focus_cases += 1
+print(f'PASS: {focus_cases} native task-category focus cycles; exact camera/panel targets and unchanged people')
+
+receipt = dict(executable=identity, probeSha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
+    languageSha256=hashlib.sha256(lang_raw).hexdigest(), descriptors=descriptors,
+    stateCategories=state_categories, commandCategories=command_categories,
+    checks=dict(callbacks=callback_cases, refresh=refresh_cases, classifications=classification_cases,
+                commands=len(selection_cases), rebuilds=rebuild_cases, focus=focus_cases),
+    selectedRowCommands=[case for case in selection_cases if case['category'] == 1],
+    limits=['No production implementation or parity claim.',
+            'Crafted native states establish arithmetic and predicates, not reachability of every state combination.',
+            'Vehicle descriptors recovered; complete vehicle selection/counter semantics are not exercised by this probe.',
+            'Rendered pixels are handled by the separate bounded raster probe.'])
+if args.output:
+    args.output.mkdir(parents=True, exist_ok=True)
+    (args.output / 'native-panel-contract.json').write_text(json.dumps(receipt, indent=2) + '\n')

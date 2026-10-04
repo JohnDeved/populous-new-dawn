@@ -1,0 +1,940 @@
+{
+  "executable": {
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "bytes": 2275840,
+    "debugDirectoryRva": 0,
+    "debugDirectorySize": 0
+  },
+  "probeSha256": "54eb014f7451c600092944d0e56d8ddd6ee3d0cbeab687b781d667b1e16f3db2",
+  "languageSha256": "e826c478746d666a3ea9ea36cb7804d1d226d5f83084230987b1de293066cf7d",
+  "descriptors": [
+    {
+      "address": "005cc6f0",
+      "model": 0,
+      "row": 0,
+      "rectangle": [
+        0,
+        6,
+        15,
+        34
+      ],
+      "sprite": 639,
+      "renderer": "004a0200",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a13b0",
+      "key": 0,
+      "tooltipId": 777,
+      "tooltip": "Currently selected Followers: {}deselect. Shift+{}deselect all. |}zoom."
+    },
+    {
+      "address": "005cc732",
+      "model": 0,
+      "row": 1,
+      "rectangle": [
+        0,
+        47,
+        15,
+        34
+      ],
+      "sprite": 641,
+      "renderer": "004a0200",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a13b0",
+      "key": 1,
+      "tooltipId": 783,
+      "tooltip": "Idle Followers: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cc774",
+      "model": 0,
+      "row": 2,
+      "rectangle": [
+        0,
+        88,
+        15,
+        34
+      ],
+      "sprite": 643,
+      "renderer": "004a0200",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a13b0",
+      "key": 2,
+      "tooltipId": 789,
+      "tooltip": "Housed Followers: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cc7b6",
+      "model": 0,
+      "row": 3,
+      "rectangle": [
+        0,
+        129,
+        15,
+        34
+      ],
+      "sprite": 645,
+      "renderer": "004a0200",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a13b0",
+      "key": 3,
+      "tooltipId": 795,
+      "tooltip": "Busy Followers: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cc7f8",
+      "model": 2,
+      "row": 0,
+      "rectangle": [
+        16,
+        6,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 10,
+      "tooltipId": 778,
+      "tooltip": "Currently selected Braves: {}deselect. Shift+{}deselect all. |}zoom."
+    },
+    {
+      "address": "005cc83a",
+      "model": 2,
+      "row": 1,
+      "rectangle": [
+        16,
+        47,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 11,
+      "tooltipId": 784,
+      "tooltip": "Idle Braves: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cc87c",
+      "model": 2,
+      "row": 2,
+      "rectangle": [
+        16,
+        88,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 12,
+      "tooltipId": 790,
+      "tooltip": "Housed Braves: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cc8be",
+      "model": 2,
+      "row": 3,
+      "rectangle": [
+        16,
+        129,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 13,
+      "tooltipId": 796,
+      "tooltip": "Busy Braves: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cc900",
+      "model": 3,
+      "row": 0,
+      "rectangle": [
+        32,
+        6,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 15,
+      "tooltipId": 779,
+      "tooltip": "Currently selected Warriors: {}deselect. Shift+{}deselect all. |}zoom."
+    },
+    {
+      "address": "005cc942",
+      "model": 3,
+      "row": 1,
+      "rectangle": [
+        32,
+        47,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 16,
+      "tooltipId": 785,
+      "tooltip": "Idle Warriors: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cc984",
+      "model": 3,
+      "row": 2,
+      "rectangle": [
+        32,
+        88,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 17,
+      "tooltipId": 791,
+      "tooltip": "Housed Warriors: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cc9c6",
+      "model": 3,
+      "row": 3,
+      "rectangle": [
+        32,
+        129,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 18,
+      "tooltipId": 797,
+      "tooltip": "Busy Warriors: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cca08",
+      "model": 6,
+      "row": 0,
+      "rectangle": [
+        48,
+        6,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 30,
+      "tooltipId": 780,
+      "tooltip": "Currently selected Firewarriors: {}deselect. Shift+{}deselect all. |}zoom."
+    },
+    {
+      "address": "005cca4a",
+      "model": 6,
+      "row": 1,
+      "rectangle": [
+        48,
+        47,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 31,
+      "tooltipId": 786,
+      "tooltip": "Idle Firewarriors: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cca8c",
+      "model": 6,
+      "row": 2,
+      "rectangle": [
+        48,
+        88,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 32,
+      "tooltipId": 792,
+      "tooltip": "Housed Firewarriors: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005ccace",
+      "model": 6,
+      "row": 3,
+      "rectangle": [
+        48,
+        129,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 33,
+      "tooltipId": 798,
+      "tooltip": "Busy Firewarriors: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005ccb10",
+      "model": 4,
+      "row": 0,
+      "rectangle": [
+        64,
+        6,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 20,
+      "tooltipId": 781,
+      "tooltip": "Currently selected Preachers: {}deselect. Shift+{}deselect all. |}zoom."
+    },
+    {
+      "address": "005ccb52",
+      "model": 4,
+      "row": 1,
+      "rectangle": [
+        64,
+        47,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 21,
+      "tooltipId": 787,
+      "tooltip": "Idle Preachers: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005ccb94",
+      "model": 4,
+      "row": 2,
+      "rectangle": [
+        64,
+        88,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 22,
+      "tooltipId": 793,
+      "tooltip": "Housed Preachers: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005ccbd6",
+      "model": 4,
+      "row": 3,
+      "rectangle": [
+        64,
+        129,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 23,
+      "tooltipId": 799,
+      "tooltip": "Busy Preachers: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005ccc18",
+      "model": 5,
+      "row": 0,
+      "rectangle": [
+        80,
+        6,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 25,
+      "tooltipId": 782,
+      "tooltip": "Currently selected Spies: {}deselect. Shift+{}deselect all. |}zoom."
+    },
+    {
+      "address": "005ccc5a",
+      "model": 5,
+      "row": 1,
+      "rectangle": [
+        80,
+        47,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 26,
+      "tooltipId": 788,
+      "tooltip": "Idle Spies: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005ccc9c",
+      "model": 5,
+      "row": 2,
+      "rectangle": [
+        80,
+        88,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 27,
+      "tooltipId": 794,
+      "tooltip": "Housed Spies: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cccde",
+      "model": 5,
+      "row": 3,
+      "rectangle": [
+        80,
+        129,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a0e70",
+      "left": "004a1240",
+      "right": "004a1340",
+      "refresh": "004a11e0",
+      "key": 28,
+      "tooltipId": 800,
+      "tooltip": "Busy Spies: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005ccd20",
+      "model": 0,
+      "row": 4,
+      "rectangle": [
+        0,
+        190,
+        15,
+        34
+      ],
+      "sprite": 653,
+      "renderer": "004a1580",
+      "left": "004a13c0",
+      "right": "004a14b0",
+      "refresh": "004a14e0",
+      "key": 0,
+      "tooltipId": 801,
+      "tooltip": "Total Boats Occupied: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005ccd62",
+      "model": 2,
+      "row": 4,
+      "rectangle": [
+        16,
+        190,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a1580",
+      "left": "004a13c0",
+      "right": "004a14b0",
+      "refresh": "004a14e0",
+      "key": 2,
+      "tooltipId": 802,
+      "tooltip": "Boats With Braves: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005ccda4",
+      "model": 3,
+      "row": 4,
+      "rectangle": [
+        32,
+        190,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a1580",
+      "left": "004a13c0",
+      "right": "004a14b0",
+      "refresh": "004a14e0",
+      "key": 3,
+      "tooltipId": 803,
+      "tooltip": "Boats With Warriors: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005ccde6",
+      "model": 6,
+      "row": 4,
+      "rectangle": [
+        48,
+        190,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a1580",
+      "left": "004a13c0",
+      "right": "004a14b0",
+      "refresh": "004a14e0",
+      "key": 6,
+      "tooltipId": 804,
+      "tooltip": "Boats With Firewarriors: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cce28",
+      "model": 4,
+      "row": 4,
+      "rectangle": [
+        64,
+        190,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a1580",
+      "left": "004a13c0",
+      "right": "004a14b0",
+      "refresh": "004a14e0",
+      "key": 4,
+      "tooltipId": 805,
+      "tooltip": "Boats With Preachers: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cce6a",
+      "model": 5,
+      "row": 4,
+      "rectangle": [
+        80,
+        190,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a1580",
+      "left": "004a13c0",
+      "right": "004a14b0",
+      "refresh": "004a14e0",
+      "key": 5,
+      "tooltipId": 806,
+      "tooltip": "Boats With Spies: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cceac",
+      "model": 0,
+      "row": 5,
+      "rectangle": [
+        0,
+        231,
+        15,
+        34
+      ],
+      "sprite": 647,
+      "renderer": "004a1580",
+      "left": "004a13c0",
+      "right": "004a14b0",
+      "refresh": "004a14e0",
+      "key": 8,
+      "tooltipId": 807,
+      "tooltip": "Total Balloons Occupied: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005cceee",
+      "model": 2,
+      "row": 5,
+      "rectangle": [
+        16,
+        231,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a1580",
+      "left": "004a13c0",
+      "right": "004a14b0",
+      "refresh": "004a14e0",
+      "key": 10,
+      "tooltipId": 808,
+      "tooltip": "Balloons with Braves: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005ccf30",
+      "model": 3,
+      "row": 5,
+      "rectangle": [
+        32,
+        231,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a1580",
+      "left": "004a13c0",
+      "right": "004a14b0",
+      "refresh": "004a14e0",
+      "key": 11,
+      "tooltipId": 809,
+      "tooltip": "Balloons with Warriors: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005ccf72",
+      "model": 6,
+      "row": 5,
+      "rectangle": [
+        48,
+        231,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a1580",
+      "left": "004a13c0",
+      "right": "004a14b0",
+      "refresh": "004a14e0",
+      "key": 14,
+      "tooltipId": 810,
+      "tooltip": "Balloons with Firewarriors: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005ccfb4",
+      "model": 4,
+      "row": 5,
+      "rectangle": [
+        64,
+        231,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a1580",
+      "left": "004a13c0",
+      "right": "004a14b0",
+      "refresh": "004a14e0",
+      "key": 12,
+      "tooltipId": 811,
+      "tooltip": "Balloons with Preachers: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    },
+    {
+      "address": "005ccff6",
+      "model": 5,
+      "row": 5,
+      "rectangle": [
+        80,
+        231,
+        15,
+        34
+      ],
+      "sprite": 0,
+      "renderer": "004a1580",
+      "left": "004a13c0",
+      "right": "004a14b0",
+      "refresh": "004a14e0",
+      "key": 13,
+      "tooltipId": 812,
+      "tooltip": "Balloons with Spies: {}select. Ctrl+{}select 5. Shift+{}select all. |}zoom."
+    }
+  ],
+  "stateCategories": [
+    0,
+    2,
+    0,
+    0,
+    2,
+    0,
+    0,
+    0,
+    0,
+    0,
+    4,
+    1,
+    1,
+    2,
+    1,
+    0,
+    0,
+    2,
+    2,
+    2,
+    4,
+    3,
+    0,
+    4,
+    2,
+    4,
+    2,
+    0,
+    0,
+    4,
+    2,
+    4,
+    0,
+    2,
+    0,
+    4,
+    4,
+    0,
+    4,
+    4,
+    4,
+    2,
+    0,
+    4,
+    0,
+    0
+  ],
+  "commandCategories": [
+    0,
+    0,
+    0,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    0,
+    4,
+    4,
+    4,
+    4,
+    4,
+    0,
+    4,
+    0,
+    4,
+    4,
+    4,
+    0,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4,
+    4
+  ],
+  "checks": {
+    "callbacks": 1152,
+    "refresh": 80,
+    "classifications": 194,
+    "commands": 36,
+    "rebuilds": 184,
+    "focus": 16
+  },
+  "selectedRowCommands": [
+    {
+      "model": 0,
+      "category": 1,
+      "mode": "single",
+      "selected": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "model": 0,
+      "category": 1,
+      "mode": "five",
+      "selected": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "model": 0,
+      "category": 1,
+      "mode": "all",
+      "selected": []
+    },
+    {
+      "model": 2,
+      "category": 1,
+      "mode": "single",
+      "selected": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "model": 2,
+      "category": 1,
+      "mode": "five",
+      "selected": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "model": 2,
+      "category": 1,
+      "mode": "all",
+      "selected": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "model": 3,
+      "category": 1,
+      "mode": "single",
+      "selected": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "model": 3,
+      "category": 1,
+      "mode": "five",
+      "selected": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ]
+    },
+    {
+      "model": 3,
+      "category": 1,
+      "mode": "all",
+      "selected": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ]
+    }
+  ],
+  "limits": [
+    "No production implementation or parity claim.",
+    "Crafted native states establish arithmetic and predicates, not reachability of every state combination.",
+    "Vehicle descriptors recovered; complete vehicle selection/counter semantics are not exercised by this probe.",
+    "Rendered pixels are handled by the separate bounded raster probe."
+  ]
+}
