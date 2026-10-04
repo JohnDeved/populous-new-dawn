@@ -1,5 +1,5 @@
 import { spiralCell, cellsNear } from './native-math.ts'
-import type { SelectionUnit } from './computer-selection.ts'
+import { spyDisguisedFrom, type SelectionUnit } from './computer-selection.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import {
   filterSpellEntries,
@@ -12,6 +12,7 @@ import {
 } from './spell-casting.ts'
 import { buildingInsidePoint, type BuildingShapePose } from './building-shapes.ts'
 import type { SpellStock } from './mana.ts'
+export { spyDisguisedFrom } from './computer-selection.ts'
 
 export type SpellTargetUnit = Pick<
   SelectionUnit,
@@ -37,14 +38,6 @@ const summaryGroup = [
   'firewarriors',
   'warriors',
 ] as const
-
-// 0x4de7b0. The upper two bits identify a completed disguise's apparent tribe.
-export function spyDisguisedFrom(
-  p: Pick<SpellTargetUnit, 'model' | 'tribe' | 'disguise'>,
-  tribe: number
-) {
-  return p.model === 5 && (p.disguise & 63 ? p.tribe === tribe : p.disguise >>> 6 === tribe)
-}
 
 // 0x4f4030: square area traversal, enemy counts/weight and force requirements.
 // Optional preacher assessment is used by callers outside spell dispatch.
