@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { bindGame } from './browser-game.mjs'
+import { waitForCheckpointReadback } from './checkpoint-readback.mjs'
 import { parseOptions, runLocalBrowser } from './local-render/harness.mjs'
 
 const options = parseOptions(process.argv.slice(2))
@@ -33,7 +34,7 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
   await page.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   // Read back the persisted state: an in-session save alone does not prove a
   // fresh-page checkpoint. No storage writes outside the shipped save control.
-  await page.waitForFunction(async ids => {
+  const persisted = await waitForCheckpointReadback(() => page.evaluate(async ids => {
     const db = await new Promise((resolve, reject) => {
       const request = indexedDB.open('populous-new-dawn', 1)
       request.onsuccess = () => resolve(request.result)
@@ -48,7 +49,8 @@ const receipt = await runLocalBrowser(options, async ({ page, openMission, outpu
       const victim = saved?.world?.units.find(unit => unit.id === ids.victim)
       return victim?.native?.state === 23 && victim.native.workTarget === ids.preacher
     } finally { db.close() }
-  }, acquired.ids)
+  }, acquired.ids))
+  assert.equal(persisted, true, 'Saved checkpoint never persisted its state23/owner')
   await page.getByRole('button', { name: 'Continue Game', exact: false }).click()
   await page.waitForFunction(() => !window.testStore.getWorld().paused)
   const cancelled = await page.evaluate(async () => {

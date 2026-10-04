@@ -41,7 +41,7 @@ models, or campaign-wide parity.
 
 ## Reproducible checks
 
-- `node --test tests/mission3-natural-preacher.test.mjs`
+- `node --test tests/mission3-natural-preacher.test.mjs tests/checkpoint-readback.test.mjs`
 - With installed official sandboxed Chrome Headless Shell selected through
   `POPULOUS_BROWSER`: `node scripts/check-browser-mission3-natural-preacher.mjs --port 4356 --output work/orchestration/mission3-preacher/browser --timeout 180000`
 
@@ -89,7 +89,7 @@ outside this bounded proof.
 
 ## Planner disposition
 
-The plan against base `0b0719f` reports the four new evidence/tooling paths as
+The plan against base `0b0719f` reports the six new evidence/tooling paths as
 unmapped and conservatively selects `npm run check`; none is silently omitted.
 That aggregate passed all 941 tests, typecheck, parity and orchestration at
 `8ebe75442acf3903a958f3f5206fe390c89839cf`. The explicitly added manual acceptance
@@ -99,3 +99,14 @@ carried only after verifying identical application, public assets, worker, packa
 and build/config objects against its source-bound passed receipt. No new native
 execution, maintained-TypeScript edit, hardware benchmark or parity recording is
 required or claimed by this verification-only diff.
+
+Integration review then identified a checker-only save-readback guard weakness:
+an async `waitForFunction` predicate did not establish repeated awaited reads in
+the installed Playwright. The passed run still independently proved persistence
+through fresh-page Load Game and state-23 ownership. The checker now explicitly
+awaits each IndexedDB read in a bounded loop and asserts a true result before
+continuing. `tests/checkpoint-readback.test.mjs` covers asynchronous false-to-true
+reads, no overlap, bounded all-false failure and rejected reads. The earlier
+browser timing/pixel result belongs to its stated source; this guard repair does
+not create a new browser or timing result. Runtime and acquisition commands remain
+unchanged.
