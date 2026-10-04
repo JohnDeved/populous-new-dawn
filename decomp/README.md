@@ -5144,3 +5144,12 @@ no parity credit is added.
 complete authored Mission1/2 branch to normal allocation, people/building scans,
 territory/alliance filters, response flags, cleanup and checkpoint continuation.
 Unhooked native cases retain the separate Mission3/type8 and Spy boundaries.
+
+## Native Followers lower task panel
+
+[Recovered task-panel evidence](research/follower-task-panel.md) binds the original
+36 descriptors, Selected/Idle/Housed/Busy and occupied-transport rows, eighteen HFX
+sprites, native count/classification owner, category-specific selection/deselection
+and right-click focus. It includes executed native draw-request reconstructions,
+not original-game screenshots. The task-row probes are executable; complete
+transport interaction and browser integration remain explicit boundaries.
