@@ -212,7 +212,48 @@ async function entityPoint(page, collection, id) {
           )
             return { x: event.clientX, y: event.clientY }
         }
-      throw new Error(`No rendered hit point for ${collection} object ${id}`)
+      // Original native models need a visible triangle, not merely an anchor or
+      // fixed-size box. Retain the old search first, then sample this target's
+      // current submitted geometry without changing runtime hit ownership.
+      const modelDetails = [], candidates = []
+      if (unit) {
+        const hit = scene.picking.personBounds(id)
+        if (hit) candidates.push({ x: hit.x + hit.width / 2, y: hit.y + hit.height / 2 })
+      } else mesh?.traverse(child => {
+        if (child.userData.nativeModel === undefined || !child.visible) return
+        const commands = scene.picking.model(child, JSON.stringify(scene.view.projection)),
+          faces = commands.filter(command => command.kind === 'model'),
+          hit = commands.find(command => command.kind === 'bounds')?.bounds
+        modelDetails.push({ model: child.userData.nativeModel, bounds: hit,
+          faces: faces.length, submitted: !!scene.view.painter.source(child) })
+        for (const { points } of faces)
+          for (const weights of [[1, 1, 1], [2, 1, 1], [1, 2, 1], [1, 1, 2]]) {
+            const total = weights.reduce((sum, weight) => sum + weight, 0)
+            candidates.push({
+              x: points.reduce((sum, point, i) => sum + point.x * weights[i], 0) / total,
+              y: points.reduce((sum, point, i) => sum + point.y * weights[i], 0) / total,
+            })
+          }
+      })
+      const diagnostic = { collection, id, turn: world.turn, center,
+        object: { x: object.x, z: object.z, model: object.model },
+        mesh: mesh && { position: mesh.position.toArray(), visible: mesh.visible },
+        camera: { position: scene.cameraPosition, viewPoint: scene.viewPoint, bearing: scene.cameraBearing },
+        projection: scene.view.projection, models: modelDetails,
+        legacyScan: { left: center.x - (unit ? 36 : 100), right: center.x + (unit ? 36 : 100),
+          top: center.y - (unit ? 24 : 140), bottom: center.y + (unit ? 24 : 60), step: 4 } }
+      for (const candidate of candidates) {
+        const event = { clientX: bounds.left + candidate.x, clientY: bounds.top + candidate.y },
+          person = scene.picking.pickPerson(event),
+          picked = unit ? person : person !== null ? undefined : scene.pickWorldObject(event)?.id
+        if (picked === id && document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement) {
+          const pickingDiagnostic = { ...diagnostic, hit: event, source: 'actual target triangle geometry' }
+          ;(globalThis.campaignPickDiagnostics ??= []).push(pickingDiagnostic)
+          return { x: event.clientX, y: event.clientY, pickingDiagnostic }
+        }
+      }
+      ;(globalThis.campaignPickDiagnostics ??= []).push(diagnostic)
+      throw new Error(`No rendered hit point for ${collection} object ${id}: ${JSON.stringify(diagnostic)}`)
     },
     { collection, id }
   )
@@ -259,6 +300,7 @@ async function groundPoint(page, point, buildingKind, maxRadius = 12) {
 
 async function clickEntity(page, collection, id) {
   const point = await entityPoint(page, collection, id)
+  if (point.pickingDiagnostic) console.log(JSON.stringify({ pickingDiagnostic: point.pickingDiagnostic }))
   await page.mouse.click(point.x, point.y)
 }
 
