@@ -313,7 +313,7 @@ export function produceComputerTasks(
 // payload becomes unused scratch in 0x4c5cf0; the scanner reads territory bits.
 export function requestEarlyResponseTask(ai: ComputerQueue, states: number) {
   if (!(states & 512) || ai.tasks.some(task => task.flags & 1 && task.type === 9)) return false
-  const task = ai.tasks.find(task => !(task.flags & 1))
+  const task = ai.tasks.find(candidate => !(candidate.flags & 1))
   if (!task) return false
   Object.assign(task, {
     flags: ((task.flags & ~2) | 1) >>> 0,
@@ -324,7 +324,7 @@ export function requestEarlyResponseTask(ai: ComputerQueue, states: number) {
   return true
 }
 
-export type EarlyResponseInput = {
+export interface EarlyResponseInput {
   tribe: number
   tribeCount: number
   alliances: number
