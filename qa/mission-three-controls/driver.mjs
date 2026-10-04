@@ -560,11 +560,13 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.ok(ids.vault && ids.erosion); saveProgress()
     await skipFlyby(); await waitFor({ type: 'shaman-ready' }, 'movement')
     await pause(); await snapshot('opening')
+    if ((await read()).status === 'lost') throw new MissionDefeat()
     log({ action: 'awaiting-input', directory: commandsPath, next: '0001.json', paused: true })
     for (index = 1; index <= 500; index++) {
       const path = resolve(commandsPath, `${String(index).padStart(4, '0')}.json`)
       while (!existsSync(path)) {
         signal.throwIfAborted()
+        if (await page.evaluate(() => window.testSceneRef.current.world.status === 'lost')) throw new MissionDefeat()
         if (Date.now() - startWall >= wallLimit) throw new IncompleteRun('wall-envelope', 'Outer wall resource envelope reached awaiting commands')
         await sleep(1000)
       }
@@ -584,17 +586,21 @@ export default async function missionThreeControls({ page, output, root, signal,
             return result
           }
         }
-        await pause(); await snapshot(`batch-${String(index).padStart(4, '0')}`)
+        await pause()
+        const boundary = await snapshot(`batch-${String(index).padStart(4, '0')}`)
+        if (boundary.status === 'lost') throw new MissionDefeat()
       } catch (error) {
         if (error instanceof IncompleteRun || error instanceof MissionDefeat) throw error
         failures.push({ index, inputSha256: hash, at: new Date().toISOString(), error: String(error?.stack ?? error) })
         saveProgress(); await pause().catch(() => {})
-        await snapshot(`batch-${String(index).padStart(4, '0')}-failed`).catch(() => {})
+        const diagnostic = await snapshot(`batch-${String(index).padStart(4, '0')}-failed`).catch(() => null)
+        if (diagnostic?.status === 'lost') throw new MissionDefeat()
         log({ action: 'command-failed', index, error: String(error), retained: true })
         let finishing = false
         try { const parsed = JSON.parse(bytes); finishing = Array.isArray(parsed) && parsed.some(command => command.action === 'finish') } catch {}
         if (finishing) throw error
       }
+      if (await page.evaluate(() => window.testSceneRef.current.world.status === 'lost')) throw new MissionDefeat()
       log({ action: 'awaiting-input', next: `${String(index + 1).padStart(4, '0')}.json`, paused: true })
     }
     throw new IncompleteRun('command-limit', 'Command count limit reached without completed acceptance')
