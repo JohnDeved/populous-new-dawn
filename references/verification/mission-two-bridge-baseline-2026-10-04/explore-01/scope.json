@@ -1,0 +1,6 @@
+{
+  "scope": "Read-only application baseline: ordinary Shaman worship of Mission 2 bridge head and real-clock effect completion only",
+  "expectedApplicationDefect": "Current linked bridge starts at shrine (-113,113), whereas independently probed native composition uses authored effect origin (-77,-105); both end at (-61,-105).",
+  "excluded": ["Full mission victory", "Native parity pass", "Construction", "Training", "Checkpoint", "Hardware performance"],
+  "method": "Public All missions > Mission 2, normal Shaman HUD selection, ordinary minimap/canvas shrine click, real frame clock, UI pause/resume. Terrain/effect reads only."
+}

@@ -1,0 +1,29 @@
+{"at":"2026-10-04T13:26:39.047Z","operation":"wait-start","expression":"window.missionTwoObserveReady(window.testSceneRef.current.world).ready","timeout":60000,"turn":76}
+{"at":"2026-10-04T13:27:00.229Z","operation":"wait-complete","expression":"window.missionTwoObserveReady(window.testSceneRef.current.world).ready","turn":330}
+{"at":"2026-10-04T13:27:01.639Z","commandIndex":1,"command":{"action":"read","expression":"(() => { const w=window.testSceneRef.current.world; return { turn:w.turn,paused:w.paused,heights:Array.from(w.land.heights),flags:Array.from(w.land.flags),effects:w.effects.filter(f=>f.bridge).map(f=>({id:f.id,x:f.x,z:f.z,bridge:f.bridge})),buildings:w.buildings.map(b=>({id:b.id,kind:b.kind,team:b.team,x:b.x,z:b.z,progress:b.progress})) } })()"}}
+{"at":"2026-10-04T13:27:01.856Z","commandIndex":1,"command":{"action":"select","kind":"shaman"}}
+{"at":"2026-10-04T13:27:02.658Z","operation":"selected","kind":"shaman","modifier":"Control","ids":[54],"turn":337}
+{"at":"2026-10-04T13:27:02.658Z","commandIndex":1,"command":{"action":"resume"}}
+{"at":"2026-10-04T13:27:03.275Z","commandIndex":1,"command":{"action":"until","expression":"window.missionTwoObserveReady(window.testSceneRef.current.world).ready","timeout":10000}}
+{"at":"2026-10-04T13:27:03.339Z","operation":"wait-start","expression":"window.missionTwoObserveReady(window.testSceneRef.current.world).ready","timeout":10000,"turn":339}
+{"at":"2026-10-04T13:27:03.507Z","operation":"wait-complete","expression":"window.missionTwoObserveReady(window.testSceneRef.current.world).ready","turn":341}
+{"at":"2026-10-04T13:27:03.507Z","commandIndex":1,"command":{"action":"entity","collection":"shrines","id":55}}
+{"at":"2026-10-04T13:27:03.711Z","operation":"minimap-click","point":{"id":55,"kind":"bridgeEffect","x":-113,"z":113,"required":1,"work":0,"target":45,"progress":0,"uses":0,"remaining":1,"followers":0,"active":true,"point":{"x":1768.1875,"y":518.9375}},"input":{"d":53.907327887774215,"x":140,"y":92}}
+{"at":"2026-10-04T13:27:05.471Z","operation":"entity-pick","attempt":0,"x":815.625,"y":300.25,"center":{"x":815.625,"y":395.25},"collection":"shrines","id":55,"turn":357}
+{"at":"2026-10-04T13:27:05.978Z","operation":"worship-order-accepted","id":55,"selected":[54],"turn":370}
+{"at":"2026-10-04T13:27:05.979Z","commandIndex":1,"command":{"action":"until","expression":"window.testSceneRef.current.world.shrines.find(s=>s.id===55).uses>=1","timeout":180000}}
+{"at":"2026-10-04T13:27:06.042Z","operation":"wait-start","expression":"window.testSceneRef.current.world.shrines.find(s=>s.id===55).uses>=1","timeout":180000,"turn":371}
+{"at":"2026-10-04T13:27:35.687Z","operation":"wait-complete","expression":"window.testSceneRef.current.world.shrines.find(s=>s.id===55).uses>=1","turn":726}
+{"at":"2026-10-04T13:27:35.687Z","commandIndex":1,"command":{"action":"pause"}}
+{"at":"2026-10-04T13:27:37.218Z","commandIndex":1,"command":{"action":"read","expression":"(() => { const w=window.testSceneRef.current.world; return { turn:w.turn,paused:w.paused,heights:Array.from(w.land.heights),flags:Array.from(w.land.flags),effects:w.effects.filter(f=>f.bridge).map(f=>({id:f.id,x:f.x,z:f.z,bridge:f.bridge})),buildings:w.buildings.map(b=>({id:b.id,kind:b.kind,team:b.team,x:b.x,z:b.z,progress:b.progress})) } })()"}}
+{"at":"2026-10-04T13:27:37.439Z","commandIndex":1,"command":{"action":"map","point":{"x":-87,"z":-124}}}
+{"at":"2026-10-04T13:27:37.614Z","operation":"minimap-click","point":{"x":-87,"z":-124},"input":{"d":17,"x":107,"y":93}}
+{"at":"2026-10-04T13:27:38.744Z","commandIndex":1,"command":{"action":"mark","name":"bridge-triggered"}}
+{"at":"2026-10-04T13:27:39.527Z","commandIndex":1,"command":{"action":"resume"}}
+{"at":"2026-10-04T13:27:40.323Z","commandIndex":1,"command":{"action":"until","expression":"!window.testSceneRef.current.world.effects.some(f=>f.bridge)","timeout":45000}}
+{"at":"2026-10-04T13:27:40.470Z","operation":"wait-start","expression":"!window.testSceneRef.current.world.effects.some(f=>f.bridge)","timeout":45000,"turn":745}
+{"at":"2026-10-04T13:27:44.099Z","operation":"wait-complete","expression":"!window.testSceneRef.current.world.effects.some(f=>f.bridge)","turn":790}
+{"at":"2026-10-04T13:27:44.099Z","commandIndex":1,"command":{"action":"pause"}}
+{"at":"2026-10-04T13:27:44.609Z","commandIndex":1,"command":{"action":"read","expression":"(() => { const w=window.testSceneRef.current.world; return { turn:w.turn,paused:w.paused,heights:Array.from(w.land.heights),flags:Array.from(w.land.flags),effects:w.effects.filter(f=>f.bridge).map(f=>({id:f.id,x:f.x,z:f.z,bridge:f.bridge})),buildings:w.buildings.map(b=>({id:b.id,kind:b.kind,team:b.team,x:b.x,z:b.z,progress:b.progress})) } })()"}}
+{"at":"2026-10-04T13:27:44.813Z","commandIndex":1,"command":{"action":"mark","name":"bridge-completed"}}
+{"at":"2026-10-04T13:27:45.457Z","commandIndex":1,"command":{"action":"finish"}}

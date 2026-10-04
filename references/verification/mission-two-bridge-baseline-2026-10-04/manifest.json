@@ -1,0 +1,182 @@
+{
+  "sourceApplication": "f0f8880127409df0c2aee569c48cfad45351faf0",
+  "sourceFingerprint": "fc271b9c06a8b999ee06abf8f307af1271200b3bf0f601e684f3c8c1986c3a0e",
+  "method": "Byte-identical copies of retained local browser artifacts; no gameplay/native-parity pass is implied by this inventory",
+  "files": [
+    {
+      "path": "explore-01/000-opening.json",
+      "bytes": 16552,
+      "sha256": "c2002a12f504029d8b3ccbd5b497105ff24c182481c7256718980ce7733aa8f8"
+    },
+    {
+      "path": "explore-01/000-opening.png",
+      "bytes": 1762937,
+      "sha256": "3a9a365ada6bee1002942619e8ca058d7fe20b84b5abb6e015f392d3e8d63e65"
+    },
+    {
+      "path": "explore-01/001-failed.json",
+      "bytes": 18965,
+      "sha256": "5f4ccf23523faa9782b9155e17006766f1d15df86954f045630ac5a6c01e25fb"
+    },
+    {
+      "path": "explore-01/001-failed.png",
+      "bytes": 1802787,
+      "sha256": "7409bff611b9919022e9cdeadf055ba196774c9dcf845220b78913c584dce8b3"
+    },
+    {
+      "path": "explore-01/actions.jsonl",
+      "bytes": 2004,
+      "sha256": "dd68607b25d046cf28a217fc886c440a117e599bd2cb3450b5779bead6ca7f7b"
+    },
+    {
+      "path": "explore-01/command-1.json",
+      "bytes": 1967,
+      "sha256": "529fed868f3b79265e84325171d01ac06e135e13ee831b45e20b87fcca54fd87"
+    },
+    {
+      "path": "explore-01/command-failures.json",
+      "bytes": 672,
+      "sha256": "b08c3c1f6cc8ec76972f0ca906c521d10ff159373749538e280806f2d545ce25"
+    },
+    {
+      "path": "explore-01/error-1.txt",
+      "bytes": 623,
+      "sha256": "14090be48857f797ea667e72ca584881d34492e758876bc16af9fbd247abcddc"
+    },
+    {
+      "path": "explore-01/explore.mjs",
+      "bytes": 16412,
+      "sha256": "4031aec9b59a44c611172f110cf40f8acddc1d4a5e70e6b8516a760f259092af"
+    },
+    {
+      "path": "explore-01/extra-1.json",
+      "bytes": 316373,
+      "sha256": "c494a1f3dcbdbd9fabbf81e6b0f56d4bfa06667142877f2d5c8b36cb00619af6"
+    },
+    {
+      "path": "explore-01/failure-0.png",
+      "bytes": 1810445,
+      "sha256": "6e5bf91a1613c0808d40a823718b1be85d937e26cb3be38c1566a6bd0bb8a44e"
+    },
+    {
+      "path": "explore-01/failure-explanation.md",
+      "bytes": 523,
+      "sha256": "78e29bff1e7107006670584538c5b937588074c5a0b434c80b7dc78ffe55e09c"
+    },
+    {
+      "path": "explore-01/receipt.json",
+      "bytes": 2924,
+      "sha256": "d5749ad6a5a6897e8d211e5ffa03f710e567d7481a582195f9ba0736bb493db5"
+    },
+    {
+      "path": "explore-01/scenario-inputs.json",
+      "bytes": 119,
+      "sha256": "780f1faaa34fbd33a4f7946a52e1103d67672c5ee63998a87569eb9a739fad4d"
+    },
+    {
+      "path": "explore-01/scope.json",
+      "bytes": 638,
+      "sha256": "30325946a89226af8835349707e73df8e9d5c41a2e10209f382c39a041a856ea"
+    },
+    {
+      "path": "explore-01/server.log",
+      "bytes": 827,
+      "sha256": "acfb29c07227fb2f415333d0dec53aa9e11a9c17f90f31db079d6f2d91675a33"
+    },
+    {
+      "path": "explore-02/000-opening.json",
+      "bytes": 16568,
+      "sha256": "1bcc85e95a0ac9841d1b886a2675096e2cc2205ca3b453ac91367f4f30b6eee6"
+    },
+    {
+      "path": "explore-02/000-opening.png",
+      "bytes": 1762811,
+      "sha256": "7f96c6b472bd8828277fe929c1843387ba2655229418b30121fdde165356fa6d"
+    },
+    {
+      "path": "explore-02/actions.jsonl",
+      "bytes": 4898,
+      "sha256": "ca69116757b9db465d6acb73a4b5cfdd8d3df1714fb54e583c5ef3f11d8b39ba"
+    },
+    {
+      "path": "explore-02/command-1.json",
+      "bytes": 2112,
+      "sha256": "b15e43f7db0303fdd0446a32d670a0c7140a1da2f251c35d3cff6cd3500fc315"
+    },
+    {
+      "path": "explore-02/explore.mjs",
+      "bytes": 17031,
+      "sha256": "32ae936f84ae7163e90f70a5bcac12cbd35a491964bda3424d42bbe7f2072693"
+    },
+    {
+      "path": "explore-02/extra-1.json",
+      "bytes": 949752,
+      "sha256": "852951bada4c59b906eb4d23b7bd63e2e22d4c7556e91b02a12b3a551a4e03e0"
+    },
+    {
+      "path": "explore-02/final.json",
+      "bytes": 17489,
+      "sha256": "47fff5829896430ed5fd708d954d2b512245a95a698b7ce9e59c6a7577bd22d7"
+    },
+    {
+      "path": "explore-02/final.png",
+      "bytes": 1646875,
+      "sha256": "cdcc122266074d87ded8bf653dc90b8aad2919e5eb89085362cbfb26c88bc675"
+    },
+    {
+      "path": "explore-02/milestone-bridge-completed.json",
+      "bytes": 17489,
+      "sha256": "14af1788999996ad295a490a12cb2973ce18fcf9e42c34a3d65a4211419e1d8a"
+    },
+    {
+      "path": "explore-02/milestone-bridge-completed.png",
+      "bytes": 1634831,
+      "sha256": "e0fa8eefbf1824ee133034b081f154dd9617b17c02a27173aa848ca6b637f5a1"
+    },
+    {
+      "path": "explore-02/milestone-bridge-triggered.json",
+      "bytes": 77325,
+      "sha256": "8ef32ce22183ce297355c79fd832da506e77cebdacb7e0f55ed2a1fed5de04e2"
+    },
+    {
+      "path": "explore-02/milestone-bridge-triggered.png",
+      "bytes": 1857453,
+      "sha256": "9151924be09f8ab821f032c5956520126991dfeaba1a37d04d6423c0c11ec505"
+    },
+    {
+      "path": "explore-02/milestones.json",
+      "bytes": 192,
+      "sha256": "436d11b180d036a0b30eac8533a36670b273fc7615a647b017afe353d724a4bd"
+    },
+    {
+      "path": "explore-02/receipt.json",
+      "bytes": 23962,
+      "sha256": "46efbabb342fbe240af62fa9069ef557c34575ff2b7b4037d1e48d41c3b37e3f"
+    },
+    {
+      "path": "explore-02/scenario-inputs.json",
+      "bytes": 119,
+      "sha256": "5542554f1d80390425d150ac171f80351631196dea67712303b9bf3105cc3882"
+    },
+    {
+      "path": "explore-02/scope.json",
+      "bytes": 811,
+      "sha256": "3a7f60bddcd49cc4a33fa2e20f9466fa7b739321d4cdd7b64a18f05d470a4a47"
+    },
+    {
+      "path": "explore-02/server.log",
+      "bytes": 575,
+      "sha256": "df4ba7a93d371ff47683adae61a882661298d090be125f90e64863730c226e72"
+    },
+    {
+      "path": "plan.md",
+      "bytes": 3884,
+      "sha256": "bebf83a8cd3cfb7c1649ad4ccf95ccecb88485120cd65c889d9380bb25a40416"
+    },
+    {
+      "path": "source-preflight.json",
+      "bytes": 3744,
+      "sha256": "5d38057e5327d83389c1d19b1ef14d94b55cef774a1b22d253d6c4d8ef019a12"
+    }
+  ]
+}

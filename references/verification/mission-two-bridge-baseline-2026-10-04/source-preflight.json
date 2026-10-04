@@ -1,0 +1,128 @@
+{
+  "method": "Read-only source planning on a new Node world, not browser acceptance or a native-game playthrough",
+  "at": "2026-10-04T13:03:27.946Z",
+  "source": "b8465001a618b97ded7d7a7cd4afc4a1fc7240f5",
+  "clock": {
+    "speed": 1,
+    "turnsPerSecond": 12
+  },
+  "opening": {
+    "unlockedCamp": true,
+    "shots": {
+      "blast": 4,
+      "convertWild": 0,
+      "hypnotise": 0,
+      "ghostArmy": 0,
+      "bridge": 0,
+      "lightning": 0,
+      "flatten": 0,
+      "erosion": 0,
+      "swamp": 0,
+      "firestorm": 0,
+      "earthquake": 0,
+      "angel": 0,
+      "volcano": 0,
+      "tornado": 0,
+      "shield": 0,
+      "invisibility": 0,
+      "armageddon": 0,
+      "bloodlust": 0,
+      "teleport": 0,
+      "swarm": 0
+    },
+    "blueBraveInitialization": "The authored wild people convert through the normal level-start sequence; browser startup will wait for the existing readiness observer."
+  },
+  "shrines": [
+    {
+      "id": 23,
+      "kind": "vault",
+      "x": 89,
+      "z": 111,
+      "required": 1,
+      "target": 32,
+      "remaining": 1,
+      "growth": 1,
+      "minimumActiveWorkTurns": 128,
+      "minimumActiveWorkSeconds": 10.666666666666666
+    },
+    {
+      "id": 55,
+      "kind": "bridgeEffect",
+      "x": -113,
+      "z": 113,
+      "required": 1,
+      "target": 45,
+      "remaining": 1,
+      "growth": 1,
+      "minimumActiveWorkTurns": 180,
+      "minimumActiveWorkSeconds": 15,
+      "bridgeTarget": {
+        "x": -61,
+        "z": -105
+      }
+    },
+    {
+      "id": 56,
+      "kind": "tornado",
+      "x": -59,
+      "z": -105,
+      "required": 2,
+      "target": 82,
+      "remaining": 3,
+      "growth": 1,
+      "minimumActiveWorkTurns": 328,
+      "minimumActiveWorkSeconds": 27.333333333333332
+    }
+  ],
+  "placements": [
+    {
+      "kind": "camp",
+      "x": -99,
+      "z": -105,
+      "error": null
+    },
+    {
+      "kind": "hut",
+      "x": -96,
+      "z": -124,
+      "error": null
+    },
+    {
+      "kind": "hut",
+      "x": -92,
+      "z": -116,
+      "error": null
+    }
+  ],
+  "strategy": [
+    "Start through public All missions > Mission 2, independent of campaign profile; do not claim Mission 1 continuation.",
+    "Shaman worships the one-person bridge head while Braves build camp and housing.",
+    "Each five-Brave training group is selected through Ctrl-HUD with cleared prior selection; record builder IDs retained outside group.",
+    "The Tornado head needs at least two concurrent followers for efficient full-rate work, three reward uses; do not send the entire building economy.",
+    "Train enough Warriors for escorted combat; do not retain the fixed-turn diagnostic's 5000/2500-turn idle waits.",
+    "Save/await committed exact-turn IDB read/reload/Load Game using the shipped menu. Verify identities and acquired state.",
+    "Range and target picking are observations; all actual actions use mouse/keyboard. Keep legitimate rejected commands and slow software-render evidence distinct from defects."
+  ],
+  "sourceInputs": [
+    {
+      "path": "app/worship.ts",
+      "sha256": "f0e60f01e2b164e5d9e0ce6b8bd595ae3e4ca5f62ced9ef7c3e57dfb1ff75618"
+    },
+    {
+      "path": "app/world-initialization.ts",
+      "sha256": "c5f55c9e1b0aabab4f0a7f84e731a23297c313fb8c192449b08889a2bef9718a"
+    },
+    {
+      "path": "app/game-clock.ts",
+      "sha256": "826025bb4aab92a7ccb86801f854cde5675659e842a6563f585f4e591702c13a"
+    },
+    {
+      "path": "scripts/campaign-start-readiness.mjs",
+      "sha256": "214ffc2ce95ea039328e356d493ba8beb887e2d5ef1084b672fb0413fac48d28"
+    },
+    {
+      "path": "scripts/check-browser-campaign-natural-victory.mjs",
+      "sha256": "993a24ea7fb026bec9efa18502eca0daefc835cc930011b711185306b95ffe72"
+    }
+  ]
+}

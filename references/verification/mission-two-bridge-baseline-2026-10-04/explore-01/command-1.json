@@ -1,0 +1,63 @@
+[
+  {
+    "action": "read",
+    "expression": "(() => { const w=window.testSceneRef.current.world; return { turn:w.turn,paused:w.paused,heights:Array.from(w.land.heights),flags:Array.from(w.land.flags),effects:w.effects.filter(f=>f.bridge).map(f=>({id:f.id,x:f.x,z:f.z,bridge:f.bridge})),buildings:w.buildings.map(b=>({id:b.id,kind:b.kind,team:b.team,x:b.x,z:b.z,progress:b.progress})) } })()"
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "entity",
+    "collection": "shrines",
+    "id": 55
+  },
+  {
+    "action": "resume"
+  },
+  {
+    "action": "until",
+    "expression": "window.testSceneRef.current.world.shrines.find(s=>s.id===55).uses>=1",
+    "timeout": 180000
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "read",
+    "expression": "(() => { const w=window.testSceneRef.current.world; return { turn:w.turn,paused:w.paused,heights:Array.from(w.land.heights),flags:Array.from(w.land.flags),effects:w.effects.filter(f=>f.bridge).map(f=>({id:f.id,x:f.x,z:f.z,bridge:f.bridge})),buildings:w.buildings.map(b=>({id:b.id,kind:b.kind,team:b.team,x:b.x,z:b.z,progress:b.progress})) } })()"
+  },
+  {
+    "action": "map",
+    "point": {
+      "x": -87,
+      "z": -124
+    }
+  },
+  {
+    "action": "mark",
+    "name": "bridge-triggered"
+  },
+  {
+    "action": "resume"
+  },
+  {
+    "action": "until",
+    "expression": "!window.testSceneRef.current.world.effects.some(f=>f.bridge)",
+    "timeout": 45000
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "read",
+    "expression": "(() => { const w=window.testSceneRef.current.world; return { turn:w.turn,paused:w.paused,heights:Array.from(w.land.heights),flags:Array.from(w.land.flags),effects:w.effects.filter(f=>f.bridge).map(f=>({id:f.id,x:f.x,z:f.z,bridge:f.bridge})),buildings:w.buildings.map(b=>({id:b.id,kind:b.kind,team:b.team,x:b.x,z:b.z,progress:b.progress})) } })()"
+  },
+  {
+    "action": "mark",
+    "name": "bridge-completed"
+  },
+  {
+    "action": "finish"
+  }
+]
