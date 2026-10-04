@@ -31,6 +31,7 @@ export default async function campaignFixedTurn({ root, page, openMission, outpu
   const report = {
     method: 'Diagnostic fixed-turn simulation via direct tick(world, 1/12), suspended RAF, internal camera focus and read-only targeting/picking helpers; rendered HUD/mouse orders. No injected entities, resources, victory, AI state, or campaign profile.',
     limits: 'Not ordinary real-clock gameplay, native timing parity, complete original-game parity, or hardware performance. Direct All missions setup for Mission 2; Mission 3 must use the shipped Continue result button.',
+    authoritativeOutcome: 'receipt.json also checks cancellation, cleanup and source drift; this file records scenario progress only.',
     source: receipt.source,
     checkerSha256: createHash('sha256').update(checker).digest('hex'),
     scenarioSha256: createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex'),
@@ -64,6 +65,7 @@ export default async function campaignFixedTurn({ root, page, openMission, outpu
   globalThis.campaignFixedTurnQA = { page, receipt, checkpoint }
   try {
     await import(pathToFileURL(adapter).href)
+    signal.throwIfAborted()
     assert.deepEqual(receipt.errors, [])
     report.status = 'passed'
     save()
