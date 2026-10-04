@@ -177,3 +177,13 @@ test('occluded shrine fallback uses bounded ordinary camera drags and strict tar
   assert.ok(!rotate.includes('tick(') && !rotate.includes('scene.animate('))
   assert.ok(!/camera(?:Bearing|Position\.angle)\s*=/.test(rotate))
 })
+
+test('the shipped right-drag mapping rotates 512 native angle units without panning', async () => {
+  const { dragCamera } = await import('../app/camera-input.ts')
+  for (const angle of [0, 256, 1537, 2000]) {
+    const camera = { x: 256, y: 34048, angle }, velocity = { turn: 0, forward: 0, side: 0 }
+    for (let step = 0; step < 8; step++) dragCamera(camera, velocity, true, 64, 0)
+    assert.deepEqual(camera, { x: 256, y: 34048, angle: (angle + 512) & 2047 })
+    assert.deepEqual(velocity, { turn: 0, forward: 0, side: 0 })
+  }
+})
