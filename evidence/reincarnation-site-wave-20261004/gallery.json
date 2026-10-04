@@ -1,0 +1,21 @@
+{
+  "sourceHead": "8fe6631979f81dd462c6fa10468fca98d3b82361",
+  "comparison": "temporal candidate before/during/respawn, not old-code raster parity",
+  "images": [
+    {
+      "path": "site-before.png",
+      "sha256": "60046d48b5b271a100a156a02c2aa2d08f52443405f9e39823313c3d909c7ab3",
+      "bytes": 1591213
+    },
+    {
+      "path": "site-during.png",
+      "sha256": "d61b731b942e64159a2ede3318b72d31b03c85834f6ee24d51ee57dd467e37a9",
+      "bytes": 1588181
+    },
+    {
+      "path": "site-respawn.png",
+      "sha256": "fb0843695bd717bd609a28aded09ffc8bcdbe4ed86d37b5d793db005679ef864",
+      "bytes": 1562343
+    }
+  ]
+}

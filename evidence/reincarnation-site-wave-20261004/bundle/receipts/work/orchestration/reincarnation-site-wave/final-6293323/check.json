@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "3f5401db-d8b7-4263-b299-13bb10252525",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6293323548c40c14f21031ddc044b7a1d9cbf023",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "npm",
+    "run",
+    "check"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T22:01:03.764Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/final-6293323/check.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/final-6293323/check.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T22:01:14.169Z",
+  "exitCode": 2,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 check\n> npm run typecheck && npm test && npm run parity:check && npm run orchestration:check\n\n\n> populous-first-dawn@0.1.0 typecheck\n> tsc --noEmit\n\napp/reincarnation-wave-runtime.ts(59,47): error TS2345: Argument of type 'Team' is not assignable to parameter of type '\"blue\" | \"red\" | \"yellow\" | \"green\"'.\n  Type '\"wild\"' is not assignable to type '\"blue\" | \"red\" | \"yellow\" | \"green\"'.\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\nnpm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\n",
+  "stdoutSha256": "6158318e0ad4884b525edbb09a10fb0886f47a3446d816cf744c1d054ba78103",
+  "stderrSha256": "dd6afc7e3d3b90109c8433444b35a1ba2ee8c2df7fef9954fb4cd343c4179107",
+  "sourceAfter": {
+    "headOid": "6293323548c40c14f21031ddc044b7a1d9cbf023",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

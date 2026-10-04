@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "9a57db09-640e-49fd-99bb-52f4b56ee6b9",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "7b96393433ed3e23ce06c9116da1837e3f10e592",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/reincarnation-wave.test.mjs",
+    "tests/level-start.test.mjs",
+    "tests/panic.test.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T22:20:15.045Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/quality-repair-focused.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/quality-repair-focused.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T22:20:19.283Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ ordinary Mission1–3 startup uses native terrain, authored gates and real conversion (394.780417ms)\n✔ native opening excludes Shaman selection, without inventing a casting restriction (65.136436ms)\n✔ checkpoint restore resumes every opening stage without replaying terrain/conversion (1262.47152ms)\n✔ restart gets one fresh sequence; repeated flyby skip does not replay it (317.354016ms)\n✔ only carrier-created stones are obstacles, while legacy sites keep their reservations (48.733406ms)\n✔ opening wave, conversion and stone cues preload their existing original samples (7.114394ms)\n✔ permitted opening casts enter native state22 and resume command18 without a stuck controller (630.637421ms)\n✔ fresh-load camera follows native cell-edge/center snapping and angle retention (0.391518ms)\n✔ the command18 completion turn owns exactly one native person visit (199.874263ms)\n✔ permitted state22 interruption and completion retain one counter increment per turn (258.006753ms)\n✔ replacement player orders cancel startup before its counter write (102.928594ms)\n✔ only the linked neutral startup conversion flash follows its replacement Brave (75.192487ms)\n✔ a missing converted Brave does not retarget its flash or shorten the native expiry (67.767016ms)\n✔ an invalidated command18 is consumed by the ordinary queue without completing the site (40.42452ms)\n✔ failed allocation consumes the sole producer opportunity before a later spawn (80.199234ms)\n✔ busy rejection consumes allocation identity but preserves the active wave and saved site (43.443143ms)\n✔ site height follows native ground-then-quantize arithmetic (142.842762ms)\n✔ mode2 uses native eligibility, panic, descriptor damage and RNG without Swarm filters (565.9479ms)\n✔ protected transitions retain repeated native cell hits and consume no panic RNG (36.321329ms)\n✔ a wave removes an older in-cell Swamp before it can process in the same turn (44.103424ms)\n✔ mode2 cleanup keeps an outside Swamp and the next enemy receives panic (35.640236ms)\n✔ ordinary death produces a next-turn wave that outlives successful respawn (287.1414ms)\n✔ checkpoints preserve mode2 identity, sites, orbits, terrain and RNG without replay (319.474936ms)\n✔ mode2 interrupts the real encounter owner while retaining its person and order queue (40.082135ms)\n✔ ordinary Boat and Balloon boarding retain seats and deselect passengers under mode2 panic (139.382767ms)\n✔ panic transfers a live building-entry queue and resumes it after expiry (96.460632ms)\nℹ tests 26\nℹ suites 0\nℹ pass 26\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4171.301432\n",
+  "stderr": "",
+  "stdoutSha256": "63e1f325bb3ec79afee1ac8bdc0e52d3592c405c47dff88d1f8d528896a6e2ce",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "7b96393433ed3e23ce06c9116da1837e3f10e592",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

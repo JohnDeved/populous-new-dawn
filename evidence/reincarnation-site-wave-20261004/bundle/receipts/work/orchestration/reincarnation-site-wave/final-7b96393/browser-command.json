@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "428755b4-82f5-4d6d-90ae-89cc5c8f8b15",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "7b96393433ed3e23ce06c9116da1837e3f10e592",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-reincarnation-wave.mjs": "59fb9fadc655cd300bceb25ff0bc9f08a7248f54db606826d1cfdef0d617a982",
+      "scripts/local-render/harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  },
+  "command": [
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "<SOURCE_ROOT>",
+    "--scenario",
+    "<SOURCE_ROOT>/scripts/check-browser-reincarnation-wave.mjs",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--port",
+    "4193",
+    "--mission",
+    "2",
+    "--output",
+    "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/final-7b96393/browser",
+    "--timeout",
+    "180000"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T22:25:10.198Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/final-7b96393/browser-command.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/final-7b96393/browser-command.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T22:25:47.391Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "Error: page.evaluate: Error: Authored startup did not release Shaman controls\n    at eval (eval at evaluate (:311:30), <anonymous>:5:77)\n    at async <anonymous>:337:30\n    at checkReincarnationWave (<SOURCE_ROOT>/scripts/check-browser-reincarnation-wave.mjs:35:14)\n    at async runLocalBrowser (<SOURCE_ROOT>/scripts/local-render/harness.mjs:164:20)\n    at async file://<SOURCE_ROOT>/scripts/local-render/harness.mjs:251:21\n    at runLocalBrowser (file://<SOURCE_ROOT>/scripts/local-render/harness.mjs:233:47)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file://<SOURCE_ROOT>/scripts/local-render/harness.mjs:251:21\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "79e986d943f28d58c5a603b7f80d05c362d2b324c3432c0eea72ba7f9e28f320",
+  "sourceAfter": {
+    "headOid": "7b96393433ed3e23ce06c9116da1837e3f10e592",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-reincarnation-wave.mjs": "59fb9fadc655cd300bceb25ff0bc9f08a7248f54db606826d1cfdef0d617a982",
+      "scripts/local-render/harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  }
+}

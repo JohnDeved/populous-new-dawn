@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "cd426a58-da1e-4013-9aca-9b989dfd1042",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "8fe6631979f81dd462c6fa10468fca98d3b82361",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import net from \"node:net\";import assert from \"node:assert/strict\";import {readFileSync} from \"node:fs\";const r=JSON.parse(readFileSync(\"work/orchestration/reincarnation-site-wave/render-8fe6631/browser/receipt.json\",\"utf8\"));assert.equal(r.status,\"passed\");const outcome=await new Promise(resolve=>{const s=net.connect({host:\"127.0.0.1\",port:4193});s.once(\"connect\",()=>{s.destroy();resolve(\"open\")});s.once(\"error\",e=>resolve(e.code));s.setTimeout(2000,()=>{s.destroy();resolve(\"timeout\")})});assert.equal(outcome,\"ECONNREFUSED\");console.log(JSON.stringify({finishedAt:r.finishedAt,status:r.status,port4193:outcome,sourceUnchanged:r.source.fingerprint===r.sourceAfter.fingerprint}));"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T22:50:04.976Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/render-8fe6631/cleanup.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/render-8fe6631/cleanup.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T22:50:05.039Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"finishedAt\":\"2026-10-04T22:49:53.018Z\",\"status\":\"passed\",\"port4193\":\"ECONNREFUSED\",\"sourceUnchanged\":true}\n",
+  "stderr": "",
+  "stdoutSha256": "d172989a3f2939bdfa0a54e69d98c4ae068607b69414d7e21f6368383454e437",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "8fe6631979f81dd462c6fa10468fca98d3b82361",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

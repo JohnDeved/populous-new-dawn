@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "0a0c6f7f-9e8d-4f13-a40f-6db14ad208a9",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "32e511ba86b7611843164ac4b9b43a115125682d",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "work/orchestration/reincarnation-site-wave/compare-eslint-final.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T22:18:13.747Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/final-32e511b/eslint-baseline-compare.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/final-32e511b/eslint-baseline-compare.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T22:18:16.620Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"base\":\"b3818511da0b420129b03092f397ad76bc6111a8\",\"head\":\"32e511ba86b7611843164ac4b9b43a115125682d\",\"paths\":14,\"beforeErrors\":213,\"afterErrors\":213,\"introduced\":[]}\n",
+  "stderr": "",
+  "stdoutSha256": "ee5b6cd8865a6e10304e749f46a90b438b5c787f46143098a4a4f2c10961e400",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "32e511ba86b7611843164ac4b9b43a115125682d",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

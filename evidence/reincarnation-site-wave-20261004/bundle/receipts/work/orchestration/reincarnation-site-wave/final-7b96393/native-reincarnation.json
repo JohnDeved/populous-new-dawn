@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "36e5f9c5-870f-43d8-b813-ab1bbd28af50",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "7b96393433ed3e23ce06c9116da1837e3f10e592",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-native-reincarnation.py": "506127e98cd0564fe8ab4bc75c0a55adcb224135e38edac6f50e21bf7d9f26a2",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/mwsearch.dat": "0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24"
+    }
+  },
+  "command": [
+    "python",
+    "scripts/check-native-reincarnation.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T22:24:57.946Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/final-7b96393/native-reincarnation.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/final-7b96393/native-reincarnation.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T22:24:58.459Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "PASS: 2048 stones from native site creation and initialization; all eight positions, four tribes, wrapped coordinates, cell snapping, both terrain diagonals, exact heights and headings\nPASS: 2 native reincarnation initializations; linked shaman model/tribe/heading, position, particle count, entry flag and land/drowning phase\nPASS: 3 native ordinary-corpse initializations; brave/warrior/preacher identity, heading, position, entry flag and land phase\nPASS: 938 native model-12 lifecycle visits; exact phase timers, rise, shaman events/retry, ordinary deletion, and original shaman/follower frames\n",
+  "stderr": "",
+  "stdoutSha256": "3ae22833620fa09e6af57b2a792326a758294eb2e996cc8966fc17607e268764",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "7b96393433ed3e23ce06c9116da1837e3f10e592",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-native-reincarnation.py": "506127e98cd0564fe8ab4bc75c0a55adcb224135e38edac6f50e21bf7d9f26a2",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/mwsearch.dat": "0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24"
+    }
+  }
+}

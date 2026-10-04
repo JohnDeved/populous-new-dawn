@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ca8e184e-b1e7-4401-bf71-d0e0b1fc4393",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "7b96393433ed3e23ce06c9116da1837e3f10e592",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/person-panic.test.mjs"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T22:23:02.461Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/quality-repair-person-panic.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/quality-repair-person-panic.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T22:23:03.989Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ panic and personal fire trails retain original timer, sound, anchor and allocation decisions (6.829919ms)\n✔ burning huts eject running followers with distinct panic and trail lifetimes in all orientations (536.268096ms)\n✔ panic motion, animation and fire trails are independent of presentation frame rate (228.21758ms)\n✔ native building flames traverse matching cells in order, including repeated sockets and failed allocations (27.403619ms)\n✔ live flame-cell adapter preserves protected followers, immunity, tribe and hidden occupants (22.980785ms)\n✔ real Lightning ignition reaches nearby surviving followers before occupant evacuation (28.999646ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1462.447867\n",
+  "stderr": "",
+  "stdoutSha256": "3799cb05782e79d04ce38d5b05ab912b27c9ea0d5791b899dcd67355418cec97",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "7b96393433ed3e23ce06c9116da1837e3f10e592",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

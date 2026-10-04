@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "6100460a-8d88-49f2-82b2-2553de45d897",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "0d2a4342a2bf366c78a32135017ecacc110de357",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-native-reincarnation-wave.py": "37badd0f9ca791ca541d7d247ff363a9a69f31fbe415d648c0ef7a6af635821f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/mwsearch.dat": "0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0"
+    }
+  },
+  "command": [
+    "python",
+    "scripts/check-native-reincarnation-wave.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T20:47:49.790Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/intact-native-0d2a434-01.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/intact-native-0d2a434-01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T20:47:50.241Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "PASS: composed class10/model12 producer, real class7/model8 allocation, mode2, busy duplicate, allocation failure, 21 visits, terrain, 32 orbits/672 sparkles, sound and cleanup\nPreserved-gap native reads/writes [('0x89243a', 1)] []\n",
+  "stderr": "Traceback (most recent call last):\n  File \"<SOURCE_ROOT>/scripts/check-native-reincarnation-wave.py\", line 137, in <module>\n    assert first['state']==17 and first['life']==1500 and second['life']==0,row\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: {'case': {'name': 'protected-transition', 'flags2': 1048576}, 'before': {'class': 1, 'model': 2, 'state': 17, 'previousState': 0, 'life': 3000, 'timer': 0, 'speed': 0, 'turnAngle': 0, 'flags2': 1048576, 'flags3': 0, 'flags4': 0, 'damageAttacker': 255}, 'first': {'class': 1, 'model': 2, 'state': 17, 'previousState': 0, 'life': 2000, 'timer': 0, 'speed': 0, 'turnAngle': 0, 'flags2': 1048576, 'flags3': 0, 'flags4': 0, 'damageAttacker': 0}, 'second': {'class': 1, 'model': 2, 'state': 17, 'previousState': 0, 'life': 1000, 'timer': 0, 'speed': 0, 'turnAngle': 0, 'flags2': 1048576, 'flags3': 0, 'flags4': 0, 'damageAttacker': 0}, 'rng': [305419896, 305419896, 305419896], 'events': [['0x4da080', 10], ['0x4da080', 10]], 'secondEvents': [['0x4da080', 10], ['0x4da080', 10]], 'descriptor': 1000}\n",
+  "stdoutSha256": "7de9bc3e2c14930a2d3a7694b15ee552643c1b61d28f285cd034e96e5df8c57b",
+  "stderrSha256": "581e8d72ec7d37294c739efe2b5e383519cda55544b6468711febdf943d3eadb",
+  "sourceAfter": {
+    "headOid": "0d2a4342a2bf366c78a32135017ecacc110de357",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-native-reincarnation-wave.py": "37badd0f9ca791ca541d7d247ff363a9a69f31fbe415d648c0ef7a6af635821f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/mwsearch.dat": "0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0"
+    }
+  }
+}

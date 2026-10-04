@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "777f184c-75e8-452e-af76-37747ddc8cc5",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "e566cefdf5de4f5d71f83625721c2c9e818ad6ea",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/mwsearch.dat": "0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0"
+    }
+  },
+  "command": [
+    "python",
+    "scripts/check-native-reincarnation-wave.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T20:27:05.445Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/native-proof-e566cef.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/native-proof-e566cef.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T20:27:05.887Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "PASS: composed class10/model12 producer, real class7/model8 allocation, mode2, busy duplicate, allocation failure, 21 visits, terrain, 32 orbits/672 sparkles, sound and cleanup\nPASS: 17 composed wave→real panic initializer→real damage cases; exclusions, repeated protected hits, Shield/Bloodlust, state/RNG and non-Swarm flags\nPASS: actual outer list traversal defers wave until next turn; wave visit5 precedes the first Shaman spawn request five turns after allocation\nPASS: allocation failure cannot retry below timer5; actual initializer raises to ground then quantizes saved height\nEXE SHA256 3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f\n",
+  "stderr": "Traceback (most recent call last):\n  File \"<SOURCE_ROOT>/scripts/check-native-reincarnation-wave.py\", line 169, in <module>\n    assert not any(e[:3]==['allocate',7,8] for e in events),(timer,model,existing,population,events)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError: (5, 2, False, 1, [['allocate', 7, 8, 0, 4096, 4096, 240], ['0x50c780', 640], ['sound', 158], ['sound-mode', 0], ['0x50c830', 640]])\n",
+  "stdoutSha256": "c5fcc42e9879d6dded4d0425c8ad3be12fae2e3ed87bbe1bd6f795b5556a4188",
+  "stderrSha256": "a838d2cc99dc69db779bd8dc2c6fb55c9d8554c8df223fc544d07f53dfccf09f",
+  "sourceAfter": {
+    "headOid": "e566cefdf5de4f5d71f83625721c2c9e818ad6ea",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/mwsearch.dat": "0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0"
+    }
+  }
+}

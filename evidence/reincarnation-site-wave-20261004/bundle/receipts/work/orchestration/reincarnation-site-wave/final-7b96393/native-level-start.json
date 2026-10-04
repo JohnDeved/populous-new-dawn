@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "497e546e-b5a3-4c51-9086-613bf13cbb00",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "7b96393433ed3e23ce06c9116da1837e3f10e592",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-native-level-start.py": "9227c7676e59c3f8477fc3d560d599ecbc7de553eb9155b1359a4100c04d6a88",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/mwsearch.dat": "0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24"
+    }
+  },
+  "command": [
+    "python",
+    "scripts/check-native-level-start.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe"
+  ],
+  "cwd": "<SOURCE_ROOT>",
+  "startedAt": "2026-10-04T22:24:33.321Z",
+  "artifacts": {
+    "stdout": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/final-7b96393/native-level-start.json.artifacts/stdout.log",
+    "stderr": "<SOURCE_ROOT>/work/orchestration/reincarnation-site-wave/final-7b96393/native-level-start.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-04T22:24:38.882Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "PASS: 256 two-turn native inner-loop traces: tribe-ordered formations before encounters/objects, inactive skipping, next-turn recruitment, pause and byte counters\nPASS: 32 complete original site-wave lifetimes, terrain hashes, orbit geometry, notifications, allocation order and expiry; EXE 3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f\nPASS: 69 original site rectangle means/rounded target heights, including seam wrapping\nPASS: 40 original stone-carrier lifetimes, per-substep trails, geometry, arrival and gameplay RNG\nPASS: original command18 phase/timer transitions at every opening turn for all six authored Mission1–3 shamans, including two disabled enemy sites\nPASS: all8 native stone rise/lifetime visits, dust producer and alternating original sound gate\nPASS: all4 native tribes allocate replacement braves, linked conversion flashes and original sound/removal sequence\nPASS: native command18 selection flag does not block direct/player-entry spell readiness\nPASS: five complete original effect9 bursts:160 particles, lifetime/speed/yaw/pitch and gameplay RNG\nPASS:16 original fresh-load camera seeds: wrapped cell edge/center and angle-preservation flag\nPASS: all four native camera stores retain their fresh-load seed through flyby creation/start and six warmup frames\nPASS: all six startup people retain the original one-visit counter cadence through command completion\nPASS:15 complete model58 lifetimes:120 moving/grounded, inactive/removed, reused-handle and stationary-owner visits\n",
+  "stderr": "",
+  "stdoutSha256": "a44f87a397c9f9d1444037de69de5b46c2a6b8082d4feedc64cbd72f7c149fd9",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "7b96393433ed3e23ce06c9116da1837e3f10e592",
+    "branch": "feat/reincarnation-site-wave",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-native-level-start.py": "9227c7676e59c3f8477fc3d560d599ecbc7de553eb9155b1359a4100c04d6a88",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/mwsearch.dat": "0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24"
+    }
+  }
+}

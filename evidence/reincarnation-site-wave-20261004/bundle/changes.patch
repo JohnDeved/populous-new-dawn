@@ -1,0 +1,1978 @@
+diff --git a/app/game-store.ts b/app/game-store.ts
+index c451d07..d2695db 100644
+--- a/app/game-store.ts
++++ b/app/game-store.ts
+@@ -136,6 +136,7 @@ export function migrateCheckpoint(world: World) {
+   // An old checkpoint has already passed startup. Never replay terrain or conversion.
+   world.levelStart ??= []
+   world.levelStartStoneSound ??= 0
++  world.reincarnationSites ??= []
+   const computerTribe = missionEnemyTribe(world.outcome.level),
+     legacySingleAI = !world.campaignAIs
+   world.vehicles ??= []
+diff --git a/app/level-start-runtime.ts b/app/level-start-runtime.ts
+index a0994cd..7d8ead2 100644
+--- a/app/level-start-runtime.ts
++++ b/app/level-start-runtime.ts
+@@ -18,25 +18,13 @@ import {
+ import { orderEffects } from './live-movement.ts'
+ import { startPersonOrders } from './person-order-start.ts'
+ import { removeObjectFromCell } from './object-cells.ts'
+-import { effect, sound, shotVisual, moveVisual, registerTerrainLight } from './world-effects.ts'
+-import {
+-  nativePosition,
+-  refreshTerrainSurface,
+-  notifyHeightChanges,
+-  terrainTextures,
+-} from './world-terrain-runtime.ts'
++import { effect, sound, shotVisual, moveVisual } from './world-effects.ts'
++import { nativePosition } from './world-terrain-runtime.ts'
+ import { browserPosition } from './world-coordinates.ts'
+-import {
+-  queueTerrain,
+-  processTerrain,
+-  updateWalkMasks,
+-  terrainPointHeight,
+-} from './native-terrain.ts'
+-import { setAnimationObject } from './animation.ts'
++import { terrainPointHeight } from './native-terrain.ts'
+ import { reincarnationStones } from './reincarnation.ts'
+ import { short } from './native-math.ts'
+ import { createSpellTrail } from './spell-trails.ts'
+-import models from './original-models.json' with { type: 'json' }
+ import {
+   levelStartTargetHeight,
+   stepLevelStartWave,
+@@ -49,35 +37,13 @@ import {
+ } from './level-start.ts'
+ import rules from './original-rules.json' with { type: 'json' }
+ 
+-function animatedStartEffect(
+-  w: World,
+-  p: StartPoint,
+-  sequence: string,
+-  object: number,
+-  draw: number,
+-  turns: number
+-) {
+-  const fx = effect(w, 'trail', browserPosition(p))
+-  fx.height = p.h / 45
+-  fx.sprite = { sequence, frame: 0 }
+-  fx.turnsRemaining = turns
+-  fx.duration = Infinity
+-  fx.animation = {
+-    object: 0,
+-    draw: 0,
+-    morph: 0,
+-    palette: 0,
+-    renderFlags: 0,
+-    f1: 0,
+-    f2: 0,
+-    stamp: 0,
+-    flags3: 0,
+-    morphTimer: 0,
+-    morphFrames: 0,
+-  }
+-  setAnimationObject(fx.animation, draw, object)
+-  return fx
+-}
++import {
++  animatedSiteEffect,
++  siteWaveEffects,
++  inSiteWaveCell,
++  burnSiteWaveScenery,
++  finishSiteWaveTerrain,
++} from './site-wave-effects.ts'
+ 
+ function stoneBurst(w: World, point: StartPoint, tribe: number) {
+   const team = teamForTribe(tribe)
+@@ -102,6 +68,16 @@ function stoneBurst(w: World, point: StartPoint, tribe: number) {
+ export function initializeLevelStart(w: World) {
+   w.levelStart = []
+   w.levelStartStoneSound = 0
++  w.reincarnationSites = Array(4).fill(null)
++  for (const u of w.units) {
++    if (u.kind !== 'shaman' || u.team === 'wild') continue
++    const position = nativePosition(w, u)
++    w.reincarnationSites[tribeForTeam(u.team)] = {
++      x: (position.x & 0xfe00) + 256,
++      y: (position.y & 0xfe00) + 256,
++      h: position.h,
++    }
++  }
+   if (w.outcome.level < 1 || w.outcome.level > 3) return
+   const people = missionData(w.outcome.level).level.objects.filter(o => o.type === 1)
+   for (const u of w.units) {
+@@ -211,9 +187,9 @@ function convertStartingWildman(w: World, u: Unit, tribe: number) {
+   registerLivePerson(w, replacement.native)
+   sound(w, 5, replacement)
+   // 0x4d7fd0's neutral flash plus 0x50c840's owner flash are separate allocations.
+-  const neutral = animatedStartEffect(w, point, 'startConversion', 1240, 45, 8)
++  const neutral = animatedSiteEffect(w, point, 'startConversion', 1240, 45, 8)
+   neutral.startConversionLink = replacement.id
+-  animatedStartEffect(w, point, 'startConversion', 1240, 45, 8)
++  animatedSiteEffect(w, point, 'startConversion', 1240, 45, 8)
+ }
+ 
+ // 0x5138b0, effect58/state45. The common effect loop decrements first; expiry
+@@ -244,53 +220,16 @@ export function stepLevelStarts(w: World) {
+     const team = teamForTribe(site.tribe)
+     if (!carrier) {
+       if (site.wave) {
+-        const alive = stepLevelStartWave(w.land, site.wave, {
+-          orbit: (point, light) => {
+-            const fx = animatedStartEffect(w, point, 'sparkle', 1288, 44, 32767)
+-            delete fx.turnsRemaining
+-            if (light) registerTerrainLight(w, fx, 1)
+-            return fx.id
+-          },
+-          cell: cell => {
+-            const inCell = (point: { x: number; z: number }) => {
+-              const p = nativePosition(w, point)
+-              return (((p.x >>> 8) & 254) | (p.y & 0xfe00)) === cell
+-            }
++        const alive = stepLevelStartWave(
++          w.land,
++          site.wave,
++          siteWaveEffects(w, site.tribe, changed, cell => {
+             for (const u of [...w.units].reverse())
+-              if (u.team === 'wild' && u.hp > 0 && u.inside === null && inCell(u))
++              if (u.team === 'wild' && u.hp > 0 && u.inside === null && inSiteWaveCell(w, cell, u))
+                 convertStartingWildman(w, u, site.tribe)
+-            let pending = false
+-            for (const tree of w.trees)
+-              if (tree.logs > 0 && inCell(tree) && !(rules.sceneryFlags[tree.model] & 0x200)) {
+-                pending = true
+-                if (rules.sceneryFlags[tree.model] & 0x20 && !tree.burn)
+-                  tree.burn = {
+-                    remaining: 76,
+-                    started: false,
+-                    wood: Math.round(tree.logs * 100),
+-                    scale: models[(tree.model + 12) as unknown as keyof typeof models].scale,
+-                  }
+-              }
+-            return pending
+-          },
+-          terrain: cell => changed.add(cell),
+-          sparkle: point => {
+-            const fx = animatedStartEffect(w, point, 'hit', 1294, 46, 6)
+-            fx.team = team
+-          },
+-          move: (id, point, displacement) => {
+-            const fx = w.effects.find(f => f.id === id)
+-            if (fx) {
+-              moveVisual(fx, point)
+-              fx.animation!.flags3 |= 0x300
+-              fx.animation!.displacement = { ...displacement }
+-            }
+-          },
+-          remove: id => {
+-            const fx = w.effects.find(f => f.id === id)
+-            if (fx) fx.duration = fx.age
+-          },
+-        })
++            return burnSiteWaveScenery(w, cell)
++          })
++        )
+         if (!alive) {
+           site.wave = null
+           w.castingTribes[site.tribe].flags &= ~1
+@@ -318,7 +257,7 @@ export function stepLevelStarts(w: World) {
+         ...carrier.destination,
+         h: terrainPointHeight(w.land, carrier.destination) - 112,
+       }
+-      const fx = animatedStartEffect(w, point, 'startStoneDust', 1160, 37, 20)
++      const fx = animatedSiteEffect(w, point, 'startStoneDust', 1160, 37, 20)
+       fx.animation!.palette = 4
+       fx.animation!.f1 = 76 // 0x4a7eb0: hold*4-step, before the first animation pass.
+       if (++w.levelStartStoneSound & 1) sound(w, 0x9f, browserPosition(point))
+@@ -404,6 +343,7 @@ export function stepLevelStarts(w: World) {
+         site.timer = 10
+         p.flags2 |= 0x4000
+         site.center.h = levelStartTargetHeight(w.land, site.center)
++        w.reincarnationSites[site.tribe] = { ...site.center }
+         w.effectCounter = (w.effectCounter + 1) & 255 // effect8 allocation
+         const allocation = w.nextId++
+         site.awaitedWave = null
+@@ -457,14 +397,5 @@ export function stepLevelStarts(w: World) {
+     }
+     p.substate = site.phase
+   }
+-  if (changed.size) {
+-    for (const cell of changed) queueTerrain(w.land, cell, 2, 1, terrainTextures)
+-    processTerrain(w.land, terrainTextures)
+-    for (const cell of changed) updateWalkMasks(w.land, cell, 2)
+-    refreshTerrainSurface(w)
+-    notifyHeightChanges(
+-      w,
+-      [...changed].map(cell => ({ cell, radius: 1 }))
+-    )
+-  }
++  finishSiteWaveTerrain(w, changed)
+ }
+diff --git a/app/live-building-entry.ts b/app/live-building-entry.ts
+index bf323a3..a0c091b 100644
+--- a/app/live-building-entry.ts
++++ b/app/live-building-entry.ts
+@@ -430,11 +430,13 @@ export function dismantleBuilding(w: World, b: Building) {
+   }
+ }
+ 
+-export function cancelBuildingEntry(w: World, u: Unit) {
++export function cancelBuildingEntry(w: World, u: Unit, preserveOrders = false) {
+   if (!u.entry) return
+   const p = u.entry.person
+-  clearPersonOrders(w.buildingOrders, p, orderEffects)
+-  if (p.flags3 & 32) rebuildLiveTrainingQueue(w, p.workTarget)
++  if (!preserveOrders) {
++    clearPersonOrders(w.buildingOrders, p, orderEffects)
++    if (p.flags3 & 32) rebuildLiveTrainingQueue(w, p.workTarget)
++  }
+   releasePersonRoute(w.motionRoutes, p)
+   u.supportHeight = p.supportHeight || undefined
+   u.entry = undefined
+diff --git a/app/live-people.ts b/app/live-people.ts
+index c52fca2..eda944a 100644
+--- a/app/live-people.ts
++++ b/app/live-people.ts
+@@ -1,3 +1,4 @@
++import { deselectLiveVehiclePassengers } from './live-vehicles.ts'
+ import { latchShamanDeathFrame } from './shaman-death-vfx.ts'
+ import { buildingPose } from './building-shapes.ts'
+ import { effect, emitGroundSpark, requestTutorial, sound } from './world-effects.ts'
+@@ -498,7 +499,7 @@ function initializeLivePerson(w: World, u: Unit, ctx: ReturnType<typeof context>
+     celebrate: () => stepCelebration(state, p, effects),
+     setAnimation: (p, o) => effects.animation(p as LivePerson, o, true),
+     releaseMotion: p => effects.releaseMotion(p as LivePerson),
+-    deselectPassengers: unexpected,
++    deselectPassengers: person => deselectLiveVehiclePassengers(w, person),
+     rebuildTrainingQueue: id => rebuildLiveTrainingQueue(w, id),
+     rebuildFormation: cell => rebuildLiveRestingSlots(w, cell),
+     idleApproach: () =>
+@@ -565,10 +566,11 @@ export function initializeLivePanic(
+   w: World,
+   u: Unit,
+   p = u.flight ?? u.native ?? createLivePerson(w, u),
+-  transitioned = false
++  transitioned = false,
++  entryOrders: 'cancel' | 'preserve' = 'cancel'
+ ) {
+   if (p.flags2 & 0x100000) return
+-  cancelBuildingEntry(w, u)
++  cancelBuildingEntry(w, u, entryOrders === 'preserve')
+   u.native = p
+   if (!transitioned) {
+     p.previousState = p.state
+@@ -1033,7 +1035,7 @@ function updateLivePanic(w: World, u: Unit, ctx: ReturnType<typeof context>, p:
+     if (!currentPersonOrder(w.buildingOrders, p)) {
+       u.native = null
+       releasePersonRoute(w.motionRoutes, p)
+-    }
++    } else if (p.state === 10) adoptLiveOrders(w, u, p)
+   }
+ }
+ 
+diff --git a/app/live-vehicles.ts b/app/live-vehicles.ts
+index 794a35c..d889343 100644
+--- a/app/live-vehicles.ts
++++ b/app/live-vehicles.ts
+@@ -15,6 +15,7 @@ import { movePosition, nativeAngle } from './native-math.ts'
+ import { attachPersonRoute, releasePersonRoute, routeVehicleAvailable } from './person-routes.ts'
+ import { boardingVehicle, vehicleReady } from './vehicle-routing.ts'
+ import { moveObjectInCells } from './object-cells.ts'
++import { markPersonSelected } from './person-selection.ts'
+ import rules from './original-rules.json' with { type: 'json' }
+ 
+ const short = (n: number) => (n << 16) >> 16
+@@ -26,6 +27,22 @@ function relocateLivePerson(w: World, p: LivePerson, to: { x: number; y: number;
+   else Object.assign(p, to)
+ }
+ 
++// The state initializer's deselection propagates through the active vehicle's
++// occupied slots. It changes selection only, preserving seats and attachment.
++export function deselectLiveVehiclePassengers(w: World, person: { id: number; vehicle: number }) {
++  const vehicle = w.vehicles.find(v => v.id === person.vehicle && v.active)
++  if (!vehicle?.passengerCount) return
++  const deselected = new Set<number>()
++  for (const id of vehicle.passengers.slice(0, rules.vehicleCapacity[vehicle.model])) {
++    if (!id || id === person.id) continue
++    const passenger = w.pathfinding.people.get(id) ?? w.units.find(u => u.id === id)?.native
++    if (!passenger?.class || passenger.flags2 & 1) continue
++    markPersonSelected(passenger, false)
++    deselected.add(id)
++  }
++  w.selected = w.selected.filter(id => !deselected.has(id))
++}
++
+ export const liveVehicles = (w: World) =>
+   new Map(w.vehicles.filter(v => v.active).map(v => [v.id, v]))
+ 
+diff --git a/app/reincarnation-wave-runtime.ts b/app/reincarnation-wave-runtime.ts
+new file mode 100644
+index 0000000..4a4ab95
+--- /dev/null
++++ b/app/reincarnation-wave-runtime.ts
+@@ -0,0 +1,130 @@
++import { teamForTribe, type Effect, type TribeTeam, type Unit, type World } from './world-types.ts'
++import { campaignPosition } from './campaign-runtime.ts'
++import { effect, sound } from './world-effects.ts'
++import { browserPosition } from './world-coordinates.ts'
++import { nativePosition } from './world-terrain-runtime.ts'
++import { terrainPointHeight } from './native-terrain.ts'
++import { levelStartHeight, stepLevelStartWave, type StartPoint } from './level-start.ts'
++import {
++  createLivePerson,
++  initializeLivePanic,
++  syncLivePersonCells,
++  type LivePerson,
++} from './live-people.ts'
++import { objectsInCell } from './object-cells.ts'
++import { damagePerson } from './person-update.ts'
++import { maxHp } from './world-rules.ts'
++import { unitKindFromModel } from './unit-kinds.ts'
++import {
++  burnSiteWaveScenery,
++  finishSiteWaveTerrain,
++  inSiteWaveCell,
++  siteWaveEffects,
++} from './site-wave-effects.ts'
++
++// The class7 preinitializer raises to ground before the site initializer rounds
++// to the nearest64, ties down, and clamps64..1024. Rounding may lower the result.
++export function reincarnationWaveHeight(saved: number, ground: number) {
++  return levelStartHeight(Math.max(saved, ground))
++}
++
++export function reincarnationWaveAffects(
++  p: { class: number; model: number; tribe: number; state: number },
++  tribe: number
++) {
++  return (
++    p.class === 1 &&
++    p.tribe !== -1 &&
++    p.tribe !== 255 &&
++    p.tribe !== tribe &&
++    p.model > 1 &&
++    p.model < 7 &&
++    p.state !== 26
++  )
++}
++
++// The model12 producer calls this once at remaining6. Failure or a busy tribe
++// consumes that opportunity; the ordinary body/spawn timer remains its owner.
++export function createReincarnationWave(
++  w: World,
++  tribe: number,
++  allocate: (point: StartPoint) => Effect | undefined = point =>
++    effect(w, 'trail', browserPosition(point))
++) {
++  // Old saves lacked a separate saved-site height. Reuse retained startup state
++  // when present; otherwise keep their existing authored-site/ground fallback.
++  w.reincarnationSites[tribe] ??= {
++    ...(w.levelStart.find(start => start.tribe === tribe)?.center ??
++      nativePosition(w, campaignPosition(w, teamForTribe(tribe) as TribeTeam))),
++  }
++  const site = w.reincarnationSites[tribe],
++    fx = allocate({ ...site })
++  if (!fx) return
++  if (w.castingTribes[tribe].flags & 1) {
++    // Native allocation succeeds before the busy initializer deletes its record.
++    w.effects.splice(w.effects.indexOf(fx), 1)
++    return
++  }
++  site.h = reincarnationWaveHeight(site.h, terrainPointHeight(w.land, site))
++  w.castingTribes[tribe].flags |= 1
++  fx.duration = Infinity
++  fx.height = site.h / 45
++  fx.reincarnationWave = {
++    id: fx.id,
++    tribe,
++    mode: 2,
++    center: { ...site },
++    visits: 0,
++    terrainRadius: 0,
++    visualRadius: 0,
++    orbits: [],
++  }
++  sound(w, 158, browserPosition(site))
++  return fx
++}
++
++function affectPerson(w: World, u: Unit, p: LivePerson, tribe: number) {
++  if (!reincarnationWaveAffects(p, tribe)) return
++  p.life = Math.round(u.hp * 20)
++  // Protected transitions still receive damage, including repeated search cells.
++  initializeLivePanic(w, u, p, false, 'preserve')
++  damagePerson(p, w.levelFlags2, tribe, Math.floor(maxHp(unitKindFromModel(p.model)) * 10))
++  u.hp = p.life / 20
++}
++
++export function stepReincarnationWave(w: World, fx: Effect) {
++  const wave = fx.reincarnationWave
++  if (!wave) return
++  const changed = new Set<number>(),
++    units = new Map(w.units.map(u => [u.id, u])),
++    registered = syncLivePersonCells(w)
++  const alive = stepLevelStartWave(
++    w.land,
++    wave,
++    siteWaveEffects(w, wave.tribe, changed, cell => {
++      // Swamps use the existing effect store rather than the person-cell chain.
++      // Removing one must not skip a linked person or let that old effect run later.
++      for (const swamp of w.effects)
++        if (swamp.swamp && swamp.age < swamp.duration && inSiteWaveCell(w, cell, swamp))
++          swamp.duration = swamp.age
++      for (const object of objectsInCell(w.objectCells, cell)) {
++        const u = units.get(object.id)
++        if (u) affectPerson(w, u, object as LivePerson, wave.tribe)
++      }
++      // Unmigrated browser people have no native cell record yet. Only an actual
++      // hit hands them to the native panic owner; unrelated people are untouched.
++      for (const u of w.units.toReversed())
++        if (!registered.has(u.id) && u.hp > 0 && u.inside === null && inSiteWaveCell(w, cell, u)) {
++          const p = u.builder?.person ?? createLivePerson(w, u)
++          affectPerson(w, u, p, wave.tribe)
++          if (u.native === p) registered.set(u.id, p)
++        }
++      return burnSiteWaveScenery(w, cell)
++    })
++  )
++  finishSiteWaveTerrain(w, changed)
++  if (!alive) {
++    w.castingTribes[wave.tribe].flags &= ~1
++    fx.duration = fx.age
++  }
++}
+diff --git a/app/scene-effects.ts b/app/scene-effects.ts
+index f9f90a0..228c8ec 100644
+--- a/app/scene-effects.ts
++++ b/app/scene-effects.ts
+@@ -100,6 +100,7 @@ export function makeFx(scene: GameScene, f: Effect) {
+   }
+   if (
+     f.wave ||
++    f.reincarnationWave ||
+     f.bridge ||
+     f.flatten ||
+     f.erosion ||
+@@ -299,6 +300,7 @@ export function animateFx(scene: GameScene, g: THREE.Group, f: Effect) {
+   }
+   if (
+     f.wave ||
++    f.reincarnationWave ||
+     f.bridge ||
+     f.flatten ||
+     f.erosion ||
+diff --git a/app/site-wave-effects.ts b/app/site-wave-effects.ts
+new file mode 100644
+index 0000000..5aa9e34
+--- /dev/null
++++ b/app/site-wave-effects.ts
+@@ -0,0 +1,117 @@
++import { teamForTribe, type Effect, type World } from './world-types.ts'
++import { effect, moveVisual, registerTerrainLight } from './world-effects.ts'
++import { browserPosition } from './world-coordinates.ts'
++import { setAnimationObject } from './animation.ts'
++import { queueTerrain, processTerrain, updateWalkMasks } from './native-terrain.ts'
++import {
++  nativePosition,
++  notifyHeightChanges,
++  refreshTerrainSurface,
++  terrainTextures,
++} from './world-terrain-runtime.ts'
++import type { StartPoint, stepLevelStartWave } from './level-start.ts'
++import rules from './original-rules.json' with { type: 'json' }
++import models from './original-models.json' with { type: 'json' }
++
++export function animatedSiteEffect(
++  w: World,
++  p: StartPoint,
++  sequence: string,
++  object: number,
++  draw: number,
++  turns: number
++): Effect {
++  const fx = effect(w, 'trail', browserPosition(p))
++  fx.height = p.h / 45
++  fx.sprite = { sequence, frame: 0 }
++  fx.turnsRemaining = turns
++  fx.duration = Infinity
++  fx.animation = {
++    object: 0,
++    draw: 0,
++    morph: 0,
++    palette: 0,
++    renderFlags: 0,
++    f1: 0,
++    f2: 0,
++    stamp: 0,
++    flags3: 0,
++    morphTimer: 0,
++    morphFrames: 0,
++  }
++  setAnimationObject(fx.animation, draw, object)
++  return fx
++}
++
++// Both site-wave modes share particle, lighting and terrain presentation. Their
++// person/cell consumers remain with the caller so startup never acquires mode2.
++export function siteWaveEffects(
++  w: World,
++  tribe: number,
++  changed: Set<number>,
++  cell: (packed: number) => boolean
++): Parameters<typeof stepLevelStartWave>[2] {
++  return {
++    orbit: (point, light) => {
++      const fx = animatedSiteEffect(w, point, 'sparkle', 1288, 44, 32767)
++      delete fx.turnsRemaining
++      if (light) registerTerrainLight(w, fx, 1)
++      return fx.id
++    },
++    cell,
++    terrain: packed => changed.add(packed),
++    sparkle: point => {
++      const fx = animatedSiteEffect(w, point, 'hit', 1294, 46, 6)
++      fx.team = teamForTribe(tribe)
++    },
++    move: (id, point, displacement) => {
++      const fx = w.effects.find(f => f.id === id)
++      if (fx) {
++        moveVisual(fx, point)
++        fx.animation!.flags3 |= 0x300
++        fx.animation!.displacement = { ...displacement }
++      }
++    },
++    remove: id => {
++      const fx = w.effects.find(f => f.id === id)
++      if (fx) fx.duration = fx.age
++    },
++  }
++}
++
++export function inSiteWaveCell(w: World, cell: number, point: { x: number; z: number }) {
++  const p = nativePosition(w, point)
++  return (((p.x >>> 8) & 254) | (p.y & 0xfe00)) === cell
++}
++
++export function burnSiteWaveScenery(w: World, cell: number) {
++  let pending = false
++  for (const tree of w.trees)
++    if (
++      tree.logs > 0 &&
++      inSiteWaveCell(w, cell, tree) &&
++      !(rules.sceneryFlags[tree.model] & 0x200)
++    ) {
++      pending = true
++      if (rules.sceneryFlags[tree.model] & 0x20 && !tree.burn)
++        tree.burn = {
++          remaining: 76,
++          started: false,
++          wood: Math.round(tree.logs * 100),
++          scale: models[(tree.model + 12) as unknown as keyof typeof models].scale,
++        }
++    }
++  return pending
++}
++
++export function finishSiteWaveTerrain(w: World, changed: Set<number>) {
++  if (!changed.size) return
++  for (const cell of changed) queueTerrain(w.land, cell, 2, 1, terrainTextures)
++  processTerrain(w.land, terrainTextures)
++  for (const cell of changed) updateWalkMasks(w.land, cell, 2)
++  refreshTerrainSurface(w)
++  notifyHeightChanges(
++    w,
++    [...changed].map(cell => ({ cell, radius: 1 }))
++  )
++}
+diff --git a/app/world-state.ts b/app/world-state.ts
+index 71c3632..93f9731 100644
+--- a/app/world-state.ts
++++ b/app/world-state.ts
+@@ -202,6 +202,7 @@ export function createWorldState(missionNumber = 1): World {
+     routeNotice: null,
+     levelStart: [],
+     levelStartStoneSound: 0,
++    reincarnationSites: [],
+     terrain: makeTerrain(land),
+     terrainVersion: 0,
+     units: [],
+diff --git a/app/world-turn.ts b/app/world-turn.ts
+index 3c0e78f..716e72b 100644
+--- a/app/world-turn.ts
++++ b/app/world-turn.ts
+@@ -1,3 +1,4 @@
++import { createReincarnationWave, stepReincarnationWave } from './reincarnation-wave-runtime.ts'
+ import { reconcileWorldHutSmoke, stepSecondaryEffects } from './hut-smoke-runtime.ts'
+ import {
+   levelStartOwnsShaman,
+@@ -560,8 +561,9 @@ function stepTurn(w: World) {
+   // Native allocated-object order is newest first; terrain and RNG effects are noncommutative.
+   for (let index = effectCount - 1; index >= 0; index--) {
+     const fx = w.effects[index]
+-    if (fx.kind === 'orderMarker') continue
++    if (fx.kind === 'orderMarker' || (fx.swamp && fx.age >= fx.duration)) continue
+     fx.age += dt
++    if (fx.reincarnationWave) stepReincarnationWave(w, fx)
+     if (fx.armageddon) stepArmageddon(w, fx)
+     if (fx.corpse) {
+       const step = stepReincarnation(fx.corpse.remaining, true, false)
+@@ -1747,7 +1749,7 @@ function stepTurn(w: World) {
+         visual.height = (visual.reincarnation.ground + step.height) / 45
+       }
+       if (step.event === 'splash') effect(w, 'splash', point ?? site)
+-      else if (step.event === 'rise') effect(w, 'birth', site)
++      else if (step.event === 'rise') createReincarnationWave(w, tribe)
+       else if (step.event === 'spawn') {
+         const u = addUnit(w, team, 'shaman', site)
+         if (tribe === w.manaWorld.playerTribe) sound(w, 0x6b, site)
+diff --git a/app/world-types.ts b/app/world-types.ts
+index 58a23d7..d6b4264 100644
+--- a/app/world-types.ts
++++ b/app/world-types.ts
+@@ -1,5 +1,5 @@
+ import type { SecondaryEffects } from './secondary-effects.ts'
+-import type { LevelStartSite } from './level-start.ts'
++import type { LevelStartSite, StartPoint, StartWave } from './level-start.ts'
+ import type { LiveFormation } from './live-movement.ts'
+ import type { Footprints } from './footprints.ts'
+ import type { CombatMarch } from './combat-order-search.ts'
+@@ -350,6 +350,7 @@ export type Effect = Point & {
+   sinking?: SinkingBuilding & { stage: number }
+   wave?: BlastWave
+   startConversionLink?: number
++  reincarnationWave?: StartWave & { tribe: number; mode: 2 }
+   turnsRemaining?: number
+   groundVersion?: number
+   age: number
+@@ -476,6 +477,7 @@ export type World = {
+   fights: Battle[]
+   levelStart: LevelStartSite[]
+   levelStartStoneSound: number
++  reincarnationSites: (StartPoint | null)[]
+   sounds: SoundEvent[]
+   soundSerial: number
+   mana: number
+diff --git a/decomp/README.md b/decomp/README.md
+index 7cc1da7..9068c6d 100644
+--- a/decomp/README.md
++++ b/decomp/README.md
+@@ -5195,3 +5195,12 @@ comparisons and 180 real switch-body cases cover route release, zero speed and t
+ detached return to orders. The live regression covers actual command boarding and
+ Boat disguise completion/countdown/checkpoints; the earlier Balloon command-position
+ boundary remains separate.
++
++## 2026-10-04 — Ordinary reincarnation site wave
++
++[Composed mode2 evidence](research/reincarnation-site-wave.md) executes the original
++model12 producer, real effect8 allocator/initializer, site wave, state26 initializer,
++and damage leaf. It proves next-turn first processing, continued lifetime at spawn,
++exact height quantization, exclusions, repeated protected-transition damage, busy
++duplicate cleanup and allocation failure without retry. Startup mode1 conversion
++remains separate. This evidence alone does not claim live browser completion.
+diff --git a/decomp/research/reincarnation-site-wave.md b/decomp/research/reincarnation-site-wave.md
+new file mode 100644
+index 0000000..8899c4a
+--- /dev/null
++++ b/decomp/research/reincarnation-site-wave.md
+@@ -0,0 +1,176 @@
++# Ordinary reincarnation site wave (#30)
++
++**Evidence correction, 2026-10-04:** the passes through proof head94e88b4 are
++superseded for all search-dependent claims. The fixture reset zeroed0x3000 bytes
++from00890390, overlapping loaded mwsearch.dat at008929cd. The pinned file hash
++was checked before this destructive fixture reset, so it did not protect the
++actual consumed bytes. The repair restricts the unit-table clear to0x2000 and
++asserts intact pinned search bytes after every setup and native invocation. All
++original passes/failures are retained. An intact-table original run at0d2a434 failed the deliberately retained old
++three-hit assertion and exposed the corrected native row: life3000→2000→1000,
++two actual damage calls per visit, no panic/RNG change. Expectations below are
++derived from that original row and independent decoding of the pinned ring data.
++The complete corrected matrix passed on3b947c1 with intact mapped search bytes
++and all244 configured constants verified at each boundary. A second independent
++execution and source/data review accepted that corrected native contract. WIP
++runtime code is a separate, still-pending gameplay/rendered acceptance claim.
++
++This bounded repair is separate from command18 startup and from the already
++accepted model12 body/spirit presentation. It does not complete issue #30.
++
++## Composed original evidence before implementation
++
++Base `f78e5c17757ce061b8b159da150536ee690e6b6f` still emitted generic browser
++`birth` at the ordinary reincarnation rise boundary. That is a sixteen-visit
++model60 sprite; the original producer creates a class7/model8 site wave.
++
++The evidence probe executes original `005029d0`, real allocator `004ed8a0`, its
++`004ed580` → `00509c10` → `0050bcd0` → `0050c780` chain, mode setter `0050c830`,
++wave `0050c840`, real class/person initializer `004ed640` → `004d2740`, and actual
++damage `004da080`. The original main loop `004ec6f0` additionally proves the first
++cross-class processing visits. No damage/state initializer is mocked. Rendering,
++terrain notifications, sound-device operations, final removal, formation/motion
++world consumers, and unrelated main-loop processors are supplied. This is bounded
++original PE execution in Unicorn, not an original-game replay. Every fixture setup
++and native invocation verifies the full mapped search table and all244 configured
++constant targets; the run repeats the guard at completion.
++
++Inputs: original EXE SHA256
++`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`, shipped
++`levels/constant.dat` configured through its own descriptor table, and
++`data/mwsearch.dat` SHA256
++`0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0`.
++The existing [startup evidence](level-start-sequence.md) independently compares the
++shared 21-visit terrain/radius/orbit geometry at 32 wrapped positions.
++Indexed allocator, wave, state initializer and damage exports were reused. The old
++00502910/005029d0 scratch exports were unavailable; their producer/classifier bytes
++were read directly from the pinned PE, alongside the executable probe and earlier
++model12 lifecycle checks. No new Ghidra export was needed.
++
++## Observed contract
++
++- Model12 phase4 tests timer5 **before** decrement, source classifier+0x75==7, absent live
++  Shaman, and surviving tribe population. It supplies saved tribe+0x911 XYZ to
++  class7/model8 allocation and sets mode2 only on a nonzero result. The browser
++  equivalent is remaining6; the first spawn request is five model12 visits later.
++- The model12 initializer copies the source model to +0x74 and derives a separate
++  Shaman classifier at +0x75 (7 for source model7;1 otherwise). The producer
++  checks the classifier. A negative fixture must set both consistently; merely
++  changing +0x74 leaves an intentionally Shaman-classified record.
++- The real effect preinitializer first raises supplied height to current sampled
++  ground when needed. `0050c780` then rounds to the nearest64 (ties down), clamps
++  64..1024, and stores that value back in tribe+0x915. Saved/current-ground cases
++  240/128→256, 128/641→640, −20/128→128, and 1024/1100→1024 execute this chain.
++- Tribe busy flag1 admits one wave. A duplicate still consumes an allocation,
++  is immediately removed, and receives the producer's mode2 bit on the returned
++  inactive record. It does not sound or overwrite saved height. A failed
++  allocation is not retried when the timer drops below5, even if capacity returns.
++- Actual native list allocation prepends the wave. The main loop has cached the
++  model12 next pointer, so the wave is first processed on the **next** turn.
++  It then precedes the older model12 body. At the first spawn request, the wave
++  has completed only five of its processing visits and must remain independent.
++  The spawn leaf004da0f0 returns zero in this probe: this proves request timing,
++  while actual successful Shaman spawning remains a live acceptance requirement.
++- Mode1 converts neutral model1 Wildmen. Mode2 instead visits other-tribe,
++  non-neutral class1 models2..6 whose state is not26. Friendly people, Wildmen,
++  Shamans, and already-panicking people are unchanged. It does not apply Swarm's
++  state23, flags2/0x800000, descriptor-immunity, ghost-removal, vehicle-ejection,
++  or Spy-disguise rules.
++- Unprotected eligible people enter real state26: previous state retained,
++  timer64, speed110, panic heading and two gameplay RNG draws for the tested
++  ordinary initial states. Damage is half the configured person's descriptor
++  life: models2..6 use 500/900/550/300/350. Real `004da080` respects global damage
++  suppression, Shield, Bloodlust and attacker credit. Shield still permits panic.
++- Flags2/0x100000 prevents the state transition, **not damage**. Native search
++  ring endpoints repeat. A protected Brave at the exact centered cell receives
++  two 500-life hits in each of the first two wave visits; state26 naturally
++  suppresses these repeats for ordinary people. Do not deduplicate cell visits.
++- Shared terrain changes precede radius growth and orbit movement. An empty-cell
++  lifetime uses32 model60 orbits,672 model61 sparkle allocations, sound158 once,
++  no gameplay RNG, and33 final removals after21 visits; busy clears on final
++  controller cleanup. Surviving scenery may extend the controller as documented
++  in the startup evidence.
++
++## Visited-cell Swamp cleanup
++
++An additional18-case original probe covers modes0/1/2, owners0/1/255 and the first
++radius boundary. Wave0050c840 removes class7/model18 in any included cell, without
++an owner or mode check. Real004ef180 and004ee4f0 remove cell/global membership,
++set class0 and removal flag1, and set counter3; only final lighting cleanup is
++supplied. Removal follows that cell's terrain change and precedes orbit sparkles.
++The removed record retains its next-cell handle, and the next linked enemy still
++receives mode2 panic/damage. A neighboring model17 and out-of-radius Swamp survive.
++
++The bounded browser repair includes this consumer for its new mode2 path. The
++existing startup mode1 adapter's omission is explicitly retained; extracting shared
++geometry/rendering does not silently change its conversion or cell consumers.
++
++## Reproduction and limits
++
++`python scripts/check-native-reincarnation-wave.py "$POPULOUS_EXE"` is read-only
++with respect to tracked fixtures/assets. The initial development composed run passed in0.52 seconds before runtime edits,
++but its search-dependent results are superseded as explained above. The preceding outer-loop harness attempt
++failed because a supplied terrain-notification leaf had two hooks and returned
++twice; removing the duplicate hook fixed the harness without changing native code.
++A later asserted producer gate exposed an inconsistent fixture that changed +0x74
++but retained Shaman classifier+0x75; the corrected fixture follows the original
++00502910 initializer and leaves both original routines unchanged.
++
++The browser currently has an unbounded general effect allocation adapter. This
++repair must preserve a one-shot allocation-result boundary and failure regression;
++it must not invent a global pool limit or claim full native pool exhaustion parity.
++Native helper composition, live normal-death acceptance, checkpoint continuation,
++rendered pixels, and hardware performance are distinct claims.
++
++The corrected native memory-gap trace records only the one-byte allocation flag
++0089243a read and no writes in00892390..0089290d. This is distinct from the search
++slot reset0089290d..008929cd. All fixture handles fit below00891a10; all configured
++constant targets lie in005a70d2..005aa5e0, outside fixture reset writes. The old
++clear had overwritten2,499 search bytes, including every ring descriptor.
++
++## Browser integration scope
++
++The mode2 controller is owned by the existing newest-first Effect loop. Its model12
++producer runs later in the turn, so the stored controller first processes next turn.
++Its stable id, explicit mode2/tribe, saved XYZ, visits/radii and orbit identities are
++checkpoint state. Actual orbit/sparkle effects use the shared startup presentation
++adapter; the controller itself has an empty scene group. Startup mode1's conversion
++consumer and its existing Swamp omission are unchanged. A removed older Swamp is
++skipped if the same effect-loop traversal reaches it later that turn.
++
++Focused portable cases cover failure without retry, busy allocation identity, exact
++height arithmetic, native target/damage/RNG cases, repeated protected hits, Swamp
++removal, ordinary death-to-successful-spawn timing, post-spawn lifetime and checkpoint
++continuation. A real move command followed by joinBattle verifies adoption of the
++active encounter person and preservation of a nonempty order queue through panic
++and the ordinary encounter cleanup. The pre-existing14 startup regressions pass.
++This is source-level integration evidence; rendered natural-death/site-intrusion
++acceptance and standard final gates are still pending.
++
++## Active-owner prerequisites found by runtime review
++
++Independent review rejected the first port for two newly exercised live seams.
++An eligible seated person reached an unimplemented passenger-deselection callback;
++an active building-entry person lost its retained queue through generic cancellation.
++The original00445750 clears only selection bit128 and flags3/128 for the person
++and valid fellow passengers of its active, occupied vehicle. It does not eject,
++rewrite seats or clear commands. Six composed original wave→panic→deselection
++cases cover Boat/Balloon, active/count gates, a fellow Shaman, unchanged vehicle
++bytes and retained command handles. Search and configured-constant guards remain
++active throughout. The browser uses the existing exact markPersonSelected(false)
++primitive and preserves the other selection bits.
++
++The mode2 handoff explicitly preserves entry orders when retiring its old entry
++wrapper; other cancellation callers keep their existing default behavior. Native
++004a3940 clears work flags/target, not the queued commands. At panic expiry the
++port reuses the established adoptLiveOrders boundary, so resuming entry does not
++allocate a replacement command and orphan the original reference. The regression
++runs ordinary command(hut) to entry substate5, verifies the same person/queue/pool
++through panic, and finishes the original entry after expiry with its reference
++released exactly once. A surviving opposing fixture tribe prevents ordinary
++victory celebration from legitimately interrupting this focused panic scenario.
++
++The initial seated/entry failures and the subsequently diagnosed empty-opponent
++fixture failure are retained. The repaired focused set covers32 tests, including
++all14 existing startup and6 existing panic regressions; standard gates and the
++rendered checker remain separately pending.
+diff --git a/engineering/checks.json b/engineering/checks.json
+index d6a57a6..787f07a 100644
+--- a/engineering/checks.json
++++ b/engineering/checks.json
+@@ -5121,6 +5121,173 @@
+         "exitCode": 0,
+         "artifacts": []
+       }
++    },
++    {
++      "id": "reincarnation-wave-portable",
++      "kind": "portable",
++      "automation": "safe",
++      "purpose": "Verify ordinary mode2 site-wave ownership, native target response and checkpoint continuity.",
++      "coveredBehavior": [
++        "One-shot failed/busy allocation and saved height",
++        "Native eligible targets, panic and repeated protected damage",
++        "Same-turn older Swamp cleanup",
++        "Ordinary death, deferred first visit and independent post-spawn lifetime",
++        "Active encounter, entry queue and Boat/Balloon passenger handoffs",
++        "Checkpoint continuation without duplicated controller/orbits"
++      ],
++      "knownLimits": [
++        "Supporting fixtures and source integration do not establish rendered acceptance."
++      ],
++      "executable": "node",
++      "args": [
++        "--test",
++        "tests/reincarnation-wave.test.mjs",
++        "tests/level-start.test.mjs",
++        "tests/person-panic.test.mjs"
++      ],
++      "inputs": [
++        "app/reincarnation-wave-runtime.ts",
++        "app/site-wave-effects.ts",
++        "app/level-start.ts",
++        "app/level-start-runtime.ts",
++        "app/world-turn.ts",
++        "app/world-types.ts",
++        "app/world-state.ts",
++        "app/game-store.ts",
++        "app/live-people.ts",
++        "app/live-building-entry.ts",
++        "app/live-vehicles.ts",
++        "app/person-state.ts",
++        "app/person-update.ts",
++        "tests/reincarnation-wave.test.mjs",
++        "tests/level-start.test.mjs",
++        "tests/person-panic.test.mjs"
++      ],
++      "prerequisites": [
++        "Node.js with TypeScript stripping"
++      ],
++      "cwd": ".",
++      "env": [],
++      "sideEffects": [],
++      "resources": [],
++      "expected": {
++        "exitCode": 0,
++        "artifacts": []
++      }
++    },
++    {
++      "id": "reincarnation-wave-native",
++      "kind": "native",
++      "automation": "manual",
++      "purpose": "Execute the composed original model12 producer, allocator, mode2 wave, panic and damage with mapped-input integrity guards.",
++      "coveredBehavior": [
++        "Real allocator, height quantization, busy/failure branches",
++        "Real panic/damage with eligibility and repeated ring endpoints",
++        "First cross-class traversal and spawn-request order",
++        "Terrain/orbit/sound lifetime and Swamp removal traversal",
++        "Passenger deselection and unchanged seat/order identity"
++      ],
++      "knownLimits": [
++        "Supplied rendering, sound, removal and unrelated world leaves; spawn requests are supplied, not a successful native spawn.",
++        "Earlier corrupt-search receipts through94e88b4 are superseded."
++      ],
++      "executable": "$POPULOUS_PYTHON",
++      "args": [
++        "-B",
++        "scripts/check-native-reincarnation-wave.py",
++        "$POPULOUS_EXE"
++      ],
++      "inputs": [
++        "scripts/check-native-reincarnation-wave.py",
++        "scripts/decomp.py",
++        "decomp/tools.json",
++        "app/original-constants.json",
++        "decomp/research/reincarnation-site-wave.md"
++      ],
++      "prerequisites": [
++        "Hash-verified original EXE, levels/constant.dat and data/mwsearch.dat",
++        "Pinned Unicorn environment"
++      ],
++      "cwd": ".",
++      "env": [
++        "POPULOUS_EXE",
++        "POPULOUS_PYTHON"
++      ],
++      "sideEffects": [],
++      "resources": [],
++      "expected": {
++        "exitCode": 0,
++        "artifacts": []
++      }
++    },
++    {
++      "id": "reincarnation-wave-browser",
++      "kind": "browser",
++      "automation": "manual",
++      "purpose": "Verify rendered ordinary reincarnation after real Mission2 combat death and saved-wave restoration.",
++      "coveredBehavior": [
++        "Shipped setup/H-selection/ordinary attack and natural model12 lifecycle",
++        "Deferred wave visit, orbit pixels, successful respawn and cleanup",
++        "Fresh-page checkpoint and responsive rendering",
++        "Separately labeled staged intrusion targets and rendered Swamp removal/neighbor survival",
++        "No remaining wave-owned lights after cleanup"
++      ],
++      "knownLimits": [
++        "Command adapter is not pointer-picking proof.",
++        "Staged intruders are separate from natural gameplay acceptance.",
++        "Linux headless rendering cannot establish hardware performance."
++      ],
++      "executable": "node",
++      "args": [
++        "scripts/local-render/harness.mjs",
++        "--scenario",
++        "scripts/check-browser-reincarnation-wave.mjs",
++        "--mission",
++        "2",
++        "--browser",
++        "$POPULOUS_HEADLESS_SHELL",
++        "--output",
++        "$POPULOUS_ARTIFACT_DIR"
++      ],
++      "inputs": [
++        "app/reincarnation-wave-runtime.ts",
++        "app/site-wave-effects.ts",
++        "app/level-start.ts",
++        "app/level-start-runtime.ts",
++        "app/world-turn.ts",
++        "app/world-types.ts",
++        "app/world-state.ts",
++        "app/game-store.ts",
++        "app/live-people.ts",
++        "app/live-building-entry.ts",
++        "app/live-vehicles.ts",
++        "app/person-state.ts",
++        "app/person-update.ts",
++        "app/scene-effects.ts",
++        "scripts/check-browser-reincarnation-wave.mjs",
++        "scripts/browser-game.mjs",
++        "scripts/campaign-start-readiness.mjs",
++        "scripts/local-render/harness.mjs"
++      ],
++      "prerequisites": [
++        "Owned local game server",
++        "Supported sandboxed Playwright browser"
++      ],
++      "cwd": ".",
++      "env": [
++        "POPULOUS_ARTIFACT_DIR",
++        "POPULOUS_HEADLESS_SHELL"
++      ],
++      "sideEffects": [
++        "Writes source-bound captures/report to unique artifact directory"
++      ],
++      "resources": [
++        "Shared browser/server lane; serialize"
++      ],
++      "expected": {
++        "exitCode": 0,
++        "artifacts": []
++      }
+     }
+   ]
+ }
+diff --git a/engineering/project-map.json b/engineering/project-map.json
+index dd86286..79ac5a4 100644
+--- a/engineering/project-map.json
++++ b/engineering/project-map.json
+@@ -550,7 +550,9 @@
+         "app/shaman-appearance.ts",
+         "app/level-start.ts",
+         "app/level-start-runtime.ts",
+-        "app/reincarnation.ts"
++        "app/reincarnation.ts",
++        "app/reincarnation-wave-runtime.ts",
++        "app/site-wave-effects.ts"
+       ],
+       "researchPaths": [
+         "scripts/import-original.py",
+@@ -567,7 +569,11 @@
+         "tests/level-start.test.mjs",
+         "scripts/check-native-level-start.py",
+         "scripts/check-static-level-start.py",
+-        "scripts/check-browser-level-start.mjs"
++        "scripts/check-browser-level-start.mjs",
++        "scripts/check-native-reincarnation-wave.py",
++        "scripts/check-browser-reincarnation-wave.mjs",
++        "tests/reincarnation-wave.test.mjs",
++        "decomp/research/reincarnation-site-wave.md"
+       ],
+       "sharedPaths": [
+         "app/scene-entities.ts",
+@@ -614,6 +620,10 @@
+         {
+           "path": "decomp/research/level-start-sequence.md",
+           "heading": "Original level-start sequence (issue #20)"
++        },
++        {
++          "path": "decomp/research/reincarnation-site-wave.md",
++          "heading": "Ordinary reincarnation site wave (#30)"
+         }
+       ],
+       "nativeAddresses": [
+@@ -629,7 +639,10 @@
+         "level-start-portable",
+         "level-start-native",
+         "level-start-static",
+-        "level-start-browser"
++        "level-start-browser",
++        "reincarnation-wave-portable",
++        "reincarnation-wave-native",
++        "reincarnation-wave-browser"
+       ],
+       "generatedInputIds": [
+         "native-fixtures",
+diff --git a/scripts/check-browser-reincarnation-wave.mjs b/scripts/check-browser-reincarnation-wave.mjs
+new file mode 100644
+index 0000000..74f4c3d
+--- /dev/null
++++ b/scripts/check-browser-reincarnation-wave.mjs
+@@ -0,0 +1,285 @@
++// Natural Mission2 combat death and complete ordinary reincarnation, followed
++// by a separately labeled staged cell-consumer fixture. No state injection in
++// the natural phase; pacing, camera and read-only observations are controlled.
++import assert from 'node:assert/strict'
++import { mkdirSync, writeFileSync } from 'node:fs'
++import { execFileSync } from 'node:child_process'
++import { bindGame, showAllMissions, effectPixels, readShamanReadiness } from './browser-game.mjs'
++
++export default async function checkReincarnationWave({ page, url, root, output, signal }) {
++const baseline = process.env.POPULOUS_REINCARNATION_BASELINE === '1'
++mkdirSync(output, { recursive: true })
++const report = {
++  commit: execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
++  baseline,
++  stages: [],
++  limits: 'Linux headless rendering is not hardware performance evidence. Natural combat uses the existing command adapter; it does not certify pointer picking. Staged intrusion is separate from natural death/spawn acceptance.',
++}
++try {
++  signal.throwIfAborted()
++  const errors = []
++  page.on('pageerror', error => errors.push(error.stack ?? error.message))
++  page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
++  page.setDefaultTimeout(60000)
++  await page.addInitScript(() => { window.requestAnimationFrame = () => 0 })
++  await page.goto(url, { waitUntil: 'domcontentloaded' })
++  await showAllMissions(page)
++  await page.getByRole('button', { name: 'Mission 2', exact: true }).click()
++  await bindGame(page)
++  const skip = page.getByRole('button', { name: /Skip introduction/i })
++  report.startup = { initial: await readShamanReadiness(page), samples: [], skipTurns: [], batches: 0 }
++  for (let batch = 0; batch < 80; batch++) {
++    signal.throwIfAborted()
++    await page.evaluate(() => {
++      const s = window.testSceneRef.current
++      for (let frame = 0; frame < 24; frame++) s.animate(s.previous + 1000 / 24)
++    })
++    report.startup.batches++
++    // RAF is held for deterministic pacing; let React publish the real Skip
++    // button after the authored flyby begins, then use that visible control.
++    await page.waitForTimeout(25)
++    if (await skip.isVisible()) {
++      report.startup.skipTurns.push(await page.evaluate(() => window.testSceneRef.current.world.turn))
++      await skip.click()
++    }
++    const readiness = await readShamanReadiness(page)
++    report.startup.samples.push(readiness)
++    if (readiness.ready === true) break
++  }
++  assert.equal(report.startup.samples.at(-1)?.ready, true,
++    `Authored startup did not release Shaman controls: ${JSON.stringify(report.startup.samples.at(-1))}`)
++  assert.equal(report.startup.samples.at(-1).level, 2)
++  await page.evaluate(() => { window.testScene.world.speed = 0 })
++  await page.locator('.world-viewport canvas.battlefield').focus()
++  await page.keyboard.press('h')
++  report.death = await page.evaluate(async () => {
++    const s = window.testScene, w = s.world
++    const { command, tick } = await import('/app/model.ts')
++    const shaman = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
++    const target = w.units.find(u => u.id === 13)
++    if (!w.selected.includes(shaman.id) || target?.kind !== 'warrior' || target.team === 'blue') throw Error('Authored Shaman/Warrior control setup failed')
++    const before = { id: shaman.id, hp: shaman.hp, turn: w.turn }
++    if (!command(w, target)) throw Error('Ordinary attack command was rejected')
++    let fighting = 0, injured = false, body
++    for (let i = 0; i < 2000 && w.status === 'playing'; i++) {
++      tick(w, 1 / 12)
++      fighting += Number(!!shaman.fight || shaman.fighting)
++      injured ||= shaman.hp > 0 && shaman.hp < before.hp
++      body = w.effects.find(f => f.reincarnation?.team === 'blue')
++      if (body) break
++    }
++    if (!body || !injured || !fighting || w.units.includes(shaman)) throw Error('Ordinary combat did not produce one real Shaman death')
++    return { before, turn: w.turn, fighting, injured, body: body.id, remaining: Math.round(w.respawns[0] * 12) }
++  })
++  report.stages.push('Shipped Mission2 setup, H selection and ordinary authored combat death')
++
++  const drawAtSite = async () => {
++    signal.throwIfAborted()
++    await page.evaluate(async () => {
++      const s = window.testScene, { campaignPosition } = await import('/app/model.ts')
++      s.focus(campaignPosition(s.world, 'blue'))
++      for (let i = 0; i < 120; i++) s.updateCameraMotion(1 / 24)
++      s.animate(s.previous)
++    })
++  }
++  const advance = turns => page.evaluate(async turns => {
++    const { tick } = await import('/app/model.ts')
++    for (let i = 0; i < turns; i++) tick(window.testScene.world, 1 / 12)
++    window.testScene.animate(window.testScene.previous)
++  }, turns)
++  const read = () => page.evaluate(() => {
++    const s = window.testScene, w = s.world, fx = w.effects.find(f => f.reincarnationWave?.tribe === 0)
++    return {
++      turn: w.turn, remaining: Math.round(w.respawns[0] * 12), wave: fx?.reincarnationWave ?? null,
++      shaman: w.units.find(u => u.team === 'blue' && u.kind === 'shaman')?.id ?? null,
++      effects: w.effects.map(f => ({ id:f.id, kind:f.kind, sequence:f.sprite?.sequence })),
++      sound158: w.sounds.filter(s => s.cue === 158).length,
++      siteSounds: w.sounds.filter(s => s.cue === 158).map(s=>({serial:s.serial,turn:s.turn})),
++      busy: w.castingTribes[0].flags & 1,
++      status: w.status,
++      controllerChildren: fx ? s.fxMeshes.get(fx.id)?.children.length : null,
++    }
++  })
++  report.before = await page.evaluate(async () => {
++    const w = window.testScene.world, { tick } = await import('/app/model.ts')
++    let turns = 0
++    while (Math.round(w.respawns[0] * 12) > 6 && turns++ < 470) tick(w, 1 / 12)
++    if (Math.round(w.respawns[0] * 12) !== 6) throw Error('Natural body did not reach the site-wave producer boundary')
++    return { turn:w.turn, randomState:w.randomState, nextId:w.nextId, sounds:w.sounds.filter(s => s.cue===158).length, soundSerial:w.soundSerial }
++  })
++  await drawAtSite()
++  await page.screenshot({ path:`${output}/site-before.png` })
++  await advance(1)
++  report.allocated = await read()
++  assert.equal(report.allocated.remaining, 5)
++  if (baseline) {
++    assert.equal(report.allocated.wave, null)
++    assert.ok(report.allocated.effects.some(f => f.kind === 'birth'))
++    await advance(4)
++    await drawAtSite()
++    await page.screenshot({ path:`${output}/site-during.png` })
++    report.during = await read()
++    report.stages.push('Baseline generic birth sprite captured at the same ordinary site boundary')
++  } else {
++    assert.equal(report.allocated.wave.visits, 0)
++    assert.equal(report.allocated.wave.orbits.length, 0)
++    assert.equal(report.allocated.siteSounds.filter(s=>s.serial>report.before.soundSerial).length, 1)
++    await advance(1)
++    report.firstVisit = await read()
++    assert.equal(report.firstVisit.wave.visits, 1)
++    assert.equal(report.firstVisit.wave.orbits.length, 32)
++    assert.equal(report.firstVisit.controllerChildren, 0)
++    await advance(3)
++    await drawAtSite()
++    report.during = await read()
++    assert.equal(report.during.wave.visits, 4)
++    assert.equal(report.during.wave.mode, 2)
++    assert.equal(report.during.wave.orbits.length, 32)
++    assert.equal(report.during.controllerChildren, 0)
++    const orbitIds = report.during.wave.orbits.map(orbit => orbit.id)
++    report.orbitPixels = await effectPixels(page, orbitIds)
++    assert.ok(report.orbitPixels > 0, 'native orbit sprites must contribute real framebuffer pixels')
++    await page.screenshot({ path:`${output}/site-during.png` })
++    report.paused = await page.evaluate(() => {
++      const s = window.testScene, w = s.world
++      const digest = () => JSON.stringify({ turn:w.turn, rng:w.randomState, nextId:w.nextId, respawns:w.respawns, sites:w.reincarnationSites, waves:w.effects.filter(f=>f.reincarnationWave) })
++      const before = digest()
++      for (let i = 0; i < 12; i++) s.animate(s.previous)
++      return before === digest()
++    })
++    assert.equal(report.paused, true)
++    const checkpoint = await page.evaluate(async () => {
++      const w = window.testScene.world
++      const digest = { turn:w.turn, rng:w.randomState, nextId:w.nextId, sites:w.reincarnationSites, flags:w.castingTribes.map(t=>t.flags), lightOwners:w.lights.filter(Boolean).map(l=>l.owner), wave:w.effects.find(f=>f.reincarnationWave).reincarnationWave, heights:Array.from(w.land.heights) }
++      await window.testStore.saveCheckpoint()
++      return digest
++    })
++    await page.reload({ waitUntil:'domcontentloaded' })
++    await page.getByRole('button', { name:'Load Game', exact:true }).click()
++    await bindGame(page)
++    report.checkpoint = await page.evaluate(() => {
++      const w = window.testScene.world
++      return { turn:w.turn, rng:w.randomState, nextId:w.nextId, sites:w.reincarnationSites, flags:w.castingTribes.map(t=>t.flags), lightOwners:w.lights.filter(Boolean).map(l=>l.owner), wave:w.effects.find(f=>f.reincarnationWave).reincarnationWave, heights:Array.from(w.land.heights) }
++    })
++    assert.deepEqual(report.checkpoint, checkpoint)
++    delete report.checkpoint.heights
++    await drawAtSite()
++    report.restoredOrbitPixels = await effectPixels(page, checkpoint.wave.orbits.map(o=>o.id))
++    assert.ok(report.restoredOrbitPixels > 0)
++    await page.screenshot({ path:`${output}/site-checkpoint.png` })
++    report.stages.push('Deferred first visit, 32 rendered orbits, invisible controller and fresh-page checkpoint continuity')
++  }
++  await advance(1)
++  report.spawn = await read()
++  assert.ok(report.spawn.shaman && report.spawn.shaman !== report.death.before.id)
++  assert.equal(report.spawn.remaining, 0)
++  if (!baseline) assert.equal(report.spawn.wave.visits, 5)
++  await drawAtSite()
++  await page.screenshot({ path:`${output}/site-respawn.png` })
++  if (!baseline) {
++    const waveId = report.spawn.wave.id, orbits = report.spawn.wave.orbits.map(o => o.id)
++    report.cleanup = await page.evaluate(async ({waveId, orbits}) => {
++      const s = window.testScene, w = s.world, { tick } = await import('/app/model.ts')
++      let turns = 0
++      while (w.effects.some(f=>f.id===waveId) && turns++ < 120) tick(w, 1/12)
++      for (let i=0;i<6;i++) tick(w,1/12)
++      s.animate(s.previous)
++      return { turns, wave:w.effects.some(f=>f.id===waveId), orbits:w.effects.filter(f=>orbits.includes(f.id)).length, meshes:orbits.filter(id=>s.fxMeshes.has(id)).length, lights:w.lights.filter(light=>light&&[waveId,...orbits].includes(light.owner)).length, busy:w.castingTribes[0].flags&1 }
++    }, {waveId, orbits})
++    assert.equal(report.cleanup.wave, false)
++    assert.equal(report.cleanup.orbits, 0)
++    assert.equal(report.cleanup.meshes, 0)
++    assert.equal(report.cleanup.lights, 0)
++    assert.equal(report.cleanup.busy, 0)
++    report.stages.push('Successful ordinary Shaman respawn while the wave continues, then independent effect/light/mesh cleanup')
++    // Distinct staged cell-consumer coverage after the natural path completed.
++    report.stagedSwamps = await page.evaluate(async () => {
++      const s=window.testScene,w=s.world
++      const {effect,browserPosition}=await import('/app/model.ts')
++      const {createSwamp}=await import('/app/swamp.ts')
++      const center=w.reincarnationSites[0]
++      const traps=[center,{...center,x:(center.x+4096)&65535}].map((point,index)=>{
++        const fx=effect(w,'swamp',browserPosition(point))
++        fx.duration=Infinity;fx.height=point.h/45
++        fx.swamp=createSwamp(point,1,index===0?3:0,w)
++        return fx
++      })
++      s.animate(s.previous)
++      window.stagedSwampReferences = traps
++      return traps.map(fx=>({id:fx.id,remaining:fx.swamp.remaining,counter:fx.swamp.counter}))
++    })
++    await drawAtSite()
++    report.swampPixels = await effectPixels(page, [report.stagedSwamps[0].id])
++    assert.ok(report.swampPixels > 0, 'staged older Swamp must be rendered before removal')
++    await page.screenshot({path:`${output}/site-swamp-before.png`})
++    report.intrusion = await page.evaluate(async () => {
++      const s=window.testScene,w=s.world
++      const {addUnit,browserPosition}=await import('/app/model.ts')
++      const {createLivePerson,registerLivePerson}=await import('/app/live-people.ts')
++      const {createReincarnationWave,stepReincarnationWave}=await import('/app/reincarnation-wave-runtime.ts')
++      const center=w.reincarnationSites[0], rows=[]
++      for(const [label,team,kind,flags] of [['enemy','green','brave',0],['protected','green','brave',0x100000],['friend','blue','brave',0],['wild','wild','brave',0],['shaman','green','shaman',0]]) {
++        const u=addUnit(w,team,kind,browserPosition(center))
++        u.native=createLivePerson(w,u);u.native.state=17;u.native.flags2=flags
++        registerLivePerson(w,u.native)
++        rows.push({label,u,before:u.hp})
++      }
++      const fx=createReincarnationWave(w,0)
++      for(let i=0;i<3;i++)stepReincarnationWave(w,fx)
++      s.animate(s.previous)
++      return { staged:true, wave:fx.reincarnationWave, targets:rows.map(({label,u,before})=>({label,before,hp:u.hp,state:u.native.state,team:u.team})) }
++    })
++    const target = name => report.intrusion.targets.find(t => t.label === name)
++    assert.equal(target('enemy').hp, target('enemy').before / 2)
++    assert.equal(target('enemy').state, 26)
++    assert.equal(target('protected').hp, 0)
++    assert.equal(target('protected').state, 17)
++    for (const name of ['friend','wild','shaman']) assert.equal(target(name).hp, target(name).before)
++    await drawAtSite()
++    await page.screenshot({ path:`${output}/site-intrusion.png` })
++    await advance(1)
++    report.swampCleanup = await page.evaluate(traps => {
++      const s=window.testScene,w=s.world
++      return {
++        inside:w.effects.some(f=>f.id===traps[0].id),
++        insideMesh:s.fxMeshes.has(traps[0].id),
++        insideRemaining:window.stagedSwampReferences[0].swamp.remaining,
++        insideCounter:window.stagedSwampReferences[0].swamp.counter,
++        outside:w.effects.some(f=>f.id===traps[1].id),
++        outsideMesh:s.fxMeshes.has(traps[1].id),
++        outsideRemaining:w.effects.find(f=>f.id===traps[1].id)?.swamp.remaining,
++      }
++    },report.stagedSwamps)
++    assert.equal(report.swampCleanup.inside, false)
++    assert.equal(report.swampCleanup.insideMesh, false)
++    assert.equal(report.swampCleanup.insideRemaining, report.stagedSwamps[0].remaining)
++    assert.equal(report.swampCleanup.insideCounter, report.stagedSwamps[0].counter)
++    assert.equal(report.swampCleanup.outside, true)
++    assert.equal(report.swampCleanup.outsideMesh, true)
++    assert.equal(report.swampCleanup.outsideRemaining, report.stagedSwamps[1].remaining-1)
++    await page.screenshot({path:`${output}/site-swamp-after.png`})
++    for (const viewport of [{width:1024,height:768},{width:1920,height:1080}]) {
++      await page.setViewportSize(viewport)
++      await drawAtSite()
++      assert.ok(await effectPixels(page, report.intrusion.wave.orbits.map(o=>o.id)) > 0)
++      await page.screenshot({ path:`${output}/site-${viewport.width}.png` })
++    }
++    report.stages.push('Separate staged enemy/protected/friendly/Wildman/Shaman cell responses and rendered resize coverage')
++  }
++  report.renderer = await page.evaluate(() => {
++    const gl=window.testScene.renderer.getContext(), debug=gl.getExtension('WEBGL_debug_renderer_info')
++    return { version:gl.getParameter(gl.VERSION), renderer:debug?gl.getParameter(debug.UNMASKED_RENDERER_WEBGL):gl.getParameter(gl.RENDERER) }
++  })
++  assert.deepEqual(errors, [])
++  report.errors = errors
++  report.status = 'passed'
++  writeFileSync(`${output}/report.json`, JSON.stringify(report,null,2)+'\n')
++  signal.throwIfAborted()
++  return report
++} catch (error) {
++  report.status='failed';report.error=error.stack??String(error)
++  writeFileSync(`${output}/report.json`,JSON.stringify(report,null,2)+'\n')
++  if(page)await page.screenshot({path:`${output}/failure.png`}).catch(()=>{})
++  throw error
++}
++}
+diff --git a/scripts/check-native-reincarnation-wave.py b/scripts/check-native-reincarnation-wave.py
+new file mode 100644
+index 0000000..c6e8a65
+--- /dev/null
++++ b/scripts/check-native-reincarnation-wave.py
+@@ -0,0 +1,260 @@
++"""Execute the original reincarnation producer, allocator, wave and panic/damage.
++
++Usage: python scripts/check-native-reincarnation-wave.py EXE
++No recording, asset writes, or original game/OS launch. Real 004ed8a0 allocation,
++00509c10/0050bcd0/0050c780 initialization, 0050c830 mode, 0050c840 terrain/ring,
++004ed640/004d2740 panic and 004da080 damage execute. Rendering, sound, allocation
++removal, terrain notifications and motion/formation world consumers are supplied.
++The outer traversal runs original 004ec6f0 with unrelated processors supplied.
++"""
++import sys,struct,hashlib,json,atexit
++from pathlib import Path
++from decomp import ROOT,native_cpu,configure_native_constants
++from unicorn import UC_HOOK_CODE,UC_HOOK_MEM_READ,UC_HOOK_MEM_WRITE
++from unicorn.x86_const import UC_X86_REG_EAX,UC_X86_REG_EIP,UC_X86_REG_ESP
++from capstone import Cs,CS_ARCH_X86,CS_MODE_32
++exe=Path(sys.argv[1]);cpu,identity=native_cpu(exe);configure_native_constants(cpu,exe)
++cpu.mem_map(0x2000000,0x200000)
++stack,stop,body=0x21ed000,0x21ef000,0x2000100
++tribe=0x89d1c8
++read=lambda a,f:struct.unpack('<'+f,cpu.mem_read(a,struct.calcsize('<'+f)))[0]
++def write(a,f,*v):cpu.mem_write(a,struct.pack('<'+f,*v))
++def ret(result=0):
++ sp=cpu.reg_read(UC_X86_REG_ESP);cpu.reg_write(UC_X86_REG_EAX,result);cpu.reg_write(UC_X86_REG_EIP,read(sp,'I'));cpu.reg_write(UC_X86_REG_ESP,sp+4)
++def call(a,*args):
++ write(stack,'I'*(len(args)+1),stop,*args);cpu.reg_write(UC_X86_REG_ESP,stack)
++ try:cpu.emu_start(a,stop,count=2000000)
++ except Exception:
++  print('ERROR',hex(cpu.reg_read(UC_X86_REG_EIP)),events[-20:]);raise
++ assert cpu.reg_read(UC_X86_REG_EIP)==stop,hex(cpu.reg_read(UC_X86_REG_EIP))
++ assert_inputs('after native invocation')
++events=[];removed=set();wave=0
++
++def hook(c,a,size,user):
++ global wave
++ sp=c.reg_read(UC_X86_REG_ESP);p=read(sp+4,'I')
++ if a==0x4ed8a0:
++  cls,model,owner,pos=struct.unpack('<4I',c.mem_read(sp+4,16));events.append(['allocate',cls,model,owner&255,*struct.unpack('<HHh',c.mem_read(pos,6))]);return
++ if a in [0x50c780,0x50c830,0x50c840,0x4d2740,0x4da080]:
++  events.append([hex(a),read(p+0x24,'H')]);
++  if a==0x50c780:wave=p
++  return
++ if a==0x48a050:events.append(['sound',read(sp+8,'I')]);ret(0x21a0000);return
++ if a==0x48a810:events.append(['sound-mode',read(sp+8,'I')])
++ if a==0x4edcf0:removed.add(p);write(p+0x2a,'B',0);events.append(['remove',read(p+0x24,'H')])
++ if a==0x4ee580:c.mem_write(p+0x3d,bytes(c.mem_read(read(sp+8,'I'),6)))
++ if a==0x44ddf0:events.append(['terrain',read(sp+4,'H')])
++ if a==0x4da0f0:events.append(['spawn']);ret(0);return
++ ret()
++# Supplied rendering/audio/world leaves; allocation, mode initializer, panic,
++# damage, search, height quantization and terrain writes execute in original code.
++leaves=[0x4ee470,0x4ee700,0x4010b0,0x48a050,0x48a810,0x4edcf0,0x44ddf0,0x44df40,0x44f2f0,0x4ee580,0x4d4040,0x4ea460,0x4d56f0,0x409580,0x4da0f0]
++leaf_hooks={a:cpu.hook_add(UC_HOOK_CODE,hook,begin=a,end=a) for a in leaves+[0x4ed8a0,0x50c780,0x50c830,0x50c840,0x4d2740,0x4da080]}
++search=(exe.parent/'data/mwsearch.dat').read_bytes()
++assert hashlib.sha256(search).hexdigest()=='0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0'
++cpu.mem_write(0x8929cd,search)
++constants=json.loads((ROOT/'app/original-constants.json').read_text())
++constant_bytes=[]
++for index in range(512):
++ descriptor=bytes(cpu.mem_read(0x5aa5f0+index*31,31))
++ name=descriptor[:25].split(b'\0')[0].decode('ascii')
++ if not name:break
++ if name in constants:
++  size=descriptor[25];address=struct.unpack('<I',descriptor[27:])[0]
++  constant_bytes.append((address,bytes(cpu.mem_read(address,size))))
++def assert_inputs(where):
++ assert bytes(cpu.mem_read(0x8929cd,len(search)))==search,(where,'native search input changed')
++ for address,expected in constant_bytes:
++  assert bytes(cpu.mem_read(address,len(expected)))==expected,(where,'configured constant changed',hex(address))
++preserved_reads,preserved_writes=set(),set()
++def preserved_access(c,access,address,size,value,user):
++ (preserved_reads if access==16 else preserved_writes).add((hex(address),size))
++cpu.hook_add(UC_HOOK_MEM_READ|UC_HOOK_MEM_WRITE,preserved_access,begin=0x892390,end=0x89290c)
++atexit.register(lambda:print('Preserved-gap native reads/writes',sorted(preserved_reads),sorted(preserved_writes)))
++def setup(busy=False,fail=False,height=240,ground=128):
++ global events,removed,wave
++ events=[];removed=set();wave=0
++ cpu.mem_write(0x2000000,bytes(0x1c0000));cpu.mem_write(tribe,bytes(4*0xc65));cpu.mem_write(0x890390,bytes(0x2000))
++ cpu.mem_write(0x89290d,bytes(16*12))
++ cpu.mem_write(0x8a03e4,b''.join(struct.pack('<IhH8x',0,ground,0) for _ in range(16384)))
++ for a in [0x890324,0x890328,0x890330,0x890358,0x89035c,0x890360,0x895dbb,0x89c651,0x89c659]:write(a,'I',0)
++ cpu.mem_write(0x96eac1,bytes(16));write(0x89d178,'I',0x12345678);write(0x89d17c,'I',32);write(0x89c661,'I',0);write(0x895da4,'I',0)
++ write(tribe+0x911,'HHh',4096,4096,height);write(tribe+0x91d,'I',1);write(tribe+0x93d,'I',int(busy))
++ write(body+0x24,'H',1);write(body+0x2a,'BBBBBB',10,12,12,4,0,0);write(body+0x3d,'HHh',8192,8192,1500);write(body+0x6e,'h',5);write(body+0x74,'BB',7,7)
++ write(0x890394,'I',body);write(0x890324,'I',body)
++ # Original allocator picks class7 records from the >640 free list.
++ for i in range(800):
++  p=0x2010000+i*256;write(p,'II',p-256 if i else 0,p+256 if i<799 else 0);write(p+0x24,'H',640+i);write(0x890390+(640+i)*4,'I',p)
++ write(0x89031c,'I',0 if fail else 0x2010000);write(0x890320,'I',0)
++ assert_inputs('at end of fixture setup')
++for busy,fail in [(False,False),(True,False),(False,True)]:
++ setup(busy,fail);call(0x5029d0,body)
++ assert read(body+0x6e,'h')==4
++ assert events[0]==['allocate',7,8,0,4096,4096,240]
++ if fail:assert not wave and len(events)==1 and read(tribe+0x915,'h')==240
++ elif busy:
++  assert wave in removed and read(wave+0x2a,'B')==0 and read(wave+0x76,'I')==2
++  assert read(tribe+0x93d,'I')==1 and read(tribe+0x915,'h')==240
++  assert not any(e[0]=='sound' for e in events)
++ else:
++  assert read(wave+0x2a,'B')==7 and read(wave+0x2b,'B')==8 and read(wave+0x76,'I')==2
++  assert read(wave+0x41,'h')==read(tribe+0x915,'h')==256 and read(tribe+0x93d,'I')==1
++  assert [e for e in events if e[0].startswith('sound')]==[['sound',158],['sound-mode',0]]
++ if wave and wave not in removed:
++  for i in range(21):call(0x50c840,wave)
++  assert len(removed)==33 and read(wave+0x2d,'B')==21 and read(tribe+0x93d,'I')==0
++  assert read(0x89d178,'I')==0x12345678
++  assert len([e for e in events if e[:3]==['allocate',7,60]])==32
++  assert len([e for e in events if e[:3]==['allocate',7,61]])==672
++  assert read(0x8a03e4+(8*128+8)*16+4,'h')==256
++print('PASS: composed class10/model12 producer, real class7/model8 allocation, mode2, busy duplicate, allocation failure, 21 visits, terrain, 32 orbits/672 sparkles, sound and cleanup')
++
++fields={'class':(0x2a,'B'),'model':(0x2b,'B'),'state':(0x2c,'B'),'previousState':(0x7d,'B'),'life':(0x6e,'h'),'timer':(0x70,'h'),'speed':(0x5f,'h'),'turnAngle':(0x57,'H'),'flags2':(0xc,'I'),'flags3':(0x14,'I'),'flags4':(0x10,'I'),'damageAttacker':(0xb0,'B')}
++people=[]
++def person(model=2,owner=1,state=17,flags2=0,flags3=0,flags4=0):
++ p=0x2001000+len(people)*256;id=10+len(people);people.append(p)
++ write(p+0x24,'H',id);write(p+0x2a,'BBB',1,model,state);write(p+0x2f,'B',owner);write(p+0x30,'B',[0,0,2,14,15,16,17,18,19][model]);write(p+0x6e,'h',3000)
++ write(p+0xc,'III',flags2,flags4,flags3);write(p+0x3d,'HHh',4096,4096,128);write(p+0xb0,'B',255)
++ cell=8*128+8;write(p+0x20,'H',read(0x8a03e4+cell*16+6,'H'));write(0x8a03e4+cell*16+6,'H',id);write(0x890390+id*4,'I',p)
++ return p
++def state(p):return {k:read(p+o,f) for k,(o,f) in fields.items()}
++scenarios=[dict(name='enemy'+str(m),model=m) for m in range(2,7)]+[
++ dict(name='friendly',owner=0),dict(name='wildman',model=1,owner=255),dict(name='enemy-wild-model',model=1),dict(name='shaman',model=7),
++ dict(name='already-panic',state=26),dict(name='protected-transition',flags2=0x100000),dict(name='shield',flags3=0x8000),dict(name='bloodlust',flags3=0x80000),
++ dict(name='swarm-removed-flag',flags4=0x800),dict(name='swarm-immune-flag',flags2=0x800000),dict(name='state23',state=23),dict(name='global-damage-suppression',levelFlags2=0x04000000)]
++rows=[]
++for case in scenarios:
++ setup();people=[];p=person(**{k:v for k,v in case.items() if k not in ['name','levelFlags2']});write(0x895da4,'I',case.get('levelFlags2',0));before=state(p);call(0x5029d0,body);allocation_rng=read(0x89d178,'I');events=[]
++ call(0x50c840,wave);after=state(p);first_events=[e for e in events if e[0].startswith('0x4')];first_rng=read(0x89d178,'I');events=[]
++ call(0x50c840,wave)
++ rows.append(dict(case=case,before=before,first=after,second=state(p),rng=[allocation_rng,first_rng,read(0x89d178,'I')],events=first_events,secondEvents=[e for e in events if e[0].startswith('0x4')],descriptor=read(0x5a7070+case.get('model',2)*50,'I')))
++for row in rows:
++ case,before,first,second=row['case'],row['before'],row['first'],row['second']
++ excluded=case.get('owner') in [0,255] or case.get('model') in [1,7] or case.get('state')==26
++ if excluded:
++  assert before==first==second and not row['events'] and len(set(row['rng']))==1,row
++ elif case.get('flags2',0)&0x100000:
++  assert first['state']==17 and first['life']==2000 and second['life']==1000,row
++  assert row['events']==row['secondEvents']==[['0x4da080',10]]*2,row
++  assert len(set(row['rng']))==1,row
++ else:
++  damage=row['descriptor']//2
++  if case.get('flags3',0)&0x8000 or case.get('levelFlags2',0)&0x04000000:damage=0
++  if case.get('flags3',0)&0x80000:damage>>=3
++  assert first['state']==26 and first['previousState']==before['state'],row
++  assert (first['life'],first['timer'],first['speed'],first['turnAngle'])==(3000-damage,64,110,1534),row
++  assert first==second and not row['secondEvents'],row
++  assert row['events']==[['0x4d2740',10],['0x4da080',10]],row
++  assert row['rng']==[0x12345678,1389729278,1389729278],row
++print('PASS: 17 composed wave→real panic initializer→real damage cases; exclusions, repeated protected hits, Shield/Bloodlust, state/RNG and non-Swarm flags')
++
++# Full original outer traversal; supplied unrelated processors. Real allocation
++# prepends the site wave, while the original loop retains its cached next pointer.
++outer_calls={int(i.op_str,16) for i in Cs(CS_ARCH_X86,CS_MODE_32).disasm(bytes(cpu.mem_read(0x4ec6f0,0x390)),0x4ec6f0) if i.mnemonic=='call'}
++outer_trace=[]
++def outer(c,a,size,user):
++ if a==0x4ed700:
++  sp=c.reg_read(UC_X86_REG_ESP);p=read(sp+4,'I');outer_trace.append([read(p+0x24,'H'),read(p+0x2a,'B'),read(p+0x2b,'B'),read(p+0x2e,'B')])
++  if p==body:c.reg_write(UC_X86_REG_EIP,0x5029d0);return
++  if p==wave and p not in removed:c.reg_write(UC_X86_REG_EIP,0x50c840);return
++ ret()
++for a in outer_calls & set(leaf_hooks):cpu.hook_del(leaf_hooks.pop(a))
++outer_hooks=[cpu.hook_add(UC_HOOK_CODE,outer,begin=a,end=a) for a in outer_calls]
++setup();write(0x969e8a,'H',0);write(0x96eace,'B',0);write(0x96eabf,'B',0)
++call(0x4ec6f0);first=outer_trace[:];outer_trace=[];call(0x4ec6f0);second=outer_trace[:]
++assert read(wave+0x2d,'B')==1
++for turn in range(3,7):
++ outer_trace=[];events=[];call(0x4ec6f0)
++ assert [x for x in outer_trace if x[1] in [1,10] or x[2]==8]==[[640,7,8,turn-1],[1,10,12,turn]]
++ assert [e for e in events if e[0]=='spawn']==([['spawn']] if turn==6 else [])
++assert first==[[1,10,12,1]],first
++assert second[:2]==[[640,7,8,1],[1,10,12,2]],second
++for h in outer_hooks:cpu.hook_del(h)
++print('PASS: actual outer list traversal defers wave until next turn; wave visit5 precedes the first Shaman spawn request five turns after allocation')
++# Failed producer does not retry after its timer drops below5; restore free list
++# immediately, then execute the four subsequent pre-spawn body visits.
++setup(fail=True);call(0x5029d0,body);write(0x89031c,'I',0x2010000)
++for i in range(4):call(0x5029d0,body)
++assert read(body+0x6e,'h')==0 and read(body+0x2d,'B')==5
++assert len([e for e in events if e[:3]==['allocate',7,8]])==1
++for saved,ground,expected in [(240,128,256),(128,641,640),(-20,128,128),(1024,1100,1024)]:
++ setup(height=saved,ground=ground);call(0x5029d0,body)
++ assert read(wave+0x41,'h')==read(tribe+0x915,'h')==expected
++print('PASS: allocation failure cannot retry below timer5; actual initializer raises to ground then quantizes saved height')
++print('EXE SHA256',identity['sha256'])
++
++# Producer gates execute in the original model12 body, before allocation.
++for timer,model,existing,population in [(6,7,False,1),(5,2,False,1),(5,7,True,1),(5,7,False,0)]:
++ setup();write(body+0x6e,'h',timer);write(body+0x74,'BB',model,7 if model==7 else 1)
++ write(tribe+0x89d,'I',0x200a000 if existing else 0);write(tribe+0x91d,'I',population)
++ call(0x5029d0,body)
++ assert not any(e[:3]==['allocate',7,8] for e in events),(timer,model,existing,population,events)
++print('PASS: timer, source model, surviving population and existing Shaman producer gates')
++
++# Native wave removal is unconditional for class7/model18 in a visited cell.
++# Execute the real 004ef180 branch, cell unlink and global-list removal; only
++# the final lighting cleanup is supplied. This proof does not broaden startup.
++def removal_trace(c,a,size,user):
++ p=read(c.reg_read(UC_X86_REG_ESP)+4,'I')
++ events.append(['swamp-remove' if a==0x4ef180 else 'swamp-light',read(p+0x24,'H')])
++ if a==0x4ee190:ret()
++removal_hooks=[cpu.hook_add(UC_HOOK_CODE,removal_trace,begin=a,end=a) for a in [0x4ef180,0x4ee190]]
++for mode in [0,1,2]:
++ for owner in [0,1,255]:
++  for outside in [False,True]:
++   setup();trap,other,neighbor=0x2009000,0x2009100,0x2009200;cell=8*128+(9 if outside else 8)
++   for p,id,model in [(trap,100,18),(other,101,17)]:
++    write(p+0x24,'H',id);write(p+0x2a,'BB',7,model);write(p+0x2f,'B',owner)
++    write(p+0x3d,'HHh',4608 if outside else 4096,4096,128);write(p+0xc,'I',0x20000)
++    write(0x890390+id*4,'I',p)
++   write(neighbor+0x24,'H',102);write(neighbor+0x2a,'BBB',1,2,17);write(neighbor+0x2f,'BB',1,2)
++   write(neighbor+0x6e,'h',3000);write(neighbor+0x3d,'HHh',4608 if outside else 4096,4096,128)
++   write(0x890390+102*4,'I',neighbor)
++   write(trap+0x20,'HH',101,0);write(other+0x20,'HH',102,100);write(neighbor+0x20,'HH',0,101)
++   write(0x8a03e4+cell*16+6,'H',100)
++   write(trap,'II',0,other);write(other,'II',trap,neighbor);write(neighbor,'II',other,body);write(body,'I',neighbor);write(0x890324,'I',trap)
++   call(0x5029d0,body);write(wave+0x76,'I',mode);events=[];call(0x50c840,wave)
++   removals=[e for e in events if e[0].startswith('swamp-')]
++   assert read(other+0x2a,'B')==7 and read(other+0xc,'I')==0x20000
++   if outside:
++    assert read(trap+0x2a,'B')==7 and not removals and read(0x8a03e4+cell*16+6,'H')==100
++    assert read(neighbor+0x2c,'B')==17 and read(neighbor+0x6e,'h')==3000
++   else:
++    assert removals==[['swamp-remove',100],['swamp-light',100]],removals
++    assert read(trap+0x2a,'B')==0 and read(trap+0xc,'I')==1 and read(trap+0x2e,'B')==3
++    assert read(0x8a03e4+cell*16+6,'H')==101 and read(other+0x22,'H')==0
++    assert read(wave+4,'I')==other and read(other,'I')==wave
++    assert read(trap+0x20,'H')==101
++    assert read(neighbor+0x2c,'B')==(26 if mode==2 else 17)
++    assert read(neighbor+0x6e,'h')==(2500 if mode==2 else 3000)
++    assert next(i for i,e in enumerate(events) if e[0]=='terrain') < next(i for i,e in enumerate(events) if e[0]=='swamp-remove') < next(i for i,e in enumerate(events) if e[:3]==['allocate',7,61])
++for h in removal_hooks:cpu.hook_del(h)
++print('PASS: 18 original visited-cell Swamp cleanup cases; all modes/owners, radius exclusion, retained neighboring effect, real cell/global unlink before orbit sparkles')
++
++assert_inputs('at end of complete run')
++print('PASS: original search table and all',len(constant_bytes),'configured constant targets preserved through every setup and native call')
++
++# A mode2 transition reaches real00445750 passenger deselection. It does not
++# eject, rewrite seats or clear the person's existing command references.
++for vehicle_model in [1,3]:
++ for active,occupied in [(True,2),(False,2),(True,0)]:
++  setup();people=[];p=person(state=10);peer=person(model=7,state=10);vehicle=0x200b000
++  write(vehicle+0x24,'H',200);write(vehicle+0x2a,'BB',4,vehicle_model)
++  write(vehicle+0xc,'I',0 if active else 1);write(vehicle+0x9e,'B',occupied)
++  write(vehicle+0x7a,'HH',read(p+0x24,'H'),read(peer+0x24,'H'));write(0x890390+200*4,'I',vehicle)
++  for passenger in [p,peer]:
++   write(passenger+0x9f,'H',200);write(passenger+0x7a,'B',0x84);write(passenger+0x14,'I',0x10000080)
++  commands=struct.pack('<8H',1,2,0,0,0,0,0,0);cpu.mem_write(p+0x8b,commands)
++  seats=bytes(cpu.mem_read(vehicle+0x7a,20));vehicle_before=bytes(cpu.mem_read(vehicle,256))
++  call(0x5029d0,body);call(0x50c840,wave)
++  assert read(p+0x2c,'B')==26 and read(p+0x9f,'H')==200
++  assert read(p+0x7a,'B')==4 and read(p+0x14,'I')&128==0
++  expected_selected=0 if active and occupied else 128
++  assert read(peer+0x7a,'B')==(4|expected_selected)
++  assert read(peer+0x14,'I')&128==expected_selected
++  assert read(peer+0x2c,'B')==10 and read(peer+0x9f,'H')==200
++  assert bytes(cpu.mem_read(p+0x8b,len(commands)))==commands
++  assert bytes(cpu.mem_read(vehicle+0x7a,20))==seats
++  assert bytes(cpu.mem_read(vehicle,256))==vehicle_before
++assert_inputs('after passenger and queue cases')
++print('PASS: 6 real wave/panic passenger deselections; Boat/Balloon active/count gates, attached Shaman selection, unchanged vehicle/seats and retained command references')
+diff --git a/tests/orchestration.test.mjs b/tests/orchestration.test.mjs
+index cb01118..c5812d6 100644
+--- a/tests/orchestration.test.mjs
++++ b/tests/orchestration.test.mjs
+@@ -825,6 +825,7 @@ test('Shaman appearance context keeps its complete checks and evidence within th
+     'shaman-appearance-portable', 'shaman-assets-static',
+     'shaman-appearance-browser', 'shaman-appearance-native',
+     'level-start-portable', 'level-start-native', 'level-start-static', 'level-start-browser',
++    'reincarnation-wave-portable', 'reincarnation-wave-native', 'reincarnation-wave-browser',
+   ]
+   assert.deepEqual(shamanMapping.checkIds, expectedChecks)
+   assert.ok(expectedChecks.every(id => !terrainMapping.checkIds.includes(id)))
+diff --git a/tests/reincarnation-wave.test.mjs b/tests/reincarnation-wave.test.mjs
+new file mode 100644
+index 0000000..98524df
+--- /dev/null
++++ b/tests/reincarnation-wave.test.mjs
+@@ -0,0 +1,319 @@
++import test from 'node:test'
++import assert from 'node:assert/strict'
++import { createWorld, tick, joinBattle, command } from '../app/model.ts'
++import { createWorldState, addUnit } from '../app/world-state.ts'
++import { createLivePerson, registerLivePerson } from '../app/live-people.ts'
++import { browserPosition } from '../app/world-coordinates.ts'
++import { refreshTerrainSurface } from '../app/world-terrain-runtime.ts'
++import { migrateCheckpoint } from '../app/game-store.ts'
++import { createSwamp } from '../app/swamp.ts'
++import { queueTerrain, updateWalkMasks } from '../app/native-terrain.ts'
++import { effect } from '../app/world-effects.ts'
++import { stepReincarnation } from '../app/reincarnation.ts'
++import {
++  createReincarnationWave,
++  reincarnationWaveHeight,
++  stepReincarnationWave,
++} from '../app/reincarnation-wave-runtime.ts'
++
++const advance = (w, n) => { for (let i = 0; i < n; i++) tick(w, 1 / 12) }
++const center = { x: 4096, y: 4096, h: 240 }
++function fixture() {
++  const w = createWorldState(1)
++  w.land.heights.fill(128)
++  w.land.flags.fill(0)
++  queueTerrain(w.land, 0, 64, 1, {surface(){}, globe(){}})
++  updateWalkMasks(w.land, 0, 64)
++  refreshTerrainSurface(w)
++  w.reincarnationSites[0] = { ...center }
++  w.randomState = 0x12345678
++  return w
++}
++function person(w, kind = 'brave', options = {}) {
++  const u = addUnit(w, options.team ?? 'red', kind, browserPosition(center))
++  u.hp = 150
++  const p = u.native = createLivePerson(w, u)
++  Object.assign(p, { state: 17, life: 3000 }, options.person)
++  registerLivePerson(w, p)
++  return u
++}
++const state = w => ({
++  sites: w.reincarnationSites,
++  effects: w.effects,
++  flags: w.castingTribes.map(t => t.flags),
++  terrain: Array.from(w.land.heights),
++  people: w.units,
++  nextId: w.nextId,
++  randomState: w.randomState,
++  sounds: w.sounds,
++})
++
++test('failed allocation consumes the sole producer opportunity before a later spawn', () => {
++  const w = fixture()
++  let remaining = 6, attempts = 0, spawned = 0
++  for (let visit = 0; visit < 6; visit++) {
++    const step = stepReincarnation(remaining, true, false)
++    remaining = step.remaining
++    if (step.event === 'rise') createReincarnationWave(w, 0, point => {
++      attempts++
++      assert.deepEqual(point, center)
++      return undefined
++    })
++    if (step.event === 'spawn') spawned++
++  }
++  assert.equal(attempts, 1)
++  assert.equal(spawned, 1)
++  assert.equal(remaining, 0)
++  assert.equal(w.effects.length, 0)
++  assert.equal(w.castingTribes[0].flags & 1, 0)
++  assert.equal(w.sounds.length, 0)
++})
++
++test('busy rejection consumes allocation identity but preserves the active wave and saved site', () => {
++  const w = fixture(), first = createReincarnationWave(w, 0)
++  const before = structuredClone(state(w)), id = w.nextId, count = w.effectCounter
++  assert.equal(createReincarnationWave(w, 0), undefined)
++  assert.equal(w.nextId, id + 1)
++  assert.equal(w.effectCounter, (count + 1) & 255)
++  assert.deepEqual(w.effects, before.effects)
++  assert.deepEqual(w.reincarnationSites, before.sites)
++  assert.equal(w.effects[0], first)
++  assert.equal(w.sounds.length, 1)
++  assert.equal(w.castingTribes[0].flags & 1, 1)
++})
++
++test('site height follows native ground-then-quantize arithmetic', () => {
++  for (const [saved, ground, expected] of [[240,128,256],[128,641,640],[-20,128,128],[1024,1100,1024]]) {
++    assert.equal(reincarnationWaveHeight(saved, ground), expected)
++    const w = fixture()
++    w.reincarnationSites[0].h = saved
++    w.land.heights.fill(ground)
++    refreshTerrainSurface(w)
++    const fx = createReincarnationWave(w, 0)
++    assert.equal(fx.reincarnationWave.center.h, expected)
++    assert.equal(w.reincarnationSites[0].h, expected)
++    assert.equal(fx.reincarnationWave.mode, 2)
++    assert.equal(fx.reincarnationWave.id, fx.id)
++    assert.equal(fx.reincarnationWave.visits, 0)
++  }
++})
++
++test('mode2 uses native eligibility, panic, descriptor damage and RNG without Swarm filters', () => {
++  const cases = [
++    ['brave', {}, 500], ['warrior', {}, 900], ['preacher', {}, 550],
++    ['spy', {}, 300], ['firewarrior', {}, 350],
++    ['brave', {person:{flags3:0x8000}}, 0],
++    ['brave', {person:{flags3:0x80000}}, 62],
++    ['brave', {person:{flags2:0x800000}}, 500],
++    ['brave', {person:{flags4:0x800}}, 500],
++    ['brave', {person:{state:23}}, 500],
++  ]
++  for (const [kind, options, damage] of cases) {
++    const w = fixture(), u = person(w, kind, options), fx = createReincarnationWave(w, 0)
++    stepReincarnationWave(w, fx)
++    assert.equal(u.hp, (3000 - damage) / 20, JSON.stringify([kind, options]))
++    assert.equal(u.native.state, 26)
++    assert.equal(u.native.timer, 64)
++    assert.equal(u.native.speed, 110)
++    assert.equal(u.native.turnAngle, 1534)
++    assert.equal(w.randomState, 1389729278)
++    const hp = u.hp
++    stepReincarnationWave(w, fx)
++    assert.equal(u.hp, hp, 'state26 prevents repeated damage')
++    assert.equal(w.randomState, 1389729278)
++  }
++  for (const [kind, options] of [
++    ['brave', {team:'blue'}], ['brave', {team:'wild'}], ['shaman', {}],
++    ['brave', {person:{state:26}}],
++  ]) {
++    const w = fixture(), u = person(w, kind, options), before = structuredClone(u), fx = createReincarnationWave(w, 0)
++    stepReincarnationWave(w, fx)
++    assert.equal(u.hp, before.hp)
++    assert.equal(u.native.state, before.native.state)
++    assert.equal(u.team, before.team)
++    assert.equal(w.randomState, 0x12345678)
++  }
++  const w = fixture(), u = person(w), fx = createReincarnationWave(w, 0)
++  w.levelFlags2 |= 0x04000000
++  stepReincarnationWave(w, fx)
++  assert.equal(u.hp, 150)
++  assert.equal(u.native.state, 26)
++})
++
++test('protected transitions retain repeated native cell hits and consume no panic RNG', () => {
++  const w = fixture(), u = person(w, 'brave', {person:{flags2:0x100000}}), fx = createReincarnationWave(w, 0)
++  stepReincarnationWave(w, fx)
++  assert.equal(u.hp, 100)
++  assert.equal(u.native.state, 17)
++  stepReincarnationWave(w, fx)
++  assert.equal(u.hp, 50)
++  assert.equal(u.native.state, 17)
++  assert.equal(w.randomState, 0x12345678)
++})
++
++test('a wave removes an older in-cell Swamp before it can process in the same turn', () => {
++  const w = fixture(), friend = person(w, 'brave', {team:'blue'})
++  const trap = effect(w, 'swamp', browserPosition(center))
++  trap.duration = Infinity
++  trap.swamp = createSwamp(center, 1, 3, w)
++  const oldRemaining = trap.swamp.remaining
++  const fx = createReincarnationWave(w, 0)
++  tick(w, 1 / 12)
++  assert.ok(!w.effects.includes(trap))
++  assert.equal(trap.swamp.remaining, oldRemaining, 'removed Swamp must never reach its processor')
++  assert.ok(friend.hp > 0, 'older Swamp cannot kill after wave cleanup')
++  assert.equal(fx.reincarnationWave.visits, 1)
++  assert.equal(fx.reincarnationWave.orbits.length, 32)
++})
++
++test('mode2 cleanup keeps an outside Swamp and the next enemy receives panic', () => {
++  const w = fixture(), enemy = person(w), traps = [center, {...center, x:4608}].map(point => {
++    const fx = effect(w, 'swamp', browserPosition(point))
++    fx.duration = Infinity
++    fx.swamp = createSwamp(point, 0, 0, w)
++    return fx
++  })
++  const fx = createReincarnationWave(w, 0)
++  stepReincarnationWave(w, fx)
++  assert.equal(traps[0].duration, traps[0].age)
++  assert.equal(traps[1].duration, Infinity)
++  assert.equal(enemy.native.state, 26)
++  assert.equal(enemy.hp, 125)
++})
++
++test('ordinary death produces a next-turn wave that outlives successful respawn', () => {
++  const w = createWorld(1)
++  advance(w, 70)
++  const old = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
++  const stones = structuredClone(w.levelStart[0].stoneTurns)
++  old.hp = 0
++  tick(w, 1 / 12)
++  let fx
++  for (let i = 0; i < 470 && !(fx = w.effects.find(f => f.reincarnationWave)); i++) tick(w, 1 / 12)
++  assert.ok(fx)
++  assert.equal(fx.reincarnationWave.visits, 0, 'new allocation cannot process on its production turn')
++  assert.equal(fx.reincarnationWave.orbits.length, 0)
++  assert.equal(Math.round(w.respawns[0] * 12), 5)
++  advance(w, 5)
++  assert.ok(w.units.some(u => u.team === 'blue' && u.kind === 'shaman' && u.id !== old.id))
++  assert.ok(w.effects.includes(fx), 'spawn does not own the wave lifetime')
++  assert.equal(fx.reincarnationWave.visits, 5)
++  assert.deepEqual(w.levelStart[0].stoneTurns, stones)
++  assert.equal(w.levelStart[0].phase, 4)
++  for (let i = 0; i < 100 && w.effects.includes(fx); i++) tick(w, 1 / 12)
++  assert.ok(!w.effects.includes(fx))
++  assert.equal(w.castingTribes[0].flags & 1, 0)
++})
++
++test('checkpoints preserve mode2 identity, sites, orbits, terrain and RNG without replay', () => {
++  for (const visits of [0,1,5,20]) {
++    const w = fixture()
++    person(w)
++    const fx = createReincarnationWave(w, 0)
++    for (let i = 0; i < visits; i++) stepReincarnationWave(w, fx)
++    const restored = migrateCheckpoint(structuredClone(w)), resumed = restored.effects.find(f => f.id === fx.id)
++    assert.deepEqual(state(restored), state(w))
++    for (let i = visits; i < 21; i++) {
++      stepReincarnationWave(w, fx)
++      stepReincarnationWave(restored, resumed)
++    }
++    assert.deepEqual(state(restored), state(w))
++    assert.equal(w.sounds.filter(s => s.cue === 158).length, 1)
++    assert.equal(fx.reincarnationWave.orbits.length, 0)
++    assert.equal(w.castingTribes[0].flags & 1, 0)
++  }
++})
++
++test('mode2 interrupts the real encounter owner while retaining its person and order queue', () => {
++  const w = fixture(), enemy = person(w, 'warrior', {team:'blue'}), friendly = person(w, 'brave')
++  w.reincarnationSites[1] = { ...center }
++  w.selected = [enemy.id]
++  assert.ok(command(w, {x:enemy.x + 4, z:enemy.z}))
++  assert.ok(enemy.native.commands.some(Boolean), 'ordinary move command must create a real queue')
++  joinBattle(w, enemy, friendly)
++  assert.equal(enemy.fight.action, 'encounter')
++  const active = enemy.fight.motion, queue = structuredClone(active.commands), orders = structuredClone(w.buildingOrders)
++  assert.equal(active.state, 29)
++  assert.equal(enemy.native, null, 'encounter owns the live person')
++  const fx = createReincarnationWave(w, 1)
++  stepReincarnationWave(w, fx)
++  assert.equal(active.state, 26)
++  assert.equal(enemy.native, active, 'panic must adopt the actual active person')
++  assert.deepEqual(active.commands, queue)
++  assert.deepEqual(w.buildingOrders, orders)
++  assert.equal(enemy.hp, 105)
++  advance(w, 2)
++  assert.equal(enemy.native, active)
++  assert.equal(active.state, 26, 'old encounter must not overwrite panic on a later visit')
++  assert.equal(enemy.fight, null, 'ordinary fight cleanup must release the old wrapper')
++  assert.deepEqual(active.commands, queue)
++})
++
++test('ordinary Boat and Balloon boarding retain seats and deselect passengers under mode2 panic', async () => {
++  const { selectVehiclePassenger } = await import('../app/vehicle-panel-runtime.ts')
++  for (const model of [1, 3]) {
++    const w = createWorld(22), vehicle = w.vehicles.find(v => v.model === model)
++    const passenger = addUnit(w, 'blue', 'spy', browserPosition(vehicle))
++    const shaman = addUnit(w, 'blue', 'shaman', browserPosition(vehicle))
++    w.inputMask = 0
++    w.selected = [passenger.id, shaman.id]
++    assert.ok(command(w, {...browserPosition(vehicle), id:vehicle.id}))
++    for (let i=0;i<120 && vehicle.passengerCount<2;i++) tick(w,1/12)
++    assert.equal(vehicle.passengerCount, 2)
++    assert.equal(passenger.native.vehicle, vehicle.id)
++    assert.equal(shaman.native.vehicle, vehicle.id)
++    w.selected = []
++    selectVehiclePassenger(w, vehicle, passenger.id, true)
++    assert.ok(w.selected.includes(passenger.id) && w.selected.includes(shaman.id))
++    const active = passenger.native, beforeHP = passenger.hp, seats = [...vehicle.passengers]
++    const queue = structuredClone(active.commands), orders = structuredClone(w.buildingOrders)
++    const peerSelection = shaman.native.selectionFlags
++    w.reincarnationSites[1] = {x:active.x & 0xfe00,y:active.y & 0xfe00,h:active.h}
++    const fx = createReincarnationWave(w, 1)
++    stepReincarnationWave(w, fx)
++    assert.equal(passenger.native, active)
++    assert.equal(active.state, 26)
++    assert.equal(passenger.hp, beforeHP - 15)
++    assert.equal(active.vehicle, vehicle.id)
++    assert.equal(shaman.native.vehicle, vehicle.id)
++    assert.deepEqual(vehicle.passengers, seats)
++    assert.equal(vehicle.passengerCount, 2)
++    assert.ok(!w.selected.includes(passenger.id) && !w.selected.includes(shaman.id))
++    assert.equal(shaman.native.selectionFlags, peerSelection & ~128)
++    assert.deepEqual(active.commands, queue)
++    assert.deepEqual(w.buildingOrders, orders)
++    advance(w, 3)
++    assert.equal(passenger.native.vehicle, vehicle.id)
++    assert.equal(shaman.native.vehicle, vehicle.id)
++    assert.deepEqual(vehicle.passengers, seats)
++  }
++})
++
++test('panic transfers a live building-entry queue and resumes it after expiry', async () => {
++  const {addBuilding} = await import('../app/model.ts')
++  const w = fixture(), hut = addBuilding(w, 'blue', 'hut', {x:13,z:-24}, true)
++  addUnit(w, 'red', 'brave', {x:-50,z:50}) // Keep ordinary victory from interrupting the panic fixture.
++  const u = addUnit(w, 'blue', 'brave', {x:8,z:-24})
++  w.selected = [u.id]
++  assert.ok(command(w, hut))
++  for (let i=0;i<120 && u.entry?.person.substate!==5;i++) tick(w,1/12)
++  assert.equal(u.entry?.person.substate, 5)
++  const p = u.entry.person, queue = structuredClone(p.commands), pool = structuredClone(w.buildingOrders)
++  assert.ok(queue.some(Boolean))
++  w.reincarnationSites[1] = {x:p.x & 0xfe00,y:p.y & 0xfe00,h:p.h}
++  const fx = createReincarnationWave(w, 1)
++  stepReincarnationWave(w, fx)
++  assert.equal(u.native, p)
++  assert.equal(p.state, 26)
++  assert.equal(u.entry, undefined)
++  assert.deepEqual(p.commands, queue)
++  assert.deepEqual(w.buildingOrders, pool)
++  for (let i=0;i<200 && p.state===26;i++) tick(w,1/12)
++  assert.notEqual(p.state, 26)
++  assert.deepEqual(p.commands, queue, 'panic expiry resumes the original queue without allocating a replacement')
++  assert.equal(u.entry?.person, p)
++  assert.deepEqual(w.buildingOrders.records[queue[0]], pool.records[queue[0]])
++  for (let i=0;i<200 && u.inside!==hut.id;i++) tick(w,1/12)
++  assert.equal(u.inside, hut.id, 'the original building-entry command completes after panic')
++  assert.equal(w.buildingOrders.records[queue[0]].references, 0, 'original command ownership is released once on completion')
++})
