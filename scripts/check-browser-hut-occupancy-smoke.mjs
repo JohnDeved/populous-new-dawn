@@ -623,6 +623,55 @@ async function smokeSnapshot(page) {
   })
 }
 
+// Observe the real load before slow software-renderer readiness and pointer
+// acknowledgement can outlast a 16-turn child. Neither observer changes game state.
+async function observeCheckpointLoad(page, savedSerials) {
+  await page.evaluate(savedSerials => {
+    const store = window.testStore,
+      previous = store.getWorld(),
+      started = performance.now()
+    const observation = (window.hutSmoke.checkpointLoad = {})
+    let restored, frame
+    const unsubscribe = store.subscribe(() => {
+      const world = store.getWorld()
+      if (world === previous || restored) return
+      restored = world
+      observation.restored = {
+        turn: world.turn,
+        owner: structuredClone(world.secondaryEffects),
+        gameplayRandom: world.randomState,
+        cosmeticRandom: world.cosmeticRandom.randomState,
+      }
+      unsubscribe()
+    })
+    const inspect = () => {
+      const scene = window.testSceneRef.current
+      if (restored && scene?.world === restored) {
+        const rendered = savedSerials.filter(serial => scene.hutSmokePuffs.has(serial))
+        if (rendered.length) {
+          observation.firstRendered = {
+            turn: restored.turn,
+            children: restored.secondaryEffects.order.flatMap(slot => {
+              const entry = restored.secondaryEffects.slots[slot]
+              if (entry?.kind !== 'hutPuff' || !savedSerials.includes(entry.serial)) return []
+              const group = scene.hutSmokePuffs.get(entry.serial)
+              return [{ ...structuredClone(entry), rendered: !!group?.visible }]
+            }),
+          }
+          return
+        }
+      }
+      if (performance.now() - started < 60000) frame = requestAnimationFrame(inspect)
+      else observation.expired = true
+    }
+    frame = requestAnimationFrame(inspect)
+    window.hutSmoke.stopCheckpointObservation = () => {
+      unsubscribe()
+      cancelAnimationFrame(frame)
+    }
+  }, savedSerials)
+}
+
 async function renderedPuffPixels(page, serials) {
   return page.evaluate(serials => {
     const scene = window.testScene,
@@ -1099,20 +1148,49 @@ try {
 
   stage('checkpoint restore')
   await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+  await observeCheckpointLoad(
+    page,
+    pausedBefore.puffs.map(puff => puff.serial)
+  )
   await page.getByRole('button', { name: 'Load checkpoint', exact: true }).click()
+  // Use the ordinary Pause control before the more expensive full scene bind.
+  await page.getByRole('button', { name: 'Pause game', exact: true }).click()
   await bindGame(page)
   state = await waitForGuardedSmoke(page, residentIds, 'full')
+  report.checkpointLoad = await page.evaluate(() => window.hutSmoke.checkpointLoad)
+  await page.evaluate(() => window.hutSmoke.stopCheckpointObservation())
   assert.equal(state.occupants, 3)
   assert.equal(state.root.mode, 'full')
   assert.deepEqual(state.position, state.expected)
   assert.equal(state.frameSource >= 1329 && state.frameSource <= 1344, true)
   assert.deepEqual(state.atlas, state.expectedAtlas)
   assert.deepEqual(errors, [])
-  const elapsed = state.turn - pausedBefore.turn
+  const loaded = report.checkpointLoad.restored,
+    firstRendered = report.checkpointLoad.firstRendered
+  assert.equal(loaded.turn, pausedBefore.turn)
+  assert.equal(loaded.gameplayRandom, pausedBefore.gameplayRandom)
+  assert.equal(loaded.cosmeticRandom, pausedBefore.cosmeticRandom)
+  assert.ok(firstRendered, 'The restored scene must render a saved child before its native expiry')
+  const firstElapsed = firstRendered.turn - pausedBefore.turn
   assert.ok(
-    pausedBefore.puffs.some(puff => puff.lifetime > elapsed),
+    pausedBefore.puffs.some(puff => puff.lifetime > firstElapsed),
     'Checkpoint must be observed while one saved child is still alive'
   )
+  for (const saved of pausedBefore.puffs) {
+    const entry = loaded.owner.slots.find(entry => entry?.serial === saved.serial)
+    assert.ok(entry, 'Actual Load restores the saved child before scene readiness')
+    for (const key of ['counter', 'lifetime', 'frameStart', 'position'])
+      assert.deepEqual(entry[key], saved[key])
+    if (saved.lifetime > firstElapsed) {
+      const rendered = firstRendered.children.find(puff => puff.serial === saved.serial)
+      assert.ok(rendered?.rendered, 'First restored presentation retains the saved child identity')
+      assert.equal(rendered.lifetime, saved.lifetime - firstElapsed)
+      assert.equal(rendered.counter, (saved.counter + firstElapsed) & 255)
+      assert.equal(rendered.frameStart, saved.frameStart)
+      assert.deepEqual(rendered.position, saved.position)
+    }
+  }
+  const elapsed = state.turn - pausedBefore.turn
   for (const saved of pausedBefore.puffs) {
     const restored = state.puffs.find(puff => puff.serial === saved.serial)
     if (saved.lifetime > elapsed) {
@@ -1140,6 +1218,14 @@ try {
   report.puffTrace = page
     ? await page.evaluate(() => window.hutSmoke?.puffTrace ?? []).catch(() => [])
     : []
+  report.checkpointLoad = page
+    ? await page
+        .evaluate(() => {
+          window.hutSmoke?.stopCheckpointObservation?.()
+          return window.hutSmoke?.checkpointLoad
+        })
+        .catch(() => null)
+    : null
   report.errors = errors ?? []
   if (page)
     await page.screenshot({ path: reportPath.replace('.json', '-failure.png') }).catch(() => {})
