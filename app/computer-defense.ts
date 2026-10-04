@@ -5,7 +5,8 @@ import {
   type ComputerTask,
 } from './computer.ts'
 import { cellDistanceSquared, spiralCell } from './native-math.ts'
-import { spyDisguisedFrom, type SpellTargetUnit } from './computer-spells.ts'
+import { spyDisguisedFrom } from './computer-selection.ts'
+import type { SpellTargetUnit } from './computer-spells.ts'
 
 //0x4c5cf0/0x4627f0. The caller supplies the actual0x4f4030 area assessment.
 export function requestDefenseTask(
@@ -153,7 +154,8 @@ export function stepDefenseTask(ai: ComputerQueue, index: number, input: Defense
       const remaining = task.quotas.reduce((sum, count) => sum + (count & 65535), 0)
       if (remaining) {
         defense.cursor = 0
-        task.quotas[0] = task.quotas[3] = 0
+        task.quotas[0] = 0
+        task.quotas[3] = 0
         if (!task.quotas[2]) {
           task.quotas[2] = remaining & 65535
           return
@@ -165,12 +167,12 @@ export function stepDefenseTask(ai: ComputerQueue, index: number, input: Defense
       }
       defense.fallback = false
     }
-    if (!task.selected) {
-      releaseSelection(ai, index)
-      task.phase = 7
-    } else {
+    if (task.selected) {
       task.phase = 4
       ai.commandDelay = 20
+    } else {
+      releaseSelection(ai, index)
+      task.phase = 7
     }
     return
   }

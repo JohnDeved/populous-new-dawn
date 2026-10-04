@@ -500,6 +500,8 @@ def blast_cases(executable):
         dict(name='usage limit available', limited=True, used=0, expected=True),
         dict(name='elevated Shaman uses live signed height', height=896, cell=0x6470, expected=True),
         dict(name='negative live height reduces Blast range', height=-256, cell=0x646C, expected=False),
+        dict(name='source position near while browser position is far', cell=0x6466, browserCell=0xC0C0, expected=True),
+        dict(name='source position far while browser position is near', cell=0xC0C0, browserCell=0x6466, expected=False),
     ]
     for definition in definitions:
         case = dict(attribute=128, mana=60001, exists=True, state=17, flags2=0,
@@ -594,6 +596,8 @@ function fixture(people) {
     const p = createLivePerson(w, u)
     Object.assign(p, { state: row.state ?? 17, flags2: row.flags2 ?? 0, flags3: 1,
       flags4: row.flags4 ?? 0, h: row.height ?? 0, life: 1000, angle: 0, heading: 0 })
+    if (row.browserCell !== undefined) Object.assign(u, {
+      x: (row.browserCell & 255) - 8, z: -(row.browserCell >> 8) - 8 })
     u.native = p; w.units.push(u); registerLivePerson(w, p)
   }
   w.randomState = 0x12345678

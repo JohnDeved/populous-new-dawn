@@ -1127,15 +1127,21 @@ function stepComputerDefense(w: World, tribe: number, index: number) {
         w.manaTribes[tribe].mana <= ((rules.spellCharging[2].cost + 50000) | 0)
       )
         return
-      const u = w.units.find(u => u.team === team && isShaman(u) && u.hp > 0)
+      const u = w.units.find(
+        candidate => candidate.team === team && isShaman(candidate) && candidate.hp > 0
+      )
       if (!u) return
       const person = combatPerson(u),
+        source = defensePerson(u),
+        baseCaster = spellCaster(w, u),
         casting = w.castingTribes[tribe],
         caster = {
-          ...spellCaster(w, u),
+          ...baseCaster,
           ...person,
-          //0x4c2e30 reads the active person's signed height, including flight.
-          height: defensePerson(u)?.h ?? spellCaster(w, u).height,
+          //0x4f3040/0x4c2e30 read the same active person, including fight/flight.
+          x: source?.x ?? person.x,
+          y: source?.y ?? person.y,
+          height: source?.h ?? baseCaster.height,
           flags4: person.flags4 | (u.casting ? 0x400 : 0),
         }
       if (
@@ -1150,7 +1156,7 @@ function stepComputerDefense(w: World, tribe: number, index: number) {
       const selection = computerSelectionWorld(w, tribe, true),
         ids = selectComputerPeople(selection.world, model, model, -1, 1, center, 0x47, count)
       for (const id of ids) {
-        const u = w.units.find(u => u.id === id)!
+        const u = w.units.find(candidate => candidate.id === id)!
         const p = selection.sources.get(id) ?? defensePerson(u) ?? createLivePerson(w, u)
         p.flags3 = selection.world.units.get(id)!.flags3
         if (!(p.flags2 & 0x100000)) {
@@ -1197,7 +1203,9 @@ function stepComputerDefense(w: World, tribe: number, index: number) {
       for (const { u, p } of owned()) if (p.state === 14) finishComputerPerson(w, u, p, false)
     },
     monitor: current => {
-      const defense = current.defense!,
+      const { defense } = current as ComputerTask & {
+          defense: NonNullable<ComputerTask['defense']>
+        },
         world = computerResponseWorld(w, tribe),
         targets = collectDefenseTargets(
           tribe,
@@ -1221,18 +1229,22 @@ function stepComputerDefense(w: World, tribe: number, index: number) {
         }
         count++
         if (!(rules.personStateFlags[p.state] & 8)) continue
-        let target = targets.people[0]
-        if (target) retargetDefensePerson(w, u, p, ((target.x >>> 8) & 254) | (target.y & 0xfe00))
-        else if ((target = targets.buildings[0])) {
-          const building = w.buildings.find(b => b.id === target.id)!,
+        const [personTarget] = targets.people,
+          [buildingTarget] = targets.buildings
+        if (personTarget)
+          retargetDefensePerson(w, u, p, ((personTarget.x >>> 8) & 254) | (personTarget.y & 0xfe00))
+        else if (buildingTarget) {
+          const building = w.buildings.find(b => b.id === buildingTarget.id)!,
             point = buildingInsidePoint(buildingPose(building))
           retargetDefensePerson(w, u, p, ((point.x >>> 8) & 254) | (point.y & 0xfe00))
         }
       }
       if (!targets.people.length && !targets.buildings.length) {
         const shaman = w.units.find(u => u.team === team && isShaman(u) && u.hp > 0),
-          p = shaman && nativePosition(w, shaman),
-          cell = w.ai.constructionBase ?? (p ? ((p.x >>> 8) & 254) | (p.y & 0xfe00) : 0)
+          shamanPosition = shaman && nativePosition(w, shaman),
+          cell =
+            w.ai.constructionBase ??
+            (shamanPosition ? ((shamanPosition.x >>> 8) & 254) | (shamanPosition.y & 0xfe00) : 0)
         for (const { u, p } of members())
           returnLivePerson(w, u, { x: (cell & 254) << 8, y: cell & 0xfe00 }, p)
         return true
@@ -1255,7 +1267,7 @@ export function stepComputerTasks(w: World, tribe: number) {
   if (earlyResponse) {
     //0x461f90 invalidates targets even when another task gets this turn's visit.
     for (const task of w.ai.tasks) {
-      const scan = task.responseScan
+      const { responseScan: scan } = task
       if (
         task.flags & 1 &&
         task.type === 9 &&

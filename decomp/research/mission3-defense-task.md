@@ -144,13 +144,19 @@ node scripts/check-browser-mission3-defense-task.mjs --game-root . --port 4194 \
 The original probe preserves raw phases, flags, assignments, selected counts,
 quotas, target scans, order records and RNG. Native state initialization and order
 startup consume RNG even though the defense controller has no inline random draw.
-It pairs 26 lifecycle scenarios, four target-collection cases and 17 Blast decisions.
+It pairs 26 lifecycle scenarios, four target-collection cases and 19 Blast decisions.
 The lifecycle intercepts only animation presentation; the separately labeled Blast
 decision cases intercept final spell allocation and compare live cast requests.
 Fresh independent review caught a height-sensitive range omission: the new caster
 used terrain height instead of signed person+0x41. The expanded paired probe fails
 before the correction and passes afterward; native/flight-owned portable cases
 also preserve elevated and negative-height behavior.
+A second review witness separated the browser unit position from its active
+native/flight/fight record. The caster now captures that record once and uses its
+X/Y and signed height together. Both source-near/browser-far and source-far/browser-near
+cases fail before and pass after; non-presented fight ownership is covered too.
+The shared disguise predicate moved unchanged to the lightweight selection module,
+preserving its spell-module export and avoiding a new world-adapter dependency cycle.
 Standability bitmap alone does not initialize the original route graph: both
 native walkmaps, AI player type and search limits are required for a comparable
 flat-world route. A failed route can enter33 and consume another RNG draw; that

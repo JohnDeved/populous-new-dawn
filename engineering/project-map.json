@@ -484,6 +484,7 @@
         "app/computer.ts",
         "app/computer-runtime.ts",
       "app/computer-defense.ts",
+      "app/computer-selection.ts",
         "app/computer-convert.ts",
         "app/computer-spells.ts",
         "app/campaign-runtime.ts",

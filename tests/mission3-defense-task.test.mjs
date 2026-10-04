@@ -16,6 +16,7 @@ import { stepComputerTasks } from '../app/computer-runtime.ts'
 import { requestEarlyResponseTask } from '../app/computer.ts'
 import { nativeSpellRange, spellCaster } from '../app/spell-casting.ts'
 import rules from '../app/original-rules.json' with { type: 'json' }
+import { unitAnimationSource } from '../app/selection-runtime.ts'
 
 // Full imported-program invariants, rather than startup-only observations, bound
 // the Mission3 response path. These do not replace original-byte native probes.
@@ -182,6 +183,37 @@ test('defense Blast uses signed active-person height for native and flight-owned
     world.ai.cursor = 0
     stepComputerTasks(world, 2)
     assert.equal(!!shaman.casting, personRange > terrainRange, `${owner}, signed height${height}`)
+    assert.equal(world.ai.tasks[0].phase, 3)
+  }
+})
+
+test('defense Blast reads active native, flight and non-presented fight positions in both range directions', () => {
+  for (const owner of ['native', 'flight', 'fight']) for (const nativeNear of [true, false]) {
+    const world = createWorld(3), shaman = world.units.find(u => u.team === 'yellow' && u.kind === 'shaman'),
+      enemy = world.units.find(u => u.team === 'blue' && u.kind === 'shaman'),
+      person = createLivePerson(world, shaman),
+      browserCell = ((person.x >>> 8) & 254) | (person.y & 0xfe00),
+      sourceCell = (((browserCell & 255) + 64) & 255) | (browserCell & 0xff00)
+    Object.assign(person, { state: owner === 'fight' ? 25 : 17, flags2: 0, flags4: 0, h: 0,
+      x: (sourceCell & 255) << 8, y: sourceCell & 0xff00 })
+    shaman.native = null
+    if (owner === 'fight') {
+      shaman.fight = { motion: person, action: 'attack', animation: 'attack', group: 1 }
+      assert.equal(unitAnimationSource(shaman), null)
+    } else shaman[owner] = person
+    for (const task of world.ai.tasks) task.flags = 0
+    world.ai.flags &= ~(2 | 0x40000)
+    world.ai.selectionOwner = 10
+    world.manaWorld.gameFlags &= ~32
+    Object.assign(world.castingTribes[2], { flags: 32, cooldown: 0, aiCooldown: 0 })
+    const targetCell = nativeNear ? sourceCell : browserCell,
+      target = (((targetCell & 255) + 2) & 255) | (targetCell & 0xff00)
+    requestDefenseTask(world.ai, 256, 1, enemy.id, target, () => area([0, 1, 0, 0]))
+    world.manaTribes[2].mana = rules.spellCharging[2].cost + 50001
+    world.turn = 1
+    world.ai.cursor = 0
+    stepComputerTasks(world, 2)
+    assert.equal(!!shaman.casting, nativeNear, `${owner}, active position near=${nativeNear}`)
     assert.equal(world.ai.tasks[0].phase, 3)
   }
 })
