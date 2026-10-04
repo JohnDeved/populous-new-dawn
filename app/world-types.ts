@@ -266,6 +266,7 @@ export type Shrine = Point &
       | 'balloonHut'
       | 'mana'
     rewards?: NonNullable<Shrine['reward']>[]
+    bridgeStart?: Point
     bridgeTarget?: Point
     effectTarget?: Point
     effectTargets?: Point[]

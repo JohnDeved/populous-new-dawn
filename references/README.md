@@ -1,5 +1,9 @@
 # Art, sound, gameplay, and stack references
 
+## Current browser acceptance evidence
+
+- [Mission 1 ordinary-control observation, 2026-10-04](verification/mission-one-controls-2026-10-04/README.md): natural build/train/save/load/combat victory on `b846500`, with actual screenshots, both failed exploratory receipts and disclosed ordinary out-of-range correction. This is bounded evidence, not a clean maintained-checker or full-campaign pass.
+
 ## Accepted direction
 
 The current direction is to copy the original game's appearance. On 2026-09-07 the user explicitly removed the earlier low-poly constraint. All 17 local reference images were inspected; see [the visual audit](visual-audit.md) for observations, changes and original-asset provenance.
