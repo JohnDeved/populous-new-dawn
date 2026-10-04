@@ -18,7 +18,10 @@ export function liveVehiclePassengers(w: World, v: Vehicle) {
 }
 export function selectVehiclePassenger(w: World, v: Vehicle, id: number, all: boolean) {
   const people = liveVehiclePassengers(w, v).map(({ person }) => ({
-    ...person,
+    id: person.id,
+    model: person.model,
+    flags3: person.flags3,
+    flags4: person.flags4,
     selectionFlags: (person.selectionFlags & ~128) | (w.selected.includes(person.id) ? 128 : 0),
   }))
   selectVehicleOccupants(people, id, all)
@@ -31,7 +34,7 @@ export function selectVehiclePassenger(w: World, v: Vehicle, id: number, all: bo
   }
   const ids = new Set(people.map(p => p.id))
   w.selected = [
-    ...w.selected.filter(id => !ids.has(id)),
+    ...w.selected.filter(selectedId => !ids.has(selectedId)),
     ...people.filter(p => p.selectionFlags & 128).map(p => p.id),
   ]
 }

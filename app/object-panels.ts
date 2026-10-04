@@ -62,11 +62,9 @@ export class ObjectPanels {
       const canvas = document.createElement('canvas')
       canvas.setAttribute('aria-hidden', 'true')
       const element = document.createElement('div')
-      element.className = head
-        ? 'person-panel worship-panel'
-        : vehicle
-          ? 'person-panel vehicle-panel'
-          : 'person-panel'
+      element.className = 'person-panel'
+      if (head) element.classList.add('worship-panel')
+      else if (vehicle) element.classList.add('vehicle-panel')
       element.setAttribute('role', 'group')
       element.insertBefore(canvas, null)
       for (
@@ -111,15 +109,18 @@ export class ObjectPanels {
       for (const type of ['pointerdown', 'pointerup', 'pointermove'])
         element.addEventListener(type, event => event.stopPropagation())
       scene.container.insertBefore(element, null)
+      let kind: 'person' | 'head' | 'vehicle' = 'person'
+      if (head) kind = 'head'
+      else if (vehicle) kind = 'vehicle'
+      let offset = (scene.unitMeshes.get(id)?.userData.nativeFrameHeight ?? 0) * 8
+      if (vehicle) offset = models[originalVehicleMesh(vehicle.model)].panelHeight
+      else if (head)
+        offset = (models as Record<number, { panelHeight: number }>)[head.model].panelHeight
       panel = {
         element,
         canvas,
-        kind: head ? 'head' : vehicle ? 'vehicle' : 'person',
-        offset: vehicle
-          ? models[originalVehicleMesh(vehicle.model)].panelHeight
-          : head
-            ? (models as Record<number, { panelHeight: number }>)[head.model].panelHeight
-            : (scene.unitMeshes.get(id)?.userData.nativeFrameHeight ?? 0) * 8,
+        kind,
+        offset,
         phase: -1,
         remaining: 0,
         hold: 20,
@@ -268,25 +269,26 @@ export class ObjectPanels {
         people.map(person => person?.selectionFlags),
       ])
       if (key !== panel.key) {
-        const layout = vehicle
-          ? vehiclePanel(
-              vehicle.model,
-              passengers.map(({ person }) => ({
-                model: person.model,
-                selected: world.selected.includes(person.id),
-                own: person.tribe === 0,
-              })),
-              unload,
-              vehicleHover,
-              element.matches(':has(button:active)')
-            )
-          : worship
-            ? worshipPanel(worship)
-            : personPanel(
-                health,
-                maximum,
-                icons.map(i => i.sprite)
-              )
+        let layout: ReturnType<typeof personPanel>
+        if (vehicle)
+          layout = vehiclePanel(
+            vehicle.model,
+            passengers.map(({ person }) => ({
+              model: person.model,
+              selected: world.selected.includes(person.id),
+              own: person.tribe === 0,
+            })),
+            unload,
+            vehicleHover,
+            element.matches(':has(button:active)')
+          )
+        else if (worship) layout = worshipPanel(worship)
+        else
+          layout = personPanel(
+            health,
+            maximum,
+            icons.map(i => i.sprite)
+          )
         paintPanel(canvas, atlas, layout)
         // Use the actual main-sprite submissions for hit geometry; no second layout.
         const draws = layout.events.filter(
@@ -343,16 +345,17 @@ export class ObjectPanels {
           button.style.width = `${rect.w}px`
           button.style.height = `${rect.h}px`
         }
-        element.setAttribute(
-          'aria-label',
-          vehicle
-            ? `${vehicle.model < 3 ? 'Boat' : 'Balloon'}: ${vehicle.passengerCount} passengers`
-            : head
-              ? head.kind === 'vault'
-                ? `${head.name}: ${vaultStatus}; ${Math.round(head.progress * 100)}% complete`
-                : `${head.name}: ${head.followers} worshippers; ${Math.round(head.progress * 100)}% complete`
-              : `${u!.kind}: ${Math.max(0, health)} of ${maximum} health; ${icons.length} orders`
-        )
+        let label: string
+        if (vehicle)
+          label = `${vehicle.model < 3 ? 'Boat' : 'Balloon'}: ${vehicle.passengerCount} passengers`
+        else if (head)
+          label =
+            head.kind === 'vault'
+              ? `${head.name}: ${vaultStatus}; ${Math.round(head.progress * 100)}% complete`
+              : `${head.name}: ${head.followers} worshippers; ${Math.round(head.progress * 100)}% complete`
+        else
+          label = `${u!.kind}: ${Math.max(0, health)} of ${maximum} health; ${icons.length} orders`
+        element.setAttribute('aria-label', label)
         panel.key = key
       }
       const point =

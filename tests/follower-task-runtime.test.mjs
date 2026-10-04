@@ -111,13 +111,17 @@ test('real boarding through a route owner overrides a dormant native person for 
     assert.ok(boardLiveVehicle(world, route, boat))
     return route
   })
+  // This authored craft has native settled offsets (-40,-128) and (-40,-64).
+  // Pin the fixture and unsigned seam coordinates independently of the runtime helper.
+  assert.deepEqual([boat.model,boat.x,boat.y,boat.heading],[1,-7084,12197,0])
+  const seats = [[58412,12069],[58412,12133]]
   assert.ok(units.every(u => u.native.vehicle === 0))
   world.selected = units.map(u => u.id)
   const before = structuredClone(world), people = hudTaskPeople(world)
   for (let i=0;i<units.length;i++) {
     const person = people.find(p => p.id === units[i].id)
     assert.equal(person.source, routes[i]); assert.equal(person.vehicle, boat.id)
-    assert.equal(person.category, 5); assert.deepEqual([person.x,person.y],[boat.x,boat.y])
+    assert.equal(person.category, 5); assert.deepEqual([person.x,person.y],seats[i])
   }
   assert.deepEqual(world, before, 'task reads do not transfer or mutate simulation ownership')
   selectFollowerTask(world, 3, 1, boat, 'five')

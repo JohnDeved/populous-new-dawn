@@ -2,8 +2,7 @@ import rules from './original-rules.json' with { type: 'json' }
 import { randomPersonSpeed } from './person-state.ts'
 import { nativeAngle } from './native-math.ts'
 import type { LivePerson } from './live-people.ts'
-import type { Vehicle } from './world-types.ts'
-import { teamForTribe } from './world-types.ts'
+import { teamForTribe, type Vehicle } from './world-types.ts'
 
 // 0x466f30's forced refresh. The live panel recomputes from current state;
 // it does not copy the original raw scheduler-byte cache into the browser.
