@@ -4,6 +4,7 @@ import { openGame } from './browser-game.mjs'
 
 const swarmOnly = process.argv.includes('--mission3-swarm-only')
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
+const captureCameraEvidence = async () => {}
 const wrapped = value => ((value + 128) % 256 + 256) % 256 - 128
 
 async function state(page) {
@@ -380,8 +381,55 @@ async function groundPoint(page, point, buildingKind, maxRadius = 12) {
   }, { point, buildingKind, maxRadius })
 }
 
+async function rotateCameraWithPointer(page, id, attempt) {
+  const setup = await page.evaluate(() => {
+    const scene = globalThis.testScene, world = scene.world,
+      canvas = scene.renderer.domElement, rect = canvas.getBoundingClientRect()
+    for (const fraction of [0.75, 0.6, 0.45]) {
+      const start = { x: rect.left + 20, y: rect.top + rect.height * fraction },
+        end = { x: start.x + 512, y: start.y }
+      if (end.x >= rect.right || document.elementFromPoint(start.x, start.y) !== canvas || document.elementFromPoint(end.x, end.y) !== canvas) continue
+      return { start, end, level: world.outcome.level,
+        before: { turn: world.turn, time: world.time, random: world.randomState, selected: [...world.selected],
+          mode: world.mode, angle: scene.cameraPosition.angle, viewPoint: { ...scene.viewPoint } } }
+    }
+    throw new Error('No canvas-owned right-drag corridor for occluded shrine')
+  })
+  assert.ok(setup.before.selected.length, 'Camera drag must not become an unselected-object context click')
+  const label = `mission-${setup.level}-shrine-${id}-rotation-${attempt}`
+  await captureCameraEvidence(`${label}-before`)
+  await page.mouse.move(setup.start.x, setup.start.y)
+  await page.mouse.down({ button: 'right' })
+  try { await page.mouse.move(setup.end.x, setup.end.y, { steps: 8 }) }
+  finally { await page.mouse.up({ button: 'right' }) }
+  const after = await page.evaluate(() => {
+    const scene = globalThis.testScene, world = scene.world
+    scene.renderer.render(scene.scene, scene.camera)
+    return { turn: world.turn, time: world.time, random: world.randomState, selected: [...world.selected],
+      mode: world.mode, angle: scene.cameraPosition.angle, viewPoint: { ...scene.viewPoint } }
+  })
+  assert.equal(after.angle, (setup.before.angle + 512) & 2047, 'Real right-drag rotates one quarter-turn')
+  for (const field of ['turn', 'time', 'random', 'selected', 'mode', 'viewPoint'])
+    assert.deepEqual(after[field], setup.before[field], `Camera-only pointer drag preserves ${field}`)
+  const evidence = { id, attempt, ...setup, after, method: 'ordinary right-button drag; RAF remains suspended' }
+  await page.evaluate(evidence => { (globalThis.campaignCameraAdjustments ??= []).push(evidence) }, evidence)
+  console.log(JSON.stringify({ cameraAdjustment: evidence }))
+  await captureCameraEvidence(`${label}-after`)
+}
+
 async function clickEntity(page, collection, id) {
-  const point = await entityPoint(page, collection, id)
+  let point
+  for (let attempt = 0; attempt < 4; attempt++) {
+    try { point = await entityPoint(page, collection, id); break }
+    catch (error) {
+      const diagnostic = await page.evaluate(() => globalThis.campaignPickDiagnostics?.at(-1))
+      if (collection !== 'shrines' || attempt === 3 || diagnostic?.id !== id ||
+          diagnostic.collection !== collection || !diagnostic.nativeTargetHits || diagnostic.nativeTargetHits.length)
+        throw error
+      await rotateCameraWithPointer(page, id, attempt + 1)
+    }
+  }
+  assert.ok(point, 'A shrine click requires an actually picked, canvas-owned target')
   if (point.pickingDiagnostic) console.log(JSON.stringify({ pickingDiagnostic: point.pickingDiagnostic }))
   await page.mouse.click(point.x, point.y)
 }

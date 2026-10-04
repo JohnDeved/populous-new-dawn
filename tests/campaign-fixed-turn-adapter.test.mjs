@@ -42,6 +42,7 @@ test('late final screenshot completion cannot mark an aborted campaign scenario 
 import { chromium } from '@playwright/test'
 import { openGame } from './browser-game.mjs'
 const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })
+const captureCameraEvidence = async () => {}
 async function missionTwo() {}
 async function missionThree() {}
 const result = { ready: true, turn: 1, status: 'playing' }, required = false, label = 'fixture'
@@ -161,4 +162,18 @@ test('stale pre-refresh reservations fail instead of being normalized by the che
 test('presentation refresh cannot conceal changed world Map entries', async () => {
   await assert.rejects(geometryPoint({ canvasOwnsPoint: false, stalePanel: true, changeMapOnRefresh: true }),
     /Zero-dt presentation refresh changed world state.*buildingFootprints/)
+})
+
+
+test('occluded shrine fallback uses bounded ordinary camera drags and strict target re-probes', () => {
+  const click = checker.slice(checker.indexOf('async function clickEntity'), checker.indexOf('async function dismissFlyby'))
+  const rotate = checker.slice(checker.indexOf('async function rotateCameraWithPointer'), checker.indexOf('async function clickEntity'))
+  assert.ok(click.includes("collection !== 'shrines' || attempt === 3"))
+  assert.ok(click.includes('diagnostic.nativeTargetHits.length'))
+  assert.ok(click.includes('await entityPoint(page, collection, id)'))
+  assert.ok(rotate.includes("await page.mouse.down({ button: 'right' })"))
+  assert.ok(rotate.includes("finally { await page.mouse.up({ button: 'right' }) }"))
+  assert.ok(rotate.includes("['turn', 'time', 'random', 'selected', 'mode', 'viewPoint']"))
+  assert.ok(!rotate.includes('tick(') && !rotate.includes('scene.animate('))
+  assert.ok(!/camera(?:Bearing|Position\.angle)\s*=/.test(rotate))
 })

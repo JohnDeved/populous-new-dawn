@@ -8,6 +8,7 @@ import { pathToFileURL } from 'node:url'
 
 export function campaignAdapter(source) {
   const replacements = [
+    ['const captureCameraEvidence = async () => {}', 'const captureCameraEvidence = globalThis.campaignFixedTurnQA.checkpoint'],
     ["import { chromium } from '@playwright/test'", '// Browser supplied by the sandbox-preserving local-render harness.'],
     ["import { openGame } from './browser-game.mjs'", 'const { page, receipt, checkpoint } = globalThis.campaignFixedTurnQA\nconst openGame = async () => ({ page, errors: receipt.errors })'],
     ["const browser = await chromium.launch({ headless: !process.argv.includes('--headed') })", 'const browser = { close: async () => {} }'],
@@ -51,6 +52,7 @@ export default async function campaignFixedTurn({ root, page, openMission, outpu
         buildings: world.buildings.filter(building => building.hp > 0).map(({ id, kind, team, hp, progress }) => ({ id, kind, team, hp, progress })),
         pickingDiagnostics: window.campaignPickDiagnostics ?? [],
         startupReadiness: window.campaignStartupReadiness ?? [],
+        cameraAdjustments: window.campaignCameraAdjustments ?? [],
         contextLost: gl.isContextLost(), renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
       }
     })
