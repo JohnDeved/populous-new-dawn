@@ -1,3 +1,4 @@
+import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import type { GameScene } from './scene.ts'
 import { buildingModel, type Building } from './model.ts'
 import rules from './original-rules.json' with { type: 'json' }
@@ -95,7 +96,10 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
     )
       panel.hidden = true
   }
-  if (scene.overviewActive || world.inputMask || !atlas?.complete || !atlas.naturalWidth) return
+  if (scene.overviewActive || world.inputMask || !atlas?.complete || !atlas.naturalWidth) {
+    syncSecondaryReservations(scene)
+    return
+  }
   for (const b of world.buildings) {
     const plan = b.progress < 1,
       profile = buildingOccupantPanelProfile(b),
@@ -307,4 +311,5 @@ export function renderBuildingPanels(scene: GameScene, atlas: HTMLImageElement |
     dismantle.setAttribute('aria-label', dismantling ? 'Cancel dismantling' : `Dismantle ${name}`)
     dismantle.title = dismantling ? 'Cancel dismantling' : `Dismantle ${name} and recover timber`
   }
+  syncSecondaryReservations(scene)
 }

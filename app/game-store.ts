@@ -1,3 +1,5 @@
+import { rebuildSecondaryLists } from './secondary-effects.ts'
+import { restoreSecondaryEffects } from './hut-smoke-runtime.ts'
 import { campaignCommand, createGift, createWorld, type Gift, type World } from './model.ts'
 import { missionEnemyTribe, missionNumbers } from './mission-data.ts'
 import { teamForTribe } from './world-types.ts'
@@ -93,6 +95,7 @@ function migrateLegacyComputerTeam(world: World, tribe: number) {
 }
 
 export function migrateCheckpoint(world: World) {
+  restoreSecondaryEffects(world)
   world.outcome.level ??= 1
   world.drawMode ??= 0
   // An old checkpoint has already passed startup. Never replay terrain or conversion.
@@ -342,6 +345,7 @@ export function createGameStore() {
       return !!checkpoint
     },
     saveCheckpoint: async () => {
+      rebuildSecondaryLists(world.secondaryEffects)
       const saved = structuredClone(world)
       checkpoint = saved
       update()

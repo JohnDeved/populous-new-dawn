@@ -5110,3 +5110,10 @@ loop. The browser allocation adapter remains an explicit implementation gap.
 binds the level reset and record allocator to the corrected Mission 1–3 initial
 adapter contribution. It preserves a failed-before/passed-after native comparison
 and names the remaining primary-stream, secondary-list and render-RNG boundaries.
+
+## Shared secondary hut smoke owner
+
+[Secondary owner and evidence](research/hut-smoke-secondary-owner.md) binds the
+160-slot mixed pool, actual original draw/processor RNG coupling, deferred child
+visits and checkpoint slot reconstruction to the bounded runtime owner. Its
+primary-stream and current UI-adapter limits remain explicit.

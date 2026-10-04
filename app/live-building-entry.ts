@@ -1,3 +1,4 @@
+import { reconcileWorldHutSmoke } from './hut-smoke-runtime.ts'
 import { notifyHutOccupancy } from './hut-occupancy-smoke.ts'
 import { buildingPose } from './building-shapes.ts'
 import { releaseTasks } from './world-tasks.ts'
@@ -347,7 +348,10 @@ function occupancyEffects(w: World): OccupancyEffects {
       }
       // 00407150 / 00407490 reconcile the indicator in the same admission/removal call.
       const building = w.buildings.find(target => target.id === b.id)
-      if (building) notifyHutOccupancy(building)
+      if (building) {
+        reconcileWorldHutSmoke(w, building)
+        notifyHutOccupancy(building)
+      }
     },
   }
 }

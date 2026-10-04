@@ -1,3 +1,4 @@
+import { hutSmokeState } from './hut-smoke-runtime.ts'
 import type { GameScene } from './scene.ts'
 import * as THREE from 'three'
 import {
@@ -32,16 +33,10 @@ import {
 } from './model'
 import { terrainPointHeight } from './native-terrain.ts'
 import { buildingSocketPoint } from './building-shapes.ts'
-import { random } from './native-math.ts'
-import { afterCurrentGameTurn } from './game-clock.ts'
 import {
-  createHutOccupancySmoke,
   observeHutOccupancy,
-  reconcileHutOccupancySmoke,
-  completeHutSmokeAllocationVisit,
   hutOccupancySmokeLayer,
   hutOccupancySmokeSocket,
-  stepHutOccupancySmoke,
   type HutOccupancySmokeState,
 } from './hut-occupancy-smoke.ts'
 import { unitHealthGauge } from './unit-health.ts'
@@ -186,7 +181,6 @@ function makeBuilding(b: Building, stage: number) {
 }
 
 interface HutSmokeRenderState {
-  occupants: number
   state: HutOccupancySmokeState
   group: THREE.Group
   sprite: THREE.Sprite
@@ -213,87 +207,67 @@ function hutSmokeSprite() {
   return sprite
 }
 
-function updateHutOccupancySmoke(
-  scene: GameScene,
-  b: Building,
-  buildingGroup: THREE.Group,
-  occupancyEvent = false
-) {
+function updateHutOccupancySmoke(scene: GameScene, b: Building, buildingGroup: THREE.Group) {
   if (b.kind !== 'hut' || b.team !== 'blue' || b.progress < 1 || b.hp <= 0) {
     releaseHutSmoke(scene, buildingGroup)
     return
   }
-
-  const model = buildingModel(b),
-    capacity = rules.buildingCapacity[model]
-  if (!capacity) {
+  const model = buildingModel(b)
+  if (!rules.buildingCapacity[model]) {
     releaseHutSmoke(scene, buildingGroup)
     return
   }
-
-  const occupants = scene.world.units.filter(u => u.inside === b.id && u.hp > 0).length
   let smoke = buildingGroup.userData.hutOccupancySmoke as HutSmokeRenderState | undefined
   if (!smoke) {
     const group = new THREE.Group(),
       sprite = hutSmokeSprite()
     group.name = 'hut-occupancy-smoke'
     group.add(sprite)
-    smoke = {
-      occupants,
-      state: createHutOccupancySmoke(
-        b.counter,
-        occupants,
-        capacity,
-        scene.gameClock.animationFrame
-      ),
-      group,
-      sprite,
-    }
+    smoke = { state: hutSmokeState(scene.world, b), group, sprite }
     buildingGroup.userData.hutOccupancySmoke = smoke
     scene.objects.add(group)
-    // Both Hut teardown and whole-scene disposal release this unique material.
     sprite.material.addEventListener(
       'dispose',
-      observeHutOccupancy(b, () => updateHutOccupancySmoke(scene, b, buildingGroup, true))
+      observeHutOccupancy(b, () => updateHutOccupancySmoke(scene, b, buildingGroup))
     )
-  } else {
-    stepHutOccupancySmoke(
-      smoke.state,
-      b.counter,
-      occupancyEvent ? smoke.occupants : occupants,
-      capacity,
-      scene.gameClock.animationFrame,
-      () => random(scene.world.cosmeticRandom)
-    )
-
-    if (occupancyEvent) {
-      // Drain preceding visits before creating a root at the real admission or
-      // removal event. Its own first visit belongs to this turn's secondary pass.
-      const allocated = reconcileHutOccupancySmoke(
-        smoke.state,
-        occupants,
-        capacity,
-        scene.gameClock.animationFrame
-      )
-      const state = smoke.state,
-        root = state.root,
-        allocationCounter = b.counter
-      if (allocated && root?.mode === 'partial')
-        afterCurrentGameTurn(scene.gameClock, () =>
-          completeHutSmokeAllocationVisit(state, root, allocationCounter, b.counter)
-        )
-    }
-    smoke.occupants = occupants
   }
-
   const socket = buildingSocketPoint(buildingPose(b), hutOccupancySmokeSocket(model)),
     point = browserPosition(socket),
     height = terrainPointHeight(scene.world.land, socket) + socket.heightOffset
   scene.locate(smoke.group, point, height / 45)
-
-  const layer = hutOccupancySmokeLayer(smoke.state, scene.gameClock.animationFrame)
+  const layer = hutOccupancySmokeLayer(smoke.state, scene.world.secondaryEffects.animationFrame)
   smoke.group.visible = !!layer
   if (layer) effectFrame(smoke.sprite, nativeEffects.animations[layer.sequence][layer.frame])
+}
+
+function updateHutSmokePuffs(scene: GameScene) {
+  const owner = scene.world.secondaryEffects,
+    puffs = owner.order.flatMap(slot => {
+      const entry = owner.slots[slot]
+      return entry?.kind === 'hutPuff' ? [entry] : []
+    })
+  // Kept outside building groups: removing or replacing a root does not remove
+  // its already-allocated children, whose own sixteen visits still apply.
+  scene.hutSmokePuffs ??= new Map()
+  for (const [id, group] of scene.hutSmokePuffs)
+    if (!puffs.some(puff => puff.serial === id)) {
+      group.removeFromParent()
+      scene.releaseGroup(group)
+      scene.hutSmokePuffs.delete(id)
+    }
+  for (const puff of puffs) {
+    let group = scene.hutSmokePuffs.get(puff.serial)
+    if (!group) {
+      group = new THREE.Group()
+      group.name = 'hut-smoke-puff'
+      group.add(hutSmokeSprite())
+      scene.hutSmokePuffs.set(puff.serial, group)
+      scene.objects.add(group)
+    }
+    const frame = (((owner.animationFrame - puff.frameStart) % 16) + 16) % 16
+    effectFrame(group.children[0] as THREE.Sprite, nativeEffects.animations.hutSmokePartial[frame])
+    scene.locate(group, browserPosition(puff.position), puff.position.h / 45)
+  }
 }
 
 function makeVehicle(v: Vehicle) {
@@ -714,6 +688,7 @@ export function updateBuildingsFrame(scene: GameScene) {
     g.userData.healthFill.scale.x =
       b.progress < 1 ? Math.max(0.01, b.progress) : Math.max(0.001, b.hp / buildingHp(b.kind))
   }
+  updateHutSmokePuffs(scene)
 }
 
 export function updateShrinesFrame(scene: GameScene) {

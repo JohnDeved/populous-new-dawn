@@ -1,3 +1,4 @@
+import { syncSecondaryReservations } from './scene-secondary-effects.ts'
 import type { GameScene } from './scene.ts'
 import { browserPosition, effect, maxHp, nativePosition, unitAnimationSource } from './model.ts'
 import {
@@ -89,6 +90,7 @@ export class ObjectPanels {
       }
       this.panels.set(id, panel)
     } else if (automatic) panel.automatic = true
+    syncSecondaryReservations(scene)
     if (immediate) {
       panel.phase = 1
       panel.remaining = panel.hold
@@ -122,6 +124,7 @@ export class ObjectPanels {
       if (!u && !head) {
         panel.element.remove()
         panels.delete(id)
+        syncSecondaryReservations(scene)
         this.automaticSamples.delete(id)
         continue
       }
@@ -142,6 +145,7 @@ export class ObjectPanels {
       if (!alive) {
         panel.element.remove()
         panels.delete(id)
+        syncSecondaryReservations(scene)
         continue
       }
       const { canvas, element } = panel
@@ -335,6 +339,7 @@ export class ObjectPanels {
   dispose() {
     for (const panel of this.panels.values()) panel.element.remove()
     this.panels.clear()
+    syncSecondaryReservations(this.scene)
     this.automaticSamples.clear()
   }
 }
