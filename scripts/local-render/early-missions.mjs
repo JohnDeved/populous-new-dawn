@@ -3,6 +3,32 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import { waitForCheckpointReadback } from '../checkpoint-readback.mjs'
+
+export async function waitForSavedCheckpoint(page, turn, signal) {
+  const committed = await waitForCheckpointReadback(async () => {
+    signal.throwIfAborted()
+    return page.evaluate(async expected => {
+      const request = indexedDB.open('populous-new-dawn', 1)
+      const db = await new Promise((res, rej) => {
+        request.onsuccess = () => res(request.result)
+        request.onerror = () => rej(request.error)
+      })
+      try {
+        const r = db.transaction('checkpoints', 'readonly').objectStore('checkpoints').get('latest')
+        const value = await new Promise((res, rej) => {
+          r.onsuccess = () => res(r.result)
+          r.onerror = () => rej(r.error)
+        })
+        return value?.world?.turn === expected
+      } finally {
+        db.close()
+      }
+    }, turn)
+  }, { attempts: 300, pause: () => page.waitForTimeout(100) })
+  signal.throwIfAborted()
+  assert.equal(committed, true, 'Save checkpoint must commit the expected turn before reloading')
+}
 
 // Ordinary public UI and real RAF only. React references are observation-only.
 export default async function ({
@@ -191,23 +217,7 @@ export default async function ({
         const saved = await snap(page)
         await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
         // Await the normal asynchronous save by reading its committed IDB record.
-        await page.waitForFunction(async expected => {
-          const request = indexedDB.open('populous-new-dawn', 1)
-          const db = await new Promise((res, rej) => {
-            request.onsuccess = () => res(request.result)
-            request.onerror = () => rej(request.error)
-          })
-          try {
-            const r = db.transaction('checkpoints').objectStore('checkpoints').get('latest')
-            const value = await new Promise((res, rej) => {
-              r.onsuccess = () => res(r.result)
-              r.onerror = () => rej(r.error)
-            })
-            return value?.world?.turn === expected
-          } finally {
-            db.close()
-          }
-        }, saved.turn)
+        await waitForSavedCheckpoint(page, saved.turn, signal)
         await page.screenshot({ path: resolve(output, `mission-${level}-saved-settings.png`) })
         await page.reload({ waitUntil: 'domcontentloaded' })
         const selector = page.getByRole('dialog', { name: 'Start game', exact: true })
