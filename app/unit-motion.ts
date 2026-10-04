@@ -1,10 +1,12 @@
 import {
+  buildingModel,
   nativePosition,
   unitAnimationSource,
   TURNS_PER_SECOND,
   type Unit,
   type World,
 } from './model.ts'
+import rules from './original-rules.json' with { type: 'json' }
 
 interface Position {
   x: number
@@ -70,8 +72,20 @@ export class UnitMotion {
       const frame = this.frames.get(u)
       if (!frame) continue // New people appear at their spawn point.
       unitPosition(w, u, frame.to)
-      // Entering/exiting a building and changing class are discrete transitions.
-      if (frame.inside !== u.inside || frame.kind !== u.kind || frame.team !== u.team)
+      // Native mode-3 training admission keeps displacement and the visible
+      // sprite's interpolation. Hidden entry, exit and identity changes stay discrete.
+      const changedBuilding = frame.inside !== u.inside,
+        visibleTrainingEntry =
+          changedBuilding &&
+          frame.inside === null &&
+          !!u.entry &&
+          !(u.entry.person.renderFlags & 16) &&
+          w.buildings.some(b => b.id === u.inside && !!(rules.buildingFlags[buildingModel(b)] & 1))
+      if (
+        (changedBuilding && !visibleTrainingEntry) ||
+        frame.kind !== u.kind ||
+        frame.team !== u.team
+      )
         Object.assign(frame.from, frame.to)
       Object.assign(frame, { inside: u.inside, kind: u.kind, team: u.team })
     }
