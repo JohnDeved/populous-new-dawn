@@ -357,7 +357,9 @@ export function createWorld(missionNumber = 1): World {
         kind,
         reward: shrineReward,
         ...(rewards.length > 1 ? { rewards } : {}),
-        ...(kind === 'bridgeEffect' ? { bridgeTarget } : {}),
+        ...(kind === 'bridgeEffect'
+          ? { bridgeStart: { x: bridge!.x, z: bridge!.z }, bridgeTarget }
+          : {}),
         ...(kind === 'erosionEffect' ? { effectTarget, effectTargets } : {}),
         ...(kind === 'flattenEffect' ? { effectTarget } : {}),
         ...(kind === 'volcanoEffect' ? { effectTarget: { x: volcano!.x, z: volcano!.z } } : {}),

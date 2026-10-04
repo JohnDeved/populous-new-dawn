@@ -1,8 +1,8 @@
 import { rebuildSecondaryLists } from './secondary-effects.ts'
 import { restoreSecondaryEffects } from './hut-smoke-runtime.ts'
 import { campaignCommand, createGift, createWorld, type Gift, type World } from './model.ts'
-import { missionEnemyTribe, missionNumbers } from './mission-data.ts'
-import { teamForTribe } from './world-types.ts'
+import { missionData, missionEnemyTribe, missionNumbers } from './mission-data.ts'
+import { teamForTribe, type Point } from './world-types.ts'
 import { createComputerProducers } from './computer.ts'
 import rules from './original-rules.json' with { type: 'json' }
 import {
@@ -95,6 +95,40 @@ function migrateLegacyComputerTeam(world: World, tribe: number) {
       world.land.regions[index] = (world.land.regions[index] & ~0x20) | (1 << (tribe + 4))
 }
 
+function migrateLegacyBridgeOrigins(world: World) {
+  const { objects } = missionData(world.outcome.level).level
+  for (const shrine of world.shrines) {
+    if (shrine.kind !== 'bridgeEffect' || shrine.bridgeStart || !shrine.bridgeTarget) continue
+    const heading = Math.round((shrine.angle * 2048) / (Math.PI * 2)) & 2047,
+      starts = objects
+        .filter(
+          object =>
+            object.type === 6 &&
+            object.model === 6 &&
+            object.x === shrine.x &&
+            object.z === shrine.z &&
+            object.settings?.[1] === shrine.range &&
+            (object.angle & 2047) === heading
+        )
+        .flatMap(head =>
+          Array.from({ length: 10 }, (_, slot) => {
+            const token = head.settings![6 + slot * 2] | (head.settings![7 + slot * 2] << 8)
+            return objects.find(object => object.index === token - 1)
+          })
+        )
+        .flatMap(object => {
+          if (object?.type !== 7 || object.model !== 24 || !('target' in object)) return []
+          const target = object.target as Point
+          return target.x === shrine.bridgeTarget!.x && target.z === shrine.bridgeTarget!.z
+            ? [{ x: object.x, z: object.z }]
+            : []
+        })
+    const [start] = starts
+    if (start && starts.every(other => other.x === start.x && other.z === start.z))
+      shrine.bridgeStart = start
+  }
+}
+
 export function migrateCheckpoint(world: World) {
   restoreSecondaryEffects(world)
   world.outcome.level ??= 1
@@ -162,6 +196,8 @@ export function migrateCheckpoint(world: World) {
     world.killCredits[3][0] = Math.max(world.killCredits[3][0], world.killCredits[1][0])
   }
   migrateLegacyWorshipAppearance(world)
+  // Only recover immutable authored endpoints. Keep active effects and terrain intact.
+  migrateLegacyBridgeOrigins(world)
   if (world.outcome.level === 5 && !world.shrines.some(shrine => shrine.kind === 'angel')) {
     const angel = createWorld(5).shrines.find(shrine => shrine.kind === 'angel')!
     world.shrines.push({ ...structuredClone(angel), id: world.nextId++ })
