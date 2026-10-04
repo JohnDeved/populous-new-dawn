@@ -5175,3 +5175,12 @@ and right-click focus. It includes executed native draw-request reconstructions,
 not original-game screenshots. Executable probes include bounded transport interactions, full constructor/refresh
 transitions and disabled draw flags. Full UI painter-order/blend and live browser
 integration remain explicit boundaries.
+
+## Resting transport passengers
+
+[State30 evidence](research/transport-idle-state.md) distinguishes the initializer's
+state index from the update dispatcher's state-minus-one index. Full native initializer
+comparisons and 180 real switch-body cases cover route release, zero speed and the
+detached return to orders. The live regression covers actual command boarding and
+Boat disguise completion/countdown/checkpoints; the earlier Balloon command-position
+boundary remains separate.
