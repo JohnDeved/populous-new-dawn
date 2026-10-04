@@ -38,10 +38,12 @@ Split actions permit a protected play strategy:
    available Blast through the HUD. Inspect each cast's target result before
    another cast. The scenario does not manufacture spells or presume that one
    cast kills. Training advances concurrently under ordinary real elapsed time.
-4. `return-shaman-home` proves normal arrival. `finish-preacher-training` observes
-   the actual new Blue Preacher and retained original Braves. This first revised
-   route retains the home precondition to preserve the established defense
-   priority; a different covering position requires an explicit prospective tactic.
+4. `finish-preacher-training` observes the actual new Blue Preacher and retained
+   original Braves. Keep the Shaman at an observed prospective covering position
+   or use `return-shaman-home`, according to current threats. The earlier home
+   arrival remains required; the protected approach records the actual live
+   Shaman's identity, health and present position. It does not claim that an
+   away-from-home tactic preserves the isolated reference's defender priority.
 5. `approach-sermon` chooses a victim once from current observations, before any
    sermon. Prefer authored53 when still eligible; otherwise sort eligible idle
    Yellow Braves within32 wrapped world units of `(-43,-107)` by distance then

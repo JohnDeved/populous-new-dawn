@@ -99,9 +99,10 @@ while the trainee trains. See `protected-sermon-strategy.md`. First batch:
 This executes Vault → Shaman home → Temple built by five existing Braves → one
 verified training order. Inspect the paused snapshot for the actual hostile
 Preacher. Use ordinary Shaman movement/Blast and current target results while
-training advances, then `return-shaman-home`, `finish-preacher-training` and
-`approach-sermon` (with `resume` at the start of each new batch). Original untrained Braves must remain. Shaman home arrival is observed before construction and checked again before
-Preacher intrusion. Every meaningful order/plan is asserted immediately; it does not accept unrelated AI construction.
+training advances, then `finish-preacher-training` and `approach-sermon` (with
+`resume` at the start of each new batch). Keep the Shaman at the observed covering
+position or use `return-shaman-home` as a prospective tactical choice. Original untrained Braves must remain. Shaman home arrival is observed before construction. Before the protected
+approach, the actual Shaman must be alive and its current position is recorded. Every meaningful order/plan is asserted immediately; it does not accept unrelated AI construction.
 
 Once `approach-sermon` has recorded and saved the exact preselected listener,
 the interruption batch is:

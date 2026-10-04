@@ -52,9 +52,11 @@ another worker's server, browser, cache or profile.
    acquisition; they are neither success assertions nor reliable wall-time
    forecasts here. The same source records a direct intrusion into the dense
    enemy settlement ending in ordinary combat death.
-5. Return the Shaman home before a Preacher intrusion. Current ordinary-defense
-   tests show that leaving her at the Vault legitimately changes the enemy
-   scanner's target priority. Current main includes real type9 detection, type8
+5. The isolated reference returned the Shaman home before a Preacher intrusion.
+   Current ordinary-defense tests show that leaving her at the Vault legitimately
+   changes the enemy scanner's target priority. The later protected strategy may
+   instead record a prospective covering position after its initial home milestone;
+   it makes no unchanged-defender-priority claim. Current main includes real type9 detection, type8
    defense, and the complete marker-Preacher block. Older research paragraphs
    calling those branches absent describe historical boundaries, not this HEAD.
 6. Chumara autonomously builds Tower → Temple → first Preacher → huts. Its

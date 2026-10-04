@@ -506,8 +506,12 @@ export default async function missionThreeControls({ page, output, root, signal,
   const approachSermon = async () => {
     assert.ok(ids.preacher && !victimSelection && !savedSermon, 'Preselect the protected victim exactly once before a sermon')
     const state = await read()
-    const home = state.units.find(u => u.id === ids.shaman)
-    assert.ok(home && Math.hypot(home.x - 35, home.z - 81) <= 4, 'Shaman remains home before the Preacher intrusion')
+    assert.ok(milestones.some(m => m.name === 'shaman-home'), 'Retain the observed opening home arrival')
+    const shaman = state.units.find(u => u.id === ids.shaman)
+    assert.ok(shaman && shaman.team === 'blue' && shaman.kind === 'shaman' && shaman.hp > 0,
+      'The actual Shaman remains alive before the protected approach')
+    log({ action: 'sermon-shaman-position', turn: state.turn, shaman,
+      tactic: Math.hypot(shaman.x - 35, shaman.z - 81) <= 4 ? 'home' : 'prospective covering position' })
     victimSelection = selectSermonVictim(state, ids.authoredVictim)
     ids.victim = victimSelection.victim.id
     log({ action: 'sermon-victim-preselected', turn: state.turn, epoch: state.observation.name, selection: victimSelection })
