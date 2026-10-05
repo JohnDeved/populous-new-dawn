@@ -1,0 +1,98 @@
+{
+  "note": "Native links are one based, matching world-initialization.ts linkedObjects. Initial exploratory output authored-boundary.json used zero-based links and is invalid.",
+  "levels": [
+    {
+      "mission": 1,
+      "sha256": "97cdb6e170f68b462b5b36c42c99a598b0466e0131a105f30612f50d7f16e40c",
+      "linkedSpellHeads": [
+        {
+          "index": 28,
+          "mode": 0,
+          "position": [
+            11.0,
+            1.0
+          ],
+          "spellRewards": [
+            {
+              "index": 29,
+              "settings": [
+                11,
+                3,
+                3,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "index": 30,
+          "mode": 0,
+          "position": [
+            -5.0,
+            25.0
+          ],
+          "spellRewards": [
+            {
+              "index": 31,
+              "settings": [
+                11,
+                12,
+                3,
+                1
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mission": 2,
+      "sha256": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+      "linkedSpellHeads": [
+        {
+          "index": 25,
+          "mode": 4,
+          "position": [
+            89.0,
+            111.0
+          ],
+          "spellRewards": [
+            {
+              "index": 26,
+              "settings": [
+                11,
+                5,
+                1,
+                1
+              ]
+            }
+          ]
+        },
+        {
+          "index": 63,
+          "mode": 0,
+          "position": [
+            -59.0,
+            -105.0
+          ],
+          "spellRewards": [
+            {
+              "index": 62,
+              "settings": [
+                11,
+                4,
+                3,
+                1
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mission": 3,
+      "sha256": "eb239eabebbcde37c1e1633b149d48977cedf432348a12fc5ee6b4be74c049bf",
+      "linkedSpellHeads": []
+    }
+  ]
+}

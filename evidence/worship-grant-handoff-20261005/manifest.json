@@ -53,6 +53,11 @@
   },
   "files": [
     {
+      "path": "README.md",
+      "bytes": 1046,
+      "sha256": "a155b4cd7636dd1ca8a6aecc7ae6c4d29d4b754d181110b00d8e5d42b1ae444d"
+    },
+    {
       "path": "native/handoff-disassembly.txt",
       "bytes": 4003,
       "sha256": "9affb1c6985d0daff496eda549a61893a8805b3cd8c4ed0a2e2f53e551ed9a91"
@@ -91,6 +96,34 @@
       "path": "native/stdout.log",
       "bytes": 931,
       "sha256": "611448d1190094e388331926dff4e2596950a870f0c4c795b20a5f78e09ef125"
+    },
+    {
+      "path": "review/authored-boundary-corrected-links.json",
+      "bytes": 2060,
+      "sha256": "40c66bc0e2b27261659a512777ac12da9b57752fc02767e4f13c8d0b99b9753c"
+    },
+    {
+      "path": "review/independent-command.json",
+      "bytes": 1568,
+      "sha256": "3c873e3525e390a0a8036cb64cdb30cfd33d9b866b0c14e1f1d72f5fdb6aa607"
+    },
+    {
+      "path": "review/independent-probe-result.json.gz",
+      "bytes": 9837,
+      "sha256": "544813ab5de31c3fe8481d93e8ad8b84a7cf6ce3e0a809851d05a24b51f944e5"
+    },
+    {
+      "path": "review/review.md",
+      "bytes": 4951,
+      "sha256": "839dea7ed2d69ca8d69bc566606adbb00ffc07f96741945fd8ec5596dc6951bc"
     }
-  ]
+  ],
+  "independentReview": {
+    "decision": "ACCEPT for bounded native/source research only",
+    "source": "a64758610e4d7732ff935df3543fb5745e3eff37",
+    "noteAddendum": "543fbecfbba7871f8c9b5c7c8362363f915c087b",
+    "cases": 17,
+    "allCaseRowsMatch": true,
+    "receiptUncompressedSha256": "f15ecd8b8b0ddd38b035a15d73e2b9d80c1b224d0960a5dd4f2cf58b4dd13240"
+  }
 }

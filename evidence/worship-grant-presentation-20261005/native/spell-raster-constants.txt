@@ -1,0 +1,2 @@
+Contents of section .rdata:
+ 58f578 0000003d 00000000 7a008bfc fa21693f  ...=....z....!i?

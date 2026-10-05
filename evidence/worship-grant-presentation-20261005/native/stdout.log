@@ -1,0 +1,11 @@
+companion-seed1 UI visits 24 sprites 11490 spell calls 0 final cosmetic RNG 0xe3ec0603
+companion-seed12345678 UI visits 24 sprites 11490 spell calls 0 final cosmetic RNG 0xa03a2688
+companion-initial-pause UI visits 27 sprites 11490 spell calls 0 final cosmetic RNG 0xe3ec0603
+companion-mid-pause UI visits 27 sprites 13830 spell calls 0 final cosmetic RNG 0xe3ec0603
+spell-3-visible UI visits 34 sprites 11500 spell calls 30 final cosmetic RNG 0xe3ec0603
+spell-3-offscreen UI visits 34 sprites 11500 spell calls 30 final cosmetic RNG 0xe3ec0603
+spell-4-visible UI visits 34 sprites 11500 spell calls 30 final cosmetic RNG 0xe3ec0603
+spell-4-offscreen UI visits 34 sprites 11500 spell calls 30 final cosmetic RNG 0xe3ec0603
+spell-12-visible UI visits 34 sprites 11500 spell calls 30 final cosmetic RNG 0xe3ec0603
+spell-12-offscreen UI visits 34 sprites 11500 spell calls 30 final cosmetic RNG 0xe3ec0603
+PASS: four companion lifecycles and six composed spell-raster lifecycles

@@ -1,0 +1,20 @@
+{
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "20s",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "-B",
+    "scripts/probe-native-worship-grant-handoff.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+    "--output",
+    "work/reviews/worship-handoff-a647586/native"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 0.7513816989958286,
+  "head": "543fbecfbba7871f8c9b5c7c8362363f915c087b",
+  "probeSha256": "23eea61d2b1060260083d54557108d13f737e9cc807e7313ba18cefa6667f50e",
+  "stdout": "PASS: bounded handoff/controller matrix 17 cases\nmodel-3-visible origin [420, 180] target [80, 364] UI visits 31 first clamp 28\nmodel-4-visible origin [420, 180] target [48, 320] UI visits 31 first clamp 28\nmodel-12-visible origin [420, 180] target [48, 364] UI visits 31 first clamp 29\noffscreen-bit origin [370, 240] target [48, 364] UI visits 31 first clamp 29\noutside-viewport origin [370, 240] target [48, 364] UI visits 31 first clamp 29\nviewport-left-edge origin [370, 240] target [48, 364] UI visits 31 first clamp 29\nviewport-right-edge origin [370, 240] target [48, 364] UI visits 31 first clamp 29\narrival-bit8 origin [420, 180] target [48, 364] UI visits 31 first clamp None\nglow-allocation-failed origin [420, 180] target [48, 364] UI visits 31 first clamp 29\nnonlocal-recipient-1 origin [0, 0] target [0, 0] UI visits 1 first clamp None\nnonlocal-recipient-255 origin [0, 0] target [0, 0] UI visits 1 first clamp None\n",
+  "stderr": ""
+}
