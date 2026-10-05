@@ -1,0 +1,165 @@
+{
+  "kind": "source-only-exact-M3-sermon-continuation",
+  "createdAt": "2026-10-05T22:04:27.728Z",
+  "base": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation",
+    "commit": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+    "tree": "dcdfb5a756e5fbf0ae26a780c1a1e97073f3e6d3",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "5d952d902fd36e4832d2599655cbb4673466c67050eb5cb0dc52820477da539f"
+  },
+  "profileInputs": {
+    "application": "d199649478e710b0b90a2228927645232ef35b687fa2c5899cbad81babb4cfda",
+    "checker": "9b3932ba7f799e6cad6ff033e18f4bc5b635f00122c6c93a324aff784fba90db"
+  },
+  "acceptedMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "appTree": "20b5894d4c17f120cd7608b4138953ea6c5f243f",
+  "unchangedMainObjects": 3569,
+  "changed": [
+    {
+      "path": "qa/campaign-continuity/README.md",
+      "sha256": "da4a3c5649790a029687ba4ec455df81ff6ae639387dab5e991d2f42fa0aa955",
+      "bytes": 15790
+    },
+    {
+      "path": "qa/campaign-continuity/boundaries.mjs",
+      "sha256": "40673627daf7e7dd570f454646779ab8d3eabc04c3a605b6fd91957e051fdf25",
+      "bytes": 18342
+    },
+    {
+      "path": "qa/campaign-continuity/observation.mjs",
+      "sha256": "69e9c3e6c51860af23d5446330755f43e70dcf5566bdebbe8a8e914de4ba2fd0",
+      "bytes": 29421
+    },
+    {
+      "path": "qa/campaign-continuity/queued-stop.test.mjs",
+      "sha256": "51e2f7f714f5c678e2910e074569c3f18bb989ab6a975fa9bde9c62e1f796a35",
+      "bytes": 15690
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.json",
+      "sha256": "b41e32407c57de4d38d666d0480c2aae0d234d413bb71369eb6803c80e69f21c",
+      "bytes": 14685
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.test.mjs",
+      "sha256": "968cbe7b90b7c14adc4c599cee66e9f1b3ba8a7fdb92f8deb2563498572a0ad1",
+      "bytes": 3960
+    },
+    {
+      "path": "qa/campaign-continuity/scenario-paths.test.mjs",
+      "sha256": "cda28fc0c841ab61c74cdf2575f564a366644663f0d27be46bb26d87210416e8",
+      "bytes": 26065
+    },
+    {
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "sha256": "f7087c82cfb981e59dc319abdb5f60640df91613b6bd9445f0c1c1751e68c5fb",
+      "bytes": 75659
+    },
+    {
+      "path": "qa/campaign-continuity/sermon-continuation.test.mjs",
+      "sha256": "89f8e33921dd821d2a7bf4084a1c5c3c33396a6d6fc4d576c3efaeaf383bf680",
+      "bytes": 8748
+    }
+  ],
+  "checks": [
+    {
+      "path": "work/orchestration/campaign-m3-sermon-continuation/b45073e-direct.json",
+      "sha256": "cd63a67e3ded3d235a9327ce7e2c4009d07c8acee1bb3e90d1532a9e1611cca8",
+      "bytes": 13109
+    },
+    {
+      "path": "work/orchestration/campaign-m3-sermon-continuation/b45073e-structure.json",
+      "sha256": "9a725270d92dda195cf8019437bef85f07b144527b33dd03d29e943bd17073c2",
+      "bytes": 6534
+    },
+    {
+      "path": "work/orchestration/campaign-m3-sermon-continuation/b45073e-diff.json",
+      "sha256": "8c656bbbc3e32f3ea686e38193681f91c1d4f80beed078626f5645e260d86145",
+      "bytes": 1572
+    }
+  ],
+  "directTests": 103,
+  "failureFirst": {
+    "receipt": {
+      "path": "work/orchestration/campaign-m3-sermon-continuation/baseline-negatives.json",
+      "sha256": "fbb9c6b884b39d5d92838e40e3da30de3c59758040ecf78bd0e582805227e5fe",
+      "bytes": 5695
+    },
+    "source": {
+      "path": "work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs",
+      "sha256": "46e88582889ed27f173d0c55cd7cf71fdde630fa4ff139745cce304b75180846",
+      "bytes": 1318
+    },
+    "expectedFailures": 3,
+    "scope": "Frozen ddef worker loss/order loss and unrelated Temple progress; failed receipt retained as negative reproduction, not a passing gate"
+  },
+  "standardCarry": {
+    "status": "proposed-for-independent-review",
+    "scope": "Actual d97 1134 standard tests/typecheck/parity; all existing accepted main objects are equal, fresh QA tests cover additions",
+    "priorAcceptedQA": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "priorCandidate": {
+      "origin": "d97c370da3e996e00130610df97d10b827ab5c4b",
+      "checkPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/full-check-d97c370.json",
+      "checkSha256": "27503a4744dadbd984f5a0ca4091270546d16a06cdc156902b0d01dafd193fa2",
+      "scope": "Request explicit named1134/typecheck/parity/orchestration carry after comparing final standard inputs. No combined npm check rerun claimed.",
+      "freshCombinedBuild": "Required after final source ACCEPT and exclusive lane grant; not yet run on this head."
+    },
+    "priorReview": {
+      "path": "../current-campaign-continuity/work/orchestration/campaign-continuity/review-ddef3ca/review.json",
+      "sha256": "9a70ba698cf28bd0e31e6a6fa2273fd8f9f6811ad3b547e54628af04baef0003",
+      "bytes": 9221
+    }
+  },
+  "freshCombinedBuild": {
+    "status": "not-run",
+    "required": true,
+    "reason": "Tracked QA text participates in Tailwind automatic scanning"
+  },
+  "profileAndRuntime": {
+    "status": "not-opened-or-acquired",
+    "originalTarget": "../current-campaign-continuity",
+    "originalHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "checkpoint": 7424,
+    "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+    "priorRun": "bcf8ac55-e418-49e4-a3d6-b7e804ee31d3",
+    "sourceFingerprintScope": "Actual isolated worktree only; target-root source and final correspondence must be measured after separately granted source-only fast-forward"
+  },
+  "checkoutPlan": {
+    "order": [
+      "Independent source/checkout-plan acceptance",
+      "Coordinator source-only adoption grant",
+      "Verify target remains closed/clean at ddef, actual prior receipt and owned marker; no owner/browser locks",
+      "Local-only before inventory of current owned profile, marker and retained target evidence; hash bytes with no publication of profile data",
+      "Normal git merge --ff-only to this exact descendant in original target; no reset, branch replacement, profile metadata edits or historical adoption",
+      "Recompute identical local preservation inventory, actual target-root source and unchanged application/runtime input hashes",
+      "Receipted terminal dependency move only under coordinator grant; one fresh bounded combined build",
+      "Final exact correspondence/launcher/first-batch review and operational grant",
+      "Only maintained harness may take the next normal lease and ordinary Load"
+    ],
+    "preserve": [
+      "All actual bcf8 receipt/journey/failure/stop records",
+      "Private current browser profile/IndexedDB and its actual latest Save7424",
+      "Original source and input attribution",
+      "Original historical Run14 quarantine and dependency925630 untouched"
+    ]
+  },
+  "behavior": [
+    "Only exact immediate predecessor can enter; any later terminal blocks this admission",
+    "All raw artifacts hashed before parse; normal lease correspondence remains strict",
+    "Actual original declaration/saved identities are inherited proof; new epoch must earn a current conversion",
+    "Original conversion milestone and budgets retained; new proof records its own run/epoch",
+    "Save rejects inherited-only conversion; Erosion selects actual new converted Brave",
+    "Named worker life/order/combat guard logs before failure and before flyby; preserved stop keeps priority"
+  ],
+  "limits": [
+    "No new Load or gameplay milestone yet",
+    "No production/gameplay/native behavior change",
+    "Three inherited failure records and actual automatic stop retained",
+    "Existing Erosion failure and fatal attribution remain unchanged",
+    "No private profile/storage bytes in public evidence"
+  ]
+}

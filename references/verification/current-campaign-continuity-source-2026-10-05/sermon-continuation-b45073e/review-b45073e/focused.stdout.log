@@ -1,0 +1,40 @@
+✔ only the exact next owned sole stop is exposed; ordinary and later commands stay untouched; malformed inputs fail closed (3.440695ms)
+✔ queued control rejects symlink, hardlink, oversized files and invalid current-run boundaries (0.845048ms)
+✔ all bounded host polls check a queued stop before the first predicate and between samples (1.460392ms)
+✔ actual active-condition wait services preservation before diagnostics, health, budget or objective (0.977237ms)
+✔ actual active-batch stop records bytes/hash/current run and terminates mixed or changed inputs (5.271863ms)
+✔ actual already-present and active-wait controls share authentication and terminal preservation on failure (7.08229ms)
+✔ a queued stop during a pending Save is recorded but deferred until actual committed identity is known (0.630186ms)
+✔ active command-error handler cannot swallow an invalid preserving request and dispatch another action (0.277206ms)
+✔ actual Save readback commits protectedLatest before servicing its deferred preserving stop (0.838699ms)
+✔ actual flyby, camera, dispatch and victory polling route through preserving control before browser predicates (1.672971ms)
+✔ preserving Pause can run before diagnostic binding and never invents missing UI state (0.47286ms)
+✔ carried source modules match their exact historical objects and current test bytes (34.327527ms)
+✔ reuse inventory identifies exact unchanged and adapted scenario sections (6.305735ms)
+✔ current candidate carries the accepted application subtree and unchanged maintained profile harness (68.440311ms)
+✔ actual Continue path disposes the old epoch, clicks Continue and rebinds before any new mission input (4.616199ms)
+✔ actual Save/Load wrapper clicks ordinary Pause before binding/import/digest work and validates actual stored identity (5.619254ms)
+✔ actual progress adapter rejects unscoped combat and ignores unrelated watch IDs (1.190437ms)
+✔ actual reused entry validates before Load, restores typed sermon history and requires fresh current identity (1.11899ms)
+✔ actual active wait stops on named worker loss before a flyby and preserves queued-stop priority (3.53791ms)
+✔ actual Erosion body selects only the fresh converted Brave and arms before the ordinary order (1.153702ms)
+✔ actual conversion and mark bodies retain the original budget milestone while recording a fresh successor proof (1.053872ms)
+✔ inherited conversion proof cannot authorize overwriting the freshly restored sermon (1.401644ms)
+✔ module guard rejects disabled policy and enabled import remains preparation-only (5.566005ms)
+✔ actual victory matcher and Continue dispatch match the complete current JSX accessible name (4.583851ms)
+✔ actual named-effect routing reaches the retained handler and excludes unrelated effects (1.688164ms)
+✔ actual Continue/Save producer binds the exact deliberate error that reaches the terminal harness (4.126243ms)
+✔ exact published predecessor retains the failed prefix and open epoch once, without a current replacement (13.969759ms)
+✔ actual hash reader rejects substituted or missing raw evidence before admission (15.910011ms)
+✔ different predecessor, source, checkpoint, cleanup, history or budget cannot enter (39.30677ms)
+✔ named worship worker loss, combat or lost order stops immediately; completed use remains valid (0.895795ms)
+✔ named head and assigned-worker progress ignores unrelated motion and timers (0.5864ms)
+✔ absent current conversion or a different replacement cannot supply the new worker (1.441874ms)
+ℹ tests 32
+ℹ suites 0
+ℹ pass 32
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 210.862942

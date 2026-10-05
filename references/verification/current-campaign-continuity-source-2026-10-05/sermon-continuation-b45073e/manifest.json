@@ -1,0 +1,144 @@
+{
+  "kind": "source-only-review-receipts",
+  "sourceHead": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "files": [
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-handoff.json",
+      "path": "b45073e-handoff.json",
+      "bytes": 7891,
+      "sha256": "629839a7595bca4b840d857538044d72025e5e7ee6866218bb110fa7c65e3ebc"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/assemble-source-handoff.mjs",
+      "path": "assemble-source-handoff.mjs",
+      "bytes": 5360,
+      "sha256": "b1b07f3cb4b9a800a03fce438b6b7ea8d385fd871583a539562d7a80f30c781d"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-gate-plan.json",
+      "path": "b45073e-gate-plan.json",
+      "bytes": 5050,
+      "sha256": "ecb5a36babc7f92fcb0dad58b3303eee061f63e3a520d7650147d3f8342532d9"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/baseline-negatives.json",
+      "path": "baseline-negatives.json",
+      "bytes": 5695,
+      "sha256": "fbb9c6b884b39d5d92838e40e3da30de3c59758040ecf78bd0e582805227e5fe"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs",
+      "path": "baseline-worker-regressions.test.mjs",
+      "bytes": 1318,
+      "sha256": "46e88582889ed27f173d0c55cd7cf71fdde630fa4ff139745cce304b75180846"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/resumed-first-batch.json",
+      "path": "resumed-first-batch.json",
+      "bytes": 136,
+      "sha256": "c5c6f1c87979d472b4abfd1699a95b1c2100c6e31bd154fcdd8ba096f156f157"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-direct.json",
+      "path": "b45073e-direct.json",
+      "bytes": 13109,
+      "sha256": "cd63a67e3ded3d235a9327ce7e2c4009d07c8acee1bb3e90d1532a9e1611cca8"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-structure.json",
+      "path": "b45073e-structure.json",
+      "bytes": 6534,
+      "sha256": "9a725270d92dda195cf8019437bef85f07b144527b33dd03d29e943bd17073c2"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-diff.json",
+      "path": "b45073e-diff.json",
+      "bytes": 1572,
+      "sha256": "8c656bbbc3e32f3ea686e38193681f91c1d4f80beed078626f5645e260d86145"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/baseline-negatives.json.artifacts/stderr.log",
+      "path": "baseline-negatives.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/baseline-negatives.json.artifacts/stdout.log",
+      "path": "baseline-negatives.json.artifacts/stdout.log",
+      "bytes": 3674,
+      "sha256": "990196951b6a50a156f2abe54fd00c59c47bdc60ba4265f25339d083f8aebb8d"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-direct.json.artifacts/stderr.log",
+      "path": "b45073e-direct.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-direct.json.artifacts/stdout.log",
+      "path": "b45073e-direct.json.artifacts/stdout.log",
+      "bytes": 10976,
+      "sha256": "1341759ce6324c569416ca4f0b2b24d4869472fa838ca402cc60166283be8e32"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-structure.json.artifacts/stderr.log",
+      "path": "b45073e-structure.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-structure.json.artifacts/stdout.log",
+      "path": "b45073e-structure.json.artifacts/stdout.log",
+      "bytes": 4509,
+      "sha256": "e3b8ae285f539427fd2ebf60d218e2f6a1aaff5da2bca00113015da16d9756e7"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-diff.json.artifacts/stderr.log",
+      "path": "b45073e-diff.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-diff.json.artifacts/stdout.log",
+      "path": "b45073e-diff.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-checkout-build-plan.json",
+      "path": "b45073e-checkout-build-plan.json",
+      "bytes": 2780,
+      "sha256": "96fcdff32251ba68818bd536bce8e351ab893f38fb5526ee3247fc3143f2dfcc"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/review-b45073e/correspondence.json",
+      "path": "review-b45073e/correspondence.json",
+      "bytes": 3493,
+      "sha256": "2ed2a6b3a064e075a4c5e8ca2cb6d200097e401cf1f7920090181e157c403175"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/review-b45073e/focused.json",
+      "path": "review-b45073e/focused.json",
+      "bytes": 896,
+      "sha256": "b8c45402eadc246291ba3fb74b0f8c8e3803e10d5f32df2432e034339a24a048"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/review-b45073e/focused.stderr.log",
+      "path": "review-b45073e/focused.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/review-b45073e/focused.stdout.log",
+      "path": "review-b45073e/focused.stdout.log",
+      "bytes": 3683,
+      "sha256": "7b714e5ba03781ea0c689d44f23f55b7f2a369bce4afb309ffd7aeb5ffd20870"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/review-b45073e/review.json",
+      "path": "review-b45073e/review.json",
+      "bytes": 13546,
+      "sha256": "ed04c3cfc16a5531fb40dcdfe62b467b22d70af35555f6aa50c85060506d0fe0"
+    }
+  ]
+}

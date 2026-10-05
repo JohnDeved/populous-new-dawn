@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "eeecbd18-62c4-4e51-ac35-99f1b4225991",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "branch": "qa/campaign-m3-sermon-continuation",
+    "trackedDiffSha256": "9600f35cf899a3fda741062d696ec7fbd20b4176617b16f004c72f7c02eae250",
+    "inputs": {
+      "work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs": "46e88582889ed27f173d0c55cd7cf71fdde630fa4ff139745cce304b75180846"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation",
+  "startedAt": "2026-10-05T21:58:10.403Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/baseline-negatives.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/baseline-negatives.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T21:58:10.555Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ baseline must promptly detect the lost named worship worker (4.551373ms)\n✖ baseline must promptly detect worship order loss (0.412209ms)\n✖ unrelated Temple unlock must not renew the named worship wait (0.666551ms)\nℹ tests 3\nℹ suites 0\nℹ pass 0\nℹ fail 3\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 91.068602\n\n✖ failing tests:\n\ntest at work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs:9:1\n✖ baseline must promptly detect the lost named worship worker (4.551373ms)\n  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n  \n    assert.ok(actorStop({units:[],shrines:[{id:101,uses:0}]},condition))\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs:9:79)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: null,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n\ntest at work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs:10:1\n✖ baseline must promptly detect worship order loss (0.412209ms)\n  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n  \n    assert.ok(actorStop({units:[{id:5000,hp:50,kind:'brave',team:'blue',order:{model:3,a:0}}],shrines:[{id:101,uses:0}]},condition))\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs:10:68)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: null,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n\ntest at work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs:11:1\n✖ unrelated Temple unlock must not renew the named worship wait (0.666551ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + '[false,[[101,0,null,0,null]],[[5000,4,8,101]]]'\n  - '[true,[[101,0,null,0,null]],[[5000,4,8,101]]]'\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs:13:9)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: '[false,[[101,0,null,0,null]],[[5000,4,8,101]]]',\n    expected: '[true,[[101,0,null,0,null]],[[5000,4,8,101]]]',\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "990196951b6a50a156f2abe54fd00c59c47bdc60ba4265f25339d083f8aebb8d",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "branch": "qa/campaign-m3-sermon-continuation",
+    "trackedDiffSha256": "9600f35cf899a3fda741062d696ec7fbd20b4176617b16f004c72f7c02eae250",
+    "inputs": {
+      "work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs": "46e88582889ed27f173d0c55cd7cf71fdde630fa4ff139745cce304b75180846"
+    }
+  }
+}

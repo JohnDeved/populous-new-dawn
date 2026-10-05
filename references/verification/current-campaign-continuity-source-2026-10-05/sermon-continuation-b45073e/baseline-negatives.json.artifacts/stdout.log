@@ -1,0 +1,76 @@
+✖ baseline must promptly detect the lost named worship worker (4.551373ms)
+✖ baseline must promptly detect worship order loss (0.412209ms)
+✖ unrelated Temple unlock must not renew the named worship wait (0.666551ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 0
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 91.068602
+
+✖ failing tests:
+
+test at work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs:9:1
+✖ baseline must promptly detect the lost named worship worker (4.551373ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(actorStop({units:[],shrines:[{id:101,uses:0}]},condition))
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs:9:79)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs:10:1
+✖ baseline must promptly detect worship order loss (0.412209ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(actorStop({units:[{id:5000,hp:50,kind:'brave',team:'blue',order:{model:3,a:0}}],shrines:[{id:101,uses:0}]},condition))
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs:10:68)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs:11:1
+✖ unrelated Temple unlock must not renew the named worship wait (0.666551ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + '[false,[[101,0,null,0,null]],[[5000,4,8,101]]]'
+  - '[true,[[101,0,null,0,null]],[[5000,4,8,101]]]'
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs:13:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '[false,[[101,0,null,0,null]],[[5000,4,8,101]]]',
+    expected: '[true,[[101,0,null,0,null]],[[5000,4,8,101]]]',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

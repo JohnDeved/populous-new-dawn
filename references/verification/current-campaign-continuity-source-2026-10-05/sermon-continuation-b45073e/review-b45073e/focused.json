@@ -1,0 +1,25 @@
+{
+  "command": [
+    "node",
+    "--test",
+    "qa/campaign-continuity/sermon-continuation.test.mjs",
+    "qa/campaign-continuity/scenario-paths.test.mjs",
+    "qa/campaign-continuity/queued-stop.test.mjs",
+    "qa/campaign-continuity/reuse.test.mjs"
+  ],
+  "startedAt": "2026-10-05T22:03:54.450752+00:00",
+  "finishedAt": "2026-10-05T22:03:54.736436+00:00",
+  "sourceHead": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "exitCode": 0,
+  "status": "passed",
+  "artifacts": {
+    "stdout": {
+      "path": "work/orchestration/campaign-m3-sermon-continuation/review-b45073e/focused.stdout.log",
+      "sha256": "7b714e5ba03781ea0c689d44f23f55b7f2a369bce4afb309ffd7aeb5ffd20870"
+    },
+    "stderr": {
+      "path": "work/orchestration/campaign-m3-sermon-continuation/review-b45073e/focused.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "kind": "source-only-checkout-and-single-build-plan",
+  "head": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "targetRoot": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+  "expectedPriorHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "sourceHandoffSha256": "629839a7595bca4b840d857538044d72025e5e7ee6866218bb110fa7c65e3ebc",
+  "order": [
+    "Final independent source/checkout-plan ACCEPT",
+    "Verify clean closed target and actual bcf8 marker/receipt; local-only profile/evidence inventory",
+    "git merge --ff-only b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+    "Compare exact profile/storage/marker/evidence inventory before and after; no changes permitted",
+    "Measure actual target-root source/checker/application",
+    "Confirm donor terminal release; compare root and installed locks; two-ended atomic MOVE925605 with preserved donor/target lock-only stubs",
+    "Run exactly one bounded build; collect original session terminal receipt",
+    "Return same dependency inode immediately with two-ended receipt and exact stubs restored"
+  ],
+  "privateTmp": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/private-tmp/campaign-m3-sermon-b45073e-build",
+  "buildReceipt": "work/orchestration/campaign-continuity/b45073e-build.json",
+  "command": [
+    "node",
+    "scripts/orchestration/command-receipt.mjs",
+    "--output",
+    "work/orchestration/campaign-continuity/b45073e-build.json",
+    "--input",
+    "package-lock.json",
+    "--input",
+    "node_modules/.package-lock.json",
+    "--",
+    "taskset",
+    "-c",
+    "0-3",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "120s",
+    "npm",
+    "run",
+    "build"
+  ],
+  "environment": {
+    "TMPDIR": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/private-tmp/campaign-m3-sermon-b45073e-build",
+    "TEMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/private-tmp/campaign-m3-sermon-b45073e-build",
+    "TMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/private-tmp/campaign-m3-sermon-b45073e-build"
+  },
+  "watchdogSeconds": 120,
+  "donor": "../native-shaman-guard-before/node_modules",
+  "dependencyInode": 925605,
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "limits": [
+    "No browser/server/profile lease",
+    "No profile metadata or storage writes",
+    "No repeat of carried1134/typecheck/parity gates",
+    "No access to original Run14 profile or925630",
+    "Private inventories/hash-only receipts remain local except nonsecret hash manifests"
+  ]
+}

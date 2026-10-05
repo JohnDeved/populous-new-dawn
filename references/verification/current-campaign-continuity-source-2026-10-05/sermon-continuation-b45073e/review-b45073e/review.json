@@ -1,0 +1,167 @@
+{
+  "kind": "independent-exact-sermon-continuation-source-review",
+  "decision": "ACCEPT SOURCE AND CHECKOUT PLAN",
+  "reviewedAt": "2026-10-05T22:07:17.369611+00:00",
+  "reviewer": "review_campaign_continuity",
+  "base": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "head": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "tree": "dcdfb5a756e5fbf0ae26a780c1a1e97073f3e6d3",
+  "acceptedApplicationMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "appTree": "20b5894d4c17f120cd7608b4138953ea6c5f243f",
+  "handoff": {
+    "path": "work/orchestration/campaign-m3-sermon-continuation/b45073e-handoff.json",
+    "sha256": "629839a7595bca4b840d857538044d72025e5e7ee6866218bb110fa7c65e3ebc"
+  },
+  "isolatedRootSource": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation",
+    "commit": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+    "tree": "dcdfb5a756e5fbf0ae26a780c1a1e97073f3e6d3",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "5d952d902fd36e4832d2599655cbb4673466c67050eb5cb0dc52820477da539f"
+  },
+  "isolatedRootInputs": {
+    "application": "d199649478e710b0b90a2228927645232ef35b687fa2c5899cbad81babb4cfda",
+    "checker": "9b3932ba7f799e6cad6ff033e18f4bc5b635f00122c6c93a324aff784fba90db"
+  },
+  "scope": "Nine QA-only files implement one exact failed M3 sermon predecessor, inherited-history restoration, new-current conversion proof and a named converted-Brave worship guard. No production/harness/profile/policy-cap changes.",
+  "findings": [],
+  "resolvedFindings": [
+    {
+      "id": "R1",
+      "problem": "Restored history already contained conversion, while completeConversion unconditionally called duplicate-rejecting mark(conversion), forcing a new helper failure after a real conversion.",
+      "repair": "Only the typed inheritedSermon path writes currentConversion with new run/epoch/event/observed turn/current mission time and its own snapshot. Original conversion milestone remains unchanged for provenance and budget; repeated successful invocation rejects. Ordinary first-conversion marking and global duplicate checks stay strict.",
+      "verification": "Executed actual completeConversion plus actual mark source bodies together, with original704.0833333333333 milestone retained and repeated-call negative. Included in passing independent32 tests."
+    },
+    {
+      "id": "R2",
+      "problem": "Initial progressFor used objectiveProgress, which could throw worker loss before the logged requiredActorStop branch; the earlier caller test stubbed that adapter.",
+      "repair": "A shared local requireActors logs exact observed units and turn then throws. It runs for named-worker initial state and every subsequent active state before flyby. Objective progress is pure and only includes named head/valid assigned worker.",
+      "verification": "Actual waitFor+progressFor+objectiveProgress cover initial and later missing worker, wrong order and combat ownership, with queued-stop priority and exact failure-state logging. Included in passing independent32 tests."
+    }
+  ],
+  "checkedContracts": [
+    "readSermonPredecessor selects only actual immediate bcf8ac55 and pins receipt, journey, terminal snapshot, saved snapshot and actions journal hashes before parsing. Different/missing/substituted bytes reject. The actual operational caller invokes that reader; pure-validator unit fixtures do not replace the hash boundary.",
+    "Admission requires exact profile/run, actual prior receipt hash/source/checker, failed terminal status and error, no cleanup override, empty browser errors, verified cleanup/continuation, retained protectedLatest and actual pre-entry checkpoint equal to Save7424/full2771e990. A typed reviewed source/checker correspondence must match both old and actual new inputs. The unchanged owned-profile harness independently binds root/origin/application/runtime and owns the exclusive lease.",
+    "A later terminal changes immediate previousRun and cannot satisfy this one run-specific exception. Ordinary Continue-boundary validation remains strict for all other predecessors. This is not a generic mid-mission save, stale-lock recovery, reconstructed storage or old-profile adoption path.",
+    "Real declaration6593, selected listener2631, saved Preacher3181 and13 Blue identities are inherited from immutable evidence. The original currentEpoch equals actual terminal.observation. Its active time is appended exactly once with retained-terminal provenance, then currentEpoch is cleared; no old endEpoch call is invented. Three inherited failure records, the progress-stall control stop, prior failed status/error and all walls remain.",
+    "Load branch restores savedSermon/victimSelection/sermonPlan before existing ordinary Load and immediate Pause. Existing storage/replacement actor/terrain/stock and profile[1,2] assertions remain; loaded Blue identities and owned listener are checked. ids.replacement is cleared before the new epoch. A newly observed singleton conversion in that current epoch is required to derive the worker; historical3298 supplies no current-state credit.",
+    "Original conversion mark704.0833333333333 continues anchoring the post-conversion budget. New currentConversion proof has separate run/epoch provenance and cannot reset the mark or refund2692.666666666667 campaign active /853.6666666666666 M3 active seconds. The1546.3333333333335 remaining M3 total-active allowance and3227301ms remaining M3 wall remain bounded.",
+    "Save now rejects attempts to use only the inherited conversion milestone to overwrite the restored protected sermon. After actual current conversion, normal existing Save policy applies. Existing committed-readback/deferred preserving-stop behavior is retained and tested with the new optional inherited state bound in its existing source-body fixture.",
+    "Erosion pauses for exact converted-Brave selection, validates current singleton event/living Blue Brave/conversion flags, requires the Preacher existing order17 and selects only that observed replacement through ordinary selectUnits. It resumes, prospectively arms unchanged Erosion observation, then uses unchanged real targetEntity/clickOrder/dispatch/ack/recipient gates. The Preacher order is compared before and after; no cancellation command targets it.",
+    "Named worker must remain alive, Blue Brave, outside combat ownership and following order27/a101 until shrine use is proved. Worker loss/order change/combat stops promptly before flyby handling. Head work/use plus this valid worker position/work are the only relevant progress; timers, unrelated actors and global Temple unlock do not renew it. Existing120-second no-progress and authenticated preserving-stop priority stay intact.",
+    "M3 selection while paused uses ordinary supported canvas/person/minimap handlers; those handlers gate inputMask/overview and do not prohibit selection solely because world.paused. DOM-owned hit checks remain. New action bodies do not run clone validators in delivered input handlers, update geometry/caches secretly, inject units, advance simulation or fabricate storage.",
+    "The Erosion observer/producer, native conversion/cancellation contracts, ordinary Continue route and all eight pinned application imports remain unchanged. Reuse inventory explicitly moves modified observation.mjs from byte-identical to patched history and updates changed action hashes. No fresh gameplay outcome is claimed by these tests or docs."
+  ],
+  "validation": {
+    "ownerDirectTests": 103,
+    "ownerReceipts": [
+      {
+        "path": "work/orchestration/campaign-m3-sermon-continuation/b45073e-direct.json",
+        "sha256": "cd63a67e3ded3d235a9327ce7e2c4009d07c8acee1bb3e90d1532a9e1611cca8",
+        "bytes": 13109
+      },
+      {
+        "path": "work/orchestration/campaign-m3-sermon-continuation/b45073e-structure.json",
+        "sha256": "9a725270d92dda195cf8019437bef85f07b144527b33dd03d29e943bd17073c2",
+        "bytes": 6534
+      },
+      {
+        "path": "work/orchestration/campaign-m3-sermon-continuation/b45073e-diff.json",
+        "sha256": "8c656bbbc3e32f3ea686e38193681f91c1d4f80beed078626f5645e260d86145",
+        "bytes": 1572
+      }
+    ],
+    "ownerReceiptsBeforeAfterExact": true,
+    "ownerRawStreamsHashVerified": true,
+    "reviewerFocusedTests": 32,
+    "reviewerFocused": {
+      "path": "work/orchestration/campaign-m3-sermon-continuation/review-b45073e/focused.json",
+      "sha256": "b8c45402eadc246291ba3fb74b0f8c8e3803e10d5f32df2432e034339a24a048"
+    },
+    "reviewerCorrespondence": {
+      "path": "work/orchestration/campaign-m3-sermon-continuation/review-b45073e/correspondence.json",
+      "sha256": "2ed2a6b3a064e075a4c5e8ca2cb6d200097e401cf1f7920090181e157c403175"
+    },
+    "plainNodeOnly": true,
+    "failureFirst": {
+      "receipt": {
+        "path": "work/orchestration/campaign-m3-sermon-continuation/baseline-negatives.json",
+        "sha256": "fbb9c6b884b39d5d92838e40e3da30de3c59758040ecf78bd0e582805227e5fe",
+        "bytes": 5695
+      },
+      "source": {
+        "path": "work/orchestration/campaign-m3-sermon-continuation/baseline-worker-regressions.test.mjs",
+        "sha256": "46e88582889ed27f173d0c55cd7cf71fdde630fa4ff139745cce304b75180846",
+        "bytes": 1318
+      },
+      "expectedFailures": 3,
+      "scope": "Frozen ddef worker loss/order loss and unrelated Temple progress; failed receipt retained as negative reproduction, not a passing gate"
+    }
+  },
+  "gateCorrespondence": {
+    "decision": "ACCEPT NAMED STANDARD-COMPONENT CARRY",
+    "existingAcceptedMainObjectsCompared": 3569,
+    "existingObjectDifferences": 0,
+    "qaAdditionsVersusMain": 21,
+    "changedFilesVersusDdef": 9,
+    "priorRawStandardReceipt": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/full-check-d97c370.json",
+      "sha256": "27503a4744dadbd984f5a0ca4091270546d16a06cdc156902b0d01dafd193fa2"
+    },
+    "carried": [
+      "1134 named standard tests",
+      "typecheck",
+      "parity check"
+    ],
+    "reason": "All existing accepted-main objects including app, tests, configuration, scripts and lockfile are identical. npm test selects tests/*.test.mjs; no existing source imports the QA delta. TypeScript include selects .ts/.tsx/.mts paths, with no new included/imported QA JavaScript. New QA paths are exercised by fresh103 direct tests. Current orchestration check and whitespace are freshly executed, not silently carried.",
+    "aggregateNpmCheckOnB450": "not-run; not claimed",
+    "freshCombinedBuild": {
+      "status": "not-run",
+      "requiredBeforeRuntime": true,
+      "reason": "Tracked QA text participates in Tailwind automatic source scanning. Prior ddef build cannot establish the new combined output."
+    },
+    "typeScriptQuality": "No maintained TypeScript change; existing standard-source quality correspondence retained. Review inspected the QA delta for clarity and narrow scope; no new framework or app/harness edits."
+  },
+  "checkoutPlan": {
+    "decision": "ACCEPT PLAN ONLY",
+    "sourceRoot": "campaign-m3-sermon-continuation",
+    "targetRoot": "current-campaign-continuity",
+    "targetExpectedHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "operation": "Normal git merge --ff-only to exact b45073eb75f8e2c8aa66ef809e76eaf621a68fc0 after coordinator source-only adoption grant.",
+    "requiredPreservation": [
+      "Before/after local-only inventory of actual closed owned profile, marker, retained receipts and checkpoint bytes; publish no private profile/storage data.",
+      "Do not alter profile metadata/history, remove locks, reset branches, adopt another profile or touch historical quarantine925630.",
+      "Measure target-root source/checker/application after adoption; isolated-root fingerprint5d952d90 cannot substitute for that root.",
+      "Receipted released dependency transfer and one fresh bounded combined build under the separate lane grant.",
+      "Final exact correspondence/launcher/first-batch/runtime review and operational grant before the normal lease/ordinary Load."
+    ],
+    "executedByReviewer": false
+  },
+  "limits": [
+    "Source/check-out plan acceptance only; actual Save7424 Load/current conversion/Brave worship remain unexecuted.",
+    "Prior Erosion failure and unknown fatal attribution remain unchanged.",
+    "Failed prefix remains failed; no clean full-campaign PASS.",
+    "No native whole-game parity, exact pixels, calibrated timing or hardware-performance claim."
+  ],
+  "writes": "Only ignored review artifacts. No source edits, profile/storage/dependency/browser mutation, heavy package check or runtime launch.",
+  "preparedFirstBatch": {
+    "path": "work/orchestration/campaign-m3-sermon-continuation/resumed-first-batch.json",
+    "sha256": "c5c6f1c87979d472b4abfd1699a95b1c2100c6e31bd154fcdd8ba096f156f157",
+    "decision": "ACCEPT SOURCE SEMANTICS ONLY",
+    "commands": [
+      {
+        "action": "complete-conversion"
+      },
+      {
+        "action": "pause"
+      },
+      {
+        "action": "snapshot",
+        "name": "m3-restored-conversion-worker"
+      }
+    ],
+    "admission": "Unqueued. Run only after final reviewed exact correspondence/target runtime grant and successful ordinary Load/current state checks. The fresh current conversion must be observed before any Erosion worker leg; inherited cancellation is not repeated."
+  }
+}

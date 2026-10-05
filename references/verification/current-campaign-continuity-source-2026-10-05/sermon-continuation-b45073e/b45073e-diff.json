@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e42f0d5c-faa3-4898-b4e3-d1054c3e72ce",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+    "branch": "qa/campaign-m3-sermon-continuation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "git",
+    "diff",
+    "--check",
+    "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "HEAD"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation",
+  "startedAt": "2026-10-05T22:02:57.765Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-diff.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-diff.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T22:02:57.772Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+    "branch": "qa/campaign-m3-sermon-continuation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

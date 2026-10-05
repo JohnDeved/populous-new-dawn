@@ -1,0 +1,128 @@
+{
+  "version": 1,
+  "base": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "head": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "changes": [
+    {
+      "path": "qa/campaign-continuity/README.md",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "da4a3c5649790a029687ba4ec455df81ff6ae639387dab5e991d2f42fa0aa955",
+      "changeHash": "beff2a82ea7cdf845e219673ee9c3cafdbefc70f650a1ab67fa5c6f1679dc9ad"
+    },
+    {
+      "path": "qa/campaign-continuity/boundaries.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "40673627daf7e7dd570f454646779ab8d3eabc04c3a605b6fd91957e051fdf25",
+      "changeHash": "7d71caf4ae356d3448a35b459a14bda66ee34feaed8bed4b8e772276516fe800"
+    },
+    {
+      "path": "qa/campaign-continuity/observation.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "69e9c3e6c51860af23d5446330755f43e70dcf5566bdebbe8a8e914de4ba2fd0",
+      "changeHash": "3328a4288ca89908df3be2d1f0b132f8a7fa666c92c3f71f005bc5794bf9fe93"
+    },
+    {
+      "path": "qa/campaign-continuity/queued-stop.test.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "51e2f7f714f5c678e2910e074569c3f18bb989ab6a975fa9bde9c62e1f796a35",
+      "changeHash": "550394986ac48dd39a1c002fb7d0e2dc4d502e79947a15fa91340e5194ccd893"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.json",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "b41e32407c57de4d38d666d0480c2aae0d234d413bb71369eb6803c80e69f21c",
+      "changeHash": "a50de27c6800e89f912d88b8d51c17283270da3b86bfa564b058d63f3c466b21"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.test.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "968cbe7b90b7c14adc4c599cee66e9f1b3ba8a7fdb92f8deb2563498572a0ad1",
+      "changeHash": "ccb0463997c24110a21c5ab0f4268ba9c01362ddb759bc7e834fb37623f1830f"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario-paths.test.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "cda28fc0c841ab61c74cdf2575f564a366644663f0d27be46bb26d87210416e8",
+      "changeHash": "fa25abb8d169e722ed60ae8f2c090201b3c83e7b2a1fc25148ff8a7fded6089a"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "f7087c82cfb981e59dc319abdb5f60640df91613b6bd9445f0c1c1751e68c5fb",
+      "changeHash": "984adec15515c4f00e7d8c4cb4b7b548b2ba7d2fcf2c3361751c2c8d108ad96d"
+    },
+    {
+      "path": "qa/campaign-continuity/sermon-continuation.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "89f8e33921dd821d2a7bf4084a1c5c3c33396a6d6fc4d576c3efaeaf383bf680",
+      "changeHash": "1c15b4f1a04559799a7039abe32a64ec1b43c3a710c36c950b76acbdd7e98c1e"
+    }
+  ],
+  "affectedSubsystems": [],
+  "unknownPaths": [
+    "qa/campaign-continuity/README.md",
+    "qa/campaign-continuity/boundaries.mjs",
+    "qa/campaign-continuity/observation.mjs",
+    "qa/campaign-continuity/queued-stop.test.mjs",
+    "qa/campaign-continuity/reuse.json",
+    "qa/campaign-continuity/reuse.test.mjs",
+    "qa/campaign-continuity/scenario-paths.test.mjs",
+    "qa/campaign-continuity/scenario.mjs",
+    "qa/campaign-continuity/sermon-continuation.test.mjs"
+  ],
+  "checks": [
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "reasons": [
+        "unmapped path requires conservative general validation: qa/campaign-continuity/README.md",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/boundaries.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/observation.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/queued-stop.test.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/reuse.json",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/reuse.test.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/scenario-paths.test.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/scenario.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/sermon-continuation.test.mjs"
+      ],
+      "knownLimits": [
+        "Does not run native executable, browser integration, or hardware performance checks."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [
+        "May update ignored tool caches"
+      ],
+      "resources": [
+        "Serialize with other full test runs"
+      ],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    }
+  ],
+  "executesChecks": false
+}
