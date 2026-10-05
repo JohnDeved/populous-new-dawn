@@ -1,0 +1,11 @@
+# Run13 healthy staging before suppression, in progress
+
+Frozen QA02301bc/applicationb381, using ordinary Load from Run12’s forwarded preparation2909. Run13 began2026-10-05 00:57:32.690 UTC with owned profile lease eeca398d-01c4-401b-8334-9a926501c46c. The first observed loaded turn2939 and paused2961 retained all13 inherited Blue identities; acquisition remains attributed to Run06/dbcda708.
+
+One ordinary trainee became Preacher3163,55HP, with11 untrained Brave workers retained. The actual Shaman attack removed forward Yellow Preacher3155 by3750, leaving Blue46 at100.5HP. Blue46 then reached the southern waypoint. A separately accepted Preacher move reached paused4549 at(-36.99609375,-108.99609375), only0.0056world units from the holding point(-37,-109), still55HP. The current native Brave/Warrior scan checks and all current Yellow-Brave preaching-cell checks are empty; no owned listener or conversion event is observed. This is a healthy actual holding state, not a protected-point or future-safety claim.
+
+The corrected tactic stages before suppression because Yellow Shaman reincarnation can occur after333/468 turns, shorter than a full home departure. Its rejected earlier ordering is preserved. Forward and home-to-holding count amendments are explicit, retaining their1,440-turn envelopes and all900/2400 active and90/95 wall limits.
+
+At4549, Yellow47 is100HP at(-49,-107), Blue46 is100.5HP at its southern post, and no Blue spell has been cast. Fresh source geometry excludes the first translated close candidate(-45,-105) because Hut1018 occupies its cell; no input was issued there. The second candidate(-45,-107) still requires actual scene/native-context and health/range validation. No suppression, first-owned sermon, saved/cancelled/reloaded conversion, Erosion or victory is claimed. No runtime failure was recorded through this paused boundary; the run is still in progress.
+
+The archive was captured under ordinary Pause before command0060 existed. Every member/archive hash was verified. Images are genuine existing headless software-rendered captures. Actual profiles, credentials, caches, dependencies, binaries and private reviews are excluded. These diagnostics are not a loadable save and cannot preserve the local profile across cloud reset.
