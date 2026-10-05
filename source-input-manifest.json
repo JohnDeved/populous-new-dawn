@@ -1,0 +1,27 @@
+{
+  "head": "10f168733815921070621842d8c025f35715a56d",
+  "status": "",
+  "sha256": {
+    "scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+    "decomp/tools.json": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484",
+    "app/original-constants.json": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+    "app/world-turn.ts": "d322af8560cce8e0e3bc1188ebab7676c1cce3b904563c380562f4c1a932fea8",
+    "app/world-initialization.ts": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+    "app/erosion.ts": "33823b3db91d1a711d4babcd8b435d5344f2e29db8fc593f34d43532623db5e2",
+    "app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+    "app/worship.ts": "f0e60f01e2b164e5d9e0ce6b8bd595ae3e4ca5f62ced9ef7c3e57dfb1ff75618",
+    "app/level-three.ts": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07",
+    "decomp/generated/004edf50.c": "52ec65ffdf2501f7c15d1fa1468dc2e4ecb6218f96871f9bae387ad9b0b42d8c",
+    "decomp/generated/00484a10.c": "8f1433d8bba1ffc5cbc2fa4dad9ef6415a1ea5f2834aa436c8480dcd8a00f9ae",
+    "decomp/generated/004ed8a0.c": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9",
+    "decomp/generated/004ed580.c": "30f96739bcd6f1703d38d8937b3a5890bffaaf282be069067360bd7a1da118c8",
+    "decomp/generated/004ede10.c": "b2fc6de9b34b02af943cb2dfed809829148321970e0dae72d9b529db16d162f9",
+    "decomp/generated/004fb270.c": "3a61b62275e618be994161ba1ba94fa6b46beab22d3348c483072afc411b1a2a",
+    "decomp/generated/00509c10.c": "a0a2c32a6880db40bd55984cf55e8be386d9c3e56967362f46811eb83e8d3a13",
+    "decomp/generated/004ed700.c": "598f405b7271fdf40b953d45ae594946d0872b5fbe67ff9c9c9880f6a837fdff",
+    "decomp/generated/004ec6f0.c": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2003.dat": "eb239eabebbcde37c1e1633b149d48977cedf432348a12fc5ee6b4be74c049bf"
+  }
+}

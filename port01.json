@@ -1,0 +1,157 @@
+{
+  "scope": "Supplied-state port execution; no ordinary gameplay, browser or renderer claim.",
+  "sourceHead": "10f168733815921070621842d8c025f35715a56d",
+  "supplied": {
+    "seed": 305419896,
+    "rawAuthoredTerrain": true,
+    "allTerrainFlags": 0,
+    "worldGameFlags": 34,
+    "clearedCollections": [
+      "units",
+      "vehicles",
+      "buildings",
+      "trees",
+      "effects",
+      "gifts",
+      "projectiles",
+      "marching",
+      "combatMarches",
+      "fights",
+      "replants",
+      "levelStart"
+    ],
+    "completion": "authored Erosion shrine reset=false, forced=true; all other shrines removed"
+  },
+  "controller": [
+    {
+      "remaining": 64,
+      "center": {
+        "x": 63744,
+        "y": 35072,
+        "h": 814
+      },
+      "randomState": 305419896,
+      "heightSha256": "5646f3ecfc50b22a46fd403f4838727ef0a2baeb2428cb54f2d511f0a4185269"
+    },
+    {
+      "remaining": 63,
+      "center": {
+        "x": 63744,
+        "y": 35072,
+        "h": 814
+      },
+      "randomState": 1317931103,
+      "heightSha256": "d503cb3d3f4ec9091ed26d2b67bd0a373a5ecc4c0a84840e906f7690d02fa9a6",
+      "callbacks": [
+        [
+          "sound-request"
+        ],
+        [
+          "terrain-notification",
+          35575
+        ]
+      ]
+    },
+    {
+      "remaining": 62,
+      "center": {
+        "x": 63744,
+        "y": 35072,
+        "h": 814
+      },
+      "randomState": 2870622653,
+      "heightSha256": "dc9f487ed787a37dda89659c074980aa87084b9e231ec66b8832d34c9d8f0c2d",
+      "callbacks": [
+        [
+          "sound-request"
+        ],
+        [
+          "terrain-notification",
+          35066
+        ]
+      ]
+    }
+  ],
+  "world": [
+    {
+      "label": "activation",
+      "turn": 1,
+      "shrineUses": 1,
+      "remaining": 64,
+      "center": {
+        "x": 63744,
+        "y": 35072,
+        "h": 814
+      },
+      "randomState": 305419896,
+      "heightSha256": "5646f3ecfc50b22a46fd403f4838727ef0a2baeb2428cb54f2d511f0a4185269"
+    },
+    {
+      "label": "next-visit",
+      "turn": 2,
+      "shrineUses": 1,
+      "remaining": 63,
+      "center": {
+        "x": 63744,
+        "y": 35072,
+        "h": 814
+      },
+      "randomState": 1317931103,
+      "heightSha256": "d503cb3d3f4ec9091ed26d2b67bd0a373a5ecc4c0a84840e906f7690d02fa9a6"
+    },
+    {
+      "label": "second-later-visit",
+      "turn": 3,
+      "shrineUses": 1,
+      "remaining": 62,
+      "center": {
+        "x": 63744,
+        "y": 35072,
+        "h": 814
+      },
+      "randomState": 2870622653,
+      "heightSha256": "dc9f487ed787a37dda89659c074980aa87084b9e231ec66b8832d34c9d8f0c2d"
+    }
+  ],
+  "authoredShrine": {
+    "work": 0,
+    "target": 40,
+    "required": 1,
+    "remaining": 1,
+    "growth": 768,
+    "grown": false,
+    "enabled": true,
+    "reset": true,
+    "cooldown": 0,
+    "active": true,
+    "nextSlot": 0,
+    "slotTimer": 0,
+    "range": 1,
+    "followers": 0,
+    "forced": false,
+    "morph": null,
+    "mode": 0,
+    "model": 45,
+    "angle": 0.7853981633974483,
+    "id": 101,
+    "x": -7,
+    "z": 115,
+    "kind": "erosionEffect",
+    "effectTarget": {
+      "x": -15,
+      "z": 111
+    },
+    "effectTargets": [
+      {
+        "x": -15,
+        "z": 111
+      }
+    ],
+    "name": "Erosion stone head",
+    "progress": 0,
+    "duration": 13.333333333333334,
+    "uses": 0,
+    "stoneHead": null
+  },
+  "result": "passed"
+}

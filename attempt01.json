@@ -1,0 +1,198 @@
+{
+  "identity": {
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "bytes": 2275840,
+    "debugDirectoryRva": 0,
+    "debugDirectorySize": 0
+  },
+  "levelSha256": "eb239eabebbcde37c1e1633b149d48977cedf432348a12fc5ee6b4be74c049bf",
+  "scope": "Bounded authored Mission 3 Erosion producer and scheduler composition.\n\nNo original OS launch. Raw DAT terrain, seed, free pool and worship completion\nare supplied. Original allocation, initialization, decode, linking, template\nsuspension, cloning, dispatch, list traversal and erosion arithmetic execute.\nPresentation, sound, terrain notifications and unrelated scheduler leaves are\nintercepted. This is not an ordinary native gameplay trace.\n",
+  "snapshots": [
+    {
+      "label": "row101-allocated",
+      "phase": "setup",
+      "pointer": "0x2000000",
+      "index": 640,
+      "class": 6,
+      "model": 6,
+      "state": 5,
+      "classCounter": 0,
+      "remaining": 256,
+      "flags2": 268566528,
+      "flags4": 536870912,
+      "flags3": 4,
+      "spriteStamp": 0,
+      "position": [
+        256,
+        34048,
+        183
+      ],
+      "randomState": 305419896,
+      "heightSha256": "5646f3ecfc50b22a46fd403f4838727ef0a2baeb2428cb54f2d511f0a4185269",
+      "changedHeights": [],
+      "objectHex": "0000000000000000000000000000021000000020040000000000000000000000000000008002000000000606050000000000001f0032010000000200f000010085b700000000000000000000000000000000000000000000000000000000000000000000000000000001000100010200000000000000000000000000000000000000000000000000000000000000010000000000000000000000c00000000000ff000000000000000000000000000000000000"
+    },
+    {
+      "label": "row101-decoded",
+      "phase": "setup",
+      "pointer": "0x2000000",
+      "index": 640,
+      "class": 6,
+      "model": 6,
+      "state": 5,
+      "classCounter": 0,
+      "remaining": 256,
+      "flags2": 268566528,
+      "flags4": 536870912,
+      "flags3": 4,
+      "spriteStamp": 0,
+      "position": [
+        256,
+        34048,
+        183
+      ],
+      "randomState": 305419896,
+      "heightSha256": "5646f3ecfc50b22a46fd403f4838727ef0a2baeb2428cb54f2d511f0a4185269",
+      "changedHeights": [],
+      "objectHex": "0000000000000000660000000000021000000020040000000000000000000000000000008002000000000606050000000000001f0032010000000200f000010085b700000000000000000000000000000000000000000000000000000000000000000000000000000001000100010200000068000000000000000000000000000000000000000000000000000000010000000000010000000000280000000000ff000003000000000000000000000000000000"
+    },
+    {
+      "label": "row103-allocated",
+      "phase": "setup",
+      "pointer": "0x20000b3",
+      "index": 641,
+      "class": 7,
+      "model": 23,
+      "state": 24,
+      "classCounter": 0,
+      "remaining": 64,
+      "flags2": 268566528,
+      "flags4": 536870912,
+      "flags3": 4,
+      "spriteStamp": 0,
+      "position": [
+        63744,
+        35072,
+        814
+      ],
+      "randomState": 305419896,
+      "heightSha256": "5646f3ecfc50b22a46fd403f4838727ef0a2baeb2428cb54f2d511f0a4185269",
+      "changedHeights": [],
+      "objectHex": "0000000000000002000000000000021000000020040000000000000000000000000000008102000000000717180000000a0000000016810000000000f000f900892e0300000000000000000000000000000000000000000000000000000000000000000000000000000100014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "label": "row103-decoded",
+      "phase": "setup",
+      "pointer": "0x20000b3",
+      "index": 641,
+      "class": 7,
+      "model": 23,
+      "state": 24,
+      "classCounter": 0,
+      "remaining": 64,
+      "flags2": 268566528,
+      "flags4": 536870912,
+      "flags3": 4,
+      "spriteStamp": 0,
+      "position": [
+        63744,
+        35072,
+        814
+      ],
+      "randomState": 305419896,
+      "heightSha256": "5646f3ecfc50b22a46fd403f4838727ef0a2baeb2428cb54f2d511f0a4185269",
+      "changedHeights": [],
+      "objectHex": "0000000000000002680000000000021000000020040000000000000000000000000000008102000000000717180000000a0000000016810000000000f000f900892e0300000000000000000000000000000000000000000000000000000000000000000000000000000100014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "label": "template-after-load-init",
+      "phase": "post-load",
+      "pointer": "0x20000b3",
+      "index": 641,
+      "class": 7,
+      "model": 23,
+      "state": 0,
+      "classCounter": 0,
+      "remaining": 64,
+      "flags2": 268435456,
+      "flags4": 0,
+      "flags3": 4,
+      "spriteStamp": 0,
+      "position": [
+        63744,
+        35072,
+        814
+      ],
+      "randomState": 305419896,
+      "heightSha256": "5646f3ecfc50b22a46fd403f4838727ef0a2baeb2428cb54f2d511f0a4185269",
+      "changedHeights": [],
+      "objectHex": "0000000000000002000000000000001000000000040000000000000000000000000000008102000000000717000000000a0000000016810000000000f000f900892e0300000000000000000000000000000000000000000000000000000000000000000000000000000100014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "label": "template-after-loader-mark",
+      "phase": "post-load",
+      "pointer": "0x20000b3",
+      "index": 641,
+      "class": 7,
+      "model": 23,
+      "state": 0,
+      "classCounter": 0,
+      "remaining": 64,
+      "flags2": 268435456,
+      "flags4": 1073741824,
+      "flags3": 4,
+      "spriteStamp": 0,
+      "position": [
+        63744,
+        35072,
+        814
+      ],
+      "randomState": 305419896,
+      "heightSha256": "5646f3ecfc50b22a46fd403f4838727ef0a2baeb2428cb54f2d511f0a4185269",
+      "changedHeights": [],
+      "objectHex": "0000000000000002000000000000001000000040040000000000000000000000000000008102000000000717000000000a0000000016810000000000f000f900892e0300000000000000000000000000000000000000000000000000000000000000000000000000000100014000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    }
+  ],
+  "events": [
+    {
+      "phase": "post-load",
+      "address": "0044fad0",
+      "args": [
+        2314832120,
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "phase": "post-load",
+      "address": "004ed700",
+      "pointer": "0x2000000",
+      "callerReturn": "0x20ef000",
+      "index": 640,
+      "remaining": 256
+    }
+  ],
+  "intercepted": [
+    "004fbd20",
+    "0044fad0",
+    "0048a050",
+    "0044ddf0",
+    "0044f2f0",
+    "004ee190"
+  ],
+  "supplied": {
+    "seed": 305419896,
+    "terrain": "all raw authored DAT heights; all terrain flags zero",
+    "records": [
+      101,
+      103
+    ],
+    "freePool": "8 records, indices 640..647",
+    "completion": "head +0x6d bit2 after clearing its native initial-reset visit"
+  },
+  "result": "failed",
+  "error": "AssertionError()",
+  "eip": "0x20ef000",
+  "traceback": "Traceback (most recent call last):\n  File \"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-activation-proof/work/orchestration/erosion-activation-proof/probe.py\", line 124, in <module>\n    assert read(HEAD + 0x6e, 'B') == 0\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^\nAssertionError\n"
+}

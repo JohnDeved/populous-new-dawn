@@ -1,0 +1,145 @@
+{
+  "schema": "pnd-sparse-evidence-1",
+  "sourceHead": "10f168733815921070621842d8c025f35715a56d",
+  "evidenceRole": "Independently reviewed supplied-state Mission3 Erosion immediate activation call and cached-next scheduler proof; no production/full-game/audio claim",
+  "review": "ACCEPT",
+  "refsIssues": [
+    8
+  ],
+  "originalGameInputsPublished": false,
+  "fileCountExcludingManifest": 33,
+  "files": {
+    "README.md": {
+      "sha256": "d378184cef9ddbf2a1da7db59ed4378c87eb6e4939bc782cf600c05905ee0b33",
+      "bytes": 2596
+    },
+    "allocation.asm": {
+      "sha256": "532de852dfd4e98ae9838965c762830dcc734dca74f7971d2f849420711cd3df",
+      "bytes": 8536
+    },
+    "attempt01-inputs.sha256": {
+      "sha256": "b2f9e37ee175c3b83ff88243864d0bc55e77b95b6671d946e784007f23413f58",
+      "bytes": 328
+    },
+    "attempt01-probe.py": {
+      "sha256": "0ac86a8648bfd6a72ed473610a969360ee997c0ceeba52482843c8d627ccf028",
+      "bytes": 8103
+    },
+    "attempt01.exit": {
+      "sha256": "4355a46b19d348dc2f57c046f8ef63d4538ebb936000f3c9ee954a27460dd865",
+      "bytes": 2
+    },
+    "attempt01.json": {
+      "sha256": "3cc6d1b752b423fe9fcd85c5a677d97d14fb876b677884ccb356595562955005",
+      "bytes": 7447
+    },
+    "attempt01.log": {
+      "sha256": "6c96ffa762c29b0fd7d9615095f4d23d75d842948516082b2c21943f9cc817db",
+      "bytes": 411
+    },
+    "attempt02-inputs.sha256": {
+      "sha256": "dfc5b4a4055461734e32c26310430d7f67dd74c5d01c0a6a79ce4cd76458ed79",
+      "bytes": 328
+    },
+    "attempt02-probe.py": {
+      "sha256": "1b32efdbe1b6072b1c3bd443d22720845253198638b02cc4bff406bbba994adc",
+      "bytes": 8102
+    },
+    "attempt02.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "attempt02.json": {
+      "sha256": "2e0f1be148ed415128b99f0cf496fe23a1d291d08296c1c4c059e4676a0886de",
+      "bytes": 35978
+    },
+    "attempt02.log": {
+      "sha256": "46175df34e8f68a57c43e9052bf60a14486fc78a611081e08f7abc56578d25b2",
+      "bytes": 124
+    },
+    "class-init.asm": {
+      "sha256": "565702654aa0f1020b75be6b34695ba12253f3b0fe36bc6fac12e016e343e9fc",
+      "bytes": 3908
+    },
+    "copier.asm": {
+      "sha256": "9280852e91570ea8b31492ac205e3683fc3b539ddd8abd4c31174ae490269ab4",
+      "bytes": 5148
+    },
+    "effect-baseline.asm": {
+      "sha256": "1318694fa2b72439a883a127462ceb0dc9d3c81ef5825f048ddebfe5bc9a81f6",
+      "bytes": 5923
+    },
+    "effect-class-init.asm": {
+      "sha256": "39958cb62a5801a12cf88f63b67f79342bd3ce4936e11e39f6b699fa75d42852",
+      "bytes": 713
+    },
+    "erosion-controller.asm": {
+      "sha256": "635a798a47d7dae89970407fe2fe2ed7aa595522569e97beab4d54624c5abd6a",
+      "bytes": 3549
+    },
+    "findings.md": {
+      "sha256": "7f4e7505af0d63c0be3d7a0211a963b89074e55943fd05b72272570eb38de4c4",
+      "bytes": 10554
+    },
+    "head-dispatch.asm": {
+      "sha256": "6f53842c33f50618c7a222edd7ce1d38c0fe4fa6da7e53f225cd142be95e5e8f",
+      "bytes": 12646
+    },
+    "load-init-units.asm": {
+      "sha256": "6e82830f5fb4b81dd09d837de577c683db6503e1d9521261e199d675041228d3",
+      "bytes": 9218
+    },
+    "loader-tail.asm": {
+      "sha256": "8c7e3c45c951dd386658b00e0bd7c7a3cada40e232b1e56bfa045f9760c5ffd5",
+      "bytes": 9800
+    },
+    "port.mjs": {
+      "sha256": "b529661bebcc89822a4e7a4ceb366462a6612379696b588d261bddcb1c163b1f",
+      "bytes": 3947
+    },
+    "port01-inputs.sha256": {
+      "sha256": "f4ba706e5743251ebd433529ed059934b889cc03b40006fb53f847aee8f5d32a",
+      "bytes": 378
+    },
+    "port01.exit": {
+      "sha256": "9a271f2a916b0b6ee6cecb2426f0b3206ef074578be55d9bc94f6f3fe3ab86aa",
+      "bytes": 2
+    },
+    "port01.json": {
+      "sha256": "1b4e3adcc3b67fdddc9fafb19b0ab90a125827f64d385c01292ee02edf0a4862",
+      "bytes": 3385
+    },
+    "port01.log": {
+      "sha256": "a279dc5923c6e8db14166ff689591a7b7eb58eb93ab8b931ba4dd24e5d3f973e",
+      "bytes": 661
+    },
+    "probe.py": {
+      "sha256": "1b32efdbe1b6072b1c3bd443d22720845253198638b02cc4bff406bbba994adc",
+      "bytes": 8102
+    },
+    "publication-inputs.json": {
+      "sha256": "9b523f63439978be5a8183d60a426d5b8bb3a7e58e5cc65f1e963720cd8581f0",
+      "bytes": 3350
+    },
+    "receipt-audit.json": {
+      "sha256": "cbd9f6d3d0ae79e1cb01f2d862cecbb5786180942e65b5d38c68734218df60f3",
+      "bytes": 332
+    },
+    "review.md": {
+      "sha256": "7dd7477a8c9e21e5f1d8ad7b771c62175e8e479d9fc7e7464008ecae1e924a01",
+      "bytes": 3221
+    },
+    "scheduler.asm": {
+      "sha256": "af975b7d3b08a6dee83ea10648cf76727669094d7f4d2b5a9e653be17ab93af6",
+      "bytes": 13379
+    },
+    "source-input-manifest.json": {
+      "sha256": "c301e024192b63e7ab47cd3d6ea49bc23117fe8ecebe9c42c72a470e75abadda",
+      "bytes": 2359
+    },
+    "tool-versions.txt": {
+      "sha256": "7f145c562625b165e9fc62e88d07b191d5f5e5177e0a07286efa93268bf38de1",
+      "bytes": 46
+    }
+  }
+}

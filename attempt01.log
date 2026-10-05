@@ -1,0 +1,6 @@
+{"result": "failed", "output": "work/orchestration/erosion-activation-proof/attempt01.json", "snapshots": 6, "events": 2}
+Traceback (most recent call last):
+  File "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-activation-proof/work/orchestration/erosion-activation-proof/probe.py", line 124, in <module>
+    assert read(HEAD + 0x6e, 'B') == 0
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

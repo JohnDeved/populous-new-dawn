@@ -1,0 +1,12 @@
+{
+  "result": "passed",
+  "terrainNotificationCells": [
+    35575,
+    35066
+  ],
+  "comparison": "native low16 callback cells equal port callbacks on two controller calls",
+  "frozenProbeMatch": true,
+  "onlyAttempt02Change": "supplied level_flags32\u21920",
+  "sourceManifestVerified": true,
+  "newNativeOrNodeExecution": false
+}

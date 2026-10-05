@@ -1,0 +1,4 @@
+b529661bebcc89822a4e7a4ceb366462a6612379696b588d261bddcb1c163b1f  work/orchestration/erosion-activation-proof/port.mjs
+d322af8560cce8e0e3bc1188ebab7676c1cce3b904563c380562f4c1a932fea8  app/world-turn.ts
+0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2  app/world-initialization.ts
+33823b3db91d1a711d4babcd8b435d5344f2e29db8fc593f34d43532623db5e2  app/erosion.ts
