@@ -1,0 +1,33 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "order-entity",
+    "collection": "units",
+    "id": 3154
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "target-gone",
+      "id": 3154
+    },
+    "scope": "combat",
+    "watchIds": [
+      3154,
+      46
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m3-forward-preacher-removed"
+  }
+]

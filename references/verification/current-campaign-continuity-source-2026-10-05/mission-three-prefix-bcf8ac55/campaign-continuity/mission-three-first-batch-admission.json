@@ -1,0 +1,91 @@
+{
+  "queuedAt": "2026-10-05T20:53:14.364837+00:00",
+  "runId": "bcf8ac55-e418-49e4-a3d6-b7e804ee31d3",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "awaitingAt": "2026-10-05T20:52:10.177Z",
+  "batchSha256": "4936c5e9e4d42f3d728f236f57598f68ce82c56eb2fbeaf32c7e54bb09d2dfb5",
+  "checkpointLoaded": {
+    "at": "2026-10-05T20:52:07.674Z",
+    "level": 3,
+    "wallMs": 5938,
+    "action": "checkpoint-loaded",
+    "saved": {
+      "version": 1,
+      "level": 3,
+      "turn": 179,
+      "time": 14.916666666666666,
+      "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+      "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+    },
+    "boundary": {
+      "version": 1,
+      "level": 3,
+      "turn": 179,
+      "time": 14.916666666666666,
+      "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+      "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+    },
+    "stored": {
+      "version": 1,
+      "level": 3,
+      "turn": 179,
+      "time": 14.916666666666666,
+      "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+      "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+    },
+    "identity": {
+      "sameStore": true,
+      "newWorld": true,
+      "newScene": true,
+      "currentCorrespondence": true,
+      "level": 3,
+      "replacementLevel": 3,
+      "error": null
+    },
+    "pausedTurn": 194,
+    "livePresentation": {
+      "clock": {
+        "elapsed": 27765.58800000014,
+        "nextVisit": 27775,
+        "lastVisit": 27750,
+        "limiter": 0,
+        "normalRate": 40
+      },
+      "requests": [],
+      "spell": null,
+      "companion": null,
+      "pulse": null
+    },
+    "presentationScope": "Later live worship presentation may advance while simulation is paused; saved digest compared at actual storage boundaries."
+  },
+  "openingTurn": 194,
+  "sourceHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "priorFailureRecords": [
+    {
+      "level": 2,
+      "index": 11,
+      "inputSha256": "8e3f9adfcc0293aabf0c37990f4bfbe21d5c7a05ee4396b4761f639ab4c92e2f",
+      "error": "AssertionError [ERR_ASSERTION]: Entity integer interior target became stale before input\n\nfalse !== true\n\n    at prepareEntityClick (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:349:12)\n    at async clickOrder (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:383:21)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+      "at": "2026-10-05T20:18:52.451Z"
+    },
+    {
+      "level": 2,
+      "index": 14,
+      "inputSha256": "5918bc389b445fb97aa6bb07255f6818a99454616591e4d66e2be4bf40893cfc",
+      "error": "AssertionError [ERR_ASSERTION]: Visible ground with no competing object\n    at move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:451:12)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+      "at": "2026-10-05T20:25:59.982Z"
+    },
+    {
+      "kind": "prior-harness-failure",
+      "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+      "error": "Error: Verified mission boundary; retained failures prevent a clean harness pass\n    at continueMission (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:944:11)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21"
+    }
+  ],
+  "initialHostAdmissionIssue": "First host-only admission script tried to read journey.json before the scenario writes it at first consumption. It terminated without queuing or delivering any input. This admission uses actual successful maintained predecessor/load log and hash-bound prior record; live journey history is verified after first consumption. No scenario/source change."
+}
