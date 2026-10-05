@@ -1,0 +1,12 @@
+✔ observer preserves production calls, observes state without writes, and captures after the real render (2.34599ms)
+✔ original renderer errors propagate exactly; diagnostic errors do not suppress it (1.177616ms)
+✔ crossed birth and retirement remain separate when no real render occurs between them (0.534793ms)
+✔ route progress exposes current order and Vault task without changing World (0.447622ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 101.130892

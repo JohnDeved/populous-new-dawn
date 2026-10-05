@@ -1,0 +1,23 @@
+✔ first and second actual presentation visits display 0 then 1, not 1 then 2 (1036.28007ms)
+✔ normal processed phases reset, loop independently of simulation, then freeze and hide (331.62194ms)
+✔ new checkpoints retain shown/next frames; legacy checkpoints start at a bounded deterministic frame (79.74493ms)
+✔ pause and native land-pause freeze the latch as well as the counter (9.473521ms)
+✔ render schedules and effect-only animation cannot change gameplay, either RNG or respawn (4452.876615ms)
+✔ ordinary combat death finishes existing wait and respawn without a duplicate effect (348.264429ms)
+✔ Vault knowledge uses the original class-6/model-2 reward frames and socket (0.848985ms)
+✔ Vault knowledge is present only while its authored reward source is active (0.14598ms)
+✔ Mission 7 Vault knowledge uses occupied model-18 socket 1 placement (0.756235ms)
+✔ Mission 3 Temple descriptor selects the native HFX identity (171.350759ms)
+✔ Mission 3 marker glow owns a saved fourteen-frame cursor on the existing animation boundary (80.846083ms)
+✔ ordinary Mission 3 Vault collection preserves payout while changing only world presentation (1519.407239ms)
+✔ unrelated Vault and ordinary spell families retain their existing presentation owners (137.19445ms)
+✔ a glow born on an animation boundary first displays frame zero before its next cursor (1098.872967ms)
+✔ ordinary Stone Head completion creates the original six-visit acquisition VFX before stock delivery (158.077138ms)
+ℹ tests 15
+ℹ suites 0
+ℹ pass 15
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 12477.47139

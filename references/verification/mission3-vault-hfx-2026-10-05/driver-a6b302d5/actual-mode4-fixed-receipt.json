@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "f9f90e6c-b630-4ee5-8abe-46e2cce51598",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "branch": "fix/mission3-vault-hfx",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/vault-hfx/driver/witness.mjs": "a0792c14ff9ecd8b6806884579c43af22e1c3af868c09f9fad0ac30db497072b",
+      "work/orchestration/vault-hfx/driver/witness.test.mjs": "4d85bb1aa88f96c3a9de8d84086f7378bd948885557bf14a8221e50f705894b9"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "work/orchestration/vault-hfx/driver/witness.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+  "startedAt": "2026-10-05T12:32:27.437Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/actual-mode4-fixed-receipt.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/actual-mode4-fixed-receipt.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T12:32:30.153Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ observer preserves production calls, observes state without writes, and captures after the real render (2.535596ms)\n✔ original renderer errors propagate exactly; diagnostic errors do not suppress it (0.798458ms)\n✔ crossed birth and retirement remain separate when no real render occurs between them (0.589465ms)\n✔ route progress exposes current order and Vault task without changing World (0.548093ms)\n✔ actual mode4 createGift is detected without an ordinary-spell recipient (1504.387296ms)\nℹ tests 5\nℹ suites 0\nℹ pass 5\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2613.454929\n",
+  "stderr": "",
+  "stdoutSha256": "07868a0c607173dec43e07dc07fc4efaae7d9d8732c702327bf42eab1c41dbec",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "branch": "fix/mission3-vault-hfx",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/vault-hfx/driver/witness.mjs": "a0792c14ff9ecd8b6806884579c43af22e1c3af868c09f9fad0ac30db497072b",
+      "work/orchestration/vault-hfx/driver/witness.test.mjs": "4d85bb1aa88f96c3a9de8d84086f7378bd948885557bf14a8221e50f705894b9"
+    }
+  }
+}

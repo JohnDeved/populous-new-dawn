@@ -1,0 +1,28 @@
+✖ actual mode4 createGift is detected without an ordinary-spell recipient (1424.888042ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2410.68599
+
+✖ failing tests:
+
+test at work/orchestration/vault-hfx/driver/witness.test.mjs:107:1
+✖ actual mode4 createGift is detected without an ordinary-spell recipient (1424.888042ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  null !== 3141
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/witness.test.mjs:124:10)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: 3141,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

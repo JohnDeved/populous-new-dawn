@@ -1,0 +1,9 @@
+{
+  "namespace": "Same launcher execution scope before/after child command",
+  "checkedAt": "2026-10-05T12:37:23.018940+00:00",
+  "commandExit": 0,
+  "port": 4363,
+  "listenersBefore": [],
+  "listenersAfter": [],
+  "standardHarnessOwnsBrowserCloseAndServerGroupStop": true
+}

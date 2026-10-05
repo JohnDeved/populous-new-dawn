@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "head": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+  "sourceStatus": "",
+  "inputHashes": {
+    "scenario.mjs": "a6b302d59a996cdf45bd7007971508472c03e63feaf3a502b77c2ce3b0566321",
+    "witness.mjs": "a0792c14ff9ecd8b6806884579c43af22e1c3af868c09f9fad0ac30db497072b",
+    "checkpoint.mjs": "67bca92dc66241223b5ef72aafcf86d45737e0cdf3449435cf0b63f2923646ea",
+    "launch-plan.json": "2227aae9f0d2512e8f3b30852a09cc5912b1195d52f6fa1d4d1fa15dde5f49c9",
+    "failed-recipient-scenario-c3fc42d1.mjs": "c3fc42d163cf943d98e7ef7d3bb69c7866f71d5b7cd10a31c6aa33404eb89244",
+    "failed-recipient-witness-f378b010.mjs": "f378b01081a22e20a039d739d1e880e59568a8c00ed650e8f865b867cdab6401"
+  },
+  "regressionReceipts": {
+    "actual-mode4-legacy-receipt.json": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "ef2c7cfa19beafb9d3f70395e5af3c7fa504d21b85b8d25ab5bb949be2dc90a3"
+    },
+    "actual-mode4-fixed-receipt.json": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "ac1f7599cc90e3be641093b7d76cbff2143398cfe0283a9381c55c961e9a2b11"
+    }
+  },
+  "browserLaunched": false,
+  "reviewSha256": "ab3d0467f100e517dc8ff2a67fc483b81fb69b19e35140c267dfd5c3f433ade5"
+}

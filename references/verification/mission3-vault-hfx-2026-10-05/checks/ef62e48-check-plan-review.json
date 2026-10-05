@@ -1,0 +1,26 @@
+{
+  "head": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+  "base": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "unknownPaths": [
+    "app/original-vault-knowledge.json",
+    "app/scene-vault-knowledge.ts",
+    "app/vault-appearance.ts",
+    "decomp/research/vault-knowledge-world-assets.md",
+    "public/original/vault-knowledge.png",
+    "scripts/check-vault-knowledge-assets.py",
+    "scripts/import-vault-knowledge.py",
+    "scripts/probe-native-vault-knowledge.py",
+    "tests/vault-knowledge.test.mjs"
+  ],
+  "review": "work/reviews/vault-world-code-ef62e48/review.md",
+  "disposition": "All nine unknown paths are in the independently accepted 21-file source preflight; explicit focused/native/asset/rendered checks below supplement broad routing. No registry mutation needed.",
+  "selected": [
+    "npm run check",
+    "npm run build",
+    "scripts/check-vault-knowledge-assets.py",
+    "scripts/probe-native-vault-knowledge.py",
+    "tests/vault-knowledge.test.mjs",
+    "ordinary Mission3 baseline/candidate marker and acquisition rendered row"
+  ],
+  "notSelected": "Other mission-specific browser/native probes selected through shared facade paths do not exercise the changed Mission3 HFX resource consumer. No caller behavior outside this slice changes."
+}

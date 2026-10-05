@@ -1,0 +1,3956 @@
+
+> populous-first-dawn@0.1.0 orchestration:plan
+> node scripts/orchestration/cli.mjs plan --base 71b3860e7025a9534d56248c194aa18610b5df4d
+
+{
+  "version": 1,
+  "base": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "head": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+  "changes": [
+    {
+      "path": "app/game-store.ts",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "3da8f63cbd75b5b66ad4947cceeb4265d57de59f129e020ce33c076ce9c22d7b",
+      "changeHash": "f5776299fd524168fb5ebfbe59279fec5f77d6fa998acfd4e3b42d4b96ba573c"
+    },
+    {
+      "path": "app/live-people.ts",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "b94e9120cbe56d7e510f8f2fa2aa987e8768a21772acf05c37512f65325d2989",
+      "changeHash": "30a8e90cdfc1154e20f7aae921cc5195ebbb101f0ba385a9e10e18c62a9af8eb"
+    },
+    {
+      "path": "app/original-vault-knowledge.json",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "ed729494e87f6ba6434a9acb915c4da30aa04e1e37b5628ab5d3c7a42bc830bb",
+      "changeHash": "055d5e78169baf815c1505f15e429086f78955bdaae0e73275f51e42fb0651ad"
+    },
+    {
+      "path": "app/scene-assets.ts",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "d475b0017791e1ab0dc81da2e11ade9c1502514eb3f5b955ba825e67c0e9157f",
+      "changeHash": "461c9b856cc4e75b55aa6449b88f6502589d0641346c9fcbd67f34b53525d327"
+    },
+    {
+      "path": "app/scene-effects.ts",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "af82cfb32f31bac26503d936b2c1f79807e87f48ddbec6c4d0a5ee91e4934321",
+      "changeHash": "937d72117fe6efd148ad0c2056aab23d646f3d2956c6e232ba1c7748eb21c938"
+    },
+    {
+      "path": "app/scene-entities.ts",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "cc7cb79c9e92e5b0cb283f745dadec503d8246ab3936b054313d577b97f2c4f4",
+      "changeHash": "b38d5d3a530877bcddea3e798185c10b875a12734c9ec6b5caf776dbe5875f2c"
+    },
+    {
+      "path": "app/scene-vault-knowledge.ts",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "c893e603c8b3a0a7cbecb0d46b56d65225856808d491f7008ffcddd16e39dde0",
+      "changeHash": "62d52bf0ec16e365026f071b33c75fc36d080a9f07ba38066c95750bba43bd20"
+    },
+    {
+      "path": "app/scene.ts",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "8789a7751dd748ac5ebf86f3747e031070356840e787433225da801da5ac9c0b",
+      "changeHash": "083337f49a7333236055e5d1049b19114bde46812fc180da191b1b2056017774"
+    },
+    {
+      "path": "app/vault-appearance.ts",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "4e7307cbce00416abf9464f80a60841214759f5f7a4e10f1337af1aca8b3a010",
+      "changeHash": "0e69535562da654e2c934bbb018428fd4f68a9ea5681d3e949bbd95041563a0f"
+    },
+    {
+      "path": "app/world-effects.ts",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+      "changeHash": "ff79b4cee72cc07c15d3ac6dd68360059944f052f8184ce090fec895c67b6b93"
+    },
+    {
+      "path": "app/world-initialization.ts",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+      "changeHash": "e0da0ad5d07a082761d26af7b75008e5facf047f1147a829934c7067a76e94b7"
+    },
+    {
+      "path": "app/world-types.ts",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "39d0cf2a822e90a077ef86e43f74fb35e6966fe873f60d8e5b820f42c00cb3c4",
+      "changeHash": "0f3f73f7b89144f148790cc6153a0a5414e0b18df641812cd89ac93e92207690"
+    },
+    {
+      "path": "decomp/README.md",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "6dc27ab9c6271567456ba3c0117cff0d6d3e25b54eee116f85ec46c569a841dd",
+      "changeHash": "d8b0df61adb8b19a16349e4640dab1a8a28faf60e4b34c28de32e2f33ab92c85"
+    },
+    {
+      "path": "decomp/research/vault-knowledge-world-assets.md",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "dfe0a396b82eac786381f5525396e19fdb9c48fb4bca090583316ea53d4234e2",
+      "changeHash": "450cd53c170b473130b8b4e6692e1f5f6e17314b26b1ef32ca62fc644559c0d5"
+    },
+    {
+      "path": "engineering/generated-files.json",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "f19f8a70594c5d6cee69000e7b6af55e6ac47d7619ffb188be1134ca4ee24d64",
+      "changeHash": "1ed2a66c9b9095882ec6ad88a6d2a8919f515ce5455c9819995cb4f126b76ae8"
+    },
+    {
+      "path": "engineering/project-map.json",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "64f552d7dcdf4835b8b59f3db865364e64a580742fb8e6b64d951b89108369d8",
+      "changeHash": "4f471eef50b9f66cf6d8e9490ee35741ef280c3725c2f78372894a7e98162175"
+    },
+    {
+      "path": "public/original/vault-knowledge.png",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "3da92d874ef00aeeb450e058984f65c5c63ff6ff476c5c7fde4c085ec5968df7",
+      "changeHash": "7c9b380668b3e29d9e2a3262e78cdcfbd1fed677720d679abb3c45857808c5fb"
+    },
+    {
+      "path": "scripts/check-vault-knowledge-assets.py",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "62cf99ba4f1cf9d30798ab8f215a8538ee94b70ffa0218c461bfe437f15213a1",
+      "changeHash": "7c11e76eea0a5c899200a6cdecdcfa4f45a9334f994fe30b72d8999b252a09d6"
+    },
+    {
+      "path": "scripts/import-vault-knowledge.py",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "4a79c69929dd8fcaeeb73ff1ff9392abad3ab4dadd106d05b6bb58fdccd86488",
+      "changeHash": "113c845a655e057127ed0345377b850cf54fb2bef4326b450e49a4d6de232dfb"
+    },
+    {
+      "path": "scripts/probe-native-vault-knowledge.py",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "48ca690c78230073b0f1a69ee203d252ed768bb2efcc11ba44ff434b067b530d",
+      "changeHash": "940ca10e9bc641322fd857909d315ec8fc73715b1038beec3044b12e7e8f73ff"
+    },
+    {
+      "path": "tests/vault-knowledge.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "c16dfc9ed459229a33e24a8f36affc8a7ff6e11fe403fee09f150dbc0b294738",
+      "changeHash": "206e82bf57803314b1b6044f4126c7afe0c2961814cbbd937addde66c6b9ea07"
+    }
+  ],
+  "affectedSubsystems": [
+    "camera-clocks",
+    "campaign",
+    "construction-resources",
+    "follower-task-controls",
+    "follower-transport-controls",
+    "movement-orders",
+    "persistence",
+    "selection",
+    "shaman-appearance",
+    "terrain-performance",
+    "vehicle-passenger-panel"
+  ],
+  "unknownPaths": [
+    "app/original-vault-knowledge.json",
+    "app/scene-vault-knowledge.ts",
+    "app/vault-appearance.ts",
+    "decomp/research/vault-knowledge-world-assets.md",
+    "public/original/vault-knowledge.png",
+    "scripts/check-vault-knowledge-assets.py",
+    "scripts/import-vault-knowledge.py",
+    "scripts/probe-native-vault-knowledge.py",
+    "tests/vault-knowledge.test.mjs"
+  ],
+  "checks": [
+    {
+      "id": "automatic-boat-crossing-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/automatic-boat-crossing.test.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "The real multi-person command, matching-leg driver wait, checkpoint, sailing, landing, and retained objective completion are covered by mission9-browser.",
+        "Full or unavailable Boat retry is established only by native route evidence; this portable check covers exclusion, not the live retry schedule."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "building-counterattack-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-building-counterattack.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Indexed search, alliance/disguise, and person-order leaves are intercepted; browser regressions cover their integrated consumers."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "camera-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-camera-smoothing.mjs"
+      ],
+      "reasons": [
+        "camera-clocks path changed: app/scene.ts",
+        "cross-cutting path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "Browser consistency is not native outer-loop equivalence or hardware performance proof."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "May write fixed /private/tmp captures"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "camera-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-camera-motion.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "camera-clocks path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Outer frame scheduling, browser cancellation, and transitions remain separate adapters."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "campaign-natural-victory-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/local-render/campaign-fixed-turn.mjs",
+        "--port",
+        "4196",
+        "--timeout",
+        "900000",
+        "--output",
+        "$POPULOUS_CAMPAIGN_OUTPUT"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "construction-resources path changed: app/scene.ts",
+        "movement-orders path changed: app/scene.ts",
+        "persistence path changed: app/game-store.ts",
+        "selection path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Suspends RAF and directly calls tick(world, 1/12); internal camera focus and read-only picking/pathfinding assist rendered controls. No injected entities, resources, victory, AI state, or profile.",
+        "Not ordinary real-clock gameplay, native-equivalent timing, full original-game parity, or hardware performance; direct All missions setup starts Mission 2.",
+        "Conversion requires a separately observed native preacher-victim replacement; death/disappearance and victory alone do not prove it.",
+        "A passing route can record zero Blue Preacher conversions; this check alone does not complete conversion acceptance."
+      ],
+      "prerequisites": [
+        "Installed official Chrome Headless Shell",
+        "Private installed dependencies",
+        "Reserved local browser lane",
+        "Unique output directory"
+      ],
+      "sideEffects": [
+        "Writes isolated browser-context campaign profile state, owned server caches, screenshots, adapter and source-bound JSON report in the requested output directory"
+      ],
+      "resources": [
+        "Owned local server on port 4196 and sandboxed browser; run serially"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_BROWSER, POPULOUS_CAMPAIGN_OUTPUT"
+    },
+    {
+      "id": "checkpoint-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-checkpoint.mjs"
+      ],
+      "reasons": [
+        "cross-cutting path changed: app/world-initialization.ts",
+        "cross-cutting path changed: app/world-types.ts",
+        "persistence path changed: app/game-store.ts"
+      ],
+      "knownLimits": [
+        "Uses browser-native IndexedDB and one latest checkpoint; it does not prove original save-format, slot, broader profile, or front-end parity."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "clock-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/game-clock.test.mjs",
+        "tests/unit-interpolation.test.mjs"
+      ],
+      "reasons": [
+        "camera-clocks path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Does not prove browser RAF, input, GPU presentation, or complete native outer scheduling."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "computer-attack-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-computer-attack.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "movement-orders path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Phase-16 target collection remains a controlled world input; damage success and empty-target retry branches are not executed end-to-end."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent levels/cpscr010.dat and levels/cpscr058.dat are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "computer-direct-attack-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-command-28.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "movement-orders path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Does not execute the command-28 combat body, target lifecycle, attacking-shaman branch, vehicles, or ranged members."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "construction-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-construction.mjs"
+      ],
+      "reasons": [
+        "construction-resources path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Does not route through the isolated command-6, task-7, or timber-cache research modules."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "May write fixed /private/tmp captures"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "construction-live-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/building-workers.test.mjs",
+        "tests/building-work.test.mjs",
+        "tests/building-preparation.test.mjs",
+        "tests/timber.test.mjs"
+      ],
+      "reasons": [
+        "construction-resources path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Does not make the separate command-6, task-7, or timber-cache research modules live."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "construction-native-fetch",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-building-fetch.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "construction-resources path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Resource search and final world mutations are supplied consumers; it is not live hauling."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "construction-native-order",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-construction-order.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "construction-resources path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Native tasks 2-9 are supplied consumers; live plan identity and scheduling remain open."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "construction-native-timber-search",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-timber-search.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "construction-resources path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Candidate path costs are supplied and live scheduling/integration is absent."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "construction-research-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/construction-order.test.mjs",
+        "tests/building-fetch.test.mjs",
+        "tests/timber-search.test.mjs"
+      ],
+      "reasons": [
+        "construction-resources path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "These modules have no live app callers; supplied consumers and path costs do not prove construction integration."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "early-mission-skies-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-early-mission-skies.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "terrain-performance path changed: app/scene-assets.ts",
+        "terrain-performance path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Palette reset, message cleanup, path resolution, open and close are intercepted; no Windows decoder/device or original-frame parity."
+      ],
+      "prerequisites": [
+        "Pinned Unicorn and Pillow Python environment",
+        "Hash-verified original EXE and adjacent Mission 1/2/3 headers, palettes c/s/p, D3D s/p images"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only original executable and game assets"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "early-mission-skies-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/sky-environment.test.mjs",
+        "tests/sky-horizon.test.mjs",
+        "tests/sky-motion.test.mjs"
+      ],
+      "reasons": [
+        "terrain-performance path changed: app/scene-assets.ts",
+        "terrain-performance path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Does not prove browser integration or original rendered pixels."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "firewarrior-building-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-firewarrior-building.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "movement-orders path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Accelerates training mana and positions the trained Firewarrior and authentic hostile people to isolate the authored building target.",
+        "Broad terrain line-of-fire, plans, Bloodlust, tower-origin building attacks, and building destruction remain deferred."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "follower-task-adapters-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-follower-task-adapters.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "follower-task-controls path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Allocator/queue consumers are supplied; category projections do not migrate legacy gameplay."
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "follower-task-art-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-follower-task-art.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "follower-task-controls path changed: app/scene.ts",
+        "follower-transport-controls path changed: app/scene-entities.ts",
+        "follower-transport-controls path changed: app/scene.ts",
+        "follower-transport-controls path changed: app/world-types.ts"
+      ],
+      "knownLimits": [
+        "Supplied raster/coordinate leaves; no original-game runtime or complete painter-order claim."
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "follower-tasks-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        ".",
+        "--scenario",
+        "scripts/check-browser-follower-tasks.mjs",
+        "--port",
+        "4189",
+        "--output",
+        "work/orchestration/follower-tasks-browser",
+        "--timeout",
+        "300000"
+      ],
+      "reasons": [
+        "follower-task-controls path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Supporting injected-class/occupancy fixture is explicitly labelled.",
+        "Headless SwiftShader does not establish hardware performance."
+      ],
+      "prerequisites": [
+        "Reserved local browser/server lane",
+        "Exclusive installed dependencies",
+        "Official sandboxed Headless Shell"
+      ],
+      "sideEffects": [
+        "Writes ignored capture/receipt output and private local server caches"
+      ],
+      "resources": [
+        "Exclusive browser and port4189"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_BROWSER"
+    },
+    {
+      "id": "follower-tasks-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-follower-tasks.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "follower-task-controls path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "UI/sound leaves are intercepted; live browser composition is separate."
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "follower-tasks-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/follower-tasks.test.mjs",
+        "tests/follower-task-runtime.test.mjs"
+      ],
+      "reasons": [
+        "follower-task-controls path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Controlled state fixtures do not prove campaign acquisition or original UI painter order."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "follower-transports-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        ".",
+        "--scenario",
+        "scripts/check-browser-follower-transports.mjs",
+        "--port",
+        "4357",
+        "--output",
+        "work/orchestration/follower-transports-browser",
+        "--timeout",
+        "600000"
+      ],
+      "reasons": [
+        "follower-transport-controls path changed: app/scene-entities.ts",
+        "follower-transport-controls path changed: app/scene.ts",
+        "follower-transport-controls path changed: app/world-types.ts"
+      ],
+      "knownLimits": [
+        "Supporting injected crews/crafts are explicitly labelled; no natural acquisition, Windows full-frame parity or hardware-performance claim.",
+        "Boat driver-Spy disguise is a bounded supporting fixture; non-driver scheduling and Balloon commandPosition remain outside this claim."
+      ],
+      "prerequisites": [
+        "Reserved local browser/server lane",
+        "Exclusive installed dependencies",
+        "Official sandboxed Headless Shell"
+      ],
+      "sideEffects": [
+        "Writes ignored capture/receipt output and private local server caches"
+      ],
+      "resources": [
+        "Exclusive browser and port4357"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_BROWSER"
+    },
+    {
+      "id": "follower-transports-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-follower-transports.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "follower-transport-controls path changed: app/scene-entities.ts",
+        "follower-transport-controls path changed: app/scene.ts",
+        "follower-transport-controls path changed: app/world-types.ts"
+      ],
+      "knownLimits": [
+        "UI/sound and world leaves are supplied; no full original-game loop proof."
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "follower-transports-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/follower-transports.test.mjs",
+        "tests/follower-transport-runtime.test.mjs",
+        "tests/browser-follower-transports-checker.test.mjs",
+        "tests/hud-layout.test.mjs",
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "tests/transport-pixel-reference.test.mjs"
+      ],
+      "reasons": [
+        "follower-transport-controls path changed: app/scene-entities.ts",
+        "follower-transport-controls path changed: app/scene.ts",
+        "follower-transport-controls path changed: app/world-types.ts"
+      ],
+      "knownLimits": [
+        "Supporting class/owner fixtures do not establish natural acquisition or arbitrary mixed-tribe admission."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "level-start-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-level-start.mjs"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/scene-effects.ts",
+        "shaman-appearance path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "UI restart/checkpoint acceptance also requires corresponding portable/store checks; native evidence is separate."
+      ],
+      "prerequisites": [
+        "Reserved Linux HeadlessShell browser/server slot",
+        "Playwright Chromium with verified local launch wrapper",
+        "Unique output directory"
+      ],
+      "sideEffects": [
+        "Writes screenshots and a commit-labelled JSON report to the requested output directory"
+      ],
+      "resources": [
+        "Serialized local Linux browser/server QA slot"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_URL, POPULOUS_LEVEL_START_OUTPUT"
+    },
+    {
+      "id": "level-start-native",
+      "kind": "native",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-native-level-start.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/scene-effects.ts",
+        "shaman-appearance path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "Supplied allocation, registration, notification and animation leaves; not full original game execution."
+      ],
+      "prerequisites": [
+        "Hash-matching supplied original EXE and adjacent mwsearch data",
+        "Explicit isolated native-execution authorization",
+        "Python with Unicorn and Capstone"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE"
+    },
+    {
+      "id": "level-start-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/level-start.test.mjs"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/scene-effects.ts",
+        "shaman-appearance path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "Browser pixels and native instruction comparisons run separately."
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "level-start-static",
+      "kind": "static",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-static-level-start.py",
+        "--data-root",
+        "$POPULOUS_DATA_ROOT"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/scene-effects.ts",
+        "shaman-appearance path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "Not an original raster or browser comparison; append-preservation uses an optional captured baseline."
+      ],
+      "prerequisites": [
+        "Supplied hash-matching original game data",
+        "Python with Pillow"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT"
+    },
+    {
+      "id": "messages-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-messages.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The accessible browser text popup is a modern adapter, not original font/raster parity."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes /private/tmp/populous-messages.png"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "messages-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-messages.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Remaining Mission 1 campaign bytecode branches require a separately supplied cpscr010.dat; other notification classes and the original popup renderer remain outside this check."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable",
+        "Adjacent Mission 2 and Mission 4 scripts plus language, palette, and HFX data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission10-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission10-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Message, head, flyby, and outcome consumers are intercepted; commands 1131 and 1202 receive supplied results. The timer, level-flag, and player-result-flag leaves execute natively.",
+        "The full native level, Boat route, trigger clones, and class-7 model-90/model-26 terrain consumers are not executed."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 10 level, header, script, and language data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission11-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission11.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Seeds Mission 10 victory to isolate the continuation and does not prove natural Mission 10 completion.",
+        "Seeds Mission 11 victory after proving its bounded opening/settlement path; natural Mission 11 completion remains deferred.",
+        "Mission 11 later housing/staffing/attacks/objectives; Mission 12 later AI, objectives, victory, broader Spy detection/reinforcement/death, normal cross-island transport to sabotage, Balloon behavior, and opcode 1190's downstream consumer; and Mission 13 later AI, objectives, victory, Balloon combat targeting/feedback, exact Balloon art, and full script command coverage remain deferred; destruction is covered separately."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission11-build-at-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission11-build-at.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The completed model-3 count and an inert base building are supplied; the live browser check owns the naturally upgraded Hut and first eligible turn 4605.",
+        "Candidate acceptance is forced to reject. Natural Mission 11 terrain acceptance, worker construction, rendering, and checkpoint continuation remain browser evidence."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 11 script"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission11-housing-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission11-housing.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The probe calls the producer directly with the accepted tower owner, its 0xda7a base cell, and model availability supplied. Cadence, construction-task limit, and housing-target gates are static reviewed evidence; the browser check owns the natural tower, site selection, construction, upgrades, and rendering.",
+        "The first BUILD_AT tower is covered separately by mission11-build-at-native after this probe's model-3 Hut prerequisite matures."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 11 script"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission11-settlement-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission11-settlement.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The available-Brave count is intercepted as six from the supplied raw level records.",
+        "Terrain acceptance, plan insertion, worker movement, completion, rendering, and checkpoint restoration remain browser evidence."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 11 level, header, and scripts"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission12-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission12-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Flyby commands are recorded at the dispatcher; rendering and input release remain browser evidence.",
+        "Producer current-base and available-Brave leaves are supplied from the verified level; loaded-world ownership, site choice, workers, and construction remain portable/browser evidence.",
+        "Opcode 1190's downstream object-flag consumer and every later Mission 12 branch remain unresolved."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 12 level, header, three scripts, and English language data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission12-spy-sabotage-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission12-spy-sabotage.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Allocation, terrain, movement, animation, and teardown leaves are supplied; full native gameplay is not executed.",
+        "The exact original UI setter for disguise choice, ordinary discovery percentages, render pixels, and save-file serialization remain browser/portable or open evidence."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission13-balloon-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-balloon.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Descriptor bytes do not execute the producer or a complete native world.",
+        "Construction, recurring production, player controls, persistence, rendering, and full-world integration remain portable/browser evidence.",
+        "Exact native per-tick steering, combat targeting/feedback, downstream ejected-passenger fate, audio, and source artwork remain unresolved; destruction is covered separately."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission13-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission13-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Flyby commands are recorded at the dispatcher; rendering and input release remain browser evidence.",
+        "Object populations and knowledge links are decoded from the verified level without a full native world load.",
+        "Later Mission 13 AI, objectives, victory, Balloon combat targeting/feedback, and exact Balloon art remain unresolved; construction, transport, and destruction are separate browser/native Balloon evidence."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 13 level, header, scripts 29/30, and English language data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission14-rewards-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission14-rewards.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Followers are positioned at authored worship rings and accumulated work is bounded after real input establishes worship.",
+        "Headless GPU pixels do not establish exact native raster parity.",
+        "Later Mission 14 AI and victory behavior remain outside this feature slice."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes and restores the browser checkpoint database"
+      ],
+      "resources": [
+        "Fixed server and browser storage resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission14-rewards-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission14-rewards.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Allocation, deletion, audio playback, template copy, shared-reference outcome, cleanup, and shaman initialization are intercepted leaves documented in the research note.",
+        "Projectile transit, live Angel combat, renderer/audio playback, native save serialization, and browser reachability are not proved by this probe."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 14 level and constant data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission14-rewards-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission14-rewards.test.mjs",
+        "tests/mission5-angel.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The test bounds worship duration after real follower orders reach the authored ring.",
+        "The browser models the linked spell rewards but not the heads' class-7 decoration clones.",
+        "Later Mission 14 AI and victory behavior remain outside this feature slice."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission15-prison-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission15-prison.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The selected Brave is placed at the authored Prison edge, simulation RNG is fixed for route repeatability, and damage is bounded after the first real pointer-issued strike.",
+        "The expiry timer is bounded to one turn after the live mission starts.",
+        "Headless GPU pixels do not establish exact native raster parity; exact Prison debris/audio and later Mission 15 AI remain open."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes and restores the browser checkpoint database"
+      ],
+      "resources": [
+        "Fixed server and browser storage resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission15-prison-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission15-prison.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Presentation, registration, adjacency, footprint enumeration, and generic state/motion leaves are supplied as documented in the research note.",
+        "The probe does not emulate plan allocation, terrain routing, audiovisual playback, queued-Lightning delay, or downstream generic Shaman-defeat UI."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 15 level and script data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission15-prison-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission15-prison.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The test bounds Prison damage after one real ordinary follower strike.",
+        "Exact Prison debris/audio and later Mission 15 AI remain outside this feature slice."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission16-bloodlust-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission16-bloodlust.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The check positions worshippers and combatants to bound pathfinding time.",
+        "Headless GPU rendering does not establish exact native HFX raster parity."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes and restores the browser checkpoint database"
+      ],
+      "resources": [
+        "Fixed server and browser storage resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission16-bloodlust-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission16-bloodlust.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The expiry driver intercepts unrelated AI, motion, presentation, and cleanup leaves.",
+        "Firewarrior and rendering consumers reuse already-reviewed exports rather than duplicate emulation here."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 16 level and script data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission16-bloodlust-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission16-bloodlust.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Original HFX artwork and a distinct AI Bloodlust casting policy are not established."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission17-armageddon-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission17-armageddon.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Worshippers are placed at native slots and the blue roster is enlarged to bound the winning run.",
+        "Enemy life is cleared after real central battle orders begin; the portable check separately covers defeat and a full natural melee run was observed during implementation."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes and restores the browser checkpoint database"
+      ],
+      "resources": [
+        "Fixed server and browser storage resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission17-armageddon-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission17-armageddon.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Arena phase behavior is established by the registered controller exports and portable/live checks rather than emulated in this probe.",
+        "Allocation, unit-state leaves, and audio playback are intercepted."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 17 level data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission17-armageddon-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission17-armageddon.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The portable result counterexamples remove one side after real battle orders begin to keep runtime bounded.",
+        "Exact native camera interpolation, audio, and Shaman automatic spell choices remain presentation/controller limits."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission18-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission18.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "terrain-performance path changed: app/scene-assets.ts",
+        "terrain-performance path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "The focused browser check accelerates worship after followers enter their native slots.",
+        "The portable check owns Red patrol, Armageddon arena, checkpoint, and both result directions."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission18-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission18.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "terrain-performance path changed: app/scene-assets.ts",
+        "terrain-performance path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "The native check byte-verifies the authored script and data rather than running a complete game process.",
+        "Device rasterization, non-lens view configuration, recurring command 1074, and later Mission 18 AI remain open."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 18 level and data files"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission18-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission18.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Result counterexamples remove one side after arena battle orders begin to bound runtime.",
+        "Later recurring AI, exact Shaman spell choices, camera interpolation, and audio remain open."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission19-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission19.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "persistence path changed: app/game-store.ts",
+        "terrain-performance path changed: app/scene-assets.ts",
+        "terrain-performance path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "The focused browser check supplies worship followers at their native slots and accelerates completed worship work.",
+        "The portable check owns checkpoint continuation and all objective result directions."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission19-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission19.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "terrain-performance path changed: app/scene-assets.ts",
+        "terrain-performance path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Only allocator and retirement leaves are intercepted in the executable Teleport timing probe.",
+        "Warning 127/128 reachability, audiovisual presentation, and later Mission 19 AI remain open."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 19 level and data files"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission19-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission19.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "persistence path changed: app/game-store.ts"
+      ],
+      "knownLimits": [
+        "Focused objective cases place the script clock at its native cadence before changing the relevant population state.",
+        "Warning 127/128, later AI, exact rendering, and audio remain open."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission20-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission20.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "persistence path changed: app/game-store.ts"
+      ],
+      "knownLimits": [
+        "The focused browser check supplies worship followers at authored slots and accelerates completed worship work.",
+        "The portable check owns checkpoint continuation; later Mission 20 AI and exact audiovisual presentation remain open."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission20-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission20.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Allocation, deletion, template-copy, first-processing, and presentation leaves are intercepted.",
+        "Complete post-dispatch terrain, damage, rendering, and audio evolution remains browser integration evidence."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 20 level and script files"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission20-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission20.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "persistence path changed: app/game-store.ts"
+      ],
+      "knownLimits": [
+        "The focused test supplies worship followers at authored slots and accelerates completed worship work.",
+        "Exact class-7 presentation/audio and later Mission 20 AI remain open."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission21-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission21.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "persistence path changed: app/game-store.ts"
+      ],
+      "knownLimits": [
+        "The browser check advances ordinary fixed turns between player actions; it does not record a native route-timing playthrough.",
+        "Exact class-7/model-39 presentation, later faults, AI, and mission outcome remain open."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission21-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission21.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Allocation, template copy, first-processing, deletion, worship presentation, and shared-reference leaves are intercepted.",
+        "This is not a full native route-timing playthrough, renderer/audio comparison, checkpoint proof, later-fault proof, AI proof, or mission-outcome proof."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 21 level, header, script, and language files"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission21-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission21.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "persistence path changed: app/game-store.ts"
+      ],
+      "knownLimits": [
+        "The portable check drives production command APIs; the browser check supplies the shipped-control proof.",
+        "Native end-to-end route timing, exact class-7/model-39 presentation, later faults, AI, and mission outcome remain open."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission22-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission22.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The browser check advances ordinary fixed turns between player actions; it does not record a native route-timing playthrough.",
+        "Exact stone animation/assets, AI, objective, and mission outcome remain open."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission22-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission22-gifts.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Allocation, template copy, deletion, selected presentation data, person eligibility, and some vehicle setup leaves are intercepted.",
+        "The probe does not establish the full trigger controller's generic completion cue, a native route-timing playthrough, exact renderer comparison, save-format proof, AI proof, or mission-outcome proof."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 22 level, header, script, and language files"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission22-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission22.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The portable check drives production commands; the browser check supplies shipped-control proof.",
+        "Exact stone animation/assets, AI, objective, and mission outcome remain open."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission23-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission23.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The focused check positions authored units, supplies one Land Bridge stock, and advances fixed turns after shipped pointer orders establish worship.",
+        "Boat production/transport, training, attacks, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission23-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission23.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Focused allocation and presentation leaves may be intercepted and documented by the probe.",
+        "The check does not establish Mission 23 AI, natural outcome, exact rendering/audio, or a complete native playthrough."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 23 level, header, script, and language files"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission23-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission23.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The focused check supplies one Land Bridge stock and accelerates completed worship work after real orders establish followers.",
+        "Boat production/transport, training, attacks, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission23-settlement-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission23-settlement.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The probe supplies authored Shaman origins and available Brave counts; later cases supply completed-building lists, building availability, and distinct current-base sentinels.",
+        "It does not execute terrain-site acceptance, construction completion, training, attacks, combat, or outcome."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 23 level, header, and script files"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission4-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission4.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "persistence path changed: app/game-store.ts"
+      ],
+      "knownLimits": [
+        "Injects prior Mission 3 and Mission 4 wins, accelerates Mission 4 tutorial conditions, positions one Mission 5 follower at the Boat worship ring and the Shaman at the Angel trigger, injects late-mission population/kill thresholds plus one reachable survivor, and removes Mission 5 enemy forces before exercising the real outcome/profile path; starting-route terrain progression, broader recurring AI, the Angel reward, complete housed-Preacher behavior, and other Mission 5 combat remain deferred.",
+        "Mission 5 opening events and trigger come from the imported original script; native timing has not been independently replayed.",
+        "Mission 6 later ordinary attacks, broader BUILD_AT behavior, later producer profiles, and later mission-specific content remain deferred."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission5-angel-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission5-angel.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "An existing warrior is positioned at the worship ring to bound travel; no head, Angel, enemy, or completion state is injected.",
+        "Headless GPU pixels do not establish full original raster parity.",
+        "The check proves visible movement and cue presence, not exact native flight speed, height, or activation timing."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes /private/tmp/populous-mission5-angel.png"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission5-angel-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission5-angel.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The browser check bounds cleanup after combat; model-91's exact sprite presentation remains deferred.",
+        "Flight speed 128, the stable +100 initial-height offset, and combined 0xd9/0xdb spawn timing are bounded approximations because native chase height and activation ordering remain unrecovered."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission7-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission7.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Seeds Mission 6 victory, positions the authentic Shaman at the remote Vault entrance, and positions the converted follower within casting range.",
+        "It does not prove the full-map Vault route, natural Mission 6 or Mission 7 victory, later Mission 7 AI, or Erosion acquisition."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission7-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission7-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The native game-command dispatcher is intercepted; existing focused checks cover the bound message and flyby handlers.",
+        "Mission 7 attack AI, later messages, Erosion acquisition, and victory remain excluded."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable and adjacent Mission 7 script"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent levels/cpscr021.dat are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission8-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission8.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "construction-resources path changed: app/scene.ts",
+        "movement-orders path changed: app/scene.ts",
+        "persistence path changed: app/game-store.ts"
+      ],
+      "knownLimits": [
+        "Seeds Mission 7 victory, positions the authentic Shaman at the remote Vault entrance, clears construction/Firewarrior selections, accelerates training mana, and positions authentic enemies in range.",
+        "Mission 8 AI, tutorials, victory, and broader Firewarrior Bloodlust, terrain line-of-fire, target damage, and trail behavior remain deferred."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission8-firewarrior-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-firewarrior.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "movement-orders path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Global order/projectile allocation, audio, trail, and the downstream kill-credit consumer are intercepted; the completed-building branch is established by indexed byte-verified exports rather than a constructed native probe; browser terrain occlusion, the special level-flag range, Bloodlust, broad target damage, and complete native play remain deferred."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent constant.dat",
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission9-boat-house-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-boat-house.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "construction-resources path changed: app/scene.ts",
+        "movement-orders path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Shape enumeration, allocation storage, height, routing, boarding, motion, and removal leaves are supplied; the external work increment and full native world remain outside this probe."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent game data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission9-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission9.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "construction-resources path changed: app/scene.ts",
+        "cross-cutting path changed: app/world-initialization.ts",
+        "cross-cutting path changed: app/world-types.ts",
+        "movement-orders path changed: app/scene.ts",
+        "persistence path changed: app/game-store.ts"
+      ],
+      "knownLimits": [
+        "Seeds Mission 8 and Mission 9 victory before exercising Mission 10 through rendered player input.",
+        "Mission 9 AI, victory, tutorials, recurring Boat production, Boat combat targeting/feedback, and exact replacement hull art remain deferred; destruction is covered separately.",
+        "The complete native simultaneous multi-person crossing schedule is not byte-executed end to end; native route/vehicle probes and the live Mission 10 composition divide that evidence.",
+        "After four rendered Blasts, surviving nearby defenders are removed to isolate second-Totem checkpoint continuation; this check does not prove fully player-driven defender clearance.",
+        "Mission 10 full AI, Shaman-loss branch, natural endgame victory, and exact model-90/model-26 terrain equivalence remain deferred."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "orchestration-structural",
+      "kind": "metadata",
+      "command": [
+        "node",
+        "scripts/orchestration/cli.mjs",
+        "check"
+      ],
+      "reasons": [
+        "workflow path changed: engineering/generated-files.json",
+        "workflow path changed: engineering/project-map.json"
+      ],
+      "knownLimits": [
+        "Structural validation does not certify evidence semantics or enforce an OS sandbox."
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Git"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "orchestration-tests",
+      "kind": "metadata",
+      "command": [
+        "node",
+        "--test",
+        "tests/orchestration.test.mjs",
+        "tests/workflow-handoff.test.mjs",
+        "tests/workflow-policy.test.mjs"
+      ],
+      "reasons": [
+        "workflow path changed: engineering/generated-files.json",
+        "workflow path changed: engineering/project-map.json"
+      ],
+      "knownLimits": [
+        "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0"
+      ],
+      "sideEffects": [
+        "May refresh ignored work/orchestration/index.json",
+        "Temporary directories only"
+      ],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "orders-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-ground-waypoints.mjs"
+      ],
+      "reasons": [
+        "cross-cutting path changed: app/world-types.ts",
+        "movement-orders path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Does not prove Boat construction, combat, native artwork, or mixed transport queues."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "May write /private/tmp captures"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "orders-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-orders.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "movement-orders path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "World consumers and full scheduling are supplied or separately checked."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [
+        "Writes tracked player-order and ground-input fixtures even without --record"
+      ],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "orders-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/player-orders.test.mjs",
+        "tests/ground-waypoints.test.mjs",
+        "tests/live-movement.test.mjs",
+        "tests/world-movement.test.mjs",
+        "tests/command-context.test.mjs"
+      ],
+      "reasons": [
+        "cross-cutting path changed: app/world-types.ts",
+        "movement-orders path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Does not cover every command class, vehicle, allocator, or scheduler path."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "performance-profile",
+      "kind": "performance",
+      "command": [
+        "node",
+        "scripts/profile-game.mjs",
+        "--headed"
+      ],
+      "reasons": [
+        "terrain-performance path changed: app/scene-assets.ts",
+        "terrain-performance path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Default headless results are diagnostic, not hardware FPS certification; workload flags and acceptance criteria must be chosen before running."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium",
+        "Exclusive measurement window",
+        "Predeclared workload and acceptance criteria"
+      ],
+      "sideEffects": [
+        "Writes a profile JSON to an argument-selected path or /private/tmp"
+      ],
+      "resources": [
+        "Serialize performance runs, fixed server, browser, GPU, and capture path"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "production-build",
+      "kind": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "reasons": [
+        "application source changed: app/game-store.ts",
+        "application source changed: app/live-people.ts",
+        "application source changed: app/original-vault-knowledge.json",
+        "application source changed: app/scene-assets.ts",
+        "application source changed: app/scene-effects.ts",
+        "application source changed: app/scene-entities.ts",
+        "application source changed: app/scene-vault-knowledge.ts",
+        "application source changed: app/scene.ts",
+        "application source changed: app/vault-appearance.ts",
+        "application source changed: app/world-effects.ts",
+        "application source changed: app/world-initialization.ts",
+        "application source changed: app/world-types.ts",
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "cross-cutting path changed: app/scene-entities.ts",
+        "cross-cutting path changed: app/scene.ts",
+        "cross-cutting path changed: app/world-initialization.ts",
+        "cross-cutting path changed: app/world-types.ts",
+        "follower-transport-controls path changed: app/scene-entities.ts",
+        "follower-transport-controls path changed: app/scene.ts",
+        "follower-transport-controls path changed: app/world-types.ts",
+        "persistence path changed: app/game-store.ts"
+      ],
+      "knownLimits": [
+        "A successful build does not establish browser behavior or native parity."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [
+        "Writes ignored dist/ and Wrangler logs"
+      ],
+      "resources": [
+        "Shared build directories; run serially"
+      ],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "queued-timber-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-command-target.mjs"
+      ],
+      "reasons": [
+        "construction-resources path changed: app/scene.ts",
+        "movement-orders path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Does not cover loose-log mode, automatic timber search, or every scenery chain collision."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "reincarnation-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-reincarnation.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Headless browser rendering does not establish original full-frame raster parity."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes /private/tmp screenshots"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "reincarnation-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-reincarnation.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Allocation, sound, registration, and deletion consumers are supplied; the live browser integration is checked separately."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "reincarnation-wave-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "--mission",
+        "2",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/scene-effects.ts",
+        "shaman-appearance path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "Command adapter is not pointer-picking proof.",
+        "Staged intruders are separate from natural gameplay acceptance.",
+        "Linux headless rendering cannot establish hardware performance."
+      ],
+      "prerequisites": [
+        "Owned local game server",
+        "Supported sandboxed Playwright browser"
+      ],
+      "sideEffects": [
+        "Writes source-bound captures/report to unique artifact directory"
+      ],
+      "resources": [
+        "Shared browser/server lane; serialize"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_ARTIFACT_DIR, POPULOUS_HEADLESS_SHELL"
+    },
+    {
+      "id": "reincarnation-wave-native",
+      "kind": "native",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-native-reincarnation-wave.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/scene-effects.ts",
+        "shaman-appearance path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "Supplied rendering, sound, removal and unrelated world leaves; spawn requests are supplied, not a successful native spawn.",
+        "Earlier corrupt-search receipts through94e88b4 are superseded."
+      ],
+      "prerequisites": [
+        "Hash-verified original EXE, levels/constant.dat and data/mwsearch.dat",
+        "Pinned Unicorn environment"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE, POPULOUS_PYTHON"
+    },
+    {
+      "id": "reincarnation-wave-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/reincarnation-wave.test.mjs",
+        "tests/level-start.test.mjs",
+        "tests/person-panic.test.mjs"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/scene-effects.ts",
+        "shaman-appearance path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "Supporting fixtures and source integration do not establish rendered acceptance."
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "reasons": [
+        "application source changed: app/game-store.ts",
+        "application source changed: app/live-people.ts",
+        "application source changed: app/original-vault-knowledge.json",
+        "application source changed: app/scene-assets.ts",
+        "application source changed: app/scene-effects.ts",
+        "application source changed: app/scene-entities.ts",
+        "application source changed: app/scene-vault-knowledge.ts",
+        "application source changed: app/scene.ts",
+        "application source changed: app/vault-appearance.ts",
+        "application source changed: app/world-effects.ts",
+        "application source changed: app/world-initialization.ts",
+        "application source changed: app/world-types.ts",
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "cross-cutting path changed: app/scene-entities.ts",
+        "cross-cutting path changed: app/scene.ts",
+        "cross-cutting path changed: app/world-initialization.ts",
+        "cross-cutting path changed: app/world-types.ts",
+        "follower-transport-controls path changed: app/scene-entities.ts",
+        "follower-transport-controls path changed: app/scene.ts",
+        "follower-transport-controls path changed: app/world-types.ts",
+        "persistence path changed: app/game-store.ts",
+        "unmapped path requires conservative general validation: app/original-vault-knowledge.json",
+        "unmapped path requires conservative general validation: app/scene-vault-knowledge.ts",
+        "unmapped path requires conservative general validation: app/vault-appearance.ts",
+        "unmapped path requires conservative general validation: decomp/research/vault-knowledge-world-assets.md",
+        "unmapped path requires conservative general validation: public/original/vault-knowledge.png",
+        "unmapped path requires conservative general validation: scripts/check-vault-knowledge-assets.py",
+        "unmapped path requires conservative general validation: scripts/import-vault-knowledge.py",
+        "unmapped path requires conservative general validation: scripts/probe-native-vault-knowledge.py",
+        "unmapped path requires conservative general validation: tests/vault-knowledge.test.mjs",
+        "workflow integration changed: engineering/generated-files.json",
+        "workflow integration changed: engineering/project-map.json"
+      ],
+      "knownLimits": [
+        "Does not run native executable, browser integration, or hardware performance checks."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [
+        "May update ignored tool caches"
+      ],
+      "resources": [
+        "Serialize with other full test runs"
+      ],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "selection-browser-drag",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-drag-selection.mjs"
+      ],
+      "reasons": [
+        "selection path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Software-renderer pixel consistency is not native full-frame parity or hardware FPS evidence."
+      ],
+      "prerequisites": [
+        "Running game server at POPULOUS_URL or http://localhost:3000",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes a tracked performance JSON and /private/tmp screenshots"
+      ],
+      "resources": [
+        "Fixed server port/capture paths; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "selection-native-drag",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-drag-selection.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "selection path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Downstream UI refresh and command buffer are intercepted; it is not a complete original-game replay."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied D3D executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "selection-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/drag-selection.test.mjs",
+        "tests/drag-occupants.test.mjs",
+        "tests/person-selection.test.mjs",
+        "tests/world-picking.test.mjs",
+        "tests/selection-raster.test.mjs"
+      ],
+      "reasons": [
+        "selection path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Portable tests do not prove the live ScenePicking traversal or native executable equivalence."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "shaman-appearance-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-shaman-appearance.mjs",
+        "--reference-report",
+        "$POPULOUS_SHAMAN_REFERENCE",
+        "--output-dir",
+        "$POPULOUS_SHAMAN_OUTPUT",
+        "--headed"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/scene-effects.ts",
+        "shaman-appearance path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "Requires an explicit browser/GPU slot; cannot run from a portable aggregate.",
+        "Controlled pose/death edge cases supplement ordinary mission startup; no144fps or performance-nonregression claim."
+      ],
+      "prerequisites": [
+        "Owned server at127.0.0.1:4318",
+        "Installed Playwright browser",
+        "Static reference report from the current atlas",
+        "A new unique ignored output directory",
+        "Explicit runtime resource grant"
+      ],
+      "sideEffects": [
+        "Creates an isolated browser profile and writes only the supplied new artifact directory"
+      ],
+      "resources": [
+        "Browser/GPU/server serialized by explicit CEO grant"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_URL, POPULOUS_SHAMAN_REFERENCE, POPULOUS_SHAMAN_OUTPUT"
+    },
+    {
+      "id": "shaman-appearance-native",
+      "kind": "native",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-native-shaman-appearance.py",
+        "$POPULOUS_EXE",
+        "--output",
+        "$POPULOUS_SHAMAN_NATIVE_OUTPUT"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/scene-effects.ts",
+        "shaman-appearance path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "Requires a separate native-execution grant; not included in browser/GPU approval.",
+        "Original world draw is separate static evidence; this does not execute the entire graphics loop."
+      ],
+      "prerequisites": [
+        "Documented native Python environment",
+        "Hash-verified supplied EXE/adjacent assets",
+        "Explicit native resource grant"
+      ],
+      "sideEffects": [
+        "Writes a new explicitly supplied evidence JSON; never records fixtures"
+      ],
+      "resources": [
+        "Native execution serialized by CEO"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE, POPULOUS_SHAMAN_NATIVE_OUTPUT"
+    },
+    {
+      "id": "shaman-appearance-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/shaman-appearance.test.mjs",
+        "tests/sprite-layers.test.mjs"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/scene-effects.ts",
+        "shaman-appearance path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "Portable checks do not certify rendered gameplay or complete native animation timing."
+      ],
+      "prerequisites": [
+        "Node.js >=22.13 with TypeScript stripping",
+        "Installed repository dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "shaman-assets-static",
+      "kind": "static",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-static-shaman-appearance.py",
+        "--data-root",
+        "$POPULOUS_DATA_ROOT"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/scene-effects.ts",
+        "shaman-appearance path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "Static original-byte comparison; no native executable or browser is run."
+      ],
+      "prerequisites": [
+        "Existing Python environment with Pillow",
+        "Supplied hash-matching original data root"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT"
+    },
+    {
+      "id": "shaman-death-ground-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-shaman-death-ground.mjs",
+        "--mission",
+        "1",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR",
+        "--timeout",
+        "480000"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/scene-effects.ts",
+        "shaman-appearance path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "Held RAF; full Scene.animate at24Hz/1x, not real time. Zero-time camera assist; no World injection. No native raster/hardware claim."
+      ],
+      "prerequisites": [
+        "Verified installed dependencies",
+        "Supported sandboxed browser"
+      ],
+      "sideEffects": [
+        "Writes source-bound screenshots/report in an owned artifact directory"
+      ],
+      "resources": [
+        "Shared browser/server lane; serialize"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_HEADLESS_SHELL, POPULOUS_ARTIFACT_DIR"
+    },
+    {
+      "id": "shaman-death-ground-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-shaman-death-ground.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/scene-effects.ts",
+        "shaman-appearance path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "Registration, support predicates, audio, bookkeeping and spawning are supplied leaves.",
+        "The current caller uses ordinary combat death and supplied post-death terrain; no shipped spell or native raster claim."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment and Node.js",
+        "Hash-verified executable, levels/constant.dat, data/mwsearch.dat, data/vstart-0.ani and data/vfra-0.ani"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs; coordinate CPU use"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "shaman-death-ground-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/shaman-death-ground.test.mjs",
+        "tests/shaman-death-cadence.test.mjs",
+        "tests/shaman-death-vfx.test.mjs",
+        "tests/controlled-scene-frames.test.mjs"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/scene-effects.ts",
+        "shaman-appearance path changed: app/scene-entities.ts"
+      ],
+      "knownLimits": [
+        "Death-terrain/drowning fixtures and fake-Scene bounds; actual rendering separate."
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "terrain-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-terrain-copies.mjs"
+      ],
+      "reasons": [
+        "terrain-performance path changed: app/scene-assets.ts",
+        "terrain-performance path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Browser-path equivalence is not complete native renderer parity; headless mode does not identify hardware by itself."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "May write tracked performance artifacts and fixed /private/tmp captures"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "terrain-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-terrain.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "terrain-performance path changed: app/scene-assets.ts",
+        "terrain-performance path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Does not execute the complete scheduler, renderer, or every terrain mutation consumer."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "terrain-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/terrain-visibility.test.mjs",
+        "tests/terrain-uv.test.mjs",
+        "tests/terrain-notifications.test.mjs",
+        "tests/painter-order.test.mjs",
+        "tests/viewport-bounds.test.mjs"
+      ],
+      "reasons": [
+        "terrain-performance path changed: app/scene-assets.ts",
+        "terrain-performance path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "CPU/fixture checks do not establish full native raster parity or hardware frame time."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "transport-ownership-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-transport-ownership.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "follower-transport-controls path changed: app/scene-entities.ts",
+        "follower-transport-controls path changed: app/scene.ts",
+        "follower-transport-controls path changed: app/world-types.ts"
+      ],
+      "knownLimits": [
+        "Native-only writer evidence is composed with live portable/browser adapters; supplied animation/world leaves and truncated command/timer boundaries remain explicit."
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "transport-vehicle-materials-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "-B",
+        "scripts/check-native-vehicle-materials.py",
+        "$POPULOUS_EXE",
+        "$POPULOUS_LIVE_MODEL_INPUT"
+      ],
+      "reasons": [
+        "follower-transport-controls path changed: app/scene-entities.ts",
+        "follower-transport-controls path changed: app/scene.ts",
+        "follower-transport-controls path changed: app/world-types.ts"
+      ],
+      "knownLimits": [
+        "Requires read-only model capture from the approved browser run; no synthetic input or fixture recording.",
+        "No final native GPU rasterization or hardware-performance claim."
+      ],
+      "prerequisites": [
+        "Verified executable and original objects/objs0-2.dat, facs0-2.dat and pnts0-2.dat",
+        "Actual captured live-vehicle-models.json from the source-bound transport browser run"
+      ],
+      "sideEffects": [
+        "Writes native-vehicle-materials.json beside the captured input with exclusive creation"
+      ],
+      "resources": [
+        "Read-only native inputs; unique capture/output directory"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE, POPULOUS_LIVE_MODEL_INPUT"
+    },
+    {
+      "id": "tutorial-first-lesson-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-tutorial.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Headless browser rendering does not establish exact native presentation.",
+        "Right-click overview exit, later lessons, completion, and original frontend styling remain deferred."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "tutorial-first-lesson-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/tutorial.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "The portable check changes the same world-owned draw mode that the Scene owns in the browser check.",
+        "Later Tutorial lessons, later scripted trigger heads, completion, and native presentation remain deferred."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "vault-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-vault.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md",
+        "movement-orders path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Movement, adjacency, trigger association, animation, audio, and decorative consumers are supplied; browser pathfinding adapts those leaves."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "vehicle-destruction-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-vehicle-destruction.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "The authored Boat owner is changed to an enemy tribe for the bounded interaction because supported campaign content does not yet produce an enemy vehicle.",
+        "Occupied ejection is native/portable evidence; downstream passenger terrain fate, exact effects, audio, and enemy vehicle AI remain open."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "vehicle-destruction-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-vehicle-damage.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "follower-transport-controls path changed: app/scene-entities.ts",
+        "follower-transport-controls path changed: app/scene.ts",
+        "follower-transport-controls path changed: app/world-types.ts",
+        "movement-orders path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Exit-target search, asset-backed animation, and generic initialization leaves are supplied; audiovisual effects, final removal, and downstream passenger water/land survival remain portable/static evidence or open."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "vehicle-exit-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-vehicle-exit.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "vehicle-passenger-panel path changed: app/live-people.ts"
+      ],
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "vehicle-panel-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        ".",
+        "--scenario",
+        "scripts/check-browser-vehicle-panel.mjs",
+        "--port",
+        "4354",
+        "--output",
+        "work/orchestration/vehicle-panel-browser",
+        "--timeout",
+        "300000"
+      ],
+      "reasons": [
+        "vehicle-passenger-panel path changed: app/live-people.ts"
+      ],
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "prerequisites": [
+        "Reserved browser/server lane",
+        "Exclusive installed dependencies",
+        "Official sandboxed Headless Shell"
+      ],
+      "sideEffects": [
+        "Writes ignored capture/receipt output and private local server caches"
+      ],
+      "resources": [
+        "Exclusive browser and port4354"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_BROWSER"
+    },
+    {
+      "id": "vehicle-panel-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-vehicle-panel.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "vehicle-passenger-panel path changed: app/live-people.ts"
+      ],
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [
+        "Temporary trace output removed on exit"
+      ],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "vehicle-panel-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/vehicle-panel.test.mjs",
+        "tests/vehicle-panel-runtime.test.mjs"
+      ],
+      "reasons": [
+        "vehicle-passenger-panel path changed: app/live-people.ts"
+      ],
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "vehicle-panel-selection-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-vehicle-panel-selection.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "vehicle-passenger-panel path changed: app/live-people.ts"
+      ],
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "vehicle-seats-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-vehicle-seats.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "vehicle-passenger-panel path changed: app/live-people.ts"
+      ],
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [
+        "Temporary native traces removed on exit"
+      ],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "vehicle-unload-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-vehicle-unload.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "vehicle-passenger-panel path changed: app/live-people.ts"
+      ],
+      "knownLimits": [
+        "Helper proof and staged fixtures do not prove full campaign acquisition or hardware performance."
+      ],
+      "prerequisites": [
+        "Verified original executable and adjacent source data",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "worship-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-worship.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Headless browser rendering does not establish original full-frame raster parity or generic pickup behavior."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes /private/tmp screenshots"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "worship-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-worship.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: app/game-store.ts",
+        "campaign path changed: app/live-people.ts",
+        "campaign path changed: app/scene-effects.ts",
+        "campaign path changed: app/scene-entities.ts",
+        "campaign path changed: app/scene.ts",
+        "campaign path changed: app/world-effects.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "knownLimits": [
+        "Reward allocation, sunlight, deletion, and Windows UI consumers are supplied; generic command-29 pickup and competitive ownership are not covered."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "zoom-edges-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-zoom-edges.mjs"
+      ],
+      "reasons": [
+        "terrain-performance path changed: app/scene-assets.ts",
+        "terrain-performance path changed: app/scene.ts"
+      ],
+      "knownLimits": [
+        "Deterministic rendered consistency is not native raster equivalence or hardware performance proof.",
+        "75 ordinary transition samples are reviewable captures with shared-row assertions; automated pixel comparisons cover three intermediate zoom-out positive controls."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium or POPULOUS_HEADLESS_SHELL"
+      ],
+      "sideEffects": [
+        "Writes checkout-local screenshots and JSON report under work/browser-zoom-edges or POPULOUS_ZOOM_ARTIFACTS"
+      ],
+      "resources": [
+        "Own browser profile, server port and capture directory"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    }
+  ],
+  "executesChecks": false
+}

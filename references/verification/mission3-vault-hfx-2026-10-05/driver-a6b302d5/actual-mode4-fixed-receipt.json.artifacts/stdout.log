@@ -1,0 +1,13 @@
+✔ observer preserves production calls, observes state without writes, and captures after the real render (2.535596ms)
+✔ original renderer errors propagate exactly; diagnostic errors do not suppress it (0.798458ms)
+✔ crossed birth and retirement remain separate when no real render occurs between them (0.589465ms)
+✔ route progress exposes current order and Vault task without changing World (0.548093ms)
+✔ actual mode4 createGift is detected without an ordinary-spell recipient (1504.387296ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 5
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2613.454929

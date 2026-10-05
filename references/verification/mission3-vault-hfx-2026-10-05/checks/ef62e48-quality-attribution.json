@@ -1,0 +1,4744 @@
+{
+  "head": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+  "base": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "formatFailures": [
+    {
+      "file": "app/render-view.ts",
+      "identicalToBase": true
+    },
+    {
+      "file": "app/viewport-bounds.ts",
+      "identicalToBase": true
+    }
+  ],
+  "oxlintErrors": [
+    {
+      "file": "app/chatgpt-auth.ts",
+      "line": 4,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/game-store.ts",
+      "line": 24,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": true,
+      "baseLine": 22
+    },
+    {
+      "file": "app/hud.tsx",
+      "line": 10,
+      "rule": "unicorn(throw-new-error)",
+      "changedFile": false,
+      "baseLine": 10
+    },
+    {
+      "file": "app/sky.ts",
+      "line": 5,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 5
+    },
+    {
+      "file": "app/scene-entities.ts",
+      "line": 412,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": true,
+      "baseLine": 409
+    },
+    {
+      "file": "app/sky-environment.ts",
+      "line": 1,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 1
+    },
+    {
+      "file": "app/tooltips.ts",
+      "line": 21,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 21
+    },
+    {
+      "file": "app/scene-assets.ts",
+      "line": 12,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": true,
+      "baseLine": 12
+    },
+    {
+      "file": "app/scene-assets.ts",
+      "line": 96,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": true,
+      "baseLine": 95
+    },
+    {
+      "file": "app/scene-terrain-runtime.ts",
+      "line": 111,
+      "rule": "eslint(eqeqeq)",
+      "changedFile": false,
+      "baseLine": 111
+    },
+    {
+      "file": "app/scene-terrain-runtime.ts",
+      "line": 115,
+      "rule": "eslint(eqeqeq)",
+      "changedFile": false,
+      "baseLine": 115
+    },
+    {
+      "file": "app/shaman-appearance.ts",
+      "line": 4,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/fps-graph.ts",
+      "line": 47,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 47
+    },
+    {
+      "file": "app/fps-graph.ts",
+      "line": 76,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 76
+    },
+    {
+      "file": "app/scene-input-runtime.ts",
+      "line": 27,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 27
+    },
+    {
+      "file": "app/scene-input-runtime.ts",
+      "line": 377,
+      "rule": "unicorn(prefer-spread)",
+      "changedFile": false,
+      "baseLine": 377
+    },
+    {
+      "file": "app/scene.ts",
+      "line": 35,
+      "rule": "typescript(consistent-type-imports)",
+      "changedFile": true,
+      "baseLine": 35
+    },
+    {
+      "file": "app/native-terrain.ts",
+      "line": 4,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/native-terrain.ts",
+      "line": 21,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 21
+    },
+    {
+      "file": "app/native-terrain.ts",
+      "line": 61,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 61
+    },
+    {
+      "file": "app/world-effects.ts",
+      "line": 34,
+      "rule": "import(no-cycle)",
+      "changedFile": true,
+      "baseLine": 34
+    },
+    {
+      "file": "app/world-effects.ts",
+      "line": 382,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": true,
+      "baseLine": 359
+    },
+    {
+      "file": "app/campaign-runtime.ts",
+      "line": 12,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 12
+    },
+    {
+      "file": "app/campaign-runtime.ts",
+      "line": 18,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 18
+    },
+    {
+      "file": "app/campaign-runtime.ts",
+      "line": 16,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 16
+    },
+    {
+      "file": "app/campaign-runtime.ts",
+      "line": 17,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 17
+    },
+    {
+      "file": "app/world-terrain-runtime.ts",
+      "line": 71,
+      "rule": "eslint(eqeqeq)",
+      "changedFile": false,
+      "baseLine": 71
+    },
+    {
+      "file": "app/world-types.ts",
+      "line": 99,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": true,
+      "baseLine": 99
+    },
+    {
+      "file": "app/world-types.ts",
+      "line": 100,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": true,
+      "baseLine": 100
+    },
+    {
+      "file": "app/world-types.ts",
+      "line": 110,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": true,
+      "baseLine": 110
+    },
+    {
+      "file": "app/world-types.ts",
+      "line": 131,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": true,
+      "baseLine": 131
+    },
+    {
+      "file": "app/world-types.ts",
+      "line": 147,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": true,
+      "baseLine": 147
+    },
+    {
+      "file": "app/world-types.ts",
+      "line": 427,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": true,
+      "baseLine": 426
+    },
+    {
+      "file": "app/live-building-entry.ts",
+      "line": 85,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 85
+    },
+    {
+      "file": "app/live-building-entry.ts",
+      "line": 83,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 83
+    },
+    {
+      "file": "app/live-building-entry.ts",
+      "line": 41,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 41
+    },
+    {
+      "file": "app/live-building-entry.ts",
+      "line": 51,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 51
+    },
+    {
+      "file": "app/live-building-entry.ts",
+      "line": 25,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 25
+    },
+    {
+      "file": "app/live-building-entry.ts",
+      "line": 16,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 16
+    },
+    {
+      "file": "app/live-building-entry.ts",
+      "line": 5,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 5
+    },
+    {
+      "file": "app/live-building-entry.ts",
+      "line": 4,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/live-building-entry.ts",
+      "line": 3,
+      "rule": "import(no-duplicates)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/live-building-entry.ts",
+      "line": 71,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 71
+    },
+    {
+      "file": "app/person-order-update.ts",
+      "line": 6,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 6
+    },
+    {
+      "file": "app/person-order-update.ts",
+      "line": 23,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 23
+    },
+    {
+      "file": "app/person-order-update.ts",
+      "line": 31,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 31
+    },
+    {
+      "file": "app/live-resting.ts",
+      "line": 31,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 31
+    },
+    {
+      "file": "app/live-resting.ts",
+      "line": 29,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 29
+    },
+    {
+      "file": "app/live-resting.ts",
+      "line": 11,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 11
+    },
+    {
+      "file": "app/live-resting.ts",
+      "line": 3,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/live-resting.ts",
+      "line": 2,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 2
+    },
+    {
+      "file": "app/live-resting.ts",
+      "line": 1,
+      "rule": "import(no-duplicates)",
+      "changedFile": false,
+      "baseLine": 1
+    },
+    {
+      "file": "app/live-resting.ts",
+      "line": 27,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 27
+    },
+    {
+      "file": "app/combat-orders.ts",
+      "line": 2,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 2
+    },
+    {
+      "file": "app/live-combat.ts",
+      "line": 13,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 13
+    },
+    {
+      "file": "app/live-combat.ts",
+      "line": 23,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 23
+    },
+    {
+      "file": "app/swamp.ts",
+      "line": 5,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 5
+    },
+    {
+      "file": "app/convert-wild.ts",
+      "line": 3,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/spell-effects-runtime.ts",
+      "line": 91,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 91
+    },
+    {
+      "file": "app/spell-effects-runtime.ts",
+      "line": 13,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 13
+    },
+    {
+      "file": "app/spell-effects-runtime.ts",
+      "line": 83,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 83
+    },
+    {
+      "file": "app/spell-effects-runtime.ts",
+      "line": 12,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 12
+    },
+    {
+      "file": "app/spell-effects-runtime.ts",
+      "line": 23,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 23
+    },
+    {
+      "file": "app/spell-effects-runtime.ts",
+      "line": 32,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 32
+    },
+    {
+      "file": "app/spell-effects-runtime.ts",
+      "line": 33,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 33
+    },
+    {
+      "file": "app/spell-effects-runtime.ts",
+      "line": 36,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 36
+    },
+    {
+      "file": "app/spell-effects-runtime.ts",
+      "line": 177,
+      "rule": "unicorn(no-useless-spread)",
+      "changedFile": false,
+      "baseLine": 177
+    },
+    {
+      "file": "app/spell-effects-runtime.ts",
+      "line": 852,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 852
+    },
+    {
+      "file": "app/selection-runtime.ts",
+      "line": 8,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 8
+    },
+    {
+      "file": "app/selection-runtime.ts",
+      "line": 11,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 11
+    },
+    {
+      "file": "app/construction-runtime.ts",
+      "line": 55,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 55
+    },
+    {
+      "file": "app/construction-runtime.ts",
+      "line": 29,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 29
+    },
+    {
+      "file": "app/construction-runtime.ts",
+      "line": 30,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 30
+    },
+    {
+      "file": "app/construction-runtime.ts",
+      "line": 58,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 58
+    },
+    {
+      "file": "app/construction-runtime.ts",
+      "line": 12,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 12
+    },
+    {
+      "file": "app/construction-runtime.ts",
+      "line": 51,
+      "rule": "import(no-duplicates)",
+      "changedFile": false,
+      "baseLine": 51
+    },
+    {
+      "file": "app/construction-runtime.ts",
+      "line": 52,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 52
+    },
+    {
+      "file": "app/construction-runtime.ts",
+      "line": 85,
+      "rule": "unicorn(prefer-spread)",
+      "changedFile": false,
+      "baseLine": 85
+    },
+    {
+      "file": "app/construction-runtime.ts",
+      "line": 85,
+      "rule": "unicorn(prefer-spread)",
+      "changedFile": false,
+      "baseLine": 85
+    },
+    {
+      "file": "app/construction-runtime.ts",
+      "line": 369,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 369
+    },
+    {
+      "file": "app/construction-runtime.ts",
+      "line": 416,
+      "rule": "eslint(eqeqeq)",
+      "changedFile": false,
+      "baseLine": 416
+    },
+    {
+      "file": "app/construction-runtime.ts",
+      "line": 448,
+      "rule": "eslint(eqeqeq)",
+      "changedFile": false,
+      "baseLine": 448
+    },
+    {
+      "file": "app/world-initialization.ts",
+      "line": 5,
+      "rule": "import(no-cycle)",
+      "changedFile": true,
+      "baseLine": 5
+    },
+    {
+      "file": "app/world-initialization.ts",
+      "line": 4,
+      "rule": "import(no-cycle)",
+      "changedFile": true,
+      "baseLine": 4
+    },
+    {
+      "file": "app/world-initialization.ts",
+      "line": 3,
+      "rule": "import(no-cycle)",
+      "changedFile": true,
+      "baseLine": 3
+    },
+    {
+      "file": "app/world-initialization.ts",
+      "line": 1,
+      "rule": "import(no-cycle)",
+      "changedFile": true,
+      "baseLine": 1
+    },
+    {
+      "file": "app/world-initialization.ts",
+      "line": 9,
+      "rule": "import(no-cycle)",
+      "changedFile": true,
+      "baseLine": 9
+    },
+    {
+      "file": "app/world-initialization.ts",
+      "line": 18,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": true,
+      "baseLine": 17
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 50,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 50
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 105,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 105
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 108,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 108
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 20,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 20
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 11,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 11
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 109,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 109
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 41,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 41
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 88,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 88
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 8,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 8
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 9,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 9
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 87,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 87
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 110,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 110
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 1473,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 1473
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 1558,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 1558
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 1632,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 1632
+    },
+    {
+      "file": "app/computer-runtime.ts",
+      "line": 1729,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 1729
+    },
+    {
+      "file": "app/campaign-command-runtime.ts",
+      "line": 13,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 13
+    },
+    {
+      "file": "app/campaign-command-runtime.ts",
+      "line": 19,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 19
+    },
+    {
+      "file": "app/campaign-command-runtime.ts",
+      "line": 40,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 40
+    },
+    {
+      "file": "app/campaign-command-runtime.ts",
+      "line": 38,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 38
+    },
+    {
+      "file": "app/campaign-command-runtime.ts",
+      "line": 43,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 43
+    },
+    {
+      "file": "app/campaign-command-runtime.ts",
+      "line": 41,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 41
+    },
+    {
+      "file": "app/campaign-command-runtime.ts",
+      "line": 39,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 39
+    },
+    {
+      "file": "app/campaign-command-runtime.ts",
+      "line": 46,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 46
+    },
+    {
+      "file": "app/campaign-command-runtime.ts",
+      "line": 32,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 32
+    },
+    {
+      "file": "app/campaign-command-runtime.ts",
+      "line": 29,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 29
+    },
+    {
+      "file": "app/live-command.ts",
+      "line": 51,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 51
+    },
+    {
+      "file": "app/live-command.ts",
+      "line": 12,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 12
+    },
+    {
+      "file": "app/live-command.ts",
+      "line": 42,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 42
+    },
+    {
+      "file": "app/live-command.ts",
+      "line": 24,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 24
+    },
+    {
+      "file": "app/live-command.ts",
+      "line": 59,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 59
+    },
+    {
+      "file": "app/live-command.ts",
+      "line": 25,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 25
+    },
+    {
+      "file": "app/live-command.ts",
+      "line": 53,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 53
+    },
+    {
+      "file": "app/live-command.ts",
+      "line": 43,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 43
+    },
+    {
+      "file": "app/live-command.ts",
+      "line": 55,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 55
+    },
+    {
+      "file": "app/live-command.ts",
+      "line": 44,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 44
+    },
+    {
+      "file": "app/earthquake.ts",
+      "line": 5,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 5
+    },
+    {
+      "file": "app/earthquake.ts",
+      "line": 15,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 15
+    },
+    {
+      "file": "app/angel.ts",
+      "line": 63,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 63
+    },
+    {
+      "file": "app/territory.ts",
+      "line": 3,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/territory.ts",
+      "line": 4,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/computer.ts",
+      "line": 3,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/computer.ts",
+      "line": 28,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 28
+    },
+    {
+      "file": "app/computer.ts",
+      "line": 34,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 34
+    },
+    {
+      "file": "app/computer.ts",
+      "line": 185,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 185
+    },
+    {
+      "file": "app/computer.ts",
+      "line": 483,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 483
+    },
+    {
+      "file": "app/computer.ts",
+      "line": 586,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 586
+    },
+    {
+      "file": "app/computer.ts",
+      "line": 601,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 601
+    },
+    {
+      "file": "app/computer.ts",
+      "line": 820,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 820
+    },
+    {
+      "file": "app/computer.ts",
+      "line": 829,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 829
+    },
+    {
+      "file": "app/vault.ts",
+      "line": 3,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/vault.ts",
+      "line": 6,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 6
+    },
+    {
+      "file": "app/vault.ts",
+      "line": 8,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 8
+    },
+    {
+      "file": "app/vault.ts",
+      "line": 9,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 9
+    },
+    {
+      "file": "app/vault.ts",
+      "line": 24,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 24
+    },
+    {
+      "file": "app/vault.ts",
+      "line": 41,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 41
+    },
+    {
+      "file": "app/stone-head-animation.ts",
+      "line": 16,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 16
+    },
+    {
+      "file": "app/live-construction-runtime.ts",
+      "line": 6,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 6
+    },
+    {
+      "file": "app/live-construction-runtime.ts",
+      "line": 7,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 7
+    },
+    {
+      "file": "app/live-construction-runtime.ts",
+      "line": 17,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 17
+    },
+    {
+      "file": "app/live-construction-runtime.ts",
+      "line": 23,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 23
+    },
+    {
+      "file": "app/live-construction-runtime.ts",
+      "line": 20,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 20
+    },
+    {
+      "file": "app/live-construction-runtime.ts",
+      "line": 16,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 16
+    },
+    {
+      "file": "app/live-construction-runtime.ts",
+      "line": 42,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 42
+    },
+    {
+      "file": "app/live-construction-runtime.ts",
+      "line": 3,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/live-construction-runtime.ts",
+      "line": 51,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 51
+    },
+    {
+      "file": "app/live-construction-runtime.ts",
+      "line": 45,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 45
+    },
+    {
+      "file": "app/live-construction-runtime.ts",
+      "line": 71,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 71
+    },
+    {
+      "file": "app/firestorm.ts",
+      "line": 4,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/volcano.ts",
+      "line": 5,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 5
+    },
+    {
+      "file": "app/volcano.ts",
+      "line": 16,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 16
+    },
+    {
+      "file": "app/tornado.ts",
+      "line": 6,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 6
+    },
+    {
+      "file": "app/tornado.ts",
+      "line": 37,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 37
+    },
+    {
+      "file": "app/tornado.ts",
+      "line": 38,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 38
+    },
+    {
+      "file": "app/tornado.ts",
+      "line": 39,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 39
+    },
+    {
+      "file": "app/tornado.ts",
+      "line": 185,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 185
+    },
+    {
+      "file": "app/tornado-runtime.ts",
+      "line": 1,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 1
+    },
+    {
+      "file": "app/tornado-runtime.ts",
+      "line": 8,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 8
+    },
+    {
+      "file": "app/tornado-runtime.ts",
+      "line": 19,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 19
+    },
+    {
+      "file": "app/tornado-runtime.ts",
+      "line": 20,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 20
+    },
+    {
+      "file": "app/level-start-runtime.ts",
+      "line": 18,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 18
+    },
+    {
+      "file": "app/level-start-runtime.ts",
+      "line": 8,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 8
+    },
+    {
+      "file": "app/level-start-runtime.ts",
+      "line": 46,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 46
+    },
+    {
+      "file": "app/level-start-runtime.ts",
+      "line": 21,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 21
+    },
+    {
+      "file": "app/level-start-runtime.ts",
+      "line": 10,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 10
+    },
+    {
+      "file": "app/level-start-runtime.ts",
+      "line": 9,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 9
+    },
+    {
+      "file": "app/erosion.ts",
+      "line": 4,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/erosion.ts",
+      "line": 6,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 6
+    },
+    {
+      "file": "app/reincarnation.ts",
+      "line": 80,
+      "rule": "eslint(eqeqeq)",
+      "changedFile": false,
+      "baseLine": 80
+    },
+    {
+      "file": "app/resting-slots.ts",
+      "line": 9,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 9
+    },
+    {
+      "file": "app/resting-slots.ts",
+      "line": 10,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 10
+    },
+    {
+      "file": "app/resting-slots.ts",
+      "line": 29,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 29
+    },
+    {
+      "file": "app/armageddon.ts",
+      "line": 1,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 1
+    },
+    {
+      "file": "app/armageddon.ts",
+      "line": 4,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/armageddon.ts",
+      "line": 5,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 5
+    },
+    {
+      "file": "app/building-runtime.ts",
+      "line": 38,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 38
+    },
+    {
+      "file": "app/building-runtime.ts",
+      "line": 34,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 34
+    },
+    {
+      "file": "app/building-runtime.ts",
+      "line": 23,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 23
+    },
+    {
+      "file": "app/building-runtime.ts",
+      "line": 22,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 22
+    },
+    {
+      "file": "app/building-runtime.ts",
+      "line": 33,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 33
+    },
+    {
+      "file": "app/building-runtime.ts",
+      "line": 208,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 208
+    },
+    {
+      "file": "app/tribe-turns.ts",
+      "line": 6,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 6
+    },
+    {
+      "file": "app/tribe-turns.ts",
+      "line": 3,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/tribe-turns.ts",
+      "line": 4,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/tribe-turns.ts",
+      "line": 1,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 1
+    },
+    {
+      "file": "app/tribe-turns.ts",
+      "line": 5,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 5
+    },
+    {
+      "file": "app/tribe-turns.ts",
+      "line": 8,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 8
+    },
+    {
+      "file": "app/tribe-turns.ts",
+      "line": 42,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 42
+    },
+    {
+      "file": "app/tribe-turns.ts",
+      "line": 50,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 50
+    },
+    {
+      "file": "app/morph.ts",
+      "line": 7,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 7
+    },
+    {
+      "file": "app/flatten.ts",
+      "line": 4,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 434,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 434
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 18,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 18
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 58,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 58
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 57,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 57
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 201,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 201
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 92,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 92
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 211,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 211
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 65,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 65
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 32,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 32
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 208,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 208
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 7,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 7
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 206,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 206
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 334,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 334
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 207,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 207
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 209,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 209
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 45,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 45
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 190,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 190
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 299,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 299
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 325,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 325
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 191,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 191
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 181,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 181
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 411,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 411
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 200,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 200
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 1,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 1
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 71,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 71
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 412,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 412
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 91,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 91
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 292,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 292
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 370,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 370
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 431,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 431
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 109,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 109
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 147,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 147
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 93,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 93
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 112,
+      "rule": "import(no-duplicates)",
+      "changedFile": false,
+      "baseLine": 112
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 139,
+      "rule": "import(no-duplicates)",
+      "changedFile": false,
+      "baseLine": 139
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 210,
+      "rule": "import(no-duplicates)",
+      "changedFile": false,
+      "baseLine": 210
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 179,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 179
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 348,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 348
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 355,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 355
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 384,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 384
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 11,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 11
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 13,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 13
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 23,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 23
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 25,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 25
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 26,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 26
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 27,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 27
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 28,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 28
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 29,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 29
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 30,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 30
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 47,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 47
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 48,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 48
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 49,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 49
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 50,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 50
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 51,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 51
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 52,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 52
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 54,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 54
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 55,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 55
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 60,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 60
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 61,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 61
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 68,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 68
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 69,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 69
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 70,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 70
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 76,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 76
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 79,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 79
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 90,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 90
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 93,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 93
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 104,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 104
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 116,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 116
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 120,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 120
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 122,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 122
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 123,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 123
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 127,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 127
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 129,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 129
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 131,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 131
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 132,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 132
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 133,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 133
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 134,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 134
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 135,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 135
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 145,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 145
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 152,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 152
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 153,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 153
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 154,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 154
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 155,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 155
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 157,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 157
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 158,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 158
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 159,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 159
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 163,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 163
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 164,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 164
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 165,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 165
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 167,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 167
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 170,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 170
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 171,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 171
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 174,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 174
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 175,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 175
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 176,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 176
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 177,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 177
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 180,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 180
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 180,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 180
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 189,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 189
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 192,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 192
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 192,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 192
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 194,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 194
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 195,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 195
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 196,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 196
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 197,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 197
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 198,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 198
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 199,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 199
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 201,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 201
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 207,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 207
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 209,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 209
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 209,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 209
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 211,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 211
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 212,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 212
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 212,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 212
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 214,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 214
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 215,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 215
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 216,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 216
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 217,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 217
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 218,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 218
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 219,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 219
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 222,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 222
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 223,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 223
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 224,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 224
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 225,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 225
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 226,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 226
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 228,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 228
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 229,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 229
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 229,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 229
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 229,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 229
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 232,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 232
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 232,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 232
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 232,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 232
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 233,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 233
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 234,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 234
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 237,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 237
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 238,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 238
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 239,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 239
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 241,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 241
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 242,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 242
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 245,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 245
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 246,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 246
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 248,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 248
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 250,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 250
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 251,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 251
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 252,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 252
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 253,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 253
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 254,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 254
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 254,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 254
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 254,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 254
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 255,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 255
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 257,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 257
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 258,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 258
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 259,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 259
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 261,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 261
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 262,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 262
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 264,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 264
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 266,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 266
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 267,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 267
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 268,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 268
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 269,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 269
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 270,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 270
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 271,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 271
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 272,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 272
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 273,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 273
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 274,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 274
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 276,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 276
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 278,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 278
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 279,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 279
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 280,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 280
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 281,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 281
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 281,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 281
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 282,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 282
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 283,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 283
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 284,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 284
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 285,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 285
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 286,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 286
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 287,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 287
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 288,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 288
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 289,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 289
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 290,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 290
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 291,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 291
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 294,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 294
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 296,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 296
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 301,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 301
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 302,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 302
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 305,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 305
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 307,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 307
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 308,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 308
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 309,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 309
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 310,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 310
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 320,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 320
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 321,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 321
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 326,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 326
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 326,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 326
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 332,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 332
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 333,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 333
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 343,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 343
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 345,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 345
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 346,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 346
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 347,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 347
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 352,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 352
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 353,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 353
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 354,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 354
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 361,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 361
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 363,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 363
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 366,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 366
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 368,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 368
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 369,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 369
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 373,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 373
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 374,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 374
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 375,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 375
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 376,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 376
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 377,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 377
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 379,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 379
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 380,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 380
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 381,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 381
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 382,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 382
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 383,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 383
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 385,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 385
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 387,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 387
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 388,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 388
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 389,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 389
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 391,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 391
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 393,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 393
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 395,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 395
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 397,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 397
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 398,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 398
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 399,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 399
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 400,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 400
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 401,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 401
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 402,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 402
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 409,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 409
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 410,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 410
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 412,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 412
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 412,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 412
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 413,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 413
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 415,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 415
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 416,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 416
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 417,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 417
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 418,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 418
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 419,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 419
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 421,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 421
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 422,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 422
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 422,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 422
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 422,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 422
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 428,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 428
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 430,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 430
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 431,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 431
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 431,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 431
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 433,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 433
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 900,
+      "rule": "unicorn(prefer-spread)",
+      "changedFile": false,
+      "baseLine": 900
+    },
+    {
+      "file": "app/world-turn.ts",
+      "line": 1549,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 1549
+    },
+    {
+      "file": "app/model.ts",
+      "line": 7,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 7
+    },
+    {
+      "file": "app/model.ts",
+      "line": 17,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 17
+    },
+    {
+      "file": "app/model.ts",
+      "line": 18,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 18
+    },
+    {
+      "file": "app/model.ts",
+      "line": 19,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 19
+    },
+    {
+      "file": "app/model.ts",
+      "line": 30,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 30
+    },
+    {
+      "file": "app/model.ts",
+      "line": 42,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 42
+    },
+    {
+      "file": "app/model.ts",
+      "line": 43,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 43
+    },
+    {
+      "file": "app/model.ts",
+      "line": 2,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 2
+    },
+    {
+      "file": "app/model.ts",
+      "line": 58,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 58
+    },
+    {
+      "file": "app/model.ts",
+      "line": 3,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/model.ts",
+      "line": 83,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 83
+    },
+    {
+      "file": "app/model.ts",
+      "line": 84,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 84
+    },
+    {
+      "file": "app/model.ts",
+      "line": 104,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 104
+    },
+    {
+      "file": "app/model.ts",
+      "line": 105,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 105
+    },
+    {
+      "file": "app/model.ts",
+      "line": 145,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 145
+    },
+    {
+      "file": "app/live-worship.ts",
+      "line": 4,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/live-worship.ts",
+      "line": 3,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/live-worship.ts",
+      "line": 2,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 2
+    },
+    {
+      "file": "app/live-worship.ts",
+      "line": 1,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 1
+    },
+    {
+      "file": "app/live-movement.ts",
+      "line": 75,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 75
+    },
+    {
+      "file": "app/live-movement.ts",
+      "line": 28,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 28
+    },
+    {
+      "file": "app/live-movement.ts",
+      "line": 22,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 22
+    },
+    {
+      "file": "app/live-movement.ts",
+      "line": 29,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 29
+    },
+    {
+      "file": "app/live-movement.ts",
+      "line": 21,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 21
+    },
+    {
+      "file": "app/live-movement.ts",
+      "line": 23,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 23
+    },
+    {
+      "file": "app/live-movement.ts",
+      "line": 12,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 12
+    },
+    {
+      "file": "app/live-movement.ts",
+      "line": 2,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 2
+    },
+    {
+      "file": "app/live-movement.ts",
+      "line": 1,
+      "rule": "import(no-duplicates)",
+      "changedFile": false,
+      "baseLine": 1
+    },
+    {
+      "file": "app/live-movement.ts",
+      "line": 31,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 31
+    },
+    {
+      "file": "app/live-movement.ts",
+      "line": 709,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 709
+    },
+    {
+      "file": "app/live-movement.ts",
+      "line": 822,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 822
+    },
+    {
+      "file": "app/live-movement.ts",
+      "line": 823,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 823
+    },
+    {
+      "file": "app/special-battle.ts",
+      "line": 6,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 6
+    },
+    {
+      "file": "app/special-battle.ts",
+      "line": 7,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 7
+    },
+    {
+      "file": "app/special-battle.ts",
+      "line": 68,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 68
+    },
+    {
+      "file": "app/special-battle.ts",
+      "line": 68,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 68
+    },
+    {
+      "file": "app/celebration.ts",
+      "line": 5,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 5
+    },
+    {
+      "file": "app/celebration.ts",
+      "line": 40,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 40
+    },
+    {
+      "file": "app/celebration.ts",
+      "line": 46,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 46
+    },
+    {
+      "file": "app/celebration.ts",
+      "line": 129,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 129
+    },
+    {
+      "file": "app/celebration.ts",
+      "line": 129,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 129
+    },
+    {
+      "file": "app/person-collision.ts",
+      "line": 3,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/person-collision.ts",
+      "line": 19,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 19
+    },
+    {
+      "file": "app/person-collision.ts",
+      "line": 20,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 20
+    },
+    {
+      "file": "app/person-motion.ts",
+      "line": 4,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/person-order-start.ts",
+      "line": 23,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 23
+    },
+    {
+      "file": "app/person-idle.ts",
+      "line": 17,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 17
+    },
+    {
+      "file": "app/person-idle.ts",
+      "line": 28,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 28
+    },
+    {
+      "file": "app/person-idle.ts",
+      "line": 35,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 35
+    },
+    {
+      "file": "app/person-idle.ts",
+      "line": 61,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 61
+    },
+    {
+      "file": "app/person-physics.ts",
+      "line": 25,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 25
+    },
+    {
+      "file": "app/person-physics.ts",
+      "line": 26,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 26
+    },
+    {
+      "file": "app/person-physics.ts",
+      "line": 80,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 80
+    },
+    {
+      "file": "app/person-physics.ts",
+      "line": 192,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 192
+    },
+    {
+      "file": "app/person-physics.ts",
+      "line": 280,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 280
+    },
+    {
+      "file": "app/computer-selection.ts",
+      "line": 14,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 14
+    },
+    {
+      "file": "app/computer-selection.ts",
+      "line": 34,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 34
+    },
+    {
+      "file": "app/computer-spells.ts",
+      "line": 12,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 12
+    },
+    {
+      "file": "app/computer-spells.ts",
+      "line": 21,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 21
+    },
+    {
+      "file": "app/computer-spells.ts",
+      "line": 217,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 217
+    },
+    {
+      "file": "app/combat-targets.ts",
+      "line": 2,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 2
+    },
+    {
+      "file": "app/combat-order-search.ts",
+      "line": 12,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 12
+    },
+    {
+      "file": "app/firewarrior.ts",
+      "line": 9,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 9
+    },
+    {
+      "file": "app/firewarrior.ts",
+      "line": 12,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 12
+    },
+    {
+      "file": "app/firewarrior.ts",
+      "line": 8,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 8
+    },
+    {
+      "file": "app/firewarrior.ts",
+      "line": 2,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 2
+    },
+    {
+      "file": "app/combat-approach.ts",
+      "line": 4,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/building-damage.ts",
+      "line": 119,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 119
+    },
+    {
+      "file": "app/building-damage.ts",
+      "line": 126,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 126
+    },
+    {
+      "file": "app/melee-groups.ts",
+      "line": 2,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 2
+    },
+    {
+      "file": "app/combat-runtime.ts",
+      "line": 8,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 8
+    },
+    {
+      "file": "app/combat-runtime.ts",
+      "line": 7,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 7
+    },
+    {
+      "file": "app/combat-runtime.ts",
+      "line": 21,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 21
+    },
+    {
+      "file": "app/combat-runtime.ts",
+      "line": 35,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 35
+    },
+    {
+      "file": "app/combat-runtime.ts",
+      "line": 9,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 9
+    },
+    {
+      "file": "app/combat-runtime.ts",
+      "line": 26,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 26
+    },
+    {
+      "file": "app/combat-runtime.ts",
+      "line": 94,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 94
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 50,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 50
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 43,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 43
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 2,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 2
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 60,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 60
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 82,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 82
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 78,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 78
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 59,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 59
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 38,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 38
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 27,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 27
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 26,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 26
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 4,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 14,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 14
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 3,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 60,
+      "rule": "import(no-duplicates)",
+      "changedFile": false,
+      "baseLine": 60
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 1,
+      "rule": "import(no-duplicates)",
+      "changedFile": false,
+      "baseLine": 1
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 61,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 61
+    },
+    {
+      "file": "app/live-building-combat.ts",
+      "line": 64,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 64
+    },
+    {
+      "file": "app/world-tasks.ts",
+      "line": 4,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/world-tasks.ts",
+      "line": 5,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 5
+    },
+    {
+      "file": "app/world-tasks.ts",
+      "line": 6,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 6
+    },
+    {
+      "file": "app/world-tasks.ts",
+      "line": 2,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 2
+    },
+    {
+      "file": "app/world-tasks.ts",
+      "line": 3,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/path-search.ts",
+      "line": 3,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/path-search.ts",
+      "line": 4,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/path-search.ts",
+      "line": 5,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 5
+    },
+    {
+      "file": "app/path-search.ts",
+      "line": 6,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 6
+    },
+    {
+      "file": "app/path-search.ts",
+      "line": 19,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 19
+    },
+    {
+      "file": "app/path-search.ts",
+      "line": 31,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 31
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 3,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 12,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 12
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 14,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 14
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 25,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 25
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 190,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 190
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 254,
+      "rule": "eslint(no-labels)",
+      "changedFile": false,
+      "baseLine": 254
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 268,
+      "rule": "eslint(no-labels)",
+      "changedFile": false,
+      "baseLine": 268
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 273,
+      "rule": "eslint(no-labels)",
+      "changedFile": false,
+      "baseLine": 273
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 279,
+      "rule": "eslint(no-labels)",
+      "changedFile": false,
+      "baseLine": 279
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 294,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 294
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 295,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 295
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 302,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 302
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 304,
+      "rule": "eslint(no-labels)",
+      "changedFile": false,
+      "baseLine": 304
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 307,
+      "rule": "eslint(no-labels)",
+      "changedFile": false,
+      "baseLine": 307
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 313,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 313
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 317,
+      "rule": "eslint(no-labels)",
+      "changedFile": false,
+      "baseLine": 317
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 319,
+      "rule": "eslint(no-labels)",
+      "changedFile": false,
+      "baseLine": 319
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 322,
+      "rule": "eslint(no-labels)",
+      "changedFile": false,
+      "baseLine": 322
+    },
+    {
+      "file": "app/path-solver.ts",
+      "line": 325,
+      "rule": "eslint(no-labels)",
+      "changedFile": false,
+      "baseLine": 325
+    },
+    {
+      "file": "app/route-advance.ts",
+      "line": 3,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/route-advance.ts",
+      "line": 6,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 6
+    },
+    {
+      "file": "app/route-advance.ts",
+      "line": 9,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 9
+    },
+    {
+      "file": "app/route-advance.ts",
+      "line": 14,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 14
+    },
+    {
+      "file": "app/vehicle-routing.ts",
+      "line": 5,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 5
+    },
+    {
+      "file": "app/vehicle-routing.ts",
+      "line": 6,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 6
+    },
+    {
+      "file": "app/vehicle-routing.ts",
+      "line": 16,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 16
+    },
+    {
+      "file": "app/vehicle-routing.ts",
+      "line": 85,
+      "rule": "unicorn(throw-new-error)",
+      "changedFile": false,
+      "baseLine": 85
+    },
+    {
+      "file": "app/vehicle-routing.ts",
+      "line": 96,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 96
+    },
+    {
+      "file": "app/vehicle-routing.ts",
+      "line": 130,
+      "rule": "unicorn(throw-new-error)",
+      "changedFile": false,
+      "baseLine": 130
+    },
+    {
+      "file": "app/path-geometry.ts",
+      "line": 4,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/path-geometry.ts",
+      "line": 6,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 6
+    },
+    {
+      "file": "app/path-geometry.ts",
+      "line": 14,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 14
+    },
+    {
+      "file": "app/path-geometry.ts",
+      "line": 65,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 65
+    },
+    {
+      "file": "app/path-geometry.ts",
+      "line": 65,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 65
+    },
+    {
+      "file": "app/path-geometry.ts",
+      "line": 65,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 65
+    },
+    {
+      "file": "app/path-geometry.ts",
+      "line": 142,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 142
+    },
+    {
+      "file": "app/path-geometry.ts",
+      "line": 262,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 262
+    },
+    {
+      "file": "app/messages.ts",
+      "line": 4,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/messages.ts",
+      "line": 15,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 15
+    },
+    {
+      "file": "app/flyby.ts",
+      "line": 3,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/flyby.ts",
+      "line": 4,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/flyby.ts",
+      "line": 11,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 11
+    },
+    {
+      "file": "app/flyby.ts",
+      "line": 44,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 44
+    },
+    {
+      "file": "app/flyby.ts",
+      "line": 44,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 44
+    },
+    {
+      "file": "app/flyby.ts",
+      "line": 89,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 89
+    },
+    {
+      "file": "app/flyby.ts",
+      "line": 273,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 273
+    },
+    {
+      "file": "app/flyby.ts",
+      "line": 273,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": false,
+      "baseLine": 273
+    },
+    {
+      "file": "app/mana.ts",
+      "line": 5,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 5
+    },
+    {
+      "file": "app/mana.ts",
+      "line": 8,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 8
+    },
+    {
+      "file": "app/mana.ts",
+      "line": 17,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 17
+    },
+    {
+      "file": "app/mana.ts",
+      "line": 33,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 33
+    },
+    {
+      "file": "app/mana.ts",
+      "line": 34,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 34
+    },
+    {
+      "file": "app/mana.ts",
+      "line": 44,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 44
+    },
+    {
+      "file": "app/spell-casting.ts",
+      "line": 2,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 2
+    },
+    {
+      "file": "app/spell-casting.ts",
+      "line": 10,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 10
+    },
+    {
+      "file": "app/spell-casting.ts",
+      "line": 12,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 12
+    },
+    {
+      "file": "app/spell-casting.ts",
+      "line": 17,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 17
+    },
+    {
+      "file": "app/spell-casting.ts",
+      "line": 20,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 20
+    },
+    {
+      "file": "app/popscript.ts",
+      "line": 3,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 3
+    },
+    {
+      "file": "app/popscript.ts",
+      "line": 9,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 9
+    },
+    {
+      "file": "app/mission-data.ts",
+      "line": 106,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 106
+    },
+    {
+      "file": "app/world-state.ts",
+      "line": 18,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 18
+    },
+    {
+      "file": "app/world-state.ts",
+      "line": 26,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 26
+    },
+    {
+      "file": "app/world-state.ts",
+      "line": 23,
+      "rule": "import(no-duplicates)",
+      "changedFile": false,
+      "baseLine": 23
+    },
+    {
+      "file": "app/world-state.ts",
+      "line": 39,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 39
+    },
+    {
+      "file": "app/live-pathfinding.ts",
+      "line": 11,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 11
+    },
+    {
+      "file": "app/live-pathfinding.ts",
+      "line": 10,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 10
+    },
+    {
+      "file": "app/live-pathfinding.ts",
+      "line": 53,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 53
+    },
+    {
+      "file": "app/live-pathfinding.ts",
+      "line": 1,
+      "rule": "import(no-duplicates)",
+      "changedFile": false,
+      "baseLine": 1
+    },
+    {
+      "file": "app/live-pathfinding.ts",
+      "line": 12,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": false,
+      "baseLine": 12
+    },
+    {
+      "file": "app/live-pathfinding.ts",
+      "line": 43,
+      "rule": "eslint(no-unused-vars)",
+      "changedFile": false,
+      "baseLine": 43
+    },
+    {
+      "file": "app/person-orders.ts",
+      "line": 6,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 6
+    },
+    {
+      "file": "app/person-orders.ts",
+      "line": 14,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 14
+    },
+    {
+      "file": "app/person-orders.ts",
+      "line": 15,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 15
+    },
+    {
+      "file": "app/person-orders.ts",
+      "line": 16,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 16
+    },
+    {
+      "file": "app/person-orders.ts",
+      "line": 46,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 46
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 22,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 22
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 35,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 35
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 42,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 42
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 49,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 49
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 50,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 50
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 51,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 51
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 52,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 52
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 58,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 58
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 59,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 59
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 65,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 65
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 73,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 73
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 81,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 81
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 82,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 82
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 87,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 87
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 93,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 93
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 101,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 101
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 102,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 102
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 109,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 109
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 110,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 110
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 111,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 111
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 112,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 112
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 113,
+      "rule": "import(first)",
+      "changedFile": true,
+      "baseLine": 113
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 16,
+      "rule": "import(no-cycle)",
+      "changedFile": true,
+      "baseLine": 16
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 19,
+      "rule": "import(no-cycle)",
+      "changedFile": true,
+      "baseLine": 19
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 10,
+      "rule": "import(no-cycle)",
+      "changedFile": true,
+      "baseLine": 10
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 80,
+      "rule": "import(no-cycle)",
+      "changedFile": true,
+      "baseLine": 80
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 7,
+      "rule": "import(no-cycle)",
+      "changedFile": true,
+      "baseLine": 7
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 34,
+      "rule": "import(no-cycle)",
+      "changedFile": true,
+      "baseLine": 34
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 4,
+      "rule": "import(no-cycle)",
+      "changedFile": true,
+      "baseLine": 4
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 5,
+      "rule": "import(no-cycle)",
+      "changedFile": true,
+      "baseLine": 5
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 3,
+      "rule": "import(no-duplicates)",
+      "changedFile": true,
+      "baseLine": 3
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 81,
+      "rule": "eslint(no-duplicate-imports)",
+      "changedFile": true,
+      "baseLine": 81
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 603,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": true,
+      "baseLine": 603
+    },
+    {
+      "file": "app/live-people.ts",
+      "line": 605,
+      "rule": "eslint(no-multi-assign)",
+      "changedFile": true,
+      "baseLine": 605
+    },
+    {
+      "file": "app/animation.ts",
+      "line": 4,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 4
+    },
+    {
+      "file": "app/animation.ts",
+      "line": 19,
+      "rule": "typescript(consistent-type-definitions)",
+      "changedFile": false,
+      "baseLine": 19
+    },
+    {
+      "file": "app/site-wave-effects.ts",
+      "line": 2,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 2
+    },
+    {
+      "file": "app/reincarnation-wave-runtime.ts",
+      "line": 2,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 2
+    },
+    {
+      "file": "app/reincarnation-wave-runtime.ts",
+      "line": 13,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 13
+    },
+    {
+      "file": "app/reincarnation-wave-runtime.ts",
+      "line": 23,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 23
+    },
+    {
+      "file": "app/reincarnation-wave-runtime.ts",
+      "line": 3,
+      "rule": "import(no-cycle)",
+      "changedFile": false,
+      "baseLine": 3
+    }
+  ],
+  "oxlintErrorsOnAddedOrModifiedLines": [],
+  "eslint": {
+    "errors": 285,
+    "warnings": 2,
+    "changedFileErrors": [
+      {
+        "file": "app/scene-effects.ts",
+        "line": 93,
+        "baseLine": 86,
+        "rule": "@typescript-eslint/no-unused-vars"
+      }
+    ]
+  },
+  "limits": [
+    "Source-line attribution establishes unchanged diagnostics locations; it does not claim a clean repository-wide quality gate.",
+    "Legacy import cycle graph findings remain legacy structure, not native or runtime acceptance."
+  ]
+}

@@ -1,0 +1,34 @@
+{
+  "status": "passed",
+  "base": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "canonicalRGBA": true,
+  "idempotent": true,
+  "reproducible": true,
+  "noRepositoryWrites": true,
+  "preserved": {
+    "app/original-hud.json": "3b24abb207a0ad2fc92f7225866352f0d485cf9ac7d13fb8b76842fecc928929",
+    "app/original-effects.json": "8e43389fe9610e70fcedbbd8fe63b11d4addf9a001378225ee5ce273c5b83fdb",
+    "app/original-units.json": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+    "public/original/hud.png": "1479f593c925cee6c6af76b1652cb33d8c4cfea4581a9a9559cb03d0568b8ead",
+    "public/original/effects.png": "dabd1d661b2b7cfe82d3f717f045bccbaa082a34ae0e2b0abf812c7744052a97",
+    "public/original/unit-layers.png": "09f8637991a8c6af1dfb0339aec9093ba82fc50dc4efd5bc61bf781359ef1ff4"
+  },
+  "outputs": {
+    "app/original-vault-knowledge.json": "ed729494e87f6ba6434a9acb915c4da30aa04e1e37b5628ab5d3c7a42bc830bb",
+    "public/original/vault-knowledge.png": "3da92d874ef00aeeb450e058984f65c5c63ff6ff476c5c7fde4c085ec5968df7"
+  },
+  "negativeCases": [
+    {
+      "case": "partial",
+      "error": "Partial Vault artwork exists; preserve and inspect it"
+    },
+    {
+      "case": "pixels",
+      "error": "Installed Vault pixels differ from the canonical source"
+    },
+    {
+      "case": "metadata",
+      "error": "Installed Vault metadata differs from the canonical source"
+    }
+  ]
+}

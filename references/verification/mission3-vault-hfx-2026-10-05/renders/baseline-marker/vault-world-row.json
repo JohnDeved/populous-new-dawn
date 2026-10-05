@@ -1,0 +1,370 @@
+{
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx-baseline",
+    "commit": "71b3860e7025a9534d56248c194aa18610b5df4d",
+    "tree": "397a0e31a5232fa479e8d0972a4a929343ecec67",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "cf59de89985fca9f173bd48372b0260eef331ef98b3dd9543ce7a1c4d11950f4"
+  },
+  "baseline": true,
+  "preflight": false,
+  "status": "passed",
+  "actions": [
+    {
+      "control": "Pause game",
+      "at": "2026-10-05T12:14:30.361Z"
+    },
+    {
+      "control": "Resume game",
+      "at": "2026-10-05T12:14:31.454Z"
+    },
+    {
+      "control": "Pause game",
+      "at": "2026-10-05T12:14:32.704Z"
+    },
+    {
+      "control": "Select and focus shaman",
+      "at": "2026-10-05T12:14:33.693Z"
+    },
+    {
+      "action": "ordinary-minimap-click",
+      "x": 147,
+      "y": 38,
+      "native": {
+        "x": 58044,
+        "y": 31972
+      },
+      "distance": 73.53910524340095
+    }
+  ],
+  "captures": {
+    "marker-before": {
+      "state": {
+        "turn": 119,
+        "time": 9.916666666666666,
+        "paused": true,
+        "speed": 1,
+        "temple": false,
+        "shrine": {
+          "active": true,
+          "remaining": 1
+        }
+      },
+      "marker": {
+        "visible": true,
+        "name": "vault-knowledge-reward",
+        "position": [
+          -37,
+          10.1640625,
+          123
+        ],
+        "family": "legacy-unit-frames",
+        "body": 1077,
+        "children": [
+          {
+            "name": "",
+            "visible": true,
+            "scale": [
+              16,
+              24,
+              1
+            ],
+            "center": [
+              0.5,
+              0.08333333333333337
+            ]
+          }
+        ]
+      },
+      "camera": {
+        "position": {
+          "x": 58044,
+          "y": 31972,
+          "angle": 1153
+        },
+        "bearing": 3.5373596968642884
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "anchor": {
+        "x": 814.4375,
+        "y": 168.43750000000003
+      },
+      "renderer": "WebKit WebGL"
+    }
+  },
+  "driverSha256": "c3fc42d163cf943d98e7ef7d3bb69c7866f71d5b7cd10a31c6aa33404eb89244",
+  "witnessSha256": "f378b01081a22e20a039d739d1e880e59568a8c00ed650e8f865b867cdab6401",
+  "checkpointHelperSha256": "67bca92dc66241223b5ef72aafcf86d45737e0cdf3449435cf0b63f2923646ea",
+  "clock": "Unmodified requestAnimationFrame and full production Scene.animate at ordinary game speed 1",
+  "limits": "Mission 3 bank-p Temple world marker/body/glow. Software/headless pixels; no native raster, allocation, absolute cadence, or class2 screen-sequence claim.",
+  "readiness": {
+    "before": {
+      "ready": true,
+      "turn": 93,
+      "inputMask": 0,
+      "selected": [
+        46
+      ],
+      "levelStartPhase": 4,
+      "shaman": {
+        "id": 46,
+        "hp": 100,
+        "canOrder": true,
+        "selectable": true,
+        "state": 19,
+        "flags2": 131072,
+        "flags4": 536871168,
+        "commandStatus": 0
+      },
+      "level": 3
+    },
+    "after": {
+      "ready": true,
+      "turn": 93,
+      "inputMask": 0,
+      "selected": [
+        46
+      ],
+      "levelStartPhase": 4,
+      "shaman": {
+        "id": 46,
+        "hp": 100,
+        "canOrder": true,
+        "selectable": true,
+        "state": 19,
+        "flags2": 131072,
+        "flags4": 536871168,
+        "commandStatus": 0
+      },
+      "level": 3
+    },
+    "samples": 1
+  },
+  "preflightWitness": {
+    "beforeTurn": {
+      "turn": 103,
+      "time": 8.583333333333334,
+      "paused": false,
+      "speed": 1,
+      "temple": false,
+      "shrine": {
+        "active": true,
+        "remaining": 1
+      }
+    },
+    "afterTurn": {
+      "turn": 104,
+      "time": 8.666666666666666,
+      "paused": false,
+      "speed": 1,
+      "temple": false,
+      "shrine": {
+        "active": true,
+        "remaining": 1
+      }
+    },
+    "postRender": {
+      "state": {
+        "turn": 104,
+        "time": 8.666666666666666,
+        "paused": false,
+        "speed": 1,
+        "temple": false,
+        "shrine": {
+          "active": true,
+          "remaining": 1
+        }
+      },
+      "marker": {
+        "visible": true,
+        "name": "vault-knowledge-reward",
+        "position": [
+          -37,
+          10.1640625,
+          123
+        ],
+        "family": "legacy-unit-frames",
+        "body": 1077,
+        "children": [
+          {
+            "name": "",
+            "visible": true,
+            "scale": [
+              16,
+              24,
+              1
+            ],
+            "center": [
+              0.5,
+              0.08333333333333337
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "firstRenderedPixels": {
+    "acquisition-preflight": {
+      "filename": "acquisition-preflight-first-real-frame.png",
+      "sha256": "1092f575f809b328836afb735b8f70a0432f5a9c1c18b56f5d7005488efa2c12"
+    }
+  },
+  "witnesses": {
+    "acquisition": {
+      "vaultId": 92,
+      "giftId": null,
+      "arm": null,
+      "turns": 16,
+      "frames": 76,
+      "stages": {
+        "preflight": {
+          "beforeTurn": {
+            "turn": 103,
+            "time": 8.583333333333334,
+            "paused": false,
+            "speed": 1,
+            "temple": false,
+            "shrine": {
+              "active": true,
+              "remaining": 1
+            }
+          },
+          "afterTurn": {
+            "turn": 104,
+            "time": 8.666666666666666,
+            "paused": false,
+            "speed": 1,
+            "temple": false,
+            "shrine": {
+              "active": true,
+              "remaining": 1
+            }
+          },
+          "postRender": {
+            "state": {
+              "turn": 104,
+              "time": 8.666666666666666,
+              "paused": false,
+              "speed": 1,
+              "temple": false,
+              "shrine": {
+                "active": true,
+                "remaining": 1
+              }
+            },
+            "marker": {
+              "visible": true,
+              "name": "vault-knowledge-reward",
+              "position": [
+                -37,
+                10.1640625,
+                123
+              ],
+              "family": "legacy-unit-frames",
+              "body": 1077,
+              "children": [
+                {
+                  "name": "",
+                  "visible": true,
+                  "scale": [
+                    16,
+                    24,
+                    1
+                  ],
+                  "center": [
+                    0.5,
+                    0.08333333333333337
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "samples": [],
+      "errors": [],
+      "restored": true
+    }
+  },
+  "witness": {
+    "vaultId": 92,
+    "giftId": null,
+    "arm": null,
+    "turns": 16,
+    "frames": 76,
+    "stages": {
+      "preflight": {
+        "beforeTurn": {
+          "turn": 103,
+          "time": 8.583333333333334,
+          "paused": false,
+          "speed": 1,
+          "temple": false,
+          "shrine": {
+            "active": true,
+            "remaining": 1
+          }
+        },
+        "afterTurn": {
+          "turn": 104,
+          "time": 8.666666666666666,
+          "paused": false,
+          "speed": 1,
+          "temple": false,
+          "shrine": {
+            "active": true,
+            "remaining": 1
+          }
+        },
+        "postRender": {
+          "state": {
+            "turn": 104,
+            "time": 8.666666666666666,
+            "paused": false,
+            "speed": 1,
+            "temple": false,
+            "shrine": {
+              "active": true,
+              "remaining": 1
+            }
+          },
+          "marker": {
+            "visible": true,
+            "name": "vault-knowledge-reward",
+            "position": [
+              -37,
+              10.1640625,
+              123
+            ],
+            "family": "legacy-unit-frames",
+            "body": 1077,
+            "children": [
+              {
+                "name": "",
+                "visible": true,
+                "scale": [
+                  16,
+                  24,
+                  1
+                ],
+                "center": [
+                  0.5,
+                  0.08333333333333337
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+    "samples": [],
+    "errors": [],
+    "restored": true
+  }
+}

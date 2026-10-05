@@ -1,0 +1,14 @@
+{
+  "transferredAt": "2026-10-05T12:15:59.131500+00:00",
+  "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx-baseline",
+  "destination": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+  "sourceHead": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "destinationHead": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+  "inode": 925605,
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "destinationPriorState": "absent after outgoing atomic move",
+  "operation": "Exclusive atomic rename; no dependency install, copy or link",
+  "previousJob": "browser-baseline-marker-1-command.json passed; session32509 terminal exit0; same-scope listenersAfter=[]",
+  "retainedInstalledLock": "installed-package-lock.json"
+}

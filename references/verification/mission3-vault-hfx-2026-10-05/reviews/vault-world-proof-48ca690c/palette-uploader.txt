@@ -1,0 +1,86 @@
+
+../prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00476a30 <.text+0x75a30>:
+  476a30:	83 ec 10             	sub    esp,0x10
+  476a33:	53                   	push   ebx
+  476a34:	56                   	push   esi
+  476a35:	57                   	push   edi
+  476a36:	8b 59 04             	mov    ebx,DWORD PTR [ecx+0x4]
+  476a39:	55                   	push   ebp
+  476a3a:	85 db                	test   ebx,ebx
+  476a3c:	0f 84 aa 00 00 00    	je     0x476aec
+  476a42:	83 79 08 00          	cmp    DWORD PTR [ecx+0x8],0x0
+  476a46:	0f 84 a0 00 00 00    	je     0x476aec
+  476a4c:	33 d2                	xor    edx,edx
+  476a4e:	8b 7c 24 28          	mov    edi,DWORD PTR [esp+0x28]
+  476a52:	8b eb                	mov    ebp,ebx
+  476a54:	8b 41 08             	mov    eax,DWORD PTR [ecx+0x8]
+  476a57:	8b 77 1c             	mov    esi,DWORD PTR [edi+0x1c]
+  476a5a:	3b ee                	cmp    ebp,esi
+  476a5c:	77 05                	ja     0x476a63
+  476a5e:	39 47 20             	cmp    DWORD PTR [edi+0x20],eax
+  476a61:	73 09                	jae    0x476a6c
+  476a63:	c1 ed 01             	shr    ebp,0x1
+  476a66:	42                   	inc    edx
+  476a67:	c1 e8 01             	shr    eax,0x1
+  476a6a:	eb ee                	jmp    0x476a5a
+  476a6c:	8b 41 1c             	mov    eax,DWORD PTR [ecx+0x1c]
+  476a6f:	8b 71 20             	mov    esi,DWORD PTR [ecx+0x20]
+  476a72:	89 44 24 10          	mov    DWORD PTR [esp+0x10],eax
+  476a76:	89 74 24 14          	mov    DWORD PTR [esp+0x14],esi
+  476a7a:	03 c3                	add    eax,ebx
+  476a7c:	03 71 08             	add    esi,DWORD PTR [ecx+0x8]
+  476a7f:	33 db                	xor    ebx,ebx
+  476a81:	89 44 24 18          	mov    DWORD PTR [esp+0x18],eax
+  476a85:	8b 41 14             	mov    eax,DWORD PTR [ecx+0x14]
+  476a88:	89 74 24 1c          	mov    DWORD PTR [esp+0x1c],esi
+  476a8c:	8b 77 14             	mov    esi,DWORD PTR [edi+0x14]
+  476a8f:	a8 40                	test   al,0x40
+  476a91:	8b 7f 18             	mov    edi,DWORD PTR [edi+0x18]
+  476a94:	74 05                	je     0x476a9b
+  476a96:	bb 01 00 00 00       	mov    ebx,0x1
+  476a9b:	a8 02                	test   al,0x2
+  476a9d:	74 21                	je     0x476ac0
+  476a9f:	8d 44 24 10          	lea    eax,[esp+0x10]
+  476aa3:	68 00 01 00 00       	push   0x100
+  476aa8:	52                   	push   edx
+  476aa9:	53                   	push   ebx
+  476aaa:	8b 54 24 30          	mov    edx,DWORD PTR [esp+0x30]
+  476aae:	50                   	push   eax
+  476aaf:	57                   	push   edi
+  476ab0:	8b 49 18             	mov    ecx,DWORD PTR [ecx+0x18]
+  476ab3:	56                   	push   esi
+  476ab4:	a1 cc cb 87 00       	mov    eax,ds:0x87cbcc
+  476ab9:	52                   	push   edx
+  476aba:	51                   	push   ecx
+  476abb:	8b 48 04             	mov    ecx,DWORD PTR [eax+0x4]
+  476abe:	eb 27                	jmp    0x476ae7
+  476ac0:	68 00 01 00 00       	push   0x100
+  476ac5:	a8 10                	test   al,0x10
+  476ac7:	8d 44 24 14          	lea    eax,[esp+0x14]
+  476acb:	52                   	push   edx
+  476acc:	8b 54 24 2c          	mov    edx,DWORD PTR [esp+0x2c]
+  476ad0:	53                   	push   ebx
+  476ad1:	50                   	push   eax
+  476ad2:	8b 49 18             	mov    ecx,DWORD PTR [ecx+0x18]
+  476ad5:	57                   	push   edi
+  476ad6:	a1 cc cb 87 00       	mov    eax,ds:0x87cbcc
+  476adb:	56                   	push   esi
+  476adc:	52                   	push   edx
+  476add:	51                   	push   ecx
+  476ade:	74 05                	je     0x476ae5
+  476ae0:	8b 48 08             	mov    ecx,DWORD PTR [eax+0x8]
+  476ae3:	eb 02                	jmp    0x476ae7
+  476ae5:	8b 08                	mov    ecx,DWORD PTR [eax]
+  476ae7:	e8 c4 01 00 00       	call   0x476cb0
+  476aec:	33 c0                	xor    eax,eax
+  476aee:	5d                   	pop    ebp
+  476aef:	5f                   	pop    edi
+  476af0:	5e                   	pop    esi
+  476af1:	5b                   	pop    ebx
+  476af2:	83 c4 10             	add    esp,0x10
+  476af5:	c2                   	.byte 0xc2

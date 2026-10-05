@@ -1,0 +1,630 @@
+{
+  "startedAt": "2026-10-05T12:10:42.958Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+    "commit": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "tree": "bdaa12ef7ea9ecf3094f4a23c25ae93cdb02063e",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "67934306a888dd8ca4a00927786c440c74e3112aa1925cdab616c0385a958740"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x366c007b1400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x366c007b1400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x366c007b1400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x366c007b1400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "status": "passed",
+  "browserVersion": "154.0.8037.92",
+  "result": {
+    "source": {
+      "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+      "commit": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+      "tree": "bdaa12ef7ea9ecf3094f4a23c25ae93cdb02063e",
+      "status": "",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked": [],
+      "fingerprint": "67934306a888dd8ca4a00927786c440c74e3112aa1925cdab616c0385a958740"
+    },
+    "baseline": false,
+    "preflight": true,
+    "status": "passed",
+    "actions": [
+      {
+        "control": "Pause game",
+        "at": "2026-10-05T12:11:19.150Z"
+      },
+      {
+        "control": "Resume game",
+        "at": "2026-10-05T12:11:20.301Z"
+      },
+      {
+        "control": "Pause game",
+        "at": "2026-10-05T12:11:21.634Z"
+      },
+      {
+        "control": "Select and focus shaman",
+        "at": "2026-10-05T12:11:22.562Z"
+      },
+      {
+        "action": "ordinary-minimap-click",
+        "x": 150,
+        "y": 41,
+        "native": {
+          "x": 58107,
+          "y": 32045
+        },
+        "distance": 45.27692569068709
+      }
+    ],
+    "captures": {
+      "marker-before": {
+        "state": {
+          "turn": 120,
+          "time": 10,
+          "paused": true,
+          "speed": 1,
+          "temple": false,
+          "shrine": {
+            "active": true,
+            "remaining": 1,
+            "glow": {
+              "object": 1417,
+              "draw": 43,
+              "morph": 1,
+              "palette": 0,
+              "renderFlags": 260,
+              "f1": 12,
+              "f2": 0,
+              "stamp": 0,
+              "flags3": 1024,
+              "morphTimer": 0,
+              "morphFrames": 0,
+              "displayedFrame": 2
+            }
+          }
+        },
+        "marker": {
+          "visible": true,
+          "name": "vault-knowledge-reward",
+          "position": [
+            -37,
+            10.1640625,
+            123
+          ],
+          "family": "hfx",
+          "body": 1079,
+          "glow": {
+            "visible": true,
+            "frame": 1419,
+            "position": [
+              0,
+              -0.625,
+              0
+            ]
+          },
+          "children": [
+            {
+              "name": "temple-knowledge-hfx",
+              "visible": true,
+              "frame": 1079,
+              "scale": [
+                21,
+                23,
+                1
+              ],
+              "center": [
+                0.47619047619047616,
+                0
+              ]
+            },
+            {
+              "name": "vault-marker-glow",
+              "visible": true,
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            }
+          ]
+        },
+        "camera": {
+          "position": {
+            "x": 58107,
+            "y": 32045,
+            "angle": 1135
+          },
+          "bearing": 3.4821363885004053
+        },
+        "viewport": {
+          "width": 1440,
+          "height": 1000,
+          "dpr": 1
+        },
+        "anchor": {
+          "x": 817.875,
+          "y": 166.6875
+        },
+        "renderer": "WebKit WebGL"
+      }
+    },
+    "driverSha256": "c3fc42d163cf943d98e7ef7d3bb69c7866f71d5b7cd10a31c6aa33404eb89244",
+    "witnessSha256": "f378b01081a22e20a039d739d1e880e59568a8c00ed650e8f865b867cdab6401",
+    "checkpointHelperSha256": "67bca92dc66241223b5ef72aafcf86d45737e0cdf3449435cf0b63f2923646ea",
+    "clock": "Unmodified requestAnimationFrame and full production Scene.animate at ordinary game speed 1",
+    "limits": "Mission 3 bank-p Temple world marker/body/glow. Software/headless pixels; no native raster, allocation, absolute cadence, or class2 screen-sequence claim.",
+    "readiness": {
+      "before": {
+        "ready": true,
+        "turn": 94,
+        "inputMask": 0,
+        "selected": [
+          46
+        ],
+        "levelStartPhase": 4,
+        "shaman": {
+          "id": 46,
+          "hp": 100,
+          "canOrder": true,
+          "selectable": true,
+          "state": 19,
+          "flags2": 131072,
+          "flags4": 536871168,
+          "commandStatus": 0
+        },
+        "level": 3
+      },
+      "after": {
+        "ready": true,
+        "turn": 94,
+        "inputMask": 0,
+        "selected": [
+          46
+        ],
+        "levelStartPhase": 4,
+        "shaman": {
+          "id": 46,
+          "hp": 100,
+          "canOrder": true,
+          "selectable": true,
+          "state": 19,
+          "flags2": 131072,
+          "flags4": 536871168,
+          "commandStatus": 0
+        },
+        "level": 3
+      },
+      "samples": 1
+    },
+    "preflightWitness": {
+      "beforeTurn": {
+        "turn": 104,
+        "time": 8.666666666666666,
+        "paused": false,
+        "speed": 1,
+        "temple": false,
+        "shrine": {
+          "active": true,
+          "remaining": 1,
+          "glow": {
+            "object": 1417,
+            "draw": 43,
+            "morph": 1,
+            "palette": 0,
+            "renderFlags": 260,
+            "f1": 52,
+            "f2": 0,
+            "stamp": 0,
+            "flags3": 1024,
+            "morphTimer": 0,
+            "morphFrames": 0,
+            "displayedFrame": 12
+          }
+        }
+      },
+      "afterTurn": {
+        "turn": 105,
+        "time": 8.75,
+        "paused": false,
+        "speed": 1,
+        "temple": false,
+        "shrine": {
+          "active": true,
+          "remaining": 1,
+          "glow": {
+            "object": 1417,
+            "draw": 43,
+            "morph": 1,
+            "palette": 0,
+            "renderFlags": 260,
+            "f1": 52,
+            "f2": 0,
+            "stamp": 0,
+            "flags3": 1024,
+            "morphTimer": 0,
+            "morphFrames": 0,
+            "displayedFrame": 12
+          }
+        }
+      },
+      "postRender": {
+        "state": {
+          "turn": 105,
+          "time": 8.75,
+          "paused": false,
+          "speed": 1,
+          "temple": false,
+          "shrine": {
+            "active": true,
+            "remaining": 1,
+            "glow": {
+              "object": 1417,
+              "draw": 43,
+              "morph": 1,
+              "palette": 0,
+              "renderFlags": 260,
+              "f1": 4,
+              "f2": 0,
+              "stamp": 0,
+              "flags3": 1024,
+              "morphTimer": 0,
+              "morphFrames": 0,
+              "displayedFrame": 0
+            }
+          }
+        },
+        "marker": {
+          "visible": true,
+          "name": "vault-knowledge-reward",
+          "position": [
+            -37,
+            10.1640625,
+            123
+          ],
+          "family": "hfx",
+          "body": 1079,
+          "glow": {
+            "visible": true,
+            "frame": 1417,
+            "position": [
+              0,
+              -0.625,
+              0
+            ]
+          },
+          "children": [
+            {
+              "name": "temple-knowledge-hfx",
+              "visible": true,
+              "frame": 1079,
+              "scale": [
+                21,
+                23,
+                1
+              ],
+              "center": [
+                0.47619047619047616,
+                0
+              ]
+            },
+            {
+              "name": "vault-marker-glow",
+              "visible": true,
+              "scale": [
+                1,
+                1,
+                1
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "firstRenderedPixels": {
+      "acquisition-preflight": {
+        "filename": "acquisition-preflight-first-real-frame.png",
+        "sha256": "3dac2dc81f12e56f33ca59c15f702d8dcd1b7ca37e20d0c4077ac37a8fb850c6"
+      }
+    },
+    "witnesses": {
+      "acquisition": {
+        "vaultId": 92,
+        "giftId": null,
+        "arm": null,
+        "turns": 16,
+        "frames": 77,
+        "stages": {
+          "preflight": {
+            "beforeTurn": {
+              "turn": 104,
+              "time": 8.666666666666666,
+              "paused": false,
+              "speed": 1,
+              "temple": false,
+              "shrine": {
+                "active": true,
+                "remaining": 1,
+                "glow": {
+                  "object": 1417,
+                  "draw": 43,
+                  "morph": 1,
+                  "palette": 0,
+                  "renderFlags": 260,
+                  "f1": 52,
+                  "f2": 0,
+                  "stamp": 0,
+                  "flags3": 1024,
+                  "morphTimer": 0,
+                  "morphFrames": 0,
+                  "displayedFrame": 12
+                }
+              }
+            },
+            "afterTurn": {
+              "turn": 105,
+              "time": 8.75,
+              "paused": false,
+              "speed": 1,
+              "temple": false,
+              "shrine": {
+                "active": true,
+                "remaining": 1,
+                "glow": {
+                  "object": 1417,
+                  "draw": 43,
+                  "morph": 1,
+                  "palette": 0,
+                  "renderFlags": 260,
+                  "f1": 52,
+                  "f2": 0,
+                  "stamp": 0,
+                  "flags3": 1024,
+                  "morphTimer": 0,
+                  "morphFrames": 0,
+                  "displayedFrame": 12
+                }
+              }
+            },
+            "postRender": {
+              "state": {
+                "turn": 105,
+                "time": 8.75,
+                "paused": false,
+                "speed": 1,
+                "temple": false,
+                "shrine": {
+                  "active": true,
+                  "remaining": 1,
+                  "glow": {
+                    "object": 1417,
+                    "draw": 43,
+                    "morph": 1,
+                    "palette": 0,
+                    "renderFlags": 260,
+                    "f1": 4,
+                    "f2": 0,
+                    "stamp": 0,
+                    "flags3": 1024,
+                    "morphTimer": 0,
+                    "morphFrames": 0,
+                    "displayedFrame": 0
+                  }
+                }
+              },
+              "marker": {
+                "visible": true,
+                "name": "vault-knowledge-reward",
+                "position": [
+                  -37,
+                  10.1640625,
+                  123
+                ],
+                "family": "hfx",
+                "body": 1079,
+                "glow": {
+                  "visible": true,
+                  "frame": 1417,
+                  "position": [
+                    0,
+                    -0.625,
+                    0
+                  ]
+                },
+                "children": [
+                  {
+                    "name": "temple-knowledge-hfx",
+                    "visible": true,
+                    "frame": 1079,
+                    "scale": [
+                      21,
+                      23,
+                      1
+                    ],
+                    "center": [
+                      0.47619047619047616,
+                      0
+                    ]
+                  },
+                  {
+                    "name": "vault-marker-glow",
+                    "visible": true,
+                    "scale": [
+                      1,
+                      1,
+                      1
+                    ]
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "samples": [],
+        "errors": [],
+        "restored": true
+      }
+    },
+    "witness": {
+      "vaultId": 92,
+      "giftId": null,
+      "arm": null,
+      "turns": 16,
+      "frames": 77,
+      "stages": {
+        "preflight": {
+          "beforeTurn": {
+            "turn": 104,
+            "time": 8.666666666666666,
+            "paused": false,
+            "speed": 1,
+            "temple": false,
+            "shrine": {
+              "active": true,
+              "remaining": 1,
+              "glow": {
+                "object": 1417,
+                "draw": 43,
+                "morph": 1,
+                "palette": 0,
+                "renderFlags": 260,
+                "f1": 52,
+                "f2": 0,
+                "stamp": 0,
+                "flags3": 1024,
+                "morphTimer": 0,
+                "morphFrames": 0,
+                "displayedFrame": 12
+              }
+            }
+          },
+          "afterTurn": {
+            "turn": 105,
+            "time": 8.75,
+            "paused": false,
+            "speed": 1,
+            "temple": false,
+            "shrine": {
+              "active": true,
+              "remaining": 1,
+              "glow": {
+                "object": 1417,
+                "draw": 43,
+                "morph": 1,
+                "palette": 0,
+                "renderFlags": 260,
+                "f1": 52,
+                "f2": 0,
+                "stamp": 0,
+                "flags3": 1024,
+                "morphTimer": 0,
+                "morphFrames": 0,
+                "displayedFrame": 12
+              }
+            }
+          },
+          "postRender": {
+            "state": {
+              "turn": 105,
+              "time": 8.75,
+              "paused": false,
+              "speed": 1,
+              "temple": false,
+              "shrine": {
+                "active": true,
+                "remaining": 1,
+                "glow": {
+                  "object": 1417,
+                  "draw": 43,
+                  "morph": 1,
+                  "palette": 0,
+                  "renderFlags": 260,
+                  "f1": 4,
+                  "f2": 0,
+                  "stamp": 0,
+                  "flags3": 1024,
+                  "morphTimer": 0,
+                  "morphFrames": 0,
+                  "displayedFrame": 0
+                }
+              }
+            },
+            "marker": {
+              "visible": true,
+              "name": "vault-knowledge-reward",
+              "position": [
+                -37,
+                10.1640625,
+                123
+              ],
+              "family": "hfx",
+              "body": 1079,
+              "glow": {
+                "visible": true,
+                "frame": 1417,
+                "position": [
+                  0,
+                  -0.625,
+                  0
+                ]
+              },
+              "children": [
+                {
+                  "name": "temple-knowledge-hfx",
+                  "visible": true,
+                  "frame": 1079,
+                  "scale": [
+                    21,
+                    23,
+                    1
+                  ],
+                  "center": [
+                    0.47619047619047616,
+                    0
+                  ]
+                },
+                {
+                  "name": "vault-marker-glow",
+                  "visible": true,
+                  "scale": [
+                    1,
+                    1,
+                    1
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      },
+      "samples": [],
+      "errors": [],
+      "restored": true
+    }
+  },
+  "finishedAt": "2026-10-05T12:11:26.432Z",
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+    "commit": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "tree": "bdaa12ef7ea9ecf3094f4a23c25ae93cdb02063e",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "67934306a888dd8ca4a00927786c440c74e3112aa1925cdab616c0385a958740"
+  }
+}

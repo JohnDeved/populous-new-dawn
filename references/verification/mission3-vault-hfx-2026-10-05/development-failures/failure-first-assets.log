@@ -1,0 +1,9 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/import-vault-knowledge.py", line 158, in <module>
+    main()
+  File "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/import-vault-knowledge.py", line 140, in main
+    receipt, files = prepare(args.project_root.resolve(), args.source.resolve(), args.check)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/import-vault-knowledge.py", line 123, in prepare
+    raise ValueError('Mission 3 Vault HFX artwork is not installed')
+ValueError: Mission 3 Vault HFX artwork is not installed

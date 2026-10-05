@@ -1,0 +1,73 @@
+{
+  "status": "passed",
+  "base": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "head": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+  "framesIndependentlyDecoded": 15,
+  "rgbaSha256": "4a48fd5fc3803a2cbda70817d2b82a3bd0f6d2e68455af152e0c77605b46d70f",
+  "sharedAssetsPreserved": [
+    "app/original-hud.json",
+    "app/original-effects.json",
+    "app/original-units.json",
+    "public/original/hud.png",
+    "public/original/effects.png",
+    "public/original/unit-layers.png"
+  ],
+  "checks": {
+    "ef62e48-focused.json": {
+      "sha256": "293de09c916e7bfa1c5350ecdf5e95d2ba5920afa4bb1d77703472b29e5ede3a",
+      "command": [
+        "node",
+        "--test",
+        "tests/vault-knowledge.test.mjs",
+        "tests/vault-appearance.test.mjs",
+        "tests/shaman-death-cadence.test.mjs",
+        "tests/worship-acquisition-vfx.test.mjs"
+      ],
+      "status": "passed"
+    },
+    "ef62e48-typecheck.json": {
+      "sha256": "06bef278076fd78a87e90f9cdc4bd5a8ef5291ad27e5ba2f2115489afcf265d0",
+      "command": [
+        "npm",
+        "run",
+        "typecheck"
+      ],
+      "status": "passed"
+    }
+  },
+  "sourceFiles": {
+    "app/game-store.ts": "3da8f63cbd75b5b66ad4947cceeb4265d57de59f129e020ce33c076ce9c22d7b",
+    "app/live-people.ts": "b94e9120cbe56d7e510f8f2fa2aa987e8768a21772acf05c37512f65325d2989",
+    "app/original-vault-knowledge.json": "ed729494e87f6ba6434a9acb915c4da30aa04e1e37b5628ab5d3c7a42bc830bb",
+    "app/scene-assets.ts": "d475b0017791e1ab0dc81da2e11ade9c1502514eb3f5b955ba825e67c0e9157f",
+    "app/scene-effects.ts": "af82cfb32f31bac26503d936b2c1f79807e87f48ddbec6c4d0a5ee91e4934321",
+    "app/scene-entities.ts": "cc7cb79c9e92e5b0cb283f745dadec503d8246ab3936b054313d577b97f2c4f4",
+    "app/scene-vault-knowledge.ts": "c893e603c8b3a0a7cbecb0d46b56d65225856808d491f7008ffcddd16e39dde0",
+    "app/scene.ts": "8789a7751dd748ac5ebf86f3747e031070356840e787433225da801da5ac9c0b",
+    "app/vault-appearance.ts": "4e7307cbce00416abf9464f80a60841214759f5f7a4e10f1337af1aca8b3a010",
+    "app/world-effects.ts": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+    "app/world-initialization.ts": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+    "app/world-types.ts": "39d0cf2a822e90a077ef86e43f74fb35e6966fe873f60d8e5b820f42c00cb3c4",
+    "decomp/README.md": "6dc27ab9c6271567456ba3c0117cff0d6d3e25b54eee116f85ec46c569a841dd",
+    "decomp/research/vault-knowledge-world-assets.md": "dfe0a396b82eac786381f5525396e19fdb9c48fb4bca090583316ea53d4234e2",
+    "engineering/generated-files.json": "f19f8a70594c5d6cee69000e7b6af55e6ac47d7619ffb188be1134ca4ee24d64",
+    "engineering/project-map.json": "64f552d7dcdf4835b8b59f3db865364e64a580742fb8e6b64d951b89108369d8",
+    "public/original/vault-knowledge.png": "3da92d874ef00aeeb450e058984f65c5c63ff6ff476c5c7fde4c085ec5968df7",
+    "scripts/check-vault-knowledge-assets.py": "62cf99ba4f1cf9d30798ab8f215a8538ee94b70ffa0218c461bfe437f15213a1",
+    "scripts/import-vault-knowledge.py": "4a79c69929dd8fcaeeb73ff1ff9392abad3ab4dadd106d05b6bb58fdccd86488",
+    "scripts/probe-native-vault-knowledge.py": "48ca690c78230073b0f1a69ee203d252ed768bb2efcc11ba44ff434b067b530d",
+    "tests/vault-knowledge.test.mjs": "c16dfc9ed459229a33e24a8f36affc8a7ff6e11fe403fee09f150dbc0b294738"
+  },
+  "diffSha256": "fd628083e0a3aec38e8363ca937e1e58575c5064e188c52cbac98463cbf83bf0",
+  "reviewSha256": "0c6f65069aae85d9c1aa817ee8993817698d09b4db12da2723b1cc52d9cf39e8",
+  "reviewArtifacts": {
+    "glow-color-map.json": "8b22b03f71aa2c099ca80aa16a546ec6253d67d258dfe617bb69652f9bc6ac6d",
+    "native-rle-expansion.txt": "269291e548c8dedc00da47824b875b4aa01fd1ef4b643b4b47e02c29ed400061",
+    "native-sprite-palette-init.txt": "cb79cd5361bbeed7c18f11ae0a347971511c4136466c2ce3a8184fdb9d757733",
+    "decode-stdout.log": "66ef16b88ee10f5806bccc80354161b6f96afadc6e66ac688c89bd4ff3042a69",
+    "review.md": "0c6f65069aae85d9c1aa817ee8993817698d09b4db12da2723b1cc52d9cf39e8",
+    "decode-atlas.py": "389b807d389862f09c1ec1ab6a1f353d7b77e862df69ee50eeb4191a9d2414b6",
+    "independent-decode.json": "c248e55c54974d28e416934ee04cc9da76737cf5a2a2f21c6af85ce8dc7527ba",
+    "native-bank-selection.txt": "4500e515cc6fded86dbbe27c330c315b54cd2f9d1347e04f1af46583d2316211"
+  }
+}

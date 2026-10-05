@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ee6cf247-5c20-4408-9e3c-1ea5a3a488f6",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "branch": "fix/mission3-vault-hfx",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/vault-hfx/driver/failed-recipient-witness-f378b010.mjs": "f378b01081a22e20a039d739d1e880e59568a8c00ed650e8f865b867cdab6401",
+      "work/orchestration/vault-hfx/driver/witness.test.mjs": "4d85bb1aa88f96c3a9de8d84086f7378bd948885557bf14a8221e50f705894b9"
+    }
+  },
+  "command": [
+    "env",
+    "PND_TEST_LEGACY_RECIPIENT=1",
+    "node",
+    "--test",
+    "--test-name-pattern=actual mode4",
+    "work/orchestration/vault-hfx/driver/witness.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+  "startedAt": "2026-10-05T12:32:01.407Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/actual-mode4-legacy-receipt.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/actual-mode4-legacy-receipt.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T12:32:03.890Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ actual mode4 createGift is detected without an ordinary-spell recipient (1424.888042ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2410.68599\n\n✖ failing tests:\n\ntest at work/orchestration/vault-hfx/driver/witness.test.mjs:107:1\n✖ actual mode4 createGift is detected without an ordinary-spell recipient (1424.888042ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  null !== 3141\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/witness.test.mjs:124:10)\n      at async Test.run (node:internal/test_runner/test:1389:7)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: null,\n    expected: 3141,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "290f6f5b1c0a444eb5836264763b71e2d71773eae2331ffbb72e7e1997841c7c",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "branch": "fix/mission3-vault-hfx",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/vault-hfx/driver/failed-recipient-witness-f378b010.mjs": "f378b01081a22e20a039d739d1e880e59568a8c00ed650e8f865b867cdab6401",
+      "work/orchestration/vault-hfx/driver/witness.test.mjs": "4d85bb1aa88f96c3a9de8d84086f7378bd948885557bf14a8221e50f705894b9"
+    }
+  }
+}

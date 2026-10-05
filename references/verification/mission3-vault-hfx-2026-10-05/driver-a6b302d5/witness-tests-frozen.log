@@ -1,0 +1,11 @@
+✔ observer preserves production calls, observes state without writes, and captures after the real render (2.801265ms)
+✔ original renderer errors propagate exactly; diagnostic errors do not suppress it (0.746461ms)
+✔ crossed birth and retirement remain separate when no real render occurs between them (0.480552ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 3
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 103.506541

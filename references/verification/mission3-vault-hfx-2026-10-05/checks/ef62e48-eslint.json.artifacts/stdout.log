@@ -1,0 +1,401 @@
+
+> populous-first-dawn@0.1.0 lint
+> eslint . --ignore-pattern dist --ignore-pattern .next
+
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/app/audio.ts
+  245:7  error  'voice' is never reassigned. Use 'const' instead  prefer-const
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/app/campaign-runtime.ts
+  16:8   error  'constants' is defined but never used          @typescript-eslint/no-unused-vars
+  17:23  error  'missionEnemyTribe' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/app/live-construction-runtime.ts
+  45:3  error  'SceneryPhase' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/app/live-pathfinding.ts
+  43:10  error  'createPathSolver' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/app/mission-data.ts
+  106:5  error  'header' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/app/page.tsx
+   113:80  error    Error: Calling setState synchronously within an effect can trigger cascading renders
+
+Effects are intended to synchronize state between React and external systems such as manually updating the DOM, state management libraries, or other platform APIs. In general, the body of an effect should do one or both of the following:
+* Update external systems with the latest state from React.
+* Subscribe for updates from some external system, calling setState in a callback function when external state changes.
+
+Calling setState synchronously within an effect body causes cascading renders that can hurt performance, and is not recommended. (https://react.dev/learn/you-might-not-need-an-effect).
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/app/page.tsx:113:80
+  111 |       const saved = localStorage.getItem('hud-size')
+  112 |       // oxlint-disable-next-line react/set-state-in-effect -- Restore browser storage after hydration.
+> 113 |       if (saved && ['auto', '1', '1.5', '2', '2.5', '3', '4'].includes(saved)) setHudSize(saved)
+      |                                                                                ^^^^^^^^^^ Avoid calling setState() directly within an effect
+  114 |     } catch {
+  115 |       // Storage can be disabled; the size control still works for this session.
+  116 |     }  react-hooks/set-state-in-effect
+   853:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @next/next/no-img-element
+  1260:15  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               @next/next/no-img-element
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/app/scene-effects.ts
+  93:16  error  '_' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/app/scene-input-runtime.ts
+  27:8  error  'Point' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/app/spell-effects-runtime.ts
+  1050:5  error  'cell' is never reassigned. Use 'const' instead  prefer-const
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/app/vehicle-routing.ts
+  164:5  error  'canLand' is never reassigned. Use 'const' instead  prefer-const
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/app/world-selector.tsx
+  150:19  error  The autoFocus prop should not be used, as it can reduce usability and accessibility for users  jsx-a11y/no-autofocus
+  175:19  error  The autoFocus prop should not be used, as it can reduce usability and accessibility for users  jsx-a11y/no-autofocus
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/app/world-turn.ts
+   11:3   error  'changedBuildingGround' is defined but never used       @typescript-eslint/no-unused-vars
+   13:3   error  'debrisModels' is defined but never used                @typescript-eslint/no-unused-vars
+   23:3   error  'timberCell' is defined but never used                  @typescript-eslint/no-unused-vars
+   25:3   error  'footprint' is defined but never used                   @typescript-eslint/no-unused-vars
+   26:3   error  'footprintPoints' is defined but never used             @typescript-eslint/no-unused-vars
+   27:3   error  'groundBuilding' is defined but never used              @typescript-eslint/no-unused-vars
+   28:3   error  'buildingContainsPoint' is defined but never used       @typescript-eslint/no-unused-vars
+   29:3   error  'buildingBlocksStep' is defined but never used          @typescript-eslint/no-unused-vars
+   30:3   error  'rotateBuildingPlan' is defined but never used          @typescript-eslint/no-unused-vars
+   47:3   error  'headAt' is defined but never used                      @typescript-eslint/no-unused-vars
+   48:3   error  'campaignInternal' is defined but never used            @typescript-eslint/no-unused-vars
+   49:3   error  'campaignPersonCount' is defined but never used         @typescript-eslint/no-unused-vars
+   50:3   error  'campaignPeopleInMarker' is defined but never used      @typescript-eslint/no-unused-vars
+   51:3   error  'campaignAttackTarget' is defined but never used        @typescript-eslint/no-unused-vars
+   52:3   error  'forceHead' is defined but never used                   @typescript-eslint/no-unused-vars
+   54:3   error  'campaignTribe' is defined but never used               @typescript-eslint/no-unused-vars
+   55:3   error  'cleanupDefeatedTribe' is defined but never used        @typescript-eslint/no-unused-vars
+   60:3   error  'computerSelectionWorld' is defined but never used      @typescript-eslint/no-unused-vars
+   61:3   error  'computerTrainingBuilding' is defined but never used    @typescript-eslint/no-unused-vars
+   68:3   error  'unitAnimationSource' is defined but never used         @typescript-eslint/no-unused-vars
+   69:3   error  'selectionBuilding' is defined but never used           @typescript-eslint/no-unused-vars
+   70:3   error  'canOrder' is defined but never used                    @typescript-eslint/no-unused-vars
+   76:3   error  'invisibilityFollowers' is defined but never used       @typescript-eslint/no-unused-vars
+   79:3   error  'shieldFollowers' is defined but never used             @typescript-eslint/no-unused-vars
+   90:3   error  'unitInvisibleToPlayer' is defined but never used       @typescript-eslint/no-unused-vars
+   93:19  error  'releaseTasks' is defined but never used                @typescript-eslint/no-unused-vars
+  104:3   error  'depleteTree' is defined but never used                 @typescript-eslint/no-unused-vars
+  116:3   error  'nativeCellIndex' is defined but never used             @typescript-eslint/no-unused-vars
+  120:3   error  'buildingStage' is defined but never used               @typescript-eslint/no-unused-vars
+  122:3   error  'originalLand' is defined but never used                @typescript-eslint/no-unused-vars
+  123:3   error  'makeTerrain' is defined but never used                 @typescript-eslint/no-unused-vars
+  127:3   error  'worldPoint' is defined but never used                  @typescript-eslint/no-unused-vars
+  129:3   error  'nativeStep3D' is defined but never used                @typescript-eslint/no-unused-vars
+  131:3   error  'nativeTerrainHeight' is defined but never used         @typescript-eslint/no-unused-vars
+  132:3   error  'terrainCross' is defined but never used                @typescript-eslint/no-unused-vars
+  133:3   error  'height' is defined but never used                      @typescript-eslint/no-unused-vars
+  134:3   error  'surface' is defined but never used                     @typescript-eslint/no-unused-vars
+  135:3   error  'nativeCellPoint' is defined but never used             @typescript-eslint/no-unused-vars
+  145:3   error  'trainingCost' is defined but never used                @typescript-eslint/no-unused-vars
+  152:3   error  'BUILDINGS' is defined but never used                   @typescript-eslint/no-unused-vars
+  153:3   error  'SIZE' is defined but never used                        @typescript-eslint/no-unused-vars
+  154:3   error  'GRID' is defined but never used                        @typescript-eslint/no-unused-vars
+  155:3   error  'PLANET_RADIUS' is defined but never used               @typescript-eslint/no-unused-vars
+  157:3   error  'maxHp' is defined but never used                       @typescript-eslint/no-unused-vars
+  158:3   error  'buildingHp' is defined but never used                  @typescript-eslint/no-unused-vars
+  159:3   error  'ROUTE_FAILURE_TEXT' is defined but never used          @typescript-eslint/no-unused-vars
+  163:3   error  'Team' is defined but never used                        @typescript-eslint/no-unused-vars
+  164:3   error  'BuildingKind' is defined but never used                @typescript-eslint/no-unused-vars
+  165:3   error  'Spell' is defined but never used                       @typescript-eslint/no-unused-vars
+  167:3   error  'Fight' is defined but never used                       @typescript-eslint/no-unused-vars
+  170:3   error  'Projectile' is defined but never used                  @typescript-eslint/no-unused-vars
+  171:3   error  'Battle' is defined but never used                      @typescript-eslint/no-unused-vars
+  174:3   error  'Shrine' is defined but never used                      @typescript-eslint/no-unused-vars
+  175:3   error  'Tree' is defined but never used                        @typescript-eslint/no-unused-vars
+  176:3   error  'SoundEvent' is defined but never used                  @typescript-eslint/no-unused-vars
+  177:3   error  'Effect' is defined but never used                      @typescript-eslint/no-unused-vars
+  180:10  error  'selectHudPeople' is defined but never used             @typescript-eslint/no-unused-vars
+  180:32  error  'HudSelectionMode' is defined but never used            @typescript-eslint/no-unused-vars
+  189:8   error  'LiveFormation' is defined but never used               @typescript-eslint/no-unused-vars
+  192:10  error  'createFootprints' is defined but never used            @typescript-eslint/no-unused-vars
+  192:33  error  'Footprints' is defined but never used                  @typescript-eslint/no-unused-vars
+  194:3   error  'joinMeleeGroup' is defined but never used              @typescript-eslint/no-unused-vars
+  195:3   error  'cleanFightRoster' is defined but never used            @typescript-eslint/no-unused-vars
+  196:3   error  'releaseFightRoster' is defined but never used          @typescript-eslint/no-unused-vars
+  197:3   error  'fightCenter' is defined but never used                 @typescript-eslint/no-unused-vars
+  198:8   error  'MeleeGroup' is defined but never used                  @typescript-eslint/no-unused-vars
+  199:8   error  'FightParticipant' is defined but never used            @typescript-eslint/no-unused-vars
+  201:38  error  'CombatMarch' is defined but never used                 @typescript-eslint/no-unused-vars
+  207:10  error  'nativePersonModel' is defined but never used           @typescript-eslint/no-unused-vars
+  209:10  error  'buildingDoor' is defined but never used                @typescript-eslint/no-unused-vars
+  209:34  error  'findPath' is defined but never used                    @typescript-eslint/no-unused-vars
+  211:38  error  'AttackReservation' is defined but never used           @typescript-eslint/no-unused-vars
+  212:30  error  'emptyPersonOrder' is defined but never used            @typescript-eslint/no-unused-vars
+  212:53  error  'OrderPool' is defined but never used                   @typescript-eslint/no-unused-vars
+  214:3   error  'clickPersonSelection' is defined but never used        @typescript-eslint/no-unused-vars
+  215:3   error  'markPersonSelected' is defined but never used          @typescript-eslint/no-unused-vars
+  216:3   error  'selectedPersonVoice' is defined but never used         @typescript-eslint/no-unused-vars
+  217:3   error  'selectedGroupVoices' is defined but never used         @typescript-eslint/no-unused-vars
+  218:3   error  'canDragPerson' is defined but never used               @typescript-eslint/no-unused-vars
+  219:3   error  'personInCompletedTower' is defined but never used      @typescript-eslint/no-unused-vars
+  222:3   error  'dragCommandCorners' is defined but never used          @typescript-eslint/no-unused-vars
+  223:3   error  'dragCellBounds' is defined but never used              @typescript-eslint/no-unused-vars
+  224:3   error  'inDragCells' is defined but never used                 @typescript-eslint/no-unused-vars
+  225:3   error  'unwrapDragCorners' is defined but never used           @typescript-eslint/no-unused-vars
+  226:3   error  'inDragSelection' is defined but never used             @typescript-eslint/no-unused-vars
+  228:10  error  'relocateFight' is defined but never used               @typescript-eslint/no-unused-vars
+  229:10  error  'chooseMeleeAttack' is defined but never used           @typescript-eslint/no-unused-vars
+  229:29  error  'meleeDuration' is defined but never used               @typescript-eslint/no-unused-vars
+  229:49  error  'MeleeAttack' is defined but never used                 @typescript-eslint/no-unused-vars
+  232:10  error  'stepBuildingWork' is defined but never used            @typescript-eslint/no-unused-vars
+  232:28  error  'stepBuildingDeparture' is defined but never used       @typescript-eslint/no-unused-vars
+  232:51  error  'stepBuildingApproach' is defined but never used        @typescript-eslint/no-unused-vars
+  233:10  error  'stepBuildingFetch' is defined but never used           @typescript-eslint/no-unused-vars
+  234:10  error  'stepBuildingLevel' is defined but never used           @typescript-eslint/no-unused-vars
+  237:3   error  'faceTribe' is defined but never used                   @typescript-eslint/no-unused-vars
+  238:3   error  'personAnimationObject' is defined but never used       @typescript-eslint/no-unused-vars
+  239:3   error  'recoverPersonMovement' is defined but never used       @typescript-eslint/no-unused-vars
+  241:3   error  'setPersonAnimationRow' is defined but never used       @typescript-eslint/no-unused-vars
+  242:3   error  'stopPersonMovement' is defined but never used          @typescript-eslint/no-unused-vars
+  245:3   error  'stepBuildingScenery' is defined but never used         @typescript-eslint/no-unused-vars
+  246:3   error  'stepBuildingPeople' is defined but never used          @typescript-eslint/no-unused-vars
+  248:8   error  'ClearingPerson' is defined but never used              @typescript-eslint/no-unused-vars
+  250:10  error  'restingCellAvailable' is defined but never used        @typescript-eslint/no-unused-vars
+  251:10  error  'buildingCellValid' is defined but never used           @typescript-eslint/no-unused-vars
+  252:10  error  'notifyTerrainObjects' is defined but never used        @typescript-eslint/no-unused-vars
+  253:10  error  'turnPerson' is defined but never used                  @typescript-eslint/no-unused-vars
+  254:10  error  'addTerrainLight' is defined but never used             @typescript-eslint/no-unused-vars
+  254:27  error  'updateTerrainLights' is defined but never used         @typescript-eslint/no-unused-vars
+  254:53  error  'TerrainLights' is defined but never used               @typescript-eslint/no-unused-vars
+  255:26  error  'looseWoodInCell' is defined but never used             @typescript-eslint/no-unused-vars
+  257:3   error  'startTimberHarvest' is defined but never used          @typescript-eslint/no-unused-vars
+  258:3   error  'stepTimberHarvest' is defined but never used           @typescript-eslint/no-unused-vars
+  259:3   error  'timberTransfer' is defined but never used              @typescript-eslint/no-unused-vars
+  261:3   error  'reserveTimber' is defined but never used               @typescript-eslint/no-unused-vars
+  262:3   error  'releaseTimberReservation' is defined but never used    @typescript-eslint/no-unused-vars
+  264:10  error  'createIndexedSearch' is defined but never used         @typescript-eslint/no-unused-vars
+  266:3   error  'createTimberSearches' is defined but never used        @typescript-eslint/no-unused-vars
+  267:3   error  'findTimber' is defined but never used                  @typescript-eslint/no-unused-vars
+  268:3   error  'invalidateTimberSearch' is defined but never used      @typescript-eslint/no-unused-vars
+  269:3   error  'invalidateTimberRoutes' is defined but never used      @typescript-eslint/no-unused-vars
+  270:3   error  'looseTimberInCell' is defined but never used           @typescript-eslint/no-unused-vars
+  271:3   error  'orderedTimberCells' is defined but never used          @typescript-eslint/no-unused-vars
+  272:3   error  'refreshTimberSearch' is defined but never used         @typescript-eslint/no-unused-vars
+  273:3   error  'stepTimberSearches' is defined but never used          @typescript-eslint/no-unused-vars
+  274:8   error  'TimberSearchWorld' is defined but never used           @typescript-eslint/no-unused-vars
+  276:10  error  'reincarnationStones' is defined but never used         @typescript-eslint/no-unused-vars
+  278:10  error  'personStepCollision' is defined but never used         @typescript-eslint/no-unused-vars
+  279:35  error  'AnimatedUnit' is defined but never used                @typescript-eslint/no-unused-vars
+  280:49  error  'SpellTrail' is defined but never used                  @typescript-eslint/no-unused-vars
+  281:10  error  'createBuildingSmoke' is defined but never used         @typescript-eslint/no-unused-vars
+  281:55  error  'BuildingSmoke' is defined but never used               @typescript-eslint/no-unused-vars
+  282:10  error  'collapseBuildingFaces' is defined but never used       @typescript-eslint/no-unused-vars
+  283:8   error  'modelAssets' is defined but never used                 @typescript-eslint/no-unused-vars
+  284:15  error  'NativeModel' is defined but never used                 @typescript-eslint/no-unused-vars
+  285:30  error  'Lightning' is defined but never used                   @typescript-eslint/no-unused-vars
+  286:49  error  'LandBridge' is defined but never used                  @typescript-eslint/no-unused-vars
+  287:43  error  'Flatten' is defined but never used                     @typescript-eslint/no-unused-vars
+  288:43  error  'Erosion' is defined but never used                     @typescript-eslint/no-unused-vars
+  289:47  error  'Firestorm' is defined but never used                   @typescript-eslint/no-unused-vars
+  290:49  error  'Earthquake' is defined but never used                  @typescript-eslint/no-unused-vars
+  291:43  error  'Volcano' is defined but never used                     @typescript-eslint/no-unused-vars
+  294:3   error  'probeLivePathCost' is defined but never used           @typescript-eslint/no-unused-vars
+  296:3   error  'replanLivePath' is defined but never used              @typescript-eslint/no-unused-vars
+  301:3   error  'collisionWorld' is defined but never used              @typescript-eslint/no-unused-vars
+  302:3   error  'enterLiveCombat' is defined but never used             @typescript-eslint/no-unused-vars
+  305:3   error  'stepLiveEncounter' is defined but never used           @typescript-eslint/no-unused-vars
+  307:3   error  'createMeleePerson' is defined but never used           @typescript-eslint/no-unused-vars
+  308:3   error  'setLivePersonAnimation' is defined but never used      @typescript-eslint/no-unused-vars
+  309:3   error  'initializeLiveCelebration' is defined but never used   @typescript-eslint/no-unused-vars
+  310:3   error  'initializeLivePanic' is defined but never used         @typescript-eslint/no-unused-vars
+  320:3   error  'startMeleeKnockback' is defined but never used         @typescript-eslint/no-unused-vars
+  321:3   error  'approachLiveMelee' is defined but never used           @typescript-eslint/no-unused-vars
+  326:10  error  'removeObjectFromCell' is defined but never used        @typescript-eslint/no-unused-vars
+  326:52  error  'ObjectCells' is defined but never used                 @typescript-eslint/no-unused-vars
+  332:8   error  'BuildingEntry' is defined but never used               @typescript-eslint/no-unused-vars
+  333:8   error  'BuildingAdmission' is defined but never used           @typescript-eslint/no-unused-vars
+  343:3   error  'createMotionRoutes' is defined but never used          @typescript-eslint/no-unused-vars
+  345:3   error  'setDirectPersonDestination' is defined but never used  @typescript-eslint/no-unused-vars
+  346:3   error  'releasePersonRoute' is defined but never used          @typescript-eslint/no-unused-vars
+  347:8   error  'MotionRoutes' is defined but never used                @typescript-eslint/no-unused-vars
+  352:3   error  'random' is defined but never used                      @typescript-eslint/no-unused-vars
+  353:3   error  'positionDistance' is defined but never used            @typescript-eslint/no-unused-vars
+  354:3   error  'nativeTerrainCross' is defined but never used          @typescript-eslint/no-unused-vars
+  361:8   error  'NativeTerrain' is defined but never used               @typescript-eslint/no-unused-vars
+  363:38  error  'Territory' is defined but never used                   @typescript-eslint/no-unused-vars
+  366:3   error  'processOutcome' is defined but never used              @typescript-eslint/no-unused-vars
+  368:8   error  'TribeTurnState' is defined but never used              @typescript-eslint/no-unused-vars
+  369:8   error  'OutcomeWorld' is defined but never used                @typescript-eslint/no-unused-vars
+  373:3   error  'buildingFootprintCells' is defined but never used      @typescript-eslint/no-unused-vars
+  374:3   error  'buildingFootprintTiles' is defined but never used      @typescript-eslint/no-unused-vars
+  375:8   error  'BuildingShapePose' is defined but never used           @typescript-eslint/no-unused-vars
+  376:3   error  'buildingOutsidePoint' is defined but never used        @typescript-eslint/no-unused-vars
+  377:3   error  'buildingInsidePoint' is defined but never used         @typescript-eslint/no-unused-vars
+  379:3   error  'buildingGradeVertices' is defined but never used       @typescript-eslint/no-unused-vars
+  380:3   error  'buildingPlanHeight' is defined but never used          @typescript-eslint/no-unused-vars
+  381:3   error  'levelBuildingGround' is defined but never used         @typescript-eslint/no-unused-vars
+  382:3   error  'buildingSmokePoint' is defined but never used          @typescript-eslint/no-unused-vars
+  383:3   error  'buildingRepairArea' is defined but never used          @typescript-eslint/no-unused-vars
+  385:10  error  'nativeTrainingCost' is defined but never used          @typescript-eslint/no-unused-vars
+  387:3   error  'stepBuildingTerrain' is defined but never used         @typescript-eslint/no-unused-vars
+  388:3   error  'stepTerrainCollapse' is defined but never used         @typescript-eslint/no-unused-vars
+  389:8   error  'BuildingTerrain' is defined but never used             @typescript-eslint/no-unused-vars
+  391:36  error  'SinkingBuilding' is defined but never used             @typescript-eslint/no-unused-vars
+  393:3   error  'advanceCollapse' is defined but never used             @typescript-eslint/no-unused-vars
+  395:3   error  'processBuildingDamage' is defined but never used       @typescript-eslint/no-unused-vars
+  397:3   error  'stepBuildingBurn' is defined but never used            @typescript-eslint/no-unused-vars
+  398:8   error  'BuildingBurn' is defined but never used                @typescript-eslint/no-unused-vars
+  399:3   error  'changeBuildingWork' is defined but never used          @typescript-eslint/no-unused-vars
+  400:3   error  'buildingWorkStage' is defined but never used           @typescript-eslint/no-unused-vars
+  401:8   error  'DamageBuilding' is defined but never used              @typescript-eslint/no-unused-vars
+  402:8   error  'BuildingPlan' is defined but never used                @typescript-eslint/no-unused-vars
+  409:8   error  'ManaWorld' is defined but never used                   @typescript-eslint/no-unused-vars
+  410:8   error  'ManaTribe' is defined but never used                   @typescript-eslint/no-unused-vars
+  412:10  error  'createTribeCasting' is defined but never used          @typescript-eslint/no-unused-vars
+  412:61  error  'TribeCasting' is defined but never used                @typescript-eslint/no-unused-vars
+  413:15  error  'SpellTargetScan' is defined but never used             @typescript-eslint/no-unused-vars
+  415:3   error  'requestAttack' is defined but never used               @typescript-eslint/no-unused-vars
+  416:3   error  'requestMarkerTask' is defined but never used           @typescript-eslint/no-unused-vars
+  417:3   error  'requestShamanGuard' is defined but never used          @typescript-eslint/no-unused-vars
+  418:3   error  'requestTraining' is defined but never used             @typescript-eslint/no-unused-vars
+  419:3   error  'creditAttackTask' is defined but never used            @typescript-eslint/no-unused-vars
+  421:10  error  'availableTrainingPeople' is defined but never used     @typescript-eslint/no-unused-vars
+  422:10  error  'createFlyby' is defined but never used                 @typescript-eslint/no-unused-vars
+  422:23  error  'flybyCommand' is defined but never used                @typescript-eslint/no-unused-vars
+  422:42  error  'Flyby' is defined but never used                       @typescript-eslint/no-unused-vars
+  428:8   error  'WorshipState' is defined but never used                @typescript-eslint/no-unused-vars
+  430:15  error  'ModelMorph' is defined but never used                  @typescript-eslint/no-unused-vars
+  431:43  error  'stepVaultTask' is defined but never used               @typescript-eslint/no-unused-vars
+  431:63  error  'VaultTask' is defined but never used                   @typescript-eslint/no-unused-vars
+  433:15  error  'UnitKind' is defined but never used                    @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/bench-area-attack.mjs
+  49:28  error  'turns' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/bench-sky-motion.mjs
+  63:40  error  'batches' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-balloon-hut-menu.mjs
+  35:13  error  Empty block statement  no-empty
+  64:11  error  Empty block statement  no-empty
+  68:11  error  Empty block statement  no-empty
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-blast-impact.mjs
+  50:11  error  's' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  65:30  error  'w' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-boat-house-menu.mjs
+  34:13  error  Empty block statement  no-empty
+  61:11  error  Empty block statement  no-empty
+  65:11  error  Empty block statement  no-empty
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-building-panel-hover.mjs
+  31:13  error  Empty block statement  no-empty
+  41:11  error  Empty block statement  no-empty
+  47:13  error  Empty block statement  no-empty
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-campaign-message-presentation.mjs
+  55:13  error  Empty block statement  no-empty
+  84:11  error  Empty block statement  no-empty
+  88:11  error  Empty block statement  no-empty
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-followers-tab.mjs
+  36:13  error  Empty block statement  no-empty
+  65:11  error  Empty block statement  no-empty
+  69:11  error  Empty block statement  no-empty
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-footprints.mjs
+  10:88  error  'stampFootprints' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-land-bridge.mjs
+   76:22  error  'a' is assigned a value but never used  @typescript-eslint/no-unused-vars
+   76:33  error  'b' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  200:52  error  'samples' is defined but never used     @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-loading-art.mjs
+  167:15  error  Empty block statement  no-empty
+  170:42  error  Empty block statement  no-empty
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-loading-screen.mjs
+  168:15  error  Empty block statement  no-empty
+  171:42  error  Empty block statement  no-empty
+  359:42  error  Empty block statement  no-empty
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-mission11.mjs
+  1793:9  error  'balloon' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-mission4-natural-victory.mjs
+  39:13  error  Empty block statement  no-empty
+  68:11  error  Empty block statement  no-empty
+  72:11  error  Empty block statement  no-empty
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-mission4.mjs
+  201:9  error  'cellDistanceSquared' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  202:9  error  'nativePosition' is assigned a value but never used       @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-mission9.mjs
+   546:32  error  'boatId' is defined but never used                  @typescript-eslint/no-unused-vars
+  1600:7   error  'restoredTotem' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-stone-head-animation.mjs
+  6:10  error  'createHash' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-terrain-ambience.mjs
+  170:44  error  'samples' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-training-hut-colors.mjs
+  176:47  error  'type' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-vault-appearance.mjs
+  10:16  error  'bindVisibleGame' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/check-browser-vehicle-assets.mjs
+  14:8  error  'models' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/local-render/harness.mjs
+  111:133  error  Empty block statement  no-empty
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/orchestration/cli.mjs
+  752:62  error  '_evidence' is defined but never used    @typescript-eslint/no-unused-vars
+  842:44  error  '_hash' is defined but never used        @typescript-eslint/no-unused-vars
+  842:63  error  '_changeHash' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/orchestration/verify.mjs
+   87:13  error  Empty block statement  no-empty
+  113:11  error  Empty block statement  no-empty
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/tests/combat-orders.test.mjs
+  33:53  error  'reactionTimer' is defined but never used     @typescript-eslint/no-unused-vars
+  33:67  error  'reactionDuration' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/tests/earthquake.test.mjs
+  7:3  error  'browserPosition' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/tests/fight-cleanup.test.mjs
+  80:24  error  'blue' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/tests/firestorm.test.mjs
+  22:7  error  Empty block statement  no-empty
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/tests/land-bridge.test.mjs
+  24:15  error  'start' is assigned a value but never used   @typescript-eslint/no-unused-vars
+  24:22  error  'target' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/tests/mission16-bloodlust.test.mjs
+  19:3  error  'bloodlustFollowers' is defined but never used  @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/tests/orchestration.test.mjs
+  1121:21  error  '_identity' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  1121:41  error  '_version' is assigned a value but never used   @typescript-eslint/no-unused-vars
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/tests/performance-queue.test.mjs
+  65:17  error  Empty block statement  no-empty
+  71:19  error  Empty block statement  no-empty
+  78:15  error  Empty block statement  no-empty
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/tests/tornado.test.mjs
+  63:5  error  Empty block statement  no-empty
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/tests/worship-checkpoint-migration.test.mjs
+  4:27  error  'migrateCheckpoint' is defined but never used  @typescript-eslint/no-unused-vars
+
+✖ 287 problems (285 errors, 2 warnings)
+

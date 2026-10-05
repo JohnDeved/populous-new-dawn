@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "28c13505-3c01-488b-963f-8ef09dec36ce",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "branch": "fix/mission3-vault-hfx",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "../prerequisites/venv/bin/python",
+    "-B",
+    "scripts/check-vault-knowledge-assets.py",
+    "../prerequisites/game",
+    "--base",
+    "71b3860e7025a9534d56248c194aa18610b5df4d"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+  "startedAt": "2026-10-05T11:50:08.352Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/ef62e48-assets.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/ef62e48-assets.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T11:50:12.426Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"status\": \"passed\",\n  \"base\": \"71b3860e7025a9534d56248c194aa18610b5df4d\",\n  \"canonicalRGBA\": true,\n  \"idempotent\": true,\n  \"reproducible\": true,\n  \"noRepositoryWrites\": true,\n  \"preserved\": {\n    \"app/original-hud.json\": \"3b24abb207a0ad2fc92f7225866352f0d485cf9ac7d13fb8b76842fecc928929\",\n    \"app/original-effects.json\": \"8e43389fe9610e70fcedbbd8fe63b11d4addf9a001378225ee5ce273c5b83fdb\",\n    \"app/original-units.json\": \"bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9\",\n    \"public/original/hud.png\": \"1479f593c925cee6c6af76b1652cb33d8c4cfea4581a9a9559cb03d0568b8ead\",\n    \"public/original/effects.png\": \"dabd1d661b2b7cfe82d3f717f045bccbaa082a34ae0e2b0abf812c7744052a97\",\n    \"public/original/unit-layers.png\": \"09f8637991a8c6af1dfb0339aec9093ba82fc50dc4efd5bc61bf781359ef1ff4\"\n  },\n  \"outputs\": {\n    \"app/original-vault-knowledge.json\": \"ed729494e87f6ba6434a9acb915c4da30aa04e1e37b5628ab5d3c7a42bc830bb\",\n    \"public/original/vault-knowledge.png\": \"3da92d874ef00aeeb450e058984f65c5c63ff6ff476c5c7fde4c085ec5968df7\"\n  },\n  \"negativeCases\": [\n    {\n      \"case\": \"partial\",\n      \"error\": \"Partial Vault artwork exists; preserve and inspect it\"\n    },\n    {\n      \"case\": \"pixels\",\n      \"error\": \"Installed Vault pixels differ from the canonical source\"\n    },\n    {\n      \"case\": \"metadata\",\n      \"error\": \"Installed Vault metadata differs from the canonical source\"\n    }\n  ]\n}\n",
+  "stderr": "",
+  "stdoutSha256": "25887b026172ce1f88e3cc178841c4b206668985cd6abd12266b0ec741576741",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "branch": "fix/mission3-vault-hfx",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

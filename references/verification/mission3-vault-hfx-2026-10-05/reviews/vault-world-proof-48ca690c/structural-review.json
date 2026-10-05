@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "head": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "inputReceiptHashesValid": true,
+  "sourceFingerprint": {
+    "scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+    "app/original-units.json": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+    "app/vault-appearance.ts": "34bf5d59eaaf88287c17735f1296c141089424470e5c0e268ab7344e38825ce1",
+    "app/world-effects.ts": "bc9fc8379255bbf9b40f5da1ce8afc7458802c345aca6686c0cd87225400a202",
+    "app/world-turn.ts": "d322af8560cce8e0e3bc1188ebab7676c1cce3b904563c380562f4c1a932fea8",
+    "app/scene-effects.ts": "e2ae823c9de71b2a6eb3a798eb8e1fc439ec9baac8710105dca952277059ef18",
+    "app/scene-entities.ts": "e794cf9faf7ea78f0228e398432b467cddf3a933c7218939ee9792acd764b009",
+    "app/world-initialization.ts": "ec47f644ef30f616ce9d8b61144ad7d075748faa440961bf9d56fbec21034d58"
+  },
+  "files": {
+    "scripts/probe-native-vault-knowledge.py": "48ca690c78230073b0f1a69ee203d252ed768bb2efcc11ba44ff434b067b530d",
+    "work/orchestration/vault-hfx/native-attempt-1/receipt.json": "1e4cdbfad6ca7272af8325ee95b2b77e86e0d862f835df20db7c044f856d56ad",
+    "work/orchestration/vault-hfx/native-attempt-1/probe-result.json": "6f897f8a6260d52c9dd5f9debfe7f1dfd9eedd514e12606448b060b6ab1f8cc8",
+    "work/reviews/vault-world-proof-48ca690c/rerun.py": "758d4889e792b42a66a0ee1007194c00d47f5156f333cd54812aa33edbd7648b",
+    "work/reviews/vault-world-proof-48ca690c/native/probe-result.json": "47e380994f52f398f3a65b082762f0af848fb2d879c2af7038d71c89a9d58359",
+    "work/reviews/vault-world-proof-48ca690c/independent-rerun.json": "9a31048ba2eab4458800a53f2415b751523fa8e7a2f0df2a99634b1ceaeafe0e",
+    "work/reviews/vault-world-proof-48ca690c/stdout.log": "f5276af46fe3b1ba4e0040729897b841912e5f7b52a2d550f148105f1e54bd73",
+    "work/reviews/vault-world-proof-48ca690c/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "work/reviews/vault-world-proof-48ca690c/palette-uploader.txt": "81a6d8f4b6035675441b8105f8420db13d3b2f1f435d1f0bd4bb4d824dfb93b3",
+    "work/reviews/vault-world-proof-48ca690c/palette-submit.txt": "d12f59746d733b93ad307558388101c16860f4c91fbd056917e6317b434f1658",
+    "work/reviews/vault-world-proof-48ca690c/primitive.txt": "1be7d2534aa67d79d936b0590fdf772ffcd8f771b954bec8c7bf1f52dc0aa2bf",
+    "work/reviews/vault-world-proof-48ca690c/palette-construction.txt": "1d486119d192eb49d7b6869532cac637c01026ce7df99dd4292f3a1c828fe8b7",
+    "work/reviews/vault-world-proof-48ca690c/cursor.txt": "781afd74cf9d9aa2df9a54003f8bff7beef816c60f176e1d7c6dc6430e5bfba5",
+    "work/reviews/vault-world-proof-48ca690c/review.md": "e09285258d1f410ab322e2b811e9f0073bbccdfe50b3fd11d1419fa761450258"
+  }
+}

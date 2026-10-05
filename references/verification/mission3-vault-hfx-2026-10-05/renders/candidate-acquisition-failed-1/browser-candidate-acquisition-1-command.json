@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "f07e6899-7c62-46dd-a9bc-80c9180e33d1",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "branch": "fix/mission3-vault-hfx",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/scenario.mjs": "c3fc42d163cf943d98e7ef7d3bb69c7866f71d5b7cd10a31c6aa33404eb89244",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/witness.mjs": "f378b01081a22e20a039d739d1e880e59568a8c00ed650e8f865b867cdab6401",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/checkpoint.mjs": "67bca92dc66241223b5ef72aafcf86d45737e0cdf3449435cf0b63f2923646ea"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "440s",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--port",
+    "4363",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/browser-candidate-acquisition-1",
+    "--timeout",
+    "420000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/scenario.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+  "startedAt": "2026-10-05T12:15:59.591Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/browser-candidate-acquisition-1-command.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/browser-candidate-acquisition-1-command.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T12:22:01.203Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "Error: page.waitForFunction: Timeout 300000ms exceeded.\n    at wait (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/scenario.mjs:20:16)\n    at vaultWorldRow (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/scenario.mjs:180:11)\n    at async runLocalBrowser (/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/local-render/harness.mjs:251:21\n    at runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/local-render/harness.mjs:233:47)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/scripts/local-render/harness.mjs:251:21\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "bc982638222c34166985e4e85c7525f5377f6fb8ce16e0bc0999f2402980698d",
+  "sourceAfter": {
+    "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "branch": "fix/mission3-vault-hfx",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/scenario.mjs": "c3fc42d163cf943d98e7ef7d3bb69c7866f71d5b7cd10a31c6aa33404eb89244",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/witness.mjs": "f378b01081a22e20a039d739d1e880e59568a8c00ed650e8f865b867cdab6401",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/checkpoint.mjs": "67bca92dc66241223b5ef72aafcf86d45737e0cdf3449435cf0b63f2923646ea"
+    }
+  }
+}

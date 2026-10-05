@@ -1,0 +1,26 @@
+{
+  "status": "passed",
+  "head": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+  "sourceStatus": "",
+  "files": {
+    "work/orchestration/vault-hfx/driver/launch-plan.json": "7ab4b42c657cfc23a52e5581811e07fdf0f6c99139b841e80ef67e61d9a08837",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/scenario.mjs": "c3fc42d163cf943d98e7ef7d3bb69c7866f71d5b7cd10a31c6aa33404eb89244",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/witness.mjs": "f378b01081a22e20a039d739d1e880e59568a8c00ed650e8f865b867cdab6401",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/checkpoint.mjs": "67bca92dc66241223b5ef72aafcf86d45737e0cdf3449435cf0b63f2923646ea",
+    "work/orchestration/vault-hfx/driver/witness.test.mjs": "5a4df97704408499dfed8b7fb3471077ba3a7508cbcdf4d299887de787701f00",
+    "work/reviews/vault-driver-c3fc42d1/witness-tests.log": "afc6319fd8c16d399c844573335a81352dcdbcf5ccb6b33a88e2f2722077f8e3"
+  },
+  "capsMs": [
+    120000,
+    120000,
+    420000
+  ],
+  "outerCaps": [
+    "140s",
+    "140s",
+    "440s"
+  ],
+  "profileMode": "ephemeral",
+  "browserLaunched": false,
+  "reviewSha256": "bfcc73b0f601a92b10f0e6be5f279ec1c7549ac0c7c4831092d976313457da1c"
+}

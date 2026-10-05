@@ -1,0 +1,61 @@
+{
+  "mode": "Maintained ephemeral harness; no --profile; new browser and context per row, same context retained for candidate reload",
+  "inputSha256": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/scenario.mjs": "a6b302d59a996cdf45bd7007971508472c03e63feaf3a502b77c2ce3b0566321",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/witness.mjs": "a0792c14ff9ecd8b6806884579c43af22e1c3af868c09f9fad0ac30db497072b",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/checkpoint.mjs": "67bca92dc66241223b5ef72aafcf86d45737e0cdf3449435cf0b63f2923646ea"
+  },
+  "rows": [
+    {
+      "name": "candidate-acquisition-retry",
+      "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+      "environment": {
+        "TMPDIR": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/browser-candidate-acquisition-2-tmp",
+        "TMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/browser-candidate-acquisition-2-tmp",
+        "TEMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/browser-candidate-acquisition-2-tmp",
+        "PND_VAULT_BASELINE": "0",
+        "PND_VAULT_PREFLIGHT": "0"
+      },
+      "command": [
+        "taskset",
+        "-c",
+        "0-3",
+        "node",
+        "scripts/orchestration/command-receipt.mjs",
+        "--output",
+        "work/orchestration/vault-hfx/browser-candidate-acquisition-2-command.json",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/scenario.mjs",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/witness.mjs",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/checkpoint.mjs",
+        "--",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "440s",
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+        "--browser",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+        "--port",
+        "4363",
+        "--output",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/browser-candidate-acquisition-2",
+        "--timeout",
+        "420000",
+        "--scenario",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/driver/scenario.mjs"
+      ]
+    }
+  ],
+  "preconditions": [
+    "Independent driver ACCEPT and coordinator lane grant",
+    "Exclusive closure inode925605 at each row game root, equal root locks, receipted move between candidate/baseline",
+    "Previous row and all owned descendants terminal before next row; source and input hashes remain frozen"
+  ],
+  "previousFailedAttempt": "browser-candidate-acquisition-1; original recipient predicate rejected by absent-recipient regression; app remains ef62e48"
+}

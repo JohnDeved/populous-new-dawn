@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "d7d4a944-d909-4610-98a4-81290d440d09",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "branch": "fix/mission3-vault-hfx",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "npm",
+    "run",
+    "format:check"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+  "startedAt": "2026-10-05T11:45:15.991Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/ef62e48-format.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/ef62e48-format.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T11:45:17.836Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 format:check\n> oxfmt --check \"app/**/*.{ts,tsx}\"\n\nChecking formatting...\n\napp/render-view.ts (1ms)\napp/viewport-bounds.ts (0ms)\n\nFormat issues found in above 2 files. Run without `--check` to fix.\nFinished in 706ms on 242 files using 1 threads.\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n",
+  "stdoutSha256": "0ef135a11f9a81001bcc73967c143df7dc5cdcbc6ade4ad5707252517311a6aa",
+  "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+  "sourceAfter": {
+    "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "branch": "fix/mission3-vault-hfx",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

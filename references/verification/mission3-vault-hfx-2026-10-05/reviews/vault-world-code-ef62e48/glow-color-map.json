@@ -1,0 +1,374 @@
+{
+  "frame": 1417,
+  "dimensions": [
+    81,
+    68
+  ],
+  "paletteTintIndex": 106,
+  "paletteTintRGB": [
+    247,
+    235,
+    201
+  ],
+  "alphaMapping": [
+    0,
+    17,
+    34,
+    51,
+    68,
+    85,
+    102,
+    119,
+    136,
+    153,
+    170,
+    187,
+    204,
+    221,
+    238,
+    255
+  ],
+  "highNibbleColors": [
+    {
+      "highNibble": 0,
+      "alOffset": "0xf00",
+      "paletteIndex": 138,
+      "rgb": [
+        255,
+        75,
+        22
+      ],
+      "tintedRgb": [
+        247,
+        69,
+        17
+      ],
+      "positiveRunPixels": 89,
+      "sourceValues": {
+        "1": 13,
+        "2": 21,
+        "3": 22,
+        "4": 7,
+        "5": 4,
+        "6": 4,
+        "7": 2,
+        "8": 5,
+        "9": 1,
+        "10": 4,
+        "11": 1,
+        "12": 3,
+        "14": 2
+      }
+    },
+    {
+      "highNibble": 1,
+      "alOffset": "0x1f00",
+      "paletteIndex": 154,
+      "rgb": [
+        223,
+        155,
+        31
+      ],
+      "tintedRgb": [
+        216,
+        143,
+        24
+      ],
+      "positiveRunPixels": 367,
+      "sourceValues": {
+        "16": 165,
+        "17": 16,
+        "18": 8,
+        "19": 11,
+        "20": 10,
+        "21": 7,
+        "22": 9,
+        "23": 4,
+        "24": 10,
+        "25": 12,
+        "26": 13,
+        "27": 9,
+        "28": 5,
+        "29": 15,
+        "30": 8,
+        "31": 65
+      }
+    },
+    {
+      "highNibble": 2,
+      "alOffset": "0x2f00",
+      "paletteIndex": 106,
+      "rgb": [
+        247,
+        235,
+        201
+      ],
+      "tintedRgb": [
+        239,
+        217,
+        158
+      ],
+      "positiveRunPixels": 212,
+      "sourceValues": {
+        "33": 2,
+        "34": 1,
+        "35": 4,
+        "39": 4,
+        "43": 1,
+        "44": 3,
+        "45": 2,
+        "46": 2,
+        "47": 193
+      }
+    },
+    {
+      "highNibble": 3,
+      "alOffset": "0x3f00",
+      "paletteIndex": 228,
+      "rgb": [
+        47,
+        171,
+        99
+      ],
+      "tintedRgb": [
+        46,
+        158,
+        78
+      ],
+      "positiveRunPixels": 188,
+      "sourceValues": {
+        "48": 94,
+        "49": 27,
+        "50": 16,
+        "51": 10,
+        "52": 8,
+        "53": 12,
+        "54": 5,
+        "55": 6,
+        "56": 4,
+        "57": 5,
+        "59": 1
+      }
+    },
+    {
+      "highNibble": 4,
+      "alOffset": "0x4f00",
+      "paletteIndex": 220,
+      "rgb": [
+        51,
+        63,
+        203
+      ],
+      "tintedRgb": [
+        49,
+        58,
+        160
+      ],
+      "positiveRunPixels": 0,
+      "sourceValues": {}
+    },
+    {
+      "highNibble": 5,
+      "alOffset": "0x5f00",
+      "paletteIndex": 31,
+      "rgb": [
+        225,
+        212,
+        73
+      ],
+      "tintedRgb": [
+        218,
+        195,
+        58
+      ],
+      "positiveRunPixels": 977,
+      "sourceValues": {
+        "81": 148,
+        "82": 85,
+        "83": 64,
+        "84": 55,
+        "85": 39,
+        "86": 41,
+        "87": 35,
+        "88": 35,
+        "89": 21,
+        "90": 13,
+        "91": 18,
+        "92": 26,
+        "93": 19,
+        "94": 15,
+        "95": 363
+      }
+    },
+    {
+      "highNibble": 6,
+      "alOffset": "0x6f00",
+      "paletteIndex": 206,
+      "rgb": [
+        147,
+        111,
+        79
+      ],
+      "tintedRgb": [
+        142,
+        102,
+        62
+      ],
+      "positiveRunPixels": 0,
+      "sourceValues": {}
+    },
+    {
+      "highNibble": 7,
+      "alOffset": "0x7f00",
+      "paletteIndex": 118,
+      "rgb": [
+        167,
+        205,
+        235
+      ],
+      "tintedRgb": [
+        162,
+        189,
+        185
+      ],
+      "positiveRunPixels": 0,
+      "sourceValues": {}
+    },
+    {
+      "highNibble": 8,
+      "alOffset": "0x8f00",
+      "paletteIndex": 160,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "tintedRgb": [
+        0,
+        0,
+        0
+      ],
+      "positiveRunPixels": 0,
+      "sourceValues": {}
+    },
+    {
+      "highNibble": 9,
+      "alOffset": "0x9f00",
+      "paletteIndex": 160,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "tintedRgb": [
+        0,
+        0,
+        0
+      ],
+      "positiveRunPixels": 0,
+      "sourceValues": {}
+    },
+    {
+      "highNibble": 10,
+      "alOffset": "0xaf00",
+      "paletteIndex": 160,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "tintedRgb": [
+        0,
+        0,
+        0
+      ],
+      "positiveRunPixels": 0,
+      "sourceValues": {}
+    },
+    {
+      "highNibble": 11,
+      "alOffset": "0xbf00",
+      "paletteIndex": 160,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "tintedRgb": [
+        0,
+        0,
+        0
+      ],
+      "positiveRunPixels": 0,
+      "sourceValues": {}
+    },
+    {
+      "highNibble": 12,
+      "alOffset": "0xcf00",
+      "paletteIndex": 160,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "tintedRgb": [
+        0,
+        0,
+        0
+      ],
+      "positiveRunPixels": 0,
+      "sourceValues": {}
+    },
+    {
+      "highNibble": 13,
+      "alOffset": "0xdf00",
+      "paletteIndex": 160,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "tintedRgb": [
+        0,
+        0,
+        0
+      ],
+      "positiveRunPixels": 0,
+      "sourceValues": {}
+    },
+    {
+      "highNibble": 14,
+      "alOffset": "0xef00",
+      "paletteIndex": 160,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "tintedRgb": [
+        0,
+        0,
+        0
+      ],
+      "positiveRunPixels": 0,
+      "sourceValues": {}
+    },
+    {
+      "highNibble": 15,
+      "alOffset": "0xff00",
+      "paletteIndex": 160,
+      "rgb": [
+        0,
+        0,
+        0
+      ],
+      "tintedRgb": [
+        0,
+        0,
+        0
+      ],
+      "positiveRunPixels": 0,
+      "sourceValues": {}
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+
+> populous-first-dawn@0.1.0 format:check
+> oxfmt --check "app/**/*.{ts,tsx}"
+
+Checking formatting...
+
+app/render-view.ts (1ms)
+app/viewport-bounds.ts (0ms)
+
+Format issues found in above 2 files. Run without `--check` to fix.
+Finished in 706ms on 242 files using 1 threads.

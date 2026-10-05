@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "085ee74e-a093-4d97-8c87-500924668452",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "branch": "fix/mission3-vault-hfx",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "120s",
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+  "startedAt": "2026-10-05T11:53:42.703Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/ef62e48-build.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/ef62e48-build.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T11:54:00.878Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n[1/5] analyze client references...\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n✓ built in 4.44s\n[2/5] analyze server references...\n\u001b[2K\rtransforming...✓ 387 modules transformed.\nrendering chunks...\n✓ built in 1.51s\n[3/5] build rsc environment...\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 4.71s\n[4/5] build client environment...\n\u001b[2K\rtransforming...✓ 428 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 3.03s\n[5/5] build ssr environment...\n\u001b[2K\rtransforming...✓ 393 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.63s\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (30%)\n  - vinext:og-inline-fetch-assets (20%)\n  - vinext:css-data-url (10%)\n  - alias (6%)\n  - vinext:middleware-server-only (5%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:og-inline-fetch-assets (40%)\n  - rsc:virtual-client-package (20%)\n  - vinext:css-data-url (14%)\n  - rsc:load-environment-module (7%)\n  - vinext:middleware-server-only (5%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:css-data-url (17%)\n  - vinext:middleware-server-only (14%)\n  - vinext:og-inline-fetch-assets (13%)\n  - rsc:virtual-client-package (11%)\n  - alias (11%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\n",
+  "stdoutSha256": "629bb8105a0e3f24585545d7dc7bcddde4c7762de2aa6e9570972682de9835d8",
+  "stderrSha256": "98224248bf7f9a1ae1b29a2068bc62acb9e14707f0ac953e6bac1594c07b96d3",
+  "sourceAfter": {
+    "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "branch": "fix/mission3-vault-hfx",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

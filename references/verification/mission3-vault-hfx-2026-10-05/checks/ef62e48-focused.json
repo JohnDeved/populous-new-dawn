@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "bb08dd15-bb73-421d-ac78-dddbc16bbf71",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "branch": "fix/mission3-vault-hfx",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/vault-knowledge.test.mjs",
+    "tests/vault-appearance.test.mjs",
+    "tests/shaman-death-cadence.test.mjs",
+    "tests/worship-acquisition-vfx.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+  "startedAt": "2026-10-05T11:40:41.857Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/ef62e48-focused.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/ef62e48-focused.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T11:40:54.407Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ first and second actual presentation visits display 0 then 1, not 1 then 2 (1036.28007ms)\n✔ normal processed phases reset, loop independently of simulation, then freeze and hide (331.62194ms)\n✔ new checkpoints retain shown/next frames; legacy checkpoints start at a bounded deterministic frame (79.74493ms)\n✔ pause and native land-pause freeze the latch as well as the counter (9.473521ms)\n✔ render schedules and effect-only animation cannot change gameplay, either RNG or respawn (4452.876615ms)\n✔ ordinary combat death finishes existing wait and respawn without a duplicate effect (348.264429ms)\n✔ Vault knowledge uses the original class-6/model-2 reward frames and socket (0.848985ms)\n✔ Vault knowledge is present only while its authored reward source is active (0.14598ms)\n✔ Mission 7 Vault knowledge uses occupied model-18 socket 1 placement (0.756235ms)\n✔ Mission 3 Temple descriptor selects the native HFX identity (171.350759ms)\n✔ Mission 3 marker glow owns a saved fourteen-frame cursor on the existing animation boundary (80.846083ms)\n✔ ordinary Mission 3 Vault collection preserves payout while changing only world presentation (1519.407239ms)\n✔ unrelated Vault and ordinary spell families retain their existing presentation owners (137.19445ms)\n✔ a glow born on an animation boundary first displays frame zero before its next cursor (1098.872967ms)\n✔ ordinary Stone Head completion creates the original six-visit acquisition VFX before stock delivery (158.077138ms)\nℹ tests 15\nℹ suites 0\nℹ pass 15\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 12477.47139\n",
+  "stderr": "",
+  "stdoutSha256": "2593e6708de5bf5810546e525b9f9ef3a91298dfbc8966607799a48ea7f5b80b",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+    "branch": "fix/mission3-vault-hfx",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

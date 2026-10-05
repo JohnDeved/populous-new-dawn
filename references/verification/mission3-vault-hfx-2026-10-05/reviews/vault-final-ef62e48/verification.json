@@ -1,0 +1,90 @@
+{
+  "status": "passed",
+  "base": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "head": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+  "gates": {
+    "ef62e48-check.json": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "387525ff5739ae6e4445760a90dda7d181ffcc4fcc3bea42e86d4518a683627f"
+    },
+    "ef62e48-build.json": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "17b3806c7dd8f3349cc44a009265f7809447aeb043ba7b301b11bfb1e5950390"
+    },
+    "ef62e48-focused.json": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "293de09c916e7bfa1c5350ecdf5e95d2ba5920afa4bb1d77703472b29e5ede3a"
+    },
+    "ef62e48-typecheck.json": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "06bef278076fd78a87e90f9cdc4bd5a8ef5291ad27e5ba2f2115489afcf265d0"
+    },
+    "ef62e48-assets.json": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "eed7dd60d48b6e2fc183f80868087c59c30a0d3ee2e6bfcb8ad7d567f3887b1c"
+    },
+    "ef62e48-format.json": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "614e687c64757d98489820ff929399a8f5783fc961c1cfb962725461e0605b5f"
+    },
+    "ef62e48-standard-lint.json": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "29a59a51b8f6f62995a0dfe571e67ed48e3523fcff00545653ffa4a6ad64cf47"
+    },
+    "ef62e48-eslint.json": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "0a194e909da27a9c314ab98e38bbed9abad89658c839c0158334dd34251271d8"
+    },
+    "ef62e48-fallow-health.json": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "0f3193495c41f1c521afa12b731c917274199b6e978f63f2bde5a450bce05775"
+    },
+    "browser-candidate-acquisition-2-command.json": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "0b3580a9e9765765e8d3e4f7a19a211d18a17f5f8e439d04e52f91ad963abf52"
+    }
+  },
+  "unchangedQualityDiagnosticLocations": 674,
+  "formatFailureFilesUnchanged": true,
+  "lifecycleTurns": [
+    1082,
+    1088,
+    1164
+  ],
+  "checkpointCursor": 12,
+  "retiredCursorFrozenThrough": 1163,
+  "files": {
+    "work/orchestration/vault-hfx/ef62e48-check.json": "387525ff5739ae6e4445760a90dda7d181ffcc4fcc3bea42e86d4518a683627f",
+    "work/orchestration/vault-hfx/ef62e48-build.json": "17b3806c7dd8f3349cc44a009265f7809447aeb043ba7b301b11bfb1e5950390",
+    "work/orchestration/vault-hfx/ef62e48-focused.json": "293de09c916e7bfa1c5350ecdf5e95d2ba5920afa4bb1d77703472b29e5ede3a",
+    "work/orchestration/vault-hfx/ef62e48-typecheck.json": "06bef278076fd78a87e90f9cdc4bd5a8ef5291ad27e5ba2f2115489afcf265d0",
+    "work/orchestration/vault-hfx/ef62e48-assets.json": "eed7dd60d48b6e2fc183f80868087c59c30a0d3ee2e6bfcb8ad7d567f3887b1c",
+    "work/orchestration/vault-hfx/ef62e48-format.json": "614e687c64757d98489820ff929399a8f5783fc961c1cfb962725461e0605b5f",
+    "work/orchestration/vault-hfx/ef62e48-standard-lint.json": "29a59a51b8f6f62995a0dfe571e67ed48e3523fcff00545653ffa4a6ad64cf47",
+    "work/orchestration/vault-hfx/ef62e48-eslint.json": "0a194e909da27a9c314ab98e38bbed9abad89658c839c0158334dd34251271d8",
+    "work/orchestration/vault-hfx/ef62e48-fallow-health.json": "0f3193495c41f1c521afa12b731c917274199b6e978f63f2bde5a450bce05775",
+    "work/orchestration/vault-hfx/browser-candidate-acquisition-2-command.json": "0b3580a9e9765765e8d3e4f7a19a211d18a17f5f8e439d04e52f91ad963abf52",
+    "work/orchestration/vault-hfx/browser-candidate-acquisition-2/preload-preflight-first-real-frame.png": "c13988f25a5b1e93cd7cb17f1dba81144456dd5945e01e843fbba710097efc65",
+    "work/orchestration/vault-hfx/browser-candidate-acquisition-2/acquisition-birth-first-real-frame.png": "59266bd1544583972ddf464d6918993eb9a0db86631e4c44563788bac84c4c83",
+    "work/orchestration/vault-hfx/browser-candidate-acquisition-2/acquisition-retirement-first-real-frame.png": "2cb863d6871c8e2189a5ab83cee17f88ea93f2f00e8d926718b522fbc9048a74",
+    "work/orchestration/vault-hfx/browser-candidate-acquisition-2/acquisition-payout-first-real-frame.png": "d071338efd21d8ba4d54645eea107847b1ab17b2d967c31808690a3bbe12ded5",
+    "work/orchestration/vault-hfx/browser-candidate-acquisition-2/receipt.json": "77b6b037852cccd773394a2800cfb611a1d8f8fede645caf504bbe37dc962818",
+    "work/orchestration/vault-hfx/browser-candidate-acquisition-2/vault-world-row.json": "6fb7f48675e45f65f1c54ad2c9a6b34480045442ccdcb23ff816ac39c0e8d3b3",
+    "work/orchestration/vault-hfx/candidate-acquisition-2-cleanup.json": "90f40a0f677451894c12d0d8c7cc08448d1ec5bef40228891370960470d23c47",
+    "work/orchestration/vault-hfx/ef62e48-quality-attribution.json": "8958e8f5f043ff14aebb15d168caf676df7f43c8619d6e39773fca246922628e",
+    "work/orchestration/vault-hfx/browser-candidate-preflight-1/receipt.json": "58dec331245b5b33fdbaaaf754b6e90e74ccb285717a8379af5cd7f5a0d32d02",
+    "work/orchestration/vault-hfx/browser-candidate-acquisition-1/receipt.json": "0e58b0a655e00e96fd657208937eff6c62aa21c3dd0eeda0add21b785412b0b0",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx-baseline/work/orchestration/vault-hfx/browser-baseline-marker-1/receipt.json": "eb8e943ed39e248174be2a62c40d6995867591c3f237f23134534b1e587f22f7"
+  },
+  "reviewSha256": "88f938b66863236fec7501916a2261de0c48b218265f4fb7e13b5567a8ea5aba"
+}

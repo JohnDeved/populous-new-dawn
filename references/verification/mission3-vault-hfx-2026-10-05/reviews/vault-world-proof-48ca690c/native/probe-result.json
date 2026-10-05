@@ -1,0 +1,9958 @@
+{
+  "inputs": {
+    "d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "levels/levl2003.dat": "eb239eabebbcde37c1e1633b149d48977cedf432348a12fc5ee6b4be74c049bf",
+    "levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+    "objects/objs0-2.dat": "e1af6bdf050608d7c1832700826bece72ca592abdff3ee9c2138c50ed8a8607d",
+    "objects/shapes.dat": "ae1188129d84c266d91a1e9e75d960e99e80cdfd573f85d524742e970a0b2849",
+    "data/smoke.txt": "48d460819cdbc7d32ae7253150752c3d2ea641b07d797d0914525545f5e19cb1",
+    "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+    "data/pal0-p.dat": "f246c0c22c835208167ae4ad8a4c1f1303691c610a1ff8560edeaf1f7d095f74",
+    "data/al0-p.dat": "d6bb76a8ba8c2613376132fa7b0eec58277254fee4b786129746ed0c96890357",
+    "levels/levl2003.hdr": "219dd7611a4e3f6c2d4e78620a4d5bb9cf61bf0e9c66c21b2b43b89c8ba4d3f0"
+  },
+  "authored": {
+    "91": [
+      6,
+      6,
+      0,
+      0,
+      227,
+      0,
+      125,
+      4,
+      1,
+      0,
+      1,
+      1,
+      0,
+      93,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      100,
+      0,
+      0,
+      0,
+      0,
+      3,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "92": [
+      2,
+      6,
+      255,
+      0,
+      227,
+      0,
+      125,
+      2,
+      5,
+      1,
+      1,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    "104": [
+      18,
+      2,
+      255,
+      0,
+      226,
+      0,
+      124,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "interceptedLeaves": {
+    "0x4ee470": "cell insertion",
+    "0x4ee580": "cell relocation, copies XYZ",
+    "0x44e940": "terrain height 200",
+    "0x4010b0": "sunlight",
+    "0x4fbd20": "head state presentation",
+    "0x44fad0": "cell terrain refresh",
+    "0x401ba0": "global list removal bookkeeping",
+    "0x4ee190": "sunlight removal",
+    "0x4ee4f0": "cell removal bookkeeping",
+    "0x48a050": "sound device, returns zero",
+    "0x48a810": "sound device",
+    "0x44bb50": "open building panel",
+    "0x44bc10": "building HUD rectangle (1,2,31,42)",
+    "0x44b770": "landscape viewport (100,0,640,480)",
+    "0x479f00": "display request",
+    "0x46e700": "renderer viewport",
+    "0x472da0": "whole building geometry renderer",
+    "0x473210": "per-face building geometry renderer",
+    "0x482290": "companion processor",
+    "0x49cf90": "limiter set",
+    "0x49cfa0": "limiter clear",
+    "0x516170": "supplied sprite bank and original frame index",
+    "0x4608a0": "texture-cache upload after real palette/alpha choice",
+    "0x4811a0": "arrival feedback",
+    "0x481090": "center feedback",
+    "0x48a770": "sound stop",
+    "0x41b580": "campaign knowledge notification, records arguments"
+  },
+  "sourceBeforeSettings": {
+    "id": 900,
+    "class": 6,
+    "model": 2,
+    "state": 4,
+    "phase": 0,
+    "frame": 1059,
+    "height": 1272,
+    "rewardModel": 3,
+    "glow": 0,
+    "remaining": 0,
+    "rewardClass": 11,
+    "automatic": 0,
+    "recipient": 0,
+    "visualPhase": 0
+  },
+  "sourceAfterSettings": {
+    "id": 900,
+    "class": 6,
+    "model": 2,
+    "state": 4,
+    "phase": 0,
+    "frame": 1059,
+    "height": 1272,
+    "rewardModel": 5,
+    "glow": 0,
+    "remaining": 0,
+    "rewardClass": 2,
+    "automatic": 1,
+    "recipient": 0,
+    "visualPhase": 0
+  },
+  "markerBeforeFirstVisit": {
+    "id": 901,
+    "class": 6,
+    "model": 10,
+    "state": 8,
+    "phase": 0,
+    "frame": 0,
+    "height": 1272,
+    "rewardModel": 5,
+    "glow": 0,
+    "remaining": 2,
+    "rewardClass": 0,
+    "automatic": 0,
+    "recipient": 0,
+    "visualPhase": 0
+  },
+  "markerAfterFirstVisit": {
+    "id": 901,
+    "class": 6,
+    "model": 10,
+    "state": 8,
+    "phase": 1,
+    "frame": 1079,
+    "height": 1272,
+    "rewardModel": 5,
+    "glow": 902,
+    "remaining": 2,
+    "rewardClass": 0,
+    "automatic": 0,
+    "recipient": 0,
+    "visualPhase": 0
+  },
+  "markerGlow": {
+    "id": 902,
+    "class": 6,
+    "model": 8,
+    "state": 9,
+    "phase": 0,
+    "frame": 1417,
+    "height": 1192,
+    "rewardModel": 0,
+    "glow": 0,
+    "remaining": 0,
+    "rewardClass": 0,
+    "automatic": 0,
+    "recipient": 0,
+    "visualPhase": 0
+  },
+  "glowCursorVisits": [
+    [
+      1417,
+      4,
+      1079,
+      0
+    ],
+    [
+      1417,
+      8,
+      1079,
+      0
+    ],
+    [
+      1417,
+      12,
+      1079,
+      0
+    ],
+    [
+      1417,
+      16,
+      1079,
+      0
+    ],
+    [
+      1417,
+      20,
+      1079,
+      0
+    ],
+    [
+      1417,
+      24,
+      1079,
+      0
+    ],
+    [
+      1417,
+      28,
+      1079,
+      0
+    ],
+    [
+      1417,
+      32,
+      1079,
+      0
+    ],
+    [
+      1417,
+      36,
+      1079,
+      0
+    ],
+    [
+      1417,
+      40,
+      1079,
+      0
+    ],
+    [
+      1417,
+      44,
+      1079,
+      0
+    ],
+    [
+      1417,
+      48,
+      1079,
+      0
+    ],
+    [
+      1417,
+      52,
+      1079,
+      0
+    ],
+    [
+      1417,
+      0,
+      1079,
+      0
+    ],
+    [
+      1417,
+      4,
+      1079,
+      0
+    ],
+    [
+      1417,
+      8,
+      1079,
+      0
+    ],
+    [
+      1417,
+      12,
+      1079,
+      0
+    ],
+    [
+      1417,
+      16,
+      1079,
+      0
+    ],
+    [
+      1417,
+      20,
+      1079,
+      0
+    ],
+    [
+      1417,
+      24,
+      1079,
+      0
+    ],
+    [
+      1417,
+      28,
+      1079,
+      0
+    ],
+    [
+      1417,
+      32,
+      1079,
+      0
+    ],
+    [
+      1417,
+      36,
+      1079,
+      0
+    ],
+    [
+      1417,
+      40,
+      1079,
+      0
+    ],
+    [
+      1417,
+      44,
+      1079,
+      0
+    ],
+    [
+      1417,
+      48,
+      1079,
+      0
+    ],
+    [
+      1417,
+      52,
+      1079,
+      0
+    ],
+    [
+      1417,
+      0,
+      1079,
+      0
+    ]
+  ],
+  "worldResourceReads": [
+    {
+      "entry": "0x20521b8",
+      "hfx": 1079,
+      "width": 21,
+      "height": 23,
+      "queue": {
+        "hfx": 1079,
+        "x": 310.0,
+        "y": 217.0,
+        "renderType": 17,
+        "queueFlags": 0,
+        "vertexFlags": 0,
+        "argb": "0xffffffff"
+      }
+    },
+    {
+      "entry": "0x2052c48",
+      "hfx": 1417,
+      "width": 81,
+      "height": 68,
+      "queue": {
+        "hfx": 1417,
+        "x": 280.0,
+        "y": 172.0,
+        "renderType": 18,
+        "queueFlags": 2,
+        "vertexFlags": 8,
+        "argb": "0xfff7ebc9"
+      }
+    }
+  ],
+  "sourceAfterStartupConversion": {
+    "id": 900,
+    "class": 6,
+    "model": 2,
+    "state": 0,
+    "phase": 0,
+    "frame": 1059,
+    "height": 1272,
+    "rewardModel": 5,
+    "glow": 0,
+    "remaining": 0,
+    "rewardClass": 2,
+    "automatic": 1,
+    "recipient": 0,
+    "visualPhase": 0
+  },
+  "giftAfterCompletion": {
+    "id": 903,
+    "class": 6,
+    "model": 2,
+    "state": 4,
+    "phase": 1,
+    "frame": 1079,
+    "height": 1272,
+    "rewardModel": 5,
+    "glow": 904,
+    "remaining": 82,
+    "rewardClass": 2,
+    "automatic": 1,
+    "recipient": 0,
+    "visualPhase": 6
+  },
+  "retiredAtCompletion": {
+    "source": {
+      "id": 900,
+      "class": 0,
+      "model": 2,
+      "state": 0,
+      "phase": 0,
+      "frame": 1059,
+      "height": 1272,
+      "rewardModel": 5,
+      "glow": 0,
+      "remaining": 0,
+      "rewardClass": 2,
+      "automatic": 1,
+      "recipient": 0,
+      "visualPhase": 0
+    },
+    "marker": {
+      "id": 901,
+      "class": 0,
+      "model": 10,
+      "state": 8,
+      "phase": 1,
+      "frame": 1079,
+      "height": 1272,
+      "rewardModel": 5,
+      "glow": 902,
+      "remaining": 2,
+      "rewardClass": 0,
+      "automatic": 0,
+      "recipient": 0,
+      "visualPhase": 0
+    },
+    "markerGlow": {
+      "id": 902,
+      "class": 0,
+      "model": 8,
+      "state": 9,
+      "phase": 0,
+      "frame": 1417,
+      "height": 1192,
+      "rewardModel": 0,
+      "glow": 0,
+      "remaining": 0,
+      "rewardClass": 0,
+      "automatic": 0,
+      "recipient": 0,
+      "visualPhase": 0
+    }
+  },
+  "giftVisits": [
+    {
+      "id": 903,
+      "class": 6,
+      "model": 2,
+      "state": 4,
+      "phase": 1,
+      "frame": 1079,
+      "height": 1272,
+      "rewardModel": 5,
+      "glow": 904,
+      "remaining": 81,
+      "rewardClass": 2,
+      "automatic": 1,
+      "recipient": 0,
+      "visualPhase": 5
+    },
+    {
+      "id": 903,
+      "class": 6,
+      "model": 2,
+      "state": 4,
+      "phase": 1,
+      "frame": 1079,
+      "height": 1272,
+      "rewardModel": 5,
+      "glow": 904,
+      "remaining": 80,
+      "rewardClass": 2,
+      "automatic": 1,
+      "recipient": 0,
+      "visualPhase": 4
+    },
+    {
+      "id": 903,
+      "class": 6,
+      "model": 2,
+      "state": 4,
+      "phase": 1,
+      "frame": 1079,
+      "height": 1272,
+      "rewardModel": 5,
+      "glow": 904,
+      "remaining": 79,
+      "rewardClass": 2,
+      "automatic": 1,
+      "recipient": 0,
+      "visualPhase": 3
+    },
+    {
+      "id": 903,
+      "class": 6,
+      "model": 2,
+      "state": 4,
+      "phase": 1,
+      "frame": 1079,
+      "height": 1272,
+      "rewardModel": 5,
+      "glow": 904,
+      "remaining": 78,
+      "rewardClass": 2,
+      "automatic": 1,
+      "recipient": 0,
+      "visualPhase": 2
+    },
+    {
+      "id": 903,
+      "class": 6,
+      "model": 2,
+      "state": 4,
+      "phase": 1,
+      "frame": 1079,
+      "height": 1272,
+      "rewardModel": 5,
+      "glow": 904,
+      "remaining": 77,
+      "rewardClass": 2,
+      "automatic": 1,
+      "recipient": 0,
+      "visualPhase": 1
+    },
+    {
+      "id": 903,
+      "class": 6,
+      "model": 2,
+      "state": 4,
+      "phase": 1,
+      "frame": 1079,
+      "height": 1272,
+      "rewardModel": 5,
+      "glow": 0,
+      "remaining": 76,
+      "rewardClass": 2,
+      "automatic": 1,
+      "recipient": 0,
+      "visualPhase": 0
+    }
+  ],
+  "controller": {
+    "active": 1,
+    "geometry": 95,
+    "faceCount": 147,
+    "buildingHandle": 903,
+    "companionHandle": 0,
+    "target": [
+      16,
+      22
+    ]
+  },
+  "uiVisitsWithGeometryAndCompanionLeaves": [
+    [
+      1,
+      1,
+      1,
+      1,
+      76,
+      0
+    ],
+    [
+      2,
+      1,
+      1,
+      2,
+      76,
+      0
+    ],
+    [
+      3,
+      1,
+      1,
+      3,
+      76,
+      0
+    ],
+    [
+      4,
+      1,
+      1,
+      4,
+      76,
+      0
+    ],
+    [
+      5,
+      1,
+      1,
+      5,
+      76,
+      0
+    ],
+    [
+      6,
+      1,
+      1,
+      6,
+      76,
+      0
+    ],
+    [
+      7,
+      1,
+      1,
+      7,
+      76,
+      0
+    ],
+    [
+      8,
+      1,
+      1,
+      8,
+      76,
+      0
+    ],
+    [
+      9,
+      1,
+      1,
+      9,
+      76,
+      0
+    ],
+    [
+      10,
+      1,
+      1,
+      10,
+      76,
+      0
+    ],
+    [
+      11,
+      1,
+      1,
+      11,
+      76,
+      0
+    ],
+    [
+      12,
+      1,
+      1,
+      12,
+      76,
+      0
+    ],
+    [
+      13,
+      1,
+      1,
+      13,
+      76,
+      0
+    ],
+    [
+      14,
+      1,
+      1,
+      14,
+      76,
+      0
+    ],
+    [
+      15,
+      1,
+      1,
+      15,
+      76,
+      0
+    ],
+    [
+      16,
+      1,
+      1,
+      16,
+      76,
+      0
+    ],
+    [
+      17,
+      1,
+      1,
+      17,
+      76,
+      0
+    ],
+    [
+      18,
+      1,
+      1,
+      18,
+      76,
+      0
+    ],
+    [
+      19,
+      1,
+      1,
+      19,
+      76,
+      0
+    ],
+    [
+      20,
+      1,
+      2,
+      1,
+      76,
+      0
+    ],
+    [
+      21,
+      1,
+      2,
+      2,
+      76,
+      0
+    ],
+    [
+      22,
+      1,
+      2,
+      3,
+      76,
+      0
+    ],
+    [
+      23,
+      1,
+      2,
+      4,
+      76,
+      0
+    ],
+    [
+      24,
+      1,
+      2,
+      5,
+      76,
+      0
+    ],
+    [
+      25,
+      1,
+      2,
+      6,
+      76,
+      0
+    ],
+    [
+      26,
+      1,
+      2,
+      7,
+      76,
+      0
+    ],
+    [
+      27,
+      1,
+      2,
+      8,
+      76,
+      0
+    ],
+    [
+      28,
+      1,
+      2,
+      9,
+      76,
+      0
+    ],
+    [
+      29,
+      1,
+      2,
+      10,
+      76,
+      0
+    ],
+    [
+      30,
+      1,
+      2,
+      11,
+      76,
+      0
+    ],
+    [
+      31,
+      1,
+      2,
+      12,
+      76,
+      0
+    ],
+    [
+      32,
+      1,
+      2,
+      13,
+      76,
+      0
+    ],
+    [
+      33,
+      1,
+      2,
+      14,
+      76,
+      0
+    ],
+    [
+      34,
+      1,
+      2,
+      15,
+      76,
+      0
+    ],
+    [
+      35,
+      1,
+      2,
+      16,
+      76,
+      0
+    ],
+    [
+      36,
+      1,
+      2,
+      17,
+      76,
+      0
+    ],
+    [
+      37,
+      1,
+      2,
+      18,
+      76,
+      0
+    ],
+    [
+      38,
+      1,
+      2,
+      19,
+      76,
+      0
+    ],
+    [
+      39,
+      1,
+      2,
+      20,
+      76,
+      0
+    ],
+    [
+      40,
+      1,
+      2,
+      21,
+      76,
+      0
+    ],
+    [
+      41,
+      1,
+      2,
+      22,
+      76,
+      0
+    ],
+    [
+      42,
+      1,
+      2,
+      23,
+      76,
+      0
+    ],
+    [
+      43,
+      1,
+      3,
+      1,
+      76,
+      0
+    ],
+    [
+      44,
+      1,
+      3,
+      2,
+      76,
+      0
+    ],
+    [
+      45,
+      1,
+      3,
+      3,
+      76,
+      0
+    ],
+    [
+      46,
+      1,
+      3,
+      4,
+      76,
+      0
+    ],
+    [
+      47,
+      1,
+      3,
+      5,
+      76,
+      0
+    ],
+    [
+      48,
+      1,
+      3,
+      6,
+      76,
+      0
+    ],
+    [
+      49,
+      1,
+      3,
+      7,
+      76,
+      0
+    ],
+    [
+      50,
+      1,
+      3,
+      8,
+      76,
+      0
+    ],
+    [
+      51,
+      1,
+      3,
+      9,
+      76,
+      0
+    ],
+    [
+      52,
+      1,
+      3,
+      10,
+      76,
+      0
+    ],
+    [
+      53,
+      1,
+      3,
+      11,
+      76,
+      0
+    ],
+    [
+      54,
+      1,
+      3,
+      12,
+      76,
+      0
+    ],
+    [
+      55,
+      1,
+      3,
+      13,
+      76,
+      0
+    ],
+    [
+      56,
+      1,
+      3,
+      14,
+      76,
+      0
+    ],
+    [
+      57,
+      1,
+      3,
+      15,
+      76,
+      0
+    ],
+    [
+      58,
+      1,
+      3,
+      16,
+      76,
+      0
+    ],
+    [
+      59,
+      1,
+      3,
+      17,
+      76,
+      0
+    ],
+    [
+      60,
+      1,
+      3,
+      18,
+      76,
+      0
+    ],
+    [
+      61,
+      1,
+      3,
+      19,
+      76,
+      0
+    ],
+    [
+      62,
+      1,
+      3,
+      20,
+      76,
+      0
+    ],
+    [
+      63,
+      1,
+      3,
+      21,
+      76,
+      0
+    ],
+    [
+      64,
+      1,
+      3,
+      22,
+      76,
+      0
+    ],
+    [
+      65,
+      1,
+      3,
+      23,
+      76,
+      0
+    ],
+    [
+      66,
+      1,
+      3,
+      24,
+      76,
+      0
+    ],
+    [
+      67,
+      1,
+      3,
+      25,
+      76,
+      0
+    ],
+    [
+      68,
+      1,
+      3,
+      26,
+      76,
+      0
+    ],
+    [
+      69,
+      1,
+      3,
+      27,
+      76,
+      0
+    ],
+    [
+      70,
+      1,
+      3,
+      28,
+      76,
+      0
+    ],
+    [
+      71,
+      1,
+      3,
+      29,
+      76,
+      0
+    ],
+    [
+      72,
+      1,
+      3,
+      30,
+      76,
+      0
+    ],
+    [
+      73,
+      1,
+      3,
+      31,
+      76,
+      0
+    ],
+    [
+      74,
+      1,
+      4,
+      1,
+      76,
+      0
+    ],
+    [
+      75,
+      1,
+      4,
+      2,
+      76,
+      0
+    ],
+    [
+      76,
+      1,
+      4,
+      3,
+      76,
+      0
+    ],
+    [
+      77,
+      1,
+      4,
+      4,
+      76,
+      0
+    ],
+    [
+      78,
+      1,
+      4,
+      5,
+      76,
+      0
+    ],
+    [
+      79,
+      1,
+      4,
+      6,
+      76,
+      0
+    ],
+    [
+      80,
+      1,
+      4,
+      7,
+      76,
+      0
+    ],
+    [
+      81,
+      1,
+      4,
+      8,
+      76,
+      0
+    ],
+    [
+      82,
+      1,
+      4,
+      9,
+      76,
+      0
+    ],
+    [
+      83,
+      1,
+      4,
+      10,
+      76,
+      0
+    ],
+    [
+      84,
+      1,
+      4,
+      11,
+      76,
+      0
+    ],
+    [
+      85,
+      1,
+      4,
+      12,
+      76,
+      0
+    ],
+    [
+      86,
+      1,
+      4,
+      13,
+      76,
+      0
+    ],
+    [
+      87,
+      1,
+      4,
+      14,
+      76,
+      0
+    ],
+    [
+      88,
+      1,
+      4,
+      15,
+      76,
+      0
+    ],
+    [
+      89,
+      1,
+      4,
+      16,
+      76,
+      0
+    ],
+    [
+      90,
+      1,
+      4,
+      17,
+      76,
+      0
+    ],
+    [
+      91,
+      1,
+      4,
+      18,
+      76,
+      0
+    ],
+    [
+      92,
+      1,
+      4,
+      19,
+      76,
+      0
+    ],
+    [
+      93,
+      1,
+      4,
+      20,
+      76,
+      0
+    ],
+    [
+      94,
+      1,
+      4,
+      21,
+      76,
+      0
+    ],
+    [
+      95,
+      1,
+      4,
+      22,
+      76,
+      0
+    ],
+    [
+      96,
+      1,
+      4,
+      23,
+      76,
+      0
+    ],
+    [
+      97,
+      1,
+      4,
+      24,
+      76,
+      0
+    ],
+    [
+      98,
+      1,
+      4,
+      25,
+      76,
+      0
+    ],
+    [
+      99,
+      1,
+      4,
+      26,
+      76,
+      0
+    ],
+    [
+      100,
+      1,
+      4,
+      27,
+      76,
+      0
+    ],
+    [
+      101,
+      1,
+      4,
+      28,
+      76,
+      0
+    ],
+    [
+      102,
+      1,
+      4,
+      29,
+      76,
+      0
+    ],
+    [
+      103,
+      1,
+      4,
+      30,
+      76,
+      0
+    ],
+    [
+      104,
+      1,
+      4,
+      31,
+      76,
+      0
+    ],
+    [
+      105,
+      1,
+      4,
+      32,
+      76,
+      0
+    ],
+    [
+      106,
+      1,
+      4,
+      33,
+      76,
+      0
+    ],
+    [
+      107,
+      1,
+      4,
+      34,
+      76,
+      0
+    ],
+    [
+      108,
+      1,
+      4,
+      35,
+      76,
+      0
+    ],
+    [
+      109,
+      1,
+      4,
+      36,
+      76,
+      0
+    ],
+    [
+      110,
+      1,
+      4,
+      37,
+      76,
+      0
+    ],
+    [
+      111,
+      1,
+      4,
+      38,
+      76,
+      0
+    ],
+    [
+      112,
+      1,
+      4,
+      39,
+      76,
+      0
+    ],
+    [
+      113,
+      1,
+      4,
+      40,
+      76,
+      0
+    ],
+    [
+      114,
+      1,
+      4,
+      41,
+      76,
+      0
+    ],
+    [
+      115,
+      1,
+      4,
+      42,
+      76,
+      0
+    ],
+    [
+      116,
+      1,
+      4,
+      43,
+      76,
+      0
+    ],
+    [
+      117,
+      1,
+      4,
+      44,
+      76,
+      0
+    ],
+    [
+      118,
+      1,
+      4,
+      45,
+      76,
+      0
+    ],
+    [
+      119,
+      1,
+      4,
+      46,
+      76,
+      0
+    ],
+    [
+      120,
+      1,
+      4,
+      47,
+      76,
+      0
+    ],
+    [
+      121,
+      1,
+      4,
+      48,
+      76,
+      0
+    ],
+    [
+      122,
+      1,
+      4,
+      49,
+      76,
+      0
+    ],
+    [
+      123,
+      1,
+      4,
+      50,
+      76,
+      0
+    ],
+    [
+      124,
+      1,
+      4,
+      51,
+      76,
+      0
+    ],
+    [
+      125,
+      1,
+      4,
+      52,
+      76,
+      0
+    ],
+    [
+      126,
+      1,
+      4,
+      53,
+      76,
+      0
+    ],
+    [
+      127,
+      1,
+      4,
+      54,
+      76,
+      0
+    ],
+    [
+      128,
+      1,
+      4,
+      55,
+      76,
+      0
+    ],
+    [
+      129,
+      1,
+      4,
+      56,
+      76,
+      0
+    ],
+    [
+      130,
+      1,
+      4,
+      57,
+      76,
+      0
+    ],
+    [
+      131,
+      1,
+      4,
+      58,
+      76,
+      0
+    ],
+    [
+      132,
+      1,
+      4,
+      59,
+      76,
+      0
+    ],
+    [
+      133,
+      1,
+      4,
+      60,
+      76,
+      0
+    ],
+    [
+      134,
+      1,
+      4,
+      61,
+      76,
+      0
+    ],
+    [
+      135,
+      1,
+      4,
+      62,
+      76,
+      0
+    ],
+    [
+      136,
+      1,
+      4,
+      63,
+      76,
+      0
+    ],
+    [
+      137,
+      1,
+      4,
+      64,
+      76,
+      0
+    ],
+    [
+      138,
+      1,
+      4,
+      65,
+      76,
+      0
+    ],
+    [
+      139,
+      1,
+      4,
+      66,
+      76,
+      0
+    ],
+    [
+      140,
+      1,
+      4,
+      67,
+      76,
+      0
+    ],
+    [
+      141,
+      1,
+      4,
+      68,
+      76,
+      0
+    ],
+    [
+      142,
+      1,
+      4,
+      69,
+      76,
+      0
+    ],
+    [
+      143,
+      1,
+      4,
+      70,
+      76,
+      0
+    ],
+    [
+      144,
+      1,
+      4,
+      71,
+      76,
+      0
+    ],
+    [
+      145,
+      1,
+      4,
+      72,
+      76,
+      0
+    ],
+    [
+      146,
+      1,
+      4,
+      73,
+      76,
+      0
+    ],
+    [
+      147,
+      1,
+      4,
+      74,
+      76,
+      0
+    ],
+    [
+      148,
+      1,
+      4,
+      75,
+      76,
+      0
+    ],
+    [
+      149,
+      1,
+      4,
+      76,
+      76,
+      0
+    ],
+    [
+      150,
+      1,
+      4,
+      77,
+      76,
+      0
+    ],
+    [
+      151,
+      1,
+      4,
+      78,
+      76,
+      0
+    ],
+    [
+      152,
+      1,
+      4,
+      79,
+      76,
+      0
+    ],
+    [
+      153,
+      1,
+      4,
+      80,
+      76,
+      0
+    ],
+    [
+      154,
+      1,
+      4,
+      81,
+      76,
+      0
+    ],
+    [
+      155,
+      1,
+      4,
+      82,
+      76,
+      0
+    ],
+    [
+      156,
+      1,
+      4,
+      83,
+      76,
+      0
+    ],
+    [
+      157,
+      1,
+      4,
+      84,
+      76,
+      0
+    ],
+    [
+      158,
+      1,
+      4,
+      85,
+      76,
+      0
+    ],
+    [
+      159,
+      1,
+      4,
+      86,
+      76,
+      0
+    ],
+    [
+      160,
+      1,
+      4,
+      87,
+      76,
+      0
+    ],
+    [
+      161,
+      1,
+      4,
+      88,
+      76,
+      0
+    ],
+    [
+      162,
+      1,
+      4,
+      89,
+      76,
+      0
+    ],
+    [
+      163,
+      1,
+      4,
+      90,
+      76,
+      0
+    ],
+    [
+      164,
+      1,
+      4,
+      91,
+      76,
+      0
+    ],
+    [
+      165,
+      1,
+      4,
+      92,
+      76,
+      0
+    ],
+    [
+      166,
+      1,
+      4,
+      93,
+      76,
+      0
+    ],
+    [
+      167,
+      1,
+      4,
+      94,
+      76,
+      0
+    ],
+    [
+      168,
+      1,
+      4,
+      95,
+      76,
+      0
+    ],
+    [
+      169,
+      1,
+      4,
+      96,
+      76,
+      0
+    ],
+    [
+      170,
+      1,
+      4,
+      97,
+      76,
+      0
+    ],
+    [
+      171,
+      1,
+      4,
+      98,
+      76,
+      0
+    ],
+    [
+      172,
+      1,
+      4,
+      99,
+      76,
+      0
+    ],
+    [
+      173,
+      1,
+      4,
+      100,
+      76,
+      0
+    ],
+    [
+      174,
+      1,
+      4,
+      101,
+      76,
+      0
+    ],
+    [
+      175,
+      0,
+      5,
+      0,
+      76,
+      0
+    ]
+  ],
+  "knowledgeMaskBeforePayout": 0,
+  "payoutVisits": [
+    [
+      7,
+      75,
+      0,
+      false
+    ],
+    [
+      8,
+      74,
+      0,
+      false
+    ],
+    [
+      9,
+      73,
+      0,
+      false
+    ],
+    [
+      10,
+      72,
+      0,
+      false
+    ],
+    [
+      11,
+      71,
+      0,
+      false
+    ],
+    [
+      12,
+      70,
+      0,
+      false
+    ],
+    [
+      13,
+      69,
+      0,
+      false
+    ],
+    [
+      14,
+      68,
+      0,
+      false
+    ],
+    [
+      15,
+      67,
+      0,
+      false
+    ],
+    [
+      16,
+      66,
+      0,
+      false
+    ],
+    [
+      17,
+      65,
+      0,
+      false
+    ],
+    [
+      18,
+      64,
+      0,
+      false
+    ],
+    [
+      19,
+      63,
+      0,
+      false
+    ],
+    [
+      20,
+      62,
+      0,
+      false
+    ],
+    [
+      21,
+      61,
+      0,
+      false
+    ],
+    [
+      22,
+      60,
+      0,
+      false
+    ],
+    [
+      23,
+      59,
+      0,
+      false
+    ],
+    [
+      24,
+      58,
+      0,
+      false
+    ],
+    [
+      25,
+      57,
+      0,
+      false
+    ],
+    [
+      26,
+      56,
+      0,
+      false
+    ],
+    [
+      27,
+      55,
+      0,
+      false
+    ],
+    [
+      28,
+      54,
+      0,
+      false
+    ],
+    [
+      29,
+      53,
+      0,
+      false
+    ],
+    [
+      30,
+      52,
+      0,
+      false
+    ],
+    [
+      31,
+      51,
+      0,
+      false
+    ],
+    [
+      32,
+      50,
+      0,
+      false
+    ],
+    [
+      33,
+      49,
+      0,
+      false
+    ],
+    [
+      34,
+      48,
+      0,
+      false
+    ],
+    [
+      35,
+      47,
+      0,
+      false
+    ],
+    [
+      36,
+      46,
+      0,
+      false
+    ],
+    [
+      37,
+      45,
+      0,
+      false
+    ],
+    [
+      38,
+      44,
+      0,
+      false
+    ],
+    [
+      39,
+      43,
+      0,
+      false
+    ],
+    [
+      40,
+      42,
+      0,
+      false
+    ],
+    [
+      41,
+      41,
+      0,
+      false
+    ],
+    [
+      42,
+      40,
+      0,
+      false
+    ],
+    [
+      43,
+      39,
+      0,
+      false
+    ],
+    [
+      44,
+      38,
+      0,
+      false
+    ],
+    [
+      45,
+      37,
+      0,
+      false
+    ],
+    [
+      46,
+      36,
+      0,
+      false
+    ],
+    [
+      47,
+      35,
+      0,
+      false
+    ],
+    [
+      48,
+      34,
+      0,
+      false
+    ],
+    [
+      49,
+      33,
+      0,
+      false
+    ],
+    [
+      50,
+      32,
+      0,
+      false
+    ],
+    [
+      51,
+      31,
+      0,
+      false
+    ],
+    [
+      52,
+      30,
+      0,
+      false
+    ],
+    [
+      53,
+      29,
+      0,
+      false
+    ],
+    [
+      54,
+      28,
+      0,
+      false
+    ],
+    [
+      55,
+      27,
+      0,
+      false
+    ],
+    [
+      56,
+      26,
+      0,
+      false
+    ],
+    [
+      57,
+      25,
+      0,
+      false
+    ],
+    [
+      58,
+      24,
+      0,
+      false
+    ],
+    [
+      59,
+      23,
+      0,
+      false
+    ],
+    [
+      60,
+      22,
+      0,
+      false
+    ],
+    [
+      61,
+      21,
+      0,
+      false
+    ],
+    [
+      62,
+      20,
+      0,
+      false
+    ],
+    [
+      63,
+      19,
+      0,
+      false
+    ],
+    [
+      64,
+      18,
+      0,
+      false
+    ],
+    [
+      65,
+      17,
+      0,
+      false
+    ],
+    [
+      66,
+      16,
+      0,
+      false
+    ],
+    [
+      67,
+      15,
+      0,
+      false
+    ],
+    [
+      68,
+      14,
+      0,
+      false
+    ],
+    [
+      69,
+      13,
+      0,
+      false
+    ],
+    [
+      70,
+      12,
+      0,
+      false
+    ],
+    [
+      71,
+      11,
+      0,
+      false
+    ],
+    [
+      72,
+      10,
+      0,
+      false
+    ],
+    [
+      73,
+      9,
+      0,
+      false
+    ],
+    [
+      74,
+      8,
+      0,
+      false
+    ],
+    [
+      75,
+      7,
+      0,
+      false
+    ],
+    [
+      76,
+      6,
+      0,
+      false
+    ],
+    [
+      77,
+      5,
+      0,
+      false
+    ],
+    [
+      78,
+      4,
+      0,
+      false
+    ],
+    [
+      79,
+      3,
+      0,
+      false
+    ],
+    [
+      80,
+      2,
+      0,
+      false
+    ],
+    [
+      81,
+      1,
+      0,
+      false
+    ],
+    [
+      82,
+      0,
+      32,
+      true
+    ]
+  ],
+  "browserDirectFrameIndices": {
+    "1077": {
+      "source": 65,
+      "nativeWidth": 21,
+      "nativeHeight": 30,
+      "layers": [
+        {
+          "piece": 0,
+          "x": -10,
+          "y": 0,
+          "flags": 516
+        },
+        {
+          "piece": 32,
+          "x": -8,
+          "y": -22,
+          "flags": 0
+        },
+        {
+          "piece": 57,
+          "x": -1,
+          "y": -11,
+          "flags": 528
+        },
+        {
+          "piece": 82,
+          "x": -1,
+          "y": -11,
+          "flags": 1040
+        },
+        {
+          "piece": 107,
+          "x": -1,
+          "y": -11,
+          "flags": 1552
+        },
+        {
+          "piece": 1641,
+          "x": -8,
+          "y": -22,
+          "flags": 1056
+        },
+        {
+          "piece": 1251,
+          "x": -6,
+          "y": -24,
+          "flags": 544
+        },
+        {
+          "piece": 1924,
+          "x": -6,
+          "y": -23,
+          "flags": 1568
+        },
+        {
+          "piece": 2174,
+          "x": -5,
+          "y": -26,
+          "flags": 560
+        }
+      ]
+    },
+    "1079": {
+      "source": 67,
+      "nativeWidth": 21,
+      "nativeHeight": 30,
+      "layers": [
+        {
+          "piece": 0,
+          "x": -10,
+          "y": 0,
+          "flags": 516
+        },
+        {
+          "piece": 34,
+          "x": -6,
+          "y": -22,
+          "flags": 0
+        },
+        {
+          "piece": 59,
+          "x": -5,
+          "y": -16,
+          "flags": 528
+        },
+        {
+          "piece": 84,
+          "x": -4,
+          "y": -15,
+          "flags": 1040
+        },
+        {
+          "piece": 109,
+          "x": -3,
+          "y": -15,
+          "flags": 1552
+        },
+        {
+          "piece": 1643,
+          "x": -7,
+          "y": -22,
+          "flags": 1056
+        },
+        {
+          "piece": 1253,
+          "x": -7,
+          "y": -24,
+          "flags": 544
+        },
+        {
+          "piece": 1926,
+          "x": -8,
+          "y": -23,
+          "flags": 1568
+        },
+        {
+          "piece": 2176,
+          "x": -6,
+          "y": -26,
+          "flags": 560
+        }
+      ]
+    },
+    "1417": {
+      "source": 727,
+      "nativeWidth": 24,
+      "nativeHeight": 22,
+      "layers": [
+        {
+          "piece": 743,
+          "x": -11,
+          "y": -16,
+          "flags": 0
+        },
+        {
+          "piece": 763,
+          "x": -8,
+          "y": -16,
+          "flags": 528
+        },
+        {
+          "piece": 783,
+          "x": -8,
+          "y": -16,
+          "flags": 1040
+        },
+        {
+          "piece": 803,
+          "x": -8,
+          "y": -16,
+          "flags": 1552
+        },
+        {
+          "piece": 1442,
+          "x": -6,
+          "y": -17,
+          "flags": 544
+        },
+        {
+          "piece": 2100,
+          "x": 0,
+          "y": -16,
+          "flags": 1568
+        },
+        {
+          "piece": 1812,
+          "x": 0,
+          "y": -22,
+          "flags": 1056
+        },
+        {
+          "piece": 2349,
+          "x": 1,
+          "y": -19,
+          "flags": 560
+        }
+      ]
+    }
+  },
+  "sourceSha256": {
+    "scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+    "app/original-units.json": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+    "app/vault-appearance.ts": "34bf5d59eaaf88287c17735f1296c141089424470e5c0e268ab7344e38825ce1",
+    "app/world-effects.ts": "bc9fc8379255bbf9b40f5da1ce8afc7458802c345aca6686c0cd87225400a202",
+    "app/world-turn.ts": "d322af8560cce8e0e3bc1188ebab7676c1cce3b904563c380562f4c1a932fea8",
+    "app/scene-effects.ts": "e2ae823c9de71b2a6eb3a798eb8e1fc439ec9baac8710105dca952277059ef18",
+    "app/scene-entities.ts": "e794cf9faf7ea78f0228e398432b467cddf3a933c7218939ee9792acd764b009",
+    "app/world-initialization.ts": "ec47f644ef30f616ce9d8b61144ad7d075748faa440961bf9d56fbec21034d58"
+  },
+  "status": "passed",
+  "events": [
+    [
+      "source allocation before authored settings",
+      "entered",
+      "0x4ed8a0",
+      6
+    ],
+    [
+      "source allocation before authored settings",
+      "entered",
+      "0x4ed580",
+      33619968
+    ],
+    [
+      "source allocation before authored settings",
+      "entered",
+      "0x4faaf0",
+      33619968
+    ],
+    [
+      "source allocation before authored settings",
+      "entered",
+      "0x404540",
+      33555200
+    ],
+    [
+      "authored post processing allocates knowledge marker",
+      "entered",
+      "0x4ed8a0",
+      6
+    ],
+    [
+      "authored post processing allocates knowledge marker",
+      "entered",
+      "0x4ed580",
+      33620224
+    ],
+    [
+      "authored post processing allocates knowledge marker",
+      "entered",
+      "0x404540",
+      33555200
+    ],
+    [
+      "marker native class dispatch",
+      "entered",
+      "0x4ed700",
+      33620224
+    ],
+    [
+      "marker native class dispatch",
+      "entered",
+      "0x4fc570",
+      33620224
+    ],
+    [
+      "marker native class dispatch",
+      "entered",
+      "0x404540",
+      33555200
+    ],
+    [
+      "marker native class dispatch",
+      "entered",
+      "0x4ed8a0",
+      6
+    ],
+    [
+      "marker native class dispatch",
+      "entered",
+      "0x4ed580",
+      33620480
+    ],
+    [
+      "world sprite HFX resource selector slice",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "world sprite HFX resource selector slice",
+      "entered",
+      "0x5162e0",
+      310
+    ],
+    [
+      "world sprite HFX resource selector slice",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "world sprite HFX resource selector slice",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "world sprite HFX resource selector slice",
+      "entered",
+      "0x5162e0",
+      280
+    ],
+    [
+      "world sprite HFX resource selector slice",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "entered",
+      "0x4ed8a0",
+      4294901766
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "entered",
+      "0x4ed580",
+      33620736
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "entered",
+      "0x4faaf0",
+      33620736
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "entered",
+      "0x404540",
+      33555200
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "entered",
+      "0x4ede10",
+      33620736
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "entered",
+      "0x404540",
+      33555200
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "entered",
+      "0x4ed8a0",
+      6
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "entered",
+      "0x4ed580",
+      33620992
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "sound",
+      112
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "entered",
+      "0x4ef180",
+      33619968
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "entered",
+      "0x4ef180",
+      33620224
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "entered",
+      "0x4ef180",
+      33554944
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x481550",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x4819c0",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "sound",
+      204
+    ],
+    [
+      "six gift visits and building handoff",
+      "sound",
+      203
+    ],
+    [
+      "six gift visits and building handoff",
+      "building-hud-slot",
+      4
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x481490",
+      33620736
+    ],
+    [
+      "six gift visits and building handoff",
+      "entered",
+      "0x4edcf0",
+      33620992
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "sound",
+      206
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "sound",
+      205
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x472da0",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "geometry-dispatch",
+      "0x473210",
+      95,
+      147,
+      131
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      8908800
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x5162e0",
+      4294967262
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x516270",
+      9913696
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "entered",
+      "0x4839f0",
+      9989024
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ed700",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4facf0",
+      33620736
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "knowledge-notification",
+      0,
+      11,
+      5
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "entered",
+      "0x4ef180",
+      33620736
+    ]
+  ],
+  "calls": [
+    [
+      "source allocation before authored settings",
+      "0x4ed8a0",
+      [
+        6,
+        2,
+        255,
+        33554688
+      ]
+    ],
+    [
+      "authored post processing allocates knowledge marker",
+      "0x485b00",
+      [
+        33619968,
+        33554432
+      ]
+    ],
+    [
+      "marker native class dispatch",
+      "0x4ed700",
+      [
+        33620224
+      ]
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "native glow cursor and pause ownership",
+      "0x4ee770",
+      []
+    ],
+    [
+      "world sprite HFX resource selector slice",
+      "0x516270",
+      [
+        9913696
+      ]
+    ],
+    [
+      "world sprite HFX resource selector slice",
+      "0x516270",
+      [
+        9913696
+      ]
+    ],
+    [
+      "trigger authored settings",
+      "0x485b00",
+      [
+        33554944,
+        33554432
+      ]
+    ],
+    [
+      "startup linked source conversion",
+      "0x4edf50",
+      []
+    ],
+    [
+      "forced trigger completion with actual clone allocation",
+      "0x4fb270",
+      [
+        33554944
+      ]
+    ],
+    [
+      "six gift visits and building handoff",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "six gift visits and building handoff",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "six gift visits and building handoff",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "six gift visits and building handoff",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "six gift visits and building handoff",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "six gift visits and building handoff",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "actual scheduler to geometry consumer boundary",
+      "0x480ea0",
+      [
+        0
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ],
+    [
+      "remaining object countdown and native knowledge grant",
+      "0x4ed700",
+      [
+        33620736
+      ]
+    ]
+  ],
+  "probeSha256": "48ca690c78230073b0f1a69ee203d252ed768bb2efcc11ba44ff434b067b530d",
+  "seconds": 1.1511458910099464
+}
