@@ -1,0 +1,27 @@
+{
+  "method": "gzip, mtime=0; decompression reproduces the source-bound original bytes exactly",
+  "files": {
+    "receipt.json": {
+      "rawBytes": 999611,
+      "rawSha256": "0ee0a07fe7fe94df3a0a842cc6920ffa3d4ab2711ee655807cc7a826c26d2061",
+      "published": "receipt.json.gz",
+      "compressedBytes": 46217,
+      "compressedSha256": "d389d523cf8a94d166227057a0717cec5d23a43d1266b2037d66117bda8c42c3"
+    },
+    "controlled-fixture/evidence.json": {
+      "rawBytes": 846769,
+      "rawSha256": "e7a19409e231fae2bfc2495b95c211d16c1296db56abf5925724540a5129bd8b",
+      "published": "controlled-fixture/evidence.json.gz",
+      "compressedBytes": 43149,
+      "compressedSha256": "c6021899c8cede8e832aab1881ec28c95ee96c38bd092d425cbd93cd0a1506d3"
+    },
+    "controlled-fixture/native-model-input.json": {
+      "rawBytes": 227657,
+      "rawSha256": "5c5231cfc3eb445d7bdf500f37b519f0331cb6cebb1fe62937dfe891710d5489",
+      "published": "controlled-fixture/native-model-input.json.gz",
+      "compressedBytes": 19915,
+      "compressedSha256": "bfa4d866b0169fe37e0e5e8dc60c20f6306f0ab908cf63f7c0d7560005342b65"
+    }
+  },
+  "screenshotSelection": "Three representative own-game images retained: controlled phases0/9 and exhausted body. All18 raw phase assertions remain in the compressed evidence. Additional local screenshots remain with the original run."
+}

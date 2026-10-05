@@ -31,15 +31,36 @@ are marked not-run, not relabelled as passes.
 The [ordinary model45 comparison and screenshots](https://github.com/JohnDeved/populous-new-dawn/blob/ae22173886532b9a2a05b4822b54651d078425bd/stone-head-pr218/README.md)
 are published separately. The unchanged predicate exposes the old baseline gate
 defect and passes the candidate with public 1×/2× speed and pause controls.
-Controlled session95765 failed before any phase assertion: its20-second input-mask
-wait expired while the failure screenshot still showed Skip introduction. The old
-one-shot visibility check supports an asynchronous startup race. All raw failure
-bytes and the unchanged source/input/outer-cleanup attribution are retained in
-[the controlled packet](controlled/controlled-d97c370-terminal.json).
-A one-line public-button readiness wait is independently
-[accepted in a separate proof wrapper](reviews/controlled-startup-repair-review.md),
-with no application change or timeout increase; it has not been run. PR218 remains
-a draft until the controlled fixture succeeds and final review accepts the evidence. The migrated maintained fixture retains every18-phase geometry and
+Controlled session23013 now passes all18 geometry/phase rows with18 distinct
+pixel checksums, reward/refill, a fresh-page checkpoint, exhausted decorative-body
+advancement and pause/cache assertions. [Terminal result and exact hashes](controlled/controlled-startup-d97c370-terminal.json)
+record exit0, unchanged d97/source inputs, actual outer browser/server cleanup and
+both same-launcher IPv4/IPv6 port4318 closures. The harness owns actual cleanup;
+the inner browserCloseDelegated marker receives no cleanup credit.
+
+The earlier session95765 remains a failed startup attempt with zero phase assertions.
+Its20-second input-mask wait expired while the screenshot retained Skip introduction.
+The [reviewed startup-only repair](reviews/controlled-startup-repair-review.md)
+adds a public-button visibility wait before the existing click, with no application
+change, timeout increase or assertion relaxation. The successful retry uses that
+exact wrapper; both original/generated source and all replacements are retained.
+
+[Final finite check dispositions](validation/final-planner-dispositions-d97c370.json)
+add the rendered results without upgrading unrelated mapped probes. [Final independent review](reviews/final-review-d97c370.md) accepts this exact
+head and all bounded results; no further fixes or gate runs are requested.
+
+The successful raw outer receipt, fixture evidence and native-model input are
+stored as deterministic .json.gz files in controlled/controlled-startup-d97c370-render.
+Decompress with gzip to recover their exact original bytes; [the input manifest](controlled/controlled-startup-d97c370-render/compressed-inputs.json)
+records original and compressed hashes. Three representative screenshots are included.
+
+![Controlled model45 phase0](controlled/controlled-startup-d97c370-render/controlled-fixture/idle-phase-0.png)
+
+![Controlled model45 phase9](controlled/controlled-startup-d97c370-render/controlled-fixture/idle-phase-9.png)
+
+![Exhausted trigger retains the decorative body](controlled/controlled-startup-d97c370-render/controlled-fixture/exhausted-trigger-retained-stone.png)
+
+The migrated maintained fixture retains every18-phase geometry and
 worship/restore/exhaustion assertion but uses controlled1x/logical-turn steps;
 it is not ordinary gameplay. Original per-visit geometry results retain their
 old source labels. No original wall-clock/full-family parity is implied.

@@ -1,0 +1,27 @@
+{
+  "source": "d97c370da3e996e00130610df97d10b827ab5c4b",
+  "decision": "Final independent ACCEPT at exact d97; finite native/source/standard/ordinary/controlled scope only.",
+  "freshStandard": [
+    "full-check-d97c370.json",
+    "build-d97c370.json",
+    "format-final.json",
+    "eslint-final.json",
+    "lifecycle-d97c370.json"
+  ],
+  "qualityDebt": [
+    "oxlint-final.json",
+    "oxlint-base-3cc.json",
+    "fallow-d97c370.json"
+  ],
+  "reviewedCarry": [
+    "final-focused.json",
+    "native-adapter-779755e.json",
+    "native-adapter-result-779755e.json"
+  ],
+  "planner": "final-planner-dispositions-d97c370.json",
+  "controlledSuccess": "controlled-startup-d97c370-terminal.json",
+  "controlledFailure": "controlled-d97c370-terminal.json",
+  "ordinary": "https://github.com/JohnDeved/populous-new-dawn/blob/ae22173886532b9a2a05b4822b54651d078425bd/stone-head-pr218/README.md",
+  "priorProof": "https://github.com/JohnDeved/populous-new-dawn/blob/e76091766dd2db9d21b6d28ba2075f77a99284df/stone-head-logical-gate/README.md",
+  "finalReview": "../reviews/final-review-d97c370.md"
+}

@@ -1,0 +1,134 @@
+{
+  "recordedAt": "2026-10-05T18:42:05.040008+00:00",
+  "originalSession": 23013,
+  "originalExit": 0,
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+    "commit": "d97c370da3e996e00130610df97d10b827ab5c4b",
+    "tree": "5228a79f26b90d3daeffe65498c01ada077ba132",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "6c7bf7c03d3ff530ddf3f7bddcfbac3af36f1b6d221f6313e9e8f2cad897c9f0"
+  },
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+    "commit": "d97c370da3e996e00130610df97d10b827ab5c4b",
+    "tree": "5228a79f26b90d3daeffe65498c01ada077ba132",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "6c7bf7c03d3ff530ddf3f7bddcfbac3af36f1b6d221f6313e9e8f2cad897c9f0"
+  },
+  "inputStable": true,
+  "actualOuterStatus": "passed",
+  "actualBrowserCleanupVerified": true,
+  "sameLauncherPortsClosed": [
+    {
+      "host": "127.0.0.1",
+      "port": 4318,
+      "code": 111,
+      "closed": true
+    },
+    {
+      "host": "::1",
+      "port": 4318,
+      "code": 111,
+      "closed": true
+    }
+  ],
+  "resourcesReleased": true,
+  "dependencyInode": 925605,
+  "summary": {
+    "status": "PASS_STONE_HEAD_45_LIVE_PENDING_ORIGINAL_SUBMISSION_COMPARISON",
+    "stages": [
+      {
+        "idleFrames": 18,
+        "withoutFollowers": true,
+        "distinctPixelChecksums": 18,
+        "geometryAndMaterialReused": true
+      },
+      {
+        "newPageCheckpointPhasePreserved": true
+      }
+    ],
+    "exhaustion": {
+      "active": false,
+      "remaining": 0,
+      "uses": 3,
+      "priorUses": 2,
+      "visits": 183,
+      "turnBefore": 516,
+      "turnAfter": 517,
+      "visible": true,
+      "phaseBefore": 4,
+      "phaseAfter": 5,
+      "fixture": "Onlyremaininguses=1; existing normal worship/target/reward handlers complete the next use."
+    },
+    "pause": {
+      "unchanged": true,
+      "positionVersionStable": true,
+      "costs": [
+        12.5,
+        13.400000005960464,
+        12.200000002980232,
+        11,
+        10.299999997019768,
+        9.299999997019768,
+        10.900000005960464,
+        8.799999997019768,
+        9.799999997019768,
+        9.900000005960464,
+        15.200000002980232,
+        19
+      ],
+      "limit": "12paused draw calls only; not actualRAF/pairedFPS/nonregression certification."
+    }
+  },
+  "phaseRows": 18,
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x358c001d4400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x358c001d4400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x358c001d4400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x358c001d4400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found."
+  ],
+  "innerCloseLabel": "browserCloseDelegated does not establish closure; actual outer harness/launcher cleanup does.",
+  "earlierAttempt": "95765 remains failed at startup; no evidence relabelled.",
+  "limits": [
+    "Headless rendering is not display-refresh performance evidence.",
+    "Geometry phases use a controlled1x logical-turn driver; the obsolete speed0/presentation-only owner is not retained.",
+    "Enemy-AI/Blue-only fixture reuses the existing worship regression; normal command/path/admission/reward handlers run.",
+    "Last-use exhaustion changes remaining-use count only, explicitly labelled; it does not force work or reward.",
+    "No nativeGPU/frame-rate/audio193 or other Stone Head-family acceptance."
+  ],
+  "sha256": {
+    "controlled-startup-d97c370-command.json": "6bd2a8e96840e4305babeaa62cb21c29ad7f8f5ae787342d4cceb8a0334d35e5",
+    "controlled-startup-d97c370-launcher-receipt.json": "eed5031fae82f7cabe67b961614e42e172007593dc049b1683e5192d3a1192b2",
+    "controlled-startup-d97c370-render/receipt.json": "0ee0a07fe7fe94df3a0a842cc6920ffa3d4ab2711ee655807cc7a826c26d2061",
+    "controlled-startup-d97c370-render/controlled-fixture/evidence.json": "e7a19409e231fae2bfc2495b95c211d16c1296db56abf5925724540a5129bd8b",
+    "controlled-startup-d97c370-render/adapter-source.json": "5a60d0b960d717936417b1c2e592252e7b1382e51ba668dfa1e2d5e8d32308a2",
+    "controlled-startup-d97c370-render/maintained-stone-checker.mjs": "fc9da77b0cfe9cad9dccf4d35e7c1727a5939697bc1cc61b6b5a3b4fa9e2b4bb"
+  }
+}

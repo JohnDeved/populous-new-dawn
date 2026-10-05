@@ -1,0 +1,134 @@
+{
+  "checkerSha256": "fc9dcc933a7903f1dad4c4180580e06c02904c0ad6498620788add4e456e43fd",
+  "adapterSha256": "fc9da77b0cfe9cad9dccf4d35e7c1727a5939697bc1cc61b6b5a3b4fa9e2b4bb",
+  "wrapperSha256": "2e805eb1c5b94be413e072fce69e125d20ddc43b57f2944356f5bc42aaf04eff",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+    "commit": "d97c370da3e996e00130610df97d10b827ab5c4b",
+    "tree": "5228a79f26b90d3daeffe65498c01ada077ba132",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "6c7bf7c03d3ff530ddf3f7bddcfbac3af36f1b6d221f6313e9e8f2cad897c9f0"
+  },
+  "replacements": [
+    {
+      "before": "import { chromium } from '@playwright/test'",
+      "after": "// Browser supplied by owned sandboxed harness.",
+      "matches": 1
+    },
+    {
+      "before": "assert.ok(process.env.PND_QUEUE_JOB_ID && process.env.PND_QUEUE_DEADLINE, 'Use the canonical shared queue')",
+      "after": "assert.ok(globalThis.stoneHeadControlledQA?.signal, 'Use the owned local-render harness')",
+      "matches": 1
+    },
+    {
+      "before": "const argument = process.argv.indexOf('--output-dir')\nassert.ok(argument >= 0 && process.argv[argument + 1])\nconst output = resolve(process.argv[argument + 1]), url = process.env.POPULOUS_URL ?? 'http://127.0.0.1:4318'",
+      "after": "const output = \"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/controlled-startup-d97c370-render/controlled-fixture\", url = globalThis.stoneHeadControlledQA.url",
+      "matches": 1
+    },
+    {
+      "before": "jobId: process.env.PND_QUEUE_JOB_ID",
+      "after": "executionOwner: 'local-render-harness'",
+      "matches": 1
+    },
+    {
+      "before": "const browser = await chromium.launch({ headless: true })",
+      "after": "const browser = { version: () => globalThis.stoneHeadControlledQA.browser.version(), close: async () => {} }",
+      "matches": 1
+    },
+    {
+      "before": "const timer = setTimeout(() => { report.expired = true; void browser.close() }, Math.max(1, Math.min(300000, Date.parse(process.env.PND_QUEUE_DEADLINE) - Date.now() - 30000)))",
+      "after": "const timer = undefined // The outer harness owns the deadline and cleanup.",
+      "matches": 1
+    },
+    {
+      "before": "process.on('SIGTERM', () => void browser.close())",
+      "after": "// Outer harness owns SIGTERM.",
+      "matches": 1
+    },
+    {
+      "before": "process.on('SIGINT', () => void browser.close())",
+      "after": "// Outer harness owns SIGINT.",
+      "matches": 1
+    },
+    {
+      "before": "const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 })",
+      "after": "const context = globalThis.stoneHeadControlledQA.context",
+      "matches": 1
+    },
+    {
+      "before": "const page = await context.newPage()",
+      "after": "const page = globalThis.stoneHeadControlledQA.page",
+      "matches": 1
+    },
+    {
+      "before": "report.browserClosed=true",
+      "after": "report.browserCloseDelegated=true",
+      "matches": 1
+    },
+    {
+      "before": "output,browserClosed:true",
+      "after": "output,browserCloseDelegated:true",
+      "matches": 1
+    },
+    {
+      "before": "  if (await skip.isVisible()) await skip.click()",
+      "after": "  await skip.waitFor({ state: 'visible' }) // Same public readiness contract as the maintained harness; existing20s default.\n  if (await skip.isVisible()) await skip.click()",
+      "matches": 1
+    }
+  ],
+  "relativeImports": [
+    {
+      "before": "from './browser-game.mjs'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/scripts/browser-game.mjs\"",
+      "specifier": "./browser-game.mjs",
+      "matches": 1
+    },
+    {
+      "before": "from './browser-game.mjs'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/scripts/browser-game.mjs\"",
+      "specifier": "./browser-game.mjs",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/projection.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/projection.ts\"",
+      "specifier": "../app/projection.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/model-lighting.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/model-lighting.ts\"",
+      "specifier": "../app/model-lighting.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/painter-order.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/painter-order.ts\"",
+      "specifier": "../app/painter-order.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/model-faces.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/model-faces.ts\"",
+      "specifier": "../app/model-faces.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/stone-head-animation.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/stone-head-animation.ts\"",
+      "specifier": "../app/stone-head-animation.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/original-models.json'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/original-models.json\"",
+      "specifier": "../app/original-models.json",
+      "matches": 1
+    }
+  ],
+  "deadlineOwner": "The actual outer harness AbortSignal owns the deadline; no invented legacy deadline/timer.",
+  "cleanupOwner": "The final outer receipt owns actual browser/server cleanup. Inner browserCloseDelegated records only the no-op delegated close request.",
+  "scope": "Only launch/queue/path/context scaffolding adapted; all maintained18-phase geometry, reward, restore, exhaustion and pause assertions retained. Controlled logical stepping/camera/Blue-only/final-use fixtures; not ordinary gameplay. Browser/server/deadline/cleanup are owned by the outer sandboxed harness."
+}

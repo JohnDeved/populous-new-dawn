@@ -7,8 +7,8 @@ Current delivery index (historical receipts below retain their original source l
   is published separately.
 - [Original model45 body gate proof](stone-head-logical-gate/README.md) is accepted.
 - [PR218 source and standard gates](candidate-pr218/README.md) are accepted at
-  d97c370. Its first controlled rendered attempt failed during startup and is
-  retained; controlled acceptance and the final decision remain pending.
+  d97c370. Ordinary and controlled evidence now pass; final independent review
+  accepts the bounded repair. The first controlled startup failure stays retained.
 
 This evidence accompanies [issue214](https://github.com/JohnDeved/populous-new-dawn/issues/214).
 It observes the reported/deployed-source commit

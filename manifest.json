@@ -1,9 +1,9 @@
 {
-  "scope": "Issue214 source-bound baselines, accepted native person/Splash and model45 gate research, PR217 final acceptance, and PR218 source/standard gates with its preserved failed controlled startup. Ordinary captures are separate. No game binaries/resources, profiles, credentials or dependencies.",
+  "scope": "Issue214 source-bound baselines, accepted native person/Splash and model45 gate research, PR217 and PR218 final bounded acceptance. Ordinary captures are separate. Failed attempts and baseline quality debt are retained. No game binaries/resources, profiles, credentials or dependencies.",
   "files": {
     "README.md": {
-      "bytes": 8725,
-      "sha256": "e4f9bb7bfcd528bbc38cb9856bba1592467b60f712daad32d2991c1d994770e4"
+      "bytes": 8736,
+      "sha256": "faa808c135ae3a13e01a4631dde3e63aec7a822b7226e9bf00e8803943c2ce0f"
     },
     "adoption/identity.json": {
       "bytes": 4470,
@@ -410,8 +410,8 @@
       "sha256": "2214225576712dd14bd1adb89262a10df2e9f2bea09f98606f924c8dcd9602c7"
     },
     "candidate-pr218/README.md": {
-      "bytes": 3612,
-      "sha256": "a6fe761855417b492eb0dc117db0ada48b3c97a6d836e47993c70ee3fb267d53"
+      "bytes": 5015,
+      "sha256": "000df8a5f5f23bf2574ff4ad76eb74dbcbc6f4c62133843f6b7737f94af9c763"
     },
     "candidate-pr218/candidate.patch": {
       "bytes": 20402,
@@ -485,6 +485,66 @@
       "bytes": 5419,
       "sha256": "32c0d66d88ef24cfdebd386a24713729aa0a1b0d9b9dba033146a593b1329219"
     },
+    "candidate-pr218/controlled/controlled-startup-d97c370-command.json": {
+      "bytes": 312845,
+      "sha256": "6bd2a8e96840e4305babeaa62cb21c29ad7f8f5ae787342d4cceb8a0334d35e5"
+    },
+    "candidate-pr218/controlled/controlled-startup-d97c370-command.json.artifacts/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "candidate-pr218/controlled/controlled-startup-d97c370-command.json.artifacts/stdout.log": {
+      "bytes": 271178,
+      "sha256": "40053da00bdf4f02cc73566ee172a13813c108cd32c59108b100b2992c4556ec"
+    },
+    "candidate-pr218/controlled/controlled-startup-d97c370-launcher-receipt.json": {
+      "bytes": 6569,
+      "sha256": "eed5031fae82f7cabe67b961614e42e172007593dc049b1683e5192d3a1192b2"
+    },
+    "candidate-pr218/controlled/controlled-startup-d97c370-render/adapter-source.json": {
+      "bytes": 6361,
+      "sha256": "5a60d0b960d717936417b1c2e592252e7b1382e51ba668dfa1e2d5e8d32308a2"
+    },
+    "candidate-pr218/controlled/controlled-startup-d97c370-render/compressed-inputs.json": {
+      "bytes": 1367,
+      "sha256": "1542733a67e3620279c0af0ca42e274be49221e17d243d5feae01b0dae3c612a"
+    },
+    "candidate-pr218/controlled/controlled-startup-d97c370-render/controlled-fixture/evidence.json.gz": {
+      "bytes": 43149,
+      "sha256": "c6021899c8cede8e832aab1881ec28c95ee96c38bd092d425cbd93cd0a1506d3"
+    },
+    "candidate-pr218/controlled/controlled-startup-d97c370-render/controlled-fixture/exhausted-trigger-retained-stone.png": {
+      "bytes": 1818616,
+      "sha256": "da6b5503156d27911896cf9c42e8e7b898f189d44d4f6e55f25cda2052d24f62"
+    },
+    "candidate-pr218/controlled/controlled-startup-d97c370-render/controlled-fixture/idle-phase-0.png": {
+      "bytes": 1821519,
+      "sha256": "0cfd8c398a4a68906b90f3785e65f6e697980fabe389945a5454342f29100583"
+    },
+    "candidate-pr218/controlled/controlled-startup-d97c370-render/controlled-fixture/idle-phase-9.png": {
+      "bytes": 1821047,
+      "sha256": "15d63a28b4067bc7e7d73debe746b843feede720146c8894ea8f84bd208c6c22"
+    },
+    "candidate-pr218/controlled/controlled-startup-d97c370-render/controlled-fixture/native-model-input.json.gz": {
+      "bytes": 19915,
+      "sha256": "bfa4d866b0169fe37e0e5e8dc60c20f6306f0ab908cf63f7c0d7560005342b65"
+    },
+    "candidate-pr218/controlled/controlled-startup-d97c370-render/maintained-stone-checker.mjs": {
+      "bytes": 16831,
+      "sha256": "fc9da77b0cfe9cad9dccf4d35e7c1727a5939697bc1cc61b6b5a3b4fa9e2b4bb"
+    },
+    "candidate-pr218/controlled/controlled-startup-d97c370-render/receipt.json.gz": {
+      "bytes": 46217,
+      "sha256": "d389d523cf8a94d166227057a0717cec5d23a43d1266b2037d66117bda8c42c3"
+    },
+    "candidate-pr218/controlled/controlled-startup-d97c370-render/server.log": {
+      "bytes": 2999,
+      "sha256": "fab0409b13c0e44ef1ad3b1162a9bf3bfe0e116b300634d25fe987143af074df"
+    },
+    "candidate-pr218/controlled/controlled-startup-d97c370-terminal.json": {
+      "bytes": 6596,
+      "sha256": "1883c783873f73f2b94f96c8f4634573fdb5f9917718670178ef14ea2ca62c91"
+    },
     "candidate-pr218/controlled/controlled-startup-source-check.json": {
       "bytes": 6060,
       "sha256": "721795551921771cc368a4b07b5d6d956845af572bdaa2a09a06329c05a901a7"
@@ -496,6 +556,10 @@
     "candidate-pr218/controlled/launch-controlled-d97c370.py": {
       "bytes": 5032,
       "sha256": "572d834acbbe7efe65463456096b308032f75c639124731d81f3522fd2847c57"
+    },
+    "candidate-pr218/controlled/launch-controlled-startup-d97c370.py": {
+      "bytes": 5080,
+      "sha256": "74fd4da63f625bdf124170d92a2aae20558098eb4407aaf64877a1b195dad829"
     },
     "candidate-pr218/reviews/controlled-adapter-preflight.json": {
       "bytes": 1641,
@@ -512,6 +576,14 @@
     "candidate-pr218/reviews/controlled-startup-repair-review.md": {
       "bytes": 3072,
       "sha256": "d42e7d400c7e42c08e822fa51e8f8e5eceb8dc74b391e281d8368b8b000db751"
+    },
+    "candidate-pr218/reviews/final-review-d97c370.json": {
+      "bytes": 10019,
+      "sha256": "dad36db85b3952e07f5e7dbecc108f20f42a83c80d0724305cb63a7bfe19ce99"
+    },
+    "candidate-pr218/reviews/final-review-d97c370.md": {
+      "bytes": 8213,
+      "sha256": "9d343d195ef7c6469280e93ec4f71d6be40abc854c0d7f05119e7f72c5ab93ed"
     },
     "candidate-pr218/reviews/source-review-d97c370.json": {
       "bytes": 3195,
@@ -609,9 +681,17 @@
       "bytes": 3736,
       "sha256": "a877ab7a2b07810fab4b2a89ca66e4c5354cb88336a64f8e55fa091d8819e061"
     },
+    "candidate-pr218/validation/final-index-d97c370.json": {
+      "bytes": 1090,
+      "sha256": "1d0276c1d100c6b90aedf42edf1503a3de796faa5fc4ac13a093e0c7c4584545"
+    },
     "candidate-pr218/validation/final-package-terminal-d97c370.json": {
       "bytes": 3563,
       "sha256": "fdf94aa207a77bedfe1c406af6ef8af6399482f5d445b942fb89a401bf58bd78"
+    },
+    "candidate-pr218/validation/final-planner-dispositions-d97c370.json": {
+      "bytes": 50187,
+      "sha256": "dec731f34e883657eb567a4627904d43b05b13ebe28d6b0c9e76625307343e8f"
     },
     "candidate-pr218/validation/first-after.json": {
       "bytes": 2797,
