@@ -1,0 +1,211 @@
+{
+  "candidate": "c5a5042fa4db91ba782a889dc4c4c309462726e1",
+  "base": "48112b16dafea0cee29ec4b3af8301f79cd9ef5a",
+  "before": "89c9629991489fd1ce6dc52e938d1cec346bfead",
+  "driverSha256": "9629f540bee99fd923b4169885a11891293c825f95eb58ecd60fadac74e19399",
+  "limits": "Controlled-clock rendered integration: held RAF and explicit normal fixed ticks; bypasses advanceGame cadence and scene turn observers. Public UI commands/casts; controlled camera. No HP/stock/mana/actor/terrain/death/outcome injection. Native raster, real-clock mission journey, hardware performance, full Shaman lifecycle and issue30 completion remain separate.",
+  "pair": {
+    "baselineStatus": "passed expected cached-height mismatch",
+    "candidateStatus": "passed alignment",
+    "identicalActionsBeforeControllerDeathAndRng": true,
+    "beforePngsIdentical": true,
+    "phase1GroundSamples": [
+      171,
+      172,
+      173
+    ],
+    "baselineMismatchCount": 54,
+    "candidateMismatchCount": 0,
+    "baselineAfter": {
+      "turn": 1243,
+      "id": 6306,
+      "x": -0.05859375,
+      "z": -21.76953125,
+      "phase": 1,
+      "ground": 173,
+      "stored": 171,
+      "height": 171,
+      "meshY": 1.3359375,
+      "visible": true,
+      "source": 352,
+      "remaining": 399,
+      "randomState": 135167565,
+      "cosmeticRandom": {
+        "randomState": 2446072912
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridge": []
+    },
+    "candidateAfter": {
+      "turn": 1243,
+      "id": 6306,
+      "x": -0.05859375,
+      "z": -21.76953125,
+      "phase": 1,
+      "ground": 173,
+      "stored": 173,
+      "height": 173,
+      "meshY": 1.3515625,
+      "visible": true,
+      "source": 352,
+      "remaining": 399,
+      "randomState": 135167565,
+      "cosmeticRandom": {
+        "randomState": 2446072912
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridge": []
+    },
+    "baselineFramebufferPixels": 197,
+    "candidateFramebufferPixels": 211,
+    "afterPixelDifference": {
+      "bounds": [
+        805,
+        383,
+        836,
+        393
+      ],
+      "pixels": 124,
+      "dimensions": [
+        1440,
+        1000
+      ]
+    }
+  },
+  "files": {
+    "before.png": "42f44db135e805a494c627fce8b5fe82cd5d42661be76abcca1c39b89ae6c4d3",
+    "after.png": "392e06ea40b5a12be08d151ee4c321033e62c9691962e5104d75b7a85b399d8f",
+    "before-receipt.json": "b226dfe2983be5c26398e3bae2fa9555414c0586d2568d57d64ea6c99fa4882c",
+    "before-command.json": "b165f5afaeb6df580f45e5fd5356ab668b283537092ab14dcbf9a4ec2f99fa9b",
+    "after-receipt.json": "2fef14ae6b0047a917b98da8e152dde56865e8867a7e2d27535776bdf09aecc6",
+    "after-command.json": "d486d81765524ee350f3935239b2a76b2c997ca45626c779a0ad3cbf04fbfeed"
+  },
+  "sourceCorrespondence": {
+    "head": "c5a5042fa4db91ba782a889dc4c4c309462726e1",
+    "acceptedMain": "48112b16dafea0cee29ec4b3af8301f79cd9ef5a",
+    "beforeSource": "89c9629991489fd1ce6dc52e938d1cec346bfead",
+    "mainIdentity": [
+      {
+        "path": "app",
+        "before": "0593d298544c95050caf7614aa40c92807528279",
+        "current": "0593d298544c95050caf7614aa40c92807528279"
+      },
+      {
+        "path": "tests",
+        "before": "7f8d6f477395ec11f8bda85f42fdaafb93d18115",
+        "current": "7f8d6f477395ec11f8bda85f42fdaafb93d18115"
+      },
+      {
+        "path": "package.json",
+        "before": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1",
+        "current": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1"
+      },
+      {
+        "path": "package-lock.json",
+        "before": "97cd9ade0190af96e99b389c93d4ee20bef5065c",
+        "current": "97cd9ade0190af96e99b389c93d4ee20bef5065c"
+      },
+      {
+        "path": "engineering",
+        "before": "c91478091147a61eae2a6ed01c7781d7224496a2",
+        "current": "c91478091147a61eae2a6ed01c7781d7224496a2"
+      },
+      {
+        "path": "tsconfig.json",
+        "before": "76481812c25a92deb97ca2e5ad91f120751a848e",
+        "current": "76481812c25a92deb97ca2e5ad91f120751a848e"
+      },
+      {
+        "path": "scripts",
+        "before": "ac8b15f66d8f2e0326be648bbf646f637d611e6c",
+        "current": "ac8b15f66d8f2e0326be648bbf646f637d611e6c"
+      }
+    ],
+    "gateIdentity": [
+      {
+        "path": "app",
+        "check": "d2ec72f104c68c4b600df3c6b1573e16eea27a75",
+        "build": "d2ec72f104c68c4b600df3c6b1573e16eea27a75",
+        "current": "d2ec72f104c68c4b600df3c6b1573e16eea27a75"
+      },
+      {
+        "path": "tests",
+        "check": "811c3ef84d81cdbde88ee7cc07ae862e0dda029f",
+        "build": "811c3ef84d81cdbde88ee7cc07ae862e0dda029f",
+        "current": "811c3ef84d81cdbde88ee7cc07ae862e0dda029f"
+      },
+      {
+        "path": "package.json",
+        "check": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1",
+        "build": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1",
+        "current": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1"
+      },
+      {
+        "path": "package-lock.json",
+        "check": "97cd9ade0190af96e99b389c93d4ee20bef5065c",
+        "build": "97cd9ade0190af96e99b389c93d4ee20bef5065c",
+        "current": "97cd9ade0190af96e99b389c93d4ee20bef5065c"
+      },
+      {
+        "path": "engineering",
+        "check": "946682e78808b2d365ff21efc9abbe7f58ef48ef",
+        "build": "946682e78808b2d365ff21efc9abbe7f58ef48ef",
+        "current": "946682e78808b2d365ff21efc9abbe7f58ef48ef"
+      },
+      {
+        "path": "tsconfig.json",
+        "check": "76481812c25a92deb97ca2e5ad91f120751a848e",
+        "build": "76481812c25a92deb97ca2e5ad91f120751a848e",
+        "current": "76481812c25a92deb97ca2e5ad91f120751a848e"
+      }
+    ],
+    "changedScriptsSinceGates": "scripts/check-browser-shaman-death-ground.mjs",
+    "cameraRepairCommit": "4ee097112499c226a946c994b6ebbf37f9fe357c",
+    "cameraRepair": "diff --git a/scripts/check-browser-shaman-death-ground.mjs b/scripts/check-browser-shaman-death-ground.mjs\nindex 7eb1915..42e57f0 100644\n--- a/scripts/check-browser-shaman-death-ground.mjs\n+++ b/scripts/check-browser-shaman-death-ground.mjs\n@@ -60,9 +60,11 @@ export default async function checkShamanDeathGround({ page, url, root, output,\n       const p = kind === 'head' ? w.shrines.find(h => h.id === target)\n         : kind === 'person' ? w.units.find(u => u.id === target) : target\n       if (!p) throw Error(`Missing ${kind} target ${target}`)\n-      s.focus(p)\n-      for (let i = 0; i < 120; i++) s.updateCameraMotion(1 / 24)\n-      s.animate(s.previous)\n+      if (kind !== 'spell') {\n+        s.focus(p)\n+        for (let i = 0; i < 120; i++) s.updateCameraMotion(1 / 24)\n+        s.animate(s.previous)\n+      }\n       const bounds = s.renderer.domElement.getBoundingClientRect(), screen = s.screen(p)\n       const center = { x: bounds.left + (screen.x + 1) * bounds.width / 2,\n         y: bounds.top + (1 - screen.y) * bounds.height / 2 }\n@@ -96,6 +98,9 @@ export default async function checkShamanDeathGround({ page, url, root, output,\n       const w = window.testScene.world\n       return { turn: w.turn, nextId: w.nextId }\n     })\n+    if (kind === 'spell')\n+      assert.equal(await page.evaluate(() => window.testScene.world.mode), 'bridge',\n+        'Public Land Bridge selection must remain active before the ground click')\n     await page.mouse.click(hit.x, hit.y)\n     let acceptance\n     if (before) {\n@@ -165,6 +170,13 @@ export default async function checkShamanDeathGround({ page, url, root, output,\n       return { stock: w.shots.bridge, turn: w.turn, nextId: w.nextId,\n         hp: w.units.find(u => u.team === 'blue' && u.kind === 'shaman')?.hp }\n     }, point)\n+    // Camera focus cancels the current mode, so finish it before public selection.\n+    await page.evaluate(point => {\n+      const s = window.testScene\n+      s.focus(point)\n+      for (let i = 0; i < 120; i++) s.updateCameraMotion(1 / 24)\n+      s.animate(s.previous)\n+    }, point)\n     await page.getByRole('button', { name: /^Land Bridge, \\d+ shots$/ }).click()\n     await clickTarget('spell', point)\n     const cast = await page.evaluate(() => {",
+    "driverSha256": "9629f540bee99fd923b4169885a11891293c825f95eb58ecd60fadac74e19399",
+    "baselineFailure": "../shaman-death-ground-before-89/work/orchestration/shaman-death-ground-20261005/baseline-render2.json",
+    "pending": "Camera-before-mode source repair independently accepted; both repaired-driver rows passed. Final evidence review pending."
+  },
+  "gates": {
+    "5eee5db-check.json": {
+      "status": "passed",
+      "sha256": "394253a80fdf7e80b1326dc9b67b0d2a8ebaeb04d2f4606667cb09d18cd60e6a"
+    },
+    "56ff9cc-build.json": {
+      "status": "passed",
+      "sha256": "cf0b06ca38dbbd9fa61b3d8aaef67f4eb8ed221804156ecd6319096cf55730ff"
+    },
+    "c5a5042-driver-eslint.json": {
+      "status": "passed",
+      "sha256": "ab29a776e654dd2cbad657c85debf7e492116d521a647dce07ee396e3d5bf97d"
+    },
+    "b9494b0-focused.json": {
+      "status": "passed",
+      "sha256": "7a00fb5dce47d607aebe2106c19a23f58e3e1ef634b8a02c19eb1e79d104658f"
+    },
+    "b9494b0-native-ground.json": {
+      "status": "passed",
+      "sha256": "278ef42e7242fdd994d5bef5e39ad9faede6a8db5fae4e4bd9922b9d308c6469"
+    },
+    "b9494b0-native-vfx.json": {
+      "status": "passed",
+      "sha256": "72262a6cc4b7e06da25fb52a07f1325fb26325bc16be2b17756ac07e23feda36"
+    },
+    "b9494b0-native-reincarnation.json": {
+      "status": "passed",
+      "sha256": "760b9971b8f165693822da37c00ad25ae09b0c977934693256bfd9809e47b3cc"
+    }
+  },
+  "preservedFailureSummary": [
+    "First aggregate:1067/1068 tests; repaired expected check IDs and bounded context metadata.",
+    "Baseline attempt1: startup direct Mission1 selector absent in Campaign worlds; no mission entry.",
+    "Baseline attempt2: camera focus cleared Bridge mode after public selection; first stock-spend assertion failed before death/height witness."
+  ],
+  "terminalResources": "Both sessions exited0; port4371 closed after each; source fingerprints unchanged; shared lane released.",
+  "originalSessions": {
+    "baseline": 42130,
+    "candidate": 37344
+  }
+}

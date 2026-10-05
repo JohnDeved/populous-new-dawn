@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "24cd95d6-57bd-44a0-8f29-3b7be766912c",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "89c9629991489fd1ce6dc52e938d1cec346bfead",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "../shaman-death-ground/scripts/check-browser-shaman-death-ground.mjs": "9629f540bee99fd923b4169885a11891293c825f95eb58ecd60fadac74e19399",
+      "scripts/local-render/harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  },
+  "command": [
+    "timeout",
+    "--kill-after=5s",
+    "180s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--scenario",
+    "../shaman-death-ground/scripts/check-browser-shaman-death-ground.mjs",
+    "--mission",
+    "1",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--output",
+    "work/orchestration/shaman-death-ground-20261005/baseline-render3",
+    "--port",
+    "4371",
+    "--timeout",
+    "150000"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/shaman-death-ground-before-89",
+  "startedAt": "2026-10-05T09:14:05.290Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/shaman-death-ground-before-89/work/orchestration/shaman-death-ground-20261005/baseline-render3.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/shaman-death-ground-before-89/work/orchestration/shaman-death-ground-20261005/baseline-render3.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T09:14:56.362Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"source\":{\"root\":\"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/shaman-death-ground-before-89\",\"commit\":\"89c9629991489fd1ce6dc52e938d1cec346bfead\",\"tree\":\"5c6e719eb56fed67eb2714d115ba250fb8d59a20\",\"status\":\"\",\"trackedDiffSha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"untracked\":[],\"fingerprint\":\"c179a3d6ce004c5ab5985d2338414cfda6a3672525953d727b81af0195b76706\"},\"result\":{\"source\":\"89c9629991489fd1ce6dc52e938d1cec346bfead\",\"baseline\":true,\"clock\":\"Held requestAnimationFrame and explicit ordinary tick(world, 1/12); camera preparation consumes no simulation turns.\",\"limits\":\"Controlled-clock rendered integration through public UI commands. Manual tick bypasses advanceGame presentation cadence and scene turn observers. This is not a real-clock ordinary journey, native raster comparison or hardware performance result.\",\"actions\":[{\"kind\":\"head\",\"target\":29,\"hit\":{\"x\":820,\"y\":411.25,\"target\":29},\"acceptance\":{\"turn\":107,\"lastOrderTurn\":107,\"work\":29,\"target\":null,\"selected\":true,\"order\":{\"model\":27,\"a\":29,\"b\":0,\"references\":1},\"markerIds\":[]}},{\"kind\":\"ground\",\"target\":{\"x\":0,\"z\":20},\"hit\":{\"x\":820,\"y\":414,\"point\":{\"x\":0,\"z\":20},\"snapped\":{\"x\":1,\"z\":19},\"turn\":698},\"acceptance\":{\"turn\":698,\"lastOrderTurn\":698,\"work\":null,\"target\":null,\"selected\":true,\"order\":{\"model\":3,\"a\":2048,\"b\":58368,\"references\":1},\"markerIds\":[1199]}},{\"kind\":\"spell\",\"target\":{\"x\":0,\"z\":4},\"hit\":{\"x\":820,\"y\":412,\"point\":{\"x\":0,\"z\":4},\"snapped\":{\"x\":1,\"z\":3},\"turn\":726}},{\"cast\":{\"before\":{\"stock\":4,\"turn\":726,\"nextId\":1201,\"hp\":100},\"after\":{\"stock\":3,\"turn\":726,\"projectile\":{\"id\":1201,\"spell\":\"bridge\",\"target\":{\"x\":1,\"z\":3},\"caster\":30,\"phase\":\"windup\"}}}},{\"kind\":\"ground\",\"target\":{\"x\":1,\"z\":-3},\"hit\":{\"x\":820,\"y\":410.25,\"point\":{\"x\":0.975540556189685,\"z\":-3.0142769699075416},\"snapped\":{\"x\":1,\"z\":-3},\"turn\":826},\"acceptance\":{\"turn\":826,\"lastOrderTurn\":826,\"work\":null,\"target\":null,\"selected\":true,\"order\":{\"model\":3,\"a\":2298,\"b\":64260,\"references\":1},\"markerIds\":[3752]}},{\"kind\":\"ground\",\"target\":{\"x\":1,\"z\":-7},\"hit\":{\"x\":820,\"y\":413.625,\"point\":{\"x\":0.9883390095826599,\"z\":-7.017060478497228},\"snapped\":{\"x\":1,\"z\":-7},\"turn\":915},\"acceptance\":{\"turn\":915,\"lastOrderTurn\":915,\"work\":null,\"target\":null,\"selected\":true,\"order\":{\"model\":3,\"a\":2301,\"b\":65284,\"references\":1},\"markerIds\":[3756]}},{\"kind\":\"spell\",\"target\":{\"x\":1,\"z\":-21},\"hit\":{\"x\":820,\"y\":408.6875,\"point\":{\"x\":0.974453270238314,\"z\":-20.97917187764068},\"snapped\":{\"x\":1,\"z\":-21},\"turn\":933}},{\"cast\":{\"before\":{\"stock\":3,\"turn\":933,\"nextId\":3757,\"hp\":100},\"after\":{\"stock\":2,\"turn\":933,\"projectile\":{\"id\":3757,\"spell\":\"bridge\",\"target\":{\"x\":1,\"z\":-21},\"caster\":30,\"phase\":\"windup\"}}}},{\"kind\":\"person\",\"target\":33,\"hit\":{\"x\":820,\"y\":355.25,\"target\":33},\"acceptance\":{\"turn\":1033,\"lastOrderTurn\":1033,\"work\":null,\"target\":33,\"selected\":true,\"markerIds\":[]}},{\"kind\":\"spell\",\"target\":{\"x\":1,\"z\":-29},\"hit\":{\"x\":820,\"y\":351.8125,\"point\":{\"x\":0.9504607618712271,\"z\":-28.97487820625696},\"snapped\":{\"x\":1,\"z\":-29},\"turn\":1137}},{\"cast\":{\"before\":{\"stock\":2,\"turn\":1137,\"nextId\":5805,\"hp\":36.2},\"after\":{\"stock\":1,\"turn\":1137,\"projectile\":{\"id\":5805,\"spell\":\"bridge\",\"target\":{\"x\":1,\"z\":-29},\"caster\":30,\"phase\":\"windup\"}}}},{\"kind\":\"person\",\"target\":33,\"hit\":{\"x\":816,\"y\":389.1875,\"target\":33},\"acceptance\":{\"turn\":1145,\"lastOrderTurn\":1145,\"work\":null,\"target\":33,\"selected\":true,\"markerIds\":[]}}],\"startup\":{\"ready\":true,\"turn\":107,\"inputMask\":0,\"selected\":[30],\"levelStartPhase\":4,\"shaman\":{\"id\":30,\"hp\":100,\"canOrder\":true,\"selectable\":true,\"state\":19,\"flags2\":131072,\"flags4\":536871168,\"commandStatus\":0},\"level\":1},\"shaman\":{\"id\":30,\"hp\":100,\"turn\":107},\"acquired\":{\"goal\":\"stock\",\"turns\":591,\"turn\":698,\"status\":\"playing\",\"stock\":4,\"shaman\":{\"id\":30,\"x\":-5,\"z\":26.75,\"hp\":100,\"fighting\":false},\"bridges\":[]},\"shore\":{\"goal\":\"position\",\"turns\":28,\"turn\":726,\"status\":\"playing\",\"stock\":4,\"shaman\":{\"id\":30,\"x\":-0.33984375,\"z\":20.6953125,\"hp\":100,\"fighting\":false},\"bridges\":[]},\"injured\":{\"goal\":\"injured\",\"turns\":104,\"turn\":1137,\"status\":\"playing\",\"stock\":2,\"shaman\":{\"id\":30,\"x\":1,\"z\":-22.69921875,\"hp\":36.2,\"fighting\":true},\"bridges\":[]},\"deathCast\":{\"stock\":1,\"turn\":1137,\"projectile\":{\"id\":5805,\"spell\":\"bridge\",\"target\":{\"x\":1,\"z\":-29},\"caster\":30,\"phase\":\"windup\"}},\"controller\":{\"goal\":\"controller\",\"turns\":8,\"turn\":1145,\"status\":\"playing\",\"stock\":1,\"shaman\":{\"id\":30,\"x\":1,\"z\":-22.69921875,\"hp\":20.6,\"fighting\":true},\"bridges\":[{\"id\":5833,\"turn\":0}]},\"death\":{\"goal\":\"death\",\"turns\":30,\"turn\":1175,\"status\":\"playing\",\"stock\":1,\"body\":{\"id\":6306,\"x\":-0.05859375,\"z\":-21.76953125,\"phase\":0},\"bridges\":[{\"id\":5833,\"turn\":30}]},\"before\":{\"turn\":1179,\"id\":6306,\"x\":-0.05859375,\"z\":-21.76953125,\"phase\":1,\"ground\":171,\"stored\":171,\"height\":171,\"meshY\":1.3359375,\"visible\":true,\"source\":352,\"remaining\":463,\"randomState\":3302148860,\"cosmeticRandom\":{\"randomState\":1925697649},\"braves\":8,\"status\":\"playing\",\"bridge\":[{\"id\":5833,\"turn\":34}]},\"samples\":[{\"turn\":1180,\"ground\":171,\"stored\":171,\"height\":171},{\"turn\":1181,\"ground\":171,\"stored\":171,\"height\":171},{\"turn\":1182,\"ground\":171,\"stored\":171,\"height\":171},{\"turn\":1183,\"ground\":171,\"stored\":171,\"height\":171},{\"turn\":1184,\"ground\":171,\"stored\":171,\"height\":171},{\"turn\":1185,\"ground\":171,\"stored\":171,\"height\":171},{\"turn\":1186,\"ground\":171,\"stored\":171,\"height\":171},{\"turn\":1187,\"ground\":171,\"stored\":171,\"height\":171},{\"turn\":1188,\"ground\":171,\"stored\":171,\"height\":171},{\"turn\":1189,\"ground\":171,\"stored\":171,\"height\":171},{\"turn\":1190,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1191,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1192,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1193,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1194,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1195,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1196,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1197,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1198,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1199,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1200,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1201,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1202,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1203,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1204,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1205,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1206,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1207,\"ground\":172,\"stored\":171,\"height\":171},{\"turn\":1208,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1209,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1210,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1211,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1212,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1213,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1214,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1215,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1216,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1217,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1218,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1219,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1220,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1221,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1222,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1223,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1224,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1225,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1226,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1227,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1228,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1229,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1230,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1231,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1232,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1233,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1234,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1235,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1236,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1237,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1238,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1239,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1240,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1241,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1242,\"ground\":173,\"stored\":171,\"height\":171},{\"turn\":1243,\"ground\":173,\"stored\":171,\"height\":171}],\"after\":{\"turn\":1243,\"id\":6306,\"x\":-0.05859375,\"z\":-21.76953125,\"phase\":1,\"ground\":173,\"stored\":171,\"height\":171,\"meshY\":1.3359375,\"visible\":true,\"source\":352,\"remaining\":399,\"randomState\":135167565,\"cosmeticRandom\":{\"randomState\":2446072912},\"braves\":8,\"status\":\"playing\",\"bridge\":[]},\"pixels\":197,\"errors\":[]}}\n",
+  "stderr": "",
+  "stdoutSha256": "f971152c9bd8678c7efd255df629caac9fa58102098a84cc2aabee1c5f4da391",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "89c9629991489fd1ce6dc52e938d1cec346bfead",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "../shaman-death-ground/scripts/check-browser-shaman-death-ground.mjs": "9629f540bee99fd923b4169885a11891293c825f95eb58ecd60fadac74e19399",
+      "scripts/local-render/harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  }
+}

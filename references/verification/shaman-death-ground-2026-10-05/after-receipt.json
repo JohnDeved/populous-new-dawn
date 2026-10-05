@@ -1,0 +1,930 @@
+{
+  "startedAt": "2026-10-05T09:16:24.940Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/shaman-death-ground",
+    "commit": "c5a5042fa4db91ba782a889dc4c4c309462726e1",
+    "tree": "50a8a20de1b348124d7e060025022ce71ce7ecdb",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "33cf9cb28c32038cfecdc9d205b5ccc3aef102f41333afb3d00232502327f3c6"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x28dc0122c200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x28dc0122c200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x28dc0122c200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x28dc0122c200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "status": "passed",
+  "browserVersion": "154.0.8037.92",
+  "result": {
+    "source": "c5a5042fa4db91ba782a889dc4c4c309462726e1",
+    "baseline": false,
+    "clock": "Held requestAnimationFrame and explicit ordinary tick(world, 1/12); camera preparation consumes no simulation turns.",
+    "limits": "Controlled-clock rendered integration through public UI commands. Manual tick bypasses advanceGame presentation cadence and scene turn observers. This is not a real-clock ordinary journey, native raster comparison or hardware performance result.",
+    "actions": [
+      {
+        "kind": "head",
+        "target": 29,
+        "hit": {
+          "x": 820,
+          "y": 411.25,
+          "target": 29
+        },
+        "acceptance": {
+          "turn": 107,
+          "lastOrderTurn": 107,
+          "work": 29,
+          "target": null,
+          "selected": true,
+          "order": {
+            "model": 27,
+            "a": 29,
+            "b": 0,
+            "references": 1
+          },
+          "markerIds": []
+        }
+      },
+      {
+        "kind": "ground",
+        "target": {
+          "x": 0,
+          "z": 20
+        },
+        "hit": {
+          "x": 820,
+          "y": 414,
+          "point": {
+            "x": 0,
+            "z": 20
+          },
+          "snapped": {
+            "x": 1,
+            "z": 19
+          },
+          "turn": 698
+        },
+        "acceptance": {
+          "turn": 698,
+          "lastOrderTurn": 698,
+          "work": null,
+          "target": null,
+          "selected": true,
+          "order": {
+            "model": 3,
+            "a": 2048,
+            "b": 58368,
+            "references": 1
+          },
+          "markerIds": [
+            1199
+          ]
+        }
+      },
+      {
+        "kind": "spell",
+        "target": {
+          "x": 0,
+          "z": 4
+        },
+        "hit": {
+          "x": 820,
+          "y": 412,
+          "point": {
+            "x": 0,
+            "z": 4
+          },
+          "snapped": {
+            "x": 1,
+            "z": 3
+          },
+          "turn": 726
+        }
+      },
+      {
+        "cast": {
+          "before": {
+            "stock": 4,
+            "turn": 726,
+            "nextId": 1201,
+            "hp": 100
+          },
+          "after": {
+            "stock": 3,
+            "turn": 726,
+            "projectile": {
+              "id": 1201,
+              "spell": "bridge",
+              "target": {
+                "x": 1,
+                "z": 3
+              },
+              "caster": 30,
+              "phase": "windup"
+            }
+          }
+        }
+      },
+      {
+        "kind": "ground",
+        "target": {
+          "x": 1,
+          "z": -3
+        },
+        "hit": {
+          "x": 820,
+          "y": 410.25,
+          "point": {
+            "x": 0.975540556189685,
+            "z": -3.0142769699075416
+          },
+          "snapped": {
+            "x": 1,
+            "z": -3
+          },
+          "turn": 826
+        },
+        "acceptance": {
+          "turn": 826,
+          "lastOrderTurn": 826,
+          "work": null,
+          "target": null,
+          "selected": true,
+          "order": {
+            "model": 3,
+            "a": 2298,
+            "b": 64260,
+            "references": 1
+          },
+          "markerIds": [
+            3752
+          ]
+        }
+      },
+      {
+        "kind": "ground",
+        "target": {
+          "x": 1,
+          "z": -7
+        },
+        "hit": {
+          "x": 820,
+          "y": 413.625,
+          "point": {
+            "x": 0.9883390095826599,
+            "z": -7.017060478497228
+          },
+          "snapped": {
+            "x": 1,
+            "z": -7
+          },
+          "turn": 915
+        },
+        "acceptance": {
+          "turn": 915,
+          "lastOrderTurn": 915,
+          "work": null,
+          "target": null,
+          "selected": true,
+          "order": {
+            "model": 3,
+            "a": 2301,
+            "b": 65284,
+            "references": 1
+          },
+          "markerIds": [
+            3756
+          ]
+        }
+      },
+      {
+        "kind": "spell",
+        "target": {
+          "x": 1,
+          "z": -21
+        },
+        "hit": {
+          "x": 820,
+          "y": 408.6875,
+          "point": {
+            "x": 0.974453270238314,
+            "z": -20.97917187764068
+          },
+          "snapped": {
+            "x": 1,
+            "z": -21
+          },
+          "turn": 933
+        }
+      },
+      {
+        "cast": {
+          "before": {
+            "stock": 3,
+            "turn": 933,
+            "nextId": 3757,
+            "hp": 100
+          },
+          "after": {
+            "stock": 2,
+            "turn": 933,
+            "projectile": {
+              "id": 3757,
+              "spell": "bridge",
+              "target": {
+                "x": 1,
+                "z": -21
+              },
+              "caster": 30,
+              "phase": "windup"
+            }
+          }
+        }
+      },
+      {
+        "kind": "person",
+        "target": 33,
+        "hit": {
+          "x": 820,
+          "y": 355.25,
+          "target": 33
+        },
+        "acceptance": {
+          "turn": 1033,
+          "lastOrderTurn": 1033,
+          "work": null,
+          "target": 33,
+          "selected": true,
+          "markerIds": []
+        }
+      },
+      {
+        "kind": "spell",
+        "target": {
+          "x": 1,
+          "z": -29
+        },
+        "hit": {
+          "x": 820,
+          "y": 351.8125,
+          "point": {
+            "x": 0.9504607618712271,
+            "z": -28.97487820625696
+          },
+          "snapped": {
+            "x": 1,
+            "z": -29
+          },
+          "turn": 1137
+        }
+      },
+      {
+        "cast": {
+          "before": {
+            "stock": 2,
+            "turn": 1137,
+            "nextId": 5805,
+            "hp": 36.2
+          },
+          "after": {
+            "stock": 1,
+            "turn": 1137,
+            "projectile": {
+              "id": 5805,
+              "spell": "bridge",
+              "target": {
+                "x": 1,
+                "z": -29
+              },
+              "caster": 30,
+              "phase": "windup"
+            }
+          }
+        }
+      },
+      {
+        "kind": "person",
+        "target": 33,
+        "hit": {
+          "x": 816,
+          "y": 389.1875,
+          "target": 33
+        },
+        "acceptance": {
+          "turn": 1145,
+          "lastOrderTurn": 1145,
+          "work": null,
+          "target": 33,
+          "selected": true,
+          "markerIds": []
+        }
+      }
+    ],
+    "startup": {
+      "ready": true,
+      "turn": 107,
+      "inputMask": 0,
+      "selected": [
+        30
+      ],
+      "levelStartPhase": 4,
+      "shaman": {
+        "id": 30,
+        "hp": 100,
+        "canOrder": true,
+        "selectable": true,
+        "state": 19,
+        "flags2": 131072,
+        "flags4": 536871168,
+        "commandStatus": 0
+      },
+      "level": 1
+    },
+    "shaman": {
+      "id": 30,
+      "hp": 100,
+      "turn": 107
+    },
+    "acquired": {
+      "goal": "stock",
+      "turns": 591,
+      "turn": 698,
+      "status": "playing",
+      "stock": 4,
+      "shaman": {
+        "id": 30,
+        "x": -5,
+        "z": 26.75,
+        "hp": 100,
+        "fighting": false
+      },
+      "bridges": []
+    },
+    "shore": {
+      "goal": "position",
+      "turns": 28,
+      "turn": 726,
+      "status": "playing",
+      "stock": 4,
+      "shaman": {
+        "id": 30,
+        "x": -0.33984375,
+        "z": 20.6953125,
+        "hp": 100,
+        "fighting": false
+      },
+      "bridges": []
+    },
+    "injured": {
+      "goal": "injured",
+      "turns": 104,
+      "turn": 1137,
+      "status": "playing",
+      "stock": 2,
+      "shaman": {
+        "id": 30,
+        "x": 1,
+        "z": -22.69921875,
+        "hp": 36.2,
+        "fighting": true
+      },
+      "bridges": []
+    },
+    "deathCast": {
+      "stock": 1,
+      "turn": 1137,
+      "projectile": {
+        "id": 5805,
+        "spell": "bridge",
+        "target": {
+          "x": 1,
+          "z": -29
+        },
+        "caster": 30,
+        "phase": "windup"
+      }
+    },
+    "controller": {
+      "goal": "controller",
+      "turns": 8,
+      "turn": 1145,
+      "status": "playing",
+      "stock": 1,
+      "shaman": {
+        "id": 30,
+        "x": 1,
+        "z": -22.69921875,
+        "hp": 20.6,
+        "fighting": true
+      },
+      "bridges": [
+        {
+          "id": 5833,
+          "turn": 0
+        }
+      ]
+    },
+    "death": {
+      "goal": "death",
+      "turns": 30,
+      "turn": 1175,
+      "status": "playing",
+      "stock": 1,
+      "body": {
+        "id": 6306,
+        "x": -0.05859375,
+        "z": -21.76953125,
+        "phase": 0
+      },
+      "bridges": [
+        {
+          "id": 5833,
+          "turn": 30
+        }
+      ]
+    },
+    "before": {
+      "turn": 1179,
+      "id": 6306,
+      "x": -0.05859375,
+      "z": -21.76953125,
+      "phase": 1,
+      "ground": 171,
+      "stored": 171,
+      "height": 171,
+      "meshY": 1.3359375,
+      "visible": true,
+      "source": 352,
+      "remaining": 463,
+      "randomState": 3302148860,
+      "cosmeticRandom": {
+        "randomState": 1925697649
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridge": [
+        {
+          "id": 5833,
+          "turn": 34
+        }
+      ]
+    },
+    "samples": [
+      {
+        "turn": 1180,
+        "ground": 171,
+        "stored": 171,
+        "height": 171
+      },
+      {
+        "turn": 1181,
+        "ground": 171,
+        "stored": 171,
+        "height": 171
+      },
+      {
+        "turn": 1182,
+        "ground": 171,
+        "stored": 171,
+        "height": 171
+      },
+      {
+        "turn": 1183,
+        "ground": 171,
+        "stored": 171,
+        "height": 171
+      },
+      {
+        "turn": 1184,
+        "ground": 171,
+        "stored": 171,
+        "height": 171
+      },
+      {
+        "turn": 1185,
+        "ground": 171,
+        "stored": 171,
+        "height": 171
+      },
+      {
+        "turn": 1186,
+        "ground": 171,
+        "stored": 171,
+        "height": 171
+      },
+      {
+        "turn": 1187,
+        "ground": 171,
+        "stored": 171,
+        "height": 171
+      },
+      {
+        "turn": 1188,
+        "ground": 171,
+        "stored": 171,
+        "height": 171
+      },
+      {
+        "turn": 1189,
+        "ground": 171,
+        "stored": 171,
+        "height": 171
+      },
+      {
+        "turn": 1190,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1191,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1192,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1193,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1194,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1195,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1196,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1197,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1198,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1199,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1200,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1201,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1202,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1203,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1204,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1205,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1206,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1207,
+        "ground": 172,
+        "stored": 172,
+        "height": 172
+      },
+      {
+        "turn": 1208,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1209,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1210,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1211,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1212,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1213,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1214,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1215,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1216,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1217,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1218,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1219,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1220,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1221,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1222,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1223,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1224,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1225,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1226,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1227,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1228,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1229,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1230,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1231,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1232,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1233,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1234,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1235,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1236,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1237,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1238,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1239,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1240,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1241,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1242,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      },
+      {
+        "turn": 1243,
+        "ground": 173,
+        "stored": 173,
+        "height": 173
+      }
+    ],
+    "after": {
+      "turn": 1243,
+      "id": 6306,
+      "x": -0.05859375,
+      "z": -21.76953125,
+      "phase": 1,
+      "ground": 173,
+      "stored": 173,
+      "height": 173,
+      "meshY": 1.3515625,
+      "visible": true,
+      "source": 352,
+      "remaining": 399,
+      "randomState": 135167565,
+      "cosmeticRandom": {
+        "randomState": 2446072912
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridge": []
+    },
+    "pixels": 211,
+    "errors": []
+  },
+  "finishedAt": "2026-10-05T09:17:13.141Z",
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/shaman-death-ground",
+    "commit": "c5a5042fa4db91ba782a889dc4c4c309462726e1",
+    "tree": "50a8a20de1b348124d7e060025022ce71ce7ecdb",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "33cf9cb28c32038cfecdc9d205b5ccc3aef102f41333afb3d00232502327f3c6"
+  }
+}
