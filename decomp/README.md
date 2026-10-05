@@ -36,6 +36,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 ## Port index
 
 Recent reusable topic notes: [Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
+[Ordinary native Shaman Guard input and deferred ownership](research/shaman-guard-input.md),
 [Model45 Stone Head logical animation visits](research/stone-head-logical-visits.md),
 [Ordinary person and Splash logical animation visits](research/sprite-logical-visits.md),
 [Mission 3 Temple world HFX ownership and lifetime](research/vault-knowledge-world-assets.md),

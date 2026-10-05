@@ -41,13 +41,14 @@
       "callers": [
         "scripts/check-native-drag-selection.py",
         "scripts/check-native-construction-order.py",
+        "scripts/extract-shaman-guard-vectors.mjs",
         "scripts/check-native-terrain.py"
       ],
       "inputs": ["decomp/requirements.txt", "decomp/sections.tsv"],
       "outputs": [
         { "path": "tests/fixtures", "type": "directory", "tracked": true, "protected": true }
       ],
-      "recording": "Inspect each script, executable/data hashes, supplied consumers, and output path. Most writes require --record, but historical building-entry, movement-order, orders, and person-panic checks write fixtures unconditionally."
+      "recording": "Inspect each script, executable/data hashes, supplied consumers, and output path. Most writes require --record, but historical building-entry, movement-order, orders, and person-panic checks write fixtures unconditionally. Shaman Guard extraction writes only its named fixture from accepted hash-pinned raw results; --check is read-only."
     },
     {
       "id": "imported-runtime-data",
