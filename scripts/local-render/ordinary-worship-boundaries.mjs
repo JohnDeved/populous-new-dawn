@@ -1,0 +1,422 @@
+import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
+import { readFileSync, writeFileSync } from 'node:fs'
+import { resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
+import { checkpointObservation, readCommittedCheckpoint } from './checkpoint-observer.mjs'
+
+// One phase per invocation, one frozen scenario for both browser processes.
+// Save and Load use the SAME profile/origin/source/runtime, fresh output paths.
+// No automatic retries: a missed real tail or unavailable hidden state is unproved.
+const phases = new Set(['flight-save', 'flight-load', 'tail-save', 'tail-load', 'hidden'])
+
+async function installEarlyObserver(page) {
+  await page.evaluate(async () => {
+    const { GameScene } = await import('/app/scene.ts'), restorers = []
+    const evidence = window.worshipBoundaryEvidence = {
+      errors: [], replacement: null, start: null, cues: 0, visits: 0,
+      handoffs: [], draws: {}, drawCosts: [], visibility: [], firstVisibleDraw: null, restored: false,
+    }
+    const focus = w => structuredClone({ level: w.outcome.level, turn: w.turn, paused: w.paused,
+      acquisition: w.worshipAcquisition, gifts: w.gifts.filter(g => g.reward === 'lightning'),
+      stock: w.shots.lightning, count: w.giftCounts.lightning,
+      gameplayRandom: w.randomState, cosmeticRandom: w.cosmeticRandom })
+    window.worshipBoundaryFocus = focus
+    const observe = fn => { try { return fn() } catch (error) {
+      if (evidence.errors.length < 16) evidence.errors.push(String(error.stack ?? error))
+    } }
+    const wrap = (owner, key, factory) => {
+      const own = Object.hasOwn(owner, key), original = owner[key], replacement = factory(original)
+      owner[key] = replacement
+      const restore = () => {
+        if (owner[key] !== replacement) throw Error(`Changed observer owner: ${key}`)
+        if (own) owner[key] = original; else delete owner[key]
+      }
+      restorers.push(restore)
+      return restore
+    }
+    const main = document.querySelector('main')
+    let fiber = main[Object.keys(main).find(key => key.startsWith('__reactFiber'))], store
+    for (; fiber && !store; fiber = fiber.return) for (let hook = fiber.memoizedState; hook; hook = hook.next)
+      if (hook.memoizedState?.getWorld && hook.memoizedState?.subscribe) { store = hook.memoizedState; break }
+    if (!store) throw Error('Store unavailable before public mission/Load')
+    const before = store.getWorld()
+    const unsubscribe = store.subscribe(() => {
+      const world = store.getWorld()
+      if (world === before || evidence.replacement) return
+      observe(() => {
+        // Runs inside replaceWorld publication, before public Load auto-resume
+        // and before the new scene constructor. No pause or store mutation.
+        evidence.replacement = focus(world)
+        window.worshipBoundaryReplacement = { version: 1, world: structuredClone(world) }
+      })
+      unsubscribe()
+    })
+    restorers.push(unsubscribe)
+    let awaitingVisibleDraw = false, currentDrawing = null, insideDraw = false, measureCalls = 0
+    const costCounts = { active: 0, paused: 0 }
+    const visibility = () => queueMicrotask(() => observe(() => {
+      const scene = window.worshipBoundaryScene
+      if (!scene) return
+      evidence.visibility.push({ hidden: document.hidden, previous: scene.previous, focus: focus(scene.world) })
+      if (evidence.visibility.length > 8) throw Error('Visibility observation bound exceeded')
+      if (!document.hidden) awaitingVisibleDraw = true
+    }))
+    document.addEventListener('visibilitychange', visibility)
+    restorers.push(() => document.removeEventListener('visibilitychange', visibility))
+    const restoreStart = wrap(GameScene.prototype, 'start', original => function (...args) {
+      observe(() => {
+        if (evidence.start) throw Error('Unexpected second scene start in this phase')
+        window.worshipBoundaryScene = this
+        evidence.start = { focus: focus(this.world), startedBefore: this.started,
+          currentWorld: this.world === store.getWorld(), connected: this.renderer.domElement.isConnected }
+        const scene = this, presentation = scene.worshipPresentation,
+          canvas = document.querySelector('.worship-acquisition-overlay'), ctx = canvas.getContext('2d')
+        const gl = scene.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
+        evidence.renderer = { webgl: gl.getParameter(gl.VERSION),
+          renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER) }
+        wrap(scene, 'onSound', original => function (...args) {
+          const result = original.apply(this, args)
+          if (args[0] === 0x71) evidence.cues++
+          return result
+        })
+        wrap(scene.gameClock, 'afterTurn', original => function (...args) {
+          const queued = [...scene.world.worshipAcquisition.requests], result = original.apply(this, args)
+          if (queued.length) observe(() => evidence.handoffs.push({ turn: scene.world.turn, queued, focus: focus(scene.world) }))
+          return result
+        })
+        wrap(scene.gameClock, 'worshipVisit', original => function (...args) {
+          const result = original.apply(this, args); evidence.visits++; return result
+        })
+        wrap(presentation.bridge, 'measure', original => function (...args) {
+          const result = original.apply(this, args)
+          if (insideDraw) measureCalls++
+          if (currentDrawing && args[0] === 3) currentDrawing.layout = result
+          return result
+        })
+        wrap(ctx, 'drawImage', original => function (...args) {
+          const result = original.apply(this, args)
+          if (currentDrawing && args.length === 9 && args[0] instanceof HTMLImageElement) observe(() => {
+            const t = this.getTransform()
+            currentDrawing.bodyCall = { args: args.slice(1), transform: [t.a, t.b, t.c, t.d, t.e, t.f] }
+          })
+          return result
+        })
+        wrap(presentation, 'draw', original => function (...args) {
+          const tag = window.worshipBoundaryDrawTag,
+            commands = scene.world.worshipAcquisition.controllers.drawCommands,
+            command = commands.find(c => c.model === 3),
+            category = scene.world.paused ? 'paused' : 'active',
+            cost = command && costCounts[category] < 64 ? {
+              category, commandCount: commands.length, referenceCount: new Set(commands.map(c => c.geometry)).size,
+              turn: scene.world.turn, viewport: [innerWidth, innerHeight], dpr: devicePixelRatio,
+            } : null
+          currentDrawing = tag && command && !evidence.draws[tag] ? { tag, command, layout: null, bodyCall: null } : null
+          const drawing = currentDrawing
+          let result, duration
+          measureCalls = 0; insideDraw = true
+          const started = performance.now()
+          try { result = original.apply(this, args) }
+          finally { duration = performance.now() - started; currentDrawing = null; insideDraw = false }
+          observe(() => {
+            if (cost) { costCounts[category]++; evidence.drawCosts.push({ ...cost, milliseconds: duration, measureCalls }) }
+            if (awaitingVisibleDraw) {
+              evidence.firstVisibleDraw = { turn: scene.world.turn, clock: structuredClone(scene.world.worshipAcquisition.clock) }
+              awaitingVisibleDraw = false
+            }
+            if (drawing) evidence.draws[tag] = { turn: scene.world.turn,
+              command: structuredClone(drawing.command), layout: structuredClone(drawing.layout), bodyCall: drawing.bodyCall,
+              canvas: [canvas.width, canvas.height], dpr: devicePixelRatio,
+              viewport: [innerWidth, innerHeight], hidden: canvas.hidden, png: canvas.toDataURL() }
+          })
+          return result
+        })
+        // The one-shot prototype hook restores BEFORE original start. All
+        // instance observers are already installed when original schedules RAF.
+        restoreStart(); restorers.splice(restorers.indexOf(restoreStart), 1)
+      })
+      return original.apply(this, args)
+    })
+    window.restoreWorshipBoundaryObserver = () => {
+      for (const restore of restorers.reverse()) observe(restore)
+      evidence.restored = evidence.errors.length === 0
+      delete window.restoreWorshipBoundaryObserver
+    }
+  })
+}
+
+async function readStoredFocus(page) {
+  return page.evaluate(async () => {
+    if (!(await indexedDB.databases()).some(db => db.name === 'populous-new-dawn')) return null
+    const db = await new Promise((resolve, reject) => {
+      const request = indexedDB.open('populous-new-dawn')
+      request.onupgradeneeded = () => { request.transaction.abort(); reject(Error('Missing checkpoint database')) }
+      request.onerror = () => reject(request.error); request.onsuccess = () => resolve(request.result)
+    })
+    try {
+      return await new Promise((resolve, reject) => {
+        const tx = db.transaction('checkpoints', 'readonly'), request = tx.objectStore('checkpoints').get('latest')
+        tx.oncomplete = () => resolve(request.result?.world ? window.worshipBoundaryFocus(request.result.world) : null)
+        tx.onerror = () => reject(tx.error); tx.onabort = () => reject(tx.error ?? Error('Checkpoint read aborted'))
+      })
+    } finally { db.close() }
+  })
+}
+
+const snap = page => page.evaluate(() => window.worshipBoundaryFocus(window.worshipBoundaryScene.world))
+const body = state => {
+  const spell = state.acquisition.controllers.spell
+  return spell && { position: spell.position, scale: spell.scale, rotation: spell.rotation, giftId: spell.giftId }
+}
+const eligibleFlight = state => !!state?.acquisition.controllers.spell?.active && state.gifts.some(g => g.ordinaryWorship && g.remaining > 1)
+const eligibleTail = state => !!state?.acquisition.controllers.pulse?.active &&
+  !state.acquisition.controllers.spell?.active && !state.acquisition.controllers.companion?.active
+
+async function orderLightning(page, waitForShamanReadiness) {
+  const resume = page.getByRole('button', { name: 'Resume game', exact: true })
+  if (await resume.isVisible()) await resume.click()
+  const readiness = await waitForShamanReadiness(page, { timeout: 45000 })
+  for (let attempt = 0; attempt < 3; attempt++) {
+    if (await page.evaluate(() => !window.testStore.getWorld().mode && !window.testStore.getWorld().selected.length)) break
+    await page.keyboard.press('Escape')
+  }
+  await page.getByRole('button', { name: 'Select brave', exact: true }).click({ modifiers: ['Shift'] })
+  const shrine = await page.evaluate(() => {
+    const scene = window.testSceneRef.current, world = window.testStore.getWorld()
+    if (scene.world !== world || world.paused || world.inputMask) throw Error('Current scene/order gate changed')
+    const head = world.shrines.find(s => s.kind === 'lightning' && s.x === 11 && s.z === 1)
+    if (!head?.ordinarySpellReward || head.required !== 1 || head.target !== 32) throw Error('Unexpected authored Lightning head')
+    scene.focus(head) // Labeled camera assistance; before public mode setup.
+    return { id: head.id, x: head.x, z: head.z }
+  })
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+  const point = await page.evaluate(id => {
+    const scene = window.testSceneRef.current, head = scene.world.shrines.find(s => s.id === id),
+      mesh = scene.shrineMeshes.get(id)?.g, p = scene.screen(mesh?.position ?? head), r = scene.container.getBoundingClientRect(),
+      center = { x: r.x + (p.x + 1) * r.width / 2, y: r.y + (1 - p.y) * r.height / 2 }
+    for (let dy = -140; dy <= 60; dy += 4) for (let dx = -100; dx <= 100; dx += 4) {
+      const event = { clientX: center.x + dx, clientY: center.y + dy }
+      if (scene.picking.pickPerson(event) === null && scene.pickWorldObject(event)?.id === id &&
+          document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement)
+        return { x: event.clientX, y: event.clientY }
+    }
+    throw Error('No canvas-owned Lightning shrine hit; no injected fallback')
+  }, shrine.id)
+  await page.mouse.click(point.x, point.y)
+  assert.equal(await page.evaluate(id => window.testStore.getWorld().units.some(u => u.team === 'blue' && u.kind === 'brave' && u.work === id), shrine.id), true)
+  return { readiness, shrine, point, cameraAssistance: 'scene.focus before targeting; ordinary RAF for geometry/panels' }
+}
+
+export default async function ({ page, context, root, output, receipt, openMission, signal }) {
+  const phase = process.env.POPULOUS_WORSHIP_BOUNDARY_PHASE ?? 'flight-save'
+  assert.ok(phases.has(phase), `Unknown boundary phase: ${phase}`)
+  assert.ok(receipt.profile, 'Boundary phases require an owned --profile')
+  const loading = phase.endsWith('-load'), tail = phase.startsWith('tail-')
+  assert.equal(receipt.profile.mode, loading ? 'reused' : 'created', 'Save/hidden use fresh profile; Load reuses its paired save')
+  const { bindGame, waitForShamanReadiness } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
+  const { waitForCheckpointReadback } = await import(pathToFileURL(resolve(root, 'scripts/checkpoint-readback.mjs')).href)
+  const report = { phase, status: 'running', source: receipt.source,
+    scenarioSha256: createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex'),
+    method: 'Real RAF, public mouse/HUD/Save/Load. Read-only synchronous replacement and original-once pre-start callback observation. No direct World/clock/RNG mutation.',
+    browserVersion: receipt.browserVersion,
+    drawCostMethod: 'At most64 active and64 paused samples. Bracket only original presentation.draw; outer state snapshots and PNG capture excluded. Nested observer counters/pass-through wrappers remain; selected draw-argument capture has small extra overhead. Shared CPU/headless/software timing is diagnostic, not FPS or a speedup claim.',
+    limits: 'Headless/software functional evidence. Two-process continuation is distinct from fresh-page reload. DPR2 is CDP device emulation, not a physical display. No full native raster or hardware performance claim. Tail window may be missed; hidden-state support must be demonstrated.' }
+  const saveReport = () => writeFileSync(resolve(output, 'ordinary-worship-boundaries.json'), JSON.stringify(report, null, 2) + '\n')
+  let armed = false, cover, cdp, originalDisplay
+  const wait = async (predicate, argument, timeout, label) => {
+    signal.throwIfAborted()
+    try { await page.waitForFunction(predicate, argument, { timeout, polling: 10 }) }
+    catch (error) { throw Error(`${label}: ${error.message}`) }
+  }
+  const finish = async () => {
+    await wait(() => {
+      const w = window.worshipBoundaryScene.world, c = w.worshipAcquisition.controllers
+      return !w.gifts.some(g => g.reward === 'lightning') && !c.spell?.active && !c.companion?.active && !c.pulse?.active &&
+        !c.drawCommands.length && document.querySelector('.worship-acquisition-overlay').hidden
+    }, null, 30000, 'Ordinary acquisition cleanup')
+    return snap(page)
+  }
+  try {
+    await installEarlyObserver(page); armed = true
+    if (loading) {
+      const previous = receipt.profile.previousRun
+      assert.equal(previous.status, 'passed'); assert.equal(previous.cleanupVerified, true); assert.equal(previous.continuationVerified, true)
+      assert.equal(previous.sourceFingerprint, receipt.source.fingerprint, 'Both processes require the exact same frozen source')
+      const prior = JSON.parse(readFileSync(previous.receiptPath, 'utf8'))
+      assert.equal(prior.result.phase, tail ? 'tail-save' : 'flight-save')
+      assert.equal(prior.scenario.sha256, report.scenarioSha256)
+      assert.deepEqual(receipt.profile.checkpointAtStart, prior.profile.checkpointAtEnd)
+      const savedFocus = await readStoredFocus(page), stored = await readCommittedCheckpoint(page)
+      assert.deepEqual(savedFocus, prior.result.saved.focus)
+      assert.equal((tail ? eligibleTail : eligibleFlight)(savedFocus), true, 'Paired committed save must retain requested acquisition phase')
+      await page.evaluate(() => { window.worshipBoundaryDrawTag = 'restored-first-frame' })
+      await page.getByRole('dialog', { name: 'Start game', exact: true }).getByRole('button', { name: 'Load Game', exact: true }).click()
+      await wait(() => !!window.worshipBoundaryEvidence.replacement, null, 30000, 'Synchronous public Load replacement')
+      report.replacement = await page.evaluate(() => window.worshipBoundaryEvidence.replacement)
+      assert.deepEqual(report.replacement, savedFocus, 'Acquisition, gifts, clock residual and RNG survive exact replacement')
+      const loaded = await page.evaluate(checkpointObservation, { observationName: 'worshipBoundaryReplacement' })
+      for (const key of ['level', 'turn', 'time', 'actorsSha256', 'terrainSha256', 'stockSha256']) assert.deepEqual(loaded[key], stored[key])
+      await bindGame(page)
+      const start = await page.evaluate(() => window.worshipBoundaryEvidence.start)
+      assert.equal(start.startedBefore, false); assert.equal(start.currentWorld, true); assert.equal(start.connected, true)
+      assert.equal(start.focus.paused, false, 'Public Load auto-resumes before normal scene start')
+      assert.deepEqual(start.focus.acquisition, savedFocus.acquisition, 'Observer was armed before the first real RAF visit')
+      report.saved = { checkpoint: stored, focus: savedFocus }
+      report.final = await finish()
+      assert.equal(await page.evaluate(() => !!window.worshipBoundaryEvidence.draws['restored-first-frame']), true, 'Early observer must retain the real restored body/pulse draw')
+      const pending = Number(savedFocus.gifts.some(g => g.ordinaryWorship && g.remaining > 0))
+      assert.equal(report.final.count, savedFocus.count + pending, 'No lost or duplicate payout after restart')
+      assert.equal(report.final.stock, savedFocus.stock + pending)
+      assert.equal((await readCommittedCheckpoint(page)).checkpointSha256, stored.checkpointSha256)
+      assert.equal(await page.evaluate(() => window.worshipBoundaryEvidence.cues), 0, 'Load must not replay acquisition cue')
+      report.continuation = { kind: 'second browser process with verified previous owned cleanup', previousRunId: previous.runId, loaded }
+    } else {
+      assert.equal(receipt.profile.checkpointAtStart, null)
+      await openMission(1)
+      report.order = await orderLightning(page, waitForShamanReadiness)
+      await wait(() => {
+        const c = window.worshipBoundaryScene.world.worshipAcquisition.controllers
+        return c.spell?.active && c.spell.step === 2 && c.spell.visits <= 4
+      }, null, 120000, 'Early ordinary flight')
+      if (phase === 'hidden') {
+        await page.evaluate(() => { window.worshipBoundaryEvidence.firstVisibleDraw = null })
+        cover = await context.newPage()
+        await cover.bringToFront()
+        try { await wait(() => document.hidden, null, 3000, 'Actual background document visibility') }
+        catch (error) { report.status = 'blocked'; throw Error(`Hidden-page acceptance blocked: browser did not report document.hidden. ${error.message}`) }
+        const hidden = await snap(page)
+        assert.equal(hidden.paused, true, 'Shipped blur/visibility handler pauses the world')
+        await page.waitForTimeout(750)
+        const later = await snap(page)
+        assert.deepEqual(later.acquisition, hidden.acquisition, 'Hidden pages retain controller state and UI deadline residual')
+        assert.equal(later.turn, hidden.turn)
+        await page.bringToFront()
+        await wait(() => !document.hidden && !!window.worshipBoundaryEvidence.firstVisibleDraw, null, 5000, 'Real foreground and first draw')
+        const first = await page.evaluate(() => window.worshipBoundaryEvidence.firstVisibleDraw)
+        assert.deepEqual(first.clock, hidden.acquisition.clock, 'Visibility reset discards hidden elapsed backlog before first draw')
+        await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+        report.hidden = { before: hidden, after: later, firstVisibleDraw: first }
+        report.final = await finish()
+      } else {
+        if (!tail) {
+          await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+          const paused = await snap(page)
+          assert.equal(paused.paused, true)
+          await page.waitForTimeout(150)
+          const settled = await snap(page)
+          await page.waitForTimeout(300)
+          const held = await snap(page)
+          assert.equal(held.turn, paused.turn); assert.deepEqual(body(held), body(settled))
+          assert.ok(held.acquisition.clock.elapsed > settled.acquisition.clock.elapsed, 'Visible paused UI visits continue')
+          await page.getByRole('button', { name: 'Resume game', exact: true }).click()
+          await wait(position => {
+            const c = window.worshipBoundaryScene.world.worshipAcquisition.controllers.spell
+            return c?.position.x !== position.x || c?.position.y !== position.y
+          }, held.acquisition.controllers.spell.position, 3000, 'Ordinary body motion resumes')
+          await page.getByRole('button', { name: 'Pause game', exact: true }).click()
+          report.visiblePause = { paused, settled, held, resumedThenPaused: await snap(page) }
+        } else {
+          try {
+            await wait(() => {
+              const c = window.worshipBoundaryScene.world.worshipAcquisition.controllers
+              return c.pulse?.active && !c.spell?.active && !c.companion?.active
+            }, null, 15000, 'Genuine independent pulse tail')
+          } catch (error) { report.status = 'unproved'; throw Error(`Ordinary tail window was not caught; no retry or injected state. ${error.message}`) }
+          report.tailBeforeMenu = await snap(page)
+          if (!eligibleTail(report.tailBeforeMenu)) { report.status = 'unproved'; throw Error('Tail retired before public menu interaction; no fabricated checkpoint') }
+        }
+        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+        const menu = page.locator('dialog.game-dialog')
+        await menu.waitFor({ state: 'visible' })
+        const boundary = await page.evaluate(() => {
+          const s = window.worshipBoundaryScene, w = window.testStore.getWorld()
+          return { sameWorld: s.world === w, paused: w.paused, turn: w.turn }
+        })
+        assert.equal(boundary.sameWorld, true); assert.equal(boundary.paused, true)
+        if (!tail) {
+          await page.getByLabel('HUD size', { exact: true }).selectOption('1')
+          await page.evaluate(() => { window.worshipBoundaryDrawTag = 'hud-before' })
+          await wait(() => !!window.worshipBoundaryEvidence.draws['hud-before'], null, 5000, 'Actual pre-change HUD draw')
+          await page.getByLabel('HUD size', { exact: true }).selectOption('2')
+          originalDisplay = { viewport: page.viewportSize(), dpr: await page.evaluate(() => devicePixelRatio) }
+          cdp = await page.context().newCDPSession(page)
+          await page.setViewportSize({ width: 1280, height: 900 })
+          // Existing repository QA route; only display metrics change. Normal
+          // RAF and ResizeObserver own all scene/canvas updates.
+          await cdp.send('Emulation.setDeviceMetricsOverride', { width: 1280, height: 900, deviceScaleFactor: 2, mobile: false })
+          await wait(() => {
+            const s = window.worshipBoundaryScene, overlay = document.querySelector('.worship-acquisition-overlay'), shell = s.container.parentElement
+            return devicePixelRatio === 2 && s.renderer.getPixelRatio() === 1.8 &&
+              overlay.width === Math.round(shell.clientWidth * 2) && overlay.height === Math.round(shell.clientHeight * 2)
+          }, null, 5000, 'Emulated DPR2 backing sizes settle through ordinary RAF')
+          await page.evaluate(() => { window.worshipBoundaryDrawTag = 'hud-after' })
+          await wait(() => !!window.worshipBoundaryEvidence.draws['hud-after'], null, 5000, 'Actual resized HUD draw')
+          const draws = await page.evaluate(() => window.worshipBoundaryEvidence.draws)
+          const before = draws['hud-before'], after = draws['hud-after']
+          assert.deepEqual(after.command.geometry, before.command.geometry)
+          assert.ok(after.layout.hudScale > before.layout.hudScale)
+          assert.ok(before.bodyCall && after.bodyCall)
+          const ratio = after.layout.hudScale / before.layout.hudScale
+          assert.ok(Math.abs(after.bodyCall.args[6] - before.bodyCall.args[6] * ratio) < 1e-5, 'Actual paused body width rebinds to measured HUD scale')
+          const backing = await page.evaluate(() => {
+            const s = window.worshipBoundaryScene, rect = s.container.getBoundingClientRect(), shell = s.container.parentElement,
+              overlay = document.querySelector('.worship-acquisition-overlay')
+            return { dpr: devicePixelRatio, webglRatio: s.renderer.getPixelRatio(), world: [s.renderer.domElement.width, s.renderer.domElement.height],
+              expectedWorld: [Math.floor(rect.width * 1.8), Math.floor(rect.height * 1.8)], overlay: [overlay.width, overlay.height],
+              expectedOverlay: [Math.round(shell.clientWidth * 2), Math.round(shell.clientHeight * 2)] }
+          })
+          assert.equal(backing.dpr, 2); assert.equal(backing.webglRatio, 1.8)
+          assert.deepEqual(backing.world, backing.expectedWorld); assert.deepEqual(backing.overlay, backing.expectedOverlay)
+          assert.equal(after.dpr, 2)
+          report.display = { viewport: after.viewport, dpr: after.dpr, ratio, backing, sourceGeometryUnchanged: true, kind: 'CDP-emulated DPR2' }
+        }
+        await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
+        let committed, focus
+        assert.equal(await waitForCheckpointReadback(async () => {
+          signal.throwIfAborted(); committed = await readCommittedCheckpoint(page)
+          if (committed?.turn !== boundary.turn) return false
+          focus = await readStoredFocus(page); return !!focus && focus.turn === boundary.turn
+        }), true, 'Await actual Save IndexedDB transaction outside async polling predicates')
+        report.saved = { checkpoint: committed, focus, boundary }
+        if (!(tail ? eligibleTail(focus) : eligibleFlight(focus))) {
+          report.status = 'unproved'
+          throw Error(`Public ${tail ? 'pulse-tail' : 'in-flight'} checkpoint missed its eligible state; no continuation accepted and no automatic retry`)
+        }
+        await page.screenshot({ path: resolve(output, 'saved-settings.png') })
+      }
+    }
+    report.status = 'passed'
+  } catch (error) {
+    if (report.status === 'running') report.status = 'failed'
+    report.failure = error.stack; throw error
+  } finally {
+    if (cdp) {
+      try {
+        await cdp.send('Emulation.clearDeviceMetricsOverride')
+        await page.setViewportSize(originalDisplay.viewport)
+        await wait(dpr => devicePixelRatio === dpr, originalDisplay.dpr, 5000, 'Restore original device metrics')
+        report.displayRestored = true
+      } catch (error) { report.displayRestored = false; report.cleanupFailure = String(error); report.status = 'failed' }
+      finally { await cdp.detach().catch(error => { report.cleanupFailure = String(error); report.status = 'failed' }) }
+    }
+    if (cover && !cover.isClosed()) await cover.close()
+    if (armed && !page.isClosed()) {
+      await page.evaluate(() => window.restoreWorshipBoundaryObserver?.())
+      report.observer = await page.evaluate(() => window.worshipBoundaryEvidence)
+      for (const [tag, sample] of Object.entries(report.observer.draws)) {
+        const filename = `overlay-${tag}.png`
+        writeFileSync(resolve(output, filename), Buffer.from(sample.png.split(',')[1], 'base64'))
+        sample.artifact = filename; delete sample.png
+      }
+    }
+    saveReport()
+  }
+  try {
+    assert.deepEqual(report.observer.errors, []); assert.equal(report.observer.restored, true)
+    assert.equal(report.cleanupFailure, undefined)
+    assert.deepEqual(receipt.errors, [])
+    for (const sample of report.observer.drawCosts)
+      assert.equal(sample.measureCalls, sample.referenceCount, 'Original draw measures each reference geometry once')
+  } catch (error) { report.status = 'failed'; report.failure = error.stack; saveReport(); throw error }
+  return report
+}
