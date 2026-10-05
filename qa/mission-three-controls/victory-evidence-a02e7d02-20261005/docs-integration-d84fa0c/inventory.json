@@ -1,0 +1,32 @@
+{
+  "scope": "Independent review and focused receipts for docs-only PR213; no new gameplay or production check",
+  "head": "d84fa0c03aa00b58d6d162e4bd45b6db7c1bf922",
+  "base": "89c9629991489fd1ce6dc52e938d1cec346bfead",
+  "files": [
+    {
+      "file": "diff-d84fa0c.json",
+      "bytes": 1549,
+      "sha256": "193377090e89f9b36ce6ef1e0c6329616cc090e04fa57c082b0ef177828257c1"
+    },
+    {
+      "file": "independent-review.json",
+      "bytes": 3688,
+      "sha256": "50a2fb53fa596df5b0698488635297a32d186ec3b448920710d2c274f2fe2fd3"
+    },
+    {
+      "file": "integrity-d84fa0c-02.json",
+      "bytes": 5881,
+      "sha256": "e6e4b0f548746f0cb4b4394d41ee06c9cba980505f6394bd9c83ba760bb0cb09"
+    },
+    {
+      "file": "parity-d84fa0c.json",
+      "bytes": 1584,
+      "sha256": "24e4834b6b122d6d7a85b9de87cd0db336afd244a84c344f26f5388910ba053b"
+    },
+    {
+      "file": "structure-d84fa0c.json",
+      "bytes": 6428,
+      "sha256": "bbf2f4fd0b9bc973a0882a5d53c4b3cce022ccb6840db4f65bc9f4333087675f"
+    }
+  ]
+}

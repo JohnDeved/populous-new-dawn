@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "43b6ce09-ee0f-4939-8a62-2a502257b5fb",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "d84fa0c03aa00b58d6d162e4bd45b6db7c1bf922",
+    "branch": "docs/mission-three-ordinary-victory",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/mission-three-victory-note/verify-note-v2.mjs": "bd66d7d5fb6d14842709294ac7bc5ed62a08ce3b8fd257a4052aa91d5b7feaa6"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/mission-three-victory-note/verify-note-v2.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-victory-note",
+  "startedAt": "2026-10-05T09:00:54.817Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-victory-note/work/orchestration/mission-three-victory-note/integrity-d84fa0c-02.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-victory-note/work/orchestration/mission-three-victory-note/integrity-d84fa0c-02.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T09:00:54.962Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"status\": \"passed\",\n  \"head\": \"d84fa0c03aa00b58d6d162e4bd45b6db7c1bf922\",\n  \"base\": \"89c9629991489fd1ce6dc52e938d1cec346bfead\",\n  \"figureSha256\": \"f41dc7f273e52e5d8db84251fae8074775b8225b7daadefa0b0dbfe32f4ac4cc\",\n  \"dimensions\": [\n    1440,\n    1000\n  ],\n  \"byteIdenticalPublishedFigure\": true,\n  \"links\": [\n    {\n      \"url\": \"verification/mission-one-controls-2026-10-04/README.md\",\n      \"verified\": \"local-file\"\n    },\n    {\n      \"url\": \"verification/mission-three-controls-2026-10-05/README.md\",\n      \"verified\": \"local-file\"\n    },\n    {\n      \"url\": \"visual-audit.md\",\n      \"verified\": \"local-file\"\n    },\n    {\n      \"url\": \"level-one.md\",\n      \"verified\": \"local-file\"\n    },\n    {\n      \"url\": \"https://github.com/JohnDeved/populous-new-dawn/blob/c9b975eb9c7413a519dca4b637235baecd99274e/qa/mission-three-controls/victory-evidence-a02e7d02-20261005/README.md\",\n      \"verified\": \"exact-published-commit-object\"\n    },\n    {\n      \"url\": \"https://github.com/JohnDeved/populous-new-dawn/blob/c9b975eb9c7413a519dca4b637235baecd99274e/qa/mission-three-controls/victory-evidence-a02e7d02-20261005/erosion-victory-a02e7d02-review.json\",\n      \"verified\": \"exact-published-commit-object\"\n    },\n    {\n      \"url\": \"https://github.com/JohnDeved/populous-new-dawn/issues/11\",\n      \"verified\": \"existing-repository-reference\"\n    },\n    {\n      \"url\": \"https://github.com/JohnDeved/populous-new-dawn/pull/192\",\n      \"verified\": \"existing-repository-reference\"\n    },\n    {\n      \"url\": \"victory.png\",\n      \"verified\": \"local-file\"\n    }\n  ],\n  \"unchangedObjects\": [\n    {\n      \"path\": \"app\",\n      \"before\": \"0593d298544c95050caf7614aa40c92807528279\",\n      \"after\": \"0593d298544c95050caf7614aa40c92807528279\"\n    },\n    {\n      \"path\": \"public\",\n      \"before\": \"49f080b8608cf5a954fc54440e44db23a027311b\",\n      \"after\": \"49f080b8608cf5a954fc54440e44db23a027311b\"\n    },\n    {\n      \"path\": \"worker\",\n      \"before\": \"534262246ef7d02635110a3989accfbd8a3494c9\",\n      \"after\": \"534262246ef7d02635110a3989accfbd8a3494c9\"\n    },\n    {\n      \"path\": \"build\",\n      \"before\": \"e4caf579c58061db70eac981f9475c4b07b702f8\",\n      \"after\": \"e4caf579c58061db70eac981f9475c4b07b702f8\"\n    },\n    {\n      \"path\": \"scripts\",\n      \"before\": \"ac8b15f66d8f2e0326be648bbf646f637d611e6c\",\n      \"after\": \"ac8b15f66d8f2e0326be648bbf646f637d611e6c\"\n    },\n    {\n      \"path\": \"tests\",\n      \"before\": \"7f8d6f477395ec11f8bda85f42fdaafb93d18115\",\n      \"after\": \"7f8d6f477395ec11f8bda85f42fdaafb93d18115\"\n    },\n    {\n      \"path\": \"engineering\",\n      \"before\": \"c91478091147a61eae2a6ed01c7781d7224496a2\",\n      \"after\": \"c91478091147a61eae2a6ed01c7781d7224496a2\"\n    },\n    {\n      \"path\": \"package.json\",\n      \"before\": \"69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1\",\n      \"after\": \"69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1\"\n    },\n    {\n      \"path\": \"package-lock.json\",\n      \"before\": \"97cd9ade0190af96e99b389c93d4ee20bef5065c\",\n      \"after\": \"97cd9ade0190af96e99b389c93d4ee20bef5065c\"\n    },\n    {\n      \"path\": \"parity.json\",\n      \"before\": \"7ebdd28930cfe54cf375a370391578a5fbc89fc9\",\n      \"after\": \"7ebdd28930cfe54cf375a370391578a5fbc89fc9\"\n    },\n    {\n      \"path\": \"parity-history.json\",\n      \"before\": \"ef9388866fec490ea2869834fcf4a37b0b28e942\",\n      \"after\": \"ef9388866fec490ea2869834fcf4a37b0b28e942\"\n    },\n    {\n      \"path\": \".openai/hosting.json\",\n      \"before\": \"b7d6a5b51f87bfdb3e7db9d3d1f2b4bf9d45f669\",\n      \"after\": \"b7d6a5b51f87bfdb3e7db9d3d1f2b4bf9d45f669\"\n    }\n  ],\n  \"scope\": \"Docs/image integrity, local and immutable-published target resolution, basic Markdown structure/whitespace. No browser, package install, aggregate, build or parity recording.\"\n}\n",
+  "stderr": "",
+  "stdoutSha256": "a73599b26f7a0ea7dcda7e9e38117ed00ef3a285c74301b0ef317395d03427fd",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "d84fa0c03aa00b58d6d162e4bd45b6db7c1bf922",
+    "branch": "docs/mission-three-ordinary-victory",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/mission-three-victory-note/verify-note-v2.mjs": "bd66d7d5fb6d14842709294ac7bc5ed62a08ce3b8fd257a4052aa91d5b7feaa6"
+    }
+  }
+}

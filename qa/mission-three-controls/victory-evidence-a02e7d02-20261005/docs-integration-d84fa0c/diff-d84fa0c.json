@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "70121c9c-9cca-445b-91d1-47abc54efe9e",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "d84fa0c03aa00b58d6d162e4bd45b6db7c1bf922",
+    "branch": "docs/mission-three-ordinary-victory",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "git",
+    "diff",
+    "--check",
+    "89c9629991489fd1ce6dc52e938d1cec346bfead",
+    "HEAD"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-victory-note",
+  "startedAt": "2026-10-05T08:59:55.792Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-victory-note/work/orchestration/mission-three-victory-note/diff-d84fa0c.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-victory-note/work/orchestration/mission-three-victory-note/diff-d84fa0c.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T08:59:55.796Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "d84fa0c03aa00b58d6d162e4bd45b6db7c1bf922",
+    "branch": "docs/mission-three-ordinary-victory",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

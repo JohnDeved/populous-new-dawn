@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "40f6089e-856f-4545-b883-ab2a30a42203",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "d84fa0c03aa00b58d6d162e4bd45b6db7c1bf922",
+    "branch": "docs/mission-three-ordinary-victory",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "scripts/parity.mjs",
+    "check"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-victory-note",
+  "startedAt": "2026-10-05T08:59:55.610Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-victory-note/work/orchestration/mission-three-victory-note/parity-d84fa0c.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-victory-note/work/orchestration/mission-three-victory-note/parity-d84fa0c.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T08:59:55.708Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Parity ledger, evidence paths, revision and generated report are consistent.\n",
+  "stderr": "",
+  "stdoutSha256": "87b1b81943cc152577ccf70670188a237627d968850dd09c4c36c8d3db93fcf5",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "d84fa0c03aa00b58d6d162e4bd45b6db7c1bf922",
+    "branch": "docs/mission-three-ordinary-victory",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}
