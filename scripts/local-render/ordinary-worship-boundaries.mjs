@@ -680,6 +680,26 @@ export default async function ({ page, context, root, output, receipt, openMissi
       report.continuation = { kind: 'second browser process with verified previous owned cleanup', previousRunId: previous.runId, loaded }
     } else {
       assert.equal(receipt.profile.checkpointAtStart, null)
+      if (phase === 'missing-geometry') {
+        report.restorationProbe = await page.evaluate(() => {
+          const cases = []
+          for (const priorStyle of [null, 'color: red;']) {
+            const element = document.createElement('aside')
+            if (priorStyle !== null) element.setAttribute('style', priorStyle)
+            element.style.display = 'none'
+            if (priorStyle === null) {
+              element.style.removeProperty('display')
+              element.removeAttribute('style')
+            } else element.setAttribute('style', priorStyle)
+            cases.push({ priorStyle, actualStyle: element.getAttribute('style'), connected: element.isConnected })
+          }
+          return { kind: 'Two detached elements; browser CSSOM and attribute restoration only; no game DOM changed', cases }
+        })
+        for (const sample of report.restorationProbe.cases) {
+          assert.equal(sample.connected, false)
+          assert.equal(sample.actualStyle, sample.priorStyle, 'Pinned-browser attribute restoration must work before the real route')
+        }
+      }
       if (phase === 'tail-save') {
         const before = { viewport: page.viewportSize(), dpr: await page.evaluate(() => devicePixelRatio) }
         await page.setViewportSize({ width: 960, height: 720 })
