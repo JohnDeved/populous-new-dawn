@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "827b1873-5b7e-4a1d-a593-6fc1cf37cf6b",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9186f3465528c4283a05a51e1803e076c43b19f3",
+    "branch": "feat/worship-acquisition-controllers",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-worship-acquisition-fixture.mjs": "10e94eb8c6d959098aa6f191842ff43c86aab6dd7e6b9da109ee08c33c5d8034",
+      "tests/fixtures/worship-acquisition-controller.json": "ac4df02f1bdb2ab258cdc669048ba007bf419d4257265ce83a9070686e016b5d",
+      "scripts/probe-native-worship-grant-handoff.py": "23eea61d2b1060260083d54557108d13f737e9cc807e7313ba18cefa6667f50e",
+      "scripts/probe-native-worship-grant-presentation.py": "a9caf4219317b76a4a13009101b0f353e27f179de34a145de198c9ee19dd98b7",
+      "scripts/probe-native-worship-grant-replacement.py": "3b21c881745c7c04cf0fd7ba2fa241f83558ca7302def7d3225c6d0b7d9c0444",
+      "../worship-grant-handoff/work/orchestration/worship-grant-handoff/native-attempt-3/probe-result.json": "c88d8b83d7ed08c9f6aceda1cad9cda18f431ed49db8c3cd261ba55f854a9802",
+      "../worship-grant-presentation/work/orchestration/worship-grant-presentation/native-attempt-3/probe-result.json": "5b74c5df88dcdc81b71b343b3eb7a06c6637454be48482ef4fec5e9ca9d0b97d",
+      "../worship-grant-replacement/work/orchestration/worship-grant-replacement/native-attempt-1/probe-result.json": "1436642482fb5e5297fceff03374822ca73a68875239182e082f656e4bb7d343"
+    }
+  },
+  "command": [
+    "node",
+    "scripts/check-worship-acquisition-fixture.mjs",
+    "../worship-grant-handoff/work/orchestration/worship-grant-handoff/native-attempt-3/probe-result.json",
+    "../worship-grant-presentation/work/orchestration/worship-grant-presentation/native-attempt-3/probe-result.json",
+    "../worship-grant-replacement/work/orchestration/worship-grant-replacement/native-attempt-1/probe-result.json"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-controllers",
+  "startedAt": "2026-10-05T02:12:43.003Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-controllers/work/orchestration/worship-acquisition-controllers/fixture-audit.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-controllers/work/orchestration/worship-acquisition-controllers/fixture-audit.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T02:12:43.245Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"status\": \"passed\",\n  \"fixtureSha256\": \"ac4df02f1bdb2ab258cdc669048ba007bf419d4257265ce83a9070686e016b5d\",\n  \"inputs\": {\n    \"handoff\": {\n      \"path\": \"../worship-grant-handoff/work/orchestration/worship-grant-handoff/native-attempt-3/probe-result.json\",\n      \"resultSha256\": \"c88d8b83d7ed08c9f6aceda1cad9cda18f431ed49db8c3cd261ba55f854a9802\",\n      \"probeSha256\": \"23eea61d2b1060260083d54557108d13f737e9cc807e7313ba18cefa6667f50e\",\n      \"caseCount\": 17\n    },\n    \"presentation\": {\n      \"path\": \"../worship-grant-presentation/work/orchestration/worship-grant-presentation/native-attempt-3/probe-result.json\",\n      \"resultSha256\": \"5b74c5df88dcdc81b71b343b3eb7a06c6637454be48482ef4fec5e9ca9d0b97d\",\n      \"probeSha256\": \"a9caf4219317b76a4a13009101b0f353e27f179de34a145de198c9ee19dd98b7\",\n      \"caseCount\": 10\n    },\n    \"replacement\": {\n      \"path\": \"../worship-grant-replacement/work/orchestration/worship-grant-replacement/native-attempt-1/probe-result.json\",\n      \"resultSha256\": \"1436642482fb5e5297fceff03374822ca73a68875239182e082f656e4bb7d343\",\n      \"probeSha256\": \"3b21c881745c7c04cf0fd7ba2fa241f83558ca7302def7d3225c6d0b7d9c0444\",\n      \"caseCount\": 3\n    }\n  },\n  \"presentation\": {\n    \"cases\": 10,\n    \"rows\": 306,\n    \"commands\": 117480\n  },\n  \"replacement\": {\n    \"cases\": 3,\n    \"rows\": 168,\n    \"immediateStates\": 3,\n    \"commands\": 34618\n  },\n  \"handoff\": {\n    \"cases\": 4,\n    \"rows\": 124\n  }\n}\n",
+  "stderr": "",
+  "stdoutSha256": "cec9cdf8604f17b2328ba43031206870003fe60c6914fb023003ad27bc67221f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "9186f3465528c4283a05a51e1803e076c43b19f3",
+    "branch": "feat/worship-acquisition-controllers",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-worship-acquisition-fixture.mjs": "10e94eb8c6d959098aa6f191842ff43c86aab6dd7e6b9da109ee08c33c5d8034",
+      "tests/fixtures/worship-acquisition-controller.json": "ac4df02f1bdb2ab258cdc669048ba007bf419d4257265ce83a9070686e016b5d",
+      "scripts/probe-native-worship-grant-handoff.py": "23eea61d2b1060260083d54557108d13f737e9cc807e7313ba18cefa6667f50e",
+      "scripts/probe-native-worship-grant-presentation.py": "a9caf4219317b76a4a13009101b0f353e27f179de34a145de198c9ee19dd98b7",
+      "scripts/probe-native-worship-grant-replacement.py": "3b21c881745c7c04cf0fd7ba2fa241f83558ca7302def7d3225c6d0b7d9c0444",
+      "../worship-grant-handoff/work/orchestration/worship-grant-handoff/native-attempt-3/probe-result.json": "c88d8b83d7ed08c9f6aceda1cad9cda18f431ed49db8c3cd261ba55f854a9802",
+      "../worship-grant-presentation/work/orchestration/worship-grant-presentation/native-attempt-3/probe-result.json": "5b74c5df88dcdc81b71b343b3eb7a06c6637454be48482ef4fec5e9ca9d0b97d",
+      "../worship-grant-replacement/work/orchestration/worship-grant-replacement/native-attempt-1/probe-result.json": "1436642482fb5e5297fceff03374822ca73a68875239182e082f656e4bb7d343"
+    }
+  }
+}

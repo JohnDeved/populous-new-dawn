@@ -1,0 +1,38 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "06d59402-aaa3-4f0c-a5fd-66f068d56971",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "cc4d5183d8d9dedf4de646b368e244999bd9cfe0",
+    "branch": "feat/issue30-worship-acquisition",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node_modules/.bin/tsc",
+    "--noEmit",
+    "--incremental",
+    "false"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter",
+  "startedAt": "2026-10-05T02:05:15.599Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter/work/orchestration/worship-acquisition-adapter/cc4d518/typecheck.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter/work/orchestration/worship-acquisition-adapter/cc4d518/typecheck.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T02:05:25.208Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "cc4d5183d8d9dedf4de646b368e244999bd9cfe0",
+    "branch": "feat/issue30-worship-acquisition",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

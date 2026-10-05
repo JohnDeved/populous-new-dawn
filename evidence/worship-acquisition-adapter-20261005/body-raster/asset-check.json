@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "38ba9c49-84bf-4566-a769-7c05711f8252",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "2a820020fdf97d4c852f4faa4491832adfa93099",
+    "branch": "feat/worship-acquisition-controllers",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "python",
+    "-B",
+    "scripts/check-worship-acquisition-assets.py",
+    "../prerequisites/game",
+    "--base",
+    "89c9629991489fd1ce6dc52e938d1cec346bfead"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-controllers",
+  "startedAt": "2026-10-05T01:46:21.535Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-controllers/work/orchestration/worship-acquisition-body-raster/asset-check.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-controllers/work/orchestration/worship-acquisition-body-raster/asset-check.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T01:46:23.850Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"status\": \"passed\",\n  \"base\": \"89c9629991489fd1ce6dc52e938d1cec346bfead\",\n  \"canonicalPixels\": true,\n  \"cropMetadata\": true,\n  \"idempotent\": true,\n  \"reproducible\": true,\n  \"noRepositoryWrites\": true,\n  \"preservedRectangles\": 1752,\n  \"oldSize\": [\n    1024,\n    508\n  ],\n  \"newSize\": [\n    1024,\n    534\n  ],\n  \"preservedPixelsSha256\": \"3c141d500ddf7f849e1ece60ed78ddc5a069a3c43b6724e3fd56ac776521918f\",\n  \"outputHashes\": {\n    \"app/original-hud.json\": \"3b24abb207a0ad2fc92f7225866352f0d485cf9ac7d13fb8b76842fecc928929\",\n    \"public/original/hud.png\": \"1479f593c925cee6c6af76b1652cb33d8c4cfea4581a9a9559cb03d0568b8ead\",\n    \"app/original-worship-acquisition.json\": \"c4f9b772840a858fc465f9503ed5143851db36103426c6952fd8cc489a7498d7\"\n  },\n  \"negativeCases\": [\n    {\n      \"case\": \"partial-append\",\n      \"error\": \"Partial acquisition append; preserve and inspect existing assets\"\n    },\n    {\n      \"case\": \"wrong-pixels\",\n      \"error\": \"Existing original sprite differs: 1059\"\n    },\n    {\n      \"case\": \"wrong-crop\",\n      \"error\": \"Installed acquisition crop/source metadata differs or is absent\"\n    }\n  ]\n}\n",
+  "stderr": "",
+  "stdoutSha256": "335c6c92f76bcb134a46b9a0ae8777a8459e3551f1c8a35294df41f478303603",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "2a820020fdf97d4c852f4faa4491832adfa93099",
+    "branch": "feat/worship-acquisition-controllers",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

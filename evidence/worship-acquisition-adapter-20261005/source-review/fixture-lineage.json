@@ -1,0 +1,28 @@
+{
+  "status": "passed",
+  "head": "cc4d5183d8d9dedf4de646b368e244999bd9cfe0",
+  "fixtureSha256": "ac4df02f1bdb2ab258cdc669048ba007bf419d4257265ce83a9070686e016b5d",
+  "audit": {
+    "presentation": {
+      "nativeCases": 10,
+      "fixtureCases": 10,
+      "rows": 306,
+      "commands": 117480,
+      "resultSha256": "5b74c5df88dcdc81b71b343b3eb7a06c6637454be48482ef4fec5e9ca9d0b97d"
+    },
+    "replacement": {
+      "nativeCases": 3,
+      "fixtureCases": 3,
+      "rows": 168,
+      "commands": 34618,
+      "resultSha256": "1436642482fb5e5297fceff03374822ca73a68875239182e082f656e4bb7d343"
+    },
+    "handoff": {
+      "nativeCases": 17,
+      "fixtureCases": 4,
+      "rows": 124,
+      "commands": 0,
+      "resultSha256": "c88d8b83d7ed08c9f6aceda1cad9cda18f431ed49db8c3cd261ba55f854a9802"
+    }
+  }
+}

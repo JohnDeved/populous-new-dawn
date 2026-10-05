@@ -1,0 +1,87 @@
+
+../prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+0047e070 <.text+0x7d070>:
+  47e070:	83 ec 0c             	sub    esp,0xc
+  47e073:	53                   	push   ebx
+  47e074:	56                   	push   esi
+  47e075:	57                   	push   edi
+  47e076:	8b f1                	mov    esi,ecx
+  47e078:	66 8b 4c 24 28       	mov    cx,WORD PTR [esp+0x28]
+  47e07d:	55                   	push   ebp
+  47e07e:	0f b7 c1             	movzx  eax,cx
+  47e081:	c1 e0 02             	shl    eax,0x2
+  47e084:	8b 54 24 28          	mov    edx,DWORD PTR [esp+0x28]
+  47e088:	33 ff                	xor    edi,edi
+  47e08a:	8d 1c c0             	lea    ebx,[eax+eax*8]
+  47e08d:	8b 42 04             	mov    eax,DWORD PTR [edx+0x4]
+  47e090:	39 7c 18 14          	cmp    DWORD PTR [eax+ebx*1+0x14],edi
+  47e094:	0f 84 c7 00 00 00    	je     0x47e161
+  47e09a:	8b 86 2a 00 20 00    	mov    eax,DWORD PTR [esi+0x20002a]
+  47e0a0:	8d ae 2a f8 1f 00    	lea    ebp,[esi+0x1ff82a]
+  47e0a6:	3b e8                	cmp    ebp,eax
+  47e0a8:	0f 82 b3 00 00 00    	jb     0x47e161
+  47e0ae:	85 c0                	test   eax,eax
+  47e0b0:	74 18                	je     0x47e0ca
+  47e0b2:	89 78 1c             	mov    DWORD PTR [eax+0x1c],edi
+  47e0b5:	c7 00 00 f5 58 00    	mov    DWORD PTR [eax],0x58f500
+  47e0bb:	89 78 04             	mov    DWORD PTR [eax+0x4],edi
+  47e0be:	c7 00 28 f5 58 00    	mov    DWORD PTR [eax],0x58f528
+  47e0c4:	89 78 20             	mov    DWORD PTR [eax+0x20],edi
+  47e0c7:	89 78 56             	mov    DWORD PTR [eax+0x56],edi
+  47e0ca:	33 c0                	xor    eax,eax
+  47e0cc:	8b be 2a 00 20 00    	mov    edi,DWORD PTR [esi+0x20002a]
+  47e0d2:	03 5a 04             	add    ebx,DWORD PTR [edx+0x4]
+  47e0d5:	66 8b 03             	mov    ax,WORD PTR [ebx]
+  47e0d8:	89 44 24 10          	mov    DWORD PTR [esp+0x10],eax
+  47e0dc:	33 c0                	xor    eax,eax
+  47e0de:	db 44 24 10          	fild   DWORD PTR [esp+0x10]
+  47e0e2:	d9 44 24 38          	fld    DWORD PTR [esp+0x38]
+  47e0e6:	66 8b 43 02          	mov    ax,WORD PTR [ebx+0x2]
+  47e0ea:	d8 c9                	fmul   st,st(1)
+  47e0ec:	89 44 24 10          	mov    DWORD PTR [esp+0x10],eax
+  47e0f0:	d9 5c 24 18          	fstp   DWORD PTR [esp+0x18]
+  47e0f4:	db 44 24 10          	fild   DWORD PTR [esp+0x10]
+  47e0f8:	d9 54 24 10          	fst    DWORD PTR [esp+0x10]
+  47e0fc:	d8 4c 24 38          	fmul   DWORD PTR [esp+0x38]
+  47e100:	d9 5c 24 14          	fstp   DWORD PTR [esp+0x14]
+  47e104:	d8 54 24 18          	fcom   DWORD PTR [esp+0x18]
+  47e108:	df e0                	fnstsw ax
+  47e10a:	f6 c4 40             	test   ah,0x40
+  47e10d:	dd d8                	fstp   st(0)
+  47e10f:	74 0f                	je     0x47e120
+  47e111:	d9 44 24 10          	fld    DWORD PTR [esp+0x10]
+  47e115:	d8 5c 24 14          	fcomp  DWORD PTR [esp+0x14]
+  47e119:	df e0                	fnstsw ax
+  47e11b:	f6 c4 40             	test   ah,0x40
+  47e11e:	75 04                	jne    0x47e124
+  47e120:	83 4f 20 20          	or     DWORD PTR [edi+0x20],0x20
+  47e124:	8b 44 24 30          	mov    eax,DWORD PTR [esp+0x30]
+  47e128:	68 00 00 80 bf       	push   0xbf800000
+  47e12d:	68 00 00 80 bf       	push   0xbf800000
+  47e132:	50                   	push   eax
+  47e133:	8b 44 24 30          	mov    eax,DWORD PTR [esp+0x30]
+  47e137:	51                   	push   ecx
+  47e138:	8b 4c 24 24          	mov    ecx,DWORD PTR [esp+0x24]
+  47e13c:	52                   	push   edx
+  47e13d:	8b 54 24 2c          	mov    edx,DWORD PTR [esp+0x2c]
+  47e141:	51                   	push   ecx
+  47e142:	8b 4c 24 38          	mov    ecx,DWORD PTR [esp+0x38]
+  47e146:	52                   	push   edx
+  47e147:	50                   	push   eax
+  47e148:	51                   	push   ecx
+  47e149:	8b cf                	mov    ecx,edi
+  47e14b:	e8 50 b4 07 00       	call   0x4f95a0
+  47e150:	8b 4c 24 34          	mov    ecx,DWORD PTR [esp+0x34]
+  47e154:	89 4f 56             	mov    DWORD PTR [edi+0x56],ecx
+  47e157:	66 ff 46 1c          	inc    WORD PTR [esi+0x1c]
+  47e15b:	01 86 2a 00 20 00    	add    DWORD PTR [esi+0x20002a],eax
+  47e161:	5d                   	pop    ebp
+  47e162:	5f                   	pop    edi
+  47e163:	5e                   	pop    esi
+  47e164:	5b                   	pop    ebx
+  47e165:	83 c4 0c             	add    esp,0xc
+  47e168:	c2 1c 00             	ret    0x1c

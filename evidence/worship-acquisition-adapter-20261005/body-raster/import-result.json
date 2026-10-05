@@ -1,0 +1,64 @@
+{
+  "status": "APPENDED_ORIGINAL_WORSHIP_ACQUISITION_ART",
+  "changed": true,
+  "appended": [
+    1059,
+    1060,
+    1068
+  ],
+  "oldSize": [
+    1024,
+    508
+  ],
+  "newSize": [
+    1024,
+    534
+  ],
+  "oldPixelsSha256": "3c141d500ddf7f849e1ece60ed78ddc5a069a3c43b6724e3fd56ac776521918f",
+  "preservedOldPixelsSha256": "3c141d500ddf7f849e1ece60ed78ddc5a069a3c43b6724e3fd56ac776521918f",
+  "oldRectanglesPreserved": 1752,
+  "priorMetadataPreserved": true,
+  "frames": {
+    "3": {
+      "source": 1059,
+      "w": 28,
+      "h": 25,
+      "crop": {
+        "x": 8,
+        "y": 2,
+        "width": 13,
+        "height": 23
+      },
+      "rgbaSha256": "b6044bb1c3c555baa0caeb3c9dbbf1a2fb224cc338e4441ff6f5e135750495a1"
+    },
+    "4": {
+      "source": 1060,
+      "w": 28,
+      "h": 25,
+      "crop": {
+        "x": 5,
+        "y": 2,
+        "width": 19,
+        "height": 21
+      },
+      "rgbaSha256": "7129be75969942bb56382f18ad1f5adb101f855efd00b5c98927a132f33308a1"
+    },
+    "12": {
+      "source": 1068,
+      "w": 28,
+      "h": 25,
+      "crop": {
+        "x": 2,
+        "y": 6,
+        "width": 25,
+        "height": 15
+      },
+      "rgbaSha256": "9c767bdc31459d0c23226bfe7939b3f457bd1b44a27b37dcaa00ece13bbaa61d"
+    }
+  },
+  "outputs": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-controllers/public/original/hud.png": "1479f593c925cee6c6af76b1652cb33d8c4cfea4581a9a9559cb03d0568b8ead",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-controllers/app/original-hud.json": "3b24abb207a0ad2fc92f7225866352f0d485cf9ac7d13fb8b76842fecc928929",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-controllers/app/original-worship-acquisition.json": "c4f9b772840a858fc465f9503ed5143851db36103426c6952fd8cc489a7498d7"
+  }
+}

@@ -1,0 +1,82 @@
+
+../prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00476fa0 <.text+0x75fa0>:
+  476fa0:	53                   	push   ebx
+  476fa1:	33 c0                	xor    eax,eax
+  476fa3:	8b 54 24 0c          	mov    edx,DWORD PTR [esp+0xc]
+  476fa7:	56                   	push   esi
+  476fa8:	8b 74 24 0c          	mov    esi,DWORD PTR [esp+0xc]
+  476fac:	57                   	push   edi
+  476fad:	66 8b 46 04          	mov    ax,WORD PTR [esi+0x4]
+  476fb1:	33 db                	xor    ebx,ebx
+  476fb3:	c7 42 04 00 00 00 00 	mov    DWORD PTR [edx+0x4],0x0
+  476fba:	c7 42 08 00 00 00 00 	mov    DWORD PTR [edx+0x8],0x0
+  476fc1:	c7 42 0c 00 00 00 00 	mov    DWORD PTR [edx+0xc],0x0
+  476fc8:	89 02                	mov    DWORD PTR [edx],eax
+  476fca:	8b 3e                	mov    edi,DWORD PTR [esi]
+  476fcc:	8a 0f                	mov    cl,BYTE PTR [edi]
+  476fce:	47                   	inc    edi
+  476fcf:	84 c9                	test   cl,cl
+  476fd1:	75 16                	jne    0x476fe9
+  476fd3:	33 c0                	xor    eax,eax
+  476fd5:	66 8b 46 06          	mov    ax,WORD PTR [esi+0x6]
+  476fd9:	3b c3                	cmp    eax,ebx
+  476fdb:	7e 0c                	jle    0x476fe9
+  476fdd:	43                   	inc    ebx
+  476fde:	47                   	inc    edi
+  476fdf:	ff 42 04             	inc    DWORD PTR [edx+0x4]
+  476fe2:	8a 4f ff             	mov    cl,BYTE PTR [edi-0x1]
+  476fe5:	84 c9                	test   cl,cl
+  476fe7:	74 ea                	je     0x476fd3
+  476fe9:	33 c0                	xor    eax,eax
+  476feb:	66 8b 46 06          	mov    ax,WORD PTR [esi+0x6]
+  476fef:	3b c3                	cmp    eax,ebx
+  476ff1:	7e 46                	jle    0x477039
+  476ff3:	84 c9                	test   cl,cl
+  476ff5:	74 34                	je     0x47702b
+  476ff7:	33 c0                	xor    eax,eax
+  476ff9:	84 c9                	test   cl,cl
+  476ffb:	7e 22                	jle    0x47701f
+  476ffd:	39 02                	cmp    DWORD PTR [edx],eax
+  476fff:	7e 02                	jle    0x477003
+  477001:	89 02                	mov    DWORD PTR [edx],eax
+  477003:	0f be c9             	movsx  ecx,cl
+  477006:	03 c1                	add    eax,ecx
+  477008:	39 42 08             	cmp    DWORD PTR [edx+0x8],eax
+  47700b:	7d 03                	jge    0x477010
+  47700d:	89 42 08             	mov    DWORD PTR [edx+0x8],eax
+  477010:	03 f9                	add    edi,ecx
+  477012:	39 5a 0c             	cmp    DWORD PTR [edx+0xc],ebx
+  477015:	7f 0d                	jg     0x477024
+  477017:	8d 4b 01             	lea    ecx,[ebx+0x1]
+  47701a:	89 4a 0c             	mov    DWORD PTR [edx+0xc],ecx
+  47701d:	eb 05                	jmp    0x477024
+  47701f:	0f be c9             	movsx  ecx,cl
+  477022:	2b c1                	sub    eax,ecx
+  477024:	8a 0f                	mov    cl,BYTE PTR [edi]
+  477026:	47                   	inc    edi
+  477027:	84 c9                	test   cl,cl
+  477029:	75 d0                	jne    0x476ffb
+  47702b:	8a 0f                	mov    cl,BYTE PTR [edi]
+  47702d:	43                   	inc    ebx
+  47702e:	47                   	inc    edi
+  47702f:	33 c0                	xor    eax,eax
+  477031:	66 8b 46 06          	mov    ax,WORD PTR [esi+0x6]
+  477035:	3b c3                	cmp    eax,ebx
+  477037:	7f ba                	jg     0x476ff3
+  477039:	33 c0                	xor    eax,eax
+  47703b:	66 8b 46 04          	mov    ax,WORD PTR [esi+0x4]
+  47703f:	3b 02                	cmp    eax,DWORD PTR [edx]
+  477041:	75 0b                	jne    0x47704e
+  477043:	8b 42 08             	mov    eax,DWORD PTR [edx+0x8]
+  477046:	89 42 0c             	mov    DWORD PTR [edx+0xc],eax
+  477049:	89 02                	mov    DWORD PTR [edx],eax
+  47704b:	89 42 04             	mov    DWORD PTR [edx+0x4],eax
+  47704e:	5f                   	pop    edi
+  47704f:	5e                   	pop    esi
+  477050:	5b                   	pop    ebx
+  477051:	c3                   	ret

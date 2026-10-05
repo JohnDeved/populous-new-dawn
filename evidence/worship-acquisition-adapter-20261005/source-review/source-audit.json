@@ -1,0 +1,16 @@
+{
+  "status": "passed",
+  "head": "c15edac605fc52d4ebf60ebb8f75e7c903f39d4d",
+  "bodyDisassemblyBytes": {
+    "rle-crop.txt": 178,
+    "bank-initializer.txt": 56,
+    "sprite-upload-palette.txt": 200,
+    "bank-owner.txt": 51,
+    "body-vertices.txt": 624,
+    "body-raster.txt": 251,
+    "queue-palette.txt": 475
+  },
+  "totalBytes": 1835,
+  "fullDiffSha256": "4d8d8d60636c1f0a566c1cceb5f1dcac54088e6877f7773fee59788d8a8858fb",
+  "trackedStatus": ""
+}

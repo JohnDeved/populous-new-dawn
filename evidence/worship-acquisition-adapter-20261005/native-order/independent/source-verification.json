@@ -1,0 +1,77 @@
+{
+  "status": "passed",
+  "byteChecks": {
+    "allocation-disassembly.txt": 1152,
+    "allocator-init-disassembly.txt": 272,
+    "gift-init-disassembly.txt": 512,
+    "head-init-disassembly.txt": 160,
+    "initial-gift-phase-disassembly.txt": 629,
+    "loader-tail-disassembly.txt": 1072,
+    "object-visit-disassembly.txt": 1120,
+    "template-class-disassembly.txt": 224,
+    "template-copy-disassembly.txt": 320,
+    "worship-clone-disassembly.txt": 608
+  },
+  "byteCount": 6069,
+  "records": [
+    {
+      "mission": 1,
+      "headSourceIndex": 28,
+      "headMode": 0,
+      "rewards": [
+        {
+          "linkSlot": 0,
+          "rewardSourceIndex": 29,
+          "settings": [
+            11,
+            3,
+            3,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "mission": 1,
+      "headSourceIndex": 30,
+      "headMode": 0,
+      "rewards": [
+        {
+          "linkSlot": 0,
+          "rewardSourceIndex": 31,
+          "settings": [
+            11,
+            12,
+            3,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "mission": 2,
+      "headSourceIndex": 59,
+      "headMode": 0,
+      "rewards": []
+    },
+    {
+      "mission": 2,
+      "headSourceIndex": 63,
+      "headMode": 0,
+      "rewards": [
+        {
+          "linkSlot": 0,
+          "rewardSourceIndex": 62,
+          "settings": [
+            11,
+            4,
+            3,
+            1
+          ]
+        }
+      ]
+    }
+  ],
+  "diffCheckExit": 0,
+  "trackedStatus": ""
+}

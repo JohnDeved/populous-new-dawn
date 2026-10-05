@@ -1,0 +1,9 @@
+models-12-3-handles-900-902-pulse-0 requests [902, 900] winner 900 zero intervening UI/RNG
+models-12-3-handles-900-902-pulse-1 requests [902, 900] winner 900 zero intervening UI/RNG
+models-12-3-handles-902-900-pulse-0 requests [900, 902] winner 902 zero intervening UI/RNG
+models-12-3-handles-902-900-pulse-1 requests [900, 902] winner 902 zero intervening UI/RNG
+models-3-12-handles-900-902-pulse-0 requests [902, 900] winner 900 zero intervening UI/RNG
+models-3-12-handles-900-902-pulse-1 requests [902, 900] winner 900 zero intervening UI/RNG
+models-3-12-handles-902-900-pulse-0 requests [900, 902] winner 902 zero intervening UI/RNG
+models-3-12-handles-902-900-pulse-1 requests [900, 902] winner 902 zero intervening UI/RNG
+PASS: eight original allocation/list-block compositions; newest-first handoffs, oldest ready gift wins

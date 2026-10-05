@@ -1,0 +1,101 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004f0d20 <.text+0xefd20>:
+  4f0d20:	0f bf 4c 24 04       	movsx  ecx,WORD PTR [esp+0x4]
+  4f0d25:	b0 01                	mov    al,0x1
+  4f0d27:	83 f9 02             	cmp    ecx,0x2
+  4f0d2a:	74 0b                	je     0x4f0d37
+  4f0d2c:	83 f9 05             	cmp    ecx,0x5
+  4f0d2f:	74 09                	je     0x4f0d3a
+  4f0d31:	83 f9 06             	cmp    ecx,0x6
+  4f0d34:	74 0c                	je     0x4f0d42
+  4f0d36:	c3                   	ret
+  4f0d37:	32 c0                	xor    al,al
+  4f0d39:	c3                   	ret
+  4f0d3a:	83 f9 09             	cmp    ecx,0x9
+  4f0d3d:	75 0f                	jne    0x4f0d4e
+  4f0d3f:	32 c0                	xor    al,al
+  4f0d41:	c3                   	ret
+  4f0d42:	83 f9 02             	cmp    ecx,0x2
+  4f0d45:	74 05                	je     0x4f0d4c
+  4f0d47:	83 f9 06             	cmp    ecx,0x6
+  4f0d4a:	75 02                	jne    0x4f0d4e
+  4f0d4c:	32 c0                	xor    al,al
+  4f0d4e:	c3                   	ret
+  4f0d4f:	cc                   	int3
+  4f0d50:	83 ec 04             	sub    esp,0x4
+  4f0d53:	33 c0                	xor    eax,eax
+  4f0d55:	53                   	push   ebx
+  4f0d56:	56                   	push   esi
+  4f0d57:	8b 74 24 10          	mov    esi,DWORD PTR [esp+0x10]
+  4f0d5b:	57                   	push   edi
+  4f0d5c:	66 8b 4e 3d          	mov    cx,WORD PTR [esi+0x3d]
+  4f0d60:	8a 56 2a             	mov    dl,BYTE PTR [esi+0x2a]
+  4f0d63:	8a 5e 2b             	mov    bl,BYTE PTR [esi+0x2b]
+  4f0d66:	88 6c 24 0e          	mov    BYTE PTR [esp+0xe],ch
+  4f0d6a:	66 8b 4e 3f          	mov    cx,WORD PTR [esi+0x3f]
+  4f0d6e:	33 ff                	xor    edi,edi
+  4f0d70:	88 6c 24 0f          	mov    BYTE PTR [esp+0xf],ch
+  4f0d74:	33 c9                	xor    ecx,ecx
+  4f0d76:	66 8b 4c 24 0e       	mov    cx,WORD PTR [esp+0xe]
+  4f0d7b:	66 8b 7c 24 0e       	mov    di,WORD PTR [esp+0xe]
+  4f0d80:	81 e1 fe 00 00 00    	and    ecx,0xfe
+  4f0d86:	03 c9                	add    ecx,ecx
+  4f0d88:	81 e7 00 fe 00 00    	and    edi,0xfe00
+  4f0d8e:	0b cf                	or     ecx,edi
+  4f0d90:	0f bf 3c 8d ea 03 8a 	movsx  edi,WORD PTR [ecx*4+0x8a03ea]
+  4f0d97:	00 
+  4f0d98:	8b 0c bd 90 03 89 00 	mov    ecx,DWORD PTR [edi*4+0x890390]
+  4f0d9f:	85 c9                	test   ecx,ecx
+  4f0da1:	74 28                	je     0x4f0dcb
+  4f0da3:	3b ce                	cmp    ecx,esi
+  4f0da5:	74 0a                	je     0x4f0db1
+  4f0da7:	38 51 2a             	cmp    BYTE PTR [ecx+0x2a],dl
+  4f0daa:	75 05                	jne    0x4f0db1
+  4f0dac:	38 59 2b             	cmp    BYTE PTR [ecx+0x2b],bl
+  4f0daf:	74 18                	je     0x4f0dc9
+  4f0db1:	33 ff                	xor    edi,edi
+  4f0db3:	66 8b 79 20          	mov    di,WORD PTR [ecx+0x20]
+  4f0db7:	8b 0c bd 90 03 89 00 	mov    ecx,DWORD PTR [edi*4+0x890390]
+  4f0dbe:	85 c9                	test   ecx,ecx
+  4f0dc0:	75 e1                	jne    0x4f0da3
+  4f0dc2:	5f                   	pop    edi
+  4f0dc3:	5e                   	pop    esi
+  4f0dc4:	5b                   	pop    ebx
+  4f0dc5:	83 c4 04             	add    esp,0x4
+  4f0dc8:	c3                   	ret
+  4f0dc9:	8b c1                	mov    eax,ecx
+  4f0dcb:	5f                   	pop    edi
+  4f0dcc:	5e                   	pop    esi
+  4f0dcd:	5b                   	pop    ebx
+  4f0dce:	83 c4 04             	add    esp,0x4
+  4f0dd1:	c3                   	ret
+  4f0dd2:	cc                   	int3
+  4f0dd3:	cc                   	int3
+  4f0dd4:	cc                   	int3
+  4f0dd5:	cc                   	int3
+  4f0dd6:	cc                   	int3
+  4f0dd7:	cc                   	int3
+  4f0dd8:	cc                   	int3
+  4f0dd9:	cc                   	int3
+  4f0dda:	cc                   	int3
+  4f0ddb:	cc                   	int3
+  4f0ddc:	cc                   	int3
+  4f0ddd:	cc                   	int3
+  4f0dde:	cc                   	int3
+  4f0ddf:	cc                   	int3
+  4f0de0:	c7 05 a1 c6 89 00 ff 	mov    DWORD PTR ds:0x89c6a1,0xffffffff
+  4f0de7:	ff ff ff 
+  4f0dea:	33 c0                	xor    eax,eax
+  4f0dec:	a3 dc 22 89 00       	mov    ds:0x8922dc,eax
+  4f0df1:	a3 e0 22 89 00       	mov    ds:0x8922e0,eax
+  4f0df6:	a3 a5 c6 89 00       	mov    ds:0x89c6a5,eax
+  4f0dfb:	c3                   	ret
+  4f0dfc:	cc                   	int3
+  4f0dfd:	cc                   	int3
+  4f0dfe:	cc                   	int3
+  4f0dff:	cc                   	int3

@@ -1,0 +1,21 @@
+
+../prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004b6c0c <.text+0xb5c0c>:
+  4b6c0c:	68 20 79 9a 00       	push   0x9a7920
+  4b6c11:	a1 f4 c2 af 00       	mov    eax,ds:0xafc2f4
+  4b6c16:	68 80 30 99 00       	push   0x993080
+  4b6c1b:	8b 15 e8 de 59 00    	mov    edx,DWORD PTR ds:0x59dee8
+  4b6c21:	68 c0 c2 9b 00       	push   0x9bc2c0
+  4b6c26:	8b 88 c0 06 00 00    	mov    ecx,DWORD PTR [eax+0x6c0]
+  4b6c2c:	51                   	push   ecx
+  4b6c2d:	52                   	push   edx
+  4b6c2e:	8b 48 04             	mov    ecx,DWORD PTR [eax+0x4]
+  4b6c31:	51                   	push   ecx
+  4b6c32:	b9 e8 10 99 00       	mov    ecx,0x9910e8
+  4b6c37:	e8 34 89 04 00       	call   0x4ff570
+  4b6c3c:	85 c0                	test   eax,eax
+  4b6c3e:	0f 85 f6 00 00 00    	jne    0x4b6d3a

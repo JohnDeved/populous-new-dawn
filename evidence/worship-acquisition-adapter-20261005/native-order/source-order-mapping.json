@@ -1,0 +1,115 @@
+{
+  "kind": "source-only",
+  "frozenHead": "084eea97fe98c4ac302333227cc3c9495d090e10",
+  "trackedStatus": "",
+  "newNativeExecution": false,
+  "records": [
+    {
+      "mission": 1,
+      "headSourceIndex": 28,
+      "headMode": 0,
+      "rewards": [
+        {
+          "linkSlot": 0,
+          "rewardSourceIndex": 29,
+          "settings": [
+            11,
+            3,
+            3,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "mission": 1,
+      "headSourceIndex": 30,
+      "headMode": 0,
+      "rewards": [
+        {
+          "linkSlot": 0,
+          "rewardSourceIndex": 31,
+          "settings": [
+            11,
+            12,
+            3,
+            1
+          ]
+        }
+      ]
+    },
+    {
+      "mission": 2,
+      "headSourceIndex": 59,
+      "headMode": 0,
+      "rewards": []
+    },
+    {
+      "mission": 2,
+      "headSourceIndex": 63,
+      "headMode": 0,
+      "rewards": [
+        {
+          "linkSlot": 0,
+          "rewardSourceIndex": 62,
+          "settings": [
+            11,
+            4,
+            3,
+            1
+          ]
+        }
+      ]
+    }
+  ],
+  "hashes": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2001.dat": "97cdb6e170f68b462b5b36c42c99a598b0466e0131a105f30612f50d7f16e40c",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2002.dat": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/decomp/generated/00484a10.c": "8f1433d8bba1ffc5cbc2fa4dad9ef6415a1ea5f2834aa436c8480dcd8a00f9ae",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/decomp/generated/004851e0.c": "684ba6d08b65fd73b6e5edbc1809ea505d6faad9868b84547befe06b6f6d6321",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/decomp/generated/004edf50.c": "52ec65ffdf2501f7c15d1fa1468dc2e4ecb6218f96871f9bae387ad9b0b42d8c",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/decomp/generated/004fb270.c": "3a61b62275e618be994161ba1ba94fa6b46beab22d3348c483072afc411b1a2a",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/decomp/generated/004ede10.c": "b2fc6de9b34b02af943cb2dfed809829148321970e0dae72d9b529db16d162f9",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/decomp/generated/004ed8a0.c": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/decomp/generated/004ec6f0.c": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/app/world-initialization.ts": "6b00311e4d64886f35803bca8059661f6c19fa67a5dddb0b4c83a14c2d0458f6",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/app/world-turn.ts": "1b9f4dafb5e040f0b02a58867b47096a51c43847500bdc36207eb99309ac01a5",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/work/orchestration/worship-request-order/static/head-init-disassembly.txt": "bf2a84fd21196cb40a8644ec11ac8ae008f07db3b00ef6fe261cfb580243582a",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/work/orchestration/worship-request-order/static/loader-tail-disassembly.txt": "d30208727d76b52ccf37b6be9892bf13d61eb35d24252159b02b5c59dfda60f5",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/work/orchestration/worship-request-order/static/allocator-init-disassembly.txt": "2e1603920308251fd56d3bb519fbd898138b55a23dcee470feb5e64719a5ff0f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/work/orchestration/worship-request-order/static/template-copy-disassembly.txt": "d37db904a6d7b0a8000b00d23c9f8cf82e7a9ee82972eb560989d27750b7ba88",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/work/orchestration/worship-request-order/static/gift-init-disassembly.txt": "cb346b40c4a82b8939cbc33d01af2dc2f906826f066a6b67f754b1700faac979",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/work/orchestration/worship-request-order/static/allocation-disassembly.txt": "6395dd6b58fd83dc82fd1bcec5e6db490dc7a0b97a33a1e1de7ef06cc02ac1fa",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/work/orchestration/worship-request-order/static/object-visit-disassembly.txt": "7361a1fc390a9fa348eb29cf6c16a442c98cadf54cd19f5f38f9983b2763de3a",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/work/orchestration/worship-request-order/static/template-class-disassembly.txt": "163f50d7d499c8906206f34b6087aa31d6eb2080adb8f0dd07396212b1154078",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/work/orchestration/worship-request-order/static/worship-clone-disassembly.txt": "0eb855dee6c704c4fdac12ed75a9f253ea81cd1da965450de83a5a51a9eb3241",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/decomp/generated/004facf0.c": "5ed48fef08d978405d68eec4b3ee11624297907696e9132edcaeda873e131070",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/decomp/generated/00485b00.c": "346a7d08813529a5f716e7641c6580c30b8853070e6c3759b64e8e1ecd899099",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/scripts/import-level.py": "d43217184e13df9726f2ba779f022147ab9604439a785757bdc42ec61f562ca5",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/decomp/research/worship-grant-source-order.md": "46bbb0da8f5b42f80bad00e7ba2de582bd059c032b0fe602c245b361539fd5ef",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-request-order/work/orchestration/worship-request-order/static/initial-gift-phase-disassembly.txt": "aa1bc037b50700ba434fb21378a547e85a11117e762c2f7cd5e6560b2f1d3c5a"
+  },
+  "resourcesHeld": [],
+  "immediateProcessorState": {
+    "copiedTimerPhase": [
+      0,
+      0
+    ],
+    "afterImmediateTimerZeroBranches": [
+      [
+        0,
+        0
+      ],
+      [
+        82,
+        1
+      ]
+    ],
+    "afterOrdinaryHeadOverride": [
+      82,
+      6
+    ],
+    "subsequentVisitsToHandoff": 6
+  }
+}

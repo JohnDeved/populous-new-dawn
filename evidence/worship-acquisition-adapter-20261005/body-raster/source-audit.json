@@ -1,0 +1,57 @@
+{
+  "sourceHead": "de5b624d400b4aef8ed7cb2163001826135d258a",
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "assetHashes": {
+    "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+  },
+  "decoderSha256": "c85ae306c3021815ac3f727b23f6d9edca2eed579ebc434fbb831ab69d48f9c8",
+  "frames": [
+    {
+      "frame": 1059,
+      "width": 28,
+      "height": 25,
+      "crop": {
+        "x": 8,
+        "y": 2,
+        "width": 13,
+        "height": 23
+      },
+      "rgbaSha256": "b6044bb1c3c555baa0caeb3c9dbbf1a2fb224cc338e4441ff6f5e135750495a1"
+    },
+    {
+      "frame": 1060,
+      "width": 28,
+      "height": 25,
+      "crop": {
+        "x": 5,
+        "y": 2,
+        "width": 19,
+        "height": 21
+      },
+      "rgbaSha256": "7129be75969942bb56382f18ad1f5adb101f855efd00b5c98927a132f33308a1"
+    },
+    {
+      "frame": 1068,
+      "width": 28,
+      "height": 25,
+      "crop": {
+        "x": 2,
+        "y": 6,
+        "width": 25,
+        "height": 15
+      },
+      "rgbaSha256": "9c767bdc31459d0c23226bfe7939b3f457bd1b44a27b37dcaa00ece13bbaa61d"
+    }
+  ],
+  "scope": "Static source/byte inspection and standard-library asset decoding only; no native execution or renderer/GPU proof.",
+  "disassemblyHashes": {
+    "rle-crop.txt": "20d86ef7915b49c8b9616ebae8e5882fb1b7d42ec830de5cf67a613c11cc0349",
+    "bank-initializer.txt": "90d160ed7f776c4e52819d0e8c68eee75cdb1b6694588116181ee8cd1a422abe",
+    "sprite-upload-palette.txt": "d84a91544d494115e31b42e0131f68afb2d970d94f5b081a2301eb00b10c979f",
+    "bank-owner.txt": "1c8afa6892c409a389fca3e707cc3b2e1a2f0b0c2dc017aee6aa2c42fd8e3812",
+    "body-vertices.txt": "9a95a8b8ed04f7f73d1dd65d3d939dc89e16ee02d2055c73c79578987c69f98f",
+    "body-raster.txt": "d0f70e79135ee937ff7bbeeb3db7bc4f2bd5b767874033e400e55ed9b21043bd",
+    "queue-palette.txt": "c91c159464ca56c98c26ebfeb3ad309e7a4c953ef918452739a0125ffd83c5bd"
+  }
+}

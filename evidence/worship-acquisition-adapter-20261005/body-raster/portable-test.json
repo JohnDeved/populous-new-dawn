@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "59ea741b-d7ae-4adc-b1ae-b2e59260852e",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "2a820020fdf97d4c852f4faa4491832adfa93099",
+    "branch": "feat/worship-acquisition-controllers",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/hud.test.mjs",
+    "tests/spell-hud-icons.test.mjs",
+    "tests/worship-acquisition-controller.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-controllers",
+  "startedAt": "2026-10-05T01:46:21.664Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-controllers/work/orchestration/worship-acquisition-body-raster/portable-test.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-controllers/work/orchestration/worship-acquisition-body-raster/portable-test.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T01:46:22.676Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ shaman health fill follows native integer bounds and absent/overfull cases (2.212396ms)\n✔ HUD atlas metadata matches the PNG and contains every imported sprite (1.609352ms)\n✔ portrait backgrounds and shadow-free directional layers match native captures (2.151846ms)\n✔ tooltip bitmap placement and wrapping match the original desktop controller (33.850536ms)\n✔ mana production stripes follow native rates, warning bands and controller modes (5.298001ms)\n✔ live mana estimation uses the simulation clock and follows charging toggles (124.907534ms)\n✔ follower counts, icon placement and housing fill match native HUD controllers (5.061556ms)\n✔ population readouts exclude dead followers and reserve the shaman allowance (35.957574ms)\n✔ all six original Shield/Bloodlust descriptor frames have real atlas rectangles (1.363674ms)\n✔ ready, inactive, hover and selected states use the original descriptors, not Unicode or guessed frames (0.484626ms)\n✔ authored Mission16 already exposes both sprites without forced availability or stock (98.002749ms)\n✔ the original undiscovered spell question mark follows the accepted six-frame append (0.350225ms)\n✔ all shipped spell descriptor icons remain available after the append (0.174511ms)\n✔ HudSprite no longer substitutes a text glyph and still rejects unknown resources (0.588562ms)\n✔ native controller, particles, palette and ordered draw arguments: companion-seed1 (49.367271ms)\n✔ native controller, particles, palette and ordered draw arguments: companion-seed12345678 (6.912818ms)\n✔ native controller, particles, palette and ordered draw arguments: companion-initial-pause (7.462092ms)\n✔ native controller, particles, palette and ordered draw arguments: companion-mid-pause (6.692126ms)\n✔ native controller, particles, palette and ordered draw arguments: spell-3-visible (11.458672ms)\n✔ native controller, particles, palette and ordered draw arguments: spell-3-offscreen (7.881753ms)\n✔ native controller, particles, palette and ordered draw arguments: spell-4-visible (7.169322ms)\n✔ native controller, particles, palette and ordered draw arguments: spell-4-offscreen (6.099226ms)\n✔ native controller, particles, palette and ordered draw arguments: spell-12-visible (7.519759ms)\n✔ native controller, particles, palette and ordered draw arguments: spell-12-offscreen (8.19993ms)\n✔ native spell kinematics and pending transitions: model-3-visible (2.582747ms)\n✔ native spell kinematics and pending transitions: model-4-visible (1.289727ms)\n✔ native spell kinematics and pending transitions: model-12-visible (1.415164ms)\n✔ native spell kinematics and pending transitions: offscreen-bit (1.328054ms)\n✔ native singleton replacement and independent pulse: bridge-replaced-at-10 (14.099967ms)\n✔ native singleton replacement and independent pulse: bridge-replaced-at-26 (13.328499ms)\n✔ native singleton replacement and independent pulse: bridge-replaced-at-30 (15.317014ms)\n✔ handoff geometry is an owned snapshot; rendering is read-only and draws the last pulse once (4.537442ms)\n✔ structured-clone restores all particles, trails, pending phases, draws and independent pulse (125.602638ms)\n✔ spell motion, arrival and retirement do not depend on intervening shared cosmetic consumers (5.092395ms)\nℹ tests 34\nℹ suites 0\nℹ pass 34\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 904.732617\n",
+  "stderr": "",
+  "stdoutSha256": "6159cd5e428ef34f7c05ec82e4ebe9ab53623cb08ee4621df878c5f04a4d39f8",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "2a820020fdf97d4c852f4faa4491832adfa93099",
+    "branch": "feat/worship-acquisition-controllers",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

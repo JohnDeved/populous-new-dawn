@@ -1,0 +1,16 @@
+{
+  "proposal": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-grant-replacement/work/orchestration/worship-grant-replacement/adapter-proposal.md",
+  "sha256": "84643e788eed06c6ee5f3d53b313dbe92e0b1052790a3f9f259ad97b9e8ba1da",
+  "reviewedRevisionSha256": "2389bb3df659a38060786c9a04a4457b4b5f4a5fe7391c6fe278e0fc38681abc",
+  "onlyFollowupChange": "Preserve existing unrelated pause gates; exact reverse substitution reproduces reviewed revision hash",
+  "head": "d0666bae45421da88690d14d528385054cea4cb2",
+  "implementationBase": "0cb7e7ec4f53a403fcbc3c19b5f5f1fd876e4ee4",
+  "unchangedInspectedInputs": [
+    "app",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json"
+  ],
+  "verdict": "ACCEPT bounded implementation preflight",
+  "prerequisite": "focused composed two-ready-gift proof before request-order implementation"
+}

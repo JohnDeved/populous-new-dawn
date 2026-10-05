@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "71a5f7be-6128-4c3b-a124-eb8b2643cd31",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "edc05a6c381f4f6a2fa34f8f071676778d7e6cf1",
+    "branch": "feat/issue30-worship-acquisition",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "node",
+    "--test",
+    "tests/worship-acquisition-controller.test.mjs",
+    "tests/worship-acquisition-runtime.test.mjs",
+    "tests/worship-acquisition-source.test.mjs",
+    "tests/game-clock.test.mjs",
+    "tests/worship-acquisition-vfx.test.mjs",
+    "tests/worship-checkpoint-migration.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter",
+  "startedAt": "2026-10-05T02:03:12.535Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter/work/orchestration/worship-acquisition-adapter/edc05a6/portable.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter/work/orchestration/worship-acquisition-adapter/edc05a6/portable.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T02:03:18.403Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ render cadence cannot change gameplay, RNG or owned animation state (4636.484811ms)\n✔ paused time stays paused; long active frames retain elapsed time (98.51702ms)\n✔ campaign messages use the presentation clock and freeze while paused (196.595181ms)\n✔ campaign pending auto-open waits for settled motion and consumes one oldest record per presentation visit (42.097429ms)\n✔ native controller, particles, palette and ordered draw arguments: companion-seed1 (36.8602ms)\n✔ native controller, particles, palette and ordered draw arguments: companion-seed12345678 (15.329603ms)\n✔ native controller, particles, palette and ordered draw arguments: companion-initial-pause (24.375673ms)\n✔ native controller, particles, palette and ordered draw arguments: companion-mid-pause (26.719381ms)\n✔ native controller, particles, palette and ordered draw arguments: spell-3-visible (24.100941ms)\n✔ native controller, particles, palette and ordered draw arguments: spell-3-offscreen (31.035341ms)\n✔ native controller, particles, palette and ordered draw arguments: spell-4-visible (24.095177ms)\n✔ native controller, particles, palette and ordered draw arguments: spell-4-offscreen (10.545882ms)\n✔ native controller, particles, palette and ordered draw arguments: spell-12-visible (12.298092ms)\n✔ native controller, particles, palette and ordered draw arguments: spell-12-offscreen (6.962312ms)\n✔ native spell kinematics and pending transitions: model-3-visible (2.183257ms)\n✔ native spell kinematics and pending transitions: model-4-visible (1.908765ms)\n✔ native spell kinematics and pending transitions: model-12-visible (1.555926ms)\n✔ native spell kinematics and pending transitions: offscreen-bit (1.736557ms)\n✔ native singleton replacement and independent pulse: bridge-replaced-at-10 (23.092407ms)\n✔ native singleton replacement and independent pulse: bridge-replaced-at-26 (12.779144ms)\n✔ native singleton replacement and independent pulse: bridge-replaced-at-30 (13.350752ms)\n✔ handoff geometry is an owned snapshot; rendering is read-only and draws the last pulse once (4.994588ms)\n✔ structured-clone restores all particles, trails, pending phases, draws and independent pulse (162.971862ms)\n✔ spell motion, arrival and retirement do not depend on intervening shared cosmetic consumers (7.053309ms)\n✔ native before/after limiter selection owns activation, active and tail deadlines (1.325289ms)\n✔ ordinary phase handoff, arrival and next-object payout keep elapsed deadlines across refresh schedules (439.284591ms)\n✔ simultaneous authored M1 handoffs use native clone priority without reversing payouts (26.775406ms)\n✔ missing geometry consumes one request while world countdown continues without replay (78.451684ms)\n✔ arrival suppression and capped stock preserve ordinary payout ownership (121.8238ms)\n✔ visible acquisition pause preserves original order without broadening land-bit pause (46.317173ms)\n✔ checkpoint continuation retains controller, queue, clock and cosmetic state without initialization replay (102.799976ms)\n✔ layout transforms move only draw output and retain raised-body/fallback anchors (0.625248ms)\n✔ authored ordinary sources exclude the spell-valued Vault and other missions (1.988375ms)\n✔ ordinary shrine completion persists provenance, recipient and creation order (200.48326ms)\n✔ generic spell, mana and knowledge gifts do not inherit ordinary eligibility (30.750363ms)\n✔ legacy head identity may recover eligibility but an existing gift cannot (34.315621ms)\n✔ ordinary Stone Head completion creates the original six-visit acquisition VFX before stock delivery (169.858175ms)\n✔ legacy Mission22 worship appearance is derived from authored source identity without changing checkpoint state (166.937666ms)\n✔ legacy linked mode3 head migrates recursively while root trigger and unrelated state stay byte-for-byte equivalent (28.504602ms)\n✔ legacy non-mode3 and Vault heads recover mode without changing their presentation families (28.654437ms)\n✔ authored worship lookup uses immutable source fields and agrees for Mission22 and linked tutorial head (58.769235ms)\n✔ shipped store load migrates legacy Mission22 before real command-27 Brave admission (108.396629ms)\nℹ tests 42\nℹ suites 0\nℹ pass 42\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 5783.967818\n",
+  "stderr": "",
+  "stdoutSha256": "15b6fabc362421c56fc2a6810707e796fd389d510cdea23e790b3362f114243a",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "edc05a6c381f4f6a2fa34f8f071676778d7e6cf1",
+    "branch": "feat/issue30-worship-acquisition",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

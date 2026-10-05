@@ -1,0 +1,25 @@
+{
+  "command": [
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter/node_modules/.bin/oxlint",
+    "--config",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter/.oxlintrc.json",
+    "app"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-grant-replacement",
+  "baselineHead": "d0666bae45421da88690d14d528385054cea4cb2",
+  "acceptedBase": "89c9629991489fd1ce6dc52e938d1cec346bfead",
+  "baselineAppPackageConfigEqualAcceptedBase": true,
+  "startedAt": "2026-10-05T02:06:36.265635+00:00",
+  "finishedAt": "2026-10-05T02:06:36.652132+00:00",
+  "exitCode": 1,
+  "baselineErrorCount": 12812,
+  "currentErrorCount": 673,
+  "additionalErrorsIgnoringLineNumbers": [],
+  "stdoutSha256": "a310c1207989d002c15ca89594a4a953737cc4a6c742c69534935ef3fbc3440b",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "qualification": "Absolute inherited config in the alternate cwd does not match its relative level-* ignore pattern. Compare the same maintained-file cohort after excluding generated app/level-*.ts except level-start.ts and level-start-runtime.ts; raw output remains intact.",
+  "maintainedBaselineErrorCount": 673,
+  "maintainedCurrentErrorCount": 673,
+  "additionalMaintainedErrorsIgnoringLineNumbers": [],
+  "removedMaintainedErrorsIgnoringLineNumbers": []
+}
