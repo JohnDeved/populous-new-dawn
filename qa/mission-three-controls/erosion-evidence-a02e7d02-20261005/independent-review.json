@@ -1,0 +1,159 @@
+{
+  "decision": "ACCEPT",
+  "scope": "Frozen in-progress ordinary Load/cancel/reload/same-victim conversion and prospectively observed shrine-linked Erosion lifecycle/terrain prefix only. No terminal cleanup, full mission victory, clean accumulated journey, full original-native replay or hardware performance acceptance.",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_copied_sermon_admission",
+  "reviewedAt": "2026-10-05T08:12:54.130660+00:00",
+  "sourceCommit": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+  "runId": "a02e7d02-ae42-496d-a49e-00c75b069ede",
+  "executionSession": 95285,
+  "proof": {
+    "path": "work/orchestration/mission-three-sermon-continuation/erosion-sequence-proof/proof.json",
+    "sha256": "592d5bca86c120be07d6e1859ccbc2cdadd28ad7afb31b31c10629ef6e00d92a"
+  },
+  "independentChecks": {
+    "path": "work/reviews/erosion-sequence-592d5bc-checks.json",
+    "sha256": "43820221c1141bb92df0370661b432e470214295d68806d35e6b6fccb260383a"
+  },
+  "findings": [],
+  "verified": {
+    "status": "passed",
+    "runId": "a02e7d02-ae42-496d-a49e-00c75b069ede",
+    "proofSha256": "592d5bca86c120be07d6e1859ccbc2cdadd28ad7afb31b31c10629ef6e00d92a",
+    "journalLines": 64,
+    "artifactCount": 13,
+    "loadTurn": 4830,
+    "pausedOnEntry": true,
+    "cancelAcceptedTurn": 4852,
+    "cancelObservedTurn": 4907,
+    "clearedBitObserved": false,
+    "reloadObservedTurn": 4852,
+    "reloadSnapshotTurn": 4875,
+    "conversionTurns": [
+      4876,
+      4877
+    ],
+    "victimId": 50,
+    "replacementId": 3242,
+    "erosion": {
+      "shrineId": 101,
+      "armedAtTurn": 5289,
+      "onsetTurn": 5924,
+      "effectId": 3681,
+      "center": {
+        "x": 63744,
+        "y": 35072,
+        "h": 814
+      },
+      "presentSamples": 64,
+      "lastRemaining": 1,
+      "retirementTurn": 5988,
+      "actualZeroAndAbsent": true,
+      "terrainSamples": {
+        "onset": {
+          "turn": 5924,
+          "versions": {
+            "landVersion": 167,
+            "terrainVersion": 167
+          },
+          "otherTerrainControllers": []
+        },
+        "firstActive": {
+          "turn": 5925,
+          "versions": {
+            "landVersion": 168,
+            "terrainVersion": 168
+          },
+          "otherTerrainControllers": []
+        },
+        "lastActive": {
+          "turn": 5987,
+          "versions": {
+            "landVersion": 230,
+            "terrainVersion": 230
+          },
+          "otherTerrainControllers": []
+        },
+        "retired": {
+          "turn": 5988,
+          "versions": {
+            "landVersion": 230,
+            "terrainVersion": 230
+          },
+          "otherTerrainControllers": []
+        }
+      },
+      "correlatedChangedCells": 104
+    },
+    "pausedBoundaryTurn": 6115,
+    "cumulativeActiveSeconds": 1096.4166666666665,
+    "fixedCeiling": 2252.8333333333335,
+    "inheritedFailures": 3,
+    "inheritedControlStops": 2,
+    "prefixNewFailures": 0,
+    "rendering": "ANGLE Vulkan SwiftShader; software/headless",
+    "visualFrames": {
+      "conversion": 5146,
+      "erosionStart": 6015,
+      "erosionCompleted": 6081
+    },
+    "limitations": [
+      "Both Erosion screenshots are post-retirement and not a before/after or live-effect pair.",
+      "Frozen ordinary-play prefix only; terminal cleanup and mission completion are pending.",
+      "Terrain differences are correlated, not exclusive native attribution."
+    ]
+  },
+  "artifactIntegrity": {
+    "journal": "64-line frozen prefix SHAea78a4bd; exact prefix of the actual growing journal when reviewed. No terminal/failure/diagnostic-stop event in that frozen prefix.",
+    "artifacts": "All13 declared copied snapshots/screenshots/consumed-input files match declared sizes/SHA256s and the original source artifacts byte-for-byte.",
+    "source": "Actual target remained clean5de3c57. First observed checkpoint binds runa02e7d02, accepted target fingerprint2b706d53, profilec1f1d915 and complete saved4813 digest720e96e2. Exact input record hash matches the logged admission.",
+    "acceptedInputBatches": [
+      [
+        "cancel-sermon"
+      ],
+      [
+        "reload-sermon",
+        "complete-conversion"
+      ],
+      [
+        "erosion"
+      ]
+    ]
+  },
+  "sequenceAssessment": {
+    "entry": "Observed committed4813 checkpoint; actual Load\u2192Pause UI sequence before binding; strict saved listener/Preacher/13Blue checks pass on paused opening4830.",
+    "cancellation": "Accepted actual movement dispatch4852 for Preacher3163; living Yellow50 was observed released at4907 with actual fight-owned person/state25, owner0, cleared listener flag and no conversionNative owner. clearedBitObserved remainsfalse; no invented intermediate bit-clear observation.",
+    "reloadAndConversion": "New ordinary Load observed4852 in reload-1. The raw4875 snapshot still shows the same listener/Preacher identities, unpaused. Exact singleton50/state23/owner3163\u2192Blue3242 at4876\u21924877 with flags3=16777216 and flags4=537133312 passes the maintained conversion helper.",
+    "erosion": "Observation armed prospectively at5289 before the accepted ordinary shrine101 order. Shrine uses0\u21921 at5924 coincides with newly allocated effect3681 at actual linked target(-15,111), native center(63744,35072,814), age0/remaining64. Source-bound identity/center checks, all64 consecutive present samples5924..5987 and actual remaining0/removal5988 are retained. The exported evidence passes the maintained lifecycle validator.",
+    "terrain": "All four radius6 snapshots contain169 unique coarse cells with finite heights and two sets of4 valid packed quarter-cell bits. Recomputed height/walk differences equal the104 recorded changed cells. Versions167\u2192168\u2192230\u2192230 align with onset/first/last/retirement. This is correlated evidence; absence of other listed controllers at4 sample instants does not establish exclusive causation across the interval.",
+    "historyAndBudget": "Initial3 failures/2 stops remain inherited. No new failure in the frozen prefix and all included observer error/speed-violation arrays are empty. Paused6115 boundary is1096.4166666666665 cumulative seconds; the original2252.8333333333335 ceiling is unchanged."
+  },
+  "visualInspection": {
+    "files": [
+      {
+        "file": "milestone-conversion.png",
+        "sha256": "c643c7860ece49dfd4bc0980fce753b79717d9e4b93eedb97579d2ff4fe311f8"
+      },
+      {
+        "file": "milestone-erosion-start.png",
+        "sha256": "556e690c864178211028e364aa29014730d38bf8ee92e39b49d4125554886fe6"
+      },
+      {
+        "file": "milestone-erosion.png",
+        "sha256": "39595eb9021929fbfbaae4445f7e9a397b2b116cc05035b9ee70288a60dad571"
+      }
+    ],
+    "observed": "Three1440\u00d71000 rendered game screenshots show an intact scene and HUD. The two Erosion frames show the rendered terrain after the retained effect has finished.",
+    "requiredCaptions": "Label Erosion-start image as turn6015 and Erosion-completed image as turn6081, both after retirement5988. They are not live onset frames or a matched pre/post terrain pair.",
+    "limits": "Lifecycle evidence comes from the passive per-turn observer, not these still images. No exact native visual/animation/audio or hardware-frame-rate equivalence is established; renderer is ANGLE/Vulkan SwiftShader in headless software mode."
+  },
+  "continuingRunBoundary": "Ordinary gameplay may continue under its existing grant without another gate from this review. Later mission/terminal/cleanup results need their own actual evidence. This review neither claims nor changes the active run\u2019s terminal state.",
+  "reviewAccess": {
+    "runtimeProcessControl": false,
+    "dependencyOwnership": false,
+    "browserAutomation": false,
+    "profileBytes": false,
+    "inputs": "Read frozen evidence/source only; viewed three copied screenshots; invoked pure validators on parsed evidence.",
+    "writes": "Own work/reviews artifacts only"
+  },
+  "resourcesHeld": []
+}

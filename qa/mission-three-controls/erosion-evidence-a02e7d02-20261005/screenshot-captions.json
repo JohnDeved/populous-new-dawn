@@ -1,0 +1,27 @@
+{
+  "sourceCommit": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+  "runId": "a02e7d02-ae42-496d-a49e-00c75b069ede",
+  "screenshots": [
+    {
+      "file": "milestone-conversion.png",
+      "turn": 5146,
+      "paused": false,
+      "caption": "Post-conversion rendered view; conversion event4876\u21924877 is established by the passive observer.",
+      "sha256": "c643c7860ece49dfd4bc0980fce753b79717d9e4b93eedb97579d2ff4fe311f8"
+    },
+    {
+      "file": "milestone-erosion-start.png",
+      "turn": 6015,
+      "paused": false,
+      "caption": "Post-effect rendered view after Erosion retirement5988; not an onset/live-effect frame or before/after terrain comparison.",
+      "sha256": "556e690c864178211028e364aa29014730d38bf8ee92e39b49d4125554886fe6"
+    },
+    {
+      "file": "milestone-erosion.png",
+      "turn": 6081,
+      "paused": false,
+      "caption": "Post-effect rendered view after Erosion retirement5988; not an onset/live-effect frame or before/after terrain comparison.",
+      "sha256": "39595eb9021929fbfbaae4445f7e9a397b2b116cc05035b9ee70288a60dad571"
+    }
+  ]
+}
