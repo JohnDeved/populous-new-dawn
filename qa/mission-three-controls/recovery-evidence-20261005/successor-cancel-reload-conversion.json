@@ -1,0 +1,132 @@
+{
+  "kind": "in-progress-source-bound-ordinary-gameplay-observation",
+  "sourceCommit": "bbd7371e04a55e57b1e368530e92de6777864358",
+  "runId": "1c430e41-9aca-4a05-bb45-7bd8076ffffd",
+  "status": "cancel-reload-conversion-observed-run-still-in-progress",
+  "cancellation": {
+    "at": "2026-10-05T05:17:53.464Z",
+    "wallMs": 37496,
+    "action": "sermon-cancellation-observed",
+    "cancellation": {
+      "kind": "released-listener-observed-in-combat",
+      "victimId": 50,
+      "preacherId": 3163,
+      "turnBefore": 4830,
+      "turnAfter": 4899,
+      "releasedOwner": 0,
+      "listenerFlag": 0,
+      "clearedBitObserved": false,
+      "personOwner": "fight",
+      "flags2": 2228864,
+      "fight": {
+        "group": 3244,
+        "groupExists": true,
+        "opponent": 3163,
+        "personId": 50,
+        "state": 25,
+        "flags2": 2228864
+      }
+    }
+  },
+  "reload": {
+    "at": "2026-10-05T05:18:28.056Z",
+    "wallMs": 72088,
+    "action": "loaded-sermon-first-epoch",
+    "saved": {
+      "turn": 4813,
+      "time": 401.0833333333333,
+      "victimId": 50,
+      "preacherId": 3163,
+      "blueIds": [
+        46,
+        312,
+        309,
+        519,
+        513,
+        510,
+        303,
+        300,
+        522,
+        507,
+        306,
+        589,
+        3163
+      ]
+    },
+    "loadedTurn": 4860,
+    "loadedTime": 405,
+    "epoch": "reload-1"
+  },
+  "conversion": {
+    "at": "2026-10-05T05:18:40.643Z",
+    "wallMs": 84675,
+    "action": "exact-conversion-proved",
+    "event": {
+      "turnBefore": 4876,
+      "turnAfter": 4877,
+      "kind": "brave",
+      "victims": [
+        {
+          "id": 50,
+          "kind": "brave",
+          "team": "yellow",
+          "hp": 50,
+          "state": 23,
+          "workTarget": 3163,
+          "flags3": 0,
+          "flags4": 536936832
+        }
+      ],
+      "replacements": [
+        {
+          "id": 3242,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "state": 10,
+          "workTarget": 0,
+          "flags3": 16777216,
+          "flags4": 537133312
+        }
+      ],
+      "pairing": "Same-turn kind group; no individual pairing is claimed when several victims/replacements coincide."
+    },
+    "epoch": "reload-1"
+  },
+  "cumulativeActiveSecondsAtPausedBoundary": 456.3333333333334,
+  "inheritedFailureCount": 3,
+  "newFailureCountAtBoundary": 0,
+  "rawSnapshots": [
+    {
+      "path": "work/orchestration/mission-three-controls/successor-sermon-01/milestone-sermon-cancelled.json",
+      "sha256": "81397193c3dd7801b90de8b4b26bcfdc8d714c4eb70152fcd580bfe9fd86b00a",
+      "turn": 4899
+    },
+    {
+      "path": "work/orchestration/mission-three-controls/successor-sermon-01/milestone-sermon-reloaded.json",
+      "sha256": "cd770988a99552cb48ef502e9b36d4086f3a2e2bc58691b29ce0e4257df27b15",
+      "turn": 4878
+    },
+    {
+      "path": "work/orchestration/mission-three-controls/successor-sermon-01/milestone-conversion.json",
+      "sha256": "6d2354a324e1f64ad6add5af125276423dc4865083d8f0f91a5b3574bb1a7eb2",
+      "turn": 5144
+    },
+    {
+      "path": "work/orchestration/mission-three-controls/successor-sermon-01/batch-0002.json",
+      "sha256": "7d04216442606b46ff1faf6def6b0e3fb76bc01aa686c6f8703f6293e42778b8",
+      "turn": 5186
+    }
+  ],
+  "frozenJournalPrefix": {
+    "path": "work/orchestration/mission-three-sermon-continuation/successor-conversion-proof/actions-through-batch-0002.jsonl",
+    "sha256": "83d707181241b2144916bedabf9394f05f5f7229dfc5200acc0846763c5d436d",
+    "sourcePath": "work/orchestration/mission-three-controls/successor-sermon-01/actions.jsonl",
+    "lineCount": 42
+  },
+  "limits": [
+    "Run is still active; this is not a terminal receipt, cleanup assertion or clean uninterrupted journey.",
+    "Cancellation has clearedBitObserved:false because later person ownership was actual combat.",
+    "No new native probe or hardware-performance claim. OriginalRun14 remains failed with unverified cleanup."
+  ]
+}

@@ -1,0 +1,102 @@
+{
+  "decision": "ACCEPT",
+  "scope": "One exact reviewed successor of real failed gameplay run5451f1a6 on the existing recovered game-only profile, using pause-first ordinary Load. Source,90 focused tests, final1038-test repository check and concrete new QA/runtime correspondence accepted. No new gameplay milestone or original cleanup is claimed.",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_copied_sermon_admission",
+  "reference": "work/reviews/copied-sermon-successor-bbd7371-review.json",
+  "reviewedAt": "2026-10-05T05:14:17.194038+00:00",
+  "correspondenceSha256": "1d562ec19620c8b1b3c7369db44ff225176c40098a81e5151c073b1dacb8e8b5",
+  "sourceCommit": "bbd7371e04a55e57b1e368530e92de6777864358",
+  "sourceFingerprint": "2e68959e06fec091ad679b34545a4400989a2967d2b8035ef47c6949e6c234a1",
+  "checker": "d9206244d185576d242398492298df21935355881123d335554a1a5cc1d8fdb2",
+  "payload": "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-payload.json",
+  "targetProfile": {
+    "id": "c1f1d915-d99a-4c47-be2a-2ad36d89fc86",
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/local-render-profiles/mission-three-recovered-sermon-4813"
+  },
+  "sourceReview": {
+    "path": "work/reviews/copied-sermon-successor-bbd7371-source-review.json",
+    "sha256": "a59a2b412963b2f166e1386ba81ea3fea19309f7b58d0c776405f26abd282343"
+  },
+  "payloadVerification": {
+    "path": "work/reviews/copied-sermon-successor-bbd7371-payload-checks.json",
+    "sha256": "d0808ac77e692c1783d3129581296c11bc7fd70962d6e72fcde426ea0ab99927",
+    "currentMarkerSha256": "72351f4740c912bececdc217a74c4506f257f3944954eb5de7f8cdcb4e408cf9",
+    "actualOldBindingMatches": true,
+    "firstAdmissionAndClaimUnchanged": true,
+    "ownerLockAbsentAtReview": true
+  },
+  "findings": [],
+  "acceptedHistory": {
+    "priorRunId": "5451f1a6-088f-4dac-94c9-b0f2cc869fd2",
+    "status": "failed",
+    "receiptSha256": "23a1c360938456620031fc096d895eb6f730006055a554c7dd55a6965ac90dd0",
+    "checkpointSha256": "720e96e28b46a029e22a1c97729ead760471c96e4e10c59fd5ae620d5e66f57a",
+    "cumulativeActiveSeconds": 418.08333333333337,
+    "originalActivePrefix": 407.75,
+    "openEpochActiveSeconds": 10.333333333333371,
+    "failures": 3,
+    "controlStops": 1,
+    "newRequiredSequenceMilestones": 0
+  },
+  "checks": {
+    "focusedHost": {
+      "status": "passed",
+      "tests": 90,
+      "path": "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-tests.json",
+      "sha256": "8c55cf96b9e668a20da1511b08d5e9e5a2c122ca57e46f7d425a949f90e10d92",
+      "review": "Source/raw stream hashes independently checked in source review."
+    },
+    "repositoryCheck": {
+      "status": "passed",
+      "tests": 1038,
+      "path": "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-check.json",
+      "sha256": "25002813a5f89759a68716e8af82bfde99b711811afe371a8cfad07340692896",
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "300s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "check"
+      ],
+      "exitCode": 0,
+      "source": {
+        "headOid": "bbd7371e04a55e57b1e368530e92de6777864358",
+        "branch": "qa/mission-three-sermon-continuation",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {}
+      },
+      "review": "Exact-head/source consistency and raw stdout/stderr hashes independently verified."
+    },
+    "buildCarry": {
+      "status": "owner-verified-correspondence",
+      "path": "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-build-correspondence.json",
+      "sha256": "ac94fe419946ec292b0948fcfc330a577224d740732b8ed2cbb7fbad149c8b49",
+      "review": "Reviewer independently verified13 production objects and source lock remain pinned. Raw historical build/installed package correspondence is owner/parent evidence; no redundant new build or reviewer dependency access claimed."
+    },
+    "sourceGuards": 60,
+    "productionObjects": 13,
+    "runtimeDelta": "Only owned-profile.mjs changes from3ddb1dd; harness/checkpoint observer/vite unchanged. Actual harness will remeasure full new runtime before lease.",
+    "typescriptQuality": "not-applicable; no maintained TypeScript changes; maintained MJS reviewed.",
+    "browser": "not-run for this successor; prior genuine loaded conversion remains separate from failed required sequence."
+  },
+  "conditions": [
+    "Use this exact clean source, payload and immutable hash-bound review reference.",
+    "Acquire only existing profilec1f1d915 through reviewed ordinary owned-profile path; retain original recoveryAdmission/recoveryClaim unchanged and append one successor claim under its own wx lock. No direct marker rebinding outside the reviewed lease.",
+    "Normal harness must read actual saved4813/full720e96e2 before scenario; ordinary Load then immediate UI Pause must retain exact50/3163/13Blue identities.",
+    "Fresh cancellation, post-cancellation ordinary reload and same-victim conversion each need new source-bound witnesses. No retroactive success for earlier runs.",
+    "Inherit418.08333333333337 and all3 failures/control stop; preserve new failures/time and latest Save on any issue. No third acquisition.",
+    "Original Run14 profile remains quarantined; no cleanup, lock removal, state construction, storage write, recopy, re-registration or profile upload."
+  ],
+  "reviewAccess": {
+    "originalQuarantinedProfile": false,
+    "currentRecoveredProfile": "Read private marker metadata only, no mutation or browser/storage bytes",
+    "dependencies": false,
+    "browser": false,
+    "writes": "Own work/reviews artifacts only"
+  }
+}

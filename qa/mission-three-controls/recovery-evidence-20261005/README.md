@@ -7,3 +7,7 @@ The original Run14 saved turn4813 on applicationb381851. A read-only validator p
 The separate pause-first90bd786 and successorbbd7371 source revisions are reviewed. They preserve the immutable first admission/claim, carry418.08333333333337 cumulative active seconds and all3 failures, and admit only one explicitly reviewed successor of the real failed segment.90 focused tests and the exact1038-test npm check pass.13 production source objects match pinnedb381851; owned-profile has an explicit new QA runtime hash. Build evidence is carried by exact production/source-lock/installed-lock correspondence.
 
 See recovered-sermon-01-outcome.json for proof boundaries and raw artifact hashes; see inventory.json for copied receipt hashes. No profile/IndexedDB bytes are published. Source-only success is not browser acceptance, cancellation proof or hardware performance evidence.
+
+## Successor observation, still running
+
+The reviewed successor1c430e41 has now observed the actual fresh sequence: accepted Preacher move4851; listener50 owner/flag release at4899 under actual combat ownership; ordinary reload observed at4860 in a new epoch; then singleton50→Blue3242 at4876→4877 with converted flags. The cancellation explicitly has clearedBitObserved:false. The paused boundary5186 carried456.3333333333334 cumulative active seconds and all3 inherited failures with no new failure. See successor-cancel-reload-conversion.json and the frozen journal prefix. Ordinary Erosion is continuing; this is not a clean uninterrupted journey or terminal cleanup result.

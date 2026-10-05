@@ -79,11 +79,29 @@
       "sha256": "23a1c360938456620031fc096d895eb6f730006055a554c7dd55a6965ac90dd0",
       "bytes": 49853,
       "sourceArtifact": "work/orchestration/mission-three-controls/recovered-sermon-01/receipt.json"
+    },
+    {
+      "file": "successor-cancel-reload-conversion.json",
+      "sha256": "b6d21e9547eb5fe054b0db180f031a4fa18ae4d6b18c9c20ecbf03a3127dd76b",
+      "bytes": 3994,
+      "sourceArtifact": "work/orchestration/mission-three-sermon-continuation/successor-conversion-proof/proof.json"
+    },
+    {
+      "file": "successor-actions-through-batch-0002.jsonl",
+      "sha256": "83d707181241b2144916bedabf9394f05f5f7229dfc5200acc0846763c5d436d",
+      "bytes": 16223,
+      "sourceArtifact": "work/orchestration/mission-three-sermon-continuation/successor-conversion-proof/actions-through-batch-0002.jsonl"
+    },
+    {
+      "file": "copied-sermon-successor-bbd7371-review.json",
+      "sha256": "32260e5c45d4a49d9086a05e710e0b0ba08565308a38001a7411f258014e19bd",
+      "bytes": 5795,
+      "sourceArtifact": "work/reviews/copied-sermon-successor-bbd7371-review.json"
     }
   ],
   "limits": [
     "No browser profile, IndexedDB or private storage files are included.",
     "OriginalRun14 cancellation/cleanup remain failed/unverified. New first recovered cancellation failed; actual saved-state Load and singleton conversion were observed.",
-    "Successor source is reviewed and its check passed; no successor gameplay result exists yet."
+    "Successor has observed fresh ordinary cancellation/reload/same-victim conversion, with all3 prior failures; the gameplay run is still active and has no terminal cleanup receipt yet."
   ]
 }
