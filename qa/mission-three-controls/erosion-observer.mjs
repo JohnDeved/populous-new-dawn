@@ -27,7 +27,7 @@ const state = effect => {
     effect.erosion.center.x, effect.erosion.center.y, effect.erosion.center.h].every(Number.isFinite),
   'Lifecycle evidence requires finite observed scalars')
   return { id: effect.id, kind: effect.kind, x: effect.x, z: effect.z, age: effect.age,
-    remaining: effect.erosion.remaining, center: { ...effect.erosion.center } }
+    remaining: effect.erosion.remaining, center: { x: effect.erosion.center.x, y: effect.erosion.center.y, h: effect.erosion.center.h } }
 }
 
 export function armErosionObservation(epoch, world, shrineId) {
@@ -70,26 +70,32 @@ export function recordErosionTurn(epoch, world) {
       insist(center.x === (Math.round((target.x + 8) * 256) & 65535) && center.y === (Math.round((-target.z - 8) * 256) & 65535), 'Erosion native center differs from its authored target')
       const record = { onsetTurn: world.turn, onset: state(effect), samples: [[world.turn, 64]],
         last: state(effect), retired: null, terrain: { onset: terrain(world, center) } }
-      observation.effects.push(record); refs.get(observation).set(effect.id, effect)
+      observation.effects.push(record); refs.get(observation).set(effect.id, { effect, controller: effect.erosion })
     }
   }
   for (const record of observation.effects) {
     if (record.retired || record.onsetTurn === world.turn) continue
     const elapsed = world.turn - record.onsetTurn
     const effect = (world.effects ?? []).find(effect => effect.id === record.onset.id)
+    const retained = refs.get(observation).get(record.onset.id)
+    insist(retained.effect.id === record.onset.id && retained.effect.kind === 'erosion' &&
+      samePoint(retained.effect, record.onset), 'Erosion effect identity or target changed')
+    insist(retained.effect.erosion === retained.controller, 'Erosion controller identity changed')
+    insist(['x', 'y', 'h'].every(key => retained.controller.center?.[key] === record.onset.center[key]),
+      'Erosion native center changed from its authored onset')
     if (elapsed < 64) {
-      insist(effect?.kind === 'erosion' && effect === refs.get(observation).get(record.onset.id), 'Erosion ID or controller changed before retirement')
+      insist(effect?.kind === 'erosion' && effect === retained.effect, 'Erosion effect identity changed before retirement')
       insist(effect.erosion?.remaining === 64 - elapsed && samePoint(effect, record.onset), 'Erosion countdown/target changed')
       record.last = state(effect); record.samples.push([world.turn, effect.erosion.remaining])
       if (elapsed === 1) record.terrain.firstActive = terrain(world, effect.erosion.center)
       if (elapsed === 63) record.terrain.lastActive = terrain(world, effect.erosion.center)
     } else {
-      const retained = refs.get(observation).get(record.onset.id)
-      insist(elapsed === 64 && !effect && record.last.remaining === 1 && retained.erosion.remaining === 0 &&
-        Number.isFinite(retained.age) && Number.isFinite(retained.duration) && retained.duration === retained.age, 'Erosion retirement needs its actual zero-counter removal on turn64')
-      record.retired = { turnBefore: world.turn - 1, turnAfter: world.turn, remaining: retained.erosion.remaining,
-        age: retained.age, duration: retained.duration, absentFromWorld: true }
-      record.terrain.retired = terrain(world, retained.erosion.center)
+      insist(elapsed === 64 && !effect && record.last.remaining === 1 && retained.controller.remaining === 0 &&
+        Number.isFinite(retained.effect.age) && Number.isFinite(retained.effect.duration) &&
+        retained.effect.duration === retained.effect.age, 'Erosion retirement needs its actual zero-counter removal on turn64')
+      record.retired = { turnBefore: world.turn - 1, turnAfter: world.turn, remaining: retained.controller.remaining,
+        age: retained.effect.age, duration: retained.effect.duration, absentFromWorld: true }
+      record.terrain.retired = terrain(world, retained.controller.center)
       record.changedCells = record.terrain.retired.cells.filter((cell, i) =>
         cell.height !== record.terrain.onset.cells[i].height ||
         JSON.stringify(cell.walkMasks) !== JSON.stringify(record.terrain.onset.cells[i].walkMasks))

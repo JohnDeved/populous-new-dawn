@@ -443,11 +443,25 @@ export default async function missionThreeControls({ page, output, root, signal,
       await sleep(1000)
     }
   }
-  const consumeQueuedStop = async ({ defer = false } = {}) => {
+  const consumeQueuedStop = async ({ defer = false, includeOrdinary = false } = {}) => {
     if (preserveStopRequested || terminalHandling) return
     const ordinal = inBatch ? index + 1 : Math.max(1, index)
-    const pending = readQueuedPreservingStop(commandsPath, ordinal, receipt.profile?.runId ?? receipt.startedAt)
-    if (!pending) return
+    const runId = receipt.profile?.runId ?? receipt.startedAt
+    let pending
+    try {
+      pending = readQueuedPreservingStop(commandsPath, ordinal, runId, { includeOrdinary })
+      if (includeOrdinary) assert.ok(pending, 'Queued command disappeared before authenticated consumption')
+    } catch (error) {
+      // Unsafe/unreadable input is terminal even inside a running batch. Do not
+      // let generic command-error handling continue or issue a fallback Save.
+      preserveStopRequested = true
+      log({ action: 'queued-preserving-stop-validation-failed', ordinal, runId,
+        path: resolve(commandsPath, `${String(ordinal).padStart(4, '0')}.json`),
+        readableInputRecorded: false, error: String(error) })
+      saveProgress()
+      throw error
+    }
+    if (!pending || !pending.preserving) return pending
     // Preservation intent is terminal even for an invalid mixed/run-mismatched
     // request. Ordinary queued commands are never consumed here.
     preserveStopRequested = true
@@ -972,20 +986,14 @@ export default async function missionThreeControls({ page, output, root, signal,
         if (Date.now() - startWall >= wallLimit) throw new IncompleteRun('wall-envelope', 'Outer wall resource envelope reached awaiting commands')
         await sleep(1000)
       }
-      const bytes = readFileSync(path), hash = sha256(bytes)
-      writeFileSync(resolve(output, `consumed-${String(index).padStart(4, '0')}.json`), bytes)
+      const pending = await consumeQueuedStop({ includeOrdinary: true })
+      const bytes = pending.bytes, hash = pending.sha256
+      writeFileSync(resolve(output, `consumed-${String(index).padStart(4, '0')}.json`), bytes, { flag: 'wx' })
       inputs.push({ name: `commands/${String(index).padStart(4, '0')}.json`, sha256: hash }); saveProgress()
       inBatch = true
       try {
         const commands = JSON.parse(bytes)
         assert.ok(Array.isArray(commands) && commands.length > 0 && commands.length <= 32)
-        if (commands.some(command => command?.action === 'stop-preserve-latest')) {
-          preserveStopRequested = true
-          assert.equal(commands.length, 1, 'A preserving stop must be the sole command in its batch')
-          // Operator preservation is terminal even if normal diagnostics or
-          // the active/wall gameplay budget would reject another action.
-          await stopPreserveLatest()
-        }
         for (const command of commands) {
           signal.throwIfAborted()
           if (Date.now() - startWall >= wallLimit) throw new IncompleteRun('wall-envelope', 'Outer resource limit reached')

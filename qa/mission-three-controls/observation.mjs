@@ -369,8 +369,7 @@ export function progressKey(snapshot, scope, ids = []) {
   }
   if (scope === 'training') return JSON.stringify([buildings.map(b =>
     [b.id, b.hp, b.trainingMana, b.trainingCost, b.inside, b.occupants, b.queue]),
-  snapshot.units.filter(u => u.team === 'blue').map(u => [u.id, u.kind]),
-  units.map(u => [u.id, Math.round(u.x * 4), Math.round(u.z * 4), u.inside, u.order])])
+  units.map(u => [u.id, u.kind, Math.round(u.x * 4), Math.round(u.z * 4), u.inside, u.order])])
   if (scope === 'worship') return JSON.stringify([snapshot.unlockedTemple,
     snapshot.shrines.filter(h => !ids.length || included.has(h.id)).map(h =>
       [h.id, h.work, h.progress, h.uses, h.followers]),
@@ -385,10 +384,20 @@ export function progressKey(snapshot, scope, ids = []) {
 
 // Progress belongs to this objective, never unrelated wandering/combat.
 export function objectiveProgress(snapshot, condition, scope, ids = []) {
+  if (condition.type === 'shaman-ready') {
+    const ready = snapshot.readiness, shaman = ready?.shaman
+    return JSON.stringify([snapshot.status, snapshot.paused, snapshot.inputMask, ready?.ready,
+      ready?.levelStartPhase, shaman && [shaman.id, shaman.hp, shaman.canOrder, shaman.selectable,
+        shaman.state, shaman.flags2, shaman.flags4, shaman.commandStatus]])
+  }
   if (condition.type.startsWith('erosion-')) return erosionProgress(snapshot, condition.id)
   if (['effect-present', 'effect-finished'].includes(condition.type))
     return JSON.stringify(snapshot.effects.filter(effect => effect.kind === condition.kind).map(effect => [effect.id, effect.kind, effect.age]))
   const watched = ids.length ? ids : [condition.id, condition.preacherId, ...(condition.ids ?? [])].filter(Number.isInteger)
+  if (condition.type === 'trained-kind') return JSON.stringify([
+    watched.length ? progressKey(snapshot, 'training', watched) : null,
+    checkCondition(snapshot, condition),
+  ])
   if (condition.type === 'won') return JSON.stringify([snapshot.status,
     snapshot.units.filter(unit => unit.team !== 'wild').map(unit => [unit.id, unit.team, unit.hp]),
     snapshot.buildings.map(building => [building.id, building.team, building.hp])])

@@ -83,20 +83,19 @@ test('the actual batch boundary gives a preserving stop priority over a pending 
   assert.deepEqual(calls, ['stop-preserve-latest'])
 })
 
-test('a preserving stop dispatches before any ordinary read, health or budget processing', async () => {
-  const start = driver.indexOf('        const commands = JSON.parse(bytes)'),
-    end = driver.indexOf('        for (const command of commands)', start)
-  const execute = new AsyncFunction('deps', `
-    const { assert, bytes, stopPreserveLatest } = deps;
-    let preserveStopRequested = false;
+test('the actual main entry authenticates preservation before archiving or entering ordinary diagnostics', async () => {
+  const start = driver.indexOf('      const pending = await consumeQueuedStop({ includeOrdinary: true })'),
+    end = driver.indexOf('      inBatch = true', start)
+  assert.ok(start >= 0 && end > start)
+  const execute = new AsyncFunction('consumeQueuedStop', `
     ${driver.slice(start, end)}
     throw Error('Ordinary diagnostic/budget path reached');
   `)
   const stop = new IncompleteRun('preserve-latest', 'preserved')
-  await assert.rejects(execute({ assert, bytes: JSON.stringify([{ action: 'stop-preserve-latest' }]),
-    stopPreserveLatest: async () => { throw stop } }), error => error === stop)
-  await assert.rejects(execute({ assert, bytes: JSON.stringify([{ action: 'resume' }, { action: 'stop-preserve-latest' }]),
-    stopPreserveLatest: async () => { throw stop } }), /sole command/)
+  for (const error of [stop, Error('Preserving stop must be the sole command and match the current run')])
+    await assert.rejects(execute(async options => {
+      assert.deepEqual(options, { includeOrdinary: true }); throw error
+    }), caught => caught === error)
 })
 
 test('the actual terminal preservation branch never invokes Save on unknown checkpoint or readback failure', async () => {

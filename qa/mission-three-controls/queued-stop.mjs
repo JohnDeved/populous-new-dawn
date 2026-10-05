@@ -4,7 +4,7 @@ import { openSync, closeSync, fstatSync, lstatSync, readFileSync, constants } fr
 import { resolve } from 'node:path'
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 
-export function readQueuedPreservingStop(commandsPath, ordinal, runId) {
+export function readQueuedPreservingStop(commandsPath, ordinal, runId, { includeOrdinary = false } = {}) {
   if (!Number.isInteger(ordinal) || ordinal < 1 || ordinal > 501 || !runId) throw Error('Invalid current-run stop boundary')
   const path = resolve(commandsPath, `${String(ordinal).padStart(4, '0')}.json`)
   let fd
@@ -20,12 +20,21 @@ export function readQueuedPreservingStop(commandsPath, ordinal, runId) {
     if (after.size !== before.size || after.mtimeMs !== before.mtimeMs || named.isSymbolicLink() ||
       named.ino !== before.ino || named.dev !== before.dev) throw Error('Queued command changed while inspected')
   } finally { closeSync(fd) }
+  const record = { path, ordinal, runId, bytes, sha256: sha256(bytes) }
   let commands
-  try { commands = JSON.parse(bytes) } catch { return null }
-  if (!Array.isArray(commands) || !commands.some(command => command?.action === 'stop-preserve-latest')) return null
-  const valid = commands.length === 1 && Object.keys(commands[0]).every(key => ['action', 'runId'].includes(key)) &&
+  try { commands = JSON.parse(bytes) } catch {
+    // An incomplete/malformed control cannot safely be classified as ordinary.
+    // Retain its exact readable bytes and stop with preservation intent.
+    return { ...record, preserving: true, valid: false, reason: 'Malformed queued command JSON' }
+  }
+  const preserving = Array.isArray(commands)
+    ? commands.some(command => command?.action === 'stop-preserve-latest')
+    : commands?.action === 'stop-preserve-latest'
+  if (!preserving) return includeOrdinary ? { ...record, preserving: false } : null
+  const valid = Array.isArray(commands) && commands.length === 1 &&
+    Object.keys(commands[0]).every(key => ['action', 'runId'].includes(key)) &&
     (commands[0].runId === undefined || commands[0].runId === runId)
-  return { path, ordinal, runId, bytes, sha256: sha256(bytes), valid,
+  return { ...record, preserving: true, valid,
     reason: valid ? null : 'Preserving stop must be the sole command and match the current run' }
 }
 

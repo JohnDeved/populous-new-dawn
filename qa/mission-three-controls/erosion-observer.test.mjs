@@ -145,3 +145,54 @@ test('terrain evidence reads four actual packed quarter-cell bits without undefi
   assert.deepEqual(center.walkMasks, [[1, 0, 0, 0], [0, 0, 0, 0]])
   assert.deepEqual(JSON.parse(JSON.stringify(center)), center)
 })
+
+
+test('actual controller identity and each finite native-center coordinate are retained through visits and removal', () => {
+  for (const atRemoval of [false, true]) for (const mutation of ['controller', 'x', 'y', 'h', 'effect-id', 'effect-target']) {
+    const f = fixture(), effect = onset(f), historical = structuredClone(f.epoch.erosion.effects[0].onset)
+    if (atRemoval) for (let n = 1; n <= 63; n++) step(f, effect, n)
+    f.world.turn++; effect.erosion.remaining--; effect.age += 1 / 12
+    if (mutation === 'controller') effect.erosion = structuredClone(effect.erosion)
+    else if (mutation === 'effect-id') effect.id++
+    else if (mutation === 'effect-target') effect.x++
+    else effect.erosion.center[mutation]++
+    if (atRemoval) { effect.duration = effect.age; f.world.effects = [] }
+    assert.throws(() => recordErosionTurn(f.epoch, f.world), /controller|center|identity|target/, `${atRemoval}:${mutation}`)
+    assert.equal(f.epoch.erosion.effects[0].retired, null)
+    assert.deepEqual(f.epoch.erosion.effects[0].onset, historical)
+  }
+})
+
+test('readiness and named training ignore unrelated movement, births, combat and construction', () => {
+  const baseline = { status: 'playing', paused: false, inputMask: 0,
+    readiness: { ready: false, turn: 1, selected: [], levelStartPhase: 'arriving', shaman: {
+      id: 46, hp: 100, canOrder: false, selectable: false, state: 1, flags2: 0, flags4: 128, commandStatus: 0 } },
+    units: [{ id: 46, team: 'blue', kind: 'shaman', hp: 100, x: 0, z: 0 },
+      { id: 99, team: 'blue', kind: 'brave', hp: 50, x: 5, z: 5, inside: null },
+      { id: 98, team: 'yellow', kind: 'brave', hp: 50, x: 20, z: 20 }],
+    buildings: [{ id: 1000, team: 'blue', kind: 'temple', trainingMana: 100, trainingCost: 200, queue: [99] },
+      { id: 1001, team: 'yellow', kind: 'hut', hp: 100, progress: 0.5 }], shrines: [] }
+  const conditions = [[{ type: 'shaman-ready' }, 'movement', []],
+    [{ type: 'trained-kind', kind: 'preacher', existingIds: [] }, 'training', [1000, 99]],
+    [{ type: 'trained-kind', kind: 'preacher', existingIds: [] }, 'training', []]]
+  for (const args of conditions) for (const mutate of [
+    s => s.units[2].x++, s => s.units[2].hp--, s => s.buildings[1].progress++,
+    s => s.units.push({ id: 777, team: 'blue', kind: 'brave', hp: 50, x: 50, z: 50 }),
+    s => s.buildings.push({ id: 1002, kind: 'hut', team: 'blue', hp: 100, progress: 0 }),
+    s => { s.readiness.turn++; s.readiness.selected = [98] },
+  ]) {
+    const changed = structuredClone(baseline); mutate(changed)
+    assert.equal(objectiveProgress(changed, ...args), objectiveProgress(baseline, ...args))
+  }
+  for (const mutate of [s => s.readiness.shaman.canOrder = true,
+    s => s.readiness.shaman.flags4 = 0, s => s.readiness.levelStartPhase = 'ready', s => s.inputMask = 1]) {
+    const changed = structuredClone(baseline); mutate(changed)
+    assert.notEqual(objectiveProgress(changed, ...conditions[0]), objectiveProgress(baseline, ...conditions[0]))
+  }
+  for (const mutate of [s => s.buildings[0].trainingMana++, s => s.buildings[0].queue = [],
+    s => s.units[1].x++, s => s.units[1].inside = 1000,
+    s => s.units.push({ id: 888, team: 'blue', kind: 'preacher', hp: 50, x: 5, z: 5 })]) {
+    const changed = structuredClone(baseline); mutate(changed)
+    assert.notEqual(objectiveProgress(changed, ...conditions[1]), objectiveProgress(baseline, ...conditions[1]))
+  }
+})

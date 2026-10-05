@@ -15,14 +15,20 @@ async function filesystem(fn) {
   try { return await fn(root) } finally { rmSync(root, { recursive: true, force: true }) }
 }
 
-test('only the exact next owned sole stop is exposed; ordinary, malformed and later commands stay untouched', () => filesystem(root => {
+test('only the exact next owned sole stop is exposed; ordinary and later commands stay untouched; malformed inputs fail closed', () => filesystem(root => {
   assert.equal(readQueuedPreservingStop(root, 4, 'current'), null)
   writeFileSync(resolve(root, '0005.json'), '[{"action":"stop-preserve-latest"}]')
   assert.equal(readQueuedPreservingStop(root, 4, 'current'), null, 'Do not skip a missing ordinal')
   const path = resolve(root, '0004.json')
-  for (const bytes of ['[{"action":"resume"}]', '[{"action":', '{}']) {
+  for (const bytes of ['[{"action":"resume"}]', '{}']) {
     writeFileSync(path, bytes); assert.equal(readQueuedPreservingStop(root, 4, 'current'), null)
     assert.equal(readFileSync(path, 'utf8'), bytes)
+  }
+  for (const bytes of ['[{"action":', '[{"action":"stop-preserve-latest"},]', '{"action":"stop-preserve-latest"}']) {
+    writeFileSync(path, bytes)
+    const pending = readQueuedPreservingStop(root, 4, 'current')
+    assert.equal(pending.valid, false); assert.equal(pending.preserving, true)
+    assert.equal(pending.bytes.toString(), bytes); assert.equal(pending.sha256, sha256(bytes))
   }
   const bytes = '[{"action":"stop-preserve-latest","runId":"current"}]'
   writeFileSync(path, bytes)
@@ -73,21 +79,30 @@ test('actual active-condition wait services preservation before diagnostics, hea
   assert.deepEqual(calls, ['stop'])
 })
 
-async function actualConsume(root, commands, { defer = false, mutateAfterArchive = false } = {}) {
+async function actualConsume(root, commands, { defer = false, mutateAfterArchive = false,
+  main = false, rawBytes = JSON.stringify(commands), unsafe = false } = {}) {
   const commandsPath = resolve(root, 'commands'), output = resolve(root, 'output')
   mkdirSync(commandsPath); mkdirSync(output)
-  const path = resolve(commandsPath, '0004.json'); writeFileSync(path, JSON.stringify(commands))
+  const path = resolve(commandsPath, '0004.json')
+  if (unsafe) {
+    const source = resolve(root, 'unsafe-source'); writeFileSync(source, rawBytes); symlinkSync(source, path)
+  } else writeFileSync(path, rawBytes)
+  const entryStart = driver.indexOf('      const pending = await consumeQueuedStop({ includeOrdinary: true })')
+  const entryEnd = driver.indexOf('      inBatch = true', entryStart)
+  assert.ok(entryStart >= 0 && entryEnd > entryStart)
+  const entry = main ? driver.slice(entryStart, entryEnd) : 'await consumeQueuedStop({ defer });'
+
   const start = driver.indexOf('  const consumeQueuedStop ='), end = driver.indexOf('  const pollUI =', start)
   const execute = new AsyncFunction('deps', `
-    const { assert, resolve, readQueuedPreservingStop, writeFileSync, commandsPath, output, defer, stopPreserveLatest, log } = deps;
-    const receipt = { profile: { runId: 'current' } }, inputs = []; let index = 3, inBatch = true;
+    const { assert, resolve, readQueuedPreservingStop, writeFileSync, commandsPath, output, defer, main, stopPreserveLatest, log } = deps;
+    const receipt = { profile: { runId: 'current' } }, inputs = []; let index = main ? 4 : 3, inBatch = !main;
     let preserveStopRequested = false, deferredPreservingStop = false, terminalHandling = false; const saveProgress = () => {};
     ${driver.slice(start, end)}
-    let caught; try { await consumeQueuedStop({ defer }); } catch(error) { caught = error; }
+    let caught; try { ${entry} } catch(error) { caught = error; }
     return { index, inputs, preserveStopRequested, deferredPreservingStop, caught };
   `)
   const calls = [], stop = new IncompleteRun('preserve-latest', 'test stop')
-  const result = await execute({ assert, resolve, readQueuedPreservingStop, commandsPath, output, defer,
+  const result = await execute({ assert, resolve, readQueuedPreservingStop, commandsPath, output, defer, main,
     writeFileSync: (...args) => { writeFileSync(...args); if (mutateAfterArchive) writeFileSync(path, '[{"action":"resume"}]') },
     log: entry => calls.push(entry), stopPreserveLatest: async () => { calls.push('stop'); throw stop } })
   return { result, calls, stop, output }
@@ -105,6 +120,35 @@ test('actual active-batch stop records bytes/hash/current run and terminates mix
     if (mode === 'valid') assert.equal(result.caught, stop)
     else { assert.ok(result.caught); assert.ok(!calls.includes('stop')) }
   })
+})
+
+test('actual already-present and active-wait controls share authentication and terminal preservation on failure', async () => {
+  for (const main of [false, true]) for (const mode of ['valid', 'mixed', 'wrong-run', 'unknown-field', 'malformed', 'unsafe', 'ordinary'])
+    await filesystem(async root => {
+      const commands = mode === 'mixed' ? [{ action: 'resume' }, { action: 'stop-preserve-latest' }] :
+        mode === 'ordinary' ? [{ action: 'resume' }] : [{ action: 'stop-preserve-latest',
+          ...(mode === 'wrong-run' ? { runId: 'other' } : {}), ...(mode === 'unknown-field' ? { extra: true } : {}) }]
+      const rawBytes = mode === 'malformed' ? '[{"action":"stop-preserve-latest"},]' : JSON.stringify(commands)
+      const { result, calls, stop, output } = await actualConsume(root, commands,
+        { main, rawBytes, unsafe: mode === 'unsafe' })
+      assert.equal(result.preserveStopRequested, mode !== 'ordinary', `${main}:${mode}`)
+      if (mode === 'ordinary') {
+        assert.equal(result.caught, undefined); assert.ok(!calls.includes('stop'))
+        assert.equal(result.inputs.length, main ? 1 : 0, 'Active wait never consumes ordinary input')
+      } else {
+        assert.ok(result.caught); assert.equal(calls.includes('stop'), mode === 'valid')
+        if (mode === 'valid') assert.equal(result.caught, stop)
+        if (mode === 'unsafe') {
+          assert.equal(result.inputs.length, 0); assert.equal(calls[0].readableInputRecorded, false)
+          assert.equal(calls[0].runId, 'current'); assert.equal(calls[0].ordinal, 4)
+        } else {
+          assert.equal(result.inputs[0].sha256, sha256(rawBytes))
+          assert.equal(readFileSync(resolve(output, 'consumed-0004.json'), 'utf8'), rawBytes)
+          assert.equal(calls[0].runId, 'current'); assert.equal(calls[0].ordinal, 4)
+          assert.equal(calls[0].interruptedIndex, main ? 4 : 3)
+        }
+      }
+    })
 })
 
 test('a queued stop during a pending Save is recorded but deferred until actual committed identity is known', async () => {

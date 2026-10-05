@@ -19,8 +19,11 @@ not skip gaps. The current-run destination, ordinal, exact bytes and SHA256 are
 recorded before preservation. The reader rejects symlinks, hardlinks, files not
 owned by the executor, oversized inputs and observed replacement/drift.
 
-Mixed, wrong-run or changed preserving requests are terminal failures with
-preservation intent already set. The normal command-error handler cannot swallow
+The same authenticated reader handles already-present main-loop files and newly
+arriving controls. Mixed, wrong-run, unknown-field or changed preserving requests
+are terminal failures with preservation intent already set. Malformed JSON also
+fails closed, retaining readable bytes/hash; unsafe filesystem errors record the
+current run/ordinal/path without claiming a safely read input. The normal command-error handler cannot swallow
 them and continue. An accepted request clicks a visible ordinary Pause control with a5-second bound, then reads the actual committed
 checkpoint and uses the normal harness close. If that control is absent during startup, the receipt says so instead of inventing a paused state; normal close still stops the context. It never invokes fallback Save
 or changes clocks, processes, source, World or browser storage directly.
@@ -66,8 +69,10 @@ The controller carries no source-shrine field, so the exact use/target/creation
 association is required. Late arming, existing matching effects, ambiguous IDs,
 missing turns, changed targets/countdowns or early disappearance reject proof.
 
-The observer retains a private read-only reference to each actual controller,
-but all exported historical samples are cloned finite scalars. It records64
+The observer retains private read-only references to each actual effect and its
+actual Erosion controller. It checks both identities and the onset native center
+x/y/h through every visit and removal. All exported historical samples are cloned
+finite scalars. It records64
 adjacent present samples, the last remaining1, and the actual remaining0/removal
 at onset+64. Live duration Infinity is intentionally omitted. Retirement duration
 is recorded only when finite and equal to actual age. JSON round-trip tests cover
@@ -87,7 +92,10 @@ screenshot can follow the actual event; raw per-turn evidence retains the real
 onset/retirement turns. Erosion progress uses only this shrine/use/linked controller
 state. Unrelated combat, wandering units or the simulation clock cannot postpone
 its stall. Other named waits derive progress from their objective IDs; victory
-progress excludes unrelated Wildman movement. Budgets remain unchanged.
+progress excludes unrelated Wildman movement. Shaman readiness uses only its real
+readiness/eligibility fields; named training uses the named building/trainee and
+the target-kind completion predicate. Unrelated movement, births, combat and
+construction cannot reset either wait. Budgets remain unchanged.
 
 No new profile admission, continuation, replay or parity credit is granted by
 this source change. Any future resumed gameplay must retain the real latest
