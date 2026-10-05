@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "77450673-7362-4760-9f16-c7ea97cc4821",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "3ddb1dd9f971f8d21ab5bfda262bc4db72500466",
+    "branch": "qa/mission-three-sermon-continuation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/mission-three-controls/recovery-4813/sermon-record.json": "8679a697f4f6cba220ee6e5e0c221e2780e043dcb9d02642b9cd40849fdd398f",
+      "work/orchestration/mission-three-sermon-continuation/recovery-admission-3ddb1dd-reference.json": "a4b54a634c7642f9727199b6a5766f99bffceb5bdc2687fefe9fce440a58ba23",
+      "work/orchestration/mission-three-sermon-continuation/recovery-admission-3ddb1dd-payload.json": "8e23ffe7b58bc970e92b519ac71add07e4f84ddb591738d1dd7c3df451cbdcd9",
+      "work/reviews/copied-sermon-admission-3ddb1dd-review.json": "c15766106e0bb4b73179f6db9c57ffb22852c625f16df22a6ab869f4293b72b5",
+      "work/orchestration/mission-three-sermon-continuation/registration-01/receipt.json": "71dea8f4c35f82b4a0fcc7f3577789a39ca9b911246119f5247ff1e14e81787f",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=15s",
+    "5760s",
+    "taskset",
+    "-c",
+    "0-3",
+    "env",
+    "M3_SERMON_RECORD=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/recovery-4813/sermon-record.json",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--port",
+    "4366",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/recovered-sermon-01",
+    "--timeout",
+    "5700000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs",
+    "--profile",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/local-render-profiles/mission-three-recovered-sermon-4813"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+  "startedAt": "2026-10-05T04:49:45.744Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/recovered-sermon-01.outer.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/recovered-sermon-01.outer.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T04:51:18.528Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "Error: IncompleteRun: Requested bounded stop preserving the actual committed checkpoint\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:619:11)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:913:11)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21\n    at runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:236:47)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "31436ef28be4e67a9180e55e8a3f8897f9110f63f25a98504c6c5873e0922955",
+  "sourceAfter": {
+    "headOid": "3ddb1dd9f971f8d21ab5bfda262bc4db72500466",
+    "branch": "qa/mission-three-sermon-continuation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/mission-three-controls/recovery-4813/sermon-record.json": "8679a697f4f6cba220ee6e5e0c221e2780e043dcb9d02642b9cd40849fdd398f",
+      "work/orchestration/mission-three-sermon-continuation/recovery-admission-3ddb1dd-reference.json": "a4b54a634c7642f9727199b6a5766f99bffceb5bdc2687fefe9fce440a58ba23",
+      "work/orchestration/mission-three-sermon-continuation/recovery-admission-3ddb1dd-payload.json": "8e23ffe7b58bc970e92b519ac71add07e4f84ddb591738d1dd7c3df451cbdcd9",
+      "work/reviews/copied-sermon-admission-3ddb1dd-review.json": "c15766106e0bb4b73179f6db9c57ffb22852c625f16df22a6ab869f4293b72b5",
+      "work/orchestration/mission-three-sermon-continuation/registration-01/receipt.json": "71dea8f4c35f82b4a0fcc7f3577789a39ca9b911246119f5247ff1e14e81787f",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

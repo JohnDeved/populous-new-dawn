@@ -1,0 +1,188 @@
+{
+  "decision": "ACCEPT",
+  "scope": "Exact source, host tests, final repository check and concrete admission payload for one copied-sermon registration/first gameplay segment. Not actual execution, gameplay parity, original cleanup or fresh production build acceptance.",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_copied_sermon_admission",
+  "reference": "work/reviews/copied-sermon-admission-3ddb1dd-review.json",
+  "reviewedAt": "2026-10-05T04:47:45.349480+00:00",
+  "base": "43c52f8968222b198bb7b1eae83b57878c3d9d71",
+  "head": "3ddb1dd9f971f8d21ab5bfda262bc4db72500466",
+  "sourceCommit": "3ddb1dd9f971f8d21ab5bfda262bc4db72500466",
+  "sourceFingerprint": "fe73b97709e7fff60a20c4f28a3998e4233763bcaaa1494bacbcbd22fa65450b",
+  "checker": "60392eec434ca6d0cef53c3be6cae60a640a1dfcf9e3013ea04705a746fdba81",
+  "admissionSha256": "8e23ffe7b58bc970e92b519ac71add07e4f84ddb591738d1dd7c3df451cbdcd9",
+  "admissionPayload": "work/orchestration/mission-three-sermon-continuation/recovery-admission-3ddb1dd-payload.json",
+  "targetProfile": {
+    "id": "c1f1d915-d99a-4c47-be2a-2ad36d89fc86",
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/local-render-profiles/mission-three-recovered-sermon-4813"
+  },
+  "trackedTreeClean": true,
+  "diff": {
+    "path": "work/reviews/copied-sermon-admission-3ddb1dd.diff",
+    "sha256": "d1b4959f35f4ea5e25a672ee6ac119ed09d1c64f5156a43c105f94bc81b8475b"
+  },
+  "changedPaths": [
+    "qa/mission-three-controls/driver.mjs",
+    "qa/mission-three-controls/recovery-admission.mjs",
+    "qa/mission-three-controls/recovery-admission.test.mjs",
+    "qa/mission-three-controls/register-recovered-sermon.mjs",
+    "qa/mission-three-controls/sermon-checkpoint.mjs",
+    "qa/mission-three-controls/sermon-continuation.md",
+    "qa/mission-three-controls/source-manifest.json",
+    "scripts/local-render/harness.mjs",
+    "scripts/local-render/owned-profile.mjs"
+  ],
+  "sourceFiles": {
+    "qa/mission-three-controls/driver.mjs": "28cbc50d3ef946d4522ae45040cc313f87f50c35da555b568de50b16bcd8255c",
+    "qa/mission-three-controls/recovery-admission.mjs": "99ef4f883fb84a7c49cb12cbb4e8b82439d7fcff53905bc1206692b678def3ab",
+    "qa/mission-three-controls/recovery-admission.test.mjs": "26566e40d43cb42497fc1e8a2b452508ac7bdadb74dc922df5551d5ad2cb9fac",
+    "qa/mission-three-controls/register-recovered-sermon.mjs": "d7d795cde18004eb56bebab7c7b9082d3db1a4035fbb3371f982ad4be901d385",
+    "qa/mission-three-controls/sermon-checkpoint.mjs": "90eba56eec27d84e0c2756a8a47bb969735d9a6c6d250b5ecfc9941decca5286",
+    "qa/mission-three-controls/sermon-continuation.md": "0e6f9313cb9b69b458ba67e9157c0f83a2126d1fb747c7f9507d7279bc9c579c",
+    "qa/mission-three-controls/source-manifest.json": "2741a44ce7ea2857212a67765b4aecb44677379d62b24867d06da2d1da752d51",
+    "scripts/local-render/harness.mjs": "6aeb9f2b9a11ef998268662be7ad0701d4425dbd3901d14f7008b58fb245bc98",
+    "scripts/local-render/owned-profile.mjs": "863fc4dbc7dae8b4bd313ed308be7f8abdf3cfe5087176cb395322ddc55b2506"
+  },
+  "mappingReview": {
+    "path": "work/reviews/copied-sermon-admission-99268b2-mapping-review.json",
+    "sha256": "2d3dc887bf78b0ff6877052c3db9627ba694a35b1377cf48a4f95193c4ec154b"
+  },
+  "findings": [],
+  "resolvedDuringReview": [
+    {
+      "id": "R1",
+      "finding": "Forwarding an unchanged recovered record could erase consumed active time/new failures on another segment.",
+      "resolution": "Parent-approved narrowing to one gameplay segment. Any recoveryClaim or lastRun blocks another lease; recovered entry requires recordedByRunId:null, previousRun:null and current sole claim. In-session ordinary reload and cumulative epoch budgets remain unchanged."
+    }
+  ],
+  "sourceFindings": {
+    "identity": "Typed actual read-only validator predecessor and separate recoveryAdmission remain distinct from lastRun/previousRun. No fabricated Run14 terminal receipt, validator gameplay fingerprint or original cleanup claim.",
+    "registration": "Explicit execute flag only. Immutable snapshot and actual closed-directory inventory verified before writes; same-device rename and inode/content recheck afterward. No original lock mutation, fresh copying, storage API, World construction or process cleanup. Occupied profile/output/record paths reject.",
+    "lease": "Private directory/marker, origin/runtime/application binding, singleton and wx lock guards retained. Exact target source/checker/scenario/runtime and pinned validator evidence required. Claim atomically written under its own lock; finish checks the whole unchanged marker and writes only actual current receipt.",
+    "startupAndFailure": "Actual harness full checkpoint read occurs before scenario/Load. Mismatch prevents scenario and lease finish. Prelaunch failure uses typed validator checkpoint without invented previousRun. Missing terminal readback retains lock. Existing abort/source/runtime/cleanup checks remain.",
+    "provenance": "All179 snapshot entries are hash-bound. Original fields are read from immutable Run14 records and strictly compared. Retains original source/profile/Save, both failures, first50 at4777-to4778, declaration4101,13 Blue and407.75 active seconds. Full digest explicitly measured later by validator.",
+    "ordinaryGameplay": "Driver differs only by archiving the helper. Accepted43c52f8 ordinary Load, listener/Preacher validation, cancellation, reload, conversion, preserving stop and budget implementations remain unchanged. No host test earns gameplay proof.",
+    "ordinaryProfiles": "Explicit recovery branch leaves normal provenance/correspondence checks intact. Full-marker equality on finish strengthens mutation detection.",
+    "production": "Independently checked13 production objects equal pinnedb381851, all60 manifest hashes. Exactly2 guarded harness files change; QA runtime and combined application-classifier fingerprint are disclosed."
+  },
+  "checks": {
+    "focusedHost": {
+      "status": "passed",
+      "tests": 84,
+      "evidence": {
+        "path": "work/orchestration/mission-three-sermon-continuation/recovery-admission-3ddb1dd-tests.json",
+        "sha256": "fe8eac19fad5db37ca05cd65125e2a1d900f50eef479a64edc70bf52e011f07c",
+        "status": "passed",
+        "command": [
+          "node",
+          "--test",
+          "qa/mission-three-controls/checkpoint-provenance.test.mjs",
+          "qa/mission-three-controls/command-probes.test.mjs",
+          "qa/mission-three-controls/driver-checkpoint-path.test.mjs",
+          "qa/mission-three-controls/observation.test.mjs",
+          "qa/mission-three-controls/recovery-admission.test.mjs",
+          "qa/mission-three-controls/sermon-checkpoint.test.mjs",
+          "qa/mission-three-controls/sermon-protocol.test.mjs",
+          "tests/owned-game-profile.test.mjs",
+          "tests/local-render-harness.test.mjs"
+        ],
+        "source": {
+          "headOid": "3ddb1dd9f971f8d21ab5bfda262bc4db72500466",
+          "branch": "qa/mission-three-sermon-continuation",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "inputs": {}
+        }
+      },
+      "review": "Exact-head receipt and raw stdout/stderr hashes verified; reused without redundant rerun."
+    },
+    "independentInitializer": {
+      "status": "passed",
+      "tests": 2,
+      "command": [
+        "node",
+        "--test",
+        "work/reviews/copied-sermon-registration-3ddb1dd.test.mjs"
+      ],
+      "scriptSha256": "bd960c70c8d0b990f7a129f87afbc1e398fd0a1b0268165912bb269676a2d2d0",
+      "stdoutSha256": "ae7715dc766ad519aa19b6419fe466d307af45bd2cd1a4f45aa66da9ed75cd58",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "scope": "Exact initializer function, synthetic /tmp filesystem and stubbed admission/runtime readers; actual path/inventory/rename/marker/record/evidence operations. Checks no-write preflight, one-time same-inode registration and occupied destination rejection. No real profile access."
+    },
+    "independentPayload": {
+      "status": "passed",
+      "path": "work/reviews/copied-sermon-payload-3ddb1dd-checks.json",
+      "sha256": "dc68d08ab2dc0a4043d76138b9b6cae1ec2fbb6b6c7e49222cb4d78c09e7312b",
+      "scope": "Current source fingerprint, application/checker, scenario and4 harness file hashes independently recomputed; all validator refs match pinned bytes; target profile absent. Browser/dependency runtime will be independently remeasured by initializer/harness."
+    },
+    "productionAndGuards": {
+      "status": "passed",
+      "guards": 60,
+      "productionObjects": 13,
+      "changedGuards": [
+        "scripts/local-render/harness.mjs",
+        "scripts/local-render/owned-profile.mjs"
+      ],
+      "sourceProofSha256": "572e822cf8d17fe15a5b9fb663f7e02892dd7d1c0709f2995ec9debe30203865"
+    },
+    "planner": {
+      "path": "work/orchestration/mission-three-sermon-continuation/recovery-admission-3ddb1dd-plan.json",
+      "sha256": "54f06e414c6d3d21306c254b2d23472857b74c0f93fbb109875aa82ce17e5700",
+      "status": "passed",
+      "command": [
+        "node",
+        "scripts/orchestration/cli.mjs",
+        "plan",
+        "--base",
+        "43c52f8968222b198bb7b1eae83b57878c3d9d71"
+      ],
+      "source": {
+        "headOid": "3ddb1dd9f971f8d21ab5bfda262bc4db72500466",
+        "branch": "qa/mission-three-sermon-continuation",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {}
+      }
+    },
+    "repositoryCheck": {
+      "status": "passed",
+      "path": "work/orchestration/mission-three-sermon-continuation/recovery-admission-3ddb1dd-check.json",
+      "sha256": "980345e82b6f45fb234ca14ea6515350f34fb8d57931461757e075dc545dabbf",
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=10s",
+        "300s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "check"
+      ],
+      "exitCode": 0,
+      "source": {
+        "headOid": "3ddb1dd9f971f8d21ab5bfda262bc4db72500466",
+        "branch": "qa/mission-three-sermon-continuation",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {}
+      },
+      "review": "Independently verified receipt/source identity and raw stdout/stderr hashes."
+    },
+    "build": "Owner correspondence2e11a37a supplied; reviewer verifies13 production object identities but does not read original-worktree raw build or installed dependencies. Parent must confirm raw historical receipt and installed-lock match for carried acceptance.",
+    "browser": "not-run; actual ordinary Load/cancellation/reload/conversion and later outcomes remain required",
+    "typescriptQuality": "not-applicable; no maintained TypeScript changes. MJS readability/helper reuse reviewed; no new format/lint/Fallow claim."
+  },
+  "executionConditions": [
+    "Use exact reviewed source/payload and immutable hashed review reference.",
+    "Parent confirms carried-build correspondence from the supplied raw historical receipt and matching installed lock; exact final npm check is verified passed.",
+    "Run reviewed initializer once; inspect actual registration receipt and moved directory/source identity. No original cleanup or storage injection.",
+    "First browser run must earn full saved digest and exact ordinary loaded50/3163/13Blue identities; subsequent gameplay milestones require fresh witnesses.",
+    "Single segment only; preserve actual latest save and all terminal failures/time. No automatic retry/re-admission."
+  ],
+  "reviewAccess": {
+    "originalProfile": false,
+    "originalSnapshotBytes": false,
+    "actualBrowserBytes": false,
+    "dependencies": false,
+    "browser": false,
+    "writes": "Own review artifacts and ephemeral synthetic /tmp test fixtures only"
+  }
+}

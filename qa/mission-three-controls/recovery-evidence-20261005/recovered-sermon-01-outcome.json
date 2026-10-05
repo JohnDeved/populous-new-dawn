@@ -1,0 +1,146 @@
+{
+  "kind": "recovered-sermon-first-segment-outcome",
+  "sourceCommit": "3ddb1dd9f971f8d21ab5bfda262bc4db72500466",
+  "runId": "5451f1a6-088f-4dac-94c9-b0f2cc869fd2",
+  "status": "failed-cancellation-with-verified-load-and-preservation",
+  "proof": {
+    "genuineLatestBeforeLoad": {
+      "version": 1,
+      "level": 3,
+      "turn": 4813,
+      "time": 401.0833333333333,
+      "checkpointSha256": "720e96e28b46a029e22a1c97729ead760471c96e4e10c59fd5ae620d5e66f57a",
+      "actorsSha256": "c2ce52fb00a0c58c4e0383e95b5a8ab74c98c366e0bfd1ea7cf74a36e9c5c715",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "3ba9bf87e026ccd5d45f1a270e8684896468846ecff1adfbacde67836788272c"
+    },
+    "loadedReadTurn": 4854,
+    "pausedOpeningTurn": 4870,
+    "retainedBlueIds": [
+      46,
+      312,
+      309,
+      519,
+      513,
+      510,
+      303,
+      300,
+      522,
+      507,
+      306,
+      589,
+      3163
+    ],
+    "freshLoadedConversionEvents": [
+      {
+        "turnBefore": 4876,
+        "turnAfter": 4877,
+        "kind": "brave",
+        "victims": [
+          {
+            "id": 50,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 23,
+            "workTarget": 3163,
+            "flags3": 0,
+            "flags4": 536936832
+          }
+        ],
+        "replacements": [
+          {
+            "id": 3242,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 16777216,
+            "flags4": 537133312
+          }
+        ],
+        "pairing": "Same-turn kind group; no individual pairing is claimed when several victims/replacements coincide."
+      },
+      {
+        "turnBefore": 4882,
+        "turnAfter": 4883,
+        "kind": "brave",
+        "victims": [
+          {
+            "id": 53,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 23,
+            "workTarget": 3163,
+            "flags3": 0,
+            "flags4": 536936832
+          }
+        ],
+        "replacements": [
+          {
+            "id": 3243,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 16777216,
+            "flags4": 537133312
+          }
+        ],
+        "pairing": "Same-turn kind group; no individual pairing is claimed when several victims/replacements coincide."
+      }
+    ],
+    "intendedSavePreserved": true,
+    "newContextCleanupVerified": true
+  },
+  "failure": {
+    "index": 1,
+    "inputSha256": "eaead1ccf24c7f091808c670c384d20738313a63a1a326377ebfd49b01e5eca4",
+    "at": "2026-10-05T04:50:45.198Z",
+    "error": "Error: The exact listener has not released sermon ownership and its listener flag\n    at requireCancelledSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/observation.mjs:219:11)\n    at cancelSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:778:26)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:921:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21"
+  },
+  "activeSeconds": 418.08333333333337,
+  "classification": {
+    "ordinary": "Real UI Load and observed50-to3242 singleton conversion; cancellation failed before required reload",
+    "native": "No new native execution; earlier native initializer evidence remains separate",
+    "staged": "No World construction, state injection or model writes"
+  },
+  "artifacts": [
+    {
+      "path": "work/orchestration/mission-three-controls/recovered-sermon-01/receipt.json",
+      "sha256": "23a1c360938456620031fc096d895eb6f730006055a554c7dd55a6965ac90dd0"
+    },
+    {
+      "path": "work/orchestration/mission-three-controls/recovered-sermon-01/journey.json",
+      "sha256": "204a308ae0a8b3f1f8b8f6385ee5bbb9a8199356ccb90ab90d06994290b3e2ea"
+    },
+    {
+      "path": "work/orchestration/mission-three-controls/recovered-sermon-01/actions.jsonl",
+      "sha256": "396f78f667523c4171c710da3329448deff1456f7df59db2555f2f3bf6ca0c90"
+    },
+    {
+      "path": "work/orchestration/mission-three-controls/recovered-sermon-01/saved-sermon-opening.json",
+      "sha256": "6fe3092a552b58418edf311687fa1193c32a837432c50d5fdbabe1590af7f09a"
+    },
+    {
+      "path": "work/orchestration/mission-three-controls/recovered-sermon-01/saved-sermon-opening.png",
+      "sha256": "68f5fb4f16988d225f99cc0dcc3d91147c14becf47af6b8a1871d75cb6cfd521"
+    },
+    {
+      "path": "work/orchestration/mission-three-controls/recovered-sermon-01/terminal-with-latest-preserved.json",
+      "sha256": "cbbcd1e999c35f2f96ec83a074ef3e51419cfc2b98dbc7a15baa9cf8ec24281f"
+    },
+    {
+      "path": "work/orchestration/mission-three-controls/recovered-sermon-01/terminal-with-latest-preserved.png",
+      "sha256": "a411a57c917ef6c7724bd89462f85c1cddabab585f370de7155c1c116620fbe1"
+    }
+  ],
+  "limitations": [
+    "No cancellation/post-cancellation reload/completed-sequence milestone; originalRun14 remains failed with unknown cleanup.",
+    "Software/headless rendering only, no hardware frame-rate claim.",
+    "Private profile/storage files are not part of publication artifacts."
+  ]
+}

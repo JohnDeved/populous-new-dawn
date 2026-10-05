@@ -1,0 +1,136 @@
+{
+  "decision": "ACCEPT",
+  "scope": "Exact source/host preflight for one reviewed successor of real failed run5451f1a6. Concrete new correspondence/runtime payload and parent execution gates remain; no new profile use or gameplay acceptance.",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_copied_sermon_admission",
+  "reviewedAt": "2026-10-05T05:09:25.705939+00:00",
+  "base": "3ddb1dd9f971f8d21ab5bfda262bc4db72500466",
+  "head": "bbd7371e04a55e57b1e368530e92de6777864358",
+  "trackedTreeClean": true,
+  "diff": {
+    "path": "work/reviews/copied-sermon-successor-bbd7371.diff",
+    "sha256": "fb8d1acca7847c25dcde7b3aea714afbf9fb223db5887640829e45321337b574"
+  },
+  "changedPaths": [
+    "qa/mission-three-controls/driver-checkpoint-path.test.mjs",
+    "qa/mission-three-controls/driver.mjs",
+    "qa/mission-three-controls/sermon-checkpoint.mjs",
+    "qa/mission-three-controls/sermon-checkpoint.test.mjs",
+    "qa/mission-three-controls/sermon-continuation.md",
+    "qa/mission-three-controls/sermon-successor.mjs",
+    "qa/mission-three-controls/sermon-successor.test.mjs",
+    "qa/mission-three-controls/source-manifest.json",
+    "scripts/local-render/owned-profile.mjs"
+  ],
+  "sourceFiles": {
+    "qa/mission-three-controls/driver-checkpoint-path.test.mjs": "518e6fdcc2ca84f32cf0a7aa316c88cf0c3bae1aab3ecfb98215657b54e8f9dc",
+    "qa/mission-three-controls/driver.mjs": "0e7c449cc20a537702614869395abe850272385aa2e4720eb7acf3a3885390ee",
+    "qa/mission-three-controls/sermon-checkpoint.mjs": "685bd4ddfeb06fd05911c1f5d7e0167498882b0921b67e49bba6e6688ccbdaad",
+    "qa/mission-three-controls/sermon-checkpoint.test.mjs": "b2b749c894223109281cac47566aa99e00e72a75c415ded93746ce75a9efc9c8",
+    "qa/mission-three-controls/sermon-continuation.md": "aaaff94875cc7ff4e6edaa120f95d09059c390a3f3d1cfe1e489c9441b919f68",
+    "qa/mission-three-controls/sermon-successor.mjs": "8dd000f55c3b9b9b5f7ea701f86055724587ea3ec7220ea64f35745789882cc9",
+    "qa/mission-three-controls/sermon-successor.test.mjs": "cb0b5f71453e3ccd4abf7d9cd7d5d747fe00873caef094d607458060d04fed6d",
+    "qa/mission-three-controls/source-manifest.json": "983c0237d35d4e33aa15f149218b2d5f5d1cdbbe53cc54636071e775173c8106",
+    "scripts/local-render/owned-profile.mjs": "9c0a3effd394ad00d0b9f959ccd083c04b6794e10510c4c5574d84d5fd525cd6"
+  },
+  "findings": [],
+  "resolvedDuringReview": [
+    {
+      "id": "S1",
+      "finding": "Shared driver initially trusted arbitrary gameplayContinuation.history fields on ordinary record kinds, which their old validator did not authenticate.",
+      "resolution": "Only exact successor kind consumes cumulative history, and it reads the harness-validated profile.gameplayContinuation.history. Exact-source ordinary injection and positive successor tests protect the boundary."
+    }
+  ],
+  "sourceFindings": {
+    "predecessor": "Pins actual failed terminal receipt23a1c360, outer43d693ae, journey204a308a, terminalcbbcd1e9, actions396f78f6, emitted record7cf660ad. Requires actual source/runtime consistency, verified cleanup/continuation and matching4813 saved digest; failed status is never upgraded.",
+    "binding": "Old marker binding/lastRun/first admission/claim must equal the real prior receipt. Only exact reviewed new target source/checker/scenario/runtime may replace current binding after a fresh wx lock. Claim keeps old binding and real predecessor; used successor claim rejects third entry.",
+    "history": "Counts407.75 plus actual open epoch10.333333333333371 =418.08333333333337. Requires no closed epochs and retains all3 exact failures and preserving control stop. New successor record explicitly assembled now, derived from hash-bound prior record, with original source/profile/Save/onset and failures unchanged.",
+    "pauseFirst": "Ordinary Pause click directly follows Load before bindGame/import/full diagnostic read. UI label is explicitly identified as auto-resume witness; full later read must be genuinely paused and still match exact listener/Preacher/Blue identities. No fictitious unpaused snapshot.",
+    "remainingGameplay": "Existing ordinary cancellation, reload, conversion, currentActive accounting, withhold/preserving stop and budget implementations remain byte-identical. Automatic conversion in predecessor is retained evidence but earns no required cancellation/reload sequence milestone.",
+    "genericGuards": "Normal profile ownership/private paths/Singleton/exclusive lock and source/runtime/terminal cleanup guards retained. No database API, World construction, new copy/profile identity, recovery re-registration or original lock change is added."
+  },
+  "checks": {
+    "focusedHost": {
+      "status": "passed",
+      "tests": 90,
+      "receipt": {
+        "path": "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-tests.json",
+        "sha256": "8c55cf96b9e668a20da1511b08d5e9e5a2c122ca57e46f7d425a949f90e10d92",
+        "status": "passed",
+        "command": [
+          "node",
+          "--test",
+          "qa/mission-three-controls/checkpoint-provenance.test.mjs",
+          "qa/mission-three-controls/command-probes.test.mjs",
+          "qa/mission-three-controls/driver-checkpoint-path.test.mjs",
+          "qa/mission-three-controls/observation.test.mjs",
+          "qa/mission-three-controls/recovery-admission.test.mjs",
+          "qa/mission-three-controls/sermon-checkpoint.test.mjs",
+          "qa/mission-three-controls/sermon-protocol.test.mjs",
+          "qa/mission-three-controls/sermon-successor.test.mjs",
+          "tests/owned-game-profile.test.mjs",
+          "tests/local-render-harness.test.mjs"
+        ],
+        "source": {
+          "headOid": "bbd7371e04a55e57b1e368530e92de6777864358",
+          "branch": "qa/mission-three-sermon-continuation",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "inputs": {}
+        }
+      },
+      "review": "Exact source and raw stdout/stderr hashes independently verified; valid owner result reused."
+    },
+    "planner": {
+      "path": "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-plan.json",
+      "sha256": "a077032957a76a7bf6f2267434da7c6d5872d4102cd9a667e4bce5970df290ff",
+      "status": "passed",
+      "command": [
+        "node",
+        "scripts/orchestration/cli.mjs",
+        "plan",
+        "--base",
+        "3ddb1dd9f971f8d21ab5bfda262bc4db72500466"
+      ],
+      "source": {
+        "headOid": "bbd7371e04a55e57b1e368530e92de6777864358",
+        "branch": "qa/mission-three-sermon-continuation",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {}
+      }
+    },
+    "sourceProof": {
+      "status": "passed",
+      "path": "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-source.json",
+      "sha256": "cf789cf89a7f269b7e0fb1789c755d40607770204a026bee51cdcff499c07f66",
+      "guards": 60,
+      "productionObjects": 13,
+      "changedGuardPaths": [
+        "scripts/local-render/owned-profile.mjs"
+      ]
+    },
+    "unchangedCriticalDriverBlocks": [
+      "const currentActive",
+      "const reloadSermon",
+      "const withholdSermonRecord",
+      "const cancelSermon",
+      "const completeConversion"
+    ],
+    "harness": "harness.mjs/checkpoint-observer/vite unchanged from3ddb1dd; only owned-profile runtime hash changes",
+    "repositoryCheck": "Parent coordinates final affected/full-check gate. Previous3ddb1dd1038PASS is not represented as a fresh bbd7371 result.",
+    "build": "Carried production proof is available only with exact13 production inputs/package/installed-lock correspondence; no new build claimed.",
+    "typescriptQuality": "not-applicable; no maintained TypeScript. Maintained MJS readability and helper reuse reviewed; no new lint/format/Fallow claim.",
+    "browser": "not-run; actual saved4813 Load and fresh cancellation/reload/conversion remain required"
+  },
+  "executionConditions": [
+    "Bind final correspondence payload to this clean head, actual measured target runtime/source/checker, exact predecessor evidence and independent acceptance.",
+    "Keep original admission/claim and immutable prior evidence untouched. No profile mutation before accepted correspondence.",
+    "Before scenario the unchanged harness must verify actual latest digest against genuine previousRun.checkpointAtEnd.",
+    "One successor only; record all new failures/time and preserve intended latest on failure. No third entry or retroactive sequence credit."
+  ],
+  "reviewAccess": {
+    "originalProfile": false,
+    "currentProfileStorageBytes": false,
+    "dependencies": false,
+    "browser": false,
+    "writes": "Own work/reviews artifacts only"
+  }
+}

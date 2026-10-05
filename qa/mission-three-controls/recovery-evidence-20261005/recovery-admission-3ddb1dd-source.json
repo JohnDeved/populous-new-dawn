@@ -1,0 +1,405 @@
+{
+  "status": "passed",
+  "sourceCommit": "3ddb1dd9f971f8d21ab5bfda262bc4db72500466",
+  "sourceBase": "43c52f8968222b198bb7b1eae83b57878c3d9d71",
+  "pinnedApplication": "b3818511da0b420129b03092f397ad76bc6111a8",
+  "productionObjects": [
+    {
+      "path": "app",
+      "current": "198ff14040007f3fb65bc907281a3c2ac56e3e5c",
+      "pinned": "198ff14040007f3fb65bc907281a3c2ac56e3e5c"
+    },
+    {
+      "path": "public",
+      "current": "49f080b8608cf5a954fc54440e44db23a027311b",
+      "pinned": "49f080b8608cf5a954fc54440e44db23a027311b"
+    },
+    {
+      "path": "worker",
+      "current": "534262246ef7d02635110a3989accfbd8a3494c9",
+      "pinned": "534262246ef7d02635110a3989accfbd8a3494c9"
+    },
+    {
+      "path": "build",
+      "current": "e4caf579c58061db70eac981f9475c4b07b702f8",
+      "pinned": "e4caf579c58061db70eac981f9475c4b07b702f8"
+    },
+    {
+      "path": "package.json",
+      "current": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1",
+      "pinned": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1"
+    },
+    {
+      "path": "package-lock.json",
+      "current": "97cd9ade0190af96e99b389c93d4ee20bef5065c",
+      "pinned": "97cd9ade0190af96e99b389c93d4ee20bef5065c"
+    },
+    {
+      "path": "tsconfig.json",
+      "current": "76481812c25a92deb97ca2e5ad91f120751a848e",
+      "pinned": "76481812c25a92deb97ca2e5ad91f120751a848e"
+    },
+    {
+      "path": "next-env.d.ts",
+      "current": "c986d49faa6a311fc28b5c66f6b7155975007920",
+      "pinned": "c986d49faa6a311fc28b5c66f6b7155975007920"
+    },
+    {
+      "path": "next.config.ts",
+      "current": "e9ffa3083ad279ecf95fd8eae59cb253e9a539c4",
+      "pinned": "e9ffa3083ad279ecf95fd8eae59cb253e9a539c4"
+    },
+    {
+      "path": "vite.config.ts",
+      "current": "21c69948143439c7950eb45126341ad293e009cd",
+      "pinned": "21c69948143439c7950eb45126341ad293e009cd"
+    },
+    {
+      "path": "postcss.config.mjs",
+      "current": "61e36849cf7cfa9f1f71b4a3964a4953e3e243d3",
+      "pinned": "61e36849cf7cfa9f1f71b4a3964a4953e3e243d3"
+    },
+    {
+      "path": "wrangler.cloudflare.jsonc",
+      "current": "6280db8db7afe28829a639416af34f9afad2b1cf",
+      "pinned": "6280db8db7afe28829a639416af34f9afad2b1cf"
+    },
+    {
+      "path": ".openai/hosting.json",
+      "current": "b7d6a5b51f87bfdb3e7db9d3d1f2b4bf9d45f669",
+      "pinned": "b7d6a5b51f87bfdb3e7db9d3d1f2b4bf9d45f669"
+    }
+  ],
+  "guards": [
+    {
+      "path": "app/level-three.ts",
+      "sha256": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07",
+      "actual": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07"
+    },
+    {
+      "path": "app/level-start-runtime.ts",
+      "sha256": "8e4b7c29bee1df980a2d39d05fdd1812e0bd6b6530749d85d35caac047f9db76",
+      "actual": "8e4b7c29bee1df980a2d39d05fdd1812e0bd6b6530749d85d35caac047f9db76"
+    },
+    {
+      "path": "app/page.tsx",
+      "sha256": "3659a30a02225deb09f9312f4c1f25ad4675178c0c922681e82ea9a2554c40a5",
+      "actual": "3659a30a02225deb09f9312f4c1f25ad4675178c0c922681e82ea9a2554c40a5"
+    },
+    {
+      "path": "app/scene-input-runtime.ts",
+      "sha256": "54def129260b6ffebbb4ddfd23591360ae004abe1adefeaaaf47757eaefd28f5",
+      "actual": "54def129260b6ffebbb4ddfd23591360ae004abe1adefeaaaf47757eaefd28f5"
+    },
+    {
+      "path": "app/scene.ts",
+      "sha256": "a2326dd11bf5e729ba058c8e037b9a486640310b77b6ff679211e0060a96bb1d",
+      "actual": "a2326dd11bf5e729ba058c8e037b9a486640310b77b6ff679211e0060a96bb1d"
+    },
+    {
+      "path": "app/game-clock.ts",
+      "sha256": "826025bb4aab92a7ccb86801f854cde5675659e842a6563f585f4e591702c13a",
+      "actual": "826025bb4aab92a7ccb86801f854cde5675659e842a6563f585f4e591702c13a"
+    },
+    {
+      "path": "app/training-conversion.ts",
+      "sha256": "6c8cade2447474f1d966cdfad22e9098d2fd4a5535891fe8c942ba7266806bf7",
+      "actual": "6c8cade2447474f1d966cdfad22e9098d2fd4a5535891fe8c942ba7266806bf7"
+    },
+    {
+      "path": "app/building-occupants.ts",
+      "sha256": "24e6458718cd665b52188ac5473bfe265d179bb03ac530217c761addd471797a",
+      "actual": "24e6458718cd665b52188ac5473bfe265d179bb03ac530217c761addd471797a"
+    },
+    {
+      "path": "app/preacher-conversion.ts",
+      "sha256": "b00e5fa81527600589f3e3bf24c815fa665aba8b1c56b2518c162d9b8f197cae",
+      "actual": "b00e5fa81527600589f3e3bf24c815fa665aba8b1c56b2518c162d9b8f197cae"
+    },
+    {
+      "path": "app/live-movement.ts",
+      "sha256": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5",
+      "actual": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5"
+    },
+    {
+      "path": "app/computer-runtime.ts",
+      "sha256": "7b26c03a301ae0a4e50084bdd9b1cdd1f04a711260f998324ffe6e2b7a2dae72",
+      "actual": "7b26c03a301ae0a4e50084bdd9b1cdd1f04a711260f998324ffe6e2b7a2dae72"
+    },
+    {
+      "path": "app/campaign-command-runtime.ts",
+      "sha256": "7721cdb9954edc737d6c13828b42e69dac09b8046db8f93b7a7e92a05e0c908b",
+      "actual": "7721cdb9954edc737d6c13828b42e69dac09b8046db8f93b7a7e92a05e0c908b"
+    },
+    {
+      "path": "app/tribe-turns.ts",
+      "sha256": "9b31e569f690ba2d59eb322614958ef5fcd4a701906ad39209a4fdd48fdea926",
+      "actual": "9b31e569f690ba2d59eb322614958ef5fcd4a701906ad39209a4fdd48fdea926"
+    },
+    {
+      "path": "app/world-turn.ts",
+      "sha256": "d49e1c7e77b0f0d417739c8dea60410fca56623eb7a8df4b7b6cdee08cbf8fea",
+      "actual": "d49e1c7e77b0f0d417739c8dea60410fca56623eb7a8df4b7b6cdee08cbf8fea"
+    },
+    {
+      "path": "scripts/check-browser-campaign-natural-victory.mjs",
+      "sha256": "993a24ea7fb026bec9efa18502eca0daefc835cc930011b711185306b95ffe72",
+      "actual": "993a24ea7fb026bec9efa18502eca0daefc835cc930011b711185306b95ffe72"
+    },
+    {
+      "path": "scripts/mission3-natural-preacher-scenario.mjs",
+      "sha256": "71992d08220507993e36ce34c820d9371020b6f343af78bdbc8bd0a843043223",
+      "actual": "71992d08220507993e36ce34c820d9371020b6f343af78bdbc8bd0a843043223"
+    },
+    {
+      "path": "scripts/check-browser-mission3-natural-preacher.mjs",
+      "sha256": "74d8a45327bdbbed6b840aad934bf6733f01b12a62683b883cab1ab51cde5568",
+      "actual": "74d8a45327bdbbed6b840aad934bf6733f01b12a62683b883cab1ab51cde5568"
+    },
+    {
+      "path": "scripts/campaign-start-readiness.mjs",
+      "sha256": "214ffc2ce95ea039328e356d493ba8beb887e2d5ef1084b672fb0413fac48d28",
+      "actual": "214ffc2ce95ea039328e356d493ba8beb887e2d5ef1084b672fb0413fac48d28"
+    },
+    {
+      "path": "scripts/campaign-conversion-observer.mjs",
+      "sha256": "36e6d8a30547f566ed4ba26816d797d0e6dd625c72385bf73aab0e2b988266aa",
+      "actual": "36e6d8a30547f566ed4ba26816d797d0e6dd625c72385bf73aab0e2b988266aa"
+    },
+    {
+      "path": "scripts/checkpoint-readback.mjs",
+      "sha256": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80",
+      "actual": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80"
+    },
+    {
+      "path": "tests/mission3-opening.test.mjs",
+      "sha256": "30ab1259fcc92bae19e339ff0257edbd2e9ba96cc70cc36662a26b91d1331030",
+      "actual": "30ab1259fcc92bae19e339ff0257edbd2e9ba96cc70cc36662a26b91d1331030"
+    },
+    {
+      "path": "tests/mission3-recurring.test.mjs",
+      "sha256": "f43afa1204bf1503718c446eccb8c624aedda243641ea98477b6efbf5e713a20",
+      "actual": "f43afa1204bf1503718c446eccb8c624aedda243641ea98477b6efbf5e713a20"
+    },
+    {
+      "path": "tests/mission3-defense-task.test.mjs",
+      "sha256": "4ab9ce9a2ede8ec77485c10f1354b228fc25197f82705d19b213a186c2b8a36e",
+      "actual": "4ab9ce9a2ede8ec77485c10f1354b228fc25197f82705d19b213a186c2b8a36e"
+    },
+    {
+      "path": "tests/mission3-natural-preacher.test.mjs",
+      "sha256": "a84aee5bfc9e904ed1065c69c2bdd0204a2c425722501be3d2c5c3ec3699e390",
+      "actual": "a84aee5bfc9e904ed1065c69c2bdd0204a2c425722501be3d2c5c3ec3699e390"
+    },
+    {
+      "path": "decomp/research/mission3-natural-blue-preaching.md",
+      "sha256": "ea9b816b33edc592bfa433033b02bf047be21e94a39ab76e6cd7b0c164ed678c",
+      "actual": "ea9b816b33edc592bfa433033b02bf047be21e94a39ab76e6cd7b0c164ed678c"
+    },
+    {
+      "path": "decomp/research/mission3-defense-task.md",
+      "sha256": "154c02a953139ee2180734015e65a49e66e8bb677320de02d3fedadcf75f90ce",
+      "actual": "154c02a953139ee2180734015e65a49e66e8bb677320de02d3fedadcf75f90ce"
+    },
+    {
+      "path": "decomp/research/mission3-person-task.md",
+      "sha256": "9231ae425b9d03c545b37c54f5717fd37035f77018b11d13998a5feb53e89324",
+      "actual": "9231ae425b9d03c545b37c54f5717fd37035f77018b11d13998a5feb53e89324"
+    },
+    {
+      "path": "app/game-store.ts",
+      "sha256": "5912b579e31993ec426dbd1406baded642f65019da11bd1d8f4c27bcfaac6214",
+      "actual": "5912b579e31993ec426dbd1406baded642f65019da11bd1d8f4c27bcfaac6214"
+    },
+    {
+      "path": "app/scene-camera-runtime.ts",
+      "sha256": "72e419cb58a4682b62c7611f0f0ba4f51e2f61a2c1e1ea254a84db436d272880",
+      "actual": "72e419cb58a4682b62c7611f0f0ba4f51e2f61a2c1e1ea254a84db436d272880"
+    },
+    {
+      "path": "app/selection-runtime.ts",
+      "sha256": "999dfa2becc4bf884239b79cf9edeef75a6d74ee5f588b29aff57178ab7deeb6",
+      "actual": "999dfa2becc4bf884239b79cf9edeef75a6d74ee5f588b29aff57178ab7deeb6"
+    },
+    {
+      "path": "app/world-initialization.ts",
+      "sha256": "6b00311e4d64886f35803bca8059661f6c19fa67a5dddb0b4c83a14c2d0458f6",
+      "actual": "6b00311e4d64886f35803bca8059661f6c19fa67a5dddb0b4c83a14c2d0458f6"
+    },
+    {
+      "path": "app/world-state.ts",
+      "sha256": "09336732c58ac2cba009ebdc8547837e6674363a06a43d4d4aa21ce31bb0472f",
+      "actual": "09336732c58ac2cba009ebdc8547837e6674363a06a43d4d4aa21ce31bb0472f"
+    },
+    {
+      "path": "app/construction-runtime.ts",
+      "sha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "actual": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653"
+    },
+    {
+      "path": "app/live-command.ts",
+      "sha256": "c613176708e99a19243e10ccaf2af4b83eba73a259c8ac6623e12f31f70ca324",
+      "actual": "c613176708e99a19243e10ccaf2af4b83eba73a259c8ac6623e12f31f70ca324"
+    },
+    {
+      "path": "app/command-context.ts",
+      "sha256": "b418b37bef71210052645cdba946fc12612a63ec0962c98c65d6ae199a760700",
+      "actual": "b418b37bef71210052645cdba946fc12612a63ec0962c98c65d6ae199a760700"
+    },
+    {
+      "path": "app/person-orders.ts",
+      "sha256": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394",
+      "actual": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394"
+    },
+    {
+      "path": "scripts/browser-game.mjs",
+      "sha256": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+      "actual": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9"
+    },
+    {
+      "path": "app/world-effects.ts",
+      "sha256": "4b7229dbb6b62700d0a1f1a7e5f73dbda664f7f7d1da3854d243b15d785b6f85",
+      "actual": "4b7229dbb6b62700d0a1f1a7e5f73dbda664f7f7d1da3854d243b15d785b6f85"
+    },
+    {
+      "path": "app/hut-smoke-runtime.ts",
+      "sha256": "db740f09664eb124bba32f95740eb2842fe441bbaaa0653e408f4eba68f2a8c7",
+      "actual": "db740f09664eb124bba32f95740eb2842fe441bbaaa0653e408f4eba68f2a8c7"
+    },
+    {
+      "path": "app/secondary-effects.ts",
+      "sha256": "d3cd7bcadad17a6bb95204040a1da6a43f66cd7488295ae38440e42420582417",
+      "actual": "d3cd7bcadad17a6bb95204040a1da6a43f66cd7488295ae38440e42420582417"
+    },
+    {
+      "path": "app/world-terrain-runtime.ts",
+      "sha256": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757",
+      "actual": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757"
+    },
+    {
+      "path": "app/world-coordinates.ts",
+      "sha256": "5fab890c7ab683323d873c7350700a0bb3bf977f1b6512ddca6fa823f5a5fa4f",
+      "actual": "5fab890c7ab683323d873c7350700a0bb3bf977f1b6512ddca6fa823f5a5fa4f"
+    },
+    {
+      "path": "app/minimap.ts",
+      "sha256": "ace3cb266bc801f660d053c649d998f3b49e22f7990c27312d0fb5d28597aec4",
+      "actual": "ace3cb266bc801f660d053c649d998f3b49e22f7990c27312d0fb5d28597aec4"
+    },
+    {
+      "path": "app/camera-motion.ts",
+      "sha256": "ff4b36a615eebd18af30b68a1fdff18bf92f619bce3382840c016728efeb87c7",
+      "actual": "ff4b36a615eebd18af30b68a1fdff18bf92f619bce3382840c016728efeb87c7"
+    },
+    {
+      "path": "app/globals.css",
+      "sha256": "e4db6b5cf3ebffe59be61dc3cf72fc572098d19cfb0b32765383776c1e8fbe04",
+      "actual": "e4db6b5cf3ebffe59be61dc3cf72fc572098d19cfb0b32765383776c1e8fbe04"
+    },
+    {
+      "path": "app/original-rules.json",
+      "sha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "actual": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    },
+    {
+      "path": "app/melee-engagement.ts",
+      "sha256": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde",
+      "actual": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde"
+    },
+    {
+      "path": "app/person-order-start.ts",
+      "sha256": "8d0ebf7c58bce163b372a78430c7697f39138bc5cc6c30a9fbc81622d72c85cc",
+      "actual": "8d0ebf7c58bce163b372a78430c7697f39138bc5cc6c30a9fbc81622d72c85cc"
+    },
+    {
+      "path": "app/combat-targets.ts",
+      "sha256": "776a455e696905b3d2bad8dd256ab22074cf9c086e3801e935e3caf3ed2d1384",
+      "actual": "776a455e696905b3d2bad8dd256ab22074cf9c086e3801e935e3caf3ed2d1384"
+    },
+    {
+      "path": "app/live-combat.ts",
+      "sha256": "12107b400388222fb75453f86d055d6ea053813da355a75cf6a10ddb3553933a",
+      "actual": "12107b400388222fb75453f86d055d6ea053813da355a75cf6a10ddb3553933a"
+    },
+    {
+      "path": "scripts/local-render/harness.mjs",
+      "sha256": "6aeb9f2b9a11ef998268662be7ad0701d4425dbd3901d14f7008b58fb245bc98",
+      "actual": "6aeb9f2b9a11ef998268662be7ad0701d4425dbd3901d14f7008b58fb245bc98"
+    },
+    {
+      "path": "scripts/local-render/owned-profile.mjs",
+      "sha256": "863fc4dbc7dae8b4bd313ed308be7f8abdf3cfe5087176cb395322ddc55b2506",
+      "actual": "863fc4dbc7dae8b4bd313ed308be7f8abdf3cfe5087176cb395322ddc55b2506"
+    },
+    {
+      "path": "scripts/local-render/checkpoint-observer.mjs",
+      "sha256": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "actual": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947"
+    },
+    {
+      "path": "app/building-shapes.ts",
+      "sha256": "8e697a8ac76900bb95183907702323b0d477950c92b3e703744376c0fefc7457",
+      "actual": "8e697a8ac76900bb95183907702323b0d477950c92b3e703744376c0fefc7457"
+    },
+    {
+      "path": "app/person-collision.ts",
+      "sha256": "fb4e3a388cca0a1f15f0cde99122d3d62c82eef14211f96ecba9ae01c0218a1c",
+      "actual": "fb4e3a388cca0a1f15f0cde99122d3d62c82eef14211f96ecba9ae01c0218a1c"
+    },
+    {
+      "path": "app/original-shapes.json",
+      "sha256": "0d0fcd2252efe0bae7cbb9a7f3a9acc4f6f0bb7a6e6e83eb5fe4e34ec247e094",
+      "actual": "0d0fcd2252efe0bae7cbb9a7f3a9acc4f6f0bb7a6e6e83eb5fe4e34ec247e094"
+    },
+    {
+      "path": "app/live-building-combat.ts",
+      "sha256": "fa648b2ae6b1708c26f81b4fa019ce3c3ccc5c8813891412742a2ddf71e464a2",
+      "actual": "fa648b2ae6b1708c26f81b4fa019ce3c3ccc5c8813891412742a2ddf71e464a2"
+    },
+    {
+      "path": "app/live-people.ts",
+      "sha256": "917d03ff49dd8237ef79295c0e8f432e9571af531327c5984b454c1d430b9412",
+      "actual": "917d03ff49dd8237ef79295c0e8f432e9571af531327c5984b454c1d430b9412"
+    },
+    {
+      "path": "app/combat-runtime.ts",
+      "sha256": "9cc7100f34547eb2a767928f25e0068a6c6c4749934271dd98a6fb643ead0d23",
+      "actual": "9cc7100f34547eb2a767928f25e0068a6c6c4749934271dd98a6fb643ead0d23"
+    },
+    {
+      "path": "app/person-state.ts",
+      "sha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+      "actual": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17"
+    }
+  ],
+  "harness": [
+    {
+      "path": "scripts/local-render/harness.mjs",
+      "current": "5efc2978cc65b3158fa2ad07c2d0644e838e0a8a",
+      "previous": "d4480fe3a68991e60cc904f1228a72561898baf3",
+      "changed": true
+    },
+    {
+      "path": "scripts/local-render/owned-profile.mjs",
+      "current": "44528821cfc519c01193498020ed0129d13eb06d",
+      "previous": "49888769b6d4e49f28a541f323ae80db6223c361",
+      "changed": true
+    },
+    {
+      "path": "scripts/local-render/checkpoint-observer.mjs",
+      "current": "a53f74c08539d99c82720b95894f4e63ac4e1663",
+      "previous": "a53f74c08539d99c82720b95894f4e63ac4e1663",
+      "changed": false
+    },
+    {
+      "path": "scripts/local-render/vite.config.mjs",
+      "current": "91570f6eec1e01f3ee98eb3dfdfb4a7db1203262",
+      "previous": "91570f6eec1e01f3ee98eb3dfdfb4a7db1203262",
+      "changed": false
+    }
+  ],
+  "limits": [
+    "Source/host evidence only. No profile registration or gameplay execution.",
+    "Two maintained QA-runtime hashes changed; combined profile application-classifier input fingerprint also changes."
+  ]
+}

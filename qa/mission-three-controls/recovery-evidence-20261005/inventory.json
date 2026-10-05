@@ -1,0 +1,89 @@
+{
+  "kind": "source-receipt-review-inventory",
+  "sourceCommit": "bbd7371e04a55e57b1e368530e92de6777864358",
+  "files": [
+    {
+      "file": "copied-sermon-admission-3ddb1dd-review.json",
+      "sha256": "c15766106e0bb4b73179f6db9c57ffb22852c625f16df22a6ab869f4293b72b5",
+      "bytes": 11916,
+      "sourceArtifact": "work/reviews/copied-sermon-admission-3ddb1dd-review.json"
+    },
+    {
+      "file": "copied-sermon-successor-bbd7371-source-review.json",
+      "sha256": "a59a2b412963b2f166e1386ba81ea3fea19309f7b58d0c776405f26abd282343",
+      "bytes": 8741,
+      "sourceArtifact": "work/reviews/copied-sermon-successor-bbd7371-source-review.json"
+    },
+    {
+      "file": "recovery-admission-3ddb1dd-tests.json",
+      "sha256": "fe8eac19fad5db37ca05cd65125e2a1d900f50eef479a64edc70bf52e011f07c",
+      "bytes": 11003,
+      "sourceArtifact": "work/orchestration/mission-three-sermon-continuation/recovery-admission-3ddb1dd-tests.json"
+    },
+    {
+      "file": "recovery-admission-3ddb1dd-check.json",
+      "sha256": "980345e82b6f45fb234ca14ea6515350f34fb8d57931461757e075dc545dabbf",
+      "bytes": 113860,
+      "sourceArtifact": "work/orchestration/mission-three-sermon-continuation/recovery-admission-3ddb1dd-check.json"
+    },
+    {
+      "file": "recovery-admission-3ddb1dd-source.json",
+      "sha256": "572e822cf8d17fe15a5b9fb663f7e02892dd7d1c0709f2995ec9debe30203865",
+      "bytes": 16957,
+      "sourceArtifact": "work/orchestration/mission-three-sermon-continuation/recovery-admission-3ddb1dd-source.json"
+    },
+    {
+      "file": "recovery-admission-3ddb1dd-build-correspondence.json",
+      "sha256": "2e11a37a6693d447c46f011571f6ab24b0abbeae8eb0ffe6d0583116c0dbf963",
+      "bytes": 4457,
+      "sourceArtifact": "work/orchestration/mission-three-sermon-continuation/recovery-admission-3ddb1dd-build-correspondence.json"
+    },
+    {
+      "file": "successor-bbd7371-tests.json",
+      "sha256": "8c55cf96b9e668a20da1511b08d5e9e5a2c122ca57e46f7d425a949f90e10d92",
+      "bytes": 11753,
+      "sourceArtifact": "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-tests.json"
+    },
+    {
+      "file": "successor-bbd7371-check.json",
+      "sha256": "25002813a5f89759a68716e8af82bfde99b711811afe371a8cfad07340692896",
+      "bytes": 113847,
+      "sourceArtifact": "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-check.json"
+    },
+    {
+      "file": "successor-bbd7371-source.json",
+      "sha256": "cf789cf89a7f269b7e0fb1789c755d40607770204a026bee51cdcff499c07f66",
+      "bytes": 16993,
+      "sourceArtifact": "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-source.json"
+    },
+    {
+      "file": "successor-bbd7371-build-correspondence.json",
+      "sha256": "ac94fe419946ec292b0948fcfc330a577224d740732b8ed2cbb7fbad149c8b49",
+      "bytes": 4375,
+      "sourceArtifact": "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-build-correspondence.json"
+    },
+    {
+      "file": "recovered-sermon-01-outcome.json",
+      "sha256": "37b1a9528098ffcd45b0335d9c7dd17edc6ac93e18a131031388d1cdf10ddc39",
+      "bytes": 5776,
+      "sourceArtifact": "work/orchestration/mission-three-sermon-continuation/recovered-sermon-01-outcome.json"
+    },
+    {
+      "file": "recovered-sermon-01.outer.json",
+      "sha256": "43d693aef6b746dfa99b000fb27173dede398fc953ea18bae015f206784e1c80",
+      "bytes": 5594,
+      "sourceArtifact": "work/orchestration/mission-three-sermon-continuation/recovered-sermon-01.outer.json"
+    },
+    {
+      "file": "recovered-sermon-01.inner.json",
+      "sha256": "23a1c360938456620031fc096d895eb6f730006055a554c7dd55a6965ac90dd0",
+      "bytes": 49853,
+      "sourceArtifact": "work/orchestration/mission-three-controls/recovered-sermon-01/receipt.json"
+    }
+  ],
+  "limits": [
+    "No browser profile, IndexedDB or private storage files are included.",
+    "OriginalRun14 cancellation/cleanup remain failed/unverified. New first recovered cancellation failed; actual saved-state Load and singleton conversion were observed.",
+    "Successor source is reviewed and its check passed; no successor gameplay result exists yet."
+  ]
+}
