@@ -59,31 +59,86 @@ export function requireEntityContext(hit, observed, before) {
     throw Error('Entity target has no fresh enabled detached-clone command context')
 }
 
+const scalar = value => typeof value === 'number'
+  ? Number.isFinite(value) && !Object.is(value, -0) ? value : Object.is(value, -0) ? '-0' : String(value)
+  : typeof value === 'string' || typeof value === 'boolean' ? value : null
+const fields = (value, keys) => Object.fromEntries(keys.map(key => [key, scalar(value?.[key])]))
+const inputCache = scene => fields(scene.picking, ['lastKey', 'lastId', 'lastKind'])
+const inputArgs = event => fields(event, ['clientX', 'clientY', 'button', 'buttons', 'ctrlKey', 'shiftKey', 'altKey', 'metaKey', 'pointerType'])
+
+// Only copy existing state. No re-pick, geometry initialization, matrix/render
+// update or model validator belongs in a delivered-event observation.
+export function entityInputState(scene, hit, point) {
+  const rect = scene.renderer.domElement.getBoundingClientRect?.()
+  const target = hit && scene.world[hit.collection]?.find(object => object.id === hit.id)
+  const group = hit && (hit.collection === 'units' ? scene.unitMeshes?.get(hit.id) :
+    hit.collection === 'buildings' ? scene.buildingMeshes?.get(hit.id) : scene.shrineMeshes?.get(hit.id)?.g)
+  const mesh = group?.children?.find(child => child.userData?.nativeModel !== undefined) ?? group
+  const currentScene = globalThis.window?.testSceneRef?.current, store = globalThis.window?.testStore
+  const projection = scene.view?.projection
+  return {
+    turn: scene.world.turn, frame: scalar(scene.frame), animationFrame: scalar(scene.gameClock?.animationFrame),
+    currentSceneMatches: currentScene ? currentScene === scene : null,
+    currentWorldMatches: store?.getWorld ? store.getWorld() === scene.world : null,
+    rect: rect ? fields(rect, ['left', 'top', 'width', 'height']) : null,
+    localPixel: rect ? { x: Math.trunc(point.x - rect.left), y: Math.trunc(point.y - rect.top) } : null,
+    camera: fields(scene.cameraPosition, ['x', 'y', 'angle']),
+    center: fields(scene.view?.center, ['x', 'y']), rawCenter: fields(scene.view?.rawCenter, ['x', 'y']),
+    projection: { ...fields(projection, ['curvature', 'depth', 'perspective', 'scale', 'width', 'height', 'centerX', 'centerY', 'fractionX', 'fractionY', 'pixelScaleX', 'pixelScaleY']),
+      matrix: projection?.matrix ? Array.from(projection.matrix, scalar) : null },
+    target: target ? { ...fields(target, ['id', 'kind', 'model', 'x', 'z', 'active', 'enabled']),
+      stoneHead: target.stoneHead ? fields(target.stoneHead, ['family', 'object', 'draw', 'morph', 'f1', 'f2', 'stamp', 'flags3', 'renderFlags', 'holdFrame']) : null } : null,
+    body: mesh ? { ...fields(mesh.userData, ['nativeModel', 'stoneHeadFrame', 'frame', 'stage', 'nativeSize']),
+      visible: scalar(mesh.visible), positionVersion: scalar(mesh.geometry?.attributes?.position?.version),
+      matrixWorld: mesh.matrixWorld?.elements ? Array.from(mesh.matrixWorld.elements, scalar) : null } : null,
+    cache: inputCache(scene),
+  }
+}
+
 // Observe the delivered events and the real handler's picker calls. No diagnostic
 // picker or clone work runs ahead of that handler. Each wrapper calls its original
 // exactly once with the same receiver/arguments and returns the original result.
-export function observeEntityPointer(scene, doc = document) {
-  const canvas = scene.renderer.domElement, events = [], errors = [], wrappers = []
+export function observeEntityPointer(scene, doc = document, hit = null) {
+  const canvas = scene.renderer.domElement, world = scene.world, events = [], errors = [], wrappers = []
   let active = null
+  const sample = event => ({ ...entityInputState(scene, hit, { x: event.clientX, y: event.clientY }),
+    armedWorldMatches: scene.world === world, armedCanvasMatches: scene.renderer.domElement === canvas })
   const begin = event => {
     try {
       active = { type: event.type, turn: scene.world.turn, x: event.clientX, y: event.clientY,
         button: event.button, buttons: event.buttons, trusted: event.isTrusted,
         canvasTarget: event.target === canvas,
-        canvasOwned: doc.elementFromPoint(event.clientX, event.clientY) === canvas, picks: [] }
+        canvasOwned: doc.elementFromPoint(event.clientX, event.clientY) === canvas,
+        args: inputArgs(event), state: sample(event), picks: [] }
       events.push(active)
     } catch (error) { active = null; errors.push(String(error)) }
   }
-  const end = () => { active = null }
-  for (const [owner, name] of [[scene, 'pickUnit'], [scene.picking, 'pickPerson'], [scene, 'pickWorldObject']]) {
-    const original = owner[name]
+  const end = event => {
+    if (active) try { active.after = sample(event) }
+    catch (error) { errors.push(String(error)) }
+    active = null
+  }
+  for (const [owner, name] of [[scene, 'pickUnit'], [scene.picking, 'pickPerson'], [scene, 'pickWorldObject'], [scene.picking, 'pick'], [scene, 'pick']]) {
+    const original = owner[name], descriptor = Object.getOwnPropertyDescriptor(owner, name)
+    if (typeof original !== 'function') continue
     const wrapper = function (...args) {
-      const result = original.apply(this, args)
-      if (active) try { active.picks.push({ name, id: typeof result === 'number' ? result : result?.id ?? null }) }
-      catch (error) { errors.push(String(error)) }
+      let before = null
+      if (active) try { before = inputCache(scene) } catch (error) { errors.push(String(error)) }
+      const record = (result, error, threw = false) => {
+        if (active) try { active.picks.push({ name, owner: owner === scene ? 'scene' : 'picking',
+          receiverMatches: this === owner, args: inputArgs(args[0]),
+          id: typeof result === 'number' ? result : result?.id ?? null,
+          point: result && typeof result === 'object' && 'x' in result && 'z' in result ? fields(result, ['x', 'z']) : null,
+          before, after: inputCache(scene), ...(threw ? { threw: true, error: String(error?.stack ?? error) } : {}) }) }
+        catch (diagnostic) { errors.push(String(diagnostic)) }
+      }
+      let result
+      try { result = original.apply(this, args) }
+      catch (error) { record(null, error, true); throw error }
+      record(result)
       return result
     }
-    wrappers.push({ owner, name, original, wrapper }); owner[name] = wrapper
+    wrappers.push({ owner, name, original, wrapper, descriptor }); owner[name] = wrapper
   }
   for (const name of ['pointerdown', 'pointerup']) {
     canvas.addEventListener(name, begin, true)
@@ -94,9 +149,10 @@ export function observeEntityPointer(scene, doc = document) {
       canvas.removeEventListener(name, begin, true)
       canvas.removeEventListener(name, end, false)
     }
-    for (const { owner, name, original, wrapper } of wrappers) {
+    for (const { owner, name, original, wrapper, descriptor } of wrappers) {
       if (owner[name] !== wrapper) errors.push(`Unexpected replacement of ${name}`)
-      else owner[name] = original
+      else if (descriptor) Object.defineProperty(owner, name, descriptor)
+      else delete owner[name]
     }
     active = null
     return { events, errors, restored: wrappers.every(({ owner, name, original }) => owner[name] === original) }

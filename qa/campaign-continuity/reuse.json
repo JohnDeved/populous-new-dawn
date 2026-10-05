@@ -215,7 +215,7 @@
     {
       "name": "entityHit",
       "sourceSha256": "7b90527f9d78d0d2df4154d4a4facb3ef6f44898c944367b7c0077c27731f7d8",
-      "currentSha256": "1a141839e778712158f0cad671a951909a3463e849a765e50bf7a1c8ab0fdce8"
+      "currentSha256": "c7a5c433eca824857df8dc5c44f3857a7b5de587b2577442c72ca1658eb52469"
     },
     {
       "name": "erosion",
@@ -314,14 +314,14 @@
       "path": "command-probes.mjs",
       "sourcePath": "qa/mission-three-controls/command-probes.mjs",
       "sourceSha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f",
-      "currentSha256": "4361392253e40746e7a7957bf840691e9869d7e5f00fccc9210ff582f5a5d7cb",
+      "currentSha256": "86384f34412b3edc5f6ff624d8c06c71747606149c1941ca7862af836518fbaa",
       "scope": "Original clone-only probe prefix is byte-identical; entity input picking and passive pointer diagnostics are appended."
     }
   ],
   "newActionSections": [
     {
       "name": "prepareEntityClick",
-      "currentSha256": "d35099dbedccaae26e7b7e6a1cffbf13a17afc5d7a8be94c3b9f5c5f39870089"
+      "currentSha256": "83726b3dfff0639ec0fe6b4eddb620d0a40428607b03bb6c51c398f9c352f336"
     },
     {
       "name": "finishEntityClick",

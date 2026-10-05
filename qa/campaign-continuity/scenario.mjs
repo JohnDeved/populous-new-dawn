@@ -260,8 +260,6 @@ export default async function campaignContinuity({ page, output, root, signal, r
     const r = s.container.getBoundingClientRect(), candidates = []
     const mesh = collection === 'units' ? s.unitMeshes.get(id) : collection === 'buildings' ? s.buildingMeshes.get(id) : s.shrineMeshes.get(id)?.g
     const q = s.screen(mesh?.position ?? o), center = { x: r.x + (q.x + 1) * r.width / 2, y: r.y + (1 - q.y) * r.height / 2 }
-    for (let dy = collection === 'units' ? -32 : -150; dy <= 64; dy += 4)
-      for (let dx = -100; dx <= 100; dx += 4) candidates.push({ x: center.x + dx, y: center.y + dy })
     if (collection === 'units') {
       const b = s.picking.personBounds(id)
       if (b) candidates.push({ x: r.x + b.x + b.width / 2, y: r.y + b.y + b.height / 2 })
@@ -274,6 +272,10 @@ export default async function campaignContinuity({ page, output, root, signal, r
             y: r.y + points.reduce((sum, p, i) => sum + p.y * weights[i], 0) / total })
         }
     })
+    candidates.sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.x, b.y - center.y))
+    // Prefer the existing interior anchors; retain the broad scan only as fallback.
+    for (let dy = collection === 'units' ? -32 : -150; dy <= 64; dy += 4)
+      for (let dx = -100; dx <= 100; dx += 4) candidates.push({ x: center.x + dx, y: center.y + dy })
     const hit = findEntityInput(candidates, id, point => inspectEntityPoint(s, collection, point))
     return hit && { ...hit, id, collection, turn: s.world.turn }
   }, { collection, id })
@@ -332,15 +334,16 @@ export default async function campaignContinuity({ page, output, root, signal, r
     // This final, synchronous inspection occurs after both the expensive before
     // snapshot and detached context probe. No full read follows before input.
     const fresh = await page.evaluate(async ({ hit, selected }) => {
-      const { findEntityInput, inspectEntityPoint, observeEntityPointer } = await import('/qa/campaign-continuity/command-probes.mjs')
+      const { findEntityInput, inspectEntityPoint, observeEntityPointer, entityInputState } = await import('/qa/campaign-continuity/command-probes.mjs')
       const s = window.testSceneRef.current, w = s.world
       if (window.campaignEntityPointer) throw Error('An entity pointer observer is already active')
       const point = findEntityInput([hit], hit.id, point => inspectEntityPoint(s, hit.collection, point))
       const valid = Number.isInteger(hit.x) && Number.isInteger(hit.y) && !!point &&
         !w.paused && w.status === 'playing' && !w.inputMask && w.mode === null &&
         JSON.stringify(w.selected) === JSON.stringify(selected)
-      if (valid) window.campaignEntityPointer = observeEntityPointer(s)
-      return { turn: w.turn, point, valid, selected: [...w.selected] }
+      const state = entityInputState(s, hit, hit)
+      if (valid) window.campaignEntityPointer = observeEntityPointer(s, document, hit)
+      return { turn: w.turn, point, valid, selected: [...w.selected], state }
     }, { hit, selected: before.selected })
     log({ action: 'entity-immediate-hit-revalidation', hit, fresh })
     assert.equal(fresh.valid, true, 'Entity integer interior target became stale before input')

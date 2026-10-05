@@ -151,7 +151,9 @@ The original dispatch-time cause is unresolved and no application regression is
 claimed. That profile has no mission-boundary record and cannot be resumed here.
 
 Entity picking now chooses an integer canvas point whose whole sampled 5×5 pixel
-neighborhood still identifies the named object. After the expensive before-state
+neighborhood still identifies the named object. Existing person-bound/model-triangle
+interior anchors are tried nearest the projected object anchor first; the previous
+broad scan remains a fallback when those anchors are occluded. After the expensive before-state
 read, a detached clone supplies a separately labelled command-context diagnostic;
 disabled contexts reject. The final synchronous picker then revalidates the same
 integer point, live selection and orderable state immediately before ordinary
@@ -167,3 +169,13 @@ Focused tests cover fractional edges, stale targets, disabled contexts, actual
 scenario routing and noninterfering wrapper restoration. This is a QA robustness
 repair awaiting independent review and a new exact runtime grant; no replay or
 profile transition is performed by the source change.
+
+The [second attempt](https://github.com/JohnDeved/populous-new-dawn/blob/e9fb3b1f5931bf631b05e59391346689f70e4828/references/verification/current-campaign-continuity-source-2026-10-05/attempt-02-c56e98a/README.md)
+proved trusted same-coordinate canvas delivery but the actual world-object picker
+returned null after the prior probe accepted the shrine. Cause remains unknown;
+neither morph timing nor a cache fault was proved. The new passive observations
+copy existing rect/projection/scene-frame/body-version/cache fields at probe and
+delivery, and the actual mixed and terrain picker returns. They never re-pick,
+initialize geometry, update rendering or clear caches inside the real handler.
+Original receiver/arguments, return/error identity and property descriptors are
+preserved. These diagnostics do not supply retrospective evidence for either miss.
