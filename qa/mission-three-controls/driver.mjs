@@ -2,14 +2,15 @@
 // Actual game changes are mouse/keyboard actions. The isolated command-file
 // protocol permits tactical decisions without eval, model commands or clock edits.
 import assert from 'node:assert/strict'
-import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync } from 'node:fs'
+import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync, renameSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createPreparationRecord, validatePreparationRecord, validateLoadedPreparation } from './checkpoint-provenance.mjs'
+import { createSermonRecord, validateSermonRecord, validateLoadedSermon, requirePreservedCheckpoint } from './sermon-checkpoint.mjs'
 import { bindGame, showAllMissions } from '../../scripts/browser-game.mjs'
 import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs'
-import { progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, activeBudget, requireActiveBudget, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells, requireDeclaredPreacherOrder, requireFirstOwnedListener, waitDisposition } from './observation.mjs'
+import { progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, activeBudget, requireActiveBudget, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells, requireDeclaredPreacherOrder, requireFirstOwnedListener, waitDisposition, requireCancelledSermon } from './observation.mjs'
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -33,9 +34,11 @@ export default async function missionThreeControls({ page, output, root, signal,
   const authoredVictim = authoredVictimIdentity(level.objects)
   const startWall = Date.now(), wallLimit = 90 * 60_000, inputs = [], failures = [], milestones = []
   const epochs = [], controlStops = [], ids = Object.create(null), commandsPath = resolve(output, 'commands')
-  let continuation = null, protectedPreparation = null, inheritedActiveSeconds = 0
+  let continuation = null, protectedPreparation = null, protectedLatest = null, sermonRecord = null, inheritedActiveSeconds = 0
+  let preserveStopRequested = false
+  let preserveVerificationFailed = false
   mkdirSync(commandsPath, { recursive: true })
-  for (const name of ['driver.mjs', 'observation.mjs', 'checkpoint-provenance.mjs', 'command-probes.mjs']) {
+  for (const name of ['driver.mjs', 'observation.mjs', 'checkpoint-provenance.mjs', 'sermon-checkpoint.mjs', 'command-probes.mjs']) {
     const bytes = readFileSync(new URL(name, import.meta.url))
     writeFileSync(resolve(output, name), bytes)
     inputs.push({ name, sha256: sha256(bytes) })
@@ -45,7 +48,8 @@ export default async function missionThreeControls({ page, output, root, signal,
     JSON.stringify({ at: new Date().toISOString(), wallMs: Date.now() - startWall, ...entry }) + '\n')
   const saveProgress = (status = 'in-progress') => writeFileSync(resolve(output, 'journey.json'), JSON.stringify({
     status, inputs, ids, epochs, milestones, failures, controlStops, training, victimSelection, sermonPlan,
-    entryMode: continuation ? 'checkpoint-continuation' : 'fresh', continuation, protectedPreparation, inheritedActiveSeconds,
+    entryMode: continuation ? 'checkpoint-continuation' : 'fresh', continuation, protectedPreparation, protectedLatest, sermonRecord,
+    preserveStopRequested, preserveVerificationFailed, inheritedActiveSeconds,
     limits: 'Ordinary UI inputs and normal RAF only; independent Mission 3, software/headless renderer.'
   }, null, 2) + '\n')
   const button = async (name, options = {}) => {
@@ -80,7 +84,13 @@ export default async function missionThreeControls({ page, output, root, signal,
       units: w.units.filter(u => u.hp > 0).map(u => {
         const p = person(u), n = u.native
         return { id: u.id, team: u.team, kind: u.kind, x: u.x, z: u.z, hp: u.hp,
-          conversionNative: n && { model: n.model, tribe: n.tribe, life: n.life, state: n.state, vehicle: n.vehicle },
+          personOwner: p && (p === u.builder?.person ? 'builder' : p === u.flight ? 'flight' :
+            p === u.fight?.motion ? 'fight' : p === n ? 'native' : 'entry'),
+          fight: p && p === u.fight?.motion ? { group: u.fight.group,
+            groupExists: w.fights.some(f => f.id === u.fight.group), opponent: u.fight.opponent,
+            personId: p.id, state: p.state, flags2: p.flags2 } : null,
+          conversionNative: n && { model: n.model, tribe: n.tribe, life: n.life, state: n.state, vehicle: n.vehicle,
+            workTarget: n.workTarget, flags2: n.flags2, flags4: n.flags4 },
           preachingEligible: !!n && u.kind === 'brave' && n.model === 2 && n.tribe === 2 && n.life > 0 &&
             u.inside === null && !u.flight && !(w.outcome.alliances[0] & (1 << n.tribe)) &&
             !!(rules.personModels[n.model].flags & 32) && !(rules.personStateFlags[n.state] & 32) &&
@@ -457,6 +467,12 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.equal(await waitForCheckpointReadback(async () => matches(await readStorage('latest'))), true)
     const committed = await readStorage('latest')
     assert.ok(matches(committed))
+    if (receipt.profile && typeof observeCheckpoint === 'function') {
+      const observed = await observeCheckpoint(`m3-${label}`)
+      assert.equal(observed.checkpoint?.level, 3); assert.equal(observed.checkpoint.turn, saved.turn)
+      assert.equal(observed.checkpoint.time, saved.time)
+      protectedLatest = observed
+    }
     log({ action: 'checkpoint-persisted', label, turn: saved.turn, sermon })
     await page.getByRole('button', { name: /^Continue Game/ }).click()
     await pause()
@@ -501,6 +517,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     const { observed, checkpoint } = await observePreparationStorage('m3-before-preparation-load')
     continuation = validatePreparationRecord(record, { source: receipt.source, profile: receipt.profile, origin: url, checkpoint })
     protectedPreparation = continuation
+    protectedLatest = observed
     // Carry the original prefix unchanged; the separate admitted QA source may
     // be reused only by the next same-source run under the same profile lease.
     writeFileSync(resolve(output, 'preparation-record.json'), JSON.stringify(continuation, null, 2) + '\n', { flag: 'wx' })
@@ -536,6 +553,62 @@ export default async function missionThreeControls({ page, output, root, signal,
     log({ action: 'loaded-sermon-first-epoch', saved: savedSermon, loadedTurn: loaded.turn,
       loadedTime: loaded.time, epoch: loaded.observation.name })
     await mark('sermon-reloaded')
+  }
+  const loadSavedSermon = async recordPath => {
+    assert.ok(receipt.profile && typeof observeCheckpoint === 'function', 'Saved-sermon Load needs the owned-profile harness')
+    const path = resolve(recordPath), base = resolve(root, 'work/orchestration/mission-three-controls') + '/'
+    assert.ok(path.startsWith(base) && path.endsWith('/sermon-record.json'), 'Load provenance belongs to this task output')
+    const bytes = readFileSync(path), record = JSON.parse(bytes)
+    inputs.push({ name: path, sha256: sha256(bytes) })
+    writeFileSync(resolve(output, 'loaded-sermon-record.json'), bytes)
+    const observed = await observeCheckpoint('m3-before-saved-sermon-load')
+    sermonRecord = validateSermonRecord(record, { source: receipt.source, profile: receipt.profile,
+      origin: url, checkpoint: observed.checkpoint })
+    protectedLatest = observed
+    continuation = { kind: 'saved-sermon', record: sermonRecord, inputSha256: sha256(bytes), priorRun: receipt.profile.previousRun }
+    inheritedActiveSeconds = sermonRecord.activeSeconds
+    Object.assign(ids, sermonRecord.ids)
+    milestones.push(...sermonRecord.milestones.map(m => ({ ...m, inheritedFromSavedSermon: true })))
+    failures.push(...sermonRecord.failures.map(f => ({ ...f, inheritedFromSavedSermon: true })))
+    victimSelection = sermonRecord.firstOwned
+    sermonPlan = { epoch: sermonRecord.epoch, declaration: sermonRecord.declaration,
+      inheritedFromSavedSermon: { source: sermonRecord.source, savedByRunId: sermonRecord.savedByRunId } }
+    savedSermon = { turn: sermonRecord.checkpoint.turn, time: sermonRecord.checkpoint.time,
+      victimId: ids.victim, preacherId: ids.preacher, blueIds: sermonRecord.retainedBlueIds }
+    log({ action: 'saved-sermon-provenance-verified', input: path, inputSha256: sha256(bytes), observed,
+      originalSource: sermonRecord.source, savedByRunId: sermonRecord.savedByRunId,
+      retainedFailureCount: sermonRecord.failures.length, scope: sermonRecord.scope })
+    await button('Load Game'); await bindGame(page)
+    await bindObservation('saved-sermon-entry', savedSermon.time)
+    const loaded = await read(); health(loaded); validateLoadedSermon(sermonRecord, loaded)
+    await pause()
+    const storedProfile = await readStorage('profile')
+    assert.ok(!storedProfile?.completed?.includes(3), 'M3 is absent before saved-sermon continuation')
+    assert.equal(sha256(readFileSync(path)), sha256(bytes), 'Input sermon provenance remains unchanged')
+    log({ action: 'saved-sermon-loaded-first-epoch', saved: savedSermon, loadedTurn: loaded.turn,
+      epoch: loaded.observation.name, inheritedActiveSeconds })
+    await snapshot('saved-sermon-opening')
+    writeFileSync(resolve(output, 'sermon-record.json'), JSON.stringify(sermonRecord, null, 2) + '\n')
+    saveProgress()
+  }
+  const withholdSermonRecord = reason => {
+    preserveVerificationFailed = true
+    if (!sermonRecord || sermonRecord.continuationBlockedReason) return
+    sermonRecord = { ...sermonRecord, continuationBlockedReason: String(reason) }
+    const path = resolve(output, 'sermon-record.json')
+    writeFileSync(path, JSON.stringify(sermonRecord, null, 2) + '\n')
+    renameSync(path, resolve(output, 'sermon-record-withheld.json'))
+    log({ action: 'sermon-record-withheld', reason: String(reason) }); saveProgress()
+  }
+  const stopPreserveLatest = async () => {
+    try {
+      assert.ok(protectedLatest && typeof observeCheckpoint === 'function', 'Require a known committed latest checkpoint')
+      await pause()
+      const observed = await observeCheckpoint('m3-stop-preserve-latest')
+      requirePreservedCheckpoint(protectedLatest.checkpoint, observed)
+      log({ action: 'stop-preserve-latest', observed })
+    } catch (error) { withholdSermonRecord(error); throw error }
+    throw new IncompleteRun('preserve-latest', 'Requested bounded stop preserving the actual committed checkpoint')
   }
   const proveVictory = async () => {
     const s = await read(); health(s); assert.equal(s.status, 'won')
@@ -627,8 +700,15 @@ export default async function missionThreeControls({ page, output, root, signal,
     log({ action: 'sermon-victim-locked-at-onset', epoch: listening.observation.name,
       observedAtTurn: listening.turn, selection: victimSelection })
     saveProgress()
-    await mark('listener'); await saveCheckpoint('sermon-saved', true)
+    await mark('listener'); const saved = await saveCheckpoint('sermon-saved', true)
     milestones.push({ name: 'sermon-saved', ...savedSermon }); saveProgress()
+    if (protectedLatest) {
+      sermonRecord = createSermonRecord({ source: receipt.source, profile: receipt.profile, observed: protectedLatest,
+        origin: url, state: saved, declaration: sermonPlan.declaration, epoch: sermonPlan.epoch,
+        ids, milestones, activeSeconds: currentActive(saved), inputs, failures, acquisition: continuation ?? protectedPreparation })
+      writeFileSync(resolve(output, 'sermon-record.json'), JSON.stringify(sermonRecord, null, 2) + '\n')
+      saveProgress()
+    }
   }
   const capturePendingSermon = async (state, context = {}) => {
     if (!sermonPlan || savedSermon || !state.observation.sermon?.firstOwned) return
@@ -685,9 +765,10 @@ export default async function missionThreeControls({ page, output, root, signal,
     }
     assert.ok(hit, 'Visible clear cancellation ground outside the locked victim preaching cells')
     await resume(); await clickOrder(hit)
-    const s = await read(), victim = s.units.find(u => u.id === ids.victim)
-    assert.equal(victim?.team, 'yellow'); assert.notEqual(victim.nativeState, 23)
-    assert.equal(victim.owner, 0); assert.equal(victim.flags4 & 128, 0); assert.equal(victim.flags2 & 0x200000, 0)
+    await pause()
+    const s = await read(); health(s)
+    const cancellation = requireCancelledSermon(before, s, ids.victim, ids.preacher)
+    log({ action: 'sermon-cancellation-observed', cancellation })
     await mark('sermon-cancelled')
   }
   const completeConversion = async () => {
@@ -731,6 +812,7 @@ export default async function missionThreeControls({ page, output, root, signal,
       case 'capture-sermon':
         await captureSermon()
         throw new SermonCaptured({ explicitCommand: command })
+      case 'stop-preserve-latest': return stopPreserveLatest()
       case 'return-shaman-home': return returnShamanHome()
       case 'approach-sermon': return approachSermon()
       case 'cancel-sermon': return cancelSermon()
@@ -776,7 +858,9 @@ export default async function missionThreeControls({ page, output, root, signal,
   }
   let index = 0
   try {
-    if (process.env.M3_PREPARATION_RECORD) await loadPreparation(process.env.M3_PREPARATION_RECORD)
+    assert.ok(!(process.env.M3_PREPARATION_RECORD && process.env.M3_SERMON_RECORD), 'Choose one genuine checkpoint entry')
+    if (process.env.M3_SERMON_RECORD) await loadSavedSermon(process.env.M3_SERMON_RECORD)
+    else if (process.env.M3_PREPARATION_RECORD) await loadPreparation(process.env.M3_PREPARATION_RECORD)
     else {
       assert.ok(!receipt.profile || receipt.profile.mode === 'created', 'A reused profile requires explicit preparation provenance')
       await showAllMissions(page)
@@ -813,11 +897,19 @@ export default async function missionThreeControls({ page, output, root, signal,
       try {
         const commands = JSON.parse(bytes)
         assert.ok(Array.isArray(commands) && commands.length > 0 && commands.length <= 32)
+        if (commands.some(command => command?.action === 'stop-preserve-latest')) {
+          preserveStopRequested = true
+          assert.equal(commands.length, 1, 'A preserving stop must be the sole command in its batch')
+          // Operator preservation is terminal even if normal diagnostics or
+          // the active/wall gameplay budget would reject another action.
+          await stopPreserveLatest()
+        }
         for (const command of commands) {
           signal.throwIfAborted()
           if (Date.now() - startWall >= wallLimit) throw new IncompleteRun('wall-envelope', 'Outer resource limit reached')
           const beforeCommand = await read(); health(beforeCommand)
-          if (command.action !== 'capture-sermon') await capturePendingSermon(beforeCommand, { beforeCommand: command })
+          if (!['capture-sermon', 'stop-preserve-latest'].includes(command.action))
+            await capturePendingSermon(beforeCommand, { beforeCommand: command })
           const result = await dispatch(command)
           assert.equal(sha256(readFileSync(path)), hash, 'Consumed input bytes did not change')
           if (result?.finished) {
@@ -847,7 +939,8 @@ export default async function missionThreeControls({ page, output, root, signal,
         requireNotDefeated(diagnostic?.status)
         log({ action: 'command-failed', index, error: String(error), retained: true })
         let finishing = false
-        try { const parsed = JSON.parse(bytes); finishing = Array.isArray(parsed) && parsed.some(command => command.action === 'finish') } catch {}
+        try { const parsed = JSON.parse(bytes); finishing = Array.isArray(parsed) &&
+          parsed.some(command => ['finish', 'stop-preserve-latest'].includes(command?.action)) } catch {}
         if (finishing) throw error
       }
       requireNotDefeated(await page.evaluate(() => window.testSceneRef.current.world.status))
@@ -861,7 +954,21 @@ export default async function missionThreeControls({ page, output, root, signal,
     if (incomplete) controlStops.push(record)
     else failures.push(record)
     if (!signal.aborted) {
-      if (protectedPreparation && !savedSermon) {
+      if (protectedLatest || preserveStopRequested) {
+        // Preserve the actual latest UI Save, including a sermon. Never replace
+        // it with the failed exploratory world just to close the harness.
+        await pause().catch(() => {})
+        await snapshot('terminal-with-latest-preserved').catch(() => {})
+        let readError = null
+        const retained = typeof observeCheckpoint === 'function' ?
+          await observeCheckpoint('m3-latest-retained-on-stop').catch(error => { readError = String(error); return null }) : null
+        const matches = !!protectedLatest && JSON.stringify(retained?.checkpoint) === JSON.stringify(protectedLatest.checkpoint)
+        if (!matches) withholdSermonRecord(readError ?? 'The intended committed checkpoint was not verified at stop')
+        log({ action: 'latest-preserved-on-stop', expected: protectedLatest?.checkpoint ?? null,
+          actual: retained?.checkpoint ?? null,
+          readError, preserveStopRequested, intendedSaveVerified: matches && !preserveVerificationFailed,
+          matches, limits: 'Harness cleanup/continuation validity is separate from this intended-save verification.' })
+      } else if (protectedPreparation && !savedSermon) {
         // Latest is a single shipped slot. Preserve the real early save for UI Load.
         await pause().catch(() => {})
         await snapshot('terminal-with-preparation-preserved').catch(() => {})
@@ -872,7 +979,7 @@ export default async function missionThreeControls({ page, output, root, signal,
       } else await saveCheckpoint('incomplete-checkpoint').catch(checkpointError =>
         log({ action: 'incomplete-checkpoint-failed', error: String(checkpointError) }))
     }
-    const terminalStatus = failures.length ? 'failed' : incomplete ? 'incomplete' : 'failed'
+    const terminalStatus = failures.length || preserveVerificationFailed ? 'failed' : incomplete ? 'incomplete' : 'failed'
     saveProgress(terminalStatus)
     log({ action: 'terminal-result', status: terminalStatus, ...record,
       harnessResult: 'Thrown error preserves the authoritative harness failed receipt; no successful result is returned.' })

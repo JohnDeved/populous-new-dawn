@@ -208,6 +208,34 @@ export function waitDisposition(snapshot, condition, savedSermon) {
   return checkCondition(snapshot, condition) ? 'complete' : 'wait'
 }
 
+export function requireCancelledSermon(before, after, victimId, preacherId) {
+  const prior = before.units.find(u => u.id === victimId), victim = after.units.find(u => u.id === victimId)
+  if (!prior || prior.team !== 'yellow' || prior.personOwner !== 'native' ||
+    prior.nativeState !== 23 || prior.owner !== preacherId ||
+    prior.conversionNative?.state !== 23 || prior.conversionNative.workTarget !== preacherId)
+    throw Error('Cancellation requires the previously owned exact listener')
+  if (!victim || victim.team !== 'yellow' || victim.kind !== 'brave' || victim.hp <= 0 ||
+    victim.nativeState === 23 || victim.owner !== 0 || victim.flags4 & 128 || victim.conversionNative?.state === 23)
+    throw Error('The exact listener has not released sermon ownership and its listener flag')
+  const reused = !!(victim.flags2 & 0x200000), fight = victim.fight
+  if (!reused && !(victim.personOwner === 'native' && victim.conversionNative &&
+    victim.conversionNative.state === victim.nativeState && victim.conversionNative.workTarget === 0 &&
+    victim.conversionNative.flags2 === victim.flags2 && victim.conversionNative.flags4 === victim.flags4))
+    throw Error('Cleared flags must belong to the observed released native listener')
+  // Browser melee entry (live-people.ts) sets0x40200200 on the fight-owned
+  // person. A late poll cannot claim it observed the intermediate cleared bit.
+  if (reused && !(victim.personOwner === 'fight' && victim.conversionNative === null && fight &&
+    fight.group > 0 && fight.groupExists && fight.personId === victimId &&
+    [25, 29].includes(victim.nativeState) && fight.state === victim.nativeState &&
+    fight.flags2 === victim.flags2 && (fight.flags2 & 0x200200) === 0x200200))
+    throw Error('The cancellation bit remains set without an observed fight-person handoff')
+  return { kind: reused ? 'released-listener-observed-in-combat' : 'released-native-listener',
+    victimId, preacherId, turnBefore: before.turn, turnAfter: after.turn,
+    releasedOwner: victim.owner, listenerFlag: victim.flags4 & 128,
+    clearedBitObserved: !reused, personOwner: victim.personOwner, flags2: victim.flags2,
+    fight: fight ? structuredClone(fight) : null }
+}
+
 export function requiredActorStop(snapshot, condition) {
   if (!['first-owned-sermon', 'listener', 'conversion'].includes(condition.type)) return null
   if (condition.type === 'conversion' && checkCondition(snapshot, condition)) return null

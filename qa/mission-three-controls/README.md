@@ -30,7 +30,9 @@ node --check qa/mission-three-controls/driver.mjs
 node --test qa/mission-three-controls/observation.test.mjs \
   qa/mission-three-controls/checkpoint-provenance.test.mjs \
   qa/mission-three-controls/command-probes.test.mjs \
-  qa/mission-three-controls/sermon-protocol.test.mjs
+  qa/mission-three-controls/sermon-protocol.test.mjs \
+  qa/mission-three-controls/sermon-checkpoint.test.mjs \
+  qa/mission-three-controls/driver-checkpoint-path.test.mjs
 ```
 
 The isolated observer tests cover original callback receiver/arguments/return and
@@ -182,6 +184,8 @@ retained screenshots/snapshots and journal, then choose ordinary commands:
 - `cast`: spell `blast` or `swarm`; target coordinate or known actor ID/alias
 - `wait`: typed `condition`, progress `scope`, optional `watchIds`
 - `snapshot`: safe `name`; `checkpoint`: safe `name`
+- `stop-preserve-latest`: verify the actual committed digest and close incomplete
+  through the harness without replacing it or using a process signal
 - `prove-victory`, then `finish`
 
 Start tactical batches with `resume`; batch boundaries are intentionally paused.
@@ -239,8 +243,10 @@ command failures, no browser/observer errors, and actual victory. It archives th
 final diagnostic epoch and result. A late win after a helper error remains an
 exploratory failure; use a separately hashed repaired input/replay for clean proof.
 
-On a diagnostic budget/stall, outer cap or unhandled failure, the driver best-effort saves an incomplete
-checkpoint through normal UI before the harness closes its own processes. Later
+On a diagnostic budget/stall, outer cap or unhandled failure, the driver preserves
+a known committed latest checkpoint and records a readback before the harness
+closes its own processes. If no committed checkpoint is known, the prior
+best-effort ordinary incomplete Save remains available. Later
 continuation must be labelled; it is not an uninterrupted fresh journey. The journal ends with explicit failed/incomplete status; the thrown stop retains
 the authoritative harness failed receipt, never a successful result. All
 failures and exact inputs remain in `journey.json`, `actions.jsonl`, screenshots
@@ -277,8 +283,15 @@ On tactical failure before a successful sermon save, the driver ordinarily pause
 and captures the terminal state while preserving the preparation in the game's
 single latest slot. It observes and logs whether the actual committed digest
 still matches. It does not overwrite that slot with the failed world. A successful
-sermon Save explicitly replaces latest; that later state is not accepted by the
-preparation-only continuation entry.
+sermon Save explicitly replaces latest; that later state is accepted only by the
+separate genuine saved-sermon entry described in `sermon-continuation.md`.
+
+That entry uses `M3_SERMON_RECORD` and the actual committed Save's source-bound
+`sermon-record.json`. It preserves first-onset identity and inherited failures,
+starts a fresh Load epoch and never restores state from diagnostic JSON. The
+ownership-aware cancellation check records a later combat-person bit reuse
+separately from any actually observed cleared bit. The interrupted Run14 profile
+still needs independently verified recovery before this entry can be used there.
 
 A later run may set `M3_PREPARATION_RECORD` to the original task-owned output's
 absolute `preparation-record.json` and pass the same retained `--profile`. Include
