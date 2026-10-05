@@ -1,7 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { requireContinueBoundary, requireLoadedCheckpoint, continueControlName, validateRunPolicy } from './boundaries.mjs'
+import { requireContinueBoundary, requireLoadedCheckpoint, continueControlName, validateRunPolicy, sermonContinuation } from './boundaries.mjs'
+import { requiredActorStop, objectiveProgress } from './observation.mjs'
 const source = readFileSync(new URL('./scenario.mjs', import.meta.url), 'utf8')
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 function body(name, next) {
@@ -81,9 +82,127 @@ test('actual progress adapter rejects unscoped combat and ignores unrelated watc
   const state = { units: [{ id: 99, work: 55 }], buildings: [{ id: 55, kind: 'camp', team: 'blue' }], shrines: [], stats: {}, shots: {} }
   progress(state, { type: 'target-gone', id: 10 }, 'combat', [99, 77]); assert.deepEqual(seen.pop(), [10])
   progress(state, { type: 'units-near', id: 10 }, 'movement', [99]); assert.deepEqual(seen.pop(), [10])
+  progress(state, { type: 'shrine-used', id: 101, workerId: 5000 }, 'worship', [99]); assert.deepEqual(seen.pop(), [101, 5000])
   progress(state, { type: 'trained-kind', kind: 'warrior', existingIds: [] }, 'training', [55, 77]); assert.deepEqual(seen.pop(), [55, 99])
   assert.throws(() => progress(state, { type: 'trained-kind', kind: 'warrior' }, 'training', [55]))
   assert.throws(() => progress(state, { type: 'target-gone' }, 'combat', [99]), /name its objective/)
+})
+
+test('actual reused entry validates before Load, restores typed sermon history and requires fresh current identity', async () => {
+  const start = source.indexOf('  const loadPriorSegment ='), end = source.indexOf('  let index = 0', start)
+  assert.ok(start >= 0 && end > start)
+  assert.match(source.slice(end), /else \{\s+await loadPriorSegment\(\)/)
+  const execute = new AsyncFunction('deps', `
+    const { assert, sermonContinuation, calls, reject } = deps;
+    const receipt = { profile: { previousRun: { runId: sermonContinuation.runId, receiptPath: 'real-receipt', receiptSha256: 'bound' } }, source: {} };
+    const policy = { limits: 'fixed' }, prior = { level: 3, policy, ownedWallMs: 5801958, missionWallMs: { 1: 1, 2: 2, 3: 2172699 },
+      failures: ['one', 'two', 'envelope'], controlStops: ['progress-stall'], browserErrors: [], epochs: ['closed', 'terminal-observation'],
+      milestones: [{ level: 3, name: 'conversion', missionActiveSeconds: 704.0833333333333 }], transitions: [], checkpointProofs: [], acceptedCasts: [],
+      ids: { preacher: 3181, victim: 2631 }, protectedLatest: { checkpoint: 'actual7424' }, savedSermon: { victimId: 2631 },
+      victimSelection: { inherited: true }, sermonPlan: { inherited: true }, sermonContinuation: { historyScope: 'inherited' } };
+    const readSermonPredecessor = () => { calls.push('validate hash-bound predecessor'); if (reject) throw Error('predecessor mismatch'); return prior; };
+    let inheritedSermon, savedSermon, victimSelection, sermonPlan, level, inheritedWallMs, missionWallStarted, protectedLatest;
+    const missionWallMs = {}, ids = {}, inputs = [], failures = [], controlStops = [], priorBrowserErrors = [], epochs = [], milestones = [], transitions = [], checkpointProofs = [], acceptedCasts = [];
+    const reloadCheckpoint = async options => { assert.equal(protectedLatest, prior.protectedLatest); assert.equal(ids.replacement, undefined);
+      assert.equal(inheritedWallMs, 5801958); assert.equal(missionWallMs[3], 2172699); assert.equal(failures.length, 3); assert.equal(controlStops.length, 1);
+      assert.deepEqual(options, { segment: true, sermon: true }); calls.push('ordinary protected Load'); };
+    const campaignActive = () => 2692.666666666667, log = () => calls.push('new Load record'), snapshot = async () => calls.push('opening');
+    ${source.slice(start, end)}
+    await loadPriorSegment(); return { ids, savedSermon, milestones, inheritedSermon };
+  `)
+  for (const reject of [true, false]) {
+    const calls = [], operation = execute({ assert, sermonContinuation, calls, reject })
+    if (reject) { await assert.rejects(operation, /predecessor mismatch/); assert.deepEqual(calls, ['validate hash-bound predecessor']) }
+    else { const result = await operation; assert.equal(result.ids.replacement, undefined); assert.equal(result.milestones.length, 1)
+      assert.deepEqual(calls, ['validate hash-bound predecessor', 'ordinary protected Load', 'new Load record', 'opening']) }
+  }
+})
+
+test('actual active wait stops on named worker loss before a flyby and preserves queued-stop priority', async () => {
+  const execute = new AsyncFunction('deps', `
+    const { assert, requiredActorStop, objectiveProgress, calls, queuedStop, states } = deps;
+    const condition = { type: 'shrine-used', id: 101, workerId: 5000 };
+    const consumeQueuedStop = async () => { calls.push('stop poll'); if (queuedStop) throw queuedStop; };
+    let readIndex = 0;
+    const read = async () => states[Math.min(readIndex++, states.length - 1)], requireOrderableForWait = () => {}, currentActive = () => 0;
+    const signal = { throwIfAborted() {} }, health = () => {}, savedSermon = {}, conditionMet = () => false;
+    const skipFlyby = async () => { calls.push('flyby'); throw Error('incorrect flyby'); }, log = entry => calls.push(entry);
+    ${body('progressFor', 'pauseForPreservation')}
+    ${body('waitFor', 'consumeQueuedStop')}
+    await waitFor(condition, 'worship', [101, 5000]);
+  `)
+  const ready = { turn: 1, animationFrame: 1, paused: false, inputMask: 0, buildings: [],
+    units: [{ id: 5000, hp: 50, team: 'blue', kind: 'brave', x: 1, z: 2, order: { model: 27, a: 101 } }], shrines: [{ id: 101, uses: 0 }] }
+  for (const units of [[], [{ ...ready.units[0], order: { model: 3, a: 0 } }], [{ ...ready.units[0], personOwner: 'fight' }]]) {
+    const failed = { ...ready, turn: 2, animationFrame: 2, inputMask: 1, units }
+    for (const states of [[failed], [ready, failed]]) for (const queuedStop of [null, Error('authenticated preserving stop')]) {
+      const calls = []
+      await assert.rejects(execute({ assert, requiredActorStop, objectiveProgress, calls, queuedStop, states }), queuedStop ? error => error === queuedStop : /Required (Blue )?Brave5000/)
+      assert.ok(!calls.includes('flyby'))
+      const logged = calls.find(entry => entry.action === 'required-actor-unavailable')
+      if (queuedStop) assert.equal(logged, undefined)
+      else { assert.equal(logged.turn, 2); assert.deepEqual(logged.units, units) }
+    }
+  }
+})
+
+test('actual Erosion body selects only the fresh converted Brave and arms before the ordinary order', async () => {
+  const execute = new AsyncFunction('deps', `
+    const { assert, calls, stale } = deps;
+    const milestones = [{ level: 3, name: 'conversion' }], ids = { preacher: 3181, victim: 2631, replacement: 5000, erosion: 101 };
+    const state = { turn: 8000, units: [{ id: 3181, order: { model: 17, a: 2, b: 3 } }, { id: 5000 }] };
+    const pause = async () => calls.push('pause'), read = async () => state;
+    const requireCurrentConvertedWorker = () => { calls.push('current conversion'); if (stale) throw Error('stale worker'); return { id: 5000 }; };
+    const selectUnits = async ids => { assert.deepEqual(ids, [5000]); calls.push('select actual Brave'); };
+    const resume = async () => calls.push('resume'), page = { evaluate: async (fn, arg) => { calls.push(typeof arg === 'number' ? 'arm' : 'lifecycle evidence'); return {}; } };
+    const log = () => {}, clickOrder = async () => calls.push('ordinary head input'), targetEntity = async () => ({ id: 101 });
+    const waitFor = async condition => { if (condition.type === 'shrine-used') assert.equal(condition.workerId, 5000); calls.push(condition.type); };
+    const mark = async () => {}, IncompleteRun = Error;
+    ${body('erosion', 'conditionMet')}
+    await erosion();
+  `)
+  for (const stale of [true, false]) {
+    const calls = [], operation = execute({ assert, calls, stale })
+    if (stale) { await assert.rejects(operation, /stale worker/); assert.deepEqual(calls, ['pause', 'current conversion']) }
+    else { await operation; assert.ok(calls.indexOf('arm') < calls.indexOf('ordinary head input')); assert.ok(calls.includes('shrine-used')); assert.ok(calls.includes('erosion-retired')) }
+  }
+})
+
+test('actual conversion and mark bodies retain the original budget milestone while recording a fresh successor proof', async () => {
+  const execute = new AsyncFunction('deps', `
+    const { assert } = deps;
+    const original = { level: 3, name: 'conversion', missionActiveSeconds: 704.0833333333333, epoch: 'old-reload' };
+    const milestones = [{ level: 3, name: 'sermon-reloaded', epoch: 'old-reload' }, original], ids = { victim: 2631, preacher: 3181 };
+    const inheritedSermon = { priorRunId: 'old' }, receipt = { profile: { runId: 'new' } }, level = 3, epochs = [];
+    const state = { turn: 8090, time: 674, units: [{ id: 5000, team: 'blue', kind: 'brave', hp: 50, flags3: 0x1000000, flags4: 0x40000 }],
+      observation: { name: 'reload-new', level: 3, activeSeconds: 20 } };
+    const read = async () => state, resume = async () => {}, waitFor = async () => {}, page = { evaluate: async () => ({ replacements: [{ id: 5000 }] }) };
+    const calls = [], log = () => {}, clear = async () => {}, map = async () => {}, safeLabel = () => {}, health = () => {},
+      snapshot = async label => { calls.push(label); return state; }, saveProgress = () => calls.push('progress retained'),
+      campaignActive = () => 873.6666666666666, currentActive = () => 2712.666666666667;
+    ${body('mark', 'readStorage')}
+    ${body('completeConversion', 'erosion')}
+    await completeConversion();
+    assert.equal(milestones.filter(mark => mark.name === 'conversion').length, 1);
+    assert.equal(milestones.find(mark => mark.name === 'conversion'), original);
+    assert.equal(original.missionActiveSeconds, 704.0833333333333);
+    assert.equal(inheritedSermon.currentConversion.runId, 'new');
+    assert.equal(inheritedSermon.currentConversion.epoch, 'reload-new');
+    assert.equal(ids.replacement, 5000);
+    assert.deepEqual(calls, ['m3-current-conversion', 'progress retained']);
+    await assert.rejects(completeConversion(), /one fresh conversion/);
+  `)
+  await execute({ assert })
+})
+
+test('inherited conversion proof cannot authorize overwriting the freshly restored sermon', async () => {
+  const execute = new AsyncFunction('assert', `
+    const inheritedSermon = { priorRunId: 'old' }, savedSermon = { turn: 7424 };
+    const milestones = [{ level: 3, name: 'conversion' }];
+    ${body('saveCheckpoint', 'returnShamanHome')}
+    await saveCheckpoint('attempted-overwrite');
+  `)
+  await assert.rejects(execute(assert), /until this segment observes its conversion/)
 })
 
 test('module guard rejects disabled policy and enabled import remains preparation-only', async () => {

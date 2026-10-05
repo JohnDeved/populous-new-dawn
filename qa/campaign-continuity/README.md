@@ -2,7 +2,7 @@
 
 Source checkpoint for a fresh Mission 1 → 2 → 3 journey on accepted main
 `3b899125cc8cedef938823718ad5d44f49957b66` (tree
-`5228a79f26b90d3daeffe65498c01ada077ba132`). No fresh gameplay outcome is claimed.
+`5228a79f26b90d3daeffe65498c01ada077ba132`). This source delta adds no new executed gameplay.
 The adopted app subtree is `20b5894d4c17f120cd7608b4138953ea6c5f243f`,
 identical to reviewed PR218 candidate `d97c370`. The run policy pins actual accepted
 main ancestry, current app tree and eight helper imports, and requires clean
@@ -18,8 +18,10 @@ coordinator release. Never use an old Mission 3 profile or its recovery records.
 ## Reuse and new boundaries
 
 `reuse.json` identifies every carried source file and each unchanged action body
-by its original commit/path/hash. The observation, Erosion and queued-stop
-modules are copied byte-for-byte from accepted `5de3c57`. The command-probe module
+by its original commit/path/hash. The Erosion and queued-stop modules are copied
+byte-for-byte from accepted `5de3c57`. The observation module now adds the named
+worship-worker guard/current-conversion check; its changed hash is explicit.
+The command-probe module
 retains its original clone-only bodies and adds the bounded entity-input checks
 described below; its changed hash is explicit. Their historical unit
 fixtures are source tests, not gameplay evidence. The current scenario reuses the
@@ -89,7 +91,7 @@ Before the first Save, preserving the initial empty checkpoint is explicit.
 
 Continue defaults to closing a segment after ordinary entry/readiness and a real
 Save in the next mission. `suspend: false` permits staying in the same session
-within its wall cap. Resume is limited to this completed Continue→Save boundary.
+within its wall cap. Ordinary resume requires this completed Continue→Save boundary.
 The actual terminal harness receipt binds the emitted `segment-boundary.json`
 hash; its verified profile/source/cleanup and latest digest must match. The record
 also binds the intended terminal status and exact deliberately thrown error hash.
@@ -97,7 +99,50 @@ A later cleanup, readback, runtime or source override rejects admission. All pas
 milestones, epochs, input provenance, failures, stops and browser errors carry
 forward. Overall failed status does not erase a valid boundary; a separate
 prior-harness-failure entry preserves that failure. Missing or arbitrary
-mid-mission provenance rejects. There is no general recovery/adoption facility.
+mid-mission provenance rejects, apart from the exact reviewed predecessor below.
+There is no general recovery/adoption facility.
+
+### Exact failed Mission 3 sermon continuation
+
+The [published bcf8ac55 evidence](https://github.com/JohnDeved/populous-new-dawn/blob/0e071eadb1c73d1627cde01ca3d5e4b951c41feb/references/verification/current-campaign-continuity-source-2026-10-05/mission-three-sermon-bcf8ac55/README.md)
+proves the fresh declared-listener Save/cancel/Load/singleton conversion. Erosion
+then failed with an accepted Preacher order, observed melee and later worker
+absence; fatal attribution remains unknown. Normal cleanup preserved Save 7424.
+That run has no completed Continue boundary. One explicit QA entry kind now
+requires its exact immediate prior run, profile, receipt, journal, saved snapshot,
+terminal snapshot and journey hashes plus a reviewed checker correspondence.
+The maintained profile harness, application, runtime binding and lease stay
+unchanged. A later terminal changes the immediate predecessor, so this entry
+cannot be repeated by reusing the same admission.
+
+Inherited declaration/first-listener/cancellation/conversion records retain their
+original run/epoch. Ordinary Load and immediate Pause must verify actual Save 7424,
+the full storage/actor/terrain/stock digests, listener 2631, Preacher 3181 and the
+thirteen saved Blue identities. The old replacement 3298 is cleared as current
+state. Only a new singleton conversion observed in the new epoch can supply the
+worker for Erosion. The Erosion wrapper selects that living Blue Brave through
+ordinary controls while retaining the Preacher's existing order. The prospective
+per-turn Erosion observer and all input/acknowledgement assertions stay intact.
+
+Named-worker absence, loss of Blue Brave identity, combat ownership or loss of
+order 27 targeting head 101 stops promptly before flyby handling. Head work/use and
+only this assigned worker's travel/arrival count as progress; unrelated movement,
+global Temple unlock and timers cannot renew this wait. The existing authenticated
+preserving-stop path still preempts the wait.
+
+All three inherited failure records and the automatic progress-stall stop remain.
+The actual terminal open observation is counted once with explicit terminal
+provenance, not presented as an old `endEpoch` call. Spent campaign/M3 active time
+is 2692.666666666667/853.6666666666666 seconds. M3 has 1546.3333333333335 seconds
+left within 2400; its original conversion mark 704.0833333333333 retains the
+1800-second post-conversion allowance. The already earned 900-second acquisition
+limit does not restart. M3 owned wall 2172699ms leaves 3227301ms within 90 minutes.
+Neither a new Load nor a new conversion refunds spent time. This failed prefix
+cannot produce a clean harness PASS; actual later milestones remain separate.
+
+The direct continuation tests read only the immutable public evidence commit
+above from Git objects, like the existing historical source-reuse tests. Fetch
+the evidence branch if that named object is absent; no private profile is needed.
 
 Retained active caps: M1 900 seconds, M2 1500, M3 2400; total 4800. M3 additionally
 retains its 900-second pre-conversion cap and at most 1800 seconds after the actual
@@ -136,9 +181,11 @@ build is required. Fresh QA/structural checks and the actual rendered campaign
 remain separate gates. Any dependency transfer and required build have their own
 receipts; no browser/profile mutation is part of this source checkpoint.
 
-Fresh M1/M2 Save/Load, each actual Continue and committed completion prefix,
-fresh M3 owned sermon cancellation/reload/singleton conversion, prospective
-shrine-linked Erosion onset/countdown/removal and victory all remain to be earned.
+Accepted M1/M2 Save/Load, Continue and completion prefix plus the fresh M3 sermon
+proof are retained in the published campaign evidence. This new source still
+needs its exact review/runtime grant and actual Load/current conversion.
+Prospective shrine-linked Erosion onset/countdown/removal and M3 victory remain
+to be earned.
 Three campaign victories would prove observed browser continuity. Whole native
 parity, calibrated animation timing (#214), original pixel comparison and hardware
 GPU performance remain separate.

@@ -3,12 +3,6 @@
   "applicationReferenceCommit": "3b899125cc8cedef938823718ad5d44f49957b66",
   "files": [
     {
-      "path": "observation.mjs",
-      "sourcePath": "qa/mission-three-controls/observation.mjs",
-      "sha256": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a",
-      "byteIdentical": true
-    },
-    {
       "path": "erosion-observer.mjs",
       "sourcePath": "qa/mission-three-controls/erosion-observer.mjs",
       "sha256": "19c25f71fcf0b60f24b65c7f8e2753b5bc51edbaca7d7ca540fd0136d6d50a97",
@@ -190,7 +184,7 @@
     {
       "name": "completeConversion",
       "sourceSha256": "04b6a8b3bcc17978f6b18cf99e6768ca7f8a26b6845e421dbc395c94948b071c",
-      "currentSha256": "d6f430bf34552bc87254de921bc128cabef3f94d95aa8c527edb1279b7dc5c18"
+      "currentSha256": "98f8ca4f24be98880a4a15728b7c50fd034fa9c4a44f2eaf52b5172a00a06a08"
     },
     {
       "name": "currentActive",
@@ -205,7 +199,7 @@
     {
       "name": "dispatch",
       "sourceSha256": "91f2e2f1d56efd8f4b7029f13928ddb8500c9a56ef11bc2137dc8e1c4da860fc",
-      "currentSha256": "f2b45d39de46af4c037ff2b6afa465a89bb525620ca3fa02287c2018fe7b29cd"
+      "currentSha256": "52e4fc7979b3acfe114a53f5ee5d2f2ddabffec2ac8ea2531ffd21aa5a8c6d4f"
     },
     {
       "name": "endEpoch",
@@ -220,7 +214,7 @@
     {
       "name": "erosion",
       "sourceSha256": "0a2be534b13c155a883689ffe83ca3abb61a0981895d803b955d575d36b9425e",
-      "currentSha256": "e67fc902c0b2584e59f7dbe71135933a79979a3e2d7f9918de2031f4a2bd6af2"
+      "currentSha256": "6e1725dc546253fb4c699d9402efca259f526b3584adc3596408d13919f62a03"
     },
     {
       "name": "groundHit",
@@ -280,7 +274,7 @@
     {
       "name": "saveCheckpoint",
       "sourceSha256": "8e47fd506b4d528e8ae957e6b26049aec41338b629ee16e3d3286a96b45f4259",
-      "currentSha256": "60910d3a2ab796d38304e0b3a8fc5e923552e4e57f3443f474d62c932bff3eae"
+      "currentSha256": "dec3191c099cafb3a5de236c2500248c102a1b4801b63403ded65a6778090878"
     },
     {
       "name": "saveProgress",
@@ -305,7 +299,7 @@
     {
       "name": "waitFor",
       "sourceSha256": "3edff49cea7ebf50d59465763c316266511183eaa9e303dcfa0681c06152cce7",
-      "currentSha256": "0388f036d21e8003983d83a62388a7cc40861a76a6641943486b66c213e0fd86"
+      "currentSha256": "5a6112b1a17b0bdaae326fc412e0705115f2377b8be2629670baadf18b1b46db"
     }
   ],
   "scope": "Hashes establish source reuse only, never fresh gameplay evidence. Section hashes extend to the next two-space const declaration.",
@@ -326,6 +320,19 @@
     {
       "name": "finishEntityClick",
       "currentSha256": "504a3a139a641543cef0d51413b1bc96ee08d7aa7fff63f0636a284032ecbba9"
+    },
+    {
+      "name": "loadPriorSegment",
+      "currentSha256": "eee540787f741663ed4b67b6f0db56541dd9d678aff2c592ab53f688abf4a236"
+    }
+  ],
+  "patchedFiles": [
+    {
+      "path": "observation.mjs",
+      "sourcePath": "qa/mission-three-controls/observation.mjs",
+      "sourceSha256": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a",
+      "currentSha256": "69e9c3e6c51860af23d5446330755f43e70dcf5566bdebbe8a8e914de4ba2fd0",
+      "scope": "Retains conversion/onset/cancellation observer bodies; adds fresh-converted-worker validation and named worship life/order/progress checks."
     }
   ]
 }

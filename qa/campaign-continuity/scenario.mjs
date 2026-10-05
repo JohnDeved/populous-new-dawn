@@ -13,10 +13,11 @@ import { readQueuedPreservingStop, pollWithPreservation } from './queued-stop.mj
 import { objectiveProgress, checkCondition, IncompleteRun, MissionDefeat, authoredVictimIdentity,
   acceptedOrderEvidence, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonAnchor,
   inOrdinaryPreachingCells, requireDeclaredPreacherOrder, requireFirstOwnedListener, waitDisposition,
-  requireCancelledSermon } from './observation.mjs'
+  requireCancelledSermon, requireCurrentConvertedWorker } from './observation.mjs'
 import { validateRunPolicy, campaignActive, requireCampaignBudget, requireLoadedCheckpoint,
   requireContinueBoundary, requireCampaignProfile, readCampaignStorage,
-  installReplacementObservation, replacementIdentity, validateSegmentPredecessor, continueControlName } from './boundaries.mjs'
+  installReplacementObservation, replacementIdentity, validateSegmentPredecessor, continueControlName,
+  readSermonPredecessor, sermonContinuation } from './boundaries.mjs'
 import { missionRoutes, milestoneConditions, validateMissionMilestones } from './routes.mjs'
 
 // The harness imports its scenario before starting a server/browser or claiming a profile.
@@ -44,6 +45,7 @@ export default async function campaignContinuity({ page, output, root, signal, r
   const ids = Object.create(null), commandsPath = resolve(output, 'commands')
   let latestState = null
   let level = 1, inheritedWallMs = 0, training = null, victimSelection = null, sermonPlan = null
+  let inheritedSermon = null
   let protectedLatest = receipt.profile.checkpointAtStart ? { checkpoint: structuredClone(receipt.profile.checkpointAtStart) } : null
   let preserveStopRequested = false, deferredPreservingStop = false, inBatch = false, terminalHandling = false, preserveVerificationFailed = false
   const levelData = JSON.parse(readFileSync(resolve(root, 'app/level-three.ts'), 'utf8').split('export default ')[1].trim().replace(/;$/, ''))
@@ -55,7 +57,7 @@ export default async function campaignContinuity({ page, output, root, signal, r
   }
   const log = entry => appendFileSync(resolve(output, 'actions.jsonl'), JSON.stringify({ at: new Date().toISOString(), level, wallMs: Date.now() - startWall, ...entry }) + '\n')
   const stateRecord = () => ({ currentEpoch: latestState?.observation && !epochs.some(epoch => epoch.name === latestState.observation.name) ? latestState.observation : null, kind: 'fresh-current-campaign', level, inputs, ids, epochs, milestones, failures, controlStops,
-    transitions, checkpointProofs, acceptedCasts, protectedLatest, savedSermon, training, victimSelection, sermonPlan,
+    transitions, checkpointProofs, acceptedCasts, protectedLatest, savedSermon, training, victimSelection, sermonPlan, inheritedSermon,
     source: receipt.source, profileId: receipt.profile.id, runId: receipt.profile.runId, policy,
     ownedWallMs: inheritedWallMs + Date.now() - startWall, missionWallMs: { ...missionWallMs, [level]: missionWallMs[level] + Date.now() - missionWallStarted },
     browserErrors: [...priorBrowserErrors, ...receipt.errors], preserveStopRequested, preserveVerificationFailed })
@@ -496,6 +498,14 @@ export default async function campaignContinuity({ page, output, root, signal, r
   const waitFor = async (condition, scope = 'combat', watchIds = []) => {
     await consumeQueuedStop()
     const started = await read(); requireOrderableForWait(started)
+    const requireActors = state => {
+      const actorStop = requiredActorStop(state, condition)
+      if (!actorStop) return
+      log({ action: 'required-actor-unavailable', condition, code: actorStop.code, turn: state.turn,
+        units: state.units.filter(unit => [condition.id, condition.preacherId, condition.workerId].includes(unit.id)), stats: state.stats })
+      throw actorStop
+    }
+    if (condition.type === 'shrine-used' && Object.hasOwn(condition, 'workerId')) requireActors(started)
     const startActive = currentActive(started)
     let progress = progressFor(started, condition, scope, watchIds), changedAt = startActive, sampledAt = startActive
     let lastTurn = started.turn, lastAnimation = started.animationFrame
@@ -510,13 +520,8 @@ export default async function campaignContinuity({ page, output, root, signal, r
       const disposition = !savedSermon && s.observation?.sermon?.firstOwned ? 'capture-sermon' : conditionMet(s, condition) ? 'complete' : 'wait'
       if (disposition === 'capture-sermon') await capturePendingSermon(s, { interruptedWait: condition })
       if (disposition === 'complete') { log({ action: 'condition-complete', condition, turn: s.turn }); return s }
+      requireActors(s)
       if (s.inputMask) { await skipFlyby(); continue }
-      const actorStop = requiredActorStop(s, condition)
-      if (actorStop) {
-        log({ action: 'required-actor-unavailable', condition, code: actorStop.code, turn: s.turn,
-          units: s.units.filter(u => [condition.id, condition.preacherId].includes(u.id)), stats: s.stats })
-        throw actorStop
-      }
       const active = currentActive(s)
       const budget = policy.limits.campaignActiveSeconds
       const next = progressFor(s, condition, scope, watchIds)
@@ -587,6 +592,7 @@ export default async function campaignContinuity({ page, output, root, signal, r
   const readStorage = key => page.evaluate(readCampaignStorage, key)
   let savedSermon = null
   const saveCheckpoint = async (label, sermon = false) => {
+    assert.ok(!inheritedSermon || inheritedSermon.currentConversion, 'Retain the restored sermon until this segment observes its conversion')
     assert.ok(!savedSermon || milestones.some(m => m.level === 3 && m.name === 'conversion'), 'Do not overwrite the protected sermon')
     await pause(); const saved = await snapshot(label)
     if (sermon) {
@@ -762,6 +768,7 @@ export default async function campaignContinuity({ page, output, root, signal, r
   }
   const completeConversion = async () => {
     assert.ok(milestones.some(m => m.level === 3 && m.name === 'sermon-reloaded'), 'Require the observed reload milestone')
+    assert.ok(!inheritedSermon?.currentConversion, 'This admitted segment records one fresh conversion')
     assert.match((await read()).observation.name, /^reload-/, 'Conversion belongs to the resumed epoch')
     await resume()
     await waitFor({ type: 'conversion', id: ids.victim, preacherId: ids.preacher }, 'sermon', [ids.victim, ids.preacher])
@@ -776,19 +783,34 @@ export default async function campaignContinuity({ page, output, root, signal, r
     ids.replacement = replacement.id
     log({ action: 'exact-conversion-proved', event, epoch: s.observation.name })
     // Actual camera input makes the converted area visible for the screenshot.
-    await clear(); await map(replacement); await mark('conversion')
+    await clear(); await map(replacement)
+    if (inheritedSermon) {
+      inheritedSermon.currentConversion = { runId: receipt.profile.runId, epoch: s.observation.name,
+        event, observedTurn: s.turn, missionActiveSeconds: campaignActive(epochs, s.observation, level) }
+      await snapshot('m3-current-conversion'); saveProgress()
+    } else await mark('conversion')
   }
   const erosion = async () => {
     assert.ok(milestones.some(m => m.level === 3 && m.name === 'conversion'), 'Finish the protected conversion witness first')
-    await resume(); await select('preacher', 'one')
-    const preachers = (await read()).selected
+    await pause()
+    const before = await read(), worker = requireCurrentConvertedWorker(before, ids.victim, ids.preacher, ids.replacement)
+    const preacherOrder = before.units.find(unit => unit.id === ids.preacher)?.order
+    if (preacherOrder?.model !== 17) throw new IncompleteRun('preacher-not-preaching', 'Retain the current ongoing sermon before assigning its converted Brave')
+    await selectUnits([worker.id])
+    await resume()
     const declaration = await page.evaluate(async shrineId => {
       const { armErosionObservation } = await import('/qa/campaign-continuity/erosion-observer.mjs')
       return armErosionObservation(window.campaignObservation.epoch, window.testSceneRef.current.world, shrineId)
     }, ids.erosion)
     log({ action: 'erosion-observation-armed', declaration })
     await clickOrder(await targetEntity('shrines', 'erosion'))
-    await waitFor({ type: 'shrine-used', id: ids.erosion }, 'worship', [ids.erosion, ...preachers])
+    const ordered = await read(), afterPreacherOrder = ordered.units.find(unit => unit.id === ids.preacher)?.order
+    log({ action: 'erosion-named-worker', workerId: worker.id, preacherId: ids.preacher,
+      preacherOrderBefore: preacherOrder, preacherOrderAfter: afterPreacherOrder,
+      worker: ordered.units.find(unit => unit.id === worker.id) ?? null, turn: ordered.turn })
+    if (JSON.stringify(afterPreacherOrder) !== JSON.stringify(preacherOrder))
+      throw new IncompleteRun('preacher-order-changed', 'Ongoing sermon changed while only its converted Brave was assigned')
+    await waitFor({ type: 'shrine-used', id: ids.erosion, workerId: worker.id }, 'worship', [ids.erosion, worker.id])
     await waitFor({ type: 'erosion-onset', id: ids.erosion }, 'erosion', [ids.erosion])
     const evidence = retired => page.evaluate(async ({ shrineId, retired }) => {
       const { requireErosionEvidence } = await import('/qa/campaign-continuity/erosion-observer.mjs')
@@ -821,7 +843,7 @@ export default async function campaignContinuity({ page, output, root, signal, r
       assert.ok(typeof condition.kind === 'string' && /^[a-zA-Z][a-zA-Z0-9-]{0,39}$/.test(condition.kind), 'Effect wait requires a named kind')
       return objectiveProgress(state, condition, scope)
     }
-    const objectiveIds = [condition.id, condition.preacherId, ...(condition.ids ?? [])].filter(Number.isInteger)
+    const objectiveIds = [condition.id, condition.preacherId, condition.workerId, ...(condition.ids ?? [])].filter(Number.isInteger)
     if (condition.type === 'trained-kind') {
       assert.ok(Array.isArray(condition.existingIds), 'Training wait requires the actual pre-order kind IDs')
       const buildingKind = condition.kind === 'warrior' ? 'camp' : condition.kind === 'preacher' ? 'temple' : null
@@ -1008,6 +1030,36 @@ export default async function campaignContinuity({ page, output, root, signal, r
       default: throw Error(`Unsupported input action ${command.action}`)
     }
   }
+  const loadPriorSegment = async () => {
+    const previous = receipt.profile.previousRun
+    let prior
+    if (previous.runId === sermonContinuation.runId) {
+      prior = readSermonPredecessor(previous, receipt.profile, receipt.source)
+      inheritedSermon = prior.sermonContinuation
+      savedSermon = prior.savedSermon; victimSelection = prior.victimSelection; sermonPlan = prior.sermonPlan
+    } else {
+      const bytes = readFileSync(previous.receiptPath)
+      assert.equal(sha256(bytes), previous.receiptSha256)
+      const terminal = JSON.parse(bytes), boundaryPath = resolve(dirname(previous.receiptPath), 'segment-boundary.json')
+      assert.equal(terminal.campaignBoundary?.path, boundaryPath)
+      const boundaryBytes = readFileSync(boundaryPath)
+      assert.equal(sha256(boundaryBytes), terminal.campaignBoundary.sha256)
+      prior = validateSegmentPredecessor(previous, terminal, JSON.parse(boundaryBytes), receipt.profile, receipt.source)
+    }
+    assert.deepEqual(prior.policy, policy)
+    level = prior.level; inheritedWallMs = prior.ownedWallMs
+    Object.assign(missionWallMs, prior.missionWallMs); missionWallStarted = Date.now()
+    failures.push(...prior.failures); controlStops.push(...prior.controlStops); priorBrowserErrors.push(...prior.browserErrors)
+    for (const [target, values] of [[epochs, prior.epochs], [milestones, prior.milestones], [transitions, prior.transitions], [checkpointProofs, prior.checkpointProofs], [acceptedCasts, prior.acceptedCasts]]) target.push(...values)
+    Object.assign(ids, prior.ids)
+    inputs.push({ name: previous.receiptPath, sha256: previous.receiptSha256 })
+    protectedLatest = prior.protectedLatest
+    await reloadCheckpoint({ segment: true, sermon: !!inheritedSermon })
+    log({ action: inheritedSermon ? 'saved-sermon-segment-loaded' : 'clean-segment-loaded',
+      previousRunId: previous.runId, inheritedActiveSeconds: campaignActive(prior.epochs), inheritedWallMs,
+      ...(inheritedSermon ? { historyScope: inheritedSermon.historyScope, currentReplacement: null } : {}) })
+    await snapshot(`m${level}-segment-opening`)
+  }
   let index = 0
   try {
     if (receipt.profile.mode === 'created') {
@@ -1016,24 +1068,7 @@ export default async function campaignContinuity({ page, output, root, signal, r
       await button('Select Mission 1'); await button('Start Mission 1')
       await bindGameWithPreservation(); await bindObservation('entry-1', 0); await initializeMission()
     } else {
-      const previous = receipt.profile.previousRun, bytes = readFileSync(previous.receiptPath)
-      assert.equal(sha256(bytes), previous.receiptSha256)
-      const terminal = JSON.parse(bytes), boundaryPath = resolve(dirname(previous.receiptPath), 'segment-boundary.json')
-      assert.equal(terminal.campaignBoundary?.path, boundaryPath)
-      const boundaryBytes = readFileSync(boundaryPath)
-      assert.equal(sha256(boundaryBytes), terminal.campaignBoundary.sha256)
-      const prior = validateSegmentPredecessor(previous, terminal, JSON.parse(boundaryBytes), receipt.profile, receipt.source)
-      assert.deepEqual(prior.policy, policy)
-      level = prior.level; inheritedWallMs = prior.ownedWallMs
-      Object.assign(missionWallMs, prior.missionWallMs); missionWallStarted = Date.now()
-      failures.push(...prior.failures); controlStops.push(...prior.controlStops); priorBrowserErrors.push(...prior.browserErrors)
-      for (const [target, values] of [[epochs, prior.epochs], [milestones, prior.milestones], [transitions, prior.transitions], [checkpointProofs, prior.checkpointProofs], [acceptedCasts, prior.acceptedCasts]]) target.push(...values)
-      Object.assign(ids, prior.ids)
-      inputs.push({ name: previous.receiptPath, sha256: previous.receiptSha256 })
-      protectedLatest = prior.protectedLatest
-      await reloadCheckpoint({ segment: true })
-      log({ action: 'clean-segment-loaded', previousRunId: previous.runId, inheritedActiveSeconds: campaignActive(prior.epochs), inheritedWallMs })
-      await snapshot(`m${level}-segment-opening`)
+      await loadPriorSegment()
     }
     log({ action: 'awaiting-input', directory: commandsPath, next: '0001.json', paused: true, route: missionRoutes[level] })
     for (index = 1; index <= 500; index++) {

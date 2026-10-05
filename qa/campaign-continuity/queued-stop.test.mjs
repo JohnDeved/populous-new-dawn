@@ -173,7 +173,7 @@ test('actual Save readback commits protectedLatest before servicing its deferred
   const start = driver.indexOf('  const saveCheckpoint ='), end = driver.indexOf('  const returnShamanHome =', start)
   const execute = new AsyncFunction('deps', `
     const { assert, saved, committed, observed, calls, stop } = deps;
-    let protectedLatest = { checkpoint: { turn: 4813 } }, deferredPreservingStop = false, savedSermon;
+    let protectedLatest = { checkpoint: { turn: 4813 } }, deferredPreservingStop = false, savedSermon, inheritedSermon;
     const level = 3, milestones = [], checkpointProofs = [];
     const receipt = { profile: { runId: 'current' } }, ids = {}, page = { getByRole: () => ({ click: async () => calls.push('unexpected Continue') }) };
     const pause = async () => calls.push('Pause'), snapshot = async () => saved;

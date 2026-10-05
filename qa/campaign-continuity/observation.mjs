@@ -239,6 +239,15 @@ export function requireCancelledSermon(before, after, victimId, preacherId) {
 }
 
 export function requiredActorStop(snapshot, condition) {
+  if (condition.type === 'shrine-used' && Object.hasOwn(condition, 'workerId')) {
+    if (checkCondition(snapshot, condition)) return null
+    const worker = snapshot.units.find(unit => unit.id === condition.workerId)
+    if (!Number.isInteger(condition.workerId) || !worker || !(worker.hp > 0) || worker.team !== 'blue' || worker.kind !== 'brave')
+      return new IncompleteRun('worship-worker-unavailable', `Required Blue Brave${condition.workerId} is absent or unavailable`)
+    if (worker.personOwner === 'fight' || worker.fight || worker.order?.model !== 27 || worker.order.a !== condition.id)
+      return new IncompleteRun('worship-worker-order-lost', `Required Brave${condition.workerId} no longer follows worship order27/${condition.id}`)
+    return null
+  }
   if (!['first-owned-sermon', 'listener', 'conversion'].includes(condition.type)) return null
   if (condition.type === 'conversion' && checkCondition(snapshot, condition)) return null
   const preacher = snapshot.units.find(u => u.id === condition.preacherId)
@@ -253,6 +262,17 @@ export function requiredActorStop(snapshot, condition) {
   if (!victim || victim.hp <= 0 || victim.team !== 'yellow' || victim.kind !== 'brave')
     return new IncompleteRun('required-victim-unavailable', `Required Yellow Brave${condition.id} is absent or unavailable without conversion evidence`)
   return null
+}
+
+export function requireCurrentConvertedWorker(snapshot, victimId, preacherId, replacementId) {
+  const event = requireConversion(snapshot.observation, victimId, preacherId)
+  if (event.replacements[0].id !== replacementId)
+    throw new IncompleteRun('current-conversion-required', 'Current worker must come from this epoch\'s exact conversion')
+  const worker = snapshot.units.find(unit => unit.id === replacementId)
+  if (snapshot.units.some(unit => unit.id === victimId) || !worker || !(worker.hp > 0) || worker.team !== 'blue' || worker.kind !== 'brave' ||
+    !(worker.flags3 & 0x1000000) || !(worker.flags4 & 0x40000))
+    throw new IncompleteRun('converted-worker-unavailable', 'The freshly observed converted Brave is unavailable')
+  return worker
 }
 
 export function selectSermonAnchor(snapshot, authoredId) {
@@ -384,6 +404,13 @@ export function progressKey(snapshot, scope, ids = []) {
 
 // Progress belongs to this objective, never unrelated wandering/combat.
 export function objectiveProgress(snapshot, condition, scope, ids = []) {
+  if (condition.type === 'shrine-used' && Object.hasOwn(condition, 'workerId')) {
+    const head = snapshot.shrines.find(shrine => shrine.id === condition.id)
+    const worker = snapshot.units.find(unit => unit.id === condition.workerId && unit.hp > 0 && unit.team === 'blue' && unit.kind === 'brave' &&
+      unit.personOwner !== 'fight' && !unit.fight && unit.order?.model === 27 && unit.order.a === condition.id)
+    return JSON.stringify([head && [head.id, head.work, head.progress, head.uses, head.followers],
+      worker && [worker.id, Math.round(worker.x * 4), Math.round(worker.z * 4), worker.work]])
+  }
   if (condition.type === 'shaman-ready') {
     const ready = snapshot.readiness, shaman = ready?.shaman
     return JSON.stringify([snapshot.status, snapshot.paused, snapshot.inputMask, ready?.ready,

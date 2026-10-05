@@ -25,6 +25,11 @@ test('carried source modules match their exact historical objects and current te
     assert.equal(hash(current), file.currentSha256)
     assert.equal(current.subarray(0, historical.length).equals(historical), true, 'Original clone-only probe bodies remain unchanged')
   }
+  for (const file of reuse.patchedFiles ?? []) {
+    assert.equal(hash(git('show', `${reuse.historicalSourceCommit}:${file.sourcePath}`)), file.sourceSha256)
+    assert.equal(hash(readFileSync(new URL(file.path, import.meta.url))), file.currentSha256)
+    assert.ok(file.scope, 'Describe the changed historical helper honestly')
+  }
 })
 test('reuse inventory identifies exact unchanged and adapted scenario sections', () => {
   const old = sections(git('show', `${reuse.historicalSourceCommit}:qa/mission-three-controls/driver.mjs`).toString())
