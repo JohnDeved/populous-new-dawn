@@ -87,7 +87,10 @@ export function advanceGame(w: World, clock: GameClock, seconds: number) {
     }
     // Observers finish first; the next controller turn must see this visit's
     // frame. Direct tick() remains simulation-only. A land-paused tick has no turn.
-    if (w.turn !== previousTurn) animateLiveObjects(w, 'logical')
+    if (w.turn !== previousTurn) {
+      animateLiveObjects(w, 'logical')
+      animateStoneHeads(w, 'logical')
+    }
     seconds = Math.max(0, seconds - elapsed)
     if (presentation) ui.elapsed += elapsed * 1000
     if (active) clock.animationTime += elapsed
