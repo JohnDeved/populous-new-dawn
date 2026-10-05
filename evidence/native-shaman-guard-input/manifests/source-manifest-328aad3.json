@@ -1,0 +1,38 @@
+{
+  "base": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "head": "328aad3aaea42836fea417384dc70fe0608e7b70",
+  "tree": "9abed6da72c04e795bd9407d82c082d2f48f388a",
+  "sources": {
+    "app/live-command.ts": "e6dcbbd078f658e997ada36740c7f9e323a86f8fde39a0721ac67688e6b50b93",
+    "app/live-movement.ts": "18d87ec0e7baf08b31ac0e618fdba4c8c0f0521cd25b166da7dd787b95baca77",
+    "app/live-people.ts": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+    "app/person-order-update.ts": "23c2ff6108958715e45dc3caa034e5a3a558fdfcffa936e9129396ec8c48b286",
+    "app/selection-runtime.ts": "d1b61309818d87e85e329c24fd7384ebd00b474b4dbe8f57ef84061ecbb2be71",
+    "app/shaman-guard.ts": "3d35fe7fb9c63770d564a9caab239434bded6952326f486df474eba0fa94b83a",
+    "app/world-turn.ts": "42d9aa4228b091acb49ac6c108f6464852435d7bfaa5d8a8b82e375de0f8577e",
+    "decomp/README.md": "90186c42ce24af24a0b168e2bfd3907b7a45cfe78dc1b89d8a84ae14f187f60e",
+    "decomp/research/shaman-guard-input.md": "3ba43470471a12a584a607b28c64d2a166628520bbac90a8cf7544eb298a6751",
+    "engineering/checks.json": "70480996124993b5816c3f12a20e02e1168de387f99fe1142caa4e52b1bc47ed",
+    "engineering/generated-files.json": "5ca9351a2c77ce6312deb6c770679b591c85891ae56e230042eee04489971f41",
+    "engineering/project-map.json": "2a1c253af02e369e55348f430766483411db9af83516191f9e5b488a57234fc8",
+    "scripts/extract-shaman-guard-vectors.mjs": "0225409acd307b4d3088e7bd0a99342d839ddb48fa7819da17d02b262f2d59ea",
+    "tests/fixtures/shaman-guard-native.json": "5df3b28c849aa9465af33fdb7716fd2fb9e64518ca867199e5a691bd0b09473e",
+    "tests/follower-task-runtime.test.mjs": "4226c4f7bef5bfe6ea1392dbe9857431d9a03fd53395cd58ecc56bcd93c9bcfe",
+    "tests/game.test.mjs": "39b6c0a91c9b35a6aa927292e1749e30a6406428c343f182ab2f46b0681a0ee0",
+    "tests/shaman-guard-input.test.mjs": "5ca06805c945bbef0478e5ed5356d52376e4fcac15a69e75fc7839afc0507916",
+    "tests/shaman-guard-native.test.mjs": "39b8330271439cbb24aa3d671508b82116aeb45928b8c31a060f57c33429ecb2"
+  },
+  "previousManifest": "source-manifest.json",
+  "reviewDelta": "ddd09047381d16d9a4ec85ac7f771a84556bf568..328aad3aaea42836fea417384dc70fe0608e7b70",
+  "receipts": {
+    "focused-328aad3": "1df65d846cc231ddc87faee6c3bb3c9e690248100deb6edd1ba6cb15edad3e34",
+    "contained-target-before": "252bcec6aa349bf6f7a2ee760715ce08b8d44fb157f499bf2f92a9643803bed0",
+    "contained-target-after": "cddc74258e7a64bfa7f9c19fafbc846cceffde61482e8729ff593037c4d55f61"
+  },
+  "pending": [
+    "fresh target-building re-review",
+    "standard full check/build",
+    "updated typecheck/format/lint evidence",
+    "ordinary rendered Mission10 gate"
+  ]
+}

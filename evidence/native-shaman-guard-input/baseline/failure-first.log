@@ -1,0 +1,567 @@
+✖ G queues one shared native guard and repeat replaces it without early preparation (346.261548ms)
+✖ G empty selection cancels adopted guards through the next native visit (195.603125ms)
+✖ G Shaman-only selection cancels adopted guards through the next native visit (129.694231ms)
+✖ native G retains the ordinary move owner and route until its deferred turn (91.364783ms)
+✖ pending G replacement survives pause and checkpoint (74.95031ms)
+✖ pending G cancellation survives pause and checkpoint (118.175204ms)
+✖ G exhaustion still clears and attaches slot zero then retries after cleanup frees a slot (94.363355ms)
+✖ target entering a vehicle with inside still null completes the saved guard order (133.591478ms)
+ℹ tests 8
+ℹ suites 0
+ℹ pass 0
+ℹ fail 8
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2340.812611
+
+✖ failing tests:
+
+test at tests/shaman-guard-input.test.mjs:23:1
+✖ G queues one shared native guard and repeat replaces it without early preparation (346.261548ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  undefined !== 30
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/tests/shaman-guard-input.test.mjs:28:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 30,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/shaman-guard-input.test.mjs:52:41
+✖ G empty selection cancels adopted guards through the next native visit (195.603125ms)
+  AssertionError [ERR_ASSERTION]: unadopted queue is retained
+  
+  undefined !== 30
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/tests/shaman-guard-input.test.mjs:56:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 30,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/shaman-guard-input.test.mjs:52:41
+✖ G Shaman-only selection cancels adopted guards through the next native visit (129.694231ms)
+  AssertionError [ERR_ASSERTION]: unadopted queue is retained
+  
+  undefined !== 30
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/tests/shaman-guard-input.test.mjs:56:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 30,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/shaman-guard-input.test.mjs:74:1
+✖ native G retains the ordinary move owner and route until its deferred turn (91.364783ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 16
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/tests/shaman-guard-input.test.mjs:81:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 16,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/shaman-guard-input.test.mjs:91:37
+✖ pending G replacement survives pause and checkpoint (74.95031ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - {
+  -   anchorFlags: 17,
+  -   anchorX: 2816,
+  -   anchorY: 61696,
+  -   angle: 256,
+  -   animationMode: 0,
+  -   assignment: 0,
+  -   building: null,
+  -   burnTrail: 0,
+  -   cargo: 0,
+  -   cellNext: 0,
+  -   cellPrevious: 0,
+  -   class: 1,
+  -   commandAux: 0,
+  -   commandCursor: 0,
+  -   commandPhase: 0,
+  -   commandStatus: 0,
+  -   commands: [
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0
+  -   ],
+  -   computerAssignment: 0,
+  -   counter: 112,
+  -   damageAttacker: 255,
+  -   destinationX: 2816,
+  -   destinationY: 61696,
+  -   disguise: 0,
+  -   displacement: {
+  -     h: 0,
+  -     x: 0,
+  -     y: 0
+  -   },
+  -   draw: 18,
+  -   f1: 0,
+  -   f2: 0,
+  -   flags2: 1073872896,
+  -   flags3: 262144,
+  -   flags4: 536871168,
+  -   formationCell: 61450,
+  -   formationDelay: 0,
+  -   goalX: 2816,
+  -   goalY: 61696,
+  -   h: 135,
+  -   heading: 256,
+  -   id: 1185,
+  -   immediateCommand: 0,
+  -   invisibilityRender: undefined,
+  -   life: 700,
+  -   link: 0,
+  -   marchCooldown: 0,
+  -   model: 6,
+  -   morph: 0,
+  -   morphFrames: 0,
+  -   morphTimer: 0,
+  -   motionGroup: 0,
+  -   motionIndex: 0,
+  -   motionMode: 0,
+  -   motionTimer: 0,
+  -   object: 48,
+  -   orderDelay: 0,
+  -   orderLocation: 0,
+  -   palette: 240,
+  -   physics: 17,
+  -   previousState: 19,
+  -   reactionDuration: 0,
+  -   reactionTimer: 0,
+  -   recoveryCounter: 6,
+  -   renderFlags: 384,
+  -   reservationNext: 0,
+  -   savedVehicle: 0,
+  -   selectionFlags: 128,
+  -   slowTurn: 0,
+  -   speed: 0,
+  -   stamp: 0,
+  -   state: 10,
+  -   stateObject: 0,
+  -   statusFlags: 0,
+  -   substate: 0,
+  -   supportHeight: 0,
+  -   target: 0,
+  -   timer: 0,
+  -   tribe: 0,
+  -   turnAngle: 2816,
+  -   turnY: 61696,
+  -   vehicle: 0,
+  -   velocity: {
+  -     x: 0,
+  -     y: 0,
+  -     z: 0
+  -   },
+  -   workFlags: 0,
+  -   workTarget: 0,
+  -   x: 2777,
+  -   y: 61657
+  - }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/tests/shaman-guard-input.test.mjs:100:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: {
+      id: 1185,
+      class: 1,
+      model: 6,
+      state: 10,
+      previousState: 19,
+      substate: 0,
+      tribe: 0,
+      x: 2777,
+      y: 61657,
+      h: 135,
+      anchorX: 2816,
+      anchorY: 61696,
+      counter: 112,
+      flags2: 1073872896,
+      flags3: 262144,
+      flags4: 536871168,
+      physics: 17,
+      speed: 0,
+      angle: 256,
+      heading: 256,
+      turnAngle: 2816,
+      turnY: 61696,
+      slowTurn: 0,
+      goalX: 2816,
+      goalY: 61696,
+      destinationX: 2816,
+      destinationY: 61696,
+      building: null,
+      cargo: 0,
+      vehicle: 0,
+      assignment: 0,
+      timer: 0,
+      target: 0,
+      link: 0,
+      stateObject: 0,
+      animationMode: 0,
+      commandAux: 0,
+      commandPhase: 0,
+      object: 48,
+      draw: 18,
+      morph: 0,
+      palette: 240,
+      renderFlags: 384,
+      invisibilityRender: undefined,
+      f1: 0,
+      f2: 0,
+      stamp: 0,
+      morphTimer: 0,
+      morphFrames: 0,
+      statusFlags: 0,
+      workFlags: 0,
+      reservationNext: 0,
+      formationCell: 61450,
+      motionTimer: 0,
+      motionMode: 0,
+      motionGroup: 0,
+      motionIndex: 0,
+      recoveryCounter: 6,
+      supportHeight: 0,
+      selectionFlags: 128,
+      commands: [
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      commandCursor: 0,
+      immediateCommand: 0,
+      orderLocation: 0,
+      commandStatus: 0,
+      workTarget: 0,
+      cellNext: 0,
+      cellPrevious: 0,
+      displacement: { x: 0, y: 0, h: 0 },
+      reactionTimer: 0,
+      reactionDuration: 0,
+      anchorFlags: 17,
+      velocity: { x: 0, y: 0, z: 0 },
+      life: 700,
+      disguise: 0,
+      savedVehicle: 0,
+      formationDelay: 0,
+      orderDelay: 0,
+      damageAttacker: 255,
+      burnTrail: 0,
+      marchCooldown: 0,
+      computerAssignment: 0
+    },
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/shaman-guard-input.test.mjs:91:37
+✖ pending G cancellation survives pause and checkpoint (118.175204ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - {
+  -   anchorFlags: 17,
+  -   anchorX: 2816,
+  -   anchorY: 61696,
+  -   angle: 256,
+  -   animationMode: 0,
+  -   assignment: 0,
+  -   building: null,
+  -   burnTrail: 0,
+  -   cargo: 0,
+  -   cellNext: 0,
+  -   cellPrevious: 0,
+  -   class: 1,
+  -   commandAux: 0,
+  -   commandCursor: 0,
+  -   commandPhase: 0,
+  -   commandStatus: 0,
+  -   commands: [
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0
+  -   ],
+  -   computerAssignment: 0,
+  -   counter: 112,
+  -   damageAttacker: 255,
+  -   destinationX: 2816,
+  -   destinationY: 61696,
+  -   disguise: 0,
+  -   displacement: {
+  -     h: 0,
+  -     x: 0,
+  -     y: 0
+  -   },
+  -   draw: 18,
+  -   f1: 0,
+  -   f2: 0,
+  -   flags2: 1073872896,
+  -   flags3: 262144,
+  -   flags4: 536871168,
+  -   formationCell: 61450,
+  -   formationDelay: 0,
+  -   goalX: 2816,
+  -   goalY: 61696,
+  -   h: 135,
+  -   heading: 256,
+  -   id: 1185,
+  -   immediateCommand: 0,
+  -   invisibilityRender: undefined,
+  -   life: 700,
+  -   link: 0,
+  -   marchCooldown: 0,
+  -   model: 6,
+  -   morph: 0,
+  -   morphFrames: 0,
+  -   morphTimer: 0,
+  -   motionGroup: 0,
+  -   motionIndex: 0,
+  -   motionMode: 0,
+  -   motionTimer: 0,
+  -   object: 48,
+  -   orderDelay: 0,
+  -   orderLocation: 0,
+  -   palette: 240,
+  -   physics: 17,
+  -   previousState: 19,
+  -   reactionDuration: 0,
+  -   reactionTimer: 0,
+  -   recoveryCounter: 6,
+  -   renderFlags: 384,
+  -   reservationNext: 0,
+  -   savedVehicle: 0,
+  -   selectionFlags: 0,
+  -   slowTurn: 0,
+  -   speed: 0,
+  -   stamp: 0,
+  -   state: 10,
+  -   stateObject: 0,
+  -   statusFlags: 0,
+  -   substate: 0,
+  -   supportHeight: 0,
+  -   target: 0,
+  -   timer: 0,
+  -   tribe: 0,
+  -   turnAngle: 2816,
+  -   turnY: 61696,
+  -   vehicle: 0,
+  -   velocity: {
+  -     x: 0,
+  -     y: 0,
+  -     z: 0
+  -   },
+  -   workFlags: 0,
+  -   workTarget: 0,
+  -   x: 2777,
+  -   y: 61657
+  - }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/tests/shaman-guard-input.test.mjs:100:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: {
+      id: 1185,
+      class: 1,
+      model: 6,
+      state: 10,
+      previousState: 19,
+      substate: 0,
+      tribe: 0,
+      x: 2777,
+      y: 61657,
+      h: 135,
+      anchorX: 2816,
+      anchorY: 61696,
+      counter: 112,
+      flags2: 1073872896,
+      flags3: 262144,
+      flags4: 536871168,
+      physics: 17,
+      speed: 0,
+      angle: 256,
+      heading: 256,
+      turnAngle: 2816,
+      turnY: 61696,
+      slowTurn: 0,
+      goalX: 2816,
+      goalY: 61696,
+      destinationX: 2816,
+      destinationY: 61696,
+      building: null,
+      cargo: 0,
+      vehicle: 0,
+      assignment: 0,
+      timer: 0,
+      target: 0,
+      link: 0,
+      stateObject: 0,
+      animationMode: 0,
+      commandAux: 0,
+      commandPhase: 0,
+      object: 48,
+      draw: 18,
+      morph: 0,
+      palette: 240,
+      renderFlags: 384,
+      invisibilityRender: undefined,
+      f1: 0,
+      f2: 0,
+      stamp: 0,
+      morphTimer: 0,
+      morphFrames: 0,
+      statusFlags: 0,
+      workFlags: 0,
+      reservationNext: 0,
+      formationCell: 61450,
+      motionTimer: 0,
+      motionMode: 0,
+      motionGroup: 0,
+      motionIndex: 0,
+      recoveryCounter: 6,
+      supportHeight: 0,
+      selectionFlags: 0,
+      commands: [
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      commandCursor: 0,
+      immediateCommand: 0,
+      orderLocation: 0,
+      commandStatus: 0,
+      workTarget: 0,
+      cellNext: 0,
+      cellPrevious: 0,
+      displacement: { x: 0, y: 0, h: 0 },
+      reactionTimer: 0,
+      reactionDuration: 0,
+      anchorFlags: 17,
+      velocity: { x: 0, y: 0, z: 0 },
+      life: 700,
+      disguise: 0,
+      savedVehicle: 0,
+      formationDelay: 0,
+      orderDelay: 0,
+      damageAttacker: 255,
+      burnTrail: 0,
+      marchCooldown: 0,
+      computerAssignment: 0
+    },
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/shaman-guard-input.test.mjs:109:1
+✖ G exhaustion still clears and attaches slot zero then retries after cleanup frees a slot (94.363355ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      0,
+  +   0,
+  +   0
+  -   1,
+  -   1
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/tests/shaman-guard-input.test.mjs:115:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 0, 0, 0 ],
+    expected: [ 0, 1, 1 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/shaman-guard-input.test.mjs:121:1
+✖ target entering a vehicle with inside still null completes the saved guard order (133.591478ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok([17, 19].includes(p.state))
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/tests/shaman-guard-input.test.mjs:129:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

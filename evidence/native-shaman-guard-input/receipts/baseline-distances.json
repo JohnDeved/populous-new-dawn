@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "5170918b-dcf2-4f93-a0ba-44fccf64b273",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ddd09047381d16d9a4ec85ac7f771a84556bf568",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs": "92004a8b2f71557837810d40098825fedf0869d2749978b0e4c919194c3b1900",
+      "../integration-publish-recovered/app/live-movement.ts": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5"
+    }
+  },
+  "command": [
+    "timeout",
+    "60s",
+    "taskset",
+    "-c",
+    "4",
+    "node",
+    "--test",
+    "work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+  "startedAt": "2026-10-05T19:45:40.257Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-distances.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-distances.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T19:45:41.338Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✔ near-axis0-delta-824 (1.749297ms)\n✔ near-axis0-delta-823 (0.109334ms)\n✔ near-axis0-delta823 (0.208703ms)\n✔ near-axis0-delta824 (0.103145ms)\n✔ near-axis1-delta-824 (0.169184ms)\n✔ near-axis1-delta-823 (0.172419ms)\n✔ near-axis1-delta823 (0.078337ms)\n✔ near-axis1-delta824 (0.071698ms)\n✖ signed-edge-person32767-target32768 (1.839583ms)\n✖ signed-edge-person32768-target32767 (0.650127ms)\n✔ signed-edge-person0-target32768 (0.228694ms)\n✔ signed-edge-person32768-target0 (0.07319ms)\n✔ signed-edge-person65535-target0 (0.190255ms)\n✔ signed-edge-person0-target65535 (0.051206ms)\n✔ signed-edge-person32768-target33591 (0.354042ms)\n✔ signed-edge-person32768-target33592 (0.056205ms)\n✖ signed-edge-person32768-target31945 (0.191458ms)\n✔ signed-edge-person32768-target31944 (0.045668ms)\n✔ replan-axis0-delta-440 (0.171317ms)\n✔ replan-axis0-delta-439 (0.044327ms)\n✔ replan-axis0-delta439 (0.038718ms)\n✔ replan-axis0-delta440 (0.064597ms)\n✔ replan-axis1-delta-440 (0.034111ms)\n✔ replan-axis1-delta-439 (0.034973ms)\n✔ replan-axis1-delta439 (0.028142ms)\n✔ replan-axis1-delta440 (0.028273ms)\n✖ replan-signed-edge-goal32767-target32768 (0.358308ms)\n✖ replan-signed-edge-goal32768-target32767 (0.217287ms)\nℹ tests 28\nℹ suites 0\nℹ pass 23\nℹ fail 5\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1011.620828\n\n✖ failing tests:\n\ntest at work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:5:35\n✖ signed-edge-person32767-target32768 (1.839583ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n    {\n      destination: false,\n  +   formation: false,\n  +   pursuit: false\n  -   formation: true,\n  -   pursuit: true\n    }\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:8:8)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: { pursuit: false, formation: false, destination: false },\n    expected: { pursuit: true, formation: true, destination: false },\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n\ntest at work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:5:35\n✖ signed-edge-person32768-target32767 (0.650127ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n    {\n      destination: false,\n  +   formation: false,\n  +   pursuit: false\n  -   formation: true,\n  -   pursuit: true\n    }\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:8:8)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: { pursuit: false, formation: false, destination: false },\n    expected: { pursuit: true, formation: true, destination: false },\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n\ntest at work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:5:35\n✖ signed-edge-person32768-target31945 (0.191458ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n    {\n      destination: false,\n  +   formation: false,\n  +   pursuit: false\n  -   formation: true,\n  -   pursuit: true\n    }\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:8:8)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: { pursuit: false, formation: false, destination: false },\n    expected: { pursuit: true, formation: true, destination: false },\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n\ntest at work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:5:35\n✖ replan-signed-edge-goal32767-target32768 (0.358308ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n    {\n  +   destination: false,\n  -   destination: true,\n      formation: true,\n      pursuit: true\n    }\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:8:8)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: { pursuit: true, formation: true, destination: false },\n    expected: { pursuit: true, formation: true, destination: true },\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n\ntest at work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:5:35\n✖ replan-signed-edge-goal32768-target32767 (0.217287ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  \n    {\n  +   destination: false,\n  -   destination: true,\n      formation: true,\n      pursuit: true\n    }\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:8:8)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: { pursuit: true, formation: true, destination: false },\n    expected: { pursuit: true, formation: true, destination: true },\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "d3d84a6269a2628996e1d4e08225340da8a61c3ed4a3d84e923b8a931fbf764e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ddd09047381d16d9a4ec85ac7f771a84556bf568",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs": "92004a8b2f71557837810d40098825fedf0869d2749978b0e4c919194c3b1900",
+      "../integration-publish-recovered/app/live-movement.ts": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5"
+    }
+  }
+}

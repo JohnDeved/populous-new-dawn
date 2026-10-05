@@ -1,0 +1,176 @@
+✔ near-axis0-delta-824 (1.749297ms)
+✔ near-axis0-delta-823 (0.109334ms)
+✔ near-axis0-delta823 (0.208703ms)
+✔ near-axis0-delta824 (0.103145ms)
+✔ near-axis1-delta-824 (0.169184ms)
+✔ near-axis1-delta-823 (0.172419ms)
+✔ near-axis1-delta823 (0.078337ms)
+✔ near-axis1-delta824 (0.071698ms)
+✖ signed-edge-person32767-target32768 (1.839583ms)
+✖ signed-edge-person32768-target32767 (0.650127ms)
+✔ signed-edge-person0-target32768 (0.228694ms)
+✔ signed-edge-person32768-target0 (0.07319ms)
+✔ signed-edge-person65535-target0 (0.190255ms)
+✔ signed-edge-person0-target65535 (0.051206ms)
+✔ signed-edge-person32768-target33591 (0.354042ms)
+✔ signed-edge-person32768-target33592 (0.056205ms)
+✖ signed-edge-person32768-target31945 (0.191458ms)
+✔ signed-edge-person32768-target31944 (0.045668ms)
+✔ replan-axis0-delta-440 (0.171317ms)
+✔ replan-axis0-delta-439 (0.044327ms)
+✔ replan-axis0-delta439 (0.038718ms)
+✔ replan-axis0-delta440 (0.064597ms)
+✔ replan-axis1-delta-440 (0.034111ms)
+✔ replan-axis1-delta-439 (0.034973ms)
+✔ replan-axis1-delta439 (0.028142ms)
+✔ replan-axis1-delta440 (0.028273ms)
+✖ replan-signed-edge-goal32767-target32768 (0.358308ms)
+✖ replan-signed-edge-goal32768-target32767 (0.217287ms)
+ℹ tests 28
+ℹ suites 0
+ℹ pass 23
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1011.620828
+
+✖ failing tests:
+
+test at work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:5:35
+✖ signed-edge-person32767-target32768 (1.839583ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      destination: false,
+  +   formation: false,
+  +   pursuit: false
+  -   formation: true,
+  -   pursuit: true
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:8:8)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { pursuit: false, formation: false, destination: false },
+    expected: { pursuit: true, formation: true, destination: false },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:5:35
+✖ signed-edge-person32768-target32767 (0.650127ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      destination: false,
+  +   formation: false,
+  +   pursuit: false
+  -   formation: true,
+  -   pursuit: true
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:8:8)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { pursuit: false, formation: false, destination: false },
+    expected: { pursuit: true, formation: true, destination: false },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:5:35
+✖ signed-edge-person32768-target31945 (0.191458ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      destination: false,
+  +   formation: false,
+  +   pursuit: false
+  -   formation: true,
+  -   pursuit: true
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:8:8)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { pursuit: false, formation: false, destination: false },
+    expected: { pursuit: true, formation: true, destination: false },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:5:35
+✖ replan-signed-edge-goal32767-target32768 (0.358308ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   destination: false,
+  -   destination: true,
+      formation: true,
+      pursuit: true
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:8:8)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { pursuit: true, formation: true, destination: false },
+    expected: { pursuit: true, formation: true, destination: true },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:5:35
+✖ replan-signed-edge-goal32768-target32767 (0.217287ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+  +   destination: false,
+  -   destination: true,
+      formation: true,
+      pursuit: true
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs:8:8)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { pursuit: true, formation: true, destination: false },
+    expected: { pursuit: true, formation: true, destination: true },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

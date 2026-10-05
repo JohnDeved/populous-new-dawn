@@ -1,0 +1,37 @@
+{
+  "base": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "head": "ddd09047381d16d9a4ec85ac7f771a84556bf568",
+  "tree": "00f598889d1141ff8d7912916ed53e2cba8a99e9",
+  "sources": {
+    "app/live-command.ts": "e6dcbbd078f658e997ada36740c7f9e323a86f8fde39a0721ac67688e6b50b93",
+    "app/live-movement.ts": "2a010674462902b47dce02f919b96517f835679d17bd7aa8a6a2347037a8cb06",
+    "app/live-people.ts": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+    "app/person-order-update.ts": "23c2ff6108958715e45dc3caa034e5a3a558fdfcffa936e9129396ec8c48b286",
+    "app/selection-runtime.ts": "d1b61309818d87e85e329c24fd7384ebd00b474b4dbe8f57ef84061ecbb2be71",
+    "app/shaman-guard.ts": "3d35fe7fb9c63770d564a9caab239434bded6952326f486df474eba0fa94b83a",
+    "app/world-turn.ts": "42d9aa4228b091acb49ac6c108f6464852435d7bfaa5d8a8b82e375de0f8577e",
+    "decomp/README.md": "90186c42ce24af24a0b168e2bfd3907b7a45cfe78dc1b89d8a84ae14f187f60e",
+    "decomp/research/shaman-guard-input.md": "dd11051bca1552fd71340c6d2fbd780cce11b673ea81764fa2846534d9cabba6",
+    "engineering/checks.json": "70480996124993b5816c3f12a20e02e1168de387f99fe1142caa4e52b1bc47ed",
+    "engineering/generated-files.json": "5ca9351a2c77ce6312deb6c770679b591c85891ae56e230042eee04489971f41",
+    "engineering/project-map.json": "2a1c253af02e369e55348f430766483411db9af83516191f9e5b488a57234fc8",
+    "scripts/extract-shaman-guard-vectors.mjs": "0225409acd307b4d3088e7bd0a99342d839ddb48fa7819da17d02b262f2d59ea",
+    "tests/fixtures/shaman-guard-native.json": "5df3b28c849aa9465af33fdb7716fd2fb9e64518ca867199e5a691bd0b09473e",
+    "tests/follower-task-runtime.test.mjs": "4226c4f7bef5bfe6ea1392dbe9857431d9a03fd53395cd58ecc56bcd93c9bcfe",
+    "tests/game.test.mjs": "39b6c0a91c9b35a6aa927292e1749e30a6406428c343f182ab2f46b0681a0ee0",
+    "tests/shaman-guard-input.test.mjs": "5a7038965553f403cc93b5b576caea012bce6d21b5569b67557d58d24926b46a",
+    "tests/shaman-guard-native.test.mjs": "39b8330271439cbb24aa3d671508b82116aeb45928b8c31a060f57c33429ecb2"
+  },
+  "receipts": {
+    "focused-ddd0904": "fe25666b4fea30b072c2e02772bb10b22d3f7530ba769b2d1fcfe5b60f73c6df",
+    "vectors-ddd0904": "c442bc8378cae04fe9117d898445aa6b291aeb2fc04a45e1d357c4713359d145",
+    "baseline-regressions": "32c569e6b9f7c791177a611d36c95b6444e2f54e5622c678367ea0965f887c7d",
+    "baseline-distances": "230d9345a2240c7f094d1754256acc14fbd25c69e9dd518e63fd101308472fc4",
+    "typecheck-final": "975d29518a70006f04fa297cfde9463540f19083b90ec8b055b72c24e8a4db8a",
+    "format-final": "3d1bd873df0178261b91e55cff324a78c3509a5f362c9704dcd51c4ba5fb38ec",
+    "lint-scoped": "fe02703ad024c7fa8fc798ac333e65d16090ced0b1f3aa7baebb3993e2afedf8",
+    "eslint-baseline": "22a53b3d7be80383900b702452f306299e1a9a4e733203b19a72920b62df2126",
+    "oxlint-scoped-final": "bb3e6a24cb66a96878adcb64f088fbe94e5dffcc3c4233b7a86732db8a24684e",
+    "oxlint-baseline-configured": "1e6a421f9400acb87d8ce77d83b37c6576254f56e1def8efec7de51b28150c9a"
+  }
+}

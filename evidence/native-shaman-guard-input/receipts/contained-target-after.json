@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b5e1ae31-6571-41bc-a4b0-9854da816408",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ddd09047381d16d9a4ec85ac7f771a84556bf568",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "5f33dc2c8abcfc153a14c358fc15b8aec0094fdd40fdd60e8672dcae03f5cfe4",
+    "inputs": {}
+  },
+  "command": [
+    "timeout",
+    "60s",
+    "taskset",
+    "-c",
+    "4",
+    "node",
+    "--test",
+    "--test-name-pattern=ordinary Shaman Tower entry|target entering a vehicle|anchors to the saved",
+    "tests/shaman-guard-input.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+  "startedAt": "2026-10-05T19:56:25.863Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/contained-target-after.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/contained-target-after.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T19:56:27.995Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ target entering a vehicle with inside still null completes the saved guard order (455.044648ms)\n✔ ordinary Shaman Tower entry retains Guard and resolves its building outside point (169.981539ms)\n✔ death anchors to the saved Shaman in another cell before cleanup (177.8681ms)\n✔ class0 anchors to the saved Shaman in another cell before cleanup (116.77169ms)\n✔ vehicle anchors to the saved Shaman in another cell before cleanup (71.420022ms)\n✔ cancel anchors to the saved Shaman in another cell before cleanup (85.588587ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2049.281012\n",
+  "stderr": "",
+  "stdoutSha256": "a803c02ee3770bb8b7837c9b1940d5cd9e14724fa93e4da56efb714df3b59f0c",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ddd09047381d16d9a4ec85ac7f771a84556bf568",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "5f33dc2c8abcfc153a14c358fc15b8aec0094fdd40fdd60e8672dcae03f5cfe4",
+    "inputs": {}
+  }
+}

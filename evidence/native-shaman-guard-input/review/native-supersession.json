@@ -1,0 +1,431 @@
+{
+  "identity": {
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "bytes": 2275840,
+    "debugDirectoryRva": 0,
+    "debugDirectorySize": 0
+  },
+  "addedLeaf": "00436330 acknowledgment",
+  "scriptSha256": "4d41f43b90d27354fa5c01dfc601d064f800e7b9b99f6c5694feb18a0d1605d5",
+  "cases": [
+    {
+      "guardBeforeMove": false,
+      "afterReplacement": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 0,
+        "counter": 0,
+        "flags2": 1107300864,
+        "flags3": 262144,
+        "flags4": 134217728,
+        "x": 4096,
+        "y": 4096,
+        "goalX": 8320,
+        "goalY": 8320,
+        "speed": 60,
+        "target": 0,
+        "assignment": 280,
+        "selection": 129,
+        "cursor": 0,
+        "status": 3,
+        "source": 40,
+        "renderFlags": 384,
+        "f1": 0,
+        "f2": 3,
+        "draw": 18,
+        "stamp": 0,
+        "commands": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "immediate": 0,
+        "guardCount": 0,
+        "poolCursor": 2,
+        "poolActive": 1,
+        "orders": [
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 3,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 8320,
+            "b": 8320
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          }
+        ]
+      },
+      "replacementEvents": [
+        {
+          "name": "prepare-order",
+          "status": 0,
+          "currentModel": 0
+        },
+        {
+          "name": "attach-order",
+          "status": 0,
+          "currentModel": 0
+        },
+        {
+          "name": "initialize-class",
+          "status": 0,
+          "currentModel": 3
+        },
+        {
+          "name": "initialize-person",
+          "status": 0,
+          "currentModel": 3
+        },
+        {
+          "name": "start-orders",
+          "status": 0,
+          "currentModel": 3
+        },
+        {
+          "name": "configure-order",
+          "status": 0,
+          "currentModel": 3
+        },
+        {
+          "name": "state-animation",
+          "status": 3,
+          "currentModel": 3
+        },
+        {
+          "name": "upper-setter",
+          "status": 3,
+          "currentModel": 3
+        },
+        {
+          "name": "source-setter",
+          "status": 3,
+          "currentModel": 3
+        }
+      ],
+      "afterNextPreparation": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 0,
+        "counter": 0,
+        "flags2": 1107300864,
+        "flags3": 262144,
+        "flags4": 134217728,
+        "x": 4096,
+        "y": 4096,
+        "goalX": 8320,
+        "goalY": 8320,
+        "speed": 60,
+        "target": 0,
+        "assignment": 280,
+        "selection": 129,
+        "cursor": 0,
+        "status": 3,
+        "source": 40,
+        "renderFlags": 384,
+        "f1": 0,
+        "f2": 3,
+        "draw": 18,
+        "stamp": 0,
+        "commands": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "immediate": 0,
+        "guardCount": 0,
+        "poolCursor": 2,
+        "poolActive": 1,
+        "orders": [
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 3,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 8320,
+            "b": 8320
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          }
+        ]
+      },
+      "nextEvents": [
+        "prepare-person"
+      ]
+    },
+    {
+      "guardBeforeMove": true,
+      "afterReplacement": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 0,
+        "counter": 0,
+        "flags2": 1107300880,
+        "flags3": 262144,
+        "flags4": 134217728,
+        "x": 4096,
+        "y": 4096,
+        "goalX": 8320,
+        "goalY": 8320,
+        "speed": 60,
+        "target": 0,
+        "assignment": 280,
+        "selection": 129,
+        "cursor": 0,
+        "status": 3,
+        "source": 40,
+        "renderFlags": 384,
+        "f1": 0,
+        "f2": 3,
+        "draw": 18,
+        "stamp": 0,
+        "commands": [
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "immediate": 0,
+        "guardCount": 0,
+        "poolCursor": 3,
+        "poolActive": 1,
+        "orders": [
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 30,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 73,
+            "b": 4660
+          },
+          {
+            "model": 3,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 8320,
+            "b": 8320
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          }
+        ]
+      },
+      "replacementEvents": [
+        {
+          "name": "remove-order",
+          "status": 0,
+          "currentModel": 30
+        },
+        {
+          "name": "prepare-order",
+          "status": 0,
+          "currentModel": 0
+        },
+        {
+          "name": "attach-order",
+          "status": 0,
+          "currentModel": 0
+        },
+        {
+          "name": "initialize-class",
+          "status": 0,
+          "currentModel": 3
+        },
+        {
+          "name": "initialize-person",
+          "status": 0,
+          "currentModel": 3
+        },
+        {
+          "name": "start-orders",
+          "status": 0,
+          "currentModel": 3
+        },
+        {
+          "name": "configure-order",
+          "status": 0,
+          "currentModel": 3
+        },
+        {
+          "name": "state-animation",
+          "status": 3,
+          "currentModel": 3
+        },
+        {
+          "name": "upper-setter",
+          "status": 3,
+          "currentModel": 3
+        },
+        {
+          "name": "source-setter",
+          "status": 3,
+          "currentModel": 3
+        }
+      ],
+      "afterNextPreparation": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "substate": 0,
+        "counter": 0,
+        "flags2": 1107300864,
+        "flags3": 262144,
+        "flags4": 134217728,
+        "x": 4096,
+        "y": 4096,
+        "goalX": 8320,
+        "goalY": 8320,
+        "speed": 61,
+        "target": 0,
+        "assignment": 280,
+        "selection": 129,
+        "cursor": 0,
+        "status": 3,
+        "source": 40,
+        "renderFlags": 384,
+        "f1": 0,
+        "f2": 3,
+        "draw": 18,
+        "stamp": 0,
+        "commands": [
+          2,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "immediate": 0,
+        "guardCount": 0,
+        "poolCursor": 3,
+        "poolActive": 1,
+        "orders": [
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 30,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 73,
+            "b": 4660
+          },
+          {
+            "model": 3,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 8320,
+            "b": 8320
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          }
+        ]
+      },
+      "nextEvents": [
+        "prepare-person",
+        "initialize-class",
+        "initialize-person",
+        "start-orders",
+        "configure-order",
+        "destination-planning",
+        "state-animation",
+        "upper-setter",
+        "source-setter"
+      ]
+    }
+  ]
+}

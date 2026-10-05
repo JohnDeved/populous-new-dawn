@@ -1,0 +1,168 @@
+✖ same-turn move replacement discards G before the legacy resting initializer (385.913241ms)
+✖ same-turn attack replacement discards G before the legacy resting initializer (244.123071ms)
+✖ same-turn worship replacement discards G before the legacy resting initializer (184.953671ms)
+✖ same-turn entry replacement discards G before the legacy resting initializer (141.653192ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 0
+ℹ fail 4
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1994.729436
+
+✖ failing tests:
+
+test at tests/shaman-guard-input.test.mjs:100:60
+✖ same-turn move replacement discards G before the legacy resting initializer (385.913241ms)
+  AssertionError [ERR_ASSERTION]: a discarded G must not choose a source/target or consume initializer RNG
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      phase: [
+        40,
+        18,
+        0,
+  ...
+      ],
+  +   random: 760361441,
+  +   speed: 63,
+  -   random: 1549648363,
+  -   speed: 58,
+      state: 10,
+      status: 3,
+  +   target: 1184,
+  -   target: 0,
+      turn: 112
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/tests/shaman-guard-input.test.mjs:121:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { turn: 112, random: 760361441, phase: [ 40, 18, 0, 3, 0 ], state: 10, status: 3, target: 1184, speed: 63 },
+    expected: { turn: 112, random: 1549648363, phase: [ 40, 18, 0, 3, 0 ], state: 10, status: 3, target: 0, speed: 58 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/shaman-guard-input.test.mjs:100:60
+✖ same-turn attack replacement discards G before the legacy resting initializer (244.123071ms)
+  AssertionError [ERR_ASSERTION]: a discarded G must not choose a source/target or consume initializer RNG
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      phase: [
+        40,
+        18,
+        0,
+  ...
+      ],
+  +   random: 989887913,
+  +   speed: 56,
+  -   random: 760361441,
+  -   speed: 63,
+      state: 10,
+      status: 19,
+  +   target: 1184,
+  -   target: 0,
+      turn: 112
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/tests/shaman-guard-input.test.mjs:121:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { turn: 112, random: 989887913, phase: [ 40, 18, 0, 3, 0 ], state: 10, status: 19, target: 1184, speed: 56 },
+    expected: { turn: 112, random: 760361441, phase: [ 40, 18, 0, 3, 0 ], state: 10, status: 19, target: 0, speed: 63 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/shaman-guard-input.test.mjs:100:60
+✖ same-turn worship replacement discards G before the legacy resting initializer (184.953671ms)
+  AssertionError [ERR_ASSERTION]: a discarded G must not choose a source/target or consume initializer RNG
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      phase: [
+        40,
+        18,
+        0,
+  ...
+      ],
+  +   random: 760361441,
+  +   speed: 63,
+  -   random: 1549648363,
+  -   speed: 58,
+      state: 10,
+      status: 27,
+      target: 1186,
+      turn: 112
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/tests/shaman-guard-input.test.mjs:121:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { turn: 112, random: 760361441, phase: [ 40, 18, 0, 3, 0 ], state: 10, status: 27, target: 1186, speed: 63 },
+    expected: { turn: 112, random: 1549648363, phase: [ 40, 18, 0, 3, 0 ], state: 10, status: 27, target: 1186, speed: 58 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/shaman-guard-input.test.mjs:100:60
+✖ same-turn entry replacement discards G before the legacy resting initializer (141.653192ms)
+  AssertionError [ERR_ASSERTION]: a discarded G must not choose a source/target or consume initializer RNG
+  + actual - expected
+  
+    {
+      phase: [
+  +     40,
+  -     48,
+        18,
+        0,
+        3,
+        0
+      ],
+  +   random: 1549648363,
+  +   speed: 58,
+  -   random: 2082085676,
+  -   speed: 0,
+      state: 10,
+      status: 0,
+  +   target: 1184,
+  -   target: 0,
+      turn: 112
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/tests/shaman-guard-input.test.mjs:121:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: { turn: 112, random: 1549648363, phase: [ 40, 18, 0, 3, 0 ], state: 10, status: 0, target: 1184, speed: 58 },
+    expected: { turn: 112, random: 2082085676, phase: [ 48, 18, 0, 3, 0 ], state: 10, status: 0, target: 0, speed: 0 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

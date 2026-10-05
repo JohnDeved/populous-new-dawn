@@ -1,0 +1,894 @@
+✖ G queues one shared native guard and repeat replaces it without early preparation (293.031303ms)
+✖ G empty selection cancels adopted guards through the next native visit (206.580308ms)
+✖ G Shaman-only selection cancels adopted guards through the next native visit (136.035267ms)
+✖ native G retains the ordinary move owner and route until its deferred turn (87.620662ms)
+✖ pending G replacement survives pause and checkpoint (76.9113ms)
+✖ pending G cancellation survives pause and checkpoint (117.736198ms)
+✖ G exhaustion still clears and attaches slot zero then retries after cleanup frees a slot (75.147371ms)
+✖ target entering a vehicle with inside still null completes the saved guard order (144.600231ms)
+✖ actual deferred G setters match native phase vector G-retain-deselect-1-3 (95.382849ms)
+✖ actual deferred G setters match native phase vector G-retain-deselect-7-5 (96.210341ms)
+✖ actual deferred G setters match native phase vector G-retain-deselect-0-2 (97.862652ms)
+✖ protected preparation and passenger early-return retain pending ownership until actual adoption (94.062777ms)
+✖ protected cancelled state10 retains ownership until its empty-queue transition really occurs (98.132528ms)
+✖ death anchors to the saved Shaman in another cell before cleanup (76.850619ms)
+✖ class0 anchors to the saved Shaman in another cell before cleanup (93.129736ms)
+✖ vehicle anchors to the saved Shaman in another cell before cleanup (87.378168ms)
+✖ cancel anchors to the saved Shaman in another cell before cleanup (73.709702ms)
+✖ saved Shaman identity does not retarget when the current Shaman is replaced (71.688677ms)
+✖ legacy boolean checkpoints retain their old targetless history until supported fresh input (68.57447ms)
+✔ flight single selection retains the entire legacy G operation (189.412206ms)
+✔ flight mixed selection retains the entire legacy G operation (144.277516ms)
+✔ fight single selection retains the entire legacy G operation (85.587568ms)
+✔ fight mixed selection retains the entire legacy G operation (82.940164ms)
+✔ entry single selection retains the entire legacy G operation (80.292497ms)
+✔ entry mixed selection retains the entire legacy G operation (108.24853ms)
+✔ builder single selection retains the entire legacy G operation (76.757228ms)
+✔ builder mixed selection retains the entire legacy G operation (78.062278ms)
+✔ passenger single selection retains the entire legacy G operation (78.291703ms)
+✔ passenger mixed selection retains the entire legacy G operation (102.274668ms)
+✔ work single selection retains the entire legacy G operation (66.920056ms)
+✔ work mixed selection retains the entire legacy G operation (108.623733ms)
+✔ gather single selection retains the entire legacy G operation (167.870977ms)
+✔ gather mixed selection retains the entire legacy G operation (130.294948ms)
+✔ delivery single selection retains the entire legacy G operation (150.399109ms)
+✔ delivery mixed selection retains the entire legacy G operation (178.782719ms)
+✔ casting single selection retains the entire legacy G operation (69.289318ms)
+✔ casting mixed selection retains the entire legacy G operation (58.734493ms)
+✔ legacy single selection retains the entire legacy G operation (73.846592ms)
+✔ legacy mixed selection retains the entire legacy G operation (62.805276ms)
+✔ legacy path single selection retains the entire legacy G operation (65.260834ms)
+✔ legacy path mixed selection retains the entire legacy G operation (90.721278ms)
+✔ different route owner single selection retains the entire legacy G operation (120.569543ms)
+✔ different route owner mixed selection retains the entire legacy G operation (126.964471ms)
+✖ native Brave guards do not fall into legacy automatic housing while near the Shaman (152.232702ms)
+✔ G replacement/cancellation have identical turn ownership at ordinary and irregular refresh schedules (166.955201ms)
+ℹ tests 45
+ℹ suites 0
+ℹ pass 25
+ℹ fail 20
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5953.059136
+
+✖ failing tests:
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:31:1
+✖ G queues one shared native guard and repeat replaces it without early preparation (293.031303ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  undefined !== 30
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:36:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 30,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:60:41
+✖ G empty selection cancels adopted guards through the next native visit (206.580308ms)
+  AssertionError [ERR_ASSERTION]: unadopted queue is retained
+  
+  undefined !== 30
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:64:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 30,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:60:41
+✖ G Shaman-only selection cancels adopted guards through the next native visit (136.035267ms)
+  AssertionError [ERR_ASSERTION]: unadopted queue is retained
+  
+  undefined !== 30
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:64:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 30,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:82:1
+✖ native G retains the ordinary move owner and route until its deferred turn (87.620662ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  0 !== 16
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:89:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: 16,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:99:37
+✖ pending G replacement survives pause and checkpoint (76.9113ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - {
+  -   anchorFlags: 17,
+  -   anchorX: 2816,
+  -   anchorY: 61696,
+  -   angle: 256,
+  -   animationMode: 0,
+  -   assignment: 0,
+  -   building: null,
+  -   burnTrail: 0,
+  -   cargo: 0,
+  -   cellNext: 0,
+  -   cellPrevious: 0,
+  -   class: 1,
+  -   commandAux: 0,
+  -   commandCursor: 0,
+  -   commandPhase: 0,
+  -   commandStatus: 0,
+  -   commands: [
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0
+  -   ],
+  -   computerAssignment: 0,
+  -   counter: 112,
+  -   damageAttacker: 255,
+  -   destinationX: 2816,
+  -   destinationY: 61696,
+  -   disguise: 0,
+  -   displacement: {
+  -     h: 0,
+  -     x: 0,
+  -     y: 0
+  -   },
+  -   draw: 18,
+  -   f1: 0,
+  -   f2: 0,
+  -   flags2: 1073872896,
+  -   flags3: 262144,
+  -   flags4: 536871168,
+  -   formationCell: 61450,
+  -   formationDelay: 0,
+  -   goalX: 2816,
+  -   goalY: 61696,
+  -   h: 135,
+  -   heading: 256,
+  -   id: 1185,
+  -   immediateCommand: 0,
+  -   invisibilityRender: undefined,
+  -   life: 700,
+  -   link: 0,
+  -   marchCooldown: 0,
+  -   model: 6,
+  -   morph: 0,
+  -   morphFrames: 0,
+  -   morphTimer: 0,
+  -   motionGroup: 0,
+  -   motionIndex: 0,
+  -   motionMode: 0,
+  -   motionTimer: 0,
+  -   object: 48,
+  -   orderDelay: 0,
+  -   orderLocation: 0,
+  -   palette: 240,
+  -   physics: 17,
+  -   previousState: 19,
+  -   reactionDuration: 0,
+  -   reactionTimer: 0,
+  -   recoveryCounter: 6,
+  -   renderFlags: 384,
+  -   reservationNext: 0,
+  -   savedVehicle: 0,
+  -   selectionFlags: 128,
+  -   slowTurn: 0,
+  -   speed: 0,
+  -   stamp: 0,
+  -   state: 10,
+  -   stateObject: 0,
+  -   statusFlags: 0,
+  -   substate: 0,
+  -   supportHeight: 0,
+  -   target: 0,
+  -   timer: 0,
+  -   tribe: 0,
+  -   turnAngle: 2816,
+  -   turnY: 61696,
+  -   vehicle: 0,
+  -   velocity: {
+  -     x: 0,
+  -     y: 0,
+  -     z: 0
+  -   },
+  -   workFlags: 0,
+  -   workTarget: 0,
+  -   x: 2777,
+  -   y: 61657
+  - }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:108:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: {
+      id: 1185,
+      class: 1,
+      model: 6,
+      state: 10,
+      previousState: 19,
+      substate: 0,
+      tribe: 0,
+      x: 2777,
+      y: 61657,
+      h: 135,
+      anchorX: 2816,
+      anchorY: 61696,
+      counter: 112,
+      flags2: 1073872896,
+      flags3: 262144,
+      flags4: 536871168,
+      physics: 17,
+      speed: 0,
+      angle: 256,
+      heading: 256,
+      turnAngle: 2816,
+      turnY: 61696,
+      slowTurn: 0,
+      goalX: 2816,
+      goalY: 61696,
+      destinationX: 2816,
+      destinationY: 61696,
+      building: null,
+      cargo: 0,
+      vehicle: 0,
+      assignment: 0,
+      timer: 0,
+      target: 0,
+      link: 0,
+      stateObject: 0,
+      animationMode: 0,
+      commandAux: 0,
+      commandPhase: 0,
+      object: 48,
+      draw: 18,
+      morph: 0,
+      palette: 240,
+      renderFlags: 384,
+      invisibilityRender: undefined,
+      f1: 0,
+      f2: 0,
+      stamp: 0,
+      morphTimer: 0,
+      morphFrames: 0,
+      statusFlags: 0,
+      workFlags: 0,
+      reservationNext: 0,
+      formationCell: 61450,
+      motionTimer: 0,
+      motionMode: 0,
+      motionGroup: 0,
+      motionIndex: 0,
+      recoveryCounter: 6,
+      supportHeight: 0,
+      selectionFlags: 128,
+      commands: [
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      commandCursor: 0,
+      immediateCommand: 0,
+      orderLocation: 0,
+      commandStatus: 0,
+      workTarget: 0,
+      cellNext: 0,
+      cellPrevious: 0,
+      displacement: { x: 0, y: 0, h: 0 },
+      reactionTimer: 0,
+      reactionDuration: 0,
+      anchorFlags: 17,
+      velocity: { x: 0, y: 0, z: 0 },
+      life: 700,
+      disguise: 0,
+      savedVehicle: 0,
+      formationDelay: 0,
+      orderDelay: 0,
+      damageAttacker: 255,
+      burnTrail: 0,
+      marchCooldown: 0,
+      computerAssignment: 0
+    },
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:99:37
+✖ pending G cancellation survives pause and checkpoint (117.736198ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + null
+  - {
+  -   anchorFlags: 17,
+  -   anchorX: 2816,
+  -   anchorY: 61696,
+  -   angle: 256,
+  -   animationMode: 0,
+  -   assignment: 0,
+  -   building: null,
+  -   burnTrail: 0,
+  -   cargo: 0,
+  -   cellNext: 0,
+  -   cellPrevious: 0,
+  -   class: 1,
+  -   commandAux: 0,
+  -   commandCursor: 0,
+  -   commandPhase: 0,
+  -   commandStatus: 0,
+  -   commands: [
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0,
+  -     0
+  -   ],
+  -   computerAssignment: 0,
+  -   counter: 112,
+  -   damageAttacker: 255,
+  -   destinationX: 2816,
+  -   destinationY: 61696,
+  -   disguise: 0,
+  -   displacement: {
+  -     h: 0,
+  -     x: 0,
+  -     y: 0
+  -   },
+  -   draw: 18,
+  -   f1: 0,
+  -   f2: 0,
+  -   flags2: 1073872896,
+  -   flags3: 262144,
+  -   flags4: 536871168,
+  -   formationCell: 61450,
+  -   formationDelay: 0,
+  -   goalX: 2816,
+  -   goalY: 61696,
+  -   h: 135,
+  -   heading: 256,
+  -   id: 1185,
+  -   immediateCommand: 0,
+  -   invisibilityRender: undefined,
+  -   life: 700,
+  -   link: 0,
+  -   marchCooldown: 0,
+  -   model: 6,
+  -   morph: 0,
+  -   morphFrames: 0,
+  -   morphTimer: 0,
+  -   motionGroup: 0,
+  -   motionIndex: 0,
+  -   motionMode: 0,
+  -   motionTimer: 0,
+  -   object: 48,
+  -   orderDelay: 0,
+  -   orderLocation: 0,
+  -   palette: 240,
+  -   physics: 17,
+  -   previousState: 19,
+  -   reactionDuration: 0,
+  -   reactionTimer: 0,
+  -   recoveryCounter: 6,
+  -   renderFlags: 384,
+  -   reservationNext: 0,
+  -   savedVehicle: 0,
+  -   selectionFlags: 0,
+  -   slowTurn: 0,
+  -   speed: 0,
+  -   stamp: 0,
+  -   state: 10,
+  -   stateObject: 0,
+  -   statusFlags: 0,
+  -   substate: 0,
+  -   supportHeight: 0,
+  -   target: 0,
+  -   timer: 0,
+  -   tribe: 0,
+  -   turnAngle: 2816,
+  -   turnY: 61696,
+  -   vehicle: 0,
+  -   velocity: {
+  -     x: 0,
+  -     y: 0,
+  -     z: 0
+  -   },
+  -   workFlags: 0,
+  -   workTarget: 0,
+  -   x: 2777,
+  -   y: 61657
+  - }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:108:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: null,
+    expected: {
+      id: 1185,
+      class: 1,
+      model: 6,
+      state: 10,
+      previousState: 19,
+      substate: 0,
+      tribe: 0,
+      x: 2777,
+      y: 61657,
+      h: 135,
+      anchorX: 2816,
+      anchorY: 61696,
+      counter: 112,
+      flags2: 1073872896,
+      flags3: 262144,
+      flags4: 536871168,
+      physics: 17,
+      speed: 0,
+      angle: 256,
+      heading: 256,
+      turnAngle: 2816,
+      turnY: 61696,
+      slowTurn: 0,
+      goalX: 2816,
+      goalY: 61696,
+      destinationX: 2816,
+      destinationY: 61696,
+      building: null,
+      cargo: 0,
+      vehicle: 0,
+      assignment: 0,
+      timer: 0,
+      target: 0,
+      link: 0,
+      stateObject: 0,
+      animationMode: 0,
+      commandAux: 0,
+      commandPhase: 0,
+      object: 48,
+      draw: 18,
+      morph: 0,
+      palette: 240,
+      renderFlags: 384,
+      invisibilityRender: undefined,
+      f1: 0,
+      f2: 0,
+      stamp: 0,
+      morphTimer: 0,
+      morphFrames: 0,
+      statusFlags: 0,
+      workFlags: 0,
+      reservationNext: 0,
+      formationCell: 61450,
+      motionTimer: 0,
+      motionMode: 0,
+      motionGroup: 0,
+      motionIndex: 0,
+      recoveryCounter: 6,
+      supportHeight: 0,
+      selectionFlags: 0,
+      commands: [
+        0, 0, 0, 0,
+        0, 0, 0, 0
+      ],
+      commandCursor: 0,
+      immediateCommand: 0,
+      orderLocation: 0,
+      commandStatus: 0,
+      workTarget: 0,
+      cellNext: 0,
+      cellPrevious: 0,
+      displacement: { x: 0, y: 0, h: 0 },
+      reactionTimer: 0,
+      reactionDuration: 0,
+      anchorFlags: 17,
+      velocity: { x: 0, y: 0, z: 0 },
+      life: 700,
+      disguise: 0,
+      savedVehicle: 0,
+      formationDelay: 0,
+      orderDelay: 0,
+      damageAttacker: 255,
+      burnTrail: 0,
+      marchCooldown: 0,
+      computerAssignment: 0
+    },
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:117:1
+✖ G exhaustion still clears and attaches slot zero then retries after cleanup frees a slot (75.147371ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      0,
+  +   0,
+  +   0
+  -   1,
+  -   1
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:124:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 0, 0, 0 ],
+    expected: [ 0, 1, 1 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:130:1
+✖ target entering a vehicle with inside still null completes the saved guard order (144.600231ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok([17, 19].includes(p.state))
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:142:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:145:90
+✖ actual deferred G setters match native phase vector G-retain-deselect-1-3 (95.382849ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      48,
+      18,
+  +   0,
+  -   1,
+      3,
+      0
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:150:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 48, 18, 0, 3, 0 ],
+    expected: [ 48, 18, 1, 3, 0 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:145:90
+✖ actual deferred G setters match native phase vector G-retain-deselect-7-5 (96.210341ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      48,
+      18,
+  +   0,
+  -   7,
+      5,
+      0
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:150:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 48, 18, 0, 5, 0 ],
+    expected: [ 48, 18, 7, 5, 0 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:145:90
+✖ actual deferred G setters match native phase vector G-retain-deselect-0-2 (97.862652ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   48,
+  -   40,
+      18,
+      0,
+      2,
+      10,
+  +   0
+  -   30
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:155:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 48, 18, 0, 2, 10, 0 ],
+    expected: [ 40, 18, 0, 2, 10, 30 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:163:1
+✖ protected preparation and passenger early-return retain pending ownership until actual adoption (94.062777ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(p.flags2 & 16)
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:169:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:189:1
+✖ protected cancelled state10 retains ownership until its empty-queue transition really occurs (98.132528ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + undefined
+  - true
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:197:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:207:62
+✖ death anchors to the saved Shaman in another cell before cleanup (76.850619ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   2816,
+  -   6912,
+      61696
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:221:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 2816, 61696 ],
+    expected: [ 6912, 61696 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:207:62
+✖ class0 anchors to the saved Shaman in another cell before cleanup (93.129736ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   2816,
+  -   6912,
+      61696
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:221:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 2816, 61696 ],
+    expected: [ 6912, 61696 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:207:62
+✖ vehicle anchors to the saved Shaman in another cell before cleanup (87.378168ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   2816,
+  -   6912,
+      61696
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:221:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 2816, 61696 ],
+    expected: [ 6912, 61696 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:207:62
+✖ cancel anchors to the saved Shaman in another cell before cleanup (73.709702ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+  +   2816,
+  -   6912,
+      61696
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:221:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 2816, 61696 ],
+    expected: [ 6912, 61696 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:225:1
+✖ saved Shaman identity does not retarget when the current Shaman is replaced (71.688677ms)
+  TypeError: Cannot read properties of undefined (reading 'a')
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:231:27)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:239:1
+✖ legacy boolean checkpoints retain their old targetless history until supported fresh input (68.57447ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  undefined !== 30
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:254:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 30,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:286:1
+✖ native Brave guards do not fall into legacy automatic housing while near the Shaman (152.232702ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  undefined !== 30
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs:293:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: 30,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

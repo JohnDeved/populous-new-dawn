@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "6c17c4af-2497-4b02-9082-b00b4d34e3a6",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ddd09047381d16d9a4ec85ac7f771a84556bf568",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "ecacc783de8299ba0f8e79928b433e47c1ff6d720190e896f827bf1281830aec",
+    "inputs": {}
+  },
+  "command": [
+    "timeout",
+    "60s",
+    "taskset",
+    "-c",
+    "4",
+    "node",
+    "--test",
+    "--test-name-pattern=ordinary Shaman Tower entry",
+    "tests/shaman-guard-input.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+  "startedAt": "2026-10-05T19:56:04.328Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/contained-target-before.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/contained-target-before.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T19:56:05.613Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ ordinary Shaman Tower entry retains Guard and resolves its building outside point (299.13737ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1214.036376\n\n✖ failing tests:\n\ntest at tests/shaman-guard-input.test.mjs:146:1\n✖ ordinary Shaman Tower entry retains Guard and resolves its building outside point (299.13737ms)\n  AssertionError [ERR_ASSERTION]: building containment is not target loss\n  \n  undefined !== 30\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/tests/shaman-guard-input.test.mjs:155:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: 30,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "007fce64c23e6f8ab3d89db64556deaf42954757371b9f1704c46c8bd7042b0f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ddd09047381d16d9a4ec85ac7f771a84556bf568",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "ecacc783de8299ba0f8e79928b433e47c1ff6d720190e896f827bf1281830aec",
+    "inputs": {}
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "20aaa060-d7be-400e-afad-657b2985b377",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ff0d3b4f9e50d8d6130b8f9f198a95a5d63ea95d",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "703249dc84a1333a29f58a0a4df474117f4b4f2792e7beee75646d63ebd11c86",
+    "inputs": {}
+  },
+  "command": [
+    "timeout",
+    "120s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/live-command.ts",
+    "app/live-movement.ts",
+    "app/live-people.ts",
+    "app/person-order-update.ts",
+    "app/selection-runtime.ts",
+    "app/shaman-guard.ts",
+    "app/world-turn.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+  "startedAt": "2026-10-05T19:44:04.252Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/format-final.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/format-final.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T19:44:04.375Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 5ms on 7 files using 4 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "6b559a2a2ad322c566cb1f559ef27b7ac4b3b8db1a87dace1b33132f9ca7f250",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ff0d3b4f9e50d8d6130b8f9f198a95a5d63ea95d",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "703249dc84a1333a29f58a0a4df474117f4b4f2792e7beee75646d63ebd11c86",
+    "inputs": {}
+  }
+}

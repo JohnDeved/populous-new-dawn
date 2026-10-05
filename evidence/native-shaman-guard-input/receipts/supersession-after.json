@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "2714b76f-d3d9-4ba2-a3fc-1a064c5299c3",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "328aad3aaea42836fea417384dc70fe0608e7b70",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "fdfa340ca37cdcdda82d8be1d788ae078eaf8b052e8b528888c4d4f24bc2c366",
+    "inputs": {}
+  },
+  "command": [
+    "timeout",
+    "60s",
+    "taskset",
+    "-c",
+    "4",
+    "node",
+    "--test",
+    "--test-name-pattern=same-turn .* replacement discards",
+    "tests/shaman-guard-input.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+  "startedAt": "2026-10-05T20:01:56.115Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/supersession-after.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/supersession-after.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T20:01:58.034Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ same-turn move replacement discards G before the legacy resting initializer (332.327839ms)\n✔ same-turn attack replacement discards G before the legacy resting initializer (201.049409ms)\n✔ same-turn worship replacement discards G before the legacy resting initializer (186.348222ms)\n✔ same-turn entry replacement discards G before the legacy resting initializer (131.986959ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1843.250524\n",
+  "stderr": "",
+  "stdoutSha256": "21f31abf26a36b62e72c30f4281a9faa453d86526960c264853618714840c5b5",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "328aad3aaea42836fea417384dc70fe0608e7b70",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "fdfa340ca37cdcdda82d8be1d788ae078eaf8b052e8b528888c4d4f24bc2c366",
+    "inputs": {}
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "c5cb12ab-0a69-42bc-95c7-979c816cedab",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ddd09047381d16d9a4ec85ac7f771a84556bf568",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "../integration-publish-recovered/work/orchestration/native-guard-lifecycle-20261005/producer-attempt-01.json": "92153069ba20138e60280cb639cfc2f794d1ed4532e7234dbaa79e39843bc922",
+      "../integration-publish-recovered/work/orchestration/native-guard-lifecycle-20261005/attempt-04.json": "7c7d6eff380665b6240822b29e38e9eff47de1c1a4c8855b58b4b5c71bde3711",
+      "../integration-publish-recovered/work/orchestration/native-guard-lifecycle-20261005/distance-result.json": "fa07a6393231153208152ba789b80d9954ae01baefdd87729c3257bedcd52b76"
+    }
+  },
+  "command": [
+    "node",
+    "scripts/extract-shaman-guard-vectors.mjs",
+    "../integration-publish-recovered/work/orchestration/native-guard-lifecycle-20261005",
+    "--check"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+  "startedAt": "2026-10-05T19:46:09.481Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/vectors-ddd0904.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/vectors-ddd0904.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T19:46:09.562Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Native correspondence: 19 producer cases/26 producer entries; 28 distances; 11 lifecycle cases/64 retained stages.\n",
+  "stderr": "",
+  "stdoutSha256": "66febff59dc955a4eabdf6e9942c291da8c2570f7e7dfb174120d8176a95b8a7",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ddd09047381d16d9a4ec85ac7f771a84556bf568",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "../integration-publish-recovered/work/orchestration/native-guard-lifecycle-20261005/producer-attempt-01.json": "92153069ba20138e60280cb639cfc2f794d1ed4532e7234dbaa79e39843bc922",
+      "../integration-publish-recovered/work/orchestration/native-guard-lifecycle-20261005/attempt-04.json": "7c7d6eff380665b6240822b29e38e9eff47de1c1a4c8855b58b4b5c71bde3711",
+      "../integration-publish-recovered/work/orchestration/native-guard-lifecycle-20261005/distance-result.json": "fa07a6393231153208152ba789b80d9954ae01baefdd87729c3257bedcd52b76"
+    }
+  }
+}

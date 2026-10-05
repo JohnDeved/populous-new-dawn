@@ -1,0 +1,14 @@
+✔ target entering a vehicle with inside still null completes the saved guard order (455.044648ms)
+✔ ordinary Shaman Tower entry retains Guard and resolves its building outside point (169.981539ms)
+✔ death anchors to the saved Shaman in another cell before cleanup (177.8681ms)
+✔ class0 anchors to the saved Shaman in another cell before cleanup (116.77169ms)
+✔ vehicle anchors to the saved Shaman in another cell before cleanup (71.420022ms)
+✔ cancel anchors to the saved Shaman in another cell before cleanup (85.588587ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2049.281012

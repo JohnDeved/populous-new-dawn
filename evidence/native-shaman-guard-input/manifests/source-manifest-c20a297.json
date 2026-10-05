@@ -1,0 +1,83 @@
+{
+  "base": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "head": "c20a297f5f815ce404f796b08f77ea56396f96da",
+  "tree": "9af7241660efc11eb8969845ab7e587231d906bc",
+  "sources": {
+    "app/live-command.ts": "4671406f827e92fb70432bf88af54d764b4f628e422b320b89384485a6411913",
+    "app/live-movement.ts": "18d87ec0e7baf08b31ac0e618fdba4c8c0f0521cd25b166da7dd787b95baca77",
+    "app/live-people.ts": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+    "app/person-order-update.ts": "23c2ff6108958715e45dc3caa034e5a3a558fdfcffa936e9129396ec8c48b286",
+    "app/selection-runtime.ts": "d1b61309818d87e85e329c24fd7384ebd00b474b4dbe8f57ef84061ecbb2be71",
+    "app/shaman-guard.ts": "3d35fe7fb9c63770d564a9caab239434bded6952326f486df474eba0fa94b83a",
+    "app/world-tasks.ts": "146f9856dd5ad69bccf6d470c977ca683454e67fe3d06fe67712edcf17849765",
+    "app/world-turn.ts": "42d9aa4228b091acb49ac6c108f6464852435d7bfaa5d8a8b82e375de0f8577e",
+    "decomp/README.md": "90186c42ce24af24a0b168e2bfd3907b7a45cfe78dc1b89d8a84ae14f187f60e",
+    "decomp/research/shaman-guard-input.md": "9f9c8f6545a3b56c1c3dcaa8ab8628869f99ab66cdf5a3d9ca03f22b624da6cc",
+    "engineering/checks.json": "70480996124993b5816c3f12a20e02e1168de387f99fe1142caa4e52b1bc47ed",
+    "engineering/generated-files.json": "5ca9351a2c77ce6312deb6c770679b591c85891ae56e230042eee04489971f41",
+    "engineering/project-map.json": "2a1c253af02e369e55348f430766483411db9af83516191f9e5b488a57234fc8",
+    "scripts/extract-shaman-guard-vectors.mjs": "0225409acd307b4d3088e7bd0a99342d839ddb48fa7819da17d02b262f2d59ea",
+    "tests/fixtures/shaman-guard-native.json": "5df3b28c849aa9465af33fdb7716fd2fb9e64518ca867199e5a691bd0b09473e",
+    "tests/follower-task-runtime.test.mjs": "4226c4f7bef5bfe6ea1392dbe9857431d9a03fd53395cd58ecc56bcd93c9bcfe",
+    "tests/game.test.mjs": "39b6c0a91c9b35a6aa927292e1749e30a6406428c343f182ab2f46b0681a0ee0",
+    "tests/shaman-guard-input.test.mjs": "dc824667dd60b225ab038bd5fa8a95d604ad1840643c98deff54cc067d56ed5e",
+    "tests/shaman-guard-native.test.mjs": "39b8330271439cbb24aa3d671508b82116aeb45928b8c31a060f57c33429ecb2"
+  },
+  "receiptInputs": {
+    "focused-supersession-final": {
+      "sha256": "90cd41970ef1ae3c41be739e4c45a54b32d111dd6e2bf8137c9a14e8d4ac8de0",
+      "source": {
+        "headOid": "c20a297f5f815ce404f796b08f77ea56396f96da",
+        "branch": "fix/native-shaman-guard-input",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {}
+      }
+    },
+    "supersession-before": {
+      "sha256": "6a60bd5d5cc2754abdda277e880b2af4197fb2f88f77202dec1c17a31b73a995",
+      "source": {
+        "headOid": "328aad3aaea42836fea417384dc70fe0608e7b70",
+        "branch": "fix/native-shaman-guard-input",
+        "trackedDiffSha256": "14f9c0c19649e6a9e05915c68f7e577d2279a1d9aeeefab8c54d7116b5840ddf",
+        "inputs": {}
+      }
+    },
+    "supersession-after": {
+      "sha256": "fe9fa04eb756c94d8e854dac14c5dc1fb9e751f2ad5696d3c981912abb269460",
+      "source": {
+        "headOid": "328aad3aaea42836fea417384dc70fe0608e7b70",
+        "branch": "fix/native-shaman-guard-input",
+        "trackedDiffSha256": "fdfa340ca37cdcdda82d8be1d788ae078eaf8b052e8b528888c4d4f24bc2c366",
+        "inputs": {}
+      }
+    },
+    "contained-target-before": {
+      "sha256": "252bcec6aa349bf6f7a2ee760715ce08b8d44fb157f499bf2f92a9643803bed0",
+      "source": {
+        "headOid": "ddd09047381d16d9a4ec85ac7f771a84556bf568",
+        "branch": "fix/native-shaman-guard-input",
+        "trackedDiffSha256": "ecacc783de8299ba0f8e79928b433e47c1ff6d720190e896f827bf1281830aec",
+        "inputs": {}
+      }
+    },
+    "contained-target-after": {
+      "sha256": "cddc74258e7a64bfa7f9c19fafbc846cceffde61482e8729ff593037c4d55f61",
+      "source": {
+        "headOid": "ddd09047381d16d9a4ec85ac7f771a84556bf568",
+        "branch": "fix/native-shaman-guard-input",
+        "trackedDiffSha256": "5f33dc2c8abcfc153a14c358fc15b8aec0094fdd40fdd60e8672dcae03f5cfe4",
+        "inputs": {}
+      }
+    }
+  },
+  "supplementalNative": {
+    "native-supersession.json": "f27f202d9f936df58d1c1b1359a807649cfdee75ae79c89a99447bf2c5dc3a8a",
+    "check-native-supersession.py": "4d41f43b90d27354fa5c01dfc601d064f800e7b9b99f6c5694feb18a0d1605d5",
+    "native-supersession.stderr": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "pending": [
+    "fresh re-review",
+    "exact final-head fullcheck/build/typecheck/quality gates",
+    "ordinary rendered Mission10 acceptance"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "accepted": true,
+  "shamanInside": 1023,
+  "transitions": [
+    {
+      "i": 38,
+      "shamanInside": 1023,
+      "towerId": 1023,
+      "shamanState": 21,
+      "shamanVehicle": 0,
+      "shamanHp": 100,
+      "before": 30,
+      "guardState": 17,
+      "guardCount": 0
+    }
+  ]
+}

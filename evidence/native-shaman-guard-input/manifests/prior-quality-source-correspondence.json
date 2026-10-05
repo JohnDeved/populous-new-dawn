@@ -1,0 +1,5 @@
+{
+  "scope": "Previous ddd0904 app-only correspondence; later source changes still need their own final gates.",
+  "appDiffSha256": "703249dc84a1333a29f58a0a4df474117f4b4f2792e7beee75646d63ebd11c86",
+  "receiptDiffSha256": "703249dc84a1333a29f58a0a4df474117f4b4f2792e7beee75646d63ebd11c86"
+}
