@@ -34,7 +34,14 @@ export default async function missionThreeControls({ page, output, root, signal,
   const authoredVictim = authoredVictimIdentity(level.objects)
   const startWall = Date.now(), wallLimit = 90 * 60_000, inputs = [], failures = [], milestones = []
   const epochs = [], controlStops = [], ids = Object.create(null), commandsPath = resolve(output, 'commands')
-  let continuation = null, protectedPreparation = null, protectedLatest = null, sermonRecord = null, inheritedActiveSeconds = 0
+  const reusedProfile = receipt.profile?.mode === 'reused'
+  let continuation = null, protectedPreparation = null, sermonRecord = null, inheritedActiveSeconds = 0
+  // The maintained harness read and verified this before invoking the scenario.
+  // Protect it even if record path validation/parsing/admission fails below.
+  let protectedLatest = reusedProfile && receipt.profile.checkpointAtStart ? {
+    label: 'harness-verified-checkpoint-at-start', checkpoint: structuredClone(receipt.profile.checkpointAtStart),
+    profileId: receipt.profile.id, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint,
+  } : null
   let preserveStopRequested = false
   let preserveVerificationFailed = false
   mkdirSync(commandsPath, { recursive: true })
@@ -48,7 +55,8 @@ export default async function missionThreeControls({ page, output, root, signal,
     JSON.stringify({ at: new Date().toISOString(), wallMs: Date.now() - startWall, ...entry }) + '\n')
   const saveProgress = (status = 'in-progress') => writeFileSync(resolve(output, 'journey.json'), JSON.stringify({
     status, inputs, ids, epochs, milestones, failures, controlStops, training, victimSelection, sermonPlan,
-    entryMode: continuation ? 'checkpoint-continuation' : 'fresh', continuation, protectedPreparation, protectedLatest, sermonRecord,
+    entryMode: continuation ? 'checkpoint-continuation' : reusedProfile ? 'checkpoint-entry-rejected' : 'fresh',
+    continuation, protectedPreparation, protectedLatest, sermonRecord,
     preserveStopRequested, preserveVerificationFailed, inheritedActiveSeconds,
     limits: 'Ordinary UI inputs and normal RAF only; independent Mission 3, software/headless renderer.'
   }, null, 2) + '\n')
@@ -954,7 +962,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     if (incomplete) controlStops.push(record)
     else failures.push(record)
     if (!signal.aborted) {
-      if (protectedLatest || preserveStopRequested) {
+      if (protectedLatest || preserveStopRequested || reusedProfile) {
         // Preserve the actual latest UI Save, including a sermon. Never replace
         // it with the failed exploratory world just to close the harness.
         await pause().catch(() => {})

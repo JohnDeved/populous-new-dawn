@@ -54,6 +54,10 @@ verified readback. A failure or resource stop preserves that known latest save
 and reads its digest again instead of writing the failed exploratory world over
 it. This keeps harness-owned terminal readback, browser/server cleanup and lease
 release on the normal return path.
+On a reused-profile entry, the harness-verified checkpointAtStart is protected
+before any record path/read/parse/admission step. Even if that expected checkpoint
+is absent, the reused-entry guard forbids fallback Save. Invalid admission still
+fails and earns no forwarded record; it cannot overwrite the existing profile.
 
 The explicit command`stop-preserve-latest` pauses normally, verifies the actual
 latest digest, records an incomplete stop, and closes through that same path. It

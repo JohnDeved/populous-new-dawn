@@ -91,11 +91,11 @@ test('a preserving stop dispatches before any ordinary read, health or budget pr
 })
 
 test('the actual terminal preservation branch never invokes Save on unknown checkpoint or readback failure', async () => {
-  const start = driver.indexOf('      if (protectedLatest || preserveStopRequested)'),
+  const start = driver.indexOf('      if (protectedLatest || preserveStopRequested || reusedProfile)'),
     end = driver.indexOf(' else if (protectedPreparation && !savedSermon)', start)
   const execute = new AsyncFunction('deps', `
     const { protectedLatest, preserveStopRequested, pause, snapshot, observeCheckpoint, log, withholdSermonRecord } = deps;
-    let preserveVerificationFailed = false;
+    let preserveVerificationFailed = false; const reusedProfile = false;
     ${driver.slice(start, end)}
   `)
   for (const protectedLatest of [null, { checkpoint: { turn: 4813 } }]) {
@@ -156,13 +156,13 @@ test('the actual withholding path removes the forwardable filename and retains t
 })
 
 test('first-good then final-failed preservation ends failed and withholds the forwarded record', async () => {
-  const start = driver.indexOf('      if (protectedLatest || preserveStopRequested)'),
+  const start = driver.indexOf('      if (protectedLatest || preserveStopRequested || reusedProfile)'),
     end = driver.indexOf(' else if (protectedPreparation && !savedSermon)', start)
   const status = driver.match(/    const terminalStatus = .*/)[0]
   const execute = new AsyncFunction('deps', `
     const { resolve, writeFileSync, renameSync, pause, snapshot, log, saveProgress } = deps;
     const output = '/owned/output', protectedLatest = { checkpoint: { turn: 4813 } };
-    const preserveStopRequested = true, incomplete = true, failures = [];
+    const preserveStopRequested = true, incomplete = true, failures = [], reusedProfile = false;
     let preserveVerificationFailed = false, sermonRecord = { source: { fingerprint: 'original' } };
     ${block('  const withholdSermonRecord =', '  const stopPreserveLatest =')}
     // The first explicit read matched; only the final preservation read fails.
@@ -179,4 +179,51 @@ test('first-good then final-failed preservation ends failed and withholds the fo
   assert.equal(result.preserveVerificationFailed, true)
   assert.equal(files.has('/owned/output/sermon-record.json'), false)
   assert.match(result.sermonRecord.continuationBlockedReason, /final read failed/)
+})
+
+test('reused-entry record failures preserve the harness checkpoint before admission and never fall back to Save', async () => {
+  const preserveStart = driver.indexOf('      if (protectedLatest || preserveStopRequested || reusedProfile)'),
+    preserveEnd = driver.indexOf('\n    }\n    const terminalStatus =', preserveStart)
+  for (const kind of ['sermon', 'preparation']) for (const mode of ['missing', 'invalid-json', 'read-failure', 'rejected-record'])
+    for (const checkpointKnown of [true, false]) {
+    const checkpoint = { turn: 4813, checkpointSha256: 'a'.repeat(64) }, calls = [], writes = []
+    const definition = kind === 'sermon' ? block('  const loadSavedSermon =', '  const withholdSermonRecord =') :
+      block('  const loadPreparation =', '  const reloadSermon =')
+    const execute = new AsyncFunction('deps', `
+      const { assert, resolve, sha256, readFileSync, writeFileSync, observeCheckpoint, observePreparationStorage,
+        validateSermonRecord, validatePreparationRecord, pause, snapshot, log, saveCheckpoint, withholdSermonRecord, profile } = deps;
+      const root = '/owned', output = '/owned/output', url = 'http://127.0.0.1:4366', page = {};
+      const receipt = { profile, source: { fingerprint: 'current' } }, inputs = [], ids = {}, milestones = [];
+      let savedSermon = null;
+      ${block('  const reusedProfile =', '  mkdirSync(commandsPath')}
+      ${definition}
+      try { await ${kind === 'sermon' ? 'loadSavedSermon' : 'loadPreparation'}('/owned/work/orchestration/mission-three-controls/prior/${kind}-record.json'); }
+      catch (error) {
+        ${driver.slice(preserveStart, preserveEnd)}
+        return { error: String(error), continuation, sermonRecord, protectedLatest };
+      }
+      throw Error('Admission unexpectedly succeeded');
+    `)
+    const profile = { id: 'owned', runId: 'new-run', mode: 'reused', checkpointAtStart: checkpointKnown ? checkpoint : null }
+    const observe = async label => {
+      calls.push(label)
+      if (mode === 'read-failure' && label.includes('before')) throw Error('entry read failed')
+      return { checkpoint }
+    }
+    const result = await execute({ assert, resolve, sha256, profile,
+      readFileSync: () => { if (mode === 'missing') throw Error('missing file');
+        return Buffer.from(mode === 'invalid-json' ? '{bad' : '{}') },
+      writeFileSync: path => writes.push(path), observeCheckpoint: observe,
+      observePreparationStorage: async label => ({ observed: await observe(label), checkpoint }),
+      validateSermonRecord: () => { throw Error('rejected record') },
+      validatePreparationRecord: () => { throw Error('rejected record') },
+      pause: async () => calls.push('Pause'), snapshot: async () => {}, log: () => {},
+      withholdSermonRecord: () => {}, saveCheckpoint: async () => calls.push('FORBIDDEN Save') })
+    assert.ok(result.error); assert.equal(result.continuation, null); assert.equal(result.sermonRecord, null)
+    assert.deepEqual(result.protectedLatest?.checkpoint ?? null, checkpointKnown ? checkpoint : null)
+    assert.ok(calls.includes('m3-latest-retained-on-stop'))
+    assert.ok(!calls.includes('FORBIDDEN Save'))
+    assert.ok(!writes.includes('/owned/output/sermon-record.json'))
+    assert.ok(!writes.includes('/owned/output/preparation-record.json'))
+  }
 })
