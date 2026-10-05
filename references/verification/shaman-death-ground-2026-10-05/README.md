@@ -87,3 +87,8 @@ The earlier aggregate and two failed browser attempts remain retained. The brows
 failures occurred at mission entry and first cast acceptance; neither is treated
 as the expected cached-height witness. The successful pair uses the same repaired
 driver on both sources and retains every gameplay and height assertion.
+
+Independent final review accepts exact candidate `c5a5042` and these bounded
+source, gate and rendered results (review SHA256
+`03989f3b285905d64fff482d2e7d7bba247f8b5932fafa89c90718e99d952bb0`).
+No review findings remain. Issue #30 stays open.

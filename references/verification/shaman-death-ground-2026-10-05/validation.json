@@ -166,7 +166,7 @@
     "cameraRepair": "diff --git a/scripts/check-browser-shaman-death-ground.mjs b/scripts/check-browser-shaman-death-ground.mjs\nindex 7eb1915..42e57f0 100644\n--- a/scripts/check-browser-shaman-death-ground.mjs\n+++ b/scripts/check-browser-shaman-death-ground.mjs\n@@ -60,9 +60,11 @@ export default async function checkShamanDeathGround({ page, url, root, output,\n       const p = kind === 'head' ? w.shrines.find(h => h.id === target)\n         : kind === 'person' ? w.units.find(u => u.id === target) : target\n       if (!p) throw Error(`Missing ${kind} target ${target}`)\n-      s.focus(p)\n-      for (let i = 0; i < 120; i++) s.updateCameraMotion(1 / 24)\n-      s.animate(s.previous)\n+      if (kind !== 'spell') {\n+        s.focus(p)\n+        for (let i = 0; i < 120; i++) s.updateCameraMotion(1 / 24)\n+        s.animate(s.previous)\n+      }\n       const bounds = s.renderer.domElement.getBoundingClientRect(), screen = s.screen(p)\n       const center = { x: bounds.left + (screen.x + 1) * bounds.width / 2,\n         y: bounds.top + (1 - screen.y) * bounds.height / 2 }\n@@ -96,6 +98,9 @@ export default async function checkShamanDeathGround({ page, url, root, output,\n       const w = window.testScene.world\n       return { turn: w.turn, nextId: w.nextId }\n     })\n+    if (kind === 'spell')\n+      assert.equal(await page.evaluate(() => window.testScene.world.mode), 'bridge',\n+        'Public Land Bridge selection must remain active before the ground click')\n     await page.mouse.click(hit.x, hit.y)\n     let acceptance\n     if (before) {\n@@ -165,6 +170,13 @@ export default async function checkShamanDeathGround({ page, url, root, output,\n       return { stock: w.shots.bridge, turn: w.turn, nextId: w.nextId,\n         hp: w.units.find(u => u.team === 'blue' && u.kind === 'shaman')?.hp }\n     }, point)\n+    // Camera focus cancels the current mode, so finish it before public selection.\n+    await page.evaluate(point => {\n+      const s = window.testScene\n+      s.focus(point)\n+      for (let i = 0; i < 120; i++) s.updateCameraMotion(1 / 24)\n+      s.animate(s.previous)\n+    }, point)\n     await page.getByRole('button', { name: /^Land Bridge, \\d+ shots$/ }).click()\n     await clickTarget('spell', point)\n     const cast = await page.evaluate(() => {",
     "driverSha256": "9629f540bee99fd923b4169885a11891293c825f95eb58ecd60fadac74e19399",
     "baselineFailure": "../shaman-death-ground-before-89/work/orchestration/shaman-death-ground-20261005/baseline-render2.json",
-    "pending": "Camera-before-mode source repair independently accepted; both repaired-driver rows passed. Final evidence review pending."
+    "pending": "No review findings remain. Both same-driver rows and carried production gates accepted at c5a5042."
   },
   "gates": {
     "5eee5db-check.json": {
@@ -207,5 +207,11 @@
   "originalSessions": {
     "baseline": 42130,
     "candidate": 37344
+  },
+  "finalReview": {
+    "verdict": "ACCEPT",
+    "head": "c5a5042fa4db91ba782a889dc4c4c309462726e1",
+    "sha256": "03989f3b285905d64fff482d2e7d7bba247f8b5932fafa89c90718e99d952bb0",
+    "limits": "Controlled-clock rendered integration and bounded original-byte evidence; no full issue30 completion, parity credit, real-clock journey, native raster or hardware-performance claim."
   }
 }
