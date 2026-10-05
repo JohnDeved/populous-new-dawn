@@ -1,0 +1,64 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "move",
+    "point": {
+      "x": 0,
+      "z": -7
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 30,
+      "point": {
+        "x": 0,
+        "z": -7
+      },
+      "distance": 1.5
+    },
+    "scope": "movement",
+    "watchIds": [
+      30
+    ]
+  },
+  {
+    "action": "cast",
+    "spell": "bridge",
+    "target": {
+      "x": 0,
+      "z": -22
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "stat-at-least",
+      "stat": "bridges",
+      "count": 2
+    },
+    "scope": "bridge"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "effect-finished",
+      "kind": "bridge"
+    },
+    "scope": "bridge"
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "northern-bridge"
+  }
+]

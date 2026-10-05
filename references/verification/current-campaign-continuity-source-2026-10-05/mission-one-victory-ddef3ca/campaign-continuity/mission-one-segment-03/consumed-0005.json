@@ -1,0 +1,29 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "order-entity",
+    "collection": "buildings",
+    "id": "camp"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "trained-kind",
+      "kind": "warrior",
+      "existingIds": []
+    },
+    "scope": "training",
+    "watchIds": [
+      "camp"
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m1-first-warrior-training-count"
+  }
+]

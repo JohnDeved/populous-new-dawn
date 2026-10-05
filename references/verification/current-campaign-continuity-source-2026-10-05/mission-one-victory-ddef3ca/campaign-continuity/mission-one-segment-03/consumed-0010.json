@@ -1,0 +1,21 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "won"
+    },
+    "scope": "combat",
+    "watchIds": [
+      6425
+    ]
+  },
+  {
+    "action": "prove-victory"
+  },
+  {
+    "action": "continue"
+  }
+]

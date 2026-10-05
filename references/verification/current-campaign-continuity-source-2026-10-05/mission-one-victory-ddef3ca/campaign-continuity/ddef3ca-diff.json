@@ -1,0 +1,39 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "d4ec7974-e8e0-4465-b802-23680fee2431",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "branch": "qa/current-campaign-continuity",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "git",
+    "diff",
+    "--check",
+    "3b899125cc8cedef938823718ad5d44f49957b66",
+    "HEAD"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+  "startedAt": "2026-10-05T18:56:23.155Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-diff.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-diff.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T18:56:23.161Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "branch": "qa/current-campaign-continuity",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

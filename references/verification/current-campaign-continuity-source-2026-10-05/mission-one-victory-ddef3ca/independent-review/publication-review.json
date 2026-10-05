@@ -1,0 +1,20 @@
+{
+  "kind": "independent-campaign-publication-correspondence-review",
+  "decision": "ACCEPT",
+  "reviewedAt": "2026-10-05T19:46:54.225779+00:00",
+  "publicationPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity-evidence/references/verification/current-campaign-continuity-source-2026-10-05/mission-one-victory-ddef3ca",
+  "manifestSha256": "62bfdb68b09704a8874a294695955a65fb9d501684ac43bc7ac5e3967dc5eeca",
+  "readmeSha256": "fc51de15cdc49be81fc65c4345f366e17e937126e9c07da72cde4896b95dd258",
+  "terminalPacketSha256": "6a2ec53b454837492191debcfc26a3e14ab9b001e6fccce2f5dcbee23c9a0518",
+  "verifiedCopies": 58,
+  "totalBytes": 3137098,
+  "readmeRelativeLinksVerified": 14,
+  "additionalReviewCopiesVerified": [],
+  "gameplayAcceptance": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-one-segment-03/review.json",
+    "sha256": "a4d730086b13b6813ce4b34b2a034a00eb0d9086bb6abd3578593d5c4af8aae1"
+  },
+  "findings": [],
+  "captionAssessment": "README and screenshot captions accurately distinguish the actual M1 victory/committed profile [1], surviving empty Red Camp 31 at 65 HP, genuine Continue, and pre-Save M2 screenshot from later committed readback. Exact source, retained budgets, successful cleanup, earlier separate failed attempts and software renderer limits are stated. No M2 win/full campaign/native parity/hardware claim.",
+  "scope": "Accepted frozen compact file bytes and claims only; no GitHub commit/push or subsequent next-run outcome verified by this artifact. Original hashes and historical prelaunch documents remain intact."
+}

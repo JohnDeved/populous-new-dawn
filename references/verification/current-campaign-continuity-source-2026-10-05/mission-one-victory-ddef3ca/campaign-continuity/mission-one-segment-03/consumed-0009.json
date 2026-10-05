@@ -1,0 +1,33 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "count": "all"
+  },
+  {
+    "action": "order-entity",
+    "collection": "buildings",
+    "id": 1
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "target-gone",
+      "id": 1
+    },
+    "scope": "combat",
+    "watchIds": [
+      1
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m1-red-hut-cleared"
+  }
+]

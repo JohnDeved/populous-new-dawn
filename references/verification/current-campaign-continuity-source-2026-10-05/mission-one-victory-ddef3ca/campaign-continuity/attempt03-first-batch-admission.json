@@ -1,0 +1,13 @@
+{
+  "admittedAt": "2026-10-05T19:08:46.458569+00:00",
+  "runId": "329b5c19-0e73-4209-b2b0-bba3e1094a0f",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "readyTurn": 408,
+  "openingTurn": 432,
+  "openingTime": 36,
+  "openingSha256": "0b32fa4523e955625c18384717b8bfb23d910416a52af27937a8163afc602a9c",
+  "firstBatchSha256": "ed33faf9afeb4c2a19fa3e1cbc60747a4b5e2d0d409aef77d192fa2eacb3944b",
+  "target": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-03/commands/0001.json",
+  "paused": true,
+  "newSource": "ddef3caa522d45168b16f290cc5b5a4d1541fce2"
+}

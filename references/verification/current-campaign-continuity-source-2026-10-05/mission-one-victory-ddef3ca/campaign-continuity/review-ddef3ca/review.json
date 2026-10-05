@@ -1,0 +1,145 @@
+{
+  "kind": "independent-interior-anchor-and-passive-input-state-source-review",
+  "createdAt": "2026-10-05T19:00:37.043Z",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_campaign_continuity",
+  "decision": "ACCEPT SOURCE",
+  "head": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "tree": "7c6518a5d903508536071b1687d8759074112e13",
+  "previousAcceptedQA": "c56e98af1b7cbeaa4fdc1898a31759f30960966f",
+  "separateQARepair": "13cc69f0cde1d7270737344029caa58df5ca028f",
+  "acceptedMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "appTree": "20b5894d4c17f120cd7608b4138953ea6c5f243f",
+  "handoff": {
+    "path": "work/orchestration/campaign-continuity/ddef3ca-source-handoff.json",
+    "sha256": "8ed913303c9422c0fadb0fdd314df898a54dd90ed7aa0de58739d8fb5be397ac"
+  },
+  "findings": [],
+  "sourceAssessment": [
+    "Inspected c56→13cc69f QA repair separately from normal main adoption and the final three-file pin/docs refresh. No app or maintained harness edits are part of the QA repair.",
+    "Existing person-bound and model-triangle barycentric anchors are generated first and sorted by distance to the actual projected object anchor. The previous broad raster scan follows as fallback. The same integer25-pixel eligibility checks remain; dispatch/ack/recipient assertions are byte-identical.",
+    "entityInputState reads only existing rect, camera/projection arrays, target state, mesh BufferAttribute version/matrix and picker cache scalars. It does not invoke pickers, create clones, initialize geometry, update matrices/terrain/rendering or clear caches. Projection.matrix and mesh.matrixWorld.elements are bounded existing arrays copied into independent evidence; nonfinite values are explicitly represented.",
+    "Delivered-event capture copies lightweight state before/after the existing handler. Mixed/terrain wrappers invoke each original once with identical receiver and argument object, return the original result and preserve thrown error identity. The record distinguishes mixed pick winner from recognized world-object result and captures terrain point separately.",
+    "Original own descriptors are restored verbatim; originally inherited methods regain inherited lookup by deleting the temporary shadow. E1 primary input-error preservation and separate cleanup-failure accounting are unchanged.",
+    "Actual-source tests cover person/model anchor preference, occluded fallback, no hidden scene work, immutable scalar/matrix/cache records, model-vs-null distinction, original-once calls/errors and descriptor/prototype restoration.",
+    "All3569 accepted main objects match exactly;20 additions are QA-only. Policy app commit/tree and all eight helper hashes match accepted main3b899. New model45 logical visits remain after the existing afterTurn/queued-callback boundary; QA simulation evidence and ordinary first-batch predicates keep their scope. No prior input failure is causally attributed to PR218."
+  ],
+  "changedQA": [
+    {
+      "path": "qa/campaign-continuity/README.md",
+      "sha256": "3a9c7ba32d82479143a09b7c46a19d26bb7bb0c1740b296dcf07446a4400cbfd"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.mjs",
+      "sha256": "86384f34412b3edc5f6ff624d8c06c71747606149c1941ca7862af836518fbaa"
+    },
+    {
+      "path": "qa/campaign-continuity/entity-input.test.mjs",
+      "sha256": "bf4451a174712af9507e4633a87cc2956dab80b889d66ef89d776570366c0625"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.json",
+      "sha256": "9217562e0c5662feeffc9ccd634fc7362e04f370e3d95d1fd646ed85c33c597e"
+    },
+    {
+      "path": "qa/campaign-continuity/run-policy.json",
+      "sha256": "be703d2b922a15099811e53bf7cb05cb391b7733f7ee3417a3923c09fd7af2a8"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "sha256": "2bae55543e33738c689f3fa34409744307d489bc9fb032f6f2e110cb2c353f55"
+    }
+  ],
+  "guardHashes": [
+    {
+      "path": "scripts/browser-game.mjs",
+      "sha256": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9"
+    },
+    {
+      "path": "scripts/checkpoint-readback.mjs",
+      "sha256": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80"
+    },
+    {
+      "path": "scripts/campaign-conversion-observer.mjs",
+      "sha256": "36e6d8a30547f566ed4ba26816d797d0e6dd625c72385bf73aab0e2b988266aa"
+    },
+    {
+      "path": "scripts/campaign-start-readiness.mjs",
+      "sha256": "214ffc2ce95ea039328e356d493ba8beb887e2d5ef1084b672fb0413fac48d28"
+    },
+    {
+      "path": "scripts/local-render/harness.mjs",
+      "sha256": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c"
+    },
+    {
+      "path": "scripts/local-render/owned-profile.mjs",
+      "sha256": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a"
+    },
+    {
+      "path": "scripts/local-render/checkpoint-observer.mjs",
+      "sha256": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947"
+    },
+    {
+      "path": "scripts/local-render/vite.config.mjs",
+      "sha256": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  ],
+  "verifiedReceipts": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-focused.json",
+      "sha256": "3a1a2198bee4eb97959b6be32eafee55599295071ef130aafebd04c3a2c60abe",
+      "head": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+      "exitCode": 0,
+      "rawStreamsVerified": true,
+      "tests": "ℹ tests 92"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-structure.json",
+      "sha256": "44cfdee18e27e765815e1cabf53443dec0e04472850e06072389332876a6ea7b",
+      "head": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+      "exitCode": 0,
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-diff.json",
+      "sha256": "84c23194f2ca09369e9d1e2bc57b71066e6d2492b30a717ca3bdf3944094f2cf",
+      "head": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+      "exitCode": 0,
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/full-check-d97c370.json",
+      "sha256": "27503a4744dadbd984f5a0ca4091270546d16a06cdc156902b0d01dafd193fa2",
+      "head": "d97c370da3e996e00130610df97d10b827ab5c4b",
+      "exitCode": 0,
+      "rawStreamsVerified": true,
+      "tests": "ℹ tests 1134"
+    }
+  ],
+  "qaTests": 92,
+  "independentTests": {
+    "path": "work/orchestration/campaign-continuity/review-ddef3ca/focused.json",
+    "sha256": "c65fa8a405add8579f75896dfd724dfaf769c7533ea9f4e388ffd5d23da2cbd8",
+    "tests": 14,
+    "status": "passed"
+  },
+  "failureFirst": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-state-order-before.log",
+    "sha256": "a242c65999b14deb700aebb178d1cf75385c24e72112767a931872ea522aa992",
+    "base": "c56e98af1b7cbeaa4fdc1898a31759f30960966f",
+    "meaning": "Actual source candidate ordering selected broad top-edge(384,262) instead of interior anchor(400,400), and new state observation contract was absent. Current tests cover both person/model anchors and occluded-anchor fallback.",
+    "inspected": "Actual prior candidate ordering failed400,400 expectation with384,262; absent new observation helper was also reported. These remain source tests, not cause evidence for the actual misses."
+  },
+  "gateDecisions": {
+    "typecheck": "ACCEPT CARRY from actual clean d97 full-check receipt: identical existing TS/app/config/lock imports, QA-only additions outside explicit TypeScript entry globs.",
+    "standardTests": "ACCEPT CARRY1134 from actual d97 full-check receipt through complete-tree-identical accepted3b899 and identical existing tracked objects. No older1126 or synthetic new-run claim.",
+    "parity": "ACCEPT CARRY from actual d97 full-check receipt; ledger/checker/reference inputs unchanged.",
+    "orchestration": "ACCEPT FRESH PASS at ddef3ca.",
+    "qa": "ACCEPT FRESH92 at ddef3ca; older89 was not silently carried.",
+    "whitespace": "ACCEPT FRESH PASS.",
+    "build": "NOT RUN; fresh exact combined build remains required because changed nonignored QA text is a Tailwind source input.",
+    "runtime": "NOT RUN; final measured input/runtime/new empty-profile binding and parent exact grant remain required."
+  },
+  "aggregateClaim": "No combined npm run check was executed. Named component carry plus fresh QA/structural checks have the explicit scope above.",
+  "priorAttempts": "Both prior attempts remain failed with root cause UNKNOWN. This source repair and accepted PR218 adoption supply no retrospective causal evidence or campaign credit. Neither failed profile is a valid continuation predecessor.",
+  "resources": "Only read-only source/receipt review, bounded plain Node entity/reuse tests and ignored review artifacts. No browser/profile/dependency/package/heavy job or source writes. No resources held."
+}

@@ -1,0 +1,143 @@
+{
+  "kind": "independent-actual-campaign-segment-review",
+  "decision": "ACCEPT",
+  "reviewedAt": "2026-10-05T19:45:24.985068+00:00",
+  "reviewer": "review_campaign_continuity",
+  "sourceHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "acceptedApplicationMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+  "scope": "Fresh clean Mission 1 victory, genuine within-mission Save/reload/ordinary Load, ordinary Continue into Mission 2 and committed Mission 2 opening checkpoint only.",
+  "findings": [],
+  "evidence": [
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-03-terminal-packet.json",
+      "sha256": "6a2ec53b454837492191debcfc26a3e14ab9b001e6fccce2f5dcbee23c9a0518"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-03/receipt.json",
+      "sha256": "363a576b0686bc41f6be1774bae31d4ac3f36bc9b0f04cbdf50bfa309e9aade7"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-03/segment-boundary.json",
+      "sha256": "58cd8046b4fadb017f5964551b4498484da58602380182df9536335653032161"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-03/journey.json",
+      "sha256": "0d6e2501e8029e6bf87c404512b22d9ce45bf854404724e9d57ae176946bf198"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-03/actions.jsonl",
+      "sha256": "aa09b44b6343d0215d46b94b9349c867a8701d50dec0d2ed1a7aef355ba6cb98"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-03.outer.json",
+      "sha256": "3e559b6d92473673581f93630bbaffe5e1dc139d60ecb8dcfae65d9792cfb9f3"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-03.launcher.json",
+      "sha256": "dc41345fe12543eb6de80f1bc8179c818b27eff7ff3b849974b061cd627ae450"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-one-segment-03/verify.mjs",
+      "sha256": "17ef14c5e0d04e1630b7a2cf7a08b74d512c2624edfe4bc1a885d4ff9071c483"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-one-segment-03/verification.json",
+      "sha256": "0fc18ab1894b38ae0b47deee31ecaee7bdab1221d32495be79266d7901bdde29"
+    }
+  ],
+  "reviewedFacts": [
+    "Fresh owned game-only profile was created with empty latest checkpoint and empty campaign prefix. Ordinary Select Mission 1 and Start Mission 1 appear first in the actual actions log.",
+    "All 57 terminal packet file hashes/sizes match. All ten command batches match their consumed copies and recorded hashes; all 74 ordered requested commands match the actual action log. Eight retained scenario/helper/policy files match frozen source, and eight guarded application imports match frozen and accepted-main bytes.",
+    "All nine required Mission 1 milestones occur in order. Actual delivered stock, two Bridge casts and completed effects, acquired Warrior knowledge, completed Camp, five trained living Warriors, Lightning stock/cast and natural combat precede victory. Raw epoch speed violations and observer errors are empty.",
+    "Mission 1 Save commits turn 5692/time 474.3333333333333; ordinary Load retains identical full checkpoint, actor, terrain and stock hashes at saved/replacement/storage observations, with same store/new World/new scene/current correspondence. Pause is ordinary input before expensive diagnostics; later paused turn 5710 is not misrepresented as the exact load boundary.",
+    "Mission 1 victory is observed by turn 8261 and proved after its camera at turn 8342/time 695.1666666666666. Snapshot status is won, red units are absent, visible Level Won/Continue to Mission 2 control matches the screenshot, and committed campaign profile equals completed:[1]. Empty Red Camp 31 remains at 65 HP; this is not an all-buildings-destroyed claim.",
+    "The real Continue to Mission 2 button produces sameStore/newWorld/newScene/currentCorrespondence true at level 2. The new Shaman readiness wait completes at turn 364. The paused opening/saved-intent snapshot is turn 396/time 33; the subsequent ordinary Save committed readback is checkpoint 3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e.",
+    "The segment closes its current epoch and emits the genuine continued-and-saved boundary. Boundary, journey and final receipt result agree; failures, control stops and browser errors are empty. Finite mission, campaign and segment caps remain intact.",
+    "Original inner status passed, outer exit 0/signal null and launcher terminal exit 0 agree. The unchanged harness finalizer rejects browser/server/source/runtime/checkpoint failures; none is present. Source/runtime/scenario bytes match before and after. Profile lastRun binds exact final receipt and M2 checkpoint, and owner.lock plus Chromium singleton ownership markers are absent.",
+    "Original launcher post-probes of 127.0.0.1 and ::1 on private port 4375 both report refused in the original execution scope. Review did not substitute a probe in a different namespace.",
+    "Dependency return receipt is hash-bound; campaign node_modules is absent. A later 19:41 stone-to-native-guard transfer explains the donor lock-only stub. The original return remains historical evidence and is not asserted as current donor ownership."
+  ],
+  "checkpoint": {
+    "version": 1,
+    "level": 2,
+    "turn": 396,
+    "time": 33,
+    "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+    "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+    "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+    "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+  },
+  "identity": {
+    "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+    "runId": "329b5c19-0e73-4209-b2b0-bba3e1094a0f",
+    "mode": "created",
+    "origin": "http://127.0.0.1:4375",
+    "markerSha256AtReview": "9ba37a0d865de64ba4a5e85053c384ce22a4f2377e9679eb641fdbf880ecfb0f"
+  },
+  "limitsMeasured": {
+    "missionOneActiveSeconds": 697.5833333333333,
+    "missionOneActiveLimitSeconds": 900,
+    "missionOneWallMs": 1589523,
+    "missionOneWallLimitMs": 1800000,
+    "missionTwoActiveSeconds": 36,
+    "missionTwoWallMs": 46424,
+    "totalActiveSeconds": 733.5833333333333,
+    "campaignActiveLimitSeconds": 4800,
+    "ownedWallMs": 1635947,
+    "outerWallMs": 1664800,
+    "outerCapMs": 2110000,
+    "harnessCapMs": 2100000
+  },
+  "continuation": {
+    "decision": "ACCEPT PREDECESSOR ELIGIBILITY",
+    "level": 2,
+    "method": "Executed the unchanged maintained validateSegmentPredecessor against the real closed marker, terminal receipt, exact emitted boundary and current source. Projected checkpointAtStart is the actual prior checkpointAtEnd solely for this host predicate; no browser/storage/lease was invoked.",
+    "requiredAtNextRun": [
+      "Exact existing profile/source/runtime/application/checker/origin binding and exclusive lease acquisition.",
+      "Actual fresh pre-entry full checkpoint digest must match the retained terminal checkpoint.",
+      "Ordinary Load with synchronous replacement snapshot/current World+scene correspondence, then ordinary Pause.",
+      "Retain all existing epochs, milestones, transitions, Save/Load proofs, 733.5833333333333 active seconds and all wall budgets.",
+      "Exact finite next-segment input/launcher review and coordinator operational grant."
+    ],
+    "doesNotClaim": "The future Mission 2 load or gameplay has not been executed by this review."
+  },
+  "imagesInspected": [
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-03/m1-milestone-victory.png",
+      "sha256": "7c7bc07ec2da252309f2f9eabbc9724a54aa279200064ec376c9b4c52acec64e",
+      "caption": "Actual Mission 1 Level Won result and Continue to Mission 2 control after the victory camera."
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-03/m1-milestone-checkpoint-reloaded.png",
+      "sha256": "76dd790e0c2cb96badce2be17bff0a343d29469eac9c837d8c21c6e2b972bc8f",
+      "caption": "Paused ordinary Mission 1 checkpoint reload; pixels are supporting context, exact storage proof is in the readback hashes."
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-03/m2-opening.png",
+      "sha256": "85741af119c5797d442d62c43e5ccff21647bcb1e0d5f7205d7a173a5b94d515",
+      "caption": "Paused ordinary Mission 2 opening after genuine Continue."
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-03/m2-continued-segment.png",
+      "sha256": "29d3f5ef9bb8723da498e22d001a7ce00fde7d448c21e523246f25957bf9fc65",
+      "caption": "Paused Mission 2 opening at intended saved turn 396, captured before Save. Later committed transaction readback proves persistence."
+    }
+  ],
+  "warnings": {
+    "count": 11,
+    "retained": "Raw receipt retains nonfatal software-WebGL/ReadPixels/texture warnings. SwiftShader observation is not hardware performance evidence."
+  },
+  "priorAttempts": "Independent fresh attempts 01 and 02 remain failed with cause UNKNOWN, separate profiles and empty checkpoint. They were not reused or relabelled and receive no credit from this new run.",
+  "unproved": [
+    "Mission 2 victory",
+    "Mission 3 or full campaign completion",
+    "Fresh-process Mission 2 Load, until next run demonstrates it",
+    "Full original/native gameplay or pixel equivalence",
+    "Calibrated timing or hardware/GPU performance",
+    "Retrospective causal diagnosis of attempts 01/02"
+  ],
+  "publication": "Terminal packet claims/captions reviewed and accepted. Any compact copied publication manifest remains subject to byte/caption correspondence verification; no publication commit is accepted by this artifact yet.",
+  "verificationWork": "Read-only source/receipt/image inspection and bounded plain Node host validation only. No browser/package/dependency/profile mutation or source edits. Review artifacts are the only writes.",
+  "quality": "No maintained TypeScript or production change in this evidence review; existing source acceptance, 92 QA tests, 1134 standard-component carry and fresh combined build remain as separately bound prior gates."
+}

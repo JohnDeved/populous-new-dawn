@@ -1,0 +1,148 @@
+{
+  "kind": "independent-ddef-final-build-runtime-new-profile-binding-review",
+  "createdAt": "2026-10-05T19:06:38.414Z",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_campaign_continuity",
+  "decision": "ACCEPT",
+  "head": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "acceptedMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "appTree": "20b5894d4c17f120cd7608b4138953ea6c5f243f",
+  "binding": {
+    "path": "work/orchestration/campaign-continuity/ddef3ca-final-launch-binding.json",
+    "sha256": "e64675e3d6a4b4e4cfdb69b102492e88dc3e232ffc7ca417cc7eca6b34313c2f"
+  },
+  "sourceReview": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-ddef3ca/review.json",
+    "sha256": "9a70ba698cf28bd0e31e6a6fa2273fd8f9f6811ad3b547e54628af04baef0003",
+    "decision": "ACCEPT"
+  },
+  "findings": [],
+  "verifiedReceipts": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-focused.json",
+      "sha256": "3a1a2198bee4eb97959b6be32eafee55599295071ef130aafebd04c3a2c60abe",
+      "head": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+      "exitCode": 0,
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-structure.json",
+      "sha256": "44cfdee18e27e765815e1cabf53443dec0e04472850e06072389332876a6ea7b",
+      "head": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+      "exitCode": 0,
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-diff.json",
+      "sha256": "84c23194f2ca09369e9d1e2bc57b71066e6d2492b30a717ca3bdf3944094f2cf",
+      "head": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+      "exitCode": 0,
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-build.json",
+      "sha256": "3b54b0262695ef095a1c0f99187cf14ef6394b7c15b28feef41ca1a5fbdf80b1",
+      "head": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+      "exitCode": 0,
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/full-check-d97c370.json",
+      "sha256": "27503a4744dadbd984f5a0ca4091270546d16a06cdc156902b0d01dafd193fa2",
+      "head": "d97c370da3e996e00130610df97d10b827ab5c4b",
+      "exitCode": 0,
+      "rawStreamsVerified": true
+    }
+  ],
+  "gateScope": "Retain sourceACCEPT9a70ba69, fresh92 QA/structure/whitespace and named1134/typecheck/parity carry from actuald97 through exact-tree-identical accepted main3b899. Actual orchestration structure also passed at the combined head. No combined npm check run is claimed. The new exactddef build passed with clean before/after source and locks, resolving the Tailwind QA-text input gate.",
+  "freshBuild": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-build.json",
+    "sha256": "3b54b0262695ef095a1c0f99187cf14ef6394b7c15b28feef41ca1a5fbdf80b1",
+    "status": "passed",
+    "originalExecSession": 99731,
+    "exitCode": 0,
+    "boundSeconds": 120,
+    "durationSeconds": 19.144
+  },
+  "sourceBinding": {
+    "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+    "application": "d199649478e710b0b90a2228927645232ef35b687fa2c5899cbad81babb4cfda",
+    "checker": "e0117226c22ad5a705c4654988f95a528be8e119b78ce53bb0cf13099c6a38e6",
+    "scenarioSha256": "2bae55543e33738c689f3fa34409744307d489bc9fb032f6f2e110cb2c353f55",
+    "unchangedAcceptedMainObjects": 3569,
+    "QAOnlyAdditions": 20
+  },
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    },
+    "verification": "Reviewer recomputed actual browser/core/harness/installed-lock hashes and version metadata read-only, plus sourceReceipt/profileInputReceipt. No browser or package job invoked."
+  },
+  "launch": {
+    "plan": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-launch-plan.json",
+      "sha256": "7bc3590edae775352d6580e98c5bac24213bef960d9ce72978ea57b50b41ca2f"
+    },
+    "launcher": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/launch-mission-one-ddef3ca.py",
+      "sha256": "dcc4c55f122b071ad8dd89466bd38d92693a3c378b0665396640ec3c4ebdbce1",
+      "status": "Prepared and Python compile-checked only; not executed"
+    },
+    "profileInputs": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-profile-inputs.json",
+      "sha256": "d4c745ecf69d68ab3f1c6d0651ae3d7f335dfee68d250b390b6a2a8bb81ab0eb"
+    },
+    "origin": "http://127.0.0.1:4375",
+    "profilePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3b89912-m1-03",
+    "profileAbsent": true,
+    "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-03",
+    "outputAbsent": true,
+    "privateTmp": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/private-tmp-m1-ddef3ca",
+    "privateTmpAbsent": true,
+    "firstBatchSha256": "ed33faf9afeb4c2a19fa3e1cbc60747a4b5e2d0d409aef77d192fa2eacb3944b",
+    "command": [
+      "taskset",
+      "-c",
+      "0-3",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "2110s",
+      "node",
+      "scripts/local-render/harness.mjs",
+      "--game-root",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+      "--port",
+      "4375",
+      "--output",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-03",
+      "--mission",
+      "1",
+      "--timeout",
+      "2100000",
+      "--scenario",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs",
+      "--profile",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3b89912-m1-03",
+      "--browser",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell"
+    ]
+  },
+  "launcherAssessment": "Compared with the accepted prior launcher template: only exact source/input/plan hashes and new attempt03 names changed. Actual prelaunch fingerprint/runtime verification, new-profile/output absence, separate private TMP, same-execution loopback absence probes, strictPort startup, command receipt, process wait and same-scope terminal closure remain. Prepared launcher was not executed by reviewer.",
+  "inputAndStopScope": "Unchangeded33 first batch is admitted only after the actual fresh leased runId and genuine current-scene/Shaman readiness plus paused opening. Scalar/matrix/cache and actual original-once pointer instrumentation retain the accepted source contract. Existing sole authenticated next-numbered stop preserves the real latest or initial empty slot; no fallback Save or arbitrary profile adoption. All prior finite active/wall/command bounds remain.",
+  "dependencyScope": "Two-ended transfer receipt and prior donor terminal hashes verified; donor launcher records actual browser cleanup/resources released and both ports refused. Current inode925605 and both locks match. No donor gameplay or cause claim is imported by this resource check.",
+  "priorAttempts": "Both901 andc56 attempts remain failed, causeUNKNOWN, checkpointnull and no segment boundary. Their profiles are not read or reused. Third-attempt new paths are currently absent.",
+  "disposition": "No remaining final source/build/runtime/input/path-binding blocker. Parent exact operational grant controls execution of this exact packet. No browser/profile/server/TMP/output was acquired or input enqueued by reviewer.",
+  "limits": "No fresh campaign milestone, native timing/pixel parity or hardware-performance result is established by this approval.",
+  "resourcesHeld": []
+}

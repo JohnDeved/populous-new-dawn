@@ -1,0 +1,55 @@
+[
+  {
+    "action": "mark",
+    "name": "warriors"
+  },
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "order-entity",
+    "collection": "shrines",
+    "id": "lightning"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "shrine-used",
+      "id": "lightning"
+    },
+    "scope": "worship",
+    "watchIds": [
+      "lightning"
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "stock-at-least",
+      "spell": "lightning",
+      "count": 4
+    },
+    "scope": "worship",
+    "watchIds": [
+      "lightning"
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "lightning-stock"
+  },
+  {
+    "action": "checkpoint",
+    "name": "army-and-lightning"
+  },
+  {
+    "action": "reload-checkpoint"
+  }
+]

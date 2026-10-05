@@ -1,0 +1,47 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "order-entity",
+    "collection": "shrines",
+    "id": "vault"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "target-gone",
+      "id": 38
+    },
+    "scope": "combat",
+    "watchIds": [
+      38
+    ]
+  },
+  {
+    "action": "order-entity",
+    "collection": "shrines",
+    "id": "vault"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "camp-unlocked"
+    },
+    "scope": "worship",
+    "watchIds": [
+      "vault"
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "camp-knowledge"
+  }
+]

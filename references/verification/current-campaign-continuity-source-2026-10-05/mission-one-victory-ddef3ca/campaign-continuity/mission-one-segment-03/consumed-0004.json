@@ -1,0 +1,37 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "brave",
+    "count": "five"
+  },
+  {
+    "action": "build",
+    "kind": "camp",
+    "point": {
+      "x": -2,
+      "z": 30
+    },
+    "alias": "camp"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "building-complete",
+      "id": "camp"
+    },
+    "scope": "construction",
+    "watchIds": [
+      "camp"
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "camp"
+  }
+]

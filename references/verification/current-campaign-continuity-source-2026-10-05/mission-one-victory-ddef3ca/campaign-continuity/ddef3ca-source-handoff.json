@@ -1,0 +1,210 @@
+{
+  "kind": "interior-anchor-and-delivered-state-final-source-review",
+  "createdAt": "2026-10-05T18:58:02.881488+00:00",
+  "sourceHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "sourceTree": "7c6518a5d903508536071b1687d8759074112e13",
+  "previousAcceptedQA": "c56e98af1b7cbeaa4fdc1898a31759f30960966f",
+  "separateQARepair": "13cc69f0cde1d7270737344029caa58df5ca028f",
+  "normalMainMerge": "51098ce321aba1da3f6840c3d6da16348f70b391",
+  "acceptedMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "acceptedMainTree": "5228a79f26b90d3daeffe65498c01ada077ba132",
+  "reviewedCandidate": "d97c370da3e996e00130610df97d10b827ab5c4b",
+  "candidateTreeEqualsMain": true,
+  "appTree": "20b5894d4c17f120cd7608b4138953ea6c5f243f",
+  "unchangedMainObjects": 3569,
+  "qaOnlyAdditions": [
+    "qa/campaign-continuity/README.md",
+    "qa/campaign-continuity/boundaries.mjs",
+    "qa/campaign-continuity/boundaries.test.mjs",
+    "qa/campaign-continuity/command-probes.mjs",
+    "qa/campaign-continuity/command-probes.test.mjs",
+    "qa/campaign-continuity/entity-input.test.mjs",
+    "qa/campaign-continuity/erosion-observer.mjs",
+    "qa/campaign-continuity/erosion-observer.test.mjs",
+    "qa/campaign-continuity/mission-one-first-batch.json",
+    "qa/campaign-continuity/observation.mjs",
+    "qa/campaign-continuity/observation.test.mjs",
+    "qa/campaign-continuity/queued-stop.mjs",
+    "qa/campaign-continuity/queued-stop.test.mjs",
+    "qa/campaign-continuity/reuse.json",
+    "qa/campaign-continuity/reuse.test.mjs",
+    "qa/campaign-continuity/routes.mjs",
+    "qa/campaign-continuity/routes.test.mjs",
+    "qa/campaign-continuity/run-policy.json",
+    "qa/campaign-continuity/scenario-paths.test.mjs",
+    "qa/campaign-continuity/scenario.mjs"
+  ],
+  "changedQA": [
+    {
+      "path": "qa/campaign-continuity/README.md",
+      "sha256": "3a9c7ba32d82479143a09b7c46a19d26bb7bb0c1740b296dcf07446a4400cbfd"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.mjs",
+      "sha256": "86384f34412b3edc5f6ff624d8c06c71747606149c1941ca7862af836518fbaa"
+    },
+    {
+      "path": "qa/campaign-continuity/entity-input.test.mjs",
+      "sha256": "bf4451a174712af9507e4633a87cc2956dab80b889d66ef89d776570366c0625"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.json",
+      "sha256": "9217562e0c5662feeffc9ccd634fc7362e04f370e3d95d1fd646ed85c33c597e"
+    },
+    {
+      "path": "qa/campaign-continuity/run-policy.json",
+      "sha256": "be703d2b922a15099811e53bf7cb05cb391b7733f7ee3417a3923c09fd7af2a8"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "sha256": "2bae55543e33738c689f3fa34409744307d489bc9fb032f6f2e110cb2c353f55"
+    }
+  ],
+  "guards": [
+    {
+      "path": "scripts/browser-game.mjs",
+      "sha256": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9"
+    },
+    {
+      "path": "scripts/checkpoint-readback.mjs",
+      "sha256": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80"
+    },
+    {
+      "path": "scripts/campaign-conversion-observer.mjs",
+      "sha256": "36e6d8a30547f566ed4ba26816d797d0e6dd625c72385bf73aab0e2b988266aa"
+    },
+    {
+      "path": "scripts/campaign-start-readiness.mjs",
+      "sha256": "214ffc2ce95ea039328e356d493ba8beb887e2d5ef1084b672fb0413fac48d28"
+    },
+    {
+      "path": "scripts/local-render/harness.mjs",
+      "sha256": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c"
+    },
+    {
+      "path": "scripts/local-render/owned-profile.mjs",
+      "sha256": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a"
+    },
+    {
+      "path": "scripts/local-render/checkpoint-observer.mjs",
+      "sha256": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947"
+    },
+    {
+      "path": "scripts/local-render/vite.config.mjs",
+      "sha256": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  ],
+  "checks": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-focused.json",
+      "sha256": "3a1a2198bee4eb97959b6be32eafee55599295071ef130aafebd04c3a2c60abe",
+      "command": [
+        "node",
+        "--test",
+        "qa/campaign-continuity/boundaries.test.mjs",
+        "qa/campaign-continuity/command-probes.test.mjs",
+        "qa/campaign-continuity/entity-input.test.mjs",
+        "qa/campaign-continuity/erosion-observer.test.mjs",
+        "qa/campaign-continuity/observation.test.mjs",
+        "qa/campaign-continuity/queued-stop.test.mjs",
+        "qa/campaign-continuity/reuse.test.mjs",
+        "qa/campaign-continuity/routes.test.mjs",
+        "qa/campaign-continuity/scenario-paths.test.mjs"
+      ],
+      "streams": [
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-focused.json.artifacts/stdout.log",
+          "sha256": "accd386c5ea87b0bf30a48ba4b776f1712b6c661617351ab41998f074d2316fe"
+        },
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-focused.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-structure.json",
+      "sha256": "44cfdee18e27e765815e1cabf53443dec0e04472850e06072389332876a6ea7b",
+      "command": [
+        "node",
+        "scripts/orchestration/cli.mjs",
+        "check"
+      ],
+      "streams": [
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-structure.json.artifacts/stdout.log",
+          "sha256": "e3b8ae285f539427fd2ebf60d218e2f6a1aaff5da2bca00113015da16d9756e7"
+        },
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-structure.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-diff.json",
+      "sha256": "84c23194f2ca09369e9d1e2bc57b71066e6d2492b30a717ca3bdf3944094f2cf",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "3b899125cc8cedef938823718ad5d44f49957b66",
+        "HEAD"
+      ],
+      "streams": [
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-diff.json.artifacts/stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-diff.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  ],
+  "directQATests": 92,
+  "failureFirst": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-state-order-before.log",
+    "sha256": "a242c65999b14deb700aebb178d1cf75385c24e72112767a931872ea522aa992",
+    "base": "c56e98af1b7cbeaa4fdc1898a31759f30960966f",
+    "meaning": "Actual source candidate ordering selected broad top-edge(384,262) instead of interior anchor(400,400), and new state observation contract was absent. Current tests cover both person/model anchors and occluded-anchor fallback."
+  },
+  "runtimeDelta": [
+    "Existing person-bound/model-triangle anchors sorted nearest projected object anchor, then unchanged broad fallback. Same5x5 eligibility and final actual target/context checks.",
+    "Copy existing scalar rect/projection/frame/body/version/cache and scene/world/canvas identity booleans; no re-pick, clone, geometry/render update or cache clearing inside delivered handler.",
+    "Wrap actual mixed and terrain picks in addition to previous actual person/world-object methods. Preserve original receiver/argument object/return/error exactly once; record real return and before/after cache scalars.",
+    "Restore original property descriptors or inherited lookup, preserve original primary input errors and separately retain cleanup errors.",
+    "No mission route, lifetime policy, first batch, stop, Save/Load/Continue or profile framework change."
+  ],
+  "newTests": [
+    "Actual-source ordering for both people and model interiors with occluded fallback",
+    "Pure copied state immutable under later fixture mutation, no lazy update or re-pick, explicit nonfinite scalar round-trip",
+    "Actual mixed-model winner distinguished from null world-object result; original-once receiver/args and throwing behavior, prototype restoration and immutable cache snapshots"
+  ],
+  "unchangedAcceptance": {
+    "module": "qa/campaign-continuity/observation.mjs",
+    "sha256": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a",
+    "firstBatchSha256": "ed33faf9afeb4c2a19fa3e1cbc60747a4b5e2d0d409aef77d192fa2eacb3944b",
+    "appOnlyAcceptedMain": true
+  },
+  "standardGateCandidate": {
+    "origin": "d97c370da3e996e00130610df97d10b827ab5c4b",
+    "checkPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/full-check-d97c370.json",
+    "checkSha256": "27503a4744dadbd984f5a0ca4091270546d16a06cdc156902b0d01dafd193fa2",
+    "scope": "Request explicit named1134/typecheck/parity/orchestration carry after comparing final standard inputs. No combined npm check rerun claimed.",
+    "freshCombinedBuild": "Required after final source ACCEPT and exclusive lane grant; not yet run on this head."
+  },
+  "retainedFailureEvidence": {
+    "attempt02PacketSha256": "9e5ab62a131b005a67b77d3e1a775f72dbc528de8e48c8a7acc559e4dc79abf7",
+    "diagnosisSha256": "298eb8b486b52f959870eed65c8a35df7cf4f0b75c664e7d34d65a2efaf09399",
+    "publishedCommit": "e9fb3b1f5931bf631b05e59391346689f70e4828",
+    "status": "failed; CAUSE UNKNOWN; neither prior attempt attributed to PR218"
+  },
+  "noRuntime": {
+    "dependenciesHeld": false,
+    "profileTouched": false,
+    "launched": false,
+    "remaining": "Independent exact combined source review, one fresh combined build, measured final runtime/policy/empty-new-profile input binding and explicit parent third-attempt grant."
+  }
+}

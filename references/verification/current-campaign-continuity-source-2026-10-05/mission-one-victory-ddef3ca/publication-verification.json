@@ -1,0 +1,10 @@
+{
+  "status": "passed",
+  "checkedAt": "2026-10-05T19:46:59.644925+00:00",
+  "terminalPacketSha256": "6a2ec53b454837492191debcfc26a3e14ab9b001e6fccce2f5dcbee23c9a0518",
+  "byteIdenticalCopies": 62,
+  "jsonParse": true,
+  "readmeLocalLinks": true,
+  "privateStorageBytesIncluded": false,
+  "scope": "Publication hash/allowlist/link checks only; original raw evidence preserved. No source, browser, profile or game changes."
+}

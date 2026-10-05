@@ -1,0 +1,65 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "count": "all"
+  },
+  {
+    "action": "order-entity",
+    "collection": "units",
+    "id": 33
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "move",
+    "point": {
+      "x": 0,
+      "z": -18
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 30,
+      "point": {
+        "x": 0,
+        "z": -18
+      },
+      "distance": 1.5
+    },
+    "scope": "movement",
+    "watchIds": [
+      30
+    ]
+  },
+  {
+    "action": "cast",
+    "spell": "lightning",
+    "target": 32
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "target-gone",
+      "id": 32
+    },
+    "scope": "combat",
+    "watchIds": [
+      32
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m1-northern-combat-boundary"
+  }
+]
