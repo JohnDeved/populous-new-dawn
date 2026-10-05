@@ -576,6 +576,7 @@
         "decomp/research/reincarnation-site-wave.md",
         "tests/shaman-death-ground.test.mjs",
         "scripts/check-native-shaman-death-ground.py",
+        "scripts/check-browser-shaman-death-ground.mjs",
         "decomp/research/shaman-death-vfx.md"
       ],
       "sharedPaths": [
@@ -651,7 +652,8 @@
         "reincarnation-wave-native",
         "reincarnation-wave-browser",
         "shaman-death-ground-portable",
-        "shaman-death-ground-native"
+        "shaman-death-ground-native",
+        "shaman-death-ground-browser"
       ],
       "generatedInputIds": [
         "native-fixtures",

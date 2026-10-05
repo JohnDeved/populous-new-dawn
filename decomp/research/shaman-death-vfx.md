@@ -157,3 +157,28 @@ python scripts/check-native-shaman-death-ground.py "$POPULOUS_EXE"
 Rendered ordinary-death plus shipped terrain-spell acceptance and standard
 implementation gates are tracked separately from the native/caller evidence.
 This bounded repair does not complete issue #30 or award additional parity credit.
+
+### Controlled-clock rendered acceptance plan
+
+`check-browser-shaman-death-ground.mjs` uses Mission1's authored Bridge gift and
+Warrior33. A source-level preflight starts the ordinary opening, worships head29
+for four gifts, makes two real Bridge crossings, and attacks the Warrior. At a
+surviving injured state (HP20..45), a third Bridge targets `(1,-29)`; the caster
+must remain alive until the real terrain controller appears, then ordinary
+combat produces the model12 body. In the shortened Node preflight, phase1
+death-point terrain/body height changed174→184. These observed turns/coordinates
+are not forced acceptance inputs.
+
+The prepared browser driver uses actual Mission/H selection and canvas/HUD
+clicks for worship, movement, attack and spells. It holds RAF and supplies normal
+fixed turns explicitly, keeping camera/input preparation between turns. This is
+**controlled-clock rendered integration, not a real-clock ordinary journey**.
+It requires nonzero actual terrain deformation at the actual death point while
+phase1 remains active, living friendly followers, matching candidate body/mesh
+heights and real framebuffer contribution. No stock, mana, HP, actor position,
+terrain, AI, death effect or outcome is supplied. Native raster remains separate.
+
+Use the same verified driver on the before source with
+`PND_SHAMAN_GROUND_BASELINE=1` (cached-height mismatch expected) and the candidate
+without that flag (alignment required), through the canonical local harness.
+Browser execution remains a separately coordinated acceptance gate.

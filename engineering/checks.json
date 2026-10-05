@@ -5201,6 +5201,55 @@
       "expected": { "exitCode": 0, "artifacts": [] }
     },
     {
+      "id": "shaman-death-ground-browser",
+      "kind": "browser",
+      "automation": "manual",
+      "purpose": "Check rendered Shaman spirit grounding during a shipped Land Bridge under a controlled clock.",
+      "coveredBehavior": [
+        "Mission1 UI, H selection and four ordinarily acquired Bridge gifts",
+        "Public worship, movement, attack, HUD spell and ground-click paths",
+        "Injured living caster survives until Bridge creation, then dies through combat",
+        "Actual death-point terrain changes while model12 remains in phase1",
+        "Body/mesh heights, stable anchor and framebuffer contribution",
+        "Same driver supports before-source cached-height mismatch and candidate alignment"
+      ],
+      "knownLimits": [
+        "RAF is held and ordinary fixed turns are supplied: controlled-clock rendered integration, not a real-clock ordinary journey.",
+        "Camera preparation is controlled; original raster and hardware performance are not established."
+      ],
+      "executable": "node",
+      "args": [
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-shaman-death-ground.mjs",
+        "--mission",
+        "1",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR"
+      ],
+      "cwd": ".",
+      "env": ["POPULOUS_HEADLESS_SHELL", "POPULOUS_ARTIFACT_DIR"],
+      "inputs": [
+        "app/world-turn.ts",
+        "app/reincarnation.ts",
+        "app/shaman-death-vfx.ts",
+        "app/scene-effects.ts",
+        "app/scene.ts",
+        "app/live-command.ts",
+        "scripts/check-browser-shaman-death-ground.mjs",
+        "scripts/browser-game.mjs",
+        "scripts/hud-texture-readiness.mjs",
+        "scripts/campaign-start-readiness.mjs",
+        "scripts/local-render/harness.mjs"
+      ],
+      "prerequisites": ["Verified installed dependencies", "Supported sandboxed browser"],
+      "sideEffects": ["Writes source-bound screenshots/report in an owned artifact directory"],
+      "resources": ["Shared browser/server lane; serialize"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "reincarnation-wave-portable",
       "kind": "portable",
       "automation": "safe",
