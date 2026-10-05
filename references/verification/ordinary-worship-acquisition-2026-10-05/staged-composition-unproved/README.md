@@ -37,5 +37,5 @@ The mandatory new-binding body sample and its opaque destination texels were not
 observed. Zero eligible opaque body destination samples remain unproved. These
 partial sprite/body/payout observations do not convert the row into a pass or
 establish full raster equivalence. The independent review retains that blocker;
-a source-backed immutable-audit optimization is undergoing review separately. The original process exited 1 normally
+the [separate immutable-audit successor](../staged-composition/README.md) subsequently passed independent review. The original process exited 1 normally
 with verified owned cleanup and continuation.

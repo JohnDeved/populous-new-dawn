@@ -23,11 +23,13 @@ bounded public Save reached an already retired pulse. The [software-cost row](so
 retains six active samples after eight warmups, below the unchanged required sixteen.
 Both failed rows and their independent reviews remain explicit.
 
-The [failed staged composition2](staged-composition-unproved/README.md) is retained
-with its useful partial observations and missing first-binding draw. A subsequent
-immutable-audit repair produced a terminal passed composition3 with all three
-samples; independent final result review and its separate public packet are pending.
-The PR remains draft and incomplete; no whole-PR acceptance is inferred here.
+The [staged composition3](staged-composition/README.md) is independently accepted:
+all three actual frames, strict sprite/body/texel checks, full immutable fixture
+audits and all payouts/retirement pass. The incompatible body prior differs in both
+geometry and angle category; this proves their combined rejection. Foreign old
+particle slots are absent. [Earlier failed staged2](staged-composition-unproved/README.md)
+remains failed. Tail-only restore and sufficient active cost samples are the two
+remaining closing gaps; the PR stays draft.
 
 The before/candidate Bridge pair uses the same real public route and browser,
 1440 × 1000 / DPR 1; images are host-stage captures rather than exact matching

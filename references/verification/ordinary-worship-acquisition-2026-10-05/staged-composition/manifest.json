@@ -1,0 +1,77 @@
+{
+  "scope": "Explicit staged old pulse and new winning body; combined incompatible-prior guard",
+  "status": "passed",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "66cb6b8d16631265a0b2a84e0c37a3af751530be",
+  "originalReceiptSha256": "aa9a3274af007d73648e87d513e60570b170ba639e841bf488d318627ee82fcf",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "45fc31f5758de28edb35d1aaeb8fd860a7782f8facc02158222a2958c7aa9ad5"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "da1f73f834ee169b794f08a720ab50058ddafd86c9b769103f80a71bfe8b452c"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "06ad8ba9e4b062a3fca87d403b394ab5e40f5a601aa6bed18939d7bd008ae159"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "f276afccc2c4db4823f6ed83befec871a84c797f144a107642dae41d3c2ca5ad"
+    },
+    {
+      "path": "staged-bridge-source.png",
+      "sha256": "a1d72918689252694cfabe26f6a00b1f1a7a70d0192afb3ba4bfbb3d3b1270fc"
+    },
+    {
+      "path": "staged-composition-page.png",
+      "sha256": "308a3c2340d90e0405b051e7245fc1508f3a97f09c15e8745775f6faa4ef6209"
+    },
+    {
+      "path": "staged-final-leg-body.png",
+      "sha256": "a63d8d10f5c859530e8a67f53d3db5afdf868a08c1a95692097326f61a72e6d2"
+    },
+    {
+      "path": "staged-final-leg-old-pulse.png",
+      "sha256": "8a8993490be16a86dd98a3a3aa2932a9bf6b9024d784a3c3d3804addc1044390"
+    },
+    {
+      "path": "staged-final-leg-overlay.png",
+      "sha256": "0ab4e60365e4c89ba8600a905ba66052e42ce76668b97081c10ee3d00462e0a2"
+    },
+    {
+      "path": "staged-intermediate-body.png",
+      "sha256": "926f1ebecef7455dd56065a1ce38f692cc4ebba308c1e866bf52d213768fadbb"
+    },
+    {
+      "path": "staged-intermediate-old-pulse.png",
+      "sha256": "efdd0c363458f9f36b2fe7021f6e5d450a38cffc542fef1091fd570af87888f8"
+    },
+    {
+      "path": "staged-intermediate-overlay.png",
+      "sha256": "98d425d862c1f2b9e9ec88d989296d3d22171ec46b8cc316cde112b9196f5ebc"
+    },
+    {
+      "path": "staged-new-binding-body.png",
+      "sha256": "f45850521c3df8efc28db85efa43e4811af9e7a92481fe7206fba383776c4296"
+    },
+    {
+      "path": "staged-new-binding-old-pulse.png",
+      "sha256": "4aeccc6ce362ad3a5f790525d13a95b5cb453e85e9d07a8e35cdaacbafa195bd"
+    },
+    {
+      "path": "staged-new-binding-overlay.png",
+      "sha256": "b432f638010dd8a252a1e095c38f8a9c3779f899754b0b981d316575161346f1"
+    },
+    {
+      "path": "staged-worship-composition-inputs.json",
+      "sha256": "a35c75da2dabcc2d21e8498548752e61ebf3ab13c1d5b248710b1223363199c5"
+    },
+    {
+      "path": "staged-worship-composition.mjs",
+      "sha256": "c1bf3ba66e7b0d33ffb2c9b4bdef754603955d51c4833a986378b6e10200e849"
+    }
+  ]
+}
