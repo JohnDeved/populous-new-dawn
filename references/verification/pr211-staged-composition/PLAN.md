@@ -59,7 +59,7 @@ represented matrices/drawImage arguments, and opaque body-texel checks.
 ## Exact setup writes
 
 Start M1 through the existing harness's public mission chooser, in a fresh owned
-profile at 1440 × 1000, DPR 1. Click the public Resume game button if visible,
+profile at 960 × 720, DPR 1. Click the public Resume game button if visible,
 then await the existing read-only Shaman-readiness helper (30-second bound). Require the current scene/store pair, no existing
 gifts, no acquisition controller/requests, no pause, and a hidden overlay.
 
@@ -208,3 +208,12 @@ Read-only inspection of the pinned effects PNG confirms all relevant sparkle
 frames have at least six opaque texels, and ghost frames 318–321 have respectively
 23, 15, 7 and 3 opaque texels; this is sample-availability inspection, not browser
 acceptance. No browser/server/package/dependency action was performed.
+
+The first actual 1440 × 1000 run retained the mismatched prior in its first native
+visit but advanced through it before an original Canvas draw. Its intermediate
+and final-leg samples did not fulfill all three required rendered boundaries.
+The bounded successor uses a smaller real 960 × 720 viewport, unchanged DPR and
+clocks, eight compact original-draw observations and setup-audit duration facts.
+Lifecycle retirement now completes independently of sample collection; the same
+three mandatory sample assertions still reject any missing rendered boundary.
+The original128-turn and15-second bounds remain unchanged.

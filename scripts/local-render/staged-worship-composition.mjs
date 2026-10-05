@@ -34,13 +34,14 @@ async function install(page, inputs) {
         world.gifts.length || world.worshipAcquisition.requests.length ||
         world.worshipAcquisition.controllers.spell || !canvas.hidden)
       throw Error('Staged row requires a fresh, unpaused M1 with empty acquisition state')
-    if (innerWidth !== 1440 || innerHeight !== 1000 || devicePixelRatio !== 1)
-      throw Error('This finite composition row requires 1440x1000 at DPR1')
+    if (innerWidth !== 960 || innerHeight !== 720 || devicePixelRatio !== 1)
+      throw Error('This finite composition row requires 960x720 at DPR1')
     const evidence = window.stagedWorshipComposition = {
       label: 'STAGED COMPOSITION: older Lightning pulse plus winning Bridge body',
       armedTurn: world.turn, mutations: [], handoffs: [], selects: [], samples: [],
       firstReplacementVisit: null, decodedBody: null, errors: [], cues: 0, visits: 0,
       pairStaged: false, samplesComplete: false, completed: false, restored: false,
+      replacementDraws: [],
       turns: [], arrival: null, retirement: null, terminal: null,
       spriteProofs: { ghost: null, tint: null }, spriteProofAttempts: { ghost: false, tint: false },
     }
@@ -80,7 +81,7 @@ async function install(page, inputs) {
     // produces phase0/timer76 and requests. No queue/controller/clock/RNG writes.
     const stage = (label, rewards) => {
       require(evidence.mutations.length < 2 && fixtures.length + rewards.length <= 3, 'Fixture write bound exceeded')
-      const omitted = () => Object.fromEntries(Object.entries(world).filter(([key]) => !['nextId', 'effects', 'gifts'].includes(key))),
+      const started = performance.now(), omitted = () => Object.fromEntries(Object.entries(world).filter(([key]) => !['nextId', 'effects', 'gifts'].includes(key))),
         unchangedBefore = serialize(omitted()), effectsBefore = serialize(world.effects), giftsBefore = serialize(world.gifts),
         before = { nextId: world.nextId, effectsLength: world.effects.length, giftsLength: world.gifts.length }, beforeFocus = focus(),
         writes = []
@@ -104,7 +105,7 @@ async function install(page, inputs) {
         'Gift/effect alias ownership changed')
       evidence.mutations.push({ label, turn: world.turn, before, beforeFocus, afterFocus: focus(),
         after: { nextId: world.nextId, effectsLength: world.effects.length, giftsLength: world.gifts.length },
-        writes, unchangedWorldOutsideWhitelist: true, auditedUnchangedBytes: unchangedBefore.length })
+        writes, unchangedWorldOutsideWhitelist: true, auditedUnchangedBytes: unchangedBefore.length, auditMilliseconds: performance.now() - started })
     }
     let operation = 'outside', drawing = null, beforeTurn = null
     wrap(scene, 'onSound', original => function (...args) {
@@ -315,6 +316,12 @@ async function install(page, inputs) {
       const current = drawing
       let result
       try { result = original.apply(this, args) } finally { drawing = null }
+      if (body && evidence.handoffs.length === 2 && evidence.replacementDraws.length < 8) observe(() => {
+        evidence.replacementDraws.push({ turn: world.turn, elapsed: a.clock.elapsed, lastVisit: a.clock.lastVisit,
+          nextVisit: a.clock.nextVisit, fraction, tag, bodyModel: body.model, priorModel: prior?.model ?? null,
+          samePriorGeometry: prior?.geometry === body.geometry, bodyRadians: body.radians,
+          oldPulsePresent: !!pulse, spellStep: a.controllers.spell.step, spellVisits: a.controllers.spell.visits })
+      })
       if (current) observe(() => {
         const after = focus(), bodyLayout = current.layouts.find(l => l.geometry === body.geometry),
           pulseLayout = current.layouts.find(l => l.geometry === pulse.geometry)
@@ -396,7 +403,9 @@ async function install(page, inputs) {
         evidence.samplesComplete = ['new-binding', 'intermediate', 'final-leg'].every(tag => seen.has(tag))
       })
       observe(() => {
-        if (!evidence.samplesComplete || evidence.completed) return
+        if (evidence.completed) return
+        // Lifecycle must finish independently; unchanged final sample assertions
+        // still fail if an actual renderer boundary was never observed.
         const c = world.worshipAcquisition.controllers
         if (world.gifts.some(g => fixtures.includes(g.id)) || world.effects.some(g => fixtures.includes(g.id)) ||
             c.spell?.active || c.companion?.active || c.pulse?.active || c.drawCommands.length ||
@@ -466,6 +475,10 @@ export default async function ({ page, root, output, receipt, openMission, signa
   const save = () => writeFileSync(resolve(output, 'staged-worship-composition.json'), json(report))
   let armed = false
   try {
+    report.viewportBefore = page.viewportSize()
+    await page.setViewportSize({ width: 960, height: 720 })
+    report.viewport = { size: page.viewportSize(), dpr: await page.evaluate(() => devicePixelRatio), reason: 'Smaller real viewport exposes the one-visit replacement draw without modifying clocks or rendering callbacks' }
+    assert.equal(report.viewport.dpr, 1)
     await openMission(1)
     const resume = page.getByRole('button', { name: 'Resume game', exact: true })
     if (await resume.isVisible()) await resume.click()
