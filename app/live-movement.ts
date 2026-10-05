@@ -36,7 +36,11 @@ import {
   configurePersonOrder,
   type OrderStartEffects,
 } from './person-order-start.ts'
-import { anchorPersonOrder, stepPersonOrders, type OrderUpdateEffects } from './person-order-update.ts'
+import {
+  anchorPersonOrder,
+  stepPersonOrders,
+  type OrderUpdateEffects,
+} from './person-order-update.ts'
 import { stepConstructionOrder } from './construction-order.ts'
 import { assignBuilder, BuilderTask } from './building-workers.ts'
 import {
@@ -666,12 +670,18 @@ export function stepShamanGuard(
   if (p.counter & 3) return 0
   p.flags2 = (p.flags2 | 0x2000000) >>> 0
   p.assignment &= ~8
-  if (Math.abs(short(target.x) - short(p.x)) < 824 && Math.abs(short(target.y) - short(p.y)) < 824) {
+  if (
+    Math.abs(short(target.x) - short(p.x)) < 824 &&
+    Math.abs(short(target.y) - short(p.y)) < 824
+  ) {
     p.flags2 = (p.flags2 & ~0x2000000) >>> 0
     return 0
   }
   p.assignment |= 8
-  if (Math.abs(short(target.x) - short(p.goalX)) >= 440 || Math.abs(short(target.y) - short(p.goalY)) >= 440)
+  if (
+    Math.abs(short(target.x) - short(p.goalX)) >= 440 ||
+    Math.abs(short(target.y) - short(p.goalY)) >= 440
+  )
     effects.destination(target)
   if (!p.speed) effects.recover()
   return 0
@@ -899,9 +909,7 @@ export function stepLiveOrderQueue(
     {
       commands,
       commandPosition: order =>
-        order.model === 30
-          ? shamanGuardPosition(w, order, p)
-          : { x: order.a, y: order.b },
+        order.model === 30 ? shamanGuardPosition(w, order, p) : { x: order.a, y: order.b },
       vehicleDestination: unsupported,
       vehicleReady: unsupported,
       changeTribe: tribe => {

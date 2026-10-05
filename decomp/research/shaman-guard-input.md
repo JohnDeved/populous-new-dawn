@@ -10,7 +10,8 @@ historical uninterrupted phase and whole-family animation parity remain open.
 The [frozen baseline and independent review](https://github.com/JohnDeved/populous-new-dawn/blob/6cbae1169517a295a323ce8dcbf67a29ce61d02d/evidence/native-shaman-guard-lifecycle/README.md)
 executes 11 lifecycle cases/64 stages and 28 signed-distance controls against EXE
 SHA256 `3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
-The separately accepted producer/caller extension executes 20 cases/43 stages and
+The [accepted producer/caller extension](https://github.com/JohnDeved/populous-new-dawn/blob/b6ee17f0d4392a3f52bf825ac6b1e1262941c5fe/evidence/native-shaman-guard-lifecycle/README.md)
+executes 20 cases/43 stages and
 two keyboard-setting cases. G action0xc1 emits tribe command0x82; the shipped
 default keeps selection. The port exposes no alternate retain-selection setting.
 
@@ -118,6 +119,12 @@ These tests use supporting mechanics fixtures; they do not substitute for normal
 Mission10 Firewarrior training through hut149 with its ordinary mana, public G,
 deselection, repeat/cancel, following and Save/Load observation.
 
-Standard full check/build, maintained TypeScript quality, fresh full-diff review
-and that real-clock rendered gate remain required before completion. No parity
+Scoped formatting and typecheck pass. Scoped ESLint findings are byte-identical
+to baseline; normalized Oxlint reports 388 baseline and 388 candidate findings,
+with none introduced. Global format still flags the unchanged baseline
+`render-view.ts` and `viewport-bounds.ts`. The retained receipts distinguish these
+baseline findings from this change instead of weakening the checks.
+
+Standard full check/build, fresh full-diff review and that real-clock rendered
+gate remain required before completion. No parity
 ledger or deployment changes are included. Issues #4, #60 and #214 remain open.

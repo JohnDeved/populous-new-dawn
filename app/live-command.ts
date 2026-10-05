@@ -198,18 +198,39 @@ export function tell(w: World, message: string) {
 
 function ordinaryGuardOwner(w: World, u: Unit) {
   const p = u.native,
-    route = w.pathfinding.people.get(u.id)
+    registeredRoute = w.pathfinding.people.get(u.id)
   if (
-    !p || u.team !== 'blue' || u.hp <= 0 || u.ghost ||
-    p.class !== 1 || p.model < 2 || p.model > 6 ||
-    ![10, 17, 19].includes(p.state) || p.vehicle ||
-    p.flags2 & (1 | 0x80000 | 0x100000 | 0x800000) || p.flags4 & 0x800 ||
-    u.flight || u.fight || u.fighting || u.casting || u.lift ||
-    u.entry || u.builder || u.inside !== null || u.work !== null ||
-    u.target !== null || u.tree !== null || u.harvest || u.delivery ||
-    u.vault || u.attackReservation || p.workFlags ||
-    (route && route !== p) || (u.path.length && route !== p)
-  ) return false
+    !p ||
+    u.team !== 'blue' ||
+    u.hp <= 0 ||
+    u.ghost ||
+    p.class !== 1 ||
+    p.model < 2 ||
+    p.model > 6 ||
+    ![10, 17, 19].includes(p.state) ||
+    p.vehicle ||
+    p.flags2 & (1 | 0x80000 | 0x100000 | 0x800000) ||
+    p.flags4 & 0x800 ||
+    u.flight ||
+    u.fight ||
+    u.fighting ||
+    u.casting ||
+    u.lift ||
+    u.entry ||
+    u.builder ||
+    u.inside !== null ||
+    u.work !== null ||
+    u.target !== null ||
+    u.tree !== null ||
+    u.harvest ||
+    u.delivery ||
+    u.vault ||
+    u.attackReservation ||
+    p.workFlags ||
+    (registeredRoute && registeredRoute !== p) ||
+    (u.path.length && registeredRoute !== p)
+  )
+    return false
   const ids = [p.immediateCommand, ...p.commands].filter(Boolean)
   if (ids.some(id => ![3, 30].includes(w.buildingOrders.records[id]?.model ?? 0))) return false
   if (![0, 3, 30].includes(p.commandStatus)) return false
@@ -225,7 +246,9 @@ export function guardShaman(w: World) {
   // selection order. Native linked-list ordering is a remaining compatibility
   // boundary, observable in which follower gets slot0 when the pool is full.
   const selected = w.units.filter(u => w.selected.includes(u.id) && u.id !== shaman.id),
-    guards = w.units.filter(u => u.team === 'blue' && u.native?.state === 10 && u.native.commandStatus === 30),
+    guards = w.units.filter(
+      u => u.team === 'blue' && u.native?.state === 10 && u.native.commandStatus === 30
+    ),
     candidates = selected.length ? selected : guards
   if (candidates.every(u => ordinaryGuardOwner(w, u))) {
     const people = candidates.map(u => {
@@ -233,13 +256,23 @@ export function guardShaman(w: World) {
       p.selectionFlags = (p.selectionFlags & ~128) | (w.selected.includes(u.id) ? 128 : 0)
       return p
     })
-    const changed = guardShamanOrders(w.buildingOrders, people, shaman.id, orderEffects(w),
-      (p, order) => anchorLiveShamanGuard(w, p, order))
+    const changed = guardShamanOrders(
+      w.buildingOrders,
+      people,
+      shaman.id,
+      orderEffects(w),
+      (p, order) => anchorLiveShamanGuard(w, p, order)
+    )
     for (const p of changed) {
       p.guardInputPending = true
       w.units.find(u => u.id === p.id)!.guard = false
     }
-    tell(w, selected.length ? 'Selected followers will guard your shaman.' : 'Your followers stop guarding your shaman.')
+    tell(
+      w,
+      selected.length
+        ? 'Selected followers will guard your shaman.'
+        : 'Your followers stop guarding your shaman.'
+    )
     return
   }
   // Busy/mixed groups and old boolean saves retain the existing whole-batch
