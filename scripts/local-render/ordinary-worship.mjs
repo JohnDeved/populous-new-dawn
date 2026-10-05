@@ -74,6 +74,7 @@ async function installObserver(page, input) {
       await import('/app/worship-acquisition-layout.ts')
     const scene = window.testSceneRef.current, presentation = scene.worshipPresentation,
       canvas = document.querySelector('.worship-acquisition-overlay'), context = canvas.getContext('2d'),
+      numericOracle = document.createElement('canvas').getContext('2d'),
       restorers = [], seen = new Set(), art = input.art.bodyFrames[input.route.model], rect = input.hud.rects[art.source]
     const evidence = window.ordinaryWorship = {
       armed: { turn: scene.world.turn, reward: input.route.reward }, events: [], samples: [],
@@ -165,6 +166,14 @@ async function installObserver(page, input) {
       if (drawing && args[0] === input.route.model) drawing.layout = result
       return result
     })
+    // Capture original Canvas primitive inputs without modifying them. The
+    // detached Canvas below models browser numeric representation using only
+    // independently calculated expected inputs, never these actual arguments.
+    for (const key of ['translate', 'rotate']) wrap(context, key, original => function (...args) {
+      const result = original.apply(this, args)
+      if (drawing) observe(() => drawing.primitives.push({ kind: key, args: [...args] }))
+      return result
+    })
     wrap(context, 'drawImage', original => function (...args) {
       const result = original.apply(this, args)
       if (drawing && args.length === 9 && args[0] instanceof HTMLImageElement &&
@@ -195,7 +204,7 @@ async function installObserver(page, input) {
         ownedState = () => structuredClone({ acquisition: scene.world.worshipAcquisition,
           gameplayRandom: scene.world.randomState, cosmeticRandom: scene.world.cosmeticRandom }),
         beforeDraw = stage ? observe(ownedState) : null
-      drawing = command ? { command, layout: null, call: null } : null
+      drawing = command ? { command, layout: null, call: null, primitives: [] } : null
       const current = drawing
       let result
       try { result = original.apply(this, args) } finally { drawing = null }
@@ -228,6 +237,14 @@ async function installObserver(page, input) {
             command.radians ? -width / 2 : 0, command.radians ? -height / 2 : 0, width, height],
             transform: [dpr * cos, dpr * sin, -dpr * sin, dpr * cos,
               dpr * (point.x + art.crop.x * scale), dpr * (point.y + art.crop.y * scale)] }
+        const expectedPrimitives = [
+          { kind: 'translate', args: [point.x + art.crop.x * scale, point.y + art.crop.y * scale] },
+          { kind: 'rotate', args: [-angle] },
+        ]
+        numericOracle.setTransform(dpr, 0, 0, dpr, 0, 0)
+        for (const primitive of expectedPrimitives) numericOracle[primitive.kind](...primitive.args)
+        const represented = numericOracle.getTransform(), analyticTransform = expected.transform
+        expected.transform = [represented.a, represented.b, represented.c, represented.d, represented.e, represented.f]
         const [a, b, c, d, e, f] = current.call.transform, [, , , , x, y, w, h] = current.call.args,
           corners = [[x, y], [x + w, y], [x + w, y + h], [x, y + h]].map(([x, y]) => [a * x + c * y + e, b * x + d * y + f]),
           left = Math.max(0, Math.floor(Math.min(...corners.map(p => p[0])))),
@@ -259,7 +276,8 @@ async function installObserver(page, input) {
           interpolation: { matchingPriorBinding: !!previous, intermediate, changedFields, previous: previous && structuredClone(previous) },
           drawOwnership: { before: beforeDraw, after: afterDraw }, opaqueTexels: texels,
           viewport: [innerWidth, innerHeight], command: structuredClone(command), layout: structuredClone(current.layout),
-          actual: current.call, expected, crop: [left, top, image.width, image.height],
+          actual: current.call, expected, primitives: { actual: current.primitives, expected: expectedPrimitives },
+          numericRepresentation: { analyticTransform, oracle: 'Detached Canvas using expected DPR/translate/rotate inputs' }, crop: [left, top, image.width, image.height],
           nontransparent: image.data.filter((_byte, i) => i % 4 === 3 && image.data[i] > 0).length,
           png: crop.toDataURL() })
       })
@@ -677,6 +695,7 @@ export default async function ({ page, root, output, receipt, openMission, signa
     if (route.resize) assert.ok(o.samples.some(s => s.stage === 'resized'))
     for (const sample of o.samples) {
       assert.deepEqual(sample.drawOwnership.after, sample.drawOwnership.before, 'Owned draw/interpolation cannot mutate acquisition state or either RNG')
+      assert.deepEqual(sample.primitives.actual, sample.primitives.expected, `${sample.stage} original Canvas primitive inputs`)
       for (const key of ['args', 'transform']) sample.actual[key].forEach((value, i) =>
         assert.ok(Math.abs(value - sample.expected[key][i]) < 1e-5, `${sample.stage} ${key}[${i}]`))
       assert.equal(sample.actual.alpha, 1); assert.equal(sample.actual.smoothing, false)
