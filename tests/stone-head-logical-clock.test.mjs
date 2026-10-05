@@ -93,11 +93,11 @@ test('lazy, post-turn allocated and removed bodies obey the completed-turn bound
 
 test('legacy body checkpoints gain only the gate and a new Scene clock does not replay a turn', () => {
   const { world, head, state } = scenario()
-  Object.assign(state, { flags3: 0x100, stamp: 77, f1: 28 })
+  Object.assign(state, { flags3: 0x80000100, stamp: 77, f1: 28 })
   const restored = migrateCheckpoint(structuredClone(world)),
     loaded = restored.shrines.find(s => s.id === head.id), timing = clock()
   initializeStoneHead(loaded, restored.outcome.level)
-  assert.equal(loaded.stoneHead.flags3, 0x40100)
+  assert.equal(loaded.stoneHead.flags3, 0x80040100)
   assert.equal(loaded.stoneHead.f1, 28)
   assert.equal(loaded.stoneHead.stamp, 77)
   advanceGame(restored, timing, 1 / 24)

@@ -88,7 +88,8 @@ export function initializeStoneHead(shrine: Shrine, mission: number): StoneHeadA
     shrine.stoneHead = source ? createStoneHeadAnimation(shrine.enabled, source) : null
   }
   // Existing checkpoints keep their phase/stamp; only restore the omitted gate.
-  if (shrine.stoneHead?.family === 45) shrine.stoneHead.flags3 |= 0x40000
+  if (shrine.stoneHead?.family === 45)
+    shrine.stoneHead.flags3 = (shrine.stoneHead.flags3 | 0x40000) >>> 0
   return shrine.stoneHead
 }
 
