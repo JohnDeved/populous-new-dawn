@@ -137,3 +137,43 @@ objdump -d -Mintel --start-address=0x476fa0 --stop-address=0x477052 "$POPULOUS_E
 The accepted presentation probe's bank/context interception remains unchanged.
 This addendum resolves static bank, palette, source-art and geometry ownership;
 it does not upgrade the probe into a native full-raster execution claim.
+
+## Companion sprite decode and delivered body append
+
+The shared `vertices_flags=8` does not by itself select nibble-alpha decoding.
+[005162e0](../generated/005162e0.c) resolves the bank and passes the flag plus
+current palette RGB into [0047dc50](../generated/0047dc50.c), which calls
+`004f95a0` and then replaces only the diffuse RGB, preserving its alpha.
+
+- In the retained companion trail draws, the palette pointer is `ghost0_mem`.
+  The flags-8/ghost branch `004f9612..004f9635` selects type `0x51` and diffuse
+  `color_related_1 << 24 | 0xffffff`. It leaves queue bit 2 clear, hence uses
+  ordinary PAL pixels. `005d570c` initializes `color_related_1` to `0x55`;
+  [the existing upstream audit](follower-frame-alpha.md) bounds its ordinary
+  restoration. The current `blastTrail` atlas decode is therefore appropriate,
+  with **85/255 draw opacity** for these ghost trail commands.
+- Particles and the independent pulse select their AL table through
+  [00516270](../generated/00516270.c). Flags 8 with that non-ghost pointer takes
+  `004f9637..004f9642`, sets type `0x12` and queue bit 2, and retains full diffuse
+  alpha. `00476a9b..00476abe` then selects palette slot 1. The current `sparkle`
+  nibble-AL pixels and each recorded palette-derived RGB tint are appropriate.
+
+No additional trail or pulse import is needed. This is the ordinary D3D queue
+route; the distinct `005da078` software-sprite branch in `005162e0` is not covered.
+
+[import-worship-acquisition.py](../../scripts/import-worship-acquisition.py)
+now reuses the established ordinary-palette decoder and non-repacking append
+helper for exactly the three body frames. Generated
+`original-worship-acquisition.json` records their source identity, complete raw
+dimensions, proven crop metadata and complete RGBA hashes. It appends the frames
+at `(0,509)`, `(29,509)` and `(58,509)`, growing the current HUD from 1024x508
+to 1024x534 while preserving all 1,752 prior rectangles and old-region pixels.
+The importer refuses partial installs or mismatching source/pixels/metadata;
+`--check` performs no writes. Use the narrow asset checker for canonical-pixel,
+negative-case, idempotence and explicit before/after preservation checks:
+
+```sh
+python -B scripts/import-worship-acquisition.py "$POPULOUS_GAME_ROOT" --check
+python -B scripts/check-worship-acquisition-assets.py "$POPULOUS_GAME_ROOT" \
+  --base 89c9629991489fd1ce6dc52e938d1cec346bfead
+```

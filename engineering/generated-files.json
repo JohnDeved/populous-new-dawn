@@ -62,6 +62,7 @@
         "scripts/import-messages.py",
         "scripts/import-script.py",
         "scripts/import-hud.py",
+        "scripts/import-worship-acquisition.py",
         "scripts/import-vehicle-panel-icons.py",
         "scripts/import-follower-tasks.py",
         "scripts/import-minimap-frame.py",
@@ -271,7 +272,33 @@
           "type": "file",
           "tracked": true,
           "protected": true,
-          "producer": "scripts/import-hud.py"
+          "producer": "scripts/import-hud.py",
+          "appenders": [
+            {
+              "producer": "scripts/import-worship-acquisition.py",
+              "scope": "Only HFX1059/1060/1068 ordinary-palette body rectangles; preserve every existing rectangle and metadata value except total atlas height."
+            }
+          ]
+        },
+        {
+          "path": "app/original-worship-acquisition.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-worship-acquisition.py"
+        },
+        {
+          "path": "public/original/hud.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-hud.py",
+          "appenders": [
+            {
+              "producer": "scripts/import-worship-acquisition.py",
+              "scope": "Append only ordinary-palette HFX1059/1060/1068 beneath the current image without repacking or changing any existing pixels."
+            }
+          ]
         },
         {
           "path": "app/original-messages.json",
