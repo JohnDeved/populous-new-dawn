@@ -182,11 +182,25 @@ async function installObserver(page, input) {
     })
     wrap(presentation, 'draw', original => function (...args) {
       const state = scene.world.worshipAcquisition,
-        command = state.controllers.drawCommands.find(c => c.kind === 'body' && c.model === input.route.model)
-      drawing = command ? { command, previous: state.previousDrawCommands.find(c => c.kind === 'body'), layout: null, call: null } : null
+        command = state.controllers.drawCommands.find(c => c.kind === 'body' && c.model === input.route.model),
+        prior = state.previousDrawCommands.find(c => c.kind === 'body'),
+        previous = command && prior?.geometry === command.geometry && !!prior.radians === !!command.radians ? prior : undefined,
+        interval = state.clock.nextVisit - state.clock.lastVisit,
+        fraction = scene.world.paused || scene.world.land.landFlags & 2 || !interval ? 1 : Math.max(0, Math.min(1, (state.clock.elapsed - state.clock.lastVisit) / interval)),
+        changedFields = previous ? ['x', 'y', 'scale', 'radians'].filter(key => previous[key] !== command[key]) : [],
+        intermediate = !!previous && fraction > 0 && fraction < 1 && changedFields.length > 0,
+        visualStage = command && (innerWidth !== 1440 ? 'resized' : command.finalLeg ? 'final-leg' : command.radians ? 'rotated' : 'zero-angle'),
+        stage = visualStage && (!seen.has(visualStage) ? visualStage : intermediate && !seen.has('intermediate') ? 'intermediate' : null),
+        ownedState = () => structuredClone({ acquisition: scene.world.worshipAcquisition,
+          gameplayRandom: scene.world.randomState, cosmeticRandom: scene.world.cosmeticRandom }),
+        beforeDraw = stage ? observe(ownedState) : null
+      drawing = command ? { command, layout: null, call: null } : null
       const current = drawing
       let result
       try { result = original.apply(this, args) } finally { drawing = null }
+      // The preceding scene render can legitimately consume cosmetic RNG for
+      // Lightning. This pair brackets only the owned overlay draw call.
+      const afterDraw = stage ? observe(ownedState) : null
       observe(() => {
         const gift = scene.world.gifts.find(g => g.reward === input.route.reward && g.ordinaryWorship)
         if (gift?.phase && !evidence.raised) {
@@ -200,13 +214,10 @@ async function installObserver(page, input) {
         }
         if (!current?.call || !current.layout) return
         evidence.draws++
-        const stage = innerWidth !== 1440 ? 'resized' : command.finalLeg ? 'final-leg' : command.radians ? 'rotated' : 'zero-angle'
-        if (seen.has(stage)) return
+        if (!stage) return
         seen.add(stage)
-        const previous = current.previous?.geometry === command.geometry && !!current.previous.radians === !!command.radians ? current.previous : undefined,
-          interval = state.clock.nextVisit - state.clock.lastVisit,
-          fraction = scene.world.paused || scene.world.land.landFlags & 2 || !interval ? 1 : Math.max(0, Math.min(1, (state.clock.elapsed - state.clock.lastVisit) / interval)),
-          point = worshipDrawPoint(interpolateWorshipPoint(command, previous, fraction), command.geometry, current.layout, command.finalLeg),
+        if (intermediate) seen.add('intermediate')
+        const point = worshipDrawPoint(interpolateWorshipPoint(command, previous, fraction), command.geometry, current.layout, command.finalLeg),
           scale = (previous ? previous.scale + (command.scale - previous.scale) * fraction : command.scale) * current.layout.hudScale,
           angleDelta = previous ? Math.atan2(Math.sin(command.radians - previous.radians), Math.cos(command.radians - previous.radians)) : 0,
           angle = previous ? previous.radians + angleDelta * fraction : command.radians,
@@ -226,7 +237,26 @@ async function installObserver(page, input) {
         const image = context.getImageData(left, top, right - left, bottom - top),
           crop = document.createElement('canvas')
         crop.width = image.width; crop.height = image.height; crop.getContext('2d').putImageData(image, 0, 0)
+        const texels = [], pixelScaleX = a * w / art.crop.width, pixelScaleY = d * h / art.crop.height
+        // Independent limited pixel correspondence: only unrotated, >=2-device-
+        // pixel opaque texels, safely inside both source run and destination.
+        // Body is submitted after companions; alpha255 replaces pixels behind it.
+        if (!command.radians && Math.abs(b) < 1e-8 && Math.abs(c) < 1e-8 && pixelScaleX >= 2 && pixelScaleY >= 2) {
+          const source = evidence.decoded.rgba
+          for (let sy = art.crop.y + 1; sy < art.crop.y + art.crop.height - 1 && texels.length < 8; sy++)
+            for (let sx = art.crop.x + 1; sx < art.crop.x + art.crop.width - 1 && texels.length < 8; sx++) {
+              if (![[0, 0], [-1, 0], [1, 0], [0, -1], [0, 1]].every(([dx, dy]) => source[((sy + dy) * art.w + sx + dx) * 4 + 3] === 255)) continue
+              const px = Math.floor(a * x + e + (sx - art.crop.x + 0.5) * pixelScaleX),
+                py = Math.floor(d * y + f + (sy - art.crop.y + 0.5) * pixelScaleY)
+              if (px < left || py < top || px >= right || py >= bottom) continue
+              const sourceOffset = (sy * art.w + sx) * 4, destinationOffset = ((py - top) * image.width + px - left) * 4
+              texels.push({ source: [sx, sy], destination: [px, py],
+                expected: source.slice(sourceOffset, sourceOffset + 4), actual: [...image.data.slice(destinationOffset, destinationOffset + 4)] })
+            }
+        }
         evidence.samples.push({ stage, turn: scene.world.turn, state: snapshot(), fraction, dpr,
+          interpolation: { matchingPriorBinding: !!previous, intermediate, changedFields, previous: previous && structuredClone(previous) },
+          drawOwnership: { before: beforeDraw, after: afterDraw }, opaqueTexels: texels,
           viewport: [innerWidth, innerHeight], command: structuredClone(command), layout: structuredClone(current.layout),
           actual: current.call, expected, crop: [left, top, image.width, image.height],
           nontransparent: image.data.filter((_byte, i) => i % 4 === 3 && image.data[i] > 0).length,
@@ -251,9 +281,25 @@ async function clearSelection(page) {
   assert.equal(await page.evaluate(() => !window.testStore.getWorld().mode && !window.testStore.getWorld().selected.length), true)
 }
 
-async function worshipOrder(page, shrine, kind, report) {
+async function worshipOrder(page, shrine, kind, report, waitForShamanReadiness) {
   const resume = page.getByRole('button', { name: 'Resume game', exact: true })
   if (await resume.isVisible()) await resume.click()
+  const flybyDeadline = performance.now() + 45000, skipped = []
+  for (;;) {
+    const state = await page.evaluate(() => ({ turn: window.testStore.getWorld().turn, inputMask: window.testStore.getWorld().inputMask }))
+    if (!state.inputMask) break
+    assert.ok(performance.now() < flybyDeadline, `Reward flyby/input gate before ${kind} worship did not finish`)
+    const skip = page.locator('.skip-introduction')
+    if (await skip.isVisible()) { await skip.click(); skipped.push(state) }
+    else await page.waitForTimeout(100)
+  }
+  const readiness = await waitForShamanReadiness(page, { timeout: 45000 })
+  const identity = await page.evaluate(() => {
+    const scene = window.testSceneRef.current, world = window.testStore.getWorld()
+    return { sameWorld: scene.world === world, connected: scene.renderer.domElement.isConnected,
+      loading: !!document.querySelector('.loading-world'), paused: world.paused, inputMask: world.inputMask }
+  })
+  assert.deepEqual(identity, { sameWorld: true, connected: true, loading: false, paused: false, inputMask: 0 })
   await clearSelection(page)
   if (kind === 'shaman') await page.getByRole('button', { name: 'followers', exact: true }).click()
   await page.getByRole('button', { name: kind === 'shaman' ? 'Select and focus shaman' : `Select ${kind}`, exact: true }).click(
@@ -295,7 +341,8 @@ async function worshipOrder(page, shrine, kind, report) {
   }, { id: shrine.id, kind })
   assert.equal(accepted.paused, false)
   assert.ok(accepted.worshippers.length, `${kind} public worship order must be accepted`)
-  report.orders.push({ shrine, kind, point, cameraAssistance: 'scene.focus before mode setup; ordinary RAF only', accepted })
+  report.orders.push({ shrine, kind, point, readiness, identity, skipped,
+    cameraAssistance: 'scene.focus before mode setup; ordinary RAF only', accepted })
 }
 
 async function checkpointBeforeOrders(page, root, output, signal) {
@@ -304,7 +351,14 @@ async function checkpointBeforeOrders(page, root, output, signal) {
   await page.getByRole('button', { name: 'Game settings', exact: true }).click()
   const menu = page.locator('dialog.game-dialog')
   await menu.waitFor({ state: 'visible' })
-  const turn = await page.evaluate(() => window.testStore.getWorld().turn)
+  const pauseBoundary = await page.evaluate(() => {
+    const world = window.testStore.getWorld(), scene = window.testSceneRef.current
+    return { turn: world.turn, paused: world.paused, sameWorld: scene.world === world,
+      connected: scene.renderer.domElement.isConnected, loading: !!document.querySelector('.loading-world') }
+  })
+  assert.equal(pauseBoundary.paused, true, 'Settings must have publicly paused before Save')
+  assert.equal(pauseBoundary.sameWorld, true); assert.equal(pauseBoundary.connected, true); assert.equal(pauseBoundary.loading, false)
+  const turn = pauseBoundary.turn
   await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
   let saved
   assert.equal(await waitForCheckpointReadback(async () => {
@@ -343,7 +397,7 @@ async function checkpointBeforeOrders(page, root, output, signal) {
   assert.equal(await page.evaluate(() => window.testStore.getWorld().paused), false, 'Public Load auto-resumes')
   await page.waitForFunction(turn => window.testStore.getWorld().turn > turn, saved.turn)
   assert.equal((await readCommittedCheckpoint(page)).checkpointSha256, saved.checkpointSha256)
-  return { boundary: 'before worship orders, not an in-flight controller restore', saved, loaded, autoResume: true,
+  return { boundary: 'before worship orders, not an in-flight controller restore', pauseBoundary, saved, loaded, autoResume: true,
     comparison: 'Exact level, turn, time, actors, terrain and stock; full digests retained. Normal migration rebuilds transient panel reservations.' }
 }
 
@@ -360,7 +414,7 @@ export default async function ({ page, root, output, receipt, openMission, signa
   const { waitForShamanReadiness } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
   const report = { routeName, route, baseline, source: receipt.source, scenarioSha256: digest(readFileSync(new URL(import.meta.url))),
     method: 'Shipped UI/mouse orders; real elapsed RAF. Read-only instance callback/Canvas/IndexedDB observations. Camera focus assistance is labeled per order.',
-    orders: [], status: 'running', limits: 'Headless/software browser functional pixels, not original GPU pixels or hardware performance. Source-bound body interpolation is intentional. Overlay crops may include companions. No fixed-elapsed/staged run.',
+    orders: [], status: 'running', limits: 'Headless/software browser functional pixels, not original GPU pixels or hardware performance. Production layout helpers make draw arguments live-binding correspondence, not an independent full raster oracle. Canonical decoded source pixels and any sampled opaque-texel checks are separate evidence. Source-bound body interpolation is intentional. Overlay crops may include companions. No fixed-elapsed/staged run.',
     remainingMatrix: ['In-flight controller save/restart without late observer arming', 'Pause/resume and hidden-page transitions', 'DPR 2 and HUD-size preference changes', 'Simultaneous heads and independent pulse replacement', 'Representative hardware performance'] }
   const save = () => writeFileSync(resolve(output, 'ordinary-worship.json'), JSON.stringify(report, null, 2) + '\n')
   const deadline = performance.now() + route.timeout
@@ -399,7 +453,7 @@ export default async function ({ page, root, output, receipt, openMission, signa
     if (route.mission === 2) {
       const bridge = await page.evaluate(() => window.testStore.getWorld().shrines.find(s => s.kind === 'bridgeEffect' && s.x === -113 && s.z === 113))
       assert.ok(bridge, 'Authored M2 terrain bridge prerequisite')
-      await worshipOrder(page, bridge, 'shaman', report)
+      await worshipOrder(page, bridge, 'shaman', report, waitForShamanReadiness)
       await wait(id => window.testStore.getWorld().shrines.find(s => s.id === id)?.uses > 0, bridge.id, 'M2 bridge worship', 150000)
       await wait(() => !window.testStore.getWorld().effects.some(e => e.kind === 'bridge'), null, 'M2 terrain bridge finishes', 90000)
       await wait(() => window.testStore.getWorld().units.filter(u => u.team === 'blue' && u.kind === 'brave' && u.hp > 0).length >= 2, null, 'Real M2 opening followers join', 30000)
@@ -409,8 +463,8 @@ export default async function ({ page, root, output, receipt, openMission, signa
     assert.equal(shrine.required, route.required); assert.equal(shrine.target, route.target)
     if (!baseline) assert.ok(shrine.ordinarySpellReward, 'Source head must retain ordinary provenance')
     report.shrine = shrine; save()
-    await worshipOrder(page, shrine, route.mission === 2 ? 'shaman' : 'brave', report)
-    if (route.mission === 2) await worshipOrder(page, shrine, 'brave', report)
+    await worshipOrder(page, shrine, route.mission === 2 ? 'shaman' : 'brave', report, waitForShamanReadiness)
+    if (route.mission === 2) await worshipOrder(page, shrine, 'brave', report, waitForShamanReadiness)
     if (route.fallback) {
       await page.getByRole('button', { name: 'Focus Dakini tribe', exact: true }).click()
       await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
@@ -504,14 +558,20 @@ export default async function ({ page, root, output, receipt, openMission, signa
     const art = JSON.parse(readFileSync(resolve(root, 'app/original-worship-acquisition.json'), 'utf8')).bodyFrames[route.model]
     assert.equal(o.decoded?.rgbaSha256, art.rgbaSha256, 'Actual draw source must decode to the original ordinary-palette frame')
     assert.ok(o.samples.some(s => s.command.radians), 'Nonzero native rotation branch reaches actual Canvas draw')
+    assert.ok(o.samples.some(s => s.interpolation.intermediate), 'Capture a changed body pose at a genuine fraction strictly between zero and one with matching previous binding')
     if (route.resize) assert.ok(o.samples.some(s => s.stage === 'resized'))
     for (const sample of o.samples) {
+      assert.deepEqual(sample.drawOwnership.after, sample.drawOwnership.before, 'Owned draw/interpolation cannot mutate acquisition state or either RNG')
       for (const key of ['args', 'transform']) sample.actual[key].forEach((value, i) =>
         assert.ok(Math.abs(value - sample.expected[key][i]) < 1e-5, `${sample.stage} ${key}[${i}]`))
       assert.equal(sample.actual.alpha, 1); assert.equal(sample.actual.smoothing, false)
       assert.ok(sample.nontransparent > 0, `${sample.stage} actual overlay pixels`)
       assert.deepEqual(sample.command.geometry, o.handoff.after.spell.geometry, 'Resize cannot mutate immutable reference geometry')
+      for (const texel of sample.opaqueTexels) assert.deepEqual(texel.actual, texel.expected, `${sample.stage} opaque source texel ${texel.source}`)
     }
+    const texelCount = o.samples.reduce((total, sample) => total + sample.opaqueTexels.length, 0)
+    report.pixelCorrespondence = { status: texelCount ? 'passed for sampled opaque texels only' : 'unproved: no eligible zero-angle scaled sample',
+      sampledOpaqueTexels: texelCount, fullRasterOracle: false, originalGpuPixels: false }
     assert.deepEqual(report.final.diagnostics, []); assert.deepEqual(receipt.errors, [])
     report.status = 'passed'; save(); return report
   } catch (error) { report.status = 'failed'; report.failure = error.stack; save(); throw error }
