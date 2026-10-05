@@ -60,9 +60,11 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
       const p = kind === 'head' ? w.shrines.find(h => h.id === target)
         : kind === 'person' ? w.units.find(u => u.id === target) : target
       if (!p) throw Error(`Missing ${kind} target ${target}`)
-      s.focus(p)
-      for (let i = 0; i < 120; i++) s.updateCameraMotion(1 / 24)
-      s.animate(s.previous)
+      if (kind !== 'spell') {
+        s.focus(p)
+        for (let i = 0; i < 120; i++) s.updateCameraMotion(1 / 24)
+        s.animate(s.previous)
+      }
       const bounds = s.renderer.domElement.getBoundingClientRect(), screen = s.screen(p)
       const center = { x: bounds.left + (screen.x + 1) * bounds.width / 2,
         y: bounds.top + (1 - screen.y) * bounds.height / 2 }
@@ -96,6 +98,9 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
       const w = window.testScene.world
       return { turn: w.turn, nextId: w.nextId }
     })
+    if (kind === 'spell')
+      assert.equal(await page.evaluate(() => window.testScene.world.mode), 'bridge',
+        'Public Land Bridge selection must remain active before the ground click')
     await page.mouse.click(hit.x, hit.y)
     let acceptance
     if (before) {
@@ -164,6 +169,13 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
       if (error) throw Error(`Land Bridge is not ready: ${JSON.stringify(error)}`)
       return { stock: w.shots.bridge, turn: w.turn, nextId: w.nextId,
         hp: w.units.find(u => u.team === 'blue' && u.kind === 'shaman')?.hp }
+    }, point)
+    // Camera focus cancels the current mode, so finish it before public selection.
+    await page.evaluate(point => {
+      const s = window.testScene
+      s.focus(point)
+      for (let i = 0; i < 120; i++) s.updateCameraMotion(1 / 24)
+      s.animate(s.previous)
     }, point)
     await page.getByRole('button', { name: /^Land Bridge, \d+ shots$/ }).click()
     await clickTarget('spell', point)
