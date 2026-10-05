@@ -35,6 +35,13 @@ import { campaignPosition, campaignShamanTeams } from './campaign-runtime.ts'
 import { levelStartStoneExists, reincarnationStones } from './reincarnation.ts'
 import { terrainSupportsPerson } from './person-collision.ts'
 import type { NativeModel } from './model-faces.ts'
+import {
+  createKnowledgeGlow,
+  isTempleKnowledgeGift,
+  templeKnowledgeSource,
+  vaultKnowledgeFrame,
+  vaultKnowledgePlacement,
+} from './vault-appearance.ts'
 
 const debrisModels: Record<number, NativeModel> = modelAssets
 
@@ -169,8 +176,24 @@ export function createGift(
     gift.ordinaryWorship = { ...ordinary, completedTurn: w.turn, serial: gift.id }
     gift.recipient = w.manaWorld.playerTribe
   }
+  initializeVaultKnowledgeGift(w, gift)
   w.gifts.push(gift)
   return gift
+}
+
+// Creation/checkpoint migration changes presentation only, never reward timing or IDs.
+export function initializeVaultKnowledgeGift(w: World, gift: Gift) {
+  if (gift.reward !== 'temple' || isTempleKnowledgeGift(gift)) return
+  const shrine = templeKnowledgeSource(w, gift)
+  if (!shrine) return
+  const placement = vaultKnowledgePlacement(shrine)
+  gift.x = placement.x
+  gift.z = placement.z
+  gift.frame = vaultKnowledgeFrame(shrine.reward, shrine.rewardModel, w.outcome.level)!
+  gift.height =
+    (terrainPointHeight(w.land, nativePosition(w, placement)) + placement.heightOffset) / 45
+  gift.animation ??= createKnowledgeGlow()
+  gift.sprite ??= { sequence: 'vault-knowledge-glow', frame: 0, fixed: true }
 }
 export function createAngel(w: World, team: Team, p: Point) {
   const angel = effect(w, 'angel', p)

@@ -12,6 +12,8 @@ import {
 } from './worship-appearance.ts'
 import { restoreOrdinaryWorshipSource } from './worship-acquisition-source.ts'
 import { createWorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
+import { initializeVaultKnowledge } from './vault-appearance.ts'
+import { initializeVaultKnowledgeGift } from './world-effects.ts'
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
@@ -256,6 +258,8 @@ export function migrateCheckpoint(world: World) {
   world.shots.angel ??= 0
   world.giftCounts.angel ??= 0
   const gifts = world.gifts as unknown as (Gift | LegacyGift)[]
+  for (const shrine of world.shrines) initializeVaultKnowledge(shrine, world.outcome.level)
+  for (const gift of gifts) if (gift.kind === 'gift') initializeVaultKnowledgeGift(world, gift)
   if (!gifts.some(gift => gift.kind !== 'gift')) return world
   world.gifts = []
   for (const saved of gifts) {

@@ -70,6 +70,7 @@ export function loadTexture(kind: string) {
   if (
     kind === nativeUnits.atlas ||
     kind === 'effects' ||
+    kind === 'vault-knowledge' ||
     kind === 'selection' ||
     kind === 'unit-health'
   ) {
