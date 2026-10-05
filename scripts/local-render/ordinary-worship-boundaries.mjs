@@ -16,7 +16,7 @@ async function installEarlyObserver(page, phase) {
     const { GameScene } = await import('/app/scene.ts'), restorers = []
     const evidence = window.worshipBoundaryEvidence = {
       errors: [], replacement: null, start: null, cues: 0, visits: 0,
-      handoffs: [], draws: {}, drawCosts: [], visibility: [], firstVisibleDraw: null, restored: false,
+      handoffs: [], draws: {}, drawCosts: [], visibility: [], firstVisibleDraw: null, resumedMotion: null, restored: false,
     }
     const focus = w => structuredClone({ level: w.outcome.level, turn: w.turn, paused: w.paused,
       acquisition: w.worshipAcquisition, gifts: w.gifts.filter(g => g.reward === 'lightning'),
@@ -86,7 +86,21 @@ async function installEarlyObserver(page, phase) {
         return result
       })
       wrap(scene.gameClock, 'worshipVisit', original => function (...args) {
-        const result = original.apply(this, args); evidence.visits++; return result
+        const motion = () => {
+          const w = scene.world, spell = w.worshipAcquisition.controllers.spell
+          return spell && { turn: w.turn, paused: w.paused, active: spell.active, model: spell.model,
+            giftId: spell.giftId, position: { ...spell.position }, clock: { ...w.worshipAcquisition.clock } }
+        }
+        const before = phase === 'flight-load' && !evidence.resumedMotion ? observe(motion) : null
+        const result = original.apply(this, args)
+        evidence.visits++
+        if (before?.active && !before.paused) observe(() => {
+          const after = motion()
+          if (after?.giftId === before.giftId && !after.paused &&
+              (after.position.x !== before.position.x || after.position.y !== before.position.y))
+            evidence.resumedMotion = { before, after }
+        })
+        return result
       })
       wrap(presentation.bridge, 'measure', original => function (...args) {
         const result = original.apply(this, args)
@@ -417,6 +431,14 @@ export default async function ({ page, context, root, output, receipt, openMissi
       assert.deepEqual(start.focus.acquisition, savedFocus.acquisition, 'Observer was armed before the first real RAF visit')
       report.saved = { checkpoint: stored, focus: savedFocus }
       report.final = await finish()
+      if (!tail) {
+        report.resumedMotion = await page.evaluate(() => window.worshipBoundaryEvidence.resumedMotion)
+        assert.ok(report.resumedMotion, 'Original UI visits must move the saved body after public Load auto-resumes')
+        assert.equal(report.resumedMotion.before.giftId, savedFocus.acquisition.controllers.spell.giftId)
+        assert.equal(report.resumedMotion.before.model, 3)
+        assert.equal(report.resumedMotion.before.paused, false); assert.equal(report.resumedMotion.after.paused, false)
+        assert.notDeepEqual(report.resumedMotion.after.position, report.resumedMotion.before.position)
+      }
       const firstDraw = await page.evaluate(() => window.worshipBoundaryEvidence.draws['restored-first-frame'])
       assert.ok(firstDraw, 'Early observer must retain the real restored body/pulse draw')
       assert.ok(tail ? firstDraw.pulseCall : firstDraw.bodyCall, 'Restored frame needs a phase-appropriate actual drawImage call')
@@ -472,13 +494,11 @@ export default async function ({ page, context, root, output, receipt, openMissi
           const held = await snap(page)
           assert.equal(held.turn, paused.turn); assert.deepEqual(body(held), body(settled))
           assert.ok(held.acquisition.clock.elapsed > settled.acquisition.clock.elapsed, 'Visible paused UI visits continue')
-          await page.getByRole('button', { name: 'Resume game', exact: true }).click()
-          await wait(position => {
-            const c = window.worshipBoundaryScene.world.worshipAcquisition.controllers.spell
-            return c?.position.x !== position.x || c?.position.y !== position.y
-          }, held.acquisition.controllers.spell.position, 3000, 'Ordinary body motion resumes')
-          await page.getByRole('button', { name: 'Pause game', exact: true }).click()
-          report.visiblePause = { paused, settled, held, resumedThenPaused: await snap(page) }
+          // Preserve this genuinely active first pause for Save. The paired
+          // fresh-process public Load owns resume and records original UI-visit
+          // motion; a second host click race must not consume the flight first.
+          assert.equal(eligibleFlight(held), true, 'First visible pause must retain an eligible live body/gift')
+          report.visiblePause = { paused, settled, held, resumeBoundary: 'Paired fresh-process public Load auto-resume' }
         } else {
           try {
             await wait(() => {
