@@ -37,7 +37,7 @@ export function sourceReceipt(root) {
   const source = { root, commit: git('rev-parse', 'HEAD').trim(), tree: git('rev-parse', 'HEAD^{tree}').trim(), status: git('status', '--porcelain').trim(), trackedDiffSha256: digest(git('diff', '--binary', 'HEAD', '--')), untracked }
   return { ...source, fingerprint: digest(JSON.stringify(source)) }
 }
-function profileRuntimeReceipt(root, browserPath, require) {
+export function profileRuntimeReceipt(root, browserPath, require) {
   return {
     node: process.version, platform: process.platform, arch: process.arch,
     browserPath, browserSha256: sha256(readFileSync(browserPath)),
@@ -54,6 +54,9 @@ async function stopServer(server) {
   try { process.kill(-server.pid, 'SIGTERM') } catch (error) { if (error.code !== 'ESRCH') throw error }
   if (server.exitCode === null) await Promise.race([new Promise(resolve => server.once('exit', resolve)), delay(3000)])
   try { process.kill(-server.pid, 'SIGKILL') } catch (error) { if (error.code !== 'ESRCH') throw error }
+}
+export function priorCheckpoint(profile) {
+  return profile.previousRun?.checkpointAtEnd ?? (profile.previousRun ? null : profile.recoveryAdmission?.predecessor.checkpoint ?? null)
 }
 export async function runLocalBrowser(options, scenario) {
   const root = resolve(options.gameRoot), output = resolve(options.output)
@@ -91,7 +94,7 @@ export async function runLocalBrowser(options, scenario) {
       if ((await import(pathToFileURL(resolve(options.scenario)).href)).default !== scenario) throw Error('Persistent scenario must be the named module’s default export')
       receipt.runtime = profileRuntimeReceipt(root, receipt.launch.executablePath, require)
       receipt.scenario = { path: resolve(options.scenario), sha256: sha256(readFileSync(resolve(options.scenario))) }
-      lease = acquireProfile({ path: options.profile, root, origin: url, source: receipt.source, inputs, runtime: receipt.runtime, output, correspondence: options.profileCorrespondence })
+      lease = acquireProfile({ path: options.profile, root, origin: url, source: receipt.source, inputs, runtime: receipt.runtime, output, correspondence: options.profileCorrespondence, scenario: receipt.scenario })
       receipt.profile = lease.profile
       receipt.launch = persistentLaunchOptions(receipt.launch, lease.dataDir)
     }
@@ -139,9 +142,9 @@ export async function runLocalBrowser(options, scenario) {
     await page.getByRole('dialog', { name: 'Start game', exact: true }).waitFor({ state: 'visible' })
     if (lease) {
       receipt.profile.checkpointAtStart = await readCommittedCheckpoint(page)
-      const previous = receipt.profile.previousRun
-      if (previous && JSON.stringify(receipt.profile.checkpointAtStart) !== JSON.stringify(previous.checkpointAtEnd)) throw Error('Stored checkpoint differs from the previous terminal receipt; continuation is unverified')
-      if (!previous && receipt.profile.checkpointAtStart !== null) throw Error('New task profile unexpectedly contains a checkpoint')
+      const expected = priorCheckpoint(receipt.profile)
+      if (expected !== null && JSON.stringify(receipt.profile.checkpointAtStart) !== JSON.stringify(expected)) throw Error('Stored checkpoint differs from the previous terminal receipt; continuation is unverified')
+      if (expected === null && receipt.profile.checkpointAtStart !== null) throw Error('New task profile unexpectedly contains a checkpoint')
       checkpointIdentityVerified = true
     }
     const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
@@ -187,7 +190,7 @@ export async function runLocalBrowser(options, scenario) {
         finally { clearTimeout(timeout) }
       } catch (error) { receipt.profile.checkpointReadFailure = String(error) }
     }
-    if (lease && !launchAttempted) receipt.profile.checkpointAtEnd = receipt.profile.previousRun?.checkpointAtEnd ?? null
+    if (lease && !launchAttempted) receipt.profile.checkpointAtEnd = priorCheckpoint(receipt.profile)
     try {
       if (browser) {
         let timeout

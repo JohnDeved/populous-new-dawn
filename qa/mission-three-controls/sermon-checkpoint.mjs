@@ -1,6 +1,7 @@
 // Host-only provenance for a real UI sermon Save. Never writes game storage.
 import assert from 'node:assert/strict'
 import { requireFirstOwnedListener } from './observation.mjs'
+import { validateRecoveredSermonRecord } from './recovery-admission.mjs'
 
 const copy = value => structuredClone(value)
 const hash = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value)
@@ -30,6 +31,7 @@ export function createSermonRecord({ source, profile, observed, origin, state, d
 }
 
 export function validateSermonRecord(record, { source, profile, origin, checkpoint }) {
+  if (record?.kind === 'mission3-recovered-ui-sermon') return validateRecoveredSermonRecord(record, { source, profile, origin, checkpoint })
   assert.equal(record.version, 1); assert.equal(record.kind, 'mission3-ui-sermon')
   assert.equal(record.continuationBlockedReason, undefined, 'A withheld sermon record cannot authorize continuation')
   assert.equal(record.initialMission3Absent, true)

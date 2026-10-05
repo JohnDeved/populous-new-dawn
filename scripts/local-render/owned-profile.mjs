@@ -5,6 +5,7 @@ import { lstatSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSy
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path'
 import { hostname } from 'node:os'
 import { isDeepStrictEqual } from 'node:util'
+import { readRecoveryAdmission } from '../../qa/mission-three-controls/recovery-admission.mjs'
 
 export const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const json = value => JSON.stringify(value, null, 2) + '\n'
@@ -65,7 +66,7 @@ export function validateProfilePaths(root, path, output) {
   return parent
 }
 
-export function acquireProfile({ path, root, origin, source, inputs, runtime, output, correspondence }) {
+export function acquireProfile({ path, root, origin, source, inputs, runtime, output, correspondence, scenario }) {
   root = resolve(root)
   const parent = validateProfilePaths(root, path, output)
   inspectPath(parent, { create: true })
@@ -74,7 +75,7 @@ export function acquireProfile({ path, root, origin, source, inputs, runtime, ou
   inspectPath(path, { privateOwner: true })
   const marker = resolve(path, markerName), lock = resolve(path, lockName), dataDir = resolve(path, 'browser')
   const binding = { root, origin, application: inputs.application, runtime }
-  let manifest
+  let manifest, recoveryAdmission = null
   if (created) {
     manifest = { version: 1, purpose: 'populous-local-render-game-only', id: randomUUID(), path, createdAt: new Date().toISOString(), binding, lastRun: null }
     writeFileSync(marker, json(manifest), { flag: 'wx', mode: 0o600 })
@@ -82,7 +83,12 @@ export function acquireProfile({ path, root, origin, source, inputs, runtime, ou
   } else {
     manifest = readOwnedJson(marker)
     if (manifest.version !== 1 || manifest.purpose !== 'populous-local-render-game-only' || !/^[0-9a-f-]{36}$/.test(manifest.id ?? '') || manifest.path !== path || !isDeepStrictEqual(manifest.binding, binding)) throw Error('Profile ownership or game/runtime/origin inputs do not match; use a new task profile')
-    if (!manifest.lastRun?.cleanupVerified || !manifest.lastRun.continuationVerified || !Object.hasOwn(manifest.lastRun, 'checkpointAtEnd')) throw Error('Profile has no verified terminal provenance; preserve it for review')
+    if (manifest.recoveryAdmission) {
+      if (manifest.lastRun || manifest.recoveryClaim) throw Error('Single-segment recovery already claimed; preserve it for review')
+      recoveryAdmission = readRecoveryAdmission(manifest.recoveryAdmission,
+        { root, path, id: manifest.id, origin, source, inputs, runtime, scenario, correspondence }, { storagePath: dataDir })
+    }
+    if ((!recoveryAdmission || manifest.lastRun) && (!manifest.lastRun?.cleanupVerified || !manifest.lastRun.continuationVerified || !Object.hasOwn(manifest.lastRun, 'checkpointAtEnd'))) throw Error('Profile has no verified terminal provenance; preserve it for review')
     inspectPath(dataDir, { privateOwner: true })
     for (const name of ['SingletonLock', 'SingletonSocket', 'SingletonCookie']) {
       try { lstatSync(resolve(dataDir, name)) } catch (error) { if (error.code === 'ENOENT') continue; throw error }
@@ -90,7 +96,7 @@ export function acquireProfile({ path, root, origin, source, inputs, runtime, ou
     }
   }
   let review = null
-  if (!created && (manifest.lastRun.sourceFingerprint !== source.fingerprint || manifest.lastRun.checker !== inputs.checker)) {
+  if (!created && !recoveryAdmission && (manifest.lastRun.sourceFingerprint !== source.fingerprint || manifest.lastRun.checker !== inputs.checker)) {
     if (!correspondence) throw Error('Changed checker/source requires an explicit reviewed correspondence')
     const bytes = readFileSync(correspondence), value = JSON.parse(bytes)
     if (value.priorRunId !== manifest.lastRun.runId || value.previousSourceFingerprint !== manifest.lastRun.sourceFingerprint || value.currentSourceFingerprint !== source.fingerprint || value.previousChecker !== manifest.lastRun.checker || value.currentChecker !== inputs.checker || value.decision !== 'ACCEPT' || !value.reviewer || !value.reference) throw Error('Reviewed correspondence does not match this exact continuation')
@@ -101,7 +107,14 @@ export function acquireProfile({ path, root, origin, source, inputs, runtime, ou
   // wx refuses live, stale, corrupt, or symlink locks alike. Never infer ownership
   // from a PID, kill an unknown process, or automatically remove a stale lock.
   writeFileSync(lock, json(owner), { flag: 'wx', mode: 0o600 })
-  const profile = { id: manifest.id, path, runId, mode: created ? 'created' : 'reused', origin, inputs, correspondence: review, previousRun: manifest.lastRun, checkpoints: [] }
+  if (recoveryAdmission && !manifest.lastRun) {
+    manifest = { ...manifest, recoveryClaim: { runId } }
+    const temp = resolve(path, `claim-${runId}.tmp`)
+    writeFileSync(temp, json(manifest), { flag: 'wx', mode: 0o600 })
+    renameSync(temp, marker)
+  }
+  const profile = { id: manifest.id, path, runId, mode: created ? 'created' : 'reused', origin, inputs, correspondence: review, previousRun: manifest.lastRun, checkpoints: [],
+    ...(recoveryAdmission ? { recoveryAdmission, recoveryClaim: manifest.recoveryClaim } : {}) }
   let finished = false
   return { dataDir, profile,
     finish(receipt, cleanupVerified) {
@@ -109,7 +122,7 @@ export function acquireProfile({ path, root, origin, source, inputs, runtime, ou
       if (!cleanupVerified) throw Error('Browser cleanup is unverified; profile lock retained')
       if (!receipt.profile?.continuationVerified) throw Error('Checkpoint/source provenance is unverified; profile lock retained')
       inspectPath(path, { privateOwner: true })
-      if (!isDeepStrictEqual(readOwnedJson(lock), owner) || readOwnedJson(marker).id !== manifest.id) throw Error('Profile ownership changed; lock retained')
+      if (!isDeepStrictEqual(readOwnedJson(lock), owner) || !isDeepStrictEqual(readOwnedJson(marker), manifest)) throw Error('Profile ownership changed; lock retained')
       const text = readFileSync(resolve(output, 'receipt.json'), 'utf8')
       if (sha256(text) !== sha256(json(receipt))) throw Error('Terminal receipt changed; lock retained')
       const lastRun = { runId, sourceFingerprint: source.fingerprint, sourceCommit: source.commit, checker: inputs.checker, receiptPath: resolve(output, 'receipt.json'), receiptSha256: sha256(text), status: receipt.status, cleanupVerified, continuationVerified: receipt.profile.continuationVerified, checkpointAtEnd: receipt.profile.checkpointAtEnd }

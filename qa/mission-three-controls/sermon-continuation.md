@@ -103,3 +103,33 @@ new schema. Its observed Save may only receive a provenance record after an
 independently reviewed recovery verifies the actual stored digest and ties it to
 the retained source/onset/Save evidence. No such recovery or runtime use is claimed
 by these source-only changes. All900/2400 active and90/95 wall bounds remain.
+
+## One-time Run14 copied-storage recovery
+
+The retained Run14 profile remains quarantined: its cancellation assertion failed,
+its wrapper exited130, and no inner terminal receipt or original cleanup is proved.
+The offline validator separately read the preserved game-origin bytes and closed
+its own copy. Its actual closed directory may be renamed into one new game-only
+profile only through the reviewed `register-recovered-sermon.mjs` initializer.
+The initializer requires exact pinned validator receipts, immutable snapshot and
+post-close filesystem inventories, a frozen target source/runtime/profile, and an
+independent acceptance of that exact admission payload. No browser or game-storage
+API is used during registration. Private profile files remain local.
+
+The marker has `lastRun:null` and a separate typed `recoveryAdmission`. The real
+validator is a read-only predecessor, never a synthetic gameplay run. The normal
+lease claims this admission once, with `mode:'reused'`, and requires the full saved
+checkpoint at entry before ordinary Load. The two maintained harness files have
+new reviewed hashes; production application bytes remain pinned to `b381851`.
+A real terminal receipt alone may populate `lastRun` and release the new lock.
+
+This admission permits exactly one gameplay segment. A used claim or real lastRun
+blocks another acquisition; an emitted recovered record cannot authorize another
+Load entry. Ordinary same-session `reload-sermon` remains available and its new
+epoch contributes to the existing cumulative budgets. The inherited active prefix
+is407.75 seconds through the failed turn4893 observation, not merely the401.0833
+seconds in the saved turn4813. All original and new failures remain in the journey.
+Any later segment would require a separately reviewed cumulative-forwarding change.
+The immutable Run14 source/profile/acquisition/onset/milestones stay distinct from
+the newly assembled recovered record and validator-measured full checkpoint digest.
+Fresh cancellation, reload, conversion and later milestones must be observed again.

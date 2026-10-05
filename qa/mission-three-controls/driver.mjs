@@ -45,7 +45,7 @@ export default async function missionThreeControls({ page, output, root, signal,
   let preserveStopRequested = false
   let preserveVerificationFailed = false
   mkdirSync(commandsPath, { recursive: true })
-  for (const name of ['driver.mjs', 'observation.mjs', 'checkpoint-provenance.mjs', 'sermon-checkpoint.mjs', 'command-probes.mjs']) {
+  for (const name of ['driver.mjs', 'observation.mjs', 'checkpoint-provenance.mjs', 'sermon-checkpoint.mjs', 'recovery-admission.mjs', 'command-probes.mjs']) {
     const bytes = readFileSync(new URL(name, import.meta.url))
     writeFileSync(resolve(output, name), bytes)
     inputs.push({ name, sha256: sha256(bytes) })
