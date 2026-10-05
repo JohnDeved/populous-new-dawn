@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { checkpointObservation, readCommittedCheckpoint } from './checkpoint-observer.mjs'
+import { prepareM1LightningRoute, m1RouteSource, publicWorshipOrder } from './ordinary-worship-m1-route.mjs'
 
 // One phase per invocation, one frozen scenario for both browser processes.
 // Save and Load use the SAME profile/origin/source/runtime, fresh output paths.
@@ -64,115 +65,129 @@ async function installEarlyObserver(page, phase) {
     }))
     document.addEventListener('visibilitychange', visibility)
     restorers.push(() => document.removeEventListener('visibilitychange', visibility))
+    const installAcquisitionObserver = scene => {
+      if (evidence.observationArmed) throw Error('Acquisition observer already installed')
+      evidence.observationArmed = focus(scene.world)
+      const presentation = scene.worshipPresentation,
+        canvas = document.querySelector('.worship-acquisition-overlay'), ctx = canvas.getContext('2d')
+      const gl = scene.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
+      evidence.renderer = { webgl: gl.getParameter(gl.VERSION),
+        renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER) }
+      wrap(scene, 'onSound', original => function (...args) {
+        const result = original.apply(this, args)
+        if (args[0] === 0x71) evidence.cues++
+        return result
+      })
+      wrap(scene.gameClock, 'afterTurn', original => function (...args) {
+        const queued = [...scene.world.worshipAcquisition.requests], result = original.apply(this, args)
+        if (queued.length) observe(() => evidence.handoffs.push({ turn: scene.world.turn, queued, focus: focus(scene.world), diagnostics: structuredClone(presentation.diagnostics) }))
+        if (phase === 'missing-geometry' && scene.world.giftCounts.lightning && !evidence.faultPayout)
+          observe(() => { evidence.faultPayout = focus(scene.world) })
+        return result
+      })
+      wrap(scene.gameClock, 'worshipVisit', original => function (...args) {
+        const result = original.apply(this, args); evidence.visits++; return result
+      })
+      wrap(presentation.bridge, 'measure', original => function (...args) {
+        const result = original.apply(this, args)
+        if (insideDraw) measureCalls++
+        if (currentDrawing && args[0] === 3) currentDrawing.layout = result
+        return result
+      })
+      wrap(presentation, 'sprite', original => function (...args) {
+        const result = original.apply(this, args)
+        // Bind the actual returned sprite canvas to its original command.
+        // This is draw wiring evidence, not an independent source-raster oracle.
+        if (currentDrawing) currentDrawing.spriteRequest = { command: args[0], image: result }
+        return result
+      })
+      wrap(ctx, 'drawImage', original => function (...args) {
+        const result = original.apply(this, args)
+        if (currentDrawing && args.length === 9 && args[0] instanceof HTMLImageElement) observe(() => {
+          const t = this.getTransform()
+          currentDrawing.bodyCall = { kind: 'body', args: args.slice(1), transform: [t.a, t.b, t.c, t.d, t.e, t.f], alpha: this.globalAlpha }
+        })
+        if (currentDrawing && args.length === 5) observe(() => {
+          const request = currentDrawing.spriteRequest
+          if (request?.command.owner !== 'pulse' || request.command.model !== 3 || args[0] !== request.image) return
+          const t = this.getTransform()
+          currentDrawing.pulseCall = { kind: 'pulse', frame: request.command.frame,
+            args: args.slice(1), transform: [t.a, t.b, t.c, t.d, t.e, t.f], alpha: this.globalAlpha,
+            sourceSize: [request.image.width, request.image.height] }
+        })
+        return result
+      })
+      wrap(presentation, 'draw', original => function (...args) {
+        const tag = window.worshipBoundaryDrawTag,
+          commands = scene.world.worshipAcquisition.controllers.drawCommands,
+          command = commands.find(c => c.model === 3),
+          category = scene.world.paused ? 'paused' : 'active',
+          cost = command && costCounts[category] < 64 ? {
+            category, commandCount: commands.length, referenceCount: new Set(commands.map(c => c.geometry)).size,
+            turn: scene.world.turn, viewport: [innerWidth, innerHeight], dpr: devicePixelRatio,
+          } : null
+        currentDrawing = tag && command && !evidence.draws[tag] ? { tag, command, layout: null, bodyCall: null, pulseCall: null } : null
+        const drawing = currentDrawing
+        let result, duration
+        measureCalls = 0; insideDraw = true
+        const started = performance.now()
+        try { result = original.apply(this, args) }
+        finally { duration = performance.now() - started; currentDrawing = null; insideDraw = false }
+        observe(() => {
+          if (cost) { costCounts[category]++; evidence.drawCosts.push({ ...cost, milliseconds: duration, measureCalls }) }
+          if (awaitingVisibleDraw) {
+            evidence.firstVisibleDraw = { turn: scene.world.turn, clock: structuredClone(scene.world.worshipAcquisition.clock) }
+            awaitingVisibleDraw = false
+          }
+          if (drawing) {
+            const call = phase === 'tail-load' && tag === 'restored-first-frame' ? drawing.pulseCall : drawing.bodyCall
+            const alpha = { testedPixels: 0, nontransparent: 0, samples: [], bounds: null }
+            if (call) {
+              const [a, b, c, d, e, f] = call.transform,
+                [x, y, w, h] = call.kind === 'body' ? call.args.slice(4) : call.args,
+                corners = [[x, y], [x + w, y], [x + w, y + h], [x, y + h]].map(([x, y]) => [a * x + c * y + e, b * x + d * y + f]),
+                left = Math.max(0, Math.floor(Math.min(...corners.map(p => p[0])))),
+                top = Math.max(0, Math.floor(Math.min(...corners.map(p => p[1])))),
+                right = Math.min(canvas.width, Math.ceil(Math.max(...corners.map(p => p[0])))),
+                bottom = Math.min(canvas.height, Math.ceil(Math.max(...corners.map(p => p[1]))))
+              if (right > left && bottom > top) {
+                const count = (right - left) * (bottom - top)
+                if (count > 1_000_000) throw Error('Overlay alpha observation exceeds bounded region')
+                const pixels = ctx.getImageData(left, top, right - left, bottom - top)
+                alpha.bounds = [left, top, pixels.width, pixels.height]; alpha.testedPixels = count
+                for (let i = 3; i < pixels.data.length; i += 4) if (pixels.data[i]) {
+                  alpha.nontransparent++
+                  if (alpha.samples.length < 8) alpha.samples.push([left + ((i >>> 2) % pixels.width), top + Math.floor((i >>> 2) / pixels.width), pixels.data[i]])
+                }
+              }
+            }
+            evidence.draws[tag] = { turn: scene.world.turn,
+              command: structuredClone(drawing.command), layout: structuredClone(drawing.layout), bodyCall: drawing.bodyCall, pulseCall: drawing.pulseCall,
+              alpha, canvas: [canvas.width, canvas.height], dpr: devicePixelRatio,
+              viewport: [innerWidth, innerHeight], hidden: canvas.hidden, png: canvas.toDataURL() }
+          }
+        })
+        return result
+      })
+    }
+    window.armWorshipBoundaryAcquisition = () => {
+      const scene = window.worshipBoundaryScene, w = scene.world, a = w.worshipAcquisition, c = a.controllers
+      if (scene.world !== store.getWorld() || w.gifts.length || a.requests.length ||
+          c.spell?.active || c.companion?.active || c.pulse?.active || c.drawCommands.length ||
+          !scene.worshipPresentation.canvas.hidden)
+        throw Error('Lightning observation requires current scene and completed prerequisite presentation')
+      installAcquisitionObserver(scene)
+    }
     const restoreStart = wrap(GameScene.prototype, 'start', original => function (...args) {
       observe(() => {
         if (evidence.start) throw Error('Unexpected second scene start in this phase')
         window.worshipBoundaryScene = this
         evidence.start = { focus: focus(this.world), startedBefore: this.started,
           currentWorld: this.world === store.getWorld(), connected: this.renderer.domElement.isConnected }
-        const scene = this, presentation = scene.worshipPresentation,
-          canvas = document.querySelector('.worship-acquisition-overlay'), ctx = canvas.getContext('2d')
-        const gl = scene.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
-        evidence.renderer = { webgl: gl.getParameter(gl.VERSION),
-          renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER) }
-        wrap(scene, 'onSound', original => function (...args) {
-          const result = original.apply(this, args)
-          if (args[0] === 0x71) evidence.cues++
-          return result
-        })
-        wrap(scene.gameClock, 'afterTurn', original => function (...args) {
-          const queued = [...scene.world.worshipAcquisition.requests], result = original.apply(this, args)
-          if (queued.length) observe(() => evidence.handoffs.push({ turn: scene.world.turn, queued, focus: focus(scene.world), diagnostics: structuredClone(presentation.diagnostics) }))
-          if (phase === 'missing-geometry' && scene.world.giftCounts.lightning && !evidence.faultPayout)
-            observe(() => { evidence.faultPayout = focus(scene.world) })
-          return result
-        })
-        wrap(scene.gameClock, 'worshipVisit', original => function (...args) {
-          const result = original.apply(this, args); evidence.visits++; return result
-        })
-        wrap(presentation.bridge, 'measure', original => function (...args) {
-          const result = original.apply(this, args)
-          if (insideDraw) measureCalls++
-          if (currentDrawing && args[0] === 3) currentDrawing.layout = result
-          return result
-        })
-        wrap(presentation, 'sprite', original => function (...args) {
-          const result = original.apply(this, args)
-          // Bind the actual returned sprite canvas to its original command.
-          // This is draw wiring evidence, not an independent source-raster oracle.
-          if (currentDrawing) currentDrawing.spriteRequest = { command: args[0], image: result }
-          return result
-        })
-        wrap(ctx, 'drawImage', original => function (...args) {
-          const result = original.apply(this, args)
-          if (currentDrawing && args.length === 9 && args[0] instanceof HTMLImageElement) observe(() => {
-            const t = this.getTransform()
-            currentDrawing.bodyCall = { kind: 'body', args: args.slice(1), transform: [t.a, t.b, t.c, t.d, t.e, t.f], alpha: this.globalAlpha }
-          })
-          if (currentDrawing && args.length === 5) observe(() => {
-            const request = currentDrawing.spriteRequest
-            if (request?.command.owner !== 'pulse' || request.command.model !== 3 || args[0] !== request.image) return
-            const t = this.getTransform()
-            currentDrawing.pulseCall = { kind: 'pulse', frame: request.command.frame,
-              args: args.slice(1), transform: [t.a, t.b, t.c, t.d, t.e, t.f], alpha: this.globalAlpha,
-              sourceSize: [request.image.width, request.image.height] }
-          })
-          return result
-        })
-        wrap(presentation, 'draw', original => function (...args) {
-          const tag = window.worshipBoundaryDrawTag,
-            commands = scene.world.worshipAcquisition.controllers.drawCommands,
-            command = commands.find(c => c.model === 3),
-            category = scene.world.paused ? 'paused' : 'active',
-            cost = command && costCounts[category] < 64 ? {
-              category, commandCount: commands.length, referenceCount: new Set(commands.map(c => c.geometry)).size,
-              turn: scene.world.turn, viewport: [innerWidth, innerHeight], dpr: devicePixelRatio,
-            } : null
-          currentDrawing = tag && command && !evidence.draws[tag] ? { tag, command, layout: null, bodyCall: null, pulseCall: null } : null
-          const drawing = currentDrawing
-          let result, duration
-          measureCalls = 0; insideDraw = true
-          const started = performance.now()
-          try { result = original.apply(this, args) }
-          finally { duration = performance.now() - started; currentDrawing = null; insideDraw = false }
-          observe(() => {
-            if (cost) { costCounts[category]++; evidence.drawCosts.push({ ...cost, milliseconds: duration, measureCalls }) }
-            if (awaitingVisibleDraw) {
-              evidence.firstVisibleDraw = { turn: scene.world.turn, clock: structuredClone(scene.world.worshipAcquisition.clock) }
-              awaitingVisibleDraw = false
-            }
-            if (drawing) {
-              const call = phase === 'tail-load' && tag === 'restored-first-frame' ? drawing.pulseCall : drawing.bodyCall
-              const alpha = { testedPixels: 0, nontransparent: 0, samples: [], bounds: null }
-              if (call) {
-                const [a, b, c, d, e, f] = call.transform,
-                  [x, y, w, h] = call.kind === 'body' ? call.args.slice(4) : call.args,
-                  corners = [[x, y], [x + w, y], [x + w, y + h], [x, y + h]].map(([x, y]) => [a * x + c * y + e, b * x + d * y + f]),
-                  left = Math.max(0, Math.floor(Math.min(...corners.map(p => p[0])))),
-                  top = Math.max(0, Math.floor(Math.min(...corners.map(p => p[1])))),
-                  right = Math.min(canvas.width, Math.ceil(Math.max(...corners.map(p => p[0])))),
-                  bottom = Math.min(canvas.height, Math.ceil(Math.max(...corners.map(p => p[1]))))
-                if (right > left && bottom > top) {
-                  const count = (right - left) * (bottom - top)
-                  if (count > 1_000_000) throw Error('Overlay alpha observation exceeds bounded region')
-                  const pixels = ctx.getImageData(left, top, right - left, bottom - top)
-                  alpha.bounds = [left, top, pixels.width, pixels.height]; alpha.testedPixels = count
-                  for (let i = 3; i < pixels.data.length; i += 4) if (pixels.data[i]) {
-                    alpha.nontransparent++
-                    if (alpha.samples.length < 8) alpha.samples.push([left + ((i >>> 2) % pixels.width), top + Math.floor((i >>> 2) / pixels.width), pixels.data[i]])
-                  }
-                }
-              }
-              evidence.draws[tag] = { turn: scene.world.turn,
-                command: structuredClone(drawing.command), layout: structuredClone(drawing.layout), bodyCall: drawing.bodyCall, pulseCall: drawing.pulseCall,
-                alpha, canvas: [canvas.width, canvas.height], dpr: devicePixelRatio,
-                viewport: [innerWidth, innerHeight], hidden: canvas.hidden, png: canvas.toDataURL() }
-            }
-          })
-          return result
-        })
-        // The one-shot prototype hook restores BEFORE original start. All
-        // instance observers are already installed when original schedules RAF.
+        if (phase.endsWith('-load')) installAcquisitionObserver(this)
+        // The one-shot prototype hook restores BEFORE original start. Load instance
+        // observers precede original RAF; fresh phases retain this initial snapshot
+        // but install acquisition observers only after the ordinary Bridge route.
         restoreStart(); restorers.splice(restorers.indexOf(restoreStart), 1)
       })
       return original.apply(this, args)
@@ -242,39 +257,12 @@ const eligibleFlight = state => !!state?.acquisition.controllers.spell?.active &
 const eligibleTail = state => !!state?.acquisition.controllers.pulse?.active &&
   !state.acquisition.controllers.spell?.active && !state.acquisition.controllers.companion?.active
 
-async function orderLightning(page, waitForShamanReadiness) {
-  const resume = page.getByRole('button', { name: 'Resume game', exact: true })
-  if (await resume.isVisible()) await resume.click()
-  const readiness = await waitForShamanReadiness(page, { timeout: 45000 })
-  for (let attempt = 0; attempt < 3; attempt++) {
-    if (await page.evaluate(() => !window.testStore.getWorld().mode && !window.testStore.getWorld().selected.length)) break
-    await page.keyboard.press('Escape')
-  }
-  await page.getByRole('button', { name: 'Select brave', exact: true }).click({ modifiers: ['Shift'] })
-  const shrine = await page.evaluate(() => {
-    const scene = window.testSceneRef.current, world = window.testStore.getWorld()
-    if (scene.world !== world || world.paused || world.inputMask) throw Error('Current scene/order gate changed')
-    const head = world.shrines.find(s => s.kind === 'lightning' && s.x === 11 && s.z === 1)
-    if (!head?.ordinarySpellReward || head.required !== 1 || head.target !== 32) throw Error('Unexpected authored Lightning head')
-    scene.focus(head) // Labeled camera assistance; before public mode setup.
-    return { id: head.id, x: head.x, z: head.z }
-  })
-  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
-  const point = await page.evaluate(id => {
-    const scene = window.testSceneRef.current, head = scene.world.shrines.find(s => s.id === id),
-      mesh = scene.shrineMeshes.get(id)?.g, p = scene.screen(mesh?.position ?? head), r = scene.container.getBoundingClientRect(),
-      center = { x: r.x + (p.x + 1) * r.width / 2, y: r.y + (1 - p.y) * r.height / 2 }
-    for (let dy = -140; dy <= 60; dy += 4) for (let dx = -100; dx <= 100; dx += 4) {
-      const event = { clientX: center.x + dx, clientY: center.y + dy }
-      if (scene.picking.pickPerson(event) === null && scene.pickWorldObject(event)?.id === id &&
-          document.elementFromPoint(event.clientX, event.clientY) === scene.renderer.domElement)
-        return { x: event.clientX, y: event.clientY }
-    }
-    throw Error('No canvas-owned Lightning shrine hit; no injected fallback')
-  }, shrine.id)
-  await page.mouse.click(point.x, point.y)
-  assert.equal(await page.evaluate(id => window.testStore.getWorld().units.some(u => u.team === 'blue' && u.kind === 'brave' && u.work === id), shrine.id), true)
-  return { readiness, shrine, point, cameraAssistance: 'scene.focus before targeting; ordinary RAF for geometry/panels' }
+async function orderLightning(page, waitForShamanReadiness, report) {
+  const shrine = await page.evaluate(() => window.testStore.getWorld().shrines.find(s =>
+    s.kind === 'lightning' && s.x === 11 && s.z === 1))
+  assert.ok(shrine?.ordinarySpellReward); assert.equal(shrine.required, 1); assert.equal(shrine.target, 32)
+  await publicWorshipOrder(page, shrine, 'brave', report, waitForShamanReadiness)
+  return report.orders.at(-1)
 }
 
 async function restartDuringFlight(page, bindGame, waitForShamanReadiness, wait, output) {
@@ -379,7 +367,7 @@ export default async function ({ page, context, root, output, receipt, openMissi
   const report = { phase, status: 'running', source: receipt.source,
     scenarioSha256: createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex'),
     method: 'Real RAF, public mouse/HUD/Save/Load. Read-only synchronous replacement and original-once pre-start callback observation. No direct World/clock/RNG mutation.',
-    browserVersion: receipt.browserVersion,
+    browserVersion: receipt.browserVersion, routeHelperSha256: m1RouteSource.helperSha256,
     drawCostMethod: 'At most64 active and64 paused samples. Bracket only original presentation.draw; outer state snapshots and PNG capture excluded. Nested observer counters/pass-through wrappers remain; selected draw-argument capture has small extra overhead. Shared CPU/headless/software timing is diagnostic, not FPS or a speedup claim.',
     coveredBoundary: phase === 'restart' ? 'Actual live old-scene disposal via public Restart, not browser termination' : phase === 'missing-geometry' ? 'Explicit DOM-only exceptional-path geometry fault after a real gift' : phase,
     limits: 'Headless/software functional evidence. Two-process continuation is distinct from fresh-page reload. DPR2 is CDP device emulation, not a physical display. Actual drawImage calls plus bounded alpha output and PNG establish limited overlay correspondence; another concurrent sprite can contribute to the alpha region. No full native raster or hardware performance claim. Tail window may be missed; hidden-state support must be demonstrated.' }
@@ -410,6 +398,7 @@ export default async function ({ page, context, root, output, receipt, openMissi
       report.previousReceiptIntegrity = { sha256: priorDigest, verified: true }
       assert.equal(prior.result.phase, tail ? 'tail-save' : 'flight-save')
       assert.equal(prior.scenario.sha256, report.scenarioSha256)
+      assert.equal(prior.result.routeHelperSha256, report.routeHelperSha256, 'Both process runs require identical prerequisite helper bytes')
       assert.deepEqual(receipt.profile.checkpointAtStart, prior.profile.checkpointAtEnd)
       const savedFocus = await readStoredFocus(page), stored = await readCommittedCheckpoint(page)
       assert.deepEqual(savedFocus, prior.result.saved.focus)
@@ -442,7 +431,9 @@ export default async function ({ page, context, root, output, receipt, openMissi
     } else {
       assert.equal(receipt.profile.checkpointAtStart, null)
       await openMission(1)
-      report.order = await orderLightning(page, waitForShamanReadiness)
+      await prepareM1LightningRoute({ page, waitForShamanReadiness, signal, report, save: saveReport })
+      await page.evaluate(() => window.armWorshipBoundaryAcquisition())
+      report.order = await orderLightning(page, waitForShamanReadiness, report)
       if (phase !== 'missing-geometry') await wait(() => {
           const c = window.worshipBoundaryScene.world.worshipAcquisition.controllers
           return c.spell?.active && c.spell.step === 2 && c.spell.visits <= 4
