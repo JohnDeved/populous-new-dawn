@@ -5135,14 +5135,15 @@
         "Existing animation cadence and frame/hide behavior"
       ],
       "knownLimits": [
-        "Post-death terrain and direct drowning entry are explicit fixtures; shipped spell rendering is separate."
+        "Death-terrain/drowning fixtures and fake-Scene bounds; actual rendering separate."
       ],
       "executable": "node",
       "args": [
         "--test",
         "tests/shaman-death-ground.test.mjs",
         "tests/shaman-death-cadence.test.mjs",
-        "tests/shaman-death-vfx.test.mjs"
+        "tests/shaman-death-vfx.test.mjs",
+        "tests/controlled-scene-frames.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -5155,12 +5156,19 @@
         "tests/level-start-fixture.mjs",
         "tests/shaman-death-ground.test.mjs",
         "tests/shaman-death-cadence.test.mjs",
-        "tests/shaman-death-vfx.test.mjs"
+        "tests/shaman-death-vfx.test.mjs",
+        "scripts/controlled-scene-frames.mjs",
+        "tests/controlled-scene-frames.test.mjs"
       ],
-      "prerequisites": ["Node.js with TypeScript stripping"],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
       "sideEffects": [],
       "resources": [],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "shaman-death-ground-native",
@@ -5204,19 +5212,16 @@
       "id": "shaman-death-ground-browser",
       "kind": "browser",
       "automation": "manual",
-      "purpose": "Render fixed ticks.",
+      "purpose": "Full Scene frames.",
       "coveredBehavior": [
-        "Mission1 UI, H selection and four ordinarily acquired Bridge gifts",
-        "Public worship, movement, attack, HUD spell and ground-click paths",
-        "Injured living caster survives until Bridge creation, then dies through combat",
-        "Actual death-point terrain changes while model12 remains in phase1",
-        "Body/mesh heights, stable anchor and framebuffer contribution",
-        "Same driver supports before-source cached-height mismatch and candidate alignment"
+        "M1 public H/worship/move/attack/casts; four earned Bridge shots",
+        "Bridge request/body/arrival/next-turn payout",
+        "Injured living caster creates Bridge, then combat death",
+        "Phase1 ground/stored/body/mesh; stable anchor",
+        "Framebuffer contribution and combined cached-height control"
       ],
       "knownLimits": [
-        "RAF is held and ordinary fixed turns are supplied: controlled-clock rendered integration, not a real-clock ordinary journey.",
-        "Manual tick bypasses advanceGame presentation cadence and scene turn observers; those remain separate checks.",
-        "Camera preparation is controlled; original raster and hardware performance are not established."
+        "Held RAF; full Scene.animate at24Hz/1x, not real time. Zero-time camera assist; no World injection. No native raster/hardware claim."
       ],
       "executable": "node",
       "args": [
@@ -5228,10 +5233,15 @@
         "--browser",
         "$POPULOUS_HEADLESS_SHELL",
         "--output",
-        "$POPULOUS_ARTIFACT_DIR"
+        "$POPULOUS_ARTIFACT_DIR",
+        "--timeout",
+        "480000"
       ],
       "cwd": ".",
-      "env": ["POPULOUS_HEADLESS_SHELL", "POPULOUS_ARTIFACT_DIR"],
+      "env": [
+        "POPULOUS_HEADLESS_SHELL",
+        "POPULOUS_ARTIFACT_DIR"
+      ],
       "inputs": [
         "app/world-turn.ts",
         "app/reincarnation.ts",
@@ -5243,12 +5253,27 @@
         "scripts/browser-game.mjs",
         "scripts/hud-texture-readiness.mjs",
         "scripts/campaign-start-readiness.mjs",
-        "scripts/local-render/harness.mjs"
+        "scripts/local-render/harness.mjs",
+        "app/game-clock.ts",
+        "app/worship-acquisition-runtime.ts",
+        "app/scene-worship-acquisition.ts",
+        "scripts/controlled-scene-frames.mjs",
+        "scripts/shaman-worship-ground-observer.mjs"
       ],
-      "prerequisites": ["Verified installed dependencies", "Supported sandboxed browser"],
-      "sideEffects": ["Writes source-bound screenshots/report in an owned artifact directory"],
-      "resources": ["Shared browser/server lane; serialize"],
-      "expected": { "exitCode": 0, "artifacts": [] }
+      "prerequisites": [
+        "Verified installed dependencies",
+        "Supported sandboxed browser"
+      ],
+      "sideEffects": [
+        "Writes source-bound screenshots/report in an owned artifact directory"
+      ],
+      "resources": [
+        "Shared browser/server lane; serialize"
+      ],
+      "expected": {
+        "exitCode": 0,
+        "artifacts": []
+      }
     },
     {
       "id": "reincarnation-wave-portable",

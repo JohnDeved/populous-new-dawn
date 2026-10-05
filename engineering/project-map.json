@@ -577,6 +577,9 @@
         "tests/shaman-death-ground.test.mjs",
         "scripts/check-native-shaman-death-ground.py",
         "scripts/check-browser-shaman-death-ground.mjs",
+        "scripts/controlled-scene-frames.mjs",
+        "scripts/shaman-worship-ground-observer.mjs",
+        "tests/controlled-scene-frames.test.mjs",
         "decomp/research/shaman-death-vfx.md"
       ],
       "sharedPaths": [
