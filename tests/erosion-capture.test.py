@@ -17,18 +17,18 @@ def fixture():
     hashes = {name: probe.digest(name.encode()) for name in ('capture', 'lifecycle', 'modules', 'inputs')}
     modules = {path: {'sourceSha256': probe.digest(b'test source'), 'servedBody': 'test served module', 'servedSha256': probe.digest(b'test served module')} for path in probe.MODULES}
     center = {'x': 63744, 'y': 35072, 'h': 100}
-    capture = {'version': 1, 'kind': 'ordinary-m3-erosion-controller-inputs', 'level': 3, 'shrineId': 101, 'effectId': 400,
+    capture = {'version': 2, 'kind': 'ordinary-m3-erosion-controller-inputs', 'level': 3, 'shrineId': 101, 'effectId': 400,
                'onsetTurn': 100, 'failure': None, 'detached': True, 'runId': 'synthetic-run', 'profileId': 'synthetic-profile',
-               'source': {'commit': source['commit'], 'fingerprint': source['fingerprint']}, 'steps': []}
+               'source': {'commit': source['commit'], 'fingerprint': source['fingerprint']}, 'steps': [], 'creation': {'center': center.copy(), 'remaining': 64}}
     for i in range(1, 65):
         state = lambda n: {'center': center.copy(), 'remaining': n, 'randomState': i, 'heights': [100] * 16384}
-        capture['steps'].append({'turn': 100 + i, 'visit': {'ordinal': i, 'before': state(65 - i), 'after': state(64 - i),
+        capture['steps'].append({'turn': 99 + i, 'visit': {'ordinal': i, 'before': state(65 - i), 'after': state(64 - i),
             'alive': i < 64, 'completed': True, 'notifications': [{'kind': 'sound', 'completed': True}] if i < 64 else [], 'copyMilliseconds': 0.1}})
-    effect = {'onsetTurn': 100, 'onset': {'id': 400, 'kind': 'erosion', 'remaining': 64, 'age': 0, 'center': center},
-              'retired': {'turnBefore': 163, 'turnAfter': 164, 'remaining': 0, 'absentFromWorld': True},
-              'samples': [[100 + i, 64 - i] for i in range(64)]}
+    effect = {'onsetTurn': 100, 'onset': {'id': 400, 'kind': 'erosion', 'remaining': 63, 'age': 0, 'center': center},
+              'retired': {'turnBefore': 162, 'turnAfter': 163, 'remaining': 0, 'absentFromWorld': True},
+              'samples': [[100 + i, 63 - i] for i in range(64)]}
     lifecycle = {'runId': capture['runId'], 'sourceFingerprint': source['fingerprint'], 'errors': [], 'speedViolations': [],
-                 'erosion': {'shrineId': 101, 'initialUses': 0, 'armedAtTurn': 99, 'use': {'turn': 100, 'uses': 1}, 'effects': [effect]}}
+                 'erosion': {'version': 2, 'shrineId': 101, 'initialUses': 0, 'armedAtTurn': 99, 'use': {'turn': 100, 'uses': 1}, 'effects': [effect]}}
     receipt = {'status': 'passed', 'errors': [], 'source': source, 'sourceAfter': copy.deepcopy(source),
                'runtime': {'browserSha256': 'd' * 64}, 'runtimeAfter': {'browserSha256': 'd' * 64},
                'scenario': {'sha256': 'e' * 64}, 'scenarioAfter': {'sha256': 'e' * 64},
@@ -99,6 +99,21 @@ class AdmissionTests(unittest.TestCase):
         rows = probe.validate(**f)
         self.assertIs(rows, f['capture']['steps'])
         self.assertEqual(len(rows), 64)
+
+    def test_old_version_or_delayed_first_call_cannot_be_relabelled_as_version2(self):
+        mutations = [
+            lambda f: f['capture'].update(version=1),
+            lambda f: f['lifecycle']['erosion'].update(version=1),
+            lambda f: f['capture']['creation'].update(remaining=63),
+            lambda f: f['capture']['creation']['center'].update(x=0),
+            lambda f: f['lifecycle']['erosion']['effects'][0]['onset'].update(remaining=64),
+            lambda f: f['lifecycle']['erosion']['effects'][0]['retired'].update(turnBefore=163, turnAfter=164),
+            lambda f: [row.update(turn=row['turn'] + 1) for row in f['capture']['steps']],
+        ]
+        for index, mutation in enumerate(mutations):
+            f = fixture(); mutation(f)
+            with self.subTest(mutation=index), self.assertRaises(ValueError):
+                probe.validate(**f)
 
 
 if __name__ == '__main__':

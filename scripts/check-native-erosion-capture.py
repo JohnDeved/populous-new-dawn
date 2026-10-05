@@ -48,8 +48,8 @@ def state(value, remaining):
 
 def validate(capture, receipt, lifecycle, modules, hashes, source_bytes):
     """Validate documents only. source_bytes is pinned git content in the CLI."""
-    require(set(capture) == {'version', 'kind', 'level', 'shrineId', 'effectId', 'onsetTurn', 'failure', 'detached', 'runId', 'profileId', 'source', 'steps'}, 'Unexpected capture fields')
-    require(integer(capture.get('version'), 1, 1) and capture.get('kind') == 'ordinary-m3-erosion-controller-inputs', 'Wrong capture version/kind')
+    require(set(capture) == {'version', 'kind', 'level', 'shrineId', 'effectId', 'onsetTurn', 'failure', 'detached', 'runId', 'profileId', 'source', 'steps', 'creation'}, 'Unexpected capture fields')
+    require(integer(capture.get('version'), 2, 2) and capture.get('kind') == 'ordinary-m3-erosion-controller-inputs', 'Requires version2 immediate-activation capture')
     require(capture.get('level') == 3 and capture.get('shrineId') == 101, 'Requires authored Mission 3 head101')
     require(integer(capture.get('effectId'), 1, 0x7fffffff), 'Missing actual effect identity')
     require(integer(capture.get('onsetTurn'), 0, 0x7fffffff), 'Missing actual onset turn')
@@ -80,20 +80,22 @@ def validate(capture, receipt, lifecycle, modules, hashes, source_bytes):
     require(lifecycle.get('runId') == capture['runId'] and lifecycle.get('sourceFingerprint') == source['fingerprint'], 'Lifecycle source/run mismatch')
     require(lifecycle.get('errors') == [] and lifecycle.get('speedViolations') == [], 'Lifecycle observer errors')
     observation = lifecycle.get('erosion', {})
-    require(observation.get('shrineId') == 101 and observation.get('initialUses') == 0, 'Missing prospective unused shrine observation')
+    require(integer(observation.get('version'), 2, 2) and observation.get('shrineId') == 101 and observation.get('initialUses') == 0, 'Missing prospective version2 unused shrine observation')
     require(integer(observation.get('armedAtTurn'), 0, capture['onsetTurn'] - 1), 'Late lifecycle arm')
     require(observation.get('use', {}).get('turn') == capture['onsetTurn'] and observation['use'].get('uses') == 1, 'Missing actual shrine-use transition')
     require(len(observation.get('effects', [])) == 1, 'One actual authored Erosion required')
     effect = observation['effects'][0]
     onset = effect.get('onset', {})
-    require(effect.get('onsetTurn') == capture['onsetTurn'] and onset.get('id') == capture['effectId'] and onset.get('kind') == 'erosion' and onset.get('remaining') == 64 and onset.get('age') == 0, 'Wrong observed controller onset')
+    require(effect.get('onsetTurn') == capture['onsetTurn'] and onset.get('id') == capture['effectId'] and onset.get('kind') == 'erosion' and onset.get('remaining') == 63 and onset.get('age') == 0, 'Wrong observed controller onset after immediate processing')
+    creation = capture['creation']
+    require(isinstance(creation, dict) and set(creation) == {'center', 'remaining'} and integer(creation['remaining'], 64, 64) and creation['center'] == onset.get('center'), 'Missing matching constructor state before first processing')
     retired = effect.get('retired', {})
-    require(retired.get('turnBefore') == capture['onsetTurn'] + 63 and retired.get('turnAfter') == capture['onsetTurn'] + 64 and retired.get('remaining') == 0 and retired.get('absentFromWorld') is True, 'Missing actual retirement')
-    require(effect.get('samples') == [[capture['onsetTurn'] + i, 64 - i] for i in range(64)], 'Incomplete adjacent lifecycle samples')
+    require(retired.get('turnBefore') == capture['onsetTurn'] + 62 and retired.get('turnAfter') == capture['onsetTurn'] + 63 and retired.get('remaining') == 0 and retired.get('absentFromWorld') is True, 'Missing actual retirement at activation+63')
+    require(effect.get('samples') == [[capture['onsetTurn'] + i, 63 - i] for i in range(64)], 'Incomplete adjacent version2 lifecycle samples including retirement')
     steps = capture.get('steps')
     require(isinstance(steps, list) and len(steps) == 64, 'Exactly 64 actual step records required')
     for ordinal, row in enumerate(steps, 1):
-        require(set(row) == {'turn', 'visit'} and row['turn'] == capture['onsetTurn'] + ordinal, 'Missing/duplicate/reordered observed step turn')
+        require(set(row) == {'turn', 'visit'} and row['turn'] == capture['onsetTurn'] + ordinal - 1, 'Missing/duplicate/reordered observed step turn')
         visit = row['visit']
         require(set(visit) == {'ordinal', 'before', 'after', 'alive', 'completed', 'notifications', 'copyMilliseconds'}, 'Unexpected visit fields')
         require(integer(visit['ordinal'], ordinal, ordinal) and visit['completed'] is True and visit['alive'] is (ordinal < 64), 'Incomplete or reordered controller call')

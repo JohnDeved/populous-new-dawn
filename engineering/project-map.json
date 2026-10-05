@@ -1673,6 +1673,7 @@
         "decomp/research/erosion-actual-capture.md",
         "scripts/check-native-erosion-capture.py",
         "tests/erosion-observation.test.mjs",
+        "tests/erosion-creation-observation.test.mjs",
         "tests/erosion-capture.test.py",
         "qa/erosion-native-replay/capture.mjs",
         "qa/erosion-native-replay/capture.test.mjs"

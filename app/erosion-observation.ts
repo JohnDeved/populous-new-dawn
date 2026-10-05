@@ -29,8 +29,16 @@ interface Capture {
   failure: string | null
   detached: boolean
 }
+interface Declaration {
+  expected: { x: number; y: number }
+  controller: Erosion | null
+  creation: Erosion | null
+  creations: number
+  capture: Capture
+}
 
 const captures = new WeakMap<Erosion, Capture>()
+let nextCapture: Declaration | null = null
 
 function diagnose(capture: Capture, action: () => void) {
   if (capture.failure) return
@@ -60,11 +68,7 @@ function snapshot(land: Ground, erosion: Erosion, game: Random): State {
 
 // A diagnostic handle owns only copies. Its registration changes neither the
 // controller nor World; the browser driver must prove ordinary onset separately.
-export function armErosionCapture(erosion: Erosion) {
-  if (erosion.remaining !== 64 || captures.has(erosion))
-    throw new Error('Erosion capture requires a new, unobserved controller at remaining 64')
-  const capture: Capture = { visits: [], failure: null, detached: false }
-  captures.set(erosion, capture)
+function captureHandle(capture: Capture) {
   return {
     status: () => ({ count: capture.visits.length, failure: capture.failure }),
     read: () => structuredClone(capture),
@@ -73,6 +77,67 @@ export function armErosionCapture(erosion: Erosion) {
       // Keep the weak registration to reject re-arming the same controller.
     },
   }
+}
+
+export function armErosionCapture(erosion: Erosion) {
+  if (erosion.remaining !== 64 || captures.has(erosion))
+    throw new Error('Erosion capture requires a new, unobserved controller at remaining 64')
+  const capture: Capture = { visits: [], failure: null, detached: false }
+  captures.set(erosion, capture)
+  return captureHandle(capture)
+}
+
+// Ordinary capture declares its target before creation. It never searches for a
+// replacement, calls a user callback or gives the observer a live controller.
+export function declareNextErosionCapture(expected: { x: number; y: number }) {
+  if (nextCapture) {
+    nextCapture.capture.failure = 'An Erosion capture declaration is already active'
+    throw new Error(nextCapture.capture.failure)
+  }
+  const { x, y } = expected
+  if (![x, y].every(value => Number.isInteger(value) && value >= 0 && value <= 65535))
+    throw new Error('Erosion declaration requires unsigned native coordinates')
+  const capture: Capture = { visits: [], failure: null, detached: false },
+    declaration: Declaration = {
+      expected: { x, y },
+      controller: null,
+      creation: null,
+      creations: 0,
+      capture,
+    },
+    handle = captureHandle(capture)
+  nextCapture = declaration
+  return {
+    status: () => ({ ...handle.status(), created: declaration.controller !== null }),
+    read: () => ({ ...handle.read(), creation: structuredClone(declaration.creation) }),
+    matches: (controller: Erosion) =>
+      !capture.detached && capture.failure === null && declaration.controller === controller,
+    detach: () => {
+      handle.detach()
+      if (nextCapture === declaration) nextCapture = null
+    },
+  }
+}
+
+// Internal constructor notification, before its exact new object is returned.
+// Diagnostics can fail, but may never change creation or its caller's first step.
+export function recordErosionCreation(erosion: Erosion) {
+  const declaration = nextCapture
+  if (!declaration) return
+  diagnose(declaration.capture, () => {
+    if (++declaration.creations !== 1)
+      throw new Error('Unexpected second Erosion creation during the declared capture')
+    if (
+      erosion.center.x !== declaration.expected.x ||
+      erosion.center.y !== declaration.expected.y ||
+      erosion.remaining !== 64 ||
+      captures.has(erosion)
+    )
+      throw new Error('The next Erosion creation did not match its declared target')
+    declaration.creation = { center: { ...erosion.center }, remaining: erosion.remaining }
+    declaration.controller = erosion
+    captures.set(erosion, declaration.capture)
+  })
 }
 
 // The disabled path performs no copies, allocations, wrappers or timing reads.

@@ -1,7 +1,7 @@
 # Actual-input Erosion controller replay
 
-This tooling records a new ordinary browser Erosion and compares each observed
-controller call against `0050ff30 -> 004983a0`. No ordinary capture or native
+This tooling prepares capture of a new ordinary browser Erosion and comparison of
+each observed controller call against `0050ff30 -> 004983a0`. No ordinary capture or native
 execution was performed while preparing it. Earlier effect3322's lifecycle record
 does not contain the missing per-step RNG/full heights and cannot supply inputs.
 Same-input controller equivalence does not prove native reward activation
@@ -24,13 +24,29 @@ closed. Exports are detached copies; JSON conversion is deferred until export.
 The adapter reads only capture counts during turns, avoiding cumulative copying.
 Early detach, missing visits or source/lifecycle errors reject evidence.
 
-`qa/erosion-native-replay/capture.mjs` chains an already-installed prospective
-lifecycle observer on the real `gameClock.afterTurn`. At the actual head101 use,
-it binds the uniquely observed new controller, then records each actual afterTurn
-number and checks zero-counter removal. It neither creates a World nor issues
-game inputs. Browser/profile/scenario composition is **deferred**, including the
+`declareNextErosionCapture` prospectively copies one expected unsigned native x/y
+target. A private `createErosion` notification binds its exact new return object
+before the caller's first step and retains a detached constructor snapshot at64.
+The constructor returns the same object with the same fields. Wrong-target or second
+creation, or duplicate declaration, permanently invalidates the capture; it never
+searches for a replacement or automatically rearms. The declaration stays active
+until explicit close. Its handle can compare identity without exposing the live
+reference. Unarmed construction has no diagnostic allocation or timing query.
+
+`qa/erosion-native-replay/capture.mjs` declares before head101 is used, then chains
+an already-installed version2 lifecycle observer on the real `gameClock.afterTurn`.
+It verifies the actual shrine transition and exact constructor/effect identity,
+then attributes captured calls to actual turn numbers. The first afterTurn must
+already have one completed call and remaining63. Expected coordinates use only the
+pure x/y formula; `nativePosition` is deliberately not called because it also
+synchronizes terrain. Height is observed rather than predicted. This adapter
+neither creates a World nor issues game inputs.
+
+Browser/profile/scenario composition is **deferred**, including the
 coordinator's exact source/runtime review, ordinary activation route and lane grant.
-There is no launch or profile-adoption command in this change.
+It must include the accepted issue223 immediate-activation producer bytes and a
+reviewed version2 campaign lifecycle observer. There is no launch or profile-adoption
+command here, and the branch's base producer has not been silently changed.
 
 ## Exact native boundary
 
@@ -52,11 +68,12 @@ arguments. Every native call restores its actual browser pre-step inputs, becaus
 other game work owns between-call RNG/terrain changes. All16,384 outputs are
 compared directly, not only a sampled area or the separate `World.terrain` array.
 
-## Open sound and activation inputs
+## Sound and activation boundaries
 
 `0050ff48` suppresses sound when flags4 bit0x10 is set. Allocation004ed8a0 clears
 flags4, but head004fb270 clones the authored reward with004ede10 before immediately
-dispatching004ed700. The copied template state must be established independently.
+dispatching004ed700. The separately reviewed [issue223 producer trace](https://github.com/JohnDeved/populous-new-dawn/issues/223)
+establishes the bounded creation/first-dispatch distinction under its stated inputs.
 Moreover, actual0048a050 sets bit0x10 on successful audio allocation;0048ad50 clears
 it after release of the last owned sound. Hooking sound does not compose that
 lifecycle. The replayer therefore checks heights/RNG/countdown and terrain cells
@@ -64,9 +81,11 @@ under **both selected sound-bit values**, labels them selected test inputs, and
 makes no actual M3 sound-policy/cadence claim. A potential browser discrepancy is
 unproved until creation/audio consumers are composed.
 
-Browser shrine creation follows its current effect loop; native head dispatches
-the clone immediately. Controller replay cannot settle that scheduling boundary.
-The separately owned authored load/clone/activation trace must determine it.
+The old browser shrine path created64 after its effect loop; the native head's
+immediate dispatch ends63. Version2 capture requires the corrected immediate first
+step, followed by one existing-effect visit on each next turn. The issue223 fix
+owns production timing and its terrain-batch ordering. This recorder change does
+not implement that fix or establish complete engine scheduling.
 
 ## Capture admission and execution
 
@@ -81,16 +100,20 @@ capture/lifecycle/modules/inputs under `files`, plus `runId` and
 `sourceFingerprint`. It must be passed, clean, unchanged, error-free, and carry
 matching runtime/scenario and verified profile cleanup/continuity. The lifecycle
 wrapper carries `runId`, `sourceFingerprint`, `errors`, `speedViolations`, and the
-existing `erosion` observation. Required module paths are enumerated in the tool;
+version2 `erosion` observation. Required module paths are enumerated in the tool;
 each entry has sourceSha256, servedSha256 and exact servedBody. Source bytes are
 checked against the pinned git commit; served bytes are checked against their
 captured hash. Capturing and reviewing that actual runtime correspondence is a
 future driver obligation; this schema does not manufacture execution provenance.
 
-Capture JSON contains64 `{turn, visit}` rows with detached before/after states,
+Version2 capture JSON distinguishes constructor64 from actual first-afterTurn63.
+It contains64 `{turn, visit}` rows with detached before/after states,
 ordinal, boolean alive/completed, ordered completed notifications and finite copy
-timing. No RNG or height input is reconstructed from neighboring visits. Terminal
-retirement requires remaining0 and actual absence. Partial, replaced, late,
+timing. Call1 is on activation; call64 includes remaining0 and actual removal on
+activation+63. The lifecycle retains all64 post-call counters63..0 and separately
+records final absence. Old version1 and64/+64 timelines are rejected, with no dual
+policy or reconstruction of a missing first call. No RNG or height input is
+reconstructed from neighboring visits. Partial, replaced, late,
 reordered, overflowing, corrupt or unbound evidence is rejected before emulation.
 
 ## Verification and remaining gates
@@ -99,7 +122,12 @@ Focused tests load accepted-main `3b899125cc8cedef938823718ad5d44f49957b66`'s ac
 controller source from git and compare uninstrumented/disabled/enabled visits.
 They also compare every World field after each turn in a labelled source fixture,
 check call order/receiver/exception identity, detached ownership and copy/append
-faults. Python admission tests use synthetic documents and never invoke native
+faults. Constructor tests compare original normalization/output and prove binding
+before an immediate source-fixture step, without altering constructor exceptions
+or World. Wrong/ambiguous creation, failed binding, late declarations, stale
+afterTurn-only arming and terrain-touching observation are covered. The existing
+full-World fixture uses the base producer; a corrected-producer comparison remains
+required on the combined source. Python admission tests use synthetic documents and never invoke native
 code. These tests require that pinned git object to remain available.
 
 Before ordinary capture, obtain fresh source review, coordinated aggregate/build

@@ -2,15 +2,15 @@ import assert from 'node:assert/strict'
 import { execFileSync } from 'node:child_process'
 import { stripTypeScriptTypes } from 'node:module'
 import test from 'node:test'
-import { armErosionCapture, observeErosionStep } from '../app/erosion-observation.ts'
-import { stepErosion } from '../app/erosion.ts'
+import { armErosionCapture, declareNextErosionCapture, observeErosionStep } from '../app/erosion-observation.ts'
+import { createErosion, stepErosion } from '../app/erosion.ts'
 import { cast, createWorld, tick } from '../app/model.ts'
 
 // Load the actual accepted source; never maintain a second hand-copied oracle.
 const base = '3b899125cc8cedef938823718ad5d44f49957b66'
 const original = execFileSync('git', ['show', `${base}:app/erosion.ts`], { encoding: 'utf8' })
 const code = stripTypeScriptTypes(original.replace("'./native-math.ts'", JSON.stringify(new URL('../app/native-math.ts', import.meta.url).href)))
-const { stepErosion: uninstrumented } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`)
+const { stepErosion: uninstrumented, createErosion: uninstrumentedCreate } = await import(`data:text/javascript;base64,${Buffer.from(code).toString('base64')}`)
 const fixture = () => ({
   land: { heights: Int16Array.from({ length: 16384 }, (_, i) => i % 17 ? 30 + i % 270 : 0) },
   erosion: { center: { x: 63744, y: 35072, h: 200 }, remaining: 64 },
@@ -28,6 +28,20 @@ function run(step, captureEnabled) {
   }
   return { visits, capture: handle && handle.read() }
 }
+
+test('constructor output and wrapping match pinned original source with declaration disabled and enabled', () => {
+  for (const center of [{ x: -1, y: 65536, h: 23 }, { x: 0x18000, y: -32000, h: 0 }]) {
+    const expected = uninstrumentedCreate(center)
+    assert.deepEqual(createErosion(center), expected)
+    const handle = declareNextErosionCapture(expected.center)
+    try {
+      const actual = createErosion(center)
+      assert.deepEqual(actual, expected)
+      assert.equal(handle.matches(actual), true)
+      assert.notEqual(actual.center, center)
+    } finally { handle.detach() }
+  }
+})
 
 test('all 64 visits match pinned uninstrumented source with observation disabled and enabled', () => {
   const expected = run(uninstrumented, false).visits
