@@ -296,6 +296,102 @@ const eligibleFlight = state => !!state?.acquisition.controllers.spell?.active &
 const eligibleTail = state => !!state?.acquisition.controllers.pulse?.active &&
   !state.acquisition.controllers.spell?.active && !state.acquisition.controllers.companion?.active
 
+async function prepareTailControls(page, waitForShamanReadiness) {
+  const center = async locator => {
+    const box = await locator.boundingBox()
+    assert.ok(box && box.width > 4 && box.height > 4)
+    return { x: Math.round(box.x + box.width / 2), y: Math.round(box.y + box.height / 2) }
+  }
+  const settingsButton = page.getByRole('button', { name: 'Game settings', exact: true }),
+    settings = await center(settingsButton)
+  await settingsButton.click()
+  const menu = page.locator('dialog.game-dialog')
+  await menu.waitFor({ state: 'visible' })
+  const save = await center(menu.getByRole('button', { name: 'Save checkpoint', exact: true }))
+  const owned = await page.evaluate(({ settings, save }) => {
+    const buttonAt = p => document.elementFromPoint(p.x, p.y)?.closest('button')
+    const saveButton = [...document.querySelectorAll('dialog.game-dialog button')].find(b => b.textContent.trim() === 'Save checkpoint')
+    return { save: buttonAt(save) === saveButton && !saveButton.disabled,
+      settingsStillConnected: !!document.querySelector('button[aria-label="Game settings"]')?.isConnected }
+  }, { settings, save })
+  assert.deepEqual(owned, { save: true, settingsStillConnected: true })
+  await menu.getByRole('button', { name: 'Close menu', exact: true }).click()
+  await menu.waitFor({ state: 'hidden' })
+  const readiness = await waitForShamanReadiness(page, { timeout: 45000 })
+  const current = await page.evaluate(settings => {
+    const scene = window.worshipBoundaryScene, w = window.testStore.getWorld(),
+      button = document.querySelector('button[aria-label="Game settings"]')
+    return { sameWorld: scene.world === w, paused: w.paused, inputMask: w.inputMask,
+      settingsOwnsPoint: document.elementFromPoint(settings.x, settings.y)?.closest('button') === button }
+  }, settings)
+  assert.deepEqual(current, { sameWorld: true, paused: false, inputMask: 0, settingsOwnsPoint: true })
+  return { settings, save, readiness, current, method: 'Prepared integer interior centers using actual public open/close before worship' }
+}
+
+async function saveTailThroughPreparedControls(page, controls, wait, report) {
+  await page.mouse.move(controls.settings.x, controls.settings.y)
+  await page.evaluate(() => {
+    const originalScene = window.worshipBoundaryScene,
+      evidence = window.worshipTailInput = { onset: null, events: [], errors: [], restored: false }, listeners = []
+    for (const capture of [true, false]) {
+      const listener = event => {
+        try {
+          if (evidence.events.length >= 8) throw Error('Tail input event bound exceeded')
+          const scene = window.worshipBoundaryScene, w = scene.world,
+            settings = document.querySelector('button[aria-label="Game settings"]'),
+            save = [...document.querySelectorAll('dialog.game-dialog button')].find(b => b.textContent.trim() === 'Save checkpoint'),
+            target = event.target.closest?.('button'), c = w.worshipAcquisition.controllers
+          evidence.events.push({ stage: capture ? 'capture-before-game' : 'bubble-after-game',
+            target: target === settings ? 'settings' : target === save ? 'save' : 'other',
+            isTrusted: event.isTrusted, x: event.clientX, y: event.clientY,
+            connected: !!target?.isConnected, disabled: !!target?.disabled,
+            menuOpen: !!document.querySelector('dialog.game-dialog')?.open,
+            state: { turn: w.turn, paused: w.paused, inputMask: w.inputMask,
+              sameWorld: scene === originalScene && w === window.testStore.getWorld(),
+              tailEligible: !!c.pulse?.active && !c.spell?.active && !c.companion?.active,
+              pulseRemaining: c.pulse?.remaining, clock: { ...w.worshipAcquisition.clock } } })
+        } catch (error) { evidence.errors.push(String(error)) }
+      }
+      window.addEventListener('click', listener, capture); listeners.push({ listener, capture })
+    }
+    window.restoreWorshipTailInput = () => {
+      for (const { listener, capture } of listeners) window.removeEventListener('click', listener, capture)
+      evidence.restored = true; delete window.restoreWorshipTailInput; return evidence
+    }
+  })
+  try {
+    await wait(() => {
+      const w = window.worshipBoundaryScene.world, c = w.worshipAcquisition.controllers
+      if (!c.pulse?.active || c.spell?.active || c.companion?.active) return false
+      // This predicate runs between original browser tasks, after the complete
+      // clock visit. Retain the observation here, without another host round trip.
+      window.worshipTailInput.onset ??= window.worshipBoundaryFocus(w)
+      return true
+    }, null, 15000, 'Genuine tail before prepared trusted Settings/Save inputs')
+    await page.mouse.click(controls.settings.x, controls.settings.y)
+    await page.mouse.click(controls.save.x, controls.save.y)
+  } finally {
+    if (!page.isClosed()) report.tailInput = await page.evaluate(() => window.restoreWorshipTailInput())
+  }
+  const input = report.tailInput
+  assert.equal(input.restored, true); assert.deepEqual(input.errors, [])
+  assert.deepEqual(input.events.map(e => [e.target, e.stage]), [
+    ['settings', 'capture-before-game'], ['settings', 'bubble-after-game'],
+    ['save', 'capture-before-game'], ['save', 'bubble-after-game'],
+  ], 'Both original public controls must receive exactly one trusted click')
+  for (const event of input.events) {
+    const point = controls[event.target]
+    assert.equal(event.isTrusted, true); assert.equal(event.connected, true); assert.equal(event.disabled, false)
+    assert.equal(event.x, point.x); assert.equal(event.y, point.y); assert.equal(event.state.sameWorld, true)
+  }
+  report.tailBeforeMenu = input.onset
+  assert.equal(eligibleTail(input.onset), true)
+  const savedClick = input.events.find(e => e.target === 'save' && e.stage === 'capture-before-game')
+  assert.equal(savedClick.menuOpen, true, 'Save must be reached through the actually open public dialog')
+  assert.equal(savedClick.state.tailEligible, true, 'Trusted Save input must still reach a live independent tail')
+  return savedClick.state
+}
+
 async function orderLightning(page, waitForShamanReadiness, report) {
   const shrine = await page.evaluate(() => window.testStore.getWorld().shrines.find(s =>
     s.kind === 'lightning' && s.x === 11 && s.z === 1))
@@ -480,6 +576,7 @@ export default async function ({ page, context, root, output, receipt, openMissi
       assert.equal(receipt.profile.checkpointAtStart, null)
       await openMission(1)
       await prepareM1LightningRoute({ page, waitForShamanReadiness, signal, report, save: saveReport })
+      if (phase === 'tail-save') report.tailControls = await prepareTailControls(page, waitForShamanReadiness)
       await page.evaluate(() => window.armWorshipBoundaryAcquisition())
       report.order = await orderLightning(page, waitForShamanReadiness, report)
       if (phase !== 'missing-geometry') await wait(() => {
@@ -526,19 +623,13 @@ export default async function ({ page, context, root, output, receipt, openMissi
           assert.equal(eligibleFlight(held), true, 'First visible pause must retain an eligible live body/gift')
           report.visiblePause = { paused, settled, held, resumeBoundary: 'Paired fresh-process public Load auto-resume' }
         } else {
-          try {
-            await wait(() => {
-              const c = window.worshipBoundaryScene.world.worshipAcquisition.controllers
-              return c.pulse?.active && !c.spell?.active && !c.companion?.active
-            }, null, 15000, 'Genuine independent pulse tail')
-          } catch (error) { report.status = 'unproved'; throw Error(`Ordinary tail window was not caught; no retry or injected state. ${error.message}`) }
-          report.tailBeforeMenu = await snap(page)
-          if (!eligibleTail(report.tailBeforeMenu)) { report.status = 'unproved'; throw Error('Tail retired before public menu interaction; no fabricated checkpoint') }
+          try { report.tailSaveBoundary = await saveTailThroughPreparedControls(page, report.tailControls, wait, report) }
+          catch (error) { report.status = 'unproved'; throw Error(`Prepared public tail capture missed its finite window; no retry or injected state. ${error.message}`) }
         }
-        await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+        if (!tail) await page.getByRole('button', { name: 'Game settings', exact: true }).click()
         const menu = page.locator('dialog.game-dialog')
         await menu.waitFor({ state: 'visible' })
-        const boundary = await page.evaluate(() => {
+        const boundary = tail ? report.tailSaveBoundary : await page.evaluate(() => {
           const s = window.worshipBoundaryScene, w = window.testStore.getWorld()
           return { sameWorld: s.world === w, paused: w.paused, turn: w.turn }
         })
@@ -580,7 +671,7 @@ export default async function ({ page, context, root, output, receipt, openMissi
           assert.equal(after.dpr, 2)
           report.display = { viewport: after.viewport, dpr: after.dpr, ratio, backing, sourceGeometryUnchanged: true, kind: 'CDP-emulated DPR2' }
         }
-        await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
+        if (!tail) await menu.getByRole('button', { name: 'Save checkpoint', exact: true }).click()
         let committed, focus
         assert.equal(await waitForCheckpointReadback(async () => {
           signal.throwIfAborted(); committed = await readCommittedCheckpoint(page)
