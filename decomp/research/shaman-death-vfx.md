@@ -108,3 +108,52 @@ visits plus the spawn visit remain. An initial checker expectation of301 further
 visits failed despite correct rendering/cleanup and was corrected to300 without
 changing the game. Original clocks, rendering/sprite regressions and broad gameplay
 checks remain separate gates; this note makes no full death-animation parity claim.
+
+## 2026-10-05 — phase1 follows changing death-site ground
+
+Accepted base `89c9629991489fd1ce6dc52e938d1cec346bfead` retained the height sampled
+when the Shaman died for the complete model12 lifetime. Original instructions
+`00502a60..00502a76` call `0044e940` and store the returned height on **every
+processed phase1 visit**, before the phase entry/timer branches. Phase2 retains
+the final phase1 sample; phase3 rises from it. The original spirit therefore
+follows a changing surface during phase1. Caching the death height can leave the
+browser spirit buried by raised terrain or floating above lowered terrain.
+
+`check-native-shaman-death-ground.py` executes the real death producer,
+`004ed8a0` allocator, model12 initializer, first/subsequent controller dispatch,
+object setter and original terrain interpolation. Across four owners, phase1
+follows terrain480→80→640; subsequent terrain960 leaves all three phase2 visits
+at640 and the first phase3 visit at680. Phase0 preserves the original height;
+direct unsupported initialization skips phase1 and preserves its rise anchor.
+The checker compares28 resulting rows with the actual browser world-turn caller
+after a normal Mission2 attack-command/combat death. Only post-death terrain
+corners are supplied for that comparison; it does not prove a player-cast spell.
+
+The input EXE/VSTART/VFRA hashes above remain unchanged. The complete mapped
+`mwsearch.dat` (SHA256 `0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0`)
+and all244 configured constant targets are guarded before/after each invocation
+and fixture setup. Registration, support predicates, audio, source bookkeeping
+and spawn leaves remain supplied. Non-model12 allocation requests return zero.
+No original game/OS or native raster is executed.
+
+The bounded runtime fix samples the effect's current death-point ground only
+when `stepReincarnation` reports processed phase1, storing it in the existing
+checkpoint field. The last phase1 visit still samples, even though its next
+remaining count belongs to phase2. Phase0, direct drowning/rise, site wave,
+respawn timing, animation cadence and owner-layer selection retain their existing
+owners. The focused regression fails on the old cached caller and covers raising,
+lowering, the phase boundary, checkpoint continuation and unchanged entry variants.
+
+Research also confirmed that the original producer allocates model12 without a
+surviving-follower gate, but `0041b8b0` explicitly removes Shaman model12 objects
+at tribe defeat. Allocation alone does not prove a full post-elimination death
+animation. No eligibility or outcome-cleanup change belongs to this height fix.
+
+```sh
+node --test tests/shaman-death-ground.test.mjs tests/shaman-death-cadence.test.mjs tests/shaman-death-vfx.test.mjs
+python scripts/check-native-shaman-death-ground.py "$POPULOUS_EXE"
+```
+
+Rendered ordinary-death plus shipped terrain-spell acceptance and standard
+implementation gates are tracked separately from the native/caller evidence.
+This bounded repair does not complete issue #30 or award additional parity credit.

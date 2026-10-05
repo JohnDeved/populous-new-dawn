@@ -573,7 +573,10 @@
         "scripts/check-native-reincarnation-wave.py",
         "scripts/check-browser-reincarnation-wave.mjs",
         "tests/reincarnation-wave.test.mjs",
-        "decomp/research/reincarnation-site-wave.md"
+        "decomp/research/reincarnation-site-wave.md",
+        "tests/shaman-death-ground.test.mjs",
+        "scripts/check-native-shaman-death-ground.py",
+        "decomp/research/shaman-death-vfx.md"
       ],
       "sharedPaths": [
         "app/scene-entities.ts",
@@ -624,6 +627,10 @@
         {
           "path": "decomp/research/reincarnation-site-wave.md",
           "heading": "Ordinary reincarnation site wave (#30)"
+        },
+        {
+          "path": "decomp/research/shaman-death-vfx.md",
+          "heading": "2026-10-05 \u2014 phase1 follows changing death-site ground"
         }
       ],
       "nativeAddresses": [
@@ -642,7 +649,9 @@
         "level-start-browser",
         "reincarnation-wave-portable",
         "reincarnation-wave-native",
-        "reincarnation-wave-browser"
+        "reincarnation-wave-browser",
+        "shaman-death-ground-portable",
+        "shaman-death-ground-native"
       ],
       "generatedInputIds": [
         "native-fixtures",

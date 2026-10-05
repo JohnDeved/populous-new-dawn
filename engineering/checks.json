@@ -5123,6 +5123,84 @@
       }
     },
     {
+      "id": "shaman-death-ground-portable",
+      "kind": "portable",
+      "automation": "safe",
+      "purpose": "Verify live Shaman spirit grounding and retained height through phase changes and checkpoints.",
+      "coveredBehavior": [
+        "Ordinary combat death and actual phase1 world-turn caller",
+        "Rising and lowering death-site ground",
+        "Last phase1 sample retention through checkpoint, phase2 and rise",
+        "Unchanged phase0 and direct drowning-entry anchor",
+        "Existing animation cadence and frame/hide behavior"
+      ],
+      "knownLimits": [
+        "Post-death terrain and direct drowning entry are explicit fixtures; shipped spell rendering is separate."
+      ],
+      "executable": "node",
+      "args": [
+        "--test",
+        "tests/shaman-death-ground.test.mjs",
+        "tests/shaman-death-cadence.test.mjs",
+        "tests/shaman-death-vfx.test.mjs"
+      ],
+      "cwd": ".",
+      "env": [],
+      "inputs": [
+        "app/world-turn.ts",
+        "app/reincarnation.ts",
+        "app/shaman-death-vfx.ts",
+        "app/world-terrain-runtime.ts",
+        "app/game-store.ts",
+        "tests/level-start-fixture.mjs",
+        "tests/shaman-death-ground.test.mjs",
+        "tests/shaman-death-cadence.test.mjs",
+        "tests/shaman-death-vfx.test.mjs"
+      ],
+      "prerequisites": ["Node.js with TypeScript stripping"],
+      "sideEffects": [],
+      "resources": [],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
+      "id": "shaman-death-ground-native",
+      "kind": "native",
+      "automation": "safe",
+      "purpose": "Compare original changing-terrain Shaman spirit heights with the actual world-turn caller.",
+      "coveredBehavior": [
+        "Original death producer, model12 allocator/initializer and phase controller",
+        "Actual original terrain interpolation during every phase1 visit",
+        "Four-owner raising/lowering, phase2 retention and first rise",
+        "Unchanged phase0 and direct unsupported entry",
+        "Guarded mapped search bytes and all configured constants"
+      ],
+      "knownLimits": [
+        "Registration, support predicates, audio, bookkeeping and spawning are supplied leaves.",
+        "The current caller uses ordinary combat death and supplied post-death terrain; no shipped spell or native raster claim."
+      ],
+      "executable": ".tools/decomp/oracle/bin/python",
+      "args": ["scripts/check-native-shaman-death-ground.py", "$POPULOUS_EXE"],
+      "cwd": ".",
+      "env": ["POPULOUS_EXE"],
+      "inputs": [
+        "scripts/check-native-shaman-death-ground.py",
+        "scripts/decomp.py",
+        "decomp/tools.json",
+        "app/world-turn.ts",
+        "app/world-terrain-runtime.ts",
+        "app/reincarnation.ts",
+        "app/original-constants.json",
+        "tests/level-start-fixture.mjs"
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment and Node.js",
+        "Hash-verified executable, levels/constant.dat, data/mwsearch.dat, data/vstart-0.ani and data/vfra-0.ani"
+      ],
+      "sideEffects": [],
+      "resources": ["Read-only native inputs; coordinate CPU use"],
+      "expected": { "exitCode": 0, "artifacts": [] }
+    },
+    {
       "id": "reincarnation-wave-portable",
       "kind": "portable",
       "automation": "safe",
