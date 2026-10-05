@@ -1,0 +1,77 @@
+{
+  "status": "passed",
+  "method": "Each native-backed rendered frame belongs to the imported direction cycle at current f2. Every stable-source Shaman f2 increment equals adapter visits modulo its frame count, with all sampled gaps shorter than a full cycle. This does not assert a native Hz.",
+  "inputSha256": "f1e856af6872f293686116b775abdcb96820bd0c044a75ec03d4bb966d8a63ad",
+  "spritesSha256": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+  "checkerSha256": "964d88530bc9acc5b42337c9ed2ad8dfd814aa3264d7fec059be3a95cad52c2a",
+  "checks": [
+    {
+      "label": "normal-speed natural opening",
+      "elapsedSeconds": 7.983,
+      "animationVisits": 192,
+      "simulationTurns": 96,
+      "renderedNativeFrameMatches": 932,
+      "mismatches": [],
+      "shamanPairs": 121,
+      "shamanMismatchCount": 0,
+      "shamanUnambiguousDeltaTotal": 192,
+      "shamanAliasedPairs": 0,
+      "frameGapMs": {
+        "p50": 66.70000000000073,
+        "p95": 83.29999999999927,
+        "maximum": 133.20000000000073
+      },
+      "distinctSmokeUVs": {
+        "('root', 36)": 16,
+        "('root', 37)": 16
+      },
+      "walkingNativeSamples": 20,
+      "effectSamples": 0
+    },
+    {
+      "label": "public pause",
+      "elapsedSeconds": 1.5165,
+      "animationVisits": 0,
+      "simulationTurns": 0,
+      "renderedNativeFrameMatches": 189,
+      "mismatches": [],
+      "shamanPairs": 26,
+      "shamanMismatchCount": 0,
+      "shamanUnambiguousDeltaTotal": 0,
+      "shamanAliasedPairs": 0,
+      "frameGapMs": {
+        "p50": 50.0,
+        "p95": 66.70000000000073,
+        "maximum": 83.30000000000291
+      },
+      "distinctSmokeUVs": {
+        "('root', 36)": 1
+      },
+      "walkingNativeSamples": 0,
+      "effectSamples": 0
+    },
+    {
+      "label": "public resume",
+      "elapsedSeconds": 3.9830999999999985,
+      "animationVisits": 96,
+      "simulationTurns": 48,
+      "renderedNativeFrameMatches": 434,
+      "mismatches": [],
+      "shamanPairs": 61,
+      "shamanMismatchCount": 0,
+      "shamanUnambiguousDeltaTotal": 96,
+      "shamanAliasedPairs": 0,
+      "frameGapMs": {
+        "p50": 66.69999999999709,
+        "p95": 83.29999999999927,
+        "maximum": 83.40000000000146
+      },
+      "distinctSmokeUVs": {
+        "('root', 37)": 16,
+        "('root', 36)": 16
+      },
+      "walkingNativeSamples": 0,
+      "effectSamples": 0
+    }
+  ]
+}

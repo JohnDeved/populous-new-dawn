@@ -1,0 +1,113 @@
+{
+  "startedAt": "2026-10-05T10:42:12.803Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-timing-audit",
+    "commit": "596475b6839c948604897f8b68ff89c6290cf39d",
+    "tree": "50a8a20de1b348124d7e060025022ce71ce7ecdb",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "4eae164c89f4baf2dce42663570b58717bc474af0e3f29f2b5bdc3ba1e005699"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x178c001d5000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x178c001d5000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x178c001d5000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x178c001d5000]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "status": "passed",
+  "browserVersion": "154.0.8037.92",
+  "result": {
+    "environment": {
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.8037.92 Safari/537.36",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "screen": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "rendererPixelRatio": 1,
+      "canvas": [
+        1240,
+        1000
+      ],
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "speed": 1,
+      "paused": false,
+      "level": 1,
+      "sourceClock": "app/game-clock.ts on current HEAD",
+      "timeOrigin": 1791196949784.9
+    },
+    "summaries": [
+      {
+        "label": "normal-speed natural opening",
+        "samples": 123,
+        "elapsedSeconds": 8.033,
+        "animationVisits": 193,
+        "simulationTurns": 96,
+        "gameTime": 7.999999999999998,
+        "animationVisitsPerSecond": 24.02589319058882,
+        "turnsPerSecond": 11.950703348686668,
+        "nativeUnitSamples": 955,
+        "effectSamples": 0,
+        "smokeSamples": 150
+      },
+      {
+        "label": "public pause",
+        "samples": 27,
+        "elapsedSeconds": 1.5,
+        "animationVisits": 0,
+        "simulationTurns": 0,
+        "gameTime": 0,
+        "animationVisitsPerSecond": 0,
+        "turnsPerSecond": 0,
+        "nativeUnitSamples": 189,
+        "effectSamples": 0,
+        "smokeSamples": 54
+      },
+      {
+        "label": "public resume",
+        "samples": 65,
+        "elapsedSeconds": 4.049799999999996,
+        "animationVisits": 98,
+        "simulationTurns": 49,
+        "gameTime": 4.083333333333332,
+        "animationVisitsPerSecond": 24.198725863005606,
+        "turnsPerSecond": 12.099362931502803,
+        "nativeUnitSamples": 455,
+        "effectSamples": 0,
+        "smokeSamples": 130
+      }
+    ],
+    "artifact": "sprite-observations.json",
+    "limits": "Sandboxed headless software WebGL functional timing observation. Observed frame transitions may skip under slow rendering. Not original wall-clock or hardware performance proof."
+  },
+  "finishedAt": "2026-10-05T10:43:06.446Z",
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-timing-audit",
+    "commit": "596475b6839c948604897f8b68ff89c6290cf39d",
+    "tree": "50a8a20de1b348124d7e060025022ce71ce7ecdb",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "4eae164c89f4baf2dce42663570b58717bc474af0e3f29f2b5bdc3ba1e005699"
+  }
+}

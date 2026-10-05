@@ -1,0 +1,19 @@
+{
+  "observedAt": "2026-10-05T10:52:18.522212+00:00",
+  "sourceCommit": "596475b6839c948604897f8b68ff89c6290cf39d",
+  "originalSession": 77431,
+  "originalSessionExit": 0,
+  "outerStatus": "passed",
+  "innerStatus": "passed",
+  "finishedAt": "2026-10-05T10:51:50.934Z",
+  "outerReceiptSha256": "4a2f362ce209e6c211fe69284ce234631409d1a2a4a6a5396d30c779ba574a9d",
+  "innerReceiptSha256": "3f3f050dc0574a0bb8ac9db3af987f9e000921df622906dfdf8a0b95c15ea7fb",
+  "observationsSha256": "f1e856af6872f293686116b775abdcb96820bd0c044a75ec03d4bb966d8a63ad",
+  "sourceStable": true,
+  "port4374": "ECONNREFUSED",
+  "dependencyDirectoryInode": 925605,
+  "dependencyInstalledLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "strictReadOnlyObservationAccepted": true,
+  "pureObserverReview": "work/reviews/sprite-observer-purity-independent/review.md",
+  "limits": "Current-main596 real-clock functional sprite observation. Does not prove native absolute cadence or hardware performance."
+}

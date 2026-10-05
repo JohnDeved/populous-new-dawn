@@ -1,0 +1,66 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "739e5296-fd12-4374-b117-3aad6c6eea9f",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "596475b6839c948604897f8b68ff89c6290cf39d",
+    "branch": "audit/sprite-animation-timing-20261005",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/sprite-animation-timing-214/observe-sprites-readonly.mjs": "2d9de66cec40e11eeebb16db31fae1a896665a54bb1bf7264aa8bda44c40ca77",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/playwright-core/lib/coreBundle.js": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=3s",
+    "150s",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-timing-audit",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--port",
+    "4374",
+    "--mission",
+    "1",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-timing-audit/work/orchestration/sprite-animation-timing-214/browser-readonly",
+    "--timeout",
+    "120000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-timing-audit/work/orchestration/sprite-animation-timing-214/observe-sprites-readonly.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-timing-audit",
+  "startedAt": "2026-10-05T10:50:57.235Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-timing-audit/work/orchestration/sprite-animation-timing-214/browser-readonly-command.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-timing-audit/work/orchestration/sprite-animation-timing-214/browser-readonly-command.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T10:51:53.881Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"source\":{\"root\":\"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-timing-audit\",\"commit\":\"596475b6839c948604897f8b68ff89c6290cf39d\",\"tree\":\"50a8a20de1b348124d7e060025022ce71ce7ecdb\",\"status\":\"\",\"trackedDiffSha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"untracked\":[],\"fingerprint\":\"4eae164c89f4baf2dce42663570b58717bc474af0e3f29f2b5bdc3ba1e005699\"},\"result\":{\"environment\":{\"userAgent\":\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.8037.92 Safari/537.36\",\"viewport\":[1440,1000],\"screen\":[1440,1000],\"dpr\":1,\"rendererPixelRatio\":1,\"canvas\":[1240,1000],\"renderer\":\"ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)\",\"speed\":1,\"paused\":false,\"level\":1,\"sourceClock\":\"app/game-clock.ts on current HEAD\",\"timeOrigin\":1791197474218.5},\"summaries\":[{\"label\":\"normal-speed natural opening\",\"samples\":122,\"elapsedSeconds\":7.983,\"animationVisits\":192,\"simulationTurns\":96,\"gameTime\":8,\"animationVisitsPerSecond\":24.0511086057873,\"turnsPerSecond\":12.02555430289365,\"nativeUnitSamples\":932,\"effectSamples\":0,\"smokeSamples\":164},{\"label\":\"public pause\",\"samples\":27,\"elapsedSeconds\":1.5165,\"animationVisits\":0,\"simulationTurns\":0,\"gameTime\":0,\"animationVisitsPerSecond\":0,\"turnsPerSecond\":0,\"nativeUnitSamples\":189,\"effectSamples\":0,\"smokeSamples\":54},{\"label\":\"public resume\",\"samples\":62,\"elapsedSeconds\":3.9830999999999985,\"animationVisits\":96,\"simulationTurns\":48,\"gameTime\":4,\"animationVisitsPerSecond\":24.101830232733306,\"turnsPerSecond\":12.050915116366653,\"nativeUnitSamples\":434,\"effectSamples\":0,\"smokeSamples\":124}],\"artifact\":\"sprite-observations.json\",\"limits\":\"Sandboxed headless software WebGL functional timing observation. Observed frame transitions may skip under slow rendering. Not original wall-clock or hardware performance proof.\"}}\n",
+  "stderr": "",
+  "stdoutSha256": "4c005438b6b2787ece8b0ca1e320d3e2d65935535c1ed4257444daa6c4110c11",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "596475b6839c948604897f8b68ff89c6290cf39d",
+    "branch": "audit/sprite-animation-timing-20261005",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/sprite-animation-timing-214/observe-sprites-readonly.mjs": "2d9de66cec40e11eeebb16db31fae1a896665a54bb1bf7264aa8bda44c40ca77",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/playwright-core/lib/coreBundle.js": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  }
+}

@@ -1,0 +1,12 @@
+✔ render cadence cannot change gameplay, RNG or owned animation state (6343.231732ms)
+✔ paused time stays paused; long active frames retain elapsed time (104.428183ms)
+✔ campaign messages use the presentation clock and freeze while paused (217.431723ms)
+✔ campaign pending auto-open waits for settled motion and consumes one oldest record per presentation visit (46.17551ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7669.5342

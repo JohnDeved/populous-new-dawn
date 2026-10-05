@@ -1,0 +1,146 @@
+{
+  "verdict": "ACCEPT bounded corrected pure current-main observation",
+  "source": "596475b6839c948604897f8b68ff89c6290cf39d",
+  "observerSha256": "2d9de66cec40e11eeebb16db31fae1a896665a54bb1bf7264aa8bda44c40ca77",
+  "outerSha256": "4a2f362ce209e6c211fe69284ce234631409d1a2a4a6a5396d30c779ba574a9d",
+  "innerSha256": "3f3f050dc0574a0bb8ac9db3af987f9e000921df622906dfdf8a0b95c15ea7fb",
+  "observationsSha256": "f1e856af6872f293686116b775abdcb96820bd0c044a75ec03d4bb966d8a63ad",
+  "checks": [
+    {
+      "label": "normal-speed natural opening",
+      "samples": 122,
+      "firstSceneMs": 18421,
+      "lastSceneMs": 26404,
+      "elapsedSeconds": 7.983,
+      "animationVisits": 192,
+      "simulationTurns": 96,
+      "visitsPerSecond": 24.0511086057873,
+      "turnsPerSecond": 12.02555430289365,
+      "pausedAllRowsExactlyFrozen": false,
+      "nativeDirectionSetFrameMatches": 932,
+      "nativeDrawMatches": 932,
+      "visibleNativeFrameMatches": 932,
+      "missingNativeOrMesh": 166,
+      "shamanUnambiguousPairs": 121,
+      "shamanDeltaTotal": 192,
+      "actualRootUvMatches": 134,
+      "distinctVisibleSmokeUVs": {
+        "('root', 36)": 16,
+        "('root', 37)": 16
+      },
+      "sampledKinds": {
+        "brave": 976,
+        "shaman": 122
+      },
+      "sampledStates": {
+        "idle": 954,
+        "selected": 122,
+        "walk": 22
+      },
+      "nativeSources": {
+        "('brave', 48, 14)": 730,
+        "('shaman', 424, 14)": 122,
+        "('brave', 40, 14)": 48,
+        "('brave', 712, 14)": 32
+      },
+      "sampledSmokeKinds": {
+        "root": 244
+      },
+      "worldEffectSamples": 0,
+      "frameGapP50Ms": 66.70000000000073,
+      "frameGapMaxMs": 133.20000000000073
+    },
+    {
+      "label": "public pause",
+      "samples": 27,
+      "firstSceneMs": 28754,
+      "lastSceneMs": 30270.5,
+      "elapsedSeconds": 1.5165,
+      "animationVisits": 0,
+      "simulationTurns": 0,
+      "visitsPerSecond": 0.0,
+      "turnsPerSecond": 0.0,
+      "pausedAllRowsExactlyFrozen": true,
+      "nativeDirectionSetFrameMatches": 189,
+      "nativeDrawMatches": 189,
+      "visibleNativeFrameMatches": 189,
+      "missingNativeOrMesh": 54,
+      "shamanUnambiguousPairs": 26,
+      "shamanDeltaTotal": 0,
+      "actualRootUvMatches": 27,
+      "distinctVisibleSmokeUVs": {
+        "('root', 36)": 1
+      },
+      "sampledKinds": {
+        "brave": 216,
+        "shaman": 27
+      },
+      "sampledStates": {
+        "idle": 216,
+        "selected": 27
+      },
+      "nativeSources": {
+        "('brave', 48, 14)": 162,
+        "('shaman', 424, 14)": 27
+      },
+      "sampledSmokeKinds": {
+        "root": 54
+      },
+      "worldEffectSamples": 0,
+      "frameGapP50Ms": 50.0,
+      "frameGapMaxMs": 83.30000000000291
+    },
+    {
+      "label": "public resume",
+      "samples": 62,
+      "firstSceneMs": 31453.9,
+      "lastSceneMs": 35437,
+      "elapsedSeconds": 3.9830999999999985,
+      "animationVisits": 96,
+      "simulationTurns": 48,
+      "visitsPerSecond": 24.101830232733306,
+      "turnsPerSecond": 12.050915116366653,
+      "pausedAllRowsExactlyFrozen": false,
+      "nativeDirectionSetFrameMatches": 434,
+      "nativeDrawMatches": 434,
+      "visibleNativeFrameMatches": 434,
+      "missingNativeOrMesh": 124,
+      "shamanUnambiguousPairs": 61,
+      "shamanDeltaTotal": 96,
+      "actualRootUvMatches": 69,
+      "distinctVisibleSmokeUVs": {
+        "('root', 37)": 16,
+        "('root', 36)": 16
+      },
+      "sampledKinds": {
+        "brave": 496,
+        "shaman": 62
+      },
+      "sampledStates": {
+        "idle": 496,
+        "selected": 62
+      },
+      "nativeSources": {
+        "('brave', 48, 14)": 339,
+        "('shaman', 424, 14)": 62,
+        "('brave', 712, 14)": 33
+      },
+      "sampledSmokeKinds": {
+        "root": 124
+      },
+      "worldEffectSamples": 0,
+      "frameGapP50Ms": 66.69999999999709,
+      "frameGapMaxMs": 83.40000000000146
+    }
+  ],
+  "warningsRetained": 8,
+  "cleanupEvidence": "Original77431 exit0; terminal receipt reports port4374 refused; normal harness completion",
+  "limits": [
+    "Native direction-set membership only; observer lacks heading/camera data for exact directional-choice proof",
+    "Actual mesh/UV metadata and contextual PNGs, not independent pixel-to-atlas raster comparison",
+    "Opening only Brave/Shaman idle/selected and20 walking native samples; no world-effect samples",
+    "No native absolute cadence, hardware performance, universal sprite-rate or bug-cause acceptance",
+    "First run retains its rejected strict read-only claim due to screen/nativePosition terrain synchronization"
+  ],
+  "reviewerResources": []
+}

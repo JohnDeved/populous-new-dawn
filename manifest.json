@@ -1,0 +1,85 @@
+{
+  "scope": "Issue214 baseline596 sprite timing evidence; exact raw receipts, observations and checker bytes, with rejected first-observer purity retained. No game binaries, browser profiles, credentials or dependencies.",
+  "files": {
+    "observe-sprites-readonly.mjs": {
+      "bytes": 6450,
+      "sha256": "2d9de66cec40e11eeebb16db31fae1a896665a54bb1bf7264aa8bda44c40ca77"
+    },
+    "analyze-observation.py": {
+      "bytes": 3635,
+      "sha256": "964d88530bc9acc5b42337c9ed2ad8dfd814aa3264d7fec059be3a95cad52c2a"
+    },
+    "native/probe.py": {
+      "bytes": 5504,
+      "sha256": "c4faca33b4d207b879081066cb841da848a126bfd440e85f82a87776a9267908"
+    },
+    "native/result.json": {
+      "bytes": 124939,
+      "sha256": "6a53f986951397c4a6e616c8d22af035e2a3c73c90afe8e337653c29f7ccc7ec"
+    },
+    "source/identity.json": {
+      "bytes": 1798,
+      "sha256": "7981a58e22cb37834c8d17f4105b6b5bc14db55c665e62ccf6bf0ae6b3c58669"
+    },
+    "source/game-clock-test.log": {
+      "bytes": 497,
+      "sha256": "c32615d3bdbed11d6aa1de4dd2adad0130d3e43f8d814583c7edfc46f9c91e8b"
+    },
+    "browser-readonly-command.json": {
+      "bytes": 5703,
+      "sha256": "4a2f362ce209e6c211fe69284ce234631409d1a2a4a6a5396d30c779ba574a9d"
+    },
+    "browser-readonly/receipt.json": {
+      "bytes": 4415,
+      "sha256": "3f3f050dc0574a0bb8ac9db3af987f9e000921df622906dfdf8a0b95c15ea7fb"
+    },
+    "browser-readonly/sprite-observations.json": {
+      "bytes": 1331545,
+      "sha256": "f1e856af6872f293686116b775abdcb96820bd0c044a75ec03d4bb966d8a63ad"
+    },
+    "browser-readonly/rendered-frame-verification.json": {
+      "bytes": 2405,
+      "sha256": "33ecaf09256937e9cd10fe85a65601f6246fa04400c0d0bb33503080e6a5caf1"
+    },
+    "browser-readonly/normal-speed-opening.png": {
+      "bytes": 1454186,
+      "sha256": "39b7bbffcebeaa8e9cccf7aaf063980f99fc98e0369c2f5f6e26d43e1aac1c93"
+    },
+    "browser-readonly/normal-speed-resumed.png": {
+      "bytes": 1447300,
+      "sha256": "63a3117cd1cc952ffb1ad6655d553933f0749f34b82f2cb237230f4e78efb53b"
+    },
+    "browser-readonly-terminal.json": {
+      "bytes": 1009,
+      "sha256": "33c9d74126fdad469737b5f527a7b0720336956496d1ad8327d47f970d6c4a36"
+    },
+    "browser-command.json": {
+      "bytes": 5679,
+      "sha256": "5cff638f896a0356717d36c44ab630f359e7bc63c0179fbba0c09e885e6c49e6"
+    },
+    "browser/receipt.json": {
+      "bytes": 4394,
+      "sha256": "552b6f4cede39d5ba5c681bd5aa89b33fd928f6b13e17f5fc4a544b9b3a25125"
+    },
+    "browser/purity-review.txt": {
+      "bytes": 478,
+      "sha256": "521fd759f6cc689cc852d3c447fbaae1c562c512625d268edca1c0009379fa9a"
+    },
+    "observe-sprites.mjs": {
+      "bytes": 6502,
+      "sha256": "953a18927997c4a15b08b3353345a6cd61ddfc32c271c6b0357166732917cb30"
+    },
+    "README.md": {
+      "bytes": 6040,
+      "sha256": "3a27d666bfd71a94222a7d2c744c5cb8d2c7fc303261453d5ffecac3398aeab1"
+    },
+    "validation/audit.json": {
+      "bytes": 4660,
+      "sha256": "3863e78a10003056dc939b8a71ea196b804d7c37011195401666dee82b02e193"
+    },
+    "validation/audit.py": {
+      "bytes": 6771,
+      "sha256": "6dafade29bd1b92997dccda074c98dce9c7a6730fb4c347a476b2d1327211ffd"
+    }
+  }
+}
