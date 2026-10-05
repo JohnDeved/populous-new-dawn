@@ -97,6 +97,45 @@ test('native G retains the ordinary move owner and route until its deferred turn
   assert.equal(w.manaTribes[0].shamanGuards, 1)
 })
 
+for (const kind of ['move', 'attack', 'worship', 'entry']) test(`same-turn ${kind} replacement discards G before the legacy resting initializer`, () => {
+  const { w, shaman, u, p } = setup()
+  let target = { x: 24, z: 8 }
+  if (kind === 'attack') target = addBuilding(w, 'red', 'hut', { x: 12, z: 8 }, true)
+  if (kind === 'entry') target = addBuilding(w, 'blue', 'tower', { x: 12, z: 8 }, true)
+  if (kind === 'worship') {
+    target = structuredClone(createWorld(1).shrines.find(s => s.kind === 'lightning'))
+    target.id = w.nextId++; w.shrines.push(target)
+  }
+  p.f1 = 1; p.f2 = 3
+  assert.equal(shaman.native.speed, 0, 'native removal has no moving-Shaman speed redraw in this comparison')
+  const control = structuredClone(w), other = control.units.find(a => a.id === u.id)
+  guardShaman(w)
+  const discarded = order(w, u)
+  assert.equal(command(w, target), true)
+  assert.equal(command(control, target), true)
+  const state = (world, unit) => {
+    const source = unit.native ?? unit.entry?.person ?? unit.builder?.person
+    return { turn: world.turn, random: world.randomState, phase: phase(source),
+      state: source.state, status: source.commandStatus, target: source.target, speed: source.speed }
+  }
+  assert.deepEqual(state(w, u), state(control, other), 'a discarded G must not choose a source/target or consume initializer RNG')
+  assert.equal(discarded.references, 0)
+  assert.equal(w.manaTribes[0].shamanGuards, 0)
+  assert.equal(w.manaTribes[0].shamanGuardChanged, 1, 'native removal notification is legitimate even before adoption')
+  assert.equal(p.guardInputPending, undefined)
+  assert.ok(p.flags2 & 16, 'replacement does not silently erase the original deferred bit')
+  tick(w, 1 / 12)
+  const source = u.native ?? u.entry?.person ?? u.builder?.person
+  assert.notEqual(currentPersonOrder(w.buildingOrders, source)?.model, 30)
+  assert.equal(discarded.references, 0)
+  assert.equal(w.manaTribes[0].shamanGuards, 0, 'the next visit must not adopt the discarded Guard')
+  if (kind === 'move') {
+    assert.equal(source.commandStatus, 3)
+    assert.equal(source.flags2 & 16, 0, 'the real next preparation consumes the retained bit on replacement3')
+    assert.equal(source.target, 0, 'the discarded Guard never leaves its Shaman target behind')
+  }
+})
+
 for (const cancel of [false, true]) test(`pending G ${cancel ? 'cancellation' : 'replacement'} survives pause and checkpoint`, () => {
   const { w, u, p } = setup()
   guardShaman(w); tick(w, 1 / 12)

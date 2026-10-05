@@ -108,6 +108,22 @@ and passenger early returns retain it. No status spoof, eager initialization,
 frame0 policy, or generic state10/status0 renderer ownership is introduced.
 Native Brave guards also bypass the legacy idle auto-housing assignment.
 
+A new move/attack/worship/entry order can supersede G before its first turn.
+Replacement cleanup clears that pending queue before the legacy resting adapter
+runs its eager initializer, so it never initializes the discarded Guard. The
+original caller `00444f60` clears/attaches first, then initializes the replacement;
+its deferred bit16 survives. A native caller composition confirms that the next
+`004d42a0` can legitimately initialize the replacement again. The port therefore
+preserves bit16 rather than forcing equality with a no-G next-turn control.
+Immediate source/phase/target/speed/RNG comparisons and next-visit queue checks
+separate this genuine deferred behavior from premature old-Guard startup.
+The independently executed supplemental probe is SHA256
+`4d41f43b90d27354fa5c01dfc601d064f800e7b9b99f6c5694feb18a0d1605d5`,
+result `f27f202d9f936df58d1c1b1359a807649cfdee75ae79c89a99447bf2c5dc3a8a`.
+It adds only acknowledgement leaf00436330 to the frozen baseline's supplied
+destination/UI leaves; physics, OS input and complete world scheduling remain
+outside that native caller-composition proof.
+
 Current checkpoints preserve the optional marker, person aliases, pool and phase
 through their existing structured-clone storage. No migration reconstructs a
 native target/order/phase from old `Unit.guard`. An old unsupported state10/empty

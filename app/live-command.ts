@@ -184,8 +184,9 @@ export function findPath(w: World, start: Unit, end: Point): Point[] {
 }
 
 export function route(w: World, u: Unit, end: Point, preserveOrders = false) {
-  cancelLiveResting(w, u)
   const person = u.native ?? u.fight?.motion
+  if (!preserveOrders && person?.guardInputPending) cancelLiveOrder(w, u)
+  cancelLiveResting(w, u)
   if (!preserveOrders && (!person || currentPersonOrder(w.buildingOrders, person)?.model !== 28))
     cancelLiveOrder(w, u)
   return acceptLivePath(w, u, planRoute(w, u, end))
