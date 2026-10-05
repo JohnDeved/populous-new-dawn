@@ -1,4 +1,4 @@
-# Bounded native Shaman Guard input: source, package and partial control evidence
+# Bounded native Shaman Guard input: source, package and rendered evidence
 
 [PR220](https://github.com/JohnDeved/populous-new-dawn/pull/220),
 [issue219](https://github.com/JohnDeved/populous-new-dawn/issues/219).
@@ -6,14 +6,14 @@ Candidate [c20a297](https://github.com/JohnDeved/populous-new-dawn/commit/c20a29
 tree `9af7241660efc11eb8969845ab7e587231d906bc`, based on accepted
 `3b899125cc8cedef938823718ad5d44f49957b66`.
 
-**Ordinary G now adopts native command 30; repeated G replaces it, and empty or
-Shaman-only G clears it.** The matching baseline uses the legacy boolean, toggles it
-off on repeated G, and leaves an active boolean on after Shaman-only G. These are
-observed control-prefix results from **failed baseline04 and candidate05 runs**.
-Following and both Save/Load cycles did not run in either capture. Independent
-source/focused-runtime and final package ACCEPT, full check and build remain as
-recorded below. This packet is not a merged, deployed or whole-Guard completion
-claim. Broader issues #4, #60 and #214 stay open.
+**Candidate06 passes the complete bounded ordinary Mission 10 run:** native G,
+repeat/cancel controls, physical following, and both pending replacement/cancellation
+Save→Load→five-second continuation cycles. [Latest run and limits](#complete-candidate06-run).
+[Final independent rendered review ACCEPTs the bounded fix](candidate06-provenance/final-review/review-candidate06-final.md). The earlier **baseline04 and candidate05 remain failed**,
+with their earned control prefix and missing later stages retained below.
+Independent source/focused-runtime and final package ACCEPT, full check and build
+remain as recorded. This is not a merged, deployed, full-physics or whole-Guard
+completion claim. Broader issues #4, #60 and #214 stay open.
 
 ## Result
 
@@ -63,11 +63,12 @@ base; this evidence branch does not apply it to its own runtime.
 - The [current source manifest](manifests/source-manifest-c20a297.json) binds all
   changed paths and current receipts. Earlier manifests remain historical.
 
-Retained source artifacts are byte-exact copies, except the two complete row files
+Retained source artifacts are byte-exact copies, except the five complete row files
 stored as deterministic gzip; decompression reproduces their original bytes.
 [manifest.json](manifest.json) records stored hashes/bytes and original row-file
 hashes/bytes/line counts. The explicitly derived [control index](control-prefix-summary.json)
-is only a navigation aid alongside the raw sources. Receipt paths still describe
+and [candidate06 summary](candidate06/derived-summary.json) are navigation aids alongside
+the raw sources. Receipt paths still describe
 their original execution locations. No original game binary, animation asset, tool
 distribution, profile or credential is included.
 
@@ -360,3 +361,96 @@ are retained with all 29 immutable input files. Baseline04's 28 input hashes mat
 the already-published [revision6 packet](prepared-revision-06/native-guard-browser-preparation/preparation-receipt.json).
 No active later QA packet was copied or modified. The final package gates above
 remain unchanged.
+
+
+## Complete candidate06 run
+
+**PASS, exact candidate `c20a297f5f815ce404f796b08f77ea56396f96da`.**
+Original session 17014 ended normally with exit 0 at
+2026-10-05T23:47:43.436786Z. The unchanged runtime passed the reviewed revision8
+scenario. All event limits were met; final witness completion was 159.507 seconds
+and launcher terminal time was 162.779 seconds from their respective recorded
+starts. The [revision8 review](candidate06-provenance/review/review-revision-08.md)
+accepts source preflight only. The separate
+[final rendered review](candidate06-provenance/final-review/review-candidate06-final.md),
+SHA256 `c060ec584bdb39c21878b995d5eef4396f2d1a91e032d210a22275427e27f963`,
+**ACCEPTs the exact bounded fix**, with no unresolved runtime blocker. Its
+[read-only verifier](candidate06-provenance/final-review/verify-candidate06.mjs) and
+[passing result](candidate06-provenance/final-review/verification-candidate06.json)
+independently verify all raw rows, inputs, controls, checkpoints, timings and image
+hashes. This packet does not claim a completed merge.
+
+Ordinary training again produced Firewarrior 176 from Brave 122. Initial Move and
+G/repeat/empty-selection/Shaman-only controls passed with actual native ownership.
+After strict accepted Shaman Move, Shaman displacement was 5.2070 world units and
+Guard displacement 5.5475. Native identities 2/69 and their renderer sources stayed
+bound; the Guard goal changed from `(9472,64768)` to `(8518,63837)`.
+[Raw following evidence](candidate06/run/actions.jsonl#L137) and the
+[derived measured summary](candidate06/derived-summary.json) retain full values.
+
+Both checkpoint cycles used ordinary pause/G/Save/Load controls. The exact saved
+and pre-auto-resume loaded snapshots agree on pending state, phase, queue, target,
+tribe counts and aliases; checkpoint/actor/terrain/stock hashes also agree.
+Replacement was saved paused at turn 1196 with pending record 53/model 30/target 63.
+After the genuine new Load epoch 1 and five-second continuation, turn 1293 retained
+native Guard/count 1, cleared the pending marker and used native/renderer owner 83.
+Cancellation was saved paused at turn 1325 with pending marker true and an empty
+queue. Epoch 2 continuation reached turn 1422, state 19/status 0/count 0, cleared
+pending marker and native/renderer owner 93. The first asynchronous reads occur
+later than the captured store replacement and are separately labelled; this is
+not a first-post-Load-tick claim.
+
+The revision8 change is explicit: the matched fixed control prefix is retained;
+selection/focus and accepted Shaman Move use separate four-second host deadlines,
+and following observations use +6/+14 seconds from the accepted-result page time.
+The complete frozen [scenario](candidate06-provenance/revision-08/scenario.mjs),
+[deadline helper](candidate06-provenance/revision-08/event-deadlines.mjs),
+[32-input receipt](candidate06-provenance/revision-08/preparation-receipt.json),
+[source checks](candidate06-provenance/review/source-checks-revision-08.json) and
+[launch plan](candidate06-provenance/launch-plan-rev8-candidate.json) retain exact
+input correspondence. The source review explains bounded capture gaps and the
+separate page/host deadlines; it does not claim every native visit was observed.
+Baseline04 and candidate05 retain their original timing failures and are not
+relabeled by this revised candidate run.
+
+All 11 original 1440×1000 PNGs were visually inspected and retained byte-exact:
+
+- [Training target](candidate06/run/training-hut-target.png),
+  [first G](candidate06/run/guard-06000-first-G.png),
+  [deselected](candidate06/run/guard-11000-deselected.png),
+  [repeated G](candidate06/run/guard-18000-repeat-G.png)
+- [Empty-selection cancellation](candidate06/run/guard-24000-empty-cancel.png),
+  [Shaman-only cancellation](candidate06/run/guard-36000-shaman-cancel.png),
+  [following at accepted Move +6 seconds](candidate06/run/guard-follow-accepted-plus-6000.png)
+- Replacement: [saved paused](candidate06/run/checkpoint-replace-saved.png),
+  [resumed five seconds](candidate06/run/checkpoint-replace-resumed-5s.png)
+- Cancellation: [saved paused](candidate06/run/checkpoint-cancel-saved.png),
+  [resumed five seconds](candidate06/run/checkpoint-cancel-resumed-5s.png)
+
+The earlier comparable baseline images remain directly available for
+[first G](baseline04/run/guard-06000-first-G.png) and
+[Shaman-only G](baseline04/run/guard-36000-shaman-cancel.png). These are separate
+runs, not identical whole-run timing or paired baseline checkpoint evidence.
+Screenshot page times, turns and hashes are in the
+[complete witness](candidate06/run/witness.json). The same fresh sandboxed headless
+Chrome 154.0.8037.92/software-renderer limitations apply; no hardware or
+original-pixel result is claimed.
+
+[Launcher](candidate06/launcher.json), [outer receipt](candidate06/outer.json),
+[inner receipt](candidate06/run/receipt.json),
+[199 action records](candidate06/run/actions.jsonl), stdout/stderr/server logs and
+all **1,031 raw phase rows** are retained: [epoch 0, 883 rows](candidate06/run/epoch-0-rows.jsonl.gz),
+[epoch 1, 73 rows](candidate06/run/epoch-1-rows.jsonl.gz) and
+[epoch 2, 75 rows](candidate06/run/epoch-2-rows.jsonl.gz). Deterministic gzip uses the
+same lossless convention described above, with original and stored hashes/bytes
+in the manifest. No native phase rows were dropped.
+
+Source/runtime/checker fingerprints stayed unchanged and browser errors are empty.
+Normal original exit 0, both launch-namespace loopbacks closed, and the unchanged
+harness's awaited browser-close check provide terminal cleanup evidence. This
+ephemeral run has no profile-cleanup fields; none are invented here. The result is
+one naturally trained Firewarrior and fresh-context in-session Save/Load. Shared
+multi-person allocation remains portable evidence. Full native physics,
+busy-controller handoffs, uninterrupted historical phase, restart/profile
+persistence, paired baseline following/checkpoints and hardware performance remain
+outside this bounded result. Existing final package gates are unchanged.

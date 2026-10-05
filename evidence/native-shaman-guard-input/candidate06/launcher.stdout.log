@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/native-guard-browser-candidate-06/outer.json",
+  "headOid": "c20a297f5f815ce404f796b08f77ea56396f96da",
+  "exitCode": 0,
+  "stdoutSha256": "0c4b3fb1d2c20c26f00ca53e2d3f7e57ebffb107522e82376bce36b1a4c6610b",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

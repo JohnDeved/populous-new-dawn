@@ -1,0 +1,32 @@
+{
+  "scope": "Measured retained candidate05 event/drain timing; no inferred CPU-only time and no changes to failed result.",
+  "inputs": {
+    "work/orchestration/native-guard-browser-candidate-05/run/actions.jsonl": "bc7bf6c64175fa6d4840ece1b7ec41eb85b9ac6017e2914e5ba94780c11cab59",
+    "work/orchestration/native-guard-browser-candidate-05/run/witness.json": "10008f618bdb23ebdae5bed9c1f753bb505394036e6b11884aae9a0aac986524",
+    "work/orchestration/native-guard-browser-candidate-05/run/receipt.json": "cf0641b21aa401bf4b93f9ba932c8b1a28a6c8c9e772c05e955349fe3026fe5a"
+  },
+  "guardAgain": {
+    "scheduledMs": 38000,
+    "enteredPageOffsetMs": 38649.40000000596,
+    "completedPageOffsetMs": 40950.10000000894,
+    "bodyMs": 2300.7000000029802,
+    "completionAt": "2026-10-05T23:20:43.726Z",
+    "drainedAt": "2026-10-05T23:20:44.037Z",
+    "rows": 29,
+    "completionToRecordedDrainWallMs": 311,
+    "drainToNextBoundaryWallMs": 101
+  },
+  "selectionPreparation": {
+    "scheduledMs": 40500,
+    "enteredPageOffsetMs": 41365,
+    "completedPageOffsetMs": 43383.90000000596,
+    "bodyMs": 2018.9000000059605,
+    "completionAt": "2026-10-05T23:20:46.159Z",
+    "drainedAt": "2026-10-05T23:20:46.513Z",
+    "rows": 26,
+    "completionToRecordedDrainWallMs": 354,
+    "drainToEntryFailureWallMs": 188,
+    "remainingUntilOldMoveEntryLimitMs": 116.10000000000582
+  },
+  "limits": "drainedAt includes page return and raw-row serialization/appends; subsequent witness serialization, validation and reads are not separately timed. Exact failed Move entry page offset was not logged. No physical follow or checkpoints were reached."
+}

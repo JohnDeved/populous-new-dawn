@@ -1,0 +1,85 @@
+{
+  "status": "passed",
+  "kind": "source-only preparation checks",
+  "time": "2026-10-05T23:36:25.492Z",
+  "node": "v24.19.0",
+  "checks": [
+    "All prior reviewed packets, including the actual failed revision3 baseline inputs, are preserved byte-for-byte with their original outcome labels",
+    "Every original accepted helper and old preparation source retains its supplied hash",
+    "All eight accepted local closures match the original body plus enumerated adaptations",
+    "Browser probes and replacement observers match their copied source boundary",
+    "Both frozen runtime source manifests match Git; candidate tracked source remains clean",
+    "Every prepared module passes Node syntax; scenario import has no execution side effects",
+    "Pure mocks reject silhouette-edge targets and disabled contexts, and preserve live-input ownership under mutating clone-only validators",
+    "Ten actual-adapter input-envelope cases pass, including real listener-order capture, marker expiry, same-target existing input, entity work, stale/missing/wrong-owner markers, later slots, Load reset and nonthrowing diagnostics/original exceptions; current-origin data-module assembly checked for both roots",
+    "Eight ground-probe cases pass: unchanged candidate sequence/cache calls, rejection diagnostics, bounded same-view choice, earned Move record, no dispatch fallback, and both point sets clear of retained native footprints",
+    "Four source/entry cases pass: unique native hut identity independent of live ID, wrong/ambiguous identity rejection, original Brave retention plus extra births, absent/visible Skip and unchanged entry deadline",
+    "Six identity/target regression cases pass: Unit/native swaps, intervening row swaps, source ownership, verified Load-only rebind, current-order selection, pending target0, saved target/queue/aliases",
+    "Narrow checkpoint observer preserves marker, target, aliases and guard count without modifying supplied data",
+    "Four event-deadline cases pass: independent consecutive limits, evidence drain time charged to the active stage, unchanged global deadline and no overlapping/replaced failed stage"
+  ],
+  "eventDeadlineRegressions": {
+    "command": "node --test event-deadlines.test.mjs",
+    "exitCode": 0,
+    "stdout": "✔ consecutive accepted events each retain their own deadline after retained evidence work (1.441393ms)\n✔ serialization/drain time consumes the active event budget and an overrun cannot finish (0.821023ms)\n✔ event transitions never reset or replace the overall real-clock deadline (0.188423ms)\n✔ overlapping stages and invalid limits fail without silently replacing an active deadline (4.858551ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 105.984532\n"
+  },
+  "identityTargetRegressions": {
+    "command": "node --test guard-assertions.test.mjs",
+    "exitCode": 0,
+    "stdout": "✔ pins both actual Unit and native owner identities for the full epoch (2.79163ms)\n✔ every sampled row rejects replacement even when surrounding reads look unchanged (0.644677ms)\n✔ ordinary read cannot silently rebind after a changed epoch/world/scene (1.597708ms)\n✔ only the CURRENT active order can satisfy native Guard (0.416825ms)\n✔ pending initial G may carry target0; adoption must configure the actual target (0.441693ms)\n✔ Load binding validates captured aliases, saved target and exact Guard queue before pinning (1.489525ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 110.790794\n"
+  },
+  "inputBoundaryRegressions": {
+    "command": "node --test input-boundary.test.mjs",
+    "exitCode": 0,
+    "stdout": "✔ actual adapter captures pre/post handler marker and queue before delayed expiry (8.408259ms)\n✔ completed short-move queue may disappear later without inventing completion (2.275445ms)\n✔ fresh same-target current record retains unchanged generic helper semantics (1.297156ms)\n✔ entity training acceptance also uses the actual post-handler owner/work envelope (1.868814ms)\n✔ missing marker remains fatal in the executed adapter (1.301062ms)\n✔ stale same-cell, wrong dispatch/epoch/secondary owner and later-slot records fail (6.305403ms)\n✔ Load resets the actual epoch; old pointer envelopes cannot cross worlds (1.636475ms)\n✔ diagnostic failure never stops the handler, and original handler failure is untouched (2.186781ms)\n✔ command owner follows campaign priority while renderer identity remains separate (0.69984ms)\n✔ browser boundary module stays self-contained under either runtime-origin assembly (0.815464ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 136.483212\n"
+  },
+  "groundProbeRegressions": {
+    "command": "node --test ground-probe.test.mjs",
+    "exitCode": 0,
+    "stdout": "✔ records actual not-canvas-owned counts/picks without extra diagnostics-only picker calls (4.947395ms)\n✔ records actual no-ground-pick counts/picks without extra diagnostics-only picker calls (0.765949ms)\n✔ records actual competing-object counts/picks without extra diagnostics-only picker calls (0.547151ms)\n✔ records actual outside-target-radius counts/picks without extra diagnostics-only picker calls (1.622234ms)\n✔ retains exact model/disabled/vanished-center decisions and stops after three probes (1.476275ms)\n✔ maps once and chooses the first valid same-view point before dispatch (0.971167ms)\n✔ a dispatch failure never falls through to another point or relaxes acceptance (0.515193ms)\n✔ both exact prospective point sets are clear of every retained native footprint (1.858419ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 121.180487\n"
+  },
+  "entryIdentityRegressions": {
+    "command": "node --test entry-identity.test.mjs",
+    "exitCode": 0,
+    "stdout": "✔ authored149 resolves by native identity, independently of live ID and displayed center (2.17857ms)\n✔ original Brave roster survives natural births without an exact live-count assertion (0.412278ms)\n✔ ready Mission10 with no introduction never waits for a nonexistent Skip (0.627352ms)\n✔ visible introduction uses the actual public Skip and preserves the 60s deadline (0.593952ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 110.385166\n"
+  },
+  "inputs": {
+    "accepted-input.mjs": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+    "attempt-01-provenance.json": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+    "attempt-01-verifier.mjs.txt": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+    "attempt-02-ground-footprints.json": "fbc9a4f7f1878705b7111c7c871e616b519633970efba59a6800893556ebe34e",
+    "attempt-04-timing-attribution.json": "6ed3c6a7024e3ea53088b70ed99ba397902e27a7b4e8906acabf26223010dc6e",
+    "browser-probes.mjs": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+    "candidate05-timing-attribution.json": "76beffc990436083bc145f06e787dfff86a67c4999b211500dfe75e4458acffa",
+    "checkpoint-guard.mjs": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+    "contract-audit.md": "7345817861b036bb169a342966f8161ba05d45d0e8eb08dadb60318914bbac43",
+    "entry-identity.mjs": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+    "entry-identity.test.mjs": "00c7ef31353bd7066ac4b48693664d996b96b30e1645a4fb743af2c2cb8fe806",
+    "event-deadlines.mjs": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7",
+    "event-deadlines.test.mjs": "672c27d5a9b88b913b2797ee6f5eb73223c3587dc189b7c7457dce6f4ac12b95",
+    "ground-and-dispatch.mjs": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7",
+    "ground-probe.test.mjs": "3217095d138ce753e1d77180ca9fcc95da2eefa860418eea42487a247722b3b9",
+    "guard-assertions.mjs": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+    "guard-assertions.test.mjs": "3bbadb73d827213c78861132da40b29f6571db67992444a139b48f49f305efa4",
+    "input-boundary.mjs": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+    "input-boundary.test.mjs": "59a40334c1bcb518bd1b644a8c6bd05a00cd24f783ab17da926b63b42392a44a",
+    "mission10-construction.json": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+    "observer.mjs": "98bc28e08c1cc035765686a4b61c5cb9cd1ecde5fcea134ea26474899abdc82c",
+    "ordinary-input.mjs": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+    "plan.md": "87f3a57d5caf410699a5cb579a7469c98eb5d0f709a09e7f4924ea5a80ae253a",
+    "preparation-failure-01.json": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+    "provenance.json": "434f54e368d8277977371456e5f1f272440252fa1de41a7f92032a164564f9b1",
+    "replacement-observer.mjs": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+    "retained-ground-inputs.json": "121e949e5a94280a3360d580076e2ce5b44145e92c747cefe909a2e3fbcc3fda",
+    "revision-history.json": "3da97fd62d789582eb898c238daa50df4ac87d5cdd9b14db2931a95c4a5206b9",
+    "runtime-sources.json": "f28083ac8a279dc5500551e84a0e62573fe0b8a0048deb82e139dbfa2c6e277a",
+    "scenario.mjs": "198073123b03c51f92a18ce0b2b18c23117bccee6b59ad97d743f89fbefd5279",
+    "verify-preparation.mjs": "f9a8e09b56853d6f7b3f7c9596b25ee100fafdf1f97f6b3736820076aafb4d4f"
+  },
+  "browser": "not-run",
+  "server": "not-run",
+  "build": "not-run",
+  "profiles": "not-touched",
+  "dependencies": "not-touched",
+  "parity": "no-credit"
+}

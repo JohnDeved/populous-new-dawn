@@ -1,0 +1,474 @@
+{
+  "status": "passed",
+  "scope": "Bounded ordinary Mission10 candidate; prior baseline04 and candidate05 remain FAILED and partial. No paired whole-run timing, first-postLoad-tick, profile persistence, hardware or full Guard physics claim.",
+  "source": "c20a297f5f815ce404f796b08f77ea56396f96da",
+  "originalSession": 17014,
+  "receipts": {
+    "launcher.json": "73d4566933c2459beefea823249d314fb971bf6f561dc8d92bc3872b37482cd4",
+    "outer.json": "16d7c479a9e2a0c50d0b8a2c1101501905e9b04982a5322974d1cb1c41b35b38",
+    "run/receipt.json": "351f930f25c74b4669f1ff15f58a8be652d5e6ea5785f6d96c656364f35d74aa",
+    "run/witness.json": "0378b83c6cbda07740c8b14a8979f93bb2cc65c59a04f24ea166ecde81c3ca10",
+    "run/actions.jsonl": "193846e6f8b0b4637152287af99b2b0ffa0e98a8ec9637ee31100036c8f0eb74"
+  },
+  "training": {
+    "sawOccupant": true,
+    "sawCost4000": true,
+    "sourceBraveId": 122,
+    "newFirewarriorId": 176
+  },
+  "physicalFollowing": {
+    "63": {
+      "before": [
+        29,
+        -5
+      ],
+      "after": [
+        25.2734375,
+        -1.36328125
+      ],
+      "distance": 5.207013667449685,
+      "goalBefore": [
+        9472,
+        64768
+      ],
+      "goalAfter": [
+        8442,
+        63760
+      ],
+      "nativeIdentityBefore": 2,
+      "nativeIdentityAfter": 2
+    },
+    "176": {
+      "before": [
+        29,
+        -5
+      ],
+      "after": [
+        25,
+        -1.15625
+      ],
+      "distance": 5.547469158318954,
+      "goalBefore": [
+        9472,
+        64768
+      ],
+      "goalAfter": [
+        8518,
+        63837
+      ],
+      "nativeIdentityBefore": 69,
+      "nativeIdentityAfter": 69
+    }
+  },
+  "eventStages": [
+    {
+      "name": "follow-selection-focus",
+      "limitMs": 4000,
+      "elapsedMs": 1894.1830440000049
+    },
+    {
+      "name": "accepted-shaman-move",
+      "limitMs": 4000,
+      "elapsedMs": 3064.4918270000053
+    },
+    {
+      "name": "native-follow-observation",
+      "limitMs": 18000,
+      "elapsedMs": 14349.839473
+    },
+    {
+      "name": "checkpoint-replace-prepare",
+      "limitMs": 10000,
+      "elapsedMs": 5421.079415999993
+    },
+    {
+      "name": "checkpoint-replace-save",
+      "limitMs": 15000,
+      "elapsedMs": 3277.4649079999945
+    },
+    {
+      "name": "checkpoint-replace-load-binding",
+      "limitMs": 15000,
+      "elapsedMs": 4685.77407900001
+    },
+    {
+      "name": "checkpoint-replace-real-continuation",
+      "limitMs": 8000,
+      "elapsedMs": 6310.163291000004
+    },
+    {
+      "name": "checkpoint-cancel-prepare",
+      "limitMs": 10000,
+      "elapsedMs": 4141.987816000008
+    },
+    {
+      "name": "checkpoint-cancel-save",
+      "limitMs": 15000,
+      "elapsedMs": 3072.5846569999994
+    },
+    {
+      "name": "checkpoint-cancel-load-binding",
+      "limitMs": 15000,
+      "elapsedMs": 4357.806829999987
+    },
+    {
+      "name": "checkpoint-cancel-real-continuation",
+      "limitMs": 8000,
+      "elapsedMs": 6631.945826999989
+    }
+  ],
+  "checkpoints": [
+    {
+      "mode": "replace",
+      "savedHash": {
+        "version": 1,
+        "level": 10,
+        "turn": 1196,
+        "time": 99.66666666666667,
+        "checkpointSha256": "f7da84352b26e32d28220d8a20a709f99de20a0d9503d7f718580b17432543ec",
+        "actorsSha256": "71d842de73c162fe15c4b7ff5a48adabd9df9e2da9097ecb35d1dc8b83a747b3",
+        "terrainSha256": "88146514f66b829465c426cd7a016c41fb36a0136896906acc99914690ce7f1d",
+        "stockSha256": "c89c368c7fdf5d1012ea7a0a55b7909f0b9dd94818e2d29d49dfbc347f532f52"
+      },
+      "loadedHash": {
+        "version": 1,
+        "level": 10,
+        "turn": 1196,
+        "time": 99.66666666666667,
+        "checkpointSha256": "f7da84352b26e32d28220d8a20a709f99de20a0d9503d7f718580b17432543ec",
+        "actorsSha256": "71d842de73c162fe15c4b7ff5a48adabd9df9e2da9097ecb35d1dc8b83a747b3",
+        "terrainSha256": "88146514f66b829465c426cd7a016c41fb36a0136896906acc99914690ce7f1d",
+        "stockSha256": "c89c368c7fdf5d1012ea7a0a55b7909f0b9dd94818e2d29d49dfbc347f532f52"
+      },
+      "savedEqualsLoadedGuard": true,
+      "savedGuard": {
+        "aliases": [
+          "native"
+        ],
+        "id": 176,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "previousState": 19,
+        "substate": 1,
+        "commandStatus": 0,
+        "commandCursor": 0,
+        "immediateCommand": 0,
+        "guardInputPending": true,
+        "target": 63,
+        "flags2": 1073877520,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "selectionFlags": 128,
+        "renderFlags": 384,
+        "object": 40,
+        "draw": 18,
+        "f1": 1,
+        "f2": 2,
+        "stamp": 1196,
+        "counter": 172,
+        "assignment": 272,
+        "speed": 58,
+        "goalX": 8518,
+        "goalY": 63837,
+        "x": 8540,
+        "y": 63908,
+        "vehicle": 0,
+        "commands": [
+          53,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "orders": [
+          {
+            "id": 53,
+            "model": 30,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 63,
+            "b": 0
+          }
+        ]
+      },
+      "savedTribe": {
+        "shamanGuards": 0,
+        "shamanGuardChanged": 1
+      },
+      "firstAsync": {
+        "epoch": 1,
+        "turn": 1229,
+        "time": 102.41666666666667,
+        "now": 117491
+      },
+      "continuedTurn": 1293,
+      "continuedNative": {
+        "identity": 83,
+        "id": 176,
+        "class": 1,
+        "tribe": 0,
+        "model": 6,
+        "object": 40,
+        "draw": 18,
+        "f1": 1,
+        "f2": 3,
+        "flags2": 1073877504,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "stamp": 1293,
+        "renderFlags": 384,
+        "selectionFlags": 128,
+        "state": 10,
+        "previousState": 10,
+        "substate": 1,
+        "commandStatus": 30,
+        "commandCursor": 0,
+        "immediateCommand": 0,
+        "orderLocation": 0,
+        "workTarget": 0,
+        "assignment": 272,
+        "stateObject": 0,
+        "animationMode": 0,
+        "counter": 13,
+        "speed": 62,
+        "timer": 0,
+        "x": 8575,
+        "y": 63858,
+        "h": 88,
+        "angle": 846,
+        "heading": 846,
+        "goalX": 8518,
+        "goalY": 63837,
+        "target": 63,
+        "vehicle": 0,
+        "morph": 0,
+        "morphTimer": 0,
+        "morphFrames": 0,
+        "guardInputPending": null,
+        "life": 700,
+        "motionIndex": 0,
+        "workFlags": 0,
+        "commands": [
+          53,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "activeId": 53,
+        "descriptorMode": 2,
+        "registered": true,
+        "orders": [
+          {
+            "id": 53,
+            "record": {
+              "identity": 84,
+              "model": 30,
+              "flags": 0,
+              "references": 1,
+              "object": 0,
+              "a": 63,
+              "b": 0
+            }
+          }
+        ]
+      },
+      "continuedEpoch": 1
+    },
+    {
+      "mode": "cancel",
+      "savedHash": {
+        "version": 1,
+        "level": 10,
+        "turn": 1325,
+        "time": 110.41666666666667,
+        "checkpointSha256": "e05f6b0aa18da6b947393d2e6bb468b335e1fc2491c8164837ef879cfd1cf4d7",
+        "actorsSha256": "713ca3948e6159aaf7d80c1e3901636ab95b47576b5dafcc65af30696622268b",
+        "terrainSha256": "88146514f66b829465c426cd7a016c41fb36a0136896906acc99914690ce7f1d",
+        "stockSha256": "c89c368c7fdf5d1012ea7a0a55b7909f0b9dd94818e2d29d49dfbc347f532f52"
+      },
+      "loadedHash": {
+        "version": 1,
+        "level": 10,
+        "turn": 1325,
+        "time": 110.41666666666667,
+        "checkpointSha256": "e05f6b0aa18da6b947393d2e6bb468b335e1fc2491c8164837ef879cfd1cf4d7",
+        "actorsSha256": "713ca3948e6159aaf7d80c1e3901636ab95b47576b5dafcc65af30696622268b",
+        "terrainSha256": "88146514f66b829465c426cd7a016c41fb36a0136896906acc99914690ce7f1d",
+        "stockSha256": "c89c368c7fdf5d1012ea7a0a55b7909f0b9dd94818e2d29d49dfbc347f532f52"
+      },
+      "savedEqualsLoadedGuard": true,
+      "savedGuard": {
+        "aliases": [
+          "native"
+        ],
+        "id": 176,
+        "class": 1,
+        "model": 6,
+        "state": 10,
+        "previousState": 10,
+        "substate": 1,
+        "commandStatus": 0,
+        "commandCursor": 0,
+        "immediateCommand": 0,
+        "guardInputPending": true,
+        "target": 63,
+        "flags2": 1073877504,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "selectionFlags": 1,
+        "renderFlags": 384,
+        "object": 40,
+        "draw": 18,
+        "f1": 1,
+        "f2": 3,
+        "stamp": 1325,
+        "counter": 45,
+        "assignment": 272,
+        "speed": 62,
+        "goalX": 8518,
+        "goalY": 63837,
+        "x": 8575,
+        "y": 63858,
+        "vehicle": 0,
+        "commands": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "orders": []
+      },
+      "savedTribe": {
+        "shamanGuards": 0,
+        "shamanGuardChanged": 1
+      },
+      "firstAsync": {
+        "epoch": 2,
+        "turn": 1356,
+        "time": 113,
+        "now": 135384.40000000596
+      },
+      "continuedTurn": 1422,
+      "continuedNative": {
+        "identity": 93,
+        "id": 176,
+        "class": 1,
+        "tribe": 0,
+        "model": 6,
+        "object": 48,
+        "draw": 18,
+        "f1": 1,
+        "f2": 2,
+        "flags2": 131072,
+        "flags3": 262144,
+        "flags4": 536871168,
+        "stamp": 1422,
+        "renderFlags": 384,
+        "selectionFlags": 1,
+        "state": 19,
+        "previousState": 17,
+        "substate": 5,
+        "commandStatus": 0,
+        "commandCursor": 0,
+        "immediateCommand": 0,
+        "orderLocation": 0,
+        "workTarget": 0,
+        "assignment": 273,
+        "stateObject": 96,
+        "animationMode": 0,
+        "counter": 142,
+        "speed": 0,
+        "timer": 0,
+        "x": 8448,
+        "y": 63744,
+        "h": 88,
+        "angle": 151,
+        "heading": 151,
+        "goalX": 8448,
+        "goalY": 63744,
+        "target": 63,
+        "vehicle": 0,
+        "morph": 0,
+        "morphTimer": 0,
+        "morphFrames": 0,
+        "guardInputPending": null,
+        "life": 700,
+        "motionIndex": 0,
+        "workFlags": 0,
+        "commands": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "activeId": 0,
+        "descriptorMode": 2,
+        "registered": true,
+        "orders": []
+      },
+      "continuedEpoch": 2
+    }
+  ],
+  "rows": {
+    "epoch-0-rows.jsonl": {
+      "sha256": "69797c8a8a9178db827a9c6357c10090b042ab918cdd09e45bb18ff77454b853",
+      "rows": 883
+    },
+    "epoch-1-rows.jsonl": {
+      "sha256": "560eb39cd58c57572cf572058bbb48fcc406164494d4d53d79c760391e675022",
+      "rows": 73
+    },
+    "epoch-2-rows.jsonl": {
+      "sha256": "09521405186336347bcfb8060401c66f13f5746cae87bae9047cc4c9aec221bd",
+      "rows": 75
+    }
+  },
+  "screenshots": {
+    "training-hut-target": "830115089f2db3efb5d882c37dd16a2c78b9af9b0f16af53a94cf1f15909adc2",
+    "guard-06000-first-G": "b89c62e2a38beea6367536e28df8a15d385fbf0b2ba4e8f0de6c47ffa42205f4",
+    "guard-11000-deselected": "bb8e92936206091a5b51fe2e4fb23bb16a3208611f77f060fbc76ff527d9d8d1",
+    "guard-18000-repeat-G": "dca8dce11e6443a0114c7c16ac36e89022aab57b3674c7fb9b4245ee6f8553a7",
+    "guard-24000-empty-cancel": "0fd8de1894d2ec8c2263545d277f00f475617fccf9075a8be675db17a64f4062",
+    "guard-36000-shaman-cancel": "73c20f8d8302d85a49fc777cf94525bf51ed12a5a0c6a16382f3bf9c1fb7df59",
+    "guard-follow-accepted-plus-6000": "daf7b8e0042d2320b80d08b5700fa9254cbe861dc31caa0f833b9da2fbc47220",
+    "checkpoint-replace-saved": "29f258a441423c7a3d8d38e92355c0dbbeac39064e7763ae3347ea66e7b42f89",
+    "checkpoint-replace-resumed-5s": "e72f812d05a44540535a4f3870e5c1c84160c756b059076c97ad5930ea8794a4",
+    "checkpoint-cancel-saved": "c9824668902c4169e8baf00bcb9f18e410bcf6f458669b40766411b9705d0d24",
+    "checkpoint-cancel-resumed-5s": "762188d9a674859dae6af3c2fe84476dc596a33b2f342e1baedd257fbb6d7fe1"
+  },
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x37f4007aa600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x37f4007aa600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x37f4007aa600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x37f4007aa600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content."
+  ],
+  "cleanupEvidence": {
+    "normalOriginalExitCode": 0,
+    "sameNamespacePortClosed": true,
+    "registryFiles": [],
+    "ephemeralHarnessProof": "Unchanged harness finally awaits browser close and rejects a connected browser; normal exit0 and both launch-namespace loopbacks closed. No profile cleanup fields exist for this ephemeral run."
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "kind": "author-publication-verification",
+  "status": "passed",
+  "base": "a361242a8a532c855c61568ca6e7659c53738f15",
+  "scope": "Evidence-only supplement; final independent rendered acceptance is retained separately unchanged. No runtime, dependency, active checker, browser, build or installation mutation.",
+  "snapshot": {
+    "manifestSha256BeforeThisReport": "50326952f287d49ddf061a0ef8ed4b0bc2a4a212e258feb71c4dbc8b18933cc2",
+    "readmeSha256": "a9537f3175dbcb6ad08683c4c6f2c1633b31b4a43a76d288596721ebbf3b622c",
+    "verifiedArtifactsBeforeThisReport": 538,
+    "preservedPriorArtifacts": 473,
+    "newSourceArtifacts": 65,
+    "readmeLocalLinks": 117,
+    "screenshotsInspected": 11,
+    "candidate06EpochRows": [
+      883,
+      73,
+      75
+    ],
+    "credentialPatternFindings": []
+  },
+  "checks": [
+    {
+      "command": "node scripts/orchestration/cli.mjs plan --base a361242a8a532c855c61568ca6e7659c53738f15",
+      "status": "passed",
+      "exitCode": 0,
+      "unmappedEvidencePaths": 67,
+      "selected": [
+        "npm run check"
+      ],
+      "disposition": "Explicitly reviewed evidence-only paths. Docs-only focused structural/hash/source checks used; unchanged source-bound fullcheck/build gates retained, no heavy rerun."
+    },
+    {
+      "command": "git diff --cached --check",
+      "status": "failed",
+      "exitCode": 2,
+      "warnings": [
+        "evidence/native-shaman-guard-input/candidate06-provenance/revision-08/accepted-input.mjs:46: new blank line at EOF.",
+        "evidence/native-shaman-guard-input/candidate06-provenance/revision-08/browser-probes.mjs:179: new blank line at EOF.",
+        "evidence/native-shaman-guard-input/candidate06-provenance/revision-08/replacement-observer.mjs:30: new blank line at EOF."
+      ],
+      "disposition": "Three inherited EOF blank lines in byte-exact revision08 QA archives are preserved, not normalized."
+    },
+    {
+      "command": "git diff --cached --check -- evidence/native-shaman-guard-input/README.md evidence/native-shaman-guard-input/manifest.json",
+      "status": "passed",
+      "exitCode": 0
+    }
+  ],
+  "rawRuntimeResults": {
+    "baseline04": "failed",
+    "candidate05": "failed",
+    "candidate06": "passed"
+  },
+  "independentFinalReview": "candidate06-provenance/final-review/review-candidate06-final.md"
+}

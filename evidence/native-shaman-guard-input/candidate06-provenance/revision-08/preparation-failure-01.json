@@ -1,0 +1,10 @@
+{
+  "status": "failed",
+  "command": "node work/orchestration/native-guard-browser-preparation/verify-preparation.mjs",
+  "exitCode": 1,
+  "expectedCandidate": "ddd09047381d16d9a4ec85ac7f771a84556bf568",
+  "observedHead": "c20a297f5f815ce404f796b08f77ea56396f96da",
+  "reason": "Candidate worktree head changed during source-only preparation. Source manifest, copied bodies and frozen Git manifests matched before the mismatch stopped verification. Later checks not yet run.",
+  "checkerSha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+  "originalProvenanceSha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd"
+}

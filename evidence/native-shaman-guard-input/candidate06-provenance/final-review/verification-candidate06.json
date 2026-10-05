@@ -1,0 +1,423 @@
+{
+  "status": "passed",
+  "kind": "independent read-only candidate06 raw evidence audit",
+  "head": "c20a297f5f815ce404f796b08f77ea56396f96da",
+  "inputs": {
+    "launcher": "73d4566933c2459beefea823249d314fb971bf6f561dc8d92bc3872b37482cd4",
+    "outer": "16d7c479a9e2a0c50d0b8a2c1101501905e9b04982a5322974d1cb1c41b35b38",
+    "inner": "351f930f25c74b4669f1ff15f58a8be652d5e6ea5785f6d96c656364f35d74aa",
+    "witness": "0378b83c6cbda07740c8b14a8979f93bb2cc65c59a04f24ea166ecde81c3ca10",
+    "actions": "193846e6f8b0b4637152287af99b2b0ffa0e98a8ec9637ee31100036c8f0eb74",
+    "rows": {
+      "epoch-0-rows.jsonl": "69797c8a8a9178db827a9c6357c10090b042ab918cdd09e45bb18ff77454b853",
+      "epoch-1-rows.jsonl": "560eb39cd58c57572cf572058bbb48fcc406164494d4d53d79c760391e675022",
+      "epoch-2-rows.jsonl": "09521405186336347bcfb8060401c66f13f5746cae87bae9047cc4c9aec221bd"
+    }
+  },
+  "training": {
+    "occupancyRows": 124,
+    "cost4000Rows": 124,
+    "firstFire": {
+      "turn": 364,
+      "id": 176,
+      "kind": "firewarrior",
+      "nativeModel": 6,
+      "sourceBrave": null,
+      "trained": 1
+    }
+  },
+  "rows": 1031,
+  "identityCounts": {
+    "0": 678,
+    "1": 73,
+    "2": 75
+  },
+  "distinctObservedPhases": {
+    "0": 44,
+    "1": 8,
+    "2": 12
+  },
+  "guards": [
+    {
+      "turn": 494,
+      "paused": false,
+      "selected": [
+        176
+      ],
+      "command": 30,
+      "activeId": 36,
+      "count": 1,
+      "pending": null
+    },
+    {
+      "turn": 640,
+      "paused": false,
+      "selected": [
+        176
+      ],
+      "command": 30,
+      "activeId": 38,
+      "count": 1,
+      "pending": null
+    },
+    {
+      "turn": 720,
+      "paused": false,
+      "selected": [],
+      "command": 0,
+      "activeId": 0,
+      "count": 0,
+      "pending": null
+    },
+    {
+      "turn": 800,
+      "paused": false,
+      "selected": [
+        176
+      ],
+      "command": 30,
+      "activeId": 40,
+      "count": 1,
+      "pending": null
+    },
+    {
+      "turn": 875,
+      "paused": false,
+      "selected": [
+        63
+      ],
+      "command": 0,
+      "activeId": 0,
+      "count": 0,
+      "pending": null
+    },
+    {
+      "turn": 925,
+      "paused": false,
+      "selected": [
+        176
+      ],
+      "command": 30,
+      "activeId": 44,
+      "count": 1,
+      "pending": null
+    },
+    {
+      "turn": 1196,
+      "paused": true,
+      "selected": [
+        176
+      ],
+      "command": 0,
+      "activeId": 53,
+      "count": 0,
+      "pending": true
+    },
+    {
+      "turn": 1325,
+      "paused": true,
+      "selected": [],
+      "command": 0,
+      "activeId": 0,
+      "count": 0,
+      "pending": true
+    }
+  ],
+  "inputBoundaries": [
+    {
+      "turn": 152,
+      "hit": {
+        "x": 832,
+        "y": 424,
+        "interiorRadius": 2,
+        "id": 98,
+        "collection": "buildings",
+        "turn": 103
+      },
+      "acceptance": {
+        "kind": "fresh-input-new-order",
+        "recipientIds": [
+          122
+        ],
+        "marker": null
+      }
+    },
+    {
+      "turn": 431,
+      "hit": {
+        "x": 883,
+        "y": 416,
+        "interiorRadius": 2,
+        "point": {
+          "x": 31.045209205924266,
+          "z": -11.975819335895324
+        },
+        "context": {
+          "model": 3,
+          "enabled": true,
+          "buildingId": null,
+          "personId": null,
+          "shrineId": null,
+          "treeId": null,
+          "vehicleId": null
+        }
+      },
+      "acceptance": {
+        "kind": "fresh-input-new-order",
+        "recipientIds": [
+          176
+        ],
+        "marker": {
+          "id": 181,
+          "kind": "orderMarker",
+          "x": 31,
+          "z": -11,
+          "turnsRemaining": 4,
+          "secondaryOwner": {
+            "slot": 154,
+            "kind": "orderMarker",
+            "effect": 181,
+            "serial": 6
+          }
+        }
+      }
+    },
+    {
+      "turn": 982,
+      "hit": {
+        "x": 829,
+        "y": 402,
+        "interiorRadius": 2,
+        "point": {
+          "x": 24.977417964071833,
+          "z": -1.0636550898203723
+        },
+        "context": {
+          "model": 3,
+          "enabled": true,
+          "buildingId": null,
+          "personId": null,
+          "shrineId": null,
+          "treeId": null,
+          "vehicleId": null
+        }
+      },
+      "acceptance": {
+        "kind": "fresh-input-new-order",
+        "recipientIds": [
+          63
+        ],
+        "marker": {
+          "id": 226,
+          "kind": "orderMarker",
+          "x": 25,
+          "z": -1,
+          "turnsRemaining": 4,
+          "secondaryOwner": {
+            "slot": 154,
+            "kind": "orderMarker",
+            "effect": 226,
+            "serial": 7
+          }
+        }
+      }
+    }
+  ],
+  "follow": {
+    "beforeTurn": 955,
+    "afterTurn": 1160,
+    "firewarriorDistance": 5.547469158318954,
+    "shamanDistance": 5.207013667449685,
+    "goalBefore": [
+      9472,
+      64768
+    ],
+    "goalAfter": [
+      8518,
+      63837
+    ]
+  },
+  "checkpoints": [
+    {
+      "mode": "replace",
+      "savedTurn": 1196,
+      "firstAsyncTurn": 1229,
+      "continuedTurn": 1293,
+      "observedContinuationMs": 5346.29999999702,
+      "epoch": 1,
+      "personPhase": {
+        "object": 40,
+        "draw": 18,
+        "f1": 1,
+        "f2": 2,
+        "stamp": 1196,
+        "counter": 172
+      },
+      "checkpointSha256": "f7da84352b26e32d28220d8a20a709f99de20a0d9503d7f718580b17432543ec"
+    },
+    {
+      "mode": "cancel",
+      "savedTurn": 1325,
+      "firstAsyncTurn": 1356,
+      "continuedTurn": 1422,
+      "observedContinuationMs": 5525.0999999940395,
+      "epoch": 2,
+      "personPhase": {
+        "object": 40,
+        "draw": 18,
+        "f1": 1,
+        "f2": 3,
+        "stamp": 1325,
+        "counter": 45
+      },
+      "checkpointSha256": "e05f6b0aa18da6b947393d2e6bb468b335e1fc2491c8164837ef879cfd1cf4d7"
+    }
+  ],
+  "eventStages": [
+    {
+      "name": "follow-selection-focus",
+      "elapsedMs": 1894.1830440000049,
+      "limitMs": 4000
+    },
+    {
+      "name": "accepted-shaman-move",
+      "elapsedMs": 3064.4918270000053,
+      "limitMs": 4000
+    },
+    {
+      "name": "native-follow-observation",
+      "elapsedMs": 14349.839473,
+      "limitMs": 18000
+    },
+    {
+      "name": "checkpoint-replace-prepare",
+      "elapsedMs": 5421.079415999993,
+      "limitMs": 10000
+    },
+    {
+      "name": "checkpoint-replace-save",
+      "elapsedMs": 3277.4649079999945,
+      "limitMs": 15000
+    },
+    {
+      "name": "checkpoint-replace-load-binding",
+      "elapsedMs": 4685.77407900001,
+      "limitMs": 15000
+    },
+    {
+      "name": "checkpoint-replace-real-continuation",
+      "elapsedMs": 6310.163291000004,
+      "limitMs": 8000
+    },
+    {
+      "name": "checkpoint-cancel-prepare",
+      "elapsedMs": 4141.987816000008,
+      "limitMs": 10000
+    },
+    {
+      "name": "checkpoint-cancel-save",
+      "elapsedMs": 3072.5846569999994,
+      "limitMs": 15000
+    },
+    {
+      "name": "checkpoint-cancel-load-binding",
+      "elapsedMs": 4357.806829999987,
+      "limitMs": 15000
+    },
+    {
+      "name": "checkpoint-cancel-real-continuation",
+      "elapsedMs": 6631.945826999989,
+      "limitMs": 8000
+    }
+  ],
+  "captureStarts": [
+    {
+      "startedAt": 19559.5,
+      "maxMs": 163561,
+      "epoch": 0
+    },
+    {
+      "startedAt": 43841.09999999404,
+      "maxMs": 65000,
+      "epoch": 0
+    },
+    {
+      "startedAt": 84883.5,
+      "maxMs": 35000,
+      "epoch": 0
+    },
+    {
+      "startedAt": 117579.79999999702,
+      "maxMs": 15000,
+      "epoch": 1
+    },
+    {
+      "startedAt": 135459.09999999404,
+      "maxMs": 15000,
+      "epoch": 2
+    }
+  ],
+  "screenshots": [
+    {
+      "name": "training-hut-target",
+      "sha256": "830115089f2db3efb5d882c37dd16a2c78b9af9b0f16af53a94cf1f15909adc2"
+    },
+    {
+      "name": "guard-06000-first-G",
+      "sha256": "b89c62e2a38beea6367536e28df8a15d385fbf0b2ba4e8f0de6c47ffa42205f4"
+    },
+    {
+      "name": "guard-11000-deselected",
+      "sha256": "bb8e92936206091a5b51fe2e4fb23bb16a3208611f77f060fbc76ff527d9d8d1"
+    },
+    {
+      "name": "guard-18000-repeat-G",
+      "sha256": "dca8dce11e6443a0114c7c16ac36e89022aab57b3674c7fb9b4245ee6f8553a7"
+    },
+    {
+      "name": "guard-24000-empty-cancel",
+      "sha256": "0fd8de1894d2ec8c2263545d277f00f475617fccf9075a8be675db17a64f4062"
+    },
+    {
+      "name": "guard-36000-shaman-cancel",
+      "sha256": "73c20f8d8302d85a49fc777cf94525bf51ed12a5a0c6a16382f3bf9c1fb7df59"
+    },
+    {
+      "name": "guard-follow-accepted-plus-6000",
+      "sha256": "daf7b8e0042d2320b80d08b5700fa9254cbe861dc31caa0f833b9da2fbc47220"
+    },
+    {
+      "name": "checkpoint-replace-saved",
+      "sha256": "29f258a441423c7a3d8d38e92355c0dbbeac39064e7763ae3347ea66e7b42f89"
+    },
+    {
+      "name": "checkpoint-replace-resumed-5s",
+      "sha256": "e72f812d05a44540535a4f3870e5c1c84160c756b059076c97ad5930ea8794a4"
+    },
+    {
+      "name": "checkpoint-cancel-saved",
+      "sha256": "c9824668902c4169e8baf00bcb9f18e410bcf6f458669b40766411b9705d0d24"
+    },
+    {
+      "name": "checkpoint-cancel-resumed-5s",
+      "sha256": "762188d9a674859dae6af3c2fe84476dc596a33b2f342e1baedd257fbb6d7fe1"
+    }
+  ],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x37f4007aa600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x37f4007aa600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x37f4007aa600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x37f4007aa600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content."
+  ],
+  "limits": [
+    "Read-only revalidation of retained samples; no game/browser execution.",
+    "Independent RAF samples and explicit gaps do not prove every visit.",
+    "Checkpoint replacement capture precedes auto-resume; first asynchronous observation is later.",
+    "Cleanup is normal terminal exit plus closed ports and reviewed finally logic, not profile cleanup flags."
+  ]
+}

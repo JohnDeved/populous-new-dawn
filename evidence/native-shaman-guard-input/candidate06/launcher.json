@@ -1,0 +1,91 @@
+{
+  "status": "terminal",
+  "startedAt": "2026-10-05T23:45:00.657683+00:00",
+  "deadline330": "2026-10-05T23:50:30.657683+00:00",
+  "name": "candidate",
+  "head": "c20a297f5f815ce404f796b08f77ea56396f96da",
+  "port": 4393,
+  "netNamespace": "net:[4026532405]",
+  "pidNamespace": "pid:[4026532404]",
+  "planSha256": "aa6bb2d72f365bab00a11735cdf43473b691cc78ce1676f80c997ef8968947fa",
+  "command": [
+    "node",
+    "scripts/orchestration/command-receipt.mjs",
+    "--output",
+    "work/orchestration/native-guard-browser-candidate-06/outer.json",
+    "--input",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+    "--input",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-receipt.json",
+    "--input",
+    "node_modules/.package-lock.json",
+    "--",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=15s",
+    "330s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+    "--port",
+    "4393",
+    "--timeout",
+    "300000",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run"
+  ],
+  "privateTMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-private-tmp-06",
+  "prePorts": [
+    {
+      "host": "127.0.0.1",
+      "closed": true
+    },
+    {
+      "host": "localhost",
+      "closed": true
+    }
+  ],
+  "dependencyInode": 925605,
+  "dependencyTransferSha256": "1a5e74adeb7c26ebf48c43c2e4e132d3654073a32028b3cd63a4160767e85202",
+  "pid": 18,
+  "finishedAt": "2026-10-05T23:47:43.436786+00:00",
+  "exitCode": 0,
+  "postPorts": [
+    {
+      "host": "127.0.0.1",
+      "closed": true
+    },
+    {
+      "host": "localhost",
+      "closed": true
+    }
+  ],
+  "sourceAfter": "c20a297f5f815ce404f796b08f77ea56396f96da",
+  "sourceStatusAfter": "",
+  "rootLockSha256After": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLockSha256After": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "outer": {
+    "sha256": "16d7c479a9e2a0c50d0b8a2c1101501905e9b04982a5322974d1cb1c41b35b38",
+    "status": "passed",
+    "failure": null,
+    "exitCode": 0,
+    "cleanupVerified": null,
+    "continuationVerified": null
+  },
+  "inner": {
+    "sha256": "351f930f25c74b4669f1ff15f58a8be652d5e6ea5785f6d96c656364f35d74aa",
+    "status": "passed",
+    "failure": null,
+    "exitCode": null,
+    "cleanupVerified": null,
+    "continuationVerified": null
+  }
+}
