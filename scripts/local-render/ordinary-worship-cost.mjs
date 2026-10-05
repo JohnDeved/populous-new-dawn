@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { cpus, platform, release, arch, availableParallelism } from 'node:os'
 import { pathToFileURL } from 'node:url'
 import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
 import { publicWorshipOrder } from './ordinary-worship-m1-route.mjs'
@@ -12,7 +13,11 @@ export default async function ({ page, root, output, receipt, openMission, signa
   assert.equal(receipt.source.commit, 'cfa86a32f03d021cd1ad725eed9f458ab239d56b')
   assert.equal(receipt.profile?.mode, 'created')
   assert.equal(await readCommittedCheckpoint(page), null)
+  const hostCpus = cpus()
   const report = { status: 'running', source: receipt.source, orders: [],
+    host: { platform: platform(), release: release(), arch: arch(), logicalCpuCount: hostCpus.length,
+      cpuModels: [...new Set(hostCpus.map(cpu => cpu.model))], availableParallelism: availableParallelism(),
+      cpuAffinity: process.platform === 'linux' ? readFileSync('/proc/self/status', 'utf8').match(/^Cpus_allowed_list:\s*(.+)$/m)?.[1] : null },
     scenarioSha256: createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex'),
     helperSha256: createHash('sha256').update(readFileSync(new URL('./ordinary-worship-m1-route.mjs', import.meta.url))).digest('hex'),
     workload: { mission: 1, head: 'Authored ordinary Land Bridge (-5,25)', viewport: [1440, 1000], dpr: 1,
