@@ -1,0 +1,189 @@
+{
+  "kind": "campaign-continuity-repair-review",
+  "createdAt": "2026-10-05T12:06:46.147284+00:00",
+  "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+  "base": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "previousReviewedHead": "c35f2bd11b68ccf374f35338ac6dd1d271d2c046",
+  "head": "db6e4867ba76d68a93d7b422053f3e04de15bfa1",
+  "tree": "7ec4b7787f395e3ce648dac6a9c9c95f9368bada",
+  "branch": "qa/current-campaign-continuity",
+  "remoteVerifiedHead": "db6e4867ba76d68a93d7b422053f3e04de15bfa1",
+  "source": {
+    "path": "work/orchestration/campaign-continuity/db6e486-source.json",
+    "sha256": "87b33de3b77439e1c833a5d1699e849030e0ebf65388b21737ea0030a54822c7"
+  },
+  "files": [
+    {
+      "path": "qa/campaign-continuity/README.md",
+      "sha256": "db3d168a856f9f8af4cdc3cb5d1eb6f122ca3291841c81fcdc93e2c38fca8e48"
+    },
+    {
+      "path": "qa/campaign-continuity/boundaries.mjs",
+      "sha256": "6143b9f9ed19450cc80e4957f75e53b1f14557ac0a729239dcbcfc094141195f"
+    },
+    {
+      "path": "qa/campaign-continuity/boundaries.test.mjs",
+      "sha256": "83acd9dea8161043f5f477d33edd63821ea7ffbf85452262261f6c3b566b8f2f"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.mjs",
+      "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.test.mjs",
+      "sha256": "9286d404028dc6d261a6c587de8b1347a1b6bad8ecf545ffab9764f4c7340e6c"
+    },
+    {
+      "path": "qa/campaign-continuity/erosion-observer.mjs",
+      "sha256": "19c25f71fcf0b60f24b65c7f8e2753b5bc51edbaca7d7ca540fd0136d6d50a97"
+    },
+    {
+      "path": "qa/campaign-continuity/erosion-observer.test.mjs",
+      "sha256": "b3cca25c4aa03c2cf8c64e9ba9066352638b58f52ed7c53e4e665766f107862e"
+    },
+    {
+      "path": "qa/campaign-continuity/observation.mjs",
+      "sha256": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a"
+    },
+    {
+      "path": "qa/campaign-continuity/observation.test.mjs",
+      "sha256": "53011926b04fc7dbfcad32d3318015a6f1736e67f5c75ae6ad62d2ddfd182a4a"
+    },
+    {
+      "path": "qa/campaign-continuity/queued-stop.mjs",
+      "sha256": "d67b3cca01cb8ac8032e31d3cdf71382d18bcae57397ffe2ebd945d259f12063"
+    },
+    {
+      "path": "qa/campaign-continuity/queued-stop.test.mjs",
+      "sha256": "c93eac48ec2a9686da97031efe115a65dcc326a9ef2ee6e404c02202241baaf0"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.json",
+      "sha256": "4a55947f6f58f216c1ea3dc690ec29cd0e3d3eabcfcd83f9c58d1c6a468fa28e"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.test.mjs",
+      "sha256": "1714a35c206f3f87dfad19ea0c0bd3a0cc421ae27456bd054451657fbc7d1da5"
+    },
+    {
+      "path": "qa/campaign-continuity/routes.mjs",
+      "sha256": "9c9ef454e1f2efa04d44ac11828f42c4d6c7f2f7db1be037e9dd7b1e4fff7198"
+    },
+    {
+      "path": "qa/campaign-continuity/routes.test.mjs",
+      "sha256": "7d45b7fd4c26e72fd43677513ddda4f38c8ec6fa808aa23fa94f2ad174e87a36"
+    },
+    {
+      "path": "qa/campaign-continuity/run-policy.json",
+      "sha256": "87d336951a76b3c53c016c506420f6d902fdc314f32d5271675b3429c8c4275c"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario-paths.test.mjs",
+      "sha256": "87744b3af6fb70cd65081c2f21fbc1060a7b6164284d774ca6d46ef687c9707a"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "sha256": "118b0befa1eab87d55e7af058fe835964d6a414839146045b2109dfbba4e60f2"
+    }
+  ],
+  "deltaPaths": [
+    "qa/campaign-continuity/README.md",
+    "qa/campaign-continuity/boundaries.mjs",
+    "qa/campaign-continuity/boundaries.test.mjs",
+    "qa/campaign-continuity/reuse.json",
+    "qa/campaign-continuity/scenario-paths.test.mjs",
+    "qa/campaign-continuity/scenario.mjs"
+  ],
+  "repairs": {
+    "R1": "One Continue accessible-name helper used by actual proof and click; tests derive full visible text and suffix from current page.tsx and execute actual QA matcher/dispatch.",
+    "R2": "Validated named effect kinds reach the retained effect-only progress handler; unrelated actors/effects/clocks do not renew progress.",
+    "R3": "Completed Continue/Save producer binds intended terminal status and exact deliberate Error stack digest before throwing that same Error. Actual later terminal override/mismatching error rejects while retained prefix failures remain."
+  },
+  "checks": [
+    {
+      "path": "work/orchestration/campaign-continuity/db6e486-focused.json",
+      "sha256": "40c40d9b5979de4536e29fae114ffe046914b3bd883f275a1dfa523c1f6b6681",
+      "status": "passed",
+      "command": [
+        "node",
+        "--test",
+        "qa/campaign-continuity/boundaries.test.mjs",
+        "qa/campaign-continuity/command-probes.test.mjs",
+        "qa/campaign-continuity/erosion-observer.test.mjs",
+        "qa/campaign-continuity/observation.test.mjs",
+        "qa/campaign-continuity/queued-stop.test.mjs",
+        "qa/campaign-continuity/reuse.test.mjs",
+        "qa/campaign-continuity/routes.test.mjs",
+        "qa/campaign-continuity/scenario-paths.test.mjs"
+      ],
+      "artifacts": {
+        "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/db6e486-focused.json.artifacts/stdout.log",
+        "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/db6e486-focused.json.artifacts/stderr.log"
+      }
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/db6e486-structure.json",
+      "sha256": "4061615360db71f4eb0bf44ca9305f9d7afda4bd35bfe0d2311d69fc6eba0cd2",
+      "status": "passed",
+      "command": [
+        "node",
+        "scripts/orchestration/cli.mjs",
+        "check"
+      ],
+      "artifacts": {
+        "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/db6e486-structure.json.artifacts/stdout.log",
+        "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/db6e486-structure.json.artifacts/stderr.log"
+      }
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/db6e486-diff.json",
+      "sha256": "17285ebc042b3da9f9f72e95b06144fa398a46c2be99cecfa6302d00a70ddc87",
+      "status": "passed",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "71b3860e7025a9534d56248c194aa18610b5df4d",
+        "HEAD"
+      ],
+      "artifacts": {
+        "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/db6e486-diff.json.artifacts/stdout.log",
+        "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/db6e486-diff.json.artifacts/stderr.log"
+      }
+    }
+  ],
+  "focusedTests": 81,
+  "priorRejectionAndFailureFirstEvidence": [
+    {
+      "path": "work/orchestration/campaign-continuity/review-c35f2bd/review.json",
+      "sha256": "144ae38f519310323e7550dd7ba6d9283f28018949d5f6f09fe27b02238a1e63"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-c35f2bd/reproduce.mjs",
+      "sha256": "ce2cc98bf529d4ee36c3fa1c2567468c58a6bc69c475e09f37927b2f7a1fa96c"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-c35f2bd/reproduce.log",
+      "sha256": "a364336fafb23d8c2136810627bd76b2f62c47f7c10cea4b588721dd22227f67"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/c35f2bd-regressions-before.log",
+      "sha256": "fd08bf704f5d0efea95dd1d02149289f83259c4495f4e2feb9105b405f34032d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/c35f2bd-admission-before.log",
+      "sha256": "3a66768c295792ae4fa26061e7f9fe2fee0e8b7b8bcb219505843bd1ee7f110b"
+    }
+  ],
+  "plan": {
+    "path": "work/orchestration/campaign-continuity/db6e486-planned-checks.json",
+    "sha256": "349e977ba4e9ad45bd87883a510f4ad4980c9757ea108febf86455f064e2080d"
+  },
+  "remainingGates": {
+    "independentSourceReview": "requested",
+    "standardCheck": "not-run; no resource grant",
+    "build": "not-run; final source/carry review later",
+    "browserCampaign": "not-run; launchEnabled remains false"
+  },
+  "scope": "Six QA-only changed files relative to c35f2bd. Production, maintained harness, old profiles, IndexedDB, dependencies and animation rate untouched."
+}

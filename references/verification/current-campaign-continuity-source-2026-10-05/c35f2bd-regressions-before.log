@@ -1,0 +1,47 @@
+✖ actual victory matcher and Continue dispatch match the complete current JSX accessible name (2.567153ms)
+✖ actual named-effect routing reaches the retained handler and excludes unrelated effects (0.669114ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 102.526423
+
+✖ failing tests:
+
+test at qa/campaign-continuity/scenario-paths.test.mjs:105:1
+✖ actual victory matcher and Continue dispatch match the complete current JSX accessible name (2.567153ms)
+  AssertionError [ERR_ASSERTION]: Exact matcher must select the shipped visible text
+  
+  false !== true
+  
+      at pollUI (eval at <anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario-paths.test.mjs:109:19), <anonymous>:9:44)
+      at async proveVictory (eval at <anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario-paths.test.mjs:109:19), <anonymous>:14:5)
+      at async eval (eval at <anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario-paths.test.mjs:109:19), <anonymous>:19:7)
+      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario-paths.test.mjs:120:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at qa/campaign-continuity/scenario-paths.test.mjs:138:1
+✖ actual named-effect routing reaches the retained handler and excludes unrelated effects (0.669114ms)
+  AssertionError [ERR_ASSERTION]: Wait must name its objective; unrelated combat cannot renew it
+      at progressFor (eval at <anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario-paths.test.mjs:140:19), <anonymous>:22:12)
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario-paths.test.mjs:145:55)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

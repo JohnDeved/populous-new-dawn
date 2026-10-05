@@ -1,0 +1,5 @@
+{"finding":"R1","requestedName":"Continue to Mission 2","renderedName":"Continue to Mission 2 ↗","exactMatches":false,"source":"actual app/page.tsx result-button contents and actual button() exact matcher; source-only accessibility-name derivation, not rendered browser proof"}
+{"finding":"R2","condition":{"type":"effect-present","kind":"bridge"},"actualAdapterFailure":"Wait must name its objective; unrelated combat cannot renew it"}
+{"finding":"R2","condition":{"type":"effect-finished","kind":"bridge"},"actualAdapterFailure":"Wait must name its objective; unrelated combat cannot renew it"}
+{"finding":"R3","terminalCleanupFailureAdmitted":true,"recordedFailure":{"kind":"prior-harness-failure","runId":"prior","error":"Error: server cleanup failed"},"source":"actual validator executed with the failure shape emitted by actual harness stopServer catch; no server or browser started"}
+{"head":"c35f2bd11b68ccf374f35338ac6dd1d271d2c046","scenarioSha256":"030e909b98f2a994a7180f1003815e5678da54c9e3426e25a08ff37fe365e43b","allThreeFindingsReproduced":true}

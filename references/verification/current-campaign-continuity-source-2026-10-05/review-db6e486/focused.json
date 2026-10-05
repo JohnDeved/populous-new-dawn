@@ -1,0 +1,20 @@
+{
+  "head": "db6e4867ba76d68a93d7b422053f3e04de15bfa1",
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "qa/campaign-continuity/boundaries.test.mjs",
+    "qa/campaign-continuity/scenario-paths.test.mjs",
+    "qa/campaign-continuity/reuse.test.mjs",
+    "qa/campaign-continuity/queued-stop.test.mjs"
+  ],
+  "startedAt": "2026-10-05T12:08:12.787Z",
+  "finishedAt": "2026-10-05T12:08:13.276Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "work/orchestration/campaign-continuity/review-db6e486/focused.stdout.log",
+  "stdoutSha256": "ed4bab4bed10db871ae7d1ebf367b8c90887553bac016a34a27c97409bac9203",
+  "stderr": "work/orchestration/campaign-continuity/review-db6e486/focused.stderr.log",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

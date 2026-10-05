@@ -1,0 +1,205 @@
+{
+  "kind": "independent-campaign-continuity-source-review",
+  "createdAt": "2026-10-05T12:00:18.881Z",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_campaign_continuity",
+  "decision": "REJECT",
+  "base": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "head": "c35f2bd11b68ccf374f35338ac6dd1d271d2c046",
+  "tree": "bb091eab2a4af6bf4a3cd2607014c6a9138fc501",
+  "handoff": {
+    "path": "work/orchestration/campaign-continuity/c35f2bd-handoff.json",
+    "sha256": "f39f1b9fb89fc3374a72b3b010f70b63f6aae60b2deab04515387ab13a4ae7b1"
+  },
+  "files": [
+    {
+      "path": "qa/campaign-continuity/README.md",
+      "sha256": "89867027706dc828d9a2ce799610c05e528f08f5fc84b2b1f9e969c2e4304f26",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/boundaries.mjs",
+      "sha256": "4c7abcf86ebc169d38288a5dd97d0f7cc20a06b5b49beaad5b3946f9b88aed53",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/boundaries.test.mjs",
+      "sha256": "755fd9830e633e30fdf42e39a4100c92e1bffac282af74d7352e21bc88ec9d0e",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.mjs",
+      "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.test.mjs",
+      "sha256": "9286d404028dc6d261a6c587de8b1347a1b6bad8ecf545ffab9764f4c7340e6c",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/erosion-observer.mjs",
+      "sha256": "19c25f71fcf0b60f24b65c7f8e2753b5bc51edbaca7d7ca540fd0136d6d50a97",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/erosion-observer.test.mjs",
+      "sha256": "b3cca25c4aa03c2cf8c64e9ba9066352638b58f52ed7c53e4e665766f107862e",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/observation.mjs",
+      "sha256": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/observation.test.mjs",
+      "sha256": "53011926b04fc7dbfcad32d3318015a6f1736e67f5c75ae6ad62d2ddfd182a4a",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/queued-stop.mjs",
+      "sha256": "d67b3cca01cb8ac8032e31d3cdf71382d18bcae57397ffe2ebd945d259f12063",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/queued-stop.test.mjs",
+      "sha256": "c93eac48ec2a9686da97031efe115a65dcc326a9ef2ee6e404c02202241baaf0",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.json",
+      "sha256": "e5b70e253ddd4517f87da3897d3c58ce568f4b70ea9fbcee2d8e40c689f0b3b9",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.test.mjs",
+      "sha256": "1714a35c206f3f87dfad19ea0c0bd3a0cc421ae27456bd054451657fbc7d1da5",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/routes.mjs",
+      "sha256": "9c9ef454e1f2efa04d44ac11828f42c4d6c7f2f7db1be037e9dd7b1e4fff7198",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/routes.test.mjs",
+      "sha256": "7d45b7fd4c26e72fd43677513ddda4f38c8ec6fa808aa23fa94f2ad174e87a36",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/run-policy.json",
+      "sha256": "87d336951a76b3c53c016c506420f6d902fdc314f32d5271675b3429c8c4275c",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/scenario-paths.test.mjs",
+      "sha256": "6aeb4a5987877adf613f4a89cc707233a3d45076230d8069892aaf1d879b785f",
+      "frozenBlobVerified": true
+    },
+    {
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "sha256": "030e909b98f2a994a7180f1003815e5678da54c9e3426e25a08ff37fe365e43b",
+      "frozenBlobVerified": true
+    }
+  ],
+  "verifiedReceipts": [
+    {
+      "path": "work/orchestration/campaign-continuity/c35f2bd-focused.json",
+      "sha256": "10dbf2805a766924c186d2cdcdc8e0dfe223292c57650bb7af83f969347585f2",
+      "status": "passed",
+      "exitCode": 0,
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/c35f2bd-structure.json",
+      "sha256": "8db24dbcb619d65070341ff6eb213eb49a79a897c96917ea76c238c2eef41a41",
+      "status": "passed",
+      "exitCode": 0,
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/c35f2bd-diff.json",
+      "sha256": "c46209c4c5dc51e7904c982d3b82c0ef190a5e57657b6c916168811c7ea59e86",
+      "status": "passed",
+      "exitCode": 0,
+      "rawStreamsVerified": true
+    }
+  ],
+  "scope": "All 18 QA-only additions and their actual current application, store, selector, observer, owned-profile and terminal-harness callers. Source checkpoint only; no campaign execution or completion claim.",
+  "findings": [
+    {
+      "id": "R1",
+      "severity": "high",
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "lines": [
+        62,
+        848,
+        861
+      ],
+      "title": "Exact Continue locator omits the shipped accessible-name suffix",
+      "evidence": "The actual result button in app/page.tsx:1294-1296 has visible text Continue to Mission N followed by a space and ↗. proveVictory uses exact:true without the suffix, as does the shared button() invoked by continueMission. Existing accepted callers use exact:false or a matching regular expression. The first victory waits 60 seconds and fails, and the transition click independently cannot match.",
+      "requiredRepair": "Use a single source-linked matcher for the actual ordinary Continue control in both proof and click. Test the actual matcher against the current UI name, including its suffix, rather than stubbing button()."
+    },
+    {
+      "id": "R2",
+      "severity": "medium",
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "lines": [
+        756,
+        769,
+        770
+      ],
+      "title": "Named effect waits are rejected before their supported objective observer",
+      "evidence": "Executing the frozen actual progressFor body with either effect-present or effect-finished and kind:bridge, no artificial actor ID, throws Wait must name its objective. observation.mjs:394-395 already scopes these objectives to effects of the named kind. Both early routes need bridge lifecycle observations; the active wait initializes progress before checking condition completion.",
+      "requiredRepair": "Recognize a validated named effect kind as an objective and route it to the existing effect-only progress observer. Prove unrelated effects, actors and clocks cannot renew the deadline; exercise the actual adapter."
+    },
+    {
+      "id": "R3",
+      "severity": "high",
+      "path": "qa/campaign-continuity/boundaries.mjs",
+      "lines": [
+        113,
+        114,
+        115,
+        143
+      ],
+      "title": "Failed predecessor admission also accepts a terminal server-cleanup failure",
+      "evidence": "The unchanged harness at scripts/local-render/harness.mjs:200 overwrites outcome with failed/failure/previousFailure when stopServer throws, but leaves browser-derived cleanupVerified true and subsequently writes that flag to the profile. The current validator admits this actual terminal shape and merely appends prior-harness-failure. Thus unknown server cleanup can be reused as a campaign segment, contrary to the required restriction to a completed boundary with known cleanup and retained earlier helper failures.",
+      "requiredRepair": "Bind the deliberately emitted boundary terminal outcome/error to the boundary record and require the actual terminal envelope to match it. Reject later cleanup, readback, runtime or source overrides while retaining a genuine completed boundary whose earlier helper failures were carried honestly. No application/harness change is necessary."
+    }
+  ],
+  "checks": {
+    "independentFocused": {
+      "command": "node --test --test-concurrency=1 qa/campaign-continuity/boundaries.test.mjs qa/campaign-continuity/command-probes.test.mjs qa/campaign-continuity/erosion-observer.test.mjs qa/campaign-continuity/observation.test.mjs qa/campaign-continuity/queued-stop.test.mjs qa/campaign-continuity/reuse.test.mjs qa/campaign-continuity/routes.test.mjs qa/campaign-continuity/scenario-paths.test.mjs",
+      "status": "passed",
+      "exitCode": 0,
+      "tests": 75,
+      "durationMs": 3470.639583,
+      "source": "The frozen candidate was clean and HEAD/app tree were rechecked after this independent run; retained raw source-bound worker receipts are verified above."
+    },
+    "findingReproduction": {
+      "command": "node work/orchestration/campaign-continuity/review-c35f2bd/reproduce.mjs",
+      "status": "passed",
+      "exitCode": 0,
+      "meaning": "All three defects reproduced from git-show frozen source. Continue uses source-derived accessibility text, not a rendered browser claim.",
+      "scriptSha256": "ce2cc98bf529d4ee36c3fa1c2567468c58a6bc69c475e09f37927b2f7a1fa96c",
+      "stdoutPath": "work/orchestration/campaign-continuity/review-c35f2bd/reproduce.log",
+      "stdoutSha256": "a364336fafb23d8c2136810627bd76b2f62c47f7c10cea4b588721dd22227f67"
+    },
+    "standardCheck": "not-run; not granted to this source review",
+    "productionBuild": "not-run; not granted to this source review",
+    "browser": "not-run; source policy launchEnabled=false, no browser/profile acquisition",
+    "typescriptQuality": "not-applicable: no maintained TypeScript changes. Reviewed new JavaScript for source ownership, control flow and reuse; no modifying formatter or generated data operations."
+  },
+  "positiveBoundaries": [
+    "Scenario import rejects launchEnabled=false before the maintained CLI acquires a profile or launches a server/browser.",
+    "Fresh startup uses Select Mission 1 and Start Mission 1. No All missions bypass, model command execution, storage fabrication, old-profile adoption or copied historical framework was introduced.",
+    "Continue installs replacement observation before the ordinary input, requires same store/new World/new scene/current correspondence, closes the old observer and creates a level-tagged epoch.",
+    "Save/readback/Load are sequential ordinary UI paths. Load captures the replacement synchronously, uses Pause before diagnostic imports, and distinguishes loaded actor/terrain/stock projections from full committed-record identity.",
+    "The reused passive observer chains application callbacks once, preserves original exceptions, and keeps diagnostics separate. Placement/spell legality and movement context use detached clones.",
+    "Mission marks are level-scoped and ordered; arbitrary marks cannot satisfy Save/Load, victory or protected M3 evidence. Active epochs add across Load and mission boundaries; proposed active and wall caps are finite.",
+    "Queued preserving stops are checked in active waits and UI polling and are deferred only through the already-issued Save readback. Unknown or altered input terminates with preservation intent. No failure-triggered fallback Save exists."
+  ],
+  "limitations": "Passing source tests establish neither playable runtime flow nor completed campaigns. R1 shows the existing stubbed flow test was insufficient. Standard check/build, actual fresh campaign, native parity, calibrated presentation and hardware performance remain unproved. Original M3 profile and quarantined node_modules925630 were not accessed. No production or harness files were edited.",
+  "next": "Owner repairs R1-R3 on this branch, freezes a new head and receipts, then requests substantive delta review. Browser remains disabled until source acceptance and separate runtime/resource release."
+}

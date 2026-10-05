@@ -1,0 +1,190 @@
+{
+  "kind": "campaign-continuity-public-source-evidence",
+  "sourceHead": "db6e4867ba76d68a93d7b422053f3e04de15bfa1",
+  "sourceBase": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "sourceReview": "ACCEPT; source-only",
+  "launchEnabled": false,
+  "files": [
+    {
+      "path": "c35f2bd-admission-before.log",
+      "originalPath": "work/orchestration/campaign-continuity/c35f2bd-admission-before.log",
+      "bytes": 2126,
+      "sha256": "3a66768c295792ae4fa26061e7f9fe2fee0e8b7b8bcb219505843bd1ee7f110b"
+    },
+    {
+      "path": "c35f2bd-diff.json",
+      "originalPath": "work/orchestration/campaign-continuity/c35f2bd-diff.json",
+      "bytes": 1528,
+      "sha256": "c46209c4c5dc51e7904c982d3b82c0ef190a5e57657b6c916168811c7ea59e86"
+    },
+    {
+      "path": "c35f2bd-diff.json.artifacts/stderr.log",
+      "originalPath": "work/orchestration/campaign-continuity/c35f2bd-diff.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "c35f2bd-diff.json.artifacts/stdout.log",
+      "originalPath": "work/orchestration/campaign-continuity/c35f2bd-diff.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "c35f2bd-focused.json",
+      "originalPath": "work/orchestration/campaign-continuity/c35f2bd-focused.json",
+      "bytes": 9803,
+      "sha256": "10dbf2805a766924c186d2cdcdc8e0dfe223292c57650bb7af83f969347585f2"
+    },
+    {
+      "path": "c35f2bd-focused.json.artifacts/stderr.log",
+      "originalPath": "work/orchestration/campaign-continuity/c35f2bd-focused.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "c35f2bd-focused.json.artifacts/stdout.log",
+      "originalPath": "work/orchestration/campaign-continuity/c35f2bd-focused.json.artifacts/stdout.log",
+      "bytes": 7851,
+      "sha256": "3ff631f6f1962062fed833b5ba8e40c0a2bb878145821e36bf391a9c4b644821"
+    },
+    {
+      "path": "c35f2bd-regressions-before.log",
+      "originalPath": "work/orchestration/campaign-continuity/c35f2bd-regressions-before.log",
+      "bytes": 2644,
+      "sha256": "fd08bf704f5d0efea95dd1d02149289f83259c4495f4e2feb9105b405f34032d"
+    },
+    {
+      "path": "c35f2bd-structure.json",
+      "originalPath": "work/orchestration/campaign-continuity/c35f2bd-structure.json",
+      "bytes": 6407,
+      "sha256": "8db24dbcb619d65070341ff6eb213eb49a79a897c96917ea76c238c2eef41a41"
+    },
+    {
+      "path": "c35f2bd-structure.json.artifacts/stderr.log",
+      "originalPath": "work/orchestration/campaign-continuity/c35f2bd-structure.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "c35f2bd-structure.json.artifacts/stdout.log",
+      "originalPath": "work/orchestration/campaign-continuity/c35f2bd-structure.json.artifacts/stdout.log",
+      "bytes": 4432,
+      "sha256": "75a86e68ff6448c4d17fe1aa484f861f8b65ef66f9c34ed2e73bb196118b2a7c"
+    },
+    {
+      "path": "db6e486-diff.json",
+      "originalPath": "work/orchestration/campaign-continuity/db6e486-diff.json",
+      "bytes": 1528,
+      "sha256": "17285ebc042b3da9f9f72e95b06144fa398a46c2be99cecfa6302d00a70ddc87"
+    },
+    {
+      "path": "db6e486-diff.json.artifacts/stderr.log",
+      "originalPath": "work/orchestration/campaign-continuity/db6e486-diff.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "db6e486-diff.json.artifacts/stdout.log",
+      "originalPath": "work/orchestration/campaign-continuity/db6e486-diff.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "db6e486-focused.json",
+      "originalPath": "work/orchestration/campaign-continuity/db6e486-focused.json",
+      "bytes": 10457,
+      "sha256": "40c40d9b5979de4536e29fae114ffe046914b3bd883f275a1dfa523c1f6b6681"
+    },
+    {
+      "path": "db6e486-focused.json.artifacts/stderr.log",
+      "originalPath": "work/orchestration/campaign-continuity/db6e486-focused.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "db6e486-focused.json.artifacts/stdout.log",
+      "originalPath": "work/orchestration/campaign-continuity/db6e486-focused.json.artifacts/stdout.log",
+      "bytes": 8499,
+      "sha256": "88b32fa945080624876c9cc928d8f17c0df10f4947025eb9f87b9ec432b0a3f7"
+    },
+    {
+      "path": "db6e486-handoff.json",
+      "originalPath": "work/orchestration/campaign-continuity/db6e486-handoff.json",
+      "bytes": 8473,
+      "sha256": "7a0a74b8e7c78d474b93e02b51fb34fc06c3f09dd1f23a38d96dcfac2da54dd0"
+    },
+    {
+      "path": "db6e486-planned-checks.json",
+      "originalPath": "work/orchestration/campaign-continuity/db6e486-planned-checks.json",
+      "bytes": 9268,
+      "sha256": "349e977ba4e9ad45bd87883a510f4ad4980c9757ea108febf86455f064e2080d"
+    },
+    {
+      "path": "db6e486-source.json",
+      "originalPath": "work/orchestration/campaign-continuity/db6e486-source.json",
+      "bytes": 416,
+      "sha256": "87b33de3b77439e1c833a5d1699e849030e0ebf65388b21737ea0030a54822c7"
+    },
+    {
+      "path": "db6e486-structure.json",
+      "originalPath": "work/orchestration/campaign-continuity/db6e486-structure.json",
+      "bytes": 6407,
+      "sha256": "4061615360db71f4eb0bf44ca9305f9d7afda4bd35bfe0d2311d69fc6eba0cd2"
+    },
+    {
+      "path": "db6e486-structure.json.artifacts/stderr.log",
+      "originalPath": "work/orchestration/campaign-continuity/db6e486-structure.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "db6e486-structure.json.artifacts/stdout.log",
+      "originalPath": "work/orchestration/campaign-continuity/db6e486-structure.json.artifacts/stdout.log",
+      "bytes": 4432,
+      "sha256": "75a86e68ff6448c4d17fe1aa484f861f8b65ef66f9c34ed2e73bb196118b2a7c"
+    },
+    {
+      "path": "review-c35f2bd/reproduce.log",
+      "originalPath": "work/orchestration/campaign-continuity/review-c35f2bd/reproduce.log",
+      "bytes": 1063,
+      "sha256": "a364336fafb23d8c2136810627bd76b2f62c47f7c10cea4b588721dd22227f67"
+    },
+    {
+      "path": "review-c35f2bd/reproduce.mjs",
+      "originalPath": "work/orchestration/campaign-continuity/review-c35f2bd/reproduce.mjs",
+      "bytes": 4731,
+      "sha256": "ce2cc98bf529d4ee36c3fa1c2567468c58a6bc69c475e09f37927b2f7a1fa96c"
+    },
+    {
+      "path": "review-c35f2bd/review.json",
+      "originalPath": "work/orchestration/campaign-continuity/review-c35f2bd/review.json",
+      "bytes": 11809,
+      "sha256": "144ae38f519310323e7550dd7ba6d9283f28018949d5f6f09fe27b02238a1e63"
+    },
+    {
+      "path": "review-db6e486/focused.json",
+      "originalPath": "work/orchestration/campaign-continuity/review-db6e486/focused.json",
+      "bytes": 800,
+      "sha256": "fd53e73db924df3464aab00af4fc639d28f0460fecf3d747d9e0496c1033d03f"
+    },
+    {
+      "path": "review-db6e486/focused.stderr.log",
+      "originalPath": "work/orchestration/campaign-continuity/review-db6e486/focused.stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "review-db6e486/focused.stdout.log",
+      "originalPath": "work/orchestration/campaign-continuity/review-db6e486/focused.stdout.log",
+      "bytes": 3670,
+      "sha256": "ed4bab4bed10db871ae7d1ebf367b8c90887553bac016a34a27c97409bac9203"
+    },
+    {
+      "path": "review-db6e486/review.json",
+      "originalPath": "work/orchestration/campaign-continuity/review-db6e486/review.json",
+      "bytes": 11556,
+      "sha256": "2a7fc64a306422d7fda342cd11bfbd327660b04e289f95bc857ae25fc6e8969a"
+    }
+  ],
+  "limits": "Only source, small receipts, hashes and plain test logs. No browser profile or IndexedDB bytes. Raw receipt paths retain their original locations; the mapping above identifies the published byte-identical artifacts."
+}

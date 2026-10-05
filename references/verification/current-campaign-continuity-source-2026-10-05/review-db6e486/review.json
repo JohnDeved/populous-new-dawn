@@ -1,0 +1,221 @@
+{
+  "kind": "independent-campaign-continuity-repair-review",
+  "createdAt": "2026-10-05T12:09:16.599Z",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_campaign_continuity",
+  "decision": "ACCEPT",
+  "acceptanceScope": "Source checkpoint only; no browser launch, campaign outcome, standard-gate or merge-readiness claim.",
+  "base": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "previousReviewedHead": "c35f2bd11b68ccf374f35338ac6dd1d271d2c046",
+  "head": "db6e4867ba76d68a93d7b422053f3e04de15bfa1",
+  "tree": "7ec4b7787f395e3ce648dac6a9c9c95f9368bada",
+  "handoff": {
+    "path": "work/orchestration/campaign-continuity/db6e486-handoff.json",
+    "sha256": "7a0a74b8e7c78d474b93e02b51fb34fc06c3f09dd1f23a38d96dcfac2da54dd0"
+  },
+  "priorReview": {
+    "path": "work/orchestration/campaign-continuity/review-c35f2bd/review.json",
+    "sha256": "144ae38f519310323e7550dd7ba6d9283f28018949d5f6f09fe27b02238a1e63",
+    "decision": "REJECT",
+    "preserved": true
+  },
+  "reviewedDelta": [
+    "qa/campaign-continuity/README.md",
+    "qa/campaign-continuity/boundaries.mjs",
+    "qa/campaign-continuity/boundaries.test.mjs",
+    "qa/campaign-continuity/reuse.json",
+    "qa/campaign-continuity/scenario-paths.test.mjs",
+    "qa/campaign-continuity/scenario.mjs"
+  ],
+  "resolvedFindings": [
+    {
+      "id": "R1",
+      "status": "resolved",
+      "evidence": "continueControlName returns the full current accessible name including the visible arrow and is called by both actual proveVictory and continueMission. Regression tests derive the text from the actual current result-control JSX, reject an aria-name override needing review, and execute the actual exact matcher plus actual button helper for both transitions and the Mission 4 offer."
+    },
+    {
+      "id": "R2",
+      "status": "resolved",
+      "evidence": "The actual progress adapter recognizes validated effect kinds before entity-ID requirements and invokes the existing effect-only objectiveProgress. Regression exercises both effect-present and effect-finished with no fabricated actor ID, permits relevant effect progression/removal, and verifies unrelated effects/actors/clocks cannot renew progress."
+    },
+    {
+      "id": "R3",
+      "status": "resolved",
+      "evidence": "The actual completed Continue/Save producer constructs its deliberate terminal Error once, hashes that same Error.stack before writing the boundary, and throws that Error. Admission requires the bound status and full failure digest plus absence of a terminal previousFailure override. The actual maintained stopServer catch is extracted/executed in the regression and rejected. Missing bindings, later different failures and outcome substitutions reject; clean success and retained-prefix failure remain accepted."
+    }
+  ],
+  "findings": [],
+  "verification": {
+    "headCleanBeforeAndAfter": true,
+    "fullSourceManifest": [
+      {
+        "path": "qa/campaign-continuity/README.md",
+        "sha256": "db3d168a856f9f8af4cdc3cb5d1eb6f122ca3291841c81fcdc93e2c38fca8e48",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/boundaries.mjs",
+        "sha256": "6143b9f9ed19450cc80e4957f75e53b1f14557ac0a729239dcbcfc094141195f",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/boundaries.test.mjs",
+        "sha256": "83acd9dea8161043f5f477d33edd63821ea7ffbf85452262261f6c3b566b8f2f",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/command-probes.mjs",
+        "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/command-probes.test.mjs",
+        "sha256": "9286d404028dc6d261a6c587de8b1347a1b6bad8ecf545ffab9764f4c7340e6c",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/erosion-observer.mjs",
+        "sha256": "19c25f71fcf0b60f24b65c7f8e2753b5bc51edbaca7d7ca540fd0136d6d50a97",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/erosion-observer.test.mjs",
+        "sha256": "b3cca25c4aa03c2cf8c64e9ba9066352638b58f52ed7c53e4e665766f107862e",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/observation.mjs",
+        "sha256": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/observation.test.mjs",
+        "sha256": "53011926b04fc7dbfcad32d3318015a6f1736e67f5c75ae6ad62d2ddfd182a4a",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/queued-stop.mjs",
+        "sha256": "d67b3cca01cb8ac8032e31d3cdf71382d18bcae57397ffe2ebd945d259f12063",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/queued-stop.test.mjs",
+        "sha256": "c93eac48ec2a9686da97031efe115a65dcc326a9ef2ee6e404c02202241baaf0",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/reuse.json",
+        "sha256": "4a55947f6f58f216c1ea3dc690ec29cd0e3d3eabcfcd83f9c58d1c6a468fa28e",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/reuse.test.mjs",
+        "sha256": "1714a35c206f3f87dfad19ea0c0bd3a0cc421ae27456bd054451657fbc7d1da5",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/routes.mjs",
+        "sha256": "9c9ef454e1f2efa04d44ac11828f42c4d6c7f2f7db1be037e9dd7b1e4fff7198",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/routes.test.mjs",
+        "sha256": "7d45b7fd4c26e72fd43677513ddda4f38c8ec6fa808aa23fa94f2ad174e87a36",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/run-policy.json",
+        "sha256": "87d336951a76b3c53c016c506420f6d902fdc314f32d5271675b3429c8c4275c",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/scenario-paths.test.mjs",
+        "sha256": "87744b3af6fb70cd65081c2f21fbc1060a7b6164284d774ca6d46ef687c9707a",
+        "workingBytesAndFrozenBlobVerified": true
+      },
+      {
+        "path": "qa/campaign-continuity/scenario.mjs",
+        "sha256": "118b0befa1eab87d55e7af058fe835964d6a414839146045b2109dfbba4e60f2",
+        "workingBytesAndFrozenBlobVerified": true
+      }
+    ],
+    "upstreamReceipts": [
+      {
+        "path": "work/orchestration/campaign-continuity/db6e486-focused.json",
+        "sha256": "40c40d9b5979de4536e29fae114ffe046914b3bd883f275a1dfa523c1f6b6681",
+        "status": "passed",
+        "rawStreamsAndExactSourceVerified": true
+      },
+      {
+        "path": "work/orchestration/campaign-continuity/db6e486-structure.json",
+        "sha256": "4061615360db71f4eb0bf44ca9305f9d7afda4bd35bfe0d2311d69fc6eba0cd2",
+        "status": "passed",
+        "rawStreamsAndExactSourceVerified": true
+      },
+      {
+        "path": "work/orchestration/campaign-continuity/db6e486-diff.json",
+        "sha256": "17285ebc042b3da9f9f72e95b06144fa398a46c2be99cecfa6302d00a70ddc87",
+        "status": "passed",
+        "rawStreamsAndExactSourceVerified": true
+      }
+    ],
+    "upstreamFocusedTests": 81,
+    "independentAffectedTests": {
+      "path": "work/orchestration/campaign-continuity/review-db6e486/focused.json",
+      "sha256": "fd53e73db924df3464aab00af4fc639d28f0460fecf3d747d9e0496c1033d03f",
+      "status": "passed",
+      "exitCode": 0,
+      "tests": 33,
+      "scope": "boundaries, actual scenario paths, reuse correspondence and preserving queued-stop behavior"
+    },
+    "failureFirstEvidence": [
+      {
+        "path": "work/orchestration/campaign-continuity/review-c35f2bd/review.json",
+        "sha256": "144ae38f519310323e7550dd7ba6d9283f28018949d5f6f09fe27b02238a1e63",
+        "hashVerified": true
+      },
+      {
+        "path": "work/orchestration/campaign-continuity/review-c35f2bd/reproduce.mjs",
+        "sha256": "ce2cc98bf529d4ee36c3fa1c2567468c58a6bc69c475e09f37927b2f7a1fa96c",
+        "hashVerified": true
+      },
+      {
+        "path": "work/orchestration/campaign-continuity/review-c35f2bd/reproduce.log",
+        "sha256": "a364336fafb23d8c2136810627bd76b2f62c47f7c10cea4b588721dd22227f67",
+        "hashVerified": true
+      },
+      {
+        "path": "work/orchestration/campaign-continuity/c35f2bd-regressions-before.log",
+        "sha256": "fd08bf704f5d0efea95dd1d02149289f83259c4495f4e2feb9105b405f34032d",
+        "hashVerified": true
+      },
+      {
+        "path": "work/orchestration/campaign-continuity/c35f2bd-admission-before.log",
+        "sha256": "3a66768c295792ae4fa26061e7f9fe2fee0e8b7b8bcb219505843bd1ee7f110b",
+        "hashVerified": true
+      }
+    ],
+    "failureFirstAssessment": "Inspected original failures: UI exact-name predicate returned false; effect adapter threw its unscoped-objective assertion; cleanup and outcome-substitution cases reported missing expected exceptions. These were behavior failures, not import/setup failures.",
+    "conservativePlanner": {
+      "path": "work/orchestration/campaign-continuity/db6e486-planned-checks.json",
+      "sha256": "349e977ba4e9ad45bd87883a510f4ad4980c9757ea108febf86455f064e2080d",
+      "assessment": "All 18 unknown QA paths explicitly reviewed. Conservative npm run check selection is appropriate and remains required alongside the repository production-build gate before integration. Source-only acceptance does not waive those gates."
+    }
+  },
+  "preservedBoundaries": [
+    "launchEnabled remains false and the scenario import still rejects before server/browser/profile acquisition.",
+    "The accepted main application subtree and maintained harness/profile/checkpoint observer bytes remain unchanged.",
+    "The original review of ordinary Mission 1 startup, actual Continue store/World/scene ownership, ordinary sequential Save/readback/Load, synchronous Load capture and Pause-first binding carries across this narrow repair.",
+    "Mission-scoped milestones, additive active epochs, explicit finite resource limits, clone-only legality probes, queued preserving stops, passive observer disposal and full retained failure accounting remain intact."
+  ],
+  "remainingGates": {
+    "standardCheck": "not-run; shared-resource release required",
+    "productionBuild": "not-run; final source/carry review required",
+    "browserCampaign": "not-run; launch policy disabled",
+    "nativeParity": "not established by this QA source",
+    "calibratedPresentation": "not established",
+    "hardwarePerformance": "not established"
+  },
+  "typescriptQuality": "Not applicable: no maintained TypeScript changed. Reviewed the six-file JavaScript/test/documentation repair for scope and reuse; no formatter, package or generated-data work performed.",
+  "resources": "Only read-only source inspection, bounded plain Node tests, and ignored review artifacts. No browser, profile, IDB, dependency tree, quarantined node_modules925630, app/harness edits or heavy job.",
+  "next": "Parent may carry this reviewed source checkpoint to the separately authorized standard/runtime gates. Re-review substantive source changes or final application correspondence before enabling launch."
+}

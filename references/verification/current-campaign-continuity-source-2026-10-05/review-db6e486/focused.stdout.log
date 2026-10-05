@@ -1,0 +1,41 @@
+✔ review checkpoint cannot launch; malformed and infinite limits fail closed (2.371891ms)
+✔ Load rewinds create new additive epochs; Continue resets only the mission subtotal (5.382149ms)
+✔ M3 conversion permits its bounded remainder without resetting campaign time (0.21989ms)
+✔ committed checkpoint digest and synchronous loaded projection have distinct boundaries (1.205169ms)
+✔ Continue requires same store, new scene/World and current correspondence (0.547882ms)
+✔ campaign completion requires exact fresh committed prefixes (0.487712ms)
+✔ actual browser subscription captures once, observes replacement and never writes to the store (0.482835ms)
+✔ real failed envelope may carry a verified Continue/Save boundary and all failures (0.911428ms)
+✔ unknown cleanup, omitted milestones, wrong save/source and arbitrary failed saves reject (2.89068ms)
+✔ actual harness cleanup override cannot be admitted as the intended retained-prefix boundary failure (0.796375ms)
+✔ later terminal failures, omitted failure binding and outcome substitutions reject (0.634703ms)
+✔ a clean bound mission boundary still resumes through the maintained success envelope (0.189474ms)
+✔ only the exact next owned sole stop is exposed; ordinary and later commands stay untouched; malformed inputs fail closed (2.909718ms)
+✔ queued control rejects symlink, hardlink, oversized files and invalid current-run boundaries (0.711217ms)
+✔ all bounded host polls check a queued stop before the first predicate and between samples (0.856105ms)
+✔ actual active-condition wait services preservation before diagnostics, health, budget or objective (1.016927ms)
+✔ actual active-batch stop records bytes/hash/current run and terminates mixed or changed inputs (4.703842ms)
+✔ actual already-present and active-wait controls share authentication and terminal preservation on failure (5.990873ms)
+✔ a queued stop during a pending Save is recorded but deferred until actual committed identity is known (0.41312ms)
+✔ active command-error handler cannot swallow an invalid preserving request and dispatch another action (0.263045ms)
+✔ actual Save readback commits protectedLatest before servicing its deferred preserving stop (0.711989ms)
+✔ actual flyby, camera, dispatch and victory polling route through preserving control before browser predicates (1.6653ms)
+✔ preserving Pause can run before diagnostic binding and never invents missing UI state (0.320281ms)
+✔ carried source modules match their exact historical objects and current test bytes (28.713624ms)
+✔ reuse inventory identifies exact unchanged and adapted scenario sections (4.338163ms)
+✔ current candidate carries the accepted application subtree and unchanged maintained profile harness (13.158133ms)
+✔ actual Continue path disposes the old epoch, clicks Continue and rebinds before any new mission input (4.256019ms)
+✔ actual Save/Load wrapper clicks ordinary Pause before binding/import/digest work and validates actual stored identity (3.310189ms)
+✔ actual progress adapter rejects unscoped combat and ignores unrelated watch IDs (0.676896ms)
+✔ disabled source checkpoint rejects scenario import before the harness may launch (4.187436ms)
+✔ actual victory matcher and Continue dispatch match the complete current JSX accessible name (2.282887ms)
+✔ actual named-effect routing reaches the retained handler and excludes unrelated effects (1.394103ms)
+✔ actual Continue/Save producer binds the exact deliberate error that reaches the terminal harness (1.809106ms)
+ℹ tests 33
+ℹ suites 0
+ℹ pass 33
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 427.827032

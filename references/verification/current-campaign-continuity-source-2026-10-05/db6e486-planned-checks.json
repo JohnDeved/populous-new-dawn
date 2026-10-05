@@ -1,0 +1,218 @@
+{
+  "version": 1,
+  "base": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "head": "db6e4867ba76d68a93d7b422053f3e04de15bfa1",
+  "changes": [
+    {
+      "path": "qa/campaign-continuity/README.md",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "db3d168a856f9f8af4cdc3cb5d1eb6f122ca3291841c81fcdc93e2c38fca8e48",
+      "changeHash": "619d2eea2beff2aca08a74a3ab9d3676c2c33fe5f2d057ffd3024a5463a3a6b9"
+    },
+    {
+      "path": "qa/campaign-continuity/boundaries.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "6143b9f9ed19450cc80e4957f75e53b1f14557ac0a729239dcbcfc094141195f",
+      "changeHash": "e327025b9a32d8121fbff6b6f4db909101e8f0a25bd77ca19aab582afe2139ff"
+    },
+    {
+      "path": "qa/campaign-continuity/boundaries.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "83acd9dea8161043f5f477d33edd63821ea7ffbf85452262261f6c3b566b8f2f",
+      "changeHash": "d8d8767e10a19c0e7a5a72fcdee9f82fb37b84f039f9cae0327c1038d36c2af8"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f",
+      "changeHash": "c54aea1c7edf1c41cc049580a76e884134851aded522fb343a08e14d972eb93d"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "9286d404028dc6d261a6c587de8b1347a1b6bad8ecf545ffab9764f4c7340e6c",
+      "changeHash": "59157cbbb9e872f02f3bb1bd272219f72651c48b48abf000e52d6a6491a87099"
+    },
+    {
+      "path": "qa/campaign-continuity/erosion-observer.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "19c25f71fcf0b60f24b65c7f8e2753b5bc51edbaca7d7ca540fd0136d6d50a97",
+      "changeHash": "3d00438bf930d60bf3f598b70e5e041fd0eb3666042dcdbafe74aeb37430c353"
+    },
+    {
+      "path": "qa/campaign-continuity/erosion-observer.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "b3cca25c4aa03c2cf8c64e9ba9066352638b58f52ed7c53e4e665766f107862e",
+      "changeHash": "b3af9496d9e39d14ab99d6b46bf40601af7189b6ddd306e5d4fc8dc5af7f715f"
+    },
+    {
+      "path": "qa/campaign-continuity/observation.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a",
+      "changeHash": "765544a2ed624c4d56943bdeafb42040269e26bd6c9517c657c023317295ba47"
+    },
+    {
+      "path": "qa/campaign-continuity/observation.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "53011926b04fc7dbfcad32d3318015a6f1736e67f5c75ae6ad62d2ddfd182a4a",
+      "changeHash": "46b7f8e879feb9e7a3ef6f135e41626dd78f1b3d0dcf9d83ad45412549c52796"
+    },
+    {
+      "path": "qa/campaign-continuity/queued-stop.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "d67b3cca01cb8ac8032e31d3cdf71382d18bcae57397ffe2ebd945d259f12063",
+      "changeHash": "a97ad2a1debf5577be8c0ed5411e71749da22439d0e9823b08832d458d31c22d"
+    },
+    {
+      "path": "qa/campaign-continuity/queued-stop.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "c93eac48ec2a9686da97031efe115a65dcc326a9ef2ee6e404c02202241baaf0",
+      "changeHash": "93af5368c96a2f6e97b13a1bba7579d38f76f59855d5275d05533506ba68f372"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.json",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "4a55947f6f58f216c1ea3dc690ec29cd0e3d3eabcfcd83f9c58d1c6a468fa28e",
+      "changeHash": "5d5a02267020b0fb831794aae7616f8b9b6974054099619fff715a85bd64bece"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "1714a35c206f3f87dfad19ea0c0bd3a0cc421ae27456bd054451657fbc7d1da5",
+      "changeHash": "19213e66ec02753884d078506d6bc22c29fd5b6d6d8551495025e1d5ab286512"
+    },
+    {
+      "path": "qa/campaign-continuity/routes.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "9c9ef454e1f2efa04d44ac11828f42c4d6c7f2f7db1be037e9dd7b1e4fff7198",
+      "changeHash": "594f713b1fe5007bbc4231ef9171d26eff20cb94b3d3cdc74b0a8c101be61e6f"
+    },
+    {
+      "path": "qa/campaign-continuity/routes.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "7d45b7fd4c26e72fd43677513ddda4f38c8ec6fa808aa23fa94f2ad174e87a36",
+      "changeHash": "feba469139b967ab12dba8eaefc03857699eb8ae6357c9d0a4d3f7d97736a02d"
+    },
+    {
+      "path": "qa/campaign-continuity/run-policy.json",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "87d336951a76b3c53c016c506420f6d902fdc314f32d5271675b3429c8c4275c",
+      "changeHash": "e2496c184951dfb3ff1ca8cae41ce51902559d314e93bb5246d1cb4a7cccfd9b"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario-paths.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "87744b3af6fb70cd65081c2f21fbc1060a7b6164284d774ca6d46ef687c9707a",
+      "changeHash": "63893696bc491ff966ee6b446190f85a033ba5d366faa57cc00ba332ec714633"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "118b0befa1eab87d55e7af058fe835964d6a414839146045b2109dfbba4e60f2",
+      "changeHash": "ed266475e9cec1cb0a6f0d9c5453052c631deb3ec71faa59fb951de49d3436d5"
+    }
+  ],
+  "affectedSubsystems": [],
+  "unknownPaths": [
+    "qa/campaign-continuity/README.md",
+    "qa/campaign-continuity/boundaries.mjs",
+    "qa/campaign-continuity/boundaries.test.mjs",
+    "qa/campaign-continuity/command-probes.mjs",
+    "qa/campaign-continuity/command-probes.test.mjs",
+    "qa/campaign-continuity/erosion-observer.mjs",
+    "qa/campaign-continuity/erosion-observer.test.mjs",
+    "qa/campaign-continuity/observation.mjs",
+    "qa/campaign-continuity/observation.test.mjs",
+    "qa/campaign-continuity/queued-stop.mjs",
+    "qa/campaign-continuity/queued-stop.test.mjs",
+    "qa/campaign-continuity/reuse.json",
+    "qa/campaign-continuity/reuse.test.mjs",
+    "qa/campaign-continuity/routes.mjs",
+    "qa/campaign-continuity/routes.test.mjs",
+    "qa/campaign-continuity/run-policy.json",
+    "qa/campaign-continuity/scenario-paths.test.mjs",
+    "qa/campaign-continuity/scenario.mjs"
+  ],
+  "checks": [
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "reasons": [
+        "unmapped path requires conservative general validation: qa/campaign-continuity/README.md",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/boundaries.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/boundaries.test.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/command-probes.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/command-probes.test.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/erosion-observer.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/erosion-observer.test.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/observation.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/observation.test.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/queued-stop.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/queued-stop.test.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/reuse.json",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/reuse.test.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/routes.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/routes.test.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/run-policy.json",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/scenario-paths.test.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/scenario.mjs"
+      ],
+      "knownLimits": [
+        "Does not run native executable, browser integration, or hardware performance checks."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [
+        "May update ignored tool caches"
+      ],
+      "resources": [
+        "Serialize with other full test runs"
+      ],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    }
+  ],
+  "executesChecks": false
+}
