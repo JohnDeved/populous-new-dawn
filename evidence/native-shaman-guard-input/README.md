@@ -7,8 +7,8 @@ tree `9af7241660efc11eb8969845ab7e587231d906bc`, based on accepted
 `3b899125cc8cedef938823718ad5d44f49957b66`.
 
 **Independent source/focused-runtime and final package ACCEPT. Full check and build
-pass. The latest ordinary baseline pilot proves training, then fails before Move/G;
-candidate rendered execution remains not-run.** This packet is not a merged,
+pass. The latest ordinary baseline pilot captures training and a real Move, then fails
+the required marker observation before G; candidate rendered execution remains not-run.** This packet is not a merged,
 deployed or whole-Guard completion claim. Broader issues #4, #60 and #214 stay open.
 
 ## Result
@@ -182,6 +182,46 @@ Move destinations, including the later Shaman Move. Every chosen point must stil
 pass current model-3 context, integer interior, fresh dispatch/acknowledgment and
 recipient checks. Guard/Save/Load assertions and all time limits stay mandatory.
 No replay of revised inputs is included in this checkpoint.
+
+## Ordinary pilot 03: real Move, missing marker observation
+
+The [revision 5 source review](pilot-03/review/review-revision-05.md) accepted the
+fixed six-point policy and diagnostic-only probe changes; all 18 focused cases
+passed. The [frozen inputs](pilot-03/revision-05/preparation-receipt.json) and
+[launch plan](pilot-03/launch-plan-rev5.json) remain distinct from earlier pilots.
+
+Pilot 03 repeated genuine training. Its first ground destination had no accepted
+5×5 interior, including actual competing Hut 97 picks. The second point passed
+integer-interior, enabled model-3 context and fresh revalidation. The actual picked
+point was (31.045209205924266,-11.975819335895324). The real pointerdown/up handlers
+ran at turn 428 with no competing picked object. `lastOrderTurn` advanced 140→428,
+ground acknowledgment targeted 0, and Firewarrior 176 received native command 35,
+model 3, target (9996,1018). By after-read turn 433, its x position moved 23→24.3671875
+while native/renderer owner identity 69 remained. These are positive retained
+input/recipient facts, not full checker acceptance.
+
+The mandatory acceptance check failed: **No fresh ground marker at the requested
+cell.** No marker was prospectively retained. Source gives markers four processor
+visits, while the after-read occurred five turns after dispatch. The copied
+acceptance helper supports an epoch marker journal that this dedicated observer
+omitted. This supports a lifetime/observation explanation, but does not recover or
+prove an unrecorded marker. No marker predicate is waived. The complete copied
+input-helper/observer contract is being audited before any correction or replay.
+
+[Raw actions](pilot-03/baseline/run/actions.jsonl),
+[passive training rows](pilot-03/baseline/run/epoch-0-rows.jsonl),
+[failed witness](pilot-03/baseline/run/witness.json),
+[browser receipt](pilot-03/baseline/run/receipt.json),
+[outer receipt](pilot-03/baseline/outer.json), and
+[launcher](pilot-03/baseline/launcher.json) preserve the failure. Original session
+45056 exited 1 normally at 21:51:49.058585 UTC, with source/locks unchanged and both
+4392 loopbacks closed. No G was sent and the conditional candidate did not run.
+
+![Baseline after the real Move, before any G](pilot-03/baseline/run/failure-0.png)
+
+Exact baseline 3b899125, fresh 1440×1000 sandboxed headless context. The movement
+message and actual walking actor corroborate the bounded input result. This is not
+a successful before capture, Guard acceptance or hardware-performance proof.
 
 Raw command30 payload b remains unchanged in original snapshots. Independent
 consumer audit permits excluding only that unused word from semantic comparison;

@@ -1,0 +1,12 @@
+[33m▲ [43;33m[[43;30mWARNING[43;33m][0m [1mProxy environment variables detected. We'll use your proxy for fetch requests.[0m
+
+
+
+  VITE v8.0.13  ready in 9018 ms
+
+  ➜  Local:   http://127.0.0.1:4392/
+ GET / 200 in 1.3s (compile: 1791237045.3s, render: 1.3s)
+ GET / 200 in 64ms (compile: 1791237045.3s, render: 47ms)
+5:51:08 PM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.
+5:51:09 PM [vite] (client) [console.warn] THREE.WebGLRenderer: Texture marked for update but no image data found.
+  ➜  Tunnel closed

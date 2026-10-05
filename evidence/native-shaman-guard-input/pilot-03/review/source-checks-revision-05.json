@@ -1,0 +1,66 @@
+{
+  "status": "passed",
+  "kind": "source-only preparation checks",
+  "time": "2026-10-05T21:47:52.015Z",
+  "node": "v24.19.0",
+  "checks": [
+    "All prior reviewed packets, including the actual failed revision3 baseline inputs, are preserved byte-for-byte with their original outcome labels",
+    "Every original accepted helper and old preparation source retains its supplied hash",
+    "All eight accepted local closures match the original body plus enumerated adaptations",
+    "Browser probes and replacement observers match their copied source boundary",
+    "Both frozen runtime source manifests match Git; candidate tracked source remains clean",
+    "Every prepared module passes Node syntax; scenario import has no execution side effects",
+    "Pure mocks reject silhouette-edge targets and disabled contexts, and preserve live-input ownership under mutating clone-only validators",
+    "Eight ground-probe cases pass: unchanged candidate sequence/cache calls, rejection diagnostics, bounded same-view choice, earned Move record, no dispatch fallback, and both point sets clear of retained native footprints",
+    "Four source/entry cases pass: unique native hut identity independent of live ID, wrong/ambiguous identity rejection, original Brave retention plus extra births, absent/visible Skip and unchanged entry deadline",
+    "Six identity/target regression cases pass: Unit/native swaps, intervening row swaps, source ownership, verified Load-only rebind, current-order selection, pending target0, saved target/queue/aliases",
+    "Narrow checkpoint observer preserves marker, target, aliases and guard count without modifying supplied data"
+  ],
+  "identityTargetRegressions": {
+    "command": "node --test guard-assertions.test.mjs",
+    "exitCode": 0,
+    "stdout": "✔ pins both actual Unit and native owner identities for the full epoch (2.593596ms)\n✔ every sampled row rejects replacement even when surrounding reads look unchanged (0.791268ms)\n✔ ordinary read cannot silently rebind after a changed epoch/world/scene (1.426943ms)\n✔ only the CURRENT active order can satisfy native Guard (0.935404ms)\n✔ pending initial G may carry target0; adoption must configure the actual target (0.505419ms)\n✔ Load binding validates captured aliases, saved target and exact Guard queue before pinning (1.618831ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 125.298673\n"
+  },
+  "groundProbeRegressions": {
+    "command": "node --test ground-probe.test.mjs",
+    "exitCode": 0,
+    "stdout": "✔ records actual not-canvas-owned counts/picks without extra diagnostics-only picker calls (5.038768ms)\n✔ records actual no-ground-pick counts/picks without extra diagnostics-only picker calls (2.418442ms)\n✔ records actual competing-object counts/picks without extra diagnostics-only picker calls (0.59266ms)\n✔ records actual outside-target-radius counts/picks without extra diagnostics-only picker calls (1.935537ms)\n✔ retains exact model/disabled/vanished-center decisions and stops after three probes (1.583978ms)\n✔ maps once, accepts the first valid same-view point, and retains the actual earned Move (1.46477ms)\n✔ a dispatch failure never falls through to another point or relaxes acceptance (0.745569ms)\n✔ both exact prospective point sets are clear of every retained native footprint (2.013794ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 131.419756\n"
+  },
+  "entryIdentityRegressions": {
+    "command": "node --test entry-identity.test.mjs",
+    "exitCode": 0,
+    "stdout": "✔ authored149 resolves by native identity, independently of live ID and displayed center (2.232513ms)\n✔ original Brave roster survives natural births without an exact live-count assertion (0.411618ms)\n✔ ready Mission10 with no introduction never waits for a nonexistent Skip (0.631789ms)\n✔ visible introduction uses the actual public Skip and preserves the 60s deadline (0.601724ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 115.197882\n"
+  },
+  "inputs": {
+    "accepted-input.mjs": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+    "attempt-01-provenance.json": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+    "attempt-01-verifier.mjs.txt": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+    "attempt-02-ground-footprints.json": "fbc9a4f7f1878705b7111c7c871e616b519633970efba59a6800893556ebe34e",
+    "browser-probes.mjs": "04be28c504df1a3360c9c43d24092259e1f49f8e4eb4927b0592854428392b01",
+    "checkpoint-guard.mjs": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+    "entry-identity.mjs": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+    "entry-identity.test.mjs": "00c7ef31353bd7066ac4b48693664d996b96b30e1645a4fb743af2c2cb8fe806",
+    "ground-and-dispatch.mjs": "77f7e1a162b23d271c8a2e645b504a5f4c8b8ba8ced885c350e244e5aaf51614",
+    "ground-probe.test.mjs": "35631ceca11cea487b8cbea367fe3650d49d6ed2ec7095720286e41f832e49f8",
+    "guard-assertions.mjs": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+    "guard-assertions.test.mjs": "3bbadb73d827213c78861132da40b29f6571db67992444a139b48f49f305efa4",
+    "mission10-construction.json": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+    "observer.mjs": "f172a58ccea14a3038eea1803b1e6b52c30f89a219846a83f4dfd5df3d43c1df",
+    "ordinary-input.mjs": "20e9403ff42c405acf625b4a0a43f33b1ad57c33559a78a8f2bb1a492ba474d4",
+    "plan.md": "d0e9f99387901e8ff7f0e2402486661f6a5c872392bba15823efd29062b3dad3",
+    "preparation-failure-01.json": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+    "provenance.json": "56c775955d9da1c29b1243afc298a827f670e8b886dcc4bd22365ec1921bf1fd",
+    "replacement-observer.mjs": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+    "retained-ground-inputs.json": "121e949e5a94280a3360d580076e2ce5b44145e92c747cefe909a2e3fbcc3fda",
+    "revision-history.json": "4f6f7dc35d2149f9e6cfe7bfb78d47764a2079dbebfb24a61a29157a921646e6",
+    "runtime-sources.json": "f40c2658f4697057ff2a85de7a4185fe5e1cb8b577b6f8e7678da8a28704336b",
+    "scenario.mjs": "946f849dbe69e157f9231cfd07fabcf2057abdc034a5a573083447903a4d70ad",
+    "verify-preparation.mjs": "40aaa8e674851be04335ab8ac5ed992829523842eb0d5edd3603977ac54d015f"
+  },
+  "browser": "not-run",
+  "server": "not-run",
+  "build": "not-run",
+  "profiles": "not-touched",
+  "dependencies": "not-touched",
+  "parity": "no-credit"
+}

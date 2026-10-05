@@ -1,0 +1,159 @@
+{
+  "status": "prepared-not-launched",
+  "sequence": [
+    {
+      "name": "baseline",
+      "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before",
+      "head": "3b899125cc8cedef938823718ad5d44f49957b66",
+      "tree": "5228a79f26b90d3daeffe65498c01ada077ba132",
+      "appTree": "20b5894d4c17f120cd7608b4138953ea6c5f243f",
+      "port": 4392,
+      "privateTMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-private-tmp-03",
+      "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03",
+      "command": [
+        "node",
+        "scripts/orchestration/command-receipt.mjs",
+        "--output",
+        "work/orchestration/native-guard-browser-baseline-03/outer.json",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-receipt.json",
+        "--input",
+        "node_modules/.package-lock.json",
+        "--",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=15s",
+        "330s",
+        "taskset",
+        "-c",
+        "0-3",
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before",
+        "--browser",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+        "--scenario",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+        "--port",
+        "4392",
+        "--timeout",
+        "300000",
+        "--output",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/run"
+      ]
+    },
+    {
+      "name": "candidate",
+      "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+      "head": "c20a297f5f815ce404f796b08f77ea56396f96da",
+      "tree": "9af7241660efc11eb8969845ab7e587231d906bc",
+      "appTree": "1338564ae3119eb12f680d194f260a1e895378f3",
+      "port": 4393,
+      "privateTMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-private-tmp-03",
+      "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-03",
+      "command": [
+        "node",
+        "scripts/orchestration/command-receipt.mjs",
+        "--output",
+        "work/orchestration/native-guard-browser-candidate-03/outer.json",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-receipt.json",
+        "--input",
+        "node_modules/.package-lock.json",
+        "--",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=15s",
+        "330s",
+        "taskset",
+        "-c",
+        "0-3",
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+        "--browser",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+        "--scenario",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+        "--port",
+        "4393",
+        "--timeout",
+        "300000",
+        "--output",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-03/run"
+      ]
+    }
+  ],
+  "scenarioSha256": "946f849dbe69e157f9231cfd07fabcf2057abdc034a5a573083447903a4d70ad",
+  "packetReceiptSha256": "ef73ba4d447b6c34fd8fe4180c051d03ba478cd35162059195314308023f2d48",
+  "preflightReviewSha256": "7a280a5d8406ebdfb5f51b5dd20b04573bd8b5c83db61f71cccf67b69f4225c8",
+  "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+  "node": "v24.19.0",
+  "dependencyInode": 925605,
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "viewport": [
+    1440,
+    1000
+  ],
+  "scope": "Sequential fresh ephemeral contexts, normal1x UI, no profile, no unsafe launch flags. Maintained harness owns server/browser cleanup. Full packet source/runtime hashes checked at start/end.",
+  "prelaunch": "Coordinator must grant browser lane and two-ended dependency MOVE. Verify actual donor terminal, locked source/inputs, free selected loopback port in the launching namespace, exact browser/lock hashes and fresh output/TMP. No alternate port or launch flag fallback.",
+  "terminal": "Await each original session. Retain inner/outer raw receipts; verify both localhost/127.0.0.1 ports closed, source/runtime stable and no owned process remains before any next MOVE. On failure stop and report exact blocker; no retry or input changes under this plan.",
+  "stop": "Any assertion, missing sample, source drift, actor loss, totem/campaign timer change, changed speed/inputmask or deadline fails the attempt. No staged actor/mana or first-postLoad-tick claim.",
+  "preflightReviewPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/review-revision-05.md",
+  "dependencySequence": "925605 is already released at native-shaman-guard-before after original95486 terminal exit1, stable source/locks and both4392 loopbacks closed. Reuse only after coordinator grants this plan and same-namespace checks; do not repeat campaign transfer. Existing two-ended campaign-to-native-guard-before-20261005T2132 receipt SHA9a3cadefb1a35d4ebbe40b47b00d3c472098b091d81d8450f59f6b8c71aef4da. After expected complete baseline capture and verified terminal cleanup, MOVE925605 to candidate with two-ended receipt and installed-lock-only donor stub; release after candidate terminal or any substantive failure. No install, copy, or link of dependencies.",
+  "priorAttempts": [
+    {
+      "planSha256": "b17eab90f45c263f76f153426ceb8934dd5a52373c3be4c927675000039d6916",
+      "baselineOriginalSession": 88672,
+      "status": "failed before training or Guard input; candidate not-run",
+      "outerSha256": "8f7f82b1d23f1ba79894e7f821ba57d84b211b0d72736b3b8a694f0fe4ba1ce4",
+      "preserved": true
+    },
+    {
+      "planSha256": "2e543f7856048b117f5e32236016921cf268dcc5e8c9919d395327dab3ed3572",
+      "baselineOriginalSession": 95486,
+      "status": "genuine ordinary training, then failed before initial Move/G; candidate not-run",
+      "outerSha256": "bf9814770919d98aaf625a9f245ae8dce1b16e718a8c67f211a548c19a1859e4",
+      "innerSha256": "53031cb0d2fa11fbc06131e62d1012f2b9bb401358d639f628d0e639969393f6",
+      "preserved": true
+    }
+  ],
+  "movePointPolicy": {
+    "initial": [
+      [
+        29,
+        -11
+      ],
+      [
+        31,
+        -11
+      ],
+      [
+        33,
+        -9
+      ]
+    ],
+    "shaman": [
+      [
+        25,
+        -1
+      ],
+      [
+        27,
+        -1
+      ],
+      [
+        29,
+        -1
+      ]
+    ],
+    "rule": "Same prospective sets and one-map/at-most-three same-view probes in both runs. Retain each actual earned point; equality of chosen point is not assumed. No fallback after dispatch failure."
+  }
+}

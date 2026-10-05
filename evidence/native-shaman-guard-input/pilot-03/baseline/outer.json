@@ -1,0 +1,63 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "103ad4bb-74eb-4a68-a190-0cc0c352f7c5",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "3b899125cc8cedef938823718ad5d44f49957b66",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs": "946f849dbe69e157f9231cfd07fabcf2057abdc034a5a573083447903a4d70ad",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-receipt.json": "ef73ba4d447b6c34fd8fe4180c051d03ba478cd35162059195314308023f2d48",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=15s",
+    "330s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+    "--port",
+    "4392",
+    "--timeout",
+    "300000",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/run"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before",
+  "startedAt": "2026-10-05T21:50:44.844Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/outer.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/outer.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T21:51:49.038Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "Error: Error: No fresh ground marker at the requested cell\n    at acceptedOrderEvidence (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/accepted-input.mjs:36:24)\n    at clickOrder (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/ground-and-dispatch.mjs:77:24)\n    at async Object.move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/ground-and-dispatch.mjs:136:22)\n    at async nativeGuardWitness (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs:289:5)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/scripts/local-render/harness.mjs:251:21\n    at runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/scripts/local-render/harness.mjs:233:47)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/scripts/local-render/harness.mjs:251:21\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "c6e4833550e73e2b282dd3f36b86355d67fb4a620868e663106bbd9feb9005af",
+  "sourceAfter": {
+    "headOid": "3b899125cc8cedef938823718ad5d44f49957b66",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs": "946f849dbe69e157f9231cfd07fabcf2057abdc034a5a573083447903a4d70ad",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-receipt.json": "ef73ba4d447b6c34fd8fe4180c051d03ba478cd35162059195314308023f2d48",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

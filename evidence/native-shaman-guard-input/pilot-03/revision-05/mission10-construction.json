@@ -1,0 +1,185 @@
+{
+  "scope": "Read-only source-side createWorld(10) construction; no tick, browser, actor injection or existing profile. Supporting initialization/identity trace, not an ordinary runtime replay.",
+  "hashes": {
+    "app/level-ten.ts": "debcec7f3cc9772fdc33116848e2b3641f3522901f5100cb24b6da445841058f",
+    "app/world-initialization.ts": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+    "app/world-state.ts": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+    "app/construction-runtime.ts": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+    "app/building-shapes.ts": "8e697a8ac76900bb95183907702323b0d477950c92b3e703744376c0fefc7457",
+    "scripts/local-render/harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+    "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9"
+  },
+  "authored": {
+    "shamans": [
+      {
+        "index": 110,
+        "model": 7,
+        "type": 1,
+        "owner": 0,
+        "x": 29,
+        "z": -5,
+        "angle": 0
+      }
+    ],
+    "firewarriorHuts": [
+      {
+        "index": 120,
+        "model": 8,
+        "type": 2,
+        "owner": 0,
+        "x": -126,
+        "z": -32,
+        "angle": 0
+      },
+      {
+        "index": 149,
+        "model": 8,
+        "type": 2,
+        "owner": 0,
+        "x": 20,
+        "z": -8,
+        "angle": 0
+      }
+    ],
+    "braves": [
+      {
+        "index": 171,
+        "model": 2,
+        "type": 1,
+        "owner": 0,
+        "x": 31,
+        "z": -3,
+        "angle": 0
+      },
+      {
+        "index": 172,
+        "model": 2,
+        "type": 1,
+        "owner": 0,
+        "x": 27,
+        "z": -7,
+        "angle": 0
+      },
+      {
+        "index": 173,
+        "model": 2,
+        "type": 1,
+        "owner": 0,
+        "x": 23,
+        "z": -3,
+        "angle": 0
+      },
+      {
+        "index": 174,
+        "model": 2,
+        "type": 1,
+        "owner": 0,
+        "x": 21,
+        "z": -15,
+        "angle": 0
+      },
+      {
+        "index": 175,
+        "model": 2,
+        "type": 1,
+        "owner": 0,
+        "x": 35,
+        "z": 9,
+        "angle": 0
+      }
+    ]
+  },
+  "constructed": {
+    "turn": 0,
+    "time": 0,
+    "inputMask": 0,
+    "flyby": {
+      "flags": 16,
+      "events": []
+    },
+    "shamans": [
+      {
+        "id": 63,
+        "x": 29,
+        "z": -5
+      }
+    ],
+    "firewarriorHuts": [
+      {
+        "id": 73,
+        "x": -124.1328125,
+        "z": -31.7265625,
+        "anchor": {
+          "x": 35328,
+          "y": 6144
+        },
+        "angle": 0,
+        "model": 8,
+        "object": 99,
+        "progress": 1,
+        "hp": 260,
+        "pose": {
+          "object": 99,
+          "angle": 0,
+          "anchorX": 35328,
+          "anchorY": 6144
+        },
+        "position": {
+          "x": 35806,
+          "y": 6074
+        }
+      },
+      {
+        "id": 98,
+        "x": 21.8671875,
+        "z": -7.7265625,
+        "anchor": {
+          "x": 7168,
+          "y": 0
+        },
+        "angle": 0,
+        "model": 8,
+        "object": 99,
+        "progress": 1,
+        "hp": 260,
+        "pose": {
+          "object": 99,
+          "angle": 0,
+          "anchorX": 7168,
+          "anchorY": 0
+        },
+        "position": {
+          "x": 7646,
+          "y": 65466
+        }
+      }
+    ],
+    "braves": [
+      {
+        "id": 119,
+        "x": 31,
+        "z": -3
+      },
+      {
+        "id": 120,
+        "x": 27,
+        "z": -7
+      },
+      {
+        "id": 121,
+        "x": 23,
+        "z": -3
+      },
+      {
+        "id": 122,
+        "x": 21,
+        "z": -15
+      },
+      {
+        "id": 123,
+        "x": 35,
+        "z": 9
+      }
+    ]
+  }
+}
