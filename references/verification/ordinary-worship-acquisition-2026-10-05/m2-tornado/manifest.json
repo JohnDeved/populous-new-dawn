@@ -1,0 +1,56 @@
+{
+  "scope": "Bounded ordinary browser row; limits in README and independent review",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "e85cabfa7fbf3d4202b2261985f1d3ad5575d60c",
+  "originalReceiptSha256": "fd95319a413605a4e16e8a45546b6951f4a414dedbb4b7337047c55680fb2d91",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "c69e94bb208e404677ceee107669396c6f9b1f1e2d5dafcf1c66de23a593de7b"
+    },
+    {
+      "path": "acquisition-complete.png",
+      "sha256": "a7e185f12aebbe12edd5169fd95392420c6d9d352084aa43b7bd3355451ec5cc"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "f335abe5669bd894254cb8eb629a63301c18c234281b3d553a0d3fc48b4d7761"
+    },
+    {
+      "path": "decoded-body.png",
+      "sha256": "be66689409a0ec9a150eacd26f656425478545daa412babdec5f1234935b078a"
+    },
+    {
+      "path": "ordinary-worship-m1-route.mjs",
+      "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+    },
+    {
+      "path": "ordinary-worship.mjs",
+      "sha256": "e109f328e3b0203081df9440e1c2ae5f07b31ff02a29e284367fed05d72c65ce"
+    },
+    {
+      "path": "overlay-final-leg.png",
+      "sha256": "71af1d9c6345312f69b66947f06ea858ee2b591dae2b9acd3ac3b112ace0bdda"
+    },
+    {
+      "path": "overlay-rotated.png",
+      "sha256": "98eaa4ba3b33d0629ad3a3a4b54b8b2d7bdfeb617007971565ec1c3dd1dd5305"
+    },
+    {
+      "path": "overlay-zero-angle.png",
+      "sha256": "4f5b70bb163b09c44b45274a505204e9c3eb4acb338fea5b262738b6d9a5eb20"
+    },
+    {
+      "path": "phase-zero-composite.png",
+      "sha256": "0c72296d2262fca2881113d2444d454355723715ca9c564e480a0ac0cf4243bc"
+    },
+    {
+      "path": "raised-world.png",
+      "sha256": "1cb0f5d5903ea13e81be93f95d6b116d1dac554df66b9906244016d9bacb8c61"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "1fb71a63267fe4029a6e20453afcfad0dda6bfb6dafe2fa5d6ff628e34753b73"
+    }
+  ]
+}

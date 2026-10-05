@@ -1,0 +1,60 @@
+{
+  "scope": "Bounded ordinary browser row; limits in README and independent review",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "e85cabfa7fbf3d4202b2261985f1d3ad5575d60c",
+  "originalReceiptSha256": "50b05cf6858066d1ec3eec39ee18b3a0b70b2f20e95573d20db0c0fc1c31aae0",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "e3de1904f8c19fe0ec70d7c15b5dfa31f1725e88639be1c6570e56799dc67ea0"
+    },
+    {
+      "path": "acquisition-complete.png",
+      "sha256": "fd557fa727f4b6bbb0d6204b93d6ec5386def519f5005e944dd281286f17e737"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "c0a65fc93b92ac3f2258ec45ac13be66a2487376a4336ff40942cd20c5b74539"
+    },
+    {
+      "path": "decoded-body.png",
+      "sha256": "a1d72918689252694cfabe26f6a00b1f1a7a70d0192afb3ba4bfbb3d3b1270fc"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "36b4c8f0c1a8dd9998baefb195cb286351a73b000a5716e6044191b4d3b0cd79"
+    },
+    {
+      "path": "ordinary-worship-m1-route.mjs",
+      "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+    },
+    {
+      "path": "ordinary-worship.mjs",
+      "sha256": "e109f328e3b0203081df9440e1c2ae5f07b31ff02a29e284367fed05d72c65ce"
+    },
+    {
+      "path": "overlay-final-leg.png",
+      "sha256": "e85cf471e27f08bc293cc69461521335ce28dac3ea10e2f954e5205e36ee460e"
+    },
+    {
+      "path": "overlay-intermediate.png",
+      "sha256": "70a60cb013c67cf38ee536138eaeee39ea7f8450e0048db924ed0dc8ef165081"
+    },
+    {
+      "path": "overlay-rotated.png",
+      "sha256": "3fd831eb19d46adca0d3aa79819c57c7a330ea224507f656e4772dd214156d63"
+    },
+    {
+      "path": "phase-zero-composite.png",
+      "sha256": "6fc97fb3dcd71debc509ae8920a757ddcecdbfbf64d825e57f28d0570d99983e"
+    },
+    {
+      "path": "raised-world.png",
+      "sha256": "d83088182ef0a7c29208fee388376b8f957012dded3dcae8320fcea5752ad4a9"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "88fa5650290cb6d4c57152a2a9fe1932cc0fb646590f3e6ae300f120c4ffabe0"
+    }
+  ]
+}
