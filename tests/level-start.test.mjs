@@ -4,12 +4,13 @@ import { createHash } from 'node:crypto'
 import { createWorld, tick, cast, command, select, nativePosition } from '../app/model.ts'
 import { canOrder, unitAnimationSource } from '../app/selection-runtime.ts'
 import { animateLiveObjects } from '../app/live-people.ts'
+import { advanceGame } from '../app/game-clock.ts'
 import { migrateCheckpoint } from '../app/game-store.ts'
 import { interruptFlyby } from '../app/flyby.ts'
 import { levelStartTargetHeight } from '../app/level-start.ts'
 import { reincarnationStoneRise } from '../app/reincarnation.ts'
 import units from '../app/original-units.json' with { type: 'json' }
-const advance = (w, turns) => { for (let i=0;i<turns;i++) { tick(w,1/12); animateLiveObjects(w); animateLiveObjects(w) } }
+const advance = (w, turns) => advanceGame(w, { animationTime: 0, animationFrame: 0 }, turns / 12)
 const hash = x => createHash('sha256').update(JSON.stringify(x)).digest('hex')
 const digest = w => ({sites:w.levelStart,land:hash(Array.from(w.land.heights)),people:w.units.map(u=>[u.id,u.team,u.kind,u.x,u.z]),random:w.randomState,effects:w.effects.map(f=>[f.id,f.sprite?.sequence,f.height,f.animation]),sounds:w.sounds})
 
@@ -44,6 +45,8 @@ test('native opening excludes Shaman selection, without inventing a casting rest
   advance(w,2)
   assert.equal(unitAnimationSource(shaman).object,520)
   const frame=shaman.native.f2;animateLiveObjects(w)
+  assert.equal(shaman.native.f2,frame,'presentation alone cannot advance the opening person')
+  advance(w,1)
   assert.equal(shaman.native.f2,(frame+1)%units.frameCounts[520])
   advance(w,52)
   assert.equal(shaman.native.flags4&128,0)
