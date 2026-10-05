@@ -1662,12 +1662,22 @@
       "mappingStatus": "unmapped",
       "paths": [
         "app/blast-wave.ts",
+        "app/erosion.ts",
+        "app/erosion-observation.ts",
         "app/lightning.ts",
         "app/land-bridge.ts",
         "app/spell-effects-runtime.ts",
         "app/tornado-runtime.ts"
       ],
-      "note": "Mechanically inventoried only."
+      "researchPaths": [
+        "decomp/research/erosion-actual-capture.md",
+        "scripts/check-native-erosion-capture.py",
+        "tests/erosion-observation.test.mjs",
+        "tests/erosion-capture.test.py",
+        "qa/erosion-native-replay/capture.mjs",
+        "qa/erosion-native-replay/capture.test.mjs"
+      ],
+      "note": "Mechanically inventoried only. Erosion capture/replay tooling does not establish ordinary native/browser parity."
     },
     {
       "id": "vehicles",
