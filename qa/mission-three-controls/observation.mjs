@@ -179,6 +179,35 @@ export function armSermonObservation(epoch, world, preacherId) {
   return epoch.sermon
 }
 
+export function requireDeclaredPreacherOrder(snapshot, declared) {
+  if (!declared && snapshot.units.some(u => snapshot.selected.includes(u.id) &&
+    u.team === 'blue' && u.kind === 'preacher'))
+    throw Error('Declare the prospective candidate pool before any Preacher order')
+}
+
+export function requireFirstOwnedListener(snapshot, preacherId, declaration, epochName) {
+  const epoch = snapshot.observation, sermon = epoch?.sermon
+  if (epoch?.name !== epochName || !sermon || sermon.preacherId !== preacherId ||
+    declaration?.preacherId !== preacherId || sermon.armedAtTurn !== declaration.armedAtTurn ||
+    JSON.stringify(sermon.candidateIds) !== JSON.stringify(declaration.candidateIds))
+    throw Error('Capture requires the original prospective declaration and observation epoch')
+  const first = sermon.firstOwned
+  if (!first) throw Error('No first owned listener has been observed')
+  if (first.preacherId !== preacherId || !declaration.candidateIds.includes(first.victim.id) ||
+    first.turnBefore < declaration.armedAtTurn || first.turnAfter !== first.turnBefore + 1)
+    throw Error('Capture requires the exact adjacent-turn prospective onset')
+  if (!checkCondition(snapshot, { type: 'first-owned-sermon', preacherId }))
+    throw new IncompleteRun('missed-sermon-window', 'The first observed candidate is no longer an actual owned listener; no replacement may be selected')
+  return structuredClone(first)
+}
+
+export function waitDisposition(snapshot, condition, savedSermon) {
+  // A staging/movement condition must not consume the short first-listener
+  // window, even when that condition becomes true on the same observation.
+  if (!savedSermon && snapshot.observation?.sermon?.firstOwned) return 'capture-sermon'
+  return checkCondition(snapshot, condition) ? 'complete' : 'wait'
+}
+
 export function requiredActorStop(snapshot, condition) {
   if (!['first-owned-sermon', 'listener', 'conversion'].includes(condition.type)) return null
   if (condition.type === 'conversion' && checkCondition(snapshot, condition)) return null

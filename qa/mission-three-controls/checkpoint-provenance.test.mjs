@@ -79,7 +79,51 @@ test('one harness-admitted QA transition preserves the original preparation and 
     assert.throws(() => validatePreparationRecord(original, { ...current,
       profile: { ...profile, correspondence: { ...correspondence, [field]: 'unrelated' } } }))
   assert.throws(() => validatePreparationRecord(admitted, { ...current,
-    source: { ...source, fingerprint: '3'.repeat(64) }, profile: retry }), /No second QA/)
+    source: { ...source, fingerprint: '3'.repeat(64) }, profile: retry }), /harness-validated explicit correspondence/)
   assert.throws(() => validatePreparationRecord(admitted, { ...current,
     profile: { ...retry, previousRun: { ...retry.previousRun, runId: 'different-run' } } }))
+})
+
+test('a second explicit harness admission appends provenance without rewriting the original prefix or first admission', () => {
+  const input = fixture(), original = createPreparationRecord(input)
+  const firstSource = { commit: 'e'.repeat(40), fingerprint: 'e'.repeat(64) }
+  const firstReview = { decision: 'ACCEPT', reviewer: 'first-reviewer', reference: 'first-review', sha256: 'f'.repeat(64),
+    priorRunId: 'run08', previousSourceFingerprint: input.source.fingerprint, currentSourceFingerprint: firstSource.fingerprint,
+    previousChecker: '1'.repeat(64), currentChecker: '2'.repeat(64) }
+  const firstProfile = { ...input.profile, mode: 'reused', runId: 'run13', inputs: { checker: '2'.repeat(64) },
+    correspondence: firstReview, previousRun: { runId: 'run08', sourceFingerprint: input.source.fingerprint,
+      sourceCommit: input.source.commit, checker: '1'.repeat(64) } }
+  const first = validatePreparationRecord(original, { ...input, source: firstSource, profile: firstProfile })
+  const firstBefore = structuredClone(first)
+  const source = { commit: '3'.repeat(40), fingerprint: '3'.repeat(64) }
+  const review = { decision: 'ACCEPT', reviewer: 'second-reviewer', reference: 'second-review', sha256: '4'.repeat(64),
+    priorRunId: 'run13', previousSourceFingerprint: firstSource.fingerprint, currentSourceFingerprint: source.fingerprint,
+    previousChecker: '2'.repeat(64), currentChecker: '5'.repeat(64) }
+  const profile = { ...firstProfile, runId: 'run14', inputs: { checker: '5'.repeat(64) }, correspondence: review,
+    previousRun: { runId: 'run13', sourceFingerprint: firstSource.fingerprint,
+      sourceCommit: firstSource.commit, checker: '2'.repeat(64) } }
+  const current = { ...input, source, profile }, second = validatePreparationRecord(first, current)
+  assert.deepEqual(first, firstBefore)
+  assert.deepEqual(second.qaAdmission, first.qaAdmission, 'The first reviewed admission remains intact')
+  for (const key of ['source', 'checkpoint', 'milestones', 'inputs', 'retainedBlueIds'])
+    assert.deepEqual(second[key], original[key], `Original ${key} is inherited without relabelling`)
+  assert.deepEqual(second.qaContinuation.correspondence, review)
+  assert.equal(second.qaContinuation.recordedByRunId, 'run14')
+  for (const field of ['previousSourceFingerprint', 'currentSourceFingerprint', 'previousChecker', 'currentChecker', 'priorRunId'])
+    assert.throws(() => validatePreparationRecord(first, { ...current,
+      profile: { ...profile, correspondence: { ...review, [field]: 'unrelated' } } }))
+  assert.throws(() => validatePreparationRecord(first, { ...current, profile: { ...profile, correspondence: null } }))
+  assert.throws(() => validatePreparationRecord(first, { ...current,
+    profile: { ...profile, previousRun: { ...profile.previousRun, runId: 'older-run' } } }))
+  const retry = { ...profile, runId: 'run15', correspondence: null,
+    previousRun: { runId: 'run14', sourceFingerprint: source.fingerprint, sourceCommit: source.commit, checker: '5'.repeat(64) } }
+  const repeated = validatePreparationRecord(second, { ...current, profile: retry })
+  assert.deepEqual(repeated.qaAdmission, first.qaAdmission)
+  assert.equal(repeated.qaContinuation.recordedByRunId, 'run15')
+  assert.throws(() => validatePreparationRecord(second, { ...current,
+    profile: { ...retry, previousRun: { ...retry.previousRun, runId: 'older-run' } } }))
+  assert.throws(() => validatePreparationRecord(second, { ...current,
+    source: { commit: '6'.repeat(40), fingerprint: '6'.repeat(64) }, profile: retry }), /No further QA/)
+  const broken = structuredClone(second); broken.qaContinuation.correspondence.previousChecker = '7'.repeat(64)
+  assert.throws(() => validatePreparationRecord(broken, { ...current, profile: retry }))
 })

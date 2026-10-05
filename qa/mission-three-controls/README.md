@@ -29,10 +29,11 @@ requirements.
 node --check qa/mission-three-controls/driver.mjs
 node --test qa/mission-three-controls/observation.test.mjs \
   qa/mission-three-controls/checkpoint-provenance.test.mjs \
-  qa/mission-three-controls/command-probes.test.mjs
+  qa/mission-three-controls/command-probes.test.mjs \
+  qa/mission-three-controls/sermon-protocol.test.mjs
 ```
 
-The twenty-seven isolated observer tests cover original callback receiver/arguments/return and
+The isolated observer tests cover original callback receiver/arguments/return and
 exact invocation count; diagnostic exception isolation versus real application
 exceptions; idempotent detach; separate reload/time epochs; strict singleton
 conversion identity; rejecting death/poll gaps; and progress that ignores a
@@ -110,12 +111,30 @@ while the trainee trains. See `protected-sermon-strategy.md`. First batch:
 This executes Vault → Shaman home → Temple built by five existing Braves → one
 verified training order. Inspect the paused snapshot for the actual hostile
 Preacher. Use ordinary Shaman movement/Blast and current target results while
-training advances, then `finish-preacher-training` and `approach-sermon` (with
-`resume` at the start of each new batch). Keep the Shaman at the observed covering
+training advances, then `finish-preacher-training` and `declare-sermon` before
+any Preacher departure or staging order. The driver rejects a selected Preacher's
+ordinary order until declaration. Use `resume` at the start of tactical batches.
+Keep the Shaman at the observed covering
 position or use `return-shaman-home` as a prospective tactical choice. Original untrained Braves must remain. Shaman home arrival is observed before construction. Before the protected
 approach, the actual Shaman must be alive and its current position is recorded. Every meaningful order/plan is asserted immediately; it does not accept unrelated AI construction.
 
-Once `approach-sermon` has recorded and saved the exact first-onset locked listener,
+`declare-sermon` only arms the existing passive observer and records the current
+candidate pool, epoch and actual Preacher before departure. It issues no movement.
+The `approach-sermon` wrapper still declares if needed, chooses its bounded anchor
+and moves normally. A separately directed holding approach may instead use
+ordinary movement after declaration. Neither path requires Yellow-Shaman suppression.
+
+`capture-sermon` validates the exact first listener, ordinarily pauses, validates
+that identity again and uses the existing Save/readback path. It adds no movement.
+The driver also captures a pending first onset before the next command/world click,
+at paused batch boundaries, and before accepting a wait's completion condition.
+A movement wait therefore stops for the listener even if arrival is still pending
+or becomes true on the same observation. The remaining batch is deferred with an
+explicit journal entry; an interrupted wait is not reported as completed. The
+passive afterTurn observer remains read-only and never pauses or changes the clock.
+See `staging-onset.md` for the retained Run13 failure and source-only repair boundary.
+
+Once the exact first-onset locked listener has been saved,
 the interruption batch is:
 
 ```
@@ -152,7 +171,7 @@ Combat remains an observed tactical session, not a huge fixed-turn loop. Read th
 retained screenshots/snapshots and journal, then choose ordinary commands:
 
 - `prepare-temple`, `start-preacher-training`, `finish-preacher-training`,
-  `return-shaman-home`, `approach-sermon`
+  `return-shaman-home`, `declare-sermon`, `capture-sermon`, `approach-sermon`
 - `resume`, `pause`, `clear`
 - `select`: kind `shaman`, `brave`, `preacher`, `warrior`; count `one`, `five`, `all`
 - `map`: point `{x,z}`; `rotate`: one actual right-button camera drag
@@ -278,7 +297,8 @@ its own90-minute wall/95-minute harness cap. A completed continuation is labelle
 checkpoint-continuation and cannot be described as a fresh uninterrupted run;
 previous failed attempt receipts remain failed. Four isolated host-only tests
 cover mismatched source/profile/origin/digest, failed prefixes and resumed actor
-identity. Runtime acceptance of this entry remains pending.
+identity. Runs06–13 established the genuine preparation and repeated ordinary
+Load identity; the new staging-onset protocol remains source-only until replay.
 
 The game/runtime remains pinned to accepted `b381851`; later main application
 changes cannot be adopted into this profile. By default the complete QA source
@@ -294,8 +314,14 @@ The original acquisition source/milestones remain unchanged. A separate
 `qaAdmission` records the accepted QA source and correspondence. Each admitted
 run writes a forwarded `preparation-record.json`; later same-source retries must
 use the immediately preceding run's forwarded record, whose recorded run ID
-matches the profile's verified previous run. No second source transition or
-unvalidated source bypass is supported. This is provenance only, never a World
+matches the profile's verified previous run. One additional independently reviewed
+edge may append `qaContinuation` from that exact admitted source/current terminal
+run to the new QA source. It preserves the entire first `qaAdmission` unchanged,
+including its correspondence and last forwarded run ID. The new edge must name
+that source/checker and run, and use only the maintained harness's validated
+correspondence. Later retries forward only the second admission's recorded run ID;
+no third QA transition is supported. The original acquisition source, checkpoint,
+milestones and inputs are never relabelled. This is provenance only, never a World
 export or browser-storage write. Generic checkpoint commands remain rejected
 while preparation is protected, so they cannot erase the genuine early save.
 

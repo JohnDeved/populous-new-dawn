@@ -44,10 +44,12 @@ Split actions permit a protected play strategy:
    arrival remains required; the protected approach records the actual live
    Shaman's identity, health and present position. It does not claim that an
    away-from-home tactic preserves the isolated reference's defender priority.
-5. `approach-sermon` records the actual Blue Preacher and all current living
+5. `declare-sermon` records the actual Blue Preacher and all current living
    Yellow Brave IDs (at most200), including workers/housed people, before intrusion.
    This declaration does not claim that every candidate is presently eligible.
-   An eligible idle Brave guides the movement area only. Candidates within8 wrapped
+   Declare before any Preacher departure or staging order. The `approach-sermon`
+   wrapper can still declare and move; a separately directed holding route uses
+   the same observer. An eligible idle Brave guides the wrapper's movement area only. Candidates within8 wrapped
    world units of an observed living non-Brave Yellow specialist are excluded.
    Log each specialist position and candidate distance, plus excluded and remaining
    IDs. Authored53 is preferred only among remaining candidates; otherwise
@@ -59,10 +61,14 @@ Split actions permit a protected play strategy:
    This exact victim is locked before conversion/save and must still be a live
    owned listener when the host sees it. Retrospective arming, an already-owned
    sermon, previous conversion, re-arming or a missed listener window is rejected.
-7. Probe at most eight exact nearby ground points with canvas ownership and no
+7. The wrapper probes at most eight exact nearby ground points with canvas ownership and no
    competing object, using the ordinary native preaching-cell square around the
    prospective movement anchor. Pause normally immediately on the first observed
-   owned sermon, before screenshot/save consumes its stochastic timer. A changing
+   owned sermon, before screenshot/save consumes its stochastic timer. The split
+   `capture-sermon` action saves an already observed exact first listener without
+   another move. Pending onset also interrupts host movement waits and the
+   remaining tactical batch, preserving any unfinished arrival as unfinished.
+   Yellow-Shaman suppression is not a capture prerequisite. A changing
    idle Preacher timer is not meaningful sermon progress; an actual state23
    victim countdown remains progress.
 

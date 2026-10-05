@@ -9,13 +9,19 @@ import { fileURLToPath } from 'node:url'
 import { createPreparationRecord, validatePreparationRecord, validateLoadedPreparation } from './checkpoint-provenance.mjs'
 import { bindGame, showAllMissions } from '../../scripts/browser-game.mjs'
 import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs'
-import { checkCondition, progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, activeBudget, requireActiveBudget, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells } from './observation.mjs'
+import { progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, activeBudget, requireActiveBudget, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells, requireDeclaredPreacherOrder, requireFirstOwnedListener, waitDisposition } from './observation.mjs'
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
 const normalKinds = new Set(['shaman', 'brave', 'preacher', 'warrior'])
 const buildLabels = { temple: 'Temple, 8 wood', hut: 'Hut, 3 wood', camp: 'Warrior Training Hut, 8 wood' }
 const spellLabels = { blast: 'Blast', swarm: 'Swarm' }
+class SermonCaptured extends Error {
+  constructor(context) {
+    super('The first owned listener was captured; remaining tactical commands are deferred')
+    this.context = context
+  }
+}
 
 export default async function missionThreeControls({ page, output, root, signal, receipt, url, observeCheckpoint }) {
   assert.equal(resolve(root), resolve(fileURLToPath(new URL('../../', import.meta.url))),
@@ -266,6 +272,8 @@ export default async function missionThreeControls({ page, output, root, signal,
   }
   const clickOrder = async hit => {
     let before = await read(); requireOrderable(before)
+    requireDeclaredPreacherOrder(before, !!sermonPlan)
+    await capturePendingSermon(before, { beforeWorldClick: hit })
     // Separate this dispatch from a previous command on the same turn without
     // advancing the simulation ourselves. This makes lastOrderTurn a fresh witness.
     if (before.turn <= before.lastOrderTurn) {
@@ -274,6 +282,7 @@ export default async function missionThreeControls({ page, output, root, signal,
         return w.turn > w.lastOrderTurn
       }, null, { timeout: 5000 })
       before = await read(); requireOrderable(before)
+      await capturePendingSermon(before, { beforeWorldClick: hit })
     }
     log({ action: 'world-order-click', hit, selected: before.selected })
     await page.mouse.click(hit.x, hit.y); await page.mouse.move(400, 780)
@@ -383,7 +392,9 @@ export default async function missionThreeControls({ page, output, root, signal,
       if (s.turn !== lastTurn) { lastTurn = s.turn; clockAdvancedAt = Date.now() }
       if (s.animationFrame !== lastAnimation) { lastAnimation = s.animationFrame; animationAdvancedAt = Date.now() }
       if (s.inputMask) { await skipFlyby(); continue }
-      if (checkCondition(s, condition)) { log({ action: 'condition-complete', condition, turn: s.turn }); return s }
+      const disposition = waitDisposition(s, condition, !!savedSermon)
+      if (disposition === 'capture-sermon') await capturePendingSermon(s, { interruptedWait: condition })
+      if (disposition === 'complete') { log({ action: 'condition-complete', condition, turn: s.turn }); return s }
       const actorStop = requiredActorStop(s, condition)
       if (actorStop) {
         log({ action: 'required-actor-unavailable', condition, code: actorStop.code, turn: s.turn,
@@ -583,9 +594,9 @@ export default async function missionThreeControls({ page, output, root, signal,
     await page.getByRole('button', { name: 'Select brave', exact: true }).isEnabled().then(enabled => assert.equal(enabled, true))
     ids.preacher = trained[0].id; await mark('preacher')
   }
-  const approachSermon = async () => {
+  const declareSermon = async () => {
     assert.ok(ids.preacher && !victimSelection && !savedSermon, 'Declare the protected sermon once before locking an observed listener')
-    const state = await read()
+    const state = await read(); health(state)
     assert.ok(milestones.some(m => m.name === 'shaman-home'), 'Retain the observed opening home arrival')
     const shaman = state.units.find(u => u.id === ids.shaman)
     assert.ok(shaman && shaman.team === 'blue' && shaman.kind === 'shaman' && shaman.hp > 0,
@@ -593,21 +604,50 @@ export default async function missionThreeControls({ page, output, root, signal,
     log({ action: 'sermon-shaman-position', turn: state.turn, shaman,
       tactic: Math.hypot(shaman.x - 35, shaman.z - 81) <= 4 ? 'home' : 'prospective covering position' })
     assert.ok(!sermonPlan, 'The prospective candidate declaration is made once')
-    let anchorChoice
-    try { anchorChoice = selectSermonAnchor(state, ids.authoredVictim) }
-    catch (error) {
-      log({ action: 'sermon-anchor-rejected', turn: state.turn, search: error?.search ?? null })
-      throw error
-    }
     const declaration = await page.evaluate(async preacherId => {
       const { armSermonObservation } = await import('/qa/mission-three-controls/observation.mjs')
       const observer = window.m3Observation, scene = window.testSceneRef.current
       if (observer.scene !== scene || observer.world !== scene.world) throw Error('Sermon epoch identity mismatch')
       return armSermonObservation(observer.epoch, scene.world, preacherId)
     }, ids.preacher)
-    sermonPlan = { anchorChoice, declaration }
+    sermonPlan = { epoch: state.observation.name, declaration,
+      preacherBeforeDeparture: state.units.find(u => u.id === ids.preacher) }
     log({ action: 'sermon-candidates-declared', epoch: state.observation.name, plan: sermonPlan })
     saveProgress()
+  }
+  const captureSermon = async () => {
+    assert.ok(sermonPlan && !victimSelection && !savedSermon, 'Capture the declared first listener once')
+    const before = await read(); health(before)
+    const first = requireFirstOwnedListener(before, ids.preacher, sermonPlan.declaration, sermonPlan.epoch)
+    await pause()
+    const listening = await read(); health(listening)
+    victimSelection = requireFirstOwnedListener(listening, ids.preacher, sermonPlan.declaration, sermonPlan.epoch)
+    assert.deepEqual(victimSelection, first, 'Ordinary Pause retains the exact first listener')
+    ids.victim = victimSelection.victim.id
+    log({ action: 'sermon-victim-locked-at-onset', epoch: listening.observation.name,
+      observedAtTurn: listening.turn, selection: victimSelection })
+    saveProgress()
+    await mark('listener'); await saveCheckpoint('sermon-saved', true)
+    milestones.push({ name: 'sermon-saved', ...savedSermon }); saveProgress()
+  }
+  const capturePendingSermon = async (state, context = {}) => {
+    if (!sermonPlan || savedSermon || !state.observation.sermon?.firstOwned) return
+    await captureSermon()
+    throw new SermonCaptured(context)
+  }
+  const approachSermon = async () => {
+    if (!sermonPlan) await declareSermon()
+    const state = await read(); health(state)
+    await capturePendingSermon(state)
+    assert.ok(!sermonPlan.anchorChoice, 'The wrapper chooses one prospective movement anchor')
+    let anchorChoice
+    try { anchorChoice = selectSermonAnchor(state, ids.authoredVictim) }
+    catch (error) {
+      log({ action: 'sermon-anchor-rejected', turn: state.turn, search: error?.search ?? null })
+      throw error
+    }
+    sermonPlan.anchorChoice = anchorChoice
+    log({ action: 'sermon-anchor-selected', epoch: state.observation.name, anchorChoice }); saveProgress()
     const chosen = await select('preacher'); assert.deepEqual(chosen, [ids.preacher])
     const anchor = anchorChoice.anchor
     await map(anchor)
@@ -621,14 +661,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.ok(hit, 'Visible clear ground in the prospectively recorded approach area')
     log({ action: 'sermon-approach-area', anchor, hit })
     await clickOrder(hit)
-    const listening = await waitFor({ type: 'first-owned-sermon', preacherId: ids.preacher }, 'sermon', [ids.preacher])
-    victimSelection = listening.observation.sermon.firstOwned
-    ids.victim = victimSelection.victim.id
-    log({ action: 'sermon-victim-locked-at-onset', epoch: listening.observation.name,
-      observedAtTurn: listening.turn, selection: victimSelection })
-    saveProgress()
-    await pause(); await mark('listener'); await saveCheckpoint('sermon-saved', true)
-    milestones.push({ name: 'sermon-saved', ...savedSermon }); saveProgress()
+    await waitFor({ type: 'first-owned-sermon', preacherId: ids.preacher }, 'sermon', [ids.preacher])
   }
   const acquire = async () => {
     await prepareTemple(); await startPreacherTraining(); await finishPreacherTraining(); await approachSermon()
@@ -694,6 +727,10 @@ export default async function missionThreeControls({ page, output, root, signal,
       case 'prepare-temple': return prepareTemple()
       case 'start-preacher-training': return startPreacherTraining()
       case 'finish-preacher-training': return finishPreacherTraining()
+      case 'declare-sermon': return declareSermon()
+      case 'capture-sermon':
+        await captureSermon()
+        throw new SermonCaptured({ explicitCommand: command })
       case 'return-shaman-home': return returnShamanHome()
       case 'approach-sermon': return approachSermon()
       case 'cancel-sermon': return cancelSermon()
@@ -779,6 +816,8 @@ export default async function missionThreeControls({ page, output, root, signal,
         for (const command of commands) {
           signal.throwIfAborted()
           if (Date.now() - startWall >= wallLimit) throw new IncompleteRun('wall-envelope', 'Outer resource limit reached')
+          const beforeCommand = await read(); health(beforeCommand)
+          if (command.action !== 'capture-sermon') await capturePendingSermon(beforeCommand, { beforeCommand: command })
           const result = await dispatch(command)
           assert.equal(sha256(readFileSync(path)), hash, 'Consumed input bytes did not change')
           if (result?.finished) {
@@ -789,7 +828,18 @@ export default async function missionThreeControls({ page, output, root, signal,
         await pause()
         const boundary = await snapshot(`batch-${String(index).padStart(4, '0')}`)
         health(boundary)
+        await capturePendingSermon(boundary)
       } catch (error) {
+        if (error instanceof SermonCaptured) {
+          assert.equal(sha256(readFileSync(path)), hash, 'Consumed input bytes did not change')
+          log({ action: 'batch-interrupted-for-first-listener', index, inputSha256: hash,
+            savedSermon, context: error.context, message: error.message })
+          saveProgress()
+          const boundary = await snapshot(`batch-${String(index).padStart(4, '0')}-sermon-saved`)
+          health(boundary)
+          log({ action: 'awaiting-input', next: `${String(index + 1).padStart(4, '0')}.json`, paused: true })
+          continue
+        }
         if (error instanceof IncompleteRun || error instanceof MissionDefeat) throw error
         failures.push({ index, inputSha256: hash, at: new Date().toISOString(), error: String(error?.stack ?? error) })
         saveProgress(); await pause().catch(() => {})
