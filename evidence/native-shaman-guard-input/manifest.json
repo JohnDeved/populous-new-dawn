@@ -412,6 +412,30 @@
       "source": "git diff --binary 3b899125 c20a297",
       "sha256": "727468f709d9c612b77db8e4a32d7bac113a40e88f87c9e94cd1ff03db10cdd1",
       "bytes": 493679
+    },
+    {
+      "path": "review/check-next-controller-visits.mjs",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/check-next-controller-visits.mjs",
+      "sha256": "138e95d0f42b6d88761711d07a5edf01d91491d1d3642ec29b55831a55b11898",
+      "bytes": 2871
+    },
+    {
+      "path": "review/next-controller-visits-c20a297.json",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/next-controller-visits-c20a297.json",
+      "sha256": "c0109beabbb9428a0732fc835cf6f2c40124d56c8cb2b080c26bda9e4d4922c1",
+      "bytes": 13286
+    },
+    {
+      "path": "review/focused-c20a297.log",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/focused-c20a297.log",
+      "sha256": "521e2bf4e8e0bb9e5913346b5c3930faeec85d74f0df1d709d11ba3bb4b38f72",
+      "bytes": 9480
+    },
+    {
+      "path": "native-shaman-guard-input/source-manifest-c20a297.json",
+      "source": "work/orchestration/native-shaman-guard-input/source-manifest-c20a297.json",
+      "sha256": "0c3fb40f5a584824da3faac2180fdb9fbf275ae60196be9292fac8e6b679dcd3",
+      "bytes": 4542
     }
   ]
 }
