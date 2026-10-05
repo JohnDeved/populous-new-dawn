@@ -4996,6 +4996,17 @@ ordinary corpse pixels, frames, rise, hidden wait and deletion. Static-site timi
 relocation, particles/audio, general class-10 scheduling and unplayable follower
 models remain open.
 
+### 2026-10-05 — grounded Shaman spirit follows changing terrain
+
+[Bounded phase1 height evidence](research/shaman-death-vfx.md#phase1-ground)
+and `check-native-shaman-death-ground.py` compare original allocation/controller/
+terrain-height execution with the actual current world-turn caller. Phase1 samples
+current death-site ground each visit; phase2 retains the final sample and phase3
+rises from it. Four-owner comparisons cover raising/lowering and unchanged phase0/
+direct unsupported entry. Constants and mapped search bytes are guarded. Supplied
+post-death terrain fixtures, rendered shipped-spell acceptance and native raster
+remain distinct evidence boundaries; this does not complete issue #30.
+
 ## 2026-09-17 — Mission 17 Armageddon
 
 `check-native-mission17-armageddon.py EXE` verifies the authored trigger/reward,
