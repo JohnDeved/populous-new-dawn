@@ -1,0 +1,32 @@
+{
+  "scope": "Actual hidden lifecycle, first-draw clock and same-World public Resume",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "35ada99621c9846d05f583a09fb59e9050802eb3",
+  "originalReceiptSha256": "8f75bbca26b5b1479f42fecfd3980cad3be635d684df89588d7f38dd14699789",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "98c4d41d13926a4c7bf83a742593b5cdb1087726c30e20dd51888967ae8f6a8b"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "c0d0b4f553abe8998f6c8bc3612ccd806dce6b7531449c9454ab3e2d55c4a2e8"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "4b1016e2eaf4d870eddc491363a7d1ad10e575c15c37161b0bc65a8e4428e6e7"
+    },
+    {
+      "path": "ordinary-worship-boundaries.mjs",
+      "sha256": "b6a58253c7288ff801f7201aea106f098d7524ca619faca03985a34ccf279078"
+    },
+    {
+      "path": "ordinary-worship-m1-route.mjs",
+      "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "3c0ac77e4504ab5899d21c2523912ca01d42eb615227e1f0642b4056e12e4843"
+    }
+  ]
+}

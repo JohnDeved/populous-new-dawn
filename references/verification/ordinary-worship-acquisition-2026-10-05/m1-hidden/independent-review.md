@@ -1,0 +1,9 @@
+# Independent actual hidden-page acceptance
+
+ACCEPT ordinary-worship-hidden-2 for the bounded application visibility and same-instance public Resume caller. Exact production cfa86a32f03d021cd1ad725eed9f458ab239d56b used reviewed driver35ada (scenario b6a58253c7288ff801f7201aea106f098d7524ca619faca03985a34ccf279078) and helper30cb. Source, scenario and runtime before/after match exactly; outer command passed with exit0 at2026-10-05T06:41:08.929Z, inner terminal06:41:06.208Z, owned cleanup and continuation verified.
+
+The actual primary-session adapter disabled its focus capture, minimized the native window, restored it to normal and restored original focus=true in finally. Both actual hidden and visible events are trusted, observe scene.previous=null and the same paused turn1046. Complete acquisition/controller/clock state and turn are identical after the750ms hidden interval. The first visible presentation draw records exactly the hidden clock, proving no hidden elapsed backlog at that draw. Subsequent visible paused UI clock advancement is retained and expected.
+
+Public Resume keeps the same World and model3 gift3496; original-once worshipVisit observes position(403,275) to(397,274) while unpaused. Final turn1056 has count/stock0 to1, one cue, no gifts, inactive spell/companion/pulse and no commands. Observer restoration and no observer/receipt errors pass. This closes actual hidden-state and same-instance Resume coverage; flight pair3 remains a distinct fresh-process Load/auto-resume proof.
+
+This row has no PNG artifact. It proves lifecycle and first-draw clock behavior, not an additional pixel/raster comparison. The pinned implementation-specific Playwright route and software browser scope remain explicit. Hidden1 and both earlier ineffective visibility probes remain retained failures/characterizations, not retroactive passes.
