@@ -747,6 +747,7 @@
         "tests/worship-acquisition-source.test.mjs",
         "tests/fixtures/worship-acquisition-controller.json",
         "scripts/check-worship-acquisition-assets.py",
+        "scripts/check-worship-acquisition-fixture.mjs",
         "scripts/probe-native-worship-grant-request-order.py",
         "decomp/research/worship-grant-request-order.md",
         "decomp/research/worship-grant-source-order.md",

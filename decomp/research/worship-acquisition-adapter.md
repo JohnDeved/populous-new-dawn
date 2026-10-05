@@ -88,9 +88,11 @@ initializer, RNG or reward replay.
 
 ## Acceptance status
 
-Portable native-receipt controller comparisons cover the accepted 17/10/3-case
-sources; the separate eight-case original traversal proof covers the bounded
-ready-gift composition. Runtime tests cover elapsed schedules, provenance and
+Portable fixtures compare all ten presentation cases, all three replacement
+cases and 124 selected rows from four of the seventeen handoff cases. The other
+thirteen handoff cases remain retained native proof, not coverage of this reduced
+portable fixture. The separate eight-case original traversal proof covers the
+bounded ready-gift composition. Runtime tests cover elapsed schedules, provenance and
 negative variants, conditional same-turn priority, next-turn payout, cap/bit8,
 pause/hidden, missing geometry, checkpoint continuation and immutable layout.
 Original body imports have exact-pixel, crop, idempotence and corruption checks.
