@@ -1,12 +1,13 @@
 # Ordinary current-source campaign continuity
 
 Source checkpoint for a fresh Mission 1 → 2 → 3 journey on accepted main
-`a53fa05587c4c1d363e3596162b41fcb9f26e3e8` (tree
-`bdaa12ef7ea9ecf3094f4a23c25ae93cdb02063e`). No fresh gameplay outcome is claimed.
-The adopted app subtree is `58797f069a89069d57a4ae801f645e476f99137e`,
-identical to reviewed PR215 candidate `ef62e48`. The run policy pins actual accepted
+`3cc9e830d2e7d2aa9844e8104fa51017d65dd171` (tree
+`52671858facb7ad8f6041d410aa350328139fb54`). No fresh gameplay outcome is claimed.
+The adopted app subtree is `aff807de3b17b32922b2f7e94e94016c22fdc054`,
+identical to reviewed PR217 candidate `d8897cf`. The run policy pins actual accepted
 main ancestry, current app tree and eight helper imports, and requires clean
-source. Launch remains disabled until final source/policy review and lane release.
+source. The explicit `launchEnabled: true` policy is prepared for final review.
+No browser/profile execution occurs before the coordinator grants the exact run.
 All changes relative to accepted main are under this QA directory.
 
 The maintained `scripts/local-render/harness.mjs` owns the game-only profile,
@@ -41,6 +42,16 @@ visible Pause immediately, then binds diagnostics. Actor/terrain/stock projectio
 are compared at replacement; the full saved-record digest is compared at storage
 boundaries. Current worship presentation is observed separately after Load:
 its UI clock may advance while the simulation is paused. No clock rate is changed.
+
+PR217 now advances eligible ordinary-person and Splash animation after each
+logical turn's afterTurn observer and queued callbacks. This QA hook remains a
+simulation-state witness before that logical animation visit. Sermon ownership,
+conversion identities and Erosion lifecycle evidence do not claim post-animation
+frames/stamps. The global animationFrame watchdog still observes presentation
+liveness. Synchronous Load actor/terrain/stock checks do not independently prove
+animation-alias/frame restoration; the accepted PR217 clock/migration evidence
+owns that separate claim. The staged tick-only Erosion fixture remains simulation
+coverage, while live readiness and worship are awaited through actual RAF/UI.
 
 ## Finite ordinary inputs
 
@@ -113,8 +124,8 @@ scenario Save/Load and Continue control ordering, scene/store mismatches,
 checkpoint substitution, prior failed-envelope retention, mission mark isolation
 and cumulative limits. Run `node --test qa/campaign-continuity/*.test.mjs`.
 The orchestration planner selects conservative checks for this new QA path;
-independent review must approve that boundary. The exact PR215 standard
-check/build receipts are correspondence inputs,
+independent review must approve that boundary. The exact PR217 standard
+check/build receipts and its accepted final-head correspondence are inputs,
 not claims that those commands ran on this combined QA head. A reviewer must
 explicitly accept any carry. Tailwind scans added QA text, so a fresh combined
 build is required. Fresh QA/structural checks and the actual rendered campaign

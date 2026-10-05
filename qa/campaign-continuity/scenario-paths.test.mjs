@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { requireContinueBoundary, requireLoadedCheckpoint, continueControlName } from './boundaries.mjs'
+import { requireContinueBoundary, requireLoadedCheckpoint, continueControlName, validateRunPolicy } from './boundaries.mjs'
 const source = readFileSync(new URL('./scenario.mjs', import.meta.url), 'utf8')
 const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor
 function body(name, next) {
@@ -86,8 +86,20 @@ test('actual progress adapter rejects unscoped combat and ignores unrelated watc
   assert.throws(() => progress(state, { type: 'target-gone' }, 'combat', [99]), /name its objective/)
 })
 
-test('disabled source checkpoint rejects scenario import before the harness may launch', async () => {
-  await assert.rejects(import('./scenario.mjs'), /Source-only checkpoint/)
+test('module guard rejects disabled policy and enabled import remains preparation-only', async () => {
+  const policy = JSON.parse(readFileSync(new URL('./run-policy.json', import.meta.url)))
+  const guard = source.match(/^const policy = validateRunPolicy\(JSON\.parse\(readFileSync.*$/m)?.[0]
+  assert.ok(guard && source.indexOf(guard) < source.indexOf('export default async function'))
+  const evaluateGuard = new Function('validateRunPolicy', 'readFileSync',
+    guard.replace("new URL('./run-policy.json', import.meta.url)", "'fixture-policy'") + '; return policy;')
+  assert.throws(() => evaluateGuard(validateRunPolicy, () => JSON.stringify({ ...policy, launchEnabled: false })), /Source-only checkpoint/)
+  assert.equal(evaluateGuard(validateRunPolicy, () => JSON.stringify({ ...policy, launchEnabled: true })).launchEnabled, true)
+  if (policy.launchEnabled) {
+    const scenario = await import('./scenario.mjs')
+    assert.equal(typeof scenario.default, 'function')
+    assert.equal(scenario.default.constructor.name, 'AsyncFunction')
+    // Import only: the maintained harness/scenario function is never invoked.
+  } else await assert.rejects(import('./scenario.mjs'), /Source-only checkpoint/)
 })
 
 // This fixture derives the accessible name from the actual JSX text and its

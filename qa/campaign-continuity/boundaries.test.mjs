@@ -14,8 +14,8 @@ const boundary = (level = 2) => ({ sameStore: true, newWorld: true, newScene: tr
 const saved = { level: 2, turn: 100, time: 8, checkpointSha256: 'full-committed', actorsSha256: 'actors', terrainSha256: 'terrain', stockSha256: 'stock' }
 const epoch = (name, level, activeSeconds) => ({ name, level, activeSeconds })
 
-test('review checkpoint cannot launch; malformed and infinite limits fail closed', () => {
-  assert.throws(() => validateRunPolicy(policy), /reviewed policy/)
+test('disabled policy and malformed or infinite limits fail closed', () => {
+  assert.throws(() => validateRunPolicy({ ...policy, launchEnabled: false }), /reviewed policy/)
   const enabled = { ...policy, launchEnabled: true }
   assert.equal(validateRunPolicy(enabled), enabled)
   assert.throws(() => validateRunPolicy({ ...enabled, applicationImports: {} }), /helper import/)

@@ -1,7 +1,7 @@
 {
-  "launchEnabled": false,
-  "applicationCommit": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
-  "applicationTree": "58797f069a89069d57a4ae801f645e476f99137e",
+  "launchEnabled": true,
+  "applicationCommit": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "applicationTree": "aff807de3b17b32922b2f7e94e94016c22fdc054",
   "limits": {
     "missionActiveSeconds": {
       "1": 900,
@@ -20,7 +20,7 @@
     "m3AfterConversionSeconds": 1800,
     "segmentWallMs": 5700000
   },
-  "reason": "Accepted main a53fa055 adoption. Finite segment caps retained; launch disabled until final source/policy review and explicit browser lane grant.",
+  "reason": "Explicit enabled policy prepared for final source review on accepted main 3cc9e83. Browser/profile execution still waits for the coordinator exact launch grant; finite caps and first batch remain unchanged.",
   "applicationImports": {
     "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
     "scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80",
