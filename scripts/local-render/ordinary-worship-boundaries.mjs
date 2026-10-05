@@ -493,6 +493,16 @@ async function prepareNativeVisibility(page, context, receipt, report) {
   }
 }
 
+async function restoreFaultGeometry(page, wait) {
+  const immediate = await page.evaluate(() => window.restoreWorshipGeometryHud?.() ?? null)
+  if (!immediate) return null
+  await wait(() => window.observeWorshipGeometryRestoration().width > 0, null, 2000, 'Restored original HUD becomes measurable through normal browser layout')
+  const settled = await page.evaluate(() => window.observeWorshipGeometryRestoration())
+  assert.equal(settled.sameHud, true); assert.equal(settled.exactStyle, true)
+  assert.equal(settled.connected, true); assert.ok(settled.width > 0 && settled.offsetWidth > 0)
+  return { immediate, settled }
+}
+
 async function missingGeometry(page, wait, output, report) {
   await wait(() => window.worshipBoundaryScene.world.gifts.some(g => g.reward === 'lightning' && g.ordinaryWorship && g.phase > 0), null, 120000, 'Real positive-phase gift before DOM-only fault')
   const staged = await page.evaluate(() => {
@@ -503,9 +513,13 @@ async function missingGeometry(page, wait, output, report) {
     window.restoreWorshipGeometryHud = () => {
       if (document.querySelector('.native-hud') !== hud) throw Error('Fault HUD ownership changed')
       if (priorStyle === null) hud.removeAttribute('style'); else hud.setAttribute('style', priorStyle)
-      const result = { exactStyle: hud.getAttribute('style') === priorStyle, width: hud.getBoundingClientRect().width }
+      window.observeWorshipGeometryRestoration = () => ({ sameHud: document.querySelector('.native-hud') === hud,
+        exactStyle: hud.getAttribute('style') === priorStyle, priorStyle, actualStyle: hud.getAttribute('style'),
+        width: hud.getBoundingClientRect().width, offsetWidth: hud.offsetWidth,
+        computedDisplay: getComputedStyle(hud).display, connected: hud.isConnected })
+      const result = window.worshipGeometryRestoreImmediate = window.observeWorshipGeometryRestoration()
       delete window.restoreWorshipGeometryHud
-      if (!result.exactStyle || result.width <= 0) throw Error('Original HUD style did not restore exactly')
+      if (!result.exactStyle) throw Error('Original HUD style attribute did not restore exactly')
       return result
     }
     hud.style.display = 'none' // Explicit exceptional-path DOM fault, never normal acceptance.
@@ -544,7 +558,7 @@ async function missingGeometry(page, wait, output, report) {
   assert.deepEqual(payout.acquisition.controllers, priorControllers)
   assert.equal(payout.turn, staged.state.turn + gift.remaining, 'Unshortened actual remaining countdown owns payout')
   assert.equal(payout.count, staged.state.count + 1); assert.equal(payout.stock, staged.state.stock + 1)
-  const restoration = result.restoration = await page.evaluate(() => window.restoreWorshipGeometryHud())
+  result.restoration = await restoreFaultGeometry(page, wait)
   await wait(turn => window.worshipBoundaryScene.world.turn >= turn + 12, payout.turn, 10000, 'No late controller initialization after HUD restore')
   const after = result.after = await snap(page)
   assert.equal(after.count, payout.count); assert.equal(after.stock, payout.stock)
@@ -781,8 +795,15 @@ export default async function ({ page, context, root, output, receipt, openMissi
     report.failure = error.stack; throw error
   } finally {
     if (phase === 'missing-geometry' && !page.isClosed()) {
-      try { report.faultStyleCleanup = await page.evaluate(() => window.restoreWorshipGeometryHud?.() ?? null) }
+      try { report.faultStyleCleanup = await restoreFaultGeometry(page, wait) }
       catch (error) { report.cleanupFailure = String(error); report.status = 'failed' }
+      finally {
+        report.faultRestorationFacts = await page.evaluate(() => {
+          const facts = { immediate: window.worshipGeometryRestoreImmediate ?? null, current: window.observeWorshipGeometryRestoration?.() ?? null }
+          delete window.observeWorshipGeometryRestoration; delete window.worshipGeometryRestoreImmediate
+          return facts
+        })
+      }
     }
     if (cdp) {
       try {
