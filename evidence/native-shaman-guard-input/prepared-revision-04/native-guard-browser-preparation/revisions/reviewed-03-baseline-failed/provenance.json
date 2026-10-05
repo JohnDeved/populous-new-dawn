@@ -1,0 +1,144 @@
+{
+  "status": "source-only preparation; independent review and browser execution not run",
+  "runtime": {
+    "candidate": "c20a297f5f815ce404f796b08f77ea56396f96da",
+    "baseline": "3b899125cc8cedef938823718ad5d44f49957b66",
+    "candidateFullTree": "9af7241660efc11eb8969845ab7e587231d906bc"
+  },
+  "acceptedHelperCommit": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "sources": {
+    "../current-campaign-continuity/qa/campaign-continuity/command-probes.mjs": {
+      "sha256": "86384f34412b3edc5f6ff624d8c06c71747606149c1941ca7862af836518fbaa"
+    },
+    "../current-campaign-continuity/qa/campaign-continuity/scenario.mjs": {
+      "sha256": "2bae55543e33738c689f3fa34409744307d489bc9fb032f6f2e110cb2c353f55"
+    },
+    "../current-campaign-continuity/qa/campaign-continuity/observation.mjs": {
+      "sha256": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a"
+    },
+    "../current-campaign-continuity/qa/campaign-continuity/boundaries.mjs": {
+      "sha256": "7615c6541f633203306584dda0d08f02dceb301cda21888791325131497a6313"
+    },
+    "../integration-publish-recovered/work/orchestration/firewarrior-guard-ordinary-214/observe-firewarrior-guard.mjs": {
+      "sha256": "57ab481267e5eb866838f3ada08dabbdabc3c87cb34e320037fac6d4df65ddd2"
+    },
+    "../integration-publish-recovered/work/orchestration/firewarrior-guard-ordinary-214/plan.md": {
+      "sha256": "5aa36c337861e1656b5444945ceb87c53987dce2a395f55c11301adb23b5f9d7"
+    }
+  },
+  "fragments": [
+    {
+      "name": "map",
+      "sha256": "3b6959efeac8c1b97cb2a8b4a3a6cdfeeeff7f9b07e98f3dfc5ef6a5b5f6f4b9"
+    },
+    {
+      "name": "rotate",
+      "sha256": "2c8eb2f0c9466675d5a2898082ce14b64682cff282fb2aa436273993e9b63ad5"
+    },
+    {
+      "name": "entityHit",
+      "sha256": "c7a5c433eca824857df8dc5c44f3857a7b5de587b2577442c72ca1658eb52469"
+    },
+    {
+      "name": "resolveId",
+      "sha256": "803a58211bf78866ee060077dc837685ea1de69482691e0eb84e9501ee8da741"
+    },
+    {
+      "name": "targetEntity",
+      "sha256": "fdae321ee136c42bd057430bb6427b8784f3f7cc553243e57c147706d4342585"
+    },
+    {
+      "name": "prepareEntityClick",
+      "sha256": "83726b3dfff0639ec0fe6b4eddb620d0a40428607b03bb6c51c398f9c352f336"
+    },
+    {
+      "name": "finishEntityClick",
+      "sha256": "504a3a139a641543cef0d51413b1bc96ee08d7aa7fff63f0636a284032ecbba9"
+    },
+    {
+      "name": "clickOrder",
+      "sha256": "12799f11db218fb1e777c22f61acc472717a2e17b5ca0fff388ad73383f12a77"
+    }
+  ],
+  "adaptations": [
+    [
+      "await import('/qa/campaign-continuity/command-probes.mjs')",
+      "window.nativeGuardProbes"
+    ],
+    [
+      "await import('/qa/campaign-continuity/observation.mjs')",
+      "window.nativeGuardProbes"
+    ],
+    [
+      "await import('./command-probes.mjs')",
+      "nodeProbes"
+    ],
+    [
+      "createMoveContextProbe(s.world)(target)",
+      "createMoveContextProbe(s.world)({ id: target.id, x: target.x, z: target.z })"
+    ]
+  ],
+  "notes": [
+    "browser-probes static /app imports are rewritten only to the current tested loopback origin when loaded as a data module; no sibling-runtime imports",
+    "Mutating command context receives a detached world and a newly constructed scalar target descriptor. liveCommandContext resolves target actors from that clone.",
+    "The accepted pointer observer wraps only existing picker calls, once each, during delivered ordinary events and restores them. It never wraps or replaces a game clock, model processor, renderer or store method.",
+    "clickOrder is copied from the accepted local closure; irrelevant preacher bookkeeping and epoch-marker callback log references are removed. Dispatch returns its before/after/acceptance triplet; ground clicks receive the same delivered-pointer envelope through the new bounded adapter.",
+    "c20a297 follow-up changes inside-Shaman target acceptance and superseding-order cleanup. This witness keeps both actors on foot/outside buildings and makes no ordinary order while G is pending; no input sequence changes are needed. These extra branches remain portable/native evidence only."
+  ],
+  "clickOrderAdaptations": [
+    [
+      "    requireDeclaredPreacherOrder(before, !!sermonPlan)\n",
+      ""
+    ],
+    [
+      "    await capturePendingSermon(before, { beforeWorldClick: hit })\n",
+      ""
+    ],
+    [
+      "      if (hit.id) { await prepareEntityClick(hit, before); entityPrepared = true }",
+      "      if (hit.id) await ordinary.prepareEntityClick(hit, before)\n      else await prepareGround(hit, before)\n      entityPrepared = true"
+    ],
+    [
+      "      if (hit.id) try { await finishEntityClick(hit, entityPrepared && !inputError) }",
+      "      try { await ordinary.finishEntityClick(hit, entityPrepared && !inputError) }"
+    ],
+    [
+      "        const diagnostic = { level, kind: 'entity-input-diagnostic'",
+      "        const diagnostic = { level: 10, kind: 'entity-input-diagnostic'"
+    ],
+    [
+      "        failures.push(diagnostic)\n",
+      ""
+    ],
+    [
+      "      units: state.units.filter(u => before.selected.includes(u.id)),\n      epoch: state.observation.name, orderMarkerCursor: state.observation.orderMarkerCursor,\n      orderMarkers: state.observation.orderMarkers.filter(e => e.cursor > before.observation.orderMarkerCursor) })",
+      "      units: state.units.filter(u => before.selected.includes(u.id)), epoch: state.epoch })"
+    ],
+    [
+      "    return after\n",
+      "    return { before, after, acceptance }\n"
+    ],
+    [
+      "    let before = await read(); requireOrderable(before)",
+      "    signal.throwIfAborted()\n    let before = await read(); requireOrderable(before)"
+    ]
+  ],
+  "runtimeHistory": [
+    {
+      "commit": "ddd09047381d16d9a4ec85ac7f771a84556bf568",
+      "status": "source preparation superseded before execution"
+    },
+    {
+      "commit": "c20a297f5f815ce404f796b08f77ea56396f96da",
+      "status": "rebound with explicit parent instruction; source-only, not browser-reviewed"
+    }
+  ],
+  "preparationRevision": 3,
+  "reviewerRepairs": [
+    "Pin actual Unit/native identities for both actors after accepted initial Move; validate every candidate current read and sampled row; require pinned native renderer ownership in this ordinary slice.",
+    "Explicit verified-Load-only rebind with old/new identities, labelled raw snapshot and captured checkpoint target/queue/alias correspondence; no mismatch-triggered reset.",
+    "Adopted Guard requires native.target and CURRENT command30 payload to name the Shaman. Pending producer snapshots preserve actual prior target, including target0 before initial adoption.",
+    "Checkpoint observer includes native target; paused pending replacement/cancellation compare its committed and captured value.",
+    "The proposed new epoch pin must also validate the explicit raw Load snapshot renderer source before it can be committed; a negative regression rejects an otherwise corresponding snapshot with a different source identity."
+  ]
+}

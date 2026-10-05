@@ -130,13 +130,23 @@ ordinary Mission 10 before training. It is not a Guard before/after comparison.
 Software WebGL warnings limit performance interpretation. Warrior 113 already has
 30.7 HP near a Green Tower; the training area is not established as safe.
 
-A reviewed driver repair must retain the 60-second entry/300-second capture limits,
-use normal readiness/visible Skip, bind the authored hut through its actual live
-identity and record original Braves separately from births. Then a separately
-granted baseline/candidate pair must train a genuine Firewarrior with ordinary mana
-and observe public move/G/deselect/repeat/cancel, following and pending Save/Load.
-Controlled Node fixtures do not substitute for that rendered gate or hardware
-performance. PR220 remains draft.
+The [revision 4 source preflight](prepared-revision-04/native-guard-browser-preflight-review/review-revision-04.md)
+now **passes independent review**. Its [frozen source packet](prepared-revision-04/native-guard-browser-preparation/plan.md)
+and [source/mock receipt](prepared-revision-04/native-guard-browser-preparation/preparation-receipt.json)
+retain all prior revisions and add only conditional public entry, native-identity
+hut binding, separate original-Brave/birth observations, and passive timing/threat
+reads. Four new entry/identity cases and six retained owner/target cases pass.
+Housing remains allowed for real Brave training. Existing Guard/checkpoint
+requirements and the 60/300/330-second limits are unchanged.
+
+The [accepted revision 4 launch plan](prepared-revision-04/launch-plan-rev4.json)
+uses fresh attempt-02 outputs on the same baseline 4392 then candidate 4393,
+with the same sandboxed browser and fixed sources. It has **not run** and awaits
+release of the shared campaign lane. Genuine Firewarrior training with ordinary
+mana, public move/G/deselect/repeat/cancel/following, both pending Save/Load cycles,
+and paired screenshots remain required. Source preflight does not predict runtime
+success. Controlled Node fixtures do not substitute for the rendered gate or
+hardware performance. PR220 remains draft.
 
 Raw command30 payload b remains unchanged in original snapshots. Independent
 consumer audit permits excluding only that unused word from semantic comparison;
