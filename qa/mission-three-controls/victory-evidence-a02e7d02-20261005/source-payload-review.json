@@ -1,0 +1,101 @@
+{
+  "decision": "ACCEPT",
+  "scope": "Exact actual-target payload for one reviewed bounded Erosion continuation of real terminal1c430e41. Source/runtime/history/claims/checkpoint correspondence accepted; ordinary lease and actual Load remain future runtime checks under parent rendered-lane release. No new gameplay or cleanup claim is made.",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_copied_sermon_admission",
+  "reference": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/reviews/erosion-continuation-5de3c57-payload-review.json",
+  "reviewedAt": "2026-10-05T07:55:04.479154+00:00",
+  "correspondenceSha256": "0cfb3fafa6c6c5e10bc253155238231472bfdce8d1feeeaf8ef702cc2eabb89f",
+  "sourceCommit": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+  "sourceFingerprint": "2b706d533129007642b084662f644b4bb9024e059e9393a176f8b8dc6783b3d3",
+  "checker": "e6732546fd073199b03a3055574877e220f890deda5554b4b8e2d1809aadad52",
+  "payload": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-5de3c57-payload.json",
+    "sha256": "0cfb3fafa6c6c5e10bc253155238231472bfdce8d1feeeaf8ef702cc2eabb89f"
+  },
+  "targetProfile": {
+    "id": "c1f1d915-d99a-4c47-be2a-2ad36d89fc86",
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/local-render-profiles/mission-three-recovered-sermon-4813"
+  },
+  "origin": "http://127.0.0.1:4366",
+  "findings": [],
+  "independentVerification": {
+    "targetSource": "sourceReceipt and profileInputReceipt recomputed in the actual fast-forwarded target root; complete source/checker/application objects equal payload. Target clean at exact5de3c57.",
+    "targetRuntime": "profileRuntimeReceipt independently recomputed using the actual target package metadata, installed lock, Playwright core bundle, official browser binary and4 maintained harness files. Complete measured runtime equals payload. No browser launched.",
+    "scenario": "Actual driver path/hash matches payload.",
+    "predecessor": "All6 exact predecessor artifact hashes checked through readArtifact. Current marker checked for private ownership/regular-file/nlink1 and exact38ed4072 hash. validateErosionContinuationFacts passes against real failed receipt/outer/current marker and actual new context.",
+    "historyAndBudget": "Current erosionContinuationHistory and erosionContinuationBudget executed read-only on the actual immutable prior journey/terminal/record. Exact payload equality:980.0833333333333 active;3 failures;2 control stops;2252.8333333333335 fixed ceiling;1272.7500000000002 remaining.",
+    "originalClaims": "Old recoveryAdmission/recoveryClaim/gameplayContinuationClaim match the real prior receipt and referenced artifact/review bytes remain hash-valid. New erosion claim absent; owner.lock and Singleton markers absent at review.",
+    "checkpoint": "Complete prior start/end/record checkpoint identity is unchanged4813/full720e96e2 including actor/terrain/stock digests. This is retained evidence plus preserved files; the new harness must still read actual committed storage before scenario."
+  },
+  "evidence": {
+    "sourceReview": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-responsive-waits/work/reviews/erosion-continuation-5de3c57-source-review.json",
+      "sha256": "3ada9c2121297b7a961847752d72f3b30af7a345cb7c7477808b9e10301c421d",
+      "gateDisposition": "Accepted117 focused tests include the complete prior lease/harness matrices and new claim/finish/start/readback/budget cases, plus7 reviewer regressions. Explicit unchanged-input aggregate carry accepted; no redundant full npm check requested."
+    },
+    "fastForward": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-responsive-waits/work/orchestration/mission-three-responsive-waits/source-fast-forward-5de3c57.json",
+      "sha256": "4d5c9b53ccba402a7b6692b5acc0a826a2b00f23cc68345b134bcd87c24e63f3",
+      "beforeAfterIdentical": true,
+      "files": 1132,
+      "bytes": 67024341,
+      "entriesSha256": "de7f09fb544cca347cc911fc5bd0ebf02501843fa45060f16ccaf9a8085cd5a6",
+      "reviewLimit": "Verified actual source/marker and hash-bound owner before/after receipt; reviewer did not reread all1132 private storage/cache files."
+    },
+    "ownerPreflight": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-5de3c57-preflight.json",
+      "sha256": "4db47639546370215c0dc641d478a5ac69f51990ca296c76895cdd6ff4c99b0b"
+    },
+    "dependencyTransfer": {
+      "receiverReceipt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/dependency-transfers/shaman-ground-to-sermon-erosion-20261005T0747/receipt.json",
+      "donorReceipt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/shaman-death-ground/work/orchestration/dependency-transfers/shaman-ground-to-sermon-erosion-20261005T0747/receipt.json",
+      "sha256": "eb03256317488cc99eef5b799ac45a770757aad8e11ffed05748a1696035af67",
+      "twoEndsIdentical": true,
+      "actualDependencyInode": 925605,
+      "actualInstalledLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "donorTerminalVerified": {
+        "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/shaman-death-ground/work/orchestration/shaman-death-ground-20261005/f499dc2-check.json",
+        "sha256": "645fa03ed7018102fb2d9017742ed31f4eafe4274a7d5b458ecea498e43af895",
+        "phase": "finished",
+        "exitCode": 1,
+        "finishedAt": "2026-10-05T07:31:08.181Z"
+      }
+    },
+    "buildCarry": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-5de3c57-build-correspondence.json",
+      "sha256": "f5deb07712bbd115a587f20a21b7e16d45857a44ce2d5e7d4a3c4f9746940a31",
+      "productionObjects": 13,
+      "rawBuildReceiptSha256": "6ddc4bf5ab3124d9504440d465834700503c662283b7611764dc4b84866e1033",
+      "rawReceiptAndStreamsVerified": true,
+      "sourceAndInstalledLockMatch": true,
+      "scope": "Carried production build only, not a new build or substitute for changed QA/lease validation."
+    }
+  },
+  "acceptedLimits": {
+    "oneUse": true,
+    "priorRunId": "1c430e41-9aca-4a05-bb45-7bd8076ffffd",
+    "inheritedActiveSeconds": 980.0833333333333,
+    "cumulativeActiveCeiling": 2252.8333333333335,
+    "remainingActiveSeconds": 1272.7500000000002,
+    "segmentWallMs": 5400000,
+    "outerWallMs": 5700000,
+    "failures": 3,
+    "controlStops": 2,
+    "historicalLaterMilestones": "Remain separately attributed; do not populate the newly loaded live milestone array."
+  },
+  "safeNextBoundary": [
+    "After parent rendered-lane release, assemble the explicitly new host provenance record using this exact payload/reference and pinned real prior record; keep all historic artifacts immutable.",
+    "Use the reviewed ordinary harness to acquire only this existing game-only profile. Normal wx lease and all ownership/source/runtime/Singleton guards must pass; only that code may append the one new erosion claim and update current binding.",
+    "Before scenario, actual committed readback must equal real previousRun.checkpointAtEnd in full. Then ordinary Load, immediate visible Pause and strict saved listener50/state23/owner3163, live Preacher3163 and13 retained Blue identities.",
+    "Earn fresh cancellation/reload/conversion and prospective Erosion64-turn evidence. Do not extend the inherited ceiling after the new conversion, reuse historical live milestones or claim a clean accumulated journey.",
+    "On any real blocker, use authenticated preserving-stop and normal harness close, retain actual latest Save plus all new failures/time. No further entry, original quarantine cleanup, stale-lock recovery, copying or storage construction is included."
+  ],
+  "reviewAccess": {
+    "browser": false,
+    "profileStorageBytes": false,
+    "currentProfileMarker": "Read-only",
+    "dependencies": "Read-only runtime/package/binary hashing only; no package install/run or resource-process creation",
+    "writes": "Own work/reviews acceptance artifact only"
+  },
+  "resourcesHeld": []
+}

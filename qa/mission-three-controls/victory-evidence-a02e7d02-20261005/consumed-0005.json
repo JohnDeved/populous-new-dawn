@@ -1,0 +1,34 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "brave",
+    "count": "five"
+  },
+  {
+    "action": "order-entity",
+    "collection": "buildings",
+    "id": "escort-camp"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "trained-kind",
+      "kind": "warrior",
+      "existingIds": []
+    },
+    "scope": "training",
+    "watchIds": [
+      "escort-camp"
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "escort-training-observation"
+  }
+]

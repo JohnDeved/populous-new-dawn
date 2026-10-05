@@ -1,0 +1,60 @@
+{
+  "decision": "ACCEPT",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_copied_sermon_admission",
+  "reviewedAt": "2026-10-05T08:50:17.512260+00:00",
+  "scope": "Actual ordinary Mission 3 victory, committed campaign completion and normal preserving terminal for this exact historical application/run. Harness remains failed.",
+  "packet": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-terminal-proof/packet-v2.json",
+    "sha256": "00cd4ad28895d162c903deb51fd2ac074cef6ddc3b48f49b74002668b651ddfa",
+    "bytes": 13632
+  },
+  "runId": "a02e7d02-ae42-496d-a49e-00c75b069ede",
+  "sourceCommit": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+  "sourceFingerprint": "2b706d533129007642b084662f644b4bb9024e059e9393a176f8b8dc6783b3d3",
+  "checker": "e6732546fd073199b03a3055574877e220f890deda5554b4b8e2d1809aadad52",
+  "applicationPinned": "b3818511da0b420129b03092f397ad76bc6111a8",
+  "checks": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/reviews/erosion-victory-a02e7d02-checks.json",
+    "sha256": "beb34baaa41aa0c9285aea597df5cd8ef1c0f7dea947a3ab114dbb3ca989efbc",
+    "bytes": 8485
+  },
+  "priorAcceptedSequence": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/reviews/erosion-sequence-592d5bc-review.json",
+    "sha256": "fd143dc3822fd3fae6937ec7dc44ee6b29e1085a9f63c0ba74ddc85518d0b6a3",
+    "bytes": 7969
+  },
+  "findings": [],
+  "acceptedFacts": [
+    "All 34 packet artifacts match declared hashes/sizes; every original-source reference matches bytes. The derived committed-profile observation matches full-journal line 421 and its raw-line hash including newline. The earlier Hut snapshot matches its original.",
+    "The complete 430-line journal retains the accepted 64-line fresh cancellation/reload/conversion/Erosion prefix. Final reload-1 spans turns 4834 through 16193 inclusive, 11360 samples, no observer errors/speed violations. One ordinary reload occurred; no later reset or Mission 4 input appears.",
+    "Ordinary selection/orders culminate in accepted attack on Yellow Shaman 47 and its removal. Victory and terminal remain Mission 3 won at turn 16193; only their rendered frame counters differ.",
+    "Personally inspected the exact 1440x1000 victory PNG: Level Won, The Chumara are defeated, and Continue to Mission 4 are legible. Snapshot completedMissions is [3], while the opening snapshot has [].",
+    "Frozen proveVictory waited for ordinary result camera/visible continuation control and a readonly IndexedDB transaction completion. Actual journal line 421 records profile version 1/completed [3]. Normal game-store outcome update owns the profile write.",
+    "Cumulative active time recomputes: inherited 980.0833333333333 + closed epoch 7.833333333333371 + current epoch 948.3333333333334 = 1936.25, below unchanged ceiling 2252.8333333333335.",
+    "Three inherited failures remain exact; current batch11 and batch16 failures remain. Two inherited stops retain their contents plus inheritance tags; the terminal preserving stop is a third. Journey, inner and outer remain failed; outer exitCode1/signal null.",
+    "Terminal reads and separate intended-save comparison preserve turn4813/full720e96e28b46a029e22a1c97729ead760471c96e4e10c59fd5ae620d5e66f57a. Actual current marker names the exact failed run/receipt. Owner lock/Singletons absent; port4366 not listening in reviewer namespace.",
+    "Source/runtime/scenario match before/after, and archived scenario modules match frozen source. Source-bound normal cleanup closed context, observed browser disconnection, stopped server and released its lease. Dependency return receipt binds both actual terminal receipts."
+  ],
+  "remainingBuilding": {
+    "earlierTurn": 15825,
+    "id": 1022,
+    "kind": "hut",
+    "team": "yellow",
+    "hp": 170,
+    "progress": 0.6666666666666666,
+    "occupants": [],
+    "terminalTurn": 16193,
+    "terminalYellowActors": [],
+    "terminalYellowBuildings": [],
+    "limit": "No separate accepted destruction order for Hut1022 is claimed."
+  },
+  "claimLimits": [
+    "Accepted observed gameplay victory/persisted completion does not turn the harness into a passed or clean uninterrupted journey. All five failures and three stops remain authoritative.",
+    "Production bytes are pinned to historical b381851. This alone establishes neither current-main compatibility nor full original-game parity.",
+    "Campaign profile proof is an actual committed read before close, not a post-close reopening. Mission4 was not started.",
+    "Prior Erosion terrain changes remain correlated rather than exclusive native replay, and those screenshots remain post-effect. Victory screenshot proves the displayed result UI; software/headless rendering proves neither hardware performance nor native pixel equivalence.",
+    "Original Run14 cleanup remains unknown and original profile stays quarantined. No private browser-profile/IndexedDB bytes are included.",
+    "Consumed one-use claim grants no automatic further profile entry. This review authorizes no new gameplay or source changes."
+  ],
+  "checkDisposition": "Read-only frozen-evidence review: 90 assertions, exact extracted-profile line check and visual inspection. Prior source/check/build dispositions retained; no new browser, dependency lease or heavy gate."
+}

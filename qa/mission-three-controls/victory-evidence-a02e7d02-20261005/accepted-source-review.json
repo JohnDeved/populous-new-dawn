@@ -1,0 +1,194 @@
+{
+  "decision": "ACCEPT",
+  "scope": "Exact isolated source implementation and source-only closed-target fast-forward/preservation plan. This does not accept a new actual-target payload, profile claim/binding mutation, dependency transfer or browser launch.",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_copied_sermon_admission",
+  "reviewedAt": "2026-10-05T07:43:47.217285+00:00",
+  "head": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+  "base": "bbd7371e04a55e57b1e368530e92de6777864358",
+  "implementationBase": "ef8b56895b16346b172a592e9c04aa4b2b8cd696",
+  "trackedTreeClean": true,
+  "packet": {
+    "path": "work/orchestration/mission-three-responsive-waits/review-inputs-5de3c57.json",
+    "sha256": "a377abcd26a755d1e2c0ee983a5fbe197cfe6c7ceffef40526c739259483aadb"
+  },
+  "fullDiff": {
+    "path": "work/orchestration/mission-three-responsive-waits/candidate-5de3c57.diff",
+    "sha256": "66d6689ee73ce70328abb65fb2bdd6f275f7841952a167a2bedc37e56a7f5941"
+  },
+  "implementationDiff": {
+    "path": "work/orchestration/mission-three-responsive-waits/implementation-5de3c57.diff",
+    "sha256": "cbdb90d922a31c12d1c472e8c58f4d218e50a5d1c0d77c78d8084cd2cfa6c66d"
+  },
+  "implementationFiles": {
+    "qa/mission-three-controls/driver-checkpoint-path.test.mjs": "271f19b25555dd4cb09d8e9e807f644e8ea2541ad2bad842403cbd99c69b318b",
+    "qa/mission-three-controls/driver.mjs": "8395638772417a885fab16dda9b4049ba553c8eca43423010c1310ef9200add5",
+    "qa/mission-three-controls/erosion-continuation-path.test.mjs": "a511bcdcaba6704b47dc93aea64ea283f0c6a8541ee95a14466b51c4f896d780",
+    "qa/mission-three-controls/erosion-continuation.test.mjs": "b1bc986d17898ed1c8ecee0e20d09b2500870f251f4c5ed82524e631e43669f5",
+    "qa/mission-three-controls/recovery-admission.test.mjs": "7f160e7d29c55ddafe23ee45847d1136edc2e6564c1c587059717e61cf77922f",
+    "qa/mission-three-controls/responsive-waits.md": "d1391446bc5950f9e30d03c3625df8c28bdd17d439642d71126570064aaaf8f7",
+    "qa/mission-three-controls/sermon-checkpoint.mjs": "79682c0a1c0f0abaecd2b5ae0fa1663c6de7cd2fa3e689736c872af44bc11393",
+    "qa/mission-three-controls/sermon-successor.mjs": "4637dd475f4f2a0b939365d01a0c3178cc0e71d0cf08e01ac5d9374dc068288c",
+    "qa/mission-three-controls/sermon-successor.test.mjs": "6768e1f4cdf19b3bf0137131e9e0b2ec14af28c8faf211b5c70c8b10520ff540",
+    "qa/mission-three-controls/source-manifest.json": "5e786696851b46e38bfd98eb0f44ea481af25345a10c9045d70af32587d6f57d",
+    "scripts/local-render/owned-profile.mjs": "a9aeecf95314215876a183fb4843b9e2dc26379e1bc84bf50a39be346e71f86f"
+  },
+  "findings": [],
+  "acceptedSemantics": {
+    "predecessor": "Only hash-bound actual terminal1c430e41, failed inner/outer with verified cleanup/continuation, exact emitted record and complete4813 checkpoint. Real lastRun and old binding must equal that actual receipt.",
+    "history": "The current helper was independently run against actual immutable journey/terminal/record inputs:980.0833333333333 cumulative seconds,3 failures and2 control stops match. One closed and one open epoch are counted once each. Original claims/records/references remain unchanged.",
+    "budget": "Hash-bound historical conversion452.8333333333334 yields fixed2252.8333333333335 ceiling and1272.7500000000002 remaining. Driver selects only harness-owned exact-kind history/budget; health and wait use the same immutable prior conversion anchor. A newly observed conversion cannot enlarge the ceiling.",
+    "milestones": "Only the original six saved-prefix milestones enter the new live array. Previously earned later milestones and failed Erosion wait remain separately attributed history; no replay milestone credit or clean-pass weakening.",
+    "lease": "Exact new correspondence is required before bypassing the consumed predecessor guard. Fresh wx lock precedes atomic append of one erosionContinuationClaim and new current binding; old claims/lastRun remain intact until actual normal finish. Repeat/deleted/changed predecessor states reject.",
+    "failurePaths": "Unchanged harness startup digest comparison precedes scenario. New exact-source tests cover real predecessor/claims on matching, mismatch, prelaunch and terminal-readback failures. Lock/source/cleanup guards and intended-latest preservation remain.",
+    "observer": "Accepted ef8b568 responsive-stop, Erosion observer and objective-progress modules remain byte-identical."
+  },
+  "checks": {
+    "focused": {
+      "tests": 117,
+      "receipt": {
+        "path": "work/orchestration/mission-three-responsive-waits/tests-5de3c57.json",
+        "sha256": "673c8bc8428ef27e5a226b39dce63dd9ca4e370a6ff678d3aa28140ccbaec97e",
+        "status": "passed",
+        "exitCode": 0,
+        "command": [
+          "node",
+          "--test",
+          "qa/mission-three-controls/checkpoint-provenance.test.mjs",
+          "qa/mission-three-controls/command-probes.test.mjs",
+          "qa/mission-three-controls/driver-checkpoint-path.test.mjs",
+          "qa/mission-three-controls/erosion-continuation-path.test.mjs",
+          "qa/mission-three-controls/erosion-continuation.test.mjs",
+          "qa/mission-three-controls/erosion-observer.test.mjs",
+          "qa/mission-three-controls/observation.test.mjs",
+          "qa/mission-three-controls/queued-stop.test.mjs",
+          "qa/mission-three-controls/recovery-admission.test.mjs",
+          "qa/mission-three-controls/sermon-checkpoint.test.mjs",
+          "qa/mission-three-controls/sermon-protocol.test.mjs",
+          "qa/mission-three-controls/sermon-successor.test.mjs",
+          "tests/owned-game-profile.test.mjs",
+          "tests/local-render-harness.test.mjs"
+        ],
+        "source": {
+          "headOid": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+          "branch": "qa/mission-three-responsive-waits",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "inputs": {}
+        },
+        "rawStreamsVerified": true
+      }
+    },
+    "unchangedReviewerRegressions": {
+      "tests": 7,
+      "receipt": {
+        "path": "work/orchestration/mission-three-responsive-waits/regressions-5de3c57.json",
+        "sha256": "0dfd674a3bccb707fdd0d244a01042d5e236e449a1ef2f7b60cbed9b2849fd69",
+        "status": "passed",
+        "exitCode": 0,
+        "command": [
+          "node",
+          "--test",
+          "work/reviews/responsive-waits-4bd9d50-regressions.test.mjs"
+        ],
+        "source": {
+          "headOid": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+          "branch": "qa/mission-three-responsive-waits",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "inputs": {
+            "work/reviews/responsive-waits-4bd9d50-regressions.test.mjs": "8e39c39c914e7dcdfeb3e0df654157bcb0bc27af5ae3ff5a6ea3afb73aed53fe"
+          }
+        },
+        "rawStreamsVerified": true
+      }
+    },
+    "structure": {
+      "path": "work/orchestration/mission-three-responsive-waits/structure-5de3c57.json",
+      "sha256": "f34199d804c81103ee4c173f861b7c9f8818bc8ca42e3189427fb545970ffc7f",
+      "status": "passed",
+      "exitCode": 0,
+      "command": [
+        "node",
+        "scripts/orchestration/cli.mjs",
+        "check"
+      ],
+      "source": {
+        "headOid": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+        "branch": "qa/mission-three-responsive-waits",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {}
+      },
+      "rawStreamsVerified": true
+    },
+    "parity": {
+      "path": "work/orchestration/mission-three-responsive-waits/parity-5de3c57.json",
+      "sha256": "7cc772a70e3d7c85e25f7dbabb7ebb66871bfe6a9a4c2dda5366c346dfef040c",
+      "status": "passed",
+      "exitCode": 0,
+      "command": [
+        "node",
+        "scripts/parity.mjs",
+        "check"
+      ],
+      "source": {
+        "headOid": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+        "branch": "qa/mission-three-responsive-waits",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {}
+      },
+      "rawStreamsVerified": true
+    },
+    "failureFirst": {
+      "path": "work/orchestration/mission-three-responsive-waits/erosion-continuation-failure-first.json",
+      "sha256": "b41af81bd607006bb88d18d6a56ebb2a1c3109f52340cb74724f5e1afa273863"
+    },
+    "guards": 64,
+    "productionObjectsUnchanged": 13,
+    "otherUnchangedGateObjects": [
+      "tests",
+      "engineering",
+      "parity.json",
+      "parity-history.json"
+    ],
+    "scriptsDelta": [
+      "scripts/local-render/owned-profile.mjs"
+    ],
+    "maintainedHarnessRemainderUnchanged": true,
+    "maintainedLeaseDisposition": {
+      "decision": "Focused evidence sufficient; no additional npm check required for this source/checkout acceptance.",
+      "basis": "The exact117-test run includes the unchanged complete tests/owned-game-profile.test.mjs and tests/local-render-harness.test.mjs suites, all prior recovery/successor matrices, and new actual-source lease/finish/claim plus harness matching/mismatch/prelaunch/readback cases. New host helper fact/record/budget negatives and all prior7 reviewer regressions pass. The changed maintained module is covered directly, not inferred covered from app equality.",
+      "aggregateCarry": "Carry the previously reviewed bbd7371 aggregate for unchanged tests/production/config/engineering inputs; apply exact focused tests and source review to owned-profile and new QA code. Planner conservatively selects npm check for unmapped files; it is a plan, not a new check result.",
+      "buildCarry": "Production13 objects and source package lock remain exact; a future runtime handoff must still verify installed-lock and retained raw historical build correspondence. No new build claimed."
+    },
+    "typescriptQuality": "Not applicable; maintained TypeScript unchanged. MJS source/readability/helper reuse reviewed. No new lint/format/Fallow/performance claim.",
+    "runtimeAndGameplay": "Not run; no actual new source-root runtime or browser/profile result claimed."
+  },
+  "checkoutPlan": {
+    "decision": "ACCEPT source-only plan for separate parent release",
+    "path": "work/orchestration/mission-three-responsive-waits/checkout-preservation-plan-5de3c57.json",
+    "sha256": "00f27dabc93b956653bdd15d299eae8c6f82f89e3b033dc7b77e9428199856f0",
+    "inventory": {
+      "path": "work/orchestration/mission-three-responsive-waits/closed-target-profile-inventory-5de3c57.json",
+      "sha256": "28b3afef014ad6b181e748d0b241f0e4643f70d7ab45e3128035b4cf08cd2d6c",
+      "files": 1132,
+      "bytes": 67024341,
+      "reviewLimit": "Inventory document/digest/shape checked; reviewer did not read1132 private file contents. Execution must remeasure every entry before/after."
+    },
+    "targetRoot": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+    "targetBranch": "qa/mission-three-sermon-continuation",
+    "expectedTargetHead": "bbd7371e04a55e57b1e368530e92de6777864358",
+    "targetHeadBranchAndCleanStatusVerifiedAtReview": true,
+    "ancestorVerified": true,
+    "trackedChangesAvoidWorkAndProfile": true
+  },
+  "exactNextBoundary": [
+    "After separate parent release, recheck target branch/head/clean state, terminal marker/claims, no lock/Singleton and exact private inventory. Any drift blocks.",
+    "Run only git merge --ff-only 5de3c5715f05cce509a6d7a86c2b17752aac8c2a in the closed mission-three-sermon-continuation target. No reset/clean, profile relocation, metadata or storage writes.",
+    "Verify exact accepted target HEAD/clean state and identical before/after private inventory/marker. Then measure actual target-root source/checker/scenario and runtime under the authorized lane.",
+    "Stop at measurement/correspondence preparation. A separate exact payload review and parent rendered-lane release are required before ordinary harness acquisition, new claim/binding or browser launch."
+  ],
+  "unchangedBoundaries": [
+    "Original Run14 quarantine remains untouched.",
+    "Prior actual terminal1c430e41 and accepted sermon sequence remain immutable; prior Erosion remains unproved.",
+    "Fresh Load/cancel/reload/conversion/prospective Erosion are future proof obligations; all historic failures remain."
+  ],
+  "resourcesHeld": []
+}

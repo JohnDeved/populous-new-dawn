@@ -1,0 +1,40 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "count": "all"
+  },
+  {
+    "action": "order-entity",
+    "collection": "buildings",
+    "id": 1020
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "target-gone",
+      "id": 1020
+    },
+    "scope": "combat",
+    "watchIds": [
+      1020,
+      3729,
+      3731,
+      5368,
+      5369,
+      5370,
+      5371,
+      5372
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "northern-hut-cleared"
+  }
+]

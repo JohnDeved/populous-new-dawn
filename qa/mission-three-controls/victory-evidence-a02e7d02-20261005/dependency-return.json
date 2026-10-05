@@ -1,0 +1,31 @@
+{
+  "status": "returned",
+  "startedAt": "2026-10-05T08:42:56.511296+00:00",
+  "finishedAt": "2026-10-05T08:42:56.511781+00:00",
+  "from": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/node_modules",
+  "to": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/shaman-death-ground/node_modules",
+  "dependencyInode": 925605,
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "restoredM3StubInode": 1341664,
+  "preservedDonorStub": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/shaman-death-ground/work/orchestration/dependency-transfers/sermon-erosion-to-shaman-ground-20261005T0842/preserved-donor-lock-stub",
+    "inode": 1730814
+  },
+  "terminal": {
+    "originalExecutionSession": 95285,
+    "outerExitCode": 1,
+    "inner": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/receipt.json",
+      "sha256": "29609fdf6ce48a26dfcd65e1edfb08a19ec9516976e6462e1e6bde8315e1614c"
+    },
+    "outer": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-sermon-01.outer.json",
+      "sha256": "b8ba84dcbc7024ba168e4d0d51ce15ea3085acd0673cde5e0475671cc912d142"
+    },
+    "cleanupVerified": true,
+    "continuationVerified": true,
+    "profileLockAbsent": true,
+    "browserSingletonsAbsent": true
+  },
+  "resourcesHeldByM3": []
+}

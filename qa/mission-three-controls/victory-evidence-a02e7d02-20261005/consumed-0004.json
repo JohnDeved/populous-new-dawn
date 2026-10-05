@@ -1,0 +1,34 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "brave",
+    "count": "five"
+  },
+  {
+    "action": "build",
+    "kind": "camp",
+    "point": {
+      "x": 45,
+      "z": 90
+    },
+    "alias": "escort-camp"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "building-complete",
+      "id": "escort-camp"
+    },
+    "scope": "construction",
+    "watchIds": [
+      "escort-camp"
+    ]
+  },
+  {
+    "action": "snapshot",
+    "name": "escort-camp-ready"
+  }
+]

@@ -1,0 +1,65 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "count": "all"
+  },
+  {
+    "action": "order-entity",
+    "collection": "buildings",
+    "id": 1017
+  },
+  {
+    "action": "select",
+    "kind": "preacher",
+    "count": "one"
+  },
+  {
+    "action": "move",
+    "point": {
+      "x": -23,
+      "z": -101
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 3163,
+      "point": {
+        "x": -23,
+        "z": -101
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3163
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "target-gone",
+      "id": 1017
+    },
+    "scope": "combat",
+    "watchIds": [
+      1017,
+      3729,
+      3730,
+      3731,
+      3732
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "southern-hut-and-preacher-support"
+  }
+]

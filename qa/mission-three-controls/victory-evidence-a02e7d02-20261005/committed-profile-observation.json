@@ -1,0 +1,27 @@
+{
+  "kind": "extracted-actual-committed-profile-observation",
+  "runId": "a02e7d02-ae42-496d-a49e-00c75b069ede",
+  "sourceCommit": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+  "journal": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/actions.jsonl",
+    "sha256": "b05f56efdbb5642619542a77540c8778ca263578d81996dc59502fc79c6a4b4d",
+    "line": 421,
+    "rawLineSha256": "00dd0d65ab2d742bc2371a62ec03ea8af0406c598ea46bf5649e0450079b8ddd"
+  },
+  "actualJournalObservation": {
+    "at": "2026-10-05T08:39:17.620Z",
+    "wallMs": 2489730,
+    "action": "victory-persisted",
+    "profile": {
+      "version": 1,
+      "completed": [
+        3
+      ]
+    }
+  },
+  "meaning": "Existing proveVictory awaited readonly IndexedDB transaction completion and verified profile version1/completed[3]. This is extracted evidence, not another browser read or a new write.",
+  "laterClose": {
+    "receiptPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/receipt.json",
+    "sha256": "29609fdf6ce48a26dfcd65e1edfb08a19ec9516976e6462e1e6bde8315e1614c"
+  }
+}

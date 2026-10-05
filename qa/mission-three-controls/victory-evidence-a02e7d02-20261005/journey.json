@@ -1,0 +1,3600 @@
+{
+  "status": "failed",
+  "inputs": [
+    {
+      "name": "driver.mjs",
+      "sha256": "8395638772417a885fab16dda9b4049ba553c8eca43423010c1310ef9200add5"
+    },
+    {
+      "name": "observation.mjs",
+      "sha256": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a"
+    },
+    {
+      "name": "checkpoint-provenance.mjs",
+      "sha256": "c4781f7ea5addd9ad6d5fa77d89b0e40d759b8a3d7ef831e9df60a7f0af6f96d"
+    },
+    {
+      "name": "sermon-checkpoint.mjs",
+      "sha256": "79682c0a1c0f0abaecd2b5ae0fa1663c6de7cd2fa3e689736c872af44bc11393"
+    },
+    {
+      "name": "recovery-admission.mjs",
+      "sha256": "99ef4f883fb84a7c49cb12cbb4e8b82439d7fcff53905bc1206692b678def3ab"
+    },
+    {
+      "name": "sermon-successor.mjs",
+      "sha256": "4637dd475f4f2a0b939365d01a0c3178cc0e71d0cf08e01ac5d9374dc068288c"
+    },
+    {
+      "name": "erosion-observer.mjs",
+      "sha256": "19c25f71fcf0b60f24b65c7f8e2753b5bc51edbaca7d7ca540fd0136d6d50a97"
+    },
+    {
+      "name": "queued-stop.mjs",
+      "sha256": "d67b3cca01cb8ac8032e31d3cdf71382d18bcae57397ffe2ebd945d259f12063"
+    },
+    {
+      "name": "command-probes.mjs",
+      "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f"
+    },
+    {
+      "name": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-4813/sermon-record.json",
+      "sha256": "9ac61773f2533a6b17d2f7fe691c4035669ccf8a631f9f06f1a906de82862883"
+    },
+    {
+      "name": "commands/0001.json",
+      "sha256": "c28ce6d843ab9da8a95ec5f24b3fad9adf77c4ba7b706b87544c69dcfe6a0b4c"
+    },
+    {
+      "name": "commands/0002.json",
+      "sha256": "bc6d958eb748c47d8c33e3e5d3a638a1abaf9a5604630df0e391a96745771880"
+    },
+    {
+      "name": "commands/0003.json",
+      "sha256": "89146d86a91f40052cd64ab74acf40de3929844847de3d791604c1c0b8b0654f"
+    },
+    {
+      "name": "commands/0004.json",
+      "sha256": "1a0fb1efef188da40883a872226c83932ee634dcfc1e4712fa1893582d92bc74"
+    },
+    {
+      "name": "commands/0005.json",
+      "sha256": "722e649e8d097ef5199ed44b74da0d6e66afbd4ba2504a50828d4c2b9a40907d"
+    },
+    {
+      "name": "commands/0006.json",
+      "sha256": "eb6d74dd7f4831bf7c1611dd9e867b20f08099a528d21e41ac6c34c5de1a19ec"
+    },
+    {
+      "name": "commands/0007.json",
+      "sha256": "5c634f15aae42aec7ceb51809e8cc90279215e700bd416392eb5e82a0a3f4520"
+    },
+    {
+      "name": "commands/0008.json",
+      "sha256": "eb415ab1bfec4c3e0fc067a7c428d0bad58dbd06479c3dbb0f7a33882c3bd0d5"
+    },
+    {
+      "name": "commands/0009.json",
+      "sha256": "7f9a9a22bf06e06c6e74b52c12ae02214fe832613666f898a6ef9d62737f9e93"
+    },
+    {
+      "name": "commands/0010.json",
+      "sha256": "34d9dcfaeb17d3c27761ddd2c3ee8173adcddd93fd70faabd4fb48e4fde0c39c"
+    },
+    {
+      "name": "commands/0011.json",
+      "sha256": "c0c87b84f8b2c3c7f0c8e516ac6ad273c2ff147bc3b84cccdce0f16b2593b68a"
+    },
+    {
+      "name": "commands/0012.json",
+      "sha256": "0d9aae0968b14a0951a8396315ef7128b07858137bbb02b9a35f6505b26e4787"
+    },
+    {
+      "name": "commands/0013.json",
+      "sha256": "a6c3c176c6c8496540d294c1eb2082f5d5094d3e5e16891ac6a90c63f06c7a21"
+    },
+    {
+      "name": "commands/0014.json",
+      "sha256": "672ccf98d69193306761ef6141090466e1e1eeb96cd9c22741dab833bc038bc3"
+    },
+    {
+      "name": "commands/0015.json",
+      "sha256": "251833b9457a936898785d046612fb107e585fe8df440d352472788564e8d2c8"
+    },
+    {
+      "name": "commands/0016.json",
+      "sha256": "4f5094242929f33e2b1c91b14171f59e50275006c123a55a2a90b6bf3e2d0300"
+    },
+    {
+      "name": "commands/0017.json",
+      "sha256": "2acdeff77a1fa9e47354d10b1c096421bf10b54fd29896650117eacc3a5842e9"
+    },
+    {
+      "name": "commands/0018.json",
+      "sha256": "998e9c3bd02a63a072c77121590e63d18ec65df9ba77e8f13ca111d4a155270b"
+    },
+    {
+      "name": "commands/0019.json",
+      "sha256": "b7b0f5efa425a9123bfbfa85be8a0faf714efd1885282659ec934848c91bae7c"
+    },
+    {
+      "name": "commands/0020.json",
+      "sha256": "425e4233b0085dc4dbdba249afa18ffde9db48ded78193e8709ac71020ee3576"
+    }
+  ],
+  "ids": {
+    "authoredVictim": 53,
+    "vault": 92,
+    "erosion": 101,
+    "shaman": 46,
+    "temple": 1021,
+    "trainee": 516,
+    "preacher": 3163,
+    "victim": 50,
+    "replacement": 3242,
+    "escort-camp": 1015
+  },
+  "epochs": [
+    {
+      "name": "saved-sermon-entry",
+      "baselineGameTime": 401.0833333333333,
+      "lastGameTime": 408.9166666666667,
+      "activeSeconds": 7.833333333333371,
+      "firstTurn": 4830,
+      "lastTurn": 4907,
+      "samples": 78,
+      "conversions": {
+        "level": 3,
+        "turn": 4907,
+        "units": [
+          {
+            "id": 2734,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 2665,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 2631,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 2563,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 2529,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 15,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 2495,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 2597,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 2699,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 2879,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 20,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 21,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 3033,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 23,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 24,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 25,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 26,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 30,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 31,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 32,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 2975,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 2909,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 3067,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 36,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 37,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 38,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 39,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 40,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 41,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 42,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 43,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 44,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 46,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100.4,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 671088896
+          },
+          {
+            "id": 47,
+            "kind": "shaman",
+            "team": "yellow",
+            "hp": 100,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 671088896
+          },
+          {
+            "id": 48,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 50,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 47.5,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 51,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 52,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 53,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 47.6,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 312,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 309,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 519,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 513,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 510,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 303,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 300,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 522,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 507,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 306,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 589,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 3163,
+            "kind": "preacher",
+            "team": "blue",
+            "hp": 38.8,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 3240,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 42,
+            "flags3": 0,
+            "flags4": 0
+          }
+        ],
+        "events": []
+      },
+      "errors": [],
+      "speedViolations": [],
+      "firstConversion": null,
+      "orderMarkerCursor": 1,
+      "orderMarkers": [
+        {
+          "cursor": 1,
+          "id": 3242,
+          "x": -41,
+          "z": -113,
+          "observedTurn": 4853,
+          "commandTurn": 4852,
+          "secondarySerial": 4,
+          "turnsRemaining": 3
+        }
+      ],
+      "sermon": null
+    }
+  ],
+  "milestones": [
+    {
+      "name": "vault",
+      "turn": 1423,
+      "time": 118.58333333333333,
+      "epoch": "entry",
+      "activeSeconds": 118.58333333333333,
+      "at": "2026-10-04T20:58:00.642Z",
+      "inherited": true,
+      "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+      "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+      "inheritedFromSavedSermon": true
+    },
+    {
+      "name": "shaman-home",
+      "turn": 1846,
+      "time": 153.83333333333334,
+      "epoch": "entry",
+      "activeSeconds": 153.83333333333334,
+      "at": "2026-10-04T20:58:35.554Z",
+      "inherited": true,
+      "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+      "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+      "inheritedFromSavedSermon": true
+    },
+    {
+      "name": "temple",
+      "turn": 2877,
+      "time": 239.75,
+      "epoch": "entry",
+      "activeSeconds": 239.75,
+      "at": "2026-10-04T21:00:01.523Z",
+      "inherited": true,
+      "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+      "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+      "inheritedFromSavedSermon": true
+    },
+    {
+      "name": "preacher",
+      "turn": 3924,
+      "time": 327,
+      "epoch": "continuation-entry",
+      "activeSeconds": 327,
+      "at": "2026-10-05T02:21:07.343Z",
+      "inheritedFromSavedSermon": true
+    },
+    {
+      "name": "listener",
+      "turn": 4813,
+      "time": 401.0833333333333,
+      "epoch": "continuation-entry",
+      "activeSeconds": 401.0833333333333,
+      "at": "2026-10-05T02:31:13.396Z",
+      "inheritedFromSavedSermon": true
+    },
+    {
+      "name": "sermon-saved",
+      "turn": 4813,
+      "time": 401.0833333333333,
+      "victimId": 50,
+      "preacherId": 3163,
+      "blueIds": [
+        46,
+        312,
+        309,
+        519,
+        513,
+        510,
+        303,
+        300,
+        522,
+        507,
+        306,
+        589,
+        3163
+      ],
+      "inheritedFromSavedSermon": true
+    },
+    {
+      "name": "sermon-cancelled",
+      "turn": 4907,
+      "time": 408.9166666666667,
+      "epoch": "saved-sermon-entry",
+      "activeSeconds": 987.9166666666666,
+      "at": "2026-10-05T07:58:55.950Z"
+    },
+    {
+      "name": "sermon-reloaded",
+      "turn": 4875,
+      "time": 406.25,
+      "epoch": "reload-1",
+      "activeSeconds": 993.0833333333333,
+      "at": "2026-10-05T07:59:25.689Z"
+    },
+    {
+      "name": "conversion",
+      "turn": 5146,
+      "time": 428.8333333333333,
+      "epoch": "reload-1",
+      "activeSeconds": 1015.6666666666666,
+      "at": "2026-10-05T07:59:48.773Z"
+    },
+    {
+      "name": "erosion-start",
+      "turn": 6015,
+      "time": 501.25,
+      "epoch": "reload-1",
+      "activeSeconds": 1088.0833333333333,
+      "at": "2026-10-05T08:01:14.433Z"
+    },
+    {
+      "name": "erosion",
+      "turn": 6081,
+      "time": 506.75,
+      "epoch": "reload-1",
+      "activeSeconds": 1093.5833333333333,
+      "at": "2026-10-05T08:01:20.190Z"
+    },
+    {
+      "name": "victory",
+      "turn": 16193,
+      "time": 1349.4166666666667,
+      "epoch": "reload-1",
+      "activeSeconds": 1936.25,
+      "at": "2026-10-05T08:39:19.581Z"
+    }
+  ],
+  "failures": [
+    {
+      "index": 29,
+      "inputSha256": "9f75745b2fff10d7fadd6e6731878c702e753727379adba9315e08be849f374b",
+      "at": "2026-10-05T02:25:46.072Z",
+      "error": "AssertionError [ERR_ASSERTION]: Visible ground with no competing object\n    at move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:339:12)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:821:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:251:21",
+      "inheritedFromSavedSermon": true
+    },
+    {
+      "index": 48,
+      "inputSha256": "d5da26439d3e13079904f99899a645818cd1368f72ee2173c75b13fc065ba862",
+      "at": "2026-10-05T02:33:24.622Z",
+      "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n2097152 !== 0\n\n    at cancelSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:690:81)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:821:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:251:21",
+      "inheritedFromSavedSermon": true
+    },
+    {
+      "index": 1,
+      "inputSha256": "eaead1ccf24c7f091808c670c384d20738313a63a1a326377ebfd49b01e5eca4",
+      "at": "2026-10-05T04:50:45.198Z",
+      "error": "Error: The exact listener has not released sermon ownership and its listener flag\n    at requireCancelledSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/observation.mjs:219:11)\n    at cancelSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:778:26)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:921:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21",
+      "inheritedFromSavedSermon": true
+    },
+    {
+      "index": 11,
+      "inputSha256": "c0c87b84f8b2c3c7f0c8e516ac6ad273c2ff147bc3b84cccdce0f16b2593b68a",
+      "at": "2026-10-05T08:23:23.050Z",
+      "error": "AssertionError [ERR_ASSERTION]: Visible ground with no competing object\n    at move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:363:12)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:1007:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21"
+    },
+    {
+      "index": 16,
+      "inputSha256": "4f5094242929f33e2b1c91b14171f59e50275006c123a55a2a90b6bf3e2d0300",
+      "at": "2026-10-05T08:35:04.289Z",
+      "error": "AssertionError [ERR_ASSERTION]: Existing units 5348\n    at targetEntity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:282:12)\n    at async dispatch (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:927:46)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:1007:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21"
+    }
+  ],
+  "controlStops": [
+    {
+      "index": 2,
+      "at": "2026-10-05T04:51:09.497Z",
+      "outer": true,
+      "code": "preserve-latest",
+      "error": "IncompleteRun: Requested bounded stop preserving the actual committed checkpoint\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:619:11)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:913:11)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21",
+      "inheritedFromPriorGameplay": true
+    },
+    {
+      "index": 3,
+      "at": "2026-10-05T05:29:12.547Z",
+      "outer": true,
+      "code": "progress-stall",
+      "error": "IncompleteRun: No relevant combat progress for two active minutes\n    at waitDiagnosticStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/observation.mjs:311:41)\n    at waitFor (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:426:20)\n    at async erosion (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:813:5)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:928:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21",
+      "inheritedFromPriorGameplay": true
+    },
+    {
+      "index": 20,
+      "at": "2026-10-05T08:40:09.411Z",
+      "outer": true,
+      "code": "preserve-latest",
+      "error": "IncompleteRun: Requested bounded stop preserving the actual committed checkpoint\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:697:11)\n    at async consumeQueuedStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:481:5)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:993:23)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21"
+    }
+  ],
+  "training": null,
+  "victimSelection": {
+    "turnBefore": 4777,
+    "turnAfter": 4778,
+    "gameTime": 398.1666666666667,
+    "preacherId": 3163,
+    "sameTurnIds": [
+      50,
+      53
+    ],
+    "before": {
+      "id": 50,
+      "kind": "brave",
+      "team": "yellow",
+      "hp": 50,
+      "state": 10,
+      "workTarget": 3163,
+      "flags3": 0,
+      "flags4": 536936704
+    },
+    "victim": {
+      "id": 50,
+      "team": "yellow",
+      "kind": "brave",
+      "hp": 50,
+      "x": -32.31640625,
+      "z": -108.1015625,
+      "inside": null,
+      "state": 23,
+      "workTarget": 3163,
+      "model": 2,
+      "tribe": 2,
+      "timer": 97,
+      "flags2": 2228736,
+      "flags3": 0,
+      "flags4": 536936832
+    }
+  },
+  "sermonPlan": {
+    "epoch": "continuation-entry",
+    "declaration": {
+      "armedAtTurn": 4101,
+      "armedAtGameTime": 341.75,
+      "preacherId": 3163,
+      "rule": "First new owned state23 among these current living Yellow Braves; lowest ID on a same-turn tie. No re-arming or post-conversion selection.",
+      "candidateIds": [
+        48,
+        50,
+        51,
+        52,
+        53,
+        2495,
+        2529,
+        2563,
+        2597,
+        2631,
+        2665,
+        2699,
+        2734,
+        2879,
+        2909,
+        2975,
+        3033,
+        3067
+      ],
+      "candidates": [
+        {
+          "id": 48,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -45.703125,
+          "z": -104.6015625,
+          "inside": 1018
+        },
+        {
+          "id": 50,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -25.0625,
+          "z": -107.53515625,
+          "inside": null
+        },
+        {
+          "id": 51,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -45.7421875,
+          "z": -104.91796875,
+          "inside": 1018
+        },
+        {
+          "id": 52,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -45.73046875,
+          "z": -104.8203125,
+          "inside": 1018
+        },
+        {
+          "id": 53,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -26.2421875,
+          "z": -109.2578125,
+          "inside": null
+        },
+        {
+          "id": 2495,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -46.984375,
+          "z": -95.38671875,
+          "inside": 1019
+        },
+        {
+          "id": 2529,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -45,
+          "z": -91,
+          "inside": null,
+          "state": 19,
+          "workTarget": 0,
+          "model": 2,
+          "tribe": 2,
+          "timer": 0,
+          "flags2": 131072,
+          "flags3": 0,
+          "flags4": 536871168
+        },
+        {
+          "id": 2563,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -47,
+          "z": -95.5234375,
+          "inside": 1019
+        },
+        {
+          "id": 2597,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -34.80078125,
+          "z": -90.99609375,
+          "inside": 1020
+        },
+        {
+          "id": 2631,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -29,
+          "z": -91,
+          "inside": null,
+          "state": 19,
+          "workTarget": 0,
+          "model": 2,
+          "tribe": 2,
+          "timer": 2,
+          "flags2": 1075970176,
+          "flags3": 0,
+          "flags4": 536871168
+        },
+        {
+          "id": 2665,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -34.640625,
+          "z": -90.984375,
+          "inside": 1020
+        },
+        {
+          "id": 2699,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -47,
+          "z": -95.7578125,
+          "inside": 1019
+        },
+        {
+          "id": 2734,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -45,
+          "z": -87,
+          "inside": null,
+          "state": 19,
+          "workTarget": 0,
+          "model": 2,
+          "tribe": 2,
+          "timer": 0,
+          "flags2": 131072,
+          "flags3": 0,
+          "flags4": 537133312
+        },
+        {
+          "id": 2879,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -35.015625,
+          "z": -90.99609375,
+          "inside": 1020
+        },
+        {
+          "id": 2909,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -19,
+          "z": -89,
+          "inside": null,
+          "state": 19,
+          "workTarget": 0,
+          "model": 2,
+          "tribe": 2,
+          "timer": 0,
+          "flags2": 131072,
+          "flags3": 0,
+          "flags4": 537133312
+        },
+        {
+          "id": 2975,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -23,
+          "z": -93,
+          "inside": null,
+          "state": 19,
+          "workTarget": 0,
+          "model": 2,
+          "tribe": 2,
+          "timer": 0,
+          "flags2": 131072,
+          "flags3": 0,
+          "flags4": 537133312
+        },
+        {
+          "id": 3033,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -27,
+          "z": -83,
+          "inside": null,
+          "state": 19,
+          "workTarget": 0,
+          "model": 2,
+          "tribe": 2,
+          "timer": 0,
+          "flags2": 131072,
+          "flags3": 0,
+          "flags4": 537133312
+        },
+        {
+          "id": 3067,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -15,
+          "z": -93,
+          "inside": null,
+          "state": 19,
+          "workTarget": 0,
+          "model": 2,
+          "tribe": 2,
+          "timer": 0,
+          "flags2": 131072,
+          "flags3": 0,
+          "flags4": 537133312
+        }
+      ],
+      "firstOwned": null
+    },
+    "inheritedFromSavedSermon": {
+      "source": {
+        "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered",
+        "commit": "81dab9e1ac74fd4aa3879d629758edbd388cfd7f",
+        "tree": "0ced76d3658d6eb92039354b9cc675775552b412",
+        "status": "",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "untracked": [],
+        "fingerprint": "d42fb22b4aba2e0bf0d07f39a5dc71b39cfe56dd9337a1aa5ce7980fa03e9c62"
+      },
+      "savedByRunId": "c5c7823d-867a-4426-b004-addf73dac590"
+    }
+  },
+  "entryMode": "checkpoint-continuation",
+  "continuation": {
+    "kind": "saved-sermon",
+    "record": {
+      "version": 1,
+      "kind": "mission3-recovered-sermon-erosion-continuation",
+      "assembledRecoveryAt": "2026-10-05T04:49:08.927Z",
+      "recordedByRunId": "a02e7d02-ae42-496d-a49e-00c75b069ede",
+      "continuationPolicy": "single-gameplay-segment",
+      "source": {
+        "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered",
+        "commit": "81dab9e1ac74fd4aa3879d629758edbd388cfd7f",
+        "tree": "0ced76d3658d6eb92039354b9cc675775552b412",
+        "status": "",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "untracked": [],
+        "fingerprint": "d42fb22b4aba2e0bf0d07f39a5dc71b39cfe56dd9337a1aa5ce7980fa03e9c62"
+      },
+      "profile": {
+        "id": "bb9f0c5f-7228-4cd1-befc-f62d8c199fa3",
+        "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/work/local-render-profiles/mission-three-controls"
+      },
+      "origin": "http://127.0.0.1:4366",
+      "savedByRunId": "c5c7823d-867a-4426-b004-addf73dac590",
+      "checkpoint": {
+        "version": 1,
+        "level": 3,
+        "turn": 4813,
+        "time": 401.0833333333333,
+        "checkpointSha256": "720e96e28b46a029e22a1c97729ead760471c96e4e10c59fd5ae620d5e66f57a",
+        "actorsSha256": "c2ce52fb00a0c58c4e0383e95b5a8ab74c98c366e0bfd1ea7cf74a36e9c5c715",
+        "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+        "stockSha256": "3ba9bf87e026ccd5d45f1a270e8684896468846ecff1adfbacde67836788272c"
+      },
+      "ids": {
+        "authoredVictim": 53,
+        "vault": 92,
+        "erosion": 101,
+        "shaman": 46,
+        "temple": 1021,
+        "trainee": 516,
+        "preacher": 3163,
+        "victim": 50
+      },
+      "declaration": {
+        "armedAtTurn": 4101,
+        "armedAtGameTime": 341.75,
+        "preacherId": 3163,
+        "rule": "First new owned state23 among these current living Yellow Braves; lowest ID on a same-turn tie. No re-arming or post-conversion selection.",
+        "candidateIds": [
+          48,
+          50,
+          51,
+          52,
+          53,
+          2495,
+          2529,
+          2563,
+          2597,
+          2631,
+          2665,
+          2699,
+          2734,
+          2879,
+          2909,
+          2975,
+          3033,
+          3067
+        ],
+        "candidates": [
+          {
+            "id": 48,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -45.703125,
+            "z": -104.6015625,
+            "inside": 1018
+          },
+          {
+            "id": 50,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -25.0625,
+            "z": -107.53515625,
+            "inside": null
+          },
+          {
+            "id": 51,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -45.7421875,
+            "z": -104.91796875,
+            "inside": 1018
+          },
+          {
+            "id": 52,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -45.73046875,
+            "z": -104.8203125,
+            "inside": 1018
+          },
+          {
+            "id": 53,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -26.2421875,
+            "z": -109.2578125,
+            "inside": null
+          },
+          {
+            "id": 2495,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -46.984375,
+            "z": -95.38671875,
+            "inside": 1019
+          },
+          {
+            "id": 2529,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -45,
+            "z": -91,
+            "inside": null,
+            "state": 19,
+            "workTarget": 0,
+            "model": 2,
+            "tribe": 2,
+            "timer": 0,
+            "flags2": 131072,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 2563,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -47,
+            "z": -95.5234375,
+            "inside": 1019
+          },
+          {
+            "id": 2597,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -34.80078125,
+            "z": -90.99609375,
+            "inside": 1020
+          },
+          {
+            "id": 2631,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -29,
+            "z": -91,
+            "inside": null,
+            "state": 19,
+            "workTarget": 0,
+            "model": 2,
+            "tribe": 2,
+            "timer": 2,
+            "flags2": 1075970176,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 2665,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -34.640625,
+            "z": -90.984375,
+            "inside": 1020
+          },
+          {
+            "id": 2699,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -47,
+            "z": -95.7578125,
+            "inside": 1019
+          },
+          {
+            "id": 2734,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -45,
+            "z": -87,
+            "inside": null,
+            "state": 19,
+            "workTarget": 0,
+            "model": 2,
+            "tribe": 2,
+            "timer": 0,
+            "flags2": 131072,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 2879,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -35.015625,
+            "z": -90.99609375,
+            "inside": 1020
+          },
+          {
+            "id": 2909,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -19,
+            "z": -89,
+            "inside": null,
+            "state": 19,
+            "workTarget": 0,
+            "model": 2,
+            "tribe": 2,
+            "timer": 0,
+            "flags2": 131072,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 2975,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -23,
+            "z": -93,
+            "inside": null,
+            "state": 19,
+            "workTarget": 0,
+            "model": 2,
+            "tribe": 2,
+            "timer": 0,
+            "flags2": 131072,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 3033,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -27,
+            "z": -83,
+            "inside": null,
+            "state": 19,
+            "workTarget": 0,
+            "model": 2,
+            "tribe": 2,
+            "timer": 0,
+            "flags2": 131072,
+            "flags3": 0,
+            "flags4": 537133312
+          },
+          {
+            "id": 3067,
+            "team": "yellow",
+            "kind": "brave",
+            "hp": 50,
+            "x": -15,
+            "z": -93,
+            "inside": null,
+            "state": 19,
+            "workTarget": 0,
+            "model": 2,
+            "tribe": 2,
+            "timer": 0,
+            "flags2": 131072,
+            "flags3": 0,
+            "flags4": 537133312
+          }
+        ],
+        "firstOwned": null
+      },
+      "epoch": "continuation-entry",
+      "firstOwned": {
+        "turnBefore": 4777,
+        "turnAfter": 4778,
+        "gameTime": 398.1666666666667,
+        "preacherId": 3163,
+        "sameTurnIds": [
+          50,
+          53
+        ],
+        "before": {
+          "id": 50,
+          "kind": "brave",
+          "team": "yellow",
+          "hp": 50,
+          "state": 10,
+          "workTarget": 3163,
+          "flags3": 0,
+          "flags4": 536936704
+        },
+        "victim": {
+          "id": 50,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -32.31640625,
+          "z": -108.1015625,
+          "inside": null,
+          "state": 23,
+          "workTarget": 3163,
+          "model": 2,
+          "tribe": 2,
+          "timer": 97,
+          "flags2": 2228736,
+          "flags3": 0,
+          "flags4": 536936832
+        }
+      },
+      "retainedBlueIds": [
+        46,
+        312,
+        309,
+        519,
+        513,
+        510,
+        303,
+        300,
+        522,
+        507,
+        306,
+        589,
+        3163
+      ],
+      "milestones": [
+        {
+          "name": "vault",
+          "turn": 1423,
+          "time": 118.58333333333333,
+          "epoch": "entry",
+          "activeSeconds": 118.58333333333333,
+          "at": "2026-10-04T20:58:00.642Z",
+          "inherited": true,
+          "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+          "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a"
+        },
+        {
+          "name": "shaman-home",
+          "turn": 1846,
+          "time": 153.83333333333334,
+          "epoch": "entry",
+          "activeSeconds": 153.83333333333334,
+          "at": "2026-10-04T20:58:35.554Z",
+          "inherited": true,
+          "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+          "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a"
+        },
+        {
+          "name": "temple",
+          "turn": 2877,
+          "time": 239.75,
+          "epoch": "entry",
+          "activeSeconds": 239.75,
+          "at": "2026-10-04T21:00:01.523Z",
+          "inherited": true,
+          "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+          "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a"
+        },
+        {
+          "name": "preacher",
+          "turn": 3924,
+          "time": 327,
+          "epoch": "continuation-entry",
+          "activeSeconds": 327,
+          "at": "2026-10-05T02:21:07.343Z"
+        },
+        {
+          "name": "listener",
+          "turn": 4813,
+          "time": 401.0833333333333,
+          "epoch": "continuation-entry",
+          "activeSeconds": 401.0833333333333,
+          "at": "2026-10-05T02:31:13.396Z"
+        },
+        {
+          "name": "sermon-saved",
+          "turn": 4813,
+          "time": 401.0833333333333,
+          "victimId": 50,
+          "preacherId": 3163,
+          "blueIds": [
+            46,
+            312,
+            309,
+            519,
+            513,
+            510,
+            303,
+            300,
+            522,
+            507,
+            306,
+            589,
+            3163
+          ]
+        }
+      ],
+      "activeSeconds": 407.75,
+      "inputs": [
+        {
+          "name": "driver.mjs",
+          "sha256": "1e4e4131d9e3abfbb30ff8e22c031b9eadec193e7d5dbc8898021dc8c32800ed"
+        },
+        {
+          "name": "observation.mjs",
+          "sha256": "4159fdbcc6c32bb28781590718ee07c69d46ff490d4b958624c716545fc2efe9"
+        },
+        {
+          "name": "checkpoint-provenance.mjs",
+          "sha256": "c4781f7ea5addd9ad6d5fa77d89b0e40d759b8a3d7ef831e9df60a7f0af6f96d"
+        },
+        {
+          "name": "command-probes.mjs",
+          "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f"
+        },
+        {
+          "name": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/work/orchestration/mission-three-controls/browser-13/preparation-record.json",
+          "sha256": "a73c682b91c6ab19bdc6054c4bd195dd04787a8d576e32a76b25840c0d29d6d0"
+        },
+        {
+          "name": "commands/0001.json",
+          "sha256": "612b8d26fd0607b24e9d584e23fc7881306d15eb7784a29ae1dc52768b322cc0"
+        },
+        {
+          "name": "commands/0002.json",
+          "sha256": "bb4125f8047ba3073ed8b755175c20069f04c990713ca4cda45cc1798f4dae8c"
+        },
+        {
+          "name": "commands/0003.json",
+          "sha256": "160cf9c0e5ba0fb2c7e5813c16398b2c09bad9dc16eeec48ac43da6258ef6e8f"
+        },
+        {
+          "name": "commands/0004.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0005.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0006.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0007.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0008.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0009.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0010.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0011.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0012.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0013.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0014.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0015.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0016.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0017.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0018.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0019.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0020.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0021.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0022.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0023.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0024.json",
+          "sha256": "524a37fdcc724789d1b26dc7486b10c839fa664e58ab1651d4ace526ea8e03b8"
+        },
+        {
+          "name": "commands/0025.json",
+          "sha256": "149aa3da6992cf88837428670514c7ff06eecfaa4e551bd4ed2089cf5add87da"
+        },
+        {
+          "name": "commands/0026.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0027.json",
+          "sha256": "a335402d2c66542e013b6763ae2fbc2d428ed11888aa4c94fba0650c179b0691"
+        },
+        {
+          "name": "commands/0028.json",
+          "sha256": "a1b356d91c08b392a701401d79c37f07007249b784a62408f12eade3dd141680"
+        },
+        {
+          "name": "commands/0029.json",
+          "sha256": "9f75745b2fff10d7fadd6e6731878c702e753727379adba9315e08be849f374b"
+        },
+        {
+          "name": "commands/0030.json",
+          "sha256": "a2584c3032bc81af7fc4e4aba92efab9e637e5391922864cccf81ca0acad4fda"
+        },
+        {
+          "name": "commands/0031.json",
+          "sha256": "9f75745b2fff10d7fadd6e6731878c702e753727379adba9315e08be849f374b"
+        },
+        {
+          "name": "commands/0032.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0033.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0034.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0035.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0036.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0037.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0038.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0039.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0040.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0041.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0042.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0043.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0044.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0045.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0046.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0047.json",
+          "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+        },
+        {
+          "name": "commands/0048.json",
+          "sha256": "d5da26439d3e13079904f99899a645818cd1368f72ee2173c75b13fc065ba862"
+        }
+      ],
+      "failures": [
+        {
+          "index": 29,
+          "inputSha256": "9f75745b2fff10d7fadd6e6731878c702e753727379adba9315e08be849f374b",
+          "at": "2026-10-05T02:25:46.072Z",
+          "error": "AssertionError [ERR_ASSERTION]: Visible ground with no competing object\n    at move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:339:12)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:821:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:251:21"
+        },
+        {
+          "index": 48,
+          "inputSha256": "d5da26439d3e13079904f99899a645818cd1368f72ee2173c75b13fc065ba862",
+          "at": "2026-10-05T02:33:24.622Z",
+          "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n2097152 !== 0\n\n    at cancelSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:690:81)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:821:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:251:21"
+        }
+      ],
+      "acquisition": {
+        "version": 1,
+        "kind": "mission3-ui-preparation",
+        "source": {
+          "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered",
+          "commit": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+          "tree": "4a1843152ed79e3065a805484bcd9cb30104e8b4",
+          "status": "",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "untracked": [],
+          "fingerprint": "1a11ad366370fe436bc3ac6329385bd790a88bd17ecb2e2950c4b6e2c817e4cc"
+        },
+        "profile": {
+          "id": "bb9f0c5f-7228-4cd1-befc-f62d8c199fa3",
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/work/local-render-profiles/mission-three-controls"
+        },
+        "origin": "http://127.0.0.1:4366",
+        "checkpoint": {
+          "sha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+          "level": 3,
+          "turn": 2909,
+          "time": 242.41666666666666
+        },
+        "ids": {
+          "authoredVictim": 53,
+          "vault": 92,
+          "erosion": 101,
+          "shaman": 46,
+          "temple": 1021
+        },
+        "milestones": [
+          {
+            "name": "vault",
+            "turn": 1423,
+            "time": 118.58333333333333,
+            "epoch": "entry",
+            "activeSeconds": 118.58333333333333,
+            "at": "2026-10-04T20:58:00.642Z"
+          },
+          {
+            "name": "shaman-home",
+            "turn": 1846,
+            "time": 153.83333333333334,
+            "epoch": "entry",
+            "activeSeconds": 153.83333333333334,
+            "at": "2026-10-04T20:58:35.554Z"
+          },
+          {
+            "name": "temple",
+            "turn": 2877,
+            "time": 239.75,
+            "epoch": "entry",
+            "activeSeconds": 239.75,
+            "at": "2026-10-04T21:00:01.523Z"
+          }
+        ],
+        "activeSeconds": 242.41666666666666,
+        "inputs": [
+          {
+            "name": "driver.mjs",
+            "sha256": "b9b5f64b7b34caa8d4edd6bcd200740a8d5bf63658b91a41d35a715f2aaf9bbc"
+          },
+          {
+            "name": "observation.mjs",
+            "sha256": "6aeaf67ea7ffce5d674f8ec48b9ac16cefce691be6618e6a358419313e744174"
+          },
+          {
+            "name": "checkpoint-provenance.mjs",
+            "sha256": "81010c4d952fdb0b4ced21aa247aa1517e789fc82599431fbd738b9786ff592a"
+          },
+          {
+            "name": "commands/0001.json",
+            "sha256": "aea26620944b98c5acf25e6c90142517fb1338e15ba54fbe575f44b665de3ee7"
+          }
+        ],
+        "retainedBlueIds": [
+          46,
+          312,
+          309,
+          519,
+          516,
+          513,
+          510,
+          303,
+          300,
+          522,
+          507,
+          306,
+          589
+        ],
+        "initialMission3Absent": true,
+        "scope": "Observed ordinary acquisition prefix through Temple. Loading continues this saved prefix; it is not a fresh entry or evidence that later failed attempts passed.",
+        "qaAdmission": {
+          "source": {
+            "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered",
+            "commit": "02301bce433cf69c1b439e9025d3495ec19e5d5b",
+            "tree": "fa6613995f20574ae02ff68c095aeb76f5e6d8c6",
+            "status": "",
+            "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "untracked": [],
+            "fingerprint": "61afcea29f0fd5fa875cae946902eea3d19561abd2765020cf72f7732b84d232"
+          },
+          "checker": "d66eed30a5846ed981a380c5ce7ee7230c357e327e21dfea6ca600f59e8d4c51",
+          "correspondence": {
+            "priorRunId": "63f466fa-54fa-4501-8f2b-bc6d1f71201e",
+            "previousSourceFingerprint": "1a11ad366370fe436bc3ac6329385bd790a88bd17ecb2e2950c4b6e2c817e4cc",
+            "currentSourceFingerprint": "61afcea29f0fd5fa875cae946902eea3d19561abd2765020cf72f7732b84d232",
+            "previousChecker": "a6ae8c482666c426a15a8e05e8336fc8230652b90800d5d9215be2ae85b6d41a",
+            "currentChecker": "d66eed30a5846ed981a380c5ce7ee7230c357e327e21dfea6ca600f59e8d4c51",
+            "decision": "ACCEPT",
+            "reviewer": "/root/finish_reviewed_pr_batch",
+            "reference": "work/reviews/profile-correspondence-02301bc-review.json",
+            "sha256": "71d50d9e977020e52c6ab75017a49e00ffec474d110693d93d48ffa154a89b0b"
+          },
+          "preparationFingerprint": "1a11ad366370fe436bc3ac6329385bd790a88bd17ecb2e2950c4b6e2c817e4cc",
+          "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+          "profileId": "bb9f0c5f-7228-4cd1-befc-f62d8c199fa3",
+          "recordedByRunId": "eeca398d-01c4-401b-8334-9a926501c46c"
+        },
+        "qaContinuation": {
+          "source": {
+            "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered",
+            "commit": "81dab9e1ac74fd4aa3879d629758edbd388cfd7f",
+            "tree": "0ced76d3658d6eb92039354b9cc675775552b412",
+            "status": "",
+            "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "untracked": [],
+            "fingerprint": "d42fb22b4aba2e0bf0d07f39a5dc71b39cfe56dd9337a1aa5ce7980fa03e9c62"
+          },
+          "checker": "a7367b3982bda5427ef056fe3ee6f3349fd0a3a449acad77cfa07cc9fede3656",
+          "correspondence": {
+            "priorRunId": "eeca398d-01c4-401b-8334-9a926501c46c",
+            "previousSourceFingerprint": "61afcea29f0fd5fa875cae946902eea3d19561abd2765020cf72f7732b84d232",
+            "currentSourceFingerprint": "d42fb22b4aba2e0bf0d07f39a5dc71b39cfe56dd9337a1aa5ce7980fa03e9c62",
+            "previousChecker": "d66eed30a5846ed981a380c5ce7ee7230c357e327e21dfea6ca600f59e8d4c51",
+            "currentChecker": "a7367b3982bda5427ef056fe3ee6f3349fd0a3a449acad77cfa07cc9fede3656",
+            "decision": "ACCEPT",
+            "reviewer": "/root/finish_reviewed_pr_batch",
+            "reference": "work/reviews/profile-correspondence-81dab9e-admission.json",
+            "provenance": {
+              "priorReceiptSha256": "db9a263ee61c5c5dd3786aacbe92ca2c5948e28cb6f7231a65ba83d9462d6974",
+              "forwardedPreparationSha256": "a73c682b91c6ab19bdc6054c4bd195dd04787a8d576e32a76b25840c0d29d6d0",
+              "originalPreparationSha256": "db74eaa73ae5b9950f2e2b5340f058f30e3772c5c588331624f51bc6754a0244",
+              "originalSourceFingerprint": "1a11ad366370fe436bc3ac6329385bd790a88bd17ecb2e2950c4b6e2c817e4cc",
+              "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+              "firstAdmissionSha256": "605e5430ad2f5ced6a697f796ec4e6a472b072330222cac192b7947c7e55d202",
+              "firstCorrespondenceSha256": "71d50d9e977020e52c6ab75017a49e00ffec474d110693d93d48ffa154a89b0b"
+            },
+            "sha256": "f06e27da6d5629537963db47a9233e94c38b2e0b09a54077de06f51a5555a918"
+          },
+          "preparationFingerprint": "1a11ad366370fe436bc3ac6329385bd790a88bd17ecb2e2950c4b6e2c817e4cc",
+          "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+          "profileId": "bb9f0c5f-7228-4cd1-befc-f62d8c199fa3",
+          "recordedByRunId": "c5c7823d-867a-4426-b004-addf73dac590"
+        }
+      },
+      "initialMission3Absent": true,
+      "originalInterruption": {
+        "execSession": 26861,
+        "execExitCode": 130,
+        "innerReceipt": "absent",
+        "cleanup": "unknown",
+        "originalLock": "preserved"
+      },
+      "checkpointMeasurement": {
+        "kind": "read-only-validator",
+        "runId": "83de011e-2c35-42c5-9010-e9e7b7d01a48",
+        "innerReceiptSha256": "5be2b9f8e483fc35939cee72d422ecfd0ea07862bd89343d346421b3b9870bed"
+      },
+      "scope": "Newly assembled recovered provenance for the genuine Run14 UI Save. Original failures and unknown cleanup remain; the full digest was measured later by the storage validator. New gameplay requires fresh ordinary Load and witnesses.",
+      "recoveryAdmissionSha256": "8e23ffe7b58bc970e92b519ac71add07e4f84ddb591738d1dd7c3df451cbdcd9",
+      "targetProfile": {
+        "id": "c1f1d915-d99a-4c47-be2a-2ad36d89fc86",
+        "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/local-render-profiles/mission-three-recovered-sermon-4813"
+      },
+      "targetSource": {
+        "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+        "commit": "3ddb1dd9f971f8d21ab5bfda262bc4db72500466",
+        "tree": "764de8b4c62d389fb07d476c1cf560e52383af14",
+        "status": "",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "untracked": [],
+        "fingerprint": "fe73b97709e7fff60a20c4f28a3998e4233763bcaaa1494bacbcbd22fa65450b"
+      },
+      "assembledSuccessorAt": "2026-10-05T05:15:43.943Z",
+      "priorRecordSha256": "7cf660ad2a948652c0d284f0b31528efe8b13b579b9d8465ba06130a9f0e42b4",
+      "gameplayContinuation": {
+        "reference": {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/successor-bbd7371-payload.json",
+          "sha256": "1d562ec19620c8b1b3c7369db44ff225176c40098a81e5151c073b1dacb8e8b5",
+          "review": {
+            "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/reviews/copied-sermon-successor-bbd7371-review.json",
+            "sha256": "32260e5c45d4a49d9086a05e710e0b0ba08565308a38001a7411f258014e19bd"
+          }
+        },
+        "target": {
+          "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+          "origin": "http://127.0.0.1:4366",
+          "profile": {
+            "id": "c1f1d915-d99a-4c47-be2a-2ad36d89fc86",
+            "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/local-render-profiles/mission-three-recovered-sermon-4813"
+          },
+          "source": {
+            "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+            "commit": "bbd7371e04a55e57b1e368530e92de6777864358",
+            "tree": "3765eb171381ba1217b7be0f19a713a2a6685c56",
+            "status": "",
+            "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "untracked": [],
+            "fingerprint": "2e68959e06fec091ad679b34545a4400989a2967d2b8035ef47c6949e6c234a1"
+          },
+          "inputs": {
+            "application": "61b4cb03a1f255be59692c64111a27eb77ffa2b414b700c4818148802528b39e",
+            "checker": "d9206244d185576d242398492298df21935355881123d335554a1a5cc1d8fdb2"
+          },
+          "scenario": {
+            "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs",
+            "sha256": "0e7c449cc20a537702614869395abe850272385aa2e4720eb7acf3a3885390ee"
+          },
+          "runtime": {
+            "node": "v24.19.0",
+            "platform": "linux",
+            "arch": "x64",
+            "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+            "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+            "playwright": "1.63.0",
+            "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+            "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+            "harness": {
+              "harness.mjs": "6aeb9f2b9a11ef998268662be7ad0701d4425dbd3901d14f7008b58fb245bc98",
+              "owned-profile.mjs": "9c0a3effd394ad00d0b9f959ccd083c04b6794e10510c4c5574d84d5fd525cd6",
+              "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+              "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+            }
+          }
+        },
+        "priorRunId": "5451f1a6-088f-4dac-94c9-b0f2cc869fd2",
+        "history": {
+          "activeSeconds": 418.08333333333337,
+          "failures": [
+            {
+              "index": 29,
+              "inputSha256": "9f75745b2fff10d7fadd6e6731878c702e753727379adba9315e08be849f374b",
+              "at": "2026-10-05T02:25:46.072Z",
+              "error": "AssertionError [ERR_ASSERTION]: Visible ground with no competing object\n    at move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:339:12)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:821:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:251:21",
+              "inheritedFromSavedSermon": true
+            },
+            {
+              "index": 48,
+              "inputSha256": "d5da26439d3e13079904f99899a645818cd1368f72ee2173c75b13fc065ba862",
+              "at": "2026-10-05T02:33:24.622Z",
+              "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n2097152 !== 0\n\n    at cancelSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:690:81)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:821:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:251:21",
+              "inheritedFromSavedSermon": true
+            },
+            {
+              "index": 1,
+              "inputSha256": "eaead1ccf24c7f091808c670c384d20738313a63a1a326377ebfd49b01e5eca4",
+              "at": "2026-10-05T04:50:45.198Z",
+              "error": "Error: The exact listener has not released sermon ownership and its listener flag\n    at requireCancelledSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/observation.mjs:219:11)\n    at cancelSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:778:26)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:921:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21"
+            }
+          ],
+          "controlStops": [
+            {
+              "index": 2,
+              "at": "2026-10-05T04:51:09.497Z",
+              "outer": true,
+              "code": "preserve-latest",
+              "error": "IncompleteRun: Requested bounded stop preserving the actual committed checkpoint\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:619:11)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:913:11)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21"
+            }
+          ],
+          "closedEpochCount": 0,
+          "openEpochActiveSeconds": 10.333333333333371,
+          "priorRunId": "5451f1a6-088f-4dac-94c9-b0f2cc869fd2"
+        }
+      },
+      "continuationScope": "Newly assembled single successor of a real failed gameplay segment. Original admission/history are unchanged; cumulative time, three failures and preserving stop are retained.",
+      "assembledErosionContinuationAt": "2026-10-05T07:56:55.231Z",
+      "erosionPredecessorRecordSha256": "06bfa8ee047dbd35deed07e65ac6c3bc15e65a7aa65cf5e977976f6b798b77fb",
+      "erosionContinuation": {
+        "reference": {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-5de3c57-payload.json",
+          "sha256": "0cfb3fafa6c6c5e10bc253155238231472bfdce8d1feeeaf8ef702cc2eabb89f",
+          "review": {
+            "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/reviews/erosion-continuation-5de3c57-payload-review.json",
+            "sha256": "69482a90a8845094e3e16861bcf885f9d2e27ac7f322d41c98cc956810641203"
+          }
+        },
+        "target": {
+          "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+          "origin": "http://127.0.0.1:4366",
+          "profile": {
+            "id": "c1f1d915-d99a-4c47-be2a-2ad36d89fc86",
+            "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/local-render-profiles/mission-three-recovered-sermon-4813"
+          },
+          "source": {
+            "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+            "commit": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+            "tree": "1f4cd408cbee13c1a43b71f5ed2f8cc3e8ca3e7d",
+            "status": "",
+            "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+            "untracked": [],
+            "fingerprint": "2b706d533129007642b084662f644b4bb9024e059e9393a176f8b8dc6783b3d3"
+          },
+          "inputs": {
+            "application": "fbe70c8219207cfa1dd2f2646a9bc7a6675d0425b428025c1de25b30e1167618",
+            "checker": "e6732546fd073199b03a3055574877e220f890deda5554b4b8e2d1809aadad52"
+          },
+          "scenario": {
+            "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs",
+            "sha256": "8395638772417a885fab16dda9b4049ba553c8eca43423010c1310ef9200add5"
+          },
+          "runtime": {
+            "node": "v24.19.0",
+            "platform": "linux",
+            "arch": "x64",
+            "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+            "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+            "playwright": "1.63.0",
+            "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+            "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+            "harness": {
+              "harness.mjs": "6aeb9f2b9a11ef998268662be7ad0701d4425dbd3901d14f7008b58fb245bc98",
+              "owned-profile.mjs": "a9aeecf95314215876a183fb4843b9e2dc26379e1bc84bf50a39be346e71f86f",
+              "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+              "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+            }
+          }
+        },
+        "priorRunId": "1c430e41-9aca-4a05-bb45-7bd8076ffffd",
+        "history": {
+          "priorRunId": "1c430e41-9aca-4a05-bb45-7bd8076ffffd",
+          "activeSeconds": 980.0833333333333,
+          "inheritedActiveSeconds": 418.08333333333337,
+          "closedEpochs": [
+            {
+              "name": "saved-sermon-entry",
+              "baselineGameTime": 401.0833333333333,
+              "lastGameTime": 408.25,
+              "activeSeconds": 7.166666666666686,
+              "firstTurn": 4830,
+              "lastTurn": 4899,
+              "samples": 70,
+              "errors": [],
+              "speedViolations": []
+            }
+          ],
+          "openEpoch": {
+            "name": "reload-1",
+            "baselineGameTime": 401.0833333333333,
+            "lastGameTime": 955.9166666666666,
+            "activeSeconds": 554.8333333333333,
+            "firstTurn": 4838,
+            "lastTurn": 11471,
+            "samples": 6634,
+            "errors": [],
+            "speedViolations": []
+          },
+          "failures": [
+            {
+              "index": 29,
+              "inputSha256": "9f75745b2fff10d7fadd6e6731878c702e753727379adba9315e08be849f374b",
+              "at": "2026-10-05T02:25:46.072Z",
+              "error": "AssertionError [ERR_ASSERTION]: Visible ground with no competing object\n    at move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:339:12)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:821:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:251:21",
+              "inheritedFromSavedSermon": true
+            },
+            {
+              "index": 48,
+              "inputSha256": "d5da26439d3e13079904f99899a645818cd1368f72ee2173c75b13fc065ba862",
+              "at": "2026-10-05T02:33:24.622Z",
+              "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n2097152 !== 0\n\n    at cancelSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:690:81)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:821:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:251:21",
+              "inheritedFromSavedSermon": true
+            },
+            {
+              "index": 1,
+              "inputSha256": "eaead1ccf24c7f091808c670c384d20738313a63a1a326377ebfd49b01e5eca4",
+              "at": "2026-10-05T04:50:45.198Z",
+              "error": "Error: The exact listener has not released sermon ownership and its listener flag\n    at requireCancelledSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/observation.mjs:219:11)\n    at cancelSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:778:26)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:921:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21",
+              "inheritedFromSavedSermon": true
+            }
+          ],
+          "controlStops": [
+            {
+              "index": 2,
+              "at": "2026-10-05T04:51:09.497Z",
+              "outer": true,
+              "code": "preserve-latest",
+              "error": "IncompleteRun: Requested bounded stop preserving the actual committed checkpoint\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:619:11)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:913:11)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21",
+              "inheritedFromPriorGameplay": true
+            },
+            {
+              "index": 3,
+              "at": "2026-10-05T05:29:12.547Z",
+              "outer": true,
+              "code": "progress-stall",
+              "error": "IncompleteRun: No relevant combat progress for two active minutes\n    at waitDiagnosticStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/observation.mjs:311:41)\n    at waitFor (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:426:20)\n    at async erosion (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:813:5)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:928:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21"
+            }
+          ],
+          "priorMilestones": [
+            {
+              "name": "vault",
+              "turn": 1423,
+              "time": 118.58333333333333,
+              "epoch": "entry",
+              "activeSeconds": 118.58333333333333,
+              "at": "2026-10-04T20:58:00.642Z",
+              "inherited": true,
+              "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+              "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+              "inheritedFromSavedSermon": true
+            },
+            {
+              "name": "shaman-home",
+              "turn": 1846,
+              "time": 153.83333333333334,
+              "epoch": "entry",
+              "activeSeconds": 153.83333333333334,
+              "at": "2026-10-04T20:58:35.554Z",
+              "inherited": true,
+              "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+              "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+              "inheritedFromSavedSermon": true
+            },
+            {
+              "name": "temple",
+              "turn": 2877,
+              "time": 239.75,
+              "epoch": "entry",
+              "activeSeconds": 239.75,
+              "at": "2026-10-04T21:00:01.523Z",
+              "inherited": true,
+              "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+              "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+              "inheritedFromSavedSermon": true
+            },
+            {
+              "name": "preacher",
+              "turn": 3924,
+              "time": 327,
+              "epoch": "continuation-entry",
+              "activeSeconds": 327,
+              "at": "2026-10-05T02:21:07.343Z",
+              "inheritedFromSavedSermon": true
+            },
+            {
+              "name": "listener",
+              "turn": 4813,
+              "time": 401.0833333333333,
+              "epoch": "continuation-entry",
+              "activeSeconds": 401.0833333333333,
+              "at": "2026-10-05T02:31:13.396Z",
+              "inheritedFromSavedSermon": true
+            },
+            {
+              "name": "sermon-saved",
+              "turn": 4813,
+              "time": 401.0833333333333,
+              "victimId": 50,
+              "preacherId": 3163,
+              "blueIds": [
+                46,
+                312,
+                309,
+                519,
+                513,
+                510,
+                303,
+                300,
+                522,
+                507,
+                306,
+                589,
+                3163
+              ],
+              "inheritedFromSavedSermon": true
+            },
+            {
+              "name": "sermon-cancelled",
+              "turn": 4899,
+              "time": 408.25,
+              "epoch": "saved-sermon-entry",
+              "activeSeconds": 425.25000000000006,
+              "at": "2026-10-05T05:17:55.693Z"
+            },
+            {
+              "name": "sermon-reloaded",
+              "turn": 4878,
+              "time": 406.5,
+              "epoch": "reload-1",
+              "activeSeconds": 430.66666666666674,
+              "at": "2026-10-05T05:18:30.825Z"
+            },
+            {
+              "name": "conversion",
+              "turn": 5144,
+              "time": 428.6666666666667,
+              "epoch": "reload-1",
+              "activeSeconds": 452.8333333333334,
+              "at": "2026-10-05T05:18:52.786Z"
+            }
+          ],
+          "priorInputs": [
+            {
+              "name": "driver.mjs",
+              "sha256": "0e7c449cc20a537702614869395abe850272385aa2e4720eb7acf3a3885390ee"
+            },
+            {
+              "name": "observation.mjs",
+              "sha256": "564fae5b6f72a9ac1be54fed717be9e92c5ec616bcb7b4fa59b0d8a9428e94e5"
+            },
+            {
+              "name": "checkpoint-provenance.mjs",
+              "sha256": "c4781f7ea5addd9ad6d5fa77d89b0e40d759b8a3d7ef831e9df60a7f0af6f96d"
+            },
+            {
+              "name": "sermon-checkpoint.mjs",
+              "sha256": "685bd4ddfeb06fd05911c1f5d7e0167498882b0921b67e49bba6e6688ccbdaad"
+            },
+            {
+              "name": "recovery-admission.mjs",
+              "sha256": "99ef4f883fb84a7c49cb12cbb4e8b82439d7fcff53905bc1206692b678def3ab"
+            },
+            {
+              "name": "sermon-successor.mjs",
+              "sha256": "8dd000f55c3b9b9b5f7ea701f86055724587ea3ec7220ea64f35745789882cc9"
+            },
+            {
+              "name": "command-probes.mjs",
+              "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f"
+            },
+            {
+              "name": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/successor-4813/sermon-record.json",
+              "sha256": "0f2316d2e8043c22117f1150860023301b653b406fa96906315c64761e9d28a3"
+            },
+            {
+              "name": "commands/0001.json",
+              "sha256": "eaead1ccf24c7f091808c670c384d20738313a63a1a326377ebfd49b01e5eca4"
+            },
+            {
+              "name": "commands/0002.json",
+              "sha256": "44ef143f91feae8e0625134e58a4fd7a3e96864a17e1e6d20a7514cf8235c68f"
+            },
+            {
+              "name": "commands/0003.json",
+              "sha256": "e1aec23d820d156ed83eb471b4183c80c7db07aa9054bacaaa404a51a61a8e60"
+            }
+          ]
+        },
+        "budget": {
+          "priorConversionActiveSeconds": 452.8333333333334,
+          "cumulativeActiveCeiling": 2252.8333333333335,
+          "remainingActiveSeconds": 1272.7500000000002,
+          "segmentWallMs": 5400000,
+          "outerWallMs": 5700000
+        }
+      }
+    },
+    "inputSha256": "9ac61773f2533a6b17d2f7fe691c4035669ccf8a631f9f06f1a906de82862883",
+    "priorRun": {
+      "runId": "1c430e41-9aca-4a05-bb45-7bd8076ffffd",
+      "sourceFingerprint": "2e68959e06fec091ad679b34545a4400989a2967d2b8035ef47c6949e6c234a1",
+      "sourceCommit": "bbd7371e04a55e57b1e368530e92de6777864358",
+      "checker": "d9206244d185576d242398492298df21935355881123d335554a1a5cc1d8fdb2",
+      "receiptPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/successor-sermon-01/receipt.json",
+      "receiptSha256": "e43af2735c564e5d025b13036481187764a4d6d715df68f85f04efbc3e7c6bd6",
+      "status": "failed",
+      "cleanupVerified": true,
+      "continuationVerified": true,
+      "checkpointAtEnd": {
+        "version": 1,
+        "level": 3,
+        "turn": 4813,
+        "time": 401.0833333333333,
+        "checkpointSha256": "720e96e28b46a029e22a1c97729ead760471c96e4e10c59fd5ae620d5e66f57a",
+        "actorsSha256": "c2ce52fb00a0c58c4e0383e95b5a8ab74c98c366e0bfd1ea7cf74a36e9c5c715",
+        "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+        "stockSha256": "3ba9bf87e026ccd5d45f1a270e8684896468846ecff1adfbacde67836788272c"
+      }
+    }
+  },
+  "protectedPreparation": null,
+  "protectedLatest": {
+    "label": "m3-before-saved-sermon-load",
+    "observedAt": "2026-10-05T07:57:47.981Z",
+    "profileId": "c1f1d915-d99a-4c47-be2a-2ad36d89fc86",
+    "runId": "a02e7d02-ae42-496d-a49e-00c75b069ede",
+    "sourceFingerprint": "2b706d533129007642b084662f644b4bb9024e059e9393a176f8b8dc6783b3d3",
+    "checkpoint": {
+      "version": 1,
+      "level": 3,
+      "turn": 4813,
+      "time": 401.0833333333333,
+      "checkpointSha256": "720e96e28b46a029e22a1c97729ead760471c96e4e10c59fd5ae620d5e66f57a",
+      "actorsSha256": "c2ce52fb00a0c58c4e0383e95b5a8ab74c98c366e0bfd1ea7cf74a36e9c5c715",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "3ba9bf87e026ccd5d45f1a270e8684896468846ecff1adfbacde67836788272c"
+    }
+  },
+  "sermonRecord": {
+    "version": 1,
+    "kind": "mission3-recovered-sermon-erosion-continuation",
+    "assembledRecoveryAt": "2026-10-05T04:49:08.927Z",
+    "recordedByRunId": "a02e7d02-ae42-496d-a49e-00c75b069ede",
+    "continuationPolicy": "single-gameplay-segment",
+    "source": {
+      "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered",
+      "commit": "81dab9e1ac74fd4aa3879d629758edbd388cfd7f",
+      "tree": "0ced76d3658d6eb92039354b9cc675775552b412",
+      "status": "",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked": [],
+      "fingerprint": "d42fb22b4aba2e0bf0d07f39a5dc71b39cfe56dd9337a1aa5ce7980fa03e9c62"
+    },
+    "profile": {
+      "id": "bb9f0c5f-7228-4cd1-befc-f62d8c199fa3",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/work/local-render-profiles/mission-three-controls"
+    },
+    "origin": "http://127.0.0.1:4366",
+    "savedByRunId": "c5c7823d-867a-4426-b004-addf73dac590",
+    "checkpoint": {
+      "version": 1,
+      "level": 3,
+      "turn": 4813,
+      "time": 401.0833333333333,
+      "checkpointSha256": "720e96e28b46a029e22a1c97729ead760471c96e4e10c59fd5ae620d5e66f57a",
+      "actorsSha256": "c2ce52fb00a0c58c4e0383e95b5a8ab74c98c366e0bfd1ea7cf74a36e9c5c715",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "3ba9bf87e026ccd5d45f1a270e8684896468846ecff1adfbacde67836788272c"
+    },
+    "ids": {
+      "authoredVictim": 53,
+      "vault": 92,
+      "erosion": 101,
+      "shaman": 46,
+      "temple": 1021,
+      "trainee": 516,
+      "preacher": 3163,
+      "victim": 50
+    },
+    "declaration": {
+      "armedAtTurn": 4101,
+      "armedAtGameTime": 341.75,
+      "preacherId": 3163,
+      "rule": "First new owned state23 among these current living Yellow Braves; lowest ID on a same-turn tie. No re-arming or post-conversion selection.",
+      "candidateIds": [
+        48,
+        50,
+        51,
+        52,
+        53,
+        2495,
+        2529,
+        2563,
+        2597,
+        2631,
+        2665,
+        2699,
+        2734,
+        2879,
+        2909,
+        2975,
+        3033,
+        3067
+      ],
+      "candidates": [
+        {
+          "id": 48,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -45.703125,
+          "z": -104.6015625,
+          "inside": 1018
+        },
+        {
+          "id": 50,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -25.0625,
+          "z": -107.53515625,
+          "inside": null
+        },
+        {
+          "id": 51,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -45.7421875,
+          "z": -104.91796875,
+          "inside": 1018
+        },
+        {
+          "id": 52,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -45.73046875,
+          "z": -104.8203125,
+          "inside": 1018
+        },
+        {
+          "id": 53,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -26.2421875,
+          "z": -109.2578125,
+          "inside": null
+        },
+        {
+          "id": 2495,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -46.984375,
+          "z": -95.38671875,
+          "inside": 1019
+        },
+        {
+          "id": 2529,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -45,
+          "z": -91,
+          "inside": null,
+          "state": 19,
+          "workTarget": 0,
+          "model": 2,
+          "tribe": 2,
+          "timer": 0,
+          "flags2": 131072,
+          "flags3": 0,
+          "flags4": 536871168
+        },
+        {
+          "id": 2563,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -47,
+          "z": -95.5234375,
+          "inside": 1019
+        },
+        {
+          "id": 2597,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -34.80078125,
+          "z": -90.99609375,
+          "inside": 1020
+        },
+        {
+          "id": 2631,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -29,
+          "z": -91,
+          "inside": null,
+          "state": 19,
+          "workTarget": 0,
+          "model": 2,
+          "tribe": 2,
+          "timer": 2,
+          "flags2": 1075970176,
+          "flags3": 0,
+          "flags4": 536871168
+        },
+        {
+          "id": 2665,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -34.640625,
+          "z": -90.984375,
+          "inside": 1020
+        },
+        {
+          "id": 2699,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -47,
+          "z": -95.7578125,
+          "inside": 1019
+        },
+        {
+          "id": 2734,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -45,
+          "z": -87,
+          "inside": null,
+          "state": 19,
+          "workTarget": 0,
+          "model": 2,
+          "tribe": 2,
+          "timer": 0,
+          "flags2": 131072,
+          "flags3": 0,
+          "flags4": 537133312
+        },
+        {
+          "id": 2879,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -35.015625,
+          "z": -90.99609375,
+          "inside": 1020
+        },
+        {
+          "id": 2909,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -19,
+          "z": -89,
+          "inside": null,
+          "state": 19,
+          "workTarget": 0,
+          "model": 2,
+          "tribe": 2,
+          "timer": 0,
+          "flags2": 131072,
+          "flags3": 0,
+          "flags4": 537133312
+        },
+        {
+          "id": 2975,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -23,
+          "z": -93,
+          "inside": null,
+          "state": 19,
+          "workTarget": 0,
+          "model": 2,
+          "tribe": 2,
+          "timer": 0,
+          "flags2": 131072,
+          "flags3": 0,
+          "flags4": 537133312
+        },
+        {
+          "id": 3033,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -27,
+          "z": -83,
+          "inside": null,
+          "state": 19,
+          "workTarget": 0,
+          "model": 2,
+          "tribe": 2,
+          "timer": 0,
+          "flags2": 131072,
+          "flags3": 0,
+          "flags4": 537133312
+        },
+        {
+          "id": 3067,
+          "team": "yellow",
+          "kind": "brave",
+          "hp": 50,
+          "x": -15,
+          "z": -93,
+          "inside": null,
+          "state": 19,
+          "workTarget": 0,
+          "model": 2,
+          "tribe": 2,
+          "timer": 0,
+          "flags2": 131072,
+          "flags3": 0,
+          "flags4": 537133312
+        }
+      ],
+      "firstOwned": null
+    },
+    "epoch": "continuation-entry",
+    "firstOwned": {
+      "turnBefore": 4777,
+      "turnAfter": 4778,
+      "gameTime": 398.1666666666667,
+      "preacherId": 3163,
+      "sameTurnIds": [
+        50,
+        53
+      ],
+      "before": {
+        "id": 50,
+        "kind": "brave",
+        "team": "yellow",
+        "hp": 50,
+        "state": 10,
+        "workTarget": 3163,
+        "flags3": 0,
+        "flags4": 536936704
+      },
+      "victim": {
+        "id": 50,
+        "team": "yellow",
+        "kind": "brave",
+        "hp": 50,
+        "x": -32.31640625,
+        "z": -108.1015625,
+        "inside": null,
+        "state": 23,
+        "workTarget": 3163,
+        "model": 2,
+        "tribe": 2,
+        "timer": 97,
+        "flags2": 2228736,
+        "flags3": 0,
+        "flags4": 536936832
+      }
+    },
+    "retainedBlueIds": [
+      46,
+      312,
+      309,
+      519,
+      513,
+      510,
+      303,
+      300,
+      522,
+      507,
+      306,
+      589,
+      3163
+    ],
+    "milestones": [
+      {
+        "name": "vault",
+        "turn": 1423,
+        "time": 118.58333333333333,
+        "epoch": "entry",
+        "activeSeconds": 118.58333333333333,
+        "at": "2026-10-04T20:58:00.642Z",
+        "inherited": true,
+        "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+        "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a"
+      },
+      {
+        "name": "shaman-home",
+        "turn": 1846,
+        "time": 153.83333333333334,
+        "epoch": "entry",
+        "activeSeconds": 153.83333333333334,
+        "at": "2026-10-04T20:58:35.554Z",
+        "inherited": true,
+        "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+        "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a"
+      },
+      {
+        "name": "temple",
+        "turn": 2877,
+        "time": 239.75,
+        "epoch": "entry",
+        "activeSeconds": 239.75,
+        "at": "2026-10-04T21:00:01.523Z",
+        "inherited": true,
+        "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+        "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a"
+      },
+      {
+        "name": "preacher",
+        "turn": 3924,
+        "time": 327,
+        "epoch": "continuation-entry",
+        "activeSeconds": 327,
+        "at": "2026-10-05T02:21:07.343Z"
+      },
+      {
+        "name": "listener",
+        "turn": 4813,
+        "time": 401.0833333333333,
+        "epoch": "continuation-entry",
+        "activeSeconds": 401.0833333333333,
+        "at": "2026-10-05T02:31:13.396Z"
+      },
+      {
+        "name": "sermon-saved",
+        "turn": 4813,
+        "time": 401.0833333333333,
+        "victimId": 50,
+        "preacherId": 3163,
+        "blueIds": [
+          46,
+          312,
+          309,
+          519,
+          513,
+          510,
+          303,
+          300,
+          522,
+          507,
+          306,
+          589,
+          3163
+        ]
+      }
+    ],
+    "activeSeconds": 407.75,
+    "inputs": [
+      {
+        "name": "driver.mjs",
+        "sha256": "1e4e4131d9e3abfbb30ff8e22c031b9eadec193e7d5dbc8898021dc8c32800ed"
+      },
+      {
+        "name": "observation.mjs",
+        "sha256": "4159fdbcc6c32bb28781590718ee07c69d46ff490d4b958624c716545fc2efe9"
+      },
+      {
+        "name": "checkpoint-provenance.mjs",
+        "sha256": "c4781f7ea5addd9ad6d5fa77d89b0e40d759b8a3d7ef831e9df60a7f0af6f96d"
+      },
+      {
+        "name": "command-probes.mjs",
+        "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f"
+      },
+      {
+        "name": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/work/orchestration/mission-three-controls/browser-13/preparation-record.json",
+        "sha256": "a73c682b91c6ab19bdc6054c4bd195dd04787a8d576e32a76b25840c0d29d6d0"
+      },
+      {
+        "name": "commands/0001.json",
+        "sha256": "612b8d26fd0607b24e9d584e23fc7881306d15eb7784a29ae1dc52768b322cc0"
+      },
+      {
+        "name": "commands/0002.json",
+        "sha256": "bb4125f8047ba3073ed8b755175c20069f04c990713ca4cda45cc1798f4dae8c"
+      },
+      {
+        "name": "commands/0003.json",
+        "sha256": "160cf9c0e5ba0fb2c7e5813c16398b2c09bad9dc16eeec48ac43da6258ef6e8f"
+      },
+      {
+        "name": "commands/0004.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0005.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0006.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0007.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0008.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0009.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0010.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0011.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0012.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0013.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0014.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0015.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0016.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0017.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0018.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0019.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0020.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0021.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0022.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0023.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0024.json",
+        "sha256": "524a37fdcc724789d1b26dc7486b10c839fa664e58ab1651d4ace526ea8e03b8"
+      },
+      {
+        "name": "commands/0025.json",
+        "sha256": "149aa3da6992cf88837428670514c7ff06eecfaa4e551bd4ed2089cf5add87da"
+      },
+      {
+        "name": "commands/0026.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0027.json",
+        "sha256": "a335402d2c66542e013b6763ae2fbc2d428ed11888aa4c94fba0650c179b0691"
+      },
+      {
+        "name": "commands/0028.json",
+        "sha256": "a1b356d91c08b392a701401d79c37f07007249b784a62408f12eade3dd141680"
+      },
+      {
+        "name": "commands/0029.json",
+        "sha256": "9f75745b2fff10d7fadd6e6731878c702e753727379adba9315e08be849f374b"
+      },
+      {
+        "name": "commands/0030.json",
+        "sha256": "a2584c3032bc81af7fc4e4aba92efab9e637e5391922864cccf81ca0acad4fda"
+      },
+      {
+        "name": "commands/0031.json",
+        "sha256": "9f75745b2fff10d7fadd6e6731878c702e753727379adba9315e08be849f374b"
+      },
+      {
+        "name": "commands/0032.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0033.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0034.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0035.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0036.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0037.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0038.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0039.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0040.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0041.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0042.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0043.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0044.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0045.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0046.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0047.json",
+        "sha256": "c0685f289467f14619efa9693712d212561ae07b06b9630f77b3505543a193e8"
+      },
+      {
+        "name": "commands/0048.json",
+        "sha256": "d5da26439d3e13079904f99899a645818cd1368f72ee2173c75b13fc065ba862"
+      }
+    ],
+    "failures": [
+      {
+        "index": 29,
+        "inputSha256": "9f75745b2fff10d7fadd6e6731878c702e753727379adba9315e08be849f374b",
+        "at": "2026-10-05T02:25:46.072Z",
+        "error": "AssertionError [ERR_ASSERTION]: Visible ground with no competing object\n    at move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:339:12)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:821:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:251:21"
+      },
+      {
+        "index": 48,
+        "inputSha256": "d5da26439d3e13079904f99899a645818cd1368f72ee2173c75b13fc065ba862",
+        "at": "2026-10-05T02:33:24.622Z",
+        "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n2097152 !== 0\n\n    at cancelSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:690:81)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:821:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:251:21"
+      }
+    ],
+    "acquisition": {
+      "version": 1,
+      "kind": "mission3-ui-preparation",
+      "source": {
+        "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered",
+        "commit": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+        "tree": "4a1843152ed79e3065a805484bcd9cb30104e8b4",
+        "status": "",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "untracked": [],
+        "fingerprint": "1a11ad366370fe436bc3ac6329385bd790a88bd17ecb2e2950c4b6e2c817e4cc"
+      },
+      "profile": {
+        "id": "bb9f0c5f-7228-4cd1-befc-f62d8c199fa3",
+        "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/work/local-render-profiles/mission-three-controls"
+      },
+      "origin": "http://127.0.0.1:4366",
+      "checkpoint": {
+        "sha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+        "level": 3,
+        "turn": 2909,
+        "time": 242.41666666666666
+      },
+      "ids": {
+        "authoredVictim": 53,
+        "vault": 92,
+        "erosion": 101,
+        "shaman": 46,
+        "temple": 1021
+      },
+      "milestones": [
+        {
+          "name": "vault",
+          "turn": 1423,
+          "time": 118.58333333333333,
+          "epoch": "entry",
+          "activeSeconds": 118.58333333333333,
+          "at": "2026-10-04T20:58:00.642Z"
+        },
+        {
+          "name": "shaman-home",
+          "turn": 1846,
+          "time": 153.83333333333334,
+          "epoch": "entry",
+          "activeSeconds": 153.83333333333334,
+          "at": "2026-10-04T20:58:35.554Z"
+        },
+        {
+          "name": "temple",
+          "turn": 2877,
+          "time": 239.75,
+          "epoch": "entry",
+          "activeSeconds": 239.75,
+          "at": "2026-10-04T21:00:01.523Z"
+        }
+      ],
+      "activeSeconds": 242.41666666666666,
+      "inputs": [
+        {
+          "name": "driver.mjs",
+          "sha256": "b9b5f64b7b34caa8d4edd6bcd200740a8d5bf63658b91a41d35a715f2aaf9bbc"
+        },
+        {
+          "name": "observation.mjs",
+          "sha256": "6aeaf67ea7ffce5d674f8ec48b9ac16cefce691be6618e6a358419313e744174"
+        },
+        {
+          "name": "checkpoint-provenance.mjs",
+          "sha256": "81010c4d952fdb0b4ced21aa247aa1517e789fc82599431fbd738b9786ff592a"
+        },
+        {
+          "name": "commands/0001.json",
+          "sha256": "aea26620944b98c5acf25e6c90142517fb1338e15ba54fbe575f44b665de3ee7"
+        }
+      ],
+      "retainedBlueIds": [
+        46,
+        312,
+        309,
+        519,
+        516,
+        513,
+        510,
+        303,
+        300,
+        522,
+        507,
+        306,
+        589
+      ],
+      "initialMission3Absent": true,
+      "scope": "Observed ordinary acquisition prefix through Temple. Loading continues this saved prefix; it is not a fresh entry or evidence that later failed attempts passed.",
+      "qaAdmission": {
+        "source": {
+          "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered",
+          "commit": "02301bce433cf69c1b439e9025d3495ec19e5d5b",
+          "tree": "fa6613995f20574ae02ff68c095aeb76f5e6d8c6",
+          "status": "",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "untracked": [],
+          "fingerprint": "61afcea29f0fd5fa875cae946902eea3d19561abd2765020cf72f7732b84d232"
+        },
+        "checker": "d66eed30a5846ed981a380c5ce7ee7230c357e327e21dfea6ca600f59e8d4c51",
+        "correspondence": {
+          "priorRunId": "63f466fa-54fa-4501-8f2b-bc6d1f71201e",
+          "previousSourceFingerprint": "1a11ad366370fe436bc3ac6329385bd790a88bd17ecb2e2950c4b6e2c817e4cc",
+          "currentSourceFingerprint": "61afcea29f0fd5fa875cae946902eea3d19561abd2765020cf72f7732b84d232",
+          "previousChecker": "a6ae8c482666c426a15a8e05e8336fc8230652b90800d5d9215be2ae85b6d41a",
+          "currentChecker": "d66eed30a5846ed981a380c5ce7ee7230c357e327e21dfea6ca600f59e8d4c51",
+          "decision": "ACCEPT",
+          "reviewer": "/root/finish_reviewed_pr_batch",
+          "reference": "work/reviews/profile-correspondence-02301bc-review.json",
+          "sha256": "71d50d9e977020e52c6ab75017a49e00ffec474d110693d93d48ffa154a89b0b"
+        },
+        "preparationFingerprint": "1a11ad366370fe436bc3ac6329385bd790a88bd17ecb2e2950c4b6e2c817e4cc",
+        "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+        "profileId": "bb9f0c5f-7228-4cd1-befc-f62d8c199fa3",
+        "recordedByRunId": "eeca398d-01c4-401b-8334-9a926501c46c"
+      },
+      "qaContinuation": {
+        "source": {
+          "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered",
+          "commit": "81dab9e1ac74fd4aa3879d629758edbd388cfd7f",
+          "tree": "0ced76d3658d6eb92039354b9cc675775552b412",
+          "status": "",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "untracked": [],
+          "fingerprint": "d42fb22b4aba2e0bf0d07f39a5dc71b39cfe56dd9337a1aa5ce7980fa03e9c62"
+        },
+        "checker": "a7367b3982bda5427ef056fe3ee6f3349fd0a3a449acad77cfa07cc9fede3656",
+        "correspondence": {
+          "priorRunId": "eeca398d-01c4-401b-8334-9a926501c46c",
+          "previousSourceFingerprint": "61afcea29f0fd5fa875cae946902eea3d19561abd2765020cf72f7732b84d232",
+          "currentSourceFingerprint": "d42fb22b4aba2e0bf0d07f39a5dc71b39cfe56dd9337a1aa5ce7980fa03e9c62",
+          "previousChecker": "d66eed30a5846ed981a380c5ce7ee7230c357e327e21dfea6ca600f59e8d4c51",
+          "currentChecker": "a7367b3982bda5427ef056fe3ee6f3349fd0a3a449acad77cfa07cc9fede3656",
+          "decision": "ACCEPT",
+          "reviewer": "/root/finish_reviewed_pr_batch",
+          "reference": "work/reviews/profile-correspondence-81dab9e-admission.json",
+          "provenance": {
+            "priorReceiptSha256": "db9a263ee61c5c5dd3786aacbe92ca2c5948e28cb6f7231a65ba83d9462d6974",
+            "forwardedPreparationSha256": "a73c682b91c6ab19bdc6054c4bd195dd04787a8d576e32a76b25840c0d29d6d0",
+            "originalPreparationSha256": "db74eaa73ae5b9950f2e2b5340f058f30e3772c5c588331624f51bc6754a0244",
+            "originalSourceFingerprint": "1a11ad366370fe436bc3ac6329385bd790a88bd17ecb2e2950c4b6e2c817e4cc",
+            "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+            "firstAdmissionSha256": "605e5430ad2f5ced6a697f796ec4e6a472b072330222cac192b7947c7e55d202",
+            "firstCorrespondenceSha256": "71d50d9e977020e52c6ab75017a49e00ffec474d110693d93d48ffa154a89b0b"
+          },
+          "sha256": "f06e27da6d5629537963db47a9233e94c38b2e0b09a54077de06f51a5555a918"
+        },
+        "preparationFingerprint": "1a11ad366370fe436bc3ac6329385bd790a88bd17ecb2e2950c4b6e2c817e4cc",
+        "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+        "profileId": "bb9f0c5f-7228-4cd1-befc-f62d8c199fa3",
+        "recordedByRunId": "c5c7823d-867a-4426-b004-addf73dac590"
+      }
+    },
+    "initialMission3Absent": true,
+    "originalInterruption": {
+      "execSession": 26861,
+      "execExitCode": 130,
+      "innerReceipt": "absent",
+      "cleanup": "unknown",
+      "originalLock": "preserved"
+    },
+    "checkpointMeasurement": {
+      "kind": "read-only-validator",
+      "runId": "83de011e-2c35-42c5-9010-e9e7b7d01a48",
+      "innerReceiptSha256": "5be2b9f8e483fc35939cee72d422ecfd0ea07862bd89343d346421b3b9870bed"
+    },
+    "scope": "Newly assembled recovered provenance for the genuine Run14 UI Save. Original failures and unknown cleanup remain; the full digest was measured later by the storage validator. New gameplay requires fresh ordinary Load and witnesses.",
+    "recoveryAdmissionSha256": "8e23ffe7b58bc970e92b519ac71add07e4f84ddb591738d1dd7c3df451cbdcd9",
+    "targetProfile": {
+      "id": "c1f1d915-d99a-4c47-be2a-2ad36d89fc86",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/local-render-profiles/mission-three-recovered-sermon-4813"
+    },
+    "targetSource": {
+      "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+      "commit": "3ddb1dd9f971f8d21ab5bfda262bc4db72500466",
+      "tree": "764de8b4c62d389fb07d476c1cf560e52383af14",
+      "status": "",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked": [],
+      "fingerprint": "fe73b97709e7fff60a20c4f28a3998e4233763bcaaa1494bacbcbd22fa65450b"
+    },
+    "assembledSuccessorAt": "2026-10-05T05:15:43.943Z",
+    "priorRecordSha256": "7cf660ad2a948652c0d284f0b31528efe8b13b579b9d8465ba06130a9f0e42b4",
+    "gameplayContinuation": {
+      "reference": {
+        "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/successor-bbd7371-payload.json",
+        "sha256": "1d562ec19620c8b1b3c7369db44ff225176c40098a81e5151c073b1dacb8e8b5",
+        "review": {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/reviews/copied-sermon-successor-bbd7371-review.json",
+          "sha256": "32260e5c45d4a49d9086a05e710e0b0ba08565308a38001a7411f258014e19bd"
+        }
+      },
+      "target": {
+        "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+        "origin": "http://127.0.0.1:4366",
+        "profile": {
+          "id": "c1f1d915-d99a-4c47-be2a-2ad36d89fc86",
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/local-render-profiles/mission-three-recovered-sermon-4813"
+        },
+        "source": {
+          "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+          "commit": "bbd7371e04a55e57b1e368530e92de6777864358",
+          "tree": "3765eb171381ba1217b7be0f19a713a2a6685c56",
+          "status": "",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "untracked": [],
+          "fingerprint": "2e68959e06fec091ad679b34545a4400989a2967d2b8035ef47c6949e6c234a1"
+        },
+        "inputs": {
+          "application": "61b4cb03a1f255be59692c64111a27eb77ffa2b414b700c4818148802528b39e",
+          "checker": "d9206244d185576d242398492298df21935355881123d335554a1a5cc1d8fdb2"
+        },
+        "scenario": {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs",
+          "sha256": "0e7c449cc20a537702614869395abe850272385aa2e4720eb7acf3a3885390ee"
+        },
+        "runtime": {
+          "node": "v24.19.0",
+          "platform": "linux",
+          "arch": "x64",
+          "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+          "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+          "playwright": "1.63.0",
+          "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+          "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+          "harness": {
+            "harness.mjs": "6aeb9f2b9a11ef998268662be7ad0701d4425dbd3901d14f7008b58fb245bc98",
+            "owned-profile.mjs": "9c0a3effd394ad00d0b9f959ccd083c04b6794e10510c4c5574d84d5fd525cd6",
+            "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+            "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+          }
+        }
+      },
+      "priorRunId": "5451f1a6-088f-4dac-94c9-b0f2cc869fd2",
+      "history": {
+        "activeSeconds": 418.08333333333337,
+        "failures": [
+          {
+            "index": 29,
+            "inputSha256": "9f75745b2fff10d7fadd6e6731878c702e753727379adba9315e08be849f374b",
+            "at": "2026-10-05T02:25:46.072Z",
+            "error": "AssertionError [ERR_ASSERTION]: Visible ground with no competing object\n    at move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:339:12)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:821:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:251:21",
+            "inheritedFromSavedSermon": true
+          },
+          {
+            "index": 48,
+            "inputSha256": "d5da26439d3e13079904f99899a645818cd1368f72ee2173c75b13fc065ba862",
+            "at": "2026-10-05T02:33:24.622Z",
+            "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n2097152 !== 0\n\n    at cancelSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:690:81)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:821:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:251:21",
+            "inheritedFromSavedSermon": true
+          },
+          {
+            "index": 1,
+            "inputSha256": "eaead1ccf24c7f091808c670c384d20738313a63a1a326377ebfd49b01e5eca4",
+            "at": "2026-10-05T04:50:45.198Z",
+            "error": "Error: The exact listener has not released sermon ownership and its listener flag\n    at requireCancelledSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/observation.mjs:219:11)\n    at cancelSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:778:26)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:921:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21"
+          }
+        ],
+        "controlStops": [
+          {
+            "index": 2,
+            "at": "2026-10-05T04:51:09.497Z",
+            "outer": true,
+            "code": "preserve-latest",
+            "error": "IncompleteRun: Requested bounded stop preserving the actual committed checkpoint\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:619:11)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:913:11)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21"
+          }
+        ],
+        "closedEpochCount": 0,
+        "openEpochActiveSeconds": 10.333333333333371,
+        "priorRunId": "5451f1a6-088f-4dac-94c9-b0f2cc869fd2"
+      }
+    },
+    "continuationScope": "Newly assembled single successor of a real failed gameplay segment. Original admission/history are unchanged; cumulative time, three failures and preserving stop are retained.",
+    "assembledErosionContinuationAt": "2026-10-05T07:56:55.231Z",
+    "erosionPredecessorRecordSha256": "06bfa8ee047dbd35deed07e65ac6c3bc15e65a7aa65cf5e977976f6b798b77fb",
+    "erosionContinuation": {
+      "reference": {
+        "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-5de3c57-payload.json",
+        "sha256": "0cfb3fafa6c6c5e10bc253155238231472bfdce8d1feeeaf8ef702cc2eabb89f",
+        "review": {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/reviews/erosion-continuation-5de3c57-payload-review.json",
+          "sha256": "69482a90a8845094e3e16861bcf885f9d2e27ac7f322d41c98cc956810641203"
+        }
+      },
+      "target": {
+        "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+        "origin": "http://127.0.0.1:4366",
+        "profile": {
+          "id": "c1f1d915-d99a-4c47-be2a-2ad36d89fc86",
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/local-render-profiles/mission-three-recovered-sermon-4813"
+        },
+        "source": {
+          "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+          "commit": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+          "tree": "1f4cd408cbee13c1a43b71f5ed2f8cc3e8ca3e7d",
+          "status": "",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "untracked": [],
+          "fingerprint": "2b706d533129007642b084662f644b4bb9024e059e9393a176f8b8dc6783b3d3"
+        },
+        "inputs": {
+          "application": "fbe70c8219207cfa1dd2f2646a9bc7a6675d0425b428025c1de25b30e1167618",
+          "checker": "e6732546fd073199b03a3055574877e220f890deda5554b4b8e2d1809aadad52"
+        },
+        "scenario": {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs",
+          "sha256": "8395638772417a885fab16dda9b4049ba553c8eca43423010c1310ef9200add5"
+        },
+        "runtime": {
+          "node": "v24.19.0",
+          "platform": "linux",
+          "arch": "x64",
+          "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+          "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+          "playwright": "1.63.0",
+          "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+          "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+          "harness": {
+            "harness.mjs": "6aeb9f2b9a11ef998268662be7ad0701d4425dbd3901d14f7008b58fb245bc98",
+            "owned-profile.mjs": "a9aeecf95314215876a183fb4843b9e2dc26379e1bc84bf50a39be346e71f86f",
+            "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+            "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+          }
+        }
+      },
+      "priorRunId": "1c430e41-9aca-4a05-bb45-7bd8076ffffd",
+      "history": {
+        "priorRunId": "1c430e41-9aca-4a05-bb45-7bd8076ffffd",
+        "activeSeconds": 980.0833333333333,
+        "inheritedActiveSeconds": 418.08333333333337,
+        "closedEpochs": [
+          {
+            "name": "saved-sermon-entry",
+            "baselineGameTime": 401.0833333333333,
+            "lastGameTime": 408.25,
+            "activeSeconds": 7.166666666666686,
+            "firstTurn": 4830,
+            "lastTurn": 4899,
+            "samples": 70,
+            "errors": [],
+            "speedViolations": []
+          }
+        ],
+        "openEpoch": {
+          "name": "reload-1",
+          "baselineGameTime": 401.0833333333333,
+          "lastGameTime": 955.9166666666666,
+          "activeSeconds": 554.8333333333333,
+          "firstTurn": 4838,
+          "lastTurn": 11471,
+          "samples": 6634,
+          "errors": [],
+          "speedViolations": []
+        },
+        "failures": [
+          {
+            "index": 29,
+            "inputSha256": "9f75745b2fff10d7fadd6e6731878c702e753727379adba9315e08be849f374b",
+            "at": "2026-10-05T02:25:46.072Z",
+            "error": "AssertionError [ERR_ASSERTION]: Visible ground with no competing object\n    at move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:339:12)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:821:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:251:21",
+            "inheritedFromSavedSermon": true
+          },
+          {
+            "index": 48,
+            "inputSha256": "d5da26439d3e13079904f99899a645818cd1368f72ee2173c75b13fc065ba862",
+            "at": "2026-10-05T02:33:24.622Z",
+            "error": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\n2097152 !== 0\n\n    at cancelSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:690:81)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/qa/mission-three-controls/driver.mjs:821:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/scripts/local-render/harness.mjs:251:21",
+            "inheritedFromSavedSermon": true
+          },
+          {
+            "index": 1,
+            "inputSha256": "eaead1ccf24c7f091808c670c384d20738313a63a1a326377ebfd49b01e5eca4",
+            "at": "2026-10-05T04:50:45.198Z",
+            "error": "Error: The exact listener has not released sermon ownership and its listener flag\n    at requireCancelledSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/observation.mjs:219:11)\n    at cancelSermon (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:778:26)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:921:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21",
+            "inheritedFromSavedSermon": true
+          }
+        ],
+        "controlStops": [
+          {
+            "index": 2,
+            "at": "2026-10-05T04:51:09.497Z",
+            "outer": true,
+            "code": "preserve-latest",
+            "error": "IncompleteRun: Requested bounded stop preserving the actual committed checkpoint\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:619:11)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:913:11)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21",
+            "inheritedFromPriorGameplay": true
+          },
+          {
+            "index": 3,
+            "at": "2026-10-05T05:29:12.547Z",
+            "outer": true,
+            "code": "progress-stall",
+            "error": "IncompleteRun: No relevant combat progress for two active minutes\n    at waitDiagnosticStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/observation.mjs:311:41)\n    at waitFor (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:426:20)\n    at async erosion (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:813:5)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:928:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21"
+          }
+        ],
+        "priorMilestones": [
+          {
+            "name": "vault",
+            "turn": 1423,
+            "time": 118.58333333333333,
+            "epoch": "entry",
+            "activeSeconds": 118.58333333333333,
+            "at": "2026-10-04T20:58:00.642Z",
+            "inherited": true,
+            "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+            "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+            "inheritedFromSavedSermon": true
+          },
+          {
+            "name": "shaman-home",
+            "turn": 1846,
+            "time": 153.83333333333334,
+            "epoch": "entry",
+            "activeSeconds": 153.83333333333334,
+            "at": "2026-10-04T20:58:35.554Z",
+            "inherited": true,
+            "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+            "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+            "inheritedFromSavedSermon": true
+          },
+          {
+            "name": "temple",
+            "turn": 2877,
+            "time": 239.75,
+            "epoch": "entry",
+            "activeSeconds": 239.75,
+            "at": "2026-10-04T21:00:01.523Z",
+            "inherited": true,
+            "acquisitionSource": "dbcda708eb95dba3d0c533afcf0d3fe5d326b74a",
+            "checkpointSha256": "5695417cfe5ba1ae554477635cafbf66360a6696871473cc7ce3e577e2c0bd7a",
+            "inheritedFromSavedSermon": true
+          },
+          {
+            "name": "preacher",
+            "turn": 3924,
+            "time": 327,
+            "epoch": "continuation-entry",
+            "activeSeconds": 327,
+            "at": "2026-10-05T02:21:07.343Z",
+            "inheritedFromSavedSermon": true
+          },
+          {
+            "name": "listener",
+            "turn": 4813,
+            "time": 401.0833333333333,
+            "epoch": "continuation-entry",
+            "activeSeconds": 401.0833333333333,
+            "at": "2026-10-05T02:31:13.396Z",
+            "inheritedFromSavedSermon": true
+          },
+          {
+            "name": "sermon-saved",
+            "turn": 4813,
+            "time": 401.0833333333333,
+            "victimId": 50,
+            "preacherId": 3163,
+            "blueIds": [
+              46,
+              312,
+              309,
+              519,
+              513,
+              510,
+              303,
+              300,
+              522,
+              507,
+              306,
+              589,
+              3163
+            ],
+            "inheritedFromSavedSermon": true
+          },
+          {
+            "name": "sermon-cancelled",
+            "turn": 4899,
+            "time": 408.25,
+            "epoch": "saved-sermon-entry",
+            "activeSeconds": 425.25000000000006,
+            "at": "2026-10-05T05:17:55.693Z"
+          },
+          {
+            "name": "sermon-reloaded",
+            "turn": 4878,
+            "time": 406.5,
+            "epoch": "reload-1",
+            "activeSeconds": 430.66666666666674,
+            "at": "2026-10-05T05:18:30.825Z"
+          },
+          {
+            "name": "conversion",
+            "turn": 5144,
+            "time": 428.6666666666667,
+            "epoch": "reload-1",
+            "activeSeconds": 452.8333333333334,
+            "at": "2026-10-05T05:18:52.786Z"
+          }
+        ],
+        "priorInputs": [
+          {
+            "name": "driver.mjs",
+            "sha256": "0e7c449cc20a537702614869395abe850272385aa2e4720eb7acf3a3885390ee"
+          },
+          {
+            "name": "observation.mjs",
+            "sha256": "564fae5b6f72a9ac1be54fed717be9e92c5ec616bcb7b4fa59b0d8a9428e94e5"
+          },
+          {
+            "name": "checkpoint-provenance.mjs",
+            "sha256": "c4781f7ea5addd9ad6d5fa77d89b0e40d759b8a3d7ef831e9df60a7f0af6f96d"
+          },
+          {
+            "name": "sermon-checkpoint.mjs",
+            "sha256": "685bd4ddfeb06fd05911c1f5d7e0167498882b0921b67e49bba6e6688ccbdaad"
+          },
+          {
+            "name": "recovery-admission.mjs",
+            "sha256": "99ef4f883fb84a7c49cb12cbb4e8b82439d7fcff53905bc1206692b678def3ab"
+          },
+          {
+            "name": "sermon-successor.mjs",
+            "sha256": "8dd000f55c3b9b9b5f7ea701f86055724587ea3ec7220ea64f35745789882cc9"
+          },
+          {
+            "name": "command-probes.mjs",
+            "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f"
+          },
+          {
+            "name": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/successor-4813/sermon-record.json",
+            "sha256": "0f2316d2e8043c22117f1150860023301b653b406fa96906315c64761e9d28a3"
+          },
+          {
+            "name": "commands/0001.json",
+            "sha256": "eaead1ccf24c7f091808c670c384d20738313a63a1a326377ebfd49b01e5eca4"
+          },
+          {
+            "name": "commands/0002.json",
+            "sha256": "44ef143f91feae8e0625134e58a4fd7a3e96864a17e1e6d20a7514cf8235c68f"
+          },
+          {
+            "name": "commands/0003.json",
+            "sha256": "e1aec23d820d156ed83eb471b4183c80c7db07aa9054bacaaa404a51a61a8e60"
+          }
+        ]
+      },
+      "budget": {
+        "priorConversionActiveSeconds": 452.8333333333334,
+        "cumulativeActiveCeiling": 2252.8333333333335,
+        "remainingActiveSeconds": 1272.7500000000002,
+        "segmentWallMs": 5400000,
+        "outerWallMs": 5700000
+      }
+    }
+  },
+  "preserveStopRequested": true,
+  "preserveVerificationFailed": false,
+  "inheritedActiveSeconds": 980.0833333333333,
+  "inheritedBudget": {
+    "priorConversionActiveSeconds": 452.8333333333334,
+    "cumulativeActiveCeiling": 2252.8333333333335,
+    "remainingActiveSeconds": 1272.7500000000002,
+    "segmentWallMs": 5400000,
+    "outerWallMs": 5700000
+  },
+  "limits": "Ordinary UI inputs and normal RAF only; independent Mission 3, software/headless renderer."
+}

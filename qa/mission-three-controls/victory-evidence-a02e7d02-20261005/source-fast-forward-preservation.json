@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "action": "source-only-fast-forward",
+  "startedAt": "2026-10-05T07:45:50.153697+00:00",
+  "finishedAt": "2026-10-05T07:45:50.302686+00:00",
+  "targetRoot": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+  "targetBranch": "qa/mission-three-sermon-continuation",
+  "beforeHead": "bbd7371e04a55e57b1e368530e92de6777864358",
+  "afterHead": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+  "command": [
+    "git",
+    "merge",
+    "--ff-only",
+    "5de3c5715f05cce509a6d7a86c2b17752aac8c2a"
+  ],
+  "exitCode": 0,
+  "stdout": "Updating bbd7371..5de3c57\nFast-forward\n qa/mission-three-controls/README.md                |   8 +\n .../driver-checkpoint-path.test.mjs                |  29 +--\n qa/mission-three-controls/driver.mjs               | 263 ++++++++++++++-------\n .../erosion-continuation-path.test.mjs             | 100 ++++++++\n .../erosion-continuation.test.mjs                  | 117 +++++++++\n qa/mission-three-controls/erosion-observer.mjs     | 120 ++++++++++\n .../erosion-observer.test.mjs                      | 198 ++++++++++++++++\n qa/mission-three-controls/observation.mjs          |  36 ++-\n qa/mission-three-controls/queued-stop.mjs          |  51 ++++\n qa/mission-three-controls/queued-stop.test.mjs     | 232 ++++++++++++++++++\n .../recovery-admission.test.mjs                    |  26 +-\n qa/mission-three-controls/responsive-waits.md      | 126 ++++++++++\n qa/mission-three-controls/sermon-checkpoint.mjs    |   3 +-\n qa/mission-three-controls/sermon-successor.mjs     | 159 +++++++++++++\n .../sermon-successor.test.mjs                      |   1 +\n qa/mission-three-controls/source-manifest.json     |  20 +-\n scripts/local-render/owned-profile.mjs             |  24 +-\n 17 files changed, 1396 insertions(+), 117 deletions(-)\n create mode 100644 qa/mission-three-controls/erosion-continuation-path.test.mjs\n create mode 100644 qa/mission-three-controls/erosion-continuation.test.mjs\n create mode 100644 qa/mission-three-controls/erosion-observer.mjs\n create mode 100644 qa/mission-three-controls/erosion-observer.test.mjs\n create mode 100644 qa/mission-three-controls/queued-stop.mjs\n create mode 100644 qa/mission-three-controls/queued-stop.test.mjs\n create mode 100644 qa/mission-three-controls/responsive-waits.md\n",
+  "stderr": "",
+  "reviewSha256": "3ada9c2121297b7a961847752d72f3b30af7a345cb7c7477808b9e10301c421d",
+  "planSha256": "00f27dabc93b956653bdd15d299eae8c6f82f89e3b033dc7b77e9428199856f0",
+  "inventorySha256": "28b3afef014ad6b181e748d0b241f0e4643f70d7ab45e3128035b4cf08cd2d6c",
+  "before": {
+    "entriesSha256": "de7f09fb544cca347cc911fc5bd0ebf02501843fa45060f16ccaf9a8085cd5a6",
+    "files": 1132,
+    "bytes": 67024341,
+    "markerSha256": "38ed407203c4d141cd16e590cfc7dbf454a8c614d843382fe221d8d0b734902f",
+    "lockAbsent": true,
+    "singletonAbsent": true
+  },
+  "after": {
+    "entriesSha256": "de7f09fb544cca347cc911fc5bd0ebf02501843fa45060f16ccaf9a8085cd5a6",
+    "files": 1132,
+    "bytes": 67024341,
+    "markerSha256": "38ed407203c4d141cd16e590cfc7dbf454a8c614d843382fe221d8d0b734902f",
+    "lockAbsent": true,
+    "singletonAbsent": true
+  },
+  "oldClaimsAndLastRunUnchanged": true,
+  "profileWrites": false,
+  "browserLaunch": false
+}

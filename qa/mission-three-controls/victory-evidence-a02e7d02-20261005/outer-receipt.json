@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "91d7fbd9-9431-40bd-9ec5-41e68b66b51f",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+    "branch": "qa/mission-three-sermon-continuation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/mission-three-sermon-continuation/erosion-5de3c57-reference.json": "66f461bfca24688455b158bf67e4ed0a86e614acc3eb9cc3f4df25567fff537f",
+      "work/orchestration/mission-three-sermon-continuation/erosion-5de3c57-payload.json": "0cfb3fafa6c6c5e10bc253155238231472bfdce8d1feeeaf8ef702cc2eabb89f",
+      "work/orchestration/mission-three-controls/erosion-4813/sermon-record.json": "9ac61773f2533a6b17d2f7fe691c4035669ccf8a631f9f06f1a906de82862883"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=15s",
+    "5760s",
+    "taskset",
+    "-c",
+    "0-3",
+    "env",
+    "M3_SERMON_RECORD=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-4813/sermon-record.json",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--port",
+    "4366",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01",
+    "--timeout",
+    "5700000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs",
+    "--profile",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/local-render-profiles/mission-three-recovered-sermon-4813",
+    "--profile-correspondence",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-5de3c57-reference.json"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+  "startedAt": "2026-10-05T07:57:22.469Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-sermon-01.outer.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-sermon-01.outer.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T08:40:18.031Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "Error: IncompleteRun: Requested bounded stop preserving the actual committed checkpoint\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:697:11)\n    at async consumeQueuedStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:481:5)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:993:23)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21\n    at runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:236:47)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "aa8351bcd039fb4981324cbe6ca1d79d8c31898854927dc22ee8f8771f1ad57c",
+  "sourceAfter": {
+    "headOid": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+    "branch": "qa/mission-three-sermon-continuation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/mission-three-sermon-continuation/erosion-5de3c57-reference.json": "66f461bfca24688455b158bf67e4ed0a86e614acc3eb9cc3f4df25567fff537f",
+      "work/orchestration/mission-three-sermon-continuation/erosion-5de3c57-payload.json": "0cfb3fafa6c6c5e10bc253155238231472bfdce8d1feeeaf8ef702cc2eabb89f",
+      "work/orchestration/mission-three-controls/erosion-4813/sermon-record.json": "9ac61773f2533a6b17d2f7fe691c4035669ccf8a631f9f06f1a906de82862883"
+    }
+  }
+}

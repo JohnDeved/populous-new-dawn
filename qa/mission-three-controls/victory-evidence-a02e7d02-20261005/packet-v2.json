@@ -1,0 +1,259 @@
+{
+  "status": "frozen-terminal-evidence-awaiting-independent-review",
+  "runId": "a02e7d02-ae42-496d-a49e-00c75b069ede",
+  "applicationPinned": "b3818511da0b420129b03092f397ad76bc6111a8",
+  "qaSource": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+  "acceptedPrefix": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-sequence-proof/proof.json",
+    "sha256": "592d5bca86c120be07d6e1859ccbc2cdadd28ad7afb31b31c10629ef6e00d92a",
+    "reviewSha256": "fd143dc3822fd3fae6937ec7dc44ee6b29e1085a9f63c0ba74ddc85518d0b6a3",
+    "publishedCommit": "fb4e1fc7d14f1d1a4895f1b9ce03ece6cccea58d"
+  },
+  "files": [
+    {
+      "file": "receipt.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/receipt.json",
+      "sha256": "29609fdf6ce48a26dfcd65e1edfb08a19ec9516976e6462e1e6bde8315e1614c",
+      "bytes": 155943
+    },
+    {
+      "file": "journey.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/journey.json",
+      "sha256": "3c9b332dac440fce4c0df70f7055501d658a7419ea9da785bc9744ed195c6090",
+      "bytes": 142238
+    },
+    {
+      "file": "terminal-with-latest-preserved.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/terminal-with-latest-preserved.json",
+      "sha256": "decdc07e1aa097465b33f8f1a18c0ee3b669007817f63dceb73c859b11986bd4",
+      "bytes": 391722
+    },
+    {
+      "file": "actions.jsonl",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/actions.jsonl",
+      "sha256": "b05f56efdbb5642619542a77540c8778ca263578d81996dc59502fc79c6a4b4d",
+      "bytes": 342671
+    },
+    {
+      "file": "milestone-victory.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/milestone-victory.json",
+      "sha256": "a6d6034eadf9dbf1d0466eadc6059ddd2c2767c9cbb72776a8117108aea62880",
+      "bytes": 391722
+    },
+    {
+      "file": "milestone-victory.png",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/milestone-victory.png",
+      "sha256": "f41dc7f273e52e5d8db84251fae8074775b8225b7daadefa0b0dbfe32f4ac4cc",
+      "bytes": 511347
+    },
+    {
+      "file": "last-yellow-shaman-removed.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/last-yellow-shaman-removed.json",
+      "sha256": "1ce9706581303cc9a85996fd75eda1e3da30eb55f69ffb817f2c6f5c24ac6c24",
+      "bytes": 391716
+    },
+    {
+      "file": "last-yellow-shaman-removed.png",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/last-yellow-shaman-removed.png",
+      "sha256": "d4284765a2fb6da61635b281099cafbdf2d5c1f2bed3a218f41d5c5a1dd682b2",
+      "bytes": 508918
+    },
+    {
+      "file": "outer-receipt.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-sermon-01.outer.json",
+      "sha256": "b8ba84dcbc7024ba168e4d0d51ce15ea3085acd0673cde5e0475671cc912d142",
+      "bytes": 5114
+    },
+    {
+      "file": "dependency-return.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/dependency-transfers/sermon-erosion-to-shaman-ground-20261005T0842/receipt.json",
+      "sha256": "d382b75b35780919d3548cccf61d6b97b629d92d8b659dd54617856d290931dd",
+      "bytes": 1552
+    },
+    {
+      "file": "source-payload-review.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/reviews/erosion-continuation-5de3c57-payload-review.json",
+      "sha256": "69482a90a8845094e3e16861bcf885f9d2e27ac7f322d41c98cc956810641203",
+      "bytes": 8428
+    },
+    {
+      "file": "consumed-0001.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0001.json",
+      "sha256": "c28ce6d843ab9da8a95ec5f24b3fad9adf77c4ba7b706b87544c69dcfe6a0b4c",
+      "bytes": 30
+    },
+    {
+      "file": "consumed-0002.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0002.json",
+      "sha256": "bc6d958eb748c47d8c33e3e5d3a638a1abaf9a5604630df0e391a96745771880",
+      "bytes": 65
+    },
+    {
+      "file": "consumed-0003.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0003.json",
+      "sha256": "89146d86a91f40052cd64ab74acf40de3929844847de3d791604c1c0b8b0654f",
+      "bytes": 24
+    },
+    {
+      "file": "consumed-0004.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0004.json",
+      "sha256": "1a0fb1efef188da40883a872226c83932ee634dcfc1e4712fa1893582d92bc74",
+      "bytes": 497
+    },
+    {
+      "file": "consumed-0005.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0005.json",
+      "sha256": "722e649e8d097ef5199ed44b74da0d6e66afbd4ba2504a50828d4c2b9a40907d",
+      "bytes": 516
+    },
+    {
+      "file": "consumed-0006.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0006.json",
+      "sha256": "eb6d74dd7f4831bf7c1611dd9e867b20f08099a528d21e41ac6c34c5de1a19ec",
+      "bytes": 1756
+    },
+    {
+      "file": "consumed-0007.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0007.json",
+      "sha256": "5c634f15aae42aec7ceb51809e8cc90279215e700bd416392eb5e82a0a3f4520",
+      "bytes": 516
+    },
+    {
+      "file": "consumed-0008.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0008.json",
+      "sha256": "eb415ab1bfec4c3e0fc067a7c428d0bad58dbd06479c3dbb0f7a33882c3bd0d5",
+      "bytes": 541
+    },
+    {
+      "file": "consumed-0009.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0009.json",
+      "sha256": "7f9a9a22bf06e06c6e74b52c12ae02214fe832613666f898a6ef9d62737f9e93",
+      "bytes": 919
+    },
+    {
+      "file": "consumed-0010.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0010.json",
+      "sha256": "34d9dcfaeb17d3c27761ddd2c3ee8173adcddd93fd70faabd4fb48e4fde0c39c",
+      "bytes": 923
+    },
+    {
+      "file": "consumed-0011.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0011.json",
+      "sha256": "c0c87b84f8b2c3c7f0c8e516ac6ad273c2ff147bc3b84cccdce0f16b2593b68a",
+      "bytes": 1213
+    },
+    {
+      "file": "consumed-0012.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0012.json",
+      "sha256": "0d9aae0968b14a0951a8396315ef7128b07858137bbb02b9a35f6505b26e4787",
+      "bytes": 557
+    },
+    {
+      "file": "consumed-0013.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0013.json",
+      "sha256": "a6c3c176c6c8496540d294c1eb2082f5d5094d3e5e16891ac6a90c63f06c7a21",
+      "bytes": 2544
+    },
+    {
+      "file": "consumed-0014.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0014.json",
+      "sha256": "672ccf98d69193306761ef6141090466e1e1eeb96cd9c22741dab833bc038bc3",
+      "bytes": 541
+    },
+    {
+      "file": "consumed-0015.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0015.json",
+      "sha256": "251833b9457a936898785d046612fb107e585fe8df440d352472788564e8d2c8",
+      "bytes": 540
+    },
+    {
+      "file": "consumed-0016.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0016.json",
+      "sha256": "4f5094242929f33e2b1c91b14171f59e50275006c123a55a2a90b6bf3e2d0300",
+      "bytes": 540
+    },
+    {
+      "file": "consumed-0017.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0017.json",
+      "sha256": "2acdeff77a1fa9e47354d10b1c096421bf10b54fd29896650117eacc3a5842e9",
+      "bytes": 555
+    },
+    {
+      "file": "consumed-0018.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0018.json",
+      "sha256": "998e9c3bd02a63a072c77121590e63d18ec65df9ba77e8f13ca111d4a155270b",
+      "bytes": 506
+    },
+    {
+      "file": "consumed-0019.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0019.json",
+      "sha256": "b7b0f5efa425a9123bfbfa85be8a0faf714efd1885282659ec934848c91bae7c",
+      "bytes": 30
+    },
+    {
+      "file": "consumed-0020.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0020.json",
+      "sha256": "425e4233b0085dc4dbdba249afa18ffde9db48ded78193e8709ac71020ee3576",
+      "bytes": 86
+    },
+    {
+      "file": "committed-profile-observation.json",
+      "sha256": "dd2b873260a15f3fad97be3922a2776693854999153001bcf8cc8bd05c9ba52a",
+      "bytes": 1257
+    },
+    {
+      "file": "outcome-reconciled.json",
+      "sha256": "aa15d96fff98136e95e38b394f23bb070d8e49d4f1a9a435eb0d53405dd88cba",
+      "bytes": 7556
+    },
+    {
+      "file": "last-populated-western-hut-cleared.json",
+      "sha256": "192e343f3793acc1f2d5c426e9bb93d4fafd2f8be6ee9b4e926eb970c36a77aa",
+      "bytes": 394090
+    }
+  ],
+  "observedOutcome": {
+    "worldStatus": "won",
+    "victoryTurn": 16193,
+    "completedMissions": [
+      3
+    ],
+    "cumulativeActiveSeconds": 1936.25,
+    "fixedCeiling": 2252.8333333333335,
+    "inheritedActiveSeconds": 980.0833333333333,
+    "allFailureCount": 5,
+    "newFailureCount": 2,
+    "harnessStatus": "failed",
+    "originalSession": 95285,
+    "outerExitCode": 1,
+    "cleanupVerified": true,
+    "continuationVerified": true,
+    "fullLatest4813Unchanged": true,
+    "terminalYellowActors": [],
+    "terminalYellowBuildings": []
+  },
+  "remainingBuildingClarification": {
+    "turn": 15825,
+    "remainingYellowBuilding": {
+      "id": 1022,
+      "kind": "hut",
+      "hp": 170,
+      "progress": 0.6666666666666666,
+      "occupants": [],
+      "inside": 0,
+      "x": -35.0546875,
+      "z": -99.0703125
+    },
+    "victoryAndTerminalTurn": 16193,
+    "victoryAndTerminalYellowActors": [],
+    "victoryAndTerminalYellowBuildings": [],
+    "claim": "No separate accepted destruction order for rebuilt Hut1022 is claimed."
+  },
+  "victoryScreenshotCaption": "Actual ordinary Level Won overlay and Continue to Mission4 control at paused16193 after committed Mission3 profile observation. Mission4 was not started. Software/headless renderer; not hardware performance or native pixel equivalence.",
+  "limits": [
+    "All3 historical and2 current command failures remain. Overall harness is failed, not a clean uninterrupted success.",
+    "Previously accepted Erosion screenshots remain post-effect views;64 passive samples prove actual onset/retirement and104 changes are correlated.",
+    "Original Run14 cleanup remains unknown. No private profile/IndexedDB bytes included."
+  ],
+  "supersedesPacketSha256": "4ec18412d75a2cc614a0e51ed6a580eec80c10f5529e19c9f649bdb0fcb28740"
+}

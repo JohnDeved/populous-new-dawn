@@ -1,0 +1,181 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "count": "all"
+  },
+  {
+    "action": "rotate"
+  },
+  {
+    "action": "move",
+    "point": {
+      "x": -17,
+      "z": -91
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 3729,
+      "point": {
+        "x": -17,
+        "z": -91
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3729,
+      3731,
+      5368,
+      5369,
+      5370,
+      5371,
+      5372
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 3731,
+      "point": {
+        "x": -17,
+        "z": -91
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3729,
+      3731,
+      5368,
+      5369,
+      5370,
+      5371,
+      5372
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 5368,
+      "point": {
+        "x": -17,
+        "z": -91
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3729,
+      3731,
+      5368,
+      5369,
+      5370,
+      5371,
+      5372
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 5369,
+      "point": {
+        "x": -17,
+        "z": -91
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3729,
+      3731,
+      5368,
+      5369,
+      5370,
+      5371,
+      5372
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 5370,
+      "point": {
+        "x": -17,
+        "z": -91
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3729,
+      3731,
+      5368,
+      5369,
+      5370,
+      5371,
+      5372
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 5371,
+      "point": {
+        "x": -17,
+        "z": -91
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3729,
+      3731,
+      5368,
+      5369,
+      5370,
+      5371,
+      5372
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 5372,
+      "point": {
+        "x": -17,
+        "z": -91
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3729,
+      3731,
+      5368,
+      5369,
+      5370,
+      5371,
+      5372
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "reinforced-eastern-arrival"
+  }
+]

@@ -1,0 +1,121 @@
+{
+  "status": "terminal-failed-history-with-observed-ordinary-victory",
+  "runId": "a02e7d02-ae42-496d-a49e-00c75b069ede",
+  "sourceCommit": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+  "applicationPinned": "b3818511da0b420129b03092f397ad76bc6111a8",
+  "finishedAt": "2026-10-05T08:40:15.355Z",
+  "originalExecutionSession": 95285,
+  "outerExitCode": 1,
+  "signal": null,
+  "cleanupVerified": true,
+  "continuationVerified": true,
+  "sourceAndRuntimeUnchanged": true,
+  "profileLockAbsent": true,
+  "browserSingletonsAbsent": true,
+  "ownedPort4366Free": true,
+  "profileCompleted": [
+    3
+  ],
+  "terminalTurn": 16193,
+  "terminalStatus": "won",
+  "cumulativeActiveSeconds": 1936.25,
+  "fixedCeiling": 2252.8333333333335,
+  "failureCount": 5,
+  "controlStops": [
+    {
+      "index": 2,
+      "at": "2026-10-05T04:51:09.497Z",
+      "outer": true,
+      "code": "preserve-latest",
+      "error": "IncompleteRun: Requested bounded stop preserving the actual committed checkpoint\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:619:11)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:913:11)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21",
+      "inheritedFromPriorGameplay": true
+    },
+    {
+      "index": 3,
+      "at": "2026-10-05T05:29:12.547Z",
+      "outer": true,
+      "code": "progress-stall",
+      "error": "IncompleteRun: No relevant combat progress for two active minutes\n    at waitDiagnosticStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/observation.mjs:311:41)\n    at waitFor (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:426:20)\n    at async erosion (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:813:5)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:928:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21",
+      "inheritedFromPriorGameplay": true
+    },
+    {
+      "index": 20,
+      "at": "2026-10-05T08:40:09.411Z",
+      "outer": true,
+      "code": "preserve-latest",
+      "error": "IncompleteRun: Requested bounded stop preserving the actual committed checkpoint\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:697:11)\n    at async consumeQueuedStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:481:5)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:993:23)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21"
+    }
+  ],
+  "checkpoint": {
+    "version": 1,
+    "level": 3,
+    "turn": 4813,
+    "time": 401.0833333333333,
+    "checkpointSha256": "720e96e28b46a029e22a1c97729ead760471c96e4e10c59fd5ae620d5e66f57a",
+    "actorsSha256": "c2ce52fb00a0c58c4e0383e95b5a8ab74c98c366e0bfd1ea7cf74a36e9c5c715",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "3ba9bf87e026ccd5d45f1a270e8684896468846ecff1adfbacde67836788272c"
+  },
+  "remainingYellowActors": [],
+  "remainingYellowBuildings": [],
+  "refs": {
+    "receipt": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/receipt.json",
+      "sha256": "29609fdf6ce48a26dfcd65e1edfb08a19ec9516976e6462e1e6bde8315e1614c",
+      "bytes": 155943
+    },
+    "outer": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-sermon-01.outer.json",
+      "sha256": "b8ba84dcbc7024ba168e4d0d51ce15ea3085acd0673cde5e0475671cc912d142",
+      "bytes": 5114
+    },
+    "journey": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/journey.json",
+      "sha256": "3c9b332dac440fce4c0df70f7055501d658a7419ea9da785bc9744ed195c6090",
+      "bytes": 142238
+    },
+    "terminal": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/terminal-with-latest-preserved.json",
+      "sha256": "decdc07e1aa097465b33f8f1a18c0ee3b669007817f63dceb73c859b11986bd4",
+      "bytes": 391722
+    },
+    "actions": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/actions.jsonl",
+      "sha256": "b05f56efdbb5642619542a77540c8778ca263578d81996dc59502fc79c6a4b4d",
+      "bytes": 342671
+    },
+    "victory": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/milestone-victory.json",
+      "sha256": "a6d6034eadf9dbf1d0466eadc6059ddd2c2767c9cbb72776a8117108aea62880",
+      "bytes": 391722
+    },
+    "victoryPng": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/milestone-victory.png",
+      "sha256": "f41dc7f273e52e5d8db84251fae8074775b8225b7daadefa0b0dbfe32f4ac4cc",
+      "bytes": 511347
+    }
+  },
+  "limits": [
+    "All five failures retained; no clean uninterrupted pass.",
+    "Original Run14 cleanup remains unknown. No private browser-profile/IndexedDB bytes published.",
+    "No Mission4 start or extra browser profile entry.",
+    "An incomplete empty Yellow Hut1022 remained at15825; victory/terminal lists are empty. No explicit destruction-order claim for that rebuilt Hut."
+  ],
+  "remainingBuildingClarification": {
+    "turn": 15825,
+    "remainingYellowBuilding": {
+      "id": 1022,
+      "kind": "hut",
+      "hp": 170,
+      "progress": 0.6666666666666666,
+      "occupants": [],
+      "inside": 0,
+      "x": -35.0546875,
+      "z": -99.0703125
+    },
+    "victoryAndTerminalTurn": 16193,
+    "victoryAndTerminalYellowActors": [],
+    "victoryAndTerminalYellowBuildings": [],
+    "claim": "No separate accepted destruction order for rebuilt Hut1022 is claimed."
+  }
+}

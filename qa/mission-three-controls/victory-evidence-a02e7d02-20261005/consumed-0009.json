@@ -1,0 +1,65 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "count": "all"
+  },
+  {
+    "action": "order-entity",
+    "collection": "buildings",
+    "id": 1022
+  },
+  {
+    "action": "select",
+    "kind": "preacher",
+    "count": "one"
+  },
+  {
+    "action": "move",
+    "point": {
+      "x": -25,
+      "z": -95
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 3163,
+      "point": {
+        "x": -25,
+        "z": -95
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3163
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "target-gone",
+      "id": 1022
+    },
+    "scope": "combat",
+    "watchIds": [
+      1022,
+      3729,
+      3730,
+      3731,
+      3732
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "temple-clear-and-preacher-cover"
+  }
+]

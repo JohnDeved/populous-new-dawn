@@ -1,0 +1,124 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "count": "all"
+  },
+  {
+    "action": "move",
+    "point": {
+      "x": -17,
+      "z": -91
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 3728,
+      "point": {
+        "x": -17,
+        "z": -91
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3728,
+      3729,
+      3730,
+      3731,
+      3732
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 3729,
+      "point": {
+        "x": -17,
+        "z": -91
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3728,
+      3729,
+      3730,
+      3731,
+      3732
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 3730,
+      "point": {
+        "x": -17,
+        "z": -91
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3728,
+      3729,
+      3730,
+      3731,
+      3732
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 3731,
+      "point": {
+        "x": -17,
+        "z": -91
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3728,
+      3729,
+      3730,
+      3731,
+      3732
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 3732,
+      "point": {
+        "x": -17,
+        "z": -91
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3728,
+      3729,
+      3730,
+      3731,
+      3732
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "escort-eastern-arrival"
+  }
+]

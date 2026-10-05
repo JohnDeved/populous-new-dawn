@@ -1,0 +1,40 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "preacher",
+    "count": "one"
+  },
+  {
+    "action": "move",
+    "point": {
+      "x": -17,
+      "z": -91
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 3163,
+      "point": {
+        "x": -17,
+        "z": -91
+      },
+      "distance": 4
+    },
+    "scope": "movement",
+    "watchIds": [
+      3163
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "preacher-eastern-stage"
+  }
+]

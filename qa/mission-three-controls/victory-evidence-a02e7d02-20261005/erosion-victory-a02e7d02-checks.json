@@ -1,0 +1,172 @@
+{
+  "decision": "PASS",
+  "checkedAt": "2026-10-05T08:48:05.996912+00:00",
+  "scope": "Independent read-only actual terminal evidence assertions; no browser or package ownership",
+  "passed": 90,
+  "checks": [
+    "Exact source/runtime/scenario unchanged",
+    "Correct actual profile/run",
+    "Archived source bytes match frozen source",
+    "Previously accepted prefix unchanged",
+    "Victory/terminal same Mission3 world",
+    "Continuous reload-1 observer until victory",
+    "No subsequent reload/restart/Mission4 input",
+    "Readonly committed campaign profile observation",
+    "Opening had no M3 completion",
+    "Observed victory text and continuation control",
+    "Inherited time and fixed ceiling respected",
+    "Three inherited and two new failures intact",
+    "Two inherited stops intact, apart from added inheritance tag",
+    "Third actual stop preserves latest",
+    "Exact latest4813 retained",
+    "Intended Save separately verified",
+    "Authenticated actual stop hash",
+    "Failed receipts retained, normal exit with cleanup",
+    "Actual final metadata names exact failed run/receipt",
+    "Current profile lock/Singletons absent",
+    "Owned4366 not listening in current namespace",
+    "Earlier empty Hut1022 preserved",
+    "Final Yellow arrays empty",
+    "Outer raw stdout/stderr hashes exact",
+    "All20 consumed command files exact",
+    "Packet bytes receipt.json",
+    "Original bytes receipt.json",
+    "Packet bytes journey.json",
+    "Original bytes journey.json",
+    "Packet bytes terminal-with-latest-preserved.json",
+    "Original bytes terminal-with-latest-preserved.json",
+    "Packet bytes actions.jsonl",
+    "Original bytes actions.jsonl",
+    "Packet bytes milestone-victory.json",
+    "Original bytes milestone-victory.json",
+    "Packet bytes milestone-victory.png",
+    "Original bytes milestone-victory.png",
+    "Packet bytes last-yellow-shaman-removed.json",
+    "Original bytes last-yellow-shaman-removed.json",
+    "Packet bytes last-yellow-shaman-removed.png",
+    "Original bytes last-yellow-shaman-removed.png",
+    "Packet bytes outer-receipt.json",
+    "Original bytes outer-receipt.json",
+    "Packet bytes dependency-return.json",
+    "Original bytes dependency-return.json",
+    "Packet bytes source-payload-review.json",
+    "Original bytes source-payload-review.json",
+    "Packet bytes consumed-0001.json",
+    "Original bytes consumed-0001.json",
+    "Packet bytes consumed-0002.json",
+    "Original bytes consumed-0002.json",
+    "Packet bytes consumed-0003.json",
+    "Original bytes consumed-0003.json",
+    "Packet bytes consumed-0004.json",
+    "Original bytes consumed-0004.json",
+    "Packet bytes consumed-0005.json",
+    "Original bytes consumed-0005.json",
+    "Packet bytes consumed-0006.json",
+    "Original bytes consumed-0006.json",
+    "Packet bytes consumed-0007.json",
+    "Original bytes consumed-0007.json",
+    "Packet bytes consumed-0008.json",
+    "Original bytes consumed-0008.json",
+    "Packet bytes consumed-0009.json",
+    "Original bytes consumed-0009.json",
+    "Packet bytes consumed-0010.json",
+    "Original bytes consumed-0010.json",
+    "Packet bytes consumed-0011.json",
+    "Original bytes consumed-0011.json",
+    "Packet bytes consumed-0012.json",
+    "Original bytes consumed-0012.json",
+    "Packet bytes consumed-0013.json",
+    "Original bytes consumed-0013.json",
+    "Packet bytes consumed-0014.json",
+    "Original bytes consumed-0014.json",
+    "Packet bytes consumed-0015.json",
+    "Original bytes consumed-0015.json",
+    "Packet bytes consumed-0016.json",
+    "Original bytes consumed-0016.json",
+    "Packet bytes consumed-0017.json",
+    "Original bytes consumed-0017.json",
+    "Packet bytes consumed-0018.json",
+    "Original bytes consumed-0018.json",
+    "Packet bytes consumed-0019.json",
+    "Original bytes consumed-0019.json",
+    "Packet bytes consumed-0020.json",
+    "Original bytes consumed-0020.json",
+    "Packet bytes committed-profile-observation.json",
+    "Packet bytes outcome-reconciled.json",
+    "Packet bytes last-populated-western-hut-cleared.json"
+  ],
+  "refs": {
+    "milestone-victory.json": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/milestone-victory.json",
+      "sha256": "a6d6034eadf9dbf1d0466eadc6059ddd2c2767c9cbb72776a8117108aea62880",
+      "bytes": 391722
+    },
+    "milestone-victory.png": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/milestone-victory.png",
+      "sha256": "f41dc7f273e52e5d8db84251fae8074775b8225b7daadefa0b0dbfe32f4ac4cc",
+      "bytes": 511347
+    },
+    "actions.jsonl": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/actions.jsonl",
+      "sha256": "b05f56efdbb5642619542a77540c8778ca263578d81996dc59502fc79c6a4b4d",
+      "bytes": 342671
+    },
+    "receipt.json": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/receipt.json",
+      "sha256": "29609fdf6ce48a26dfcd65e1edfb08a19ec9516976e6462e1e6bde8315e1614c",
+      "bytes": 155943
+    },
+    "journey.json": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/journey.json",
+      "sha256": "3c9b332dac440fce4c0df70f7055501d658a7419ea9da785bc9744ed195c6090",
+      "bytes": 142238
+    },
+    "terminal-with-latest-preserved.json": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/terminal-with-latest-preserved.json",
+      "sha256": "decdc07e1aa097465b33f8f1a18c0ee3b669007817f63dceb73c859b11986bd4",
+      "bytes": 391722
+    },
+    "batch-0017.json": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/batch-0017.json",
+      "sha256": "f5e8f19e4ce158c60553e737178ffb42835464bcc6696539ba3dbdd328641216",
+      "bytes": 394090
+    },
+    "batch-0018.json": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/batch-0018.json",
+      "sha256": "c46f4f3a4ac21de8b6a2c4165a038828dbe71c810a74eec727c99ce4b43551d5",
+      "bytes": 391722
+    },
+    "consumed-0019.json": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0019.json",
+      "sha256": "b7b0f5efa425a9123bfbfa85be8a0faf714efd1885282659ec934848c91bae7c",
+      "bytes": 30
+    },
+    "consumed-0020.json": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/erosion-sermon-01/consumed-0020.json",
+      "sha256": "425e4233b0085dc4dbdba249afa18ffde9db48ded78193e8709ac71020ee3576",
+      "bytes": 86
+    },
+    "packet": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-terminal-proof/packet-v2.json",
+      "sha256": "00cd4ad28895d162c903deb51fd2ac074cef6ddc3b48f49b74002668b651ddfa",
+      "bytes": 13632
+    },
+    "outer": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-sermon-01.outer.json",
+      "sha256": "b8ba84dcbc7024ba168e4d0d51ce15ea3085acd0673cde5e0475671cc912d142",
+      "bytes": 5114
+    },
+    "profileMarkerMetadata": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/local-render-profiles/mission-three-recovered-sermon-4813/populous-profile.json",
+      "sha256": "134b5c9076a664a5bbc175b7a7afd5f245836d0d010c05dddba79d073581cd07",
+      "bytes": 7482
+    }
+  },
+  "accounting": {
+    "inherited": 980.0833333333333,
+    "closedEpoch": 7.833333333333371,
+    "currentEpoch": 948.3333333333334,
+    "total": 1936.25,
+    "ceiling": 2252.8333333333335
+  }
+}

@@ -1,0 +1,38 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "count": "all"
+  },
+  {
+    "action": "order-entity",
+    "collection": "buildings",
+    "id": 1016
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "target-gone",
+      "id": 1016
+    },
+    "scope": "combat",
+    "watchIds": [
+      1016,
+      3728,
+      3729,
+      3730,
+      3731,
+      3732
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "eastern-hut-cleared"
+  }
+]

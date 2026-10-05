@@ -1,0 +1,62 @@
+{
+  "status": "passed-preflight-awaiting-payload-review",
+  "measuredAt": "2026-10-05T07:49:13.149Z",
+  "payload": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-5de3c57-payload.json",
+    "sha256": "0cfb3fafa6c6c5e10bc253155238231472bfdce8d1feeeaf8ef702cc2eabb89f"
+  },
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+    "commit": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+    "tree": "1f4cd408cbee13c1a43b71f5ed2f8cc3e8ca3e7d",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "2b706d533129007642b084662f644b4bb9024e059e9393a176f8b8dc6783b3d3"
+  },
+  "inputs": {
+    "application": "fbe70c8219207cfa1dd2f2646a9bc7a6675d0425b428025c1de25b30e1167618",
+    "checker": "e6732546fd073199b03a3055574877e220f890deda5554b4b8e2d1809aadad52"
+  },
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "6aeb9f2b9a11ef998268662be7ad0701d4425dbd3901d14f7008b58fb245bc98",
+      "owned-profile.mjs": "a9aeecf95314215876a183fb4843b9e2dc26379e1bc84bf50a39be346e71f86f",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "actualTargetMeasurement": true,
+  "history": {
+    "activeSeconds": 980.0833333333333,
+    "failures": 3,
+    "controlStops": [
+      "preserve-latest",
+      "progress-stall"
+    ]
+  },
+  "budget": {
+    "priorConversionActiveSeconds": 452.8333333333334,
+    "cumulativeActiveCeiling": 2252.8333333333335,
+    "remainingActiveSeconds": 1272.7500000000002,
+    "segmentWallMs": 5400000,
+    "outerWallMs": 5700000
+  },
+  "markerSha256": "38ed407203c4d141cd16e590cfc7dbf454a8c614d843382fe221d8d0b734902f",
+  "markerUnchanged": true,
+  "originalClaimsUnchanged": true,
+  "profileMutation": false,
+  "browserLaunch": false,
+  "buildCorrespondence": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/erosion-5de3c57-build-correspondence.json",
+    "sha256": "f5deb07712bbd115a587f20a21b7e16d45857a44ce2d5e7d4a3c4f9746940a31"
+  }
+}
