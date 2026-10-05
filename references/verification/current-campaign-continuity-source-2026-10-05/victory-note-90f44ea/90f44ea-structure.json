@@ -1,0 +1,40 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "43dcbdfc-b1ca-421a-a268-4b516a40d101",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "90f44ea13718fdde50b53549c0cc1460ea7664ca",
+    "branch": "docs/current-campaign-victory",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "node",
+    "scripts/orchestration/cli.mjs",
+    "check"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-victory-note",
+  "startedAt": "2026-10-05T23:15:51.947Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-victory-note/work/orchestration/current-campaign-victory-note/90f44ea-structure.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-victory-note/work/orchestration/current-campaign-victory-note/90f44ea-structure.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T23:15:52.343Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"status\": \"passed\",\n  \"checks\": 130,\n  \"subsystems\": 11,\n  \"generatedOwners\": 6,\n  \"unmappedSourceCount\": 151,\n  \"unmappedSources\": [\n    \"app/ambient-sound.ts\",\n    \"app/animation.ts\",\n    \"app/audio-preferences.ts\",\n    \"app/audio.ts\",\n    \"app/blast-wave.ts\",\n    \"app/building-clearing.ts\",\n    \"app/building-damage.ts\",\n    \"app/building-debris.ts\",\n    \"app/building-dismantle.ts\",\n    \"app/building-occupants.ts\",\n    \"app/building-sinking.ts\",\n    \"app/building-smoke.ts\",\n    \"app/building-terrain.ts\",\n    \"app/celebration.ts\",\n    \"app/chatgpt-auth.ts\",\n    \"app/combat-approach.ts\",\n    \"app/combat-building.ts\",\n    \"app/combat-order-search.ts\",\n    \"app/combat-orders.ts\",\n    \"app/combat-pursuit.ts\",\n    \"app/combat-targets.ts\",\n    \"app/command-context.ts\",\n    \"app/construction-panel.ts\",\n    \"app/convert-wild.ts\",\n    \"app/drag-border.ts\",\n    \"app/drag-overlay.ts\",\n    \"app/earthquake.ts\",\n    \"app/effect-motion.ts\",\n    \"app/erosion.ts\",\n    \"app/firestorm.ts\",\n    \"app/flatten.ts\",\n    \"app/footprints.ts\",\n    \"app/fps-graph.ts\",\n    \"app/globe-renderer.ts\",\n    \"app/globe.ts\",\n    \"app/ground-overlay.ts\",\n    \"app/hud-charge.ts\",\n    \"app/hud-font.ts\",\n    \"app/hud-health.ts\",\n    \"app/hud-mana.ts\",\n    \"app/hud-population.ts\",\n    \"app/hud-portrait.ts\",\n    \"app/hud-selection.ts\",\n    \"app/hut-birth.ts\",\n    \"app/hut-occupancy-smoke.ts\",\n    \"app/hut-smoke-runtime.ts\",\n    \"app/hut-upgrade.ts\",\n    \"app/indexed-search.ts\",\n    \"app/land-bridge.ts\",\n    \"app/layout.tsx\",\n    \"app/level-one.ts\",\n    \"app/level-three.ts\",\n    \"app/level-two.ts\",\n    \"app/live-resting.ts\",\n    \"app/mana.ts\",\n    \"app/melee-encounter.ts\",\n    \"app/melee-engagement.ts\",\n    \"app/melee-groups.ts\",\n    \"app/melee-placement.ts\",\n    \"app/melee.ts\",\n    \"app/minimap-frame-view.tsx\",\n    \"app/minimap-frame.ts\",\n    \"app/minimap-renderer.ts\",\n    \"app/minimap.ts\",\n    \"app/model-faces.ts\",\n    \"app/model-lighting.ts\",\n    \"app/morph.ts\",\n    \"app/music.ts\",\n    \"app/native-math.ts\",\n    \"app/original-bloodlust.json\",\n    \"app/original-camera.json\",\n    \"app/original-constants.json\",\n    \"app/original-effects.json\",\n    \"app/original-fire.json\",\n    \"app/original-minimap-frame.json\",\n    \"app/original-music.json\",\n    \"app/original-pointer.json\",\n    \"app/original-script-three.json\",\n    \"app/original-script-two.json\",\n    \"app/original-script.json\",\n    \"app/original-search.json\",\n    \"app/original-shapes.json\",\n    \"app/original-sky.json\",\n    \"app/original-skylens.json\",\n    \"app/original-sound.json\",\n    \"app/original-stone-heads.json\",\n    \"app/original-tooltips.json\",\n    \"app/original-vault-knowledge.json\",\n    \"app/painter-vertices.ts\",\n    \"app/painter.ts\",\n    \"app/path-geometry.ts\",\n    \"app/path-search.ts\",\n    \"app/path-solver.ts\",\n    \"app/person-collision.ts\",\n    \"app/person-idle.ts\",\n    \"app/person-motion.ts\",\n    \"app/person-panel.ts\",\n    \"app/person-physics.ts\",\n    \"app/person-route-recovery.ts\",\n    \"app/person-state.ts\",\n    \"app/preacher-conversion.ts\",\n    \"app/projectile-motion.ts\",\n    \"app/projection.ts\",\n    \"app/resting-slots.ts\",\n    \"app/scene-hud-runtime.ts\",\n    \"app/scene-secondary-effects.ts\",\n    \"app/scene-vault-knowledge.ts\",\n    \"app/scenery-fire.ts\",\n    \"app/secondary-effects.ts\",\n    \"app/selection-raster.ts\",\n    \"app/shaman-death-vfx.ts\",\n    \"app/sky-motion.ts\",\n    \"app/sky.ts\",\n    \"app/special-battle.ts\",\n    \"app/spell-button.ts\",\n    \"app/spell-halo.ts\",\n    \"app/spell-trails.ts\",\n    \"app/spell-visibility.ts\",\n    \"app/sprite-layers.ts\",\n    \"app/stone-head-149.ts\",\n    \"app/stone-head-animation.ts\",\n    \"app/stone-head-orientation.ts\",\n    \"app/swamp.ts\",\n    \"app/swarm.ts\",\n    \"app/terrain-ambience.ts\",\n    \"app/terrain-light.ts\",\n    \"app/territory.ts\",\n    \"app/tooltip-layout.ts\",\n    \"app/tornado-runtime.ts\",\n    \"app/tornado.ts\",\n    \"app/training-conversion.ts\",\n    \"app/training-hut-appearance.ts\",\n    \"app/training.ts\",\n    \"app/tree-growth.ts\",\n    \"app/unit-health.ts\",\n    \"app/vault-appearance.ts\",\n    \"app/vehicle-appearance.ts\",\n    \"app/vehicle-routing.ts\",\n    \"app/volcano.ts\",\n    \"app/water.ts\",\n    \"app/workshop-panel.ts\",\n    \"app/world-coordinates.ts\",\n    \"app/world-initialization.ts\",\n    \"app/world-selector-data.ts\",\n    \"app/world-selector.module.css\",\n    \"app/world-selector.tsx\",\n    \"app/world-state.ts\",\n    \"app/world-tasks.ts\",\n    \"app/worship-appearance.ts\",\n    \"app/worship-panel-activity.ts\",\n    \"app/worship-panel.ts\"\n  ],\n  \"cacheRequired\": false\n}\n",
+  "stderr": "",
+  "stdoutSha256": "e3b8ae285f539427fd2ebf60d218e2f6a1aaff5da2bca00113015da16d9756e7",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "90f44ea13718fdde50b53549c0cc1460ea7664ca",
+    "branch": "docs/current-campaign-victory",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

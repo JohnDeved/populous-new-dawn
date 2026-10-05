@@ -1,0 +1,41 @@
+{
+  "status": "passed",
+  "head": "90f44ea13718fdde50b53549c0cc1460ea7664ca",
+  "base": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "files": [
+    "references/README.md",
+    "references/verification/current-campaign-victory-2026-10-05/README.md",
+    "references/verification/current-campaign-victory-2026-10-05/victory.png"
+  ],
+  "pngSha256": "61c3c6f51925190ae4374c31ed5e41ccbbac33cce022a29b74f5a90e44683154",
+  "pngBytes": 501215,
+  "dimensions": [
+    1440,
+    1000
+  ],
+  "immutableLinks": [
+    {
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/5f8298e898ac4a1ae624c066dee3515b09e7940a/evidence/native-sermon-order-handoff/README.md",
+      "bytes": 4900,
+      "sha256": "9ff35f4e3dd5721b5959e0bc6d46ef2c7b905a0e29fc75a351ef41b1a53fdd52"
+    },
+    {
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/473da60f62d8a08e95a18d9802d4444e71a4c636/references/verification/current-campaign-continuity-source-2026-10-05/mission-three-victory-ce37f851/README.md",
+      "bytes": 5992,
+      "sha256": "94da1de27b4841b715a028f6081621d01caa32e5cf17095ebce1231a69f13a11"
+    },
+    {
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/473da60f62d8a08e95a18d9802d4444e71a4c636/references/verification/current-campaign-continuity-source-2026-10-05/mission-three-victory-ce37f851/independent-review/review.json",
+      "bytes": 15344,
+      "sha256": "8946a7b3ad332038c7bbaf622e5ffd61aa0bdbde8b6f7498ed430249f8d47198"
+    },
+    {
+      "url": "https://github.com/JohnDeved/populous-new-dawn/blob/473da60f62d8a08e95a18d9802d4444e71a4c636/references/verification/current-campaign-continuity-source-2026-10-05/mission-three-victory-ce37f851/campaign-continuity/review-mission-three-segment-02-erosion-prefix/native-assessment.json",
+      "bytes": 2590,
+      "sha256": "f4fd08f200f7049f61785a2d220e69ddae1fc43169d6bc786e2b35eab1b3e70d"
+    }
+  ],
+  "reviewSha256": "8946a7b3ad332038c7bbaf622e5ffd61aa0bdbde8b6f7498ed430249f8d47198",
+  "nativeReviewSha256": "4b7b648eed2168b608fec24aca07b8e6cd153adbdd573b15193c8ff7b3bf80f6",
+  "scope": "Docs/image/index integrity and source-bound fact checks only; no browser/profile/package activity"
+}

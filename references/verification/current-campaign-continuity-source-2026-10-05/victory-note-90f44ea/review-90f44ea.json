@@ -1,0 +1,76 @@
+{
+  "kind": "independent-docs-only-campaign-victory-note-review",
+  "decision": "ACCEPT",
+  "reviewedAt": "2026-10-05T23:18:26.585722+00:00",
+  "reviewer": "review_campaign_continuity",
+  "base": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "head": "90f44ea13718fdde50b53549c0cc1460ea7664ca",
+  "findings": [],
+  "handoff": {
+    "path": "work/orchestration/current-campaign-victory-note/90f44ea-handoff.json",
+    "sha256": "605494afbd415c0f1802981088f3b116aa6c835fbaebcb3c5bec186a1da36e63"
+  },
+  "files": [
+    {
+      "path": "references/README.md",
+      "sha256": "87ea17fe4901dbc9bd152bbdc9f5f6fb41d96ef262d3eab249088bd5cbcc3c27",
+      "bytes": 6541
+    },
+    {
+      "path": "references/verification/current-campaign-victory-2026-10-05/README.md",
+      "sha256": "95609a13fdd5bfb0fc64d932da7793ea6fa9c7a89b732000987423209dcd302c",
+      "bytes": 5024
+    },
+    {
+      "path": "references/verification/current-campaign-victory-2026-10-05/victory.png",
+      "sha256": "61c3c6f51925190ae4374c31ed5e41ccbbac33cce022a29b74f5a90e44683154",
+      "bytes": 501215
+    }
+  ],
+  "checks": [
+    {
+      "path": "work/orchestration/current-campaign-victory-note/90f44ea-integrity.json",
+      "sha256": "482bd65bc61f522345b4ee6dcbe4388d7c83ee28e860f62cd362145e6ef1bfa9",
+      "status": "passed"
+    },
+    {
+      "path": "work/orchestration/current-campaign-victory-note/90f44ea-structure.json",
+      "sha256": "f9a9bff62955d5fd39f0676d397fdf329aff80928d4ebbb6922c2e8c39e5f872",
+      "status": "passed"
+    },
+    {
+      "path": "work/orchestration/current-campaign-victory-note/90f44ea-diff.json",
+      "sha256": "9111e61d46a6e65e57df8a71d896f29a19d420042bb2c24bbcaece8bb71cedff",
+      "status": "passed"
+    }
+  ],
+  "reviewedScope": [
+    "Exact diff is the reference-index entry, 71-line note and 501,215-byte PNG only. Source, QA driver, parity, generated assets, private profile and archive evidence are not imported.",
+    "Read the full diff and inspected the image. It is the accepted unedited 1440x1000 victory figure 61c3c6f5, byte-identical to immutable campaign publication 473da60. The displayed result, statistics and timestamp wording match the retained snapshot and journal.",
+    "The opening native paragraph matches 5f8298 independent review 4b7b648e and verified summary: actual native conversion/roster rebuilding/command 27/head admission, plus released-listener targeting before encounter allocation. Flat world, supplied actor scheduling and intercepted leaves are explicit; no full UI, completed combat, campaign killer or native Erosion replay is inferred.",
+    "All four immutable GitHub links resolve to exact locally retained git objects in published commits 5f8298 and 473da60. The linked campaign acceptance remains SHA 8946a7b3; native assessment remains f4fd08f2. The relative figure link and index link resolve.",
+    "M1-to-M3 observed wins, committed [1,2,3], ordinary Save/Load/Continue, restored current conversion, 64-sample Erosion/99 correlated cells, remaining buildings, 5-of-8 Warriors and budget values match the accepted terminal review. Failed envelope, three inherited failure records, both stops, uncertain prior Preacher cause and no Mission 4 entry remain explicit.",
+    "The latest 9047 playing-state Save is correctly separate from victory profile readback. The note states terrainSha256 is w.terrain, full checkpoint includes World.land, and no captured-terrain native Erosion replay or parity credit is claimed.",
+    "Verified frozen handoff SHA and all three changed-file hashes/sizes, three exact-head passing receipts, before/after source equality, exit 0 / signal null and all six raw stdout/stderr hashes and bytes. Independently reran the inspected bounded verify-note.py on CPU4 and git diff --check; both passed."
+  ],
+  "gateDecision": {
+    "standardCheck": "not-applicable",
+    "build": "not-applicable",
+    "browser": "not-applicable",
+    "nativeReplay": "not-run; prior finite independently replayed native report is cited only",
+    "rationale": "AGENTS.md permits focused structural checks for docs-only work with stated rationale. This exact delta changes only reference prose/index and a previously accepted image; application runtime, package and configuration files are unchanged. Existing structural receipt plus focused document/link/image/source-bound fact integrity and whitespace checks cover this reference note. This assessment uses that docs-only exception and makes no generated-CSS/build-output equivalence claim or fresh application/build/browser claim."
+  },
+  "publicationCommits": {
+    "campaign": "473da60f62d8a08e95a18d9802d4444e71a4c636",
+    "native": "5f8298e898ac4a1ae624c066dee3515b09e7940a"
+  },
+  "campaignReviewSha256": "8946a7b3ad332038c7bbaf622e5ffd61aa0bdbde8b6f7498ed430249f8d47198",
+  "nativeReviewSha256": "4b7b648eed2168b608fec24aca07b8e6cd153adbdd573b15193c8ff7b3bf80f6",
+  "verificationSource": {
+    "path": "work/orchestration/current-campaign-victory-note/verify-note.py",
+    "sha256": "50d699baa807a55be8ef41b31f28cc745997097f0d9419801ecd207575e89279"
+  },
+  "sourceClean": true,
+  "writes": "Only this ignored review artifact. No source edits, dependency/profile access, browser/native replay, package/build or remote mutation.",
+  "integration": "Ready for coordinator-owned PR review/merge of this exact docs-only head; no runtime authority is granted."
+}

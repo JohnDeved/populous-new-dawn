@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "00cc5da5-459d-45c9-8ee1-60199c4e4c89",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "90f44ea13718fdde50b53549c0cc1460ea7664ca",
+    "branch": "docs/current-campaign-victory",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "git",
+    "diff",
+    "--check",
+    "3b899125cc8cedef938823718ad5d44f49957b66",
+    "HEAD"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-victory-note",
+  "startedAt": "2026-10-05T23:15:51.938Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-victory-note/work/orchestration/current-campaign-victory-note/90f44ea-diff.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-victory-note/work/orchestration/current-campaign-victory-note/90f44ea-diff.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T23:15:51.943Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "90f44ea13718fdde50b53549c0cc1460ea7664ca",
+    "branch": "docs/current-campaign-victory",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

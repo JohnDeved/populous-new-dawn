@@ -1,0 +1,66 @@
+{
+  "kind": "byte-identical-docs-review-publication",
+  "head": "90f44ea13718fdde50b53549c0cc1460ea7664ca",
+  "files": [
+    {
+      "path": "90f44ea-handoff.json",
+      "bytes": 2306,
+      "sha256": "605494afbd415c0f1802981088f3b116aa6c835fbaebcb3c5bec186a1da36e63"
+    },
+    {
+      "path": "review-90f44ea.json",
+      "bytes": 5390,
+      "sha256": "6486444a25322d0fcbee1743022d35e71525d717c209de36847d9db30a7d396d"
+    },
+    {
+      "path": "verify-note.py",
+      "bytes": 3410,
+      "sha256": "50d699baa807a55be8ef41b31f28cc745997097f0d9419801ecd207575e89279"
+    },
+    {
+      "path": "90f44ea-integrity.json",
+      "bytes": 4180,
+      "sha256": "482bd65bc61f522345b4ee6dcbe4388d7c83ee28e860f62cd362145e6ef1bfa9"
+    },
+    {
+      "path": "90f44ea-integrity.json.artifacts/stdout.log",
+      "bytes": 2183,
+      "sha256": "e7ed3e27653f070d84578a6e00bca4f97d2211977fde7debe61bbc54be363e10"
+    },
+    {
+      "path": "90f44ea-integrity.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "90f44ea-structure.json",
+      "bytes": 6548,
+      "sha256": "f9a9bff62955d5fd39f0676d397fdf329aff80928d4ebbb6922c2e8c39e5f872"
+    },
+    {
+      "path": "90f44ea-structure.json.artifacts/stdout.log",
+      "bytes": 4509,
+      "sha256": "e3b8ae285f539427fd2ebf60d218e2f6a1aaff5da2bca00113015da16d9756e7"
+    },
+    {
+      "path": "90f44ea-structure.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "90f44ea-diff.json",
+      "bytes": 1586,
+      "sha256": "9111e61d46a6e65e57df8a71d896f29a19d420042bb2c24bbcaece8bb71cedff"
+    },
+    {
+      "path": "90f44ea-diff.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "90f44ea-diff.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "2afd2c37-c23f-4435-843d-ddee37f72f58",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "90f44ea13718fdde50b53549c0cc1460ea7664ca",
+    "branch": "docs/current-campaign-victory",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/current-campaign-victory-note/verify-note.py": "50d699baa807a55be8ef41b31f28cc745997097f0d9419801ecd207575e89279"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "python3",
+    "work/orchestration/current-campaign-victory-note/verify-note.py"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-victory-note",
+  "startedAt": "2026-10-05T23:15:51.948Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-victory-note/work/orchestration/current-campaign-victory-note/90f44ea-integrity.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-victory-note/work/orchestration/current-campaign-victory-note/90f44ea-integrity.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T23:15:52.079Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"status\": \"passed\",\n  \"head\": \"90f44ea13718fdde50b53549c0cc1460ea7664ca\",\n  \"base\": \"3b899125cc8cedef938823718ad5d44f49957b66\",\n  \"files\": [\n    \"references/README.md\",\n    \"references/verification/current-campaign-victory-2026-10-05/README.md\",\n    \"references/verification/current-campaign-victory-2026-10-05/victory.png\"\n  ],\n  \"pngSha256\": \"61c3c6f51925190ae4374c31ed5e41ccbbac33cce022a29b74f5a90e44683154\",\n  \"pngBytes\": 501215,\n  \"dimensions\": [\n    1440,\n    1000\n  ],\n  \"immutableLinks\": [\n    {\n      \"url\": \"https://github.com/JohnDeved/populous-new-dawn/blob/5f8298e898ac4a1ae624c066dee3515b09e7940a/evidence/native-sermon-order-handoff/README.md\",\n      \"bytes\": 4900,\n      \"sha256\": \"9ff35f4e3dd5721b5959e0bc6d46ef2c7b905a0e29fc75a351ef41b1a53fdd52\"\n    },\n    {\n      \"url\": \"https://github.com/JohnDeved/populous-new-dawn/blob/473da60f62d8a08e95a18d9802d4444e71a4c636/references/verification/current-campaign-continuity-source-2026-10-05/mission-three-victory-ce37f851/README.md\",\n      \"bytes\": 5992,\n      \"sha256\": \"94da1de27b4841b715a028f6081621d01caa32e5cf17095ebce1231a69f13a11\"\n    },\n    {\n      \"url\": \"https://github.com/JohnDeved/populous-new-dawn/blob/473da60f62d8a08e95a18d9802d4444e71a4c636/references/verification/current-campaign-continuity-source-2026-10-05/mission-three-victory-ce37f851/independent-review/review.json\",\n      \"bytes\": 15344,\n      \"sha256\": \"8946a7b3ad332038c7bbaf622e5ffd61aa0bdbde8b6f7498ed430249f8d47198\"\n    },\n    {\n      \"url\": \"https://github.com/JohnDeved/populous-new-dawn/blob/473da60f62d8a08e95a18d9802d4444e71a4c636/references/verification/current-campaign-continuity-source-2026-10-05/mission-three-victory-ce37f851/campaign-continuity/review-mission-three-segment-02-erosion-prefix/native-assessment.json\",\n      \"bytes\": 2590,\n      \"sha256\": \"f4fd08f200f7049f61785a2d220e69ddae1fc43169d6bc786e2b35eab1b3e70d\"\n    }\n  ],\n  \"reviewSha256\": \"8946a7b3ad332038c7bbaf622e5ffd61aa0bdbde8b6f7498ed430249f8d47198\",\n  \"nativeReviewSha256\": \"4b7b648eed2168b608fec24aca07b8e6cd153adbdd573b15193c8ff7b3bf80f6\",\n  \"scope\": \"Docs/image/index integrity and source-bound fact checks only; no browser/profile/package activity\"\n}\n",
+  "stderr": "",
+  "stdoutSha256": "e7ed3e27653f070d84578a6e00bca4f97d2211977fde7debe61bbc54be363e10",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "90f44ea13718fdde50b53549c0cc1460ea7664ca",
+    "branch": "docs/current-campaign-victory",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/current-campaign-victory-note/verify-note.py": "50d699baa807a55be8ef41b31f28cc745997097f0d9419801ecd207575e89279"
+    }
+  }
+}
