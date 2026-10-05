@@ -3,6 +3,7 @@ import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
 import { execFileSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
+import { applicationImportPaths } from './boundaries.mjs'
 const hash = bytes => createHash('sha256').update(bytes).digest('hex')
 const reuse = JSON.parse(readFileSync(new URL('./reuse.json', import.meta.url)))
 const root = new URL('../../', import.meta.url)
@@ -30,7 +31,16 @@ test('reuse inventory identifies exact unchanged and adapted scenario sections',
 })
 test('current candidate carries the accepted application subtree and unchanged maintained profile harness', () => {
   const policy = JSON.parse(readFileSync(new URL('./run-policy.json', import.meta.url)))
+  assert.equal(policy.applicationCommit, reuse.applicationReferenceCommit)
+  git('merge-base', '--is-ancestor', policy.applicationCommit, 'HEAD')
+  assert.equal(git('rev-parse', 'HEAD:app').toString().trim(), policy.applicationTree)
+  assert.equal(git('diff', 'HEAD', '--', 'app').toString(), '', 'Working app bytes retain the actual committed tree')
   assert.equal(git('rev-parse', `${reuse.applicationReferenceCommit}:app`).toString().trim(), policy.applicationTree)
+  assert.deepEqual(Object.keys(policy.applicationImports), applicationImportPaths)
+  for (const file of applicationImportPaths) {
+    assert.equal(hash(readFileSync(new URL(file, root))), policy.applicationImports[file])
+    assert.equal(hash(git('show', `${policy.applicationCommit}:${file}`)), policy.applicationImports[file])
+  }
   for (const file of ['scripts/local-render/harness.mjs', 'scripts/local-render/owned-profile.mjs', 'scripts/local-render/checkpoint-observer.mjs'])
     assert.equal(hash(readFileSync(new URL(file, root))), hash(git('show', `${reuse.applicationReferenceCommit}:${file}`)))
 })

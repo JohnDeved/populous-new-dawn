@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
+import { readFileSync } from 'node:fs'
 import { milestoneConditions, missionRoutes, validateMissionMilestones } from './routes.mjs'
 
 const marksFor = level => missionRoutes[level].required.map(name => ({ level, name }))
@@ -43,6 +44,14 @@ test('bridge gates require accepted ordinary casts or the actual linked shrine u
   const first = milestoneConditions(1, 'central-bridge')
   const second = milestoneConditions(1, 'northern-bridge')
   assert.deepEqual(first.map(c => c.type), ['accepted-bridge-casts', 'stat-at-least', 'effect-finished'])
+  const batch = JSON.parse(readFileSync(new URL('./mission-one-first-batch.json', import.meta.url)))
+  assert.deepEqual(batch.map(command => command.action), ['resume', 'select', 'order-entity', 'wait', 'wait', 'pause', 'mark', 'snapshot'])
+  assert.deepEqual(batch[1], { action: 'select', kind: 'shaman' })
+  assert.deepEqual(batch[2], { action: 'order-entity', collection: 'shrines', id: 'bridge' })
+  assert.deepEqual(batch[3].condition, { type: 'shrine-used', id: 'bridge' })
+  assert.deepEqual(batch[4].condition, milestoneConditions(1, 'bridge-stock')[0])
+  assert.deepEqual(batch[3].watchIds, ['bridge']); assert.deepEqual(batch[4].watchIds, ['bridge'])
+  assert.equal(batch[6].name, 'bridge-stock')
   assert.equal(first[0].count, 1)
   assert.equal(second[0].count, 2)
   assert.deepEqual(milestoneConditions(2, 'bridge-activated')[0], { type: 'shrine-kind-used', kind: 'bridgeEffect', uses: 1 })

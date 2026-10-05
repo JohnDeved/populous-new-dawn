@@ -31,6 +31,10 @@ class SermonCaptured extends Error { constructor(context) { super('First owned l
 
 export default async function campaignContinuity({ page, output, root, signal, receipt, url, observeCheckpoint }) {
   assert.equal(resolve(root), resolve(fileURLToPath(new URL('../../', import.meta.url))))
+  assert.equal(receipt.source.status, '', 'Reviewed campaign source must be clean')
+  execFileSync('git', ['merge-base', '--is-ancestor', policy.applicationCommit, 'HEAD'], { cwd: root })
+  for (const [path, digest] of Object.entries(policy.applicationImports))
+    assert.equal(sha256(readFileSync(resolve(root, path))), digest, `Reviewed application import changed: ${path}`)
   assert.equal(execFileSync('git', ['rev-parse', 'HEAD:app'], { cwd: root, encoding: 'utf8' }).trim(), policy.applicationTree)
   assert.ok(receipt.profile && observeCheckpoint, 'Use the maintained game-only owned profile')
   page.setDefaultTimeout(5000)

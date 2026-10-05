@@ -10,10 +10,19 @@ export function continueControlName(nextMission) {
   return `Continue to Mission ${nextMission} ↗`
 }
 
+export const applicationImportPaths = [
+  'scripts/browser-game.mjs', 'scripts/checkpoint-readback.mjs',
+  'scripts/campaign-conversion-observer.mjs', 'scripts/campaign-start-readiness.mjs',
+  'scripts/local-render/harness.mjs', 'scripts/local-render/owned-profile.mjs',
+  'scripts/local-render/checkpoint-observer.mjs', 'scripts/local-render/vite.config.mjs',
+]
+
 export function validateRunPolicy(policy) {
   assert.equal(policy.launchEnabled, true, 'Source-only checkpoint: launch requires a reviewed policy')
   assert.match(policy.applicationCommit, /^[a-f0-9]{40}$/)
   assert.match(policy.applicationTree, /^[a-f0-9]{40}$/)
+  assert.deepEqual(Object.keys(policy.applicationImports ?? {}), applicationImportPaths, 'Pin every actual application helper import')
+  for (const digest of Object.values(policy.applicationImports)) assert.match(digest, /^[a-f0-9]{64}$/)
   const limits = policy.limits
   for (const value of [limits?.campaignActiveSeconds, limits?.wallMs, limits?.segmentWallMs, limits?.noProgressActiveSeconds, limits?.m3BeforeConversionSeconds, limits?.m3AfterConversionSeconds, ...[1, 2, 3].flatMap(level => [limits?.missionActiveSeconds?.[level], limits?.missionWallMs?.[level]])])
     assert.ok(Number.isFinite(value) && value > 0, 'All campaign/mission/wall ceilings must be explicit and finite')

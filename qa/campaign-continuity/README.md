@@ -1,10 +1,13 @@
 # Ordinary current-source campaign continuity
 
 Source checkpoint for a fresh Mission 1 → 2 → 3 journey on accepted main
-`71b3860e7025a9534d56248c194aa18610b5df4d` (tree
-`397a0e31a5232fa479e8d0972a4a929343ecec67`). No fresh gameplay outcome is claimed.
-The tracked run policy deliberately disables launch until source review and the
-final application/runtime gate. All changes are under this QA directory.
+`a53fa05587c4c1d363e3596162b41fcb9f26e3e8` (tree
+`bdaa12ef7ea9ecf3094f4a23c25ae93cdb02063e`). No fresh gameplay outcome is claimed.
+The adopted app subtree is `58797f069a89069d57a4ae801f645e476f99137e`,
+identical to reviewed PR215 candidate `ef62e48`. The run policy pins actual accepted
+main ancestry, current app tree and eight helper imports, and requires clean
+source. Launch remains disabled until final source/policy review and lane release.
+All changes relative to accepted main are under this QA directory.
 
 The maintained `scripts/local-render/harness.mjs` owns the game-only profile,
 exclusive lease, source/runtime receipts, origin restriction and cleanup. It is
@@ -67,7 +70,7 @@ unconsumed during an active batch. An already-issued Save finishes bounded actua
 committed readback before a pending stop is serviced. Failure never triggers Save.
 Before the first Save, preserving the initial empty checkpoint is explicit.
 
-## Segments and budgets proposed for review
+## Finite mission segments and review boundary
 
 Continue defaults to closing a segment after ordinary entry/readiness and a real
 Save in the next mission. `suspend: false` permits staying in the same session
@@ -81,13 +84,13 @@ forward. Overall failed status does not erase a valid boundary; a separate
 prior-harness-failure entry preserves that failure. Missing or arbitrary
 mid-mission provenance rejects. There is no general recovery/adoption facility.
 
-Proposed active caps: M1 900 seconds, M2 1500, M3 2400; total 4800. M3 additionally
+Retained active caps: M1 900 seconds, M2 1500, M3 2400; total 4800. M3 additionally
 retains its 900-second pre-conversion cap and at most 1800 seconds after the actual
 conversion. Save/Load rewinds never refund time. Each new mission resets only its
 own subtotal. Named-objective progress must change within 120 active seconds;
 unrelated movements, births, combat and clocks cannot renew a wait.
 
-Proposed owned wall caps: M1 30 minutes, M2 90, M3 90, campaign 210; each execution
+Retained owned wall caps: M1 30 minutes, M2 90, M3 90, campaign 210; each execution
 segment has a 95-minute cap. Closed time awaiting the shared browser lane is not
 owned wall time; every actual segment's wall cost is retained. These are resource
 ceilings, not timing equivalence claims. Historical M1 won at world time403.08s
@@ -96,6 +99,13 @@ and the recovered historical M3 cumulative total was1936.25s. M1/M2 world times
 are not cumulative active measurements across reload, and their failed receipts
 do not satisfy this new campaign.
 
+The tracked `mission-one-first-batch.json` is a prepared first batch, not an
+already queued input. After the real opening snapshot and lane grant, it selects
+the ready Shaman, orders the uniquely observed Bridge shrine, awaits that shrine's
+use and then four actual delivered shots, and pauses before recording the first
+milestone. It contains no assumed spawned ID, coordinates, synthetic state or
+presentation-derived payout. Subsequent actions use the new paused observation.
+
 ## Source checks and remaining gates
 
 Focused Node tests cover retained observers/probes, authenticated stops, actual
@@ -103,10 +113,13 @@ scenario Save/Load and Continue control ordering, scene/store mismatches,
 checkpoint substitution, prior failed-envelope retention, mission mark isolation
 and cumulative limits. Run `node --test qa/campaign-continuity/*.test.mjs`.
 The orchestration planner selects conservative checks for this new QA path;
-independent review must approve that boundary. Standard check/build and actual
-rendered campaign gates remain not-run pending shared-resource release and final
-source review. No dependency acquisition or browser/profile mutation is part of
-this source checkpoint.
+independent review must approve that boundary. The exact PR215 standard
+check/build receipts are correspondence inputs,
+not claims that those commands ran on this combined QA head. A reviewer must
+explicitly accept any carry. Tailwind scans added QA text, so a fresh combined
+build is required. Fresh QA/structural checks and the actual rendered campaign
+remain separate gates. Any dependency transfer and required build have their own
+receipts; no browser/profile mutation is part of this source checkpoint.
 
 Fresh M1/M2 Save/Load, each actual Continue and committed completion prefix,
 fresh M3 owned sermon cancellation/reload/singleton conversion, prospective

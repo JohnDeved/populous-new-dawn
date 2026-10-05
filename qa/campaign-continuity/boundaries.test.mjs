@@ -18,6 +18,9 @@ test('review checkpoint cannot launch; malformed and infinite limits fail closed
   assert.throws(() => validateRunPolicy(policy), /reviewed policy/)
   const enabled = { ...policy, launchEnabled: true }
   assert.equal(validateRunPolicy(enabled), enabled)
+  assert.throws(() => validateRunPolicy({ ...enabled, applicationImports: {} }), /helper import/)
+  const changedImport = structuredClone(enabled); changedImport.applicationImports['scripts/browser-game.mjs'] = 'unmeasured'
+  assert.throws(() => validateRunPolicy(changedImport))
   for (const value of [null, 0, -1, Infinity, NaN]) {
     assert.throws(() => validateRunPolicy({ ...enabled, limits: { ...enabled.limits, segmentWallMs: value } }))
     assert.throws(() => validateRunPolicy({ ...enabled, limits: { ...enabled.limits, missionActiveSeconds: { 1: 900, 2: value, 3: 2400 } } }))
