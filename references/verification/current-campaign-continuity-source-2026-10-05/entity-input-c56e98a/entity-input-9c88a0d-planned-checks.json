@@ -1,0 +1,98 @@
+{
+  "version": 1,
+  "base": "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+  "head": "9c88a0d433b90f6a0539d48e46e0c82877f12f9d",
+  "changes": [
+    {
+      "path": "qa/campaign-continuity/README.md",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "5981e3f7701559cf18938b82fd98d9ace27afa034e158870194651d78a74f8f2",
+      "changeHash": "4952538be4423463010c624e6414c1f95ed6bcc0c45468d10bd5fbe9146630e5"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "4361392253e40746e7a7957bf840691e9869d7e5f00fccc9210ff582f5a5d7cb",
+      "changeHash": "5b792968c4c8cf5742ecf321544ca6e882d02b83ff8f424f5512d92f9473247c"
+    },
+    {
+      "path": "qa/campaign-continuity/entity-input.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "2d7c1fcf385381db0273e51d14c88e2c9efabf533df16f93df1ceb960bfd1e9e",
+      "changeHash": "93c3aff2143e9e624f0cd2482d97c2a868563c3124968c7ceffcd74f1ab3ef0c"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.json",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "7977715220bc91a6da2d67227bd078783455ca1355295e09ab2eb019e03fe17f",
+      "changeHash": "09495fcb7e2a4890d120475d8defc1b6f890fb4b358f2c1c96e9c2892b935ce1"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.test.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "64bb30fecfe374240f977421385f743a4ba5f1800ff8bd6001f7ef4f8ff492c8",
+      "changeHash": "c1d686af44cbc5d7f034b1bd682be9a661b0a39b3373c5f2f500c260357e2512"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "aa5992aa42ebec20d41c0fcc9ca827666233b9c3baeec88a0de1d5b2d8c37ec0",
+      "changeHash": "418e32641ff65930f9f10976b7cde6c09e766a734e800be7a9c610ec2110d0e6"
+    }
+  ],
+  "affectedSubsystems": [],
+  "unknownPaths": [
+    "qa/campaign-continuity/README.md",
+    "qa/campaign-continuity/command-probes.mjs",
+    "qa/campaign-continuity/entity-input.test.mjs",
+    "qa/campaign-continuity/reuse.json",
+    "qa/campaign-continuity/reuse.test.mjs",
+    "qa/campaign-continuity/scenario.mjs"
+  ],
+  "checks": [
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "reasons": [
+        "unmapped path requires conservative general validation: qa/campaign-continuity/README.md",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/command-probes.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/entity-input.test.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/reuse.json",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/reuse.test.mjs",
+        "unmapped path requires conservative general validation: qa/campaign-continuity/scenario.mjs"
+      ],
+      "knownLimits": [
+        "Does not run native executable, browser integration, or hardware performance checks."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [
+        "May update ignored tool caches"
+      ],
+      "resources": [
+        "Serialize with other full test runs"
+      ],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    }
+  ],
+  "executesChecks": false
+}

@@ -1,0 +1,19 @@
+✔ integer interior selection rejects a fractional edge and competing canvas pixels (1.470237ms)
+✔ context diagnostics reject a disabled or substituted target and retain observation turn (0.360722ms)
+✔ actual entityHit chooses an integer interior point using the current picker and canvas ownership (1.398189ms)
+✔ actual clickOrder rejects stale or disabled entity input after the before-state read, and accepts a fresh target (1.268625ms)
+✔ delivered pointer observation calls each original picker once, preserves its result and restores all wrappers (0.557607ms)
+✔ pointer observation preserves a thrown original error and still restores wrappers (0.222994ms)
+✔ actual entity preparation rejects disabled context before any final picker and rejects a stale final target (1.784148ms)
+✔ actual delivery and finalizer bodies preserve the original partial-click error and retain a separate cleanup error (2.602437ms)
+✔ carried source modules match their exact historical objects and current test bytes (22.809605ms)
+✔ reuse inventory identifies exact unchanged and adapted scenario sections (4.419375ms)
+✔ current candidate carries the accepted application subtree and unchanged maintained profile harness (45.036155ms)
+ℹ tests 11
+ℹ suites 0
+ℹ pass 11
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 781.650443

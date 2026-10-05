@@ -1,0 +1,9 @@
+{
+  "head": "9c88a0d433b90f6a0539d48e46e0c82877f12f9d",
+  "reproduced": true,
+  "originalError": "Browser input delivery failed before pointerdown",
+  "sameError": false,
+  "hasOriginalCause": false,
+  "name": "AssertionError",
+  "message": "Retain the actually delivered ordinary pointer pair at the validated integer point\n+ actual - expected\n\n+ []\n- [\n-   {\n-     button: 0,\n-     canvasOwned: true,\n-     canvasTarget: true,\n-     type: 'pointerdown',\n-     x: 814,\n-     y: 300\n-   },\n-   {\n-     button: 0,\n-     canvasOwned: true,\n-     canvasTarget: true,\n-     type: 'pointerup',\n-     x: 814,\n-     y: 300\n-   }\n- ]\n"
+}

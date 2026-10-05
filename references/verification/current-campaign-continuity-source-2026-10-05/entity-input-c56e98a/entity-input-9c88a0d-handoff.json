@@ -1,0 +1,147 @@
+{
+  "kind": "bounded-entity-input-repair-source-handoff",
+  "createdAt": "2026-10-05T17:31:30.965668+00:00",
+  "head": "9c88a0d433b90f6a0539d48e46e0c82877f12f9d",
+  "base": "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+  "applicationMain": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "appTree": "aff807de3b17b32922b2f7e94e94016c22fdc054",
+  "sourceClean": true,
+  "delta": [
+    {
+      "path": "qa/campaign-continuity/README.md",
+      "sha256": "5981e3f7701559cf18938b82fd98d9ace27afa034e158870194651d78a74f8f2"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.mjs",
+      "sha256": "4361392253e40746e7a7957bf840691e9869d7e5f00fccc9210ff582f5a5d7cb"
+    },
+    {
+      "path": "qa/campaign-continuity/entity-input.test.mjs",
+      "sha256": "2d7c1fcf385381db0273e51d14c88e2c9efabf533df16f93df1ceb960bfd1e9e"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.json",
+      "sha256": "7977715220bc91a6da2d67227bd078783455ca1355295e09ab2eb019e03fe17f"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.test.mjs",
+      "sha256": "64bb30fecfe374240f977421385f743a4ba5f1800ff8bd6001f7ef4f8ff492c8"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "sha256": "aa5992aa42ebec20d41c0fcc9ca827666233b9c3baeec88a0de1d5b2d8c37ec0"
+    }
+  ],
+  "checks": [
+    {
+      "path": "work/orchestration/campaign-continuity/entity-input-focused.json",
+      "sha256": "ee1922033d5d7cbab510ba88e16048954bfa35052a15a03ab5e028d826fc2b67",
+      "status": "passed",
+      "command": [
+        "node",
+        "--test",
+        "qa/campaign-continuity/boundaries.test.mjs",
+        "qa/campaign-continuity/command-probes.test.mjs",
+        "qa/campaign-continuity/entity-input.test.mjs",
+        "qa/campaign-continuity/erosion-observer.test.mjs",
+        "qa/campaign-continuity/observation.test.mjs",
+        "qa/campaign-continuity/queued-stop.test.mjs",
+        "qa/campaign-continuity/reuse.test.mjs",
+        "qa/campaign-continuity/routes.test.mjs",
+        "qa/campaign-continuity/scenario-paths.test.mjs"
+      ],
+      "streams": [
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-focused.json.artifacts/stdout.log",
+          "sha256": "efcfcf3849aae4c113ff7910c0c6a782f300d582203ada3000d767b0ce02745c"
+        },
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-focused.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/entity-input-structure.json",
+      "sha256": "8211cf80efa4403bafc53baa5d671b42a67b0d66606c254c47a8d0e095b4aaec",
+      "status": "passed",
+      "command": [
+        "node",
+        "scripts/orchestration/cli.mjs",
+        "check"
+      ],
+      "streams": [
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-structure.json.artifacts/stdout.log",
+          "sha256": "e3b8ae285f539427fd2ebf60d218e2f6a1aaff5da2bca00113015da16d9756e7"
+        },
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-structure.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/entity-input-diff.json",
+      "sha256": "ff710798384fd652e9d990f457484978c9524c4b105306bc267d5da873bec2d1",
+      "status": "passed",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+        "HEAD"
+      ],
+      "streams": [
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-diff.json.artifacts/stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-diff.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    }
+  ],
+  "directTests": 88,
+  "failureFirst": {
+    "path": "work/orchestration/campaign-continuity/entity-input-before.log",
+    "sha256": "1dd5ec96bd937dfdeb69d2d129bd0a2ff760408c13e8130afbec009038b008fb",
+    "sourceHead": "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+    "scope": "Initial five focused tests failed before implementation: two execute actual fractional-edge/stale-dispatch scenario behavior; three name the new unimplemented helper contracts. Two additional focused cases now cover throwing-original restoration and actual detached/final preparation routing."
+  },
+  "productionCorrespondence": {
+    "appAndMaintainedHarnessDiff": "",
+    "assertionModuleSha256": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a",
+    "firstBatchSha256": "ed33faf9afeb4c2a19fa3e1cbc60747a4b5e2d0d409aef77d192fa2eacb3944b",
+    "policySha256": "e2d3e9253ef24d8887678b0ecd1f812d059956eb35b1670fe5ce82a36c012dae",
+    "classification": "Only six QA files changed. Existing app, standard-check inputs, profile harness, first batch and run policy remain unchanged. Explicit reviewer carry assessment required; no full check rerun claimed."
+  },
+  "build": {
+    "status": "not-run",
+    "reason": "New nonignored QA text participates in Tailwind detection; previous901 build is not claimed for this changed source. No dependency lane acquired for this repair; parent/reviewer determines bounded final gate."
+  },
+  "implementation": [
+    "Choose an integer canvas point with an entire sampled5x5 neighborhood resolving to the named object.",
+    "After the expensive before-state read, classify only a detached clone with its observed turn/selection; disabled or substituted context rejects.",
+    "Revalidate the same integer interior point and actual live orderable selection synchronously after clone work, immediately before ordinary click.",
+    "Capture delivered pointer coordinates/buttons/DOM ownership and real-handler picker returns using original-once wrappers; remove listeners and restore pickers in finally. No clone/validator runs ahead of the handler.",
+    "Existing acceptedOrderEvidence dispatch/ack/recipient implementation remains byte-identical. Mission route, waits, caps, profile admission and cleanup unchanged."
+  ],
+  "originalAttempt": {
+    "runId": "5c92fac0-f9d6-4e8a-ac5f-57a8b98dd528",
+    "status": "failed",
+    "packetSha256": "a8cc25dd30a86330d4da8d0a38e6950298bfa0766d3cca2910682a0e6408e68c",
+    "reviewSha256": "9891d2e186dbb973c6404bfb6aecb2da986a4287f9e4ba331a68bac5bb89c37c",
+    "publishedEvidence": "940768091071b3f8123e12b1f8c63bb384268aa6",
+    "cause": "unresolved; source robustness changes do not prove the original cause"
+  },
+  "runtime": {
+    "launched": false,
+    "profileMutated": false,
+    "dependenciesHeld": false,
+    "oldProfile": "Closed failed901 profile has no segment boundary and cannot be resumed under this contract.",
+    "remaining": "Fresh source review, final gate/input binding and exact parent runtime grant before a bounded fresh attempt. Admit unchanged first batch immediately after actual readiness/opening, without publication work in the live interval."
+  }
+}

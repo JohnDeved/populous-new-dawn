@@ -1,0 +1,77 @@
+✖ integer interior selection rejects a fractional edge and competing canvas pixels (0.763827ms)
+✖ context diagnostics reject a disabled or substituted target and retain observation turn (0.162734ms)
+✖ actual entityHit chooses an integer interior point using the current picker and canvas ownership (1.449677ms)
+✖ actual clickOrder rejects stale or disabled entity input after the before-state read, and accepts a fresh target (0.688243ms)
+✖ delivered pointer observation calls each original picker once, preserves its result and restores all wrappers (0.349956ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 559.233562
+
+✖ failing tests:
+
+test at qa/campaign-continuity/entity-input.test.mjs:9:1
+✖ integer interior selection rejects a fractional edge and competing canvas pixels (0.763827ms)
+  TypeError: probes.findEntityInput is not a function
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/entity-input.test.mjs:11:22)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17)
+
+test at qa/campaign-continuity/entity-input.test.mjs:17:1
+✖ context diagnostics reject a disabled or substituted target and retain observation turn (0.162734ms)
+  TypeError: probes.requireEntityContext is not a function
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/entity-input.test.mjs:20:23)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)
+
+test at qa/campaign-continuity/entity-input.test.mjs:25:1
+✖ actual entityHit chooses an integer interior point using the current picker and canvas ownership (1.449677ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  false !== true
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/entity-input.test.mjs:41:12)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at qa/campaign-continuity/entity-input.test.mjs:49:1
+✖ actual clickOrder rejects stale or disabled entity input after the before-state read, and accepts a fresh target (0.688243ms)
+  AssertionError [ERR_ASSERTION]: Missing expected rejection.
+      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/entity-input.test.mjs:65:7)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: /stale/,
+    operator: 'rejects',
+    diff: 'simple'
+  }
+
+test at qa/campaign-continuity/entity-input.test.mjs:76:1
+✖ delivered pointer observation calls each original picker once, preserves its result and restores all wrappers (0.349956ms)
+  TypeError: probes.observeEntityPointer is not a function
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/entity-input.test.mjs:85:27)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7)

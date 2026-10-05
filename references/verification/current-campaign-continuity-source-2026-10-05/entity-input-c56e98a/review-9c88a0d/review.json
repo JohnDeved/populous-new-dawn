@@ -1,0 +1,97 @@
+{
+  "kind": "independent-entity-input-repair-source-review",
+  "createdAt": "2026-10-05T17:36:30.762Z",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_campaign_continuity",
+  "decision": "REJECT",
+  "head": "9c88a0d433b90f6a0539d48e46e0c82877f12f9d",
+  "base": "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+  "handoff": {
+    "path": "work/orchestration/campaign-continuity/entity-input-9c88a0d-handoff.json",
+    "sha256": "d5f286e1fcd93062c6d4666f6f04f0e7cbe1f8af6fe16a7e56303756aef96840"
+  },
+  "delta": [
+    {
+      "path": "qa/campaign-continuity/README.md",
+      "sha256": "5981e3f7701559cf18938b82fd98d9ace27afa034e158870194651d78a74f8f2"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.mjs",
+      "sha256": "4361392253e40746e7a7957bf840691e9869d7e5f00fccc9210ff582f5a5d7cb"
+    },
+    {
+      "path": "qa/campaign-continuity/entity-input.test.mjs",
+      "sha256": "2d7c1fcf385381db0273e51d14c88e2c9efabf533df16f93df1ceb960bfd1e9e"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.json",
+      "sha256": "7977715220bc91a6da2d67227bd078783455ca1355295e09ab2eb019e03fe17f"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.test.mjs",
+      "sha256": "64bb30fecfe374240f977421385f743a4ba5f1800ff8bd6001f7ef4f8ff492c8"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "sha256": "aa5992aa42ebec20d41c0fcc9ca827666233b9c3baeec88a0de1d5b2d8c37ec0"
+    }
+  ],
+  "checks": [
+    {
+      "path": "work/orchestration/campaign-continuity/entity-input-focused.json",
+      "sha256": "ee1922033d5d7cbab510ba88e16048954bfa35052a15a03ab5e028d826fc2b67",
+      "status": "passed",
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/entity-input-structure.json",
+      "sha256": "8211cf80efa4403bafc53baa5d671b42a67b0d66606c254c47a8d0e095b4aaec",
+      "status": "passed",
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/entity-input-diff.json",
+      "sha256": "ff710798384fd652e9d990f457484978c9524c4b105306bc267d5da873bec2d1",
+      "status": "passed",
+      "rawStreamsVerified": true
+    }
+  ],
+  "directTests": 88,
+  "findings": [
+    {
+      "id": "E1",
+      "severity": "medium",
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "lines": [
+        378,
+        382,
+        383,
+        359
+      ],
+      "title": "Pointer-pair cleanup assertion replaces the original input-delivery failure",
+      "evidence": "When mouse.click throws before both pointer events arrive, entityPrepared is already true. The finally call invokes the actual finishEntityClick complete-pair assertion and throws a new AssertionError. The original input-delivery error is neither propagated nor retained as cause, so the batch failure record loses its actual primary cause. Executed both frozen actual function bodies with a rejected delivery and empty observed event list; all picker restoration succeeded, yet the original error was replaced.",
+      "requiredRepair": "Always restore and log the pointer observer, but preserve the primary preparation/click error and separately retain any cleanup or event-validation error. Require the complete pair on the normal successful dispatch path; failed/partial dispatch must keep its original cause and recorded partial events. Add actual-source-body coverage for a rejected click and a rejected click plus cleanup/diagnostic failure."
+    }
+  ],
+  "reproduction": {
+    "script": "work/orchestration/campaign-continuity/review-9c88a0d/reproduce-error-mask.mjs",
+    "scriptSha256": "8be506c45cda58e3be9ea52074d425b074bb038bdfe7895abafcbd0123f815a0",
+    "stdout": "work/orchestration/campaign-continuity/review-9c88a0d/reproduce-error-mask.log",
+    "stdoutSha256": "046ece7f614ef363629050137b99f2bdd17506617a5193ddcc7b1bb45adbaff3",
+    "exitCode": 0,
+    "scope": "Frozen source function bodies, bounded plain Node only; no browser or profile."
+  },
+  "positiveAssessment": [
+    "Integer candidate selection checks all25 pixels of a5x5 neighborhood and current canvas ownership; source-linked entityHit coverage rejects the historical fractional edge fixture.",
+    "Detached command context is computed on a structured clone after the before-state read. Final point and selected-ID checks occur after that expensive work and before ordinary mouse input.",
+    "The passive capture listener records lightweight event data; it does not clone, invoke a diagnostic picker or classify commands ahead of the real handler. Wrappers call their actual original once with the same receiver/arguments and preserve its returned value or thrown error. Existing canvas handler is registered before the later bubble cleanup listener.",
+    "Existing dispatch/ack/recipient assertion bytes, routes, first batch, policy and app/profile harness remain unchanged. Reuse inventory correctly moves the modified helper/actions out of byte-identical claims and verifies the old clone-only prefix."
+  ],
+  "gateAssessment": {
+    "standard": "The prior901 explicit1126/parity two-step carry and d889 typecheck carry remain applicable to unchanged production/standard inputs. This is component carry, not a fresh full-check run.",
+    "qa": "All88 current focused tests and structural/whitespace receipt hashes verified; they lack the reproduced error-path case.",
+    "build": "A fresh build remains required on the repaired final head because added/changed nonignored QA text participates in Tailwind source scanning. Prior901 build does not carry.",
+    "runtime": "Not authorized by this source review. Final source/checker/runtime binding and exact parent grant require a new fresh-profile attempt; the closed failed901 profile is not a valid predecessor."
+  },
+  "originalFailureScope": "This robustness repair does not establish the cause of the earlier failed shrine click. No edge-hit, application regression or timing diagnosis is claimed.",
+  "resources": "Read-only source/receipt review, one bounded plain Node reproduction and ignored review artifact writes. No browser/profile/package/dependency/source changes; no resources held."
+}

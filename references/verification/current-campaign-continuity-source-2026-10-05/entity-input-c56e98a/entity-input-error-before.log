@@ -1,0 +1,80 @@
+✖ actual delivery and finalizer bodies preserve the original partial-click error and retain a separate cleanup error (5.067755ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 898.520226
+
+✖ failing tests:
+
+test at qa/campaign-continuity/entity-input.test.mjs:133:1
+✖ actual delivery and finalizer bodies preserve the original partial-click error and retain a separate cleanup error (5.067755ms)
+  AssertionError [ERR_ASSERTION]: The validation function is expected to return "true". Received false
+  
+  Caught error:
+  
+  AssertionError [ERR_ASSERTION]: Retain the actually delivered ordinary pointer pair at the validated integer point
+  + actual - expected
+  
+  + []
+  - [
+  -   {
+  -     button: 0,
+  -     canvasOwned: true,
+  -     canvasTarget: true,
+  -     type: 'pointerdown',
+  -     x: 814,
+  -     y: 300
+  -   },
+  -   {
+  -     button: 0,
+  -     canvasOwned: true,
+  -     canvasTarget: true,
+  -     type: 'pointerup',
+  -     x: 814,
+  -     y: 300
+  -   }
+  - ]
+  
+      at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/entity-input.test.mjs:148:5)
+      at async Test.run (node:internal/test_runner/test:1389:7)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: AssertionError [ERR_ASSERTION]: Retain the actually delivered ordinary pointer pair at the validated integer point
+    + actual - expected
+    
+    + []
+    - [
+    -   {
+    -     button: 0,
+    -     canvasOwned: true,
+    -     canvasTarget: true,
+    -     type: 'pointerdown',
+    -     x: 814,
+    -     y: 300
+    -   },
+    -   {
+    -     button: 0,
+    -     canvasOwned: true,
+    -     canvasTarget: true,
+    -     type: 'pointerup',
+    -     x: 814,
+    -     y: 300
+    -   }
+    - ]
+    
+        at finishEntityClick (eval at <anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/entity-input.test.mjs:136:21), <anonymous>:22:26)
+        at async clickOrder (eval at <anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/entity-input.test.mjs:136:21), <anonymous>:47:29)
+        at async eval (eval at <anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/entity-input.test.mjs:136:21), <anonymous>:63:7)
+        at async waitForActual (node:assert:646:5)
+        at async strict.rejects (node:assert:769:25)
+        at async TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/entity-input.test.mjs:148:5)
+        at async Test.run (node:internal/test_runner/test:1389:7)
+        at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3),
+    operator: 'rejects',
+    diff: 'simple'
+  }

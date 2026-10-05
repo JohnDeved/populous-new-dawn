@@ -1,0 +1,93 @@
+{
+  "kind": "independent-entity-input-E1-repair-review",
+  "createdAt": "2026-10-05T17:44:13.264Z",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_campaign_continuity",
+  "decision": "ACCEPT SOURCE",
+  "head": "c56e98af1b7cbeaa4fdc1898a31759f30960966f",
+  "priorRejectedHead": "9c88a0d433b90f6a0539d48e46e0c82877f12f9d",
+  "applicationMain": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "handoff": {
+    "path": "work/orchestration/campaign-continuity/entity-input-c56e98a-handoff.json",
+    "sha256": "aadb4a3c143f97ab7a8cd59487727b06ce92ca92befc70f7687f832c0d60f08f"
+  },
+  "priorReview": {
+    "path": "work/orchestration/campaign-continuity/review-9c88a0d/review.json",
+    "sha256": "8ce04d9f060c36e405f40382a3f6791ac47888a90c92f50c4d113eea48f2dbf4"
+  },
+  "findings": [],
+  "resolved": [
+    {
+      "id": "E1",
+      "status": "resolved",
+      "basis": "Actual clickOrder preserves the primary preparation/input error, calls the real finalizer in finally with complete-pair expectation only after successful delivery, and separately retains a finalizer diagnostic error. The primary error remains thrown even if the cleanup-error logger throws. The new regression executes actual clickOrder plus finishEntityClick for empty/partial delivery and restoration faults; independent additional execution covered restoration fault plus logger fault."
+    }
+  ],
+  "reviewedDelta": [
+    "qa/campaign-continuity/entity-input.test.mjs",
+    "qa/campaign-continuity/reuse.json",
+    "qa/campaign-continuity/scenario.mjs"
+  ],
+  "verifiedSourceFiles": [
+    {
+      "path": "qa/campaign-continuity/README.md",
+      "sha256": "5981e3f7701559cf18938b82fd98d9ace27afa034e158870194651d78a74f8f2"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.mjs",
+      "sha256": "4361392253e40746e7a7957bf840691e9869d7e5f00fccc9210ff582f5a5d7cb"
+    },
+    {
+      "path": "qa/campaign-continuity/entity-input.test.mjs",
+      "sha256": "88c7849e385514506a7406bbdd586db24eca4c8ce55eb5b50a6297d58d12e3e4"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.json",
+      "sha256": "4a7bf4c9ea52239d5bd193664339c50f6b6bdc8f20d068eb00c2f175490dc516"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.test.mjs",
+      "sha256": "64bb30fecfe374240f977421385f743a4ba5f1800ff8bd6001f7ef4f8ff492c8"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "sha256": "4b637afdea26ec4d5caf3afbc5ba3aa738df70740295c0e765d8ae374be14273"
+    }
+  ],
+  "verifiedReceipts": [
+    {
+      "path": "work/orchestration/campaign-continuity/entity-input-error-focused.json",
+      "sha256": "0d6b4915f84065c051f509ed07d9b7cb3d6816ee4230f3f3cb7087af2fd81d10",
+      "status": "passed",
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/entity-input-error-structure.json",
+      "sha256": "5dda0abd360c55ef7ddc18b8f0dda1dc4f7cbd7205fdef45d7a54b6a2ea50f6c",
+      "status": "passed",
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/entity-input-error-diff.json",
+      "sha256": "ba85376a41b22bdcb30cfeb1867e0da0388a227664843fb755a5fc501f682471",
+      "status": "passed",
+      "rawStreamsVerified": true
+    }
+  ],
+  "authorFocusedTests": 89,
+  "independentTests": {
+    "path": "work/orchestration/campaign-continuity/review-c56e98a/focused.json",
+    "sha256": "3b3ff2ef67ec72ae139de27b5c4a272f70364bfce5498bd85d9fb49933c35660",
+    "tests": 11,
+    "status": "passed"
+  },
+  "additionalActualBodyCheck": "Primary delivery error identity retained with simultaneous restoration failure and cleanup logging failure; diagnostic failure separately retained.",
+  "carriedSourceAssessment": "Carry the prior bounded9c88 review of integer5x5 target selection, detached clone context after the before-read, immediate current-point/selection revalidation, passive event capture and original-once picker wrappers. E1 was the only established blocker. Existing acceptedOrderEvidence, policy, mission routes, first batch, app and maintained profile harness remain unchanged.",
+  "gateDisposition": {
+    "standard": "ACCEPT the prior explicit1126/parity two-step carry and fresh d889 typecheck carry across unchanged production/standard inputs. No new full-check invocation claimed.",
+    "qa": "Fresh89 QA, structural and whitespace receipts at exact clean c56 verified. Independent11 entity/reuse tests pass.",
+    "build": "NOT RUN; one fresh bounded build on this exact final source remains required because nonignored QA text participates in Tailwind scanning. Do not carry the901 build.",
+    "runtime": "NOT RUN; update final source/checker/runtime input binding and receive the parent exact operational grant for a fresh profile. The closed failed901 profile cannot resume."
+  },
+  "originalFailureScope": "The original failed shrine click remains unresolved; this robustness change is not proof of an edge-hit cause or application/animation regression.",
+  "resources": "No browser/profile/dependency/package/source work. Read-only source/receipt inspection, bounded plain Node tests and ignored review artifacts only. No resources held."
+}

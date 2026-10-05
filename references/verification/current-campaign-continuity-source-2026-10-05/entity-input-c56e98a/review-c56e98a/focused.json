@@ -1,0 +1,17 @@
+{
+  "head": "c56e98af1b7cbeaa4fdc1898a31759f30960966f",
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "qa/campaign-continuity/entity-input.test.mjs",
+    "qa/campaign-continuity/reuse.test.mjs"
+  ],
+  "startedAt": "2026-10-05T17:44:12.413Z",
+  "finishedAt": "2026-10-05T17:44:13.262Z",
+  "exitCode": 0,
+  "stdout": "work/orchestration/campaign-continuity/review-c56e98a/focused.stdout.log",
+  "stdoutSha256": "f74daa8f5578c62a07af515a9aeeb7c49bdabea1edf1614e2d2352bdc3ba720e",
+  "stderr": "work/orchestration/campaign-continuity/review-c56e98a/focused.stderr.log",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
