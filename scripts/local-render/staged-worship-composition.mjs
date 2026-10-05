@@ -29,7 +29,7 @@ async function install(page, inputs) {
       presentation = scene.worshipPresentation, canvas = presentation.canvas,
       context = canvas.getContext('2d'), oracle = document.createElement('canvas').getContext('2d'),
       alphaOracle = document.createElement('canvas').getContext('2d'),
-      restorers = [], fixtures = [], seen = new Set()
+      restorers = [], fixtures = [], seen = new Set(), pendingAudits = []
     if (world !== window.testStore.getWorld() || world.outcome.level !== 1 || world.paused ||
         world.gifts.length || world.worshipAcquisition.requests.length ||
         world.worshipAcquisition.controllers.spell || !canvas.hidden)
@@ -41,7 +41,7 @@ async function install(page, inputs) {
       armedTurn: world.turn, mutations: [], handoffs: [], selects: [], samples: [],
       firstReplacementVisit: null, decodedBody: null, errors: [], cues: 0, visits: 0,
       pairStaged: false, samplesComplete: false, completed: false, restored: false,
-      replacementDraws: [],
+      replacementDraws: [], pendingAuditCount: 0, auditSnapshotBound: { maximumPairs: 2, maximumSerializedWorldBytes: 64_000_000 },
       turns: [], arrival: null, retirement: null, terminal: null,
       spriteProofs: { ghost: null, tint: null }, spriteProofAttempts: { ghost: false, tint: false },
     }
@@ -77,15 +77,33 @@ async function install(page, inputs) {
       require(matching.length === 1, `Expected exactly one authored ${reward} source`)
       return matching[0]
     }
+    const flushAudits = (binding, boundary) => {
+      require(pendingAudits.length <= 2, 'At most two immutable fixture snapshot pairs')
+      for (let i = pendingAudits.length - 1; i >= 0; i--) {
+        const audit = pendingAudits[i]
+        if (binding !== null && audit.binding !== binding) continue
+        const started = performance.now(), before = serialize(audit.before.world), after = serialize(audit.after.world)
+        require(before.length <= 64_000_000 && after.length <= 64_000_000, 'Fixture audit exceeds 64 MB source-state bound')
+        require(after === before, 'Fixture changed World outside nextId/effects/gifts')
+        require(serialize(audit.after.effects) === serialize(audit.before.effects), 'Fixture changed a pre-existing effect')
+        require(serialize(audit.after.gifts) === serialize(audit.before.gifts), 'Fixture changed a pre-existing gift')
+        audit.record.unchangedWorldOutsideWhitelist = true
+        audit.record.auditedUnchangedBytes = before.length
+        audit.record.deferredAudit = { boundary, milliseconds: performance.now() - started }
+        pendingAudits.splice(i, 1) // Release both immutable snapshots after exact comparison.
+      }
+      evidence.pendingAuditCount = pendingAudits.length
+    }
     // Native phase-ready boundary is phase1/timer77, then the real object turn
     // produces phase0/timer76 and requests. No queue/controller/clock/RNG writes.
     const stage = (label, rewards) => {
       require(evidence.mutations.length < 2 && fixtures.length + rewards.length <= 3, 'Fixture write bound exceeded')
+      require(pendingAudits.length < 2, 'Immutable fixture snapshot-pair bound exceeded')
       const started = performance.now(), omitted = () => Object.fromEntries(Object.entries(world).filter(([key]) => !['nextId', 'effects', 'gifts'].includes(key))),
-        unchangedBefore = serialize(omitted()), effectsBefore = serialize(world.effects), giftsBefore = serialize(world.gifts),
+        beforeSnapshot = copy({ world: omitted(), effects: world.effects, gifts: world.gifts }),
+        beforeCaptureMilliseconds = performance.now() - started,
         before = { nextId: world.nextId, effectsLength: world.effects.length, giftsLength: world.gifts.length }, beforeFocus = focus(),
-        writes = []
-      require(unchangedBefore.length <= 64_000_000, 'Fixture audit exceeds 64 MB source-state bound')
+        writes = [], commitStarted = performance.now()
       for (const reward of rewards) {
         const head = headFor(reward), gift = createGift(world, reward, head, 0, head.ordinarySpellReward), initial = copy(gift)
         gift.phase = 1
@@ -95,19 +113,26 @@ async function install(page, inputs) {
           ordinarySpellReward: head.ordinarySpellReward }), initial, final: copy(gift),
           overrides: [{ field: 'phase', before: 6, after: 1 }, { field: 'remaining', before: 82, after: 77 }] })
       }
-      require(serialize(omitted()) === unchangedBefore, 'Fixture changed World outside nextId/effects/gifts')
-      require(serialize(world.effects.slice(0, before.effectsLength)) === effectsBefore, 'Fixture changed a pre-existing effect')
-      require(serialize(world.gifts.slice(0, before.giftsLength)) === giftsBefore, 'Fixture changed a pre-existing gift')
+      const commitMilliseconds = performance.now() - commitStarted, afterCaptureStarted = performance.now(),
+        afterSnapshot = copy({ world: omitted(), effects: world.effects.slice(0, before.effectsLength), gifts: world.gifts.slice(0, before.giftsLength) }),
+        afterCaptureMilliseconds = performance.now() - afterCaptureStarted
+      // Both immutable snapshots are captured synchronously around the exact
+      // fixture writes. Only serialization/comparison moves after original drawing;
+      // no later callback reads mutable World as either side of this audit.
       require(world.nextId === before.nextId + rewards.length, 'Unexpected createGift ID allocation')
       require(world.effects.length === before.effectsLength + rewards.length && world.gifts.length === before.giftsLength + rewards.length,
         'Unexpected createGift array mutation')
       require(world.gifts.slice(before.giftsLength).every((gift, i) => gift === world.effects[before.effectsLength + i]),
         'Gift/effect alias ownership changed')
-      evidence.mutations.push({ label, turn: world.turn, before, beforeFocus, afterFocus: focus(),
+      const record = { label, turn: world.turn, before, beforeFocus, afterFocus: focus(),
         after: { nextId: world.nextId, effectsLength: world.effects.length, giftsLength: world.gifts.length },
-        writes, unchangedWorldOutsideWhitelist: true, auditedUnchangedBytes: unchangedBefore.length, auditMilliseconds: performance.now() - started })
+        writes, unchangedWorldOutsideWhitelist: false, auditedUnchangedBytes: null,
+        captureTiming: { beforeCaptureMilliseconds, commitMilliseconds, afterCaptureMilliseconds, synchronousMilliseconds: performance.now() - started } }
+      evidence.mutations.push(record)
+      pendingAudits.push({ before: beforeSnapshot, after: afterSnapshot, record, binding: writes[0].final.id })
+      evidence.pendingAuditCount = pendingAudits.length
     }
-    let operation = 'outside', drawing = null, beforeTurn = null
+    let operation = 'outside', drawing = null, beforeTurn = null, originalDrawBody = null, insideOriginalDraw = false
     wrap(scene, 'onSound', original => function (...args) {
       const result = original.apply(this, args)
       if (args[0] === 0x71) evidence.cues++
@@ -254,6 +279,9 @@ async function install(page, inputs) {
     }
     wrap(context, 'drawImage', original => function (...args) {
       const result = original.apply(this, args)
+      if (insideOriginalDraw && args.length === 9 && args[0] instanceof HTMLImageElement)
+        originalDrawBody = { giftId: world.worshipAcquisition.controllers.spell?.giftId,
+          model: world.worshipAcquisition.controllers.spell?.model, turn: world.turn }
       if (drawing) observe(() => {
         const transform = this.getTransform(), base = { args: args.slice(1),
           transform: [transform.a, transform.b, transform.c, transform.d, transform.e, transform.f],
@@ -315,7 +343,8 @@ async function install(page, inputs) {
         expectedSubmissions: commands.map(submissionIdentity) } : null
       const current = drawing
       let result
-      try { result = original.apply(this, args) } finally { drawing = null }
+      originalDrawBody = null; insideOriginalDraw = true
+      try { result = original.apply(this, args) } finally { drawing = null; insideOriginalDraw = false }
       if (body && evidence.handoffs.length === 2 && evidence.replacementDraws.length < 8) observe(() => {
         evidence.replacementDraws.push({ turn: world.turn, elapsed: a.clock.elapsed, lastVisit: a.clock.lastVisit,
           nextVisit: a.clock.nextVisit, fraction, tag, bodyModel: body.model, priorModel: prior?.model ?? null,
@@ -403,6 +432,8 @@ async function install(page, inputs) {
         evidence.samplesComplete = ['new-binding', 'intermediate', 'final-leg'].every(tag => seen.has(tag))
       })
       observe(() => {
+        if (originalDrawBody) flushAudits(originalDrawBody.giftId, { kind: 'after-first-original-body-draw-for-staged-binding',
+          ...originalDrawBody, sampleTag: current?.tag ?? null, newBindingSampleCaptured: seen.has('new-binding') })
         if (evidence.completed) return
         // Lifecycle must finish independently; unchanged final sample assertions
         // still fail if an actual renderer boundary was never observed.
@@ -423,6 +454,7 @@ async function install(page, inputs) {
     const gl = scene.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
     evidence.renderer = { webgl: gl.getParameter(gl.VERSION), renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER) }
     window.restoreStagedWorshipComposition = () => {
+      observe(() => flushAudits(null, { kind: 'observer-finalization' }))
       for (const restore of restorers.reverse()) observe(restore)
       evidence.restored = evidence.errors.length === 0
       evidence.final = focus()
@@ -525,6 +557,7 @@ export default async function ({ page, root, output, receipt, openMission, signa
     assert.deepEqual(o.diagnostics, []); assert.deepEqual(receipt.errors, [])
     assert.equal(o.mutations.length, 2); assert.deepEqual(o.mutations.map(m => m.writes.length), [1, 2])
     assert.ok(o.mutations.every(m => m.unchangedWorldOutsideWhitelist))
+    assert.equal(o.pendingAuditCount, 0)
     for (const mutation of o.mutations) {
       assert.deepEqual(mutation.afterFocus.gameplayRandom, mutation.beforeFocus.gameplayRandom)
       assert.deepEqual(mutation.afterFocus.cosmeticRandom, mutation.beforeFocus.cosmeticRandom)

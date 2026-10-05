@@ -80,9 +80,15 @@ Each createGift call increments only `world.nextId`, appends the same new object
 to `world.effects` and `world.gifts`, and initializes that new object's fields.
 Each synchronous transaction retains full created gift/provenance/override data,
 array lengths and IDs, plus before/after acquisition, gift, stock and both RNG
-snapshots. It compares the serialized World outside nextId/effects/gifts before
-and after, verifies unchanged existing array prefixes, and verifies gift/effect
-object aliasing. The serializable audit is bounded to 64 MB per transaction.
+snapshots. It synchronously captures immutable structured clones of World outside
+nextId/effects/gifts and the existing effect/gift prefixes on both sides of each
+fixture transaction. Exact full serialization and comparison use only those copies
+after the first original body draw for that staged binding, even if the required
+new-binding sample was missed. The ID, array-length and gift/effect alias checks
+remain synchronous. At most two snapshot pairs are pending; each serialized World
+copy retains the 64 MB limit. Snapshots are released after comparison; finalization
+flushes any remainder, and every audit must complete before a pass. Capture,
+fixture-commit and deferred comparison durations are retained separately.
 There are exactly three created gifts and six explicit field assignments.
 No source head, stock, request queue, controller, clock, speed, RNG, or renderer
 state is directly written by setup. No manual tick, clock visit, handoff, draw,
@@ -217,3 +223,10 @@ clocks, eight compact original-draw observations and setup-audit duration facts.
 Lifecycle retirement now completes independently of sample collection; the same
 three mandatory sample assertions still reject any missing rendered boundary.
 The original128-turn and15-second bounds remain unchanged.
+
+The smaller-viewport successor still missed the first mismatched-binding draw.
+Its two full JSON setup audits took about107ms apiece and consumed more than two
+50ms UI intervals. The next source repair preserves the exact complete audit,
+but removes serialization from that critical interval by using immutable before/
+after captures and the original-draw boundary described above. No live World read,
+fixture write, clock visit or renderer call is delayed or synthesized.
