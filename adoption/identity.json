@@ -1,0 +1,98 @@
+{
+  "baseline": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-timing-audit",
+    "commit": "596475b6839c948604897f8b68ff89c6290cf39d",
+    "tree": "50a8a20de1b348124d7e060025022ce71ce7ecdb",
+    "status": ""
+  },
+  "adopted": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-timing-current",
+    "commit": "71b3860e7025a9534d56248c194aa18610b5df4d",
+    "tree": "397a0e31a5232fa479e8d0972a4a929343ecec67",
+    "status": ""
+  },
+  "files": {
+    "app/game-clock.ts": {
+      "baseline": "826025bb4aab92a7ccb86801f854cde5675659e842a6563f585f4e591702c13a",
+      "adopted": "59d9e492f2567a78c70c1e50b6644b09da095aa1dd4fbc5c2ec7e6752fcfa4ee",
+      "unchanged": false
+    },
+    "app/scene.ts": {
+      "baseline": "a2326dd11bf5e729ba058c8e037b9a486640310b77b6ff679211e0060a96bb1d",
+      "adopted": "f803fbb4bf0d9c42917b87caaaac149edea1d260c56c94038ae5e930b453a284",
+      "unchanged": false
+    },
+    "app/scene-entities.ts": {
+      "baseline": "a760d0322641b9c9d13bbf23ef5a2cafac702cc755d597926162e7c771907fe6",
+      "adopted": "e794cf9faf7ea78f0228e398432b467cddf3a933c7218939ee9792acd764b009",
+      "unchanged": false
+    },
+    "app/scene-effects.ts": {
+      "baseline": "e2ae823c9de71b2a6eb3a798eb8e1fc439ec9baac8710105dca952277059ef18",
+      "adopted": "e2ae823c9de71b2a6eb3a798eb8e1fc439ec9baac8710105dca952277059ef18",
+      "unchanged": true
+    },
+    "app/animation.ts": {
+      "baseline": "38f394f7ab0f8080d3c5145d430e75699510fe8d67e7f22d4efe6fb3e89755f9",
+      "adopted": "38f394f7ab0f8080d3c5145d430e75699510fe8d67e7f22d4efe6fb3e89755f9",
+      "unchanged": true
+    },
+    "app/live-people.ts": {
+      "baseline": "231a4243ca510fe0c69fb7948bab778e9a048d7f44cda8ee1113662ce7ac1308",
+      "adopted": "231a4243ca510fe0c69fb7948bab778e9a048d7f44cda8ee1113662ce7ac1308",
+      "unchanged": true
+    },
+    "app/page.tsx": {
+      "baseline": "3659a30a02225deb09f9312f4c1f25ad4675178c0c922681e82ea9a2554c40a5",
+      "adopted": "50358f6ae119026e8b1f9215fa436126bb26b7595832140c136ed271fbc52fc2",
+      "unchanged": false
+    },
+    "app/world-state.ts": {
+      "baseline": "2bda9142edbfe4c84e7fad490abfa2dc9880d7e12ccde00553078fcf511ac3e7",
+      "adopted": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+      "unchanged": false
+    },
+    "app/world-turn.ts": {
+      "baseline": "8cf296a809fe108a2f05605ca52835eed5a67422105b8e42fe1c1eb3f471886c",
+      "adopted": "d322af8560cce8e0e3bc1188ebab7676c1cce3b904563c380562f4c1a932fea8",
+      "unchanged": false
+    },
+    "app/selection-runtime.ts": {
+      "baseline": "999dfa2becc4bf884239b79cf9edeef75a6d74ee5f588b29aff57178ab7deeb6",
+      "adopted": "999dfa2becc4bf884239b79cf9edeef75a6d74ee5f588b29aff57178ab7deeb6",
+      "unchanged": true
+    },
+    "app/world-effects.ts": {
+      "baseline": "4b7229dbb6b62700d0a1f1a7e5f73dbda664f7f7d1da3854d243b15d785b6f85",
+      "adopted": "bc9fc8379255bbf9b40f5da1ce8afc7458802c345aca6686c0cd87225400a202",
+      "unchanged": false
+    },
+    "app/hut-smoke-runtime.ts": {
+      "baseline": "db740f09664eb124bba32f95740eb2842fe441bbaaa0653e408f4eba68f2a8c7",
+      "adopted": "db740f09664eb124bba32f95740eb2842fe441bbaaa0653e408f4eba68f2a8c7",
+      "unchanged": true
+    },
+    "app/hut-occupancy-smoke.ts": {
+      "baseline": "4d6660697dfa08ed6a99d5a906b857f9b259d3152abb7f33f82d389d84d1ed07",
+      "adopted": "4d6660697dfa08ed6a99d5a906b857f9b259d3152abb7f33f82d389d84d1ed07",
+      "unchanged": true
+    },
+    "app/original-units.json": {
+      "baseline": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+      "adopted": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+      "unchanged": true
+    },
+    "app/original-rules.json": {
+      "baseline": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "adopted": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "unchanged": true
+    },
+    "package-lock.json": {
+      "baseline": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "adopted": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "unchanged": true
+    }
+  },
+  "patchSha256": "b09860540ead6095a207a37ad66a726ed88c3d4da034a3096cf7b920cd39670a",
+  "limits": "Source adoption only. No dependency movement, profile correspondence, fresh browser run or claim that baseline596 rendered receipts tested71b386."
+}

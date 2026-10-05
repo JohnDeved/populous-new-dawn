@@ -80,6 +80,18 @@
     "validation/audit.py": {
       "bytes": 6771,
       "sha256": "6dafade29bd1b92997dccda074c98dce9c7a6730fb4c347a476b2d1327211ffd"
+    },
+    "provenance.md": {
+      "bytes": 6362,
+      "sha256": "271b490ce04dcd23c1b4b7b8679bfbd378f76435eff266cd879205e538b36757"
+    },
+    "adoption/identity.json": {
+      "bytes": 4470,
+      "sha256": "f07d72f36fb3f1b857fad64c39efabb5d3d177c58c9bd31d7f2cb8eca9cf53ed"
+    },
+    "adoption/relevant-source.patch": {
+      "bytes": 15109,
+      "sha256": "b09860540ead6095a207a37ad66a726ed88c3d4da034a3096cf7b920cd39670a"
     }
   }
 }
