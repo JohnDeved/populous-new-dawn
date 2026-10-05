@@ -288,7 +288,7 @@ async function restartDuringFlight(page, bindGame, waitForShamanReadiness, wait,
   const result = await page.evaluate(() => {
     const old = window.worshipBoundaryOldScene, next = window.worshipBoundaryScene, presentation = old.worshipPresentation,
       overlays = [...document.querySelectorAll('.worship-acquisition-overlay')]
-    return { observation: window.worshipBoundaryEvidence.restart,
+    return { observation: window.worshipBoundaryEvidence.restart, initial: window.worshipBoundaryEvidence.start.focus,
       old: { disposed: old.disposed, overlayConnected: window.worshipBoundaryOldOverlay.isConnected,
         sprites: presentation.sprites.size, anchors: presentation.anchors.size, previousParticles: presentation.previousParticles.size },
       next: { distinct: next !== old, disposed: next.disposed, overlayCount: overlays.length,
@@ -299,8 +299,8 @@ async function restartDuringFlight(page, bindGame, waitForShamanReadiness, wait,
   assert.deepEqual(result.next, { distinct: true, disposed: false, overlayCount: 1, ownsOnlyOverlay: true, overlayConnected: true, rendererConnected: true })
   const start = result.observation.start
   assert.equal(start.startedBefore, false); assert.equal(start.currentWorld, true); assert.equal(start.oldWorldReused, false)
-  assert.deepEqual(start.focus.acquisition.controllers, { spell: null, companion: null, pulse: null, drawCommands: [] })
-  assert.deepEqual(start.focus.acquisition.requests, []); assert.deepEqual(start.focus.acquisition.previousDrawCommands, [])
+  assert.deepEqual(start.focus.acquisition, result.initial.acquisition, 'Restart restores the complete pre-RAF acquisition state, including deadline and limiter')
+  assert.equal(start.focus.stock, result.initial.stock, 'Restart restores the original pre-RAF Lightning stock')
   assert.deepEqual(start.focus.gifts, []); assert.equal(start.focus.count, 0)
   await wait(() => !window.worshipBoundaryScene.world.inputMask || !!(window.worshipBoundaryScene.world.flyby.flags & 1), null, 45000, 'Restart introduction becomes skippable')
   const skip = page.locator('.skip-introduction')
