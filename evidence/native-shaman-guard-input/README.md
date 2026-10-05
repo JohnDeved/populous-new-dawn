@@ -1,4 +1,4 @@
-# Bounded native Shaman Guard input: source, package and failed pilot evidence
+# Bounded native Shaman Guard input: source, package and partial control evidence
 
 [PR220](https://github.com/JohnDeved/populous-new-dawn/pull/220),
 [issue219](https://github.com/JohnDeved/populous-new-dawn/issues/219).
@@ -6,10 +6,14 @@ Candidate [c20a297](https://github.com/JohnDeved/populous-new-dawn/commit/c20a29
 tree `9af7241660efc11eb8969845ab7e587231d906bc`, based on accepted
 `3b899125cc8cedef938823718ad5d44f49957b66`.
 
-**Independent source/focused-runtime and final package ACCEPT. Full check and build
-pass. The latest ordinary baseline pilot captures training and a real Move, then fails
-the required marker observation before G; candidate rendered execution remains not-run.** This packet is not a merged,
-deployed or whole-Guard completion claim. Broader issues #4, #60 and #214 stay open.
+**Ordinary G now adopts native command 30; repeated G replaces it, and empty or
+Shaman-only G clears it.** The matching baseline uses the legacy boolean, toggles it
+off on repeated G, and leaves an active boolean on after Shaman-only G. These are
+observed control-prefix results from **failed baseline04 and candidate05 runs**.
+Following and both Save/Load cycles did not run in either capture. Independent
+source/focused-runtime and final package ACCEPT, full check and build remain as
+recorded below. This packet is not a merged, deployed or whole-Guard completion
+claim. Broader issues #4, #60 and #214 stay open.
 
 ## Result
 
@@ -59,9 +63,13 @@ base; this evidence branch does not apply it to its own runtime.
 - The [current source manifest](manifests/source-manifest-c20a297.json) binds all
   changed paths and current receipts. Earlier manifests remain historical.
 
-All retained artifacts are byte-exact copies, listed in [manifest.json](manifest.json).
-Receipt paths still describe their original execution locations. No original game
-binary, animation asset, tool distribution, profile or credential is included.
+Retained source artifacts are byte-exact copies, except the two complete row files
+stored as deterministic gzip; decompression reproduces their original bytes.
+[manifest.json](manifest.json) records stored hashes/bytes and original row-file
+hashes/bytes/line counts. The explicitly derived [control index](control-prefix-summary.json)
+is only a navigation aid alongside the raw sources. Receipt paths still describe
+their original execution locations. No original game binary, animation asset, tool
+distribution, profile or credential is included.
 
 ## Final package gates and review
 
@@ -258,10 +266,10 @@ The [revision 6 launch plan](prepared-revision-06/launch-plan-rev6.json), SHA256
 `f1bf383242780847e8d8f47068a6d2b3bdda1e0a1ceb441ac4262e2ba8b2f216`,
 keeps the same fixed sources, sandboxed browser, ports 4392/4393, CPU allocation,
 six prospective destinations and 60/300/330-second limits, with fresh attempt-04
-outputs. It is **prepared, not run**. The currently active campaign must reach
-verified terminal cleanup and release shared dependencies before a new coordinator
-grant. This source acceptance does not relabel pilot 03 or establish browser,
-Guard, checkpoint, performance or merge acceptance. PR220 remains draft.
+outputs. At that historical publication checkpoint it was **prepared, not run**.
+It subsequently ran as failed baseline04, retained below. Its source acceptance
+does not relabel pilot 03 or establish whole Guard, checkpoint, performance or
+merge acceptance. The distinct revision7 candidate also remains failed.
 
 Raw command30 payload b remains unchanged in original snapshots. Independent
 consumer audit permits excluding only that unused word from semantic comparison;
@@ -269,3 +277,86 @@ the port retains reused b. World.units ordering remains an explicit approximatio
 to the original tribe linked list, including which person gets a failed slot0.
 Fully settled native Guard movement, busy-controller handoffs and continuous
 historical idle phase remain outside this acceptance.
+
+## Ordinary control prefix: baseline04 and candidate05
+
+The public-input sequence genuinely trained Firewarrior 176 from original Brave
+122, observed occupancy and the 4000-mana cost, and strictly accepted the initial
+Move at the same picked point `(31.045209205924266, -11.975819335895324)`.
+The ordinary input prefix is unchanged through the scheduled 38-second G reissue,
+before revision7's added 40.5-second preparation boundary. This describes matching
+input boundaries, not identical execution times; candidate's final reissue
+completed at 40.950 seconds. The [derived index](control-prefix-summary.json)
+retains exact action-line references, actual timings and screenshots alongside the
+raw [baseline actions](baseline04/run/actions.jsonl) and
+[candidate actions](candidate05/run/actions.jsonl).
+
+- Baseline first G sets `Unit.guard=true`, with native status 0/count 0 and no
+  native renderer source. Escape retains it; repeated G toggles it off. The later
+  Shaman-only G leaves the reissued boolean active. Empty-selection G occurred
+  while that boolean was already false, so it is **not standalone proof of failed
+  active-order cancellation**; accepted native and failure-first proof covers
+  that separate branch.
+- Candidate first G adopts record 36/model 30/status 30/state 10/count 1. Escape
+  retains it, repeated G replaces it with record 38/count 1, and empty-selection G
+  clears the queue to state 19/status 0/count 0. Reissue allocates record 40;
+  Shaman-only G clears it again; final reissue allocates record 44. `Unit.guard`
+  stays false. Native and actual renderer-source identity 68 agree throughout
+  these control observations. Native adoption/current-target and owner assertions
+  passed before the later timing failure; queue assignment alone is not used to
+  claim adoption.
+
+Before/after images below are original, visually inspected PNGs from exact baseline
+`3b899125cc8cedef938823718ad5d44f49957b66` and candidate
+`c20a297f5f815ce404f796b08f77ea56396f96da`. Both used fresh 1440×1000 sandboxed
+headless Chrome 154.0.8037.92 contexts; software WebGL warnings preclude hardware
+performance claims. Pixels corroborate the scenes and HUD, not native phase
+correctness or original-game pixel parity.
+
+| Boundary | Baseline04 before | Candidate05 after |
+| --- | --- | --- |
+| First G | [Original image](baseline04/run/guard-06000-first-G.png); image-stage entry 6.322 s, capture turns 516–529 | [Original image](candidate05/run/guard-06000-first-G.png); image-stage entry 6.082 s, capture turns 505–517 |
+| Shaman-only G | [Original image](baseline04/run/guard-36000-shaman-cancel.png); image-stage entry 36.931 s, capture turns 884–896; HUD still says followers will guard | [Original image](candidate05/run/guard-36000-shaman-cancel.png); image-stage entry 37.047 s, capture turns 876–888; HUD says followers stop guarding |
+
+The seconds above are the recorded scheduled-entry times relative to each run's
+own Guard window, not screenshot exposure instants. Raw screenshot before/after
+page times remain in the witnesses and index. The four linked PNGs are included;
+other screenshot entries remain in the unmodified raw witnesses but are outside
+this bounded supplement.
+
+**Both runs retain FAILED, exit 1.** Baseline04 delivered the later ordinary Shaman
+Move, then exceeded its unchanged four-second action window. Candidate05 completed
+selection preparation but missed the next Move-entry slot; it never delivered
+that Shaman Move. Neither reached following observation or either pending
+replacement/cancellation Save/Load cycle. No full paired timing, full physics,
+complete Guard, checkpoint or merge acceptance follows from this prefix.
+
+- Baseline04: [launcher](baseline04/launcher.json), [outer receipt](baseline04/outer.json),
+  [inner receipt](baseline04/run/receipt.json), [failed witness](baseline04/run/witness.json),
+  [all 724 epoch-0 rows](baseline04/run/epoch-0-rows.jsonl.gz).
+- Candidate05: [launcher](candidate05/launcher.json), [outer receipt](candidate05/outer.json),
+  [inner receipt](candidate05/run/receipt.json), [failed witness](candidate05/run/witness.json),
+  [all 693 epoch-0 rows](candidate05/run/epoch-0-rows.jsonl.gz).
+
+All native phase rows are retained, including beyond the claimed prefix. The gzip
+files use level 9, timestamp 0 and no original filename; original uncompressed
+SHA256, byte count and line count are recorded in the manifest and verified by
+decompression. Launcher stdout/stderr, outer stdout/stderr and browser server logs
+are also retained under each run directory. Source, explicit checker inputs and
+dependency-lock fingerprints remain stable in the receipts; both loopback forms
+of each run's port were closed at terminal cleanup. The final all-runtime/checker
+assertions at the end of the full scenario were not reached.
+
+[Revision7 independent review](control-prefix-provenance/review/review-revision-07.md),
+SHA256 `32341b1ec23a0290345d773111f5a821dbdfc360759bfddce2820f3183e815cf`,
+accepts the bounded baseline before record and defines the still-required complete
+candidate gate. Its original “candidate has not run” statement predates candidate05;
+the failed execution above supersedes that historical status. The
+[frozen revision7 scenario](control-prefix-provenance/revision-07/scenario.mjs),
+[preparation receipt](control-prefix-provenance/revision-07/preparation-receipt.json),
+[independent checks](control-prefix-provenance/review/source-checks-revision-07.json)
+and [candidate launch plan](control-prefix-provenance/launch-plan-rev7-candidate.json)
+are retained with all 29 immutable input files. Baseline04's 28 input hashes match
+the already-published [revision6 packet](prepared-revision-06/native-guard-browser-preparation/preparation-receipt.json).
+No active later QA packet was copied or modified. The final package gates above
+remain unchanged.

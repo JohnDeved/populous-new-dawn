@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "output": "work/orchestration/native-guard-browser-baseline-04/outer.json",
+  "headOid": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "exitCode": 1,
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "4347c91b07dd065d408e9c73349d664c7b4704b5bf9bbd0108bb1c34eac4ea7c"
+}

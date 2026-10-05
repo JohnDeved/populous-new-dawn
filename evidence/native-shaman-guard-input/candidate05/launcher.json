@@ -1,0 +1,87 @@
+{
+  "status": "terminal",
+  "startedAt": "2026-10-05T23:19:01.094831+00:00",
+  "deadline330": "2026-10-05T23:24:31.094831+00:00",
+  "name": "candidate",
+  "head": "c20a297f5f815ce404f796b08f77ea56396f96da",
+  "port": 4393,
+  "netNamespace": "net:[4026532405]",
+  "pidNamespace": "pid:[4026532404]",
+  "planSha256": "2e7203d162a2f70bb2615a433017c586c937c81331bb1736e8f423d9bff4e174",
+  "command": [
+    "node",
+    "scripts/orchestration/command-receipt.mjs",
+    "--output",
+    "work/orchestration/native-guard-browser-candidate-05/outer.json",
+    "--input",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+    "--input",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-receipt.json",
+    "--input",
+    "node_modules/.package-lock.json",
+    "--",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=15s",
+    "330s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+    "--port",
+    "4393",
+    "--timeout",
+    "300000",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/run"
+  ],
+  "privateTMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-private-tmp-05",
+  "prePorts": [
+    {
+      "host": "127.0.0.1",
+      "closed": true
+    },
+    {
+      "host": "localhost",
+      "closed": true
+    }
+  ],
+  "dependencyInode": 925605,
+  "dependencyTransferSha256": "1a5e74adeb7c26ebf48c43c2e4e132d3654073a32028b3cd63a4160767e85202",
+  "pid": 17,
+  "finishedAt": "2026-10-05T23:20:50.983274+00:00",
+  "exitCode": 1,
+  "postPorts": [
+    {
+      "host": "127.0.0.1",
+      "closed": true
+    },
+    {
+      "host": "localhost",
+      "closed": true
+    }
+  ],
+  "sourceAfter": "c20a297f5f815ce404f796b08f77ea56396f96da",
+  "sourceStatusAfter": "",
+  "outer": {
+    "sha256": "19cb2d0b0243567b0308dd86a3ebe12012252d3ef3845e5c6c4d286eca3ea6e0",
+    "status": "failed",
+    "failure": null,
+    "exitCode": 1
+  },
+  "inner": {
+    "sha256": "cf0641b21aa401bf4b93f9ba932c8b1a28a6c8c9e772c05e955349fe3026fe5a",
+    "status": "failed",
+    "failure": "AssertionError [ERR_ASSERTION]: ordinary-shaman-move missed its source-defined window\n    at at (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs:305:40)\n    at async nativeGuardWitness (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs:328:5)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/scripts/local-render/harness.mjs:251:21",
+    "exitCode": null
+  },
+  "rootLockSha256After": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLockSha256After": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+}

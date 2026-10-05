@@ -1,0 +1,979 @@
+{
+  "kind": "derived-index-of-retained-failed-runs",
+  "scope": "Matching ordinary input prefix before the revision7-only scheduled 40.5-second preparation boundary. This names a schedule boundary, not an exact wall-time cutoff; actual recorded times remain distinct.",
+  "notProved": [
+    "Complete Guard gate",
+    "Shaman movement following stage",
+    "Either Save/Load cycle",
+    "Complete paired timing",
+    "Full physics",
+    "Original-game pixels",
+    "Hardware performance",
+    "Merge acceptance"
+  ],
+  "baselineEmptySelectionLimit": "Baseline empty-selection G occurred after repeated G had already turned the legacy boolean off; this is not standalone proof of failed cancellation of an active order.",
+  "compression": "The two complete epoch-0 row files are deterministic gzip. Decompression reproduces original bytes, hashes and line counts in manifest.json; no phase rows are omitted.",
+  "screenshotScope": "Four visually inspected source PNGs retain original bytes. Other screenshot entries in the raw witnesses are not included in this bounded supplement.",
+  "runs": {
+    "baseline04": {
+      "status": "failed",
+      "sourceCommit": "3b899125cc8cedef938823718ad5d44f49957b66",
+      "innerReceipt": "baseline04/run/receipt.json",
+      "outerReceipt": "baseline04/outer.json",
+      "launcherReceipt": "baseline04/launcher.json",
+      "actions": "baseline04/run/actions.jsonl",
+      "witness": "baseline04/run/witness.json",
+      "allEpoch0Rows": "baseline04/run/epoch-0-rows.jsonl.gz",
+      "epoch0RowCount": 724,
+      "actionsLineCount": 111,
+      "failure": "AssertionError [ERR_ASSERTION]: ordinary-shaman-move action exceeded its window",
+      "training": {
+        "sawOccupant": true,
+        "sawCost4000": true,
+        "sourceBraveId": 122,
+        "newFirewarriorId": 176
+      },
+      "initialMove": {
+        "actionsLine": 47,
+        "actualPoint": {
+          "x": 31.045209205924266,
+          "z": -11.975819335895324
+        },
+        "pointSet": "firewarrior",
+        "index": 1,
+        "beforeTurn": 424,
+        "afterTurn": 436
+      },
+      "sourceAndExplicitInputFingerprintsUnchanged": true,
+      "postPorts": [
+        {
+          "host": "127.0.0.1",
+          "closed": true
+        },
+        {
+          "host": "localhost",
+          "closed": true
+        }
+      ],
+      "controlObservations": [
+        {
+          "actionsLine": 53,
+          "boundary": "first-G",
+          "action": "key-g-observed",
+          "turn": 496,
+          "pageNowMs": 49074.5,
+          "selected": [
+            176
+          ],
+          "unitId": 176,
+          "unitGuard": true,
+          "nativeIdentity": 69,
+          "rendererSourceIdentity": null,
+          "nativeState": 10,
+          "commandStatus": 0,
+          "activeId": 0,
+          "queue": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": null,
+          "nativeTarget": 0,
+          "shamanGuardCount": 0
+        },
+        {
+          "actionsLine": 58,
+          "boundary": "first-deselection",
+          "action": "key-Escape-observed",
+          "turn": 557,
+          "pageNowMs": 54038.40000000596,
+          "selected": [],
+          "unitId": 176,
+          "unitGuard": true,
+          "nativeIdentity": 69,
+          "rendererSourceIdentity": null,
+          "nativeState": 10,
+          "commandStatus": 0,
+          "activeId": 0,
+          "queue": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": null,
+          "nativeTarget": 0,
+          "shamanGuardCount": 0
+        },
+        {
+          "actionsLine": 66,
+          "boundary": "repeat-G",
+          "action": "key-g-observed",
+          "turn": 639,
+          "pageNowMs": 60863.10000000894,
+          "selected": [
+            176
+          ],
+          "unitId": 176,
+          "unitGuard": false,
+          "nativeIdentity": 69,
+          "rendererSourceIdentity": 69,
+          "nativeState": 19,
+          "commandStatus": 0,
+          "activeId": 0,
+          "queue": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": null,
+          "nativeTarget": 0,
+          "shamanGuardCount": 0
+        },
+        {
+          "actionsLine": 71,
+          "boundary": "empty-selection-cancellation",
+          "action": "key-Escape-observed",
+          "turn": 711,
+          "pageNowMs": 66861.20000000298,
+          "selected": [],
+          "unitId": 176,
+          "unitGuard": false,
+          "nativeIdentity": 69,
+          "rendererSourceIdentity": 69,
+          "nativeState": 19,
+          "commandStatus": 0,
+          "activeId": 0,
+          "queue": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": null,
+          "nativeTarget": 0,
+          "shamanGuardCount": 0
+        },
+        {
+          "actionsLine": 73,
+          "boundary": "empty-selection-cancellation",
+          "action": "key-g-observed",
+          "turn": 716,
+          "pageNowMs": 67347.60000000894,
+          "selected": [],
+          "unitId": 176,
+          "unitGuard": false,
+          "nativeIdentity": 69,
+          "rendererSourceIdentity": 69,
+          "nativeState": 19,
+          "commandStatus": 0,
+          "activeId": 0,
+          "queue": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": null,
+          "nativeTarget": 0,
+          "shamanGuardCount": 0
+        },
+        {
+          "actionsLine": 80,
+          "boundary": "reissue-after-cancel",
+          "action": "key-g-observed",
+          "turn": 799,
+          "pageNowMs": 74213.80000001192,
+          "selected": [
+            176
+          ],
+          "unitId": 176,
+          "unitGuard": true,
+          "nativeIdentity": 69,
+          "rendererSourceIdentity": null,
+          "nativeState": 10,
+          "commandStatus": 0,
+          "activeId": 0,
+          "queue": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": null,
+          "nativeTarget": 0,
+          "shamanGuardCount": 0
+        },
+        {
+          "actionsLine": 83,
+          "boundary": "shaman-only-cancellation",
+          "action": "key-Escape-observed",
+          "turn": 856,
+          "pageNowMs": 78988.20000000298,
+          "selected": [],
+          "unitId": 176,
+          "unitGuard": true,
+          "nativeIdentity": 69,
+          "rendererSourceIdentity": null,
+          "nativeState": 10,
+          "commandStatus": 0,
+          "activeId": 0,
+          "queue": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": null,
+          "nativeTarget": 0,
+          "shamanGuardCount": 0
+        },
+        {
+          "actionsLine": 87,
+          "boundary": "shaman-only-cancellation",
+          "action": "key-g-observed",
+          "turn": 876,
+          "pageNowMs": 80672.90000000596,
+          "selected": [
+            63
+          ],
+          "unitId": 176,
+          "unitGuard": true,
+          "nativeIdentity": 69,
+          "rendererSourceIdentity": null,
+          "nativeState": 10,
+          "commandStatus": 0,
+          "activeId": 0,
+          "queue": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": null,
+          "nativeTarget": 0,
+          "shamanGuardCount": 0
+        },
+        {
+          "actionsLine": 92,
+          "boundary": "guard-again",
+          "action": "key-Escape-observed",
+          "turn": 906,
+          "pageNowMs": 83122.40000000596,
+          "selected": [],
+          "unitId": 176,
+          "unitGuard": true,
+          "nativeIdentity": 69,
+          "rendererSourceIdentity": null,
+          "nativeState": 10,
+          "commandStatus": 0,
+          "activeId": 0,
+          "queue": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": null,
+          "nativeTarget": 0,
+          "shamanGuardCount": 0
+        },
+        {
+          "actionsLine": 96,
+          "boundary": "guard-again",
+          "action": "key-g-observed",
+          "turn": 925,
+          "pageNowMs": 84772.80000001192,
+          "selected": [
+            176
+          ],
+          "unitId": 176,
+          "unitGuard": false,
+          "nativeIdentity": 69,
+          "rendererSourceIdentity": 69,
+          "nativeState": 19,
+          "commandStatus": 0,
+          "activeId": 0,
+          "queue": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": null,
+          "nativeTarget": 0,
+          "shamanGuardCount": 0
+        }
+      ],
+      "scheduledBoundaries": [
+        {
+          "actionsLine": 51,
+          "label": "first-G",
+          "offsetMs": 4000,
+          "actualMs": 4360.9000000059605
+        },
+        {
+          "actionsLine": 54,
+          "label": "first-G-image",
+          "offsetMs": 6000,
+          "actualMs": 6321.9000000059605
+        },
+        {
+          "actionsLine": 56,
+          "label": "first-deselection",
+          "offsetMs": 9000,
+          "actualMs": 9332
+        },
+        {
+          "actionsLine": 59,
+          "label": "deselected-image",
+          "offsetMs": 11000,
+          "actualMs": 11295.40000000596
+        },
+        {
+          "actionsLine": 61,
+          "label": "reselect-firewarrior",
+          "offsetMs": 14000,
+          "actualMs": 14338.5
+        },
+        {
+          "actionsLine": 64,
+          "label": "repeat-G",
+          "offsetMs": 16000,
+          "actualMs": 16266.90000000596
+        },
+        {
+          "actionsLine": 67,
+          "label": "repeat-G-image",
+          "offsetMs": 18000,
+          "actualMs": 18311.29999999702
+        },
+        {
+          "actionsLine": 69,
+          "label": "empty-selection-cancellation",
+          "offsetMs": 22000,
+          "actualMs": 22169
+        },
+        {
+          "actionsLine": 74,
+          "label": "empty-cancellation-image",
+          "offsetMs": 24000,
+          "actualMs": 24218.59999999404
+        },
+        {
+          "actionsLine": 76,
+          "label": "reissue-after-cancel",
+          "offsetMs": 28000,
+          "actualMs": 28269.59999999404
+        },
+        {
+          "actionsLine": 81,
+          "label": "shaman-only-cancellation",
+          "offsetMs": 34000,
+          "actualMs": 34195.20000000298
+        },
+        {
+          "actionsLine": 88,
+          "label": "shaman-cancellation-image",
+          "offsetMs": 36000,
+          "actualMs": 36930.5
+        },
+        {
+          "actionsLine": 90,
+          "label": "guard-again",
+          "offsetMs": 38000,
+          "actualMs": 38440.40000000596
+        },
+        {
+          "actionsLine": 97,
+          "label": "ordinary-shaman-move",
+          "offsetMs": 42000,
+          "actualMs": 42316.5
+        }
+      ],
+      "screenshots": [
+        {
+          "actionsLine": 55,
+          "path": "baseline04/run/guard-06000-first-G.png",
+          "sha256": "47c3706eed2bb67f952c5e8056900f25b88f852949e07d2f4702b96aa48c381b",
+          "before": {
+            "epoch": 0,
+            "now": 50685.40000000596,
+            "turn": 516
+          },
+          "after": {
+            "epoch": 0,
+            "now": 51708.5,
+            "turn": 529
+          }
+        },
+        {
+          "actionsLine": 89,
+          "path": "baseline04/run/guard-36000-shaman-cancel.png",
+          "sha256": "d79c02acce7e132eb68f94aa2cefb0999cf0cc4b4fe3706e8c5c748091450ac7",
+          "before": {
+            "epoch": 0,
+            "now": 81276.10000000894,
+            "turn": 884
+          },
+          "after": {
+            "epoch": 0,
+            "now": 82287.20000000298,
+            "turn": 896
+          }
+        }
+      ],
+      "checkpointCount": 0
+    },
+    "candidate05": {
+      "status": "failed",
+      "sourceCommit": "c20a297f5f815ce404f796b08f77ea56396f96da",
+      "innerReceipt": "candidate05/run/receipt.json",
+      "outerReceipt": "candidate05/outer.json",
+      "launcherReceipt": "candidate05/launcher.json",
+      "actions": "candidate05/run/actions.jsonl",
+      "witness": "candidate05/run/witness.json",
+      "allEpoch0Rows": "candidate05/run/epoch-0-rows.jsonl.gz",
+      "epoch0RowCount": 693,
+      "actionsLineCount": 116,
+      "failure": "AssertionError [ERR_ASSERTION]: ordinary-shaman-move missed its source-defined window",
+      "training": {
+        "sawOccupant": true,
+        "sawCost4000": true,
+        "sourceBraveId": 122,
+        "newFirewarriorId": 176
+      },
+      "initialMove": {
+        "actionsLine": 47,
+        "actualPoint": {
+          "x": 31.045209205924266,
+          "z": -11.975819335895324
+        },
+        "pointSet": "firewarrior",
+        "index": 1,
+        "beforeTurn": 417,
+        "afterTurn": 427
+      },
+      "sourceAndExplicitInputFingerprintsUnchanged": true,
+      "postPorts": [
+        {
+          "host": "127.0.0.1",
+          "closed": true
+        },
+        {
+          "host": "localhost",
+          "closed": true
+        }
+      ],
+      "controlObservations": [
+        {
+          "actionsLine": 54,
+          "boundary": "first-G",
+          "action": "key-g-observed",
+          "turn": 489,
+          "pageNowMs": 49135,
+          "selected": [
+            176
+          ],
+          "unitId": 176,
+          "unitGuard": false,
+          "nativeIdentity": 68,
+          "rendererSourceIdentity": 68,
+          "nativeState": 10,
+          "commandStatus": 30,
+          "activeId": 36,
+          "queue": [
+            36,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "id": 36,
+            "model": 30,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 63,
+            "b": 0
+          },
+          "nativeTarget": 63,
+          "shamanGuardCount": 1
+        },
+        {
+          "actionsLine": 61,
+          "boundary": "first-deselection",
+          "action": "key-Escape-observed",
+          "turn": 546,
+          "pageNowMs": 53877.5,
+          "selected": [],
+          "unitId": 176,
+          "unitGuard": false,
+          "nativeIdentity": 68,
+          "rendererSourceIdentity": 68,
+          "nativeState": 10,
+          "commandStatus": 30,
+          "activeId": 36,
+          "queue": [
+            36,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "id": 36,
+            "model": 30,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 63,
+            "b": 0
+          },
+          "nativeTarget": 63,
+          "shamanGuardCount": 1
+        },
+        {
+          "actionsLine": 72,
+          "boundary": "repeat-G",
+          "action": "key-g-observed",
+          "turn": 629,
+          "pageNowMs": 60765.79999999702,
+          "selected": [
+            176
+          ],
+          "unitId": 176,
+          "unitGuard": false,
+          "nativeIdentity": 68,
+          "rendererSourceIdentity": 68,
+          "nativeState": 10,
+          "commandStatus": 30,
+          "activeId": 38,
+          "queue": [
+            38,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "id": 38,
+            "model": 30,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 63,
+            "b": 0
+          },
+          "nativeTarget": 63,
+          "shamanGuardCount": 1
+        },
+        {
+          "actionsLine": 79,
+          "boundary": "empty-selection-cancellation",
+          "action": "key-Escape-observed",
+          "turn": 703,
+          "pageNowMs": 66957.59999999404,
+          "selected": [],
+          "unitId": 176,
+          "unitGuard": false,
+          "nativeIdentity": 68,
+          "rendererSourceIdentity": 68,
+          "nativeState": 10,
+          "commandStatus": 30,
+          "activeId": 38,
+          "queue": [
+            38,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "id": 38,
+            "model": 30,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 63,
+            "b": 0
+          },
+          "nativeTarget": 63,
+          "shamanGuardCount": 1
+        },
+        {
+          "actionsLine": 81,
+          "boundary": "empty-selection-cancellation",
+          "action": "key-g-observed",
+          "turn": 710,
+          "pageNowMs": 67478.29999999702,
+          "selected": [],
+          "unitId": 176,
+          "unitGuard": false,
+          "nativeIdentity": 68,
+          "rendererSourceIdentity": 68,
+          "nativeState": 19,
+          "commandStatus": 0,
+          "activeId": 0,
+          "queue": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": null,
+          "nativeTarget": 63,
+          "shamanGuardCount": 0
+        },
+        {
+          "actionsLine": 90,
+          "boundary": "reissue-after-cancel",
+          "action": "key-g-observed",
+          "turn": 788,
+          "pageNowMs": 74001.89999999106,
+          "selected": [
+            176
+          ],
+          "unitId": 176,
+          "unitGuard": false,
+          "nativeIdentity": 68,
+          "rendererSourceIdentity": 68,
+          "nativeState": 10,
+          "commandStatus": 30,
+          "activeId": 40,
+          "queue": [
+            40,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "id": 40,
+            "model": 30,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 63,
+            "b": 0
+          },
+          "nativeTarget": 63,
+          "shamanGuardCount": 1
+        },
+        {
+          "actionsLine": 94,
+          "boundary": "shaman-only-cancellation",
+          "action": "key-Escape-observed",
+          "turn": 848,
+          "pageNowMs": 79069.29999999702,
+          "selected": [],
+          "unitId": 176,
+          "unitGuard": false,
+          "nativeIdentity": 68,
+          "rendererSourceIdentity": 68,
+          "nativeState": 10,
+          "commandStatus": 30,
+          "activeId": 40,
+          "queue": [
+            40,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "id": 40,
+            "model": 30,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 63,
+            "b": 0
+          },
+          "nativeTarget": 63,
+          "shamanGuardCount": 1
+        },
+        {
+          "actionsLine": 98,
+          "boundary": "shaman-only-cancellation",
+          "action": "key-g-observed",
+          "turn": 868,
+          "pageNowMs": 80716.5,
+          "selected": [
+            63
+          ],
+          "unitId": 176,
+          "unitGuard": false,
+          "nativeIdentity": 68,
+          "rendererSourceIdentity": 68,
+          "nativeState": 19,
+          "commandStatus": 0,
+          "activeId": 0,
+          "queue": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": null,
+          "nativeTarget": 63,
+          "shamanGuardCount": 0
+        },
+        {
+          "actionsLine": 105,
+          "boundary": "guard-again",
+          "action": "key-Escape-observed",
+          "turn": 900,
+          "pageNowMs": 83341.09999999404,
+          "selected": [],
+          "unitId": 176,
+          "unitGuard": false,
+          "nativeIdentity": 68,
+          "rendererSourceIdentity": 68,
+          "nativeState": 19,
+          "commandStatus": 0,
+          "activeId": 0,
+          "queue": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": null,
+          "nativeTarget": 63,
+          "shamanGuardCount": 0
+        },
+        {
+          "actionsLine": 109,
+          "boundary": "guard-again",
+          "action": "key-g-observed",
+          "turn": 921,
+          "pageNowMs": 85093.09999999404,
+          "selected": [
+            176
+          ],
+          "unitId": 176,
+          "unitGuard": false,
+          "nativeIdentity": 68,
+          "rendererSourceIdentity": 68,
+          "nativeState": 10,
+          "commandStatus": 30,
+          "activeId": 44,
+          "queue": [
+            44,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "order": {
+            "id": 44,
+            "model": 30,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 63,
+            "b": 0
+          },
+          "nativeTarget": 63,
+          "shamanGuardCount": 1
+        }
+      ],
+      "scheduledBoundaries": [
+        {
+          "actionsLine": 52,
+          "label": "first-G",
+          "offsetMs": 4000,
+          "actualMs": 4442.20000000298
+        },
+        {
+          "actionsLine": 56,
+          "label": "first-G-image",
+          "offsetMs": 6000,
+          "actualMs": 6082.20000000298
+        },
+        {
+          "actionsLine": 59,
+          "label": "first-deselection",
+          "offsetMs": 9000,
+          "actualMs": 9236.90000000596
+        },
+        {
+          "actionsLine": 63,
+          "label": "deselected-image",
+          "offsetMs": 11000,
+          "actualMs": 11334.40000000596
+        },
+        {
+          "actionsLine": 66,
+          "label": "reselect-firewarrior",
+          "offsetMs": 14000,
+          "actualMs": 14367
+        },
+        {
+          "actionsLine": 70,
+          "label": "repeat-G",
+          "offsetMs": 16000,
+          "actualMs": 16187.79999999702
+        },
+        {
+          "actionsLine": 74,
+          "label": "repeat-G-image",
+          "offsetMs": 18000,
+          "actualMs": 18329.60000000894
+        },
+        {
+          "actionsLine": 77,
+          "label": "empty-selection-cancellation",
+          "offsetMs": 22000,
+          "actualMs": 22312.10000000894
+        },
+        {
+          "actionsLine": 83,
+          "label": "empty-cancellation-image",
+          "offsetMs": 24000,
+          "actualMs": 24354.60000000894
+        },
+        {
+          "actionsLine": 86,
+          "label": "reissue-after-cancel",
+          "offsetMs": 28000,
+          "actualMs": 28061.90000000596
+        },
+        {
+          "actionsLine": 92,
+          "label": "shaman-only-cancellation",
+          "offsetMs": 34000,
+          "actualMs": 34269.90000000596
+        },
+        {
+          "actionsLine": 100,
+          "label": "shaman-cancellation-image",
+          "offsetMs": 36000,
+          "actualMs": 37046.60000000894
+        },
+        {
+          "actionsLine": 103,
+          "label": "guard-again",
+          "offsetMs": 38000,
+          "actualMs": 38649.40000000596
+        },
+        {
+          "actionsLine": 111,
+          "label": "prepare-shaman-selection",
+          "offsetMs": 40500,
+          "actualMs": 41365
+        }
+      ],
+      "screenshots": [
+        {
+          "actionsLine": 57,
+          "path": "candidate05/run/guard-06000-first-G.png",
+          "sha256": "914fc0dd068e41a89e2692e499ee18dd677e75c7c9f0f1580e5bcb103042e6f8",
+          "before": {
+            "epoch": 0,
+            "now": 50408.39999999106,
+            "turn": 505
+          },
+          "after": {
+            "epoch": 0,
+            "now": 51409.79999999702,
+            "turn": 517
+          }
+        },
+        {
+          "actionsLine": 101,
+          "path": "candidate05/run/guard-36000-shaman-cancel.png",
+          "sha256": "e9c6fb2b07a4ce1803676934ddb29181c876d628bd6170a615a1599860f3292a",
+          "before": {
+            "epoch": 0,
+            "now": 81366.09999999404,
+            "turn": 876
+          },
+          "after": {
+            "epoch": 0,
+            "now": 82379.69999998808,
+            "turn": 888
+          }
+        }
+      ],
+      "checkpointCount": 0
+    }
+  }
+}

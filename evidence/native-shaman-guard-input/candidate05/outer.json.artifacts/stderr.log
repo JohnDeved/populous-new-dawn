@@ -1,0 +1,8 @@
+Error: AssertionError [ERR_ASSERTION]: ordinary-shaman-move missed its source-defined window
+    at at (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs:305:40)
+    at async nativeGuardWitness (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs:328:5)
+    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/scripts/local-render/harness.mjs:164:20)
+    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/scripts/local-render/harness.mjs:251:21
+    at runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/scripts/local-render/harness.mjs:233:47)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/scripts/local-render/harness.mjs:251:21

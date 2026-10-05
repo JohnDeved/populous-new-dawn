@@ -1,0 +1,391 @@
+{
+  "status": "failed-preserved",
+  "scope": "Read-only attribution from retained attempt04; no runtime, replay, timeout change or recovered missing timestamp. The exact final page-performance delta was not logged; wall-clock spans below are measured from actual retained timestamps.",
+  "inputHashes": {
+    "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/run/actions.jsonl": "58e75accf96f51403edcbdbee332a223589c1099acbaf3be1998028c87eea58a",
+    "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/run/witness.json": "37fefa1049a3223379984eaf8f0338a6641e5aed15d9f7c171ceaea29c1cb74d",
+    "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/run/receipt.json": "b0d60ad815c37be710356f7e9b01cdb41d02925c1c272d3c5b491c8aa5273c2c"
+  },
+  "durationsMs": {
+    "entryLatenessPage": 316.5,
+    "scheduledEntryToSelectionObservedWall": 1686,
+    "selectionObservedToMinimapSettledWall": 1807,
+    "minimapSettledToAcceptedMoveWall": 1000,
+    "scheduledEntryToAcceptedMoveWall": 4493,
+    "acceptedMoveToFailureWall": 90,
+    "scheduledEntryToFailureWall": 4583
+  },
+  "cameraAfterSelection": {
+    "point": {
+      "x": 29,
+      "z": -5
+    },
+    "position": {
+      "x": 9472,
+      "y": 64768,
+      "angle": 0
+    },
+    "bearing": 0,
+    "motion": {
+      "active": 0,
+      "target": {
+        "x": 9472,
+        "y": 64768,
+        "angle": 0
+      },
+      "source": {
+        "x": 9472,
+        "y": 64768,
+        "angle": 0
+      },
+      "moveUp": 28,
+      "moveDown": 66,
+      "turnUp": 0,
+      "turnDown": 0,
+      "moveSpeed": 0,
+      "turnSpeed": 0,
+      "moveIndex": 0,
+      "turnIndex": 0,
+      "moveCount": 1,
+      "turnCount": 0,
+      "phase": 0,
+      "frame": 1,
+      "moves": [
+        [
+          240,
+          0
+        ],
+        [
+          227,
+          1
+        ],
+        [
+          203,
+          1
+        ],
+        [
+          143,
+          2
+        ],
+        [
+          107,
+          1
+        ],
+        [
+          60,
+          2
+        ],
+        [
+          28,
+          3
+        ],
+        [
+          23,
+          1
+        ],
+        [
+          14,
+          2
+        ],
+        [
+          9,
+          2
+        ],
+        [
+          4,
+          4
+        ]
+      ],
+      "turns": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "overview": null
+  },
+  "cameraAfterMinimap": {
+    "point": {
+      "x": 24.6328125,
+      "z": -0.453125
+    },
+    "position": {
+      "x": 8354,
+      "y": 63604,
+      "angle": 0
+    },
+    "bearing": 0,
+    "motion": {
+      "active": 0,
+      "target": {
+        "x": 8354,
+        "y": 63604,
+        "angle": 0
+      },
+      "source": {
+        "x": 9472,
+        "y": 64768,
+        "angle": 0
+      },
+      "moveUp": 475,
+      "moveDown": 1133,
+      "turnUp": 0,
+      "turnDown": 0,
+      "moveSpeed": 256,
+      "turnSpeed": 0,
+      "moveIndex": 10,
+      "turnIndex": 10,
+      "moveCount": 1,
+      "turnCount": 0,
+      "phase": 1,
+      "frame": 18,
+      "moves": [
+        [
+          256,
+          0
+        ],
+        [
+          243,
+          1
+        ],
+        [
+          217,
+          1
+        ],
+        [
+          153,
+          1
+        ],
+        [
+          115,
+          2
+        ],
+        [
+          64,
+          2
+        ],
+        [
+          30,
+          2
+        ],
+        [
+          25,
+          1
+        ],
+        [
+          15,
+          3
+        ],
+        [
+          10,
+          1
+        ],
+        [
+          5,
+          3
+        ]
+      ],
+      "turns": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "overview": null
+  },
+  "moves": [
+    {
+      "pointSet": "firewarrior",
+      "index": 1,
+      "requested": {
+        "x": 31,
+        "z": -11
+      },
+      "actualPoint": {
+        "x": 31.045209205924266,
+        "z": -11.975819335895324
+      },
+      "wallMs": 61736
+    },
+    {
+      "pointSet": "shaman",
+      "index": 0,
+      "requested": {
+        "x": 25,
+        "z": -1
+      },
+      "actualPoint": {
+        "x": 24.977417964071833,
+        "z": -1.0636550898203723
+      },
+      "wallMs": 108802
+    }
+  ],
+  "timeline": [
+    {
+      "action": "scheduled-boundary",
+      "label": "ordinary-shaman-move",
+      "at": "2026-10-05T22:57:01.930Z",
+      "wallMs": 104309,
+      "offsetMs": 42000,
+      "actualMs": 42316.5
+    },
+    {
+      "action": "key-Escape",
+      "at": "2026-10-05T22:57:02.173Z",
+      "wallMs": 104552
+    },
+    {
+      "action": "key-Escape-observed",
+      "at": "2026-10-05T22:57:02.427Z",
+      "wallMs": 104806
+    },
+    {
+      "action": "button-Select and focus shaman",
+      "at": "2026-10-05T22:57:02.626Z",
+      "wallMs": 105005
+    },
+    {
+      "action": "button-Select and focus shaman-observed",
+      "at": "2026-10-05T22:57:03.616Z",
+      "wallMs": 105995
+    },
+    {
+      "action": "minimap-click",
+      "at": "2026-10-05T22:57:04.300Z",
+      "wallMs": 106679
+    },
+    {
+      "action": "minimap-camera-observed",
+      "at": "2026-10-05T22:57:05.423Z",
+      "wallMs": 107802
+    },
+    {
+      "action": "ordinary-ground-target",
+      "at": "2026-10-05T22:57:05.686Z",
+      "wallMs": 108065,
+      "pointSet": "shaman",
+      "index": 0
+    },
+    {
+      "action": "ground-immediate-revalidation",
+      "at": "2026-10-05T22:57:06.079Z",
+      "wallMs": 108458
+    },
+    {
+      "action": "world-order-click",
+      "at": "2026-10-05T22:57:06.079Z",
+      "wallMs": 108458
+    },
+    {
+      "action": "entity-delivered-pointer-observation",
+      "at": "2026-10-05T22:57:06.275Z",
+      "wallMs": 108654
+    },
+    {
+      "action": "world-order-observation",
+      "at": "2026-10-05T22:57:06.422Z",
+      "wallMs": 108801
+    },
+    {
+      "action": "synchronous-input-boundary-accepted",
+      "at": "2026-10-05T22:57:06.423Z",
+      "wallMs": 108802
+    },
+    {
+      "action": "world-order-input-observed",
+      "at": "2026-10-05T22:57:06.423Z",
+      "wallMs": 108802
+    },
+    {
+      "action": "ordinary-ground-move-accepted",
+      "at": "2026-10-05T22:57:06.423Z",
+      "wallMs": 108802,
+      "pointSet": "shaman",
+      "index": 0
+    }
+  ],
+  "limits": "No ground probes were retained in the earlier settled Shaman view; whether minimap recentering was unnecessary for visibility is unproved. Actual following and checkpoint cycles were not reached. Candidate did not run."
+}

@@ -1,0 +1,433 @@
+{
+  "scope": "Read-only building poses retained from actual failed baseline attempt02; supporting footprint input only",
+  "source": "../native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/run/witness.json",
+  "sha256": "9e5c063ee201c4645c6f62f73a95d5873df274cfa138d88038b24f1c2bfea02f",
+  "turn": 400,
+  "buildings": [
+    {
+      "id": 13,
+      "team": "green",
+      "tribe": 3,
+      "kind": "hut",
+      "model": 3,
+      "pose": {
+        "object": 118,
+        "angle": 1024,
+        "anchorX": 2048,
+        "anchorY": 59392
+      },
+      "x": 1.078125,
+      "z": 14.8828125,
+      "hp": 170,
+      "progress": 1
+    },
+    {
+      "id": 14,
+      "team": "green",
+      "tribe": 3,
+      "kind": "hut",
+      "model": 3,
+      "pose": {
+        "object": 130,
+        "angle": 1024,
+        "anchorX": 64512,
+        "anchorY": 59392
+      },
+      "x": -10.9296875,
+      "z": 14.8828125,
+      "hp": 170,
+      "progress": 1
+    },
+    {
+      "id": 32,
+      "team": "green",
+      "tribe": 3,
+      "kind": "hut",
+      "model": 3,
+      "pose": {
+        "object": 130,
+        "angle": 1536,
+        "anchorX": 1024,
+        "anchorY": 49152
+      },
+      "x": -2.8828125,
+      "z": 55.0703125,
+      "hp": 170,
+      "progress": 1
+    },
+    {
+      "id": 33,
+      "team": "green",
+      "tribe": 3,
+      "kind": "temple",
+      "model": 5,
+      "pose": {
+        "object": 98,
+        "angle": 1536,
+        "anchorX": 65024,
+        "anchorY": 47104
+      },
+      "x": -8.7890625,
+      "z": 62.8671875,
+      "hp": 260,
+      "progress": 1
+    },
+    {
+      "id": 34,
+      "team": "green",
+      "tribe": 3,
+      "kind": "hut",
+      "model": 3,
+      "pose": {
+        "object": 118,
+        "angle": 512,
+        "anchorX": 2048,
+        "anchorY": 47104
+      },
+      "x": 0.8828125,
+      "z": 62.921875,
+      "hp": 170,
+      "progress": 1
+    },
+    {
+      "id": 35,
+      "team": "green",
+      "tribe": 3,
+      "kind": "hut",
+      "model": 3,
+      "pose": {
+        "object": 118,
+        "angle": 512,
+        "anchorX": 3584,
+        "anchorY": 50176
+      },
+      "x": 6.8828125,
+      "z": 50.921875,
+      "hp": 170,
+      "progress": 1
+    },
+    {
+      "id": 36,
+      "team": "green",
+      "tribe": 3,
+      "kind": "firewarriorHut",
+      "model": 8,
+      "pose": {
+        "object": 102,
+        "angle": 0,
+        "anchorX": 64000,
+        "anchorY": 50688
+      },
+      "x": -11.7734375,
+      "z": 50.2734375,
+      "hp": 260,
+      "progress": 1
+    },
+    {
+      "id": 37,
+      "team": "green",
+      "tribe": 3,
+      "kind": "tower",
+      "model": 4,
+      "pose": {
+        "object": 82,
+        "angle": 0,
+        "anchorX": 512,
+        "anchorY": 51200
+      },
+      "x": -4.97265625,
+      "z": 46.83203125,
+      "hp": 260,
+      "progress": 1
+    },
+    {
+      "id": 56,
+      "team": "blue",
+      "tribe": 0,
+      "kind": "hut",
+      "model": 3,
+      "pose": {
+        "object": 121,
+        "angle": 1536,
+        "anchorX": 30208,
+        "anchorY": 3072
+      },
+      "x": 111.0546875,
+      "z": -20.9296875,
+      "hp": 170,
+      "progress": 1
+    },
+    {
+      "id": 57,
+      "team": "blue",
+      "tribe": 0,
+      "kind": "hut",
+      "model": 3,
+      "pose": {
+        "object": 121,
+        "angle": 1024,
+        "anchorX": 32256,
+        "anchorY": 1024
+      },
+      "x": 119.0703125,
+      "z": -13.0546875,
+      "hp": 170,
+      "progress": 1
+    },
+    {
+      "id": 58,
+      "team": "blue",
+      "tribe": 0,
+      "kind": "hut",
+      "model": 3,
+      "pose": {
+        "object": 109,
+        "angle": 0,
+        "anchorX": 33792,
+        "anchorY": 3584
+      },
+      "x": 124.921875,
+      "z": -22.9375,
+      "hp": 170,
+      "progress": 1
+    },
+    {
+      "id": 59,
+      "team": "blue",
+      "tribe": 0,
+      "kind": "tower",
+      "model": 4,
+      "pose": {
+        "object": 79,
+        "angle": 1024,
+        "anchorX": 29696,
+        "anchorY": 1024
+      },
+      "x": 108.88671875,
+      "z": -13.12890625,
+      "hp": 260,
+      "progress": 1
+    },
+    {
+      "id": 60,
+      "team": "blue",
+      "tribe": 0,
+      "kind": "camp",
+      "model": 7,
+      "pose": {
+        "object": 103,
+        "angle": 512,
+        "anchorX": 36352,
+        "anchorY": 1536
+      },
+      "x": -121.078125,
+      "z": -15.296875,
+      "hp": 260,
+      "progress": 1
+    },
+    {
+      "id": 61,
+      "team": "blue",
+      "tribe": 0,
+      "kind": "boatHouse",
+      "model": 13,
+      "pose": {
+        "object": 83,
+        "angle": 1024,
+        "anchorX": 33280,
+        "anchorY": 64000
+      },
+      "x": 123.140625,
+      "z": -1.140625,
+      "hp": 260,
+      "progress": 1
+    },
+    {
+      "id": 64,
+      "team": "green",
+      "tribe": 3,
+      "kind": "tower",
+      "model": 4,
+      "pose": {
+        "object": 82,
+        "angle": 0,
+        "anchorX": 61952,
+        "anchorY": 63488
+      },
+      "x": -20.97265625,
+      "z": -1.16796875,
+      "hp": 260,
+      "progress": 1
+    },
+    {
+      "id": 65,
+      "team": "green",
+      "tribe": 3,
+      "kind": "tower",
+      "model": 4,
+      "pose": {
+        "object": 82,
+        "angle": 0,
+        "anchorX": 4608,
+        "anchorY": 64000
+      },
+      "x": 11.02734375,
+      "z": -3.16796875,
+      "hp": 260,
+      "progress": 1
+    },
+    {
+      "id": 67,
+      "team": "green",
+      "tribe": 3,
+      "kind": "tower",
+      "model": 4,
+      "pose": {
+        "object": 82,
+        "angle": 1024,
+        "anchorX": 9216,
+        "anchorY": 13824
+      },
+      "x": 28.97265625,
+      "z": -62.83203125,
+      "hp": 260,
+      "progress": 1
+    },
+    {
+      "id": 73,
+      "team": "blue",
+      "tribe": 0,
+      "kind": "firewarriorHut",
+      "model": 8,
+      "pose": {
+        "object": 99,
+        "angle": 0,
+        "anchorX": 35328,
+        "anchorY": 6144
+      },
+      "x": -124.1328125,
+      "z": -31.7265625,
+      "hp": 260,
+      "progress": 1
+    },
+    {
+      "id": 74,
+      "team": "blue",
+      "tribe": 0,
+      "kind": "temple",
+      "model": 5,
+      "pose": {
+        "object": 95,
+        "angle": 0,
+        "anchorX": 30208,
+        "anchorY": 6144
+      },
+      "x": 110.99609375,
+      "z": -32.92578125,
+      "hp": 260,
+      "progress": 1
+    },
+    {
+      "id": 96,
+      "team": "blue",
+      "tribe": 0,
+      "kind": "tower",
+      "model": 4,
+      "pose": {
+        "object": 79,
+        "angle": 0,
+        "anchorX": 10240,
+        "anchorY": 64512
+      },
+      "x": 33.11328125,
+      "z": -4.87109375,
+      "hp": 260,
+      "progress": 1
+    },
+    {
+      "id": 97,
+      "team": "blue",
+      "tribe": 0,
+      "kind": "hut",
+      "model": 3,
+      "pose": {
+        "object": 121,
+        "angle": 512,
+        "anchorX": 9216,
+        "anchorY": 62464
+      },
+      "x": 28.9453125,
+      "z": 2.9296875,
+      "hp": 170,
+      "progress": 1
+    },
+    {
+      "id": 98,
+      "team": "blue",
+      "tribe": 0,
+      "kind": "firewarriorHut",
+      "model": 8,
+      "pose": {
+        "object": 99,
+        "angle": 0,
+        "anchorX": 7168,
+        "anchorY": 0
+      },
+      "x": 21.8671875,
+      "z": -7.7265625,
+      "hp": 260,
+      "progress": 1
+    },
+    {
+      "id": 99,
+      "team": "blue",
+      "tribe": 0,
+      "kind": "temple",
+      "model": 5,
+      "pose": {
+        "object": 95,
+        "angle": 1024,
+        "anchorX": 7680,
+        "anchorY": 59904
+      },
+      "x": 23.00390625,
+      "z": 12.92578125,
+      "hp": 260,
+      "progress": 1
+    },
+    {
+      "id": 100,
+      "team": "blue",
+      "tribe": 0,
+      "kind": "hut",
+      "model": 3,
+      "pose": {
+        "object": 133,
+        "angle": 1536,
+        "anchorX": 7168,
+        "anchorY": 62464
+      },
+      "x": 21.0546875,
+      "z": 3.0703125,
+      "hp": 170,
+      "progress": 1
+    },
+    {
+      "id": 107,
+      "team": "blue",
+      "tribe": 0,
+      "kind": "boatHouse",
+      "model": 13,
+      "pose": {
+        "object": 83,
+        "angle": 512,
+        "anchorX": 9216,
+        "anchorY": 1536
+      },
+      "x": 30.859375,
+      "z": -15.140625,
+      "hp": 260,
+      "progress": 1
+    }
+  ]
+}

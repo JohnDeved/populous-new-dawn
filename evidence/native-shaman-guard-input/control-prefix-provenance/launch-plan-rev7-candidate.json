@@ -1,0 +1,1805 @@
+{
+  "status": "prepared-not-launched",
+  "scenarioSha256": "1650ddce505056d4cade2fccff681303ce204f753a8964a4d187baa68066c274",
+  "packetReceiptSha256": "5ef0c2eecbd4dfe388bf40a577cba8d88d0465515f6fd7d2767c8dbcc2bd596a",
+  "preflightReviewSha256": "32341b1ec23a0290345d773111f5a821dbdfc360759bfddce2820f3183e815cf",
+  "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+  "node": "v24.19.0",
+  "dependencyInode": 925605,
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "viewport": [
+    1440,
+    1000
+  ],
+  "prelaunch": "Coordinator must grant browser lane and two-ended dependency MOVE. Verify actual donor terminal, locked source/inputs, free selected loopback port in the launching namespace, exact browser/lock hashes and fresh output/TMP. No alternate port or launch flag fallback.",
+  "terminal": "Await each original session. Retain inner/outer raw receipts; verify both localhost/127.0.0.1 ports closed, source/runtime stable and no owned process remains before any next MOVE. On failure stop and report exact blocker; no retry or input changes under this plan.",
+  "stop": "Any assertion, missing sample, source drift, actor loss, totem/campaign timer change, changed speed/inputmask or deadline fails the attempt. No staged actor/mana or first-postLoad-tick claim.",
+  "preflightReviewPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/review-revision-07.md",
+  "movePointPolicy": {
+    "initial": [
+      [
+        29,
+        -11
+      ],
+      [
+        31,
+        -11
+      ],
+      [
+        33,
+        -9
+      ]
+    ],
+    "shaman": [
+      [
+        25,
+        -1
+      ],
+      [
+        27,
+        -1
+      ],
+      [
+        29,
+        -1
+      ]
+    ],
+    "rule": "Same prospective sets and one-map/at-most-three same-view probes in both runs. Retain each actual earned point; equality of chosen point is not assumed. No fallback after dispatch failure."
+  },
+  "sequence": [
+    {
+      "name": "candidate",
+      "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+      "head": "c20a297f5f815ce404f796b08f77ea56396f96da",
+      "tree": "9af7241660efc11eb8969845ab7e587231d906bc",
+      "appTree": "1338564ae3119eb12f680d194f260a1e895378f3",
+      "port": 4393,
+      "privateTMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-private-tmp-05",
+      "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05",
+      "command": [
+        "node",
+        "scripts/orchestration/command-receipt.mjs",
+        "--output",
+        "work/orchestration/native-guard-browser-candidate-05/outer.json",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-receipt.json",
+        "--input",
+        "node_modules/.package-lock.json",
+        "--",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=15s",
+        "330s",
+        "taskset",
+        "-c",
+        "0-3",
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+        "--browser",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+        "--scenario",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+        "--port",
+        "4393",
+        "--timeout",
+        "300000",
+        "--output",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/run"
+      ]
+    }
+  ],
+  "baselineBeforeRecord": {
+    "head": "3b899125cc8cedef938823718ad5d44f49957b66",
+    "tree": "5228a79f26b90d3daeffe65498c01ada077ba132",
+    "originalSession": 22611,
+    "status": "FAILED; partial before record only",
+    "launcherSha256": "26e372ec19efd424555434ca128dd3e0045790a4e6373e675e7b590c7587cde0",
+    "outerSha256": "82cd3539c8bd17f076766201e4ce730d7732019f3a8cf2773238c61a95bd27e7",
+    "innerSha256": "b0d60ad815c37be710356f7e9b01cdb41d02925c1c272d3c5b491c8aa5273c2c",
+    "witnessSha256": "37fefa1049a3223379984eaf8f0338a6641e5aed15d9f7c171ceaea29c1cb74d",
+    "scope": "Same prospective ordinary controls before40500ms; revision7 adds diagnostic completion logging. Not identical measured timing or a whole-run comparison.",
+    "earnedBeforeScreenshots": [
+      {
+        "name": "training-hut-target",
+        "before": {
+          "epoch": 0,
+          "now": 16158.5,
+          "turn": 100,
+          "camera": {
+            "point": {
+              "x": 21.453125,
+              "z": -8.2421875
+            },
+            "position": {
+              "x": 7540,
+              "y": 62,
+              "angle": 0
+            },
+            "bearing": 0,
+            "motion": {
+              "active": 0,
+              "target": {
+                "x": 7540,
+                "y": 62,
+                "angle": 0
+              },
+              "source": {
+                "x": 9472,
+                "y": 64768,
+                "angle": 0
+              },
+              "moveUp": 593,
+              "moveDown": 1414,
+              "turnUp": 0,
+              "turnDown": 0,
+              "moveSpeed": 320,
+              "turnSpeed": 0,
+              "moveIndex": 10,
+              "turnIndex": 10,
+              "moveCount": 1,
+              "turnCount": 0,
+              "phase": 1,
+              "frame": 19,
+              "moves": [
+                [
+                  320,
+                  0
+                ],
+                [
+                  303,
+                  1
+                ],
+                [
+                  271,
+                  1
+                ],
+                [
+                  191,
+                  2
+                ],
+                [
+                  143,
+                  1
+                ],
+                [
+                  80,
+                  2
+                ],
+                [
+                  38,
+                  3
+                ],
+                [
+                  31,
+                  2
+                ],
+                [
+                  19,
+                  1
+                ],
+                [
+                  12,
+                  3
+                ],
+                [
+                  6,
+                  2
+                ]
+              ],
+              "turns": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            "overview": null
+          },
+          "selected": [
+            63
+          ]
+        },
+        "after": {
+          "epoch": 0,
+          "now": 17321.10000000894,
+          "turn": 116,
+          "camera": {
+            "point": {
+              "x": 21.453125,
+              "z": -8.2421875
+            },
+            "position": {
+              "x": 7540,
+              "y": 62,
+              "angle": 0
+            },
+            "bearing": 0,
+            "motion": {
+              "active": 0,
+              "target": {
+                "x": 7540,
+                "y": 62,
+                "angle": 0
+              },
+              "source": {
+                "x": 9472,
+                "y": 64768,
+                "angle": 0
+              },
+              "moveUp": 593,
+              "moveDown": 1414,
+              "turnUp": 0,
+              "turnDown": 0,
+              "moveSpeed": 320,
+              "turnSpeed": 0,
+              "moveIndex": 10,
+              "turnIndex": 10,
+              "moveCount": 1,
+              "turnCount": 0,
+              "phase": 1,
+              "frame": 19,
+              "moves": [
+                [
+                  320,
+                  0
+                ],
+                [
+                  303,
+                  1
+                ],
+                [
+                  271,
+                  1
+                ],
+                [
+                  191,
+                  2
+                ],
+                [
+                  143,
+                  1
+                ],
+                [
+                  80,
+                  2
+                ],
+                [
+                  38,
+                  3
+                ],
+                [
+                  31,
+                  2
+                ],
+                [
+                  19,
+                  1
+                ],
+                [
+                  12,
+                  3
+                ],
+                [
+                  6,
+                  2
+                ]
+              ],
+              "turns": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            "overview": null
+          },
+          "selected": [
+            63
+          ]
+        },
+        "sha256": "0e1b5b3378520bec3f4f2e48722d2e4ab0c69f42c87ffb6d3ae803b98ad9b76b"
+      },
+      {
+        "name": "guard-06000-first-G",
+        "before": {
+          "epoch": 0,
+          "now": 50685.40000000596,
+          "turn": 516,
+          "camera": {
+            "point": {
+              "x": 28.4921875,
+              "z": -11.078125
+            },
+            "position": {
+              "x": 9342,
+              "y": 788,
+              "angle": 0
+            },
+            "bearing": 0,
+            "motion": {
+              "active": 0,
+              "target": {
+                "x": 9342,
+                "y": 788,
+                "angle": 0
+              },
+              "source": {
+                "x": 7540,
+                "y": 62,
+                "angle": 0
+              },
+              "moveUp": 475,
+              "moveDown": 1133,
+              "turnUp": 0,
+              "turnDown": 0,
+              "moveSpeed": 240,
+              "turnSpeed": 0,
+              "moveIndex": 10,
+              "turnIndex": 10,
+              "moveCount": 2,
+              "turnCount": 0,
+              "phase": 1,
+              "frame": 49,
+              "moves": [
+                [
+                  240,
+                  1
+                ],
+                [
+                  227,
+                  1
+                ],
+                [
+                  203,
+                  1
+                ],
+                [
+                  143,
+                  2
+                ],
+                [
+                  107,
+                  2
+                ],
+                [
+                  60,
+                  1
+                ],
+                [
+                  28,
+                  4
+                ],
+                [
+                  23,
+                  1
+                ],
+                [
+                  14,
+                  2
+                ],
+                [
+                  9,
+                  2
+                ],
+                [
+                  4,
+                  3
+                ]
+              ],
+              "turns": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            "overview": null
+          },
+          "selected": [
+            176
+          ]
+        },
+        "after": {
+          "epoch": 0,
+          "now": 51708.5,
+          "turn": 529,
+          "camera": {
+            "point": {
+              "x": 28.4921875,
+              "z": -11.078125
+            },
+            "position": {
+              "x": 9342,
+              "y": 788,
+              "angle": 0
+            },
+            "bearing": 0,
+            "motion": {
+              "active": 0,
+              "target": {
+                "x": 9342,
+                "y": 788,
+                "angle": 0
+              },
+              "source": {
+                "x": 7540,
+                "y": 62,
+                "angle": 0
+              },
+              "moveUp": 475,
+              "moveDown": 1133,
+              "turnUp": 0,
+              "turnDown": 0,
+              "moveSpeed": 240,
+              "turnSpeed": 0,
+              "moveIndex": 10,
+              "turnIndex": 10,
+              "moveCount": 2,
+              "turnCount": 0,
+              "phase": 1,
+              "frame": 49,
+              "moves": [
+                [
+                  240,
+                  1
+                ],
+                [
+                  227,
+                  1
+                ],
+                [
+                  203,
+                  1
+                ],
+                [
+                  143,
+                  2
+                ],
+                [
+                  107,
+                  2
+                ],
+                [
+                  60,
+                  1
+                ],
+                [
+                  28,
+                  4
+                ],
+                [
+                  23,
+                  1
+                ],
+                [
+                  14,
+                  2
+                ],
+                [
+                  9,
+                  2
+                ],
+                [
+                  4,
+                  3
+                ]
+              ],
+              "turns": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            "overview": null
+          },
+          "selected": [
+            176
+          ]
+        },
+        "sha256": "47c3706eed2bb67f952c5e8056900f25b88f852949e07d2f4702b96aa48c381b"
+      },
+      {
+        "name": "guard-11000-deselected",
+        "before": {
+          "epoch": 0,
+          "now": 55643.20000000298,
+          "turn": 576,
+          "camera": {
+            "point": {
+              "x": 28.4921875,
+              "z": -11.078125
+            },
+            "position": {
+              "x": 9342,
+              "y": 788,
+              "angle": 0
+            },
+            "bearing": 0,
+            "motion": {
+              "active": 0,
+              "target": {
+                "x": 9342,
+                "y": 788,
+                "angle": 0
+              },
+              "source": {
+                "x": 7540,
+                "y": 62,
+                "angle": 0
+              },
+              "moveUp": 475,
+              "moveDown": 1133,
+              "turnUp": 0,
+              "turnDown": 0,
+              "moveSpeed": 240,
+              "turnSpeed": 0,
+              "moveIndex": 10,
+              "turnIndex": 10,
+              "moveCount": 2,
+              "turnCount": 0,
+              "phase": 1,
+              "frame": 49,
+              "moves": [
+                [
+                  240,
+                  1
+                ],
+                [
+                  227,
+                  1
+                ],
+                [
+                  203,
+                  1
+                ],
+                [
+                  143,
+                  2
+                ],
+                [
+                  107,
+                  2
+                ],
+                [
+                  60,
+                  1
+                ],
+                [
+                  28,
+                  4
+                ],
+                [
+                  23,
+                  1
+                ],
+                [
+                  14,
+                  2
+                ],
+                [
+                  9,
+                  2
+                ],
+                [
+                  4,
+                  3
+                ]
+              ],
+              "turns": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            "overview": null
+          },
+          "selected": []
+        },
+        "after": {
+          "epoch": 0,
+          "now": 56672.20000000298,
+          "turn": 588,
+          "camera": {
+            "point": {
+              "x": 28.4921875,
+              "z": -11.078125
+            },
+            "position": {
+              "x": 9342,
+              "y": 788,
+              "angle": 0
+            },
+            "bearing": 0,
+            "motion": {
+              "active": 0,
+              "target": {
+                "x": 9342,
+                "y": 788,
+                "angle": 0
+              },
+              "source": {
+                "x": 7540,
+                "y": 62,
+                "angle": 0
+              },
+              "moveUp": 475,
+              "moveDown": 1133,
+              "turnUp": 0,
+              "turnDown": 0,
+              "moveSpeed": 240,
+              "turnSpeed": 0,
+              "moveIndex": 10,
+              "turnIndex": 10,
+              "moveCount": 2,
+              "turnCount": 0,
+              "phase": 1,
+              "frame": 49,
+              "moves": [
+                [
+                  240,
+                  1
+                ],
+                [
+                  227,
+                  1
+                ],
+                [
+                  203,
+                  1
+                ],
+                [
+                  143,
+                  2
+                ],
+                [
+                  107,
+                  2
+                ],
+                [
+                  60,
+                  1
+                ],
+                [
+                  28,
+                  4
+                ],
+                [
+                  23,
+                  1
+                ],
+                [
+                  14,
+                  2
+                ],
+                [
+                  9,
+                  2
+                ],
+                [
+                  4,
+                  3
+                ]
+              ],
+              "turns": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            "overview": null
+          },
+          "selected": []
+        },
+        "sha256": "9bce24cf9f195950a513cff30f89d323dff1fc8e760dc7e736f3c98c7262cf47"
+      },
+      {
+        "name": "guard-18000-repeat-G",
+        "before": {
+          "epoch": 0,
+          "now": 62658.10000000894,
+          "turn": 660,
+          "camera": {
+            "point": {
+              "x": 28.4921875,
+              "z": -11.078125
+            },
+            "position": {
+              "x": 9342,
+              "y": 788,
+              "angle": 0
+            },
+            "bearing": 0,
+            "motion": {
+              "active": 0,
+              "target": {
+                "x": 9342,
+                "y": 788,
+                "angle": 0
+              },
+              "source": {
+                "x": 7540,
+                "y": 62,
+                "angle": 0
+              },
+              "moveUp": 475,
+              "moveDown": 1133,
+              "turnUp": 0,
+              "turnDown": 0,
+              "moveSpeed": 240,
+              "turnSpeed": 0,
+              "moveIndex": 10,
+              "turnIndex": 10,
+              "moveCount": 2,
+              "turnCount": 0,
+              "phase": 1,
+              "frame": 49,
+              "moves": [
+                [
+                  240,
+                  1
+                ],
+                [
+                  227,
+                  1
+                ],
+                [
+                  203,
+                  1
+                ],
+                [
+                  143,
+                  2
+                ],
+                [
+                  107,
+                  2
+                ],
+                [
+                  60,
+                  1
+                ],
+                [
+                  28,
+                  4
+                ],
+                [
+                  23,
+                  1
+                ],
+                [
+                  14,
+                  2
+                ],
+                [
+                  9,
+                  2
+                ],
+                [
+                  4,
+                  3
+                ]
+              ],
+              "turns": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            "overview": null
+          },
+          "selected": [
+            176
+          ]
+        },
+        "after": {
+          "epoch": 0,
+          "now": 63686.20000000298,
+          "turn": 672,
+          "camera": {
+            "point": {
+              "x": 28.4921875,
+              "z": -11.078125
+            },
+            "position": {
+              "x": 9342,
+              "y": 788,
+              "angle": 0
+            },
+            "bearing": 0,
+            "motion": {
+              "active": 0,
+              "target": {
+                "x": 9342,
+                "y": 788,
+                "angle": 0
+              },
+              "source": {
+                "x": 7540,
+                "y": 62,
+                "angle": 0
+              },
+              "moveUp": 475,
+              "moveDown": 1133,
+              "turnUp": 0,
+              "turnDown": 0,
+              "moveSpeed": 240,
+              "turnSpeed": 0,
+              "moveIndex": 10,
+              "turnIndex": 10,
+              "moveCount": 2,
+              "turnCount": 0,
+              "phase": 1,
+              "frame": 49,
+              "moves": [
+                [
+                  240,
+                  1
+                ],
+                [
+                  227,
+                  1
+                ],
+                [
+                  203,
+                  1
+                ],
+                [
+                  143,
+                  2
+                ],
+                [
+                  107,
+                  2
+                ],
+                [
+                  60,
+                  1
+                ],
+                [
+                  28,
+                  4
+                ],
+                [
+                  23,
+                  1
+                ],
+                [
+                  14,
+                  2
+                ],
+                [
+                  9,
+                  2
+                ],
+                [
+                  4,
+                  3
+                ]
+              ],
+              "turns": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            "overview": null
+          },
+          "selected": [
+            176
+          ]
+        },
+        "sha256": "009635ad93bfb31e734d38e584d4b31b2ca9418a7b372c75bbacd69480072426"
+      },
+      {
+        "name": "guard-24000-empty-cancel",
+        "before": {
+          "epoch": 0,
+          "now": 68562.10000000894,
+          "turn": 731,
+          "camera": {
+            "point": {
+              "x": 28.4921875,
+              "z": -11.078125
+            },
+            "position": {
+              "x": 9342,
+              "y": 788,
+              "angle": 0
+            },
+            "bearing": 0,
+            "motion": {
+              "active": 0,
+              "target": {
+                "x": 9342,
+                "y": 788,
+                "angle": 0
+              },
+              "source": {
+                "x": 7540,
+                "y": 62,
+                "angle": 0
+              },
+              "moveUp": 475,
+              "moveDown": 1133,
+              "turnUp": 0,
+              "turnDown": 0,
+              "moveSpeed": 240,
+              "turnSpeed": 0,
+              "moveIndex": 10,
+              "turnIndex": 10,
+              "moveCount": 2,
+              "turnCount": 0,
+              "phase": 1,
+              "frame": 49,
+              "moves": [
+                [
+                  240,
+                  1
+                ],
+                [
+                  227,
+                  1
+                ],
+                [
+                  203,
+                  1
+                ],
+                [
+                  143,
+                  2
+                ],
+                [
+                  107,
+                  2
+                ],
+                [
+                  60,
+                  1
+                ],
+                [
+                  28,
+                  4
+                ],
+                [
+                  23,
+                  1
+                ],
+                [
+                  14,
+                  2
+                ],
+                [
+                  9,
+                  2
+                ],
+                [
+                  4,
+                  3
+                ]
+              ],
+              "turns": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            "overview": null
+          },
+          "selected": []
+        },
+        "after": {
+          "epoch": 0,
+          "now": 69611.60000000894,
+          "turn": 743,
+          "camera": {
+            "point": {
+              "x": 28.4921875,
+              "z": -11.078125
+            },
+            "position": {
+              "x": 9342,
+              "y": 788,
+              "angle": 0
+            },
+            "bearing": 0,
+            "motion": {
+              "active": 0,
+              "target": {
+                "x": 9342,
+                "y": 788,
+                "angle": 0
+              },
+              "source": {
+                "x": 7540,
+                "y": 62,
+                "angle": 0
+              },
+              "moveUp": 475,
+              "moveDown": 1133,
+              "turnUp": 0,
+              "turnDown": 0,
+              "moveSpeed": 240,
+              "turnSpeed": 0,
+              "moveIndex": 10,
+              "turnIndex": 10,
+              "moveCount": 2,
+              "turnCount": 0,
+              "phase": 1,
+              "frame": 49,
+              "moves": [
+                [
+                  240,
+                  1
+                ],
+                [
+                  227,
+                  1
+                ],
+                [
+                  203,
+                  1
+                ],
+                [
+                  143,
+                  2
+                ],
+                [
+                  107,
+                  2
+                ],
+                [
+                  60,
+                  1
+                ],
+                [
+                  28,
+                  4
+                ],
+                [
+                  23,
+                  1
+                ],
+                [
+                  14,
+                  2
+                ],
+                [
+                  9,
+                  2
+                ],
+                [
+                  4,
+                  3
+                ]
+              ],
+              "turns": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            "overview": null
+          },
+          "selected": []
+        },
+        "sha256": "4041a7d90080153218f36627d2aee6a6fbecf4900345a674d3f4e21b4d7cb361"
+      },
+      {
+        "name": "guard-36000-shaman-cancel",
+        "before": {
+          "epoch": 0,
+          "now": 81276.10000000894,
+          "turn": 884,
+          "camera": {
+            "point": {
+              "x": 29,
+              "z": -5
+            },
+            "position": {
+              "x": 9472,
+              "y": 64768,
+              "angle": 0
+            },
+            "bearing": 0,
+            "motion": {
+              "active": 0,
+              "target": {
+                "x": 9472,
+                "y": 64768,
+                "angle": 0
+              },
+              "source": {
+                "x": 9342,
+                "y": 788,
+                "angle": 0
+              },
+              "moveUp": 444,
+              "moveDown": 1058,
+              "turnUp": 0,
+              "turnDown": 0,
+              "moveSpeed": 240,
+              "turnSpeed": 0,
+              "moveIndex": 10,
+              "turnIndex": 10,
+              "moveCount": 1,
+              "turnCount": 0,
+              "phase": 1,
+              "frame": 20,
+              "moves": [
+                [
+                  240,
+                  0
+                ],
+                [
+                  227,
+                  1
+                ],
+                [
+                  203,
+                  1
+                ],
+                [
+                  143,
+                  2
+                ],
+                [
+                  107,
+                  1
+                ],
+                [
+                  60,
+                  2
+                ],
+                [
+                  28,
+                  3
+                ],
+                [
+                  23,
+                  1
+                ],
+                [
+                  14,
+                  2
+                ],
+                [
+                  9,
+                  2
+                ],
+                [
+                  4,
+                  4
+                ]
+              ],
+              "turns": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            "overview": null
+          },
+          "selected": [
+            63
+          ]
+        },
+        "after": {
+          "epoch": 0,
+          "now": 82287.20000000298,
+          "turn": 896,
+          "camera": {
+            "point": {
+              "x": 29,
+              "z": -5
+            },
+            "position": {
+              "x": 9472,
+              "y": 64768,
+              "angle": 0
+            },
+            "bearing": 0,
+            "motion": {
+              "active": 0,
+              "target": {
+                "x": 9472,
+                "y": 64768,
+                "angle": 0
+              },
+              "source": {
+                "x": 9342,
+                "y": 788,
+                "angle": 0
+              },
+              "moveUp": 444,
+              "moveDown": 1058,
+              "turnUp": 0,
+              "turnDown": 0,
+              "moveSpeed": 240,
+              "turnSpeed": 0,
+              "moveIndex": 10,
+              "turnIndex": 10,
+              "moveCount": 1,
+              "turnCount": 0,
+              "phase": 1,
+              "frame": 20,
+              "moves": [
+                [
+                  240,
+                  0
+                ],
+                [
+                  227,
+                  1
+                ],
+                [
+                  203,
+                  1
+                ],
+                [
+                  143,
+                  2
+                ],
+                [
+                  107,
+                  1
+                ],
+                [
+                  60,
+                  2
+                ],
+                [
+                  28,
+                  3
+                ],
+                [
+                  23,
+                  1
+                ],
+                [
+                  14,
+                  2
+                ],
+                [
+                  9,
+                  2
+                ],
+                [
+                  4,
+                  4
+                ]
+              ],
+              "turns": [
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ],
+                [
+                  0,
+                  0
+                ]
+              ]
+            },
+            "overview": null
+          },
+          "selected": [
+            63
+          ]
+        },
+        "sha256": "d79c02acce7e132eb68f94aa2cefb0999cf0cc4b4fe3706e8c5c748091450ac7"
+      }
+    ],
+    "facts": [
+      "FirstG sets legacy guard=true with native status0/count0 and no native renderer owner.",
+      "Escape retains the legacy boolean.",
+      "RepeatG toggles it off instead of replacing persistent command30.",
+      "Shaman-onlyG leaves active legacy guard=true.",
+      "Empty-selectionG was issued when guard was alreadyfalse, so it does not independently prove failure to cancel an active order; accepted native/failure-first proof covers that branch."
+    ],
+    "notProved": [
+      "Overall baseline PASS",
+      "Baseline physical following",
+      "Baseline checkpoint cycles",
+      "Paired whole-run timing",
+      "Original pixels",
+      "Hardware performance"
+    ]
+  },
+  "dependencySequence": "925605 is released at terminal baseline after original22611 normal exit1 with source/locks unchanged and both4392 loopbacks closed. After a NEW coordinator grant, confirm actual donor and locks and MOVE925605 from baseline to candidate with a two-ended receipt, preserving candidate installed-lock-only stub and all history; leave a new installed-lock-only donor stub. Do not repeat the completed M3 return7a60e84c. Only candidate4393 is planned. Release resources after its original terminal result or any substantive failure; no dependency install/copy/link.",
+  "scope": "One complete strict revision7 candidate run on c20a297, fresh ephemeral1440x1000 context, normal1x UI, no profile, same sandboxed harness/browser and CPU0\u20133,60s entry/300s inner/330s outer. Baseline04 remains failed/partial and supplies only earned before controls/images under the reviewed scope. Every current native Guard/owner/target/count, actual following and both pending Save/Load gate remains required. No new baseline run.",
+  "timingBoundary": "Selection/focus preparation at40500ms; actual Shaman Move stays42000ms. Both retain1.5s entry-lateness and4s completion predicates. Measured margin is modest/unproved; any overrun fails. Completion logging does not advance time or add a page call.",
+  "priorPlans": [
+    "launch-plan-rev3.json",
+    "launch-plan-rev4.json",
+    "launch-plan-rev5.json",
+    "launch-plan-rev6.json"
+  ]
+}
