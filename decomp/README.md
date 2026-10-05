@@ -4994,7 +4994,7 @@ models remain open.
 
 ### 2026-10-05 — grounded Shaman spirit follows changing terrain
 
-[Bounded phase1 height evidence](research/shaman-death-vfx.md#2026-10-05--phase1-follows-changing-death-site-ground)
+[Bounded phase1 height evidence](research/shaman-death-vfx.md#phase1-ground)
 and `check-native-shaman-death-ground.py` compare original allocation/controller/
 terrain-height execution with the actual current world-turn caller. Phase1 samples
 current death-site ground each visit; phase2 retains the final sample and phase3
