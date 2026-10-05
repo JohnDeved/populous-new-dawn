@@ -1,0 +1,17 @@
+{
+  "queuedAt": "2026-10-05T22:51:28.332755+00:00",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "index": 10,
+  "commandsSha256": "b8f735c2a553ed434ad0ed188cf8be0bbf87d20cc882436ad9346b995c037c12",
+  "snapshotSha256": "164e4b8107423d32129da979f3677c3ba94c74693530ab72be11092c1c018e9a",
+  "reason": "Actual statuswon at13480, no Yellow actors. Verify committed campaign profile[1,2,3], visible Continue4 and genuine result screenshot; do not startMission4 or invoke failed-prefix finish.",
+  "commands": [
+    {
+      "action": "prove-victory"
+    },
+    {
+      "action": "snapshot",
+      "name": "m3-genuine-campaign-victory-result"
+    }
+  ]
+}

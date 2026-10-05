@@ -1,0 +1,19 @@
+{
+  "decision": "ACCEPT PUBLICATION CORRESPONDENCE",
+  "reviewedAt": "2026-10-05T22:38:03.142576+00:00",
+  "publicationPath": "../current-campaign-continuity-evidence/references/verification/current-campaign-continuity-source-2026-10-05/mission-three-erosion-ce37f851",
+  "manifestSha256": "a3ffe9eeaf4a448785c62fea6dd4b728e66f1ee70a21b3f8110dd319b1f8dd8b",
+  "READMEsha256": "fa830c1c148f6a26c272254892f65f69a402d358d7cbd4d868d3a3fd91e8ec94",
+  "copiesVerified": 23,
+  "sourcePrefixSha256": "ba8f7923054d57c0b9c2dadc09a7fa589c14c03d897c829332bf3ccac34435d7",
+  "caption": "Correctly identifies post-retirement paused9047 view and bounds positive evidence to the current conversion/Erosion prefix, without terminal/victory/native replay claims. Earlier review-pending prose is historical publication state; later source/lifecycle acceptance is in the independent artifact.",
+  "relatedReview": {
+    "path": "work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/review.json",
+    "sha256": "fda40c4468286b0415a33a4a345de1775b7c9627b3431a126c0531a587446900"
+  },
+  "checkpointProjectionClarification": {
+    "source": "scripts/local-render/checkpoint-observer.mjs:69",
+    "sourceSha256": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+    "meaning": "terrainSha256 hashes w.terrain. It is not a native-land heights/walkMasks change digest. A later unchanged terrainSha256 cannot contradict or substitute for the separate99-cell passive observer evidence. Any later full checkpoint/ordinary Load proof requires its own review; it is outside this prefix cutoff."
+  }
+}

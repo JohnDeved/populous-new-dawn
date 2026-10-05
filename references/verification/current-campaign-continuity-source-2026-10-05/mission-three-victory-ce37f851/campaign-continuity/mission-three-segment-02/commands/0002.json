@@ -1,0 +1,12 @@
+[
+  {
+    "action": "erosion"
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m3-brave-erosion-retired"
+  }
+]

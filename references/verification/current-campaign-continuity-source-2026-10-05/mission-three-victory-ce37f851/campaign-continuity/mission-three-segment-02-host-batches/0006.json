@@ -1,0 +1,44 @@
+{
+  "queuedAt": "2026-10-05T22:41:19.292694+00:00",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "index": 6,
+  "commandsSha256": "6eeda73c7e1391036c07a02b055582b55f91a1796f43b734fb0338bd8de6984d",
+  "snapshotSha256": "379f14a73e643eed3161844572714ae4bb729cf7bcce02a4daa7535d587597c5",
+  "reason": "Actual Hut1016 absent;8 selected Warriors survive above85HP. One adjacent occupied Hut1015 attack, exact target retirement then paused count.",
+  "commands": [
+    {
+      "action": "resume"
+    },
+    {
+      "action": "order-entity",
+      "collection": "buildings",
+      "id": 1015
+    },
+    {
+      "action": "wait",
+      "condition": {
+        "type": "target-gone",
+        "id": 1015
+      },
+      "scope": "combat",
+      "watchIds": [
+        1015,
+        3168,
+        3169,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ]
+    },
+    {
+      "action": "pause"
+    },
+    {
+      "action": "snapshot",
+      "name": "m3-eastern-hut-cleared"
+    }
+  ]
+}

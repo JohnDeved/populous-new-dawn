@@ -1,0 +1,63 @@
+{
+  "queuedAt": "2026-10-05T22:34:52.672034+00:00",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "index": 4,
+  "commandsSha256": "7f26ba78dd19557799087a82398a5cba338438d68afada4142db496d2ba61504",
+  "snapshotSha256": "e6c834ef8a7d8e83357be5e73e3fe18046848b3526d5f6a8f421e5716b2ff106",
+  "reason": "Actual8 healthy Warriors and empty Camp queue; finite staging near existing Blue Shaman forward post before attack, observe leader arrival then pause/full stock. Preacher and home builders unchanged. No safety guarantee.",
+  "commands": [
+    {
+      "action": "select-units",
+      "ids": [
+        3168,
+        3169,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ]
+    },
+    {
+      "action": "resume"
+    },
+    {
+      "action": "move",
+      "point": {
+        "x": 6,
+        "z": -115
+      }
+    },
+    {
+      "action": "wait",
+      "condition": {
+        "type": "units-near",
+        "id": 3168,
+        "point": {
+          "x": 6,
+          "z": -115
+        },
+        "distance": 8
+      },
+      "scope": "movement",
+      "watchIds": [
+        3168,
+        3169,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ]
+    },
+    {
+      "action": "pause"
+    },
+    {
+      "action": "snapshot",
+      "name": "m3-eight-warrior-forward-stage"
+    }
+  ]
+}

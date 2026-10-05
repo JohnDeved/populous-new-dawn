@@ -1,0 +1,5 @@
+[
+  { "action": "complete-conversion" },
+  { "action": "pause" },
+  { "action": "snapshot", "name": "m3-restored-conversion-worker" }
+]

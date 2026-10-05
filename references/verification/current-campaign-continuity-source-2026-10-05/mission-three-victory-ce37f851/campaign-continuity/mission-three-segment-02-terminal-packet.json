@@ -1,0 +1,1744 @@
+{
+  "kind": "actual-fresh-campaign-M3-victory-failed-envelope-terminal",
+  "assembledAt": "2026-10-05T22:57:29.633Z",
+  "sourceHead": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "applicationMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "originalExecSession": 74059,
+  "status": "failed",
+  "outcome": "Actual ordinary M3 victory and committed campaign[1,2,3], continuing the same fresh M1/M2 profile. New saved-state Load/current conversion and converted-Brave Erosion earned; inherited failed history retained. Authenticated preserving stop, normal close, no Mission4.",
+  "victory": {
+    "observedTurn": 13480,
+    "level": 3,
+    "status": "won",
+    "paused": true,
+    "body": "?\n♫\n▷\n☰\n✺\n\nLevel Complete\n\nLevel Won\n\nThe Chumara are defeated.\n\n18:43\nTIME\n0\nSPELLS CAST\n9\nBUILDINGS RAISED\nContinue to Mission 4 ↗\nSelect Level",
+    "profileReadback": {
+      "row": {
+        "at": "2026-10-05T22:51:34.515Z",
+        "level": 3,
+        "wallMs": 1601723,
+        "action": "campaign-profile-readback",
+        "profile": {
+          "version": 1,
+          "completed": [
+            1,
+            2,
+            3
+          ]
+        },
+        "sha256": "d89f2a16deae24e02c494c5be8cc20b0d3c19bee1048c492a20c93fad65facfb"
+      },
+      "line": 243
+    },
+    "blue": [
+      {
+        "id": 3298,
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 3289,
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 3291,
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 46,
+        "kind": "shaman",
+        "hp": 100.95
+      },
+      {
+        "id": 3304,
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 3313,
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 522,
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 507,
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 589,
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 3170,
+        "kind": "warrior",
+        "hp": 42.3
+      },
+      {
+        "id": 3171,
+        "kind": "warrior",
+        "hp": 39.4
+      },
+      {
+        "id": 3181,
+        "kind": "preacher",
+        "hp": 55
+      },
+      {
+        "id": 3325,
+        "kind": "brave",
+        "hp": 50
+      },
+      {
+        "id": 3340,
+        "kind": "warrior",
+        "hp": 84.5
+      },
+      {
+        "id": 3341,
+        "kind": "warrior",
+        "hp": 90
+      },
+      {
+        "id": 3342,
+        "kind": "warrior",
+        "hp": 83.7
+      }
+    ],
+    "yellowActors": [],
+    "remainingYellowBuildings": [
+      {
+        "id": 1023,
+        "kind": "tower",
+        "hp": 52,
+        "progress": 1,
+        "inside": 0
+      },
+      {
+        "id": 1022,
+        "kind": "temple",
+        "hp": 65,
+        "progress": 1,
+        "inside": 0
+      }
+    ],
+    "stats": {
+      "built": 9,
+      "cast": 0,
+      "bridges": 0,
+      "trained": 9,
+      "battlesWon": [
+        41,
+        0,
+        5,
+        0
+      ]
+    },
+    "warriorsTrained": 8,
+    "warriorsSurviving": 5,
+    "warriorsLost": [
+      3169,
+      3168,
+      3172
+    ],
+    "buildingLimit": "Earlier12929 had empty Hut1017/Tower1023/Temple1022. Actual won13480 retains only empty Tower1023 HP52 and Temple1022 HP65. No separate explicit destruction order for Hut1017 or all-buildings-destroyed claim."
+  },
+  "proof": {
+    "entryCheckpoint": {
+      "version": 1,
+      "level": 3,
+      "turn": 7424,
+      "time": 618.6666666666666,
+      "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+      "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+    },
+    "checkpointProofs": [
+      {
+        "level": 1,
+        "saved": {
+          "label": "m1-m1-army-and-lightning",
+          "observedAt": "2026-10-05T19:22:53.601Z",
+          "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+          "runId": "329b5c19-0e73-4209-b2b0-bba3e1094a0f",
+          "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+          "checkpoint": {
+            "version": 1,
+            "level": 1,
+            "turn": 5692,
+            "time": 474.3333333333333,
+            "checkpointSha256": "107ee0f419540cfa3ee32f4436ab10dc665aa481efd81341291c55e8385492cd",
+            "actorsSha256": "d8a0b8dfb546621ca04d6c3c9a4d37b07466e5c6ad78758b3510e0fcd4b47478",
+            "terrainSha256": "94819c73b03a4c5f9a44f3778c84d4f0808a7db50fefa51d6fea572cccf5fc67",
+            "stockSha256": "b605a8fd9a678a3680fbe9381caa35db2a4f736e61de3ceaeb2cc0d0038f812d"
+          }
+        },
+        "loaded": false
+      },
+      {
+        "level": 1,
+        "saved": {
+          "version": 1,
+          "level": 1,
+          "turn": 5692,
+          "time": 474.3333333333333,
+          "checkpointSha256": "107ee0f419540cfa3ee32f4436ab10dc665aa481efd81341291c55e8385492cd",
+          "actorsSha256": "d8a0b8dfb546621ca04d6c3c9a4d37b07466e5c6ad78758b3510e0fcd4b47478",
+          "terrainSha256": "94819c73b03a4c5f9a44f3778c84d4f0808a7db50fefa51d6fea572cccf5fc67",
+          "stockSha256": "b605a8fd9a678a3680fbe9381caa35db2a4f736e61de3ceaeb2cc0d0038f812d"
+        },
+        "boundary": {
+          "version": 1,
+          "level": 1,
+          "turn": 5692,
+          "time": 474.3333333333333,
+          "checkpointSha256": "107ee0f419540cfa3ee32f4436ab10dc665aa481efd81341291c55e8385492cd",
+          "actorsSha256": "d8a0b8dfb546621ca04d6c3c9a4d37b07466e5c6ad78758b3510e0fcd4b47478",
+          "terrainSha256": "94819c73b03a4c5f9a44f3778c84d4f0808a7db50fefa51d6fea572cccf5fc67",
+          "stockSha256": "b605a8fd9a678a3680fbe9381caa35db2a4f736e61de3ceaeb2cc0d0038f812d"
+        },
+        "stored": {
+          "version": 1,
+          "level": 1,
+          "turn": 5692,
+          "time": 474.3333333333333,
+          "checkpointSha256": "107ee0f419540cfa3ee32f4436ab10dc665aa481efd81341291c55e8385492cd",
+          "actorsSha256": "d8a0b8dfb546621ca04d6c3c9a4d37b07466e5c6ad78758b3510e0fcd4b47478",
+          "terrainSha256": "94819c73b03a4c5f9a44f3778c84d4f0808a7db50fefa51d6fea572cccf5fc67",
+          "stockSha256": "b605a8fd9a678a3680fbe9381caa35db2a4f736e61de3ceaeb2cc0d0038f812d"
+        },
+        "identity": {
+          "sameStore": true,
+          "newWorld": true,
+          "newScene": true,
+          "currentCorrespondence": true,
+          "level": 1,
+          "replacementLevel": 1,
+          "error": null
+        },
+        "pausedTurn": 5710,
+        "livePresentation": {
+          "clock": {
+            "elapsed": 888647.797999923,
+            "nextVisit": 888660,
+            "lastVisit": 888635,
+            "limiter": 0,
+            "normalRate": 40
+          },
+          "requests": [],
+          "spell": {
+            "active": false,
+            "step": 5,
+            "visits": 0,
+            "model": 3,
+            "giftId": 3858
+          },
+          "companion": {
+            "active": false,
+            "step": 3,
+            "visits": 0,
+            "model": 3
+          },
+          "pulse": {
+            "active": false,
+            "model": 3,
+            "frame": 3,
+            "remaining": 0
+          }
+        },
+        "loaded": true,
+        "segment": false
+      },
+      {
+        "level": 2,
+        "saved": {
+          "label": "m2-m2-continued-segment",
+          "observedAt": "2026-10-05T19:35:17.770Z",
+          "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+          "runId": "329b5c19-0e73-4209-b2b0-bba3e1094a0f",
+          "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+          "checkpoint": {
+            "version": 1,
+            "level": 2,
+            "turn": 396,
+            "time": 33,
+            "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+            "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+            "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+            "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+          }
+        },
+        "loaded": false
+      },
+      {
+        "level": 2,
+        "saved": {
+          "version": 1,
+          "level": 2,
+          "turn": 396,
+          "time": 33,
+          "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+          "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+        },
+        "boundary": {
+          "version": 1,
+          "level": 2,
+          "turn": 396,
+          "time": 33,
+          "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+          "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+        },
+        "stored": {
+          "version": 1,
+          "level": 2,
+          "turn": 396,
+          "time": 33,
+          "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+          "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+        },
+        "identity": {
+          "sameStore": true,
+          "newWorld": true,
+          "newScene": true,
+          "currentCorrespondence": true,
+          "level": 2,
+          "replacementLevel": 2,
+          "error": null
+        },
+        "pausedTurn": 411,
+        "livePresentation": {
+          "clock": {
+            "elapsed": 45048.12400000021,
+            "nextVisit": 45050,
+            "lastVisit": 45025,
+            "limiter": 0,
+            "normalRate": 40
+          },
+          "requests": [],
+          "spell": null,
+          "companion": null,
+          "pulse": null
+        },
+        "loaded": true,
+        "segment": true
+      },
+      {
+        "level": 2,
+        "saved": {
+          "label": "m2-m2-army-and-tornado",
+          "observedAt": "2026-10-05T20:03:13.123Z",
+          "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+          "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+          "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+          "checkpoint": {
+            "version": 1,
+            "level": 2,
+            "turn": 5185,
+            "time": 432.0833333333333,
+            "checkpointSha256": "5afba71ef6deb2b0bad8afa79e666c4c9a4763eae8f9753be522afb04b6bf457",
+            "actorsSha256": "f801bba66a19b530267657354cd81f450d4bf58743c91226bc00dd737a9249f4",
+            "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+            "stockSha256": "c7e696f23f0a76b0427b812064a2f792fc5f2c41563a829a1eead7924d35a22a"
+          }
+        },
+        "loaded": false
+      },
+      {
+        "level": 2,
+        "saved": {
+          "version": 1,
+          "level": 2,
+          "turn": 5185,
+          "time": 432.0833333333333,
+          "checkpointSha256": "5afba71ef6deb2b0bad8afa79e666c4c9a4763eae8f9753be522afb04b6bf457",
+          "actorsSha256": "f801bba66a19b530267657354cd81f450d4bf58743c91226bc00dd737a9249f4",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "c7e696f23f0a76b0427b812064a2f792fc5f2c41563a829a1eead7924d35a22a"
+        },
+        "boundary": {
+          "version": 1,
+          "level": 2,
+          "turn": 5185,
+          "time": 432.0833333333333,
+          "checkpointSha256": "5afba71ef6deb2b0bad8afa79e666c4c9a4763eae8f9753be522afb04b6bf457",
+          "actorsSha256": "f801bba66a19b530267657354cd81f450d4bf58743c91226bc00dd737a9249f4",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "c7e696f23f0a76b0427b812064a2f792fc5f2c41563a829a1eead7924d35a22a"
+        },
+        "stored": {
+          "version": 1,
+          "level": 2,
+          "turn": 5185,
+          "time": 432.0833333333333,
+          "checkpointSha256": "5afba71ef6deb2b0bad8afa79e666c4c9a4763eae8f9753be522afb04b6bf457",
+          "actorsSha256": "f801bba66a19b530267657354cd81f450d4bf58743c91226bc00dd737a9249f4",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "c7e696f23f0a76b0427b812064a2f792fc5f2c41563a829a1eead7924d35a22a"
+        },
+        "identity": {
+          "sameStore": true,
+          "newWorld": true,
+          "newScene": true,
+          "currentCorrespondence": true,
+          "level": 2,
+          "replacementLevel": 2,
+          "error": null
+        },
+        "pausedTurn": 5200,
+        "livePresentation": {
+          "clock": {
+            "elapsed": 590226.3560000553,
+            "nextVisit": 590248,
+            "lastVisit": 590223,
+            "limiter": 0,
+            "normalRate": 40
+          },
+          "requests": [],
+          "spell": {
+            "active": false,
+            "step": 5,
+            "visits": 0,
+            "model": 4,
+            "giftId": 3522
+          },
+          "companion": {
+            "active": false,
+            "step": 3,
+            "visits": 0,
+            "model": 4
+          },
+          "pulse": {
+            "active": false,
+            "model": 4,
+            "frame": 3,
+            "remaining": 0
+          }
+        },
+        "loaded": true,
+        "segment": false
+      },
+      {
+        "level": 2,
+        "saved": {
+          "label": "m2-m2-reinforced-army",
+          "observedAt": "2026-10-05T20:14:30.939Z",
+          "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+          "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+          "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+          "checkpoint": {
+            "version": 1,
+            "level": 2,
+            "turn": 9800,
+            "time": 816.6666666666666,
+            "checkpointSha256": "5755c06b8a4a06cdb67bc7dabf3475d251a5a0cac29e417d4ab9b77871dfa149",
+            "actorsSha256": "bbea83dba810259d3b6b413d0592bb761bf12a4b121fba72d2a650dd196fea0f",
+            "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+            "stockSha256": "aee7a42f469d476482c17741db341347075e06c3162153ac54b9f7cc712263c5"
+          }
+        },
+        "loaded": false
+      },
+      {
+        "level": 3,
+        "saved": {
+          "label": "m3-m3-continued-segment",
+          "observedAt": "2026-10-05T20:27:43.801Z",
+          "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+          "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+          "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+          "checkpoint": {
+            "version": 1,
+            "level": 3,
+            "turn": 179,
+            "time": 14.916666666666666,
+            "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+            "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+            "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+            "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+          }
+        },
+        "loaded": false
+      },
+      {
+        "level": 3,
+        "saved": {
+          "version": 1,
+          "level": 3,
+          "turn": 179,
+          "time": 14.916666666666666,
+          "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+          "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+          "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+          "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+        },
+        "boundary": {
+          "version": 1,
+          "level": 3,
+          "turn": 179,
+          "time": 14.916666666666666,
+          "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+          "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+          "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+          "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+        },
+        "stored": {
+          "version": 1,
+          "level": 3,
+          "turn": 179,
+          "time": 14.916666666666666,
+          "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+          "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+          "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+          "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+        },
+        "identity": {
+          "sameStore": true,
+          "newWorld": true,
+          "newScene": true,
+          "currentCorrespondence": true,
+          "level": 3,
+          "replacementLevel": 3,
+          "error": null
+        },
+        "pausedTurn": 194,
+        "livePresentation": {
+          "clock": {
+            "elapsed": 27765.58800000014,
+            "nextVisit": 27775,
+            "lastVisit": 27750,
+            "limiter": 0,
+            "normalRate": 40
+          },
+          "requests": [],
+          "spell": null,
+          "companion": null,
+          "pulse": null
+        },
+        "loaded": true,
+        "segment": true
+      },
+      {
+        "level": 3,
+        "saved": {
+          "label": "m3-sermon-saved",
+          "observedAt": "2026-10-05T21:19:47.883Z",
+          "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+          "runId": "bcf8ac55-e418-49e4-a3d6-b7e804ee31d3",
+          "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+          "checkpoint": {
+            "version": 1,
+            "level": 3,
+            "turn": 7424,
+            "time": 618.6666666666666,
+            "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+            "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+            "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+            "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+          }
+        },
+        "loaded": false
+      },
+      {
+        "level": 3,
+        "saved": {
+          "version": 1,
+          "level": 3,
+          "turn": 7424,
+          "time": 618.6666666666666,
+          "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+          "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+          "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+          "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+        },
+        "boundary": {
+          "version": 1,
+          "level": 3,
+          "turn": 7424,
+          "time": 618.6666666666666,
+          "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+          "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+          "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+          "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+        },
+        "stored": {
+          "version": 1,
+          "level": 3,
+          "turn": 7424,
+          "time": 618.6666666666666,
+          "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+          "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+          "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+          "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+        },
+        "identity": {
+          "sameStore": true,
+          "newWorld": true,
+          "newScene": true,
+          "currentCorrespondence": true,
+          "level": 3,
+          "replacementLevel": 3,
+          "error": null
+        },
+        "pausedTurn": 7443,
+        "livePresentation": {
+          "clock": {
+            "elapsed": 1691182.4879999002,
+            "nextVisit": 1691200,
+            "lastVisit": 1691175,
+            "limiter": 0,
+            "normalRate": 40
+          },
+          "requests": [],
+          "spell": null,
+          "companion": null,
+          "pulse": null
+        },
+        "loaded": true,
+        "segment": false
+      },
+      {
+        "level": 3,
+        "saved": {
+          "version": 1,
+          "level": 3,
+          "turn": 7424,
+          "time": 618.6666666666666,
+          "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+          "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+          "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+          "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+        },
+        "boundary": {
+          "version": 1,
+          "level": 3,
+          "turn": 7424,
+          "time": 618.6666666666666,
+          "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+          "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+          "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+          "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+        },
+        "stored": {
+          "version": 1,
+          "level": 3,
+          "turn": 7424,
+          "time": 618.6666666666666,
+          "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+          "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+          "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+          "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+        },
+        "identity": {
+          "sameStore": true,
+          "newWorld": true,
+          "newScene": true,
+          "currentCorrespondence": true,
+          "level": 3,
+          "replacementLevel": 3,
+          "error": null
+        },
+        "pausedTurn": 7439,
+        "livePresentation": {
+          "clock": {
+            "elapsed": 1690399.1139998995,
+            "nextVisit": 1690400,
+            "lastVisit": 1690375,
+            "limiter": 0,
+            "normalRate": 40
+          },
+          "requests": [],
+          "spell": null,
+          "companion": null,
+          "pulse": null
+        },
+        "loaded": true,
+        "segment": true
+      },
+      {
+        "level": 3,
+        "saved": {
+          "label": "m3-m3-erosion-complete",
+          "observedAt": "2026-10-05T22:30:32.578Z",
+          "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+          "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+          "sourceFingerprint": "5f36e2f0ddd2825514ba385c768449b0d02501a994f0501be3a203011a0e517f",
+          "checkpoint": {
+            "version": 1,
+            "level": 3,
+            "turn": 9047,
+            "time": 753.9166666666666,
+            "checkpointSha256": "ea74a69178c1aef6658c920058f97a1a71a0e32deeee681c7c347f399eb092ab",
+            "actorsSha256": "cd5afcc7e459b0a65d592c33d325c6e7bb2ef3b073d99bfa39cef07ce9f3fda9",
+            "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+            "stockSha256": "467e67f40eaa1abfb756dc54b25f29fe162d345ec61be93690032b13741188e0"
+          }
+        },
+        "loaded": false
+      }
+    ],
+    "currentConversion": {
+      "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+      "epoch": "reload-3-8",
+      "event": {
+        "turnBefore": 8086,
+        "turnAfter": 8087,
+        "kind": "brave",
+        "victims": [
+          {
+            "id": 2631,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 23,
+            "workTarget": 3181,
+            "flags3": 262144,
+            "flags4": 536936832
+          }
+        ],
+        "replacements": [
+          {
+            "id": 3298,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 17039360,
+            "flags4": 537133312
+          }
+        ],
+        "pairing": "Same-turn kind group; no individual pairing is claimed when several victims/replacements coincide."
+      },
+      "observedTurn": 8113,
+      "missionActiveSeconds": 911.0833333333334
+    },
+    "erosionPrefixSha256": "ba8f7923054d57c0b9c2dadc09a7fa589c14c03d897c829332bf3ccac34435d7",
+    "milestones": [
+      {
+        "name": "bridge-stock",
+        "level": 1,
+        "turn": 1336,
+        "time": 111.33333333333333,
+        "epoch": "entry-1",
+        "activeSeconds": 111.33333333333333,
+        "missionActiveSeconds": 111.33333333333333,
+        "at": "2026-10-05T19:10:14.957Z"
+      },
+      {
+        "name": "central-bridge",
+        "level": 1,
+        "turn": 1997,
+        "time": 166.41666666666666,
+        "epoch": "entry-1",
+        "activeSeconds": 166.41666666666666,
+        "missionActiveSeconds": 166.41666666666666,
+        "at": "2026-10-05T19:12:49.443Z"
+      },
+      {
+        "name": "camp-knowledge",
+        "level": 1,
+        "turn": 2914,
+        "time": 242.83333333333334,
+        "epoch": "entry-1",
+        "activeSeconds": 242.83333333333334,
+        "missionActiveSeconds": 242.83333333333334,
+        "at": "2026-10-05T19:15:52.478Z"
+      },
+      {
+        "name": "camp",
+        "level": 1,
+        "turn": 4212,
+        "time": 351,
+        "epoch": "entry-1",
+        "activeSeconds": 351,
+        "missionActiveSeconds": 351,
+        "at": "2026-10-05T19:18:28.515Z"
+      },
+      {
+        "name": "warriors",
+        "level": 1,
+        "turn": 4726,
+        "time": 393.8333333333333,
+        "epoch": "entry-1",
+        "activeSeconds": 393.8333333333333,
+        "missionActiveSeconds": 393.8333333333333,
+        "at": "2026-10-05T19:21:12.848Z"
+      },
+      {
+        "name": "lightning-stock",
+        "level": 1,
+        "turn": 5692,
+        "time": 474.3333333333333,
+        "epoch": "entry-1",
+        "activeSeconds": 474.3333333333333,
+        "missionActiveSeconds": 474.3333333333333,
+        "at": "2026-10-05T19:22:44.391Z"
+      },
+      {
+        "name": "checkpoint-reloaded",
+        "level": 1,
+        "turn": 5710,
+        "time": 475.8333333333333,
+        "epoch": "reload-1-1",
+        "activeSeconds": 478.25,
+        "missionActiveSeconds": 478.25,
+        "at": "2026-10-05T19:23:11.218Z"
+      },
+      {
+        "name": "northern-bridge",
+        "level": 1,
+        "turn": 6490,
+        "time": 540.8333333333334,
+        "epoch": "reload-1-1",
+        "activeSeconds": 543.25,
+        "missionActiveSeconds": 543.25,
+        "at": "2026-10-05T19:25:49.617Z"
+      },
+      {
+        "name": "victory",
+        "level": 1,
+        "turn": 8342,
+        "time": 695.1666666666666,
+        "epoch": "reload-1-1",
+        "activeSeconds": 697.5833333333333,
+        "missionActiveSeconds": 697.5833333333333,
+        "at": "2026-10-05T19:34:27.437Z"
+      },
+      {
+        "name": "bridge-activated",
+        "level": 2,
+        "turn": 1337,
+        "time": 111.41666666666667,
+        "epoch": "reload-2-3",
+        "activeSeconds": 811.9999999999999,
+        "missionActiveSeconds": 114.41666666666667,
+        "at": "2026-10-05T19:55:43.203Z"
+      },
+      {
+        "name": "camp",
+        "level": 2,
+        "turn": 2733,
+        "time": 227.75,
+        "epoch": "reload-2-3",
+        "activeSeconds": 928.3333333333333,
+        "missionActiveSeconds": 230.75,
+        "at": "2026-10-05T19:58:12.035Z"
+      },
+      {
+        "name": "warriors",
+        "level": 2,
+        "turn": 3359,
+        "time": 279.9166666666667,
+        "epoch": "reload-2-3",
+        "activeSeconds": 980.5,
+        "missionActiveSeconds": 282.9166666666667,
+        "at": "2026-10-05T20:00:19.459Z"
+      },
+      {
+        "name": "tornado-stock",
+        "level": 2,
+        "turn": 5185,
+        "time": 432.0833333333333,
+        "epoch": "reload-2-3",
+        "activeSeconds": 1132.6666666666665,
+        "missionActiveSeconds": 435.0833333333333,
+        "at": "2026-10-05T20:03:03.333Z"
+      },
+      {
+        "name": "checkpoint-reloaded",
+        "level": 2,
+        "turn": 5200,
+        "time": 433.3333333333333,
+        "epoch": "reload-2-4",
+        "activeSeconds": 1136.3333333333333,
+        "missionActiveSeconds": 438.75,
+        "at": "2026-10-05T20:03:30.883Z"
+      },
+      {
+        "name": "victory",
+        "level": 2,
+        "turn": 13632,
+        "time": 1136,
+        "epoch": "reload-2-4",
+        "activeSeconds": 1839,
+        "missionActiveSeconds": 1141.4166666666665,
+        "at": "2026-10-05T20:27:05.417Z"
+      },
+      {
+        "name": "vault",
+        "level": 3,
+        "turn": 1555,
+        "time": 129.58333333333334,
+        "epoch": "reload-3-6",
+        "activeSeconds": 1971.8333333333335,
+        "missionActiveSeconds": 132.83333333333334,
+        "at": "2026-10-05T20:55:13.764Z"
+      },
+      {
+        "name": "shaman-home",
+        "level": 3,
+        "turn": 2026,
+        "time": 168.83333333333334,
+        "epoch": "reload-3-6",
+        "activeSeconds": 2011.0833333333335,
+        "missionActiveSeconds": 172.08333333333331,
+        "at": "2026-10-05T20:55:52.911Z"
+      },
+      {
+        "name": "temple",
+        "level": 3,
+        "turn": 3091,
+        "time": 257.5833333333333,
+        "epoch": "reload-3-6",
+        "activeSeconds": 2099.8333333333335,
+        "missionActiveSeconds": 260.8333333333333,
+        "at": "2026-10-05T20:57:21.698Z"
+      },
+      {
+        "name": "preacher",
+        "level": 3,
+        "turn": 5522,
+        "time": 460.1666666666667,
+        "epoch": "reload-3-6",
+        "activeSeconds": 2302.416666666667,
+        "missionActiveSeconds": 463.4166666666667,
+        "at": "2026-10-05T21:05:00.230Z"
+      },
+      {
+        "name": "listener",
+        "level": 3,
+        "turn": 7424,
+        "time": 618.6666666666666,
+        "epoch": "reload-3-6",
+        "activeSeconds": 2460.9166666666665,
+        "missionActiveSeconds": 621.9166666666665,
+        "at": "2026-10-05T21:19:39.582Z"
+      },
+      {
+        "level": 3,
+        "name": "sermon-saved",
+        "turn": 7424,
+        "time": 618.6666666666666,
+        "victimId": 2631,
+        "preacherId": 3181,
+        "blueIds": [
+          46,
+          516,
+          510,
+          303,
+          522,
+          507,
+          589,
+          3168,
+          3169,
+          3170,
+          3171,
+          3172,
+          3181
+        ]
+      },
+      {
+        "name": "sermon-cancelled",
+        "level": 3,
+        "turn": 7552,
+        "time": 629.3333333333334,
+        "epoch": "reload-3-6",
+        "activeSeconds": 2471.5833333333335,
+        "missionActiveSeconds": 632.5833333333333,
+        "at": "2026-10-05T21:22:22.534Z"
+      },
+      {
+        "name": "sermon-reloaded",
+        "level": 3,
+        "turn": 7443,
+        "time": 620.25,
+        "epoch": "reload-3-7",
+        "activeSeconds": 2473.166666666667,
+        "missionActiveSeconds": 634.1666666666666,
+        "at": "2026-10-05T21:22:36.317Z"
+      },
+      {
+        "name": "conversion",
+        "level": 3,
+        "turn": 8282,
+        "time": 690.1666666666666,
+        "epoch": "reload-3-7",
+        "activeSeconds": 2543.0833333333335,
+        "missionActiveSeconds": 704.0833333333333,
+        "at": "2026-10-05T21:23:53.682Z"
+      },
+      {
+        "name": "erosion-start",
+        "level": 3,
+        "turn": 8908,
+        "time": 742.3333333333334,
+        "epoch": "reload-3-8",
+        "activeSeconds": 2816.333333333334,
+        "missionActiveSeconds": 977.3333333333334,
+        "at": "2026-10-05T22:28:37.547Z"
+      },
+      {
+        "name": "erosion",
+        "level": 3,
+        "turn": 8966,
+        "time": 747.1666666666666,
+        "epoch": "reload-3-8",
+        "activeSeconds": 2821.166666666667,
+        "missionActiveSeconds": 982.1666666666666,
+        "at": "2026-10-05T22:28:42.435Z"
+      },
+      {
+        "name": "victory",
+        "level": 3,
+        "turn": 13480,
+        "time": 1123.3333333333333,
+        "epoch": "reload-3-8",
+        "activeSeconds": 3197.3333333333335,
+        "missionActiveSeconds": 1358.3333333333333,
+        "at": "2026-10-05T22:51:38.259Z"
+      }
+    ],
+    "transitions": [
+      {
+        "from": 1,
+        "to": 2,
+        "boundary": {
+          "sameStore": true,
+          "newWorld": true,
+          "newScene": true,
+          "currentCorrespondence": true,
+          "level": 2,
+          "replacementLevel": 2,
+          "error": null
+        },
+        "at": "2026-10-05T19:34:35.471Z"
+      },
+      {
+        "from": 2,
+        "to": 3,
+        "boundary": {
+          "sameStore": true,
+          "newWorld": true,
+          "newScene": true,
+          "currentCorrespondence": true,
+          "level": 3,
+          "replacementLevel": 3,
+          "error": null
+        },
+        "at": "2026-10-05T20:27:17.966Z"
+      }
+    ],
+    "latest": {
+      "version": 1,
+      "level": 3,
+      "turn": 9047,
+      "time": 753.9166666666666,
+      "checkpointSha256": "ea74a69178c1aef6658c920058f97a1a71a0e32deeee681c7c347f399eb092ab",
+      "actorsSha256": "cd5afcc7e459b0a65d592c33d325c6e7bb2ef3b073d99bfa39cef07ce9f3fda9",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "467e67f40eaa1abfb756dc54b25f29fe162d345ec61be93690032b13741188e0"
+    },
+    "latestScope": "Committed ordinary Save9047 contains post-Erosion playing state, not victory. The committed profile[1,2,3] is separate.",
+    "terrainProjectionScope": "terrainSha256 hashes w.terrain; full checkpoint hash includes World.land. Native Erosion cell deltas are separately observed; no native-land digest or exact native replay inferred."
+  },
+  "failureAccounting": {
+    "inheritedFailureRecords": [
+      {
+        "level": 2,
+        "index": 11,
+        "inputSha256": "8e3f9adfcc0293aabf0c37990f4bfbe21d5c7a05ee4396b4761f639ab4c92e2f",
+        "error": "AssertionError [ERR_ASSERTION]: Entity integer interior target became stale before input\n\nfalse !== true\n\n    at prepareEntityClick (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:349:12)\n    at async clickOrder (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:383:21)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+        "at": "2026-10-05T20:18:52.451Z"
+      },
+      {
+        "level": 2,
+        "index": 14,
+        "inputSha256": "5918bc389b445fb97aa6bb07255f6818a99454616591e4d66e2be4bf40893cfc",
+        "error": "AssertionError [ERR_ASSERTION]: Visible ground with no competing object\n    at move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:451:12)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+        "at": "2026-10-05T20:25:59.982Z"
+      },
+      {
+        "kind": "prior-harness-failure",
+        "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+        "error": "Error: Verified mission boundary; retained failures prevent a clean harness pass\n    at continueMission (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:944:11)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21"
+      }
+    ],
+    "controlStops": [
+      {
+        "level": 3,
+        "index": 9,
+        "at": "2026-10-05T21:27:39.805Z",
+        "error": "IncompleteRun: No relevant worship progress for two active minutes\n    at waitDiagnosticStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/observation.mjs:313:41)\n    at waitFor (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:524:20)\n    at async erosion (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:791:5)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+        "code": "progress-stall"
+      },
+      {
+        "level": 3,
+        "index": 11,
+        "at": "2026-10-05T22:52:32.065Z",
+        "error": "IncompleteRun: Requested bounded stop with committed latest preserved\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:874:11)\n    at async consumeQueuedStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:576:5)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1082:23)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+        "code": "preserve-latest"
+      }
+    ],
+    "newHelperFailures": 0,
+    "priorStop": "Progress-stall in bcf8 retained",
+    "currentStop": "Authenticated sole0011 preserve-latest after actual victory; not a deliberately failed finish",
+    "terminalFailure": "IncompleteRun: Requested bounded stop with committed latest preserved\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:874:11)\n    at async consumeQueuedStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:576:5)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1082:23)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+    "browserErrors": [],
+    "preserveVerificationFailed": false
+  },
+  "budgets": {
+    "campaignActiveSeconds": 3197.3333333333335,
+    "M3ActiveSeconds": 1358.3333333333333,
+    "ownedWallMs": 7464156,
+    "missionWallMs": {
+      "1": 1589523,
+      "2": 2039727,
+      "3": 3834891
+    },
+    "originalConversionAnchor": 704.0833333333333,
+    "policy": {
+      "missionActiveSeconds": {
+        "1": 900,
+        "2": 1500,
+        "3": 2400
+      },
+      "campaignActiveSeconds": 4800,
+      "missionWallMs": {
+        "1": 1800000,
+        "2": 5400000,
+        "3": 5400000
+      },
+      "wallMs": 12600000,
+      "noProgressActiveSeconds": 120,
+      "m3BeforeConversionSeconds": 900,
+      "m3AfterConversionSeconds": 1800,
+      "segmentWallMs": 5700000
+    },
+    "terminalOpenEpoch": {
+      "name": "reload-3-8",
+      "baselineGameTime": 618.6666666666666,
+      "lastGameTime": 1123.3333333333333,
+      "activeSeconds": 504.66666666666663,
+      "lastTurn": 13480
+    },
+    "scope": "All earlier spent time retained. Terminal open epoch counted once; Load did not refund time."
+  },
+  "commands": {
+    "queuedBatches": 11,
+    "requestedOrdinaryActions": 46,
+    "preservingCommands": 1,
+    "journalLines": 254,
+    "journalSha256": "f96fd2b5a8f3eff5d45ba4f16d74b0cb72acfae70e112561b65c4cc6e398a0c6"
+  },
+  "cleanup": {
+    "originalNormalExitCode": 1,
+    "innerStatus": "failed",
+    "outerStatus": "failed",
+    "outerExitCode": 1,
+    "cleanupVerified": true,
+    "continuationVerified": true,
+    "launcherOriginClosed": true,
+    "postTcp": [
+      {
+        "host": "127.0.0.1",
+        "port": 4375,
+        "code": 111,
+        "closed": true
+      },
+      {
+        "host": "::1",
+        "port": 4375,
+        "code": 111,
+        "closed": true
+      }
+    ],
+    "dependencyReturn": {
+      "kind": "exclusive-dependency-return-after-M3-victory-preserving-terminal",
+      "at": "2026-10-05T22:54:09.978056+00:00",
+      "from": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/node_modules",
+      "to": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/node_modules",
+      "dependencyInode": 925605,
+      "campaignRestoredStubInode": 1993651,
+      "loanStubArchived": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/dependency-transfers/native-guard-before-to-campaign-m3-20261005T2224/returned-loan-lock-only-stub",
+      "loanSha256": "9f1a4205225a5d27614ccea52ea22f98c53e16ad10526e8bf249071cf9a96a22",
+      "originalExecSession": 74059,
+      "originalExitCode": 1,
+      "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+      "terminalReceipts": {
+        "inner": {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-02/receipt.json",
+          "sha256": "db8bb4041833022abe4abfc331fd5cac7ba008e185a3f21a07eaf50fe485aed2"
+        },
+        "outer": {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-02.outer.json",
+          "sha256": "8e23bede3ef2fdb3ccde46918ea7f65e12474fd7fca1fb4a696910ee4ae8949b"
+        },
+        "launcher": {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-02.launcher.json",
+          "sha256": "dd32130779a9b0892d73431069272f9a887089561a0abc8b6ed85bed5568067b"
+        }
+      },
+      "cleanupVerified": true,
+      "continuationVerified": true,
+      "origin4375Closed": true,
+      "ownerLockAbsent": true,
+      "profileMarkerSha256": "765627be5b3d40c9c3b3c087d13fa1ef88aa117b8a9fd8a0c47c0b6afe5d6ae1",
+      "sourceClean": true,
+      "latestCheckpoint": {
+        "version": 1,
+        "level": 3,
+        "turn": 9047,
+        "time": 753.9166666666666,
+        "checkpointSha256": "ea74a69178c1aef6658c920058f97a1a71a0e32deeee681c7c347f399eb092ab",
+        "actorsSha256": "cd5afcc7e459b0a65d592c33d325c6e7bb2ef3b073d99bfa39cef07ce9f3fda9",
+        "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+        "stockSha256": "467e67f40eaa1abfb756dc54b25f29fe162d345ec61be93690032b13741188e0"
+      },
+      "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "status": "returned",
+      "scope": "Actual victory with retained failed prefix and authenticated control stop; normal terminal/cleanup, no Mission4 or process signal"
+    }
+  },
+  "limits": [
+    "Actual browser campaign victories/committed profile; full native parity and remaining timing families remain open",
+    "Erosion64-turn/99-cell browser prefix and source correspondence accepted; exact native replay lacks RNG/full terrain inputs",
+    "No old b381/Run14 profile adoption or historical victory credit",
+    "Screenshot is actual paused result, not an original-game comparison or hardware/GPU performance test",
+    "No private browser-profile/IndexedDB/storage bytes",
+    "No new entry/continued mission authorization follows from this terminal packet"
+  ],
+  "files": [
+    {
+      "path": "work/orchestration/campaign-continuity/admit-m3-resumed-first-batch.py",
+      "bytes": 4225,
+      "sha256": "25c40895e0115ae073a310d678f27ec2648096e78654aecd912075c4ffe2bd10"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/b45073e-build.json",
+      "bytes": 4746,
+      "sha256": "67e4caf6e9d556e97e247a956ed468000110d6ab9174174663d5fbda9471a834"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/b45073e-m3-final-launch-binding.json",
+      "bytes": 4101,
+      "sha256": "df676ebe4be2b5753a7e2435714565bd2857b9d71d67f8bf5c2df34253a4bbb6"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/b45073e-m3-launch-plan.json",
+      "bytes": 12164,
+      "sha256": "020d754ca7f0237d4474274407dd59c2facd9e24b0fe51d7e43c7945b4417e98"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/b45073e-m3-profile-inputs.json",
+      "bytes": 1986,
+      "sha256": "64758060cbaf1e352ab6089157c64917734b957d0067bf13d67c24adb40719ea"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/b45073e-source-correspondence.json",
+      "bytes": 1522,
+      "sha256": "a31808a547ebee181838fb7649bc67140aff1532a0989e27788f9fe6efa71b96"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/b45073e-target-inputs.json",
+      "bytes": 1744,
+      "sha256": "1fa5cc41bb2caac1567ab15da6c8891320929fbe6ab496d0932e478bacbad286"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/launch-mission-three-b45073e.py",
+      "bytes": 6141,
+      "sha256": "825594fbad46b80274e92cdb97ea7da514a77b24b429873fc48502e10e6cc24f"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-03/receipt.json",
+      "bytes": 47109,
+      "sha256": "363a576b0686bc41f6be1774bae31d4ac3f36bc9b0f04cbdf50bfa309e9aade7"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-03/segment-boundary.json",
+      "bytes": 34191,
+      "sha256": "58cd8046b4fadb017f5964551b4498484da58602380182df9536335653032161"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-resumed-first-batch-b45073e.json",
+      "bytes": 136,
+      "sha256": "c5c6f1c87979d472b4abfd1699a95b1c2100c6e31bd154fcdd8ba096f156f157"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-01/journey.json",
+      "bytes": 132442,
+      "sha256": "b36d13de9c4170e63a44517c57bb6d864e5113a48a3774987ea350eb29789668"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-01/receipt.json",
+      "bytes": 14285,
+      "sha256": "5a934ae4e50ef69bc353ec66df5eb64e90cb2be50d06848650aeec23c31e7214"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-admission.json",
+      "bytes": 1231,
+      "sha256": "42824c5baf207ba2c13d367586d1b8888aa6f61602d029bdec0dfd8f7a925af0"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-erosion-prefix/prefix.json",
+      "bytes": 11446,
+      "sha256": "ba8f7923054d57c0b9c2dadc09a7fa589c14c03d897c829332bf3ccac34435d7"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-host-batches/0002.json",
+      "bytes": 653,
+      "sha256": "29de649bad7146d1e13879652d7ec0bd3f4b75452f8131b8c6e0598dfec10c0e"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-host-batches/0003.json",
+      "bytes": 1281,
+      "sha256": "feff2b67c8e84d822f14eb9c6b5237b7136c4cef252a2ce3dbc5dc6bc13b6e01"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-host-batches/0004.json",
+      "bytes": 1361,
+      "sha256": "5e1b558f139d1630b347229764c9cb811d274feb6bff23ad45b3a4b6b4b3aaab"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-host-batches/0005.json",
+      "bytes": 1072,
+      "sha256": "b8954f8bb72941a1da38878bc489166f565a477ab7e10fd8b3a4590c812344f9"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-host-batches/0006.json",
+      "bytes": 1016,
+      "sha256": "e86fae4cc06f0fc648084dc8167a1b3f1205b23a2cbfc1e096cdcd14bd3d1f27"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-host-batches/0007.json",
+      "bytes": 1052,
+      "sha256": "6ff3273c6e2c1de8cfe72fef6633069d7d59c21b2a6f3f05b3a333be8dc3195b"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-host-batches/0008.json",
+      "bytes": 1028,
+      "sha256": "53505074b5af88faa6134c755014d718e9170c7832b642c5d77622a87f2d9288"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-host-batches/0009.json",
+      "bytes": 1075,
+      "sha256": "df3cbf3adb4a05d6a803d50c2de866cb54d4708ac7920016aa26670fe1ad6ffa"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-host-batches/0010.json",
+      "bytes": 655,
+      "sha256": "5fb4b59c5471bc6afbdf5714f3d1dd5b93972ce729cac708623a12b2cded3997"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-host-batches/0011.json",
+      "bytes": 928,
+      "sha256": "c0944ce691a709833d2a5709844be6019d2bf8119427c868bbda03db102aa336"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02.launcher.json",
+      "bytes": 5227,
+      "sha256": "dd32130779a9b0892d73431069272f9a887089561a0abc8b6ed85bed5568067b"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02.outer.json",
+      "bytes": 5255,
+      "sha256": "8e23bede3ef2fdb3ccde46918ea7f65e12474fd7fca1fb4a696910ee4ae8949b"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02.outer.json.artifacts/stderr.log",
+      "bytes": 1228,
+      "sha256": "52cea84e676cf29e015ca834cabe027fa71c3450fbb448f528b22275d0d9152c"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02.outer.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/actions.jsonl",
+      "bytes": 365415,
+      "sha256": "f96fd2b5a8f3eff5d45ba4f16d74b0cb72acfae70e112561b65c4cc6e398a0c6"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/batch-0001.json",
+      "bytes": 77229,
+      "sha256": "a1a0f05efc90c5b483ff1bd6faa202653f81c31b42ed2f39eae93280dd05cd5a"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/batch-0002.json",
+      "bytes": 427977,
+      "sha256": "179655ff9d2a9aa8eff8648ac9be99855b2772328ff5c9e927e6295f0e0beec1"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/batch-0003.json",
+      "bytes": 431329,
+      "sha256": "e6c834ef8a7d8e83357be5e73e3fe18046848b3526d5f6a8f421e5716b2ff106"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/batch-0004.json",
+      "bytes": 431368,
+      "sha256": "4a2b99bbed2ad75127035ef2dc15c81681b8d9f7c454cbbbad872c405b36244e"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/batch-0005.json",
+      "bytes": 430701,
+      "sha256": "379f14a73e643eed3161844572714ae4bb729cf7bcce02a4daa7535d587597c5"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/batch-0006.json",
+      "bytes": 425336,
+      "sha256": "e94bec150be6d4fd77583d1fdbad42cd0f0dd1765da42bad6d1864073cc36fda"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/batch-0007.json",
+      "bytes": 409464,
+      "sha256": "b9d9ae4b22ab09552f17324dc08d73d5556f6c57b7fdce9fceba5d5d37c750a3"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/batch-0008.json",
+      "bytes": 403707,
+      "sha256": "aa6ecd337cb4bf23f2f11f5789113c4381e19a66d587733049b738b6d935f318"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/batch-0009.json",
+      "bytes": 397260,
+      "sha256": "164e4b8107423d32129da979f3677c3ba94c74693530ab72be11092c1c018e9a"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/batch-0010.json",
+      "bytes": 397259,
+      "sha256": "4ccfc3aee55f662beb9fe9820fe69610b8e849724f7bd18e7f9a05c752861e80"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/commands/0001.json",
+      "bytes": 136,
+      "sha256": "c5c6f1c87979d472b4abfd1699a95b1c2100c6e31bd154fcdd8ba096f156f157"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/commands/0002.json",
+      "bytes": 141,
+      "sha256": "4fbee7c4d558852143423944d2545d8505c0b02071d918e3f579e9aeed2ffbb3"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/commands/0003.json",
+      "bytes": 692,
+      "sha256": "3aa89490c00fed8a929c0155550c5d9c006df14c919ad2dcdaf0ffbca278e7f8"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/commands/0004.json",
+      "bytes": 708,
+      "sha256": "7f26ba78dd19557799087a82398a5cba338438d68afada4142db496d2ba61504"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/commands/0005.json",
+      "bytes": 481,
+      "sha256": "a6e32a472ad17ecb45418a54aa51414f1f3eb773d1e947d3e1118c8347ed5895"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/commands/0006.json",
+      "bytes": 480,
+      "sha256": "6eeda73c7e1391036c07a02b055582b55f91a1796f43b734fb0338bd8de6984d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/commands/0007.json",
+      "bytes": 481,
+      "sha256": "d1f1e6a96d3c29a7bf108e06a004a308579af7a3d9fb7c540ede6fc59e0ee50e"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/commands/0008.json",
+      "bytes": 468,
+      "sha256": "29ddc9f15fcc0d334825b7c172d9ee43ec9f8f0d0e55f7f9583d7416737df08e"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/commands/0009.json",
+      "bytes": 460,
+      "sha256": "30ab970546b821cf83bbb47ce49b43d0840584de0022dd5798b16aef55ab2747"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/commands/0010.json",
+      "bytes": 126,
+      "sha256": "b8f735c2a553ed434ad0ed188cf8be0bbf87d20cc882436ad9346b995c037c12"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/commands/0011.json",
+      "bytes": 102,
+      "sha256": "f03f80c08499167bc84d245edf731be1d31f3a52264a612eec754a347beeec67"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/consumed-0001.json",
+      "bytes": 136,
+      "sha256": "c5c6f1c87979d472b4abfd1699a95b1c2100c6e31bd154fcdd8ba096f156f157"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/consumed-0002.json",
+      "bytes": 141,
+      "sha256": "4fbee7c4d558852143423944d2545d8505c0b02071d918e3f579e9aeed2ffbb3"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/consumed-0003.json",
+      "bytes": 692,
+      "sha256": "3aa89490c00fed8a929c0155550c5d9c006df14c919ad2dcdaf0ffbca278e7f8"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/consumed-0004.json",
+      "bytes": 708,
+      "sha256": "7f26ba78dd19557799087a82398a5cba338438d68afada4142db496d2ba61504"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/consumed-0005.json",
+      "bytes": 481,
+      "sha256": "a6e32a472ad17ecb45418a54aa51414f1f3eb773d1e947d3e1118c8347ed5895"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/consumed-0006.json",
+      "bytes": 480,
+      "sha256": "6eeda73c7e1391036c07a02b055582b55f91a1796f43b734fb0338bd8de6984d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/consumed-0007.json",
+      "bytes": 481,
+      "sha256": "d1f1e6a96d3c29a7bf108e06a004a308579af7a3d9fb7c540ede6fc59e0ee50e"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/consumed-0008.json",
+      "bytes": 468,
+      "sha256": "29ddc9f15fcc0d334825b7c172d9ee43ec9f8f0d0e55f7f9583d7416737df08e"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/consumed-0009.json",
+      "bytes": 460,
+      "sha256": "30ab970546b821cf83bbb47ce49b43d0840584de0022dd5798b16aef55ab2747"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/consumed-0010.json",
+      "bytes": 126,
+      "sha256": "b8f735c2a553ed434ad0ed188cf8be0bbf87d20cc882436ad9346b995c037c12"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/consumed-0011.json",
+      "bytes": 102,
+      "sha256": "f03f80c08499167bc84d245edf731be1d31f3a52264a612eec754a347beeec67"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/journey.json",
+      "bytes": 498255,
+      "sha256": "aa6704d6789cf8bd7b9c65df126f8ac38b4bdad3a4ccd131e1b148d3f95e584d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-brave-erosion-retired.json",
+      "bytes": 427978,
+      "sha256": "3d716c54139aee4950afaaf62295cd8a01ca3e2db434a1aa07bb13433d8795eb"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-brave-erosion-retired.png",
+      "bytes": 1602722,
+      "sha256": "be1a57ebfa02ccce53126acd07f1fb31e0dc6f55fc2fc23aade4635dc94011db"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-current-conversion.json",
+      "bytes": 76046,
+      "sha256": "4a638bcecde3031594c2476ed4d62a5679464a8476812a27f37ef6ab03eb2ede"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-current-conversion.png",
+      "bytes": 1868617,
+      "sha256": "43026ad134d5831f8100c83604654de33f8da74d67f12434c5cefb1235031123"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-eastern-hut-cleared.json",
+      "bytes": 425338,
+      "sha256": "798b51a489c42839bb4f15402d24a4ac64c14231bcbe9eb72a96e55ed087ebd1"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-eight-warrior-forward-stage.json",
+      "bytes": 431368,
+      "sha256": "373601ce6d71e035bf9a1e3ddd7e422ddbb04f0f3e728c4ed6fc1dc15bf114cc"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-erosion-complete.json",
+      "bytes": 427978,
+      "sha256": "b95602117df1e6b5b670638eba9ef9fd1a69a409e9922b921a4b1326eaaa7053"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-first-reinforcement-count.json",
+      "bytes": 431328,
+      "sha256": "fd587de98709feb24f4f2de9d59ef8b6f8eef87ee49016a1fe24fe4a42e3ffec"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-first-reinforcement-count.png",
+      "bytes": 1883511,
+      "sha256": "e92b387a960ab0e9e0d46d6f3587bfe657c206e41ea0b732678e8823474a87af"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-genuine-campaign-victory-result.json",
+      "bytes": 397259,
+      "sha256": "7c7bb9849b12e2d219c0200918a70c7c275b61cdc9d5f5561d1885c60665408c"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-genuine-campaign-victory-result.png",
+      "bytes": 501215,
+      "sha256": "61c3c6f51925190ae4374c31ed5e41ccbbac33cce022a29b74f5a90e44683154"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-milestone-erosion-start.json",
+      "bytes": 426857,
+      "sha256": "b620b91251fc9e10315fe58061bc8709f1d9e7a90af43b81659c1092e71408ec"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-milestone-erosion.json",
+      "bytes": 426821,
+      "sha256": "19f782a51557a798167fdbc87a001c3f1dc1e954a2e9c6bd93ecff8af3216ef8"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-milestone-victory.json",
+      "bytes": 397259,
+      "sha256": "42bee9e819657699c1317072c9bbc96bc0c52f1f9153c9a74545d36270fa5c76"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-northern-hut-cleared.json",
+      "bytes": 409465,
+      "sha256": "a4c310caec94b52750af891dcb7c943205fca42432b7f6ead73b79e6a344dc9b"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-restored-conversion-worker.json",
+      "bytes": 77229,
+      "sha256": "5c80b3ed51781b330f78324d11ef5add9b10dc1a6217bd989e19e37dcf38ab04"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-segment-opening.json",
+      "bytes": 67938,
+      "sha256": "6d6cb7a1ebf85d473a6b035ee1d9fc069301d222c2841eaeadb7f533002158d1"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-segment-opening.png",
+      "bytes": 1798525,
+      "sha256": "a9d5a52f0e0b4202ad1d283257846b08d2863a77c74b1417d56bd3f5bc841922"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-southern-hut-cleared.json",
+      "bytes": 430701,
+      "sha256": "468131ced6e633ba6e271892c0c1cabc11074ae72150ea8ce3deff8415f92ccf"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-western-hut-cleared.json",
+      "bytes": 403708,
+      "sha256": "52c76ad732693c1bb94952593720eb5eb664b623468bbe958d103c11e02217c0"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-western-hut-cleared.png",
+      "bytes": 1814244,
+      "sha256": "271499e862d47cd406be2541480e2050d145c624b03eb5a6deb84f3a29b5cdae"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-yellow-shaman-cleared.json",
+      "bytes": 397259,
+      "sha256": "8437cd22262c2b504c5e941912aa1e74e91e2fbceb2ca13d9a0cec87441ce7da"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/receipt.json",
+      "bytes": 14650,
+      "sha256": "db8bb4041833022abe4abfc331fd5cac7ba008e185a3f21a07eaf50fe485aed2"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/run-policy.json",
+      "bytes": 1695,
+      "sha256": "be703d2b922a15099811e53bf7cb05cb391b7733f7ee3417a3923c09fd7af2a8"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/server.log",
+      "bytes": 941,
+      "sha256": "f28fa4bfa7c03d36af7730b1bea71831bae17fbc4e16f7056bea1259ab2bcb78"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/terminal.json",
+      "bytes": 397259,
+      "sha256": "9dac2cc3cbc8fcced7248286115d49cab4087cba7694e9fd61648e91496bd3bc"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/terminal.png",
+      "bytes": 501556,
+      "sha256": "9f7868a723ae0aa30ed18daea90c2b899ebcd60ff11b4df63f82f9974cf43060"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-two-segment-01/receipt.json",
+      "bytes": 16169,
+      "sha256": "d936947f3aba05398b4d77351496f937ab5e2e2b6f33a75eb3304f6bf9f28470"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-two-segment-01/segment-boundary.json",
+      "bytes": 74344,
+      "sha256": "88ef7da61fd5c360b37dfb630b21ff8a76df0986203a5c29a0f6b41f2a3d734d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-b45073e-target/admission-verification.json",
+      "bytes": 1109,
+      "sha256": "818cbe0b7e4029c75b1932be8b1a4487de6885f9fe63a03992cadc80b9228c6d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-b45073e-target/final-launch-review.json",
+      "bytes": 9489,
+      "sha256": "09f9457290fe93d2c3b119f847db6e3551dbd9d2337ef650f46bfea89dc15d5a"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-b45073e-target/verification.json",
+      "bytes": 3696,
+      "sha256": "1a2869857d52a6e8ca7059d132fdacd372a63ef9e6e59b5f965ecf3fd6544265"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-one-segment-03/review.json",
+      "bytes": 10391,
+      "sha256": "a4d730086b13b6813ce4b34b2a034a00eb0d9086bb6abd3578593d5c4af8aae1"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-01/review.json",
+      "bytes": 15282,
+      "sha256": "75b1fe6111ab0f521efe93352306ddb4ea30c8a214918edf83a6d35f80649eea"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/native-assessment.json",
+      "bytes": 2590,
+      "sha256": "f4fd08f200f7049f61785a2d220e69ddae1fc43169d6bc786e2b35eab1b3e70d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/publication-review.json",
+      "bytes": 1621,
+      "sha256": "ef823deb5af66a63de075d8d5abbdc9d1095fba0ab61d547f61d02232c7de1b5"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/review.json",
+      "bytes": 8580,
+      "sha256": "fda40c4468286b0415a33a4a345de1775b7c9627b3431a126c0531a587446900"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-two-segment-01/review.json",
+      "bytes": 15121,
+      "sha256": "01cb340d999396c6dff2b584ccc35a0234e7ff545c1e855a500459ad2d5fc765"
+    },
+    {
+      "path": "work/orchestration/dependency-transfers/native-guard-before-to-campaign-m3-20261005T2224/receipt.json",
+      "bytes": 1736,
+      "sha256": "9f1a4205225a5d27614ccea52ea22f98c53e16ad10526e8bf249071cf9a96a22"
+    },
+    {
+      "path": "work/orchestration/dependency-transfers/native-guard-before-to-campaign-m3-20261005T2224/return.json",
+      "bytes": 2724,
+      "sha256": "7a60e84cc44f35d758e767a48c430116a40ca89e53bd78c44f6c23fce100a5f4"
+    }
+  ]
+}

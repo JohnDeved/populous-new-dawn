@@ -1,0 +1,16 @@
+{
+  "kind": "independent-publication-copies-and-caption-verification",
+  "decision": "ACCEPT FROZEN COPIES AND CAPTION",
+  "reviewedAt": "2026-10-05T23:00:02.235045+00:00",
+  "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity-evidence/references/verification/current-campaign-continuity-source-2026-10-05/mission-three-victory-ce37f851",
+  "manifestSha256": "2201e9ae2b6d548467d47e1a35b39fec767f31703fbb49d4fcc218b6d64565c6",
+  "readmeSha256": "94da1de27b4841b715a028f6081621d01caa32e5cf17095ebce1231a69f13a11",
+  "copies": 104,
+  "bytes": 21274869,
+  "relativeLinksVerified": 12,
+  "pendingExpectedReviewLink": [
+    "independent-review/review.json"
+  ],
+  "captionAssessment": "Actual M3 victory and committed profile readback, exact same-profile M1/M2 chain, genuine Load/current conversion/Erosion, retained failed envelope/stops, Save9047 playing-state separation, remaining buildings/losses and native/projection limits are accurate. Append only the exact final review artifacts before publication; the expected independent-review link then resolves.",
+  "readOnlyScope": "Copied public allowlist evidence and source only; no private profile or dependency reads."
+}

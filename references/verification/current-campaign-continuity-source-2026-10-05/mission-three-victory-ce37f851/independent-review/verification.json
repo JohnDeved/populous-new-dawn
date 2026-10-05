@@ -1,0 +1,65 @@
+{
+  "status": "PASS BOUNDED EVIDENCE VERIFICATION",
+  "reviewedAt": "2026-10-05T22:58:10.978Z",
+  "packetSha256": "684fdd8114e5827bee499945bd30014013d28c7db9d8db34a98a9f686fe2a4b8",
+  "files": 103,
+  "bytes": 21205469,
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "commit": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+    "tree": "dcdfb5a756e5fbf0ae26a780c1a1e97073f3e6d3",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "5f36e2f0ddd2825514ba385c768449b0d02501a994f0501be3a203011a0e517f"
+  },
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "journalLines": 254,
+  "terminalHarnessStatus": "failed",
+  "browserErrors": [],
+  "warnings": 8,
+  "terminalGameStatus": "won",
+  "terminalTurn": 13480,
+  "profileReadbackAt": "2026-10-05T22:51:34.515Z",
+  "profileSha256": "d89f2a16deae24e02c494c5be8cc20b0d3c19bee1048c492a20c93fad65facfb",
+  "latestCheckpoint": {
+    "version": 1,
+    "level": 3,
+    "turn": 9047,
+    "time": 753.9166666666666,
+    "checkpointSha256": "ea74a69178c1aef6658c920058f97a1a71a0e32deeee681c7c347f399eb092ab",
+    "actorsSha256": "cd5afcc7e459b0a65d592c33d325c6e7bb2ef3b073d99bfa39cef07ce9f3fda9",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "467e67f40eaa1abfb756dc54b25f29fe162d345ec61be93690032b13741188e0"
+  },
+  "campaignActiveSeconds": 3197.3333333333335,
+  "missionActiveSeconds": {
+    "1": 697.5833333333333,
+    "2": 1141.4166666666665,
+    "3": 1358.3333333333333
+  },
+  "conversionAnchor": 704.0833333333333,
+  "ownedWallMs": 7464156,
+  "missionWallMs": {
+    "1": 1589523,
+    "2": 2039727,
+    "3": 3834891
+  },
+  "currentSegmentWallMs": 1662198,
+  "inheritedFailureRecords": 3,
+  "inheritedAutomaticStops": 1,
+  "newAuthenticatedPreservingStops": 1,
+  "newHelperFailures": 0,
+  "innerSha256": "db8bb4041833022abe4abfc331fd5cac7ba008e185a3f21a07eaf50fe485aed2",
+  "outerSha256": "8e23bede3ef2fdb3ccde46918ea7f65e12474fd7fca1fb4a696910ee4ae8949b",
+  "launcherSha256": "dd32130779a9b0892d73431069272f9a887089561a0abc8b6ed85bed5568067b",
+  "victoryImageSha256": "61c3c6f51925190ae4374c31ed5e41ccbbac33cce022a29b74f5a90e44683154",
+  "victorySnapshotSha256": "7c7bb9849b12e2d219c0200918a70c7c275b61cdc9d5f5561d1885c60665408c",
+  "limits": [
+    "No clean harness/campaign envelope PASS.",
+    "Mission 4 was not started.",
+    "No post-Erosion Load verifies native-land arrays.",
+    "No exact native replay, exclusive terrain attribution, calibrated timing or hardware performance claim."
+  ]
+}

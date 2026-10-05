@@ -1,0 +1,43 @@
+{
+  "queuedAt": "2026-10-05T22:46:21.607444+00:00",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "index": 8,
+  "commandsSha256": "29ddc9f15fcc0d334825b7c172d9ee43ec9f8f0d0e55f7f9583d7416737df08e",
+  "snapshotSha256": "b9d9ae4b22ab09552f17324dc08d73d5556f6c57b7fdce9fceba5d5d37c750a3",
+  "reason": "Hut1020 absent; Warrior3169 lost,7 selected survivors above67HP. Enemy count8 includes5 occupants in actual Hut1019; finite attack, exact target retirement then pause.",
+  "commands": [
+    {
+      "action": "resume"
+    },
+    {
+      "action": "order-entity",
+      "collection": "buildings",
+      "id": 1019
+    },
+    {
+      "action": "wait",
+      "condition": {
+        "type": "target-gone",
+        "id": 1019
+      },
+      "scope": "combat",
+      "watchIds": [
+        1019,
+        3168,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ]
+    },
+    {
+      "action": "pause"
+    },
+    {
+      "action": "snapshot",
+      "name": "m3-western-hut-cleared"
+    }
+  ]
+}

@@ -1,0 +1,36 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "order-entity",
+    "collection": "buildings",
+    "id": 1015
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "target-gone",
+      "id": 1015
+    },
+    "scope": "combat",
+    "watchIds": [
+      1015,
+      3168,
+      3169,
+      3170,
+      3171,
+      3172,
+      3340,
+      3341,
+      3342
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m3-eastern-hut-cleared"
+  }
+]

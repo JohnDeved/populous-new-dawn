@@ -1,0 +1,29 @@
+{
+  "queuedAt": "2026-10-05T22:52:29.176363+00:00",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "index": 11,
+  "commandsSha256": "f03f80c08499167bc84d245edf731be1d31f3a52264a612eec754a347beeec67",
+  "victorySnapshotSha256": "7c7bb9849b12e2d219c0200918a70c7c275b61cdc9d5f5561d1885c60665408c",
+  "committedProfileRow": {
+    "at": "2026-10-05T22:51:34.515Z",
+    "level": 3,
+    "wallMs": 1601723,
+    "action": "campaign-profile-readback",
+    "profile": {
+      "version": 1,
+      "completed": [
+        1,
+        2,
+        3
+      ]
+    },
+    "sha256": "d89f2a16deae24e02c494c5be8cc20b0d3c19bee1048c492a20c93fad65facfb"
+  },
+  "reason": "Actual same-world victory and committed completion[1,2,3] proved; sole authenticated preserve-stop, no Mission4 or known-failing finish assertion",
+  "commands": [
+    {
+      "action": "stop-preserve-latest",
+      "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2"
+    }
+  ]
+}

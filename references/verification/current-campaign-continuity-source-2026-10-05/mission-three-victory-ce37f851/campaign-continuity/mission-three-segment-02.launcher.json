@@ -1,0 +1,131 @@
+{
+  "startedAt": "2026-10-05T22:24:28.325062+00:00",
+  "status": "terminal",
+  "launcherPid": 2,
+  "pidNamespace": "pid:[4026532404]",
+  "networkNamespace": "net:[4026532405]",
+  "cpus": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "profile": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3b89912-m1-03",
+  "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-02",
+  "privateTmp": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/private-tmp-m3-b45073e",
+  "sourceRuntimeVerification": {
+    "source": {
+      "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+      "commit": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+      "tree": "dcdfb5a756e5fbf0ae26a780c1a1e97073f3e6d3",
+      "status": "",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked": [],
+      "fingerprint": "5f36e2f0ddd2825514ba385c768449b0d02501a994f0501be3a203011a0e517f"
+    },
+    "inputs": {
+      "application": "d199649478e710b0b90a2228927645232ef35b687fa2c5899cbad81babb4cfda",
+      "checker": "9b3932ba7f799e6cad6ff033e18f4bc5b635f00122c6c93a324aff784fba90db"
+    },
+    "runtime": {
+      "node": "v24.19.0",
+      "platform": "linux",
+      "arch": "x64",
+      "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+      "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+      "playwright": "1.63.0",
+      "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+      "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "harness": {
+        "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+        "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+        "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+        "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+      }
+    },
+    "verified": true
+  },
+  "preTcp": [
+    {
+      "host": "127.0.0.1",
+      "port": 4375,
+      "code": 111,
+      "closed": true
+    },
+    {
+      "host": "::1",
+      "port": 4375,
+      "code": 111,
+      "closed": true
+    }
+  ],
+  "command": [
+    "node",
+    "scripts/orchestration/command-receipt.mjs",
+    "--output",
+    "work/orchestration/campaign-continuity/mission-three-segment-02.outer.json",
+    "--input",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-resumed-first-batch-b45073e.json",
+    "--input",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-source-correspondence.json",
+    "--input",
+    "qa/campaign-continuity/run-policy.json",
+    "--input",
+    "node_modules/.package-lock.json",
+    "--",
+    "taskset",
+    "-c",
+    "0-3",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "5710s",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "--port",
+    "4375",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-02",
+    "--mission",
+    "3",
+    "--timeout",
+    "5700000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs",
+    "--profile",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3b89912-m1-03",
+    "--profile-correspondence",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-source-correspondence.json",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell"
+  ],
+  "launcherSha256": "825594fbad46b80274e92cdb97ea7da514a77b24b429873fc48502e10e6cc24f",
+  "launchPlanSha256": "020d754ca7f0237d4474274407dd59c2facd9e24b0fe51d7e43c7945b4417e98",
+  "dependencyInode": 925605,
+  "childPid": 34,
+  "finishedAt": "2026-10-05T22:52:39.499446+00:00",
+  "commandExitCode": 1,
+  "postTcp": [
+    {
+      "host": "127.0.0.1",
+      "port": 4375,
+      "code": 111,
+      "closed": true
+    },
+    {
+      "host": "::1",
+      "port": 4375,
+      "code": 111,
+      "closed": true
+    }
+  ],
+  "innerReceiptSha256": "db8bb4041833022abe4abfc331fd5cac7ba008e185a3f21a07eaf50fe485aed2",
+  "innerStatus": "failed",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "cleanupVerified": true,
+  "continuationVerified": true,
+  "originClosed": true
+}

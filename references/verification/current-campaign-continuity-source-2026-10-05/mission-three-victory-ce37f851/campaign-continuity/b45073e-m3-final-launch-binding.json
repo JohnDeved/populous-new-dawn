@@ -1,0 +1,64 @@
+{
+  "kind": "exact-M3-saved-sermon-final-entry-binding",
+  "sourceHead": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "applicationMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "plan": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-m3-launch-plan.json",
+    "sha256": "020d754ca7f0237d4474274407dd59c2facd9e24b0fe51d7e43c7945b4417e98"
+  },
+  "launcher": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/launch-mission-three-b45073e.py",
+    "sha256": "825594fbad46b80274e92cdb97ea7da514a77b24b429873fc48502e10e6cc24f"
+  },
+  "firstBatch": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-resumed-first-batch-b45073e.json",
+    "sha256": "c5c6f1c87979d472b4abfd1699a95b1c2100c6e31bd154fcdd8ba096f156f157",
+    "preparedOnly": true,
+    "entryRequirement": "Promptly after actual full7424 Load/immediatePause, current restored identities and owned lease. Complete fresh conversion, Pause, snapshot current worker. No inherited3298 or repeated cancellation."
+  },
+  "admissionHelper": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/admit-m3-resumed-first-batch.py",
+    "sha256": "25c40895e0115ae073a310d678f27ec2648096e78654aecd912075c4ffe2bd10"
+  },
+  "profileInputs": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-m3-profile-inputs.json",
+    "sha256": "64758060cbaf1e352ab6089157c64917734b957d0067bf13d67c24adb40719ea"
+  },
+  "profileCorrespondence": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-source-correspondence.json",
+    "sha256": "a31808a547ebee181838fb7649bc67140aff1532a0989e27788f9fe6efa71b96"
+  },
+  "build": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-build.json",
+    "sha256": "67e4caf6e9d556e97e247a956ed468000110d6ab9174174663d5fbda9471a834",
+    "originalExecSession": 4162,
+    "status": "passed",
+    "boundSeconds": 120
+  },
+  "sourceReview": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/review-b45073e/review.json",
+    "sha256": "ed04c3cfc16a5531fb40dcdfe62b467b22d70af35555f6aa50c85060506d0fe0"
+  },
+  "targetVerification": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-b45073e-target/verification.json",
+    "sha256": "1a2869857d52a6e8ca7059d132fdacd372a63ef9e6e59b5f965ecf3fd6544265"
+  },
+  "postBuildPreservation": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-post-build-preservation.json",
+    "sha256": "15cf221f7b9ec134edf8b3d7aaae96d27ba9426ec1f776e2fa955c848a694add"
+  },
+  "previousReceipt": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/receipt.json",
+    "sha256": "5a934ae4e50ef69bc353ec66df5eb64e90cb2be50d06848650aeec23c31e7214"
+  },
+  "previousJourney": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/journey.json",
+    "sha256": "b36d13de9c4170e63a44517c57bb6d864e5113a48a3774987ea350eb29789668"
+  },
+  "dependencyAvailableHere": false,
+  "operationalGrantReceived": false,
+  "profileOpened": false,
+  "outputAbsent": true,
+  "privateTmpAbsent": true,
+  "scope": "Prepared exact entry only; final independent review and coordinator lane/lease grant remain required."
+}

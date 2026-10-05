@@ -1,0 +1,43 @@
+{
+  "queuedAt": "2026-10-05T22:48:50.903332+00:00",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "index": 9,
+  "commandsSha256": "30ab970546b821cf83bbb47ce49b43d0840584de0022dd5798b16aef55ab2747",
+  "snapshotSha256": "aa6ecd337cb4bf23f2f11f5789113c4381e19a66d587733049b738b6d935f318",
+  "reason": "Hut1019 absent; only Yellow Shaman47 and Brave3246 remain. Seven selected Warriors, six above74HP and one wounded17.65; finite ordinary attack on observed Shaman47 then paused result. Strict target/recipient checks remain.",
+  "commands": [
+    {
+      "action": "resume"
+    },
+    {
+      "action": "order-entity",
+      "collection": "units",
+      "id": 47
+    },
+    {
+      "action": "wait",
+      "condition": {
+        "type": "target-gone",
+        "id": 47
+      },
+      "scope": "combat",
+      "watchIds": [
+        47,
+        3168,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ]
+    },
+    {
+      "action": "pause"
+    },
+    {
+      "action": "snapshot",
+      "name": "m3-yellow-shaman-cleared"
+    }
+  ]
+}

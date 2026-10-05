@@ -1,0 +1,366 @@
+{
+  "decision": "ACCEPT",
+  "scope": "Exact final Mission3 segment02 commands, outcomes and budget arithmetic only; accepted Erosion prefix retained. Publication/complete-envelope review belongs to parent.",
+  "source": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "verification": {
+    "commands": "11 byte-identical command/consumed pairs, each hash matching recorded input; 46 requested commands match flattened batches0001–0010 exactly; final stop0011 separately authenticated",
+    "dispatch": "All 8 order observations pass fresh dispatch, pointer acknowledgement, selected recipient target and ground-marker or trusted entity pointer gates; 7 orders follow accepted Erosion prefix",
+    "history": "8 inherited epochs retained exactly, with authenticated terminal-observation metadata on last; 3 failures and prior automatic stop retained; authenticated preserving stop added",
+    "errors": "No browser/observer errors or speed violations recorded"
+  },
+  "commandHashes": [
+    {
+      "batch": 1,
+      "sha256": "c5c6f1c87979d472b4abfd1699a95b1c2100c6e31bd154fcdd8ba096f156f157"
+    },
+    {
+      "batch": 2,
+      "sha256": "4fbee7c4d558852143423944d2545d8505c0b02071d918e3f579e9aeed2ffbb3"
+    },
+    {
+      "batch": 3,
+      "sha256": "3aa89490c00fed8a929c0155550c5d9c006df14c919ad2dcdaf0ffbca278e7f8"
+    },
+    {
+      "batch": 4,
+      "sha256": "7f26ba78dd19557799087a82398a5cba338438d68afada4142db496d2ba61504"
+    },
+    {
+      "batch": 5,
+      "sha256": "a6e32a472ad17ecb45418a54aa51414f1f3eb773d1e947d3e1118c8347ed5895"
+    },
+    {
+      "batch": 6,
+      "sha256": "6eeda73c7e1391036c07a02b055582b55f91a1796f43b734fb0338bd8de6984d"
+    },
+    {
+      "batch": 7,
+      "sha256": "d1f1e6a96d3c29a7bf108e06a004a308579af7a3d9fb7c540ede6fc59e0ee50e"
+    },
+    {
+      "batch": 8,
+      "sha256": "29ddc9f15fcc0d334825b7c172d9ee43ec9f8f0d0e55f7f9583d7416737df08e"
+    },
+    {
+      "batch": 9,
+      "sha256": "30ab970546b821cf83bbb47ce49b43d0840584de0022dd5798b16aef55ab2747"
+    },
+    {
+      "batch": 10,
+      "sha256": "b8f735c2a553ed434ad0ed188cf8be0bbf87d20cc882436ad9346b995c037c12"
+    },
+    {
+      "batch": 11,
+      "sha256": "f03f80c08499167bc84d245edf731be1d31f3a52264a612eec754a347beeec67"
+    }
+  ],
+  "orders": [
+    {
+      "line": 38,
+      "target": 101,
+      "dispatchTurn": 8505,
+      "selected": [
+        3298
+      ],
+      "recipients": [
+        3298
+      ]
+    },
+    {
+      "line": 82,
+      "target": 1018,
+      "dispatchTurn": 9679,
+      "selected": [
+        516,
+        510,
+        303
+      ],
+      "recipients": [
+        516,
+        510,
+        303
+      ]
+    },
+    {
+      "line": 132,
+      "target": {
+        "x": 5.99213881698779,
+        "z": -114.99688428722078
+      },
+      "dispatchTurn": 10242,
+      "selected": [
+        3168,
+        3169,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ],
+      "recipients": [
+        3168,
+        3169,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ]
+    },
+    {
+      "line": 152,
+      "target": 1016,
+      "dispatchTurn": 10756,
+      "selected": [
+        3168,
+        3169,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ],
+      "recipients": [
+        3168,
+        3169,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ]
+    },
+    {
+      "line": 172,
+      "target": 1015,
+      "dispatchTurn": 11292,
+      "selected": [
+        3168,
+        3169,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ],
+      "recipients": [
+        3168,
+        3169,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ]
+    },
+    {
+      "line": 192,
+      "target": 1020,
+      "dispatchTurn": 11836,
+      "selected": [
+        3168,
+        3169,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ],
+      "recipients": [
+        3168,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ]
+    },
+    {
+      "line": 212,
+      "target": 1019,
+      "dispatchTurn": 12433,
+      "selected": [
+        3168,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ],
+      "recipients": [
+        3168,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ]
+    },
+    {
+      "line": 232,
+      "target": 47,
+      "dispatchTurn": 13057,
+      "selected": [
+        3168,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ],
+      "recipients": [
+        3168,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ]
+    }
+  ],
+  "training": {
+    "braveIds": [
+      516,
+      510,
+      303
+    ],
+    "campId": 1018,
+    "newWarriors": [
+      3340,
+      3341,
+      3342
+    ],
+    "trainedCounter": [
+      6,
+      9
+    ],
+    "stagedWarriors": 8
+  },
+  "targetResults": [
+    {
+      "id": 1016,
+      "conditionTurn": 11036
+    },
+    {
+      "id": 1015,
+      "conditionTurn": 11597
+    },
+    {
+      "id": 1020,
+      "conditionTurn": 12203
+    },
+    {
+      "id": 1019,
+      "conditionTurn": 12863
+    },
+    {
+      "id": 47,
+      "conditionTurn": 13404
+    }
+  ],
+  "caveat": "Warrior3169 was still selected and alive, fight-owned with hp17.45, after northern-hut order11836; seven other units carry that order. It is absent by batch0007. No cause of death is asserted.",
+  "victory": {
+    "turn": 13480,
+    "profileCompleted": [
+      1,
+      2,
+      3
+    ],
+    "yellowPeople": 0,
+    "survivorIds": [
+      3170,
+      3171,
+      3340,
+      3341,
+      3342
+    ],
+    "absentWarriorIds": [
+      3168,
+      3169,
+      3172
+    ],
+    "remainingYellowBuildings": [
+      {
+        "id": 1023,
+        "kind": "tower",
+        "hp": 52,
+        "inside": 0
+      },
+      {
+        "id": 1022,
+        "kind": "temple",
+        "hp": 65,
+        "inside": 0
+      }
+    ],
+    "mission4": "Offered, not entered"
+  },
+  "budgets": {
+    "missionActiveSeconds": {
+      "1": 697.5833333333333,
+      "2": 1141.4166666666665,
+      "3": 1358.3333333333333
+    },
+    "campaignActiveSeconds": 3197.3333333333335,
+    "campaignActiveRemaining": 1602.6666666666665,
+    "originalConversionMissionActiveSeconds": 704.0833333333333,
+    "currentReplacementMissionActiveSeconds": 911.0833333333334,
+    "postOriginalConversionSeconds": 654.25,
+    "mission3EffectiveCeiling": 2400,
+    "mission3ActiveRemaining": 1041.6666666666667,
+    "postConversionRemaining": 1145.75,
+    "inheritedOwnedWallMs": 5801958,
+    "segmentOwnedWallMs": 1662198,
+    "totalOwnedWallMs": 7464156,
+    "totalOwnedWallRemainingMs": 5135844,
+    "missionWallMs": {
+      "1": 1589523,
+      "2": 2039727,
+      "3": 3834891
+    },
+    "mission3WallRemainingMs": 1565109,
+    "mission3SegmentWallAddedMs": 1662192,
+    "note": "Owned scenario wall includes inherited owned time and paused waits; excludes closed-process intervals and harness startup/cleanup. Separate current timer initializations produce 6ms campaign-versus-mission increment difference. No reset."
+  },
+  "terminal": {
+    "receiptStatus": "failed",
+    "journeyStatus": "failed",
+    "failureCount": 3,
+    "stopCodes": [
+      "progress-stall",
+      "preserve-latest"
+    ],
+    "preservedLatestTurn": 9047,
+    "preservedLatestSha256": "ea74a69178c1aef6658c920058f97a1a71a0e32deeee681c7c347f399eb092ab"
+  },
+  "limits": [
+    "No clean harness pass",
+    "No native replay/equivalence",
+    "No Mission4 entry",
+    "No full terrain Load claim",
+    "No causal death attribution",
+    "Headless/software rendering does not establish hardware performance"
+  ],
+  "evidenceHashes": {
+    "actions.jsonl": "f96fd2b5a8f3eff5d45ba4f16d74b0cb72acfae70e112561b65c4cc6e398a0c6",
+    "journey.json": "aa6704d6789cf8bd7b9c65df126f8ac38b4bdad3a4ccd131e1b148d3f95e584d",
+    "receipt.json": "db8bb4041833022abe4abfc331fd5cac7ba008e185a3f21a07eaf50fe485aed2",
+    "terminal.json": "9dac2cc3cbc8fcced7248286115d49cab4087cba7694e9fd61648e91496bd3bc",
+    "m3-erosion-complete.json": "b95602117df1e6b5b670638eba9ef9fd1a69a409e9922b921a4b1326eaaa7053",
+    "batch-0003.json": "e6c834ef8a7d8e83357be5e73e3fe18046848b3526d5f6a8f421e5716b2ff106",
+    "batch-0004.json": "4a2b99bbed2ad75127035ef2dc15c81681b8d9f7c454cbbbad872c405b36244e"
+  }
+}

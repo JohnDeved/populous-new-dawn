@@ -1,0 +1,142 @@
+{
+  "kind": "independent-in-progress-current-conversion-and-Erosion-prefix-review",
+  "decision": "ACCEPT BOUNDED BROWSER PREFIX",
+  "reviewedAt": "2026-10-05T22:36:50.632406+00:00",
+  "reviewer": "review_campaign_continuity",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "sourceHead": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "applicationMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "prefix": {
+    "path": "work/orchestration/campaign-continuity/mission-three-segment-02-erosion-prefix/prefix.json",
+    "sha256": "ba8f7923054d57c0b9c2dadc09a7fa589c14c03d897c829332bf3ccac34435d7"
+  },
+  "cutoff": {
+    "journalLines": 53,
+    "journalSha256": "17cf11e3231ece89d8f95ab02f8d77cbd2056bf83d6eafd8d42065d1e0f8bc01",
+    "awaiting": "0003.json",
+    "pausedTurn": 9047
+  },
+  "findings": [],
+  "evidence": [
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-erosion-prefix/actions-through-0002.jsonl",
+      "sha256": "17cf11e3231ece89d8f95ab02f8d77cbd2056bf83d6eafd8d42065d1e0f8bc01"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/verify.mjs",
+      "sha256": "1024be0f8bc6ae9d1f915c68aaa1589740cd7523b39e579641f9d245aa9676a2"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/verification.json",
+      "sha256": "eaec58c4828204a8846d5702a349aa7b311a855f43fb310d185c2e68077503df"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/native-assessment.json",
+      "sha256": "f4fd08f200f7049f61785a2d220e69ddae1fc43169d6bc786e2b35eab1b3e70d"
+    }
+  ],
+  "checked": [
+    "All21 frozen artifact copies match their declared hashes/sizes and corresponding raw game-evidence files. The frozen53-line journal hash matches and is an unchanged prefix of the active run journal. Eight retained scenario/helper/policy copies match clean b45073e source. This review does not assert any later journal state.",
+    "Ordinary Load restores actual Save7424/full2771e990 with full/actor/terrain/stock readback and sameStore/newWorld/newScene/current correspondence. Immediate Pause precedes diagnostics; first later paused snapshot is7439. Typed entry binds actual priorbcf8 and retains2692.666666666667 active seconds/5801958ms owned wall, with currentReplacement cleared.",
+    "The first prepared batch is admitted only after the actual entry/opening/awaiting boundary, with its exact expected bytes. Both consumed batches equal all six requested commands through cutoff. Their successful batch boundaries and journal contain no new failure/control-stop path; prior three failure records and one automatic stop remain inherited under the reviewed source contract. No clean aggregate harness PASS is inferred.",
+    "New epoch reload-3-8 independently records2631\u21923298 at8086\u21928087 and satisfies the unchanged singleton-conversion helper. Same numeric replacement3298 as the prior run is acceptable only because the new current epoch observes it anew. Current converted-worker validation sees the living50HP Blue Brave and both conversion flags. The original704.0833333333333 budget anchor remains the inherited mark.",
+    "Ordinary selection targets only Brave3298. Actual trusted canvas pointer pair at8505 and fresh lastOrderTurn/pointerAck pass the maintained acceptedOrderEvidence predicate with recipient3298. Its actual order27/a101 and work101 are recorded; wrappers restore without error. Preacher3181 order17 is equal before/after worker assignment, and it remains alive55HP with order17 at cutoff.",
+    "Prospective Erosion declaration at8367 sees unused head101, authored target(-15,111) and no existing effect IDs. Actual use8824 increments uses once, consumes remaining head use and is not forced. Exactly one new effect3322 appears at the authored native center63744,35072,h814 with age0/remaining64.",
+    "The passive observer retains all64 ordered samples [8824,64] through[8887,1], immutable effect/controller/center correspondence and actual zero-counter removal at8887\u21928888, age=duration5.333333333333331. Maintained requireErosionEvidence accepts retirement. Current observation is contiguous with1609 samples from7439 through9047; Erosion observation has680 adjacent samples since8367, with no errors or speed violations.",
+    "Recomputed terrain comparison verifies99 union changed cells:98 changed heights and55 cells with changed walkMasks arrays, containing231 changed individual mask bits. All four retained windows have169 cells. These are correlated observations; absence of other controllers in sampled snapshots does not establish exclusive causality.",
+    "Cutoff9047 is paused/playing with completed[1,2], Brave3298 at50HP and Preacher3181 at55HP. Campaign active2827.916666666667 and M3 active988.9166666666666 include prior terminal time exactly once;1411.0833333333335 M3 active seconds remain under2400. No terminal cleanup or victory has occurred within this prefix.",
+    "Inspected screenshot after the worker conversion and screenshot after Erosion are later rendered views. Even the erosion-start-named screenshot is captured after the actual retirement; onset/countdown/removal credit comes from the passive logical records, not a claim of live-effect/native-boundary pixels."
+  ],
+  "conversion": {
+    "at": "2026-10-05T22:26:06.835Z",
+    "level": 3,
+    "wallMs": 74043,
+    "action": "exact-conversion-proved",
+    "event": {
+      "turnBefore": 8086,
+      "turnAfter": 8087,
+      "kind": "brave",
+      "victims": [
+        {
+          "id": 2631,
+          "kind": "brave",
+          "team": "yellow",
+          "hp": 50,
+          "state": 23,
+          "workTarget": 3181,
+          "flags3": 262144,
+          "flags4": 536936832
+        }
+      ],
+      "replacements": [
+        {
+          "id": 3298,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "state": 10,
+          "workTarget": 0,
+          "flags3": 17039360,
+          "flags4": 537133312
+        }
+      ],
+      "pairing": "Same-turn kind group; no individual pairing is claimed when several victims/replacements coincide."
+    },
+    "epoch": "reload-3-8"
+  },
+  "effect": {
+    "id": 3322,
+    "onsetTurn": 8824,
+    "samples": 64,
+    "initialRemaining": 64,
+    "lastRemaining": 1,
+    "retired": {
+      "turnBefore": 8887,
+      "turnAfter": 8888,
+      "remaining": 0,
+      "age": 5.333333333333331,
+      "duration": 5.333333333333331,
+      "absentFromWorld": true
+    },
+    "changedCells": 99
+  },
+  "budgets": {
+    "campaignActive": 2827.916666666667,
+    "M3Active": 988.9166666666666,
+    "M3Remaining": 1411.0833333333335,
+    "originalConversionAnchor": 704.0833333333333,
+    "M3Limit": 2400,
+    "postConversionLimit": 1800
+  },
+  "terrainPrecise": {
+    "unionChangedCells": 99,
+    "heightChangedCells": 98,
+    "walkMaskArrayChangedCells": 55,
+    "individualWalkMaskBitsChanged": 231
+  },
+  "nativeAssessment": {
+    "path": "work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/native-assessment.json",
+    "sha256": "f4fd08f200f7049f61785a2d220e69ddae1fc43169d6bc786e2b35eab1b3e70d",
+    "decision": "ACCEPT SOURCE/LIFECYCLE CORRESPONDENCE ONLY",
+    "exactReplay": "not-run; exact current-run replay blocked by missing inputs"
+  },
+  "imagesInspected": [
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-erosion-prefix/m3-restored-conversion-worker.png",
+      "sha256": "0539b61d1f1f1e3af5a84be75f998cbba63db34c88a101e52c345f0120655cb6",
+      "scope": "Later paused view at8363, supporting context only."
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-erosion-prefix/m3-brave-erosion-retired.png",
+      "sha256": "be1a57ebfa02ccce53126acd07f1fb31e0dc6f55fc2fc23aade4635dc94011db",
+      "scope": "Post-effect paused view at9047; passive observations establish lifecycle."
+    }
+  ],
+  "limits": [
+    "Run still in progress; no terminal/cleanup/source-after receipt accepted by this prefix.",
+    "No M3 victory/profile[1,2,3] or full campaign completion claim.",
+    "Inherited failures/stops remain; no clean harness PASS.",
+    "No exact current-run native replay, exclusive terrain attribution, original-pixel equivalence or hardware-performance claim."
+  ],
+  "writes": "Only ignored review artifacts. No profile/storage/browser/dependency access or live gameplay input. Plain Node retained-evidence checks ran onCPU4."
+}

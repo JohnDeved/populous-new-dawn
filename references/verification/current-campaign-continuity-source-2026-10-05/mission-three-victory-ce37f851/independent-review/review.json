@@ -1,0 +1,212 @@
+{
+  "kind": "independent-actual-M1-M2-M3-victory-chain-terminal-review",
+  "decision": "ACCEPT BOUNDED VICTORY EVIDENCE AND PUBLICATION",
+  "reviewedAt": "2026-10-05T23:01:27.172532+00:00",
+  "reviewer": "review_campaign_continuity",
+  "sourceHead": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "applicationMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "applicationTree": "20b5894d4c17f120cd7608b4138953ea6c5f243f",
+  "sourceFingerprint": "5f36e2f0ddd2825514ba385c768449b0d02501a994f0501be3a203011a0e517f",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "findings": [],
+  "scope": "The same fresh owned campaign has observed genuine Missions 1, 2 and 3 victories and committed completion [1,2,3], with the reviewed ordinary Save/Load/Continue chain and exact restored-sermon continuation. The terminal harness remains failed and the full retained history stays visible. No Mission 4 entry or new runtime grant.",
+  "evidence": [
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02-terminal-packet.json",
+      "sha256": "684fdd8114e5827bee499945bd30014013d28c7db9d8db34a98a9f686fe2a4b8"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/receipt.json",
+      "sha256": "db8bb4041833022abe4abfc331fd5cac7ba008e185a3f21a07eaf50fe485aed2"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/journey.json",
+      "sha256": "aa6704d6789cf8bd7b9c65df126f8ac38b4bdad3a4ccd131e1b148d3f95e584d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/actions.jsonl",
+      "sha256": "f96fd2b5a8f3eff5d45ba4f16d74b0cb72acfae70e112561b65c4cc6e398a0c6"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02.outer.json",
+      "sha256": "8e23bede3ef2fdb3ccde46918ea7f65e12474fd7fca1fb4a696910ee4ae8949b"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02.launcher.json",
+      "sha256": "dd32130779a9b0892d73431069272f9a887089561a0abc8b6ed85bed5568067b"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-02/verify.mjs",
+      "sha256": "3ef8d2c66b5f07042fec45e1889aa12556069722d15b6a29c72a952fe4746bda"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-02/verification.json",
+      "sha256": "d2773fcf58d853c66d78765e31fb21bab4f6dc44653b11788669e45aa428e0e1"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-02/audit-commands-final.json",
+      "sha256": "8336589783ece83fc6bdd01fa6308061c2d257700f4e10b75f6a3bfc6339b99a"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-02/publication-verification.json",
+      "sha256": "891bb343247e0a71b4ce699ea89776787873531ab895274f25fbaa271490a630"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-one-segment-03/review.json",
+      "sha256": "a4d730086b13b6813ce4b34b2a034a00eb0d9086bb6abd3578593d5c4af8aae1"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-two-segment-01/review.json",
+      "sha256": "01cb340d999396c6dff2b584ccc35a0234e7ff545c1e855a500459ad2d5fc765"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-01/review.json",
+      "sha256": "75b1fe6111ab0f521efe93352306ddb4ea30c8a214918edf83a6d35f80649eea"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/review.json",
+      "sha256": "fda40c4468286b0415a33a4a345de1775b7c9627b3431a126c0531a587446900"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/native-assessment.json",
+      "sha256": "f4fd08f200f7049f61785a2d220e69ddae1fc43169d6bc786e2b35eab1b3e70d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-b45073e-target/final-launch-review.json",
+      "sha256": "09f9457290fe93d2c3b119f847db6e3551dbd9d2337ef650f46bfea89dc15d5a"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/b45073e-source-correspondence.json",
+      "sha256": "a31808a547ebee181838fb7649bc67140aff1532a0989e27788f9fe6efa71b96"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/b45073e-build.json",
+      "sha256": "67e4caf6e9d556e97e247a956ed468000110d6ab9174174663d5fbda9471a834"
+    }
+  ],
+  "verifiedFacts": [
+    "All 103 frozen terminal-packet files match their exact hashes and sizes, totaling21,205,469 bytes. The 254-line journal contains 46 issued ordinary commands, each matching batches 0001 through 0010; sole authenticated preserving command 0011 matches its consumed bytes/runId. Eleven command/consumed pairs and all recorded input hashes match.",
+    "Executed clean QA head b45073e, app tree 20b5894d, source fingerprint 5f36e2f0 and all copied scenario/helper/policy bytes match the accepted source. Receipt source/runtime/scenario before and after are identical; actual launcher measurement agrees. Previously accepted 103 direct QA / 32 affected reviewer tests, structural checks, named 1,134 standard-component carry and fresh build 4162 remain exact, without an aggregate rerun claim.",
+    "Prior M1 clean victory, genuine Continue 2 / Save 396, M2 victory with retained two helper failures and failed envelope, and genuine Continue 3 / Save 179 remain bound to the same profile 7c15026e. The first M3 segment establishes prospective victim 2631, Save 7424, cancellation, ordinary Load and conversion; its failed Erosion/progress stop and uncertain fatal attribution remain unchanged.",
+    "This exact reviewed continuation performs ordinary Load of the actual committed Save 7424 full 2771e990. Saved, synchronous replacement and stored readback digests match; sameStore/newWorld/newScene/current correspondence pass. Pause precedes diagnostics. A new epoch observes the actual 2631-to-3298 singleton conversion; the historical numeric replacement ID is not borrowed as current proof. The original conversion budget milestone remains unchanged.",
+    "The already accepted first 53 journal lines and Erosion evidence prefix are byte-identical. Current converted Brave 3298 receives accepted order 27 to head 101 while Preacher 3181 retains order 17. Actual use/onset 8824, 64 present controller samples and zero/removal 8887-to-8888 are retained for effect 3322. Ninety-nine cells change in the observed native window: 98 height cells and 55 walk-mask cells overlap; the count is not 99 changed heights or exclusive causal attribution.",
+    "All 8 actual orders pass existing fresh-dispatch/acknowledgment/recipient and entity-pointer or ground-marker evidence; 7 follow the prefix. The finite 3-Brave order to Camp 1018 produces new Warriors 3340, 3341, 3342 and an 8-Warrior paused stage. Subsequent accepted orders target Huts 1016, 1015, 1020, 1019 and Shaman 47. At northern-hut order 11836 Warrior 3169 is alive but fight-owned; 7 other recipients carry the order. No false all-selected-recipients or exact death-cause claim is used.",
+    "Actual rendered result at turn 13480 shows Level Won, Continue to Mission 4,18:43, 0 spells and 9 displayed buildings. The separate committed profile readback at 22:51:34.515Z is version 1 / completed [1,2,3], digest d89f2a16. That timestamp is readback time, not a measured underlying commit instant. Five of 8 Warriors survive; no Yellow actors remain. Empty Tower 1023 retains 52 HP and Temple 1022 retains 65 HP. Hut 1017 is absent without a separate explicit destruction-order claim. Displayed 9 built is not credited as 9 player buildings.",
+    "One ordinary Save after Erosion commits turn 9047 / full ea74a691. Its full committed checkpoint and projections are identical at requested stop, scenario terminal verification and harness final readback. It is still playing-state Save 9047, separate from the later victory completion profile. No subsequent Load of 9047 is observed. The terrain projection hashes w.terrain; structuredClone(world) and full-record digest include World.land, but no separate native-land digest or later restored-land-array proof is claimed.",
+    "The final command is the supported authenticated preserve-latest stop. It causes the exact retained IncompleteRun terminal failure, with no previousFailure cleanup override, fallback Save, finish command, Mission 4 entry or abrupt signal. Three inherited failure records and the prior automatic progress-stall remain, with one new requested preserving stop and no new helper failure. Receipt errors and observer/speed violations are empty; 8 renderer warnings remain.",
+    "Original session 74059 is represented by the actual terminal outer receipt exit 1 / signal null and terminal launcher exit 1. Browser/profile cleanup and continuation flags are true, unchanged harness finalization preserves the exact scenario error, and original-scope IPv4/IPv6 port 4375 probes refuse connections. The two-ended return 7a60e84c matches on both ends and records owner-lock absence, closed marker, returned 925605 and restored stub. Reviewer did not inspect private profile or dependency storage.",
+    "All spent epochs, the inherited terminal open observation and the current terminal open observation are counted exactly once. Canonical total 3197.3333333333335 active seconds, M3 total 1358.3333333333333, original conversion 704.0833333333333 and post-original-conversion 654.25 remain within 4800 / 2400 / 1800 limits. Owned scenario wall 7,464,156 ms and M3 wall 3,834,891 ms remain within their reviewed caps. Owned wall includes paused waits and inherited owned time; closed-process intervals and harness startup/cleanup are separately outside that maintained scenario measure.",
+    "All 104 frozen publication copies match allowlisted source bytes, totaling 21,274,869 bytes; the exact victory PNG was visually inspected. Caption states observed M1-to-M3 completion, failed envelope, retained failures/stops, later playing Save versus victory profile, remaining buildings/losses and native/projection limits accurately. Twelve existing relative links resolve; the one intended independent-review link must be completed by appending these exact review artifacts before publication."
+  ],
+  "commands": {
+    "ordinary": 46,
+    "authenticatedPreserving": 1,
+    "inputFiles": 11,
+    "verifiedOrders": 8,
+    "commandAuditSha256": "8336589783ece83fc6bdd01fa6308061c2d257700f4e10b75f6a3bfc6339b99a"
+  },
+  "victory": {
+    "level": 3,
+    "turn": 13480,
+    "committedCompleted": [
+      1,
+      2,
+      3
+    ],
+    "committedReadbackAt": "2026-10-05T22:51:34.515Z",
+    "profileSha256": "d89f2a16deae24e02c494c5be8cc20b0d3c19bee1048c492a20c93fad65facfb",
+    "survivingWarriors": 5,
+    "remainingYellowBuildings": [
+      {
+        "id": 1023,
+        "kind": "tower",
+        "hp": 52,
+        "inside": 0
+      },
+      {
+        "id": 1022,
+        "kind": "temple",
+        "hp": 65,
+        "inside": 0
+      }
+    ],
+    "screenshot": {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-02/m3-genuine-campaign-victory-result.png",
+      "sha256": "61c3c6f51925190ae4374c31ed5e41ccbbac33cce022a29b74f5a90e44683154"
+    },
+    "snapshotSha256": "7c7bb9849b12e2d219c0200918a70c7c275b61cdc9d5f5561d1885c60665408c"
+  },
+  "latestCheckpoint": {
+    "version": 1,
+    "level": 3,
+    "turn": 9047,
+    "time": 753.9166666666666,
+    "checkpointSha256": "ea74a69178c1aef6658c920058f97a1a71a0e32deeee681c7c347f399eb092ab",
+    "actorsSha256": "cd5afcc7e459b0a65d592c33d325c6e7bb2ef3b073d99bfa39cef07ce9f3fda9",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "467e67f40eaa1abfb756dc54b25f29fe162d345ec61be93690032b13741188e0"
+  },
+  "failureAccounting": {
+    "terminalHarnessStatus": "failed",
+    "inheritedHelperFailures": 2,
+    "inheritedFailedEnvelopeRecord": 1,
+    "inheritedAutomaticStops": 1,
+    "newHelperFailures": 0,
+    "newRequestedPreservingStops": 1,
+    "browserErrors": [],
+    "warnings": 8
+  },
+  "budgets": {
+    "missionActiveSeconds": {
+      "1": 697.5833333333333,
+      "2": 1141.4166666666665,
+      "3": 1358.3333333333333
+    },
+    "campaignActiveSeconds": 3197.3333333333335,
+    "campaignActiveRemaining": 1602.6666666666665,
+    "originalConversionMissionActiveSeconds": 704.0833333333333,
+    "currentReplacementMissionActiveSeconds": 911.0833333333334,
+    "postOriginalConversionSeconds": 654.25,
+    "mission3EffectiveCeiling": 2400,
+    "mission3ActiveRemaining": 1041.6666666666667,
+    "postConversionRemaining": 1145.75,
+    "inheritedOwnedWallMs": 5801958,
+    "segmentOwnedWallMs": 1662198,
+    "totalOwnedWallMs": 7464156,
+    "totalOwnedWallRemainingMs": 5135844,
+    "missionWallMs": {
+      "1": 1589523,
+      "2": 2039727,
+      "3": 3834891
+    },
+    "mission3WallRemainingMs": 1565109,
+    "mission3SegmentWallAddedMs": 1662192,
+    "note": "Owned scenario wall includes inherited owned time and paused waits; excludes closed-process intervals and harness startup/cleanup. Separate current timer initializations produce 6ms campaign-versus-mission increment difference. No reset."
+  },
+  "publication": {
+    "kind": "independent-publication-copies-and-caption-verification",
+    "decision": "ACCEPT FROZEN COPIES AND CAPTION",
+    "reviewedAt": "2026-10-05T23:00:02.235045+00:00",
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity-evidence/references/verification/current-campaign-continuity-source-2026-10-05/mission-three-victory-ce37f851",
+    "manifestSha256": "2201e9ae2b6d548467d47e1a35b39fec767f31703fbb49d4fcc218b6d64565c6",
+    "readmeSha256": "94da1de27b4841b715a028f6081621d01caa32e5cf17095ebce1231a69f13a11",
+    "copies": 104,
+    "bytes": 21274869,
+    "relativeLinksVerified": 12,
+    "pendingExpectedReviewLink": [
+      "independent-review/review.json"
+    ],
+    "captionAssessment": "Actual M3 victory and committed profile readback, exact same-profile M1/M2 chain, genuine Load/current conversion/Erosion, retained failed envelope/stops, Save9047 playing-state separation, remaining buildings/losses and native/projection limits are accurate. Append only the exact final review artifacts before publication; the expected independent-review link then resolves.",
+    "readOnlyScope": "Copied public allowlist evidence and source only; no private profile or dependency reads."
+  },
+  "limits": [
+    "No clean harness or clean overall campaign envelope PASS.",
+    "Only Missions1 through3 earned; Mission 4 was not started.",
+    "Prior independent attempt01/02 failures retain their separate profiles and unresolved causes.",
+    "Exact native replay lacks retained RNG/full native terrain inputs; source/lifecycle correspondence is the accepted native scope.",
+    "No9047 Load/native-land restoration proof, exclusive terrain/death cause, whole native/pixel parity, calibrated animation timing or hardware performance.",
+    "No new profile lease or continuation authority follows from this review."
+  ],
+  "writes": "Only ignored review artifacts. No browser, profile storage, dependency, production source or package work."
+}

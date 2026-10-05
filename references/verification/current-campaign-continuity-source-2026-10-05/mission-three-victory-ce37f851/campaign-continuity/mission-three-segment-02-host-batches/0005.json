@@ -1,0 +1,44 @@
+{
+  "queuedAt": "2026-10-05T22:39:09.226607+00:00",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "index": 5,
+  "commandsSha256": "a6e32a472ad17ecb45418a54aa51414f1f3eb773d1e947d3e1118c8347ed5895",
+  "snapshotSha256": "4a2b99bbed2ad75127035ef2dc15c81681b8d9f7c454cbbbad872c405b36244e",
+  "reason": "All8 healthy selected Warriors arrived at forward post; attack actual closest occupied Yellow Hut1016, observe exact target retirement then pause. No Preacher/Shaman order and no safety guarantee.",
+  "commands": [
+    {
+      "action": "resume"
+    },
+    {
+      "action": "order-entity",
+      "collection": "buildings",
+      "id": 1016
+    },
+    {
+      "action": "wait",
+      "condition": {
+        "type": "target-gone",
+        "id": 1016
+      },
+      "scope": "combat",
+      "watchIds": [
+        1016,
+        3168,
+        3169,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ]
+    },
+    {
+      "action": "pause"
+    },
+    {
+      "action": "snapshot",
+      "name": "m3-southern-hut-cleared"
+    }
+  ]
+}

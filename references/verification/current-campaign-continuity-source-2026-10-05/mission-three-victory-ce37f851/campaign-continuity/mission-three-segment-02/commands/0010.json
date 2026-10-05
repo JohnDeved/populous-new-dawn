@@ -1,0 +1,9 @@
+[
+  {
+    "action": "prove-victory"
+  },
+  {
+    "action": "snapshot",
+    "name": "m3-genuine-campaign-victory-result"
+  }
+]

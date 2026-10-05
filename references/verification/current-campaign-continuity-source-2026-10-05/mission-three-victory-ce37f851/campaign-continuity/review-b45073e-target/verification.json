@@ -1,0 +1,70 @@
+{
+  "status": "PASS TARGET SOURCE/BUILD/CORRESPONDENCE",
+  "reviewedAt": "2026-10-05T22:15:23.236Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "commit": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+    "tree": "dcdfb5a756e5fbf0ae26a780c1a1e97073f3e6d3",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "5f36e2f0ddd2825514ba385c768449b0d02501a994f0501be3a203011a0e517f"
+  },
+  "inputs": {
+    "application": "d199649478e710b0b90a2228927645232ef35b687fa2c5899cbad81babb4cfda",
+    "checker": "9b3932ba7f799e6cad6ff033e18f4bc5b635f00122c6c93a324aff784fba90db"
+  },
+  "markerSha256": "09a55e10aecf54472e8a1848f695f26893e200bee98c334f9e116eeaab10bb79",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "previousRun": "bcf8ac55-e418-49e4-a3d6-b7e804ee31d3",
+  "previousReceiptSha256": "5a934ae4e50ef69bc353ec66df5eb64e90cb2be50d06848650aeec23c31e7214",
+  "checkpoint": {
+    "version": 1,
+    "level": 3,
+    "turn": 7424,
+    "time": 618.6666666666666,
+    "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+    "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+  },
+  "correspondence": {
+    "path": "work/orchestration/campaign-continuity/b45073e-source-correspondence.json",
+    "sha256": "a31808a547ebee181838fb7649bc67140aff1532a0989e27788f9fe6efa71b96"
+  },
+  "sourceReview": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/review-b45073e/review.json",
+    "sha256": "ed04c3cfc16a5531fb40dcdfe62b467b22d70af35555f6aa50c85060506d0fe0"
+  },
+  "checkoutPlan": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-checkout-build-plan.json",
+    "sha256": "96fcdff32251ba68818bd536bce8e351ab893f38fb5526ee3247fc3143f2dfcc"
+  },
+  "adoption": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-adoption.json",
+    "sha256": "5a20e46bd523966a9a7e00e2b666a8e12d5a5fc13ab5ff3c6b19af2ece187904"
+  },
+  "preservation": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-post-build-preservation.json",
+    "sha256": "15cf221f7b9ec134edf8b3d7aaae96d27ba9426ec1f776e2fa955c848a694add",
+    "inventorySha256": "4e8f933cfd9e6315908e1c3ebeb9737232944ec3a6eb94e289950d1d4f5ec000",
+    "inventoriedFiles": 6398,
+    "privateProfileFiles": 1368,
+    "scope": "Verified retained before/after inventory bytes/hash/counts and post-build receipt linkage. Read current marker and checked ownership marker absence. Private browser/storage file contents were not rehashed or opened by reviewer."
+  },
+  "build": {
+    "path": "work/orchestration/campaign-continuity/b45073e-build.json",
+    "sha256": "67e4caf6e9d556e97e247a956ed468000110d6ab9174174663d5fbda9471a834",
+    "exitCode": 0,
+    "signal": null,
+    "durationMs": 17843
+  },
+  "retained": {
+    "activeSeconds": 2692.666666666667,
+    "missionThreeActiveSeconds": 853.6666666666666,
+    "failures": 3,
+    "controlStops": 1,
+    "originalConversionMark": 704.0833333333333
+  },
+  "operationalLaunchAccepted": false
+}

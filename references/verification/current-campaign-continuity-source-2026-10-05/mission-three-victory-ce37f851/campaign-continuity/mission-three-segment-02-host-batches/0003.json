@@ -1,0 +1,58 @@
+{
+  "queuedAt": "2026-10-05T22:30:20.041250+00:00",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "index": 3,
+  "commandsSha256": "3aa89490c00fed8a929c0155550c5d9c006df14c919ad2dcdaf0ffbca278e7f8",
+  "snapshotSha256": "179655ff9d2a9aa8eff8648ac9be99855b2772328ff5c9e927e6295f0e0beec1",
+  "reason": "Preserve actual completed Erosion with ordinary Save, then one finite3-Brave Camp order; keep3 home builders and wait only first new Warrior before paused count/queue",
+  "commands": [
+    {
+      "action": "checkpoint",
+      "name": "erosion-complete"
+    },
+    {
+      "action": "resume"
+    },
+    {
+      "action": "select-units",
+      "ids": [
+        516,
+        510,
+        303
+      ]
+    },
+    {
+      "action": "order-entity",
+      "collection": "buildings",
+      "id": 1018
+    },
+    {
+      "action": "wait",
+      "condition": {
+        "type": "trained-kind",
+        "kind": "warrior",
+        "existingIds": [
+          3168,
+          3169,
+          3170,
+          3171,
+          3172
+        ]
+      },
+      "scope": "training",
+      "watchIds": [
+        1018,
+        516,
+        510,
+        303
+      ]
+    },
+    {
+      "action": "pause"
+    },
+    {
+      "action": "snapshot",
+      "name": "m3-first-reinforcement-count"
+    }
+  ]
+}

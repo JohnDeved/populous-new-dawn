@@ -1,0 +1,21 @@
+{
+  "queuedAt": "2026-10-05T22:27:29.136582+00:00",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "index": 2,
+  "commandsSha256": "4fbee7c4d558852143423944d2545d8505c0b02071d918e3f579e9aeed2ffbb3",
+  "snapshotSha256": "a1a0f05efc90c5b483ff1bd6faa202653f81c31b42ed2f39eae93280dd05cd5a",
+  "observedTurn": 8363,
+  "reason": "Fresh current converted Brave3298 healthy; Preacher3181 retains sermon; no effects; reviewed ordinary Erosion wrapper with named worker guard",
+  "commands": [
+    {
+      "action": "erosion"
+    },
+    {
+      "action": "pause"
+    },
+    {
+      "action": "snapshot",
+      "name": "m3-brave-erosion-retired"
+    }
+  ]
+}

@@ -1,0 +1,24 @@
+{
+  "status": "queued",
+  "startedAt": "2026-10-05T22:24:40.862191+00:00",
+  "queuedAt": "2026-10-05T22:25:02.139900+00:00",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "firstBatchSha256": "c5c6f1c87979d472b4abfd1699a95b1c2100c6e31bd154fcdd8ba096f156f157",
+  "journalPrefixSha256": "6a2f9f4f3c55ae64b35616a0a864d6e1e7ae729e2bcb9b921dd2a28446c8f899",
+  "openingSha256": "6d6cb7a1ebf85d473a6b035ee1d9fc069301d222c2841eaeadb7f533002158d1",
+  "pausedTurn": 7439,
+  "checkpoint": {
+    "version": 1,
+    "level": 3,
+    "turn": 7424,
+    "time": 618.6666666666666,
+    "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+    "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+  },
+  "gateAt": "2026-10-05T22:25:02.116Z",
+  "helperSha256": "25c40895e0115ae073a310d678f27ec2648096e78654aecd912075c4ffe2bd10",
+  "scope": "One prepared ordinary first batch after actual Load/current identities; no browser/model/storage mutation"
+}

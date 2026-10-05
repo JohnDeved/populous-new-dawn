@@ -1,0 +1,44 @@
+{
+  "queuedAt": "2026-10-05T22:44:09.369979+00:00",
+  "runId": "ce37f851-390c-473a-a68e-bbfc05f900e2",
+  "index": 7,
+  "commandsSha256": "d1f1e6a96d3c29a7bf108e06a004a308579af7a3d9fb7c540ede6fc59e0ee50e",
+  "snapshotSha256": "e94bec150be6d4fd77583d1fdbad42cd0f0dd1765da42bad6d1864073cc36fda",
+  "reason": "Hut1015 absent and8 surviving Warriors; next finite attack on actual occupied northern Hut1020 near the existing army. Named target progress only; pause/count after retirement.",
+  "commands": [
+    {
+      "action": "resume"
+    },
+    {
+      "action": "order-entity",
+      "collection": "buildings",
+      "id": 1020
+    },
+    {
+      "action": "wait",
+      "condition": {
+        "type": "target-gone",
+        "id": 1020
+      },
+      "scope": "combat",
+      "watchIds": [
+        1020,
+        3168,
+        3169,
+        3170,
+        3171,
+        3172,
+        3340,
+        3341,
+        3342
+      ]
+    },
+    {
+      "action": "pause"
+    },
+    {
+      "action": "snapshot",
+      "name": "m3-northern-hut-cleared"
+    }
+  ]
+}

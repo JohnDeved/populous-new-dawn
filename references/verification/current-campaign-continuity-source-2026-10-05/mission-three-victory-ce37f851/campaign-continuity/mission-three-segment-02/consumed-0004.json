@@ -1,0 +1,55 @@
+[
+  {
+    "action": "select-units",
+    "ids": [
+      3168,
+      3169,
+      3170,
+      3171,
+      3172,
+      3340,
+      3341,
+      3342
+    ]
+  },
+  {
+    "action": "resume"
+  },
+  {
+    "action": "move",
+    "point": {
+      "x": 6,
+      "z": -115
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 3168,
+      "point": {
+        "x": 6,
+        "z": -115
+      },
+      "distance": 8
+    },
+    "scope": "movement",
+    "watchIds": [
+      3168,
+      3169,
+      3170,
+      3171,
+      3172,
+      3340,
+      3341,
+      3342
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m3-eight-warrior-forward-stage"
+  }
+]

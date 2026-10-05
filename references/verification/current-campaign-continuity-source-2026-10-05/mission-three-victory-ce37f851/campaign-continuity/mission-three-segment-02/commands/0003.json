@@ -1,0 +1,50 @@
+[
+  {
+    "action": "checkpoint",
+    "name": "erosion-complete"
+  },
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select-units",
+    "ids": [
+      516,
+      510,
+      303
+    ]
+  },
+  {
+    "action": "order-entity",
+    "collection": "buildings",
+    "id": 1018
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "trained-kind",
+      "kind": "warrior",
+      "existingIds": [
+        3168,
+        3169,
+        3170,
+        3171,
+        3172
+      ]
+    },
+    "scope": "training",
+    "watchIds": [
+      1018,
+      516,
+      510,
+      303
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m3-first-reinforcement-count"
+  }
+]
