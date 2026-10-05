@@ -253,7 +253,8 @@ export default async function campaignContinuity({ page, output, root, signal, r
     finally { await page.mouse.up({ button: 'right' }) }
     await page.mouse.move(400, 780); await page.waitForTimeout(600)
   }
-  const entityHit = (collection, id) => page.evaluate(({ collection, id }) => {
+  const entityHit = (collection, id) => page.evaluate(async ({ collection, id }) => {
+    const { findEntityInput, inspectEntityPoint } = await import('/qa/campaign-continuity/command-probes.mjs')
     const s = window.testSceneRef.current, o = s.world[collection].find(o => o.id === id)
     if (!o) return null
     const r = s.container.getBoundingClientRect(), candidates = []
@@ -273,13 +274,8 @@ export default async function campaignContinuity({ page, output, root, signal, r
             y: r.y + points.reduce((sum, p, i) => sum + p.y * weights[i], 0) / total })
         }
     })
-    for (const p of candidates) {
-      if (document.elementFromPoint(p.x, p.y) !== s.renderer.domElement) continue
-      const e = { clientX: p.x, clientY: p.y }, person = s.picking.pickPerson(e)
-      const hit = collection === 'units' ? person : person !== null ? person : s.pickWorldObject(e)?.id
-      if (hit === id) return { ...p, id, collection, turn: s.world.turn }
-    }
-    return null
+    const hit = findEntityInput(candidates, id, point => inspectEntityPoint(s, collection, point))
+    return hit && { ...hit, id, collection, turn: s.world.turn }
   }, { collection, id })
   const resolveId = value => {
     const id = typeof value === 'number' ? value : ids[value]
@@ -322,6 +318,49 @@ export default async function campaignContinuity({ page, output, root, signal, r
     health(state); assert.equal(state.paused, false); assert.equal(state.inputMask, 0)
     assert.equal(state.mode, null); assert.ok(state.selected.length, 'Ordinary order needs selected followers')
   }
+  const prepareEntityClick = async (hit, before) => {
+    const context = await page.evaluate(async hit => {
+      const { createMoveContextProbe } = await import('/qa/campaign-continuity/command-probes.mjs')
+      const s = window.testSceneRef.current, target = s.world[hit.collection].find(o => o.id === hit.id)
+      return { turn: s.world.turn, selected: [...s.world.selected], targetId: target?.id ?? null,
+        scope: 'Source-owned synchronization and command classification on a detached clone only',
+        context: target ? createMoveContextProbe(s.world)(target) : null }
+    }, hit)
+    log({ action: 'entity-detached-command-context', hit, observed: context })
+    const { requireEntityContext } = await import('./command-probes.mjs')
+    requireEntityContext(hit, context, before)
+    // This final, synchronous inspection occurs after both the expensive before
+    // snapshot and detached context probe. No full read follows before input.
+    const fresh = await page.evaluate(async ({ hit, selected }) => {
+      const { findEntityInput, inspectEntityPoint, observeEntityPointer } = await import('/qa/campaign-continuity/command-probes.mjs')
+      const s = window.testSceneRef.current, w = s.world
+      if (window.campaignEntityPointer) throw Error('An entity pointer observer is already active')
+      const point = findEntityInput([hit], hit.id, point => inspectEntityPoint(s, hit.collection, point))
+      const valid = Number.isInteger(hit.x) && Number.isInteger(hit.y) && !!point &&
+        !w.paused && w.status === 'playing' && !w.inputMask && w.mode === null &&
+        JSON.stringify(w.selected) === JSON.stringify(selected)
+      if (valid) window.campaignEntityPointer = observeEntityPointer(s)
+      return { turn: w.turn, point, valid, selected: [...w.selected] }
+    }, { hit, selected: before.selected })
+    log({ action: 'entity-immediate-hit-revalidation', hit, fresh })
+    assert.equal(fresh.valid, true, 'Entity integer interior target became stale before input')
+  }
+  const finishEntityClick = async (hit, expected) => {
+    const observed = await page.evaluate(() => {
+      const observer = window.campaignEntityPointer
+      if (!observer) return null
+      delete window.campaignEntityPointer
+      return observer.finish()
+    })
+    log({ action: 'entity-delivered-pointer-observation', hit, observed })
+    if (!expected && !observed) return
+    assert.equal(observed?.restored, true, 'Restore the actual picker functions after input')
+    assert.deepEqual(observed.errors, [])
+    if (expected) assert.deepEqual(observed.events.map(event => ({ type: event.type, x: event.x, y: event.y,
+      button: event.button, canvasOwned: event.canvasOwned, canvasTarget: event.canvasTarget })),
+    ['pointerdown', 'pointerup'].map(type => ({ type, x: hit.x, y: hit.y, button: 0, canvasOwned: true, canvasTarget: true })),
+    'Retain the actually delivered ordinary pointer pair at the validated integer point')
+  }
   const clickOrder = async hit => {
     let before = await read(); requireOrderable(before)
     requireDeclaredPreacherOrder(before, !!sermonPlan)
@@ -336,8 +375,13 @@ export default async function campaignContinuity({ page, output, root, signal, r
       before = await read(); requireOrderable(before)
       await capturePendingSermon(before, { beforeWorldClick: hit })
     }
-    log({ action: 'world-order-click', hit, selected: before.selected })
-    await page.mouse.click(hit.x, hit.y); await page.mouse.move(400, 780)
+    let entityPrepared = false
+    try {
+      if (hit.id) { await prepareEntityClick(hit, before); entityPrepared = true }
+      log({ action: 'world-order-click', hit, selected: before.selected })
+      await page.mouse.click(hit.x, hit.y)
+    } finally { if (hit.id) await finishEntityClick(hit, entityPrepared) }
+    await page.mouse.move(400, 780)
     const after = await read()
     const commandState = state => ({ turn: state.turn, lastOrderTurn: state.lastOrderTurn,
       pointerAck: state.pointerAck, selected: state.selected, effects: state.effects,

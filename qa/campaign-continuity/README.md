@@ -6,7 +6,7 @@ Source checkpoint for a fresh Mission 1 → 2 → 3 journey on accepted main
 The adopted app subtree is `aff807de3b17b32922b2f7e94e94016c22fdc054`,
 identical to reviewed PR217 candidate `d8897cf`. The run policy pins actual accepted
 main ancestry, current app tree and eight helper imports, and requires clean
-source. The explicit `launchEnabled: true` policy is prepared for final review.
+source. The explicit `launchEnabled: true` policy still requires exact source review.
 No browser/profile execution occurs before the coordinator grants the exact run.
 All changes relative to accepted main are under this QA directory.
 
@@ -18,8 +18,10 @@ coordinator release. Never use an old Mission 3 profile or its recovery records.
 ## Reuse and new boundaries
 
 `reuse.json` identifies every carried source file and each unchanged action body
-by its original commit/path/hash. The four passive observation/probe/control
-modules are copied byte-for-byte from accepted `5de3c57`. Their historical unit
+by its original commit/path/hash. The observation, Erosion and queued-stop
+modules are copied byte-for-byte from accepted `5de3c57`. The command-probe module
+retains its original clone-only bodies and adds the bounded entity-input checks
+described below; its changed hash is explicit. Their historical unit
 fixtures are source tests, not gameplay evidence. The current scenario reuses the
 ordinary selection, actual canvas/minimap picking, clone-only legality probes,
 construction/training, prospective sermon, cancellation, conversion and Erosion
@@ -138,3 +140,30 @@ shrine-linked Erosion onset/countdown/removal and victory all remain to be earne
 Three campaign victories would prove observed browser continuity. Whole native
 parity, calibrated animation timing (#214), original pixel comparison and hardware
 GPU performance remain separate.
+
+## First-attempt input repair
+
+The first fresh run on `901a4e1` reached readiness but failed its initial shrine
+command with no dispatch or acknowledgement. Its one failure, one preserving
+stop, unchanged empty checkpoint and verified normal cleanup are retained in the
+[reviewed failed-attempt packet](https://github.com/JohnDeved/populous-new-dawn/blob/940768091071b3f8123e12b1f8c63bb384268aa6/references/verification/current-campaign-continuity-source-2026-10-05/adoption-901a4e1/README.md).
+The original dispatch-time cause is unresolved and no application regression is
+claimed. That profile has no mission-boundary record and cannot be resumed here.
+
+Entity picking now chooses an integer canvas point whose whole sampled 5×5 pixel
+neighborhood still identifies the named object. After the expensive before-state
+read, a detached clone supplies a separately labelled command-context diagnostic;
+disabled contexts reject. The final synchronous picker then revalidates the same
+integer point, live selection and orderable state immediately before ordinary
+input. A stale point rejects rather than changing or forcing the order.
+
+For that click only, lightweight capture records delivered pointer coordinates,
+buttons and DOM ownership. Temporary picker wrappers call each original exactly
+once with its original receiver/arguments, preserve its result and observe the
+actual handler's returned IDs. They perform no ahead-of-handler clone/validation
+work and are restored in `finally`, including failed input. The existing fresh
+dispatch, pointer acknowledgement and selected-recipient assertions are unchanged.
+Focused tests cover fractional edges, stale targets, disabled contexts, actual
+scenario routing and noninterfering wrapper restoration. This is a QA robustness
+repair awaiting independent review and a new exact runtime grant; no replay or
+profile transition is performed by the source change.

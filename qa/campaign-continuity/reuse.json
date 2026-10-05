@@ -21,12 +21,6 @@
       "byteIdentical": true
     },
     {
-      "path": "command-probes.mjs",
-      "sourcePath": "qa/mission-three-controls/command-probes.mjs",
-      "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f",
-      "byteIdentical": true
-    },
-    {
       "path": "observation.test.mjs",
       "sourcePath": "qa/mission-three-controls/observation.test.mjs",
       "sha256": "53011926b04fc7dbfcad32d3318015a6f1736e67f5c75ae6ad62d2ddfd182a4a",
@@ -82,19 +76,9 @@
       "currentSha256": "aa4d1d59f37e1fb6f15e2bf198c1328b999f4ab0f818b27a8953efcfe72870d3"
     },
     {
-      "name": "clickOrder",
-      "sourceSha256": "0bcdcda0386b72c89749ac6422966c208d5fe6a71d3aed9504863233457963da",
-      "currentSha256": "0bcdcda0386b72c89749ac6422966c208d5fe6a71d3aed9504863233457963da"
-    },
-    {
       "name": "consumeQueuedStop",
       "sourceSha256": "2908f3f81b56ea2f16dbfae05040b4f87a4fbc87fbd4ab620132093abe18ff55",
       "currentSha256": "2908f3f81b56ea2f16dbfae05040b4f87a4fbc87fbd4ab620132093abe18ff55"
-    },
-    {
-      "name": "entityHit",
-      "sourceSha256": "7b90527f9d78d0d2df4154d4a4facb3ef6f44898c944367b7c0077c27731f7d8",
-      "currentSha256": "7b90527f9d78d0d2df4154d4a4facb3ef6f44898c944367b7c0077c27731f7d8"
     },
     {
       "name": "finishPreacherTraining",
@@ -199,6 +183,11 @@
       "currentSha256": "e9e6f5049e4dafe8b089bc91d5f3a400f108c2dc93a714aea7a97bc54531aa63"
     },
     {
+      "name": "clickOrder",
+      "sourceSha256": "0bcdcda0386b72c89749ac6422966c208d5fe6a71d3aed9504863233457963da",
+      "currentSha256": "cc68d8195628247828e0fc9ae257c57fe8692350da862606784aa114a74526d1"
+    },
+    {
       "name": "completeConversion",
       "sourceSha256": "04b6a8b3bcc17978f6b18cf99e6768ca7f8a26b6845e421dbc395c94948b071c",
       "currentSha256": "d6f430bf34552bc87254de921bc128cabef3f94d95aa8c527edb1279b7dc5c18"
@@ -222,6 +211,11 @@
       "name": "endEpoch",
       "sourceSha256": "f652f676572cfa40ab2180932446d3e80802004693d59de5931377cf5924e15b",
       "currentSha256": "e31e838b9f1627db6b5e2b507495ea79c735bfec5acf57fc52b5962b2d3b1823"
+    },
+    {
+      "name": "entityHit",
+      "sourceSha256": "7b90527f9d78d0d2df4154d4a4facb3ef6f44898c944367b7c0077c27731f7d8",
+      "currentSha256": "1a141839e778712158f0cad671a951909a3463e849a765e50bf7a1c8ab0fdce8"
     },
     {
       "name": "erosion",
@@ -314,5 +308,24 @@
       "currentSha256": "0388f036d21e8003983d83a62388a7cc40861a76a6641943486b66c213e0fd86"
     }
   ],
-  "scope": "Hashes establish source reuse only, never fresh gameplay evidence. Section hashes extend to the next two-space const declaration."
+  "scope": "Hashes establish source reuse only, never fresh gameplay evidence. Section hashes extend to the next two-space const declaration.",
+  "adaptedFiles": [
+    {
+      "path": "command-probes.mjs",
+      "sourcePath": "qa/mission-three-controls/command-probes.mjs",
+      "sourceSha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f",
+      "currentSha256": "4361392253e40746e7a7957bf840691e9869d7e5f00fccc9210ff582f5a5d7cb",
+      "scope": "Original clone-only probe prefix is byte-identical; entity input picking and passive pointer diagnostics are appended."
+    }
+  ],
+  "newActionSections": [
+    {
+      "name": "prepareEntityClick",
+      "currentSha256": "d35099dbedccaae26e7b7e6a1cffbf13a17afc5d7a8be94c3b9f5c5f39870089"
+    },
+    {
+      "name": "finishEntityClick",
+      "currentSha256": "504a3a139a641543cef0d51413b1bc96ee08d7aa7fff63f0636a284032ecbba9"
+    }
+  ]
 }
