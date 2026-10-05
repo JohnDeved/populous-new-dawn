@@ -1,0 +1,26 @@
+{
+  "head": "4ea7e56fc4b42fa91c1bb49d5f894237b67cbda2",
+  "health": "passed",
+  "duplicates": "passed",
+  "unused": "failed advisory findings retained",
+  "format": "failed inherited findings retained",
+  "formatFiles": [
+    "app/render-view.ts",
+    "app/viewport-bounds.ts"
+  ],
+  "unusedSummary": {
+    "unusedFiles": 7,
+    "unusedDevDependencies": 3,
+    "unlistedDependencies": 1,
+    "cycles": 20,
+    "currentUnresolved": 37,
+    "priorUnresolved": 36
+  },
+  "generatedRouteType": {
+    "currentReportMentions": true,
+    "priorReportMentions": false,
+    "existsInCurrent": false,
+    "existsInPriorBuildTree": true
+  },
+  "scope": "No unused report entry names the new worship acquisition modules. The extra current unresolved route-type import belongs to a build output not yet generated in this feature tree. No broad cleanup or assertion suppression was performed."
+}

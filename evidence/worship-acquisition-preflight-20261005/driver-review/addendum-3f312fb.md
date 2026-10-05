@@ -1,0 +1,16 @@
+# Repaired driver preflight
+
+**ACCEPT source preflight for `3f312fbd5389877c1d37d93f94402b177959250e`.** The initial `c81889d` rejection remains preserved. No browser result is claimed, and parent browser-lane authorization is still required.
+
+Reviewed the complete repair (+76/−16 lines) against `c81889d7b3aa7fefa2fd6680e4dcebdb834a6565`. Driver SHA-256: `994d40b600445f6df93be1e479982a0d7b794818ea64d38ae695412f7b6bbd2b`. Repair diff SHA-256: `4815211b46883c2391000f9c669b6f268c135a95db26e7cb3f468f7e84e72665`. All 23 current manifest input hashes match committed bytes; manifest SHA-256 `1a3f6b268698ec6de5c433ab785df38ec60f477de37fb1a8aa85c54ce1a2e07e`. Application/public/package/TypeScript inputs still match reviewed `c15edac`. Node syntax and diff whitespace checks passed. Receipt: `repair-3f312fb-receipt.json`.
+
+Repairs verified:
+
+- Every `worshipOrder` now handles the public Resume control, waits for an active input gate with the ordinary Skip introduction control where visible, then calls the existing sequential host-awaited `waitForShamanReadiness`. It asserts current scene/store identity, connected renderer, no loader, unpaused World and inputMask zero before selection. Readiness and skipped flyby observations are retained per order. This closes the M2 post-bridge flyby gap without mutating input-mask/timer/World/RNG state.
+- Save now explicitly captures and asserts the connected current World is paused after the settings dialog opens, before using its turn as the saved-record boundary. The readonly transaction polling and synchronous Load snapshot remain separate from later automatic progression.
+- Bounded before/after snapshots bracket only owned overlay draw work and compare acquisition plus gameplay/cosmetic RNG state. Existing Lightning consumption outside that interval is excluded. Each route must retain a changed body pose with a matching previous binding and a fraction strictly between zero and one. This establishes sampled live interpolation correspondence, not high-refresh smoothness or hardware performance.
+- Pixel limits now expressly distinguish reused production layout expectations from an independent full raster oracle. Optional checks map up to eight opaque interior source texels into an eligible unrotated overlay sample and compare exact RGBA; body opacity makes those selected pixels independent of companions behind them. No eligible sample is explicitly recorded as unproved. This optional check may be absent at ordinary scale/DPR and must not be described as a pass of general raster equivalence.
+
+The four primary routes, separate genuine `89c9629` baseline, early observer installation, real RAF, original-once callback wrappers, exact canonical source-frame hash, bounded actual output crops, cue/clamp/next-turn payout and retirement assertions remain intact.
+
+Source acceptance is limited to this driver and its declared diagnostics. Actual M1/M2 completion, mode/tab/resize behavior, storage continuation and pixel observations must still pass a run with inspected artifacts. In-flight/pulse-tail restores, pause/hidden transitions, DPR/HUD preference changes, simultaneous/replacement cases, missing-bridge behavior, full application checks and representative performance remain separate outstanding acceptance. No browser/server/package/full job was started during review.

@@ -1,0 +1,43 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "00ed48a8-61e4-4b83-af1f-1492dd21d300",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4ea7e56fc4b42fa91c1bb49d5f894237b67cbda2",
+    "branch": "feat/issue30-worship-acquisition",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "npm",
+    "run",
+    "format:check"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter",
+  "startedAt": "2026-10-05T02:25:01.641Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter/work/orchestration/worship-acquisition-adapter/quality-4ea7e56/format.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter/work/orchestration/worship-acquisition-adapter/quality-4ea7e56/format.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T02:25:02.022Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 format:check\n> oxfmt --check \"app/**/*.{ts,tsx}\"\n\nChecking formatting...\n\napp/render-view.ts (1ms)\napp/viewport-bounds.ts (0ms)\n\nFormat issues found in above 2 files. Run without `--check` to fix.\nFinished in 29ms on 241 files using 9 threads.\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n",
+  "stdoutSha256": "c6aaaa65aada576dc03851e939dd503ef5232a377f1dc66669b7befc2bce86d4",
+  "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+  "sourceAfter": {
+    "headOid": "4ea7e56fc4b42fa91c1bb49d5f894237b67cbda2",
+    "branch": "feat/issue30-worship-acquisition",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

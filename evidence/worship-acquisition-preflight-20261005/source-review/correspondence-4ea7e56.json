@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "base": "c15edac605fc52d4ebf60ebb8f75e7c903f39d4d",
+  "head": "4ea7e56fc4b42fa91c1bb49d5f894237b67cbda2",
+  "productionInputsUnchanged": [
+    "app",
+    "public",
+    "package.json",
+    "package-lock.json",
+    "tsconfig.json"
+  ],
+  "changedPaths": [
+    "decomp/research/worship-acquisition-adapter.md",
+    "engineering/project-map.json",
+    "scripts/check-worship-acquisition-fixture.mjs"
+  ],
+  "diffSha256": "c07789232bb60b99f21108a51a680ebc3bfca45b9cc315fb15aad35863513f17"
+}

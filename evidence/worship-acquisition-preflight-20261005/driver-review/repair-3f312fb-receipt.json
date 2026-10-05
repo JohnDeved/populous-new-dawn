@@ -1,0 +1,17 @@
+{
+  "status": "passed-source-preflight",
+  "head": "3f312fbd5389877c1d37d93f94402b177959250e",
+  "base": "c81889d7b3aa7fefa2fd6680e4dcebdb834a6565",
+  "driverSha256": "994d40b600445f6df93be1e479982a0d7b794818ea64d38ae695412f7b6bbd2b",
+  "repairDiffSha256": "4815211b46883c2391000f9c669b6f268c135a95db26e7cb3f468f7e84e72665",
+  "manifestSha256": "1a3f6b268698ec6de5c433ab785df38ec60f477de37fb1a8aa85c54ce1a2e07e",
+  "verifiedManifestInputs": 23,
+  "syntaxExit": 0,
+  "applicationEqualsReviewedC15": true,
+  "notRun": [
+    "browser",
+    "server",
+    "package",
+    "full checks"
+  ]
+}

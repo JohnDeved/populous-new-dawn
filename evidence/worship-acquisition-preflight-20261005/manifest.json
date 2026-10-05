@@ -1,0 +1,113 @@
+{
+  "purpose": "Source-only preflight checkpoint for PR211. Preserves first driver review, exact repaired driver ACCEPT, final application correspondence and raw quality findings. No browser, full check, build, pixels or performance result is claimed.",
+  "applicationHead": "4ea7e56fc4b42fa91c1bb49d5f894237b67cbda2",
+  "applicationInputsIdenticalTo": "c15edac605fc52d4ebf60ebb8f75e7c903f39d4d",
+  "driverHead": "3f312fbd5389877c1d37d93f94402b177959250e",
+  "priorEvidenceCommit": "150183466623868dd63d40de38b7566793caf151",
+  "limits": [
+    "Original GPU pixels and measured native FPS remain unclaimed.",
+    "Driver raster expectations reuse production mapping; canonical source/frame hashes and optional opaque texels do not form an independent complete raster oracle.",
+    "Native-equivalent companion identity requires identical intervening shared cosmetic draws.",
+    "Portable fixture includes four of seventeen handoff cases, all ten presentation cases and all three replacement cases.",
+    "Quality failure/advisory statuses remain failures/findings; source preflight does not turn them into passed gates.",
+    "No game/tool binaries, authentication material, browser profiles or installed dependencies included."
+  ],
+  "files": {
+    "source-review/addendum-4ea7e56.md": {
+      "sha256": "17ef6e755e72105d95cf020693fdf8eb489550735a3b51d5acf91d3b0b318b1c",
+      "bytes": 2345,
+      "sourceSha256": "17ef6e755e72105d95cf020693fdf8eb489550735a3b51d5acf91d3b0b318b1c",
+      "sourceBytes": 2345
+    },
+    "source-review/correspondence-4ea7e56.json": {
+      "sha256": "a9bb50dfa1c204c93c150b8ae9781bf172968daf2c24343c20a1ce2a560fd647",
+      "bytes": 512,
+      "sourceSha256": "a9bb50dfa1c204c93c150b8ae9781bf172968daf2c24343c20a1ce2a560fd647",
+      "sourceBytes": 512
+    },
+    "source-review/fixture-auditor-4ea7e56.json": {
+      "sha256": "cec9cdf8604f17b2328ba43031206870003fe60c6914fb023003ad27bc67221f",
+      "bytes": 1424,
+      "sourceSha256": "cec9cdf8604f17b2328ba43031206870003fe60c6914fb023003ad27bc67221f",
+      "sourceBytes": 1424
+    },
+    "quality/disposition.json": {
+      "sha256": "ff5e5dee2a8175d710b4f5021c4192b5ceb3f7f225b206de0f3c4e7f1255b7cd",
+      "bytes": 882,
+      "sourceSha256": "ff5e5dee2a8175d710b4f5021c4192b5ceb3f7f225b206de0f3c4e7f1255b7cd",
+      "sourceBytes": 882
+    },
+    "quality/dupes.json": {
+      "sha256": "e2bb9f79b353998918b88b52745a3f7570acba8fca1f8fc0c5fe17677533b226",
+      "bytes": 13367,
+      "sourceSha256": "e2bb9f79b353998918b88b52745a3f7570acba8fca1f8fc0c5fe17677533b226",
+      "sourceBytes": 13367
+    },
+    "quality/format.json": {
+      "sha256": "d7bef8ecd01935fbe36e357202587d05e89d864c0d4fe6f35f0058bbae773a57",
+      "bytes": 2316,
+      "sourceSha256": "d7bef8ecd01935fbe36e357202587d05e89d864c0d4fe6f35f0058bbae773a57",
+      "sourceBytes": 2316
+    },
+    "quality/health.json": {
+      "sha256": "c43456c4b1acc286ddba8b2f4e66f06499d53dadf3e194f69f2312e3e9ed5f33",
+      "bytes": 47491,
+      "sourceSha256": "c43456c4b1acc286ddba8b2f4e66f06499d53dadf3e194f69f2312e3e9ed5f33",
+      "sourceBytes": 47491
+    },
+    "quality/metadata.json": {
+      "sha256": "15c87c8a1d59488c0ac7d7bbaf89397507391966ce0d29c667ebb1c1869560d2",
+      "bytes": 6441,
+      "sourceSha256": "15c87c8a1d59488c0ac7d7bbaf89397507391966ce0d29c667ebb1c1869560d2",
+      "sourceBytes": 6441
+    },
+    "quality/unused.json": {
+      "sha256": "fde7ce2d2fbef0b144ae9b6f92513d0cadd6d9d91ce6beb967a7ebed3a060f64",
+      "bytes": 6734,
+      "sourceSha256": "fde7ce2d2fbef0b144ae9b6f92513d0cadd6d9d91ce6beb967a7ebed3a060f64",
+      "sourceBytes": 6734
+    },
+    "driver-review/addendum-3f312fb.md": {
+      "sha256": "8803207abfb96acdf523572dd78dda638cabadc307f56d8ef3616c3060e95e00",
+      "bytes": 3349,
+      "sourceSha256": "8803207abfb96acdf523572dd78dda638cabadc307f56d8ef3616c3060e95e00",
+      "sourceBytes": 3349
+    },
+    "driver-review/driver-source.mjs": {
+      "sha256": "4cccf2c04278630321be94af2bc972534b7b8014d9407f72afc2c404ad8fb1b1",
+      "bytes": 34681,
+      "sourceSha256": "4cccf2c04278630321be94af2bc972534b7b8014d9407f72afc2c404ad8fb1b1",
+      "sourceBytes": 34681
+    },
+    "driver-review/repair-3f312fb-receipt.json": {
+      "sha256": "944494622031cbd7695278b41217eea23f7c05af02065944fe721acffb112311",
+      "bytes": 586,
+      "sourceSha256": "944494622031cbd7695278b41217eea23f7c05af02065944fe721acffb112311",
+      "sourceBytes": 586
+    },
+    "driver-review/review.md": {
+      "sha256": "bf5dde132b2f2c309ae9d287855ff0bb463a2c94514d8edd84d4e3d9a7a7953b",
+      "bytes": 5335,
+      "sourceSha256": "bf5dde132b2f2c309ae9d287855ff0bb463a2c94514d8edd84d4e3d9a7a7953b",
+      "sourceBytes": 5335
+    },
+    "driver-review/source-receipt.json": {
+      "sha256": "4f554a480df349dfac3a7ae2ecaef1bf732b39b634341b9b787514b38a30defc",
+      "bytes": 2758,
+      "sourceSha256": "4f554a480df349dfac3a7ae2ecaef1bf732b39b634341b9b787514b38a30defc",
+      "sourceBytes": 2758
+    },
+    "driver/ordinary-worship.mjs": {
+      "sha256": "994d40b600445f6df93be1e479982a0d7b794818ea64d38ae695412f7b6bbd2b",
+      "bytes": 39993,
+      "sourceSha256": "994d40b600445f6df93be1e479982a0d7b794818ea64d38ae695412f7b6bbd2b",
+      "sourceBytes": 39993
+    },
+    "driver/prepared-manifest.json": {
+      "sha256": "1a3f6b268698ec6de5c433ab785df38ec60f477de37fb1a8aa85c54ce1a2e07e",
+      "bytes": 9862,
+      "sourceSha256": "1a3f6b268698ec6de5c433ab785df38ec60f477de37fb1a8aa85c54ce1a2e07e",
+      "sourceBytes": 9862
+    }
+  }
+}

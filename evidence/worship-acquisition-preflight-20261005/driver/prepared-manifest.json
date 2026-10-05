@@ -1,0 +1,130 @@
+{
+  "status": "prepared-only; requires source preflight review and parent browser-lane authorization before launch",
+  "base": "4a75505c5610340de59c7caf53678e3f99888683",
+  "frozenCommit": "3f312fbd5389877c1d37d93f94402b177959250e",
+  "tree": "63b869698602ee3cd2afd66e059d1ba58d376877",
+  "worktree": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/ordinary-worship-browser-driver",
+  "branch": "evidence/ordinary-worship-browser-driver",
+  "writes": [
+    "scripts/local-render/ordinary-worship.mjs",
+    "work/orchestration/ordinary-worship-browser-preflight.json (ignored)"
+  ],
+  "inputsSha256": {
+    "scripts/local-render/ordinary-worship.mjs": "994d40b600445f6df93be1e479982a0d7b794818ea64d38ae695412f7b6bbd2b",
+    "scripts/local-render/harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+    "scripts/local-render/owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+    "scripts/local-render/checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+    "scripts/local-render/vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27",
+    "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+    "scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80",
+    "app/scene-worship-acquisition.ts": "c569987e2ccfda19f18543ac1ddcf49df7dee298f20a132325c141127f7a0c42",
+    "app/worship-acquisition.ts": "0d73b8bd93bcbb77c1863422bd65c53b6e242bb6a43974930b6c72315b341001",
+    "app/worship-acquisition-runtime.ts": "78e4a73406614305067fb3bad7c1ec7351da6060e3dcfef1f32735d1a4c12444",
+    "app/worship-acquisition-layout.ts": "fe2f767eba75ce55c4fd886070e6444b111ba1c9a891865aaaf05f99d96fe588",
+    "app/worship-acquisition-source.ts": "76d96f4b5c584747d09166f48d12b309fbc23b26a2e14422efe945cec86b0626",
+    "app/page.tsx": "50358f6ae119026e8b1f9215fa436126bb26b7595832140c136ed271fbc52fc2",
+    "app/game-clock.ts": "59d9e492f2567a78c70c1e50b6644b09da095aa1dd4fbc5c2ec7e6752fcfa4ee",
+    "app/game-store.ts": "4c92115d19cf3ec04d34a2bb684be77ba70c81d5c413644cc081ebb3b772d2c9",
+    "app/world-turn.ts": "3f5e95e1ef48f28906b2f101962339b948435522491bc962742c0ac29376c334",
+    "app/original-worship-acquisition.json": "c4f9b772840a858fc465f9503ed5143851db36103426c6952fd8cc489a7498d7",
+    "app/original-hud.json": "3b24abb207a0ad2fc92f7225866352f0d485cf9ac7d13fb8b76842fecc928929",
+    "app/original-effects.json": "8e43389fe9610e70fcedbbd8fe63b11d4addf9a001378225ee5ce273c5b83fdb",
+    "public/original/hud.png": "1479f593c925cee6c6af76b1652cb33d8c4cfea4581a9a9559cb03d0568b8ead",
+    "public/original/effects.png": "dabd1d661b2b7cfe82d3f717f045bccbaa082a34ae0e2b0abf812c7744052a97",
+    "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+    "scripts/campaign-start-readiness.mjs": "214ffc2ce95ea039328e356d493ba8beb887e2d5ef1084b672fb0413fac48d28"
+  },
+  "syntaxReceipt": {
+    "command": "node --check scripts/local-render/ordinary-worship.mjs",
+    "node": "v24.19.0",
+    "executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "exitCode": 0,
+    "stdout": "",
+    "stderr": "",
+    "sourceSha256": "994d40b600445f6df93be1e479982a0d7b794818ea64d38ae695412f7b6bbd2b",
+    "toolChunk": "feb90f"
+  },
+  "diffReceipt": {
+    "command": "git diff --check (repair working diff before commit)",
+    "exitCode": 0,
+    "toolChunk": "feb90f"
+  },
+  "notRun": [
+    "browser",
+    "server",
+    "build",
+    "full check",
+    "native jobs",
+    "dependency changes"
+  ],
+  "firstDiagnostic": {
+    "route": "m1-lightning",
+    "baselineMode": "POPULOUS_WORSHIP_BASELINE=1 only with accepted89c9629991489fd1ce6dc52e938d1cec346bfead application HEAD",
+    "method": "Real RAF / shipped M1 entry, Resume as needed, actual six Braves+Shaman, public Brave HUD selection and canvas-owned authored Lightning(11,1) click. Camera assistance before mode setup. Public Buildings/Hut mode then automatic Spells preserves Hut at handoff and arrival. Observers armed before commands. Stock belongs to next world turn, not an unconditional 82-turn claim."
+  },
+  "matrix": [
+    {
+      "route": "m1-lightning",
+      "routeDeadlineMs": 120000,
+      "recommendedHarnessTimeoutMs": 180000
+    },
+    {
+      "route": "m1-bridge-fallback",
+      "routeDeadlineMs": 120000,
+      "recommendedHarnessTimeoutMs": 180000
+    },
+    {
+      "route": "m2-tornado",
+      "routeDeadlineMs": 300000,
+      "recommendedHarnessTimeoutMs": 360000
+    },
+    {
+      "route": "m1-checkpoint-resize",
+      "routeDeadlineMs": 150000,
+      "recommendedHarnessTimeoutMs": 210000
+    }
+  ],
+  "cost": "One row per launch. Route deadline sum 690s (11.5min); harness ceiling sum930s (15.5min), including startup margin. Baseline route120s, harness180s. These are ceilings, not measured durations. Stop after first diagnostic until its receipt is reviewed.",
+  "checkpointBoundary": "Save checkpoint before worship orders, host-awaited readCommittedCheckpoint via waitForCheckpointReadback; fresh page reload then public Load Game. Subscription clones the replacement before automatic resume. Compare exact level/turn/time and actor/terrain/stock hashes; full digest retained, no byte-equality claim because migration resets transient panel reservations. Read stored record again after load. Acquire and resize on fresh page. No storage writes except normal public Save, no export/import.",
+  "hooks": {
+    "candidate": [
+      "scene.onSound after original",
+      "presentation.bridge.select around original",
+      "gameClock.afterTurn before/after original (original contains handoff)",
+      "gameClock.worshipVisit before/after original",
+      "presentation.bridge.measure after original",
+      "overlay 2D context.drawImage after original",
+      "presentation.draw around original"
+    ],
+    "baseline": [
+      "gameClock.afterTurn after original",
+      "scene.updateHudFrame after original"
+    ],
+    "restoration": "Reverse installation order; restore original own property or delete observer-created own property; error if owner changed. Original callback once, sync, same receiver and arguments. Never replace the RAF owner or pause/RNG/world state."
+  },
+  "pixels": "Actual same-frame world canvas PNG and actual overlay crops. Canonical source bytes are separately hashed. Source-backed command/draw-binding comparison reuses production layout helpers and is not an independent full raster oracle. Optional bounded opaque-texel correspondence checks support only sampled pixels; absent eligible zero-angle scaled samples remain unproved. Intentional interpolation, original GPU pixels and hardware performance retain their stated limits.",
+  "followOnAcceptanceNotCovered": [
+    "in-flight controller save/restart with early observation",
+    "visible pause/resume and hidden-page transitions",
+    "DPR2 and HUD-size changes",
+    "same-turn heads/replacement/independent pulse lifetime",
+    "representative hardware frame performance"
+  ],
+  "launchTemplate": "POPULOUS_WORSHIP_ROUTE=<one enumerated row> node <reviewed-runtime-root>/scripts/local-render/harness.mjs --game-root <reviewed-runtime-root> --browser <verified official browser> --scenario <reviewed-runtime-root>/scripts/local-render/ordinary-worship.mjs --port <parent-reserved-port> --timeout <row harness ms> --profile <reviewed-runtime-root>/work/local-render-profiles/ordinary-worship-<unique-row-run> --output <reviewed-runtime-root>/work/orchestration/ordinary-worship-<unique-row-run>",
+  "launchPreconditions": [
+    "Parent first integrates/copies only the frozen new scenario into the application/runtime worktree and records the actual source fingerprint; no permission to change runtime dependencies follows from this preparation.",
+    "For baseline retain accepted89c9629 HEAD and enumerate the same reviewed scenario in that worktree; mark POPULOUS_WORSHIP_BASELINE=1; no candidate asset/runtime expectations.",
+    "Verify installed browser/dependency/harness hashes, fresh private profile/output and unique loopback port before launch; no M3 profile/surface; no competing browser/full job.",
+    "Harness starts only its owned server/browser and validates source/runtime unchanged plus owned cleanup. Preserve failed outputs/profiles; do not silently rerun or adopt locks."
+  ],
+  "previousFrozenCommit": "c81889d7b3aa7fefa2fd6680e4dcebdb834a6565",
+  "repair": {
+    "commit": "3f312fbd5389877c1d37d93f94402b177959250e",
+    "diffBase": "c81889d7b3aa7fefa2fd6680e4dcebdb834a6565",
+    "changed": "Only scenario: 76 additions, 16 deletions.",
+    "readiness": "Before every worship selection: public Resume if needed; bounded real-clock inputMask loop uses public visible Skip or awaits completion; existing host-awaited waitForShamanReadiness; explicit current scene/store, connected canvas, no loading, unpaused and zero-mask assertions. Per-order readiness/skip observations retained.",
+    "save": "After settings dialog appears, assert paused current scene/store identity and connected/not-loading, then record turn and click Save.",
+    "drawing": "Selected samples bracket only original presentation.draw with deep clones of complete owned acquisition state and gameplay/cosmetic RNG; assert equality. No whole-scene RNG invariance claim. Require matching prior binding, fraction strictly between 0 and 1, and changed x/y/scale/radians in an actual captured intermediate frame.",
+    "pixels": "Up to 8 opaque interior source texels per eligible zero-angle >=2-device-pixels/texel sample are mapped from actual Canvas arguments/transform to actual overlay RGBA and compared exactly. No eligible sample is explicitly unproved. No independent full raster oracle and no native GPU equivalence."
+  }
+}
