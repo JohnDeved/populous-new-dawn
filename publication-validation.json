@@ -1,0 +1,30 @@
+{
+  "status": "passed",
+  "createdAt": "2026-10-05T16:10:33.606909+00:00",
+  "checks": [
+    {
+      "check": "Explicit allowlisted packet; no dependencies, profiles, caches, original/tool binaries or authentication material",
+      "status": "passed"
+    },
+    {
+      "check": "Frozen observer matches reviewed cb57bd7 SHA256",
+      "status": "passed"
+    },
+    {
+      "command": "python3 analysis/reproduce.py /workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-visit-baseline-a53",
+      "exitCode": 0,
+      "status": "passed",
+      "analysisSha256": "0736462cbc873b94870f49403159af7aa3e0613eeb05921447ec5f5fdd6fb81c"
+    },
+    {
+      "check": "Maintained runtime source changes / TypeScript gates",
+      "status": "not-applicable",
+      "reason": "Evidence-only sparse publication; no maintained source edits"
+    },
+    {
+      "check": "Additional browser or full gates",
+      "status": "not-run",
+      "reason": "Not part of publication"
+    }
+  ]
+}

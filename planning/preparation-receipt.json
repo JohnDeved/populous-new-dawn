@@ -1,0 +1,80 @@
+{
+  "preparedAt": "2026-10-05T15:51:52.976175+00:00",
+  "status": "source-preparation-complete-browser-not-run",
+  "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered",
+  "sourceHead": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
+  "sourceStatus": "",
+  "driverSha256": "cb57bd7076cedb08b042b6f8ad843b088fc613ae6863f3fed3742944eb88a060",
+  "planSha256": "3a6e1a24df34e0cf900fd721b7d43d7efe86430ba712c511169d3ae775ecd1f2",
+  "reviewedSourceHashes": {
+    "AGENTS.md": "9d69f8b0e12580911920fd34106b424ab7cd4c6d3622926aef906ad638917aad",
+    ".agents/skills/populous-engineering/SKILL.md": "6bf5746e4413ec1d37b2231270bb9711d2f455ecb6da3f2237c378825fa6a547",
+    "engineering/local-render-harness.md": "eaee3c68054a6553b418376fedf466074a643472ea1b21c60cac67d3d7ed9fa6",
+    "scripts/local-render/harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+    "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+    "scripts/campaign-start-readiness.mjs": "214ffc2ce95ea039328e356d493ba8beb887e2d5ef1084b672fb0413fac48d28",
+    "app/selection-runtime.ts": "999dfa2becc4bf884239b79cf9edeef75a6d74ee5f588b29aff57178ab7deeb6",
+    "app/model.ts": "fc32041efee0a34ae32e26653dd8b45c2b54df8389d4e32ea11fa58e3cde4682",
+    "app/page.tsx": "50358f6ae119026e8b1f9215fa436126bb26b7595832140c136ed271fbc52fc2",
+    "app/scene.ts": "8789a7751dd748ac5ebf86f3747e031070356840e787433225da801da5ac9c0b",
+    "app/scene-entities.ts": "cc7cb79c9e92e5b0cb283f745dadec503d8246ab3936b054313d577b97f2c4f4",
+    "app/scene-effects.ts": "af82cfb32f31bac26503d936b2c1f79807e87f48ddbec6c4d0a5ee91e4934321",
+    "app/scene-assets.ts": "d475b0017791e1ab0dc81da2e11ade9c1502514eb3f5b955ba825e67c0e9157f",
+    "app/live-people.ts": "b94e9120cbe56d7e510f8f2fa2aa987e8768a21772acf05c37512f65325d2989",
+    "app/game-clock.ts": "59d9e492f2567a78c70c1e50b6644b09da095aa1dd4fbc5c2ec7e6752fcfa4ee",
+    "app/animation.ts": "38f394f7ab0f8080d3c5145d430e75699510fe8d67e7f22d4efe6fb3e89755f9",
+    "app/world-effects.ts": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+    "app/hut-occupancy-smoke.ts": "4d6660697dfa08ed6a99d5a906b857f9b259d3152abb7f33f82d389d84d1ed07",
+    "app/secondary-effects.ts": "d3cd7bcadad17a6bb95204040a1da6a43f66cd7488295ae38440e42420582417",
+    "app/building-smoke.ts": "bff123b1ed70751207ae5fa943c332068be9e8530fddaa88ef328af1a1a8a9fc",
+    "app/original-units.json": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+  },
+  "priorAcceptedObserver": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-timing-audit/work/orchestration/sprite-animation-timing-214/observe-sprites-readonly.mjs",
+    "sha256": "2d9de66cec40e11eeebb16db31fae1a896665a54bb1bf7264aa8bda44c40ca77"
+  },
+  "nativeResearch": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-stamp-gate-audit/work/orchestration/sprite-stamp-gate-214/findings.md",
+    "sha256": "f52bb1fb1ff94f30010565555ff8878e60b3e3607ae4b79e3dfa583fb82c77f6"
+  },
+  "nativeReview": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-stamp-gate-audit/work/reviews/sprite-visit-gate-214/review.md",
+    "sha256": "40d06f6f76ae7a7e113676a4e05c360777025c74597cffd4c52ac058b63918db"
+  },
+  "checks": [
+    {
+      "command": "node --check work/orchestration/sprite-visit-ordinary-214/observe-sprite-visits.mjs",
+      "exitCode": 0,
+      "status": "passed"
+    },
+    {
+      "command": "git check-ignore work/orchestration/sprite-visit-ordinary-214/observe-sprite-visits.mjs",
+      "exitCode": 0,
+      "status": "passed"
+    },
+    {
+      "command": "ordinary baseline/candidate browser execution",
+      "status": "not-run"
+    },
+    {
+      "command": "npm run check; npm run build; portable/native execution",
+      "status": "not-run",
+      "reason": "Source-only preparation; implementation owner owns gates"
+    }
+  ],
+  "dependenciesPresentAtPreparation": false,
+  "samplingSeconds": 22,
+  "expectedRuntimeSeconds": [
+    60,
+    90
+  ],
+  "harnessTimeoutMs": 120000,
+  "outerTimeoutSeconds": 150,
+  "resourcesHeld": [],
+  "implementationProposal": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-stamp-gate-audit/work/orchestration/sprite-stamp-gate-214/implementation-proposal.md",
+    "sha256": "a5300ed73b3fe3b5fe073b3abc73135736143c9d291b3a594f2a8152e6c70841",
+    "schemaAcknowledgedBy": "/root/finish_reviewed_pr_batch/audit_sprite_animation_timing"
+  }
+}

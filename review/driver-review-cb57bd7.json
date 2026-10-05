@@ -1,0 +1,20 @@
+{
+  "decision": "ACCEPT for bounded ordinary observation baseline; candidate runtime acceptance remains pending",
+  "source": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
+  "reviewer": "finish_reviewed_pr_batch",
+  "driverSha256": "cb57bd7076cedb08b042b6f8ad843b088fc613ae6863f3fed3742944eb88a060",
+  "checked": [
+    "Only existing raw fields and render-object UVs are sampled; no projection, nativePosition, renderer update or World-mutating diagnostic",
+    "unitAnimationSource and unitAnimation are read-only state selectors in current selection-runtime.ts",
+    "Public Game settings pauses; shipped speed toggles1/2; Continue Game closes and onClose resumes; explicit speed/pause assertions precede samples",
+    "No callback replacement or object writes; local WeakMap identity is per segment and raw rows persist before assertions",
+    "22 seconds of requested sampling;120-second harness and150-second outer bound proposed"
+  ],
+  "limits": [
+    "Observation pass is not implementation acceptance or original wall-clock parity",
+    "RAF may miss intermediate frames; aliases/object/draw transitions must be accounted for in later cadence analysis",
+    "Only actual observed families count; absent Splash or damage smoke remains unobserved",
+    "Software headless rendering only; no hardware performance claim"
+  ],
+  "resourceGrant": "Pending explicit dependency transfer and lane confirmation"
+}

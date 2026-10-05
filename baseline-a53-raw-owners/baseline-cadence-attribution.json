@@ -1,0 +1,1408 @@
+{
+  "status": "passed",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-visit-baseline-a53",
+    "commit": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
+    "tree": "bdaa12ef7ea9ecf3094f4a23c25ae93cdb02063e",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "db3b5c353237b402221690b26fbc92afd46dbfb82ed4358f72a0ed035edd0a9a"
+  },
+  "inputSha256": "fedcd4df53833bc4679a4c0ed7eeb0d49165da5fc85263a6ed2ce84625040a49",
+  "spritesSha256": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+  "rulesSha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+  "checkerSha256": "b1e64251b50ede16b866ddd136afc8a8ad89230aeb119797b5b5e40066fe0562",
+  "totalNativeSamples": 2079,
+  "totalZeroTurnFrameAdvancePairs": 13,
+  "totalAllUnitSameTurnFrameAdvancePairs": 95,
+  "predicates": {
+    "allUnits": "Adjacent sampled rows have equal World.turn; same Unit.id and raw native ownerIdentity/object/draw; f1 or f2 differs. Counts are observed pairs, not every intermediate visit.",
+    "stableShaman": "Same raw source identity/class/model/object/draw/renderFlags/state/substate/commandStatus/speed/flags3/stamp; descriptor mode2 hold0 step0. Compare modulo frame count; reject whole-cycle ambiguity.",
+    "renderedLink": "Mesh draw equals raw native draw; mesh frame belongs to a matching imported source direction cycle at f2; existing visible layer UV matches its recorded atlas piece. Repeated artwork can share pieces/UV despite a changed frame number."
+  },
+  "coverage": {
+    "naturalWalkObserved": true,
+    "splashObserved": false,
+    "damageSmokeObserved": false
+  },
+  "checks": [
+    {
+      "label": "normal-speed natural opening",
+      "summary": {
+        "samples": 101,
+        "elapsedSeconds": 8.033,
+        "animationVisits": 193,
+        "simulationTurns": 96,
+        "gameTime": 7.999999999999998,
+        "nativeUnitSamples": 763,
+        "walkingNativeSamples": 16,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      "nativeSamples": 763,
+      "flags3StampPairs": [
+        [
+          0,
+          0
+        ]
+      ],
+      "renderedFrameMatches": 763,
+      "frameMismatches": [],
+      "renderedDrawMatches": 763,
+      "drawMismatches": [],
+      "visibleLayerPieceUvMatches": 1526,
+      "pieceUvMismatches": [],
+      "unrecognizedNativeSources": [],
+      "allUnitSameTurnFrameAdvancePairs": 60,
+      "allUnitSameTurnMeshFrameChanges": 60,
+      "allUnitSameTurnMeshLayerChanges": 9,
+      "allUnitSameTurnExamples": [
+        {
+          "unit": 13,
+          "kind": "brave",
+          "turn": 136,
+          "presentationBefore": 272,
+          "presentationAfter": 273,
+          "sourceBefore": {
+            "ownerIdentity": 1,
+            "class": 1,
+            "model": 2,
+            "object": 48,
+            "draw": 14,
+            "f1": 0,
+            "f2": 3,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 5,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "sourceAfter": {
+            "ownerIdentity": 1,
+            "class": 1,
+            "model": 2,
+            "object": 48,
+            "draw": 14,
+            "f1": 0,
+            "f2": 4,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 5,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "meshBefore": {
+            "frame": 41,
+            "draw": 14,
+            "frameFlip": false,
+            "visible": true,
+            "layers": [
+              {
+                "visible": true,
+                "piece": 0,
+                "uv": [
+                  0.01025390625,
+                  0.000496031746031746,
+                  0,
+                  0.9995039682539683
+                ]
+              },
+              {
+                "visible": true,
+                "piece": 51,
+                "uv": [
+                  0.00634765625,
+                  0.0031001984126984125,
+                  0.59375,
+                  0.9889632936507936
+                ]
+              }
+            ]
+          },
+          "meshAfter": {
+            "frame": 42,
+            "draw": 14,
+            "frameFlip": false,
+            "visible": true,
+            "layers": [
+              {
+                "visible": true,
+                "piece": 0,
+                "uv": [
+                  0.01025390625,
+                  0.000496031746031746,
+                  0,
+                  0.9995039682539683
+                ]
+              },
+              {
+                "visible": true,
+                "piece": 51,
+                "uv": [
+                  0.00634765625,
+                  0.0031001984126984125,
+                  0.59375,
+                  0.9889632936507936
+                ]
+              }
+            ]
+          },
+          "meshFrameChanged": true,
+          "meshLayersChanged": false
+        },
+        {
+          "unit": 14,
+          "kind": "brave",
+          "turn": 136,
+          "presentationBefore": 272,
+          "presentationAfter": 273,
+          "sourceBefore": {
+            "ownerIdentity": 2,
+            "class": 1,
+            "model": 2,
+            "object": 48,
+            "draw": 14,
+            "f1": 0,
+            "f2": 3,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 5,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "sourceAfter": {
+            "ownerIdentity": 2,
+            "class": 1,
+            "model": 2,
+            "object": 48,
+            "draw": 14,
+            "f1": 0,
+            "f2": 4,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 5,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "meshBefore": {
+            "frame": 35,
+            "draw": 14,
+            "frameFlip": true,
+            "visible": true,
+            "layers": [
+              {
+                "visible": true,
+                "piece": 0,
+                "uv": [
+                  -0.01025390625,
+                  0.000496031746031746,
+                  0.01025390625,
+                  0.9995039682539683
+                ]
+              },
+              {
+                "visible": true,
+                "piece": 50,
+                "uv": [
+                  -0.00439453125,
+                  0.0031001984126984125,
+                  0.56689453125,
+                  0.9889632936507936
+                ]
+              }
+            ]
+          },
+          "meshAfter": {
+            "frame": 36,
+            "draw": 14,
+            "frameFlip": true,
+            "visible": true,
+            "layers": [
+              {
+                "visible": true,
+                "piece": 0,
+                "uv": [
+                  -0.01025390625,
+                  0.000496031746031746,
+                  0.01025390625,
+                  0.9995039682539683
+                ]
+              },
+              {
+                "visible": true,
+                "piece": 50,
+                "uv": [
+                  -0.00439453125,
+                  0.0031001984126984125,
+                  0.56689453125,
+                  0.9889632936507936
+                ]
+              }
+            ]
+          },
+          "meshFrameChanged": true,
+          "meshLayersChanged": false
+        },
+        {
+          "unit": 30,
+          "kind": "shaman",
+          "turn": 136,
+          "presentationBefore": 272,
+          "presentationAfter": 273,
+          "sourceBefore": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 3,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "sourceAfter": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 4,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "meshBefore": {
+            "frame": 981,
+            "draw": 14,
+            "frameFlip": false,
+            "visible": true,
+            "layers": [
+              {
+                "visible": true,
+                "piece": 0,
+                "uv": [
+                  0.01025390625,
+                  0.000496031746031746,
+                  0,
+                  0.9995039682539683
+                ]
+              },
+              {
+                "visible": true,
+                "piece": 2430,
+                "uv": [
+                  0.0068359375,
+                  0.004092261904761905,
+                  0.9375,
+                  0.4006696428571429
+                ]
+              }
+            ]
+          },
+          "meshAfter": {
+            "frame": 982,
+            "draw": 14,
+            "frameFlip": false,
+            "visible": true,
+            "layers": [
+              {
+                "visible": true,
+                "piece": 0,
+                "uv": [
+                  0.01025390625,
+                  0.000496031746031746,
+                  0,
+                  0.9995039682539683
+                ]
+              },
+              {
+                "visible": true,
+                "piece": 2427,
+                "uv": [
+                  0.0068359375,
+                  0.004092261904761905,
+                  0.84375,
+                  0.4006696428571429
+                ]
+              }
+            ]
+          },
+          "meshFrameChanged": true,
+          "meshLayersChanged": true
+        }
+      ],
+      "stableShamanPairs": 100,
+      "presentationMismatchCount": 0,
+      "cycleAliasedPairs": 0,
+      "zeroTurnFrameAdvancePairs": 8,
+      "zeroTurnExamples": [
+        {
+          "turnBefore": 136,
+          "turnAfter": 136,
+          "presentationDelta": 1,
+          "f2DeltaModuloCount": 1,
+          "frameCount": 5,
+          "matchesPresentation": true,
+          "cycleAliased": false,
+          "sourceBefore": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 3,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "sourceAfter": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 4,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          }
+        },
+        {
+          "turnBefore": 144,
+          "turnAfter": 144,
+          "presentationDelta": 1,
+          "f2DeltaModuloCount": 1,
+          "frameCount": 5,
+          "matchesPresentation": true,
+          "cycleAliased": false,
+          "sourceBefore": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 4,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "sourceAfter": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 0,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          }
+        },
+        {
+          "turnBefore": 150,
+          "turnAfter": 150,
+          "presentationDelta": 1,
+          "f2DeltaModuloCount": 1,
+          "frameCount": 5,
+          "matchesPresentation": true,
+          "cycleAliased": false,
+          "sourceBefore": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 1,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "sourceAfter": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 2,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          }
+        }
+      ],
+      "visibleSmokeDistinctUvs": {
+        "root:36:partial": 16,
+        "root:37:partial": 16
+      }
+    },
+    {
+      "label": "public pause",
+      "summary": {
+        "samples": 21,
+        "elapsedSeconds": 1.4999000000000016,
+        "animationVisits": 0,
+        "simulationTurns": 0,
+        "gameTime": 0,
+        "nativeUnitSamples": 147,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      "nativeSamples": 147,
+      "flags3StampPairs": [
+        [
+          0,
+          0
+        ]
+      ],
+      "renderedFrameMatches": 147,
+      "frameMismatches": [],
+      "renderedDrawMatches": 147,
+      "drawMismatches": [],
+      "visibleLayerPieceUvMatches": 294,
+      "pieceUvMismatches": [],
+      "unrecognizedNativeSources": [],
+      "allUnitSameTurnFrameAdvancePairs": 0,
+      "allUnitSameTurnMeshFrameChanges": 0,
+      "allUnitSameTurnMeshLayerChanges": 0,
+      "allUnitSameTurnExamples": [],
+      "stableShamanPairs": 20,
+      "presentationMismatchCount": 0,
+      "cycleAliasedPairs": 0,
+      "zeroTurnFrameAdvancePairs": 0,
+      "zeroTurnExamples": [],
+      "visibleSmokeDistinctUvs": {
+        "root:37:partial": 1
+      }
+    },
+    {
+      "label": "public resume",
+      "summary": {
+        "samples": 53,
+        "elapsedSeconds": 4.049900000000002,
+        "animationVisits": 97,
+        "simulationTurns": 48,
+        "gameTime": 4,
+        "nativeUnitSamples": 371,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      "nativeSamples": 371,
+      "flags3StampPairs": [
+        [
+          0,
+          0
+        ]
+      ],
+      "renderedFrameMatches": 371,
+      "frameMismatches": [],
+      "renderedDrawMatches": 371,
+      "drawMismatches": [],
+      "visibleLayerPieceUvMatches": 742,
+      "pieceUvMismatches": [],
+      "unrecognizedNativeSources": [],
+      "allUnitSameTurnFrameAdvancePairs": 35,
+      "allUnitSameTurnMeshFrameChanges": 35,
+      "allUnitSameTurnMeshLayerChanges": 6,
+      "allUnitSameTurnExamples": [
+        {
+          "unit": 13,
+          "kind": "brave",
+          "turn": 272,
+          "presentationBefore": 544,
+          "presentationAfter": 545,
+          "sourceBefore": {
+            "ownerIdentity": 1,
+            "class": 1,
+            "model": 2,
+            "object": 48,
+            "draw": 14,
+            "f1": 0,
+            "f2": 5,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 5,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "sourceAfter": {
+            "ownerIdentity": 1,
+            "class": 1,
+            "model": 2,
+            "object": 48,
+            "draw": 14,
+            "f1": 0,
+            "f2": 0,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 5,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "meshBefore": {
+            "frame": 37,
+            "draw": 14,
+            "frameFlip": true,
+            "visible": true,
+            "layers": [
+              {
+                "visible": true,
+                "piece": 0,
+                "uv": [
+                  -0.01025390625,
+                  0.000496031746031746,
+                  0.01025390625,
+                  0.9995039682539683
+                ]
+              },
+              {
+                "visible": true,
+                "piece": 50,
+                "uv": [
+                  -0.00439453125,
+                  0.0031001984126984125,
+                  0.56689453125,
+                  0.9889632936507936
+                ]
+              }
+            ]
+          },
+          "meshAfter": {
+            "frame": 32,
+            "draw": 14,
+            "frameFlip": true,
+            "visible": true,
+            "layers": [
+              {
+                "visible": true,
+                "piece": 0,
+                "uv": [
+                  -0.01025390625,
+                  0.000496031746031746,
+                  0.01025390625,
+                  0.9995039682539683
+                ]
+              },
+              {
+                "visible": true,
+                "piece": 50,
+                "uv": [
+                  -0.00439453125,
+                  0.0031001984126984125,
+                  0.56689453125,
+                  0.9889632936507936
+                ]
+              }
+            ]
+          },
+          "meshFrameChanged": true,
+          "meshLayersChanged": false
+        },
+        {
+          "unit": 14,
+          "kind": "brave",
+          "turn": 272,
+          "presentationBefore": 544,
+          "presentationAfter": 545,
+          "sourceBefore": {
+            "ownerIdentity": 2,
+            "class": 1,
+            "model": 2,
+            "object": 48,
+            "draw": 14,
+            "f1": 0,
+            "f2": 5,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 5,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "sourceAfter": {
+            "ownerIdentity": 2,
+            "class": 1,
+            "model": 2,
+            "object": 48,
+            "draw": 14,
+            "f1": 0,
+            "f2": 0,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 5,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "meshBefore": {
+            "frame": 25,
+            "draw": 14,
+            "frameFlip": false,
+            "visible": true,
+            "layers": [
+              {
+                "visible": true,
+                "piece": 0,
+                "uv": [
+                  0.01025390625,
+                  0.000496031746031746,
+                  0,
+                  0.9995039682539683
+                ]
+              },
+              {
+                "visible": true,
+                "piece": 48,
+                "uv": [
+                  0.00830078125,
+                  0.002976190476190476,
+                  0.5,
+                  0.9890873015873016
+                ]
+              }
+            ]
+          },
+          "meshAfter": {
+            "frame": 20,
+            "draw": 14,
+            "frameFlip": false,
+            "visible": true,
+            "layers": [
+              {
+                "visible": true,
+                "piece": 0,
+                "uv": [
+                  0.01025390625,
+                  0.000496031746031746,
+                  0,
+                  0.9995039682539683
+                ]
+              },
+              {
+                "visible": true,
+                "piece": 48,
+                "uv": [
+                  0.00830078125,
+                  0.002976190476190476,
+                  0.5,
+                  0.9890873015873016
+                ]
+              }
+            ]
+          },
+          "meshFrameChanged": true,
+          "meshLayersChanged": false
+        },
+        {
+          "unit": 30,
+          "kind": "shaman",
+          "turn": 272,
+          "presentationBefore": 544,
+          "presentationAfter": 545,
+          "sourceBefore": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 0,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "sourceAfter": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 1,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "meshBefore": {
+            "frame": 978,
+            "draw": 14,
+            "frameFlip": false,
+            "visible": true,
+            "layers": [
+              {
+                "visible": true,
+                "piece": 0,
+                "uv": [
+                  0.01025390625,
+                  0.000496031746031746,
+                  0,
+                  0.9995039682539683
+                ]
+              },
+              {
+                "visible": true,
+                "piece": 2427,
+                "uv": [
+                  0.0068359375,
+                  0.004092261904761905,
+                  0.84375,
+                  0.4006696428571429
+                ]
+              }
+            ]
+          },
+          "meshAfter": {
+            "frame": 979,
+            "draw": 14,
+            "frameFlip": false,
+            "visible": true,
+            "layers": [
+              {
+                "visible": true,
+                "piece": 0,
+                "uv": [
+                  0.01025390625,
+                  0.000496031746031746,
+                  0,
+                  0.9995039682539683
+                ]
+              },
+              {
+                "visible": true,
+                "piece": 2428,
+                "uv": [
+                  0.0068359375,
+                  0.004092261904761905,
+                  0.875,
+                  0.4006696428571429
+                ]
+              }
+            ]
+          },
+          "meshFrameChanged": true,
+          "meshLayersChanged": true
+        }
+      ],
+      "stableShamanPairs": 52,
+      "presentationMismatchCount": 0,
+      "cycleAliasedPairs": 0,
+      "zeroTurnFrameAdvancePairs": 5,
+      "zeroTurnExamples": [
+        {
+          "turnBefore": 272,
+          "turnAfter": 272,
+          "presentationDelta": 1,
+          "f2DeltaModuloCount": 1,
+          "frameCount": 5,
+          "matchesPresentation": true,
+          "cycleAliased": false,
+          "sourceBefore": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 0,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "sourceAfter": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 1,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          }
+        },
+        {
+          "turnBefore": 275,
+          "turnAfter": 275,
+          "presentationDelta": 1,
+          "f2DeltaModuloCount": 1,
+          "frameCount": 5,
+          "matchesPresentation": true,
+          "cycleAliased": false,
+          "sourceBefore": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 1,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "sourceAfter": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 2,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          }
+        },
+        {
+          "turnBefore": 283,
+          "turnAfter": 283,
+          "presentationDelta": 1,
+          "f2DeltaModuloCount": 1,
+          "frameCount": 5,
+          "matchesPresentation": true,
+          "cycleAliased": false,
+          "sourceBefore": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 2,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "sourceAfter": {
+            "ownerIdentity": 7,
+            "class": 1,
+            "model": 7,
+            "object": 424,
+            "draw": 14,
+            "f1": 0,
+            "f2": 3,
+            "flags3": 0,
+            "stamp": 0,
+            "flags2": 131072,
+            "flags4": 536871168,
+            "renderFlags": 384,
+            "state": 19,
+            "substate": 8,
+            "commandStatus": 0,
+            "speed": 0,
+            "morph": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          }
+        }
+      ],
+      "visibleSmokeDistinctUvs": {
+        "root:36:partial": 15,
+        "root:37:partial": 12
+      }
+    },
+    {
+      "label": "settings pause at 1\u00d7",
+      "summary": {
+        "samples": 4,
+        "elapsedSeconds": 0.25,
+        "animationVisits": 0,
+        "simulationTurns": 0,
+        "gameTime": 0,
+        "nativeUnitSamples": 28,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      "nativeSamples": 28,
+      "flags3StampPairs": [
+        [
+          0,
+          0
+        ]
+      ],
+      "renderedFrameMatches": 28,
+      "frameMismatches": [],
+      "renderedDrawMatches": 28,
+      "drawMismatches": [],
+      "visibleLayerPieceUvMatches": 56,
+      "pieceUvMismatches": [],
+      "unrecognizedNativeSources": [],
+      "allUnitSameTurnFrameAdvancePairs": 0,
+      "allUnitSameTurnMeshFrameChanges": 0,
+      "allUnitSameTurnMeshLayerChanges": 0,
+      "allUnitSameTurnExamples": [],
+      "stableShamanPairs": 3,
+      "presentationMismatchCount": 0,
+      "cycleAliasedPairs": 0,
+      "zeroTurnFrameAdvancePairs": 0,
+      "zeroTurnExamples": [],
+      "visibleSmokeDistinctUvs": {
+        "root:36:partial": 1
+      }
+    },
+    {
+      "label": "settings selected 2\u00d7 while paused",
+      "summary": {
+        "samples": 5,
+        "elapsedSeconds": 0.3,
+        "animationVisits": 0,
+        "simulationTurns": 0,
+        "gameTime": 0,
+        "nativeUnitSamples": 35,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      "nativeSamples": 35,
+      "flags3StampPairs": [
+        [
+          0,
+          0
+        ]
+      ],
+      "renderedFrameMatches": 35,
+      "frameMismatches": [],
+      "renderedDrawMatches": 35,
+      "drawMismatches": [],
+      "visibleLayerPieceUvMatches": 70,
+      "pieceUvMismatches": [],
+      "unrecognizedNativeSources": [],
+      "allUnitSameTurnFrameAdvancePairs": 0,
+      "allUnitSameTurnMeshFrameChanges": 0,
+      "allUnitSameTurnMeshLayerChanges": 0,
+      "allUnitSameTurnExamples": [],
+      "stableShamanPairs": 4,
+      "presentationMismatchCount": 0,
+      "cycleAliasedPairs": 0,
+      "zeroTurnFrameAdvancePairs": 0,
+      "zeroTurnExamples": [],
+      "visibleSmokeDistinctUvs": {
+        "root:36:partial": 1
+      }
+    },
+    {
+      "label": "shipped 2\u00d7 speed natural play",
+      "summary": {
+        "samples": 49,
+        "elapsedSeconds": 4.0165,
+        "animationVisits": 97,
+        "simulationTurns": 97,
+        "gameTime": 8.083333333333332,
+        "nativeUnitSamples": 343,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      "nativeSamples": 343,
+      "flags3StampPairs": [
+        [
+          0,
+          0
+        ]
+      ],
+      "renderedFrameMatches": 343,
+      "frameMismatches": [],
+      "renderedDrawMatches": 343,
+      "drawMismatches": [],
+      "visibleLayerPieceUvMatches": 686,
+      "pieceUvMismatches": [],
+      "unrecognizedNativeSources": [],
+      "allUnitSameTurnFrameAdvancePairs": 0,
+      "allUnitSameTurnMeshFrameChanges": 0,
+      "allUnitSameTurnMeshLayerChanges": 0,
+      "allUnitSameTurnExamples": [],
+      "stableShamanPairs": 48,
+      "presentationMismatchCount": 0,
+      "cycleAliasedPairs": 0,
+      "zeroTurnFrameAdvancePairs": 0,
+      "zeroTurnExamples": [],
+      "visibleSmokeDistinctUvs": {
+        "root:36:partial": 15,
+        "root:37:partial": 15
+      }
+    },
+    {
+      "label": "public pause at 2\u00d7",
+      "summary": {
+        "samples": 22,
+        "elapsedSeconds": 1.5499000000000014,
+        "animationVisits": 0,
+        "simulationTurns": 0,
+        "gameTime": 0,
+        "nativeUnitSamples": 154,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      "nativeSamples": 154,
+      "flags3StampPairs": [
+        [
+          0,
+          0
+        ]
+      ],
+      "renderedFrameMatches": 154,
+      "frameMismatches": [],
+      "renderedDrawMatches": 154,
+      "drawMismatches": [],
+      "visibleLayerPieceUvMatches": 308,
+      "pieceUvMismatches": [],
+      "unrecognizedNativeSources": [],
+      "allUnitSameTurnFrameAdvancePairs": 0,
+      "allUnitSameTurnMeshFrameChanges": 0,
+      "allUnitSameTurnMeshLayerChanges": 0,
+      "allUnitSameTurnExamples": [],
+      "stableShamanPairs": 21,
+      "presentationMismatchCount": 0,
+      "cycleAliasedPairs": 0,
+      "zeroTurnFrameAdvancePairs": 0,
+      "zeroTurnExamples": [],
+      "visibleSmokeDistinctUvs": {
+        "root:36:partial": 1
+      }
+    },
+    {
+      "label": "settings pause at 2\u00d7",
+      "summary": {
+        "samples": 5,
+        "elapsedSeconds": 0.2832999999999956,
+        "animationVisits": 0,
+        "simulationTurns": 0,
+        "gameTime": 0,
+        "nativeUnitSamples": 35,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      "nativeSamples": 35,
+      "flags3StampPairs": [
+        [
+          0,
+          0
+        ]
+      ],
+      "renderedFrameMatches": 35,
+      "frameMismatches": [],
+      "renderedDrawMatches": 35,
+      "drawMismatches": [],
+      "visibleLayerPieceUvMatches": 70,
+      "pieceUvMismatches": [],
+      "unrecognizedNativeSources": [],
+      "allUnitSameTurnFrameAdvancePairs": 0,
+      "allUnitSameTurnMeshFrameChanges": 0,
+      "allUnitSameTurnMeshLayerChanges": 0,
+      "allUnitSameTurnExamples": [],
+      "stableShamanPairs": 4,
+      "presentationMismatchCount": 0,
+      "cycleAliasedPairs": 0,
+      "zeroTurnFrameAdvancePairs": 0,
+      "zeroTurnExamples": [],
+      "visibleSmokeDistinctUvs": {
+        "root:37:partial": 1
+      }
+    },
+    {
+      "label": "settings selected 1\u00d7 while paused",
+      "summary": {
+        "samples": 5,
+        "elapsedSeconds": 0.3,
+        "animationVisits": 0,
+        "simulationTurns": 0,
+        "gameTime": 0,
+        "nativeUnitSamples": 35,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      "nativeSamples": 35,
+      "flags3StampPairs": [
+        [
+          0,
+          0
+        ]
+      ],
+      "renderedFrameMatches": 35,
+      "frameMismatches": [],
+      "renderedDrawMatches": 35,
+      "drawMismatches": [],
+      "visibleLayerPieceUvMatches": 70,
+      "pieceUvMismatches": [],
+      "unrecognizedNativeSources": [],
+      "allUnitSameTurnFrameAdvancePairs": 0,
+      "allUnitSameTurnMeshFrameChanges": 0,
+      "allUnitSameTurnMeshLayerChanges": 0,
+      "allUnitSameTurnExamples": [],
+      "stableShamanPairs": 4,
+      "presentationMismatchCount": 0,
+      "cycleAliasedPairs": 0,
+      "zeroTurnFrameAdvancePairs": 0,
+      "zeroTurnExamples": [],
+      "visibleSmokeDistinctUvs": {
+        "root:37:partial": 1
+      }
+    },
+    {
+      "label": "restored shipped 1\u00d7 speed",
+      "summary": {
+        "samples": 24,
+        "elapsedSeconds": 1.999800000000003,
+        "animationVisits": 48,
+        "simulationTurns": 24,
+        "gameTime": 2,
+        "nativeUnitSamples": 168,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      "nativeSamples": 168,
+      "flags3StampPairs": [
+        [
+          0,
+          0
+        ]
+      ],
+      "renderedFrameMatches": 168,
+      "frameMismatches": [],
+      "renderedDrawMatches": 168,
+      "drawMismatches": [],
+      "visibleLayerPieceUvMatches": 336,
+      "pieceUvMismatches": [],
+      "unrecognizedNativeSources": [],
+      "allUnitSameTurnFrameAdvancePairs": 0,
+      "allUnitSameTurnMeshFrameChanges": 0,
+      "allUnitSameTurnMeshLayerChanges": 0,
+      "allUnitSameTurnExamples": [],
+      "stableShamanPairs": 23,
+      "presentationMismatchCount": 0,
+      "cycleAliasedPairs": 0,
+      "zeroTurnFrameAdvancePairs": 0,
+      "zeroTurnExamples": [],
+      "visibleSmokeDistinctUvs": {
+        "root:36:partial": 8,
+        "root:37:partial": 9
+      }
+    }
+  ],
+  "limits": "Baseline old adapter only. Observed Shaman mode2 f2 advances with presentation even without a logical turn; RAF may omit intermediate visits. Flags/stamps are raw zero values. Partial hut smoke observed; full smoke, Splash and damage smoke not observed. No candidate, native wall-clock or hardware claim."
+}

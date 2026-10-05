@@ -1,0 +1,122 @@
+{
+  "schema": "pnd-sparse-evidence-1",
+  "issue": 214,
+  "testedSource": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
+  "evidenceRole": "Old-adapter ordinary raw-owner baseline; no candidate acceptance",
+  "driverSha256": "cb57bd7076cedb08b042b6f8ad843b088fc613ae6863f3fed3742944eb88a060",
+  "nativePacketCommit": "681ecb825b997517363b9ab52ac216e394d7b59a",
+  "historicalBaselineCommit": "0a4189633e96740006754b278208855625a248bb",
+  "fileCountExcludingManifest": 24,
+  "files": {
+    "README.md": {
+      "sha256": "13a99d588657201c41ceef50205bcc693235ca1d6731a6ba4180ff13278b4fb1",
+      "bytes": 5549
+    },
+    "analysis/analyze-baseline.py": {
+      "sha256": "b1e64251b50ede16b866ddd136afc8a8ad89230aeb119797b5b5e40066fe0562",
+      "bytes": 9276
+    },
+    "analysis/reproduce.py": {
+      "sha256": "2227f05ec4a6cb2144375cd752624f178b8553c744fcb62e368466c0f0bbba14",
+      "bytes": 2060
+    },
+    "baseline-a53-raw-owners/baseline-cadence-attribution.json": {
+      "sha256": "0736462cbc873b94870f49403159af7aa3e0613eeb05921447ec5f5fdd6fb81c",
+      "bytes": 38487
+    },
+    "baseline-a53-raw-owners/normal-speed-opening.png": {
+      "sha256": "b79d1f5744b05865baa485c8ab8a4e1b9117823fbf24049cd94e2c2388900baa",
+      "bytes": 1455554
+    },
+    "baseline-a53-raw-owners/normal-speed-resumed.png": {
+      "sha256": "a31c917d6b4ce4c67a09f50ad08c63aca6c2918e813942a7ef7ec7021507a885",
+      "bytes": 1456074
+    },
+    "baseline-a53-raw-owners/receipt.json": {
+      "sha256": "4ffbfd9be7bc7136c5a325486c917a8a4acbce88d3fabe431ade35a2cf25766b",
+      "bytes": 7424
+    },
+    "baseline-a53-raw-owners/server.log": {
+      "sha256": "e36c5c561aa6990094ccd46acf6cb6215749eda1e65a3b86baf35b56ba593106",
+      "bytes": 835
+    },
+    "baseline-a53-raw-owners/shipped-2x-speed.png": {
+      "sha256": "0d5bb75d95823001b6233109ff0037f51af974071605962cf90b7918b7c287bf",
+      "bytes": 1429860
+    },
+    "baseline-a53-raw-owners/sprite-observations.json": {
+      "sha256": "fedcd4df53833bc4679a4c0ed7eeb0d49165da5fc85263a6ed2ce84625040a49",
+      "bytes": 4655099
+    },
+    "baseline-command.artifacts/stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "baseline-command.artifacts/stdout.log": {
+      "sha256": "86928b488b794d41a4c5b40e1ebcaea3b8e190f21266f29c493dceb217bd8599",
+      "bytes": 3961
+    },
+    "baseline-command.json": {
+      "sha256": "edbc7b8a7db6a13c381851f9709efcd00fd8b84ec720936dd106393038807f2c",
+      "bytes": 9344
+    },
+    "baseline-findings.md": {
+      "sha256": "f2e443a66ee6f4a490b692d149b1fc5fa6d24b99e5bbb8ece307621f196378b6",
+      "bytes": 4296
+    },
+    "baseline-terminal.json": {
+      "sha256": "7664309a75f10daf9e8903d0d4a10cba8a8ba8f2e1236e5b708a79e55eb23a68",
+      "bytes": 1027
+    },
+    "launch-baseline.py": {
+      "sha256": "e6523418d325b03bb3b11e28caf9dcab040211775cc69b36f9e1371211828e88",
+      "bytes": 4050
+    },
+    "launcher-receipt.json": {
+      "sha256": "a1c1103cad9e791454936770461292afb5f97a58391148c69d5f82b2c38c0d21",
+      "bytes": 5744
+    },
+    "observe-sprite-visits.mjs": {
+      "sha256": "cb57bd7076cedb08b042b6f8ad843b088fc613ae6863f3fed3742944eb88a060",
+      "bytes": 11415
+    },
+    "planning/acceptance-plan.md": {
+      "sha256": "3a6e1a24df34e0cf900fd721b7d43d7efe86430ba712c511169d3ae775ecd1f2",
+      "bytes": 8328
+    },
+    "planning/preparation-receipt.json": {
+      "sha256": "6ce79674d909a9a784bfbc8447313326bf689d77e8f555606034e8d6c5700994",
+      "bytes": 4644
+    },
+    "publication-validation.json": {
+      "sha256": "e2d6eb93c7f77515128ee4c3e53f40c8498c720becf8e945f6103831f8386f3c",
+      "bytes": 976
+    },
+    "review/driver-review-cb57bd7.json": {
+      "sha256": "991787d3c413b97c4e0aa5284fb19f65363c65bb089b991d83f680ef251d8f44",
+      "bytes": 1411
+    },
+    "transfer/borrow.json": {
+      "sha256": "590239aefdfec0c70b790604c3f0948668f5dee7daca8fea2120da2e3bd53353",
+      "bytes": 1221
+    },
+    "transfer/return.json": {
+      "sha256": "bd0a1fa28d1bbbcbbd202a58945e00c011ec96800f5512d659f1aa733c068ce6",
+      "bytes": 1995
+    }
+  },
+  "excludes": [
+    "profiles",
+    "caches",
+    "dependencies",
+    "original game/tool binaries",
+    "authentication data",
+    "duplicated native packet"
+  ],
+  "limits": [
+    "No candidate implementation acceptance",
+    "Splash/full hut smoke/damage smoke not observed",
+    "Sparse RAF samples, not every intermediate native visit",
+    "No native OS wall-clock or hardware performance claim"
+  ]
+}

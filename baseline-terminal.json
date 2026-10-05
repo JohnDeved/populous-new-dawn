@@ -1,0 +1,17 @@
+{
+  "status": "passed",
+  "sourceHead": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
+  "originalSession": 20513,
+  "originalSessionExit": 0,
+  "outerReceiptSha256": "edbc7b8a7db6a13c381851f9709efcd00fd8b84ec720936dd106393038807f2c",
+  "innerReceiptSha256": "4ffbfd9be7bc7136c5a325486c917a8a4acbce88d3fabe431ade35a2cf25766b",
+  "launcherReceiptSha256": "a1c1103cad9e791454936770461292afb5f97a58391148c69d5f82b2c38c0d21",
+  "returnReceipt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-visit-baseline-a53/work/orchestration/dependency-transfers/sprite-visit-baseline-to-vault-20261005T1558/receipt.json",
+  "returnReceiptSha256": "bd0a1fa28d1bbbcbbd202a58945e00c011ec96800f5512d659f1aa733c068ce6",
+  "sourceStable": true,
+  "inputsStable": true,
+  "resourcesReleased": true,
+  "dependencyReturnedTo": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx",
+  "dependencyInode": 925605,
+  "limits": "Baseline ordinary observation only; not candidate acceptance or native wall-clock/hardware proof"
+}
