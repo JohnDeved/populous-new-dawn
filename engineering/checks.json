@@ -5126,7 +5126,7 @@
       "id": "shaman-death-ground-portable",
       "kind": "portable",
       "automation": "safe",
-      "purpose": "Verify live Shaman spirit grounding and retained height through phase changes and checkpoints.",
+      "purpose": "Check grounding.",
       "coveredBehavior": [
         "Ordinary combat death and actual phase1 world-turn caller",
         "Rising and lowering death-site ground",
@@ -5166,7 +5166,7 @@
       "id": "shaman-death-ground-native",
       "kind": "native",
       "automation": "safe",
-      "purpose": "Compare original changing-terrain Shaman spirit heights with the actual world-turn caller.",
+      "purpose": "Compare heights.",
       "coveredBehavior": [
         "Original death producer, model12 allocator/initializer and phase controller",
         "Actual original terrain interpolation during every phase1 visit",
@@ -5204,7 +5204,7 @@
       "id": "shaman-death-ground-browser",
       "kind": "browser",
       "automation": "manual",
-      "purpose": "Check rendered Shaman spirit grounding during a shipped Land Bridge under a controlled clock.",
+      "purpose": "Render fixed ticks.",
       "coveredBehavior": [
         "Mission1 UI, H selection and four ordinarily acquired Bridge gifts",
         "Public worship, movement, attack, HUD spell and ground-click paths",

@@ -109,7 +109,7 @@ visits failed despite correct rendering/cleanup and was corrected to300 without
 changing the game. Original clocks, rendering/sprite regressions and broad gameplay
 checks remain separate gates; this note makes no full death-animation parity claim.
 
-## 2026-10-05 — phase1 follows changing death-site ground
+## Phase1 ground
 
 Accepted base `89c9629991489fd1ce6dc52e938d1cec346bfead` retained the height sampled
 when the Shaman died for the complete model12 lifetime. Original instructions
