@@ -1245,7 +1245,11 @@ export function animateLiveObjects(w: World, phase: 'logical' | 'presentation' =
     }
   }
   for (const f of w.effects) {
-    const logical = !!(f.kind === 'splash' && f.animation && animationUsesLogicalVisits(f.animation))
+    const logical = !!(
+      f.kind === 'splash' &&
+      f.animation &&
+      animationUsesLogicalVisits(f.animation)
+    )
     if (logical !== (phase === 'logical')) continue
     if (f.reincarnation) latchShamanDeathFrame(f)
     const knowledgeGlow = f.sprite?.sequence === 'vault-knowledge-glow' ? f.sprite : undefined,

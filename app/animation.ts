@@ -81,7 +81,7 @@ export function setAnimationObject(s: Animation, draw: number, object: number) {
 // Only these branches of 0x4ee7b0 test the logical-processor stamp. Model
 // sequences and morph transitions keep their presentation visit even with the bit.
 export function animationUsesLogicalVisits(p: AnimatedUnit) {
-  const mode = rules.animationDescriptors[p.draw].mode
+  const { mode } = rules.animationDescriptors[p.draw]
   return (
     !!(p.flags3 & 0x40000) &&
     (mode === 1 || mode === 2 || (mode === 4 && !(p.renderFlags & 0x1000)))
