@@ -301,6 +301,7 @@ export type Shrine = Point &
     morph: ModelMorph | null
     // Undefined legacy saves lazily derive only an authored model45 family; null is unsupported.
     stoneHead?: StoneHeadAnimation | null
+    knowledgeGlow?: AnimatedUnit & { displayedFrame: number }
     angle: number
   }
 export type Tree = Point & {

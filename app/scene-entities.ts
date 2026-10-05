@@ -66,6 +66,7 @@ import {
   vaultKnowledgePlacement,
   vaultKnowledgeVisible,
 } from './vault-appearance.ts'
+import { makeVaultWorldPresentation, drawVaultWorldPresentation } from './scene-vault-knowledge.ts'
 import { animateVaultKnowledgeMarker, makeVaultKnowledgeMarker } from './scene-effects.ts'
 
 const teamColor = {
@@ -311,9 +312,11 @@ function makeShrine(scene: GameScene, shrine: Shrine) {
   scene.objects.add(g)
   g.userData.shrine = shrine.id
   if (shrine.kind === 'vault') {
-    const frame = vaultKnowledgeFrame(shrine.reward, shrine.rewardModel)
+    const frame = vaultKnowledgeFrame(shrine.reward, shrine.rewardModel, scene.world.outcome.level)
     if (frame !== null) {
-      const marker = makeVaultKnowledgeMarker(frame),
+      const marker = shrine.knowledgeGlow
+          ? makeVaultWorldPresentation(true)
+          : makeVaultKnowledgeMarker(frame),
         placement = vaultKnowledgePlacement(shrine)
       scene.locate(marker, placement, scene.y(placement) + placement.heightOffset / 45)
       marker.userData.cellPosition = placement
@@ -717,7 +720,14 @@ export function updateShrinesFrame(scene: GameScene) {
       const placement = vaultKnowledgePlacement(shrine)
       scene.locate(marker, placement, scene.y(placement) + placement.heightOffset / 45)
       marker.userData.cellPosition = placement
-      animateVaultKnowledgeMarker(scene, marker, vaultKnowledgeVisible(shrine))
+      if (shrine.knowledgeGlow)
+        drawVaultWorldPresentation(
+          scene,
+          marker,
+          shrine.knowledgeGlow.displayedFrame,
+          vaultKnowledgeVisible(shrine)
+        )
+      else animateVaultKnowledgeMarker(scene, marker, vaultKnowledgeVisible(shrine))
     }
     const model = stoneHead149Model(shrine, scene.world.outcome.level)
     let mesh = entry.g.children[0] as THREE.Mesh<THREE.BufferGeometry, THREE.MeshBasicMaterial>

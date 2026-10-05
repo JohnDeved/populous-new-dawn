@@ -1184,6 +1184,17 @@ export function stepLivePerson(w: World, u: Unit) {
 // Native rate configuration and visibility catch-up remain pending.
 export function animateLiveObjects(w: World) {
   if (w.paused || w.land.landFlags & 2) return
+  for (const shrine of w.shrines)
+    if (shrine.active && shrine.knowledgeGlow) {
+      // Native draws before advancing; retain that visible sample on this boundary.
+      shrine.knowledgeGlow.displayedFrame = (shrine.knowledgeGlow.f1 & 65535) >>> 2
+      stepObjectAnimation(
+        shrine.knowledgeGlow,
+        { counter: 0, levelFlags: 0, levelFlags2: w.levelFlags2 },
+        { frameCounts: [], modelFrames: [], morphDurations: [] },
+        () => {}
+      )
+    }
   for (const u of w.units) {
     const source = unitAnimationSource(u)
     if (source) {
@@ -1220,7 +1231,11 @@ export function animateLiveObjects(w: World) {
   }
   for (const f of w.effects) {
     if (f.reincarnation) latchShamanDeathFrame(f)
-    if (f.animation)
+    const knowledgeGlow = f.sprite?.sequence === 'vault-knowledge-glow' ? f.sprite : undefined,
+      retired = knowledgeGlow && f.kind === 'gift' && 'phase' in f && !f.phase
+    if (f.animation && knowledgeGlow && !retired)
+      knowledgeGlow.frame = (f.animation.f1 & 65535) >>> 2
+    if (f.animation && !retired)
       stepObjectAnimation(
         f.animation,
         { counter: 0, levelFlags: 0, levelFlags2: w.levelFlags2 },

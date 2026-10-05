@@ -1226,7 +1226,8 @@
         {"path": "decomp/research/loading-art.md", "heading": "New caller evidence: real resource-loading entry, not a percentage"},
         {"path": "decomp/research/loading-art.md", "heading": "Resource descriptor and failure propagation"},
         {"path": "decomp/research/vault-side-fire.md", "heading": "Model-18 Vault excludes generic attached fire"},
-        {"path": "decomp/research/vault-side-fire.md", "heading": "Known / unknown boundary"}
+        {"path": "decomp/research/vault-side-fire.md", "heading": "Known / unknown boundary"},
+        {"path": "decomp/research/vault-knowledge-world-assets.md", "heading": "Owned assets and live integration"}
       ],
       "nativeAddresses": [
         "0x40bce0",
