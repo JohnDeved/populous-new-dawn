@@ -441,7 +441,27 @@ export default async function ({ page, root, output, receipt, openMission, signa
     })
     assert.equal(report.opening.level, route.mission)
     assert.equal(report.opening.contextLost, false)
-    if (route.mission === 1) assert.equal(report.opening.blue.filter(u => u.kind === 'brave').length, 6)
+    if (route.mission === 1) {
+      const bytes = readFileSync(resolve(root, 'app/level-one.ts')),
+        sourceSha256 = digest(bytes)
+      assert.equal(sourceSha256, 'e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33', 'Bind the immutable authored M1 source')
+      const exported = bytes.toString('utf8').match(/^export default (.+);\s*$/m)
+      assert.ok(exported, 'Expected generated M1 source format')
+      const authored = JSON.parse(exported[1]).objects
+        .filter(o => o.type === 1 && o.model === 2 && o.owner === 0)
+        .map(o => ({ sourceIndex: o.index, x: o.x, z: o.z }))
+      assert.deepEqual(authored.map(o => o.sourceIndex), [13, 14, 15, 16, 17, 18])
+      // Reviewed createWorld prefix: nextId starts at1; one building, one head
+      // and ten trees allocate before these six people. Reward object2 does
+      // not allocate. addUnit therefore assigns browser IDs13..18 in this source.
+      const bound = authored.map((o, index) => ({ ...o, id: 13 + index }))
+      for (const person of bound)
+        assert.equal(report.opening.blue.find(u => u.id === person.id)?.kind, 'brave', `Authored M1 Brave ${person.sourceIndex} must remain alive and Blue`)
+      report.opening.authoredBraves = { source: 'app/level-one.ts', sourceSha256, bound }
+      // Real RAF also runs the two starting huts' normal birth clocks while
+      // startup readiness settles. Additional living followers remain in play.
+      report.opening.additionalBraves = report.opening.blue.filter(u => u.kind === 'brave' && !bound.some(b => b.id === u.id))
+    }
     if (route.checkpoint) report.checkpoint = await checkpointBeforeOrders(page, root, output, signal)
     if (baseline) await installBaselineObserver(page, route)
     else {
