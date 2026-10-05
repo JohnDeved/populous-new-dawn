@@ -237,6 +237,7 @@
         "app/person-order-update.ts",
         "app/person-orders.ts",
         "app/person-routes.ts",
+        "app/shaman-guard.ts",
         "app/route-advance.ts",
         "app/world-rules.ts"
       ],
@@ -247,6 +248,9 @@
         "scripts/probe-native-firewarrior.py",
         "scripts/probe-native-firewarrior-auto.py",
         "scripts/probe-native-firewarrior-tower.py",
+        "scripts/extract-shaman-guard-vectors.mjs",
+        "tests/shaman-guard-native.test.mjs",
+        "tests/shaman-guard-input.test.mjs",
         "tests/automatic-boat-crossing.test.mjs",
         "tests/game.test.mjs"
       ],
@@ -280,6 +284,7 @@
       ],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Shared person commands" },
+        { "path": "decomp/research/shaman-guard-input.md", "heading": "Live integration boundary" },
         { "path": "decomp/research/firewarrior.md", "heading": "Firewarrior launch and open boundaries" },
         { "path": "decomp/research/command-28-attacking-shaman.md", "heading": "Finding" },
         { "path": "decomp/research/mission5-boat.md", "heading": "Mission 5 granted Boat" },

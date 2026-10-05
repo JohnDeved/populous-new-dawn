@@ -60,6 +60,20 @@ export function setPersonAnchor(
   p.anchorFlags = 0
 }
 
+// Command-aware cancellation/completion anchor (0x433490), before queue removal.
+export function anchorPersonOrder(
+  p: Pick<UpdatingPerson, 'anchorX' | 'anchorY' | 'anchorFlags' | 'x' | 'y'>,
+  order: PersonOrder | undefined,
+  effects: Pick<OrderUpdateEffects, 'commandPosition' | 'outside'>
+) {
+  if (order && rules.personCommands[order.model].flags & 0x100) return
+  const point =
+    order && rules.personCommands[order.model].flags & 32
+      ? effects.commandPosition(order)
+      : { x: p.x, y: p.y }
+  setPersonAnchor(p, effects.outside(point))
+}
+
 // Complete 0x4e32a0: the idle state differs from the model's order state.
 export function personStateAfterOrders(
   w: Pick<OrderUpdateWorld, 'landFlags' | 'playerTribe' | 'survivingTribes'>,
@@ -199,24 +213,16 @@ export function stepPersonOrders(w: OrderUpdateWorld, p: UpdatingPerson, e: Orde
       if (!(w.levelFlags2 & 0x40000) && p.assignment & 8) e.formation()
     }
   }
-  const anchor = () => {
-    if (order && rules.personCommands[order.model].flags & 0x100) return
-    const to =
-      order && rules.personCommands[order.model].flags & 32
-        ? e.commandPosition(order)
-        : { x: p.x, y: p.y }
-    setPersonAnchor(p, e.outside(to))
-  }
   if (complete) {
     p.flags3 = (p.flags3 & ~1) >>> 0
     anchored = true
-    anchor()
+    anchorPersonOrder(p, order, e)
     if (p.immediateCommand) e.remove(-1)
     else if (!(rules.personCommands[p.commandStatus].flags & 0x8000)) e.remove(p.commandCursor)
     if (!e.advance()) finished = true
   }
   if (!finished) return 0
-  if (!anchored) anchor()
+  if (!anchored) anchorPersonOrder(p, order, e)
   if (
     p.flags3 & 0x10000000 ||
     (order && order.flags & 64 && !(order.flags & 128) && order.model !== 22)

@@ -17,18 +17,22 @@ function setup() {
 }
 const category = (world, unit) => hudTaskPeople(world).find(p => p.id === unit.id).category
 
-test('shipped G has the recovered guard task without mutating native ownership in HUD reads', () => {
+test('shipped G task classification follows deferred native adoption without mutating HUD reads', () => {
   const { world, unit } = setup()
   addUnit(world, 'blue', 'shaman', { x: 2, z: 8 })
   world.selected = [unit.id]
   guardShaman(world)
-  assert.equal(unit.guard, true)
+  assert.equal(unit.guard, false)
+  assert.equal(category(world, unit), 2, 'queued G keeps its current native idle state until preparation')
+  tick(world, 1 / 12)
   const before = structuredClone(world)
   assert.equal(category(world, unit), 4)
   assert.deepEqual(world, before)
   guardShaman(world)
   assert.equal(unit.guard, false)
-  assert.equal(category(world, unit), 0, 'dormant native state10/status0 is not falsely relabelled Idle')
+  assert.equal(category(world, unit), 0, 'native replacement clears status until preparation')
+  tick(world, 1 / 12)
+  assert.equal(category(world, unit), 4, 'repeat G remains Busy after adoption')
 })
 
 test('specific legacy work overrides dormant idle while real native disruption remains authoritative', () => {
