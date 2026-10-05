@@ -1,5 +1,10 @@
 # Fresh campaign continuity: accepted source checkpoint
 
+The newer [accepted main adoption at 7fa2db1](adoption-7fa2db1/README.md)
+includes the reviewed component carry, fresh 81-test/build receipts and returned
+dependency record. Launch remains disabled. The db6e486 packet below is preserved
+as its historical source-review predecessor.
+
 The QA-only Mission 1 → 2 → 3 scenario at
 [`db6e4867ba76d68a93d7b422053f3e04de15bfa1`](https://github.com/JohnDeved/populous-new-dawn/tree/db6e4867ba76d68a93d7b422053f3e04de15bfa1/qa/campaign-continuity)
 has independent **source-only ACCEPT**. Launch is disabled. Standard check,

@@ -1,0 +1,173 @@
+{
+  "head": "7fa2db1a4676cc16e47955ae2cc9608b58c71849",
+  "accepted": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
+  "tested": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+  "acceptedTree": "bdaa12ef7ea9ecf3094f4a23c25ae93cdb02063e",
+  "combinedTree": "f9bc65872318da8fb48c601300a40e9ba0518014",
+  "identicalPriorTrackedObjects": 3565,
+  "addedQAObjects": 19,
+  "verifiedFiles": [
+    {
+      "path": "qa/campaign-continuity/README.md",
+      "sha256": "57cd7c92f211822dd389c09f64a211fd784ad04924d32ba0f3a36e70420d359e"
+    },
+    {
+      "path": "qa/campaign-continuity/boundaries.mjs",
+      "sha256": "7615c6541f633203306584dda0d08f02dceb301cda21888791325131497a6313"
+    },
+    {
+      "path": "qa/campaign-continuity/boundaries.test.mjs",
+      "sha256": "223bf12e58af906e2c00d70f19f6e0aeeaf7df079378710e78ce9e394887d783"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.mjs",
+      "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.test.mjs",
+      "sha256": "9286d404028dc6d261a6c587de8b1347a1b6bad8ecf545ffab9764f4c7340e6c"
+    },
+    {
+      "path": "qa/campaign-continuity/erosion-observer.mjs",
+      "sha256": "19c25f71fcf0b60f24b65c7f8e2753b5bc51edbaca7d7ca540fd0136d6d50a97"
+    },
+    {
+      "path": "qa/campaign-continuity/erosion-observer.test.mjs",
+      "sha256": "b3cca25c4aa03c2cf8c64e9ba9066352638b58f52ed7c53e4e665766f107862e"
+    },
+    {
+      "path": "qa/campaign-continuity/mission-one-first-batch.json",
+      "sha256": "ed33faf9afeb4c2a19fa3e1cbc60747a4b5e2d0d409aef77d192fa2eacb3944b"
+    },
+    {
+      "path": "qa/campaign-continuity/observation.mjs",
+      "sha256": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a"
+    },
+    {
+      "path": "qa/campaign-continuity/observation.test.mjs",
+      "sha256": "53011926b04fc7dbfcad32d3318015a6f1736e67f5c75ae6ad62d2ddfd182a4a"
+    },
+    {
+      "path": "qa/campaign-continuity/queued-stop.mjs",
+      "sha256": "d67b3cca01cb8ac8032e31d3cdf71382d18bcae57397ffe2ebd945d259f12063"
+    },
+    {
+      "path": "qa/campaign-continuity/queued-stop.test.mjs",
+      "sha256": "c93eac48ec2a9686da97031efe115a65dcc326a9ef2ee6e404c02202241baaf0"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.json",
+      "sha256": "bb94ec17acf8242f817855aa13521b8f9b2d03c301669e15a120969be9492953"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.test.mjs",
+      "sha256": "a2d55d3991e961b4d6dcfcc660a6c1653a630fc240e6efc02a94de75624646ec"
+    },
+    {
+      "path": "qa/campaign-continuity/routes.mjs",
+      "sha256": "9c9ef454e1f2efa04d44ac11828f42c4d6c7f2f7db1be037e9dd7b1e4fff7198"
+    },
+    {
+      "path": "qa/campaign-continuity/routes.test.mjs",
+      "sha256": "ac00d37afc243a50540e58e3a18d8b4ce8495e32f277342be6d8830a77c10f5b"
+    },
+    {
+      "path": "qa/campaign-continuity/run-policy.json",
+      "sha256": "e4574ee0d284f2031fb50c2d3f4245ab3cea620b5183b2f2fb76f2569c7bd449"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario-paths.test.mjs",
+      "sha256": "87744b3af6fb70cd65081c2f21fbc1060a7b6164284d774ca6d46ef687c9707a"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "sha256": "8f0a323c4ff3d07537ff6cf081c09be96e639547d096c53cb0a32dc4cb9f2140"
+    }
+  ],
+  "verifiedReceipts": [
+    {
+      "path": "work/orchestration/campaign-continuity/adopt-a53-focused.json",
+      "sha256": "132ef76dae73efd35518108857caf80e89373724b80f350224f8d02473ee4928",
+      "command": [
+        "node",
+        "--test",
+        "qa/campaign-continuity/boundaries.test.mjs",
+        "qa/campaign-continuity/command-probes.test.mjs",
+        "qa/campaign-continuity/erosion-observer.test.mjs",
+        "qa/campaign-continuity/observation.test.mjs",
+        "qa/campaign-continuity/queued-stop.test.mjs",
+        "qa/campaign-continuity/reuse.test.mjs",
+        "qa/campaign-continuity/routes.test.mjs",
+        "qa/campaign-continuity/scenario-paths.test.mjs"
+      ],
+      "exitCode": 0,
+      "sourceHead": "7fa2db1a4676cc16e47955ae2cc9608b58c71849",
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/adopt-a53-structure.json",
+      "sha256": "ae602e39af9c79389e5a343ecd95d8790e108fb352958f090c6cbf797a2bb9e6",
+      "command": [
+        "node",
+        "scripts/orchestration/cli.mjs",
+        "check"
+      ],
+      "exitCode": 0,
+      "sourceHead": "7fa2db1a4676cc16e47955ae2cc9608b58c71849",
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/adopt-a53-diff.json",
+      "sha256": "987ab61bb56a6d9f1398ce5b4874023e3fa3cdbaadbb6aff86d9fd78a6acc216",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
+        "HEAD"
+      ],
+      "exitCode": 0,
+      "sourceHead": "7fa2db1a4676cc16e47955ae2cc9608b58c71849",
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/adopt-a53-build.json",
+      "sha256": "849ceacfc89fb6d405afcaeb27dd7cb09b02fd01657b7ef5399079723ddfeafe",
+      "command": [
+        "taskset",
+        "-c",
+        "0-3",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "120s",
+        "npm",
+        "run",
+        "build"
+      ],
+      "exitCode": 0,
+      "sourceHead": "7fa2db1a4676cc16e47955ae2cc9608b58c71849",
+      "rawStreamsVerified": true
+    }
+  ],
+  "priorReceipts": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/ef62e48-check.json",
+      "sha256": "387525ff5739ae6e4445760a90dda7d181ffcc4fcc3bea42e86d4518a683627f",
+      "sourceHead": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+      "status": "passed",
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/ef62e48-build.json",
+      "sha256": "17b3806c7dd8f3349cc44a009265f7809447aeb043ba7b301b11bfb1e5950390",
+      "sourceHead": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+      "status": "passed",
+      "rawStreamsVerified": true
+    }
+  ],
+  "headClean": true,
+  "disabledPolicy": true,
+  "proposedProfileStillAbsent": true,
+  "preparedBatchMatches": true
+}

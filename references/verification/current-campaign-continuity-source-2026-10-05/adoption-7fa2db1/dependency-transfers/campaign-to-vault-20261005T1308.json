@@ -1,0 +1,30 @@
+{
+  "kind": "exclusive-dependency-return",
+  "createdAt": "2026-10-05T13:09:35.096943+00:00",
+  "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/node_modules",
+  "target": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/node_modules",
+  "fullTreeInode": 925605,
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "originalTargetAbsenceRestored": true,
+  "priorTransfer": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/dependency-transfers/vault-to-campaign-20261005T1304/receipt.json",
+    "sha256": "ae6087a11523239c40b524579b93e4f2edce9869c81fc0c060e4dae3efc43385"
+  },
+  "terminalCommand": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/adopt-a53-build.json",
+    "sha256": "849ceacfc89fb6d405afcaeb27dd7cb09b02fd01657b7ef5399079723ddfeafe",
+    "originalExecutionSession": 34527,
+    "status": "passed",
+    "exitCode": 0,
+    "finishedAt": "2026-10-05T13:06:01.075Z",
+    "boundSeconds": 120
+  },
+  "browserOrProfileLaunched": false,
+  "scope": "Completed one required source-bound build. Return exact full tree without copy/install/link; restore QA node_modules absence.",
+  "status": "returned",
+  "verifiedAt": "2026-10-05T13:09:35.097572+00:00",
+  "restoredTreeInode": 925605,
+  "preservedDonorStub": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/dependency-transfers/campaign-to-vault-20261005T1308/preserved-donor-lock-stub",
+  "preservedDonorStubInode": 1877902
+}

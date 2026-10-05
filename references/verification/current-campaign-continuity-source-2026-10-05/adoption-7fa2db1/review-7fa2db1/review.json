@@ -1,0 +1,105 @@
+{
+  "kind": "independent-adopted-campaign-source-policy-and-gate-review",
+  "createdAt": "2026-10-05T13:13:54.506Z",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_campaign_continuity",
+  "decision": "ACCEPT",
+  "sourceHead": "7fa2db1a4676cc16e47955ae2cc9608b58c71849",
+  "tree": "f9bc65872318da8fb48c601300a40e9ba0518014",
+  "acceptedMain": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
+  "acceptedMainTree": "bdaa12ef7ea9ecf3094f4a23c25ae93cdb02063e",
+  "actualAppTree": "58797f069a89069d57a4ae801f645e476f99137e",
+  "priorAcceptedQA": "db6e4867ba76d68a93d7b422053f3e04de15bfa1",
+  "acceptanceScope": "Accept this frozen QA source/policy adoption, prepared finite Mission 1 input template, and the explicit standard-component correspondence below. This is not a campaign completion, browser lane release, profile creation, or launch-enable approval.",
+  "handoff": {
+    "path": "work/orchestration/campaign-continuity/7fa2db1-handoff.json",
+    "sha256": "8608fd8e237c1f86663f5846e9d560ed02f667392d965d7f55ddc82916934cab"
+  },
+  "verification": {
+    "path": "work/orchestration/campaign-continuity/review-7fa2db1/verification.json",
+    "sha256": "5aff181b0e3b3acaff2bbb1f714411cdce7403d74d8b99fcfff5e4df46befc89"
+  },
+  "gateCorrespondence": {
+    "path": "work/orchestration/campaign-continuity/7fa2db1-gate-correspondence.json",
+    "sha256": "50285ad3cd6bc184613c4c2732467f09ba4af0d9273c35a7ec8a1461e574b922",
+    "decision": "pending explicit independent reviewer decision; component carry is proposed, not silently marked passed"
+  },
+  "segmentPlan": {
+    "path": "work/orchestration/campaign-continuity/7fa2db1-segment-plan.json",
+    "sha256": "ca83f678c12e2ff8747c136092b326f8bd1d47f91e6b18beda293d243f14d5b4",
+    "launchEnabled": false,
+    "firstBatchEnqueued": false,
+    "profileCreated": false
+  },
+  "sourceFindings": [],
+  "sourceAssessment": [
+    "Independently compared Git mode/type/object identities: all 3,565 prior tracked objects from tested ef62e48 remain identical, accepted a53fa05 has that same complete tree, and the combined candidate adds exactly 19 QA files.",
+    "Reviewed the complete QA adoption delta from accepted db6e486: accepted-main ancestry and actual app subtree checks, clean source receipt guard, eight measured application/helper imports, pin and documentation refresh, and the eight-action Mission 1 template. No gameplay action or lifecycle implementation changed.",
+    "Prior R1-R3 repairs remain intact. The Continue accessible name, named-effect progress routing, and exact intended terminal status/error binding still meet the accepted source contract.",
+    "Inspected the relevant accepted Vault application changes against scenario assumptions. Marker initialization adds embedded state without allocating entity IDs; the authored M3 victim allocation premise remains. Existing reward/Temple-unlock ownership and ordinary Save/Load remain. Valid gift presentation is preserved by migration and the new atlas participates in scene readiness. The scenario does not claim its narrower worship overlay observation proves the new world-space glow.",
+    "The prepared first batch resumes, uses ordinary Shaman selection, orders the unique current bridge alias, waits for actual shrine use and four delivered shots, then pauses/marks/snapshots. It supplies no assumed actor identity or coordinates, model mutation, arbitrary storage write or synthetic outcome. It remains unqueued.",
+    "The proposed profile was still absent at review. Launch remains false. Finite active, no-progress, mission wall and segment caps are unchanged from the reviewed source; stop preservation and clean Continue/Save-only segmentation remain required."
+  ],
+  "gateDecisions": [
+    {
+      "component": "npm run typecheck",
+      "decision": "ACCEPT CARRY",
+      "from": "ef62e48-check.json",
+      "reason": "All existing TypeScript/app/build/config/lock inputs are identical. Added QA files are .mjs/.json/.md outside explicit TS include patterns, and no existing application import was changed. The only current generated route declaration was inspected and matches the retained accepted-source declaration for the unchanged sole / route.",
+      "limit": "Current ignored route declarations are current observations, not an invented historical typecheck manifest. This carries unchanged application typecheck evidence, and does not assert a new combined invocation or a new dependency-environment certification."
+    },
+    {
+      "component": "npm test",
+      "decision": "ACCEPT CARRY",
+      "from": "ef62e48-check.json",
+      "tests": 1114,
+      "reason": "package.json runs node --test tests/*.test.mjs. Every selected standard test and every prior tracked dependency is identical. New QA tests are separately executed on the combined head. Actual repository context tests use mapped unchanged sources; added QA files do not enter those mapped indexes."
+    },
+    {
+      "component": "npm run parity:check",
+      "decision": "ACCEPT CARRY",
+      "from": "ef62e48-check.json",
+      "reason": "The parity checker, ledgers, history, generated report and referenced pre-existing sources remain identical. This preserves the existing parity validation only; the campaign source earns no new parity credit."
+    },
+    {
+      "component": "npm run orchestration:check",
+      "decision": "ACCEPT FRESH PASS",
+      "receipt": "work/orchestration/campaign-continuity/adopt-a53-structure.json",
+      "reason": "Fresh structural validation covers actual combined repository inventory and maps."
+    },
+    {
+      "component": "direct campaign QA tests",
+      "decision": "ACCEPT FRESH PASS",
+      "tests": 81,
+      "receipt": "work/orchestration/campaign-continuity/adopt-a53-focused.json",
+      "reason": "Actual combined-head source tests cover current app/helper correspondence and the prepared route template as well as prior observers and lifecycle paths."
+    },
+    {
+      "component": "git diff --check",
+      "decision": "ACCEPT FRESH PASS",
+      "receipt": "work/orchestration/campaign-continuity/adopt-a53-diff.json"
+    },
+    {
+      "component": "npm run build",
+      "decision": "ACCEPT FRESH PASS; DO NOT CARRY OLD BUILD",
+      "receipt": "work/orchestration/campaign-continuity/adopt-a53-build.json",
+      "reason": "The reviewer found that Tailwind automatic project-text scanning includes the added nonignored QA files. App/config/lock equality alone was insufficient; the owner then ran a fresh exact combined-head build, exit 0. That source-bound build resolves the gap.",
+      "sourceBasis": [
+        "app/globals.css:1",
+        "postcss.config.mjs",
+        ".gitignore",
+        "https://tailwindcss.com/docs/detecting-classes-in-source-files#which-files-are-scanned"
+      ]
+    }
+  ],
+  "aggregateStatus": "All source-bound standard components are satisfied by the explicit carry/fresh decisions above. The combined npm run check command was NOT executed and must not be reported as a fresh aggregate pass.",
+  "receiptsAssessment": "Verified all 19 file hashes, four current clean-head receipts and both raw streams, the two actual ef62e48 receipts and raw streams, source manifest, gate/segment packets and dependency transfer receipt hashes. The fresh build is bound to 7fa2db1 before and after, with empty tracked diff and exit 0.",
+  "quality": "The candidate adds QA JavaScript/JSON/docs only relative to accepted main. Prior app-only format/Oxlint evidence retains its existing scope/status; no clean repository-wide ESLint carry is inferred because eslint . also discovers new QA files. Accepted legacy quality findings are not erased.",
+  "resourceAssessment": "Read-only source/receipt/working generated-type inspection and ignored review artifact writes only. No reviewer browser, profile, package install, dependency access/transfer or heavy command was performed. The owner supplied hashed two-ended transfer/return receipts, with target dependency absence restored; these are reported as verified artifacts, not a reviewer process-ownership probe.",
+  "remaining": [
+    "Parent must separately approve/review the launch-enable source change and exact final source/runtime pinning.",
+    "Rendered lane release follows the current short #214 audit under parent coordination.",
+    "Fresh actual Mission 1/2/3 campaign, Save/Load, Continue, protected M3 sermon/conversion/Erosion and victory evidence remain to be earned.",
+    "No selected original animation rate, full native parity, calibrated timing, native pixel equivalence or hardware-performance claim."
+  ],
+  "stopCondition": "This frozen source/policy/correspondence review is complete. Any later application/helper/policy mutation requires affected correspondence and source review; runtime remains disabled until its own authorized release."
+}

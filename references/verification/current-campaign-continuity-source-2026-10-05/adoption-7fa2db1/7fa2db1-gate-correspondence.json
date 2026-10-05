@@ -1,0 +1,288 @@
+{
+  "kind": "explicit-standard-and-build-correspondence-proposal",
+  "createdAt": "2026-10-05T13:06:57.878708+00:00",
+  "sourceHead": "7fa2db1a4676cc16e47955ae2cc9608b58c71849",
+  "acceptedMain": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
+  "acceptedMainTree": "bdaa12ef7ea9ecf3094f4a23c25ae93cdb02063e",
+  "testedCandidate": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+  "testedCandidateTree": "bdaa12ef7ea9ecf3094f4a23c25ae93cdb02063e",
+  "actualCombinedTree": "f9bc65872318da8fb48c601300a40e9ba0518014",
+  "actualAppTree": "58797f069a89069d57a4ae801f645e476f99137e",
+  "unchangedExistingTrackedObjectCount": 3565,
+  "changedExistingObjects": [],
+  "addedQAObjects": [
+    {
+      "path": "qa/campaign-continuity/README.md",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "de44490e0c729f88d5a9a5cf97d3f1fe3d5dd924",
+      "sha256": "57cd7c92f211822dd389c09f64a211fd784ad04924d32ba0f3a36e70420d359e"
+    },
+    {
+      "path": "qa/campaign-continuity/boundaries.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "b0cba9eacfee632f4299aa142e159c9d4384bebf",
+      "sha256": "7615c6541f633203306584dda0d08f02dceb301cda21888791325131497a6313"
+    },
+    {
+      "path": "qa/campaign-continuity/boundaries.test.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "3e175eed31f4e02abf9067ab52ddd5978fdaba71",
+      "sha256": "223bf12e58af906e2c00d70f19f6e0aeeaf7df079378710e78ce9e394887d783"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "77d214b4aee4c3bb321e05c1d2cc789d94be1bb8",
+      "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.test.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "c8c18806f295aef2438ddd13d0f4526dc0675b79",
+      "sha256": "9286d404028dc6d261a6c587de8b1347a1b6bad8ecf545ffab9764f4c7340e6c"
+    },
+    {
+      "path": "qa/campaign-continuity/erosion-observer.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "9fd2c0ddf99bbb042962def1d65a35d178cfe4f9",
+      "sha256": "19c25f71fcf0b60f24b65c7f8e2753b5bc51edbaca7d7ca540fd0136d6d50a97"
+    },
+    {
+      "path": "qa/campaign-continuity/erosion-observer.test.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "8f992af4117e729fbc84a8ffa6d4ec7ca0440754",
+      "sha256": "b3cca25c4aa03c2cf8c64e9ba9066352638b58f52ed7c53e4e665766f107862e"
+    },
+    {
+      "path": "qa/campaign-continuity/mission-one-first-batch.json",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "0ce632ba55fba9a629c072105dc875b02f7dc147",
+      "sha256": "ed33faf9afeb4c2a19fa3e1cbc60747a4b5e2d0d409aef77d192fa2eacb3944b"
+    },
+    {
+      "path": "qa/campaign-continuity/observation.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "707a0ba01ff2c4810a7796dad4161b16d6fc656e",
+      "sha256": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a"
+    },
+    {
+      "path": "qa/campaign-continuity/observation.test.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "2945a4b5ef49152fb3dfe7b320ecf45c97d3ca48",
+      "sha256": "53011926b04fc7dbfcad32d3318015a6f1736e67f5c75ae6ad62d2ddfd182a4a"
+    },
+    {
+      "path": "qa/campaign-continuity/queued-stop.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "9bc13c48f6964b9832800b913794c08837b008d3",
+      "sha256": "d67b3cca01cb8ac8032e31d3cdf71382d18bcae57397ffe2ebd945d259f12063"
+    },
+    {
+      "path": "qa/campaign-continuity/queued-stop.test.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "4ae0d6772149f7022a6054538521c61cb3044b61",
+      "sha256": "c93eac48ec2a9686da97031efe115a65dcc326a9ef2ee6e404c02202241baaf0"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.json",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "9ab21b8dc71e3f86ae5657f519c60c6a7dbcf867",
+      "sha256": "bb94ec17acf8242f817855aa13521b8f9b2d03c301669e15a120969be9492953"
+    },
+    {
+      "path": "qa/campaign-continuity/reuse.test.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "155410575ec60006eb4b76a8a0582652fca7113a",
+      "sha256": "a2d55d3991e961b4d6dcfcc660a6c1653a630fc240e6efc02a94de75624646ec"
+    },
+    {
+      "path": "qa/campaign-continuity/routes.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "fa04f89f5e00897c45ca784781a5f28aa04a3514",
+      "sha256": "9c9ef454e1f2efa04d44ac11828f42c4d6c7f2f7db1be037e9dd7b1e4fff7198"
+    },
+    {
+      "path": "qa/campaign-continuity/routes.test.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "d0dfec554356047e673444fe4d22868188c5bf6c",
+      "sha256": "ac00d37afc243a50540e58e3a18d8b4ce8495e32f277342be6d8830a77c10f5b"
+    },
+    {
+      "path": "qa/campaign-continuity/run-policy.json",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "76dd13579671d0d6a25c8c031472485755f98026",
+      "sha256": "e4574ee0d284f2031fb50c2d3f4245ab3cea620b5183b2f2fb76f2569c7bd449"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario-paths.test.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "a60498b30a9949e9d5bf5ec25b456c532bf61abc",
+      "sha256": "87744b3af6fb70cd65081c2f21fbc1060a7b6164284d774ca6d46ef687c9707a"
+    },
+    {
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "mode": "100644",
+      "kind": "blob",
+      "oid": "ad34e723f64891cae4580d012737b3125b40e8de",
+      "sha256": "8f0a323c4ff3d07537ff6cf081c09be96e639547d096c53cb0a32dc4cb9f2140"
+    }
+  ],
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "installedDependencyInode": 925605,
+  "priorReceipts": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/ef62e48-check.json",
+      "sha256": "387525ff5739ae6e4445760a90dda7d181ffcc4fcc3bea42e86d4518a683627f",
+      "status": "passed",
+      "source": {
+        "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+        "branch": "fix/mission3-vault-hfx",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {}
+      },
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "300s",
+        "npm",
+        "run",
+        "check"
+      ],
+      "startedAt": "2026-10-05T11:50:28.790Z",
+      "finishedAt": "2026-10-05T11:53:31.487Z",
+      "stdoutSha256": "726ee36776e15ea14cdd694ea6bf4ac33bfbc546f2ae37dde953e7da1135d945",
+      "stderrSha256": "734ccd19a31fce6b86708ba92aae98b5811c1a2e2999fe39d3e4d09c79cbe657",
+      "tests": 1114
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-vault-hfx/work/orchestration/vault-hfx/ef62e48-build.json",
+      "sha256": "17b3806c7dd8f3349cc44a009265f7809447aeb043ba7b301b11bfb1e5950390",
+      "status": "passed",
+      "source": {
+        "headOid": "ef62e48f07834cddcb543969a7afab5c77a84f4a",
+        "branch": "fix/mission3-vault-hfx",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {}
+      },
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "120s",
+        "npm",
+        "run",
+        "build"
+      ],
+      "startedAt": "2026-10-05T11:53:42.703Z",
+      "finishedAt": "2026-10-05T11:54:00.878Z",
+      "stdoutSha256": "629bb8105a0e3f24585545d7dc7bcddde4c7762de2aa6e9570972682de9835d8",
+      "stderrSha256": "98224248bf7f9a1ae1b29a2068bc62acb9e14707f0ac953e6bac1594c07b96d3",
+      "tests": null
+    }
+  ],
+  "proposedComponents": [
+    {
+      "component": "npm run typecheck",
+      "proposal": "carry the actual clean ef62e48 result",
+      "reason": "All existing tracked sources/configs and locks match. Added QA .mjs/.json/.md files are outside TypeScript include patterns and no existing import was changed."
+    },
+    {
+      "component": "npm test",
+      "proposal": "carry actual 1114-test ef62e48 result",
+      "reason": "npm test selects tests/*.test.mjs; every such test and prior tracked dependency is byte-identical. Added QA tests are separately rerun directly."
+    },
+    {
+      "component": "npm run parity:check",
+      "proposal": "carry actual ef62e48 result subject to reviewer verification",
+      "reason": "Parity ledger, checker and all existing tracked inputs match."
+    },
+    {
+      "component": "npm run orchestration:check",
+      "proposal": "use fresh combined-source receipt",
+      "reason": "New QA paths alter repository inventory; fresh structure check is recorded."
+    },
+    {
+      "component": "npm run build",
+      "proposal": "use fresh combined build receipt; old build is historical comparison only",
+      "reason": "app/globals.css imports Tailwind and postcss uses automatic project-text scanning; added nonignored QA files can change CSS inputs despite app-tree equality."
+    }
+  ],
+  "aggregateClaim": "No combined npm run check command is claimed. Only explicitly reviewed component carry plus fresh direct QA/structural gates may satisfy this source boundary.",
+  "reviewStatus": "pending",
+  "launchEnabled": false,
+  "freshCombinedBuild": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/adopt-a53-build.json",
+    "sha256": "849ceacfc89fb6d405afcaeb27dd7cb09b02fd01657b7ef5399079723ddfeafe",
+    "status": "passed",
+    "source": {
+      "headOid": "7fa2db1a4676cc16e47955ae2cc9608b58c71849",
+      "branch": "qa/current-campaign-continuity",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "inputs": {}
+    },
+    "command": [
+      "taskset",
+      "-c",
+      "0-3",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=5s",
+      "120s",
+      "npm",
+      "run",
+      "build"
+    ],
+    "startedAt": "2026-10-05T13:05:42.137Z",
+    "finishedAt": "2026-10-05T13:06:01.075Z",
+    "stdoutSha256": "65850bf9e2db321b4ac2748459b322fb2673cfa07a8691931a7e58b0d5a98569",
+    "stderrSha256": "153ef585405d625141dc08c489d3f7b68d49d188ca496c61456e5de8d2345b8d",
+    "originalExecutionSession": 34527,
+    "terminalExitCode": 0
+  },
+  "postBuildInstalledLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "ignoredTypecheckInputs": {
+    ".next/types": {
+      "target": [
+        {
+          "path": "routes.d.ts",
+          "sha256": "dcbe5fe927cb4c86ffb9a8f335a196c8754d6c2bcb9797c7a961b05b7dfcb84f"
+        }
+      ],
+      "priorTestedTreeCurrentRetainedDirectory": [
+        {
+          "path": "routes.d.ts",
+          "sha256": "dcbe5fe927cb4c86ffb9a8f335a196c8754d6c2bcb9797c7a961b05b7dfcb84f"
+        }
+      ],
+      "equalNow": true,
+      "limit": "Current retained directories are observations, not an invented historical typecheck input manifest."
+    },
+    ".next/dev/types": {
+      "target": [],
+      "priorTestedTreeCurrentRetainedDirectory": [],
+      "equalNow": true,
+      "limit": "Current retained directories are observations, not an invented historical typecheck input manifest."
+    }
+  },
+  "updatedAt": "2026-10-05T13:08:10.598698+00:00"
+}
