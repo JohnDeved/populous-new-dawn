@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "exitCode": 0,
+  "command": "source ../prerequisites/env.sh && timeout 60s taskset -c 4 env PYTHONDONTWRITEBYTECODE=1 \"$POPULOUS_PYTHON\" work/orchestration/native-guard-lifecycle-20261005/probe-guard-distance.py \"$POPULOUS_EXE\" \"$PWD\"",
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered",
+  "head": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "trackedStatus": "",
+  "caseCount": 28,
+  "differenceCount": 5,
+  "sources": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/native-guard-lifecycle-20261005/probe-guard-distance.py": "5a7578947b47e7a2e795e881893028250278f8845a2c9f45bdae74372f62cc70",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/app/live-movement.ts": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5"
+  },
+  "resultSha256": "fa07a6393231153208152ba789b80d9954ae01baefdd87729c3257bedcd52b76",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "suppliedLeaves": {
+    "004e9d80": "record destination request, no mutation",
+    "004d4f40": "record recovery, no mutation (not reached)"
+  },
+  "scope": "Original 0043daa0 signed-coordinate distance boundaries, read-only native probe.\nCompare executed native decisions with explicit signed-int subtraction and with\nthe current port's Math.abs(short(a-b)) expression. Does not execute TypeScript.\nDestination/recovery are observed supplied leaves; adjacent empty-land lookup\nruns natively. Existing baseline lifecycle probe/results are not modified.\n",
+  "firstAttempt": {
+    "status": "failed",
+    "exitCode": 1,
+    "sourceSha256": "22f10292975d54a6903cdcc33ef3e9f95744af3372c7ba1a25b215c7315a22aa",
+    "reason": "All native signed32 assertions passed; expected differing-case list omitted the additional -32768 versus31945 wrapped-near mismatch. Added that explicit expected case without changing native assertions."
+  }
+}

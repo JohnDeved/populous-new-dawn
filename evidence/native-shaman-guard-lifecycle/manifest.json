@@ -1,0 +1,469 @@
+{
+  "schemaVersion": 1,
+  "kind": "independently-reviewed-native-research-packet",
+  "sourceRepository": "JohnDeved/populous-new-dawn",
+  "sourceCommit": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "branch": "evidence/native-shaman-guard-lifecycle",
+  "scope": "Accepted lifecycle baseline and distance companion only; research evidence without runtime changes or parity credit.",
+  "independentReviewSha256": "27538c420093465594e9bd3fb519b5801d59871c31ae8d5e75472532905e2798",
+  "frozenFindingsSha256": "32e27423b6accdc8571e90dae2433b7da0fc237b82f3a1b1d0a89a5cc0ceaaec",
+  "originalRecordedSourceRoot": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered",
+  "tools": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "unicorn": "2.1.4",
+    "capstone": "5.0.7",
+    "interpreterAndPackageBinaryHashes": "not recorded in accepted baseline; package versions only",
+    "ghidra": "not run"
+  },
+  "sourceDependencies": {
+    "decomp/generated/0043e8e0.c": {
+      "sha256": "39b7c6e645760a599abecb4e44861da69ebc08c3d3370dff0c3835934e9fd309",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "84736619371ad4ffe2ad1934177d84565bbb8f92"
+    },
+    "decomp/generated/00436c20.c": {
+      "sha256": "317e4e72aab9f611bec4f70dfb0b27be1213d2daca57f675ccbc8888610ac8e5",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "054fec5847687ae61a9314a358e3a70f44408a2e"
+    },
+    "decomp/generated/00438730.c": {
+      "sha256": "6a5ce0e68b07b0dab9837b53d8f0cc657495077a2069f0c43ba8bd594651e660",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "aba08941a52b1f608b3c84ff5862b400928774da"
+    },
+    "decomp/generated/00436ca0.c": {
+      "sha256": "1f9230efa60fe8029321ddab04755b8d073e5d8a8f53c87b90fbd9d6c2e854e6",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "02fa3e355a805a4d6623e8cc1d8acbe743bf2990"
+    },
+    "decomp/generated/00436d00.c": {
+      "sha256": "0c5d9dc7ca2e531605137b19aca83933dff51c8d843d0f2f9ab734b421cf2e13",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "8e4ecfc784eb54c7b8ca6f2674a35645133d53cd"
+    },
+    "decomp/generated/0043b010.c": {
+      "sha256": "e1ecd52f78b79873e832f0de798dccf817befb91bcc285ddb9c15356e5864be4",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "9d6afb76500c740b17357606f71ba8d143f4f9c4"
+    },
+    "decomp/generated/004364d0.c": {
+      "sha256": "694cf0f4dfbfe3ec7ada8b812b360d227443c43e44910bcd5a0dc0187a852553",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "6f8205d7281e36b0f2960e0768f72bd44ed5e618"
+    },
+    "decomp/generated/004366b0.c": {
+      "sha256": "dd4029745900a78ca7b1c0b2dceb48c23fa9cc114dd786a07cdf196d4f42a50f",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "f930dbb677343af1807575550b00f0ffd1c2d494"
+    },
+    "decomp/generated/00436870.c": {
+      "sha256": "c7ab2259b82f016714a0e6f6eaee31da69b056500acf185fe5f428177a3b67a8",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "953fba19ced2d02d81030165c406910da08d5760"
+    },
+    "decomp/generated/00432260.c": {
+      "sha256": "23e7e3767d6ab658025e4a0474e86bdad7264b2852b401a48b65c07f1a33ca3d",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "2c15eda9c2b20a5da6daf7bbe43ad2bf76301cc3"
+    },
+    "decomp/generated/00432df0.c": {
+      "sha256": "275beb61e5d2c1a6380fdb9f1066754a47761701ab9be7002cbe2f500a2fe0d9",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "9dc9aa6cac5fdf33bde4c71d8e6dc892c8a6a57a"
+    },
+    "decomp/generated/0043d510.c": {
+      "sha256": "4ec0f8cf48db1561fa82724e2c91fb76d61bea9febf6827b60a96d6dd321b49c",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "6b7845a8014401f2a408e0f9e68a162521d73fb0"
+    },
+    "decomp/generated/00432590.c": {
+      "sha256": "3ecb61dad36c9ad28115359566a586d41181dd131bb5dde939f8dc91f3d21d45",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "6f5744a414b1ec3c8ec1b5188056ef709495924d"
+    },
+    "decomp/generated/004d42a0.c": {
+      "sha256": "e76520c30d22ce7635562d6e0fad74739ad108cb7e743e153aa9fd02c90ed10d",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "822210c38a0c07b715b7c5a90ab4605324f5c9a7"
+    },
+    "decomp/generated/004ed640.c": {
+      "sha256": "00fed5e330959a34047a742ae4ce133e93c6cd4fdbdbc2a0222f22b06cda0ecb",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "8a840a9242432834fb716e563f14251102a3b85a"
+    },
+    "decomp/generated/004d2740.c": {
+      "sha256": "02dd6d6bcdebfd1fbb5065c50af5e8f40d33140676e99c316ceb3ebe85835747",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "96a608b1eb607b56b571119c1a7deedb50b856f8"
+    },
+    "decomp/generated/004d32b0.c": {
+      "sha256": "1302bb34e80166d86f96cdf418987ba54a6362f4742760082c656c80b8f96fce",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "8498a303b9b56e24a4b990fa09a9f681e1141062"
+    },
+    "decomp/generated/004d3ea0.c": {
+      "sha256": "605d220b28ae7b6dbf2a6edb7661b50069e76223f1052ad49e3769ae422a4cb1",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "cd78f6e7cbcd5a33b4cd5eee0ea1a819fef68fa6"
+    },
+    "decomp/generated/004d4040.c": {
+      "sha256": "e15f9bccaa6eb40b0f44350fdf2eca10af2f284f7db74237dbb422fda6fce910",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "b2e2337016baea92bc6842c1bf317d0a66e07ecf"
+    },
+    "decomp/generated/004ee700.c": {
+      "sha256": "e3af26337ab4897a49a99ce77298f02d9067e981554ea8b782560231fe2701c0",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "64a6cc7173dfce5a63cf437f24c95fa515955f86"
+    },
+    "decomp/generated/004ee7b0.c": {
+      "sha256": "8ce7fd89e8e5a9aeae876dc1cb25584c75bad3b65e7aece10667a737213782fb",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "539468a6db8b39071294ecc6a43e92b3d1ce5190"
+    },
+    "decomp/generated/004ed700.c": {
+      "sha256": "598f405b7271fdf40b953d45ae594946d0872b5fbe67ff9c9c9880f6a837fdff",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "3600e157b52637210c43b0bed84e20ce360b69e2"
+    },
+    "decomp/generated/004d4f40.c": {
+      "sha256": "21de9ade3eb03d051172dd63f83c6d83858cafc255c0eb0f189a6c235b45f879",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "c6dace5753a76b7029908d858316e1ef7129dec0"
+    },
+    "decomp/generated/004d4ee0.c": {
+      "sha256": "0ca5a7a0c8cf7afa17ab842585ec2dd0f354d8b198d94646680e3f42caf811c3",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "5958e9df932e45907b1f863301e00cb4d01dbe81"
+    },
+    "decomp/generated/004d6f90.c": {
+      "sha256": "751bf2605f941ba089fbfb9e2706c1c48dd5fb588fc5ecea83f3ca79d936927a",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "02e935582da0fedef3b2a4a4b64d03b887a3e99c"
+    },
+    "decomp/generated/004d7330.c": {
+      "sha256": "48bfb36a2e1184596bb0375faa37fba9c80f250d88ba7c03c6d28233f14f3010",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "346a289d3554d0f304f29f189670f9a809480565"
+    },
+    "decomp/generated/00518200.c": {
+      "sha256": "6a0319382583aa6d56ff71f3ea184f0ac71cd6983471ff54747cc87dc0316e7e",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "ed46368d5459b7cc758c71fda6dbb6d8120b3181"
+    },
+    "decomp/generated/004e32a0.c": {
+      "sha256": "c4b009cf18a1b8dce2012ab9fb804bde173a21f2631142f698464f9dbc4177b0",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "7d19c910d7b8c588c0533ed9bdb93294fcd2068a"
+    },
+    "decomp/generated/0043d2f0.c": {
+      "sha256": "f53ddebd80ce8946f9dba3a719a1631f686bdc4f2e6d38e718b2ab02bbf66ca3",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "2b9528482730a1c010f9b2bf056d3c677ffc1c8b"
+    },
+    "decomp/generated/0043d0e0.c": {
+      "sha256": "c91de8b09850ed5830b034ba982d1fe32c602e60e53340e8e1244ef8a01f33a9",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "a19d3fd1620477fc27fa31b2f2391b41e1bf38a5"
+    },
+    "decomp/generated/004a3940.c": {
+      "sha256": "47669140587f7baea77e2d2a45d9fee3c5eab19a464c70eb41676fe754858ecd",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "454e9e01ba85a7f9009328f694ef0d5440d1d32c"
+    },
+    "decomp/generated/004d47d0.c": {
+      "sha256": "6b49ff975df8853455a07e2d8939349658f57c7687b87848ff77d8fa6a63215d",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "6f14f81ec6042272885dddf52358e64235a8834d"
+    },
+    "app/live-command.ts": {
+      "sha256": "c613176708e99a19243e10ccaf2af4b83eba73a259c8ac6623e12f31f70ca324",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "4052213eb01b8cf0f41f6af0262d135382767482"
+    },
+    "app/live-movement.ts": {
+      "sha256": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "344cd1dce46b5a8463a4fb48706cde010b1c4ad7"
+    },
+    "app/selection-runtime.ts": {
+      "sha256": "999dfa2becc4bf884239b79cf9edeef75a6d74ee5f588b29aff57178ab7deeb6",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "287090e5f4c67bb10d5bd721454f08ad23897e4f"
+    },
+    "app/live-people.ts": {
+      "sha256": "340d912b2f886e7b520d76310cebffe9a2928363b98c0a44b3dd5fdd47d2c117",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "0a9a16ec771141134c5ba9617b8607731a7559a9"
+    },
+    "app/world-turn.ts": {
+      "sha256": "d322af8560cce8e0e3bc1188ebab7676c1cce3b904563c380562f4c1a932fea8",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "f7f68dabeb775d6f1708206952106cf850281626"
+    },
+    "app/live-resting.ts": {
+      "sha256": "3164a20ff88fb05d919f8f53fd179b0375350c631af5420d667f7106d7f5f515",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "b8a896332b80141940991c17c8246502c0400fe0"
+    },
+    "app/person-state.ts": {
+      "sha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "9796bd863ac2fe5f7450f7e26cdb52ccae5c9beb"
+    },
+    "app/person-selection.ts": {
+      "sha256": "a9e2f65c572b954c871921ae9a0366b5af20ab05fceab6e17661a52094fc7cc8",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "da43f3f3759a87d27dc5b5cdd90977eb5edb5548"
+    },
+    "app/world-tasks.ts": {
+      "sha256": "92d4fde9cd0b553a63288263fe3f4ba9918fcdad635436157965438b1cb0024e",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "2c3e905e773cbcc3cdc8680594337baaed282624"
+    },
+    "app/person-orders.ts": {
+      "sha256": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "1c196faa0f6298f81d402054714fae04e6c8030f"
+    },
+    "app/scene-entities.ts": {
+      "sha256": "cc7cb79c9e92e5b0cb283f745dadec503d8246ab3936b054313d577b97f2c4f4",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "522963cc18c943beebe37d163a6af867a3d90910"
+    },
+    "scripts/check-native-follower-task-adapters.py": {
+      "sha256": "4074368c754eaadff0a94c503e742380fa0f5e38fa5d41bcbdd0d0afd87227f5",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "3f88a3d9a5b511b496aeeb904e7261c440a87d90"
+    },
+    "scripts/check-native-person-selection.py": {
+      "sha256": "bd3f42c1f0716e8a5dc3c7fb6e28ac485e7a855e029e5b79fae67ce117523a56",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "3d06df6f6d53a65abb8a9e6bedd7baef96511298"
+    },
+    "scripts/check-native-order-update.py": {
+      "sha256": "8ac6474df19a3afd4884cc87b5ffe46e74d8080e04aa9dfd83379cd80887c31d",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "feac0dc8d11208a95f592fa15fb7a3549c5d5d8b"
+    },
+    "scripts/check-native-animation.py": {
+      "sha256": "d24a59e7fd242cce787531ae19ddd9c4dcb551910704a1b981990ff285af9edc",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "fcae828eff7375b6f1fe655c705b5fdcafc1789a"
+    },
+    "decomp/research/follower-tasks-live.md": {
+      "sha256": "7bebeaabfc29941eeefcf2b0b2586e3d27f963d93882b040cc62aa8bb57d139b",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "5ee015380f2b6d4c264da73ce91e1e66453564f0"
+    },
+    "decomp/research/sprite-logical-visits.md": {
+      "sha256": "f0ebe91ec762d1d0aaeff21196da2fca4293ae2b5ae6b19b067789c4cfedabe8",
+      "role": "receipt-pinned repository source",
+      "gitBlobOid": "d2685112924ef96078c4e713f09934e80fa9d67b"
+    },
+    "scripts/decomp.py": {
+      "sha256": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+      "role": "probe source dependency",
+      "gitBlobOid": "8ec0b35fb30b2bc23af10df2a1e8c30ae4b62c7b"
+    },
+    "app/original-rules.json": {
+      "sha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "role": "probe source dependency",
+      "gitBlobOid": "1acb6f4bc60794942ec17ce26755c12cee40066d"
+    },
+    "app/original-constants.json": {
+      "sha256": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+      "role": "probe source dependency",
+      "gitBlobOid": "51c7e66bf7e64b171dd26b304c89f1454335fa8f"
+    },
+    "decomp/tools.json": {
+      "sha256": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484",
+      "role": "source-baseline provenance registry",
+      "gitBlobOid": "c213b3361f4fd44919a4d2bcb93fd61c3c647372"
+    },
+    "decomp/exports.json": {
+      "sha256": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+      "role": "source-baseline provenance registry",
+      "gitBlobOid": "9946a05e8cfa42abc3cfeff2439df3f841cf420f"
+    }
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 7624,
+      "sha256": "d188a8f2e1eb936f5e702a1ce9472b2782f0b2068adaa44b743af4b1df9d5823",
+      "gitBlobOid": "10646be898fbe0ab494026f803fb64c96e04e5c1",
+      "source": "publication wrapper"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/00433490.asm",
+      "bytes": 7455,
+      "sha256": "04974a9dc4d8136106941dd522e66e8736146d669ff3af57179890cdd4d8231a",
+      "gitBlobOid": "06166a44b9c8ad4a42558864dc2795fcbe09359d",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/00433490.asm",
+      "originalSha256": "04974a9dc4d8136106941dd522e66e8736146d669ff3af57179890cdd4d8231a"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/0043daa0.asm",
+      "bytes": 6203,
+      "sha256": "f532573ba3f73e07e142df40ecd0e0573fc87ff62deacd3a9724462143f43bbd",
+      "gitBlobOid": "38559eb6a66d9cb2c178e71bde9c2542c3e1999b",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/0043daa0.asm",
+      "originalSha256": "f532573ba3f73e07e142df40ecd0e0573fc87ff62deacd3a9724462143f43bbd"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/00443b40.asm",
+      "bytes": 7599,
+      "sha256": "f19d3244f1d12e86f2b7c91e13795c99f5e63d466d50258097dd149014b9d26a",
+      "gitBlobOid": "1cf0e10023f67a1e7066fc994afdbbf499e50d0a",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/00443b40.asm",
+      "originalSha256": "f19d3244f1d12e86f2b7c91e13795c99f5e63d466d50258097dd149014b9d26a"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/004d3ae1.asm",
+      "bytes": 959,
+      "sha256": "113267780156f0bfce6bc66a28d9473801d1730d7e65e22a1186454b00d02d97",
+      "gitBlobOid": "4ed3e9bc10da0bc1a4b80983b0f5f7fd38e56a28",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/004d3ae1.asm",
+      "originalSha256": "113267780156f0bfce6bc66a28d9473801d1730d7e65e22a1186454b00d02d97"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/004d4320.asm",
+      "bytes": 938,
+      "sha256": "830b3c4001a3c04600798b7060aebc52fc61e3d1e4e4529db693280de0f1fc38",
+      "gitBlobOid": "7055e27043670ceee8259bc14e535832a7ed0902",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/004d4320.asm",
+      "originalSha256": "830b3c4001a3c04600798b7060aebc52fc61e3d1e4e4529db693280de0f1fc38"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/attempt-04.json",
+      "bytes": 917402,
+      "sha256": "7c7d6eff380665b6240822b29e38e9eff47de1c1a4c8855b58b4b5c71bde3711",
+      "gitBlobOid": "e355342620945a9edda3b52763b1831414ecba4e",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/attempt-04.json",
+      "originalSha256": "7c7d6eff380665b6240822b29e38e9eff47de1c1a4c8855b58b4b5c71bde3711"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/attempt-04.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitBlobOid": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/attempt-04.stderr",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/distance-receipt.json",
+      "bytes": 2351,
+      "sha256": "a9baca62764e0e69da7208c25284e1e0a78e917c7e25b31be303d1b93cfcc91a",
+      "gitBlobOid": "a05284f8d874c500c58704cdaf3f870a51aa4d29",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/distance-receipt.json",
+      "originalSha256": "a9baca62764e0e69da7208c25284e1e0a78e917c7e25b31be303d1b93cfcc91a"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/distance-result.json",
+      "bytes": 19058,
+      "sha256": "fa07a6393231153208152ba789b80d9954ae01baefdd87729c3257bedcd52b76",
+      "gitBlobOid": "424032b43cafc55f170aaabbd064232bb4795cf0",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/distance-result.json",
+      "originalSha256": "fa07a6393231153208152ba789b80d9954ae01baefdd87729c3257bedcd52b76"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/distance.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitBlobOid": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/distance.stderr",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/findings.md",
+      "bytes": 13823,
+      "sha256": "32e27423b6accdc8571e90dae2433b7da0fc237b82f3a1b1d0a89a5cc0ceaaec",
+      "gitBlobOid": "da164153f6cb0bbdab3a9feaf1a04a24cb7d866b",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/findings.md",
+      "originalSha256": "2802bd502d5de72032708318ba6731bf4c823964914349c7afca2445d342d58d",
+      "transformation": "Restored first nine to first eight to preserve the exact reviewed bytes; README supplies the editorial correction."
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/probe-guard-distance.py",
+      "bytes": 4565,
+      "sha256": "5a7578947b47e7a2e795e881893028250278f8845a2c9f45bdae74372f62cc70",
+      "gitBlobOid": "e22d10488bc51053cb349cedb0358216521b5d10",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/probe-guard-distance.py",
+      "originalSha256": "5a7578947b47e7a2e795e881893028250278f8845a2c9f45bdae74372f62cc70"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/probe-guard-lifecycle.py",
+      "bytes": 12894,
+      "sha256": "7f6ad6a478db9138af4b5ff3d69b612969c5dcc8365ec324309d18771ec77064",
+      "gitBlobOid": "a95d54c63dbdf5d3ea2745b4f32500fd8a99ecc5",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/probe-guard-lifecycle.py",
+      "originalSha256": "7f6ad6a478db9138af4b5ff3d69b612969c5dcc8365ec324309d18771ec77064"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/receipt.json",
+      "bytes": 10897,
+      "sha256": "a1cbf6007b407c503da6c7181f92fe00d2b318e516d0dee352ceac604132f21e",
+      "gitBlobOid": "9f0cedca8ba626f81ea52983e58f32a8412d5fdc",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/receipt.json",
+      "originalSha256": "a1cbf6007b407c503da6c7181f92fe00d2b318e516d0dee352ceac604132f21e"
+    },
+    {
+      "path": "native-guard-lifecycle-review-20261005/distance-replay.json",
+      "bytes": 19058,
+      "sha256": "fa07a6393231153208152ba789b80d9954ae01baefdd87729c3257bedcd52b76",
+      "gitBlobOid": "424032b43cafc55f170aaabbd064232bb4795cf0",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-review-20261005/distance-replay.json",
+      "originalSha256": "fa07a6393231153208152ba789b80d9954ae01baefdd87729c3257bedcd52b76"
+    },
+    {
+      "path": "native-guard-lifecycle-review-20261005/distance-replay.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitBlobOid": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-review-20261005/distance-replay.stderr",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-guard-lifecycle-review-20261005/replay.json",
+      "bytes": 917402,
+      "sha256": "7c7d6eff380665b6240822b29e38e9eff47de1c1a4c8855b58b4b5c71bde3711",
+      "gitBlobOid": "e355342620945a9edda3b52763b1831414ecba4e",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-review-20261005/replay.json",
+      "originalSha256": "7c7d6eff380665b6240822b29e38e9eff47de1c1a4c8855b58b4b5c71bde3711"
+    },
+    {
+      "path": "native-guard-lifecycle-review-20261005/replay.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitBlobOid": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-review-20261005/replay.stderr",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-guard-lifecycle-review-20261005/review.md",
+      "bytes": 9918,
+      "sha256": "27538c420093465594e9bd3fb519b5801d59871c31ae8d5e75472532905e2798",
+      "gitBlobOid": "fe43929fc1825cbcb45b77f1f1db2d82c68aa621",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-review-20261005/review.md",
+      "originalSha256": "27538c420093465594e9bd3fb519b5801d59871c31ae8d5e75472532905e2798",
+      "transformation": "Restored the exact initially verified review bytes from a concurrently extended source by removing the extension and restoring its original findings reference and implementation-boundary paragraph; resulting SHA256 matches the delegated review freeze."
+    }
+  ],
+  "excluded": [
+    "original executable and assets",
+    "tool binaries and dependencies",
+    "credentials and environment files",
+    "browser profiles",
+    "producer extension probes and results",
+    "004999d0.asm",
+    "failed and superseded raw attempts",
+    "unrelated dumps"
+  ],
+  "manifestSelfHash": "Excluded from file list; verify via immutable Git commit and publication handoff.",
+  "concurrentSourceReview": {
+    "observedExtendedSha256": "9f02ede2a0bf164a3d8f3046b3d549e3b05834cc217fc74a54c62c3c0d267026",
+    "included": false,
+    "includedFrozenReviewSha256": "27538c420093465594e9bd3fb519b5801d59871c31ae8d5e75472532905e2798"
+  }
+}

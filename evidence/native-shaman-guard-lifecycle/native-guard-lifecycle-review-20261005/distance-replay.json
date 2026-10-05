@@ -1,0 +1,898 @@
+{
+  "identity": {
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "bytes": 2275840,
+    "debugDirectoryRva": 0,
+    "debugDirectorySize": 0
+  },
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "unicorn": "2.1.4",
+  "cases": [
+    {
+      "label": "near-axis0-delta-824",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        3272,
+        4096
+      ],
+      "goal": [
+        3272,
+        4096
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "near-axis0-delta-823",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        3273,
+        4096
+      ],
+      "goal": [
+        3273,
+        4096
+      ],
+      "native": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "near-axis0-delta823",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        4919,
+        4096
+      ],
+      "goal": [
+        4919,
+        4096
+      ],
+      "native": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "near-axis0-delta824",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        4920,
+        4096
+      ],
+      "goal": [
+        4920,
+        4096
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "near-axis1-delta-824",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        4096,
+        3272
+      ],
+      "goal": [
+        4096,
+        3272
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "near-axis1-delta-823",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        4096,
+        3273
+      ],
+      "goal": [
+        4096,
+        3273
+      ],
+      "native": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "near-axis1-delta823",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        4096,
+        4919
+      ],
+      "goal": [
+        4096,
+        4919
+      ],
+      "native": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "near-axis1-delta824",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        4096,
+        4920
+      ],
+      "goal": [
+        4096,
+        4920
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "signed-edge-person32767-target32768",
+      "person": [
+        32767,
+        4096
+      ],
+      "target": [
+        32768,
+        4096
+      ],
+      "goal": [
+        32768,
+        4096
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "matchesPortExpression": false
+    },
+    {
+      "label": "signed-edge-person32768-target32767",
+      "person": [
+        32768,
+        4096
+      ],
+      "target": [
+        32767,
+        4096
+      ],
+      "goal": [
+        32767,
+        4096
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "matchesPortExpression": false
+    },
+    {
+      "label": "signed-edge-person0-target32768",
+      "person": [
+        0,
+        4096
+      ],
+      "target": [
+        32768,
+        4096
+      ],
+      "goal": [
+        32768,
+        4096
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "signed-edge-person32768-target0",
+      "person": [
+        32768,
+        4096
+      ],
+      "target": [
+        0,
+        4096
+      ],
+      "goal": [
+        0,
+        4096
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "signed-edge-person65535-target0",
+      "person": [
+        65535,
+        4096
+      ],
+      "target": [
+        0,
+        4096
+      ],
+      "goal": [
+        0,
+        4096
+      ],
+      "native": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "signed-edge-person0-target65535",
+      "person": [
+        0,
+        4096
+      ],
+      "target": [
+        65535,
+        4096
+      ],
+      "goal": [
+        65535,
+        4096
+      ],
+      "native": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "signed-edge-person32768-target33591",
+      "person": [
+        32768,
+        4096
+      ],
+      "target": [
+        33591,
+        4096
+      ],
+      "goal": [
+        33591,
+        4096
+      ],
+      "native": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "signed-edge-person32768-target33592",
+      "person": [
+        32768,
+        4096
+      ],
+      "target": [
+        33592,
+        4096
+      ],
+      "goal": [
+        33592,
+        4096
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "signed-edge-person32768-target31945",
+      "person": [
+        32768,
+        4096
+      ],
+      "target": [
+        31945,
+        4096
+      ],
+      "goal": [
+        31945,
+        4096
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": false,
+        "formation": false,
+        "destination": false
+      },
+      "matchesPortExpression": false
+    },
+    {
+      "label": "signed-edge-person32768-target31944",
+      "person": [
+        32768,
+        4096
+      ],
+      "target": [
+        31944,
+        4096
+      ],
+      "goal": [
+        31944,
+        4096
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "replan-axis0-delta-440",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        10000,
+        10000
+      ],
+      "goal": [
+        9560,
+        10000
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "replan-axis0-delta-439",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        10000,
+        10000
+      ],
+      "goal": [
+        9561,
+        10000
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "replan-axis0-delta439",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        10000,
+        10000
+      ],
+      "goal": [
+        10439,
+        10000
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "replan-axis0-delta440",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        10000,
+        10000
+      ],
+      "goal": [
+        10440,
+        10000
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "replan-axis1-delta-440",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        10000,
+        10000
+      ],
+      "goal": [
+        10000,
+        9560
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "replan-axis1-delta-439",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        10000,
+        10000
+      ],
+      "goal": [
+        10000,
+        9561
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "replan-axis1-delta439",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        10000,
+        10000
+      ],
+      "goal": [
+        10000,
+        10439
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "replan-axis1-delta440",
+      "person": [
+        4096,
+        4096
+      ],
+      "target": [
+        10000,
+        10000
+      ],
+      "goal": [
+        10000,
+        10440
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "matchesPortExpression": true
+    },
+    {
+      "label": "replan-signed-edge-goal32767-target32768",
+      "person": [
+        0,
+        4096
+      ],
+      "target": [
+        32768,
+        4096
+      ],
+      "goal": [
+        32767,
+        4096
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "matchesPortExpression": false
+    },
+    {
+      "label": "replan-signed-edge-goal32768-target32767",
+      "person": [
+        0,
+        4096
+      ],
+      "target": [
+        32767,
+        4096
+      ],
+      "goal": [
+        32768,
+        4096
+      ],
+      "native": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "nativeSigned32Prediction": {
+        "pursuit": true,
+        "formation": true,
+        "destination": true
+      },
+      "currentPortExpression": {
+        "pursuit": true,
+        "formation": true,
+        "destination": false
+      },
+      "matchesPortExpression": false
+    }
+  ],
+  "suppliedLeaves": {
+    "004e9d80": "record destination request, no mutation",
+    "004d4f40": "record recovery, no mutation (not reached)"
+  },
+  "limits": "Original 0043daa0 signed-coordinate distance boundaries, read-only native probe.\nCompare executed native decisions with explicit signed-int subtraction and with\nthe current port's Math.abs(short(a-b)) expression. Does not execute TypeScript.\nDestination/recovery are observed supplied leaves; adjacent empty-land lookup\nruns natively. Existing baseline lifecycle probe/results are not modified.\n",
+  "sourceHashes": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/native-guard-lifecycle-20261005/probe-guard-distance.py": "5a7578947b47e7a2e795e881893028250278f8845a2c9f45bdae74372f62cc70",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/app/live-movement.ts": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5"
+  },
+  "differences": [
+    "signed-edge-person32767-target32768",
+    "signed-edge-person32768-target32767",
+    "signed-edge-person32768-target31945",
+    "replan-signed-edge-goal32767-target32768",
+    "replan-signed-edge-goal32768-target32767"
+  ]
+}

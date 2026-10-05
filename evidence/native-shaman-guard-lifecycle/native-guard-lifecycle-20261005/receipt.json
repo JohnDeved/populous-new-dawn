@@ -1,0 +1,238 @@
+{
+  "status": "passed",
+  "probeExitCode": 0,
+  "command": "source ../prerequisites/env.sh && timeout 60s taskset -c 4 env PYTHONDONTWRITEBYTECODE=1 \"$POPULOUS_PYTHON\" work/orchestration/native-guard-lifecycle-20261005/probe-guard-lifecycle.py \"$POPULOUS_EXE\" \"$PWD\"",
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered",
+  "head": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "trackedStatusAfter": "",
+  "execution": "Pinned Unicorn CPU emulation only; no Windows, Wine, browser, Ghidra, build or install",
+  "caseCount": 11,
+  "stepCount": 64,
+  "suppliedLeaves": {
+    "004e9d80": "destination-planning",
+    "0047a550": "selection-ui-refresh",
+    "0048a050": "selection-voice"
+  },
+  "inputs": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vstart-0.ani": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vfra-0.ani": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/native-guard-lifecycle-20261005/probe-guard-lifecycle.py": "7f6ad6a478db9138af4b5ff3d69b612969c5dcc8365ec324309d18771ec77064",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/app/original-constants.json": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c"
+  },
+  "probeHash": "7f6ad6a478db9138af4b5ff3d69b612969c5dcc8365ec324309d18771ec77064",
+  "resultHash": "7c7d6eff380665b6240822b29e38e9eff47de1c1a4c8855b58b4b5c71bde3711",
+  "stderrHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceReceipts": {
+    "decomp/generated/0043e8e0.c": {
+      "sha256": "39b7c6e645760a599abecb4e44861da69ebc08c3d3370dff0c3835934e9fd309",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/00436c20.c": {
+      "sha256": "317e4e72aab9f611bec4f70dfb0b27be1213d2daca57f675ccbc8888610ac8e5",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/00438730.c": {
+      "sha256": "6a5ce0e68b07b0dab9837b53d8f0cc657495077a2069f0c43ba8bd594651e660",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/00436ca0.c": {
+      "sha256": "1f9230efa60fe8029321ddab04755b8d073e5d8a8f53c87b90fbd9d6c2e854e6",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/00436d00.c": {
+      "sha256": "0c5d9dc7ca2e531605137b19aca83933dff51c8d843d0f2f9ab734b421cf2e13",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/0043b010.c": {
+      "sha256": "e1ecd52f78b79873e832f0de798dccf817befb91bcc285ddb9c15356e5864be4",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004364d0.c": {
+      "sha256": "694cf0f4dfbfe3ec7ada8b812b360d227443c43e44910bcd5a0dc0187a852553",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004366b0.c": {
+      "sha256": "dd4029745900a78ca7b1c0b2dceb48c23fa9cc114dd786a07cdf196d4f42a50f",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/00436870.c": {
+      "sha256": "c7ab2259b82f016714a0e6f6eaee31da69b056500acf185fe5f428177a3b67a8",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/00432260.c": {
+      "sha256": "23e7e3767d6ab658025e4a0474e86bdad7264b2852b401a48b65c07f1a33ca3d",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/00432df0.c": {
+      "sha256": "275beb61e5d2c1a6380fdb9f1066754a47761701ab9be7002cbe2f500a2fe0d9",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/0043d510.c": {
+      "sha256": "4ec0f8cf48db1561fa82724e2c91fb76d61bea9febf6827b60a96d6dd321b49c",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/00432590.c": {
+      "sha256": "3ecb61dad36c9ad28115359566a586d41181dd131bb5dde939f8dc91f3d21d45",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004d42a0.c": {
+      "sha256": "e76520c30d22ce7635562d6e0fad74739ad108cb7e743e153aa9fd02c90ed10d",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004ed640.c": {
+      "sha256": "00fed5e330959a34047a742ae4ce133e93c6cd4fdbdbc2a0222f22b06cda0ecb",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004d2740.c": {
+      "sha256": "02dd6d6bcdebfd1fbb5065c50af5e8f40d33140676e99c316ceb3ebe85835747",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004d32b0.c": {
+      "sha256": "1302bb34e80166d86f96cdf418987ba54a6362f4742760082c656c80b8f96fce",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004d3ea0.c": {
+      "sha256": "605d220b28ae7b6dbf2a6edb7661b50069e76223f1052ad49e3769ae422a4cb1",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004d4040.c": {
+      "sha256": "e15f9bccaa6eb40b0f44350fdf2eca10af2f284f7db74237dbb422fda6fce910",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004ee700.c": {
+      "sha256": "e3af26337ab4897a49a99ce77298f02d9067e981554ea8b782560231fe2701c0",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004ee7b0.c": {
+      "sha256": "8ce7fd89e8e5a9aeae876dc1cb25584c75bad3b65e7aece10667a737213782fb",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004ed700.c": {
+      "sha256": "598f405b7271fdf40b953d45ae594946d0872b5fbe67ff9c9c9880f6a837fdff",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004d4f40.c": {
+      "sha256": "21de9ade3eb03d051172dd63f83c6d83858cafc255c0eb0f189a6c235b45f879",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004d4ee0.c": {
+      "sha256": "0ca5a7a0c8cf7afa17ab842585ec2dd0f354d8b198d94646680e3f42caf811c3",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004d6f90.c": {
+      "sha256": "751bf2605f941ba089fbfb9e2706c1c48dd5fb588fc5ecea83f3ca79d936927a",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004d7330.c": {
+      "sha256": "48bfb36a2e1184596bb0375faa37fba9c80f250d88ba7c03c6d28233f14f3010",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/00518200.c": {
+      "sha256": "6a0319382583aa6d56ff71f3ea184f0ac71cd6983471ff54747cc87dc0316e7e",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004e32a0.c": {
+      "sha256": "c4b009cf18a1b8dce2012ab9fb804bde173a21f2631142f698464f9dbc4177b0",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/0043d2f0.c": {
+      "sha256": "f53ddebd80ce8946f9dba3a719a1631f686bdc4f2e6d38e718b2ab02bbf66ca3",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/0043d0e0.c": {
+      "sha256": "c91de8b09850ed5830b034ba982d1fe32c602e60e53340e8e1244ef8a01f33a9",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004a3940.c": {
+      "sha256": "47669140587f7baea77e2d2a45d9fee3c5eab19a464c70eb41676fe754858ecd",
+      "matchesExportRegistry": true
+    },
+    "decomp/generated/004d47d0.c": {
+      "sha256": "6b49ff975df8853455a07e2d8939349658f57c7687b87848ff77d8fa6a63215d",
+      "matchesExportRegistry": true
+    },
+    "app/live-command.ts": {
+      "sha256": "c613176708e99a19243e10ccaf2af4b83eba73a259c8ac6623e12f31f70ca324"
+    },
+    "app/live-movement.ts": {
+      "sha256": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5"
+    },
+    "app/selection-runtime.ts": {
+      "sha256": "999dfa2becc4bf884239b79cf9edeef75a6d74ee5f588b29aff57178ab7deeb6"
+    },
+    "app/live-people.ts": {
+      "sha256": "340d912b2f886e7b520d76310cebffe9a2928363b98c0a44b3dd5fdd47d2c117"
+    },
+    "app/world-turn.ts": {
+      "sha256": "d322af8560cce8e0e3bc1188ebab7676c1cce3b904563c380562f4c1a932fea8"
+    },
+    "app/live-resting.ts": {
+      "sha256": "3164a20ff88fb05d919f8f53fd179b0375350c631af5420d667f7106d7f5f515"
+    },
+    "app/person-state.ts": {
+      "sha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17"
+    },
+    "app/person-selection.ts": {
+      "sha256": "a9e2f65c572b954c871921ae9a0366b5af20ab05fceab6e17661a52094fc7cc8"
+    },
+    "app/world-tasks.ts": {
+      "sha256": "92d4fde9cd0b553a63288263fe3f4ba9918fcdad635436157965438b1cb0024e"
+    },
+    "app/person-orders.ts": {
+      "sha256": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394"
+    },
+    "app/scene-entities.ts": {
+      "sha256": "cc7cb79c9e92e5b0cb283f745dadec503d8246ab3936b054313d577b97f2c4f4"
+    },
+    "scripts/check-native-follower-task-adapters.py": {
+      "sha256": "4074368c754eaadff0a94c503e742380fa0f5e38fa5d41bcbdd0d0afd87227f5"
+    },
+    "scripts/check-native-person-selection.py": {
+      "sha256": "bd3f42c1f0716e8a5dc3c7fb6e28ac485e7a855e029e5b79fae67ce117523a56"
+    },
+    "scripts/check-native-order-update.py": {
+      "sha256": "8ac6474df19a3afd4884cc87b5ffe46e74d8080e04aa9dfd83379cd80887c31d"
+    },
+    "scripts/check-native-animation.py": {
+      "sha256": "d24a59e7fd242cce787531ae19ddd9c4dcb551910704a1b981990ff285af9edc"
+    },
+    "decomp/research/follower-tasks-live.md": {
+      "sha256": "7bebeaabfc29941eeefcf2b0b2586e3d27f963d93882b040cc62aa8bb57d139b"
+    },
+    "decomp/research/sprite-logical-visits.md": {
+      "sha256": "f0ebe91ec762d1d0aaeff21196da2fca4293ae2b5ae6b19b067789c4cfedabe8"
+    }
+  },
+  "attempts": [
+    {
+      "name": "attempt-01",
+      "status": "failed",
+      "exitCode": 1,
+      "reason": "Probe assertion referenced absent JSON key defaultState; native stages before that assertion completed. No semantic conclusion relies on this attempt."
+    },
+    {
+      "name": "attempt-02",
+      "status": "passed",
+      "exitCode": 0,
+      "scope": "Initial eight-case queue/preparation/guard/selection probe"
+    },
+    {
+      "name": "attempt-03",
+      "status": "passed",
+      "exitCode": 0,
+      "scope": "Adds real native state10 common transition and idle re-entry"
+    },
+    {
+      "name": "attempt-04",
+      "status": "passed",
+      "exitCode": 0,
+      "scope": "Frozen eleven-case probe with queued-before-adoption exclusion and Shaman-only cancellation"
+    }
+  ],
+  "sourceHeadAtStart": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "headChange": "Parent merged reviewed PR218 during research. All relevant sources and probe inputs are unchanged; git diff across these source paths and input hashes verified."
+}
