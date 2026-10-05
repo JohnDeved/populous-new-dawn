@@ -81,10 +81,10 @@ async function installEarlyObserver(page, phase) {
     restorers.push(unsubscribe)
     let awaitingVisibleDraw = false, currentDrawing = null, insideDraw = false, measureCalls = 0
     const costCounts = { active: 0, paused: 0 }
-    const visibility = () => queueMicrotask(() => observe(() => {
+    const visibility = event => queueMicrotask(() => observe(() => {
       const scene = window.worshipBoundaryScene
       if (!scene) return
-      evidence.visibility.push({ hidden: document.hidden, previous: scene.previous, focus: focus(scene.world) })
+      evidence.visibility.push({ trusted: event.isTrusted, hidden: document.hidden, previous: scene.previous, focus: focus(scene.world) })
       if (evidence.visibility.length > 8) throw Error('Visibility observation bound exceeded')
       if (!document.hidden) awaitingVisibleDraw = true
     }))
@@ -116,7 +116,8 @@ async function installEarlyObserver(page, phase) {
           return spell && { turn: w.turn, paused: w.paused, active: spell.active, model: spell.model,
             giftId: spell.giftId, position: { ...spell.position }, clock: { ...w.worshipAcquisition.clock } }
         }
-        const before = phase === 'flight-load' && !evidence.resumedMotion ? observe(motion) : null
+        const observeResume = phase === 'flight-load' || (phase === 'hidden' && window.worshipBoundaryObserveResume)
+        const before = observeResume && !evidence.resumedMotion ? observe(motion) : null
         const result = original.apply(this, args)
         evidence.visits++
         if (before?.active && !before.paused) observe(() => {
@@ -441,6 +442,57 @@ async function restartDuringFlight(page, bindGame, waitForShamanReadiness, wait,
   return result
 }
 
+// This adapter addresses the exact in-process Playwright session that installed
+// focus emulation. A secondary CDP session cannot release its capture handle.
+async function prepareNativeVisibility(page, context, receipt, report) {
+  assert.equal(receipt.runtime.playwright, '1.63.0')
+  assert.equal(receipt.runtime.playwrightCoreSha256, '549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171')
+  assert.equal(receipt.runtime.browserSha256, '7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706')
+  assert.equal(receipt.browserVersion, '154.0.8037.92')
+  const connection = page._connection
+  assert.equal(typeof connection?.toImpl, 'function')
+  const impl = connection.toImpl(page), delegate = impl.delegate,
+    session = delegate._mainFrameSession, client = session._client
+  assert.equal(impl.browserContext, connection.toImpl(context))
+  assert.equal(delegate._page, impl); assert.equal(session._page, impl)
+  assert.equal(session._crPage, delegate); assert.equal(session._targetId, delegate._targetId)
+  assert.equal(session._parentSession, null)
+  assert.equal(impl.isStorageStatePage, false)
+  assert.ok(!impl.browserContext._browser.options.noDefaults, 'Pinned normal initialization installed primary focus=true')
+  const checkOwner = () => {
+    assert.equal(connection.toImpl(page), impl)
+    assert.equal(impl.delegate, delegate); assert.equal(delegate._mainFrameSession, session)
+    assert.equal(session._client, client); assert.equal(page.isClosed(), false)
+  }
+  const { targetInfo } = await client.send('Target.getTargetInfo')
+  assert.equal(targetInfo.targetId, delegate._targetId); assert.equal(targetInfo.type, 'page')
+  assert.equal(targetInfo.url, page.url())
+  const { windowId, bounds } = await client.send('Browser.getWindowForTarget', { targetId: targetInfo.targetId })
+  assert.equal(bounds.windowState, 'normal')
+  const evidence = report.hiddenBrowser = { method: 'Pinned owning Playwright CDP session releases its own focus-emulation capture; native window minimize/normal produces actual visibility events',
+    targetIdentityVerified: true, originalBounds: bounds, originalFocusEmulation: true,
+    browserSha256: receipt.runtime.browserSha256, playwrightCoreSha256: receipt.runtime.playwrightCoreSha256, actions: [] }
+  const send = async (method, params) => {
+    checkOwner()
+    assert.ok(evidence.actions.length < 10, 'Finite browser visibility action bound')
+    const result = await client.send(method, params)
+    evidence.actions.push({ method, params })
+    return result
+  }
+  return {
+    async hide() {
+      await send('Emulation.setFocusEmulationEnabled', { enabled: false })
+      await send('Browser.setWindowBounds', { windowId, bounds: { windowState: 'minimized' } })
+    },
+    async show() { await send('Browser.setWindowBounds', { windowId, bounds: { windowState: 'normal' } }) },
+    async restore() {
+      try { await send('Browser.setWindowBounds', { windowId, bounds: { windowState: 'normal' } }) }
+      finally { await send('Emulation.setFocusEmulationEnabled', { enabled: true }) }
+      evidence.restored = true
+    },
+  }
+}
+
 async function missingGeometry(page, wait, output, report) {
   await wait(() => window.worshipBoundaryScene.world.gifts.some(g => g.reward === 'lightning' && g.ordinaryWorship && g.phase > 0), null, 120000, 'Real positive-phase gift before DOM-only fault')
   const staged = await page.evaluate(() => {
@@ -522,7 +574,7 @@ export default async function ({ page, context, root, output, receipt, openMissi
     coveredBoundary: phase === 'restart' ? 'Actual live old-scene disposal via public Restart, not browser termination' : phase === 'missing-geometry' ? 'Explicit DOM-only exceptional-path geometry fault after a real gift' : phase,
     limits: 'Headless/software functional evidence. Two-process continuation is distinct from fresh-page reload. DPR2 is CDP device emulation, not a physical display. Actual drawImage calls plus bounded alpha output and PNG establish limited overlay correspondence; another concurrent sprite can contribute to the alpha region. No full native raster or hardware performance claim. Tail window may be missed; hidden-state support must be demonstrated.' }
   const saveReport = () => writeFileSync(resolve(output, 'ordinary-worship-boundaries.json'), JSON.stringify(report, null, 2) + '\n')
-  let armed = false, cover, cdp, originalDisplay
+  let armed = false, visibilityControl, cdp, originalDisplay
   const wait = async (predicate, argument, timeout, label) => {
     signal.throwIfAborted()
     try { await page.waitForFunction(predicate, argument, { timeout, polling: 10 }) }
@@ -589,6 +641,7 @@ export default async function ({ page, context, root, output, receipt, openMissi
     } else {
       assert.equal(receipt.profile.checkpointAtStart, null)
       await openMission(1)
+      if (phase === 'hidden') visibilityControl = await prepareNativeVisibility(page, context, receipt, report)
       await prepareM1LightningRoute({ page, waitForShamanReadiness, signal, report, save: saveReport })
       if (phase === 'tail-save') report.tailControls = await prepareTailControls(page, waitForShamanReadiness)
       await page.evaluate(() => window.armWorshipBoundaryAcquisition())
@@ -603,23 +656,45 @@ export default async function ({ page, context, root, output, receipt, openMissi
         report.restart = await restartDuringFlight(page, bindGame, waitForShamanReadiness, wait, output)
       } else if (phase === 'hidden') {
         await page.evaluate(() => { window.worshipBoundaryEvidence.firstVisibleDraw = null })
-        cover = await context.newPage()
-        await cover.bringToFront()
+        const before = await snap(page)
+        assert.equal(eligibleFlight(before), true, 'Native hiding must interrupt an actual live ordinary flight')
+        await visibilityControl.hide()
         try { await wait(() => document.hidden, null, 3000, 'Actual background document visibility') }
         catch (error) { report.status = 'blocked'; throw Error(`Hidden-page acceptance blocked: browser did not report document.hidden. ${error.message}`) }
         const hidden = await snap(page)
         assert.equal(hidden.paused, true, 'Shipped blur/visibility handler pauses the world')
+        assert.equal(eligibleFlight(hidden), true, 'Hidden hold retains the interrupted live flight')
         await page.waitForTimeout(750)
         const later = await snap(page)
         assert.deepEqual(later.acquisition, hidden.acquisition, 'Hidden pages retain controller state and UI deadline residual')
         assert.equal(later.turn, hidden.turn)
-        await page.bringToFront()
+        await visibilityControl.show()
         await wait(() => !document.hidden && !!window.worshipBoundaryEvidence.firstVisibleDraw, null, 5000, 'Real foreground and first draw')
         const first = await page.evaluate(() => window.worshipBoundaryEvidence.firstVisibleDraw)
         assert.deepEqual(first.clock, hidden.acquisition.clock, 'Visibility reset discards hidden elapsed backlog before first draw')
+        const resume = await page.evaluate(() => {
+          window.worshipBoundaryObserveResume = true
+          window.worshipBoundaryResumeWorld = window.worshipBoundaryScene.world
+          return window.worshipBoundaryFocus(window.worshipBoundaryResumeWorld)
+        })
+        assert.equal(resume.paused, true); assert.equal(eligibleFlight(resume), true)
         await page.getByRole('button', { name: 'Resume game', exact: true }).click()
-        report.hidden = { before: hidden, after: later, firstVisibleDraw: first }
+        await wait(() => !!window.worshipBoundaryEvidence.resumedMotion, null, 5000, 'Same-instance public Resume moves the saved live body')
+        const resumedMotion = await page.evaluate(() => {
+          if (window.worshipBoundaryScene.world !== window.worshipBoundaryResumeWorld) throw Error('Resume unexpectedly replaced World')
+          return window.worshipBoundaryEvidence.resumedMotion
+        })
+        assert.equal(resumedMotion.before.giftId, hidden.acquisition.controllers.spell.giftId)
+        assert.equal(resumedMotion.before.model, 3)
+        assert.equal(resumedMotion.before.paused, false); assert.equal(resumedMotion.after.paused, false)
+        assert.notDeepEqual(resumedMotion.before.position, resumedMotion.after.position)
+        const events = await page.evaluate(() => window.worshipBoundaryEvidence.visibility)
+        assert.ok(events.some(event => event.trusted && event.hidden), 'Actual trusted hidden event required')
+        assert.ok(events.some(event => event.trusted && !event.hidden), 'Actual trusted restored event required')
+        report.hidden = { activeBefore: before, before: hidden, after: later, firstVisibleDraw: first, events, resume, resumedMotion }
         report.final = await finish()
+        assert.equal(report.final.count, before.count + 1); assert.equal(report.final.stock, before.stock + 1)
+        assert.equal(await page.evaluate(() => window.worshipBoundaryEvidence.cues), 1)
       } else {
         if (!tail) {
           await page.getByRole('button', { name: 'Pause game', exact: true }).click()
@@ -718,7 +793,10 @@ export default async function ({ page, context, root, output, receipt, openMissi
       } catch (error) { report.displayRestored = false; report.cleanupFailure = String(error); report.status = 'failed' }
       finally { await cdp.detach().catch(error => { report.cleanupFailure = String(error); report.status = 'failed' }) }
     }
-    if (cover && !cover.isClosed()) await cover.close()
+    if (visibilityControl) {
+      try { await visibilityControl.restore() }
+      catch (error) { report.cleanupFailure = String(error); report.status = 'failed' }
+    }
     if (armed && !page.isClosed()) {
       await page.evaluate(() => window.restoreWorshipBoundaryObserver?.())
       report.observer = await page.evaluate(() => window.worshipBoundaryEvidence)
