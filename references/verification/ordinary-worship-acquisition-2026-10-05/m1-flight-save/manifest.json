@@ -1,0 +1,44 @@
+{
+  "scope": "Ordinary active-flight Save and display continuity",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "66aba0c1c4e4f13fec2cd670dea0889409292610",
+  "originalReceiptSha256": "1579e575185cfa4bb306b9e09f5611bfd72d5e6140b070fb0a0e4ba515806cf3",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "d0394056977ca16582d1258713595c10ff4d5119954850331a4ae58dd7d663ad"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "90c6f0ce1165d4622c668ca8bd4ebf0edb27f46eae011af9fc29ce16dbafe031"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "44c9b56aca6e3a66dfb24c06ffb800a3d15a1746c26f1b86f5c5cf5d5d78696d"
+    },
+    {
+      "path": "ordinary-worship-boundaries.mjs",
+      "sha256": "1eee9b26be3bf8034054d94087d0845f8915e3ab0653112d33db55d19e6cf6b9"
+    },
+    {
+      "path": "ordinary-worship-m1-route.mjs",
+      "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+    },
+    {
+      "path": "overlay-hud-after.png",
+      "sha256": "d2c9989b32716102df3fdd8cfc9092ad27f153d2322b9aa8b7232570f1f9092c"
+    },
+    {
+      "path": "overlay-hud-before.png",
+      "sha256": "02b6e5def54ebf892126638164f5e13772deb74bcf6158e9b173b6a76a04e747"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "f664e400a702a25fdfe0b883b62b574fc0e6b65d250f7f635fbc12f568d19ac1"
+    },
+    {
+      "path": "saved-settings.png",
+      "sha256": "6cdf592ad32de7831b5d4b20132de1d9b6772599e3fa5e86cf7ccb8243cf2e1d"
+    }
+  ]
+}

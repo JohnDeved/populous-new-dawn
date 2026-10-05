@@ -1,0 +1,36 @@
+{
+  "originalReceiptSha256": "abba8242fee3f69297e78c1b3892b0b0bc661e64bc6d61645162176a95db2898",
+  "status": "passed",
+  "exitCode": 0,
+  "startedAt": "2026-10-05T05:48:59.883Z",
+  "finishedAt": "2026-10-05T05:51:07.677Z",
+  "source": {
+    "headOid": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/ordinary-worship-boundaries.mjs": "1eee9b26be3bf8034054d94087d0845f8915e3ab0653112d33db55d19e6cf6b9",
+      "scripts/local-render/ordinary-worship-m1-route.mjs": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/ordinary-worship-lossless-copy.json": "db3c6e1a2e8073fb82f2ea13f67caacca0adc01627b935005901383d774182f1",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "sourceAfter": {
+    "headOid": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/ordinary-worship-boundaries.mjs": "1eee9b26be3bf8034054d94087d0845f8915e3ab0653112d33db55d19e6cf6b9",
+      "scripts/local-render/ordinary-worship-m1-route.mjs": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/ordinary-worship-lossless-copy.json": "db3c6e1a2e8073fb82f2ea13f67caacca0adc01627b935005901383d774182f1",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "stdoutSha256": "d426cbe5ea3c958b2956113833e89e475470669c182795ec8ff5dd2e6f84a420",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "scope": "Outer command summary. Original raw logs/receipt retained for independent review."
+}

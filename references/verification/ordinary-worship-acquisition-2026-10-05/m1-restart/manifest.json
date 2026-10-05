@@ -1,0 +1,36 @@
+{
+  "scope": "Public Restart during ordinary acquisition",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "66aba0c1c4e4f13fec2cd670dea0889409292610",
+  "originalReceiptSha256": "d6f14029008640c4261ffe8ba676bb33024fc112299dff082b7dad21a354b9ac",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "0864101ffdf018c08ca0af64612b81b29bb3329e5d5e9108c5017ec1055112de"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "28f95039b658e2f9f0d856ac9b5ab94e5e6a1810e945f2104b07c96ec0f81dc6"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "a1ebc5da002605b9cdf4fce56c2442e4f51cc76b349ea6cf2a9575c202d6230e"
+    },
+    {
+      "path": "ordinary-worship-boundaries.mjs",
+      "sha256": "1eee9b26be3bf8034054d94087d0845f8915e3ab0653112d33db55d19e6cf6b9"
+    },
+    {
+      "path": "ordinary-worship-m1-route.mjs",
+      "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "c202e4f09c27594742d9cd8b742e3094108377b0f20ed6ee62bfda225a878a73"
+    },
+    {
+      "path": "restart-clean-scene.png",
+      "sha256": "fb84747e94f317217ad6a2c4eca391f42370fb08e89816e24bd4c76839fe3e4d"
+    }
+  ]
+}
