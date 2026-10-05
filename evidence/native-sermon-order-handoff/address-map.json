@@ -1,0 +1,205 @@
+{
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "retainedExportGhidraVersion": "12.1.3",
+  "entries": [
+    {
+      "address": "00444f60",
+      "role": "complete simulation player packet consumer; executed, frontend before it unexecuted",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/00444f60.c",
+      "sha256": "d20b7f17d636046a0f66571188152bdc97eb78bf258a7f82daae2ab5c4ad9a25"
+    },
+    {
+      "address": "00435780",
+      "role": "stage command packet",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/00435780.c",
+      "sha256": "73f3eb3379b0ac0f240cdb403a6a47ad1f707652032e94f7b66becce4235a9d7"
+    },
+    {
+      "address": "00435c40",
+      "role": "clear selected people orders",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/00435c40.c",
+      "sha256": "a98ca46d3334de965847e737a93d318a0de768d013060bcad9793408e399fc84"
+    },
+    {
+      "address": "00435cb0",
+      "role": "append selected people orders",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/00435cb0.c",
+      "sha256": "d569ace49cf9c07c96a21f4463105133e57858c73aaae45d4bf28ddefcf849e8"
+    },
+    {
+      "address": "00436ff0",
+      "role": "clear staged commands",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/00436ff0.c",
+      "sha256": "4c4929e81f6dabf67c7837596abb0709d0e636d3c7e759f805c63467b6da9281"
+    },
+    {
+      "address": "004364d0",
+      "role": "remove shared person order",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/004364d0.c",
+      "sha256": "694cf0f4dfbfe3ec7ada8b812b360d227443c43e44910bcd5a0dc0187a852553"
+    },
+    {
+      "address": "00438730",
+      "role": "prepare shared command",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/00438730.c",
+      "sha256": "6a5ce0e68b07b0dab9837b53d8f0cc657495077a2069f0c43ba8bd594651e660"
+    },
+    {
+      "address": "00436d00",
+      "role": "attach shared command",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/00436d00.c",
+      "sha256": "0c5d9dc7ca2e531605137b19aca83933dff51c8d843d0f2f9ab734b421cf2e13"
+    },
+    {
+      "address": "00432590",
+      "role": "person shared order dispatcher",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/00432590.c",
+      "sha256": "3ecb61dad36c9ad28115359566a586d41181dd131bb5dde939f8dc91f3d21d45"
+    },
+    {
+      "address": "0043a4d0",
+      "role": "sermon body commands17/31/32",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/0043a4d0.c",
+      "sha256": "468e8230bd5ccf922c0237163fbf5e92fa00948b0d1fd98ac46b7e0a35d33188"
+    },
+    {
+      "address": "0043abf0",
+      "role": "native listener acquisition scan (new Capstone disassembly)",
+      "export": "No new Ghidra export; original instruction trace or named adjacent disassembly only."
+    },
+    {
+      "address": "0043aec0",
+      "role": "sermon release scan; not called by tested supersession packets",
+      "export": "No new Ghidra export; original instruction trace or named adjacent disassembly only."
+    },
+    {
+      "address": "004d8300",
+      "role": "state23 listener initialization (new Capstone disassembly)",
+      "export": "No new Ghidra export; original instruction trace or named adjacent disassembly only."
+    },
+    {
+      "address": "004d83b0",
+      "role": "listener validation/timer/RNG/replacement",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/004d83b0.c",
+      "sha256": "9154eae2ae3f0c09f89b9da37704c5b73add53365e0bca5e345a3c63ba40bbaf"
+    },
+    {
+      "address": "004ed700",
+      "role": "complete class dispatch",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/004ed700.c",
+      "sha256": "598f405b7271fdf40b953d45ae594946d0872b5fbe67ff9c9c9880f6a837fdff"
+    },
+    {
+      "address": "004d32b0",
+      "role": "complete person processor",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/004d32b0.c",
+      "sha256": "1302bb34e80166d86f96cdf418987ba54a6362f4742760082c656c80b8f96fce"
+    },
+    {
+      "address": "004d2740",
+      "role": "person state initializer",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/004d2740.c",
+      "sha256": "02dd6d6bcdebfd1fbb5065c50af5e8f40d33140676e99c316ceb3ebe85835747"
+    },
+    {
+      "address": "004a3940",
+      "role": "clear workFlags/owner",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/004a3940.c",
+      "sha256": "47669140587f7baea77e2d2a45d9fee3c5eab19a464c70eb41676fe754858ecd"
+    },
+    {
+      "address": "004d4690",
+      "role": "common automatic combat tail",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/004d4690.c",
+      "sha256": "6556d4948216899174a316eabb035cd064a6a887f439dfcea6f52c472303cca9"
+    },
+    {
+      "address": "0051ff60",
+      "role": "engagement range",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/0051ff60.c",
+      "sha256": "8bfcaa379644005b87cb8fe9382e12fa02e7057eedc94825ecf2fc15680788a1"
+    },
+    {
+      "address": "004d44e0",
+      "role": "engagement eligibility",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/004d44e0.c",
+      "sha256": "42737b51751bdf4e80033dbd5ac5a09730d80b4b2a864d25244121ddc5d2d8da"
+    },
+    {
+      "address": "0051e5e0",
+      "role": "ordinary melee scanner/order producer",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/0051e5e0.c",
+      "sha256": "bcac6d41917a67a7d5e8e379bb54177dade94491a0d7119439b6224dd26f8762"
+    },
+    {
+      "address": "0051eab0",
+      "role": "area candidate scan",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/0051eab0.c",
+      "sha256": "98ca0833fa2e9d77206836e43ecb9b2ff559079f172e4e9aa149a5b168c24c78"
+    },
+    {
+      "address": "00520480",
+      "role": "automatic order sharing",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/00520480.c",
+      "sha256": "1961e127a6e5fb232d3f3f88a617ba5d3b25b87fa2d3acf3b8d4362e0abe4077"
+    },
+    {
+      "address": "0051a2a0",
+      "role": "attack-area command consumer",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/0051a2a0.c",
+      "sha256": "1148d56324a395d94998cc048659dc00358ff1594cbdc0096bc494fccec68594"
+    },
+    {
+      "address": "0051e150",
+      "role": "encounter constructor request; stop before its allocation",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/0051e150.c",
+      "sha256": "6001373f8d7b043ee79ade2fa1c719ba344610d177845efea36e8f8501d7505e"
+    },
+    {
+      "address": "004ed8a0",
+      "role": "native object allocator; executes in conversion control, intentionally stops in handoff targeting continuation",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/004ed8a0.c",
+      "sha256": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9"
+    },
+    {
+      "address": "004ed580",
+      "role": "class constructor dispatch",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/004ed580.c",
+      "sha256": "30f96739bcd6f1703d38d8937b3a5890bffaaf282be069067360bd7a1da118c8"
+    },
+    {
+      "address": "004d23d0",
+      "role": "person constructor (new Capstone disassembly)",
+      "export": "No new Ghidra export; original instruction trace or named adjacent disassembly only."
+    },
+    {
+      "address": "004d5920",
+      "role": "person constructor body; not newly exported",
+      "export": "No new Ghidra export; original instruction trace or named adjacent disassembly only."
+    },
+    {
+      "address": "004ecac0",
+      "role": "native tribe roster rebuild",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/004ecac0.c",
+      "sha256": "ae2bea39e8c0eb1fc50757a1b73390854057e82545afc391ef9527a2c44249c4"
+    },
+    {
+      "address": "0043bcc0",
+      "role": "complete worship command27",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/0043bcc0.c",
+      "sha256": "a2e837635e0ac89235c965824550bdb6a8fe05ca4ab32e7b55a47052c06c2ee8"
+    },
+    {
+      "address": "0043c340",
+      "role": "native worship slot/place search",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/0043c340.c",
+      "sha256": "2b5bb660c96da9ac9d1b47349b61220eb2496481659840c280c8dc8e7436783f"
+    },
+    {
+      "address": "004fb270",
+      "role": "native head admission/count/work consumer",
+      "retainedExport": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/decomp/generated/004fb270.c",
+      "sha256": "3a61b62275e618be994161ba1ba94fa6b46beab22d3348c483072afc411b1a2a"
+    }
+  ]
+}

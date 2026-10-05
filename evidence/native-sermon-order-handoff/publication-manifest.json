@@ -1,0 +1,37 @@
+{
+  "scope": "Evidence-only publication; frozen reviewed artifacts; no implementation or new execution",
+  "files": {
+    "README.md": {
+      "bytes": 4900,
+      "sha256": "9ff35f4e3dd5721b5959e0bc6d46ef2c7b905a0e29fc75a351ef41b1a53fdd52"
+    },
+    "address-map.json": {
+      "bytes": 10262,
+      "sha256": "cdc57ce4da1349f7a6200bf8d1c962b09ce19c5ee29c6015a1d49988308fdeac"
+    },
+    "archive-manifest.json": {
+      "bytes": 18096,
+      "sha256": "8b9c189591de9fb997150b73c98aef25f9306199ded2ac70a44178e1ca3b42f3"
+    },
+    "independent-review.md": {
+      "bytes": 10561,
+      "sha256": "4b7b648eed2168b608fec24aca07b8e6cd153adbdd573b15193c8ff7b3bf80f6"
+    },
+    "mission3-head-binding.json": {
+      "bytes": 4381,
+      "sha256": "33cfefd14b47e41c64b92dc5da69d032729a14739b445151f0f8c8249f9923b2"
+    },
+    "research-findings.md": {
+      "bytes": 13657,
+      "sha256": "de60c89624cbc83b9e1acc1817ccec36834c42a08653102fa1650fba45e15107"
+    },
+    "reviewed-native-evidence.tar.gz": {
+      "bytes": 1804085,
+      "sha256": "898a65e6276b6346d12ba36c3d186b3c9d7c91ed225e99167d8cfda9fb58a78d"
+    },
+    "verified-summary.json": {
+      "bytes": 1834,
+      "sha256": "c1c43c576296a3259a92ef895356ee7ce1448acd615f91ebce73735f9d357a0a"
+    }
+  }
+}

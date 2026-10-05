@@ -1,0 +1,55 @@
+{
+  "status": "passed",
+  "handoff": [
+    {
+      "case": "listeners1-command27",
+      "listenersReleaseOnOwnVisit": 1,
+      "immediateAttackAreaOrder": 21,
+      "followingListenerTarget": 1,
+      "encounterAllocationBoundary": "004ed8a0 <- 0051e180, class10/model9/owner255"
+    },
+    {
+      "case": "listeners2-command27",
+      "listenersReleaseOnOwnVisit": 2,
+      "immediateAttackAreaOrder": 21,
+      "followingListenerTarget": 1,
+      "encounterAllocationBoundary": "004ed8a0 <- 0051e180, class10/model9/owner255"
+    },
+    {
+      "case": "listeners1-command3",
+      "listenersReleaseOnOwnVisit": 1,
+      "immediateAttackAreaOrder": 21,
+      "followingListenerTarget": 1,
+      "encounterAllocationBoundary": "004ed8a0 <- 0051e180, class10/model9/owner255"
+    },
+    {
+      "case": "listeners2-command3",
+      "listenersReleaseOnOwnVisit": 2,
+      "immediateAttackAreaOrder": 21,
+      "followingListenerTarget": 1,
+      "encounterAllocationBoundary": "004ed8a0 <- 0051e180, class10/model9/owner255"
+    }
+  ],
+  "converted": {
+    "nativeReplacementId": 640,
+    "conversionVisit": 1328,
+    "worshipArrivalVisits": 20,
+    "flags4": "0x20840100",
+    "flags3": "0x1040104",
+    "admittedCounts": [
+      1,
+      0,
+      0,
+      0
+    ]
+  },
+  "ordinaryWorshipArrivalVisits": 30,
+  "sourceStable": true,
+  "limits": [
+    "Synthetic flat world and selected actor roster; no original M3 snapshot",
+    "Per-person/sermon schedule supplied, not uninterrupted full-world scheduler",
+    "444f60 simulation packet entry exercised; pre-packet frontend/C1 call chain unexecuted",
+    "No completed encounter, combat damage, kill, spell AI, campaign cause, or route/tactic safety claim",
+    "Conversion allocation and native roster rebuild executed; actors/saved game/world provenance remains synthetic"
+  ]
+}

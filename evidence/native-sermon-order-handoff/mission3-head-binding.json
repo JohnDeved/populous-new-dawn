@@ -1,0 +1,129 @@
+{
+  "privateInputSha256": "eb239eabebbcde37c1e1633b149d48977cedf432348a12fc5ee6b4be74c049bf",
+  "records": [
+    {
+      "authoredIndex": 101,
+      "recordOffset": 87542,
+      "class": 6,
+      "model": 6,
+      "owner": 0,
+      "nativeCoordinates": [
+        256,
+        34048
+      ],
+      "browserCoordinates": [
+        -7.0,
+        115.0
+      ],
+      "recordSha256": "d200c94cd14117bbe1481cc824ef62e04461b6ffce819480e08a07ae8547c8d6",
+      "settings": [
+        0,
+        1,
+        0,
+        1,
+        1,
+        0,
+        104,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        40,
+        0,
+        0,
+        0,
+        0,
+        3
+      ]
+    },
+    {
+      "authoredIndex": 102,
+      "recordOffset": 87597,
+      "class": 5,
+      "model": 9,
+      "owner": 255,
+      "nativeCoordinates": [
+        256,
+        34048
+      ],
+      "browserCoordinates": [
+        -7.0,
+        115.0
+      ],
+      "recordSha256": "2dee7c9ff8d512cbac2aa1f0b378acc65e518ce8eccc98c1a79df186dfacf002",
+      "decorativeHeading": 1536
+    },
+    {
+      "authoredIndex": 103,
+      "recordOffset": 87652,
+      "class": 7,
+      "model": 23,
+      "owner": 0,
+      "nativeCoordinates": [
+        63744,
+        35072
+      ],
+      "browserCoordinates": [
+        -15.0,
+        111.0
+      ],
+      "recordSha256": "e74e2f5dbde9777cc700dbac2cde9d4dca07869ff8375351e120c3565a2bcfd8"
+    }
+  ],
+  "decodedTrigger": {
+    "mode": 0,
+    "range": 1,
+    "remaining": 1,
+    "required": 1,
+    "target": 40,
+    "linkToken": 104,
+    "linkedAuthoredIndex": 103,
+    "growth": 768
+  },
+  "runtimeSnapshot": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-milestone-conversion.json",
+  "runtimeSnapshotSha256": "22f36b57e81af8678a7b0084e4e0c8afa2fe566b0acd1853695d73531c8d8b8d",
+  "runtimeTurn": 8282,
+  "runtimeShrine": {
+    "id": 101,
+    "kind": "erosionEffect",
+    "x": -7,
+    "z": 115,
+    "active": true,
+    "uses": 0,
+    "work": 0,
+    "progress": 0,
+    "followers": 0,
+    "remaining": 1
+  },
+  "constructorMapping": "world-initialization.ts: linked token resolves candidate.index+1; type7/model23 supplies erosionEffect and effectTarget; shrine gets x/z and createWorship fields, id=w.nextId++ rather than authored index; nativePosition maps (x+8)*256 and -(z+8)*256; same-geometry class5/model9 is decorative head.",
+  "sourceHashes": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/app/world-initialization.ts": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/app/world-terrain-runtime.ts": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/app/worship.ts": "f0e60f01e2b164e5d9e0ce6b8bd595ae3e4ca5f62ced9ef7c3e57dfb1ff75618",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/app/level-three.ts": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/app/world-initialization.ts": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/app/world-terrain-runtime.ts": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/app/worship.ts": "f0e60f01e2b164e5d9e0ce6b8bd595ae3e4ca5f62ced9ef7c3e57dfb1ff75618",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/app/level-three.ts": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07"
+  },
+  "scope": "Source/data mapping to captured port shrine; no assertion that original game runtime IDs equal authored indices or port IDs. Native synthetic witnesses use scenery id100 independently.",
+  "sourceHeads": {
+    "main": "3b899125cc8cedef938823718ad5d44f49957b66",
+    "QA": "ddef3caa522d45168b16f290cc5b5a4d1541fce2"
+  }
+}
