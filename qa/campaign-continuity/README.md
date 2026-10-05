@@ -73,7 +73,9 @@ Continue defaults to closing a segment after ordinary entry/readiness and a real
 Save in the next mission. `suspend: false` permits staying in the same session
 within its wall cap. Resume is limited to this completed Continue→Save boundary.
 The actual terminal harness receipt binds the emitted `segment-boundary.json`
-hash; its verified profile/source/cleanup and latest digest must match. All past
+hash; its verified profile/source/cleanup and latest digest must match. The record
+also binds the intended terminal status and exact deliberately thrown error hash.
+A later cleanup, readback, runtime or source override rejects admission. All past
 milestones, epochs, input provenance, failures, stops and browser errors carry
 forward. Overall failed status does not erase a valid boundary; a separate
 prior-harness-failure entry preserves that failure. Missing or arbitrary

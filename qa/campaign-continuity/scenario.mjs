@@ -16,7 +16,7 @@ import { objectiveProgress, checkCondition, IncompleteRun, MissionDefeat, author
   requireCancelledSermon } from './observation.mjs'
 import { validateRunPolicy, campaignActive, requireCampaignBudget, requireLoadedCheckpoint,
   requireContinueBoundary, requireCampaignProfile, readCampaignStorage,
-  installReplacementObservation, replacementIdentity, validateSegmentPredecessor } from './boundaries.mjs'
+  installReplacementObservation, replacementIdentity, validateSegmentPredecessor, continueControlName } from './boundaries.mjs'
 import { missionRoutes, milestoneConditions, validateMissionMilestones } from './routes.mjs'
 
 // The harness imports its scenario before starting a server/browser or claiming a profile.
@@ -753,6 +753,10 @@ export default async function campaignContinuity({ page, output, root, signal, r
       return JSON.stringify([conditionMet(state, condition), condition.type === 'stock-at-least' ? state.shots[condition.spell] :
         condition.type === 'stat-at-least' ? state.stats[condition.stat] : null,
       null])
+    if (['effect-present', 'effect-finished'].includes(condition.type)) {
+      assert.ok(typeof condition.kind === 'string' && /^[a-zA-Z][a-zA-Z0-9-]{0,39}$/.test(condition.kind), 'Effect wait requires a named kind')
+      return objectiveProgress(state, condition, scope)
+    }
     const objectiveIds = [condition.id, condition.preacherId, ...(condition.ids ?? [])].filter(Number.isInteger)
     if (condition.type === 'trained-kind') {
       assert.ok(Array.isArray(condition.existingIds), 'Training wait requires the actual pre-order kind IDs')
@@ -845,7 +849,7 @@ export default async function campaignContinuity({ page, output, root, signal, r
   const proveVictory = async () => {
     const state = await read(); health(state); assert.equal(state.status, 'won')
     await pollUI(() => page.evaluate(() => !window.testSceneRef.current.world.outcome.cameraPlaying), 60_000, 'victory camera')
-    await pollUI(() => page.getByRole('button', { name: `Continue to Mission ${level + 1}`, exact: true }).isVisible(), 60_000, 'campaign Continue control')
+    await pollUI(() => page.getByRole('button', { name: continueControlName(level + 1), exact: true }).isVisible(), 60_000, 'campaign Continue control')
     await assertCompleted(Array.from({ length: level }, (_, index) => index + 1))
     await pause(); await mark('victory')
   }
@@ -858,7 +862,7 @@ export default async function campaignContinuity({ page, output, root, signal, r
     await pause(); await endEpoch()
     await page.evaluate(installReplacementObservation)
     const from = level
-    await button(`Continue to Mission ${from + 1}`)
+    await button(continueControlName(from + 1))
     await bindGameWithPreservation()
     const boundary = await page.evaluate(replacementIdentity)
     requireContinueBoundary(boundary, from + 1)
@@ -872,11 +876,14 @@ export default async function campaignContinuity({ page, output, root, signal, r
     if (suspend) {
       await saveCheckpoint(`m${level}-continued-segment`)
       await endEpoch()
-      const result = { finished: true, ...stateRecord(), phase: 'continued-and-saved' }
+      const terminalError = failures.length || controlStops.length || priorBrowserErrors.length || receipt.errors.length
+        ? new CampaignBoundaryClosed('Verified mission boundary; retained failures prevent a clean harness pass') : null
+      const result = { finished: true, ...stateRecord(), phase: 'continued-and-saved',
+        terminal: { status: terminalError ? 'failed' : 'passed', failureSha256: terminalError ? sha256(terminalError.stack) : null } }
       const path = resolve(output, 'segment-boundary.json'), bytes = JSON.stringify(result, null, 2) + '\n'
       writeFileSync(path, bytes, { flag: 'wx' })
       receipt.campaignBoundary = { path, sha256: sha256(bytes) }
-      if (failures.length || controlStops.length || result.browserErrors.length) throw new CampaignBoundaryClosed('Verified mission boundary; retained failures prevent a clean harness pass')
+      if (terminalError) throw terminalError
       return result
     }
   }

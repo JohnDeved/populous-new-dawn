@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict'
+import { createHash } from 'node:crypto'
 import { IncompleteRun } from './observation.mjs'
 import { validateMissionMilestones } from './routes.mjs'
+
+// Shared by both ordinary victory proof and the actual Continue click. The
+// visible result-button icon contributes to its current accessible name.
+export function continueControlName(nextMission) {
+  assert.ok(Number.isInteger(nextMission) && nextMission >= 2 && nextMission <= 4)
+  return `Continue to Mission ${nextMission} ↗`
+}
 
 export function validateRunPolicy(policy) {
   assert.equal(policy.launchEnabled, true, 'Source-only checkpoint: launch requires a reviewed policy')
@@ -119,7 +127,15 @@ export function validateSegmentPredecessor(previous, prior, result, profile, sou
   assert.equal(result?.kind, 'fresh-current-campaign'); assert.equal(result.phase, 'continued-and-saved')
   assert.ok([2, 3].includes(result.level)); assert.equal(result.profileId, profile.id)
   assert.equal(result.runId, previous.runId)
+  assert.equal(result.terminal?.status, prior.status, 'Actual terminal status must match the emitted boundary intent')
+  assert.equal(Object.hasOwn(prior, 'previousFailure'), false, 'A terminal override cannot admit a boundary')
+  if (prior.status === 'failed') {
+    assert.equal(typeof prior.failure, 'string', 'Actual terminal failure is required')
+    const failureSha256 = createHash('sha256').update(prior.failure).digest('hex')
+    assert.equal(result.terminal.failureSha256, failureSha256, 'Actual terminal failure must be the exact deliberate boundary error')
+  } else assert.equal(result.terminal.failureSha256, null)
   for (const records of [result.failures, result.controlStops, result.browserErrors]) assert.ok(Array.isArray(records))
+  assert.equal(result.terminal.status === 'failed', result.failures.length + result.controlStops.length + result.browserErrors.length > 0, 'Only a retained failed prefix deliberately fails its boundary')
   assert.equal(result.source.fingerprint, source.fingerprint)
   assert.equal(result.preserveVerificationFailed, false)
   assert.deepEqual(result.protectedLatest?.checkpoint, profile.checkpointAtStart)

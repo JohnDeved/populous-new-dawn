@@ -1,6 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+const sha256 = value => createHash('sha256').update(value).digest('hex')
 import { validateRunPolicy, campaignActive, requireCampaignBudget, requireLoadedCheckpoint,
   requireContinueBoundary, requireCampaignProfile, installReplacementObservation,
   replacementIdentity, validateSegmentPredecessor } from './boundaries.mjs'
@@ -79,10 +81,11 @@ const predecessorFixture = status => {
   const prior = { status, failure: status === 'failed' ? 'retained command failure' : undefined, source, errors: [],
     profile: { ...previous, id: profile.id, checkpointAtEnd: saved } }
   const result = { kind: 'fresh-current-campaign', phase: 'continued-and-saved', level: 2,
-    profileId: profile.id, runId: previous.runId, source, failures: [{ kind: 'observed-input-rejection' }], controlStops: [], browserErrors: [],
+    profileId: profile.id, runId: previous.runId, source, failures: status === 'failed' ? [{ kind: 'observed-input-rejection' }] : [], controlStops: [], browserErrors: [],
     preserveVerificationFailed: false, protectedLatest: { checkpoint: saved }, currentEpoch: null,
     transitions: [{ from: 1, to: 2, boundary: boundary() }],
     milestones: missionRoutes[1].required.map(name => ({ level: 1, name })), checkpointProofs: [{ level: 1, loaded: true }],
+    terminal: { status, failureSha256: status === 'failed' ? sha256(prior.failure) : null },
     ownedWallMs: 10000, missionWallMs: { 1: 9000, 2: 1000, 3: 0 }, epochs: [epoch('m1', 1, 400), epoch('m2-start', 2, 8)] }
   return { previous, prior, result, profile, source }
 }
@@ -101,4 +104,30 @@ test('unknown cleanup, omitted milestones, wrong save/source and arbitrary faile
     f => { f.result.currentEpoch = epoch('open', 2, 8) }, f => { f.result.milestones.push({ level: 2, name: 'camp' }) },
     f => { f.prior.errors = ['new error omitted from record'] }, f => { f.result.preserveVerificationFailed = true }]
   for (const mutate of mutations) { const f = predecessorFixture('failed'); mutate(f); assert.throws(() => accept(f)) }
+})
+
+
+test('actual harness cleanup override cannot be admitted as the intended retained-prefix boundary failure', () => {
+  const harness = readFileSync(new URL('../../scripts/local-render/harness.mjs', import.meta.url), 'utf8')
+  const override = harness.match(/try \{ await stopServer\(server\) \} catch \(error\) \{ ([^\n]+) \}/)?.[1]
+  assert.ok(override, 'Use the actual maintained server-cleanup override shape')
+  const replaceOutcome = new Function('outcome', 'error', `${override}; return outcome;`)
+  const f = predecessorFixture('failed'), intended = f.prior.failure
+  Object.assign(f.prior, replaceOutcome({ status: f.prior.status, failure: intended }, Error('server cleanup failed')))
+  assert.equal(f.prior.previousFailure, intended)
+  assert.throws(() => accept(f), /terminal|failure|override/i)
+})
+test('later terminal failures, omitted failure binding and outcome substitutions reject', () => {
+  for (const mutate of [
+    f => { f.prior.failure = 'Error: runtime or checkpoint readback failed' },
+    f => { f.prior.previousFailure = f.prior.failure },
+    f => { delete f.result.terminal },
+    f => { f.result.terminal.failureSha256 = '0'.repeat(64) },
+    f => { f.prior.status = 'passed' },
+  ]) { const f = predecessorFixture('failed'); mutate(f); assert.throws(() => accept(f)) }
+})
+
+test('a clean bound mission boundary still resumes through the maintained success envelope', () => {
+  const f = predecessorFixture('passed'), retained = accept(f)
+  assert.deepEqual(retained.failures, []); assert.equal(retained.terminal.failureSha256, null)
 })
