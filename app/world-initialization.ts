@@ -13,6 +13,7 @@ import { createWorship } from './worship.ts'
 import { worshipAppearanceModel } from './worship-appearance.ts'
 import { ordinaryWorshipSource } from './worship-acquisition-source.ts'
 import { initializeStoneHead } from './stone-head-animation.ts'
+import { initializeVaultKnowledge } from './vault-appearance.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
 import { teamForTribe } from './world-types.ts'
 import rules from './original-rules.json' with { type: 'json' }
@@ -481,7 +482,10 @@ export function createWorld(missionNumber = 1): World {
   for (const b of w.buildings) if (b.kind === 'hut') b.timer = short(breedingWork(w, b) - 54)
   syncLandscapeObjects(w)
   w.lightView = nativePosition(w, campaignPosition(w, 'blue'))
-  for (const shrine of w.shrines) initializeStoneHead(shrine, missionNumber)
+  for (const shrine of w.shrines) {
+    initializeStoneHead(shrine, missionNumber)
+    initializeVaultKnowledge(shrine, missionNumber)
+  }
   initializeLevelStart(w)
   return w
 }

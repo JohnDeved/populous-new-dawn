@@ -339,6 +339,8 @@ export class GameScene {
     const atlasAsset = retryFailedTexture('atlas'),
       unitAtlasAsset =
         nativeUnits.atlas === 'atlas' ? atlasAsset : retryFailedTexture(nativeUnits.atlas),
+      knowledgeAtlasAsset =
+        world.outcome.level === 3 ? retryFailedTexture('vault-knowledge') : null,
       preload = (
         [
           ['effects', loadTexture('effects'), false],
@@ -346,6 +348,7 @@ export class GameScene {
           ['unit-health', loadTexture('unit-health'), false],
           ['atlas', atlasAsset, true],
           [nativeUnits.atlas, unitAtlasAsset, true],
+          ...(knowledgeAtlasAsset ? [['vault-knowledge', knowledgeAtlasAsset, true] as const] : []),
         ] as const
       ).map(([name, asset, required]) =>
         asset.ready.then(loaded => {

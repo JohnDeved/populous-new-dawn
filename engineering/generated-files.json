@@ -63,6 +63,7 @@
         "scripts/import-script.py",
         "scripts/import-hud.py",
         "scripts/import-worship-acquisition.py",
+        "scripts/import-vault-knowledge.py",
         "scripts/import-vehicle-panel-icons.py",
         "scripts/import-follower-tasks.py",
         "scripts/import-minimap-frame.py",
@@ -286,6 +287,20 @@
           "tracked": true,
           "protected": true,
           "producer": "scripts/import-worship-acquisition.py"
+        },
+        {
+          "path": "app/original-vault-knowledge.json",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-vault-knowledge.py"
+        },
+        {
+          "path": "public/original/vault-knowledge.png",
+          "type": "file",
+          "tracked": true,
+          "protected": true,
+          "producer": "scripts/import-vault-knowledge.py"
         },
         {
           "path": "public/original/hud.png",
