@@ -1,0 +1,181 @@
+{
+  "kind": "independent-actual-mission-two-victory-boundary-review",
+  "decision": "ACCEPT EVIDENCE AND PREDECESSOR",
+  "reviewedAt": "2026-10-05T20:34:51.677862+00:00",
+  "reviewer": "review_campaign_continuity",
+  "sourceHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "acceptedApplicationMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+  "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "terminalHarnessStatus": "failed",
+  "scope": "Actual ordinary Mission 2 victory, real within-mission Save/reload/Load, committed profile[1,2], ordinary Continue into Mission 3 and committed new Mission 3 checkpoint. Failed harness envelope is retained.",
+  "findings": [],
+  "evidence": [
+    {
+      "path": "work/orchestration/campaign-continuity/mission-two-segment-01-terminal-packet.json",
+      "sha256": "bd7c890f04de82370165bf69f990336e0fbcddac269f92385c6be8565eb8f019"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-two-segment-01/receipt.json",
+      "sha256": "d936947f3aba05398b4d77351496f937ab5e2e2b6f33a75eb3304f6bf9f28470"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-two-segment-01/segment-boundary.json",
+      "sha256": "88ef7da61fd5c360b37dfb630b21ff8a76df0986203a5c29a0f6b41f2a3d734d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-two-segment-01/journey.json",
+      "sha256": "79faf9c89d3e3217433f01fa5f841ddffe941d10e3cc6a8ceb3bf0a4a74bc0a3"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-two-segment-01/actions.jsonl",
+      "sha256": "c4ec35e2d8374cf3170d815a73642654c1d3d0e7405803bdf7bdac75f0a77371"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-two-segment-01.outer.json",
+      "sha256": "055ced4fae412d410cbe68e44a26403bb58e2ab57c95ebce3212526552cf340e"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-two-segment-01.launcher.json",
+      "sha256": "d6976d9eb8e8b39e92e73bd98a17e5bbb52318d5cd8a0c2caa0c44bb41152c4b"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-two-segment-01/verify.mjs",
+      "sha256": "4dc57b1309a72e6e7cf907db8bd3ed956b37a0cae550358869c404faa47c3e83"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-two-segment-01/verification.json",
+      "sha256": "4b0cb6e735aefd91795108f9315d6c95238ff66dca1d66aa639179c4dc626b53"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-two-segment-01/publication-verification.json",
+      "sha256": "cecfdfe9c390b2064fb5536d5cae87a8d45ceacfb17c9d513b616beadfd4ff4c"
+    }
+  ],
+  "verifiedFacts": [
+    "All 80 terminal-packet inputs match their hash/size. Fifteen original command files equal all consumed copies and recorded input hashes. There are 110 scheduled actions and exactly 99 requested actions. Batch11 ends at its third action and batch14 at its fifth; their 11 unexecuted suffix actions are neither credited nor silently rerun. Later batches are separately retained.",
+    "The exact prior clean Mission1 receipt and real M2 checkpoint396/full3c33b5f3 bind the ordinary opening Load. Saved/replacement/storage checkpoint hashes and actors/terrain/stock match; sameStore/newWorld/newScene/currentCorrespondence are true. Ordinary Pause precedes diagnostics, with later paused turn411. The approved first batch is admitted only after this real paused boundary.",
+    "M2 bridgeEffect shrine55 is genuinely used, bridge production increments and bridge effect completes. Camp1022 is built and five living Warriors trained. Active Tornado delivery snapshot turn4524 has Brave278 and Brave319 both working shrine56, followers2, uses1 and one delivered shot. The later stock reaches3. Two further five-Brave groups and two Huts are ordinary UI actions; total trained15, final living Warriors6.",
+    "M2 own Save at turn5185/time432.0833333333333 commits full digest5afba71ef6deb2b0bad8afa79e666c4c9a4763eae8f9753be522afb04b6bf457. Actual page reload and ordinary Load preserve saved/replacement/storage full and actor/terrain/stock hashes, with new World/scene and immediate Pause before diagnostic work. Later additional Save at9800 remains separate; the M3 continuation boundary is not an arbitrary mid-mission checkpoint.",
+    "Exactly two acquired Tornado casts are accepted with shot expenditure3\u21922 atturn11013 and2\u21921 atturn12001, cast stat0\u21921\u21922. Actual orders and combat clear observed enemy targets. No Blast was requested after batch14 failed, and no Blast cast is claimed.",
+    "Batch11 hit for moving Warrior6 at817,384 was sampled atturn11376, clone context enabled at11401, then immediate 5x5 revalidation at11409 returned validfalse/pointnull. Its delivered-pointer observation is null, and source throws before page.mouse input. Target movement is observed, but no broader root-cause/regression diagnosis is inferred.",
+    "Batch14 first accepted the static Hut1019 army order. Its later move toward85,104 produced a null native/ground probe atturn13602 with selection empty, and source rejected before the movement click. The next paused snapshot at13632 is already won. That later snapshot does not establish the precise cause of the earlier null probe. Both helper failures remain exact in journey and emitted boundary.",
+    "All nonnull entity-delivery observations restore original methods without diagnostic errors. Current source copies and all eight guarded application imports match frozen ddef. The previously accepted scenario routes ordinary buttons/pointer/keyboard; potential mutating validators use detached clones, persistent reads are read-only, and no simulation injection/storage fabrication/speed change is introduced by these command types.",
+    "M2 victory atturn13632/time1136 is supported by won state, committed profile[1,2], visible Level Won / Continue to Mission3 and screenshot18:56/2spells/5buildings. No Green followers remain; six Blue Warriors and Shaman54 at100HP survive. Empty Green Camp1 remains97.5HP. Displayed building statistic is not exclusively player construction.",
+    "Actual Continue2\u21923 retains store and replaces World/scene with current correspondence. M3 initializes authored Brave53 identity, uses ordinary Skip introduction, and readiness completes atturn142. Paused intended-save snapshot isturn179; subsequent Save readback commits full5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713. The later terminal readback matches that exact checkpoint.",
+    "The emitted boundary closes currentEpoch and states failed intent with exact deliberate Error.stack hash795b1f007527c769f1e68b608dc5fe1d187bf1c33f28f321d1e5fc75de2f0874. Actual terminal receipt has exactly that failure and no previousFailure override. Inner failed, outer exit1/signalnull and launcher terminal exit1 agree. No browser errors, control stops or speed/observer errors are present; nonfatal software-renderer warnings remain retained.",
+    "Unchanged harness cleanup overwrites earlier failure on browser/server/source/runtime cleanup faults; the real error survives without override. Its cleanup/continuation flags, exact final marker/receipt/checkpoint, absent owner and browser singleton locks, and original-scope IPv4/IPv6 port4375 refusals corroborate normal closure. This is not inferred from browser-only flags.",
+    "The maintained validator accepts the real closed failed predecessor and returns both original helper failures plus one prior-harness-failure record for the deliberate envelope. Independent negative cases reject actual stopServer-override shape and changed terminal error hash. The third record is not a third gameplay input failure and clean campaign PASS remains unavailable for this retained-failure journey.",
+    "All 81 compact publication files match their original bytes; manifest and README hashes and relative links pass. Caption clearly labels FAILED harness while crediting real M2 victory and M3 checkpoint. Earlier fresh attempts01/02 and historical saved-state M3 remain separate."
+  ],
+  "failureAccounting": {
+    "helperInputFailures": 2,
+    "indices": [
+      11,
+      14
+    ],
+    "originalFailures": [
+      {
+        "level": 2,
+        "index": 11,
+        "inputSha256": "8e3f9adfcc0293aabf0c37990f4bfbe21d5c7a05ee4396b4761f639ab4c92e2f",
+        "error": "AssertionError [ERR_ASSERTION]: Entity integer interior target became stale before input\n\nfalse !== true\n\n    at prepareEntityClick (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:349:12)\n    at async clickOrder (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:383:21)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+        "at": "2026-10-05T20:18:52.451Z"
+      },
+      {
+        "level": 2,
+        "index": 14,
+        "inputSha256": "5918bc389b445fb97aa6bb07255f6818a99454616591e4d66e2be4bf40893cfc",
+        "error": "AssertionError [ERR_ASSERTION]: Visible ground with no competing object\n    at move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:451:12)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+        "at": "2026-10-05T20:25:59.982Z"
+      }
+    ],
+    "controlStops": 0,
+    "browserErrors": 0,
+    "forwardRecords": 3,
+    "forwardEnvelopeRecord": "The validator adds prior-harness-failure for the exact failed terminal envelope; preserve it alongside both input failures.",
+    "unexecutedSuffixActions": 11,
+    "terminalFailureSha256": "795b1f007527c769f1e68b608dc5fe1d187bf1c33f28f321d1e5fc75de2f0874"
+  },
+  "predecessor": {
+    "decision": "ACCEPT PREDECESSOR ELIGIBILITY",
+    "receiptSha256": "d936947f3aba05398b4d77351496f937ab5e2e2b6f33a75eb3304f6bf9f28470",
+    "boundarySha256": "88ef7da61fd5c360b37dfb630b21ff8a76df0986203a5c29a0f6b41f2a3d734d",
+    "profileMarkerSha256AtReview": "dcdca505032ff03d319f552b68f7e54830f41d6c60608a7ae46306f709264b32",
+    "checkpoint": {
+      "version": 1,
+      "level": 3,
+      "turn": 179,
+      "time": 14.916666666666666,
+      "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+      "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+    },
+    "futureConditions": [
+      "Unchanged exact application/source/checker/runtime/origin and ordinary exclusive lease ownership.",
+      "Fresh actual pre-entry full checkpoint digest equal to retained Save3, then ordinary Load/current World+scene identity and Pause.",
+      "Retain all six epochs, all M1/M2 milestones/SaveLoad/transitions, both helper failures plus explicit envelope failure, and all active/wall budgets.",
+      "Separate finite M3 input/runtime/launcher review and coordinator launch grant."
+    ],
+    "launchGrantedByThisReview": false
+  },
+  "budgets": {
+    "activeByMission": {
+      "1": 697.5833333333333,
+      "2": 1141.4166666666665,
+      "3": 18.166666666666668
+    },
+    "totalActiveSeconds": 1857.1666666666667,
+    "missionWallMs": {
+      "1": 1589523,
+      "2": 2039727,
+      "3": 30211
+    },
+    "ownedWallMs": 3659465,
+    "missionTwoActiveLimit": 1500,
+    "missionTwoWallLimitMs": 5400000,
+    "missionThreeBeforeConversionActiveRemaining": 881.8333333333334,
+    "missionThreeWallRemainingMs": 5369789,
+    "campaignActiveRemaining": 2942.833333333333,
+    "capsReset": false
+  },
+  "imagesInspected": [
+    {
+      "path": "work/orchestration/campaign-continuity/mission-two-segment-01/m2-genuine-victory-result.png",
+      "sha256": "63b7727f072ffcbfd24e5177de53680fe2812d7535d43fa2862f641abbf92bc1",
+      "caption": "Actual M2 victory result,18:56,2spells,5buildings and Continue3; empty Green Camp survives."
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-two-segment-01/m2-milestone-checkpoint-reloaded.png",
+      "sha256": "e48e6bbb7f12f7a5eec274b0ba562cc853ea3c708b95b0da0e3a4d73697e1550",
+      "caption": "Paused M2 after ordinary Load; exact digest proof comes from transaction/replacement records."
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-two-segment-01/m3-continued-segment.png",
+      "sha256": "b8f75933cbcf51e27b459e9b838379d4dc02a9f5b26ef579eab29457eee10f48",
+      "caption": "Paused M3 opening at intended saved turn179 before Save; later committed readback proves persistence."
+    }
+  ],
+  "publication": {
+    "decision": "ACCEPT",
+    "reviewedAt": "2026-10-05T20:33:43.354594+00:00",
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity-evidence/references/verification/current-campaign-continuity-source-2026-10-05/mission-two-victory-ddef3ca",
+    "manifestSha256": "ab8f9ad1a5162c96b201e589c44a2cbc77930f1ed05451d99acf8b53f1dcaf8a",
+    "readmeSha256": "4c7b15dd64f90594cd6c8db5056f7ee1b9ea594746d3f6d98004d0982632e1a8",
+    "copiesVerified": 81,
+    "bytes": 6700973,
+    "relativeLinksVerified": 13,
+    "claimScope": "Genuine M2 victory and M3 checkpoint with a FAILED harness envelope; two pre-input failures and separate future prior-harness-failure label retained; no clean campaign/native/hardware claim.",
+    "privateBrowserProfileOrStorageCopied": false
+  },
+  "limits": [
+    "No clean harness or clean full-campaign PASS.",
+    "No M3 acquisition/conversion/erosion/victory or fresh-process M3 Load credit.",
+    "No original whole-game/native-pixel equivalence, calibrated timing or hardware performance.",
+    "No retrospective diagnosis of independent attempts01/02."
+  ],
+  "quality": "No maintained TypeScript/production source changes. Accepted same-source gates remain separately bound; no heavy rerun.",
+  "reviewWork": "Read-only source/receipts/images plus bounded Node host validation; only ignored review artifacts written. No browser, profile, storage, dependency or source mutation."
+}

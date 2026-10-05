@@ -1,0 +1,85 @@
+{
+  "kind": "same-source-m3-source-only-preflight-binding",
+  "createdAt": "2026-10-05T20:45:28.796295+00:00",
+  "sourceHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "acceptedApplicationMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "commit": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "tree": "7c6518a5d903508536071b1687d8759074112e13",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b"
+  },
+  "application": "d199649478e710b0b90a2228927645232ef35b687fa2c5899cbad81babb4cfda",
+  "checker": "e0117226c22ad5a705c4654988f95a528be8e119b78ce53bb0cf13099c6a38e6",
+  "inputs": {
+    "expectedProfileInputs": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m3-expected-profile-inputs.json",
+      "sha256": "5d5b0653ab64067476eb7ce0d4d102095729f15321755434a5956a1adca9ade9"
+    },
+    "plan": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m3-launch-plan.json",
+      "sha256": "a43250dfb0e38fb4a7e6309eba063ffe28ed0338d0cfb453324eeab26fc1dd5e"
+    },
+    "launcher": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/launch-mission-three-ddef3ca.py",
+      "sha256": "d3107c5e299eecd901986b39a8f348369de3ccb27b1947642fe073711de8dbf0"
+    },
+    "firstBatch": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-first-batch-ddef3ca.json",
+      "sha256": "4936c5e9e4d42f3d728f236f57598f68ce82c56eb2fbeaf32c7e54bb09d2dfb5"
+    },
+    "predecessorValidation": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01-predecessor-validation.json",
+      "sha256": "580ed59c82776de17a3cdaff98e5844aa22e120cc12a1ad55b3ac15b131ed54b"
+    },
+    "predecessorReview": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-two-segment-01/review.json",
+      "sha256": "01cb340d999396c6dff2b584ccc35a0234e7ff545c1e855a500459ad2d5fc765"
+    },
+    "dependencyMoveAway": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/dependency-transfers/campaign-to-native-guard-final-20261005T2033/receipt.json",
+      "sha256": "2ef15f38cf6cac0d0ca7f7c216ba7e7d8d24d10347b941e16020d4cad0157877",
+      "meaning": "Most recent recorded move AWAY from campaign to Native Guard. This is not a return/release receipt for M3."
+    }
+  },
+  "sourceUnchanged": true,
+  "runtimeStatus": "Expected runtime comes from actual completed M2 receipt; no current dependency/browser remeasurement or acquisition. Final actual returned-runtime binding is still required.",
+  "inherited": {
+    "activeSeconds": 1857.1666666666667,
+    "missionActiveSeconds": {
+      "1": 697.5833333333333,
+      "2": 1141.4166666666665,
+      "3": 18.166666666666668
+    },
+    "ownedWallMs": 3659465,
+    "missionWallMs": {
+      "1": 1589523,
+      "2": 2039727,
+      "3": 30211
+    },
+    "helperFailureCount": 2,
+    "priorEnvelopeFailureCount": 1,
+    "failureSha256": "3b5a4beb7989329e8a03ea176c457f5ef039b5fb19ca7b2a146e9261df99f248",
+    "controlStopCount": 0
+  },
+  "caps": {
+    "M3ActiveLimit": 2400,
+    "M3ActiveRemaining": 2381.8333333333335,
+    "M3BeforeConversionLimit": 900,
+    "M3BeforeConversionRemaining": 881.8333333333334,
+    "M3AfterConversionLimit": 1800,
+    "M3WallLimitMs": 5400000,
+    "M3WallRemainingMs": 5369789,
+    "campaignActiveRemaining": 2942.833333333333,
+    "campaignWallRemainingMs": 8940535,
+    "harnessMs": 5700000,
+    "outerSeconds": 5710,
+    "noProgressActiveSeconds": 120
+  },
+  "existingGateScope": "Exact accepted ddef92 QA/source checks/build and explicit1134 standard component correspondence remain unchanged. No new source or heavy gate is run or silently relabelled.",
+  "launchEnabledByThisPacket": false,
+  "permissionBoundary": "Source-only preparation. Pair release, authorized receipted dependency return, current runtime comparison/final review and exact coordinator launch grant remain outstanding."
+}

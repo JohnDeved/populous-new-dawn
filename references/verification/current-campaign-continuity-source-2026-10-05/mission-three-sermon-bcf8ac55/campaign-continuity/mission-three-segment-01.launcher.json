@@ -1,0 +1,127 @@
+{
+  "startedAt": "2026-10-05T20:51:37.226934+00:00",
+  "status": "terminal",
+  "launcherPid": 2,
+  "pidNamespace": "pid:[4026532324]",
+  "networkNamespace": "net:[4026532325]",
+  "cpus": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "profile": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3b89912-m1-03",
+  "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01",
+  "privateTmp": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/private-tmp-m3-ddef3ca",
+  "sourceRuntimeVerification": {
+    "source": {
+      "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+      "commit": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+      "tree": "7c6518a5d903508536071b1687d8759074112e13",
+      "status": "",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked": [],
+      "fingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b"
+    },
+    "inputs": {
+      "application": "d199649478e710b0b90a2228927645232ef35b687fa2c5899cbad81babb4cfda",
+      "checker": "e0117226c22ad5a705c4654988f95a528be8e119b78ce53bb0cf13099c6a38e6"
+    },
+    "runtime": {
+      "node": "v24.19.0",
+      "platform": "linux",
+      "arch": "x64",
+      "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+      "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+      "playwright": "1.63.0",
+      "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+      "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "harness": {
+        "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+        "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+        "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+        "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+      }
+    },
+    "verified": true
+  },
+  "preTcp": [
+    {
+      "host": "127.0.0.1",
+      "port": 4375,
+      "code": 111,
+      "closed": true
+    },
+    {
+      "host": "::1",
+      "port": 4375,
+      "code": 111,
+      "closed": true
+    }
+  ],
+  "command": [
+    "node",
+    "scripts/orchestration/command-receipt.mjs",
+    "--output",
+    "work/orchestration/campaign-continuity/mission-three-segment-01.outer.json",
+    "--input",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-first-batch-ddef3ca.json",
+    "--input",
+    "qa/campaign-continuity/run-policy.json",
+    "--input",
+    "node_modules/.package-lock.json",
+    "--",
+    "taskset",
+    "-c",
+    "0-3",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "5710s",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "--port",
+    "4375",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01",
+    "--mission",
+    "3",
+    "--timeout",
+    "5700000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs",
+    "--profile",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3b89912-m1-03",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell"
+  ],
+  "launcherSha256": "d3107c5e299eecd901986b39a8f348369de3ccb27b1947642fe073711de8dbf0",
+  "launchPlanSha256": "a43250dfb0e38fb4a7e6309eba063ffe28ed0338d0cfb453324eeab26fc1dd5e",
+  "dependencyInode": 925605,
+  "childPid": 33,
+  "finishedAt": "2026-10-05T21:27:48.877731+00:00",
+  "commandExitCode": 1,
+  "postTcp": [
+    {
+      "host": "127.0.0.1",
+      "port": 4375,
+      "code": 111,
+      "closed": true
+    },
+    {
+      "host": "::1",
+      "port": 4375,
+      "code": 111,
+      "closed": true
+    }
+  ],
+  "innerReceiptSha256": "5a934ae4e50ef69bc353ec66df5eb64e90cb2be50d06848650aeec23c31e7214",
+  "innerStatus": "failed",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "runId": "bcf8ac55-e418-49e4-a3d6-b7e804ee31d3",
+  "cleanupVerified": true,
+  "continuationVerified": true,
+  "originClosed": true
+}

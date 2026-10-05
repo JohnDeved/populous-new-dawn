@@ -1,0 +1,28 @@
+{
+  "kind": "archived-host-stdin-invocations",
+  "assembledAt": "2026-10-05T20:55:56.978363+00:00",
+  "provenance": "Exact stdin source and captured failed stderr transcribed from the retained tool invocations in this conversation after execution. These files were not the files executed and are not claimed as pre-existing command-receipt inputs. No invocation is rerun.",
+  "attempt01": {
+    "execSession": 9595,
+    "execChunkId": "00ad59",
+    "terminalExitCode": 1,
+    "sourceSha256": "ffa2e5dadf09197e04871625b66df851d722595630ae81de33570db83f561a09",
+    "stderrSha256": "6ae35731cfded2902074fc0274074b6be9167a76c0c79d56df4ed6d6901b9bc8",
+    "outcome": "FileNotFound before command write; no input admitted"
+  },
+  "attempt02": {
+    "execChunkId": "06e913",
+    "terminalExitCode": 0,
+    "sourceSha256": "d032d6d7645c08889b29983b20f89b9335017e7f6d19749a5c336f5222b94ad9",
+    "outcome": "Queued exact4936c5e9 after verified actualLoad/opening and accepted predecessor; observed actual journey equality with all3 inherited failure records",
+    "observedJourneySha256": "8d9b613c70c23ae945ebe62fb3e1875b1e0c2c29523ec67a47a47d400111a2c6"
+  },
+  "admissionReceipt": {
+    "path": "work/orchestration/campaign-continuity/mission-three-first-batch-admission.json",
+    "sha256": "a800395e6eaf042849ba3858bd5dbf46857c7c8ee2947958a3dc072d50d21ba7"
+  },
+  "queuedAt": "2026-10-05T20:53:14.364837+00:00",
+  "awaitingAt": "2026-10-05T20:52:10.177Z",
+  "pausedDelaySeconds": 64.187837,
+  "runningSourceOrExplicitInputsChanged": false
+}

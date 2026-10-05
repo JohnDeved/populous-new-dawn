@@ -1,0 +1,13 @@
+{
+  "decision": "ACCEPT",
+  "reviewedAt": "2026-10-05T21:47:27.608198+00:00",
+  "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity-evidence/references/verification/current-campaign-continuity-source-2026-10-05/mission-three-sermon-bcf8ac55",
+  "manifestSha256": "aeb5dafa8c2cc5890a2fbeee64496844a4c91aeaddecf41555111285af779516",
+  "readmeSha256": "1ed95f1a4815a36a61749e1a8f75bb76a4a152ada7265772fccf7239cf2c102f",
+  "copiesVerified": 68,
+  "totalBytes": 9634906,
+  "relativeLinksVerified": 11,
+  "captionScope": "Later paused view after the earned sermon sequence; not exact onset/cancellation/conversion frame or standalone actor identity evidence.",
+  "claims": "Bounded fresh sermon proof only; no Erosion/victory. Failed terminal and inherited failures/new automatic stop retained. No exclusive fatal-cause attribution. Current mid-mission entry ineligible.",
+  "profileAndDependencyAccess": "None by this review; files read are public allowlist sources and reviewed repository source."
+}

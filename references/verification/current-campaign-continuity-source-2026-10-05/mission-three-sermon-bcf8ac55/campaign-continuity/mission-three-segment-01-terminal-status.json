@@ -1,0 +1,69 @@
+{
+  "kind": "actual-m3-terminal-closure-and-resource-release",
+  "recordedAt": "2026-10-05T21:32:53.438971+00:00",
+  "originalExecSession": 98147,
+  "originalExitCode": 1,
+  "runId": "bcf8ac55-e418-49e4-a3d6-b7e804ee31d3",
+  "sourceCommit": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+  "status": "failed",
+  "failure": "IncompleteRun: No relevant worship progress for two active minutes\n    at waitDiagnosticStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/observation.mjs:313:41)\n    at waitFor (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:524:20)\n    at async erosion (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:791:5)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+  "receiptSha256": "5a934ae4e50ef69bc353ec66df5eb64e90cb2be50d06848650aeec23c31e7214",
+  "outerSha256": "0747ebf0edb2096c524ffd50e8d057e4277726e0f2012ba65f966ef1a9533c63",
+  "launcherSha256": "0f37e5bd9ad43049433f0721f1dcdfbde3ddd797b56ce625cd8b93b1b748ff89",
+  "cleanupVerified": true,
+  "continuationVerified": true,
+  "ownerLockAbsent": true,
+  "profileMarkerSha256": "09a55e10aecf54472e8a1848f695f26893e200bee98c334f9e116eeaab10bb79",
+  "checkpointAtEnd": {
+    "version": 1,
+    "level": 3,
+    "turn": 7424,
+    "time": 618.6666666666666,
+    "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+    "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+  },
+  "sameScope4375Closed": true,
+  "postTcp": [
+    {
+      "host": "127.0.0.1",
+      "port": 4375,
+      "code": 111,
+      "closed": true
+    },
+    {
+      "host": "::1",
+      "port": 4375,
+      "code": 111,
+      "closed": true
+    }
+  ],
+  "activeSecondsIncludingTerminalOpenEpoch": 2692.6666666666665,
+  "M3ActiveSeconds": 853.6666666666666,
+  "ownedWallMs": 5801958,
+  "missionWallMs": {
+    "1": 1589523,
+    "2": 2039727,
+    "3": 2172699
+  },
+  "inheritedFailureRecords": 3,
+  "newGuardStops": [
+    {
+      "level": 3,
+      "index": 9,
+      "at": "2026-10-05T21:27:39.805Z",
+      "error": "IncompleteRun: No relevant worship progress for two active minutes\n    at waitDiagnosticStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/observation.mjs:313:41)\n    at waitFor (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:524:20)\n    at async erosion (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:791:5)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+      "code": "progress-stall"
+    }
+  ],
+  "browserErrors": [],
+  "dependency": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/node_modules",
+    "inode": 1993651,
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "released": true
+  },
+  "scope": "Actual completed normal terminal and current marker/resource check. No second launch, profile reconstruction or continuation eligibility claim; existing scenario does not admit this mid-mission checkpoint."
+}

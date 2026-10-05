@@ -1,0 +1,12 @@
+{
+  "recordedAt": "2026-10-05T21:34:12.038806+00:00",
+  "terminalStatus": {
+    "path": "work/orchestration/campaign-continuity/mission-three-segment-01-terminal-status.json",
+    "sha256": "4cef7f2be0711515c8f571935778b330ff3ee11bebe67404725a1c46108307bf"
+  },
+  "reconciliation": "The terminal status measurement saw campaign inode1993651, which is the new lock-only stub after this subsequent authorized move. Full dependency925605 is at native-shaman-guard-before. No resource is held by the campaign worker.",
+  "transfer": {
+    "path": "work/orchestration/dependency-transfers/campaign-to-native-guard-before-20261005T2132/receipt.json",
+    "sha256": "9a3cadefb1a35d4ebbe40b47b00d3c472098b091d81d8450f59f6b8c71aef4da"
+  }
+}

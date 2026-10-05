@@ -1,0 +1,35 @@
+{
+  "kind": "same-source-m3-final-launch-binding",
+  "createdAt": "2026-10-05T20:51:13.265952+00:00",
+  "sourceHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+  "application": "d199649478e710b0b90a2228927645232ef35b687fa2c5899cbad81babb4cfda",
+  "checker": "e0117226c22ad5a705c4654988f95a528be8e119b78ce53bb0cf13099c6a38e6",
+  "actualRuntime": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m3-actual-runtime.json",
+    "sha256": "1c712063b9be9a5b321258f2abf6e5d8b2f2ea99e3a66f507e7d32bf9b548441"
+  },
+  "sourcePreflight": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m3-preflight-binding.json",
+    "sha256": "00e933af781f71b5cbe5974dcda40aa09975824253a85896da930cc03b520de8"
+  },
+  "independentExactReview": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-three-preflight-ddef3ca/review.json",
+    "sha256": "1ef9524c3b6e77ffdc346f8e517a4c174e78c5b47f351dff9eaeb38239df4d28"
+  },
+  "plan": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m3-launch-plan.json",
+    "sha256": "a43250dfb0e38fb4a7e6309eba063ffe28ed0338d0cfb453324eeab26fc1dd5e"
+  },
+  "launcher": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/launch-mission-three-ddef3ca.py",
+    "sha256": "d3107c5e299eecd901986b39a8f348369de3ccb27b1947642fe073711de8dbf0"
+  },
+  "firstBatch": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-first-batch-ddef3ca.json",
+    "sha256": "4936c5e9e4d42f3d728f236f57598f68ce82c56eb2fbeaf32c7e54bb09d2dfb5"
+  },
+  "sameSourceAndRuntimeCorrespondence": "Actual values exactly match the reviewed M2 runtime and M3 preflight expectations; no source adoption, gate replay, correspondence exception or profile reset.",
+  "predecessor": "Actual failed M2 run1a4080a7/receipt d936947f/boundary88ef7da6; full M3save1795cb9a33a, all1857.1666666666667 active seconds and retained2 helper+1 envelope failures.",
+  "authorization": "Coordinator grant at20:50 covers actual launch after matching returned-runtime identities; exact source/launcher preflight already independently accepted. Ordinary entry checks remain mandatory."
+}

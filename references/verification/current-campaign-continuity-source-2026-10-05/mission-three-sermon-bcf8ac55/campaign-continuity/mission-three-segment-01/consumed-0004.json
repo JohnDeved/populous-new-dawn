@@ -1,0 +1,18 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "start-preacher-training"
+  },
+  {
+    "action": "finish-preacher-training"
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m3-preacher-healthy-at-home"
+  }
+]

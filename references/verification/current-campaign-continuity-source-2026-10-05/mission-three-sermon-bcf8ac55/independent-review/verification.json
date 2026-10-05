@@ -1,0 +1,60 @@
+{
+  "status": "PASS BOUNDED EVIDENCE; REJECT MID-MISSION CONTINUATION",
+  "reviewedAt": "2026-10-05T21:46:23.701Z",
+  "packetSha256": "dd7cc747b70085fe297deebf8b54345126091de78a96e59c050292a2aabe495d",
+  "packetFiles": 67,
+  "innerSha256": "5a934ae4e50ef69bc353ec66df5eb64e90cb2be50d06848650aeec23c31e7214",
+  "outerSha256": "0747ebf0edb2096c524ffd50e8d057e4277726e0f2012ba65f966ef1a9533c63",
+  "launcherSha256": "0f37e5bd9ad43049433f0721f1dcdfbde3ddd797b56ce625cd8b93b1b748ff89",
+  "finalRuntimeBindingCorrespondence": "Actual measurement, accepted expectation, launcher measurement and terminal before/after runtime agree; no dependency or browser binary accessed by reviewer.",
+  "commandBatches": 9,
+  "queuedCommands": 42,
+  "requestedCommands": 39,
+  "unexecuted": [
+    {
+      "batch": 7,
+      "command": {
+        "action": "approach-sermon"
+      }
+    },
+    {
+      "batch": 9,
+      "command": {
+        "action": "pause"
+      }
+    },
+    {
+      "batch": 9,
+      "command": {
+        "action": "snapshot",
+        "name": "m3-prospective-erosion-retired"
+      }
+    }
+  ],
+  "inheritedFailureRecords": 3,
+  "newAutomaticControlStops": 1,
+  "erosionUnchangedActiveSeconds": 120.75,
+  "exactTotalActiveSeconds": 2692.666666666667,
+  "missionThreeActiveSeconds": 853.6666666666666,
+  "missionThreeConversionMarkActiveSeconds": 704.0833333333333,
+  "ownedWallMs": 5801958,
+  "missionWallMs": {
+    "1": 1589523,
+    "2": 2039727,
+    "3": 2172699
+  },
+  "preservedCheckpoint": {
+    "version": 1,
+    "level": 3,
+    "turn": 7424,
+    "time": 618.6666666666666,
+    "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+    "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+  },
+  "cleanupScope": "Terminal receipt/unchanged finalizer and original launcher scoped closure verified; owner-lock absence is the retained terminal-status observation, not a fresh reviewer profile inspection.",
+  "continuationRejection": "No campaignBoundary or segment-boundary.json; phase continued-and-saved absent; maintained validator rejects actual journey.",
+  "admissionArchiveScope": "Exact stdin source and captured failed stderr transcribed from the retained tool invocations in this conversation after execution. These files were not the files executed and are not claimed as pre-existing command-receipt inputs. No invocation is rerun.",
+  "admissionPausedDelaySeconds": 64.187837
+}

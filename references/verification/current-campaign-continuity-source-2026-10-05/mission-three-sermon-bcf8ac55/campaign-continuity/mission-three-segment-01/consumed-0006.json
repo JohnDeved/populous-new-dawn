@@ -1,0 +1,42 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "declare-sermon"
+  },
+  {
+    "action": "select",
+    "kind": "preacher"
+  },
+  {
+    "action": "move",
+    "point": {
+      "x": -29,
+      "z": -121
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 3181,
+      "point": {
+        "x": -29,
+        "z": -121
+      },
+      "distance": 2
+    },
+    "scope": "movement",
+    "watchIds": [
+      3181
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m3-lone-preacher-southern-hold"
+  }
+]

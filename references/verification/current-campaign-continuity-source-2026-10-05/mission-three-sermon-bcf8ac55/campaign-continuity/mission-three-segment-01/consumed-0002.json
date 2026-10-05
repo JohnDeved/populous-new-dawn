@@ -1,0 +1,37 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "brave",
+    "count": "five"
+  },
+  {
+    "action": "build",
+    "kind": "camp",
+    "point": {
+      "x": 38,
+      "z": 70
+    },
+    "alias": "m3-camp"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "building-complete",
+      "id": "m3-camp"
+    },
+    "scope": "construction",
+    "watchIds": [
+      "m3-camp"
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m3-camp-for-finite-escort"
+  }
+]

@@ -1,0 +1,415 @@
+{
+  "kind": "allowlisted-public-game-evidence",
+  "sourceHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "terminalPacketSha256": "dd7cc747b70085fe297deebf8b54345126091de78a96e59c050292a2aabe495d",
+  "files": [
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m3-actual-runtime.json",
+      "path": "campaign-continuity/ddef3ca-m3-actual-runtime.json",
+      "bytes": 3964,
+      "sha256": "1c712063b9be9a5b321258f2abf6e5d8b2f2ea99e3a66f507e7d32bf9b548441"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m3-expected-profile-inputs.json",
+      "path": "campaign-continuity/ddef3ca-m3-expected-profile-inputs.json",
+      "bytes": 6500,
+      "sha256": "5d5b0653ab64067476eb7ce0d4d102095729f15321755434a5956a1adca9ade9"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m3-final-launch-binding.json",
+      "path": "campaign-continuity/ddef3ca-m3-final-launch-binding.json",
+      "bytes": 2675,
+      "sha256": "41261c254f3e0360837918c60ff100f76d869aaaa03024cc89aa39ac8f6c0efb"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m3-launch-plan.json",
+      "path": "campaign-continuity/ddef3ca-m3-launch-plan.json",
+      "bytes": 12980,
+      "sha256": "a43250dfb0e38fb4a7e6309eba063ffe28ed0338d0cfb453324eeab26fc1dd5e"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m3-preflight-binding.json",
+      "path": "campaign-continuity/ddef3ca-m3-preflight-binding.json",
+      "bytes": 4639,
+      "sha256": "00e933af781f71b5cbe5974dcda40aa09975824253a85896da930cc03b520de8"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/launch-mission-three-ddef3ca.py",
+      "path": "campaign-continuity/launch-mission-three-ddef3ca.py",
+      "bytes": 6011,
+      "sha256": "d3107c5e299eecd901986b39a8f348369de3ccb27b1947642fe073711de8dbf0"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-admission-host-records/attempt-01.stderr.log",
+      "path": "campaign-continuity/mission-three-admission-host-records/attempt-01.stderr.log",
+      "bytes": 796,
+      "sha256": "6ae35731cfded2902074fc0274074b6be9167a76c0c79d56df4ed6d6901b9bc8"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-admission-host-records/attempt-01.stdin.py",
+      "path": "campaign-continuity/mission-three-admission-host-records/attempt-01.stdin.py",
+      "bytes": 2589,
+      "sha256": "ffa2e5dadf09197e04871625b66df851d722595630ae81de33570db83f561a09"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-admission-host-records/attempt-02.stdin.py",
+      "path": "campaign-continuity/mission-three-admission-host-records/attempt-02.stdin.py",
+      "bytes": 2855,
+      "sha256": "d032d6d7645c08889b29983b20f89b9335017e7f6d19749a5c336f5222b94ad9"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-admission-host-records/receipt.json",
+      "path": "campaign-continuity/mission-three-admission-host-records/receipt.json",
+      "bytes": 1537,
+      "sha256": "c3e0cc6b408481f3dfb9ac2efe573be0d81641afc573bcf115dfc139b4d0bf9c"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-dependency-reconciliation.json",
+      "path": "campaign-continuity/mission-three-dependency-reconciliation.json",
+      "bytes": 732,
+      "sha256": "aff0d8bac7799911bd7ff0aa10572998d1478a4f4845f9f0f438ea44c27f33fd"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-first-batch-admission.json",
+      "path": "campaign-continuity/mission-three-first-batch-admission.json",
+      "bytes": 5800,
+      "sha256": "a800395e6eaf042849ba3858bd5dbf46857c7c8ee2947958a3dc072d50d21ba7"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-first-batch-ddef3ca.json",
+      "path": "campaign-continuity/mission-three-first-batch-ddef3ca.json",
+      "bytes": 139,
+      "sha256": "4936c5e9e4d42f3d728f236f57598f68ce82c56eb2fbeaf32c7e54bb09d2dfb5"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/actions.jsonl",
+      "path": "campaign-continuity/mission-three-segment-01/actions.jsonl",
+      "bytes": 161868,
+      "sha256": "a8cdce20fb62e6c855843ed74a27fe32306a57a03dd72225b5125ac45277c12d"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/batch-0001.json",
+      "path": "campaign-continuity/mission-three-segment-01/batch-0001.json",
+      "bytes": 65474,
+      "sha256": "fdb1ea938c0c1977daa096f2d416b126bedfcc00f15e644dadb3742707b6ed66"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/batch-0002.json",
+      "path": "campaign-continuity/mission-three-segment-01/batch-0002.json",
+      "bytes": 64790,
+      "sha256": "e766284d89d95dbab1bb073b5f65227bcf8865c4009302851a2f0e8f157819ce"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/batch-0003.json",
+      "path": "campaign-continuity/mission-three-segment-01/batch-0003.json",
+      "bytes": 64750,
+      "sha256": "77853d29e8b5b6f1fc3c1c019d86c87339fe3f3b8e29c98346d499cdbcf15797"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/batch-0004.json",
+      "path": "campaign-continuity/mission-three-segment-01/batch-0004.json",
+      "bytes": 63542,
+      "sha256": "553afe3cfaad48199f54f67a578b5af3e087e3123532503f096424aec0f9cac2"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/batch-0005.json",
+      "path": "campaign-continuity/mission-three-segment-01/batch-0005.json",
+      "bytes": 64932,
+      "sha256": "380cd775c6bb76fa0e648430cc7daae0cbe4099f343dd54190243870cb512211"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/batch-0006.json",
+      "path": "campaign-continuity/mission-three-segment-01/batch-0006.json",
+      "bytes": 74557,
+      "sha256": "893e237bc18b818f3e637efa9867201dc6550528e9adbc8a688ceaf7e2af3cd7"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/batch-0008.json",
+      "path": "campaign-continuity/mission-three-segment-01/batch-0008.json",
+      "bytes": 77782,
+      "sha256": "24f550b15518c92f7a255fc5e54440a28b917dfe41dc450470a37794f9eb97f7"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/consumed-0001.json",
+      "path": "campaign-continuity/mission-three-segment-01/consumed-0001.json",
+      "bytes": 139,
+      "sha256": "4936c5e9e4d42f3d728f236f57598f68ce82c56eb2fbeaf32c7e54bb09d2dfb5"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/consumed-0002.json",
+      "path": "campaign-continuity/mission-three-segment-01/consumed-0002.json",
+      "bytes": 524,
+      "sha256": "693cb77e18874b1da2ef8502a4e2c2e77d4747baa3d6add68a5e940559c1be55"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/consumed-0003.json",
+      "path": "campaign-continuity/mission-three-segment-01/consumed-0003.json",
+      "bytes": 436,
+      "sha256": "da635ca803e72ac473cf743db5851d3dd7c2927761da05b042590858e3e98875"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/consumed-0004.json",
+      "path": "campaign-continuity/mission-three-segment-01/consumed-0004.json",
+      "bytes": 242,
+      "sha256": "6c1b24560c9c8747873279970f994aa5c95ee2473f4a03882fce921a4f198078"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/consumed-0005.json",
+      "path": "campaign-continuity/mission-three-segment-01/consumed-0005.json",
+      "bytes": 449,
+      "sha256": "2cc98653ca8ac7a06d6c598b8a60be3caf747dbd5de25146da16ae651eae7c93"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/consumed-0006.json",
+      "path": "campaign-continuity/mission-three-segment-01/consumed-0006.json",
+      "bytes": 571,
+      "sha256": "5173ecdf55092ae5092847ddaeaedfbacc2bd59920a5707c94d96e4217e47f76"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/consumed-0007.json",
+      "path": "campaign-continuity/mission-three-segment-01/consumed-0007.json",
+      "bytes": 76,
+      "sha256": "07dca5a9bb7a6c0a1b6b9e5c6fd48aa8e21f7cbba336f9ceb9c163314b004832"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/consumed-0008.json",
+      "path": "campaign-continuity/mission-three-segment-01/consumed-0008.json",
+      "bytes": 237,
+      "sha256": "4cf0176175e0b8695181c9a0fdfc047d1572c8558da759245d7487065aeea95f"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/consumed-0009.json",
+      "path": "campaign-continuity/mission-three-segment-01/consumed-0009.json",
+      "bytes": 147,
+      "sha256": "e133b433cd0f41efc499159b77d65b98d284053e94dd5cc6b5fc27d3d3b73ebf"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/journey.json",
+      "path": "campaign-continuity/mission-three-segment-01/journey.json",
+      "bytes": 132442,
+      "sha256": "b36d13de9c4170e63a44517c57bb6d864e5113a48a3774987ea350eb29789668"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-camp-for-finite-escort.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-camp-for-finite-escort.json",
+      "bytes": 64790,
+      "sha256": "0c5d8e1b449969b573d27310a84795c61822efbe041cc35b980dfe913d11242e"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-first-warrior-escort-count.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-first-warrior-escort-count.json",
+      "bytes": 64750,
+      "sha256": "a74c32f299b2c39f692f6c26b80cfd8c7055c83d97360c4c925549a8eb4481c3"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-forward-preacher-removed.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-forward-preacher-removed.json",
+      "bytes": 64932,
+      "sha256": "20bad34c6a6493866fbe0d416077deae32bcddf4467db265844f68f494cfd0a8"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-fresh-saved-sermon-sequence.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-fresh-saved-sermon-sequence.json",
+      "bytes": 77783,
+      "sha256": "318be7d82058dd39c0683f0a63fec5642e08d4615caf6409c2c692fb6bf0e6ef"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-fresh-saved-sermon-sequence.png",
+      "path": "campaign-continuity/mission-three-segment-01/m3-fresh-saved-sermon-sequence.png",
+      "bytes": 1861928,
+      "sha256": "8ff42e976e68790866c760515e326a136841a888da589e27972eecd6ae1030c2"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-lone-preacher-southern-hold.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-lone-preacher-southern-hold.json",
+      "bytes": 74556,
+      "sha256": "7063d4d84da7834000be78666477b1fae1cb715527f66d2446f8888bd0c75292"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-milestone-conversion.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-milestone-conversion.json",
+      "bytes": 76581,
+      "sha256": "22f36b57e81af8678a7b0084e4e0c8afa2fe566b0acd1853695d73531c8d8b8d"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-milestone-listener.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-milestone-listener.json",
+      "bytes": 75455,
+      "sha256": "0752c82c832b47da26c5aecbca4200499d49814d4c6fceb56e68da4635f96f85"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-milestone-preacher.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-milestone-preacher.json",
+      "bytes": 63499,
+      "sha256": "a22eafd8866edc4187dfed4feea0dc3ca9b774305079d2837b2bac636c1565e5"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-milestone-sermon-cancelled.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-milestone-sermon-cancelled.json",
+      "bytes": 77072,
+      "sha256": "cb55e99cf60ad057441862754268bbf0b69909aafb21aade5cb7cda9e6aa6e25"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-milestone-sermon-cancelled.png",
+      "path": "campaign-continuity/mission-three-segment-01/m3-milestone-sermon-cancelled.png",
+      "bytes": 1912082,
+      "sha256": "146afa962b897720119959f543889c2c6ffc3e5a6551bdd6e30163a47321ae09"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-milestone-sermon-reloaded.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-milestone-sermon-reloaded.json",
+      "bytes": 67932,
+      "sha256": "c3986bf74447f354e2d4649622c20d2376a05b0f432cd94273159b8883f6d7d6"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-milestone-shaman-home.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-milestone-shaman-home.json",
+      "bytes": 65567,
+      "sha256": "7cc606a41e40313f530eaffcf8a1f80fb27de87a39ed294ca04c21346f628b04"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-milestone-temple.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-milestone-temple.json",
+      "bytes": 65785,
+      "sha256": "be622028be2a3c908cd6be2e286f5d1398be79ebb05c9b9105c049b29c255c1e"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-milestone-vault.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-milestone-vault.json",
+      "bytes": 65424,
+      "sha256": "7c48b32b000d9568bf0accfa80762b5e90ab773da62b73c689f2babe28b4dd27"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-preacher-healthy-at-home.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-preacher-healthy-at-home.json",
+      "bytes": 63542,
+      "sha256": "92954f0366c8d9e61212885302168d17968c5a1d9914670039bd9e0f3855034a"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-segment-opening.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-segment-opening.json",
+      "bytes": 68638,
+      "sha256": "3374e11b69ff7a09b9a28f102c4bafbea9190e117c3b798d37c2870811940d3a"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/m3-temple-ready.json",
+      "path": "campaign-continuity/mission-three-segment-01/m3-temple-ready.json",
+      "bytes": 65473,
+      "sha256": "2fc7a5b93e2de451e19e35a994c073c94b6e3327a1a567e2288e5d46a0199396"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/receipt.json",
+      "path": "campaign-continuity/mission-three-segment-01/receipt.json",
+      "bytes": 14285,
+      "sha256": "5a934ae4e50ef69bc353ec66df5eb64e90cb2be50d06848650aeec23c31e7214"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/run-policy.json",
+      "path": "campaign-continuity/mission-three-segment-01/run-policy.json",
+      "bytes": 1695,
+      "sha256": "be703d2b922a15099811e53bf7cb05cb391b7733f7ee3417a3923c09fd7af2a8"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/sermon-saved.json",
+      "path": "campaign-continuity/mission-three-segment-01/sermon-saved.json",
+      "bytes": 75455,
+      "sha256": "5245328eb3dce9dc6ff2602de3832caecd4ed30a735115521ff923a47e527520"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/sermon-saved.png",
+      "path": "campaign-continuity/mission-three-segment-01/sermon-saved.png",
+      "bytes": 1917039,
+      "sha256": "3c4caaf063907a6707423a64662998b283401a2bfd16681b066bc816462de312"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/server.log",
+      "path": "campaign-continuity/mission-three-segment-01/server.log",
+      "bytes": 1230,
+      "sha256": "642b691da945473ea7114ce4a7bfa9e94571d1a1e6a128e7ec83cc1799b342d6"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/terminal.json",
+      "path": "campaign-continuity/mission-three-segment-01/terminal.json",
+      "bytes": 83855,
+      "sha256": "5cc70da61cbdedf5d4ed3fe68076a9e2d8b8575188cf37e4208a9c52bd9dabed"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/terminal.png",
+      "path": "campaign-continuity/mission-three-segment-01/terminal.png",
+      "bytes": 1638907,
+      "sha256": "9fd68f5ba979c64e56fec795cd16d28ac7ed5d16a5f2815d10c7f02e0653c9f1"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01-terminal-status.json",
+      "path": "campaign-continuity/mission-three-segment-01-terminal-status.json",
+      "bytes": 4460,
+      "sha256": "4cef7f2be0711515c8f571935778b330ff3ee11bebe67404725a1c46108307bf"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01.launcher.json",
+      "path": "campaign-continuity/mission-three-segment-01.launcher.json",
+      "bytes": 4852,
+      "sha256": "0f37e5bd9ad43049433f0721f1dcdfbde3ddd797b56ce625cd8b93b1b748ff89"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01.outer.json",
+      "path": "campaign-continuity/mission-three-segment-01.outer.json",
+      "bytes": 4724,
+      "sha256": "0747ebf0edb2096c524ffd50e8d057e4277726e0f2012ba65f966ef1a9533c63"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01.outer.json.artifacts/stderr.log",
+      "path": "campaign-continuity/mission-three-segment-01.outer.json.artifacts/stderr.log",
+      "bytes": 1364,
+      "sha256": "dda75c90491f9007db040c3f7fd7c73c7c4c4829218de58a8ea11e093a40d2e6"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01.outer.json.artifacts/stdout.log",
+      "path": "campaign-continuity/mission-three-segment-01.outer.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/receipt.json",
+      "path": "campaign-continuity/mission-two-segment-01/receipt.json",
+      "bytes": 16169,
+      "sha256": "d936947f3aba05398b4d77351496f937ab5e2e2b6f33a75eb3304f6bf9f28470"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/segment-boundary.json",
+      "path": "campaign-continuity/mission-two-segment-01/segment-boundary.json",
+      "bytes": 74344,
+      "sha256": "88ef7da61fd5c360b37dfb630b21ff8a76df0986203a5c29a0f6b41f2a3d734d"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-three-preflight-ddef3ca/review.json",
+      "path": "campaign-continuity/review-mission-three-preflight-ddef3ca/review.json",
+      "bytes": 10334,
+      "sha256": "1ef9524c3b6e77ffdc346f8e517a4c174e78c5b47f351dff9eaeb38239df4d28"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-two-segment-01/review.json",
+      "path": "campaign-continuity/review-mission-two-segment-01/review.json",
+      "bytes": 15121,
+      "sha256": "01cb340d999396c6dff2b584ccc35a0234e7ff545c1e855a500459ad2d5fc765"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/dependency-transfers/campaign-to-native-guard-before-20261005T2132/receipt.json",
+      "path": "dependency-transfers/campaign-to-native-guard-before-20261005T2132/receipt.json",
+      "bytes": 1340,
+      "sha256": "9a3cadefb1a35d4ebbe40b47b00d3c472098b091d81d8450f59f6b8c71aef4da"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/dependency-transfers/native-guard-before-to-campaign-20261005T2049/receipt.json",
+      "path": "dependency-transfers/native-guard-before-to-campaign-20261005T2049/receipt.json",
+      "bytes": 2197,
+      "sha256": "e04ee9a392209890abb8b9a7956043f95f81c77bdf7a20ea62e19fa0c5424184"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01-terminal-packet.json",
+      "path": "campaign-continuity/mission-three-segment-01-terminal-packet.json",
+      "bytes": 67571,
+      "sha256": "dd7cc747b70085fe297deebf8b54345126091de78a96e59c050292a2aabe495d"
+    }
+  ]
+}

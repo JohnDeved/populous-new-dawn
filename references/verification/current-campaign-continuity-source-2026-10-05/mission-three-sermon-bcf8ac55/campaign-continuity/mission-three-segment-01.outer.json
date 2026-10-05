@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "9cddf2c4-15ff-419d-8885-414ecba8057e",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "branch": "qa/current-campaign-continuity",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-first-batch-ddef3ca.json": "4936c5e9e4d42f3d728f236f57598f68ce82c56eb2fbeaf32c7e54bb09d2dfb5",
+      "qa/campaign-continuity/run-policy.json": "be703d2b922a15099811e53bf7cb05cb391b7733f7ee3417a3923c09fd7af2a8",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "5710s",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "--port",
+    "4375",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01",
+    "--mission",
+    "3",
+    "--timeout",
+    "5700000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs",
+    "--profile",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3b89912-m1-03",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+  "startedAt": "2026-10-05T20:51:37.308Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01.outer.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01.outer.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T21:27:48.858Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "Error: IncompleteRun: No relevant worship progress for two active minutes\n    at waitDiagnosticStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/observation.mjs:313:41)\n    at waitFor (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:524:20)\n    at async erosion (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:791:5)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21\n    at runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:233:47)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "dda75c90491f9007db040c3f7fd7c73c7c4c4829218de58a8ea11e093a40d2e6",
+  "sourceAfter": {
+    "headOid": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "branch": "qa/current-campaign-continuity",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-first-batch-ddef3ca.json": "4936c5e9e4d42f3d728f236f57598f68ce82c56eb2fbeaf32c7e54bb09d2dfb5",
+      "qa/campaign-continuity/run-policy.json": "be703d2b922a15099811e53bf7cb05cb391b7733f7ee3417a3923c09fd7af2a8",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

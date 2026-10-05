@@ -1,0 +1,20 @@
+{
+  "status": "moved",
+  "at": "2026-10-05T21:32:47.577259+00:00",
+  "donor": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+  "recipient": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before",
+  "inode": 925605,
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "recipientPriorStubInode": 1993355,
+  "preservedRecipientStub": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/dependency-transfers/campaign-to-native-guard-before-20261005T2132/recipient-prior-installed-lock-stub",
+  "donorNewStubInode": 1993651,
+  "releaseBasis": {
+    "originalSession": 98147,
+    "launcher": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01.launcher.json",
+    "sha256": "0f37e5bd9ad43049433f0721f1dcdfbde3ddd797b56ce625cd8b93b1b748ff89",
+    "status": "failed with verified cleanup/continuation and closed origin"
+  },
+  "launchPlanSha256": "2e543f7856048b117f5e32236016921cf268dcc5e8c9919d395327dab3ed3572",
+  "method": "same-filesystem rename; installed-lock-only donor stub; no dependency install/copy/link"
+}

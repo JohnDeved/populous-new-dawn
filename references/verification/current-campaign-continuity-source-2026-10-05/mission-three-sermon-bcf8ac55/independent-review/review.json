@@ -1,0 +1,201 @@
+{
+  "kind": "independent-actual-mission-three-partial-sequence-review",
+  "decision": "ACCEPT BOUNDED EVIDENCE AND PUBLICATION",
+  "continuationDecision": "REJECT CURRENT MID-MISSION PREDECESSOR",
+  "reviewedAt": "2026-10-05T21:48:55.748818+00:00",
+  "reviewer": "review_campaign_continuity",
+  "sourceHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "acceptedApplicationMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+  "runId": "bcf8ac55-e418-49e4-a3d6-b7e804ee31d3",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "terminalHarnessStatus": "failed",
+  "scope": "Fresh prospective owned-listener Save, ownership-aware cancellation, ordinary Load and exact singleton conversion, followed by failed Erosion and normal bounded cleanup. No M3 victory or full campaign acceptance.",
+  "findings": [],
+  "evidence": [
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-01-terminal-packet.json",
+      "sha256": "dd7cc747b70085fe297deebf8b54345126091de78a96e59c050292a2aabe495d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-01/receipt.json",
+      "sha256": "5a934ae4e50ef69bc353ec66df5eb64e90cb2be50d06848650aeec23c31e7214"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-01/journey.json",
+      "sha256": "b36d13de9c4170e63a44517c57bb6d864e5113a48a3774987ea350eb29789668"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-01/actions.jsonl",
+      "sha256": "a8cdce20fb62e6c855843ed74a27fe32306a57a03dd72225b5125ac45277c12d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-01.outer.json",
+      "sha256": "0747ebf0edb2096c524ffd50e8d057e4277726e0f2012ba65f966ef1a9533c63"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-01.launcher.json",
+      "sha256": "0f37e5bd9ad43049433f0721f1dcdfbde3ddd797b56ce625cd8b93b1b748ff89"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-01-terminal-status.json",
+      "sha256": "4cef7f2be0711515c8f571935778b330ff3ee11bebe67404725a1c46108307bf"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/ddef3ca-m3-final-launch-binding.json",
+      "sha256": "41261c254f3e0360837918c60ff100f76d869aaaa03024cc89aa39ac8f6c0efb"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/ddef3ca-m3-actual-runtime.json",
+      "sha256": "1c712063b9be9a5b321258f2abf6e5d8b2f2ea99e3a66f507e7d32bf9b548441"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-01/verify.mjs",
+      "sha256": "1568fbc36492f760c2c682d95c78ac11841df53182eb620e30876e336e13002d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-01/verification.json",
+      "sha256": "e6658c643eb74fe817cd546d441575879b524a9c2eae40f270369704a03beb08"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-segment-01/publication-verification.json",
+      "sha256": "1ac758d58050c17c7f8d8a61743454ed36874f16827623aee7b4e832ff6943b5"
+    }
+  ],
+  "verifiedFacts": [
+    "All 67 terminal-packet source files match their hashes and sizes. Nine command files match consumed copies and input hashes. There are42 scheduled actions and39 actual requested actions: batch7 approach-sermon is preempted before dispatch by automatic capture, while batch9 pause/snapshot are unexecuted after the guard stop. None receives outcome credit.",
+    "The prior genuine M2 failed envelope and Save3 turn179/full5cb9a33a remain exact. M3 ordinary entry Load verifies committed full, actor, terrain and stock digests, current World/scene replacement and profile[1,2]. All prior epochs, milestones and two helper failures plus prior-harness-failure record are retained.",
+    "Final launch measurement1c712063, binding41261c25 and original launcher measured values correspond exactly to accepted expected source/application/checker/runtime. Terminal source/runtime/scenario before and after match. Actual receipted dependency returne04ee9a3 is bound; this retrospective correspondence review does not remeasure dependencies or open any profile.",
+    "Vault knowledge, Shaman home, Temple construction, five trained Warriors and one live Blue Preacher3181 are earned through ordinary input wrappers. The Shaman attacks the observed forward Yellow Preacher3154 through ordinary input. Relevant actor/progress observations, input acknowledgments and restored wrappers are retained; no simulation mutation, injected entity, changed speed or fabricated storage is introduced.",
+    "One prospective declaration atturn6593 records the eligible Yellow Brave set and first-owned-listener rule before Preacher departure. Brave2631 is in that set. The observer freezes a single qualifying onset at7367\u21927368: state23, owner3181, timer101. No re-arming or later victim substitution occurs. Automatic capture before queued approach-sermon preserves this observed first listener.",
+    "Save snapshot7424/time618.6666666666666 retains native-owned YellowBrave2631 at50HP/state23/owner3181/timer45, Preacher3181 at55HP and13 saved Blue actor identities. Actual Save transaction commits full2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa with actor/terrain/stock digests; the screenshot itself is not storage proof.",
+    "Cancellation is an accepted ordinary move. At7552 the same living YellowBrave2631 has owner0/listenerFlag0 and verified fight-person ownership in group3288 against3181. clearedBitObserved is false: the intermediate clear of0x200000 was not sampled and combat reuses the numeric bit. The ownership-aware contract passes without claiming that missing transient observation.",
+    "Actual page reload and ordinary Load restore the exact saved checkpoint. Store-notification observation captures the replacement clone synchronously before ordinary auto-resume; immediate ordinary Pause precedes diagnostic imports. Saved/replacement/stored full and actor/terrain/stock hashes agree. Later first observer sample7443 retains the listener and timer26. The19-turn auto-resume interval is not claimed to be continuously sampled.",
+    "In the resumed epoch reload-3-7, adjacent turns8086\u21928087 show exactly one eligible YellowBrave2631 disappearing and one new BlueBrave3298 with the expected kind and conversion flags. Previous owned state23/workTarget3181 and singleton pairing pass maintained conversion contracts. Earlier conversions concern other IDs and provide no substitute credit. The milestone screenshot is later at8282; post-sequence view is later at8375.",
+    "Observer samples are contiguous within both relevant M3 epochs; no speed violation or observer error is recorded. Source review traces original-call-preserving afterTurn observations, immutable first-onset ownership and synchronous Load replacement capture. This supports the bounded logical sequence, not native pixel/timing equivalence.",
+    "Erosion is prospectively armed at8465 for shrine101. Actual ordinary input is acknowledged at8574; after-observation8598 retains Preacher3181 order27/target101 while the actor is fighting Yellow52 at52HP. Shrine101 never accumulates work, followers or use. Passive observer has1612 samples with use=null and effects=[], so neither onset nor retirement is proved.",
+    "At8375 Yellow52 is an owned listener; at8598 it is the observed melee opponent. By terminal10077 Preacher3181 is absent. There is no sampled fatal actor/HP boundary, so no exclusive death attribution to melee, Swarm or another cause is supported.",
+    "Relevant worship progress is unchanged for120.75 active seconds when the normal120-second guard raises progress-stall. This is one automatic control stop, not a manually queued preserving-stop command or a new helper-failure entry. Latest Save7424 remains identical at terminal readback. M3 remains playing with profile[1,2]; no Erosion/victory marks exist.",
+    "Actual inner failed, outer exit1/signalnull and launcher terminal exit1 agree. The terminal error is exactly the guard error, with no later previousFailure override. Unchanged finalizer, source/runtime correspondence, cleanup/continuation flags and original-scope IPv4/IPv6 refusals on4375 support normal cleanup. Owner-lock absence is the retained terminal-status observation, not a new reviewer profile inspection.",
+    "Canonical campaignActive over closed epochs plus terminal currentEpoch exactly once is2692.666666666667; M3 active853.6666666666666. Lower last-bit status rounding is retained as historical raw evidence. Owned wall5801958ms and M3 wall2172699ms include the paused admission delay and time before reload; budgets were not reset.",
+    "A separate initial host admission invocation failed before writing its command because journey.json did not yet exist. The64.187837-second paused delay is included in wall time. Archived stdin/stderr explicitly identify their post-execution transcription provenance rather than pretending they were pre-existing command-receipt inputs; actual command admission and hash remain independently bound.",
+    "All68 compact publication copies match their allowlisted originals, relative links resolve and README/image captions correctly distinguish later rendered views from exact event proof. FAILED harness status, inherited failures, new automatic guard stop, incomplete Erosion/victory, uncertain fatal cause and current re-entry limitation are stated."
+  ],
+  "earnedSequence": {
+    "declaredAtTurn": 6593,
+    "preacherId": 3181,
+    "victimId": 2631,
+    "firstOwnedTurns": [
+      7367,
+      7368
+    ],
+    "savedTurn": 7424,
+    "savedCheckpoint": {
+      "version": 1,
+      "level": 3,
+      "turn": 7424,
+      "time": 618.6666666666666,
+      "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+      "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+    },
+    "cancellationTurn": 7552,
+    "cancellationKind": "released-listener-observed-in-combat",
+    "intermediateClearedBitObserved": false,
+    "ordinaryLoadFirstLaterPausedTurn": 7443,
+    "conversionTurns": [
+      8086,
+      8087
+    ],
+    "replacementId": 3298,
+    "conversionMilestoneTurn": 8282,
+    "sourceReferences": [
+      "qa/campaign-continuity/observation.mjs:119",
+      "qa/campaign-continuity/observation.mjs:167",
+      "qa/campaign-continuity/observation.mjs:190",
+      "qa/campaign-continuity/boundaries.mjs:96",
+      "app/game-store.ts:363",
+      "app/game-store.ts:412",
+      "app/page.tsx:490",
+      "scripts/campaign-conversion-observer.mjs:10",
+      "app/live-movement.ts:506",
+      "app/live-people.ts:741"
+    ]
+  },
+  "failureAccounting": {
+    "inheritedHelperFailures": 2,
+    "inheritedEnvelopeFailures": 1,
+    "newScenarioHelperFailures": 0,
+    "newAutomaticControlStops": 1,
+    "newStopCode": "progress-stall",
+    "manualPreservingStops": 0,
+    "separateHostAdmissionFailure": true,
+    "browserErrors": [],
+    "retainedWarnings": 11
+  },
+  "budgets": {
+    "canonicalCampaignActiveSeconds": 2692.666666666667,
+    "M3ActiveSeconds": 853.6666666666666,
+    "M3ConversionMarkActiveSeconds": 704.0833333333333,
+    "M3BeforeConversionLimit": 900,
+    "M3AfterConversionLimit": 1800,
+    "M3TotalActiveLimit": 2400,
+    "campaignActiveLimit": 4800,
+    "ownedWallMs": 5801958,
+    "missionWallMs": {
+      "1": 1589523,
+      "2": 2039727,
+      "3": 2172699
+    },
+    "noProgressGuardSeconds": 120,
+    "observedUnchangedSeconds": 120.75,
+    "admissionPausedDelaySeconds": 64.187837
+  },
+  "continuation": {
+    "decision": "REJECT",
+    "reason": "No campaignBoundary/segment-boundary.json exists; journey lacks phase continued-and-saved and has a live terminal epoch and already-earned M3 milestones. The maintained validateSegmentPredecessor rejects these actual records. Harness continuationVerified only validates cleanup/storage/source; it does not grant scenario re-entry.",
+    "latestCheckpointTurn": 7424,
+    "replayAuthorized": false,
+    "futureScope": "Any proposed change to this admission contract needs separately authorized source review preserving the exact failed history and budgets; no reconstructed storage or old-profile adoption is accepted here."
+  },
+  "imagesInspected": [
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-01/sermon-saved.png",
+      "sha256": "3c4caaf063907a6707423a64662998b283401a2bfd16681b066bc816462de312",
+      "scope": "Paused view at saved-turn intent; committed readback proves actual Save."
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-01/m3-fresh-saved-sermon-sequence.png",
+      "sha256": "8ff42e976e68790866c760515e326a136841a888da589e27972eecd6ae1030c2",
+      "scope": "Later paused view at8375; not exact onset/cancellation/conversion frame."
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-three-segment-01/terminal.png",
+      "sha256": "9fd68f5ba979c64e56fec795cd16d28ac7ed5d16a5f2815d10c7f02e0653c9f1",
+      "scope": "Paused failed-Erosion terminal; no victory or causal death proof."
+    }
+  ],
+  "publication": {
+    "decision": "ACCEPT",
+    "reviewedAt": "2026-10-05T21:47:27.608198+00:00",
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity-evidence/references/verification/current-campaign-continuity-source-2026-10-05/mission-three-sermon-bcf8ac55",
+    "manifestSha256": "aeb5dafa8c2cc5890a2fbeee64496844a4c91aeaddecf41555111285af779516",
+    "readmeSha256": "1ed95f1a4815a36a61749e1a8f75bb76a4a152ada7265772fccf7239cf2c102f",
+    "copiesVerified": 68,
+    "totalBytes": 9634906,
+    "relativeLinksVerified": 11,
+    "captionScope": "Later paused view after the earned sermon sequence; not exact onset/cancellation/conversion frame or standalone actor identity evidence.",
+    "claims": "Bounded fresh sermon proof only; no Erosion/victory. Failed terminal and inherited failures/new automatic stop retained. No exclusive fatal-cause attribution. Current mid-mission entry ineligible.",
+    "profileAndDependencyAccess": "None by this review; files read are public allowlist sources and reviewed repository source."
+  },
+  "quality": "No maintained TypeScript or production change in this review; prior exact92 QA/build and1134 standard-component correspondence remain separately bound.",
+  "writes": "Only ignored review artifacts written. Read-only repository source and output evidence; no profile storage, dependency or browser access or mutation, and no source/package edits.",
+  "limits": [
+    "No Erosion onset/retirement credit.",
+    "No M3 victory or full campaign PASS.",
+    "No exclusive fatal-cause attribution.",
+    "No native whole-game/pixel equivalence, calibrated timing or hardware performance.",
+    "Prior independent attempts and historical saved-state M3 victory remain separate."
+  ]
+}

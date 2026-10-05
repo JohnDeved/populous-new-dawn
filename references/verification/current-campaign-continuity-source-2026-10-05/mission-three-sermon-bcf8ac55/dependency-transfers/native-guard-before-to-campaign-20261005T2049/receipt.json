@@ -1,0 +1,31 @@
+{
+  "kind": "exclusive-dependency-move",
+  "verifiedAt": "2026-10-05T20:50:13.216353+00:00",
+  "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/node_modules",
+  "target": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/node_modules",
+  "dependencyInode": 925605,
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "preservedTargetStub": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/dependency-transfers/native-guard-before-to-campaign-20261005T2049/prior-lock-only-stub",
+  "preservedTargetStubInode": 1988433,
+  "donorNewStubInode": 1993355,
+  "terminalOriginalSession": 88672,
+  "terminalExitCode": 1,
+  "terminalReceipts": {
+    "launcher": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-01/launcher.json",
+      "sha256": "230b1d342b452cb84ff3c3978486f012a1ee098925079eedcc194252321fbca9"
+    },
+    "outer": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-01/outer.json",
+      "sha256": "8f7f82b1d23f1ba79894e7f821ba57d84b211b0d72736b3b8a694f0fe4ba1ce4"
+    },
+    "inner": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-01/run/receipt.json",
+      "sha256": "5faaee3df939fcba9a5e20640bc572cee2a12b8ff202de6a84f7645e1d91366e"
+    }
+  },
+  "cleanupAttribution": "Actual original session terminal1, same-launcher4392 loopbacks closed; retained inner failure is only the scenario readiness assertion. Donor owner explicitly reports no remaining owned package/browser/server process; coordinator grants transfer. This is not a PASS claim for the failed Guard baseline.",
+  "status": "moved",
+  "scope": "Exact coordinator-granted return for unchanged-source M3 runtime remeasurement and final binding review. No install/copy/link or new build."
+}

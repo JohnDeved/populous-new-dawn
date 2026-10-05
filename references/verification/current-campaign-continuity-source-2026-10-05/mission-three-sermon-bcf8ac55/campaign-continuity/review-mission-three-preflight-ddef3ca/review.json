@@ -1,0 +1,128 @@
+{
+  "kind": "independent-mission-three-source-only-preflight-review",
+  "decision": "ACCEPT SOURCE-ONLY PREFLIGHT",
+  "reviewedAt": "2026-10-05T20:49:18.796063+00:00",
+  "reviewer": "review_campaign_continuity",
+  "sourceHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "acceptedApplicationMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "exactBinding": {
+    "path": "work/orchestration/campaign-continuity/ddef3ca-m3-preflight-binding.json",
+    "sha256": "00e933af781f71b5cbe5974dcda40aa09975824253a85896da930cc03b520de8"
+  },
+  "exactPlan": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m3-launch-plan.json",
+    "sha256": "a43250dfb0e38fb4a7e6309eba063ffe28ed0338d0cfb453324eeab26fc1dd5e"
+  },
+  "exactLauncher": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/launch-mission-three-ddef3ca.py",
+    "sha256": "d3107c5e299eecd901986b39a8f348369de3ccb27b1947642fe073711de8dbf0"
+  },
+  "exactFirstBatch": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-first-batch-ddef3ca.json",
+    "sha256": "4936c5e9e4d42f3d728f236f57598f68ce82c56eb2fbeaf32c7e54bb09d2dfb5"
+  },
+  "expectedProfileInputs": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m3-expected-profile-inputs.json",
+    "sha256": "5d5b0653ab64067476eb7ce0d4d102095729f15321755434a5956a1adca9ade9"
+  },
+  "findings": [],
+  "evidence": [
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-three-preflight-ddef3ca/verification.json",
+      "sha256": "016d89d7d94fdf1396b6938e290cc5c38aa5186cce880bf0c4ce4fed231d9bad"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/ddef3ca-m3-preflight-check.json",
+      "sha256": "3f02e434424cbabb1b67d213942161dcc107e96262049549c4614bda7de5e0bd"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/ddef3ca-m3-preflight-check.py",
+      "sha256": "d39e6ab5e97f1da0081bac26520c5c42c076d3da74d5d2338df3f59184ba3bbc"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-two-segment-01/review.json",
+      "sha256": "01cb340d999396c6dff2b584ccc35a0234e7ff545c1e855a500459ad2d5fc765"
+    }
+  ],
+  "checked": [
+    "Exact frozen binding/plan/launcher/first-batch/expected-input hashes and all referenced predecessors, reviews, policy, build and move-away receipt match actual files. Source-only check raw stdout/stderr hashes and clean before/after source receipt match. Current HEAD/tree and git status match frozen accepted ddef.",
+    "Expected source/application/checker/scenario and runtime exactly equal actual completed M2 receipt, with runtime before/after equality. Expected runtime is explicitly historical, not mislabeled as a fresh current measurement. All eight current source import hashes match the enabled policy. Ignored work artifacts introduce no tracked source delta, so accepted92 QA and build99731 plus explicit1134 standard-component correspondence remain valid.",
+    "M3 predecessor remains actual M2 run1a4080a7, terminal receipt d936947f, boundary88ef7da6 and accepted review01cb340d. Plan checkpoint equals actual committed level3/turn179/time14.916666666666666/full5cb9a33a with exact actor/terrain/stock hashes. Read-only closed-marker inspection earlier in this review still matched dcdca505; no browser profile, storage or lease was opened or modified.",
+    "All inherited epochs/caps match the real boundary. Cumulative1857.1666666666667 active seconds, M3 active18.166666666666668 and M3 wall30211ms remain. The two original helper failures and the separately labeled prior-harness-failure record equal the validator forwarding contract, with exact failure-list hash and no invented third gameplay failure.",
+    "First batch is only prepare-temple, pause, snapshot. The actual M3 entry has Shaman46 alive, unique active vault92, erosionEffect101 and authored Brave53. Retained aliases are loaded from the valid boundary; current-world diagnostics guard the newly loaded World/scene before command execution.",
+    "prepareTemple resumes and services an ordinary flyby Skip if needed, awaits actual selectable/orderable Shaman readiness, selects that Shaman and sends a canvas-validated order to current vault92. It waits actual Temple knowledge before marking vault, returns the current Shaman home through ordinary movement to35,81, selects five actual Braves and places Temple24,70 through existing clone-only validation and accepted pointer/plan gates. Actual completion is awaited before temple mark; no prerequisite or outcome is fabricated.",
+    "Readiness, worship, movement and construction waits retain objective progress, current scene/world identity, speed1 and finite active/wall limits. Queued preserving stop is authenticated by the actual next ordinal/runId and checked through UI/active waits. First batch has no Save. It may be enqueued only after actual pre-entry full checkpoint match, ordinary Load/immediate Pause, committed profile[1,2], current identity and paused M3 opening.",
+    "The prepared launcher pins plan and expected-input hash, first batch, predecessor receipt/boundary/review and marker, then measures actual source/runtime/locks before any launch. It refuses a wrong inode/lock/source/runtime/profile marker, preexisting output or responsive private origin. Maintained lease supplies exclusive ownership and actual full checkpoint readback; ordinary Load verifies replacement and persisted digest. Launcher syntax is covered by the retained AST check and was inspected without execution.",
+    "Private origin4375, CPU0\u20133, private TMP, 4096MB Node cap, harness5700000ms and outer5710s remain explicit. New M3 output/TMP/launcher/outer-receipt paths are absent. Move-away2ef15f38 is correctly labeled as departure to Native Guard; it is not a return or current runtime-release proof.",
+    "Save contract remains ordinary UI Save followed by committed transaction/readback and protectedLatest update; a stop during Save defers only through committed readback. Protected sermon cannot be overwritten before same-victim conversion. No fallback Save, arbitrary storage mutation or old-profile adoption is permitted.",
+    "With inherited failures, finish cannot produce clean PASS. The planned terminal route therefore records actual required M3 milestones/victory/profile evidence and then uses supported stop-preserve-latest at the exact next ordinal. This adds an honest control-stop record and preserves the latest genuine Save; it does not fabricate campaign-victory or establish that the latest Save contains the victory. Final evidence review must verify every M3 milestone and same-victim/erosion proof independently. Mission4 is not entered."
+  ],
+  "caps": {
+    "M3ActiveLimit": 2400,
+    "M3ActiveRemaining": 2381.8333333333335,
+    "M3BeforeConversionLimit": 900,
+    "M3BeforeConversionRemaining": 881.8333333333334,
+    "M3AfterConversionLimit": 1800,
+    "M3WallLimitMs": 5400000,
+    "M3WallRemainingMs": 5369789,
+    "campaignActiveRemaining": 2942.833333333333,
+    "campaignWallRemainingMs": 8940535,
+    "harnessMs": 5700000,
+    "outerSeconds": 5710,
+    "noProgressActiveSeconds": 120
+  },
+  "predecessor": {
+    "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+    "profileMarkerSha256": "dcdca505032ff03d319f552b68f7e54830f41d6c60608a7ae46306f709264b32",
+    "previousReceipt": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/receipt.json",
+      "sha256": "d936947f3aba05398b4d77351496f937ab5e2e2b6f33a75eb3304f6bf9f28470"
+    },
+    "previousBoundary": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/segment-boundary.json",
+      "sha256": "88ef7da61fd5c360b37dfb630b21ff8a76df0986203a5c29a0f6b41f2a3d734d"
+    },
+    "checkpoint": {
+      "version": 1,
+      "level": 3,
+      "turn": 179,
+      "time": 14.916666666666666,
+      "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+      "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+    },
+    "inherited": {
+      "activeSeconds": 1857.1666666666667,
+      "missionActiveSeconds": {
+        "1": 697.5833333333333,
+        "2": 1141.4166666666665,
+        "3": 18.166666666666668
+      },
+      "ownedWallMs": 3659465,
+      "missionWallMs": {
+        "1": 1589523,
+        "2": 2039727,
+        "3": 30211
+      },
+      "helperFailureCount": 2,
+      "priorEnvelopeFailureCount": 1,
+      "failureSha256": "3b5a4beb7989329e8a03ea176c457f5ef039b5fb19ca7b2a146e9261df99f248",
+      "controlStopCount": 0
+    }
+  },
+  "outstandingFinalLaunchGates": [
+    "Native Guard paired-run terminal release and coordinator-authorized receipted dependency return.",
+    "Current actual source/runtime/browser/Playwright/locks/profile marker remeasurement and exact comparison to these expectations.",
+    "Final returned-runtime binding review and coordinator exact browser/profile/lane grant.",
+    "At execution: same-scope origin absence, ordinary exclusive lease, actual full pre-entry checkpoint readback and ordinary Load/current scene/world correspondence before first batch."
+  ],
+  "launchAuthorizedByThisReview": false,
+  "limits": [
+    "Preparation acceptance only; no current dependency/browser runtime was measured by this review.",
+    "No M3 gameplay, sermon, conversion, erosion or victory is established by source preflight.",
+    "Inherited failed-envelope history remains; clean campaign PASS is unavailable on this prefix.",
+    "No native whole-game/pixel parity, calibrated timing or hardware-performance claim."
+  ],
+  "writes": "Only ignored review artifacts. No source/dependency/profile/browser mutation or launcher execution."
+}

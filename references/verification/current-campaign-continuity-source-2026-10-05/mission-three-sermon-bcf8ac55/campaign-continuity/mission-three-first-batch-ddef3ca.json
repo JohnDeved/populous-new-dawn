@@ -1,0 +1,12 @@
+[
+  {
+    "action": "prepare-temple"
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m3-temple-ready"
+  }
+]
