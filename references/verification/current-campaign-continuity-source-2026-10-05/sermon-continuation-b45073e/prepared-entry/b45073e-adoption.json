@@ -1,0 +1,41 @@
+{
+  "kind": "source-only-fast-forward-with-local-private-preservation",
+  "startedAt": "2026-10-05T22:09:40.149308+00:00",
+  "finishedAt": "2026-10-05T22:09:40.763563+00:00",
+  "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+  "beforeHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "head": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "command": [
+    "git",
+    "merge",
+    "--ff-only",
+    "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0"
+  ],
+  "exitCode": 0,
+  "sourceClean": true,
+  "runId": "bcf8ac55-e418-49e4-a3d6-b7e804ee31d3",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "latest": {
+    "version": 1,
+    "level": 3,
+    "turn": 7424,
+    "time": 618.6666666666666,
+    "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+    "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+  },
+  "profileLeaseOpened": false,
+  "beforeInventorySha256": "4e8f933cfd9e6315908e1c3ebeb9737232944ec3a6eb94e289950d1d4f5ec000",
+  "afterInventorySha256": "4e8f933cfd9e6315908e1c3ebeb9737232944ec3a6eb94e289950d1d4f5ec000",
+  "inventoriesEqual": true,
+  "files": 6398,
+  "bytes": 294458903,
+  "groups": {
+    "private-profile-local-only": 1368,
+    "retained-evidence": 5030
+  },
+  "markerSha256": "09a55e10aecf54472e8a1848f695f26893e200bee98c334f9e116eeaab10bb79",
+  "originalQuarantineAccessed": false,
+  "privateInventory": "Local only; no profile or storage bytes copied or published"
+}

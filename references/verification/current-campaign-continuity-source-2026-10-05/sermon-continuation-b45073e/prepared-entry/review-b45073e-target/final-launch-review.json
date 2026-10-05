@@ -1,0 +1,91 @@
+{
+  "kind": "independent-exact-b45073e-M3-final-entry-review",
+  "decision": "ACCEPT EXACT PREPARED ENTRY",
+  "reviewedAt": "2026-10-05T22:21:31.618569+00:00",
+  "reviewer": "review_campaign_continuity",
+  "sourceHead": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "applicationMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "exactBinding": {
+    "path": "work/orchestration/campaign-continuity/b45073e-m3-final-launch-binding.json",
+    "sha256": "df676ebe4be2b5753a7e2435714565bd2857b9d71d67f8bf5c2df34253a4bbb6"
+  },
+  "plan": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-m3-launch-plan.json",
+    "sha256": "020d754ca7f0237d4474274407dd59c2facd9e24b0fe51d7e43c7945b4417e98"
+  },
+  "launcher": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/launch-mission-three-b45073e.py",
+    "sha256": "825594fbad46b80274e92cdb97ea7da514a77b24b429873fc48502e10e6cc24f"
+  },
+  "admissionHelper": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/admit-m3-resumed-first-batch.py",
+    "sha256": "25c40895e0115ae073a310d678f27ec2648096e78654aecd912075c4ffe2bd10"
+  },
+  "firstBatch": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-resumed-first-batch-b45073e.json",
+    "sha256": "c5c6f1c87979d472b4abfd1699a95b1c2100c6e31bd154fcdd8ba096f156f157",
+    "preparedOnly": true,
+    "entryRequirement": "Promptly after actual full7424 Load/immediatePause, current restored identities and owned lease. Complete fresh conversion, Pause, snapshot current worker. No inherited3298 or repeated cancellation."
+  },
+  "profileInputs": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-m3-profile-inputs.json",
+    "sha256": "64758060cbaf1e352ab6089157c64917734b957d0067bf13d67c24adb40719ea"
+  },
+  "sourceCorrespondence": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-source-correspondence.json",
+    "sha256": "a31808a547ebee181838fb7649bc67140aff1532a0989e27788f9fe6efa71b96"
+  },
+  "findings": [],
+  "evidence": [
+    {
+      "path": "work/orchestration/campaign-continuity/review-b45073e-target/verification.json",
+      "sha256": "1a2869857d52a6e8ca7059d132fdacd372a63ef9e6e59b5f965ecf3fd6544265"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-b45073e-target/admission-verification.json",
+      "sha256": "818cbe0b7e4029c75b1932be8b1a4487de6885f9fe63a03992cadc80b9228c6d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/b45073e-source-correspondence.json",
+      "sha256": "a31808a547ebee181838fb7649bc67140aff1532a0989e27788f9fe6efa71b96"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/b45073e-target-inputs.json",
+      "sha256": "1fa5cc41bb2caac1567ab15da6c8891320929fbe6ab496d0932e478bacbad286"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/b45073e-build.json",
+      "sha256": "67e4caf6e9d556e97e247a956ed468000110d6ab9174174663d5fbda9471a834"
+    }
+  ],
+  "accepted": [
+    "Exact source reviewed04, target fingerprint5f36e2f0/checker9b3932ba/applicationd199, all binding/plan file hashes and unchanged actual marker09a55e10 agree. Prepared first batch remains c5c6f1c8 and source is clean b45073e. New mission-three-segment-02 output, private TMP, outer/launcher/admission receipt paths are absent.",
+    "Checkout/build supplement96fcdff3 matches the approved preservation/ff-only intent. Actual adoption5a20e46b, identical before/after inventory hashes and post-build15cf221f are linked. Inventories contain6398 original files,1368 in the current profile. Reviewer verified those inventory bytes/counts, actual marker and absent ownership markers; private browser/storage content was not independently reread.",
+    "Fresh combined build67e4caf6 on actual target b45073e passed original4162 in17843ms within120s, with exact clean source/locks before and after and matching raw stdout/stderr hashes. This satisfies the previously missing build gate.103 QA tests and32 reviewer tests remain exact; named1134/typecheck/parity component carry remains accepted, with no new aggregate npm check claim.",
+    "Maintained source-correspondence JSON a31808a5 is reviewer-issued for exactly immediate bcf8 profile7c15026e and typed campaign-m3-sermon-bcf8ac55, previous source7510747d/checkere0117226 to actual target5f36e2f0/checker9b3932ba. It references exact source reviewed04 and retains checkpoint2771e990. Actual five-file predecessor reader accepts those exact arguments without a lease or storage fabrication.",
+    "Launcher binds full plan, expected inputs, first batch, correspondence, old receipt/journey and source/build/preservation reviews. It requires dependency inode925605 and root/installed locks, then recomputes actual source/application/checker/Chrome/Playwright/core/harness hashes before launch. Its own-scope IPv4/IPv6 4375 probes must both be refused; strictPort harness startup owns only that server.",
+    "The normal harness receives --profile-correspondence with exactly a31808a5 and performs unchanged exclusive profile/runtime/origin checks, fresh full checkpointAtStart readback and ordinary Load. New World/current scene correspondence and protected sermon actor/terrain/stock/profile[1,2] assertions remain source-owned prerequisites to its entry log.",
+    "The host admission helper uses its exact plan hash and first-batch bytes; it waits for actual saved-sermon-segment-loaded, checkpoint-loaded, paused M3 opening and awaiting0001 plus a current owned lease for the exact profile/output. It verifies saved/stored full digest, replacement component hashes and identity, restored Yellow listener2631 owned by3181, live Blue Preacher3181 and all13 saved Blue IDs. It does not depend on journey.json existing before first consumption.",
+    "An independent bounded check compiled the actual helper assertion block through lease validation: one retained-evidence positive fixture and12 negative fixtures pass. Negative cases cover wrong stored/replacement hashes, scene/previous run, borrowed replacement, unpaused opening, wrong victim owner, dead Preacher, missing saved actor, wrong lease profile/output and prior stale run. Fixtures are explicitly synthetic; no live enqueue occurred.",
+    "Outer helper source refuses an existing terminal receipt, enforces a finite120s wait, checks command/consumed absence, creates an exclusive temporary payload, fsyncs and rereads the same lease before rename. It is a single-writer queue operation. On any helper failure the actual command file must be inspected before follow-up; no blind retry, signal, fallback Save or browser/model call exists.",
+    "First batch only observes the current conversion, pauses and snapshots current worker. It does not repeat cancellation or assume3298. Later Erosion requires the new epoch exact converted Brave and separate current observation before ordinary worship; current-source actor guard/progress contracts remain accepted.",
+    "All3 inherited failure records and1 automatic stop remain, with2692.666666666667 campaign active,853.6666666666666 M3 active and2172699ms M3 wall spent. Original conversion mark704.0833333333333 is immutable. Effective remaining M3 active1546.3333333333335 and wall3227301ms remain stricter than the5700000ms harness/5710s outer watchdog.",
+    "A later completed result must retain the failed prefix. Supported sole next-ordinal authenticated stop-preserve-latest is required on a blocker or after actual victory/profile evidence; no known-failing finish or Mission4 entry. Latest preserved Save is not automatically a victory save. No Erosion or victory is credited by this prepared-entry review."
+  ],
+  "preservedRuntimeScope": "The input/runtime snapshot was actually measured during the completed build loan and matches the previous accepted application/runtime. The dependency is currently returned to its donor; this reviewer did not acquire/re-hash that closure. Launcher startup must remeasure and match the exact accepted values after the next authorized return.",
+  "executionConditions": [
+    "Coordinator grants the available browser lane and exact profile/lease execution.",
+    "Current dependency owner provides terminal release, and the exact925605 closure returns with its two-ended receipt.",
+    "Frozen launcher/plan/helper/correspondence/source/marker hashes remain unchanged; launcher runtime/lock/scoped-origin checks pass before lease.",
+    "Host admission helper runs only alongside that exactly granted launcher as the sole first-batch writer."
+  ],
+  "needAnotherBroadSourceReviewIfAllPinsMatch": false,
+  "operationalGrantIssuedByReviewer": false,
+  "profileOrBrowserOpenedByReviewer": false,
+  "limits": [
+    "Prepared exact entry accepted; real resumed Load/current conversion/Brave worship are still pending.",
+    "No failed history or original budget reset.",
+    "No clean full-campaign/native parity/hardware-performance claim."
+  ],
+  "writes": "Reviewer source-correspondence and ignored review artifacts only; no profile/lease/browser/dependency/source mutation."
+}

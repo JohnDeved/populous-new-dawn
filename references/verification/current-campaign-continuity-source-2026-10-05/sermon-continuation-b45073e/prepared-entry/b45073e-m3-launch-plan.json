@@ -1,0 +1,188 @@
+{
+  "kind": "exact-saved-sermon-M3-entry-prepared-only",
+  "preparedAt": "2026-10-05T22:17:19.823483+00:00",
+  "sourceHead": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "sourceFingerprint": "5f36e2f0ddd2825514ba385c768449b0d02501a994f0501be3a203011a0e517f",
+  "operationalGrantReceived": false,
+  "profileInputs": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-m3-profile-inputs.json",
+    "sha256": "64758060cbaf1e352ab6089157c64917734b957d0067bf13d67c24adb40719ea"
+  },
+  "policy": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/run-policy.json",
+    "sha256": "be703d2b922a15099811e53bf7cb05cb391b7733f7ee3417a3923c09fd7af2a8",
+    "limits": {
+      "missionActiveSeconds": {
+        "1": 900,
+        "2": 1500,
+        "3": 2400
+      },
+      "campaignActiveSeconds": 4800,
+      "missionWallMs": {
+        "1": 1800000,
+        "2": 5400000,
+        "3": 5400000
+      },
+      "wallMs": 12600000,
+      "noProgressActiveSeconds": 120,
+      "m3BeforeConversionSeconds": 900,
+      "m3AfterConversionSeconds": 1800,
+      "segmentWallMs": 5700000
+    }
+  },
+  "origin": "http://127.0.0.1:4375",
+  "profilePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3b89912-m1-03",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "profileMarkerSha256": "09a55e10aecf54472e8a1848f695f26893e200bee98c334f9e116eeaab10bb79",
+  "previousRunId": "bcf8ac55-e418-49e4-a3d6-b7e804ee31d3",
+  "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-02",
+  "outputExists": false,
+  "privateTmp": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/private-tmp-m3-b45073e",
+  "privateTmpExists": false,
+  "profileCorrespondence": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-source-correspondence.json",
+    "sha256": "a31808a547ebee181838fb7649bc67140aff1532a0989e27788f9fe6efa71b96"
+  },
+  "previousReceipt": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/receipt.json",
+    "sha256": "5a934ae4e50ef69bc353ec66df5eb64e90cb2be50d06848650aeec23c31e7214"
+  },
+  "previousJourney": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-01/journey.json",
+    "sha256": "b36d13de9c4170e63a44517c57bb6d864e5113a48a3774987ea350eb29789668"
+  },
+  "predecessorReview": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-three-segment-01/review.json",
+    "sha256": "75b1fe6111ab0f521efe93352306ddb4ea30c8a214918edf83a6d35f80649eea"
+  },
+  "sourceReview": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/review-b45073e/review.json",
+    "sha256": "ed04c3cfc16a5531fb40dcdfe62b467b22d70af35555f6aa50c85060506d0fe0"
+  },
+  "targetVerification": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-b45073e-target/verification.json",
+    "sha256": "1a2869857d52a6e8ca7059d132fdacd372a63ef9e6e59b5f965ecf3fd6544265"
+  },
+  "build": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-build.json",
+    "sha256": "67e4caf6e9d556e97e247a956ed468000110d6ab9174174663d5fbda9471a834",
+    "originalExecSession": 4162,
+    "status": "passed",
+    "boundSeconds": 120
+  },
+  "postBuildPreservation": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-post-build-preservation.json",
+    "sha256": "15cf221f7b9ec134edf8b3d7aaae96d27ba9426ec1f776e2fa955c848a694add"
+  },
+  "expectedCheckpoint": {
+    "version": 1,
+    "level": 3,
+    "turn": 7424,
+    "time": 618.6666666666666,
+    "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+    "actorsSha256": "162c602f96f546e10847287496d6f93aa0557d7c9a5b9ffdd1e40c7bffbd2290",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "7074d7ca8bd3d048157a28579347c0a807faac5edfa70076b4c938a50acdc155"
+  },
+  "savedSermon": {
+    "turn": 7424,
+    "time": 618.6666666666666,
+    "victimId": 2631,
+    "preacherId": 3181,
+    "blueIds": [
+      46,
+      516,
+      510,
+      303,
+      522,
+      507,
+      589,
+      3168,
+      3169,
+      3170,
+      3171,
+      3172,
+      3181
+    ]
+  },
+  "firstBatch": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-resumed-first-batch-b45073e.json",
+    "sha256": "c5c6f1c87979d472b4abfd1699a95b1c2100c6e31bd154fcdd8ba096f156f157",
+    "preparedOnly": true,
+    "entryRequirement": "Promptly after actual full7424 Load/immediatePause, current restored identities and owned lease. Complete fresh conversion, Pause, snapshot current worker. No inherited3298 or repeated cancellation."
+  },
+  "inheritedCampaignActiveSeconds": 2692.666666666667,
+  "inheritedM3ActiveSeconds": 853.6666666666666,
+  "originalConversionActiveSeconds": 704.0833333333333,
+  "effectiveM3RemainingActiveSeconds": 1546.3333333333335,
+  "inheritedWallMs": 5801958,
+  "inheritedMissionWallMs": {
+    "1": 1589523,
+    "2": 2039727,
+    "3": 2172699
+  },
+  "M3RemainingWallMs": 3227301,
+  "failures": [
+    {
+      "level": 2,
+      "index": 11,
+      "inputSha256": "8e3f9adfcc0293aabf0c37990f4bfbe21d5c7a05ee4396b4761f639ab4c92e2f",
+      "error": "AssertionError [ERR_ASSERTION]: Entity integer interior target became stale before input\n\nfalse !== true\n\n    at prepareEntityClick (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:349:12)\n    at async clickOrder (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:383:21)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+      "at": "2026-10-05T20:18:52.451Z"
+    },
+    {
+      "level": 2,
+      "index": 14,
+      "inputSha256": "5918bc389b445fb97aa6bb07255f6818a99454616591e4d66e2be4bf40893cfc",
+      "error": "AssertionError [ERR_ASSERTION]: Visible ground with no competing object\n    at move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:451:12)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+      "at": "2026-10-05T20:25:59.982Z"
+    },
+    {
+      "kind": "prior-harness-failure",
+      "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+      "error": "Error: Verified mission boundary; retained failures prevent a clean harness pass\n    at continueMission (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:944:11)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21"
+    }
+  ],
+  "controlStops": [
+    {
+      "level": 3,
+      "index": 9,
+      "at": "2026-10-05T21:27:39.805Z",
+      "error": "IncompleteRun: No relevant worship progress for two active minutes\n    at waitDiagnosticStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/observation.mjs:313:41)\n    at waitFor (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:524:20)\n    at async erosion (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:791:5)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+      "code": "progress-stall"
+    }
+  ],
+  "outerCommandReceipt": "work/orchestration/campaign-continuity/mission-three-segment-02.outer.json",
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "5710s",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "--port",
+    "4375",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-segment-02",
+    "--mission",
+    "3",
+    "--timeout",
+    "5700000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs",
+    "--profile",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3b89912-m1-03",
+    "--profile-correspondence",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-source-correspondence.json",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell"
+  ],
+  "dependencyStatus": "925605 returned to NativeGuardBefore after the accepted build. A new terminal owner release/coordinator move grant and startup remeasurement are required; campaign currently holds only stub1993651.",
+  "terminalSemantics": "Three inherited failure records and actual automatic stop remain. Earn current conversion, prospectively observed Erosion and later actual victory/profile[1,2,3]. Use authenticated sole next-ordinal stop-preserve-latest on blocker or after result; do not invoke known-failing finish or startMission4. No fallback Save. Latest preserved Save need not contain victory.",
+  "limits": "Ordinary 1x real clock, same game-only profile. No gameplay/native changes, old historical profile adoption or fabricated onset/worker; no reset of active/wall budgets. Normal lease updates only through maintained harness. Final review/coordinator grant required; prepared files create no profile/output/TMP."
+}

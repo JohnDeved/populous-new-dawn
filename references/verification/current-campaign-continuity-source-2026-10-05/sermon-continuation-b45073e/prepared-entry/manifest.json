@@ -1,0 +1,101 @@
+{
+  "scope": "Accepted prepared entry only; no new Load or profile bytes",
+  "files": [
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-target-inputs.json",
+      "path": "b45073e-target-inputs.json",
+      "bytes": 1744,
+      "sha256": "1fa5cc41bb2caac1567ab15da6c8891320929fbe6ab496d0932e478bacbad286"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-m3-profile-inputs.json",
+      "path": "b45073e-m3-profile-inputs.json",
+      "bytes": 1986,
+      "sha256": "64758060cbaf1e352ab6089157c64917734b957d0067bf13d67c24adb40719ea"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-source-correspondence.json",
+      "path": "b45073e-source-correspondence.json",
+      "bytes": 1522,
+      "sha256": "a31808a547ebee181838fb7649bc67140aff1532a0989e27788f9fe6efa71b96"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-m3-launch-plan.json",
+      "path": "b45073e-m3-launch-plan.json",
+      "bytes": 12164,
+      "sha256": "020d754ca7f0237d4474274407dd59c2facd9e24b0fe51d7e43c7945b4417e98"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-m3-final-launch-binding.json",
+      "path": "b45073e-m3-final-launch-binding.json",
+      "bytes": 4101,
+      "sha256": "df676ebe4be2b5753a7e2435714565bd2857b9d71d67f8bf5c2df34253a4bbb6"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/launch-mission-three-b45073e.py",
+      "path": "launch-mission-three-b45073e.py",
+      "bytes": 6141,
+      "sha256": "825594fbad46b80274e92cdb97ea7da514a77b24b429873fc48502e10e6cc24f"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/admit-m3-resumed-first-batch.py",
+      "path": "admit-m3-resumed-first-batch.py",
+      "bytes": 4225,
+      "sha256": "25c40895e0115ae073a310d678f27ec2648096e78654aecd912075c4ffe2bd10"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-three-resumed-first-batch-b45073e.json",
+      "path": "mission-three-resumed-first-batch-b45073e.json",
+      "bytes": 136,
+      "sha256": "c5c6f1c87979d472b4abfd1699a95b1c2100c6e31bd154fcdd8ba096f156f157"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-build.json",
+      "path": "b45073e-build.json",
+      "bytes": 4746,
+      "sha256": "67e4caf6e9d556e97e247a956ed468000110d6ab9174174663d5fbda9471a834"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-build.json.artifacts/stderr.log",
+      "path": "b45073e-build.json.artifacts/stderr.log",
+      "bytes": 1449,
+      "sha256": "81d4c0f6388eb5f520d62fd2fb797ad4ef82fddf94adef25dcdb5ea5d24c92e2"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/b45073e-build.json.artifacts/stdout.log",
+      "path": "b45073e-build.json.artifacts/stdout.log",
+      "bytes": 1143,
+      "sha256": "44f7f6336151504d8f7a3db9e9855f821f930e9730f6efb53df0732ab7ec7c50"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-b45073e-target/admission-verification.json",
+      "path": "review-b45073e-target/admission-verification.json",
+      "bytes": 1109,
+      "sha256": "818cbe0b7e4029c75b1932be8b1a4487de6885f9fe63a03992cadc80b9228c6d"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-b45073e-target/final-launch-review.json",
+      "path": "review-b45073e-target/final-launch-review.json",
+      "bytes": 9489,
+      "sha256": "09f9457290fe93d2c3b119f847db6e3551dbd9d2337ef650f46bfea89dc15d5a"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-b45073e-target/verification.json",
+      "path": "review-b45073e-target/verification.json",
+      "bytes": 3696,
+      "sha256": "1a2869857d52a6e8ca7059d132fdacd372a63ef9e6e59b5f965ecf3fd6544265"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-adoption.json",
+      "path": "b45073e-adoption.json",
+      "bytes": 1679,
+      "sha256": "5a20e46bd523966a9a7e00e2b666a8e12d5a5fc13ab5ff3c6b19af2ece187904"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/b45073e-post-build-preservation.json",
+      "path": "b45073e-post-build-preservation.json",
+      "bytes": 842,
+      "sha256": "15cf221f7b9ec134edf8b3d7aaae96d27ba9426ec1f776e2fa955c848a694add"
+    }
+  ]
+}

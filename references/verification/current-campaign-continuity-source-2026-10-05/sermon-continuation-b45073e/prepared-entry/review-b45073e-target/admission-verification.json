@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "reviewedAt": "2026-10-05T22:20:22.132541+00:00",
+  "helperSha256": "25c40895e0115ae073a310d678f27ec2648096e78654aecd912075c4ffe2bd10",
+  "positiveCases": 1,
+  "negativeCases": [
+    "wrong stored digest",
+    "wrong replacement actors",
+    "wrong scene",
+    "wrong previous run",
+    "borrowed replacement",
+    "unpaused opening",
+    "wrong victim owner",
+    "dead preacher",
+    "missing saved Blue actor",
+    "wrong lease profile",
+    "wrong lease output",
+    "stale prior lease"
+  ],
+  "method": "Compiled exact AST assertion block from actual admission helper, ending before destination/queue writes. Fixtures combine retained real Load/snapshot evidence with explicitly synthetic new entry/lease metadata. No helper loop, live profile read, command enqueue or browser operation executed.",
+  "remainingInspection": "Outer source refuses terminal run and waits journal/opening/owner plus awaiting0001; exclusive temp write, fsync and lease reread precede rename. One writer is required; failure receipt instructs checking actual command file rather than blind retry."
+}

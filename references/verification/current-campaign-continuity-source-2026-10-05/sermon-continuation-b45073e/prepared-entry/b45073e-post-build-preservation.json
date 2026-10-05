@@ -1,0 +1,18 @@
+{
+  "kind": "post-build-preservation-and-runtime-comparison",
+  "at": "2026-10-05T22:13:10.677680+00:00",
+  "allPriorFilesUnchanged": true,
+  "priorFiles": 6398,
+  "privateProfileFiles": 1368,
+  "profileFileSetUnchanged": true,
+  "ownerLockAbsent": true,
+  "noProfileLease": true,
+  "beforeInventorySha256": "4e8f933cfd9e6315908e1c3ebeb9737232944ec3a6eb94e289950d1d4f5ec000",
+  "adoptionReceiptSha256": "5a20e46bd523966a9a7e00e2b666a8e12d5a5fc13ab5ff3c6b19af2ece187904",
+  "buildReceiptSha256": "67e4caf6e9d556e97e247a956ed468000110d6ab9174174663d5fbda9471a834",
+  "runtimeExactlyEqualsPrevious": true,
+  "actualInputsSha256": "1fa5cc41bb2caac1567ab15da6c8891320929fbe6ab496d0932e478bacbad286",
+  "sourceClean": true,
+  "dependencyReturned": true,
+  "returnReceiptSha256": "7f809a2ec86315b957a8a680080964eedc97da331cab8811395125b337ae7f45"
+}
