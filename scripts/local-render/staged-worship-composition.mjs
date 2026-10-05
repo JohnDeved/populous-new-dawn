@@ -437,7 +437,7 @@ export default async function ({ page, root, output, receipt, openMission, signa
       [manifestPath]: inputManifestSha256,
       'scripts/local-render/ordinary-worship.mjs': 'e109f328e3b0203081df9440e1c2ae5f07b31ff02a29e284367fed05d72c65ce',
       'scripts/local-render/ordinary-worship-m1-route.mjs': '30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879',
-      'scripts/local-render/ordinary-worship-boundaries.mjs': '406600fd106307efd63dd6aedcb48e42fa9a887bd87977f536b87bad295ee676',
+      'scripts/local-render/ordinary-worship-boundaries.mjs': '1eee9b26be3bf8034054d94087d0845f8915e3ab0653112d33db55d19e6cf6b9',
     }
   assert.equal(relative(resolve(root), fileURLToPath(import.meta.url)).split(sep).join('/'), scenarioPath,
     'Owned profile requires the frozen checker copied inside gameRoot')
