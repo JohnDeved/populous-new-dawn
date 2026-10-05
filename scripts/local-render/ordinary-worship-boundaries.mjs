@@ -51,10 +51,11 @@ async function installEarlyObserver(page, phase) {
     const tailWindow = phaseName => {
       const w = window.worshipBoundaryScene.world, c = w.worshipAcquisition.controllers
       return { phase: phaseName, turn: w.turn, paused: w.paused, clock: { ...w.worshipAcquisition.clock },
-        spell: c.spell && { active: c.spell.active, model: c.spell.model, giftId: c.spell.giftId, step: c.spell.step, visits: c.spell.visits },
+        spell: c.spell && { active: c.spell.active, model: c.spell.model, giftId: c.spell.giftId, step: c.spell.step, visits: c.spell.visits, next: c.spell.next },
         companion: c.companion && { active: c.companion.active, model: c.companion.model, step: c.companion.step, visits: c.companion.visits },
         pulse: c.pulse && { active: c.pulse.active, model: c.pulse.model, remaining: c.pulse.remaining, frame: c.pulse.frame },
         gifts: w.gifts.filter(g => g.reward === 'lightning').map(g => ({ id: g.id, phase: g.phase, remaining: g.remaining })),
+        sameGeometry: !!c.pulse && c.pulse.geometry === c.spell?.geometry,
         eligible: !!c.pulse?.active && !c.spell?.active && !c.companion?.active }
     }
     window.worshipBoundaryTailWindow = tailWindow
@@ -353,7 +354,7 @@ async function saveTailThroughPreparedControls(page, controls, wait, report) {
   await page.mouse.move(controls.settings.x, controls.settings.y)
   await page.evaluate(() => {
     const originalScene = window.worshipBoundaryScene,
-      evidence = window.worshipTailInput = { onset: null, events: [], errors: [], restored: false }, listeners = []
+      evidence = window.worshipTailInput = { preparation: null, events: [], errors: [], restored: false }, listeners = []
     for (const capture of [true, false]) {
       const listener = event => {
         try {
@@ -370,7 +371,8 @@ async function saveTailThroughPreparedControls(page, controls, wait, report) {
             state: { turn: w.turn, paused: w.paused, inputMask: w.inputMask,
               sameWorld: scene === originalScene && w === window.testStore.getWorld(),
               tailEligible: !!c.pulse?.active && !c.spell?.active && !c.companion?.active,
-              pulseRemaining: c.pulse?.remaining, clock: { ...w.worshipAcquisition.clock } } })
+              pulseRemaining: c.pulse?.remaining, pulseModel: c.pulse?.model, spellModel: c.spell?.model,
+              spellGiftId: c.spell?.giftId, sameGeometry: !!c.pulse && c.pulse.geometry === c.spell?.geometry, clock: { ...w.worshipAcquisition.clock } } })
         } catch (error) { evidence.errors.push(String(error)) }
       }
       window.addEventListener('click', listener, capture); listeners.push({ listener, capture })
@@ -383,12 +385,15 @@ async function saveTailThroughPreparedControls(page, controls, wait, report) {
   try {
     await wait(() => {
       const w = window.worshipBoundaryScene.world, c = w.worshipAcquisition.controllers
-      if (!c.pulse?.active || c.spell?.active || c.companion?.active) return false
-      // This predicate runs between original browser tasks, after the complete
-      // clock visit. Retain the observation here, without another host round trip.
-      window.worshipTailInput.onset ??= window.worshipBoundaryTailWindow('between-browser-tasks-before-trusted-inputs')
+      if (!c.spell?.active || c.spell.model !== 3 || c.spell.step !== 4 || !c.spell.next ||
+          !c.pulse?.active || c.pulse.model !== 3 || c.pulse.remaining !== 4 || c.companion?.active ||
+          c.pulse.geometry !== c.spell.geometry) return false
+      // This is the real final-body boundary, not independent tail onset.
+      // The next original visit retires this spell before its pause gate, so
+      // public Settings can open while normal visits create the independent tail.
+      window.worshipTailInput.preparation ??= window.worshipBoundaryTailWindow('between-browser-tasks-final-body-next-before-public-Settings')
       return true
-    }, null, 15000, 'Genuine tail before prepared trusted Settings/Save inputs')
+    }, null, 15000, 'Exact final-body preparation before trusted Settings/Save inputs')
     await page.mouse.click(controls.settings.x, controls.settings.y)
     await page.mouse.click(controls.save.x, controls.save.y)
   } finally {
@@ -405,12 +410,19 @@ async function saveTailThroughPreparedControls(page, controls, wait, report) {
     assert.equal(event.isTrusted, true); assert.equal(event.connected, true); assert.equal(event.disabled, false)
     assert.equal(event.x, point.x); assert.equal(event.y, point.y); assert.equal(event.state.sameWorld, true)
   }
-  report.tailBeforeMenu = input.onset
-  assert.equal(input.onset.eligible, true)
-  assert.equal(input.onset.pulse.active, true); assert.equal(input.onset.spell.active, false); assert.equal(input.onset.companion.active, false)
+  report.tailPreparation = input.preparation
+  const prepared = input.preparation
+  assert.equal(prepared.eligible, false); assert.equal(prepared.sameGeometry, true)
+  assert.equal(prepared.spell.active, true); assert.equal(prepared.spell.model, 3)
+  assert.equal(prepared.spell.step, 4); assert.equal(prepared.spell.next, true)
+  assert.equal(prepared.pulse.active, true); assert.equal(prepared.pulse.model, 3)
+  assert.equal(prepared.pulse.remaining, 4); assert.equal(prepared.companion.active, false)
   const savedClick = input.events.find(e => e.target === 'save' && e.stage === 'capture-before-game')
   assert.equal(savedClick.menuOpen, true, 'Save must be reached through the actually open public dialog')
   assert.equal(savedClick.state.tailEligible, true, 'Trusted Save input must still reach a live independent tail')
+  assert.equal(savedClick.state.spellGiftId, prepared.spell.giftId)
+  assert.equal(savedClick.state.spellModel, 3); assert.equal(savedClick.state.pulseModel, 3)
+  assert.equal(savedClick.state.sameGeometry, true, 'Save retains the prepared owner binding')
   return savedClick.state
 }
 
