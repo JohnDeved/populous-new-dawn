@@ -1813,8 +1813,9 @@ test('result camera crosses the world seam, releases input and retains native sk
 });
 
 
-test('victory owns persistent native followers, drops cargo and renders a separate paused animation clock', async () => {
+test('victory owns persistent native followers, drops cargo and pauses logical animation', async () => {
  const {animateLiveObjects}=await import('../app/live-people.ts');
+ const {advanceGame}=await import('../app/game-clock.ts');
  const {setAnimationObject}=await import('../app/animation.ts');
  const w=createWorld();w.units=w.units.filter(u=>u.team==='blue');
  const worker=w.units.find(u=>u.kind==='brave'),hut=w.buildings.find(b=>b.team==='blue');
@@ -1832,16 +1833,17 @@ test('victory owns persistent native followers, drops cargo and renders a separa
  for(const [i,u] of braves.entries()){
   Object.assign(u,{x:7,z:33});Object.assign(u.native,{anchorX:3840,anchorY:55040,substate:i?4:3,flags2:0x40020000,link:0,target:0,speed:0});
  }
- const phases=new Set();
- for(let i=0;i<96;i++){tick(w,1/12);animateLiveObjects(w);animateLiveObjects(w);for(const u of w.units)phases.add(u.native.substate);}
+ const phases=new Set(),clock={animationTime:0,animationFrame:0};
+ for(let i=0;i<96;i++){advanceGame(w,clock,1/12);for(const u of w.units)phases.add(u.native.substate);}
  assert.ok(phases.has(5)&&phases.has(6),'circle members enter native chain states');
  assert.ok(w.units.every((u,i)=>u.native===records[i]),'controllers retain the same person records');
  assert.ok(w.units.every(u=>u.work===null&&u.inside===null),'legacy auto-housing cannot take over celebrations');
  assert.ok(w.trees.filter(t=>t.model===11).every(t=>t.logs===1),'loose logs do not regrow');
  const p=worker.native;setAnimationObject(p,14,40);p.f1=p.f2=0;
- animateLiveObjects(w);assert.equal(p.f2,1,'animation mutates the owned record');
- w.paused=true;animateLiveObjects(w);assert.equal(p.f2,1);
- w.paused=false;p.renderFlags|=2;animateLiveObjects(w);assert.equal(p.f2,1,'native frozen pose survives presentation updates');
+ animateLiveObjects(w);assert.equal(p.f2,0,'presentation alone leaves the logical record unchanged');
+ animateLiveObjects(w,'logical');assert.equal(p.f2,1,'the logical phase mutates the owned record');
+ w.paused=true;animateLiveObjects(w,'logical');assert.equal(p.f2,1);
+ w.paused=false;p.renderFlags|=2;animateLiveObjects(w,'logical');assert.equal(p.f2,1,'native frozen pose survives logical updates');
 });
 
 test('live blocked followers retain native detour steering and recovery timers', async () => {

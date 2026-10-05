@@ -9,6 +9,7 @@ import {stepBuildingWork,stepBuildingDeparture,stepBuildingApproach} from '../ap
 import {createMotionRoutes,setDirectPersonDestination} from '../app/person-routes.ts'
 import {createWorld,placeBuilding,tick,command,unitAnimation,unitAnimationSource} from '../app/model.ts'
 import {animateLiveObjects} from '../app/live-people.ts'
+import {advanceGame} from '../app/game-clock.ts'
 import {AUDIO_CUES} from '../app/audio.ts'
 
 test('building activity matches native geometry, clocks, speed, facing and animation requests',()=>{
@@ -35,9 +36,9 @@ test('live builders reach work poses, animate, pause, cancel and finish without 
   const w=createWorld();w.manaWorld.gameFlags=32
   w.selected=w.units.filter(u=>u.kind==='brave'&&u.team==='blue').map(u=>u.id)
   assert.ok(placeBuilding(w,'hut',{x:-2,z:32}))
-  const b=w.buildings.at(-1),phases=new Set(),fetchers=new Set();let worker
+  const b=w.buildings.at(-1),phases=new Set(),fetchers=new Set(),clock={animationTime:0,animationFrame:0};let worker
   for(let turn=0;turn<1000&&!worker;turn++){
-    tick(w,1/12);animateLiveObjects(w);animateLiveObjects(w)
+    advanceGame(w,clock,1/12)
     for(const u of w.units.filter(u=>u.work===b.id)){
       if(u.builder?.task===7&&b.timberSearch!=null)fetchers.add(u.id)
       if(u.builder?.task!==2)continue
@@ -53,8 +54,8 @@ test('live builders reach work poses, animate, pause, cancel and finish without 
   assert.equal(unitAnimationSource(worker),p);assert.equal(unitAnimation(w,worker),'work')
   assert.equal(p.object,rules.animationObjects[rules.personAnimationObjects[6*9+2]][0])
   assert.equal(worker.path.length,0);assert.ok(w.sounds.some(s=>s.cue===20))
-  const frames=new Set([p.f2]);for(let n=0;n<8;n++){animateLiveObjects(w);frames.add(p.f2)}
-  assert.ok(frames.size>1,'the work sprite consumes the shared original presentation clock')
+  const frames=new Set([p.f2]);for(let n=0;n<8;n++){advanceGame(w,clock,1/12);frames.add(p.f2)}
+  assert.ok(frames.size>1,'the work sprite advances with its logical controller visits')
   w.paused=true;const before=JSON.stringify(worker.builder);tick(w,1);animateLiveObjects(w)
   assert.equal(JSON.stringify(worker.builder),before);w.paused=false
   w.selected=[worker.id];command(w,{x:-5,z:29})
