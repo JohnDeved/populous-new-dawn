@@ -60,6 +60,7 @@ import {
   setAnimationObject,
   setPersonAnimation,
   stepObjectAnimation,
+  animationUsesLogicalVisits,
   type Animation,
 } from './animation.ts'
 import {
@@ -165,7 +166,12 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
     anchorY: pos.y & 65535,
     counter: (w.turn - 1) & 255,
     flags2: u.inside === null ? 0 : 0x800000,
-    flags3: (u.shield ? 0x8000 : 0) | (u.bloodlust ? 0x80000 : 0),
+    // 0x4d23ed supplies the logical animation gate. Keep models outside the
+    // verified ordinary-person range on their existing adapter.
+    flags3:
+      (model >= 2 && model <= 7 ? 0x40000 : 0) |
+      (u.shield ? 0x8000 : 0) |
+      (u.bloodlust ? 0x80000 : 0),
     // Preserve the outdoor target eligibility previously supplied by each spell adapter.
     flags4:
       0x20000000 |
@@ -1180,12 +1186,13 @@ export function stepLivePerson(w: World, u: Unit) {
   p.h = nativePosition(w, u).h
 }
 
-// Presentation adapter: called after drawing at the selected 24 Hz native rate.
-// Native rate configuration and visibility catch-up remain pending.
-export function animateLiveObjects(w: World) {
+// The native processor stamps ordinary people/Splash before their gated animation
+// visit. In the elapsed-time adapter, each completed logical turn owns that visit;
+// ungated branches and other families retain the existing 24 Hz presentation owner.
+export function animateLiveObjects(w: World, phase: 'logical' | 'presentation' = 'presentation') {
   if (w.paused || w.land.landFlags & 2) return
   for (const shrine of w.shrines)
-    if (shrine.active && shrine.knowledgeGlow) {
+    if (phase === 'presentation' && shrine.active && shrine.knowledgeGlow) {
       // Native draws before advancing; retain that visible sample on this boundary.
       shrine.knowledgeGlow.displayedFrame = (shrine.knowledgeGlow.f1 & 65535) >>> 2
       stepObjectAnimation(
@@ -1198,10 +1205,16 @@ export function animateLiveObjects(w: World) {
   for (const u of w.units) {
     const source = unitAnimationSource(u)
     if (source) {
-      // Command 27 polls the final frame at 12 Hz. Keep it observable when the
-      // elapsed 24 Hz animation clock would otherwise wrap past that visit.
+      const logical = source.model >= 2 && source.model <= 7 && animationUsesLogicalVisits(source)
+      if (logical !== (phase === 'logical')) continue
+      // Ownership is independent of eligibility: state0/removed gated records
+      // must not fall back to presentation visits while waiting for a controller.
+      if (logical && (source.class !== 1 || !source.state)) continue
+      // Only the legacy presentation path needs the old final-frame hold.
+      // Logical visits leave command27's final frame for its next controller poll.
       const p = u.native
       if (
+        !logical &&
         source === p &&
         p.state === 10 &&
         p.commandStatus === 27 &&
@@ -1210,13 +1223,15 @@ export function animateLiveObjects(w: World) {
         p.f2 === sprites.frameCounts[p.object] - 1
       )
         continue
+      if (logical) source.stamp = w.turn
       stepObjectAnimation(
         source,
-        { counter: 0, levelFlags: 0, levelFlags2: w.levelFlags2 },
+        { counter: logical ? w.turn : 0, levelFlags: 0, levelFlags2: w.levelFlags2 },
         { frameCounts: sprites.frameCounts, modelFrames: [], morphDurations: [] },
         () => stampFootprints(w.footprints, source.x, source.y)
       )
     } else if (
+      phase === 'presentation' &&
       !(w.levelFlags2 & 0x10000) &&
       u.hp > 0 &&
       u.inside === null &&
@@ -1230,17 +1245,25 @@ export function animateLiveObjects(w: World) {
     }
   }
   for (const f of w.effects) {
+    const logical = !!(
+      f.kind === 'splash' &&
+      f.animation &&
+      animationUsesLogicalVisits(f.animation)
+    )
+    if (logical !== (phase === 'logical')) continue
     if (f.reincarnation) latchShamanDeathFrame(f)
     const knowledgeGlow = f.sprite?.sequence === 'vault-knowledge-glow' ? f.sprite : undefined,
       retired = knowledgeGlow && f.kind === 'gift' && 'phase' in f && !f.phase
     if (f.animation && knowledgeGlow && !retired)
       knowledgeGlow.frame = (f.animation.f1 & 65535) >>> 2
-    if (f.animation && !retired)
+    if (f.animation && !retired) {
+      if (logical) f.animation.stamp = w.turn
       stepObjectAnimation(
         f.animation,
-        { counter: 0, levelFlags: 0, levelFlags2: w.levelFlags2 },
+        { counter: logical ? w.turn : 0, levelFlags: 0, levelFlags2: w.levelFlags2 },
         { frameCounts: sprites.frameCounts, modelFrames: [], morphDurations: [] },
         () => {}
       )
+    }
   }
 }

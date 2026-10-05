@@ -225,16 +225,21 @@ export function migrateCheckpoint(world: World) {
       shrine.reward = shrine.kind === 'vault' ? 'camp' : shrine.kind
   for (const gift of world.gifts) if ((gift.reward as string) === 'vault') gift.reward = 'camp'
   for (const unit of world.units)
-    if (unit.shield && !unit.bloodlust)
-      for (const person of [
-        unit.native,
-        unit.flight,
-        unit.entry?.person,
-        unit.builder?.person,
-        unit.fight?.motion,
-      ])
-        if (person && (person.flags3 ?? 0) & 0x80000)
+    for (const person of [
+      unit.native,
+      unit.flight,
+      unit.entry?.person,
+      unit.builder?.person,
+      unit.fight?.motion,
+    ])
+      if (person) {
+        // Legacy checkpoints predate the native ordinary-person animation gate.
+        // Preserve the saved frame/stamp and every active controller alias.
+        if (person.class === 1 && person.model >= 2 && person.model <= 7)
+          person.flags3 = ((person.flags3 ?? 0) | 0x40000) >>> 0
+        if (unit.shield && !unit.bloodlust && (person.flags3 ?? 0) & 0x80000)
           person.flags3 = (((person.flags3 ?? 0) & ~0x80000) | 0x8000) >>> 0
+      }
   world.shots.convertWild ??= 0
   world.giftCounts.convertWild ??= 0
   world.shots.hypnotise ??= 0

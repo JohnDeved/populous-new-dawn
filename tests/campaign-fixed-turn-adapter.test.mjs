@@ -202,10 +202,10 @@ test('Mission 3 trains a bounded Preacher group and retains identified HUD-reach
 
 
 test('additive native Ctrl-five requires the ordinary cancel/deselect before reserving workers', async () => {
-  const { createWorld, tick, selectFollowers, cancelInteraction, nativePosition } = await import('../app/model.ts')
-  const { animateLiveObjects } = await import('../app/live-people.ts')
+  const { createWorld, selectFollowers, cancelInteraction, nativePosition } = await import('../app/model.ts')
+  const { advanceGame } = await import('../app/game-clock.ts')
   const world = createWorld(3)
-  for (let i = 0; i < 70; i++) { tick(world, 1 / 12); animateLiveObjects(world); animateLiveObjects(world) }
+  advanceGame(world, { animationTime: 0, animationFrame: 0 }, 70 / 12)
   const point = nativePosition(world, world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'))
   selectFollowers(world, 2, point, 'all')
   const all = world.selected.length

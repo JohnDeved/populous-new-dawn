@@ -68,7 +68,7 @@ export function advanceGame(w: World, clock: GameClock, seconds: number) {
       ui = w.worshipAcquisition.clock,
       untilUi = presentation ? Math.max(0, (ui.nextVisit - ui.elapsed) / 1000) : Infinity,
       untilTurn =
-        presentation && active && w.speed > 0
+        active && w.speed > 0
           ? Math.max(0, (1 / TURNS_PER_SECOND - w.pendingTime) / w.speed)
           : Infinity,
       elapsed = Math.min(
@@ -77,6 +77,7 @@ export function advanceGame(w: World, clock: GameClock, seconds: number) {
         untilUi,
         untilTurn
       )
+    const previousTurn = w.turn
     try {
       if (active) tick(w, elapsed * w.speed, phase.observer)
     } finally {
@@ -84,6 +85,9 @@ export function advanceGame(w: World, clock: GameClock, seconds: number) {
       phase.active = false
       phase.callbacks.length = 0
     }
+    // Observers finish first; the next controller turn must see this visit's
+    // frame. Direct tick() remains simulation-only. A land-paused tick has no turn.
+    if (w.turn !== previousTurn) animateLiveObjects(w, 'logical')
     seconds = Math.max(0, seconds - elapsed)
     if (presentation) ui.elapsed += elapsed * 1000
     if (active) clock.animationTime += elapsed
