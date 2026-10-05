@@ -1,93 +1,105 @@
-# #214 ordinary native-backed animation gate: fresh a53 baseline
+# #214 ordinary native-backed sprite cadence: baseline and candidate
 
-Ordinary native-backed people exhibit the missing logical-visit gate at **1×**:
-actual person frames advance in sampled adjacent rows without a logical turn.
-The **2× and pause/resume controls passed** their ordinary observation checks.
-This packet is the unchanged old-adapter baseline; **no candidate fix is accepted
-by this evidence**.
+The frozen ordinary Mission 1 observer exposes the missing logical-visit gate on
+the **a53 baseline** and passes the finite repaired-person predicates on candidate
+**d8897cf**. The same shipped 1×/2×, pause/resume and settings controls are used.
+This packet owns bounded ordinary browser evidence. Native composition,
+portable lifecycle/refresh/restore tests and final implementation review retain
+their separate scopes.
 
-Tested game source: [`a53fa05587c4c1d363e3596162b41fcb9f26e3e8`](https://github.com/JohnDeved/populous-new-dawn/commit/a53fa05587c4c1d363e3596162b41fcb9f26e3e8).
-Reviewed pure driver: [`observe-sprite-visits.mjs`](observe-sprite-visits.mjs),
+- [Candidate report](candidate-d8897cf/report.md), tested source
+  `d8897cf8eeac1886d2f653af2cad0674c6bfa91a`
+- [Original immutable baseline report](https://github.com/JohnDeved/populous-new-dawn/blob/8b5e2134e21b1e128e5e100e4530af1042b75ee5/README.md),
+  tested source `a53fa05587c4c1d363e3596162b41fcb9f26e3e8`
+- [Separate accepted native packet](https://github.com/JohnDeved/populous-new-dawn/blob/681ecb825b997517363b9ab52ac216e394d7b59a/native-logical-gate/findings.md)
+- [Complete file manifest](manifest.json)
+
+The baseline commit and raw files are preserved. Its ordinary observer passed
+basic controls/render checks; its untouched rows deliberately **fail** the repaired
+candidate predicate. That failure-first label is retained. No native packet,
+profile, cache, dependency tree, original game/tool binary or authentication data
+is included here.
+
+## Matched predicates, separate raw captures
+
+The unchanged observer is [observe-sprite-visits.mjs](observe-sprite-visits.mjs),
 SHA256 `cb57bd7076cedb08b042b6f8ad843b088fc613ae6863f3fed3742944eb88a060`.
+The same [finite candidate checker](candidate-d8897cf/analysis/analyze-candidate.py),
+SHA256 `3aaf2a16871eccbb381dd849bac1ce9a020e95be8c5865f0c1cdc4394106c93d`,
+was applied to the untouched a53 rows as a negative control and to d889 rows.
 
-The separately published [accepted native producer/dispatcher/gate packet](https://github.com/JohnDeved/populous-new-dawn/blob/681ecb825b997517363b9ab52ac216e394d7b59a/native-logical-gate/findings.md)
-provides native interpretation. Its evidence is linked, not copied into this
-ordinary browser packet.
+| Candidate predicate failures | a53 negative control | d889 candidate |
+| --- | ---: | ---: |
+| Missing person gate bit | 2,079 | 0 |
+| Stable same-turn logical frame/stamp advance | 95 | 0 |
+| Stable Shaman logical cadence mismatch | 164 | 0 |
+| Completed logical-turn stamp mismatch | 1,430 | 0 |
+| Frame/draw/UV, controls, pause or presentation/smoke mismatch | 0 | 0 |
 
-## What was observed
+See the [exact negative-control result](candidate-d8897cf/analysis/a53-negative-control.json)
+and [candidate result](candidate-d8897cf/raw/candidate-cadence-attribution.json).
+The two independent real-RAF captures have different sample counts; this is not
+an FPS or hardware-performance comparison.
 
-- 2,079 raw native-person samples: actual `flags3=0` and `stamp=0`. Sampled owners
-  are class1 Brave/model2 and Shaman/model7; 16 genuine native walk samples occur.
-- Opening: 8.033 s, 193 presentation visits and 96 logical turns. Sixty adjacent
-  same-turn pairs with identical owner/object/draw advance f1/f2 and the displayed
-  frame. Public resume adds 35 such pairs.
-- Shipped 2×: 97 presentation visits and 97 logical turns in 4.0165 s. No same-turn
-  advance was captured there. Paused/settings segments freeze the sampled native
-  state and actual frame/UV selections. Restored 1× advances 48 presentation visits
-  over 24 turns.
-- All 2,079 frame selections match imported native direction cycles at f2; all
-  2,079 mesh draws match the selected raw owner; 4,158 visible-layer UVs match their
-  recorded imported atlas pieces. Repeated artwork can share pieces/UV despite
-  a changed frame number.
-- Partial hut smoke is the observed unaffected control. **Splash, full hut smoke
-  and damage smoke were not observed.** No artificial effect was created.
+The candidate retains f1/f2/stamp in **284 sampled stable logical-owner pairs**
+where presentation advances without a logical turn. **1,544 completed-turn stamp
+pairs** match the current World.turn. All **2,480 native frame selections and mesh
+draws**, **4,960 person-layer UVs** and **447 partial hut-smoke UVs** match their
+recorded source/imported artwork. There are **22 genuine native walk samples**.
+Shipped 2× and pause/resume checks pass. The presentation and secondary smoke
+clocks retain their observed 24 Hz accumulator behavior.
 
-Counts describe observed RAF pairs, not every intermediate visit. The source
-owner identity is local to each segment. The capture neither measures original
-OS wall-clock cadence nor establishes hardware-GPU performance. See the exact
-predicates, examples and limitations in [offline attribution](baseline-a53-raw-owners/baseline-cadence-attribution.json)
-and [findings](baseline-findings.md).
+Only **partial hut smoke** is observed. **Splash, full hut smoke and damage smoke
+remain unobserved** and are not promoted to ordinary-coverage claims. Source,
+object, draw, state and flag transitions are explicitly excluded from stable-owner
+cadence attribution. The boundary counter includes missing native endpoints; it
+does not count actual source swaps. Sparse RAF rows cannot reconstruct every
+intermediate processor visit. No original-OS wall-clock claim is made.
 
-## Comparable screenshots
+## Comparable rendered views
 
-Each image is an ordinary Mission 1 screenshot from a53 with the unchanged driver,
-1440×1000 viewport/DPR 1 and sandboxed official Chrome 154, using SwiftShader.
-They show actual rendered state; a still image alone cannot establish cadence.
+All images use the unchanged ordinary Mission 1 driver, 1440×1000/DPR 1,
+sandboxed official Chrome 154 and software SwiftShader. Still images show genuine
+rendered output, not cadence by themselves.
 
-![1× natural opening on a53](baseline-a53-raw-owners/normal-speed-opening.png)
-![1× public resume on a53](baseline-a53-raw-owners/normal-speed-resumed.png)
-![Shipped 2× natural play on a53](baseline-a53-raw-owners/shipped-2x-speed.png)
+| a53 normal-speed opening | d889 normal-speed opening |
+| --- | --- |
+| ![a53 ordinary 1× opening](baseline-a53-raw-owners/normal-speed-opening.png) | ![d889 ordinary 1× opening](candidate-d8897cf/raw/normal-speed-opening.png) |
 
-## Reproduce only the offline attribution
+[Candidate public resume](candidate-d8897cf/raw/normal-speed-resumed.png) and
+[candidate shipped 2×](candidate-d8897cf/raw/shipped-2x-speed.png) retain the other
+requested views. Original baseline views remain in `baseline-a53-raw-owners/`.
+Console errors are absent. Retained warnings include software-WebGL fallback,
+ReadPixels stalls and texture-image warnings; candidate also reports a preload-as
+warning. No unsafe sandbox/renderer flag was enabled and no blanket texture or
+hardware-GPU acceptance is implied.
 
-From a checkout of this sparse evidence branch, with a local game Git checkout
-that contains the tested a53 commit:
+## Reproduce the saved-data checks
+
+From this evidence branch with a local game Git checkout containing both source
+commits, run these finite offline commands. No dependencies or browser are needed:
 
 ```sh
 python3 analysis/reproduce.py /path/to/game-git-checkout
+python3 candidate-d8897cf/analysis/reproduce.py /path/to/game-git-checkout
 ```
 
-The wrapper reads only the exact commit's imported unit/rule JSON, verifies their
-recorded hashes, stages the **unchanged** frozen checker and raw rows in a private
-temporary directory, and requires byte-identical analysis output. It needs no
-dependencies, browser, server or original executable. The imported source data
-are not duplicated in this sparse branch.
+The wrappers run the exact frozen checkers, read hash-bound imported data from
+local Git and require byte-identical saved results. The historical launchers and
+absolute paths in receipts identify original execution; they are not instructions
+to start an uncoordinated shared-resource capture.
 
-`manifest.json` binds every packet file other than itself. Original paths in raw
-receipts identify the executed inputs; they are historical provenance, not a
-claim that this sparse branch contains the game/runtime at those paths.
-`launch-baseline.py` is the exact historical launcher and is **not a portable
-instruction to rerun a shared-resource job**. A future rendered run needs its own
-source-bound runtime and coordinated isolated resources.
+[Candidate command](candidate-d8897cf/command.json),
+[inner receipt](candidate-d8897cf/raw/receipt.json),
+[corrected launcher receipt](candidate-d8897cf/launcher-receipt.json) and
+[terminal record](candidate-d8897cf/terminal.json) bind source/runtime/input hashes,
+raw streams, original session 81430 and verified cleanup. The candidate launcher
+requires inner passed status with no failure plus separately verified closed
+IPv4/IPv6 port 4374 in the same namespace. The browser lane was released before
+analysis; dependency inode 925605 remained at the author's checkout.
 
-## Receipts, history and limits
-
-[Command receipt](baseline-command.json), [launcher receipt](launcher-receipt.json),
-[inner receipt](baseline-a53-raw-owners/receipt.json) and [terminal receipt](baseline-terminal.json)
-retain the exact command, source, input/runtime/browser hashes, raw streams,
-original session 20513 and terminal success. The same launcher namespace verified
-port 4374 closed before and after. Source/input bytes remained stable. Dependency
-inode 925605 returned to its donor with unchanged lock hashes; both transfer ends
-were receipted. The [transfer summaries](transfer/return.json) retain that result.
-
-The planning snapshot predates execution and the driver preflight acceptance is
-limited to observer purity. Neither is a fix review. Console errors were absent;
-the retained diagnostics include software-WebGL fallback, ReadPixels stalls and
-two texture-image warnings. No unsafe sandbox/renderer option was added.
-
-The older [596475b baseline](https://github.com/JohnDeved/populous-new-dawn/blob/0a4189633e96740006754b278208855625a248bb/README.md)
-keeps its historical labels and limits. It lacked flags/stamps and is not relabeled
-as this fresh a53 capture. No historical files are overwritten by this packet.
-Profiles, caches, dependencies, original game/tool binaries, authentication data
-and the native research packet are excluded. Issue 214 remains open for candidate
-implementation and acceptance, plus any unsampled families requiring their own proof.
+The [baseline findings](baseline-findings.md), original receipts, preflight review
+and transfer summaries retain their original labels and limits. Candidate source
+correspondence/checker review and negative-control preparation live under
+`candidate-d8897cf/review/` and `candidate-d8897cf/analysis/`. These are evidence
+records, not a claim that this sparse branch is the complete game or release.

@@ -1,0 +1,221 @@
+{
+  "startedAt": "2026-10-05T16:29:38.677Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix",
+    "commit": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+    "tree": "52671858facb7ad8f6041d410aa350328139fb54",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "b97a3413c938d5c52ad1017e4a3c6ecac0ad134fe00e503a2422e6d8ce930c9a"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "<link rel=preload> must have a valid `as` value",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x2d74007a5800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x2d74007a5800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x2d74007a5800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x2d74007a5800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "status": "passed",
+  "browserVersion": "154.0.8037.92",
+  "result": {
+    "source": {
+      "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix",
+      "commit": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+      "tree": "52671858facb7ad8f6041d410aa350328139fb54",
+      "status": "",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked": [],
+      "fingerprint": "b97a3413c938d5c52ad1017e4a3c6ecac0ad134fe00e503a2422e6d8ce930c9a"
+    },
+    "scenarioSha256": "cb57bd7076cedb08b042b6f8ad843b088fc613ae6863f3fed3742944eb88a060",
+    "environment": {
+      "userAgent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.8037.92 Safari/537.36",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "canvas": [
+        1240,
+        1000
+      ],
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "timeOrigin": 1791217796600.2
+    },
+    "coverage": {
+      "naturalWalkObserved": true,
+      "splashObserved": false,
+      "damageSmokeObserved": false
+    },
+    "summaries": [
+      {
+        "label": "normal-speed natural opening",
+        "samples": 120,
+        "elapsedSeconds": 8.033,
+        "animationVisits": 193,
+        "simulationTurns": 97,
+        "gameTime": 8.083333333333332,
+        "nativeUnitSamples": 926,
+        "walkingNativeSamples": 22,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      {
+        "label": "public pause",
+        "samples": 25,
+        "elapsedSeconds": 1.533300000000003,
+        "animationVisits": 0,
+        "simulationTurns": 0,
+        "gameTime": 0,
+        "nativeUnitSamples": 175,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      {
+        "label": "public resume",
+        "samples": 59,
+        "elapsedSeconds": 4.049799999999996,
+        "animationVisits": 97,
+        "simulationTurns": 49,
+        "gameTime": 4.083333333333336,
+        "nativeUnitSamples": 413,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      {
+        "label": "settings pause at 1×",
+        "samples": 5,
+        "elapsedSeconds": 0.2667000000000044,
+        "animationVisits": 0,
+        "simulationTurns": 0,
+        "gameTime": 0,
+        "nativeUnitSamples": 35,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      {
+        "label": "settings selected 2× while paused",
+        "samples": 5,
+        "elapsedSeconds": 0.2833000000000029,
+        "animationVisits": 0,
+        "simulationTurns": 0,
+        "gameTime": 0,
+        "nativeUnitSamples": 35,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      {
+        "label": "shipped 2× speed natural play",
+        "samples": 59,
+        "elapsedSeconds": 3.9999000000000016,
+        "animationVisits": 96,
+        "simulationTurns": 96,
+        "gameTime": 8.000000000000004,
+        "nativeUnitSamples": 413,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      {
+        "label": "public pause at 2×",
+        "samples": 27,
+        "elapsedSeconds": 1.5165999999999986,
+        "animationVisits": 0,
+        "simulationTurns": 0,
+        "gameTime": 0,
+        "nativeUnitSamples": 189,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      {
+        "label": "settings pause at 2×",
+        "samples": 5,
+        "elapsedSeconds": 0.23329999999999562,
+        "animationVisits": 0,
+        "simulationTurns": 0,
+        "gameTime": 0,
+        "nativeUnitSamples": 35,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      {
+        "label": "settings selected 1× while paused",
+        "samples": 6,
+        "elapsedSeconds": 0.2832999999999956,
+        "animationVisits": 0,
+        "simulationTurns": 0,
+        "gameTime": 0,
+        "nativeUnitSamples": 42,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      },
+      {
+        "label": "restored shipped 1× speed",
+        "samples": 31,
+        "elapsedSeconds": 2.0165,
+        "animationVisits": 49,
+        "simulationTurns": 24,
+        "gameTime": 2,
+        "nativeUnitSamples": 217,
+        "walkingNativeSamples": 0,
+        "effectKinds": [],
+        "hutSmokeModes": [
+          "partial"
+        ]
+      }
+    ],
+    "artifact": "sprite-observations.json",
+    "limits": "Functional headless rendering only. RAF samples may miss intermediate visits or whole frame cycles. Raw stamps are observations, not an inferred counter or proof that a processor ran. No native wall-clock, hardware-performance, complete lifecycle or unsampled effect-family claim."
+  },
+  "finishedAt": "2026-10-05T16:30:56.094Z",
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix",
+    "commit": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+    "tree": "52671858facb7ad8f6041d410aa350328139fb54",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "b97a3413c938d5c52ad1017e4a3c6ecac0ad134fe00e503a2422e6d8ce930c9a"
+  }
+}

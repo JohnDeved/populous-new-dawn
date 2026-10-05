@@ -1,0 +1,21 @@
+{
+  "decision": "ACCEPT finite offline predicate for source-bound candidate capture; actual candidate evidence pending",
+  "reviewer": "finish_reviewed_pr_batch",
+  "candidate": "3123edf97dce9dc13fd3510cdb3ad1d15aedc160",
+  "checkerSha256": "3aaf2a16871eccbb381dd849bac1ce9a020e95be8c5865f0c1cdc4394106c93d",
+  "driverSha256": "cb57bd7076cedb08b042b6f8ad843b088fc613ae6863f3fed3742944eb88a060",
+  "checked": [
+    "Uses only saved JSON and exact-commit source data",
+    "Checks actual source/owner/object/draw/state boundaries and separate sparse/cycle-aliased cases",
+    "Requires gate/turn-stamp and no same-turn logical-frame advances; stable Shaman step0/hold0 cadence at both shipped speeds",
+    "Cross-checks rendered frame direction membership and atlas UVs without orientation or whole-frame claims",
+    "Retains pause and unchanged24Hz presentation/partial-smoke controls",
+    "Missing walk, same-turn presentation or unaliased Shaman/smoke coverage is inconclusive, not passed"
+  ],
+  "limits": [
+    "Finite observed native-backed windows only; source/state transitions are excluded and counted",
+    "Historical native wall-clock, hardware performance, every intermediate visit and absent Splash/full/damage smoke remain unproved",
+    "Baseline negative-control failure demonstrates discrimination; candidate runtime result remains pending"
+  ],
+  "launcher": "Narrow cleanup-certification correction requested before launch; no change to frozen browser observer"
+}

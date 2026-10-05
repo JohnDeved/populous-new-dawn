@@ -1,0 +1,267 @@
+{
+  "status": "passed",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix",
+    "commit": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+    "tree": "52671858facb7ad8f6041d410aa350328139fb54",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "b97a3413c938d5c52ad1017e4a3c6ecac0ad134fe00e503a2422e6d8ce930c9a"
+  },
+  "driverSha256": "cb57bd7076cedb08b042b6f8ad843b088fc613ae6863f3fed3742944eb88a060",
+  "checkerSha256": "3aaf2a16871eccbb381dd849bac1ce9a020e95be8c5865f0c1cdc4394106c93d",
+  "observationsSha256": "cd988093a996f8e03a7e44b0127b0f41319418f447cebb029259982ba40bc906",
+  "sourceDataSha256": {
+    "original-units.json": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+    "original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "original-effects.json": "8e43389fe9610e70fcedbbd8fe63b11d4addf9a001378225ee5ce273c5b83fdb"
+  },
+  "failureCounts": {},
+  "failureExamples": {},
+  "inconclusive": [],
+  "segments": [
+    {
+      "label": "normal-speed natural opening",
+      "speed": 1,
+      "paused": false,
+      "counts": {
+        "nativeSamples": 926,
+        "walkSamples": 22,
+        "frameMatches": 926,
+        "pieceUvMatches": 1852,
+        "smokeUvMatches": 123,
+        "completedTurnStampPairs": 689,
+        "unaliasedShamanPairs": 119,
+        "positiveTurnShamanPairs": 96,
+        "sameTurnLogicalPairs": 179,
+        "sameTurnExtraPresentationPairs": 179,
+        "stateOrFlagBoundaries": 43,
+        "sourceObjectDrawBoundaries": 160
+      },
+      "smokeModes": [
+        "partial"
+      ],
+      "distinctSmokeUvs": 16,
+      "observedPresentationVisits": 193,
+      "observedTurns": 97
+    },
+    {
+      "label": "public pause",
+      "speed": 1,
+      "paused": true,
+      "counts": {
+        "nativeSamples": 175,
+        "walkSamples": 0,
+        "frameMatches": 175,
+        "pieceUvMatches": 350,
+        "smokeUvMatches": 25,
+        "sameTurnLogicalPairs": 168,
+        "sameTurnExtraPresentationPairs": 0,
+        "unaliasedShamanPairs": 24,
+        "positiveTurnShamanPairs": 0,
+        "sourceObjectDrawBoundaries": 48
+      },
+      "smokeModes": [
+        "partial"
+      ],
+      "distinctSmokeUvs": 1,
+      "observedPresentationVisits": 0,
+      "observedTurns": 0
+    },
+    {
+      "label": "public resume",
+      "speed": 1,
+      "paused": false,
+      "counts": {
+        "nativeSamples": 413,
+        "walkSamples": 0,
+        "frameMatches": 413,
+        "pieceUvMatches": 826,
+        "smokeUvMatches": 64,
+        "completedTurnStampPairs": 315,
+        "stateOrFlagBoundaries": 26,
+        "unaliasedShamanPairs": 58,
+        "positiveTurnShamanPairs": 49,
+        "sourceObjectDrawBoundaries": 118,
+        "sameTurnLogicalPairs": 63,
+        "sameTurnExtraPresentationPairs": 63
+      },
+      "smokeModes": [
+        "partial"
+      ],
+      "distinctSmokeUvs": 16,
+      "observedPresentationVisits": 97,
+      "observedTurns": 49
+    },
+    {
+      "label": "settings pause at 1\u00d7",
+      "speed": 1,
+      "paused": true,
+      "counts": {
+        "nativeSamples": 35,
+        "walkSamples": 0,
+        "frameMatches": 35,
+        "pieceUvMatches": 70,
+        "smokeUvMatches": 10,
+        "sameTurnLogicalPairs": 28,
+        "sameTurnExtraPresentationPairs": 0,
+        "unaliasedShamanPairs": 4,
+        "positiveTurnShamanPairs": 0,
+        "sourceObjectDrawBoundaries": 8
+      },
+      "smokeModes": [
+        "partial"
+      ],
+      "distinctSmokeUvs": 2,
+      "observedPresentationVisits": 0,
+      "observedTurns": 0
+    },
+    {
+      "label": "settings selected 2\u00d7 while paused",
+      "speed": 2,
+      "paused": true,
+      "counts": {
+        "nativeSamples": 35,
+        "walkSamples": 0,
+        "frameMatches": 35,
+        "pieceUvMatches": 70,
+        "smokeUvMatches": 10,
+        "sameTurnLogicalPairs": 28,
+        "sameTurnExtraPresentationPairs": 0,
+        "unaliasedShamanPairs": 4,
+        "positiveTurnShamanPairs": 0,
+        "sourceObjectDrawBoundaries": 8
+      },
+      "smokeModes": [
+        "partial"
+      ],
+      "distinctSmokeUvs": 2,
+      "observedPresentationVisits": 0,
+      "observedTurns": 0
+    },
+    {
+      "label": "shipped 2\u00d7 speed natural play",
+      "speed": 2,
+      "paused": false,
+      "counts": {
+        "nativeSamples": 413,
+        "walkSamples": 0,
+        "frameMatches": 413,
+        "pieceUvMatches": 826,
+        "smokeUvMatches": 93,
+        "completedTurnStampPairs": 378,
+        "unaliasedShamanPairs": 58,
+        "positiveTurnShamanPairs": 58,
+        "sourceObjectDrawBoundaries": 117,
+        "stateOrFlagBoundaries": 27
+      },
+      "smokeModes": [
+        "partial"
+      ],
+      "distinctSmokeUvs": 16,
+      "observedPresentationVisits": 96,
+      "observedTurns": 96
+    },
+    {
+      "label": "public pause at 2\u00d7",
+      "speed": 2,
+      "paused": true,
+      "counts": {
+        "nativeSamples": 189,
+        "walkSamples": 0,
+        "frameMatches": 189,
+        "pieceUvMatches": 378,
+        "smokeUvMatches": 54,
+        "sameTurnLogicalPairs": 182,
+        "sameTurnExtraPresentationPairs": 0,
+        "unaliasedShamanPairs": 26,
+        "positiveTurnShamanPairs": 0,
+        "sourceObjectDrawBoundaries": 52
+      },
+      "smokeModes": [
+        "partial"
+      ],
+      "distinctSmokeUvs": 2,
+      "observedPresentationVisits": 0,
+      "observedTurns": 0
+    },
+    {
+      "label": "settings pause at 2\u00d7",
+      "speed": 2,
+      "paused": true,
+      "counts": {
+        "nativeSamples": 35,
+        "walkSamples": 0,
+        "frameMatches": 35,
+        "pieceUvMatches": 70,
+        "smokeUvMatches": 10,
+        "sameTurnLogicalPairs": 28,
+        "sameTurnExtraPresentationPairs": 0,
+        "unaliasedShamanPairs": 4,
+        "positiveTurnShamanPairs": 0,
+        "sourceObjectDrawBoundaries": 8
+      },
+      "smokeModes": [
+        "partial"
+      ],
+      "distinctSmokeUvs": 2,
+      "observedPresentationVisits": 0,
+      "observedTurns": 0
+    },
+    {
+      "label": "settings selected 1\u00d7 while paused",
+      "speed": 1,
+      "paused": true,
+      "counts": {
+        "nativeSamples": 42,
+        "walkSamples": 0,
+        "frameMatches": 42,
+        "pieceUvMatches": 84,
+        "smokeUvMatches": 12,
+        "sameTurnLogicalPairs": 35,
+        "sameTurnExtraPresentationPairs": 0,
+        "unaliasedShamanPairs": 5,
+        "positiveTurnShamanPairs": 0,
+        "sourceObjectDrawBoundaries": 10
+      },
+      "smokeModes": [
+        "partial"
+      ],
+      "distinctSmokeUvs": 2,
+      "observedPresentationVisits": 0,
+      "observedTurns": 0
+    },
+    {
+      "label": "restored shipped 1\u00d7 speed",
+      "speed": 1,
+      "paused": false,
+      "counts": {
+        "nativeSamples": 217,
+        "walkSamples": 0,
+        "frameMatches": 217,
+        "pieceUvMatches": 434,
+        "smokeUvMatches": 46,
+        "completedTurnStampPairs": 162,
+        "unaliasedShamanPairs": 30,
+        "positiveTurnShamanPairs": 24,
+        "sourceObjectDrawBoundaries": 60,
+        "sameTurnLogicalPairs": 42,
+        "sameTurnExtraPresentationPairs": 42,
+        "stateOrFlagBoundaries": 6
+      },
+      "smokeModes": [
+        "partial"
+      ],
+      "distinctSmokeUvs": 16,
+      "observedPresentationVisits": 49,
+      "observedTurns": 24
+    }
+  ],
+  "coverage": {
+    "naturalWalkObserved": true,
+    "splashObserved": false,
+    "damageSmokeObserved": false
+  },
+  "limits": "Finite sampled ordinary proof only. Source/object/draw/state/flag boundaries are counted and excluded from per-owner cadence attribution. Unmapped frames and absent effects are not claimed. Stamp equals completed logical animation turn by the modern adapter; it is not historical native draw serial. Sparse RAF does not reveal every visit. No original wall-clock, hardware performance, full lifecycle or unsampled Splash/smoke claim."
+}

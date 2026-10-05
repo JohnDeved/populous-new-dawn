@@ -1,16 +1,18 @@
 {
   "schema": "pnd-sparse-evidence-1",
   "issue": 214,
-  "testedSource": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
-  "evidenceRole": "Old-adapter ordinary raw-owner baseline; no candidate acceptance",
+  "baselineSource": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
+  "candidateSource": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+  "priorBaselineEvidenceCommit": "8b5e2134e21b1e128e5e100e4530af1042b75ee5",
+  "evidenceRole": "Ordinary baseline and bounded candidate proof; implementation/native/portable scopes remain separate",
   "driverSha256": "cb57bd7076cedb08b042b6f8ad843b088fc613ae6863f3fed3742944eb88a060",
+  "candidateAnalyzerSha256": "3aaf2a16871eccbb381dd849bac1ce9a020e95be8c5865f0c1cdc4394106c93d",
   "nativePacketCommit": "681ecb825b997517363b9ab52ac216e394d7b59a",
-  "historicalBaselineCommit": "0a4189633e96740006754b278208855625a248bb",
-  "fileCountExcludingManifest": 24,
+  "fileCountExcludingManifest": 45,
   "files": {
     "README.md": {
-      "sha256": "13a99d588657201c41ceef50205bcc693235ca1d6731a6ba4180ff13278b4fb1",
-      "bytes": 5549
+      "sha256": "9a32c0150daee95a9ef11ecc5bbda0bfb3542adad630085346eaebf04eacda35",
+      "bytes": 6075
     },
     "analysis/analyze-baseline.py": {
       "sha256": "b1e64251b50ede16b866ddd136afc8a8ad89230aeb119797b5b5e40066fe0562",
@@ -68,6 +70,90 @@
       "sha256": "7664309a75f10daf9e8903d0d4a10cba8a8ba8f2e1236e5b708a79e55eb23a68",
       "bytes": 1027
     },
+    "candidate-d8897cf/analysis/a53-negative-control.json": {
+      "sha256": "7a08abe54935afb853859840416b9d04ee92904651e9e8211656a890c16b9e78",
+      "bytes": 24557
+    },
+    "candidate-d8897cf/analysis/analyze-candidate.py": {
+      "sha256": "3aaf2a16871eccbb381dd849bac1ce9a020e95be8c5865f0c1cdc4394106c93d",
+      "bytes": 11018
+    },
+    "candidate-d8897cf/analysis/predicate-plan.md": {
+      "sha256": "4191a45e7af912de15df654db481cb2a89894f8fee28b6c7a2ac9a575ad143bb",
+      "bytes": 4557
+    },
+    "candidate-d8897cf/analysis/reproduce.py": {
+      "sha256": "2d0eaa77dfca83a6b27a43c47c4bb9947ed695b79b4fb986ddcb667ab0d82472",
+      "bytes": 1519
+    },
+    "candidate-d8897cf/command.artifacts/stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "candidate-d8897cf/command.artifacts/stdout.log": {
+      "sha256": "86f3ba7496646609edd5fbe89a178ecb2465bd461ad87efa45a5d9cb4a0b7d29",
+      "bytes": 4022
+    },
+    "candidate-d8897cf/command.json": {
+      "sha256": "6917ab35607665c62bd63bacb729c9efcfbe81d5f227aee0f9efd87a42aa4335",
+      "bytes": 9514
+    },
+    "candidate-d8897cf/launch-candidate.py": {
+      "sha256": "6387b423343849abb61a095bbd56beca06738a80151bffa2a8a1617c0a9407b2",
+      "bytes": 4887
+    },
+    "candidate-d8897cf/launcher-receipt.json": {
+      "sha256": "7ccf37c744698ea490dc54b8949daf6de29616a2e70b238978ff7149d0eb524b",
+      "bytes": 5893
+    },
+    "candidate-d8897cf/publication-validation.json": {
+      "sha256": "df304a701f54404f92806a06cc465d796ae39d9ec6117949a6f3720ac96b4d31",
+      "bytes": 990
+    },
+    "candidate-d8897cf/raw/candidate-cadence-attribution.json": {
+      "sha256": "b91910c036ab6cb135e4fd6d54cf53c2160457b06752503260e60f39c801a13f",
+      "bytes": 8041
+    },
+    "candidate-d8897cf/raw/normal-speed-opening.png": {
+      "sha256": "a183fc9d09339a78537a06d00a64ba96fd8d533441158bd71476fde9d73d5c77",
+      "bytes": 1456305
+    },
+    "candidate-d8897cf/raw/normal-speed-resumed.png": {
+      "sha256": "f75125a5927b867ebc7d740f41ff345ca7a555827c74b0504f8e7a14ec090f54",
+      "bytes": 1454316
+    },
+    "candidate-d8897cf/raw/receipt.json": {
+      "sha256": "744343a3640ce66e319258b1b0de220a59b5d782e74dc27ba7d2930ad893b557",
+      "bytes": 7540
+    },
+    "candidate-d8897cf/raw/server.log": {
+      "sha256": "9af849d1e8114498093a187d3dfe677b3fe0511b93c01adbecd88f8f98de012f",
+      "bytes": 833
+    },
+    "candidate-d8897cf/raw/shipped-2x-speed.png": {
+      "sha256": "4db5f274d167efe235ebbae1f1b1f250720d5f2a5513bd4b66e09e3ac39390ed",
+      "bytes": 1438103
+    },
+    "candidate-d8897cf/raw/sprite-observations.json": {
+      "sha256": "cd988093a996f8e03a7e44b0127b0f41319418f447cebb029259982ba40bc906",
+      "bytes": 5526070
+    },
+    "candidate-d8897cf/report.md": {
+      "sha256": "03e86772ca673a6c3673de0d24f9b84c4cbee4fd5589cc94c847ee788658aa6c",
+      "bytes": 5053
+    },
+    "candidate-d8897cf/review/checker-review-3123edf.json": {
+      "sha256": "22ffae58865f07d0829cf77c32cafe661f200e6891065a34cdc29d9d588d480f",
+      "bytes": 1484
+    },
+    "candidate-d8897cf/review/head-correspondence-d8897cf.json": {
+      "sha256": "e1ebd276944a981306f5be8f15797ebf356fc51ecca955245de7e09f07987705",
+      "bytes": 943
+    },
+    "candidate-d8897cf/terminal.json": {
+      "sha256": "e4d1cee899dbbb774966f8e61e921add330f2c4ae4737d66aac68e3253e986cd",
+      "bytes": 1432
+    },
     "launch-baseline.py": {
       "sha256": "e6523418d325b03bb3b11e28caf9dcab040211775cc69b36f9e1371211828e88",
       "bytes": 4050
@@ -114,8 +200,7 @@
     "duplicated native packet"
   ],
   "limits": [
-    "No candidate implementation acceptance",
-    "Splash/full hut smoke/damage smoke not observed",
+    "Ordinary partial hut smoke only; Splash/full/damage smoke unobserved",
     "Sparse RAF samples, not every intermediate native visit",
     "No native OS wall-clock or hardware performance claim"
   ]

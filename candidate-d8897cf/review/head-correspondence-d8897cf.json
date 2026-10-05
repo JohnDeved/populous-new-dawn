@@ -1,0 +1,11 @@
+{
+  "oldSource": "3123edf97dce9dc13fd3510cdb3ad1d15aedc160",
+  "finalSource": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+  "sourceDeltaSha256": "f99485e3a4d706371f7702085d853f34605686a8f9bda1e3fd2a8568d4a97265",
+  "correspondence": "Only animation descriptor .mode property read changed to equivalent mode destructuring and wrapping; phase ownership behavior unchanged. Parent reports independent acceptance with test carry. Browser remains held pending terminal grant.",
+  "previousLauncherSha256": "349ca4e01a798d209dfe69df63a347b831f2536020598e486e2a3a7795fc0d74",
+  "launcherSha256": "6387b423343849abb61a095bbd56beca06738a80151bffa2a8a1617c0a9407b2",
+  "driverSha256": "cb57bd7076cedb08b042b6f8ad843b088fc613ae6863f3fed3742944eb88a060",
+  "analyzerSha256": "3aaf2a16871eccbb381dd849bac1ce9a020e95be8c5865f0c1cdc4394106c93d",
+  "scope": "Exact head, output, receipt and private TMP labels changed; reviewed cleanup predicate unchanged"
+}

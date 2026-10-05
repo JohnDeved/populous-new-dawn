@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "createdAt": "2026-10-05T16:38:02.178596+00:00",
+  "checks": [
+    {
+      "check": "All prior baseline packet files except evolving root README/manifest remain byte-identical; prior commit8b5e213 retained as parent",
+      "status": "passed"
+    },
+    {
+      "check": "Reviewed observer, candidate analyzer and corrected launcher hashes unchanged",
+      "status": "passed"
+    },
+    {
+      "command": "python3 candidate-d8897cf/analysis/reproduce.py /path/to/game-git-checkout",
+      "status": "passed",
+      "exitCode": 0,
+      "analysisSha256": "b91910c036ab6cb135e4fd6d54cf53c2160457b06752503260e60f39c801a13f"
+    },
+    {
+      "check": "Explicit allowlisted evidence, no profiles/caches/dependencies/binaries/authentication data",
+      "status": "passed"
+    },
+    {
+      "check": "Additional browser/source/gate execution",
+      "status": "not-run",
+      "reason": "Evidence-only publication; completed source-bound run preserved"
+    }
+  ]
+}
