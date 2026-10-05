@@ -499,12 +499,17 @@ function stepTurn(w: World) {
   stepLiveTimberSearches(w)
   stepOutcome(w) // 0x4ec6f0: after increment, before this turn's object work.
   stepLiveMarchingFormations(w) // Native formations steer this turn's person physics.
-  // 0x4facf0: auto-collected reward objects grant knowledge/stock after 82 object turns.
+  // Ordinary local spell gifts hand off at phase zero; their UI arrival can
+  // shorten this timer. Only a later object visit delivers the stock.
   for (const gift of w.gifts) {
-    if (gift.phase) gift.phase--
+    if (gift.phase) {
+      gift.phase--
+      if (!gift.phase && gift.ordinaryWorship && gift.recipient === w.manaWorld.playerTribe)
+        w.worshipAcquisition.requests.push(gift.id)
+    }
     if (--gift.remaining !== 0) continue
     gift.duration = gift.age
-    effect(w, 'birth', gift)
+    if (!gift.ordinaryWorship) effect(w, 'birth', gift)
     if (gift.reward === 'mana') {
       const tribe = w.manaTribes[gift.recipient ?? w.manaWorld.playerTribe]
       tribe.pending = (tribe.pending + (gift.amount ?? 0)) | 0
@@ -997,7 +1002,9 @@ function stepTurn(w: World) {
       } else if (shrine.kind === 'angel' && shrine.angelTarget) {
         // ponytail: keep the stone-head mesh until class-7/model-91's sprite presentation is decoded.
         createAngel(w, teamForTribe(w.manaWorld.playerTribe), shrine.angelTarget)
-      } else for (const reward of shrine.rewards ?? [shrine.reward!]) createGift(w, reward, shrine)
+      } else
+        for (const reward of shrine.rewards ?? [shrine.reward!])
+          createGift(w, reward, shrine, 0, shrine.ordinarySpellReward)
       if (shrine.kind !== 'mana' && shrine.kind !== 'inert') sound(w, 0x70, shrine)
     }
     syncStoneHeadPresentation(shrine)

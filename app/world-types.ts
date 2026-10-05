@@ -51,6 +51,8 @@ import type { MessageState } from './messages.ts'
 import type { VaultTask } from './vault.ts'
 import type { UnitKind } from './unit-kinds.ts'
 import type { Armageddon } from './armageddon.ts'
+import type { OrdinaryWorshipSource } from './worship-acquisition-source.ts'
+import type { WorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
 
 export const TRIBE_TEAMS = ['blue', 'red', 'yellow', 'green'] as const
 export type TribeTeam = (typeof TRIBE_TEAMS)[number]
@@ -281,6 +283,7 @@ export type Shrine = Point &
     rewardModel?: number
     rewardDelay?: number
     rewardRecipient?: number
+    ordinarySpellReward?: OrdinaryWorshipSource
     // Completed local-player worship sample consumed by automatic panel presentation.
     panelActivity?: { turn: number; count: number }
     angelTarget?: Point
@@ -399,6 +402,7 @@ export type Gift = Effect & {
   amount?: number
   recipient?: number
   rewardModel?: number
+  ordinaryWorship?: OrdinaryWorshipSource & { completedTurn: number; serial: number }
   remaining: number
   phase: number
   frame: number
@@ -499,6 +503,7 @@ export type World = {
   pendingTime: number
   randomState: number
   cosmeticRandom: { randomState: number }
+  worshipAcquisition: WorshipAcquisitionRuntime
   effectCounter: number
   secondaryEffects: SecondaryEffects
   nextId: number

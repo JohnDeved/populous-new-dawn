@@ -1,4 +1,5 @@
 import { createSecondaryEffects } from './secondary-effects.ts'
+import { createWorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
 import {
   tribeForTeam,
   type World,
@@ -257,6 +258,7 @@ export function createWorldState(missionNumber = 1): World {
     pendingTime: 0,
     randomState: 1,
     cosmeticRandom: { randomState: 1 },
+    worshipAcquisition: createWorshipAcquisitionRuntime(),
     effectCounter: 0,
     secondaryEffects: createSecondaryEffects(),
     nextId: 1,

@@ -577,6 +577,9 @@
         "tests/shaman-death-ground.test.mjs",
         "scripts/check-native-shaman-death-ground.py",
         "scripts/check-browser-shaman-death-ground.mjs",
+        "scripts/controlled-scene-frames.mjs",
+        "scripts/shaman-worship-ground-observer.mjs",
+        "tests/controlled-scene-frames.test.mjs",
         "decomp/research/shaman-death-vfx.md"
       ],
       "sharedPaths": [
@@ -673,6 +676,14 @@
       "title": "Campaign VM and mission integration",
       "mappingStatus": "reviewed",
       "implementationPaths": [
+        "app/worship-acquisition.ts",
+        "app/worship-acquisition-runtime.ts",
+        "app/worship-acquisition-source.ts",
+        "app/worship-acquisition-layout.ts",
+        "app/scene-worship-acquisition.ts",
+        "app/original-worship-acquisition.json",
+        "scripts/import-worship-acquisition.py",
+
         "app/angel.ts",
         "app/campaign-command-runtime.ts",
         "app/computer.ts",
@@ -745,6 +756,18 @@
         "app/worship.ts"
       ],
       "researchPaths": [
+        "tests/worship-acquisition-controller.test.mjs",
+        "tests/worship-acquisition-runtime.test.mjs",
+        "tests/worship-acquisition-source.test.mjs",
+        "tests/fixtures/worship-acquisition-controller.json",
+        "scripts/check-worship-acquisition-assets.py",
+        "scripts/check-worship-acquisition-fixture.mjs",
+        "scripts/probe-native-worship-grant-request-order.py",
+        "decomp/research/worship-grant-request-order.md",
+        "decomp/research/worship-grant-source-order.md",
+        "decomp/research/worship-acquisition-body-raster.md",
+        "decomp/research/worship-acquisition-adapter.md",
+
         "engineering/single-player-feasibility.md",
         "decomp/research/recorded-demo-provenance.md",
         "scripts/check-static-recorded-demo-provenance.py",

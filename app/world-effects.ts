@@ -136,7 +136,13 @@ export function effect(w: World, kind: Effect['kind'], p: Point, silent = false)
   if (kind === 'blast') registerTerrainLight(w, f, 4)
   return f
 }
-export function createGift(w: World, reward: Gift['reward'], p: Point, rewardModel = 0) {
+export function createGift(
+  w: World,
+  reward: Gift['reward'],
+  p: Point,
+  rewardModel = 0,
+  ordinary?: Omit<NonNullable<Gift['ordinaryWorship']>, 'completedTurn' | 'serial'>
+) {
   const gift = effect(w, 'gift', p) as Gift
   Object.assign(gift, {
     reward,
@@ -159,6 +165,10 @@ export function createGift(w: World, reward: Gift['reward'], p: Point, rewardMod
     height: (terrainPointHeight(w.land, nativePosition(w, p)) + 800) / 45,
     duration: Infinity,
   })
+  if (ordinary) {
+    gift.ordinaryWorship = { ...ordinary, completedTurn: w.turn, serial: gift.id }
+    gift.recipient = w.manaWorld.playerTribe
+  }
   w.gifts.push(gift)
   return gift
 }
