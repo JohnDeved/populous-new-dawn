@@ -1,0 +1,28 @@
+{
+  "verdict": "ACCEPT both bounded source proposals only",
+  "items": [
+    {
+      "name": "tail",
+      "head": "67d195cb0ea76615d797ba09e10259fda6a1cbec",
+      "scriptSha256": "2759a0e9353f10c9b87de6c751d7caf33ce62994c78966bc7577ba065139a4e8",
+      "diffSha256": "8e6d79404324a392d21af14b5f45f5711a90970f46043d6ef1f2faa689cbe36a",
+      "syntaxReceiptSha256": "7e4c713e1a6bdbd9c90c5bc72dfd8052800eac05e96b8cd248df623082deec4b",
+      "verdict": "ACCEPT source only",
+      "appPublicPackageCorrespondence": "exact cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+      "browserExecutedByReviewer": false
+    },
+    {
+      "name": "cost",
+      "head": "fa0ec9806a0259f1f7845b870dc62210142bd745",
+      "scriptSha256": "856378d00be6d7403660252e26111b67034a37815038d64dd37ede2c8b7ed375",
+      "diffSha256": "ea3786f009daa91be7ac93b3960fc04d5d73770c61504fed365d2a63f7ae8435",
+      "syntaxReceiptSha256": "d73f5ba609bc25d2bfefe0bf68aa9c3a4531cde28ff50f94ee342555180f76ae",
+      "verdict": "ACCEPT source only",
+      "appPublicPackageCorrespondence": "exact cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+      "browserExecutedByReviewer": false
+    }
+  ],
+  "reviewedAt": "2026-10-05T07:45Z",
+  "resourceOwnership": "none",
+  "completeRenderedAcceptance": "still unproved; tail-only restore and sufficient cost samples need later actual rows"
+}

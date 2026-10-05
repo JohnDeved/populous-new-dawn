@@ -44,3 +44,7 @@ observations are not a complete independent native raster oracle or a hardware
 performance result. No original game/tool binaries, installed packages or browser
 profiles are distributed. Original local receipts and raw logs remain retained
 for independent review; public copies remove process/profile path and identity data.
+
+[Two reviewed measurement methods](prepared-tail-cost/README.md) are queued for
+coordinator-admitted execution. Their source preflights do not close the two
+remaining runtime gaps.

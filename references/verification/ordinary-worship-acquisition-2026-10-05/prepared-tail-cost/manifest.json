@@ -1,0 +1,62 @@
+{
+  "scope": "Two reviewed source-only methods queued; actual outcomes still unproved",
+  "originalLocalManifestSha256": "b78aa097672be26b0e735206ed393adbc5944ced969892556e2605af5034f5c3",
+  "items": [
+    {
+      "name": "tail",
+      "base": "7c7d483b47955e3cc55d635fd323b596d973b399",
+      "head": "67d195cb0ea76615d797ba09e10259fda6a1cbec",
+      "scriptSha256": "2759a0e9353f10c9b87de6c751d7caf33ce62994c78966bc7577ba065139a4e8",
+      "diffSha256": "8e6d79404324a392d21af14b5f45f5711a90970f46043d6ef1f2faa689cbe36a",
+      "sourceUrl": "https://github.com/JohnDeved/populous-new-dawn/blob/67d195cb0ea76615d797ba09e10259fda6a1cbec/scripts/local-render/ordinary-worship-boundaries.mjs",
+      "syntax": {
+        "status": "passed",
+        "exitCode": 0,
+        "sourceHead": "67d195cb0ea76615d797ba09e10259fda6a1cbec",
+        "originalReceiptSha256": "7e4c713e1a6bdbd9c90c5bc72dfd8052800eac05e96b8cd248df623082deec4b",
+        "unchangedSource": true
+      },
+      "applicationCorrespondence": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+      "browserExecuted": false
+    },
+    {
+      "name": "cost",
+      "base": "463da5b11c11af2a0d14e3a74c118bc17e9cb622",
+      "head": "fa0ec9806a0259f1f7845b870dc62210142bd745",
+      "scriptSha256": "856378d00be6d7403660252e26111b67034a37815038d64dd37ede2c8b7ed375",
+      "diffSha256": "ea3786f009daa91be7ac93b3960fc04d5d73770c61504fed365d2a63f7ae8435",
+      "sourceUrl": "https://github.com/JohnDeved/populous-new-dawn/blob/fa0ec9806a0259f1f7845b870dc62210142bd745/scripts/local-render/ordinary-worship-cost.mjs",
+      "syntax": {
+        "status": "passed",
+        "exitCode": 0,
+        "sourceHead": "fa0ec9806a0259f1f7845b870dc62210142bd745",
+        "originalReceiptSha256": "d73f5ba609bc25d2bfefe0bf68aa9c3a4531cde28ff50f94ee342555180f76ae",
+        "unchangedSource": true
+      },
+      "applicationCorrespondence": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+      "browserExecuted": false
+    }
+  ],
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "689820836996eb9462bd3df7822710b2e473a48f688705831248e0faabef6506"
+    },
+    {
+      "path": "cost.diff",
+      "sha256": "ea3786f009daa91be7ac93b3960fc04d5d73770c61504fed365d2a63f7ae8435"
+    },
+    {
+      "path": "independent-review.json",
+      "sha256": "2503a92fad8cb78da15651342c5c03a4d664d8d558bbd14d008af2e9cbbb253d"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "ea4a71fe6cf8e8e8f41343a35231478bd5b08c2364d65598ac7ae279900be1d7"
+    },
+    {
+      "path": "tail.diff",
+      "sha256": "8e6d79404324a392d21af14b5f45f5711a90970f46043d6ef1f2faa689cbe36a"
+    }
+  ]
+}
