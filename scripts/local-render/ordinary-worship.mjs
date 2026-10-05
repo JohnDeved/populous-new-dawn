@@ -307,43 +307,135 @@ async function worshipOrder(page, shrine, kind, report, waitForShamanReadiness) 
     kind === 'brave' ? { modifiers: ['Shift'] } : {})
   // Camera assistance only. This shipped helper also clears mode; call it before
   // selecting the public test mode. Let ordinary RAF update geometry and panels.
+  const attempt = { shrine, kind, readiness, identity, skipped,
+    cameraAssistance: 'scene.focus before mode setup; ordinary RAF only' }
+  report.orders.push(attempt)
+  const neutral = await page.evaluate(() => {
+    const r = window.testSceneRef.current.container.getBoundingClientRect()
+    return { x: Math.round(r.x + r.width / 2), y: Math.round(r.y + r.height / 2) }
+  })
+  await page.mouse.move(neutral.x, neutral.y)
+  // Same settlement boundary as accepted M3 driver81dab9e map(), with
+  // read-only velocity/navigation checks after ordinary pointer placement.
+  const settle = () => page.waitForFunction(() => {
+    const s = window.testSceneRef.current
+    return !s.world.inputMask && !s.cameraMotion.active && !s.resultCamera.active && !s.viewTransition &&
+      !Object.values(s.cameraVelocity).some(Boolean) && !s.navigationButtons()
+  }, null, { timeout: 30000, polling: 50 })
+  await settle()
   await page.evaluate(shrine => window.testSceneRef.current.focus(shrine), shrine)
-  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
-  const point = await page.evaluate(id => {
-    const scene = window.testSceneRef.current, head = scene.world.shrines.find(s => s.id === id),
-      bounds = scene.container.getBoundingClientRect(), mesh = scene.shrineMeshes.get(id)?.g,
-      projected = scene.screen(mesh?.position ?? head),
-      center = { x: bounds.x + (projected.x + 1) * bounds.width / 2, y: bounds.y + (1 - projected.y) * bounds.height / 2 },
-      owns = point => scene.picking.pickPerson(point) === null && scene.pickWorldObject(point)?.id === id &&
-        document.elementFromPoint(point.clientX, point.clientY) === scene.renderer.domElement
-    for (let dy = -140; dy <= 60; dy += 4) for (let dx = -100; dx <= 100; dx += 4) {
-      const p = { clientX: center.x + dx, clientY: center.y + dy }
-      if (owns(p)) return { x: p.clientX, y: p.clientY }
-    }
-    const candidates = []
+  await settle()
+  const point = attempt.point = await page.evaluate(id => {
+    const s = window.testSceneRef.current, head = s.world.shrines.find(h => h.id === id),
+      r = s.container.getBoundingClientRect(), mesh = s.shrineMeshes.get(id)?.g,
+      p = s.screen(mesh?.position ?? head),
+      center = { x: Math.round(r.x + (p.x + 1) * r.width / 2), y: Math.round(r.y + (1 - p.y) * r.height / 2) },
+      owns = (x, y) => {
+        const e = { clientX: x, clientY: y }
+        return x > r.left + 24 && x < r.right - 24 && y > r.top + 24 && y < r.bottom - 24 &&
+          !s.pickUnit(e) && s.picking.pickPerson(e) === null && s.pickWorldObject(e)?.id === id &&
+          document.elementFromPoint(x, y) === s.renderer.domElement
+      }, candidates = []
     mesh?.traverse(child => {
       if (child.userData.nativeModel === undefined || !child.visible) return
-      for (const command of scene.picking.model(child, JSON.stringify(scene.view.projection))) {
+      for (const command of s.picking.model(child, JSON.stringify(s.view.projection))) {
         if (command.kind !== 'model') continue
-        const p = { clientX: bounds.x + command.points.reduce((n, p) => n + p.x, 0) / command.points.length,
-          clientY: bounds.y + command.points.reduce((n, p) => n + p.y, 0) / command.points.length }
-        candidates.push(p)
+        candidates.push({ x: Math.round(r.x + command.points.reduce((n, p) => n + p.x, 0) / command.points.length),
+          y: Math.round(r.y + command.points.reduce((n, p) => n + p.y, 0) / command.points.length) })
       }
     })
-    const hit = candidates.find(owns)
-    if (!hit) throw Error(`No canvas-owned shrine hit for ${id}`)
-    return { x: hit.clientX, y: hit.clientY }
+    for (let dy = -140; dy <= 60; dy += 4) for (let dx = -100; dx <= 100; dx += 4)
+      candidates.push({ x: center.x + dx, y: center.y + dy })
+    candidates.sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y + 32) - Math.hypot(b.x - center.x, b.y - center.y + 32))
+    for (const radius of [6, 4, 2]) for (const candidate of candidates) {
+      if (![-radius, 0, radius].every(dx => [-radius, 0, radius].every(dy => owns(candidate.x + dx, candidate.y + dy)))) continue
+      return { ...candidate, radius, neighbors: 9, center }
+    }
+    throw Error(`No integer interior shrine hit with a two-pixel ownership margin for ${id}`)
   }, shrine.id)
-  await page.mouse.click(point.x, point.y)
-  const accepted = await page.evaluate(({ id, kind }) => {
-    const w = window.testStore.getWorld()
-    return { turn: w.turn, paused: w.paused, selected: [...w.selected], inputMask: w.inputMask,
-      mode: w.mode, message: w.message, lastOrderTurn: w.lastOrderTurn,
-      worshippers: w.units.filter(u => u.team === 'blue' && u.kind === kind && u.work === id).map(u => u.id) }
-  }, { id: shrine.id, kind })
-  // Retain attempted UI order and rejection feedback even when acceptance fails.
-  report.orders.push({ shrine, kind, point, readiness, identity, skipped,
-    cameraAssistance: 'scene.focus before mode setup; ordinary RAF only', accepted })
+  await page.mouse.move(point.x, point.y)
+  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
+  let listening = false
+  try {
+    attempt.preClick = await page.evaluate(async ({ id, point, kind }) => {
+      const { liveCommandContext } = await import('/app/live-command.ts')
+      const s = window.testSceneRef.current, canvas = s.renderer.domElement,
+        e = { clientX: point.x, clientY: point.y },
+        state = event => ({ turn: s.world.turn, currentScene: s === window.testSceneRef.current, sameWorld: s.world === window.testStore.getWorld(),
+          paused: s.world.paused, inputMask: s.world.inputMask, overviewStage: s.overviewStage,
+          mode: s.world.mode, selected: [...s.world.selected], keys: [...s.keys], lastOrderTurn: s.world.lastOrderTurn,
+          message: s.world.message, down: structuredClone(s.down), drag: structuredClone(s.drag),
+          targetPerson: s.picking.pickPerson(event), targetUnit: s.pickUnit(event)?.id ?? null,
+          targetObject: s.pickWorldObject(event)?.id ?? null, ground: s.pick(event),
+          commandContext: (() => {
+            // The source helper synchronizes terrain metadata. Supply a detached
+            // clone so this diagnostic cannot write the live World or its RNG.
+            const person = s.picking.pickPerson(event), target = s.world.units.find(u => u.id === person) ??
+              (s.world.selected.length ? s.pickWorldObject(event) : null) ?? s.pick(event)
+            if (!target) return null
+            const context = liveCommandContext(structuredClone(s.world), { x: target.x, z: target.z, id: target.id })
+            return { target: { id: target.id, x: target.x, z: target.z }, model: context?.model,
+              enabled: context?.enabled, shrine: context?.shrine?.id, building: context?.building?.id }
+          })(),
+          camera: { point: { ...s.viewPoint }, bearing: s.cameraBearing, position: s.camera.position.toArray(),
+            motion: s.cameraMotion.active, resultActive: s.resultCamera.active, transition: !!s.viewTransition,
+            native: { ...s.cameraPosition }, velocity: { ...s.cameraVelocity }, navigation: s.navigationButtons() },
+          worshippers: s.world.units.filter(u => u.team === 'blue' && u.kind === kind && u.work === id).map(u => u.id) }),
+        owns = (x, y) => {
+          const e = { clientX: x, clientY: y }
+          return !s.pickUnit(e) && s.picking.pickPerson(e) === null && s.pickWorldObject(e)?.id === id &&
+            document.elementFromPoint(x, y) === canvas
+        },
+        evidence = window.ordinaryWorshipPointerAttempt = { before: state(e), events: [], errors: [], restored: false },
+        listeners = []
+      for (const type of ['pointerdown', 'pointerup']) for (const capture of [true, false]) {
+        const listener = event => {
+          try {
+            if (evidence.events.length >= 8) throw Error('Pointer evidence bound exceeded')
+            evidence.events.push({ type: event.type, stage: capture ? 'window-capture-before-game' : 'window-bubble-after-game',
+              x: event.clientX, y: event.clientY, button: event.button, buttons: event.buttons, pointerId: event.pointerId,
+              pointerType: event.pointerType, isTrusted: event.isTrusted, targetIsCanvas: event.target === canvas,
+              composedPathIncludesCanvas: event.composedPath().includes(canvas), defaultPrevented: event.defaultPrevented,
+              modifiers: { shift: event.shiftKey, control: event.ctrlKey, alt: event.altKey, meta: event.metaKey }, state: state(event) })
+          } catch (error) { evidence.errors.push(String(error)) }
+        }
+        window.addEventListener(type, listener, capture); listeners.push({ type, listener, capture })
+      }
+      window.restoreOrdinaryWorshipPointerAttempt = () => {
+        for (const { type, listener, capture } of listeners) window.removeEventListener(type, listener, capture)
+        evidence.after = state(e); evidence.restored = true
+        delete window.restoreOrdinaryWorshipPointerAttempt
+        return evidence
+      }
+      return { state: evidence.before, stableInterior: [-point.radius, 0, point.radius].every(dx =>
+        [-point.radius, 0, point.radius].every(dy => owns(point.x + dx, point.y + dy))) }
+    }, { id: shrine.id, point, kind })
+    listening = true
+    assert.equal(attempt.preClick.stableInterior, true, 'Actual integer interior hit must remain valid immediately before input')
+    assert.equal(attempt.preClick.state.camera.motion, 0)
+    assert.equal(attempt.preClick.state.camera.navigation, 0)
+    assert.equal(Object.values(attempt.preClick.state.camera.velocity).some(Boolean), false)
+    assert.equal(attempt.preClick.state.sameWorld, true); assert.equal(attempt.preClick.state.paused, false)
+    assert.equal(attempt.preClick.state.inputMask, 0); assert.equal(!!attempt.preClick.state.overviewStage, false)
+    assert.equal(!!attempt.preClick.state.camera.resultActive, false); assert.equal(attempt.preClick.state.camera.transition, false)
+    const native = attempt.preClick.state.camera.native, short = value => value << 16 >> 16
+    assert.ok(Math.hypot(short(native.x - Math.round((shrine.x + 8) * 256)),
+      short(native.y - Math.round((-shrine.z - 8) * 256))) <= 1, 'Settled camera retains the requested native destination')
+    await page.mouse.click(point.x, point.y)
+  } finally {
+    if (listening) attempt.pointer = await page.evaluate(() => window.restoreOrdinaryWorshipPointerAttempt())
+  }
+  const accepted = attempt.accepted = attempt.pointer.after
+  assert.deepEqual(attempt.pointer.errors, []); assert.equal(attempt.pointer.restored, true)
+  assert.deepEqual(attempt.pointer.events.map(e => [e.type, e.stage]), [
+    ['pointerdown', 'window-capture-before-game'], ['pointerdown', 'window-bubble-after-game'],
+    ['pointerup', 'window-capture-before-game'], ['pointerup', 'window-bubble-after-game'],
+  ], 'Retain the exact original DOM pointer dispatch around existing game listeners')
+  for (const event of attempt.pointer.events) {
+    assert.equal(event.targetIsCanvas, true); assert.equal(event.isTrusted, true)
+    assert.equal(event.x, point.x); assert.equal(event.y, point.y)
+    assert.deepEqual(event.modifiers, { shift: false, control: false, alt: false, meta: false })
+  }
   assert.equal(accepted.paused, false)
   assert.ok(accepted.worshippers.length, `${kind} public worship order must be accepted: ${JSON.stringify(accepted)}`)
 }
