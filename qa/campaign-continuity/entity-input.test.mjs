@@ -129,3 +129,28 @@ test('actual entity preparation rejects disabled context before any final picker
     assert.equal(calls[0], 'detached clone')
   }
 })
+
+test('actual delivery and finalizer bodies preserve the original partial-click error and retain a separate cleanup error', async () => {
+  for (const cleanupFault of [false, true]) for (const partial of [[], [{ type: 'pointerdown', x: 814, y: 300 }]]) {
+    const primary = new Error('original browser input delivery failed'), failures = [], logs = []
+    const execute = new AsyncFunction('deps', `
+      const { assert, primary, failures, logs, cleanupFault, partial } = deps;
+      const level = 1, before = { turn: 20, lastOrderTurn: 19, selected: [30] };
+      const read = async () => before, requireOrderable = () => {}, requireDeclaredPreacherOrder = () => {};
+      const sermonPlan = null, capturePendingSermon = async () => {}, prepareEntityClick = async () => {};
+      const log = entry => logs.push(entry);
+      const page = { mouse: { click: async () => { throw primary; } },
+        evaluate: async () => ({ restored: !cleanupFault, errors: [], events: partial }) };
+      ${section('finishEntityClick', 'clickOrder')}
+      ${section('clickOrder', 'groundHit')}
+      await clickOrder({ id: 29, collection: 'shrines', x: 814, y: 300 });
+    `)
+    await assert.rejects(execute({ assert, primary, failures, logs, cleanupFault, partial }), error => error === primary)
+    assert.equal(logs.some(entry => entry.action === 'entity-delivered-pointer-observation'), true)
+    assert.equal(failures.length, cleanupFault ? 1 : 0)
+    if (cleanupFault) {
+      assert.match(failures[0].error, /Restore the actual picker/)
+      assert.match(failures[0].primaryError, /original browser input delivery failed/)
+    }
+  }
+})

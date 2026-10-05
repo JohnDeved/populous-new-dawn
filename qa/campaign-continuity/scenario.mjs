@@ -375,12 +375,25 @@ export default async function campaignContinuity({ page, output, root, signal, r
       before = await read(); requireOrderable(before)
       await capturePendingSermon(before, { beforeWorldClick: hit })
     }
-    let entityPrepared = false
+    let entityPrepared = false, inputError = null
     try {
       if (hit.id) { await prepareEntityClick(hit, before); entityPrepared = true }
       log({ action: 'world-order-click', hit, selected: before.selected })
       await page.mouse.click(hit.x, hit.y)
-    } finally { if (hit.id) await finishEntityClick(hit, entityPrepared) }
+    } catch (error) { inputError = error; throw error }
+    finally {
+      if (hit.id) try { await finishEntityClick(hit, entityPrepared && !inputError) }
+      catch (error) {
+        if (!inputError) throw error
+        const diagnostic = { level, kind: 'entity-input-diagnostic', hit, at: new Date().toISOString(),
+          error: String(error?.stack ?? error), primaryError: String(inputError?.stack ?? inputError) }
+        failures.push(diagnostic)
+        // Neither diagnostic assertion nor logging failure may replace the
+        // original input/preparation error. Both observations remain retained.
+        try { log({ action: 'entity-pointer-cleanup-error', ...diagnostic }) }
+        finally { throw inputError }
+      }
+    }
     await page.mouse.move(400, 780)
     const after = await read()
     const commandState = state => ({ turn: state.turn, lastOrderTurn: state.lastOrderTurn,
