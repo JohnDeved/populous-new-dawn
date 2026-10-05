@@ -1,0 +1,22 @@
+{
+  "status": "PASS BROWSER PREFIX",
+  "reviewedAt": "2026-10-05T22:35:27.536Z",
+  "prefixSha256": "ba8f7923054d57c0b9c2dadc09a7fa589c14c03d897c829332bf3ccac34435d7",
+  "artifactCopies": 21,
+  "journalLines": 53,
+  "journalSha256": "17cf11e3231ece89d8f95ab02f8d77cbd2056bf83d6eafd8d42065d1e0f8bc01",
+  "currentEpoch": "reload-3-8",
+  "logicalEffectSamples": 64,
+  "effectOnsetTurn": 8824,
+  "effectZeroRemovalTurn": 8888,
+  "changedCells": 99,
+  "heightChangedCells": 98,
+  "walkMaskChangedCells": 55,
+  "individualWalkMaskBitsChanged": 231,
+  "totalActiveSeconds": 2827.916666666667,
+  "M3ActiveSeconds": 988.9166666666666,
+  "originalConversionAnchor": 704.0833333333333,
+  "cutoffTurn": 9047,
+  "cutoffState": "paused playing; completed[1,2]",
+  "claimScope": "Current conversion, actual named-Brave input and shrine-linked lifecycle through cutoff only; no terminal/victory/native replay claim."
+}

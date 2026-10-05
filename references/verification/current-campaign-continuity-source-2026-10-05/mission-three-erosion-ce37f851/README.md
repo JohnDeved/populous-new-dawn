@@ -12,9 +12,12 @@ use and Erosion effect 3322 at turn 8824, all 64 present samples from remaining
 64 through 1, and actual zero/removal at turns 8887 → 8888. Native center and
 controller identity remained bound. The [full snapshot](batch-0002.json) retains
 the observed initial/final local terrain inputs and 99 correlated changed cells.
-That correlation alone does not exclude other terrain producers. Independent
-lifecycle/native correspondence review is pending; no historical replay is
-credited as this run and missing native inputs will not be invented.
+That correlation alone does not exclude other terrain producers. Independent [browser-prefix review](independent-review/review.json) and
+[source/lifecycle correspondence](independent-review/native-assessment.json) are
+accepted. Exact native replay is not supported by these retained inputs: the
+169-cell windows omit RNG state and the full native terrain. No historical
+replay is credited as this run. The 99-cell union comprises 98 height cells and
+55 cells with changed mask arrays (231 bits).
 
 ![Later paused view after the Erosion effect](m3-brave-erosion-retired.png)
 

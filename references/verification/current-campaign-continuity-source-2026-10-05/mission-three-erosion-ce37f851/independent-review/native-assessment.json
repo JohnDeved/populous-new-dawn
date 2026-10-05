@@ -1,0 +1,39 @@
+{
+  "kind": "native-input-and-source-correspondence-assessment",
+  "decision": "ACCEPT SOURCE/LIFECYCLE CORRESPONDENCE ONLY",
+  "nativeReplay": "not-run; exact current-run replay blocked by missing inputs",
+  "reviewedAt": "2026-10-05T22:36:50.632099+00:00",
+  "sourceHead": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "applicationMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "prefixSha256": "ba8f7923054d57c0b9c2dadc09a7fa589c14c03d897c829332bf3ccac34435d7",
+  "sourcePath": [
+    "app/world-turn.ts:928",
+    "app/erosion.ts:103",
+    "app/world-turn.ts:662",
+    "app/erosion.ts:114",
+    "app/world-turn.ts:670",
+    "app/world-turn.ts:850"
+  ],
+  "sourceHashes": {
+    "app/world-turn.ts": "d322af8560cce8e0e3bc1188ebab7676c1cce3b904563c380562f4c1a932fea8",
+    "app/erosion.ts": "33823b3db91d1a711d4babcd8b435d5344f2e29db8fc593f34d43532623db5e2",
+    "qa/campaign-continuity/erosion-observer.mjs": "19c25f71fcf0b60f24b65c7f8e2753b5bc51edbaca7d7ca540fd0136d6d50a97",
+    "scripts/check-native-erosion.py": "9894dd7f6d4e4f3fd8548478941971060283b03bf5cdeecff9c999c801620f3d"
+  },
+  "correspondence": "Shrine use creates remaining64/age0 Erosion; first processing occurs on the following logical turn. Decrement-before-work processes remaining63 through1, then zero retires/removes the same controller. Retained effect3322 shows onset8824/64, last8887/1 and zero/removal8888. Terrain versions182\u2192245\u2192245 agree with63 active processing turns.",
+  "currentTerrainEvidence": {
+    "windowCells": 169,
+    "heightChangedCells": 98,
+    "walkMaskArrayChangedCells": 55,
+    "individualWalkMaskBitsChanged": 231,
+    "unionChangedCells": 99,
+    "scope": "Correlated local observations only; not exclusive causality."
+  },
+  "missingForExactNativeReplay": [
+    "Run-specific RNG state/input immediately before Erosion processing, including shared-world RNG ordering.",
+    "Complete initial/final16,384-height arrays required by the existing native probe input model.",
+    "A maintained probe interface accepting this retained current-run input set; current check-native-erosion.py takes an executable path and generates16 synthetic terrain/center/seed cases."
+  ],
+  "probeLimits": "Native0x50ff30 probe intercepts sound0x48a050, terrain consumers0x44ddf0/0x44f2f0 and removal0x4edcf0. It does not prove native walk-mask processing or whole-game composition. No historical104-cell replay can establish this99-cell run.",
+  "execution": "Bounded read-only source/probe assessment onCPU4; no native invocation, Ghidra, browser/profile/dependency access or source edits."
+}

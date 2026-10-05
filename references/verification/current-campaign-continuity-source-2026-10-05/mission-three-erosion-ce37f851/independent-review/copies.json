@@ -1,0 +1,27 @@
+[
+  {
+    "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/native-assessment.json",
+    "path": "native-assessment.json",
+    "sha256": "f4fd08f200f7049f61785a2d220e69ddae1fc43169d6bc786e2b35eab1b3e70d"
+  },
+  {
+    "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/publication-review.json",
+    "path": "publication-review.json",
+    "sha256": "ef823deb5af66a63de075d8d5abbdc9d1095fba0ab61d547f61d02232c7de1b5"
+  },
+  {
+    "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/review.json",
+    "path": "review.json",
+    "sha256": "fda40c4468286b0415a33a4a345de1775b7c9627b3431a126c0531a587446900"
+  },
+  {
+    "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/verification.json",
+    "path": "verification.json",
+    "sha256": "eaec58c4828204a8846d5702a349aa7b311a855f43fb310d185c2e68077503df"
+  },
+  {
+    "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-three-segment-02-erosion-prefix/verify.mjs",
+    "path": "verify.mjs",
+    "sha256": "1024be0f8bc6ae9d1f915c68aaa1589740cd7523b39e579641f9d245aa9676a2"
+  }
+]
