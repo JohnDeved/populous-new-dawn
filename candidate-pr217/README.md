@@ -8,8 +8,20 @@ still-open [broad sprite report](https://github.com/JohnDeved/populous-new-dawn/
 The [accepted original producer/stamp packet](../native-logical-gate/findings.md)
 is separate from this implementation validation. The
 [ordinary a53 baseline](https://github.com/JohnDeved/populous-new-dawn/blob/8b5e2134e21b1e128e5e100e4530af1042b75ee5/README.md)
-observes95 same-turn native frame changes at1×. Candidate ordinary capture is
-pending; this packet does not yet claim ordinary visual acceptance.
+observes95 same-turn native frame changes at1×. The
+[ordinary d889 candidate report and raw capture](https://github.com/JohnDeved/populous-new-dawn/blob/102736ea2d83249ad30c498bf0161d00bed0af47/candidate-d8897cf/report.md)
+passes the same discriminating analyzer with284 stable same-turn owner pairs
+holding frames,1,544 logical stamp pairs,2,480 native frame/draw matches and4,960
+piece-UV matches. Natural native walking and shipped1×/2×/pause/resume are covered;
+partial hut smoke retains its own clock. No Splash/full-hut/damage-smoke sample
+occurred. Static screenshots corroborate appearance; raw frame sequences establish
+cadence. This is functional software-rendered evidence, not original OS or hardware
+frame-rate calibration.
+
+The [final independent review](reviews/final-review-d8897cf.md) **ACCEPTS** the
+exact d889 candidate for bounded PR217 integration. It verifies source, all gate
+and carry dispositions, the97-check planner selection, ordinary raw observations,
+negative control, screenshots and terminal cleanup. No blocking findings remain.
 
 ## Source and checks
 
