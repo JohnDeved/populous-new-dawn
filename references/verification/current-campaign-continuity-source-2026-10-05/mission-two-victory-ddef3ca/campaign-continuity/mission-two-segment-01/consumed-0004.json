@@ -1,0 +1,70 @@
+[
+  {
+    "action": "mark",
+    "name": "warriors"
+  },
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select-units",
+    "ids": [
+      278,
+      319
+    ]
+  },
+  {
+    "action": "order-entity",
+    "collection": "shrines",
+    "id": "tornado"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "shrine-used",
+      "id": "tornado"
+    },
+    "scope": "worship",
+    "watchIds": [
+      "tornado",
+      278,
+      319
+    ]
+  },
+  {
+    "action": "snapshot",
+    "name": "m2-first-tornado-delivery"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "stock-at-least",
+      "spell": "tornado",
+      "count": 3
+    },
+    "scope": "worship",
+    "watchIds": [
+      "tornado",
+      278,
+      319
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "tornado-stock"
+  },
+  {
+    "action": "checkpoint",
+    "name": "army-and-tornado"
+  },
+  {
+    "action": "reload-checkpoint"
+  },
+  {
+    "action": "snapshot",
+    "name": "m2-army-and-tornado-reloaded"
+  }
+]

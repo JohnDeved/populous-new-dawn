@@ -1,0 +1,12 @@
+{
+  "decision": "ACCEPT",
+  "reviewedAt": "2026-10-05T20:33:43.354594+00:00",
+  "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity-evidence/references/verification/current-campaign-continuity-source-2026-10-05/mission-two-victory-ddef3ca",
+  "manifestSha256": "ab8f9ad1a5162c96b201e589c44a2cbc77930f1ed05451d99acf8b53f1dcaf8a",
+  "readmeSha256": "4c7b15dd64f90594cd6c8db5056f7ee1b9ea594746d3f6d98004d0982632e1a8",
+  "copiesVerified": 81,
+  "bytes": 6700973,
+  "relativeLinksVerified": 13,
+  "claimScope": "Genuine M2 victory and M3 checkpoint with a FAILED harness envelope; two pre-input failures and separate future prior-harness-failure label retained; no clean campaign/native/hardware claim.",
+  "privateBrowserProfileOrStorageCopied": false
+}

@@ -1,0 +1,54 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "count": "all"
+  },
+  {
+    "action": "order-entity",
+    "collection": "buildings",
+    "id": 1019
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "move",
+    "point": {
+      "x": 85,
+      "z": 104
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 54,
+      "point": {
+        "x": 85,
+        "z": 104
+      },
+      "distance": 1.5
+    },
+    "scope": "movement",
+    "watchIds": [
+      54
+    ]
+  },
+  {
+    "action": "cast",
+    "spell": "blast",
+    "target": 4279
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m2-last-followers-check"
+  }
+]

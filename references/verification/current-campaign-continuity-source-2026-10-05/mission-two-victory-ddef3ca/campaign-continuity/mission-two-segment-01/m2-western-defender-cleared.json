@@ -1,0 +1,1738 @@
+{
+  "level": 2,
+  "turn": 13115,
+  "time": 1092.9166666666667,
+  "paused": true,
+  "speed": 1,
+  "status": "playing",
+  "inputMask": 0,
+  "lastOrderTurn": 12414,
+  "pointerAck": {
+    "target": 1023,
+    "until": 1199772.9333333422
+  },
+  "selected": [
+    3509,
+    3541,
+    4480,
+    4481,
+    4482,
+    4483
+  ],
+  "mode": null,
+  "stats": {
+    "built": 5,
+    "cast": 2,
+    "bridges": 1,
+    "trained": 15,
+    "battlesWon": [
+      23,
+      0,
+      0,
+      13
+    ]
+  },
+  "shots": {
+    "blast": 4,
+    "convertWild": 0,
+    "hypnotise": 0,
+    "ghostArmy": 0,
+    "bridge": 0,
+    "lightning": 0,
+    "flatten": 0,
+    "erosion": 0,
+    "swamp": 0,
+    "firestorm": 0,
+    "earthquake": 0,
+    "angel": 0,
+    "volcano": 0,
+    "tornado": 1,
+    "shield": 0,
+    "invisibility": 0,
+    "armageddon": 0,
+    "bloodlust": 0,
+    "teleport": 0,
+    "swarm": 0
+  },
+  "unlockedTemple": false,
+  "unlockedCamp": true,
+  "worshipPresentation": {
+    "clock": {
+      "elapsed": 1843492.756000255,
+      "nextVisit": 1843498,
+      "lastVisit": 1843473,
+      "limiter": 0,
+      "normalRate": 40
+    },
+    "requests": [],
+    "spell": {
+      "active": false,
+      "step": 5,
+      "visits": 0,
+      "model": 4,
+      "giftId": 3522
+    },
+    "companion": {
+      "active": false,
+      "step": 3,
+      "visits": 0,
+      "model": 4
+    },
+    "pulse": {
+      "active": false,
+      "model": 4,
+      "frame": 3,
+      "remaining": 0
+    }
+  },
+  "completedMissions": [
+    1
+  ],
+  "readiness": {
+    "ready": false,
+    "turn": 13115,
+    "inputMask": 0,
+    "selected": [
+      3509,
+      3541,
+      4480,
+      4481,
+      4482,
+      4483
+    ],
+    "levelStartPhase": 4,
+    "shaman": {
+      "id": 54,
+      "hp": 100,
+      "canOrder": true,
+      "selectable": true,
+      "state": 19,
+      "flags2": 131072,
+      "flags4": 671088896,
+      "commandStatus": 0
+    }
+  },
+  "camera": {
+    "point": {
+      "x": 45.30078125,
+      "z": 114.99609375
+    },
+    "position": {
+      "x": 13645,
+      "y": 34049,
+      "angle": 0
+    },
+    "bearing": 0,
+    "motion": {
+      "active": 0,
+      "target": {
+        "x": 13645,
+        "y": 34049,
+        "angle": 0
+      },
+      "source": {
+        "x": 23273,
+        "y": 37660,
+        "angle": 0
+      },
+      "moveUp": 2855,
+      "moveDown": 6815,
+      "turnUp": 0,
+      "turnDown": 0,
+      "moveSpeed": 1536,
+      "turnSpeed": 0,
+      "moveIndex": 10,
+      "turnIndex": 10,
+      "moveCount": 2,
+      "turnCount": 0,
+      "phase": 1,
+      "frame": 20,
+      "moves": [
+        [
+          1536,
+          0
+        ],
+        [
+          1459,
+          1
+        ],
+        [
+          1305,
+          1
+        ],
+        [
+          921,
+          2
+        ],
+        [
+          691,
+          1
+        ],
+        [
+          384,
+          3
+        ],
+        [
+          184,
+          2
+        ],
+        [
+          153,
+          1
+        ],
+        [
+          91,
+          3
+        ],
+        [
+          61,
+          1
+        ],
+        [
+          30,
+          3
+        ]
+      ],
+      "turns": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          0
+        ]
+      ]
+    },
+    "overview": null
+  },
+  "animationFrame": 15859,
+  "frame": 15003,
+  "units": [
+    {
+      "id": 8,
+      "team": "green",
+      "kind": "brave",
+      "x": 63.06640625,
+      "z": 110.5546875,
+      "hp": 41.8,
+      "personOwner": "native",
+      "fight": null,
+      "conversionNative": {
+        "model": 2,
+        "tribe": 3,
+        "life": 836,
+        "state": 17,
+        "vehicle": 0,
+        "workTarget": 0,
+        "flags2": 1107427328,
+        "flags4": 536871168
+      },
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 15616,
+        "destinationY": 35072,
+        "goalX": 14080,
+        "goalY": 33536
+      },
+      "nativeState": 17,
+      "owner": 0,
+      "timer": 0,
+      "flags2": 1107427328,
+      "flags3": 262144,
+      "flags4": 536871168,
+      "order": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 9,
+      "team": "green",
+      "kind": "brave",
+      "x": 60.99609375,
+      "z": 105.04296875,
+      "hp": 50,
+      "fight": null,
+      "conversionNative": null,
+      "preachingEligible": false,
+      "inside": 1019,
+      "work": 1019,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 17,
+      "team": "green",
+      "kind": "brave",
+      "x": 60.984375,
+      "z": 104.9609375,
+      "hp": 50,
+      "fight": null,
+      "conversionNative": null,
+      "preachingEligible": false,
+      "inside": 1019,
+      "work": 1019,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 54,
+      "team": "blue",
+      "kind": "shaman",
+      "x": 85.125,
+      "z": 108.74609375,
+      "hp": 100,
+      "personOwner": "native",
+      "fight": null,
+      "conversionNative": {
+        "model": 7,
+        "tribe": 0,
+        "life": 2000,
+        "state": 19,
+        "vehicle": 0,
+        "workTarget": 0,
+        "flags2": 131072,
+        "flags4": 671088896
+      },
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 23840,
+        "destinationY": 35649,
+        "goalX": 23840,
+        "goalY": 35649
+      },
+      "nativeState": 19,
+      "owner": 0,
+      "timer": 0,
+      "flags2": 131072,
+      "flags3": 262144,
+      "flags4": 671088896,
+      "order": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 278,
+      "team": "blue",
+      "kind": "brave",
+      "x": -61,
+      "z": -105.3125,
+      "hp": 50,
+      "personOwner": "native",
+      "fight": null,
+      "conversionNative": {
+        "model": 2,
+        "tribe": 0,
+        "life": 1000,
+        "state": 19,
+        "vehicle": 0,
+        "workTarget": 0,
+        "flags2": 131072,
+        "flags4": 537133312
+      },
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 51968,
+        "destinationY": 24832,
+        "goalX": 51968,
+        "goalY": 24832
+      },
+      "nativeState": 19,
+      "owner": 0,
+      "timer": 0,
+      "flags2": 131072,
+      "flags3": 262144,
+      "flags4": 537133312,
+      "order": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 319,
+      "team": "blue",
+      "kind": "brave",
+      "x": -61,
+      "z": -104.6875,
+      "hp": 50,
+      "personOwner": "native",
+      "fight": null,
+      "conversionNative": {
+        "model": 2,
+        "tribe": 0,
+        "life": 1000,
+        "state": 19,
+        "vehicle": 0,
+        "workTarget": 0,
+        "flags2": 131072,
+        "flags4": 537133312
+      },
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 51968,
+        "destinationY": 24832,
+        "goalX": 51968,
+        "goalY": 24832
+      },
+      "nativeState": 19,
+      "owner": 0,
+      "timer": 0,
+      "flags2": 131072,
+      "flags3": 262144,
+      "flags4": 537133312,
+      "order": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 3509,
+      "team": "blue",
+      "kind": "warrior",
+      "x": 50.97265625,
+      "z": 112.71875,
+      "hp": 90.25,
+      "personOwner": "native",
+      "fight": null,
+      "conversionNative": {
+        "model": 3,
+        "tribe": 0,
+        "life": 1805,
+        "state": 10,
+        "vehicle": 0,
+        "workTarget": 4369,
+        "flags2": 33686016,
+        "flags4": 536871168
+      },
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 15249,
+        "destinationY": 34686,
+        "goalX": 15249,
+        "goalY": 34686
+      },
+      "nativeState": 10,
+      "owner": 4369,
+      "timer": 5,
+      "flags2": 33686016,
+      "flags3": 262144,
+      "flags4": 536871168,
+      "order": {
+        "model": 21,
+        "flags": 48,
+        "references": 1,
+        "object": 0,
+        "a": 34360,
+        "b": 1028
+      },
+      "attackBuildingId": null
+    },
+    {
+      "id": 3534,
+      "team": "blue",
+      "kind": "brave",
+      "x": -91.75,
+      "z": -119,
+      "hp": 50,
+      "fight": null,
+      "conversionNative": null,
+      "preachingEligible": false,
+      "inside": 1020,
+      "work": 1020,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 3541,
+      "team": "blue",
+      "kind": "warrior",
+      "x": 50.84765625,
+      "z": 113.39453125,
+      "hp": 90.05,
+      "personOwner": "native",
+      "fight": null,
+      "conversionNative": {
+        "model": 3,
+        "tribe": 0,
+        "life": 1801,
+        "state": 10,
+        "vehicle": 0,
+        "workTarget": 4369,
+        "flags2": 33686016,
+        "flags4": 536871168
+      },
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 15249,
+        "destinationY": 34686,
+        "goalX": 15249,
+        "goalY": 34686
+      },
+      "nativeState": 10,
+      "owner": 4369,
+      "timer": 4,
+      "flags2": 33686016,
+      "flags3": 262144,
+      "flags4": 536871168,
+      "order": {
+        "model": 21,
+        "flags": 48,
+        "references": 5,
+        "object": 0,
+        "a": 33848,
+        "b": 1028
+      },
+      "attackBuildingId": null
+    },
+    {
+      "id": 3560,
+      "team": "blue",
+      "kind": "brave",
+      "x": -91.7578125,
+      "z": -119.0078125,
+      "hp": 50,
+      "fight": null,
+      "conversionNative": null,
+      "preachingEligible": false,
+      "inside": 1020,
+      "work": 1020,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 4279,
+      "team": "green",
+      "kind": "brave",
+      "x": 87.48828125,
+      "z": 99.46875,
+      "hp": 50,
+      "personOwner": "native",
+      "fight": null,
+      "conversionNative": {
+        "model": 2,
+        "tribe": 3,
+        "life": 1000,
+        "state": 1,
+        "vehicle": 0,
+        "workTarget": 0,
+        "flags2": 1073872896,
+        "flags4": 536871168
+      },
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 24320,
+        "destinationY": 38144,
+        "goalX": 24320,
+        "goalY": 38144
+      },
+      "nativeState": 1,
+      "owner": 0,
+      "timer": 19,
+      "flags2": 1073872896,
+      "flags3": 262144,
+      "flags4": 536871168,
+      "order": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 4369,
+      "team": "green",
+      "kind": "brave",
+      "x": 50.7578125,
+      "z": 111.96875,
+      "hp": 50,
+      "personOwner": "fight",
+      "fight": {
+        "group": 5368,
+        "groupExists": true,
+        "opponent": 4483,
+        "personId": 4369,
+        "state": 29,
+        "flags2": 1075970688
+      },
+      "conversionNative": null,
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 14592,
+        "destinationY": 34560,
+        "goalX": 14824,
+        "goalY": 34369
+      },
+      "nativeState": 29,
+      "owner": 0,
+      "timer": 0,
+      "flags2": 1075970688,
+      "flags3": 264192,
+      "flags4": 536936704,
+      "order": {
+        "model": 21,
+        "flags": 48,
+        "references": 1,
+        "object": 0,
+        "a": 34876,
+        "b": 1028
+      },
+      "attackBuildingId": null
+    },
+    {
+      "id": 4480,
+      "team": "blue",
+      "kind": "warrior",
+      "x": 51.01171875,
+      "z": 113.1875,
+      "hp": 79.05,
+      "personOwner": "native",
+      "fight": null,
+      "conversionNative": {
+        "model": 3,
+        "tribe": 0,
+        "life": 1581,
+        "state": 10,
+        "vehicle": 0,
+        "workTarget": 4369,
+        "flags2": 33686016,
+        "flags4": 536871168
+      },
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 15249,
+        "destinationY": 34686,
+        "goalX": 15249,
+        "goalY": 34686
+      },
+      "nativeState": 10,
+      "owner": 4369,
+      "timer": 5,
+      "flags2": 33686016,
+      "flags3": 262144,
+      "flags4": 536871168,
+      "order": {
+        "model": 21,
+        "flags": 48,
+        "references": 5,
+        "object": 0,
+        "a": 33848,
+        "b": 1028
+      },
+      "attackBuildingId": null
+    },
+    {
+      "id": 4481,
+      "team": "blue",
+      "kind": "warrior",
+      "x": 51.03125,
+      "z": 113.13671875,
+      "hp": 90.15,
+      "personOwner": "native",
+      "fight": null,
+      "conversionNative": {
+        "model": 3,
+        "tribe": 0,
+        "life": 1803,
+        "state": 10,
+        "vehicle": 0,
+        "workTarget": 4369,
+        "flags2": 33686016,
+        "flags4": 536871168
+      },
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 15249,
+        "destinationY": 34686,
+        "goalX": 15249,
+        "goalY": 34686
+      },
+      "nativeState": 10,
+      "owner": 4369,
+      "timer": 5,
+      "flags2": 33686016,
+      "flags3": 262144,
+      "flags4": 536871168,
+      "order": {
+        "model": 21,
+        "flags": 48,
+        "references": 5,
+        "object": 0,
+        "a": 33848,
+        "b": 1028
+      },
+      "attackBuildingId": null
+    },
+    {
+      "id": 4482,
+      "team": "blue",
+      "kind": "warrior",
+      "x": 51,
+      "z": 113.1796875,
+      "hp": 90.25,
+      "personOwner": "native",
+      "fight": null,
+      "conversionNative": {
+        "model": 3,
+        "tribe": 0,
+        "life": 1805,
+        "state": 10,
+        "vehicle": 0,
+        "workTarget": 4369,
+        "flags2": 33686016,
+        "flags4": 536871168
+      },
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 15249,
+        "destinationY": 34686,
+        "goalX": 15249,
+        "goalY": 34686
+      },
+      "nativeState": 10,
+      "owner": 4369,
+      "timer": 5,
+      "flags2": 33686016,
+      "flags3": 262144,
+      "flags4": 536871168,
+      "order": {
+        "model": 21,
+        "flags": 48,
+        "references": 5,
+        "object": 0,
+        "a": 33848,
+        "b": 1028
+      },
+      "attackBuildingId": null
+    },
+    {
+      "id": 4483,
+      "team": "blue",
+      "kind": "warrior",
+      "x": 50.6953125,
+      "z": 113.55859375,
+      "hp": 89.35,
+      "personOwner": "fight",
+      "fight": {
+        "group": 5368,
+        "groupExists": true,
+        "opponent": 4369,
+        "personId": 4483,
+        "state": 29,
+        "flags2": 1075970688
+      },
+      "conversionNative": null,
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 15249,
+        "destinationY": 34686,
+        "goalX": 15249,
+        "goalY": 34686
+      },
+      "nativeState": 29,
+      "owner": 0,
+      "timer": 0,
+      "flags2": 1075970688,
+      "flags3": 264192,
+      "flags4": 536936704,
+      "order": {
+        "model": 21,
+        "flags": 48,
+        "references": 5,
+        "object": 0,
+        "a": 33848,
+        "b": 1028
+      },
+      "attackBuildingId": null
+    },
+    {
+      "id": 4492,
+      "team": "blue",
+      "kind": "brave",
+      "x": -91.7265625,
+      "z": -118.80859375,
+      "hp": 50,
+      "fight": null,
+      "conversionNative": null,
+      "preachingEligible": false,
+      "inside": 1020,
+      "work": 1020,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 4512,
+      "team": "blue",
+      "kind": "brave",
+      "x": -91.72265625,
+      "z": -118.8125,
+      "hp": 50,
+      "fight": null,
+      "conversionNative": null,
+      "preachingEligible": false,
+      "inside": 1020,
+      "work": 1020,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 4677,
+      "team": "blue",
+      "kind": "brave",
+      "x": -91.75390625,
+      "z": -119.00390625,
+      "hp": 50,
+      "fight": null,
+      "conversionNative": null,
+      "preachingEligible": false,
+      "inside": 1020,
+      "work": 1020,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 4683,
+      "team": "blue",
+      "kind": "brave",
+      "x": -89,
+      "z": -113.390625,
+      "hp": 50,
+      "personOwner": "native",
+      "fight": null,
+      "conversionNative": {
+        "model": 2,
+        "tribe": 0,
+        "life": 1000,
+        "state": 19,
+        "vehicle": 0,
+        "workTarget": 0,
+        "flags2": 131072,
+        "flags4": 536871168
+      },
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 44800,
+        "destinationY": 26880,
+        "goalX": 44800,
+        "goalY": 26880
+      },
+      "nativeState": 19,
+      "owner": 0,
+      "timer": 0,
+      "flags2": 131072,
+      "flags3": 262144,
+      "flags4": 536871168,
+      "order": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 4780,
+      "team": "blue",
+      "kind": "brave",
+      "x": -88.6640625,
+      "z": -112.8046875,
+      "hp": 50,
+      "personOwner": "native",
+      "fight": null,
+      "conversionNative": {
+        "model": 2,
+        "tribe": 0,
+        "life": 1000,
+        "state": 19,
+        "vehicle": 0,
+        "workTarget": 0,
+        "flags2": 131072,
+        "flags4": 536871168
+      },
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 44800,
+        "destinationY": 26880,
+        "goalX": 44800,
+        "goalY": 26880
+      },
+      "nativeState": 19,
+      "owner": 0,
+      "timer": 0,
+      "flags2": 131072,
+      "flags3": 262144,
+      "flags4": 536871168,
+      "order": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 5324,
+      "team": "blue",
+      "kind": "brave",
+      "x": -89.33984375,
+      "z": -112.80078125,
+      "hp": 50,
+      "personOwner": "native",
+      "fight": null,
+      "conversionNative": {
+        "model": 2,
+        "tribe": 0,
+        "life": 1000,
+        "state": 19,
+        "vehicle": 0,
+        "workTarget": 0,
+        "flags2": 131072,
+        "flags4": 536871168
+      },
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "route": {
+        "motionIndex": 0,
+        "destinationX": 44800,
+        "destinationY": 26880,
+        "goalX": 44800,
+        "goalY": 26880
+      },
+      "nativeState": 19,
+      "owner": 0,
+      "timer": 0,
+      "flags2": 131072,
+      "flags3": 262144,
+      "flags4": 536871168,
+      "order": null,
+      "attackBuildingId": null
+    },
+    {
+      "id": 5366,
+      "team": "blue",
+      "kind": "brave",
+      "x": -90.40234375,
+      "z": -116,
+      "hp": 50,
+      "fight": null,
+      "conversionNative": null,
+      "preachingEligible": false,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "cargo": 0,
+      "harvest": null,
+      "delivery": null,
+      "tree": null,
+      "attackBuildingId": null
+    }
+  ],
+  "buildings": [
+    {
+      "id": 1,
+      "kind": "camp",
+      "team": "green",
+      "x": 68.921875,
+      "z": 100.703125,
+      "hp": 260,
+      "progress": 1,
+      "logs": 8,
+      "builders": [],
+      "occupants": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "inside": 0,
+      "trainingMana": 0,
+      "trainingCost": 0,
+      "queue": 0
+    },
+    {
+      "id": 72,
+      "kind": "hut",
+      "team": "blue",
+      "x": -101.078125,
+      "z": -112.9375,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "builders": [],
+      "occupants": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "inside": 0,
+      "trainingMana": 236,
+      "trainingCost": 0,
+      "queue": 0
+    },
+    {
+      "id": 1022,
+      "kind": "camp",
+      "team": "blue",
+      "x": -99.296875,
+      "z": -104.921875,
+      "hp": 260,
+      "progress": 1,
+      "logs": 8,
+      "builders": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "occupants": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "inside": 0,
+      "trainingMana": 0,
+      "trainingCost": 0,
+      "queue": 0
+    },
+    {
+      "id": 1021,
+      "kind": "hut",
+      "team": "blue",
+      "x": -95.078125,
+      "z": -124.9453125,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "builders": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "occupants": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "inside": 0,
+      "trainingMana": 236,
+      "trainingCost": 0,
+      "queue": 0
+    },
+    {
+      "id": 1020,
+      "kind": "hut",
+      "team": "blue",
+      "x": -91.078125,
+      "z": -116.9375,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "builders": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "occupants": [
+        4677,
+        3534,
+        4492,
+        3560,
+        4512,
+        0
+      ],
+      "inside": 5,
+      "trainingMana": 24,
+      "trainingCost": 0,
+      "queue": 0
+    },
+    {
+      "id": 1019,
+      "kind": "hut",
+      "team": "green",
+      "x": 61.078125,
+      "z": 104.8828125,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "builders": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "occupants": [
+        17,
+        9,
+        0,
+        0,
+        0,
+        0
+      ],
+      "inside": 2,
+      "trainingMana": 120,
+      "trainingCost": 0,
+      "queue": 0
+    }
+  ],
+  "shrines": [
+    {
+      "id": 23,
+      "kind": "vault",
+      "x": 89,
+      "z": 111,
+      "active": true,
+      "uses": 0,
+      "work": 0,
+      "progress": 0,
+      "followers": 0,
+      "remaining": 1
+    },
+    {
+      "id": 55,
+      "kind": "bridgeEffect",
+      "x": -113,
+      "z": 113,
+      "active": false,
+      "uses": 1,
+      "work": 0,
+      "progress": 0,
+      "followers": 1,
+      "remaining": 0
+    },
+    {
+      "id": 56,
+      "kind": "tornado",
+      "x": -59,
+      "z": -105,
+      "active": false,
+      "uses": 3,
+      "work": 0,
+      "progress": 0,
+      "followers": 2,
+      "remaining": 0
+    }
+  ],
+  "effects": [
+    {
+      "id": 3703,
+      "kind": "buildingSmoke",
+      "x": 116.625,
+      "z": 122.375,
+      "age": 400.66666666664537
+    },
+    {
+      "id": 4116,
+      "kind": "buildingSmoke",
+      "x": 116.625,
+      "z": 122.375,
+      "age": 365.16666666665344
+    },
+    {
+      "id": 4187,
+      "kind": "buildingSmoke",
+      "x": 116.625,
+      "z": 122.375,
+      "age": 360.7499999999878
+    },
+    {
+      "id": 4236,
+      "kind": "buildingSmoke",
+      "x": 117.125,
+      "z": 123,
+      "age": 358.33333333332166
+    },
+    {
+      "id": 4283,
+      "kind": "buildingSmoke",
+      "x": 116.625,
+      "z": 123.375,
+      "age": 356.0833333333222
+    },
+    {
+      "id": 4371,
+      "kind": "buildingSmoke",
+      "x": 103,
+      "z": 118,
+      "age": 314.24999999999835
+    },
+    {
+      "id": 4415,
+      "kind": "buildingSmoke",
+      "x": 103.125,
+      "z": 115.875,
+      "age": 307.74999999999983
+    },
+    {
+      "id": 4448,
+      "kind": "buildingSmoke",
+      "x": 103.875,
+      "z": 117,
+      "age": 301.6666666666679
+    },
+    {
+      "id": 4986,
+      "kind": "death",
+      "x": 53,
+      "z": 113,
+      "age": 38.08333333333332
+    },
+    {
+      "id": 5002,
+      "kind": "buildingSmoke",
+      "x": 45.75,
+      "z": 114.25,
+      "age": 35.16666666666657
+    },
+    {
+      "id": 5129,
+      "kind": "death",
+      "x": 57,
+      "z": 111,
+      "age": 32.24999999999982
+    },
+    {
+      "id": 5134,
+      "kind": "death",
+      "x": 48.9921875,
+      "z": 115.4921875,
+      "age": 31.666666666666487
+    },
+    {
+      "id": 5137,
+      "kind": "death",
+      "x": 48.87890625,
+      "z": 115.6953125,
+      "age": 31.333333333333158
+    },
+    {
+      "id": 5146,
+      "kind": "buildingSmoke",
+      "x": 45,
+      "z": 115,
+      "age": 29.666666666666515
+    },
+    {
+      "id": 5185,
+      "kind": "death",
+      "x": 53,
+      "z": 111,
+      "age": 29.249999999999854
+    },
+    {
+      "id": 5218,
+      "kind": "buildingSmoke",
+      "x": 44.625,
+      "z": 114.375,
+      "age": 27.08333333333322
+    },
+    {
+      "id": 5259,
+      "kind": "buildingSmoke",
+      "x": 44.625,
+      "z": 114.375,
+      "age": 24.583333333333254
+    },
+    {
+      "id": 5298,
+      "kind": "buildingSmoke",
+      "x": 44.625,
+      "z": 114.375,
+      "age": 21.916666666666625
+    },
+    {
+      "id": 5343,
+      "kind": "death",
+      "x": 47.67578125,
+      "z": 114.6875,
+      "age": 8.499999999999991
+    },
+    {
+      "id": 5346,
+      "kind": "death",
+      "x": 47.53515625,
+      "z": 114.2578125,
+      "age": 8.24999999999999
+    },
+    {
+      "id": 5358,
+      "kind": "death",
+      "x": 50.5,
+      "z": 114.25,
+      "age": 6.66666666666666
+    },
+    {
+      "id": 5361,
+      "kind": "death",
+      "x": 50.49609375,
+      "z": 115.0859375,
+      "age": 6.583333333333327
+    },
+    {
+      "id": 5364,
+      "kind": "death",
+      "x": 50.75390625,
+      "z": 114.359375,
+      "age": 6.333333333333328
+    },
+    {
+      "id": 5367,
+      "kind": "birth",
+      "x": -91,
+      "z": -113.5,
+      "age": 0.9166666666666667
+    }
+  ],
+  "observation": {
+    "name": "reload-2-4",
+    "baselineGameTime": 432.0833333333333,
+    "lastGameTime": 1092.9166666666667,
+    "activeSeconds": 660.8333333333334,
+    "firstTurn": 5200,
+    "lastTurn": 13115,
+    "samples": 7916,
+    "conversions": {
+      "level": 2,
+      "turn": 13115,
+      "units": [
+        {
+          "id": 8,
+          "kind": "brave",
+          "team": "green",
+          "hp": 41.8,
+          "state": 17,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 9,
+          "kind": "brave",
+          "team": "green",
+          "hp": 50,
+          "flags3": 0,
+          "flags4": 0
+        },
+        {
+          "id": 17,
+          "kind": "brave",
+          "team": "green",
+          "hp": 50,
+          "flags3": 0,
+          "flags4": 0
+        },
+        {
+          "id": 54,
+          "kind": "shaman",
+          "team": "blue",
+          "hp": 100,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 671088896
+        },
+        {
+          "id": 278,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 537133312
+        },
+        {
+          "id": 319,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 537133312
+        },
+        {
+          "id": 3509,
+          "kind": "warrior",
+          "team": "blue",
+          "hp": 90.25,
+          "state": 10,
+          "workTarget": 4369,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 3534,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "flags3": 0,
+          "flags4": 0
+        },
+        {
+          "id": 3541,
+          "kind": "warrior",
+          "team": "blue",
+          "hp": 90.05,
+          "state": 10,
+          "workTarget": 4369,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 3560,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "flags3": 0,
+          "flags4": 0
+        },
+        {
+          "id": 4279,
+          "kind": "brave",
+          "team": "green",
+          "hp": 50,
+          "state": 1,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 4369,
+          "kind": "brave",
+          "team": "green",
+          "hp": 50,
+          "flags3": 0,
+          "flags4": 0
+        },
+        {
+          "id": 4480,
+          "kind": "warrior",
+          "team": "blue",
+          "hp": 79.05,
+          "state": 10,
+          "workTarget": 4369,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 4481,
+          "kind": "warrior",
+          "team": "blue",
+          "hp": 90.15,
+          "state": 10,
+          "workTarget": 4369,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 4482,
+          "kind": "warrior",
+          "team": "blue",
+          "hp": 90.25,
+          "state": 10,
+          "workTarget": 4369,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 4483,
+          "kind": "warrior",
+          "team": "blue",
+          "hp": 89.35,
+          "flags3": 0,
+          "flags4": 0
+        },
+        {
+          "id": 4492,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "flags3": 0,
+          "flags4": 0
+        },
+        {
+          "id": 4512,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "flags3": 0,
+          "flags4": 0
+        },
+        {
+          "id": 4677,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "flags3": 0,
+          "flags4": 0
+        },
+        {
+          "id": 4683,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 4780,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 5324,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 5366,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "flags3": 0,
+          "flags4": 0
+        }
+      ],
+      "events": []
+    },
+    "errors": [],
+    "speedViolations": [],
+    "firstConversion": null,
+    "orderMarkerCursor": 2,
+    "orderMarkers": [
+      {
+        "cursor": 1,
+        "id": 4506,
+        "x": 85,
+        "z": 113,
+        "observedTurn": 10534,
+        "commandTurn": 10533,
+        "secondarySerial": 14,
+        "turnsRemaining": 3
+      },
+      {
+        "cursor": 2,
+        "id": 4682,
+        "x": 85,
+        "z": 107,
+        "observedTurn": 11665,
+        "commandTurn": 11664,
+        "secondarySerial": 22,
+        "turnsRemaining": 3
+      }
+    ],
+    "sermon": null,
+    "level": 2
+  },
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "contextLost": false,
+  "body": "Ⅱ WORLD PAUSED\nClick to resume\n?\n♫\n▷\n☰"
+}

@@ -1,0 +1,66 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "shaman-ready"
+    },
+    "scope": "movement"
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "order-entity",
+    "collection": "shrines",
+    "id": "bridgeEffect"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "shrine-used",
+      "id": "bridgeEffect"
+    },
+    "scope": "worship",
+    "watchIds": [
+      "bridgeEffect"
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "stat-at-least",
+      "stat": "bridges",
+      "count": 1
+    },
+    "scope": "worship",
+    "watchIds": [
+      "bridgeEffect"
+    ]
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "effect-finished",
+      "kind": "bridge"
+    },
+    "scope": "worship",
+    "watchIds": [
+      "bridgeEffect"
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "bridge-activated"
+  },
+  {
+    "action": "snapshot",
+    "name": "m2-first-bridge-activated"
+  }
+]

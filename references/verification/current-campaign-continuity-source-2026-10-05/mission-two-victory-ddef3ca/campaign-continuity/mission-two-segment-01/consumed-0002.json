@@ -1,0 +1,41 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "brave",
+    "count": "five"
+  },
+  {
+    "action": "build",
+    "kind": "camp",
+    "point": {
+      "x": -99,
+      "z": -105
+    },
+    "alias": "m2-camp"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "building-complete",
+      "id": "m2-camp"
+    },
+    "scope": "construction",
+    "watchIds": [
+      "m2-camp"
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "mark",
+    "name": "camp"
+  },
+  {
+    "action": "snapshot",
+    "name": "m2-camp-completed"
+  }
+]

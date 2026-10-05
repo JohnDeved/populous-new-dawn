@@ -1,0 +1,494 @@
+{
+  "kind": "allowlisted-public-game-evidence",
+  "sourceHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "terminalPacketSha256": "bd7c890f04de82370165bf69f990336e0fbcddac269f92385c6be8565eb8f019",
+  "files": [
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m2-final-launch-binding.json",
+      "path": "campaign-continuity/ddef3ca-m2-final-launch-binding.json",
+      "bytes": 3506,
+      "sha256": "3f026f7d92016dd05ac6b81e4516026dafb105cd129408075fe6fe0c5ab6d105"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m2-launch-plan.json",
+      "path": "campaign-continuity/ddef3ca-m2-launch-plan.json",
+      "bytes": 9222,
+      "sha256": "b444de62da4564effb115fcbf30e84d6261e0fefb477c452cdab05d7894c7e18"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m2-profile-inputs.json",
+      "path": "campaign-continuity/ddef3ca-m2-profile-inputs.json",
+      "bytes": 2998,
+      "sha256": "af89dc396bfdc3f52e02b9e4d35aa5b3f52da86934373de5f672e94f7b2877b1"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/launch-mission-two-ddef3ca.py",
+      "path": "campaign-continuity/launch-mission-two-ddef3ca.py",
+      "bytes": 5793,
+      "sha256": "e234639d804042266eccb387bca09c00ee289a6489c7c46433de6abf659199a6"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-03/receipt.json",
+      "path": "campaign-continuity/mission-one-segment-03/receipt.json",
+      "bytes": 47109,
+      "sha256": "363a576b0686bc41f6be1774bae31d4ac3f36bc9b0f04cbdf50bfa309e9aade7"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-03/segment-boundary.json",
+      "path": "campaign-continuity/mission-one-segment-03/segment-boundary.json",
+      "bytes": 34191,
+      "sha256": "58cd8046b4fadb017f5964551b4498484da58602380182df9536335653032161"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-first-batch-admission.json",
+      "path": "campaign-continuity/mission-two-first-batch-admission.json",
+      "bytes": 2556,
+      "sha256": "599c5b62ace7624c08874d22ece1f34f5e596fcf6baea1dbb7945ef27240d621"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-first-batch-ddef3ca.json",
+      "path": "campaign-continuity/mission-two-first-batch-ddef3ca.json",
+      "bytes": 1023,
+      "sha256": "2bb6fec96879085e6332d0c77fc85d9658b9d58fb81a09781260b2b04dcbab2f"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/actions.jsonl",
+      "path": "campaign-continuity/mission-two-segment-01/actions.jsonl",
+      "bytes": 328590,
+      "sha256": "c4ec35e2d8374cf3170d815a73642654c1d3d0e7405803bdf7bdac75f0a77371"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/batch-0001.json",
+      "path": "campaign-continuity/mission-two-segment-01/batch-0001.json",
+      "bytes": 42093,
+      "sha256": "7f8dd98b9d5a9f6dff34ed6503a87ce5ce89b82611b2237790876c3a1a4a07d8"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/batch-0002.json",
+      "path": "campaign-continuity/mission-two-segment-01/batch-0002.json",
+      "bytes": 44985,
+      "sha256": "38f9dd09a72bd609eb788d20f283ba66c839b9f57d15887b10e8a132cf823aca"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/batch-0003.json",
+      "path": "campaign-continuity/mission-two-segment-01/batch-0003.json",
+      "bytes": 45546,
+      "sha256": "1aaa488d4952fb2f2cf33ebd72bc8d505040f4db9f940aa28dddc94346cbc297"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/batch-0004.json",
+      "path": "campaign-continuity/mission-two-segment-01/batch-0004.json",
+      "bytes": 45185,
+      "sha256": "527e76115c558f95848db0b8d258699bc49f3e6293de3c8a281d052e60a5ea0f"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/batch-0005.json",
+      "path": "campaign-continuity/mission-two-segment-01/batch-0005.json",
+      "bytes": 47029,
+      "sha256": "a0a0b07b9e89ac6efd815c55939a6f7482def29824b448b7668f62ce9125a80d"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/batch-0006.json",
+      "path": "campaign-continuity/mission-two-segment-01/batch-0006.json",
+      "bytes": 49667,
+      "sha256": "d7250e2d8df0c766d70331df06adfe766e97d5daec7478d753e0dde1f1055c32"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/batch-0007.json",
+      "path": "campaign-continuity/mission-two-segment-01/batch-0007.json",
+      "bytes": 55594,
+      "sha256": "8cd6f8ee6c8b7475b7c170ea27df228f2353fd967421191ca04f6e9aa0fd5323"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/batch-0008.json",
+      "path": "campaign-continuity/mission-two-segment-01/batch-0008.json",
+      "bytes": 54779,
+      "sha256": "90a79e86319a9dc0f5aaab588b09841f84c6f531769988174e0a14c1ae33cd04"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/batch-0009.json",
+      "path": "campaign-continuity/mission-two-segment-01/batch-0009.json",
+      "bytes": 53857,
+      "sha256": "e0bee5d9fb9949adbcfd80d52800ddbc906b4e8033d5c760c26384b9d64a4413"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/batch-0010.json",
+      "path": "campaign-continuity/mission-two-segment-01/batch-0010.json",
+      "bytes": 51744,
+      "sha256": "07aba5ac5fb5645f1c06208f00d31ea3df7e02409667651fd2f3ec1888fd370e"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/batch-0011-failed.json",
+      "path": "campaign-continuity/mission-two-segment-01/batch-0011-failed.json",
+      "bytes": 53464,
+      "sha256": "712c212b733cdd336bef27571cfd620e37faf56b7f78ef3fa9ee0f5b12a220aa"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/batch-0012.json",
+      "path": "campaign-continuity/mission-two-segment-01/batch-0012.json",
+      "bytes": 56225,
+      "sha256": "65af922456905720d0cd6eb11735e772f702b2c87b39faff0c8db9b53bad95b3"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/batch-0013.json",
+      "path": "campaign-continuity/mission-two-segment-01/batch-0013.json",
+      "bytes": 34255,
+      "sha256": "552a5664ed84e7598775fe9f51124899f9db9160157e8593d78ce6ccc347a826"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/batch-0014-failed.json",
+      "path": "campaign-continuity/mission-two-segment-01/batch-0014-failed.json",
+      "bytes": 32846,
+      "sha256": "5f73e36b58b3e6944cc982a03c0088bda1c215f1af19d2e7b4366adacf0880a3"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0001.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0001.json",
+      "bytes": 1023,
+      "sha256": "2bb6fec96879085e6332d0c77fc85d9658b9d58fb81a09781260b2b04dcbab2f"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0002.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0002.json",
+      "bytes": 569,
+      "sha256": "fe4dff6540de755498b539334314579c19bc4e5e881af3725df0d10dba545e6f"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0003.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0003.json",
+      "bytes": 438,
+      "sha256": "15f24606ef5188d41d82c422d68a254d9295458b4e20483adddf9fe44a8c8916"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0004.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0004.json",
+      "bytes": 1022,
+      "sha256": "04c7f4d3c54972722940892204a1a02458aa927131bf66e17b440718504bc714"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0005.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0005.json",
+      "bytes": 835,
+      "sha256": "3971409a00ddf2d87312ab3c38383292ee7660ed18ecd03700e4e362b580cc50"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0006.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0006.json",
+      "bytes": 507,
+      "sha256": "b73e48426e1abf530140499a11df1e42727f8b12cbb3ba712fb4e4268961589f"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0007.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0007.json",
+      "bytes": 575,
+      "sha256": "2d682ccb25bee0cfd1a164b51f64d15cb6165802fbde22d765d4e1c12299245e"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0008.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0008.json",
+      "bytes": 636,
+      "sha256": "5a6ffdb3d4f33b46d1420f91a7131e922cfd0852f7a34bb262cffa5297a582bb"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0009.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0009.json",
+      "bytes": 674,
+      "sha256": "4b163bc83f8c82f0fa85fd514ebbdd646fbf28aef26796a9873e01e412981740"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0010.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0010.json",
+      "bytes": 791,
+      "sha256": "54fe8aecf29bd3dfe1fc724b17882abe6a91adb31ca26da779c5bcd6acd8bdde"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0011.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0011.json",
+      "bytes": 964,
+      "sha256": "8e3f9adfcc0293aabf0c37990f4bfbe21d5c7a05ee4396b4761f639ab4c92e2f"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0012.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0012.json",
+      "bytes": 793,
+      "sha256": "9984c233a5e2b8c0b72ca4cb29fda6c3a10f602ba4262b577617880b5a737cfa"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0013.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0013.json",
+      "bytes": 470,
+      "sha256": "7b1da3c85fe157d89269ac66beb20be84fe08cfe30d742d2ae5b80e063b9d360"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0014.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0014.json",
+      "bytes": 748,
+      "sha256": "5918bc389b445fb97aa6bb07255f6818a99454616591e4d66e2be4bf40893cfc"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/consumed-0015.json",
+      "path": "campaign-continuity/mission-two-segment-01/consumed-0015.json",
+      "bytes": 151,
+      "sha256": "4fa1f957cd4cffaf0af2f34834254f7ef72e0d6f8f90be53690550eff98b9cb6"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/journey.json",
+      "path": "campaign-continuity/mission-two-segment-01/journey.json",
+      "bytes": 74179,
+      "sha256": "79faf9c89d3e3217433f01fa5f841ddffe941d10e3cc6a8ceb3bf0a4a74bc0a3"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-army-and-tornado-reloaded.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-army-and-tornado-reloaded.json",
+      "bytes": 45185,
+      "sha256": "b5306bcaf1123b1fa10440060bc6562be384ec6c0f2e67a440eb3c04d5fbc502"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-army-and-tornado.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-army-and-tornado.json",
+      "bytes": 45325,
+      "sha256": "d0f9ea379715ba2f1d42a6539782572c0c7ce67311ab976afcfa17464adbe2d1"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-camp-completed.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-camp-completed.json",
+      "bytes": 44985,
+      "sha256": "9e76da2b50d6dad8859ded61be3e31b2c9a17dc8c8bbc4fe4470d4a3f43c9f7c"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-central-hut-tornado.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-central-hut-tornado.json",
+      "bytes": 51744,
+      "sha256": "1ff41eab9136b20c1b4e3e6414ee89af760fa473981a16fe4578bb0b2da43a2d"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-eastern-tower-cleared.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-eastern-tower-cleared.json",
+      "bytes": 55594,
+      "sha256": "65b3902d504ac7d240b53f4495e4e80a0954bdaec49a35015cf899c18dc8b6dd"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-first-bridge-activated.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-first-bridge-activated.json",
+      "bytes": 42092,
+      "sha256": "9b72b2c3cbc9d5518c3bd87c69a52cb0a733e8ea137c0d46849ba1591f807d76"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-first-tornado-delivery.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-first-tornado-delivery.json",
+      "bytes": 45484,
+      "sha256": "1ac611e83a831719966461e9f9294df4d7fbda53dda7d55093bc643d14074ba4"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-first-tornado-delivery.png",
+      "path": "campaign-continuity/mission-two-segment-01/m2-first-tornado-delivery.png",
+      "bytes": 1623957,
+      "sha256": "011cdcd592fe47f4b1453493d44692c43f8707ad97363346ad3958d75a1a2fb3"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-first-warrior-training-count.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-first-warrior-training-count.json",
+      "bytes": 45546,
+      "sha256": "01e7e56dca9bf919f309afa881e29e6482fb26adf6208e087c9d5a3c96509660"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-genuine-victory-result.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-genuine-victory-result.json",
+      "bytes": 32846,
+      "sha256": "b1dd5bfcb19fd18ecefdff6c7f8276a0338646218465834dc1f8e42fff3c6cf1"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-genuine-victory-result.png",
+      "path": "campaign-continuity/mission-two-segment-01/m2-genuine-victory-result.png",
+      "bytes": 534972,
+      "sha256": "63b7727f072ffcbfd24e5177de53680fe2812d7535d43fa2862f641abbf92bc1"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-green-shaman-defeated.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-green-shaman-defeated.json",
+      "bytes": 53857,
+      "sha256": "b115feacbecdfe84a9f48ce5e790225b267811bf7f14962a37ee8b93945e56b9"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-milestone-bridge-activated.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-milestone-bridge-activated.json",
+      "bytes": 42093,
+      "sha256": "058d57a92b08e27e0d6d745bb47b0c1316df339f5d30a39aca53153923ca0e67"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-milestone-camp.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-milestone-camp.json",
+      "bytes": 44985,
+      "sha256": "2dbdd6ed23b2ecdf11438a5d6820115d6c0e8ef567ce914412dadd3a47ca824a"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-milestone-checkpoint-reloaded.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-milestone-checkpoint-reloaded.json",
+      "bytes": 45184,
+      "sha256": "fe6f7fea570ccd797dfe3909c7cef931b3de33fc898ac67472ef381ba334333d"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-milestone-tornado-stock.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-milestone-tornado-stock.json",
+      "bytes": 45325,
+      "sha256": "7f17dd48a0332928ded4ffd1442807034b41aececb21a154c7eb82b0007128db"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-milestone-victory.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-milestone-victory.json",
+      "bytes": 32846,
+      "sha256": "e2468b4a0741b2a629d3bfa39ce5a826316ca93f632eeb389e2d9bee3a544215"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-milestone-warriors.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-milestone-warriors.json",
+      "bytes": 45546,
+      "sha256": "67970c6b94f1a61dc36e23743627a88c0dbccb9f1322b6f112304f3a2bd31ce2"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-northern-hut-tornado.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-northern-hut-tornado.json",
+      "bytes": 56225,
+      "sha256": "60d0410f6307443a01442b0810c01c13c1d39b8c694027efa935ee826c2f0f7f"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-reinforced-army.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-reinforced-army.json",
+      "bytes": 54779,
+      "sha256": "43f19f236da0abb24f6f11eef09088c4c24fffe221c163f95653f6efa1d81186"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-second-training-count.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-second-training-count.json",
+      "bytes": 49667,
+      "sha256": "50827cbf63bfad51166ded49a3b4b78119e557b0dc4b547154693400fb155d92"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-segment-opening.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-segment-opening.json",
+      "bytes": 37348,
+      "sha256": "db04ccf2cdc0f810077c27826ad6cd8750827bc878b25d520cbe10663b8fb430"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-third-training-count.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-third-training-count.json",
+      "bytes": 54779,
+      "sha256": "89c3411941982f24d2ef3030ece253ace23d47e259d8b9480e6b360254ff53a5"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-two-added-huts.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-two-added-huts.json",
+      "bytes": 47028,
+      "sha256": "ec53ace5dfd717f36528f506551910874c907190dbf8744888578df193957aad"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m2-western-defender-cleared.json",
+      "path": "campaign-continuity/mission-two-segment-01/m2-western-defender-cleared.json",
+      "bytes": 34255,
+      "sha256": "bc91d2da068fd2fc6bf361d8ff34832e2a579d838536f8b8077ee2d48666e3ec"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m3-continued-segment.json",
+      "path": "campaign-continuity/mission-two-segment-01/m3-continued-segment.json",
+      "bytes": 67779,
+      "sha256": "ae315d25016d1191128ed9243a08d652fa2f5bbff49241643b53af9fd55d78bc"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m3-continued-segment.png",
+      "path": "campaign-continuity/mission-two-segment-01/m3-continued-segment.png",
+      "bytes": 1923583,
+      "sha256": "b8f75933cbcf51e27b459e9b838379d4dc02a9f5b26ef579eab29457eee10f48"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/m3-opening.json",
+      "path": "campaign-continuity/mission-two-segment-01/m3-opening.json",
+      "bytes": 67780,
+      "sha256": "73dda968231abe2aa684ff605fd0474b00beb94855ac8b0cc6353c85457945b6"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/receipt.json",
+      "path": "campaign-continuity/mission-two-segment-01/receipt.json",
+      "bytes": 16169,
+      "sha256": "d936947f3aba05398b4d77351496f937ab5e2e2b6f33a75eb3304f6bf9f28470"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/run-policy.json",
+      "path": "campaign-continuity/mission-two-segment-01/run-policy.json",
+      "bytes": 1695,
+      "sha256": "be703d2b922a15099811e53bf7cb05cb391b7733f7ee3417a3923c09fd7af2a8"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/segment-boundary.json",
+      "path": "campaign-continuity/mission-two-segment-01/segment-boundary.json",
+      "bytes": 74344,
+      "sha256": "88ef7da61fd5c360b37dfb630b21ff8a76df0986203a5c29a0f6b41f2a3d734d"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/server.log",
+      "path": "campaign-continuity/mission-two-segment-01/server.log",
+      "bytes": 1092,
+      "sha256": "d998ffb36746da2810fdad0093f9934c78f3024c0d77b3f018991286f888ef75"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/terminal.json",
+      "path": "campaign-continuity/mission-two-segment-01/terminal.json",
+      "bytes": 78570,
+      "sha256": "23eb63c32e4e8bcceadcbae157251250754010bd34b611649ab7702720d9b1ca"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01-predecessor-validation.json",
+      "path": "campaign-continuity/mission-two-segment-01-predecessor-validation.json",
+      "bytes": 4735,
+      "sha256": "580ed59c82776de17a3cdaff98e5844aa22e120cc12a1ad55b3ac15b131ed54b"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01.launcher.json",
+      "path": "campaign-continuity/mission-two-segment-01.launcher.json",
+      "bytes": 4844,
+      "sha256": "d6976d9eb8e8b39e92e73bd98a17e5bbb52318d5cd8a0c2caa0c44bb41152c4b"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01.outer.json",
+      "path": "campaign-continuity/mission-two-segment-01.outer.json",
+      "bytes": 4423,
+      "sha256": "055ced4fae412d410cbe68e44a26403bb58e2ab57c95ebce3212526552cf340e"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01.outer.json.artifacts/stderr.log",
+      "path": "campaign-continuity/mission-two-segment-01.outer.json.artifacts/stderr.log",
+      "bytes": 1075,
+      "sha256": "e2aebec91ecfc51d6c4af319405d120bdc621ba167cf9cd52f8ed74fa9950b02"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01.outer.json.artifacts/stdout.log",
+      "path": "campaign-continuity/mission-two-segment-01.outer.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-one-segment-03/review.json",
+      "path": "campaign-continuity/review-mission-one-segment-03/review.json",
+      "bytes": 10391,
+      "sha256": "a4d730086b13b6813ce4b34b2a034a00eb0d9086bb6abd3578593d5c4af8aae1"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-two-launch-ddef3ca/review.json",
+      "path": "campaign-continuity/review-mission-two-launch-ddef3ca/review.json",
+      "bytes": 8912,
+      "sha256": "22d699ec3e96c6b6483d4c8f8029423d5d133b801d64559f7bf68dfce931b4b1"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/dependency-transfers/native-guard-to-campaign-20261005T1947/receipt.json",
+      "path": "dependency-transfers/native-guard-to-campaign-20261005T1947/receipt.json",
+      "bytes": 1249,
+      "sha256": "515566b8825c5d163e94c4d29dbff8eea1ce7ca9c5265896428bb30736c9eafa"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01-terminal-packet.json",
+      "path": "mission-two-segment-01-terminal-packet.json",
+      "bytes": 36053,
+      "sha256": "bd7c890f04de82370165bf69f990336e0fbcddac269f92385c6be8565eb8f019"
+    }
+  ],
+  "privateProfileAndStorageBytesIncluded": false
+}

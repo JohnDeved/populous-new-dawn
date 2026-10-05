@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "checkedAt": "2026-10-05T20:34:41.468441+00:00",
+  "terminalPacketSha256": "bd7c890f04de82370165bf69f990336e0fbcddac269f92385c6be8565eb8f019",
+  "byteIdenticalCopies": 81,
+  "manifestSha256": "ab8f9ad1a5162c96b201e589c44a2cbc77930f1ed05451d99acf8b53f1dcaf8a",
+  "readmeSha256": "4c7b15dd64f90594cd6c8db5056f7ee1b9ea594746d3f6d98004d0982632e1a8",
+  "jsonParse": true,
+  "readmeLocalLinks": true,
+  "scope": "Evidence-copy/allowlist/link validation only. Source/profile/runtime unchanged; no gate replay. Independent reviews appended separately."
+}

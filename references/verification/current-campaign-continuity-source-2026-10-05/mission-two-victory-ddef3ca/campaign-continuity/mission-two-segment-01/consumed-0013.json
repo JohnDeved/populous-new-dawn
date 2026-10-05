@@ -1,0 +1,34 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "count": "all"
+  },
+  {
+    "action": "order-entity",
+    "collection": "buildings",
+    "id": 1023
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "target-gone",
+      "id": 6
+    },
+    "scope": "combat",
+    "watchIds": [
+      6,
+      1023
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m2-western-defender-cleared"
+  }
+]

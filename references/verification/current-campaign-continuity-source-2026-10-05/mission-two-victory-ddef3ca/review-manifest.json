@@ -1,0 +1,28 @@
+{
+  "files": [
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-two-segment-01/publication-verification.json",
+      "path": "independent-review/publication-verification.json",
+      "bytes": 786,
+      "sha256": "cecfdfe9c390b2064fb5536d5cae87a8d45ceacfb17c9d513b616beadfd4ff4c"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-two-segment-01/review.json",
+      "path": "independent-review/review.json",
+      "bytes": 15121,
+      "sha256": "01cb340d999396c6dff2b584ccc35a0234e7ff545c1e855a500459ad2d5fc765"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-two-segment-01/verification.json",
+      "path": "independent-review/verification.json",
+      "bytes": 5869,
+      "sha256": "4b0cb6e735aefd91795108f9315d6c95238ff66dca1d66aa639179c4dc626b53"
+    },
+    {
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-two-segment-01/verify.mjs",
+      "path": "independent-review/verify.mjs",
+      "bytes": 10629,
+      "sha256": "4dc57b1309a72e6e7cf907db8bd3ed956b37a0cae550358869c404faa47c3e83"
+    }
+  ]
+}

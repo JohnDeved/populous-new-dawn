@@ -1,0 +1,59 @@
+{
+  "kind": "same-source-m2-final-launch-binding",
+  "createdAt": "2026-10-05T19:49:58.950487+00:00",
+  "sourceHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "acceptedMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "commit": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "tree": "7c6518a5d903508536071b1687d8759074112e13",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b"
+  },
+  "application": "d199649478e710b0b90a2228927645232ef35b687fa2c5899cbad81babb4cfda",
+  "checker": "e0117226c22ad5a705c4654988f95a528be8e119b78ce53bb0cf13099c6a38e6",
+  "inputs": {
+    "runtime": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m2-profile-inputs.json",
+      "sha256": "af89dc396bfdc3f52e02b9e4d35aa5b3f52da86934373de5f672e94f7b2877b1"
+    },
+    "plan": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m2-launch-plan.json",
+      "sha256": "b444de62da4564effb115fcbf30e84d6261e0fefb477c452cdab05d7894c7e18"
+    },
+    "launcher": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/launch-mission-two-ddef3ca.py",
+      "sha256": "e234639d804042266eccb387bca09c00ee289a6489c7c46433de6abf659199a6"
+    },
+    "firstBatch": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-first-batch-ddef3ca.json",
+      "sha256": "2bb6fec96879085e6332d0c77fc85d9658b9d58fb81a09781260b2b04dcbab2f"
+    },
+    "predecessorValidation": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-03-predecessor-validation.json",
+      "sha256": "895c027e91c486a873650faebfa4b571c502f26548092e8247f75362bed40df4"
+    },
+    "predecessorReview": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-one-segment-03/review.json",
+      "sha256": "a4d730086b13b6813ce4b34b2a034a00eb0d9086bb6abd3578593d5c4af8aae1"
+    },
+    "dependencyTransfer": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/dependency-transfers/native-guard-to-campaign-20261005T1947/receipt.json",
+      "sha256": "515566b8825c5d163e94c4d29dbff8eea1ce7ca9c5265896428bb30736c9eafa"
+    }
+  },
+  "caps": {
+    "M2ActiveRemaining": 1464,
+    "M2WallRemainingMs": 5353576,
+    "campaignActiveRemaining": 4066.416666666667,
+    "harnessMs": 5700000,
+    "outerSeconds": 5710
+  },
+  "sourceAndRuntimeUnchanged": true,
+  "newBuildRequired": false,
+  "priorGates": "Exact ddef accepted92 QA, fresh combined build99731, explicit1134/typecheck/parity carry; no repeated gates. Guard220 is excluded.",
+  "profile": "Same closed successful game-only profile; only maintained harness may acquire its next lease. No recovery metadata or injected storage.",
+  "launchStatus": "Not launched. Exact conditional parent grant awaits final binding acceptance."
+}

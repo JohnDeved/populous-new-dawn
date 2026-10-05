@@ -1,0 +1,50 @@
+[
+  {
+    "action": "checkpoint",
+    "name": "reinforced-army"
+  },
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "count": "all"
+  },
+  {
+    "action": "order-entity",
+    "collection": "units",
+    "id": 20
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "target-gone",
+      "id": 20
+    },
+    "scope": "combat",
+    "watchIds": [
+      20,
+      3509,
+      3510,
+      3511,
+      3512,
+      3513,
+      3541,
+      3542,
+      3543,
+      4480,
+      4481,
+      4482,
+      4483,
+      4484
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m2-green-shaman-defeated"
+  }
+]

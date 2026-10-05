@@ -1,0 +1,57 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "brave",
+    "count": "five"
+  },
+  {
+    "action": "build",
+    "kind": "hut",
+    "point": {
+      "x": -96,
+      "z": -124
+    },
+    "alias": "m2-hut-a"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "building-complete",
+      "id": "m2-hut-a"
+    },
+    "scope": "construction",
+    "watchIds": [
+      "m2-hut-a"
+    ]
+  },
+  {
+    "action": "build",
+    "kind": "hut",
+    "point": {
+      "x": -92,
+      "z": -116
+    },
+    "alias": "m2-hut-b"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "building-complete",
+      "id": "m2-hut-b"
+    },
+    "scope": "construction",
+    "watchIds": [
+      "m2-hut-b"
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m2-two-added-huts"
+  }
+]

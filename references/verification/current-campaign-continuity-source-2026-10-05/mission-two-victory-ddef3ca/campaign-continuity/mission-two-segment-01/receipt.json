@@ -1,0 +1,297 @@
+{
+  "startedAt": "2026-10-05T19:53:41.288Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "commit": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "tree": "7c6518a5d903508536071b1687d8759074112e13",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe",
+      "--user-data-dir=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3b89912-m1-03/browser",
+      "about:blank"
+    ],
+    "timeout": 30000,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "acceptDownloads": false,
+    "serviceWorkers": "block"
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x38c4001ba400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x38c4001ba400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x38c4001ba400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x38c4001ba400]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content."
+  ],
+  "status": "failed",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenario": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs",
+    "sha256": "2bae55543e33738c689f3fa34409744307d489bc9fb032f6f2e110cb2c353f55"
+  },
+  "profile": {
+    "id": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3b89912-m1-03",
+    "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+    "mode": "reused",
+    "origin": "http://127.0.0.1:4375",
+    "inputs": {
+      "application": "d199649478e710b0b90a2228927645232ef35b687fa2c5899cbad81babb4cfda",
+      "checker": "e0117226c22ad5a705c4654988f95a528be8e119b78ce53bb0cf13099c6a38e6"
+    },
+    "correspondence": null,
+    "previousRun": {
+      "runId": "329b5c19-0e73-4209-b2b0-bba3e1094a0f",
+      "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+      "sourceCommit": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+      "checker": "e0117226c22ad5a705c4654988f95a528be8e119b78ce53bb0cf13099c6a38e6",
+      "receiptPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-03/receipt.json",
+      "receiptSha256": "363a576b0686bc41f6be1774bae31d4ac3f36bc9b0f04cbdf50bfa309e9aade7",
+      "status": "passed",
+      "cleanupVerified": true,
+      "continuationVerified": true,
+      "checkpointAtEnd": {
+        "version": 1,
+        "level": 2,
+        "turn": 396,
+        "time": 33,
+        "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+        "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+        "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+        "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+      }
+    },
+    "checkpoints": [
+      {
+        "label": "campaign before ordinary Load",
+        "observedAt": "2026-10-05T19:54:04.736Z",
+        "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+        "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+        "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+        "checkpoint": {
+          "version": 1,
+          "level": 2,
+          "turn": 396,
+          "time": 33,
+          "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+          "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+        }
+      },
+      {
+        "label": "campaign after ordinary Load",
+        "observedAt": "2026-10-05T19:54:08.907Z",
+        "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+        "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+        "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+        "checkpoint": {
+          "version": 1,
+          "level": 2,
+          "turn": 396,
+          "time": 33,
+          "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+          "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+        }
+      },
+      {
+        "label": "m2-m2-army-and-tornado",
+        "observedAt": "2026-10-05T20:03:13.123Z",
+        "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+        "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+        "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+        "checkpoint": {
+          "version": 1,
+          "level": 2,
+          "turn": 5185,
+          "time": 432.0833333333333,
+          "checkpointSha256": "5afba71ef6deb2b0bad8afa79e666c4c9a4763eae8f9753be522afb04b6bf457",
+          "actorsSha256": "f801bba66a19b530267657354cd81f450d4bf58743c91226bc00dd737a9249f4",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "c7e696f23f0a76b0427b812064a2f792fc5f2c41563a829a1eead7924d35a22a"
+        }
+      },
+      {
+        "label": "campaign before ordinary Load",
+        "observedAt": "2026-10-05T20:03:22.241Z",
+        "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+        "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+        "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+        "checkpoint": {
+          "version": 1,
+          "level": 2,
+          "turn": 5185,
+          "time": 432.0833333333333,
+          "checkpointSha256": "5afba71ef6deb2b0bad8afa79e666c4c9a4763eae8f9753be522afb04b6bf457",
+          "actorsSha256": "f801bba66a19b530267657354cd81f450d4bf58743c91226bc00dd737a9249f4",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "c7e696f23f0a76b0427b812064a2f792fc5f2c41563a829a1eead7924d35a22a"
+        }
+      },
+      {
+        "label": "campaign after ordinary Load",
+        "observedAt": "2026-10-05T20:03:26.161Z",
+        "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+        "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+        "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+        "checkpoint": {
+          "version": 1,
+          "level": 2,
+          "turn": 5185,
+          "time": 432.0833333333333,
+          "checkpointSha256": "5afba71ef6deb2b0bad8afa79e666c4c9a4763eae8f9753be522afb04b6bf457",
+          "actorsSha256": "f801bba66a19b530267657354cd81f450d4bf58743c91226bc00dd737a9249f4",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "c7e696f23f0a76b0427b812064a2f792fc5f2c41563a829a1eead7924d35a22a"
+        }
+      },
+      {
+        "label": "m2-m2-reinforced-army",
+        "observedAt": "2026-10-05T20:14:30.939Z",
+        "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+        "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+        "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+        "checkpoint": {
+          "version": 1,
+          "level": 2,
+          "turn": 9800,
+          "time": 816.6666666666666,
+          "checkpointSha256": "5755c06b8a4a06cdb67bc7dabf3475d251a5a0cac29e417d4ab9b77871dfa149",
+          "actorsSha256": "bbea83dba810259d3b6b413d0592bb761bf12a4b121fba72d2a650dd196fea0f",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "aee7a42f469d476482c17741db341347075e06c3162153ac54b9f7cc712263c5"
+        }
+      },
+      {
+        "label": "m3-m3-continued-segment",
+        "observedAt": "2026-10-05T20:27:43.801Z",
+        "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+        "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+        "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+        "checkpoint": {
+          "version": 1,
+          "level": 3,
+          "turn": 179,
+          "time": 14.916666666666666,
+          "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+          "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+          "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+          "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+        }
+      },
+      {
+        "label": "campaign terminal latest",
+        "observedAt": "2026-10-05T20:27:51.596Z",
+        "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+        "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+        "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+        "checkpoint": {
+          "version": 1,
+          "level": 3,
+          "turn": 179,
+          "time": 14.916666666666666,
+          "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+          "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+          "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+          "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+        }
+      }
+    ],
+    "checkpointAtStart": {
+      "version": 1,
+      "level": 2,
+      "turn": 396,
+      "time": 33,
+      "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+      "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+      "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+      "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+    },
+    "checkpointAtEnd": {
+      "version": 1,
+      "level": 3,
+      "turn": 179,
+      "time": 14.916666666666666,
+      "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+      "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+    },
+    "cleanupVerified": true,
+    "continuationVerified": true
+  },
+  "browserVersion": "154.0.8037.92",
+  "campaignBoundary": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01/segment-boundary.json",
+    "sha256": "88ef7da61fd5c360b37dfb630b21ff8a76df0986203a5c29a0f6b41f2a3d734d"
+  },
+  "runtimeAfter": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenarioAfter": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs",
+    "sha256": "2bae55543e33738c689f3fa34409744307d489bc9fb032f6f2e110cb2c353f55"
+  },
+  "failure": "Error: Verified mission boundary; retained failures prevent a clean harness pass\n    at continueMission (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:944:11)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+  "finishedAt": "2026-10-05T20:27:53.765Z",
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "commit": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "tree": "7c6518a5d903508536071b1687d8759074112e13",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b"
+  }
+}

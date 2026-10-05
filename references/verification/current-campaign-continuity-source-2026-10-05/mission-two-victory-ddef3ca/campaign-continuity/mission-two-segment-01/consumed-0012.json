@@ -1,0 +1,58 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "move",
+    "point": {
+      "x": 85,
+      "z": 108
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 54,
+      "point": {
+        "x": 85,
+        "z": 108
+      },
+      "distance": 1.5
+    },
+    "scope": "movement",
+    "watchIds": [
+      54
+    ]
+  },
+  {
+    "action": "cast",
+    "spell": "tornado",
+    "target": {
+      "x": 82.8828125,
+      "z": 100.921875
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "target-gone",
+      "id": 2
+    },
+    "scope": "combat",
+    "watchIds": [
+      2
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m2-northern-hut-tornado"
+  }
+]

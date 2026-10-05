@@ -1,0 +1,110 @@
+{
+  "kind": "independent-same-source-mission-two-launch-binding-review",
+  "decision": "ACCEPT",
+  "reviewedAt": "2026-10-05T19:53:29.375168+00:00",
+  "sourceHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "acceptedMain": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "reviewer": "review_campaign_continuity",
+  "exactBinding": {
+    "path": "work/orchestration/campaign-continuity/ddef3ca-m2-final-launch-binding.json",
+    "sha256": "3f026f7d92016dd05ac6b81e4516026dafb105cd129408075fe6fe0c5ab6d105"
+  },
+  "exactPlan": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m2-launch-plan.json",
+    "sha256": "b444de62da4564effb115fcbf30e84d6261e0fefb477c452cdab05d7894c7e18"
+  },
+  "exactLauncher": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/launch-mission-two-ddef3ca.py",
+    "sha256": "e234639d804042266eccb387bca09c00ee289a6489c7c46433de6abf659199a6"
+  },
+  "exactFirstBatch": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-first-batch-ddef3ca.json",
+    "sha256": "2bb6fec96879085e6332d0c77fc85d9658b9d58fb81a09781260b2b04dcbab2f"
+  },
+  "findings": [],
+  "evidence": [
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-two-launch-ddef3ca/runtime-verification.json",
+      "sha256": "847e8d8ddab2a5a3ec6c940d7298476d90ce6f80a15c1195d3bcd3d3ee54282d"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-two-launch-ddef3ca/verification.json",
+      "sha256": "5bd6d44c7c0fde4f60bf539974c48e9610a9a799089424f0cf35b08268fb1f31"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-mission-one-segment-03/review.json",
+      "sha256": "a4d730086b13b6813ce4b34b2a034a00eb0d9086bb6abd3578593d5c4af8aae1"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/ddef3ca-build.json",
+      "sha256": "3b54b0262695ef095a1c0f99187cf14ef6394b7c15b28feef41ca1a5fbdf80b1"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/review-ddef3ca/review.json",
+      "sha256": "9a70ba698cf28bd0e31e6a6fa2273fd8f9f6811ad3b547e54628af04baef0003"
+    }
+  ],
+  "checked": [
+    "All final-binding references and all plan file hashes match actual bytes, including immutable successful predecessor receipt/boundary/profile marker and its independent acceptance.",
+    "Executed only the launcher extracted read-only Node fingerprint assertions. Actual clean source, application/checker fingerprints, Node/browser/Playwright/core bundle/installed lock and four runtime harness hashes equal the frozen packet and prior successful run. Eight policy application-import hashes match source. No launch/profile lease/browser was invoked.",
+    "Same accepted source ddef3caa and production main 3b899125 are retained. PR220 changes are absent. Only ignored work launch/input artifacts were added; accepted 92 QA/structural/whitespace, 1134 standard-component/typecheck/parity correspondence and existing fresh combined build 99731 remain valid. No new build or aggregate check is claimed or needed for this unchanged tracked source.",
+    "The real marker still names profile 7c15026e-2bb3-41e9-83e9-ce408b869416 and successful run 329b5c19-0e73-4209-b2b0-bba3e1094a0f, exact terminal receipt 363a576b and emitted boundary 58cd8046. The unchanged maintained host predecessor validator accepts current source and projected next-entry checkpoint equal to actual previous checkpointAtEnd. Actual future storage readback and ordinary Load are required by harness/scenario, not presumed from this host check.",
+    "The existing profile has no owner.lock or Chromium SingletonLock/SingletonSocket/SingletonCookie. New output mission-two-segment-01, private TMP, launcher and outer receipt paths are absent. Launcher pins the exact existing profile marker/predecessor and refuses preexisting output; maintained exclusive lease performs full ownership/runtime checks.",
+    "Launcher retains CPU0\u20133 affinity, 4096MB Node ceiling, private TMP, scoped IPv4/IPv6 4375 preflight and postflight, strictPort server ownership, normal terminal wait and source-bound outer receipt. The 5700000ms harness and 5710s outer cap bound the segment. No unknown responder may be attached or stopped.",
+    "Actual dependency closure is inode925605 in campaign with identical installed/root lock hashes. Donor native-shaman-guard-fix has the exact receipt-recorded stub inode1984467; transfer515566b8 chains to the prior return. No dependency installation/copy/link or source adoption occurred.",
+    "First batch has ten finite ordinary actions. Retained Mission 2 state has exactly one active bridgeEffect shrine55, uses0, and bridges0; retained alias bridgeEffect resolves to55. Resume then current Shaman readiness wait uses objective readiness fields and services ordinary visible Skip introduction if input is gated. Shaman selection and targetEntity use current loaded World, map/canvas picking and existing accepted dispatch/ack/recipient gates.",
+    "Shrine-used watches actual shrine55; bridge-count reads its real resulting stat; named bridge effect completion uses effect-only progress. The bridge-activated mark rechecks shrine use, bridge count and effect absence before pause/snapshot publication. No Mission3 authored actor/coordinate dependency enters these M2 actions.",
+    "M2 active36 and owned wall46424ms remain inherited, along with cumulative active733.5833333333333 and owned wall1635947ms. Limits stay M2 active1500/wall5400000ms, campaign active4800/wall12600000ms, objective no-progress120 active seconds and segment5700000ms. Save rewind never resets prior time.",
+    "Every long active/UI wait services the exact next authenticated stop-preserve-latest. The first batch is prepared, not enqueued. Owner must wait for actual leased runId, clean-segment-loaded, paused M2 opening and awaiting-input before writing the reviewed batch; preserving stop is a sole next command, without fallback Save.",
+    "Normal next boundary still requires actual M2 milestones, its own non-segment ordinary Save/Load, victory and committed profile[1,2], ordinary Continue3, committed new Mission3 Save and final cleanup. No M2 win or full campaign outcome is claimed by this input review."
+  ],
+  "predecessor": {
+    "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+    "previousReceipt": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-03/receipt.json",
+      "sha256": "363a576b0686bc41f6be1774bae31d4ac3f36bc9b0f04cbdf50bfa309e9aade7"
+    },
+    "previousBoundary": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-03/segment-boundary.json",
+      "sha256": "58cd8046b4fadb017f5964551b4498484da58602380182df9536335653032161"
+    },
+    "profileMarkerSha256": "9ba37a0d865de64ba4a5e85053c384ce22a4f2377e9679eb641fdbf880ecfb0f",
+    "checkpoint": {
+      "version": 1,
+      "level": 2,
+      "turn": 396,
+      "time": 33,
+      "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+      "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+      "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+      "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+    },
+    "inheritedActiveSeconds": 733.5833333333333,
+    "inheritedMissionActiveSeconds": {
+      "1": 697.5833333333333,
+      "2": 36,
+      "3": 0
+    },
+    "inheritedWallMs": 1635947,
+    "inheritedMissionWallMs": {
+      "1": 1589523,
+      "2": 46424,
+      "3": 0
+    }
+  },
+  "caps": {
+    "M2ActiveRemaining": 1464,
+    "M2WallRemainingMs": 5353576,
+    "campaignActiveRemaining": 4066.416666666667,
+    "harnessMs": 5700000,
+    "outerSeconds": 5710
+  },
+  "operationalEffect": "Exact final binding ACCEPT satisfies the coordinator conditional grant described in the owner handoff; coordinator/owner retain launch execution and resource ownership. This reviewer launched nothing. Any input/source/runtime/profile marker change invalidates this exact acceptance until rechecked.",
+  "claimLimits": [
+    "Fresh clean M1 victory and genuine M2 checkpoint remain accepted.",
+    "M2 ordinary Load and new gameplay must be demonstrated by the upcoming run.",
+    "Earlier attempts01/02 remain separate failures with cause UNKNOWN.",
+    "No full campaign, native whole-game/pixel parity, calibrated timing or hardware performance claim."
+  ],
+  "writes": "Only these ignored review artifacts. No source, profile, browser or package mutations."
+}

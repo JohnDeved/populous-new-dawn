@@ -1,0 +1,12 @@
+[
+  {
+    "action": "prove-victory"
+  },
+  {
+    "action": "snapshot",
+    "name": "m2-genuine-victory-result"
+  },
+  {
+    "action": "continue"
+  }
+]

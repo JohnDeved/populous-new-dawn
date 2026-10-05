@@ -1,0 +1,35 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "order-entity",
+    "collection": "buildings",
+    "id": "m2-camp"
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "trained-kind",
+      "kind": "warrior",
+      "existingIds": [
+        3509,
+        3510,
+        3511,
+        3512,
+        3513
+      ]
+    },
+    "scope": "training",
+    "watchIds": [
+      "m2-camp"
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m2-second-training-count"
+  }
+]

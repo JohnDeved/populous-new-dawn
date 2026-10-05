@@ -1,0 +1,69 @@
+{
+  "queuedAt": "2026-10-05T19:54:13.195227+00:00",
+  "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "awaitingAt": "2026-10-05T19:54:13.178Z",
+  "batchSha256": "2bb6fec96879085e6332d0c77fc85d9658b9d58fb81a09781260b2b04dcbab2f",
+  "checkpointLoaded": {
+    "at": "2026-10-05T19:54:11.352Z",
+    "level": 2,
+    "wallMs": 6693,
+    "action": "checkpoint-loaded",
+    "saved": {
+      "version": 1,
+      "level": 2,
+      "turn": 396,
+      "time": 33,
+      "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+      "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+      "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+      "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+    },
+    "boundary": {
+      "version": 1,
+      "level": 2,
+      "turn": 396,
+      "time": 33,
+      "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+      "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+      "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+      "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+    },
+    "stored": {
+      "version": 1,
+      "level": 2,
+      "turn": 396,
+      "time": 33,
+      "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+      "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+      "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+      "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+    },
+    "identity": {
+      "sameStore": true,
+      "newWorld": true,
+      "newScene": true,
+      "currentCorrespondence": true,
+      "level": 2,
+      "replacementLevel": 2,
+      "error": null
+    },
+    "pausedTurn": 411,
+    "livePresentation": {
+      "clock": {
+        "elapsed": 45048.12400000021,
+        "nextVisit": 45050,
+        "lastVisit": 45025,
+        "limiter": 0,
+        "normalRate": 40
+      },
+      "requests": [],
+      "spell": null,
+      "companion": null,
+      "pulse": null
+    },
+    "presentationScope": "Later live worship presentation may advance while simulation is paused; saved digest compared at actual storage boundaries."
+  },
+  "openingTurn": 411,
+  "sourceHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2"
+}

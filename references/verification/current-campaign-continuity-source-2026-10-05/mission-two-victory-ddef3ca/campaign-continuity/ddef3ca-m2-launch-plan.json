@@ -1,0 +1,224 @@
+{
+  "kind": "same-source-reviewed-mission-boundary-continuation",
+  "preparedAt": "2026-10-05T19:49:58.950487+00:00",
+  "sourceHead": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+  "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+  "sourcePolicyEnabled": true,
+  "operationalGrantReceived": "Conditional on final independent exact binding ACCEPT; no browser yet",
+  "profileInputs": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-m2-profile-inputs.json",
+    "sha256": "af89dc396bfdc3f52e02b9e4d35aa5b3f52da86934373de5f672e94f7b2877b1"
+  },
+  "policy": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/run-policy.json",
+    "sha256": "be703d2b922a15099811e53bf7cb05cb391b7733f7ee3417a3923c09fd7af2a8",
+    "limits": {
+      "missionActiveSeconds": {
+        "1": 900,
+        "2": 1500,
+        "3": 2400
+      },
+      "campaignActiveSeconds": 4800,
+      "missionWallMs": {
+        "1": 1800000,
+        "2": 5400000,
+        "3": 5400000
+      },
+      "wallMs": 12600000,
+      "noProgressActiveSeconds": 120,
+      "m3BeforeConversionSeconds": 900,
+      "m3AfterConversionSeconds": 1800,
+      "segmentWallMs": 5700000
+    }
+  },
+  "origin": "http://127.0.0.1:4375",
+  "profilePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3b89912-m1-03",
+  "profileExists": true,
+  "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01",
+  "outputExists": false,
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "5710s",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "--port",
+    "4375",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-segment-01",
+    "--mission",
+    "2",
+    "--timeout",
+    "5700000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs",
+    "--profile",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3b89912-m1-03",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell"
+  ],
+  "outerCommandReceipt": "work/orchestration/campaign-continuity/mission-two-segment-01.outer.json",
+  "sourceReceiptBeforeAndAfterRequired": true,
+  "originOwnership": "No server or socket scope acquired. Before launch, probe4375 only inside the intended execution scope; require both absence and owned strictPort startup. Never attach to or stop an unknown responder.",
+  "firstBatch": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-two-first-batch-ddef3ca.json",
+    "sha256": "2bb6fec96879085e6332d0c77fc85d9658b9d58fb81a09781260b2b04dcbab2f",
+    "commands": [
+      {
+        "action": "resume"
+      },
+      {
+        "action": "wait",
+        "condition": {
+          "type": "shaman-ready"
+        },
+        "scope": "movement"
+      },
+      {
+        "action": "select",
+        "kind": "shaman"
+      },
+      {
+        "action": "order-entity",
+        "collection": "shrines",
+        "id": "bridgeEffect"
+      },
+      {
+        "action": "wait",
+        "condition": {
+          "type": "shrine-used",
+          "id": "bridgeEffect"
+        },
+        "scope": "worship",
+        "watchIds": [
+          "bridgeEffect"
+        ]
+      },
+      {
+        "action": "wait",
+        "condition": {
+          "type": "stat-at-least",
+          "stat": "bridges",
+          "count": 1
+        },
+        "scope": "worship",
+        "watchIds": [
+          "bridgeEffect"
+        ]
+      },
+      {
+        "action": "wait",
+        "condition": {
+          "type": "effect-finished",
+          "kind": "bridge"
+        },
+        "scope": "worship",
+        "watchIds": [
+          "bridgeEffect"
+        ]
+      },
+      {
+        "action": "pause"
+      },
+      {
+        "action": "mark",
+        "name": "bridge-activated"
+      },
+      {
+        "action": "snapshot",
+        "name": "m2-first-bridge-activated"
+      }
+    ]
+  },
+  "normalSegmentBoundary": "M2 actual victory/profile[1,2], ordinary Continue3 with current World/scene correspondence, actual committed Save3 and normal harness cleanup. Each mission must earn its own non-segment Save/reload/Load and full route marks.",
+  "preservingControl": {
+    "template": [
+      {
+        "action": "stop-preserve-latest",
+        "runId": "<read from the actual current lease>"
+      }
+    ],
+    "status": "not enqueued",
+    "target": "sole exact next numbered command; active batch reader preempts long waits. Never signal the live wrapper abruptly or issue fallback Save."
+  },
+  "remaining": [
+    "Final independent same-source M2 binding and first-batch acceptance; parent conditional runtime grant then takes effect without another approval turn."
+  ],
+  "limits": "Same-source continuation of the independently accepted fresh M1 run. M2/M3 outcomes must be newly observed; no source adoption or old-profile recovery. Earlier independent attempt causes remain UNKNOWN.",
+  "privateTmp": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/private-tmp-m2-ddef3ca",
+  "privateTmpExists": false,
+  "build": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/ddef3ca-build.json",
+    "sha256": "3b54b0262695ef095a1c0f99187cf14ef6394b7c15b28feef41ca1a5fbdf80b1",
+    "status": "passed",
+    "originalExecSession": 99731,
+    "exitCode": 0,
+    "boundSeconds": 120
+  },
+  "sourceReview": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-ddef3ca/review.json",
+    "sha256": "9a70ba698cf28bd0e31e6a6fa2273fd8f9f6811ad3b547e54628af04baef0003",
+    "decision": "ACCEPT"
+  },
+  "priorAttempts": [
+    {
+      "runId": "5c92fac0-f9d6-4e8a-ac5f-57a8b98dd528",
+      "status": "failed; one input failure/one preserving stop; null checkpoint and no segment boundary",
+      "reuse": false
+    },
+    {
+      "runId": "625b85ed-d3cf-433a-9bec-1f409cdcc141",
+      "status": "failed; one input failure/one preserving stop; null checkpoint and no segment boundary",
+      "reuse": false
+    }
+  ],
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "profileMarkerSha256": "9ba37a0d865de64ba4a5e85053c384ce22a4f2377e9679eb641fdbf880ecfb0f",
+  "previousReceipt": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-03/receipt.json",
+    "sha256": "363a576b0686bc41f6be1774bae31d4ac3f36bc9b0f04cbdf50bfa309e9aade7"
+  },
+  "previousBoundary": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-03/segment-boundary.json",
+    "sha256": "58cd8046b4fadb017f5964551b4498484da58602380182df9536335653032161"
+  },
+  "expectedCheckpoint": {
+    "version": 1,
+    "level": 2,
+    "turn": 396,
+    "time": 33,
+    "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+    "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+    "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+    "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+  },
+  "inheritedActiveSeconds": 733.5833333333333,
+  "inheritedMissionActiveSeconds": {
+    "1": 697.5833333333333,
+    "2": 36,
+    "3": 0
+  },
+  "inheritedWallMs": 1635947,
+  "inheritedMissionWallMs": {
+    "1": 1589523,
+    "2": 46424,
+    "3": 0
+  },
+  "failures": [],
+  "controlStops": [],
+  "predecessorReview": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-mission-one-segment-03/review.json",
+    "sha256": "a4d730086b13b6813ce4b34b2a034a00eb0d9086bb6abd3578593d5c4af8aae1"
+  },
+  "dependencyTransfer": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/dependency-transfers/native-guard-to-campaign-20261005T1947/receipt.json",
+    "sha256": "515566b8825c5d163e94c4d29dbff8eea1ce7ca9c5265896428bb30736c9eafa"
+  },
+  "entry": "Normal exclusive same-profile lease; exact full saved checkpoint before ordinary Load, immediate Pause, replacement actor/terrain/stock identity checks and committed profile[1]. First batch only after actual clean-segment-loaded/opening/awaiting-input."
+}

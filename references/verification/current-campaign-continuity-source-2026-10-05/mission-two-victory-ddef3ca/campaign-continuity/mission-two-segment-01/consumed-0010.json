@@ -1,0 +1,58 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "shaman"
+  },
+  {
+    "action": "move",
+    "point": {
+      "x": 85,
+      "z": 113
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "units-near",
+      "id": 54,
+      "point": {
+        "x": 85,
+        "z": 113
+      },
+      "distance": 2
+    },
+    "scope": "movement",
+    "watchIds": [
+      54
+    ]
+  },
+  {
+    "action": "cast",
+    "spell": "tornado",
+    "target": {
+      "x": 76.8828125,
+      "z": 112.9296875
+    }
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "target-gone",
+      "id": 3
+    },
+    "scope": "combat",
+    "watchIds": [
+      3
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m2-central-hut-tornado"
+  }
+]

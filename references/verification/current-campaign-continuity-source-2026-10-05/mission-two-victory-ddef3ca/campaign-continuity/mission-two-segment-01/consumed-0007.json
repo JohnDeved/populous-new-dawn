@@ -1,0 +1,43 @@
+[
+  {
+    "action": "resume"
+  },
+  {
+    "action": "select",
+    "kind": "warrior",
+    "count": "all"
+  },
+  {
+    "action": "order-entity",
+    "collection": "buildings",
+    "id": 22
+  },
+  {
+    "action": "wait",
+    "condition": {
+      "type": "target-gone",
+      "id": 22
+    },
+    "scope": "combat",
+    "watchIds": [
+      22,
+      3509,
+      3510,
+      3511,
+      3512,
+      3513,
+      3541,
+      3542,
+      3543,
+      3544,
+      3545
+    ]
+  },
+  {
+    "action": "pause"
+  },
+  {
+    "action": "snapshot",
+    "name": "m2-eastern-tower-cleared"
+  }
+]

@@ -1,0 +1,2783 @@
+{
+  "status": "failed",
+  "currentEpoch": null,
+  "kind": "fresh-current-campaign",
+  "level": 3,
+  "inputs": [
+    {
+      "name": "scenario.mjs",
+      "sha256": "2bae55543e33738c689f3fa34409744307d489bc9fb032f6f2e110cb2c353f55"
+    },
+    {
+      "name": "boundaries.mjs",
+      "sha256": "7615c6541f633203306584dda0d08f02dceb301cda21888791325131497a6313"
+    },
+    {
+      "name": "routes.mjs",
+      "sha256": "9c9ef454e1f2efa04d44ac11828f42c4d6c7f2f7db1be037e9dd7b1e4fff7198"
+    },
+    {
+      "name": "run-policy.json",
+      "sha256": "be703d2b922a15099811e53bf7cb05cb391b7733f7ee3417a3923c09fd7af2a8"
+    },
+    {
+      "name": "observation.mjs",
+      "sha256": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a"
+    },
+    {
+      "name": "erosion-observer.mjs",
+      "sha256": "19c25f71fcf0b60f24b65c7f8e2753b5bc51edbaca7d7ca540fd0136d6d50a97"
+    },
+    {
+      "name": "queued-stop.mjs",
+      "sha256": "d67b3cca01cb8ac8032e31d3cdf71382d18bcae57397ffe2ebd945d259f12063"
+    },
+    {
+      "name": "command-probes.mjs",
+      "sha256": "86384f34412b3edc5f6ff624d8c06c71747606149c1941ca7862af836518fbaa"
+    },
+    {
+      "name": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-03/receipt.json",
+      "sha256": "363a576b0686bc41f6be1774bae31d4ac3f36bc9b0f04cbdf50bfa309e9aade7"
+    },
+    {
+      "name": "commands/0001.json",
+      "sha256": "2bb6fec96879085e6332d0c77fc85d9658b9d58fb81a09781260b2b04dcbab2f"
+    },
+    {
+      "name": "commands/0002.json",
+      "sha256": "fe4dff6540de755498b539334314579c19bc4e5e881af3725df0d10dba545e6f"
+    },
+    {
+      "name": "commands/0003.json",
+      "sha256": "15f24606ef5188d41d82c422d68a254d9295458b4e20483adddf9fe44a8c8916"
+    },
+    {
+      "name": "commands/0004.json",
+      "sha256": "04c7f4d3c54972722940892204a1a02458aa927131bf66e17b440718504bc714"
+    },
+    {
+      "name": "commands/0005.json",
+      "sha256": "3971409a00ddf2d87312ab3c38383292ee7660ed18ecd03700e4e362b580cc50"
+    },
+    {
+      "name": "commands/0006.json",
+      "sha256": "b73e48426e1abf530140499a11df1e42727f8b12cbb3ba712fb4e4268961589f"
+    },
+    {
+      "name": "commands/0007.json",
+      "sha256": "2d682ccb25bee0cfd1a164b51f64d15cb6165802fbde22d765d4e1c12299245e"
+    },
+    {
+      "name": "commands/0008.json",
+      "sha256": "5a6ffdb3d4f33b46d1420f91a7131e922cfd0852f7a34bb262cffa5297a582bb"
+    },
+    {
+      "name": "commands/0009.json",
+      "sha256": "4b163bc83f8c82f0fa85fd514ebbdd646fbf28aef26796a9873e01e412981740"
+    },
+    {
+      "name": "commands/0010.json",
+      "sha256": "54fe8aecf29bd3dfe1fc724b17882abe6a91adb31ca26da779c5bcd6acd8bdde"
+    },
+    {
+      "name": "commands/0011.json",
+      "sha256": "8e3f9adfcc0293aabf0c37990f4bfbe21d5c7a05ee4396b4761f639ab4c92e2f"
+    },
+    {
+      "name": "commands/0012.json",
+      "sha256": "9984c233a5e2b8c0b72ca4cb29fda6c3a10f602ba4262b577617880b5a737cfa"
+    },
+    {
+      "name": "commands/0013.json",
+      "sha256": "7b1da3c85fe157d89269ac66beb20be84fe08cfe30d742d2ae5b80e063b9d360"
+    },
+    {
+      "name": "commands/0014.json",
+      "sha256": "5918bc389b445fb97aa6bb07255f6818a99454616591e4d66e2be4bf40893cfc"
+    },
+    {
+      "name": "commands/0015.json",
+      "sha256": "4fa1f957cd4cffaf0af2f34834254f7ef72e0d6f8f90be53690550eff98b9cb6"
+    }
+  ],
+  "ids": {
+    "vault": 92,
+    "erosionEffect": 101,
+    "authoredVictim": 53,
+    "erosion": 101
+  },
+  "epochs": [
+    {
+      "name": "entry-1",
+      "baselineGameTime": 0,
+      "lastGameTime": 476.75,
+      "activeSeconds": 476.75,
+      "firstTurn": 13,
+      "lastTurn": 5721,
+      "samples": 5709,
+      "conversions": {
+        "level": 1,
+        "turn": 5721,
+        "units": [
+          {
+            "id": 14,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 15,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 17,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 30,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100.4,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 32,
+            "kind": "shaman",
+            "team": "red",
+            "hp": 100,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 33,
+            "kind": "warrior",
+            "team": "red",
+            "hp": 90,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871176
+          },
+          {
+            "id": 34,
+            "kind": "warrior",
+            "team": "red",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 35,
+            "kind": "brave",
+            "team": "red",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 1184,
+            "kind": "brave",
+            "team": "red",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1186,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1190,
+            "kind": "brave",
+            "team": "red",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1196,
+            "kind": "brave",
+            "team": "red",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1199,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1204,
+            "kind": "brave",
+            "team": "red",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1209,
+            "kind": "brave",
+            "team": "red",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 3760,
+            "kind": "brave",
+            "team": "red",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 3762,
+            "kind": "brave",
+            "team": "red",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 3764,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 3788,
+            "kind": "brave",
+            "team": "red",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 3817,
+            "kind": "brave",
+            "team": "red",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 3824,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 3826,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 3834,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 671088896
+          },
+          {
+            "id": 3835,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 671088896
+          },
+          {
+            "id": 3836,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 671088896
+          },
+          {
+            "id": 3837,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 671088896
+          },
+          {
+            "id": 3838,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 671088896
+          },
+          {
+            "id": 3844,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 3846,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 3852,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 3856,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          }
+        ],
+        "events": []
+      },
+      "errors": [],
+      "speedViolations": [],
+      "firstConversion": null,
+      "orderMarkerCursor": 1,
+      "orderMarkers": [
+        {
+          "cursor": 1,
+          "id": 1203,
+          "x": 1,
+          "z": 19,
+          "observedTurn": 1456,
+          "commandTurn": 1455,
+          "secondarySerial": 3,
+          "turnsRemaining": 3
+        }
+      ],
+      "sermon": null,
+      "level": 1
+    },
+    {
+      "name": "reload-1-1",
+      "baselineGameTime": 474.3333333333333,
+      "lastGameTime": 695.1666666666666,
+      "activeSeconds": 220.83333333333331,
+      "firstTurn": 5710,
+      "lastTurn": 8342,
+      "samples": 2633,
+      "conversions": {
+        "level": 1,
+        "turn": 8342,
+        "units": [
+          {
+            "id": 14,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 15,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 17,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 30,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100.4,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 671088896
+          },
+          {
+            "id": 1186,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 1199,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 3764,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 3824,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 3826,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 3834,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 81,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 3835,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90.15,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 3836,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 47.25,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 3837,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 3838,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 65.2,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 3844,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 3846,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 3852,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 3856,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 6159,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 6161,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          }
+        ],
+        "events": []
+      },
+      "errors": [],
+      "speedViolations": [],
+      "firstConversion": null,
+      "orderMarkerCursor": 2,
+      "orderMarkers": [
+        {
+          "cursor": 1,
+          "id": 3859,
+          "x": 1,
+          "z": -7,
+          "observedTurn": 5947,
+          "commandTurn": 5946,
+          "secondarySerial": 63,
+          "turnsRemaining": 3
+        },
+        {
+          "cursor": 2,
+          "id": 6176,
+          "x": 1,
+          "z": -19,
+          "observedTurn": 7026,
+          "commandTurn": 7025,
+          "secondarySerial": 82,
+          "turnsRemaining": 3
+        }
+      ],
+      "sermon": null,
+      "level": 1
+    },
+    {
+      "name": "continue-2-2",
+      "baselineGameTime": 0,
+      "lastGameTime": 36,
+      "activeSeconds": 36,
+      "firstTurn": 13,
+      "lastTurn": 432,
+      "samples": 420,
+      "conversions": {
+        "level": 2,
+        "turn": 432,
+        "units": [
+          {
+            "id": 4,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 5,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 6,
+            "kind": "warrior",
+            "team": "green",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 7,
+            "kind": "warrior",
+            "team": "green",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 8,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 9,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 10,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 11,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 12,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 13,
+            "kind": "warrior",
+            "team": "green",
+            "hp": 90,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 14,
+            "kind": "warrior",
+            "team": "green",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 15,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 16,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 17,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 18,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 19,
+            "kind": "warrior",
+            "team": "green",
+            "hp": 90,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 20,
+            "kind": "shaman",
+            "team": "green",
+            "hp": 100,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 21,
+            "kind": "warrior",
+            "team": "green",
+            "hp": 90,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 54,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 278,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 319,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 281,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 284,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 170,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 173,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 176,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 275,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 1207,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1245,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1247,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1249,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1251,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          }
+        ],
+        "events": []
+      },
+      "errors": [],
+      "speedViolations": [],
+      "firstConversion": null,
+      "orderMarkerCursor": 0,
+      "orderMarkers": [],
+      "sermon": null,
+      "level": 2
+    },
+    {
+      "name": "reload-2-3",
+      "baselineGameTime": 33,
+      "lastGameTime": 434.5,
+      "activeSeconds": 401.5,
+      "firstTurn": 411,
+      "lastTurn": 5214,
+      "samples": 4804,
+      "conversions": {
+        "level": 2,
+        "turn": 5214,
+        "units": [
+          {
+            "id": 4,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 5,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 6,
+            "kind": "warrior",
+            "team": "green",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 7,
+            "kind": "warrior",
+            "team": "green",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 8,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 9,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 10,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 11,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 12,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 13,
+            "kind": "warrior",
+            "team": "green",
+            "hp": 90,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 14,
+            "kind": "warrior",
+            "team": "green",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 15,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 16,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 17,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 18,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 19,
+            "kind": "warrior",
+            "team": "green",
+            "hp": 90,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 20,
+            "kind": "shaman",
+            "team": "green",
+            "hp": 100,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 21,
+            "kind": "warrior",
+            "team": "green",
+            "hp": 90,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 54,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 278,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 319,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 281,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 284,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 170,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 275,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 1207,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1245,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1249,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1251,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1253,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1255,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1257,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 1259,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 1267,
+            "kind": "brave",
+            "team": "green",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 3506,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 3509,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 671088896
+          },
+          {
+            "id": 3510,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 671088896
+          },
+          {
+            "id": 3511,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 671088896
+          },
+          {
+            "id": 3512,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 671088896
+          },
+          {
+            "id": 3513,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 671088896
+          }
+        ],
+        "events": []
+      },
+      "errors": [],
+      "speedViolations": [],
+      "firstConversion": null,
+      "orderMarkerCursor": 0,
+      "orderMarkers": [],
+      "sermon": null,
+      "level": 2
+    },
+    {
+      "name": "reload-2-4",
+      "baselineGameTime": 432.0833333333333,
+      "lastGameTime": 1136,
+      "activeSeconds": 703.9166666666666,
+      "firstTurn": 5200,
+      "lastTurn": 13632,
+      "samples": 8433,
+      "conversions": {
+        "level": 2,
+        "turn": 13632,
+        "units": [
+          {
+            "id": 54,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 671088896
+          },
+          {
+            "id": 278,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 537133440
+          },
+          {
+            "id": 319,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 537133440
+          },
+          {
+            "id": 3509,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90.15,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 537395584
+          },
+          {
+            "id": 3534,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 3541,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90.05,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 537395584
+          },
+          {
+            "id": 3560,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 4480,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90.15,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 537395584
+          },
+          {
+            "id": 4481,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 89.65,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 537395584
+          },
+          {
+            "id": 4482,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90.05,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 537395584
+          },
+          {
+            "id": 4483,
+            "kind": "warrior",
+            "team": "blue",
+            "hp": 90.15,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 537395584
+          },
+          {
+            "id": 4492,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 4512,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 4677,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 4683,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 4780,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 5324,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 5366,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          },
+          {
+            "id": 5392,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 41,
+            "workTarget": 0,
+            "flags3": 264192,
+            "flags4": 536871296
+          }
+        ],
+        "events": []
+      },
+      "errors": [],
+      "speedViolations": [],
+      "firstConversion": null,
+      "orderMarkerCursor": 2,
+      "orderMarkers": [
+        {
+          "cursor": 1,
+          "id": 4506,
+          "x": 85,
+          "z": 113,
+          "observedTurn": 10534,
+          "commandTurn": 10533,
+          "secondarySerial": 14,
+          "turnsRemaining": 3
+        },
+        {
+          "cursor": 2,
+          "id": 4682,
+          "x": 85,
+          "z": 107,
+          "observedTurn": 11665,
+          "commandTurn": 11664,
+          "secondarySerial": 22,
+          "turnsRemaining": 3
+        }
+      ],
+      "sermon": null,
+      "level": 2
+    },
+    {
+      "name": "continue-3-5",
+      "baselineGameTime": 0,
+      "lastGameTime": 18.166666666666668,
+      "activeSeconds": 18.166666666666668,
+      "firstTurn": 12,
+      "lastTurn": 218,
+      "samples": 207,
+      "conversions": {
+        "level": 3,
+        "turn": 218,
+        "units": [
+          {
+            "id": 2734,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 2665,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 2631,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 2563,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 2529,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 15,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 2495,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 2597,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 2699,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 19,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 20,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 21,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 22,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 23,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 24,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 25,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 26,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 30,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 31,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 32,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 33,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 34,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 35,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 36,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 37,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 38,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 39,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 40,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 41,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 42,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 43,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 44,
+            "kind": "brave",
+            "team": "wild",
+            "hp": 50,
+            "state": 10,
+            "workTarget": 0,
+            "flags3": 0,
+            "flags4": 536871168
+          },
+          {
+            "id": 46,
+            "kind": "shaman",
+            "team": "blue",
+            "hp": 100,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 47,
+            "kind": "shaman",
+            "team": "yellow",
+            "hp": 100,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 671088896
+          },
+          {
+            "id": 48,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 49,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 50,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "flags3": 0,
+            "flags4": 0
+          },
+          {
+            "id": 51,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 52,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 53,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 536871168
+          },
+          {
+            "id": 312,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 309,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 519,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 516,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 513,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 510,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 303,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 300,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 522,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 507,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 306,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          },
+          {
+            "id": 589,
+            "kind": "brave",
+            "team": "blue",
+            "hp": 50,
+            "state": 19,
+            "workTarget": 0,
+            "flags3": 262144,
+            "flags4": 537133312
+          }
+        ],
+        "events": []
+      },
+      "errors": [],
+      "speedViolations": [],
+      "firstConversion": null,
+      "orderMarkerCursor": 0,
+      "orderMarkers": [],
+      "sermon": null,
+      "level": 3
+    }
+  ],
+  "milestones": [
+    {
+      "name": "bridge-stock",
+      "level": 1,
+      "turn": 1336,
+      "time": 111.33333333333333,
+      "epoch": "entry-1",
+      "activeSeconds": 111.33333333333333,
+      "missionActiveSeconds": 111.33333333333333,
+      "at": "2026-10-05T19:10:14.957Z"
+    },
+    {
+      "name": "central-bridge",
+      "level": 1,
+      "turn": 1997,
+      "time": 166.41666666666666,
+      "epoch": "entry-1",
+      "activeSeconds": 166.41666666666666,
+      "missionActiveSeconds": 166.41666666666666,
+      "at": "2026-10-05T19:12:49.443Z"
+    },
+    {
+      "name": "camp-knowledge",
+      "level": 1,
+      "turn": 2914,
+      "time": 242.83333333333334,
+      "epoch": "entry-1",
+      "activeSeconds": 242.83333333333334,
+      "missionActiveSeconds": 242.83333333333334,
+      "at": "2026-10-05T19:15:52.478Z"
+    },
+    {
+      "name": "camp",
+      "level": 1,
+      "turn": 4212,
+      "time": 351,
+      "epoch": "entry-1",
+      "activeSeconds": 351,
+      "missionActiveSeconds": 351,
+      "at": "2026-10-05T19:18:28.515Z"
+    },
+    {
+      "name": "warriors",
+      "level": 1,
+      "turn": 4726,
+      "time": 393.8333333333333,
+      "epoch": "entry-1",
+      "activeSeconds": 393.8333333333333,
+      "missionActiveSeconds": 393.8333333333333,
+      "at": "2026-10-05T19:21:12.848Z"
+    },
+    {
+      "name": "lightning-stock",
+      "level": 1,
+      "turn": 5692,
+      "time": 474.3333333333333,
+      "epoch": "entry-1",
+      "activeSeconds": 474.3333333333333,
+      "missionActiveSeconds": 474.3333333333333,
+      "at": "2026-10-05T19:22:44.391Z"
+    },
+    {
+      "name": "checkpoint-reloaded",
+      "level": 1,
+      "turn": 5710,
+      "time": 475.8333333333333,
+      "epoch": "reload-1-1",
+      "activeSeconds": 478.25,
+      "missionActiveSeconds": 478.25,
+      "at": "2026-10-05T19:23:11.218Z"
+    },
+    {
+      "name": "northern-bridge",
+      "level": 1,
+      "turn": 6490,
+      "time": 540.8333333333334,
+      "epoch": "reload-1-1",
+      "activeSeconds": 543.25,
+      "missionActiveSeconds": 543.25,
+      "at": "2026-10-05T19:25:49.617Z"
+    },
+    {
+      "name": "victory",
+      "level": 1,
+      "turn": 8342,
+      "time": 695.1666666666666,
+      "epoch": "reload-1-1",
+      "activeSeconds": 697.5833333333333,
+      "missionActiveSeconds": 697.5833333333333,
+      "at": "2026-10-05T19:34:27.437Z"
+    },
+    {
+      "name": "bridge-activated",
+      "level": 2,
+      "turn": 1337,
+      "time": 111.41666666666667,
+      "epoch": "reload-2-3",
+      "activeSeconds": 811.9999999999999,
+      "missionActiveSeconds": 114.41666666666667,
+      "at": "2026-10-05T19:55:43.203Z"
+    },
+    {
+      "name": "camp",
+      "level": 2,
+      "turn": 2733,
+      "time": 227.75,
+      "epoch": "reload-2-3",
+      "activeSeconds": 928.3333333333333,
+      "missionActiveSeconds": 230.75,
+      "at": "2026-10-05T19:58:12.035Z"
+    },
+    {
+      "name": "warriors",
+      "level": 2,
+      "turn": 3359,
+      "time": 279.9166666666667,
+      "epoch": "reload-2-3",
+      "activeSeconds": 980.5,
+      "missionActiveSeconds": 282.9166666666667,
+      "at": "2026-10-05T20:00:19.459Z"
+    },
+    {
+      "name": "tornado-stock",
+      "level": 2,
+      "turn": 5185,
+      "time": 432.0833333333333,
+      "epoch": "reload-2-3",
+      "activeSeconds": 1132.6666666666665,
+      "missionActiveSeconds": 435.0833333333333,
+      "at": "2026-10-05T20:03:03.333Z"
+    },
+    {
+      "name": "checkpoint-reloaded",
+      "level": 2,
+      "turn": 5200,
+      "time": 433.3333333333333,
+      "epoch": "reload-2-4",
+      "activeSeconds": 1136.3333333333333,
+      "missionActiveSeconds": 438.75,
+      "at": "2026-10-05T20:03:30.883Z"
+    },
+    {
+      "name": "victory",
+      "level": 2,
+      "turn": 13632,
+      "time": 1136,
+      "epoch": "reload-2-4",
+      "activeSeconds": 1839,
+      "missionActiveSeconds": 1141.4166666666665,
+      "at": "2026-10-05T20:27:05.417Z"
+    }
+  ],
+  "failures": [
+    {
+      "level": 2,
+      "index": 11,
+      "inputSha256": "8e3f9adfcc0293aabf0c37990f4bfbe21d5c7a05ee4396b4761f639ab4c92e2f",
+      "error": "AssertionError [ERR_ASSERTION]: Entity integer interior target became stale before input\n\nfalse !== true\n\n    at prepareEntityClick (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:349:12)\n    at async clickOrder (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:383:21)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+      "at": "2026-10-05T20:18:52.451Z"
+    },
+    {
+      "level": 2,
+      "index": 14,
+      "inputSha256": "5918bc389b445fb97aa6bb07255f6818a99454616591e4d66e2be4bf40893cfc",
+      "error": "AssertionError [ERR_ASSERTION]: Visible ground with no competing object\n    at move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:451:12)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+      "at": "2026-10-05T20:25:59.982Z"
+    }
+  ],
+  "controlStops": [],
+  "transitions": [
+    {
+      "from": 1,
+      "to": 2,
+      "boundary": {
+        "sameStore": true,
+        "newWorld": true,
+        "newScene": true,
+        "currentCorrespondence": true,
+        "level": 2,
+        "replacementLevel": 2,
+        "error": null
+      },
+      "at": "2026-10-05T19:34:35.471Z"
+    },
+    {
+      "from": 2,
+      "to": 3,
+      "boundary": {
+        "sameStore": true,
+        "newWorld": true,
+        "newScene": true,
+        "currentCorrespondence": true,
+        "level": 3,
+        "replacementLevel": 3,
+        "error": null
+      },
+      "at": "2026-10-05T20:27:17.966Z"
+    }
+  ],
+  "checkpointProofs": [
+    {
+      "level": 1,
+      "saved": {
+        "label": "m1-m1-army-and-lightning",
+        "observedAt": "2026-10-05T19:22:53.601Z",
+        "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+        "runId": "329b5c19-0e73-4209-b2b0-bba3e1094a0f",
+        "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+        "checkpoint": {
+          "version": 1,
+          "level": 1,
+          "turn": 5692,
+          "time": 474.3333333333333,
+          "checkpointSha256": "107ee0f419540cfa3ee32f4436ab10dc665aa481efd81341291c55e8385492cd",
+          "actorsSha256": "d8a0b8dfb546621ca04d6c3c9a4d37b07466e5c6ad78758b3510e0fcd4b47478",
+          "terrainSha256": "94819c73b03a4c5f9a44f3778c84d4f0808a7db50fefa51d6fea572cccf5fc67",
+          "stockSha256": "b605a8fd9a678a3680fbe9381caa35db2a4f736e61de3ceaeb2cc0d0038f812d"
+        }
+      },
+      "loaded": false
+    },
+    {
+      "level": 1,
+      "saved": {
+        "version": 1,
+        "level": 1,
+        "turn": 5692,
+        "time": 474.3333333333333,
+        "checkpointSha256": "107ee0f419540cfa3ee32f4436ab10dc665aa481efd81341291c55e8385492cd",
+        "actorsSha256": "d8a0b8dfb546621ca04d6c3c9a4d37b07466e5c6ad78758b3510e0fcd4b47478",
+        "terrainSha256": "94819c73b03a4c5f9a44f3778c84d4f0808a7db50fefa51d6fea572cccf5fc67",
+        "stockSha256": "b605a8fd9a678a3680fbe9381caa35db2a4f736e61de3ceaeb2cc0d0038f812d"
+      },
+      "boundary": {
+        "version": 1,
+        "level": 1,
+        "turn": 5692,
+        "time": 474.3333333333333,
+        "checkpointSha256": "107ee0f419540cfa3ee32f4436ab10dc665aa481efd81341291c55e8385492cd",
+        "actorsSha256": "d8a0b8dfb546621ca04d6c3c9a4d37b07466e5c6ad78758b3510e0fcd4b47478",
+        "terrainSha256": "94819c73b03a4c5f9a44f3778c84d4f0808a7db50fefa51d6fea572cccf5fc67",
+        "stockSha256": "b605a8fd9a678a3680fbe9381caa35db2a4f736e61de3ceaeb2cc0d0038f812d"
+      },
+      "stored": {
+        "version": 1,
+        "level": 1,
+        "turn": 5692,
+        "time": 474.3333333333333,
+        "checkpointSha256": "107ee0f419540cfa3ee32f4436ab10dc665aa481efd81341291c55e8385492cd",
+        "actorsSha256": "d8a0b8dfb546621ca04d6c3c9a4d37b07466e5c6ad78758b3510e0fcd4b47478",
+        "terrainSha256": "94819c73b03a4c5f9a44f3778c84d4f0808a7db50fefa51d6fea572cccf5fc67",
+        "stockSha256": "b605a8fd9a678a3680fbe9381caa35db2a4f736e61de3ceaeb2cc0d0038f812d"
+      },
+      "identity": {
+        "sameStore": true,
+        "newWorld": true,
+        "newScene": true,
+        "currentCorrespondence": true,
+        "level": 1,
+        "replacementLevel": 1,
+        "error": null
+      },
+      "pausedTurn": 5710,
+      "livePresentation": {
+        "clock": {
+          "elapsed": 888647.797999923,
+          "nextVisit": 888660,
+          "lastVisit": 888635,
+          "limiter": 0,
+          "normalRate": 40
+        },
+        "requests": [],
+        "spell": {
+          "active": false,
+          "step": 5,
+          "visits": 0,
+          "model": 3,
+          "giftId": 3858
+        },
+        "companion": {
+          "active": false,
+          "step": 3,
+          "visits": 0,
+          "model": 3
+        },
+        "pulse": {
+          "active": false,
+          "model": 3,
+          "frame": 3,
+          "remaining": 0
+        }
+      },
+      "loaded": true,
+      "segment": false
+    },
+    {
+      "level": 2,
+      "saved": {
+        "label": "m2-m2-continued-segment",
+        "observedAt": "2026-10-05T19:35:17.770Z",
+        "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+        "runId": "329b5c19-0e73-4209-b2b0-bba3e1094a0f",
+        "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+        "checkpoint": {
+          "version": 1,
+          "level": 2,
+          "turn": 396,
+          "time": 33,
+          "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+          "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+        }
+      },
+      "loaded": false
+    },
+    {
+      "level": 2,
+      "saved": {
+        "version": 1,
+        "level": 2,
+        "turn": 396,
+        "time": 33,
+        "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+        "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+        "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+        "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+      },
+      "boundary": {
+        "version": 1,
+        "level": 2,
+        "turn": 396,
+        "time": 33,
+        "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+        "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+        "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+        "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+      },
+      "stored": {
+        "version": 1,
+        "level": 2,
+        "turn": 396,
+        "time": 33,
+        "checkpointSha256": "3c33b5f3e144282405b5611810f860925ed6b3e8a104f0a12edd168e5610d33e",
+        "actorsSha256": "767c81f4de863bef08a89f2eb622b09cfcb5bed2791415edf9b2571a935cc6ee",
+        "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+        "stockSha256": "49d9cc5a7a7252cb15f655370404d030fd76f3cadf32366b77fd60d4b033174d"
+      },
+      "identity": {
+        "sameStore": true,
+        "newWorld": true,
+        "newScene": true,
+        "currentCorrespondence": true,
+        "level": 2,
+        "replacementLevel": 2,
+        "error": null
+      },
+      "pausedTurn": 411,
+      "livePresentation": {
+        "clock": {
+          "elapsed": 45048.12400000021,
+          "nextVisit": 45050,
+          "lastVisit": 45025,
+          "limiter": 0,
+          "normalRate": 40
+        },
+        "requests": [],
+        "spell": null,
+        "companion": null,
+        "pulse": null
+      },
+      "loaded": true,
+      "segment": true
+    },
+    {
+      "level": 2,
+      "saved": {
+        "label": "m2-m2-army-and-tornado",
+        "observedAt": "2026-10-05T20:03:13.123Z",
+        "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+        "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+        "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+        "checkpoint": {
+          "version": 1,
+          "level": 2,
+          "turn": 5185,
+          "time": 432.0833333333333,
+          "checkpointSha256": "5afba71ef6deb2b0bad8afa79e666c4c9a4763eae8f9753be522afb04b6bf457",
+          "actorsSha256": "f801bba66a19b530267657354cd81f450d4bf58743c91226bc00dd737a9249f4",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "c7e696f23f0a76b0427b812064a2f792fc5f2c41563a829a1eead7924d35a22a"
+        }
+      },
+      "loaded": false
+    },
+    {
+      "level": 2,
+      "saved": {
+        "version": 1,
+        "level": 2,
+        "turn": 5185,
+        "time": 432.0833333333333,
+        "checkpointSha256": "5afba71ef6deb2b0bad8afa79e666c4c9a4763eae8f9753be522afb04b6bf457",
+        "actorsSha256": "f801bba66a19b530267657354cd81f450d4bf58743c91226bc00dd737a9249f4",
+        "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+        "stockSha256": "c7e696f23f0a76b0427b812064a2f792fc5f2c41563a829a1eead7924d35a22a"
+      },
+      "boundary": {
+        "version": 1,
+        "level": 2,
+        "turn": 5185,
+        "time": 432.0833333333333,
+        "checkpointSha256": "5afba71ef6deb2b0bad8afa79e666c4c9a4763eae8f9753be522afb04b6bf457",
+        "actorsSha256": "f801bba66a19b530267657354cd81f450d4bf58743c91226bc00dd737a9249f4",
+        "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+        "stockSha256": "c7e696f23f0a76b0427b812064a2f792fc5f2c41563a829a1eead7924d35a22a"
+      },
+      "stored": {
+        "version": 1,
+        "level": 2,
+        "turn": 5185,
+        "time": 432.0833333333333,
+        "checkpointSha256": "5afba71ef6deb2b0bad8afa79e666c4c9a4763eae8f9753be522afb04b6bf457",
+        "actorsSha256": "f801bba66a19b530267657354cd81f450d4bf58743c91226bc00dd737a9249f4",
+        "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+        "stockSha256": "c7e696f23f0a76b0427b812064a2f792fc5f2c41563a829a1eead7924d35a22a"
+      },
+      "identity": {
+        "sameStore": true,
+        "newWorld": true,
+        "newScene": true,
+        "currentCorrespondence": true,
+        "level": 2,
+        "replacementLevel": 2,
+        "error": null
+      },
+      "pausedTurn": 5200,
+      "livePresentation": {
+        "clock": {
+          "elapsed": 590226.3560000553,
+          "nextVisit": 590248,
+          "lastVisit": 590223,
+          "limiter": 0,
+          "normalRate": 40
+        },
+        "requests": [],
+        "spell": {
+          "active": false,
+          "step": 5,
+          "visits": 0,
+          "model": 4,
+          "giftId": 3522
+        },
+        "companion": {
+          "active": false,
+          "step": 3,
+          "visits": 0,
+          "model": 4
+        },
+        "pulse": {
+          "active": false,
+          "model": 4,
+          "frame": 3,
+          "remaining": 0
+        }
+      },
+      "loaded": true,
+      "segment": false
+    },
+    {
+      "level": 2,
+      "saved": {
+        "label": "m2-m2-reinforced-army",
+        "observedAt": "2026-10-05T20:14:30.939Z",
+        "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+        "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+        "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+        "checkpoint": {
+          "version": 1,
+          "level": 2,
+          "turn": 9800,
+          "time": 816.6666666666666,
+          "checkpointSha256": "5755c06b8a4a06cdb67bc7dabf3475d251a5a0cac29e417d4ab9b77871dfa149",
+          "actorsSha256": "bbea83dba810259d3b6b413d0592bb761bf12a4b121fba72d2a650dd196fea0f",
+          "terrainSha256": "c331ae90c1d390b157404ecd5b92b0a142481bedeb4df2a93bb77acb285359b1",
+          "stockSha256": "aee7a42f469d476482c17741db341347075e06c3162153ac54b9f7cc712263c5"
+        }
+      },
+      "loaded": false
+    },
+    {
+      "level": 3,
+      "saved": {
+        "label": "m3-m3-continued-segment",
+        "observedAt": "2026-10-05T20:27:43.801Z",
+        "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+        "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+        "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+        "checkpoint": {
+          "version": 1,
+          "level": 3,
+          "turn": 179,
+          "time": 14.916666666666666,
+          "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+          "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+          "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+          "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+        }
+      },
+      "loaded": false
+    }
+  ],
+  "acceptedCasts": [
+    {
+      "level": 1,
+      "spell": "bridge",
+      "turn": 1782,
+      "before": 4,
+      "after": 3,
+      "statsBefore": 0,
+      "statsAfter": 1
+    },
+    {
+      "level": 1,
+      "spell": "bridge",
+      "turn": 6282,
+      "before": 3,
+      "after": 2,
+      "statsBefore": 1,
+      "statsAfter": 2
+    },
+    {
+      "level": 1,
+      "spell": "lightning",
+      "turn": 7345,
+      "before": 4,
+      "after": 3,
+      "statsBefore": 2,
+      "statsAfter": 3
+    },
+    {
+      "level": 2,
+      "spell": "tornado",
+      "turn": 11013,
+      "before": 3,
+      "after": 2,
+      "statsBefore": 0,
+      "statsAfter": 1
+    },
+    {
+      "level": 2,
+      "spell": "tornado",
+      "turn": 12001,
+      "before": 2,
+      "after": 1,
+      "statsBefore": 1,
+      "statsAfter": 2
+    }
+  ],
+  "protectedLatest": {
+    "label": "m3-m3-continued-segment",
+    "observedAt": "2026-10-05T20:27:43.801Z",
+    "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+    "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+    "sourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+    "checkpoint": {
+      "version": 1,
+      "level": 3,
+      "turn": 179,
+      "time": 14.916666666666666,
+      "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+      "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+      "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+      "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+    }
+  },
+  "savedSermon": null,
+  "training": null,
+  "victimSelection": null,
+  "sermonPlan": null,
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "commit": "ddef3caa522d45168b16f290cc5b5a4d1541fce2",
+    "tree": "7c6518a5d903508536071b1687d8759074112e13",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b"
+  },
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "runId": "1a4080a7-e027-4de2-8ff1-4b6f5ff26368",
+  "policy": {
+    "launchEnabled": true,
+    "applicationCommit": "3b899125cc8cedef938823718ad5d44f49957b66",
+    "applicationTree": "20b5894d4c17f120cd7608b4138953ea6c5f243f",
+    "limits": {
+      "missionActiveSeconds": {
+        "1": 900,
+        "2": 1500,
+        "3": 2400
+      },
+      "campaignActiveSeconds": 4800,
+      "missionWallMs": {
+        "1": 1800000,
+        "2": 5400000,
+        "3": 5400000
+      },
+      "wallMs": 12600000,
+      "noProgressActiveSeconds": 120,
+      "m3BeforeConversionSeconds": 900,
+      "m3AfterConversionSeconds": 1800,
+      "segmentWallMs": 5700000
+    },
+    "reason": "Enabled finite policy pins accepted merged main3b89912. Exact combined source/runtime review and coordinator launch grant remain required; no old profile reuse or cause attribution from the Stone Head gate.",
+    "applicationImports": {
+      "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+      "scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80",
+      "scripts/campaign-conversion-observer.mjs": "36e6d8a30547f566ed4ba26816d797d0e6dd625c72385bf73aab0e2b988266aa",
+      "scripts/campaign-start-readiness.mjs": "214ffc2ce95ea039328e356d493ba8beb887e2d5ef1084b672fb0413fac48d28",
+      "scripts/local-render/harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "scripts/local-render/owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "scripts/local-render/checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "scripts/local-render/vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "ownedWallMs": 3662884,
+  "missionWallMs": {
+    "1": 1589523,
+    "2": 2039727,
+    "3": 33630
+  },
+  "browserErrors": [],
+  "preserveStopRequested": false,
+  "preserveVerificationFailed": false
+}

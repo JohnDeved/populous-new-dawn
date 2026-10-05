@@ -1,0 +1,179 @@
+{
+  "status": "PASS EVIDENCE AND PREDECESSOR",
+  "reviewedAt": "2026-10-05T20:32:44.947Z",
+  "terminalStatus": "failed",
+  "packetSha256": "bd7c890f04de82370165bf69f990336e0fbcddac269f92385c6be8565eb8f019",
+  "packetFiles": 80,
+  "innerSha256": "d936947f3aba05398b4d77351496f937ab5e2e2b6f33a75eb3304f6bf9f28470",
+  "boundarySha256": "88ef7da61fd5c360b37dfb630b21ff8a76df0986203a5c29a0f6b41f2a3d734d",
+  "terminalFailureSha256": "795b1f007527c769f1e68b608dc5fe1d187bf1c33f28f321d1e5fc75de2f0874",
+  "markerSha256": "dcdca505032ff03d319f552b68f7e54830f41d6c60608a7ae46306f709264b32",
+  "commandBatches": 15,
+  "scheduledCommands": 110,
+  "requestedCommands": 99,
+  "unexecutedSuffixes": [
+    {
+      "batch": 11,
+      "command": {
+        "action": "select",
+        "kind": "shaman"
+      }
+    },
+    {
+      "batch": 11,
+      "command": {
+        "action": "move",
+        "point": {
+          "x": 85,
+          "z": 108
+        }
+      }
+    },
+    {
+      "batch": 11,
+      "command": {
+        "action": "wait",
+        "condition": {
+          "type": "units-near",
+          "id": 54,
+          "point": {
+            "x": 85,
+            "z": 108
+          },
+          "distance": 1.5
+        },
+        "scope": "movement",
+        "watchIds": [
+          54
+        ]
+      }
+    },
+    {
+      "batch": 11,
+      "command": {
+        "action": "cast",
+        "spell": "tornado",
+        "target": {
+          "x": 82.8828125,
+          "z": 100.921875
+        }
+      }
+    },
+    {
+      "batch": 11,
+      "command": {
+        "action": "wait",
+        "condition": {
+          "type": "target-gone",
+          "id": 2
+        },
+        "scope": "combat",
+        "watchIds": [
+          2
+        ]
+      }
+    },
+    {
+      "batch": 11,
+      "command": {
+        "action": "pause"
+      }
+    },
+    {
+      "batch": 11,
+      "command": {
+        "action": "snapshot",
+        "name": "m2-northern-hut-tornado-and-western-fight"
+      }
+    },
+    {
+      "batch": 14,
+      "command": {
+        "action": "wait",
+        "condition": {
+          "type": "units-near",
+          "id": 54,
+          "point": {
+            "x": 85,
+            "z": 104
+          },
+          "distance": 1.5
+        },
+        "scope": "movement",
+        "watchIds": [
+          54
+        ]
+      }
+    },
+    {
+      "batch": 14,
+      "command": {
+        "action": "cast",
+        "spell": "blast",
+        "target": 4279
+      }
+    },
+    {
+      "batch": 14,
+      "command": {
+        "action": "pause"
+      }
+    },
+    {
+      "batch": 14,
+      "command": {
+        "action": "snapshot",
+        "name": "m2-last-followers-check"
+      }
+    }
+  ],
+  "actions": 416,
+  "sourceCopiesVerified": 8,
+  "sourceImportsVerified": 8,
+  "helperFailures": [
+    {
+      "level": 2,
+      "index": 11,
+      "inputSha256": "8e3f9adfcc0293aabf0c37990f4bfbe21d5c7a05ee4396b4761f639ab4c92e2f",
+      "error": "AssertionError [ERR_ASSERTION]: Entity integer interior target became stale before input\n\nfalse !== true\n\n    at prepareEntityClick (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:349:12)\n    at async clickOrder (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:383:21)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+      "at": "2026-10-05T20:18:52.451Z"
+    },
+    {
+      "level": 2,
+      "index": 14,
+      "inputSha256": "5918bc389b445fb97aa6bb07255f6818a99454616591e4d66e2be4bf40893cfc",
+      "error": "AssertionError [ERR_ASSERTION]: Visible ground with no competing object\n    at move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:451:12)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1060:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+      "at": "2026-10-05T20:25:59.982Z"
+    }
+  ],
+  "forwardFailureRecords": 3,
+  "forwardFailureKinds": [
+    "helper-input-failure",
+    "helper-input-failure",
+    "prior-harness-failure"
+  ],
+  "cleanupOverrideNegativeCases": 2,
+  "preservedCheckpoint": {
+    "version": 1,
+    "level": 3,
+    "turn": 179,
+    "time": 14.916666666666666,
+    "checkpointSha256": "5cb9a33a119f9c70dbf22455766e5c7add5ffa99a45b704d90ba5c434ac3b713",
+    "actorsSha256": "d3800ca9b4c2defdcee32555989ad773a1f17ab102647348a96a33ce2930b96b",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "cdc292dfbddfa5205d6b407ad882a27c1cd156ebcd3fbefea487438febde25e5"
+  },
+  "activeByMission": {
+    "1": 697.5833333333333,
+    "2": 1141.4166666666665,
+    "3": 18.166666666666668
+  },
+  "totalActiveSeconds": 1857.1666666666667,
+  "missionWallMs": {
+    "1": 1589523,
+    "2": 2039727,
+    "3": 30211
+  },
+  "ownedWallMs": 3659465,
+  "scope": "Actual source-bound evidence, read-only marker and maintained host validator only. No lease/browser/storage read or launch performed. Future actual pre-entry checkpoint digest and ordinary Load remain required."
+}
