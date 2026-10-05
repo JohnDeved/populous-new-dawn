@@ -6,8 +6,12 @@ The application remains `cfa86a32f03d021cd1ad725eed9f458ab239d56b`.
 The scenario is `scripts/local-render/staged-worship-composition.mjs`; its sibling
 `staged-worship-composition-inputs.json` pins the relevant cfa sources, native
 research, portable fixture, artwork and existing harness bytes. The script pins
-that manifest's SHA-256. Run the scenario externally against a clean cfa checkout;
-the scenario's source-only branch is not the game root.
+that manifest's SHA-256. Copy the frozen scenario and its manifest into scripts/local-render in the exact
+cfa game checkout. The owned-profile harness requires those repository-enumerated
+QA inputs. The source guard requires an empty tracked diff and admits only the two
+required copied files plus the exact hash-pinned previously reviewed ordinary,
+route-helper and boundary checker files. All other untracked or changed inputs fail.
+The source-only driver branch is not the application HEAD.
 
 ## Claim and native boundary
 
@@ -94,7 +98,9 @@ isolated fixture run: it does not create or overwrite a user checkpoint.
 
 One attempt only. Use the reviewed existing `harness.mjs`, a parent-reserved
 unused port, a fresh output directory, and a fresh owned profile. The application
-commit/status and every manifest input must match before fixture installation.
+commit, empty tracked diff, admitted QA identities and every manifest input must
+match before fixture installation. Include the copied scenario and manifest as
+explicit outer command-receipt inputs; the harness also binds source before/after.
 The recommended harness timeout is 120,000 ms with an outer owned-process limit
 of 150 seconds and a 10-second TERM-to-KILL grace. Runtime paths, official browser
 identity, port ownership, cleanup and dependency availability remain the parent's

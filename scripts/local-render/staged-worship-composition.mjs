@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
-import { resolve } from 'node:path'
-import { pathToFileURL } from 'node:url'
+import { resolve, relative, sep } from 'node:path'
+import { pathToFileURL, fileURLToPath } from 'node:url'
 
 // One deliberately staged composition row. This is not ordinary worship or
 // natural simultaneous completion. The only fixture writes are three createGift
@@ -427,8 +427,28 @@ async function install(page, inputs) {
 export default async function ({ page, root, output, receipt, openMission, signal }) {
   assert.equal(receipt.profile?.mode, 'created', 'Use a fresh owned profile for this staged row')
   assert.equal(receipt.profile.checkpointAtStart, null)
-  assert.equal(receipt.source.commit, application, 'Run against the exact cfa application checkout, with the scenario external to it')
-  assert.equal(receipt.source.status, '', 'Application checkout must be clean')
+  assert.equal(receipt.source.commit, application, 'Run against the exact cfa application checkout')
+  assert.equal(receipt.source.trackedDiffSha256, 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
+    'Tracked application and harness inputs must remain unchanged')
+  const scenarioPath = 'scripts/local-render/staged-worship-composition.mjs',
+    manifestPath = 'scripts/local-render/staged-worship-composition-inputs.json',
+    admitted = {
+      [scenarioPath]: digest(readFileSync(new URL(import.meta.url))),
+      [manifestPath]: inputManifestSha256,
+      'scripts/local-render/ordinary-worship.mjs': 'e109f328e3b0203081df9440e1c2ae5f07b31ff02a29e284367fed05d72c65ce',
+      'scripts/local-render/ordinary-worship-m1-route.mjs': '30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879',
+      'scripts/local-render/ordinary-worship-boundaries.mjs': '406600fd106307efd63dd6aedcb48e42fa9a887bd87977f536b87bad295ee676',
+    }
+  assert.equal(relative(resolve(root), fileURLToPath(import.meta.url)).split(sep).join('/'), scenarioPath,
+    'Owned profile requires the frozen checker copied inside gameRoot')
+  for (const file of receipt.source.untracked) {
+    assert.ok(Object.hasOwn(admitted, file.path), `Unreviewed untracked input: ${file.path}`)
+    assert.equal(file.sha256, admitted[file.path], `Changed admitted checker: ${file.path}`)
+  }
+  for (const required of [scenarioPath, manifestPath])
+    assert.ok(receipt.source.untracked.some(file => file.path === required), `Missing frozen checker input: ${required}`)
+  assert.deepEqual(receipt.source.status.split('\n').sort(),
+    receipt.source.untracked.map(file => `?? ${file.path}`).sort(), 'Only pinned untracked checker files are admitted')
   const manifestBytes = readFileSync(new URL('./staged-worship-composition-inputs.json', import.meta.url))
   assert.equal(digest(manifestBytes), inputManifestSha256, 'Frozen external manifest bytes')
   const manifest = JSON.parse(manifestBytes)
