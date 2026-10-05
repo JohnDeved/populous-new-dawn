@@ -18,10 +18,22 @@ async function installEarlyObserver(page, phase) {
       errors: [], replacement: null, start: null, cues: 0, visits: 0,
       handoffs: [], draws: {}, drawCosts: [], visibility: [], firstVisibleDraw: null, resumedMotion: null, restored: false,
     }
-    const focus = w => structuredClone({ level: w.outcome.level, turn: w.turn, paused: w.paused,
-      acquisition: w.worshipAcquisition, gifts: w.gifts.filter(g => g.reward === 'lightning'),
-      stock: w.shots.lightning, count: w.giftCounts.lightning,
-      gameplayRandom: w.randomState, cosmeticRandom: w.cosmeticRandom })
+    const focus = w => {
+      const observed = structuredClone({ level: w.outcome.level, turn: w.turn, paused: w.paused,
+        acquisition: w.worshipAcquisition, gifts: w.gifts.filter(g => g.reward === 'lightning'),
+        stock: w.shots.lightning, count: w.giftCounts.lightning,
+        gameplayRandom: w.randomState, cosmeticRandom: w.cosmeticRandom })
+      // JSON cannot represent Infinity. Encode the native gift duration only in
+      // observation copies, so the saved raw receipt and fresh IndexedDB read
+      // compare the same lossless value. Never coerce null to Infinity or write
+      // this representation into the live World/checkpoint.
+      for (const gift of observed.gifts) {
+        if (gift.duration === Infinity) gift.duration = { pndNumber: '+Infinity' }
+        else if (typeof gift.duration !== 'number' || !Number.isFinite(gift.duration))
+          throw Error('Unexpected gift duration in boundary observation')
+      }
+      return observed
+    }
     window.worshipBoundaryFocus = focus
     const observe = fn => { try { return fn() } catch (error) {
       if (evidence.errors.length < 16) evidence.errors.push(String(error.stack ?? error))
@@ -379,6 +391,7 @@ export default async function ({ page, context, root, output, receipt, openMissi
   const { bindGame, waitForShamanReadiness } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
   const { waitForCheckpointReadback } = await import(pathToFileURL(resolve(root, 'scripts/checkpoint-readback.mjs')).href)
   const report = { phase, status: 'running', source: receipt.source,
+    focusEncoding: 'Observation-only gift.duration +Infinity is represented as {pndNumber: +Infinity}; finite numbers unchanged, null/other nonfinite values rejected.',
     scenarioSha256: createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex'),
     method: 'Real RAF, public mouse/HUD/Save/Load. Read-only synchronous replacement and original-once pre-start callback observation. No direct World/clock/RNG mutation.',
     browserVersion: receipt.browserVersion, routeHelperSha256: m1RouteSource.helperSha256,
