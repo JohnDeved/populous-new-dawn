@@ -57,6 +57,22 @@ spell acquisition sequence. No runtime, asset, fixture, or parity change is made
    The isolated probe intercepts the limiter setters, so pacing is source/byte
    evidence, not an executed wall-clock proof. No modern timing constant is chosen.
 
+The bounded source-only bit-2 caller lookup finds direct setters in the RDDATA
+recorded-game/montage start, restart and cleanup family: `004b2700`, `004b2d20`,
+[004b30e0](../generated/004b30e0.c), [004b36e0](../generated/004b36e0.c),
+[004b3920](../generated/004b3920.c), and `004b4370`. For example, `004b36e0`
+sets limiter bit 2, saves the session rate, changes it to 14, and loads the RDDATA
+montage; its failure/finish paths clear the bit. The existing
+[Rolling Demo entry evidence](demo131-entry.md#rolling-demo-exact-remaining-provenance-boundary)
+binds that family to recorded playback. The acquisition setter preserves other
+limiter bits, and neither the local-recipient handoff nor `00484320` rejects bit 2.
+Therefore simultaneous recorded-playback and acquisition state is allowed by
+these consumers and would select 14 FPS. No bit-2 producer was found in the
+ordinary unrecorded Mission 1–2 worship path. A naturally reached recording of
+those exact heads, all possible serialized flags, and indirect writers were not
+proved by this bounded lookup; do not erase that qualification or claim every
+acquisition necessarily uses 20 FPS.
+
 ## Source placement and authored boundary
 
 `00481900` uses the reward's renderer-written signed screen coordinates
@@ -124,7 +140,7 @@ bit-8 arrival suppression; glow allocation failure; nonlocal and 255 recipients;
 pause instruction ordering; absent, removed, wrong-class and wrong-model saved
 reward handles; and an already-one timer. Local arrivals additionally execute the
 next reward visit and verify one stock/gift award plus removal, with no new glow.
-The source stays frozen; the pacing audit below/above did not alter that matrix.
+The source stays frozen; the pacing audit did not alter that matrix.
 
 Every call guards the complete mapped original search table, all 244 configured
 constant targets, and all five read-only PE regions before and after execution;
