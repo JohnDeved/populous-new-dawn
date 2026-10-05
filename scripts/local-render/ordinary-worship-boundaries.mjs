@@ -354,7 +354,7 @@ async function saveTailThroughPreparedControls(page, controls, wait, report) {
   await page.mouse.move(controls.settings.x, controls.settings.y)
   await page.evaluate(() => {
     const originalScene = window.worshipBoundaryScene,
-      evidence = window.worshipTailInput = { preparation: null, events: [], errors: [], restored: false }, listeners = []
+      evidence = window.worshipTailInput = { preparation: null, events: [], settingsPointer: [], errors: [], restored: false }, listeners = []
     for (const capture of [true, false]) {
       const listener = event => {
         try {
@@ -375,14 +375,32 @@ async function saveTailThroughPreparedControls(page, controls, wait, report) {
               spellGiftId: c.spell?.giftId, sameGeometry: !!c.pulse && c.pulse.geometry === c.spell?.geometry, clock: { ...w.worshipAcquisition.clock } } })
         } catch (error) { evidence.errors.push(String(error)) }
       }
-      window.addEventListener('click', listener, capture); listeners.push({ listener, capture })
+      window.addEventListener('click', listener, capture); listeners.push({ type: 'click', listener, capture })
+    }
+    for (const type of ['pointerdown', 'pointerup']) {
+      const listener = event => {
+        const settings = document.querySelector('button[aria-label="Game settings"]')
+        if (event.target.closest?.('button') !== settings) return
+        const scene = window.worshipBoundaryScene, w = scene.world
+        if (evidence.settingsPointer.length >= 2) { evidence.errors.push('Settings pointer event bound exceeded'); return }
+        evidence.settingsPointer.push({ type, isTrusted: event.isTrusted, button: event.button, buttons: event.buttons,
+          x: event.clientX, y: event.clientY, connected: settings.isConnected, disabled: settings.disabled,
+          sameWorld: scene === originalScene && w === window.testStore.getWorld(), paused: w.paused, turn: w.turn })
+      }
+      window.addEventListener(type, listener, true); listeners.push({ type, listener, capture: true })
     }
     window.restoreWorshipTailInput = () => {
-      for (const { listener, capture } of listeners) window.removeEventListener('click', listener, capture)
+      for (const { type, listener, capture } of listeners) window.removeEventListener(type, listener, capture)
       evidence.restored = true; delete window.restoreWorshipTailInput; return evidence
     }
   })
+  let settingsHeld = false
   try {
+    // A normal public button press is held before the short final-body window.
+    // Its eventual trusted release owns the Settings click; no handler is called.
+    await page.mouse.down({ button: 'left' }); settingsHeld = true
+    assert.equal(await page.evaluate(() => window.worshipBoundaryScene.world.paused), false,
+      'Holding Settings before release must not pause the live world')
     await wait(() => {
       const w = window.worshipBoundaryScene.world, c = w.worshipAcquisition.controllers
       if (!c.spell?.active || c.spell.model !== 3 || c.spell.step !== 4 || !c.spell.next ||
@@ -394,13 +412,25 @@ async function saveTailThroughPreparedControls(page, controls, wait, report) {
       window.worshipTailInput.preparation ??= window.worshipBoundaryTailWindow('between-browser-tasks-final-body-next-before-public-Settings')
       return true
     }, null, 15000, 'Exact final-body preparation before trusted Settings/Save inputs')
-    await page.mouse.click(controls.settings.x, controls.settings.y)
+    settingsHeld = false
+    await page.mouse.up({ button: 'left' })
     await page.mouse.click(controls.save.x, controls.save.y)
   } finally {
+    if (settingsHeld && !page.isClosed()) {
+      settingsHeld = false; await page.mouse.up({ button: 'left' })
+      report.tailInputCleanupRelease = true
+    }
     if (!page.isClosed()) report.tailInput = await page.evaluate(() => window.restoreWorshipTailInput())
   }
   const input = report.tailInput
   assert.equal(input.restored, true); assert.deepEqual(input.errors, [])
+  assert.deepEqual(input.settingsPointer.map(event => [event.type, event.button, event.buttons]),
+    [['pointerdown', 0, 1], ['pointerup', 0, 0]], 'One normal Settings press and release')
+  for (const event of input.settingsPointer) {
+    assert.equal(event.isTrusted, true); assert.equal(event.sameWorld, true); assert.equal(event.connected, true)
+    assert.equal(event.disabled, false); assert.equal(event.x, controls.settings.x); assert.equal(event.y, controls.settings.y)
+  }
+  assert.equal(input.settingsPointer[0].paused, false)
   assert.deepEqual(input.events.map(e => [e.target, e.stage]), [
     ['settings', 'capture-before-game'], ['settings', 'bubble-after-game'],
     ['save', 'capture-before-game'], ['save', 'bubble-after-game'],
