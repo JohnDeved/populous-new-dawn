@@ -1,0 +1,12 @@
+diff --git a/work/orchestration/stone-head-logical-fix/controlled-render-adapter.mjs b/work/orchestration/stone-head-logical-fix/controlled-render-adapter-startup.mjs
+index ee922d4..1778198 100644
+--- a/work/orchestration/stone-head-logical-fix/controlled-render-adapter.mjs
++++ b/work/orchestration/stone-head-logical-fix/controlled-render-adapter-startup.mjs
+@@ -19,6 +19,7 @@ export function adaptStoneChecker(original, root, output) {
+     ['const page = await context.newPage()', 'const page = globalThis.stoneHeadControlledQA.page'],
+     ['report.browserClosed=true', 'report.browserCloseDelegated=true'],
+     ['output,browserClosed:true', 'output,browserCloseDelegated:true'],
++    ["  if (await skip.isVisible()) await skip.click()", "  await skip.waitFor({ state: 'visible' }) // Same public readiness contract as the maintained harness; existing20s default.\n  if (await skip.isVisible()) await skip.click()"],
+   ]
+   let source = original
+   const replacements = []

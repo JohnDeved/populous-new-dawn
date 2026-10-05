@@ -1,0 +1,129 @@
+{
+  "status": "source-only, unrun",
+  "source": "d97c370da3e996e00130610df97d10b827ab5c4b",
+  "originalSha256": "fc9dcc933a7903f1dad4c4180580e06c02904c0ad6498620788add4e456e43fd",
+  "priorWrapperSha256": "32c0d66d88ef24cfdebd386a24713729aa0a1b0d9b9dba033146a593b1329219",
+  "wrapperSha256": "2e805eb1c5b94be413e072fce69e125d20ddc43b57f2944356f5bc42aaf04eff",
+  "generatedSha256": "cf9c1943d02f1194fca14ea8059bb9c157d9ff3a0704146794289ff1df10a27f",
+  "exactOnlyGeneratedDifference": "  await skip.waitFor({ state: 'visible' }) // Same public readiness contract as the maintained harness; existing20s default.\n",
+  "priorGeneratedEqualsAfterRemovingAddedWait": true,
+  "scaffoldReplacements": [
+    {
+      "before": "import { chromium } from '@playwright/test'",
+      "after": "// Browser supplied by owned sandboxed harness.",
+      "matches": 1
+    },
+    {
+      "before": "assert.ok(process.env.PND_QUEUE_JOB_ID && process.env.PND_QUEUE_DEADLINE, 'Use the canonical shared queue')",
+      "after": "assert.ok(globalThis.stoneHeadControlledQA?.signal, 'Use the owned local-render harness')",
+      "matches": 1
+    },
+    {
+      "before": "const argument = process.argv.indexOf('--output-dir')\nassert.ok(argument >= 0 && process.argv[argument + 1])\nconst output = resolve(process.argv[argument + 1]), url = process.env.POPULOUS_URL ?? 'http://127.0.0.1:4318'",
+      "after": "const output = \"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/future-controlled-run/controlled-fixture\", url = globalThis.stoneHeadControlledQA.url",
+      "matches": 1
+    },
+    {
+      "before": "jobId: process.env.PND_QUEUE_JOB_ID",
+      "after": "executionOwner: 'local-render-harness'",
+      "matches": 1
+    },
+    {
+      "before": "const browser = await chromium.launch({ headless: true })",
+      "after": "const browser = { version: () => globalThis.stoneHeadControlledQA.browser.version(), close: async () => {} }",
+      "matches": 1
+    },
+    {
+      "before": "const timer = setTimeout(() => { report.expired = true; void browser.close() }, Math.max(1, Math.min(300000, Date.parse(process.env.PND_QUEUE_DEADLINE) - Date.now() - 30000)))",
+      "after": "const timer = undefined // The outer harness owns the deadline and cleanup.",
+      "matches": 1
+    },
+    {
+      "before": "process.on('SIGTERM', () => void browser.close())",
+      "after": "// Outer harness owns SIGTERM.",
+      "matches": 1
+    },
+    {
+      "before": "process.on('SIGINT', () => void browser.close())",
+      "after": "// Outer harness owns SIGINT.",
+      "matches": 1
+    },
+    {
+      "before": "const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 })",
+      "after": "const context = globalThis.stoneHeadControlledQA.context",
+      "matches": 1
+    },
+    {
+      "before": "const page = await context.newPage()",
+      "after": "const page = globalThis.stoneHeadControlledQA.page",
+      "matches": 1
+    },
+    {
+      "before": "report.browserClosed=true",
+      "after": "report.browserCloseDelegated=true",
+      "matches": 1
+    },
+    {
+      "before": "output,browserClosed:true",
+      "after": "output,browserCloseDelegated:true",
+      "matches": 1
+    },
+    {
+      "before": "  if (await skip.isVisible()) await skip.click()",
+      "after": "  await skip.waitFor({ state: 'visible' }) // Same public readiness contract as the maintained harness; existing20s default.\n  if (await skip.isVisible()) await skip.click()",
+      "matches": 1
+    }
+  ],
+  "relativeImports": [
+    {
+      "before": "from './browser-game.mjs'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/scripts/browser-game.mjs\"",
+      "specifier": "./browser-game.mjs",
+      "matches": 1
+    },
+    {
+      "before": "from './browser-game.mjs'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/scripts/browser-game.mjs\"",
+      "specifier": "./browser-game.mjs",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/projection.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/projection.ts\"",
+      "specifier": "../app/projection.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/model-lighting.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/model-lighting.ts\"",
+      "specifier": "../app/model-lighting.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/painter-order.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/painter-order.ts\"",
+      "specifier": "../app/painter-order.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/model-faces.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/model-faces.ts\"",
+      "specifier": "../app/model-faces.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/stone-head-animation.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/stone-head-animation.ts\"",
+      "specifier": "../app/stone-head-animation.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/original-models.json'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/original-models.json\"",
+      "specifier": "../app/original-models.json",
+      "matches": 1
+    }
+  ],
+  "timeout": "Existing page default20000 unchanged; no timeout increase or fixture assertion change.",
+  "attribution": "Failed screenshot proves Skip introduction remained visible. Existing one-shot visibility check plus asynchronous introduction appearance supports startup race; this new readiness wait still needs real execution."
+}

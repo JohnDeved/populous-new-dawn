@@ -1,0 +1,9 @@
+{ "diagnostics": [{"message": "Use `interface` instead of `type`.","code": "typescript(consistent-type-definitions)","severity": "error","url": "https://oxc.rs/docs/guide/usage/linter/rules/typescript/consistent-type-definitions.html","help": "Replace `type StoneHeadSource = { triggerIndex: number; sceneryIndex: number }` with `interface StoneHeadSource { triggerIndex: number; sceneryIndex: number }`.","filename": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-fallback-hold-audit/app/stone-head-animation.ts","labels": [{"span": {"offset": 627,"length": 4,"line": 16,"column": 8}}]},
+{"message": "Use Object destructuring.","code": "eslint(prefer-destructuring)","severity": "warning","url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/prefer-destructuring.html","help": "Use object destructuring rather than direct member access.","filename": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-fallback-hold-audit/app/stone-head-animation.ts","labels": [{"span": {"offset": 1301,"length": 34,"line": 29,"column": 21}}]},
+{"message": "Use Object destructuring.","code": "eslint(prefer-destructuring)","severity": "warning","url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/prefer-destructuring.html","help": "Use object destructuring rather than direct member access.","filename": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-fallback-hold-audit/app/stone-head-animation.ts","labels": [{"span": {"offset": 1459,"length": 16,"line": 32,"column": 24}}]}],
+              "number_of_files": 2,
+              "number_of_rules": 258,
+              "threads_count": 1,
+              "start_time": 0.091087834
+            }
+            

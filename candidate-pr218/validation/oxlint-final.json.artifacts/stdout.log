@@ -1,0 +1,9 @@
+{ "diagnostics": [{"message": "Use `interface` instead of `type`.","code": "typescript(consistent-type-definitions)","severity": "error","url": "https://oxc.rs/docs/guide/usage/linter/rules/typescript/consistent-type-definitions.html","help": "Replace `type StoneHeadSource = { triggerIndex: number; sceneryIndex: number }` with `interface StoneHeadSource { triggerIndex: number; sceneryIndex: number }`.","filename": "app/stone-head-animation.ts","labels": [{"span": {"offset": 664,"length": 4,"line": 21,"column": 8}}]},
+{"message": "Use Object destructuring.","code": "eslint(prefer-destructuring)","severity": "warning","url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/prefer-destructuring.html","help": "Use object destructuring rather than direct member access.","filename": "app/stone-head-animation.ts","labels": [{"span": {"offset": 1338,"length": 34,"line": 34,"column": 21}}]},
+{"message": "Use Object destructuring.","code": "eslint(prefer-destructuring)","severity": "warning","url": "https://oxc.rs/docs/guide/usage/linter/rules/eslint/prefer-destructuring.html","help": "Use object destructuring rather than direct member access.","filename": "app/stone-head-animation.ts","labels": [{"span": {"offset": 1496,"length": 16,"line": 37,"column": 24}}]}],
+              "number_of_files": 2,
+              "number_of_rules": 258,
+              "threads_count": 1,
+              "start_time": 0.096380957
+            }
+            

@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "0f0bdad3-5236-43fa-b0b7-4e1e6b5c7a8f",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9ae0310831d4163806474d3c11b3bbde2241de93",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "a457598de473d4a3e5c7fe9bfe713a8bf4e28d51dc8f847d7914ec42e4fa3dff",
+    "inputs": {
+      "tests/stone-head-logical-clock.test.mjs": "945e402ebeb851bb8b67eb0090861383349acca9d1cb8fdae94d3b67c23e1a8e"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "60s",
+    "node",
+    "--test",
+    "--test-name-pattern=legacy body checkpoints",
+    "tests/stone-head-logical-clock.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+  "startedAt": "2026-10-05T17:35:37.978Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/unsigned-checkpoint-before.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/unsigned-checkpoint-before.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T17:35:39.189Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ legacy body checkpoints gain only the gate and a new Scene clock does not replay a turn (155.330047ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1130.585323\n\n✖ failing tests:\n\ntest at tests/stone-head-logical-clock.test.mjs:94:1\n✖ legacy body checkpoints gain only the gate and a new Scene clock does not replay a turn (155.330047ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  + actual - expected\n  \n  + -2147221248\n  - 2147746048\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/tests/stone-head-logical-clock.test.mjs:100:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: -2147221248,\n    expected: 2147746048,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "25f1aaf726b4b600b6b814e230e4e31a5af471c705a5ad1a363634cd20c562c1",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "9ae0310831d4163806474d3c11b3bbde2241de93",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "a457598de473d4a3e5c7fe9bfe713a8bf4e28d51dc8f847d7914ec42e4fa3dff",
+    "inputs": {
+      "tests/stone-head-logical-clock.test.mjs": "945e402ebeb851bb8b67eb0090861383349acca9d1cb8fdae94d3b67c23e1a8e"
+    }
+  }
+}

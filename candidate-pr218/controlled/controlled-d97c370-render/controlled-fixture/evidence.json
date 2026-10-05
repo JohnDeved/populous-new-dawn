@@ -1,0 +1,18 @@
+{
+  "startedAt": "2026-10-05T18:25:18.453Z",
+  "executionOwner": "local-render-harness",
+  "stages": [],
+  "frames": [],
+  "errors": [],
+  "limits": [
+    "Headless rendering is not display-refresh performance evidence.",
+    "Geometry phases use a controlled1x logical-turn driver; the obsolete speed0/presentation-only owner is not retained.",
+    "Enemy-AI/Blue-only fixture reuses the existing worship regression; normal command/path/admission/reward handlers run.",
+    "Last-use exhaustion changes remaining-use count only, explicitly labelled; it does not force work or reward.",
+    "No nativeGPU/frame-rate/audio193 or other Stone Head-family acceptance."
+  ],
+  "status": "FAILED_STONE_HEAD_LIVE",
+  "error": "page.waitForFunction: Timeout 20000ms exceeded.\n    at /workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/controlled-d97c370-render/maintained-stone-checker.mjs:40:14",
+  "browserCloseDelegated": true,
+  "finishedAt": "2026-10-05T18:25:44.619Z"
+}

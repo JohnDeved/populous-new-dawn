@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "0376396a-e809-41c8-b134-d0c4ebaaf3bb",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "d97c370da3e996e00130610df97d10b827ab5c4b",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "60s",
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/game-clock.ts",
+    "app/stone-head-animation.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+  "startedAt": "2026-10-05T17:41:00.330Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/format-final.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/format-final.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T17:41:00.460Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 2ms on 2 files using 1 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "c0106c99f9394a08d8f1be21b4897fe0bb77e353911675f6359600810757321f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "d97c370da3e996e00130610df97d10b827ab5c4b",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

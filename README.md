@@ -1,5 +1,15 @@
 # Issue 214: sprite timing evidence
 
+Current delivery index (historical receipts below retain their original source labels):
+
+- [PR217 source and final acceptance](candidate-pr217/README.md) is merged as
+  3cc9e830. Its [ordinary comparison](https://github.com/JohnDeved/populous-new-dawn/blob/102736ea2d83249ad30c498bf0161d00bed0af47/README.md)
+  is published separately.
+- [Original model45 body gate proof](stone-head-logical-gate/README.md) is accepted.
+- [PR218 source and standard gates](candidate-pr218/README.md) are accepted at
+  d97c370. Its first controlled rendered attempt failed during startup and is
+  retained; controlled acceptance and the final decision remain pending.
+
 This evidence accompanies [issue214](https://github.com/JohnDeved/populous-new-dawn/issues/214).
 It observes the reported/deployed-source commit
 `596475b6839c948604897f8b68ff89c6290cf39d` (tree
@@ -32,8 +42,8 @@ updater timelines and four effect producers. Ordinary class processor bodies and
 identified effect leaves are supplied boundaries, not complete lifecycle or
 original elapsed-time proof. The [accepted repair design](native-logical-gate/implementation-proposal.md)
 keeps the global24Hz clock and scopes the implementation to native-backed ordinary
-people and Splash. Implementation and ordinary candidate validation are underway;
-this packet does not claim they have passed. The broad report remains open,
+people and Splash. Those research results preceded the later PR217 implementation
+and accepted ordinary comparison linked above. The broad report remains open,
 including fallback-only sprites and the original absolute wall-clock reference.
 
 ## Corrected observation

@@ -1,0 +1,43 @@
+{
+  "recordedAt": "2026-10-05T18:27:08.152589+00:00",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+    "commit": "d97c370da3e996e00130610df97d10b827ab5c4b",
+    "tree": "5228a79f26b90d3daeffe65498c01ada077ba132",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "6c7bf7c03d3ff530ddf3f7bddcfbac3af36f1b6d221f6313e9e8f2cad897c9f0"
+  },
+  "originalSession": 95765,
+  "originalExit": 1,
+  "status": "failed-before-fixture",
+  "zeroPhaseAssertionsReached": true,
+  "failure": "page.waitForFunction: Timeout 20000ms exceeded.\n    at /workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/controlled-d97c370-render/maintained-stone-checker.mjs:40:14",
+  "inputStable": true,
+  "sameLauncherPortsClosed": [
+    {
+      "host": "127.0.0.1",
+      "port": 4318,
+      "code": 111,
+      "closed": true
+    },
+    {
+      "host": "::1",
+      "port": 4318,
+      "code": 111,
+      "closed": true
+    }
+  ],
+  "cleanupAttribution": "The unchanged maintained harness preserves the scenario AssertionError only after browser.close resolves, browser.isConnected() is false, and stopServer completes. Any close/disconnect/server error replaces that outcome. This failed receipt retained only the scenario assertion, with no previousFailure; both post-run sockets are closed. The generic launcher boolean deliberately remains false because it only credits passed receipts; it is not rewritten. Inner browserCloseDelegated is not credited.",
+  "resourcesReleased": true,
+  "dependencyInode": 925605,
+  "retry": "Not launched; requires startup-scaffold correction review and fresh coordinator grant.",
+  "receipts": {
+    "controlled-d97c370-command.json": "0e15ada5f1f3f0ae7cc0eeebb32eb35a37b773f22307c4a8838cc713dfa4ecd4",
+    "controlled-d97c370-launcher-receipt.json": "7023fb65a6faf61cca12984b21cfad93b96a5790b5f3e3205af7b2edbbef6ec2",
+    "controlled-d97c370-render/receipt.json": "aa3d3da2307d8343ceb6027b404a60e9fdaa707c4d47031f0bfeae0d2d6dc836",
+    "controlled-d97c370-render/controlled-fixture/evidence.json": "0ac62cc77995dbb21edd418dfbff25a1f5de5afb511855cc40fee3f6bc7fb8a0",
+    "controlled-d97c370-render/adapter-source.json": "800ac1b12107b9ba5b37ad1c829dacac21cc4c92643c43fdd238c1f59ac2475e"
+  }
+}

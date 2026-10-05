@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e6f6a67a-e030-4d56-b7d5-a19a4a30924a",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "2f12897ebf6748f1b54a11394d177f143e9db5daf8e98d3dd344b7e6f38afdbf",
+    "inputs": {
+      "tests/stone-head-logical-clock.test.mjs": "4f6f281ddc17549cddc39d9b0e65f5de04de39a3ec22c082dba5c6828f933d48"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "60s",
+    "node",
+    "--test",
+    "tests/stone-head-logical-clock.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+  "startedAt": "2026-10-05T17:28:15.216Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/first-after.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/first-after.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T17:28:16.861Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ authored45 constructors retain the original logical animation gate (95.76645ms)\n✔ ordinary body frames wait for logical turns without changing the24Hz presentation clock (114.012704ms)\n✔ each catch-up controller and observer sees the prior body frame before one logical advance (115.604809ms)\n✔ mode4 transition remains exclusively presentation-owned despite the gate bit (29.690366ms)\n✔ lazy, post-turn allocated and removed bodies obey the completed-turn boundary (86.537433ms)\n✔ legacy body checkpoints gain only the gate and a new Scene clock does not replay a turn (37.331424ms)\n✔ disable and refill notifications retain raw phase then reset before their owned visit (41.755068ms)\n✔ trigger exhaustion, pause, land pause and turn wrap preserve the separate decorative owner (30.714472ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1557.516613\n",
+  "stderr": "",
+  "stdoutSha256": "409affde3ea242f61ae16a8cb1a424a4c7d17eea2258d94fe29d1f50d40a59eb",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "2f12897ebf6748f1b54a11394d177f143e9db5daf8e98d3dd344b7e6f38afdbf",
+    "inputs": {
+      "tests/stone-head-logical-clock.test.mjs": "4f6f281ddc17549cddc39d9b0e65f5de04de39a3ec22c082dba5c6828f933d48"
+    }
+  }
+}

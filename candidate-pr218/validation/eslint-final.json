@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "fc34f7dd-267b-49e3-84b6-e6950c03823d",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "d97c370da3e996e00130610df97d10b827ab5c4b",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "60s",
+    "node_modules/.bin/eslint",
+    "--format",
+    "json",
+    "app/game-clock.ts",
+    "app/stone-head-animation.ts",
+    "tests/stone-head-logical-clock.test.mjs",
+    "tests/stone-head-animation.test.mjs",
+    "scripts/check-browser-stone-head-animation.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+  "startedAt": "2026-10-05T17:41:00.875Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/eslint-final.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/eslint-final.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T17:41:02.696Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "[{\"filePath\":\"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/game-clock.ts\",\"messages\":[],\"suppressedMessages\":[],\"errorCount\":0,\"fatalErrorCount\":0,\"warningCount\":0,\"fixableErrorCount\":0,\"fixableWarningCount\":0,\"usedDeprecatedRules\":[]},{\"filePath\":\"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/stone-head-animation.ts\",\"messages\":[],\"suppressedMessages\":[],\"errorCount\":0,\"fatalErrorCount\":0,\"warningCount\":0,\"fixableErrorCount\":0,\"fixableWarningCount\":0,\"usedDeprecatedRules\":[]},{\"filePath\":\"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/scripts/check-browser-stone-head-animation.mjs\",\"messages\":[],\"suppressedMessages\":[],\"errorCount\":0,\"fatalErrorCount\":0,\"warningCount\":0,\"fixableErrorCount\":0,\"fixableWarningCount\":0,\"usedDeprecatedRules\":[]},{\"filePath\":\"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/tests/stone-head-animation.test.mjs\",\"messages\":[],\"suppressedMessages\":[],\"errorCount\":0,\"fatalErrorCount\":0,\"warningCount\":0,\"fixableErrorCount\":0,\"fixableWarningCount\":0,\"usedDeprecatedRules\":[]},{\"filePath\":\"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/tests/stone-head-logical-clock.test.mjs\",\"messages\":[],\"suppressedMessages\":[],\"errorCount\":0,\"fatalErrorCount\":0,\"warningCount\":0,\"fixableErrorCount\":0,\"fixableWarningCount\":0,\"usedDeprecatedRules\":[]}]\n",
+  "stderr": "",
+  "stdoutSha256": "ca6d5c2be58e928542f2a64f50cda7d0fc51419f3680125cfa5a41969224d217",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "d97c370da3e996e00130610df97d10b827ab5c4b",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

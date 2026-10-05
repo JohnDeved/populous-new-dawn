@@ -1,0 +1,32 @@
+✖ legacy body checkpoints gain only the gate and a new Scene clock does not replay a turn (155.330047ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1130.585323
+
+✖ failing tests:
+
+test at tests/stone-head-logical-clock.test.mjs:94:1
+✖ legacy body checkpoints gain only the gate and a new Scene clock does not replay a turn (155.330047ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + -2147221248
+  - 2147746048
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/tests/stone-head-logical-clock.test.mjs:100:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: -2147221248,
+    expected: 2147746048,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }

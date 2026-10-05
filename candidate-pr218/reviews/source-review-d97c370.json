@@ -1,0 +1,51 @@
+{
+  "decision": "ACCEPT",
+  "kind": "frozen-source-preflight",
+  "base": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "reviewedHead": "d97c370da3e996e00130610df97d10b827ab5c4b",
+  "trackedStatus": "",
+  "fullDiffSha256": "6f05f81916199ad915f92d2f58a2764a3329e2c3e68dcb8f95ecb9709ad30722",
+  "sourceHashes": {
+    "app/game-clock.ts": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+    "app/stone-head-animation.ts": "cea958795f6625272498d81b8b0799325805b048da9885db9f904802b56be981",
+    "decomp/README.md": "60fc7d714c48ac5d7994d534e0329be5fe1e5cc0d60b8a730b1ba6e37fe7696d",
+    "decomp/research/stone-head-logical-visits.md": "83e4e1e40e5789b1bc332218e257fab408ae983bec57028f33871abe466b7326",
+    "scripts/check-browser-stone-head-animation.mjs": "fc9dcc933a7903f1dad4c4180580e06c02904c0ad6498620788add4e456e43fd",
+    "tests/stone-head-animation.test.mjs": "26860c0136c4a4efbc9875946bab92ebf97f73103cc8fe3c4ef7eb762193ce9d",
+    "tests/stone-head-logical-clock.test.mjs": "945e402ebeb851bb8b67eb0090861383349acca9d1cb8fdae94d3b67c23e1a8e"
+  },
+  "receiptHashes": {
+    "failure-first.json": "a92bbd1bad831c5f4c8b2b5f3b4b596b53d012420687f610321c9579700bd821",
+    "old-fixture-owner.json": "818735268d8ad0263f6cc4e0bd7decfd9b827ee816038987a12d379fa44f2105",
+    "focused-after.json": "76980adf2fa8e1766c705de6abbcc6fd2b3d6b0d68f3a72d7399d6d1e966def4",
+    "native-adapter-9ae0310.json": "627389d478a57bfdd4fdaa9b93b40d8a025c61726a6162e14f3dd590cd834644",
+    "unsigned-checkpoint-before.json": "90fb95cca3f694d42185e4c55b37d4cf318f40ac6c4252f84447e653207ab66b",
+    "final-focused.json": "ee11e56994d67eb1b2baa5e7517a5335a14725800edb00e9e3e997a004725cd8",
+    "lifecycle-d97c370.json": "983038e5a2eb82a8581c046ae8c5d008d4f8c6d6bc266c7ee162679955194f53",
+    "format-final.json": "704ab52ceda7a029db5e32bcdf49ca2d768105c62ee9331b5de98d6581d3a725",
+    "eslint-final.json": "0e168e55f994045df19fd595c58466406e45ae4095eeafae98e1a356948852e8",
+    "oxlint-base-3cc.json": "20762ed3a6d4c9051b860150541b60366dbbb94077c071502cc4ef909a9263f2",
+    "oxlint-final.json": "640b26ea224f79d62be35338d0010bf07446ea993a93fa591a8e8c3b7246cbdc"
+  },
+  "comparisonDriverSha256": "0573ba09d1c708d29fcb2fdf7f2fbf408abe80e3109a7e295f2c774281f35a9d",
+  "comparisonResultSha256": "66b7cd7a66706728eb703934990b6617fce778628a326f71d0cf899122175e5c",
+  "reviewSha256": "d9fb6010aa6f67c052b6a5626a04ea1f5815fcba2d3e608e2c6eb8c71cbff64a",
+  "freshPassed": [
+    "8 lifecycle tests on exactd97",
+    "scoped formatting",
+    "ESLint for2app2tests1browserfixture"
+  ],
+  "approvedCarry": [
+    "132 retained native adapter rows and transition control from9ae; unsigned normalization is identical for tested below-bit31 inputs",
+    "34 tests from779 across final function whitespace and unused-built-in-import deletion"
+  ],
+  "oxlint": "Independently verified1error2warnings identical to actual3cc; raw exit1 retained",
+  "pending": [
+    "final full check/build",
+    "applicable quality advisory evidence",
+    "ordinary visible model45 phase/geometry witness",
+    "controlled18-phase rendered assertions or equivalent exact coverage",
+    "terminal evidence review"
+  ],
+  "resourcesHeld": []
+}

@@ -1,0 +1,394 @@
+diff --git a/app/game-clock.ts b/app/game-clock.ts
+index 94f27ee..f3cfbcc 100644
+--- a/app/game-clock.ts
++++ b/app/game-clock.ts
+@@ -87,7 +87,10 @@ export function advanceGame(w: World, clock: GameClock, seconds: number) {
+     }
+     // Observers finish first; the next controller turn must see this visit's
+     // frame. Direct tick() remains simulation-only. A land-paused tick has no turn.
+-    if (w.turn !== previousTurn) animateLiveObjects(w, 'logical')
++    if (w.turn !== previousTurn) {
++      animateLiveObjects(w, 'logical')
++      animateStoneHeads(w, 'logical')
++    }
+     seconds = Math.max(0, seconds - elapsed)
+     if (presentation) ui.elapsed += elapsed * 1000
+     if (active) clock.animationTime += elapsed
+diff --git a/app/stone-head-animation.ts b/app/stone-head-animation.ts
+index b13c798..eda8e8d 100644
+--- a/app/stone-head-animation.ts
++++ b/app/stone-head-animation.ts
+@@ -1,4 +1,9 @@
+-import { setAnimationObject, stepObjectAnimation, type AnimatedUnit } from './animation.ts'
++import {
++  animationUsesLogicalVisits,
++  setAnimationObject,
++  stepObjectAnimation,
++  type AnimatedUnit,
++} from './animation.ts'
+ import { morphCoordinate } from './morph.ts'
+ import { missionData } from './mission-data.ts'
+ import type { Point, Shrine, World } from './world-types.ts'
+@@ -62,7 +67,8 @@ export function createStoneHeadAnimation(
+     f1: 0,
+     f2: 0,
+     stamp: 0,
+-    flags3: 0,
++    // 004a5fdc: class5/model9 ordinary morphs require a logical-processor visit.
++    flags3: 0x40000,
+     morphTimer: 0,
+     morphFrames: 0,
+   }
+@@ -81,6 +87,9 @@ export function initializeStoneHead(shrine: Shrine, mission: number): StoneHeadA
+     const source = originalStoneHeadSource(mission, shrine)
+     shrine.stoneHead = source ? createStoneHeadAnimation(shrine.enabled, source) : null
+   }
++  // Existing checkpoints keep their phase/stamp; only restore the omitted gate.
++  if (shrine.stoneHead?.family === 45)
++    shrine.stoneHead.flags3 = (shrine.stoneHead.flags3 | 0x40000) >>> 0
+   return shrine.stoneHead
+ }
+ 
+@@ -109,19 +118,33 @@ export function syncStoneHeadPresentation(shrine: Shrine) {
+     syncStoneHeadEnabled(shrine.stoneHead, shrine.enabled)
+ }
+ 
+-export function stepStoneHeadAnimation(state: StoneHeadAnimation, enabled: boolean) {
++// One explicit eligible visit, also used by per-visit geometry comparisons.
++// Elapsed gameplay supplies its completed logical turn through animateStoneHeads.
++export function stepStoneHeadAnimation(
++  state: StoneHeadAnimation,
++  enabled: boolean,
++  counter = state.stamp
++) {
+   syncStoneHeadEnabled(state, enabled)
+-  stepObjectAnimation(state, { counter: 0, levelFlags: 0, levelFlags2: 0 }, animationData, () => {})
++  state.stamp = counter
++  stepObjectAnimation(state, { counter, levelFlags: 0, levelFlags2: 0 }, animationData, () => {})
+ }
+ 
+-// One call on the existing chronological24Hz boundary; no render-FPS timer.
++// Gated ordinary morphs follow logical turns; ungated transitions retain24Hz.
+ // Trigger exhaustion does not delete its independently linked decorative scenery.
+ // Enabled remains unchanged on that original deletion branch, so the loop survives.
+-export function animateStoneHeads(world: World) {
++export function animateStoneHeads(
++  world: World,
++  phase: 'logical' | 'presentation' = 'presentation'
++) {
+   if (world.paused || world.land.landFlags & 2) return
+   for (const shrine of world.shrines) {
+     const state = initializeStoneHead(shrine, world.outcome.level)
+-    if (state) stepStoneHeadAnimation(state, shrine.enabled)
++    if (!state) continue
++    syncStoneHeadEnabled(state, shrine.enabled)
++    const logical = animationUsesLogicalVisits(state)
++    if (logical === (phase === 'logical'))
++      stepStoneHeadAnimation(state, shrine.enabled, logical ? world.turn : state.stamp)
+   }
+ }
+ 
+diff --git a/decomp/README.md b/decomp/README.md
+index 479f97c..dc2f390 100644
+--- a/decomp/README.md
++++ b/decomp/README.md
+@@ -36,6 +36,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
+ ## Port index
+ 
+ Recent reusable topic notes: [Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
++[Model45 Stone Head logical animation visits](research/stone-head-logical-visits.md),
+ [Ordinary person and Splash logical animation visits](research/sprite-logical-visits.md),
+ [Mission 3 Temple world HFX ownership and lifetime](research/vault-knowledge-world-assets.md),
+ [Ordinary spell acquisition screen handoff and arrival deadline](research/worship-grant-handoff.md),
+diff --git a/decomp/research/stone-head-logical-visits.md b/decomp/research/stone-head-logical-visits.md
+new file mode 100644
+index 0000000..f25f490
+--- /dev/null
++++ b/decomp/research/stone-head-logical-visits.md
+@@ -0,0 +1,57 @@
++# Model45 Stone Head logical animation visits
++
++This corrects the existing model45/46/47 decorative body's clock owner for
++[issue214](https://github.com/JohnDeved/populous-new-dawn/issues/214). It does not
++change the global24Hz clock, other head/scenery families, Vault/HFX or fallback
++person artwork. The earlier [geometry and per-visit evidence](stone-head-animation.md)
++retains its original source and limits.
++
++The [accepted producer/dispatcher proof and independent replay](https://github.com/JohnDeved/populous-new-dawn/tree/e76091766dd2db9d21b6d28ba2075f77a99284df/stone-head-logical-gate)
++execute class5/model9 creation, the post-load reward-family linker, model45
++selection, actual state10 processing, dispatcher stamps and both animation lists.
++Original004a5fdc sets flags3 bit0x40000. Draw4's ordinary morph branch consumes
++that logical-visit gate; disabled hold remains distinct, and a morph-transition
++branch is ungated. Terrain/registration/shadow/neighbor/audio environment leaves
++are supplied. The original EXE is SHA256
++`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
++There is no original OS wall-clock or whole-renderer claim.
++
++The former native morph checker supplied a zeroed scenery record, then executed
++linkage/setters and one updater call per explicit visit. It correctly proved
++per-visit frames and geometry, but did not execute the creation gate. Those
++results do not establish the live24Hz owner. The composed proof makes this missing
++boundary explicit; it preserves prior results rather than relabelling them.
++
++The body constructor and lazy checkpoint adoption now supply only the missing
++gate. Existing saved phase, stamp and flags remain intact; missing legacy state
++retains the established deterministic phase0/disabled-hold1 policy. Unsupported
++nulls and Vault remain separate. There is no new save field or allocator behavior.
++
++The world clock performs one logical body visit after the completed turn's
++observers and queued callbacks, beside the existing logical-person phase. It
++selects surviving bodies after the turn, including a newly initialized body, and
++does not visit removed bodies. It never gates on the reward trigger's active
++flag: the original decorative body survives exhaustion. The adapter stamp records
++the last completed World.turn, rather than claiming an original draw serial.
++
++Enabled/disabled/refill synchronization occurs before branch ownership selection.
++Ordinary gated mode4 advances on logical visits, including high-speed catch-up;
++held ordinary mode4 receives its stamp without advancing the raw counter.
++Ungated morph transitions receive only presentation visits. Pause and native
++land pause prevent advancement, and a new Scene clock cannot replay a saved turn.
++Direct tick remains simulation-only.
++
++stepStoneHeadAnimation remains a single explicit eligible-visit helper for
++native frame/geometry comparisons. Its optional counter is supplied by the live
++logical phase. It is not an elapsed-time scheduler. The legacy browser geometry
++fixture now advances one controlled1x logical turn per sampled phase, preserving
++all18 original geometry/frame assertions. Its old speed0 plus1/24 advancement was
++an obsolete owner assumption. Its existing staged gameplay, camera, final-use
++and direct-step limitations remain; it is not an ordinary campaign observation.
++
++Portable tests cover the gate, extra-presentation hold, speed0/catch-up, observer
++order, transition separation, lazy/allocation/removal boundaries, legacy phase,
++disable/refill, pause, exhausted triggers and turn wrap. Original native timelines
++remain source-bound; candidate adapter comparisons consume those retained rows
++without claiming a new original execution. Final browser/gate acceptance belongs
++to the exact reviewed candidate receipts, not this source note.
+diff --git a/scripts/check-browser-stone-head-animation.mjs b/scripts/check-browser-stone-head-animation.mjs
+index c854583..3a58669 100644
+--- a/scripts/check-browser-stone-head-animation.mjs
++++ b/scripts/check-browser-stone-head-animation.mjs
+@@ -3,7 +3,6 @@ import { showAllMissions } from './browser-game.mjs'
+ import assert from 'node:assert/strict'
+ import { mkdirSync, writeFileSync } from 'node:fs'
+ import { resolve, join } from 'node:path'
+-import { createHash } from 'node:crypto'
+ import { chromium } from '@playwright/test'
+ import { bindGame } from './browser-game.mjs'
+ import { modelMatrix, modelPoint, projectPoint } from '../app/projection.ts'
+@@ -20,7 +19,7 @@ const output = resolve(process.argv[argument + 1]), url = process.env.POPULOUS_U
+ assert.equal(new URL(url).port, '4318')
+ mkdirSync(output, { recursive: false })
+ const report = { startedAt: new Date().toISOString(), jobId: process.env.PND_QUEUE_JOB_ID, stages: [], frames: [], errors: [],
+-  limits: ['Headless rendering is not display-refresh performance evidence.', 'Enemy-AI/Blue-only fixture reuses the existing worship regression; normal command/path/admission/reward handlers run.', 'Last-use exhaustion changes remaining-use count only, explicitly labelled; it does not force work or reward.', 'No nativeGPU/frame-rate/audio193 or other Stone Head-family acceptance.'] }
++  limits: ['Headless rendering is not display-refresh performance evidence.', 'Geometry phases use a controlled1x logical-turn driver; the obsolete speed0/presentation-only owner is not retained.', 'Enemy-AI/Blue-only fixture reuses the existing worship regression; normal command/path/admission/reward handlers run.', 'Last-use exhaustion changes remaining-use count only, explicitly labelled; it does not force work or reward.', 'No nativeGPU/frame-rate/audio193 or other Stone Head-family acceptance.'] }
+ const save = () => writeFileSync(join(output, 'evidence.json'), JSON.stringify(report, null, 2) + '\n')
+ const browser = await chromium.launch({ headless: true })
+ const timer = setTimeout(() => { report.expired = true; void browser.close() }, Math.max(1, Math.min(300000, Date.parse(process.env.PND_QUEUE_DEADLINE) - Date.now() - 30000)))
+@@ -46,14 +45,18 @@ try {
+     const s = window.testScene, w = s.world
+     const { advanceGame } = await import('/app/game-clock.ts')
+     const { stoneHeadFrame } = await import('/app/stone-head-animation.ts')
+-    w.paused = true; w.speed = 0; cancelAnimationFrame(s.frame)
++    w.paused = true; w.speed = 1; cancelAnimationFrame(s.frame)
+     window.stoneHead = w.shrines.find(h => h.kind === 'bridge')
+     if (!window.stoneHead?.stoneHead) throw Error('Authored model45 head was not initialized')
+     s.focus(window.stoneHead) // game camera only; no OS window focus operation
+     s.cameraBearing = 0; s.viewPreset = 0; s.viewZoom = 0; s.viewTransition = null
+     s.updateView()
+     window.renderStone = () => { s.animate(s.previous); cancelAnimationFrame(s.frame) }
+-    window.stepStone = () => { w.paused = false; advanceGame(w, s.gameClock, 1 / 24); w.paused = true }
++    window.stepStone = () => {
++      const turn = w.turn
++      w.paused = false; advanceGame(w, s.gameClock, 1 / 12); w.paused = true
++      if (w.turn !== ((turn + 1) >>> 0)) throw Error('Geometry phase requires exactly one logical turn')
++    }
+     for (let i = 0; stoneHeadFrame(window.stoneHead.stoneHead) !== 0 && i < 18; i++) window.stepStone()
+     window.renderStone()
+   })
+@@ -192,14 +195,16 @@ try {
+     // Explicit final-use edge fixture; do not force followers, work or gifts.
+     head.remaining=1;w.paused=false;w.speed=1;let visits=0
+     while(head.active&&visits++<2600)advanceGame(w,s.gameClock,1/24)
+-    const a=stoneHeadFrame(head.stoneHead)
+-    advanceGame(w,s.gameClock,1/24);w.paused=true;window.renderStone()
++    const a=stoneHeadFrame(head.stoneHead),turnBefore=w.turn
++    advanceGame(w,s.gameClock,1/12);w.paused=true;window.renderStone()
+     return{active:head.active,remaining:head.remaining,uses:head.uses,priorUses,visits,
++      turnBefore,turnAfter:w.turn,
+       visible:s.shrineMeshes.get(head.id).g.visible,phaseBefore:a,phaseAfter:stoneHeadFrame(head.stoneHead),
+       fixture:'Onlyremaininguses=1; existing normal worship/target/reward handlers complete the next use.'}
+   })
+   assert.equal(report.exhaustion.active,false);assert.equal(report.exhaustion.remaining,0)
+   assert.ok(report.exhaustion.uses>report.exhaustion.priorUses);assert.equal(report.exhaustion.visible,true)
++  assert.equal(report.exhaustion.turnAfter, (report.exhaustion.turnBefore + 1) >>> 0)
+   assert.notEqual(report.exhaustion.phaseBefore,report.exhaustion.phaseAfter)
+   await page.screenshot({path:join(output,'exhausted-trigger-retained-stone.png')})
+   report.pause=await page.evaluate(async()=>{
+diff --git a/tests/stone-head-animation.test.mjs b/tests/stone-head-animation.test.mjs
+index cb64e9d..7233b90 100644
+--- a/tests/stone-head-animation.test.mjs
++++ b/tests/stone-head-animation.test.mjs
+@@ -115,6 +115,8 @@ test('exhausted trigger does not remove its independent enabled decorative model
+   assert.ok(head.uses > 0 && w.shots.bridge > 0)
+   const before = head.stoneHead.f1
+   advanceGame(w, clock, 1 / 24)
++  assert.equal(head.stoneHead.f1, before, 'An extra presentation visit is not a logical body visit')
++  advanceGame(w, clock, 1 / 24)
+   assert.notEqual(head.stoneHead.f1, before)
+   assert.equal(head.stoneHead.enabled, true)
+ })
+diff --git a/tests/stone-head-logical-clock.test.mjs b/tests/stone-head-logical-clock.test.mjs
+new file mode 100644
+index 0000000..f2503ef
+--- /dev/null
++++ b/tests/stone-head-logical-clock.test.mjs
+@@ -0,0 +1,149 @@
++import assert from 'node:assert/strict'
++import test from 'node:test'
++import { createWorld } from '../app/model.ts'
++import { advanceGame, afterCurrentGameTurn } from '../app/game-clock.ts'
++import { migrateCheckpoint } from '../app/game-store.ts'
++import {
++  createStoneHeadAnimation, initializeStoneHead, stoneHeadFrame, syncStoneHeadPresentation,
++} from '../app/stone-head-animation.ts'
++
++const clock = () => ({ animationTime: 0, animationFrame: 0 })
++function scenario() {
++  const world = createWorld(1)
++  world.manaWorld.gameFlags = 32
++  const head = world.shrines.find(s => s.kind === 'bridge')
++  return { world, head, state: head.stoneHead, timing: clock() }
++}
++
++test('authored45 constructors retain the original logical animation gate', () => {
++  const { head, state } = scenario()
++  assert.equal(state.flags3 & 0x40000, 0x40000)
++  assert.equal(createStoneHeadAnimation(false, state).flags3 & 0x40000, 0x40000)
++  assert.equal(head.model, 45)
++})
++
++test('ordinary body frames wait for logical turns without changing the24Hz presentation clock', () => {
++  const { world, state, timing } = scenario()
++  advanceGame(world, timing, 1 / 24)
++  assert.equal(world.turn, 0)
++  assert.equal(stoneHeadFrame(state), 0)
++  advanceGame(world, timing, 1 / 24)
++  assert.equal(world.turn, 1)
++  assert.equal(stoneHeadFrame(state), 1)
++  assert.equal(state.stamp, 1)
++  assert.equal(timing.animationFrame, 2)
++  world.speed = 0
++  const before = structuredClone(state)
++  advanceGame(world, timing, 1)
++  assert.equal(timing.animationFrame, 26)
++  assert.deepEqual(state, before, 'speed0 supplies no new ordinary logical visit')
++})
++
++test('each catch-up controller and observer sees the prior body frame before one logical advance', () => {
++  const { world, state, timing } = scenario(), events = []
++  world.speed = 4
++  timing.beforeTurn = () => {
++    events.push(['before', stoneHeadFrame(state)])
++    assert.equal(afterCurrentGameTurn(timing, () => events.push(['queued', stoneHeadFrame(state)])), true)
++  }
++  timing.afterTurn = () => events.push(['after', stoneHeadFrame(state)])
++  advanceGame(world, timing, 1 / 4)
++  assert.equal(world.turn, 12)
++  assert.equal(timing.animationFrame, 6)
++  assert.deepEqual(events, Array.from({ length: 12 }, (_, turn) => [
++    ['before', turn], ['after', turn], ['queued', turn],
++  ]).flat())
++  assert.equal(stoneHeadFrame(state), 12)
++  assert.equal(state.stamp, 12)
++})
++
++test('mode4 transition remains exclusively presentation-owned despite the gate bit', () => {
++  const { world, state, timing } = scenario()
++  state.flags3 |= 0x40000
++  state.renderFlags |= 0x1000
++  state.morphFrames = 20
++  advanceGame(world, timing, 1 / 12)
++  assert.equal(state.morphTimer, 8)
++  assert.equal(state.f1, 0)
++  assert.equal(state.stamp, 0, 'presentation must not invent a logical body stamp')
++})
++
++test('lazy, post-turn allocated and removed bodies obey the completed-turn boundary', () => {
++  const lazy = scenario()
++  delete lazy.head.stoneHead
++  advanceGame(lazy.world, lazy.timing, 1 / 24)
++  assert.equal(lazy.head.stoneHead.f1, 0)
++  advanceGame(lazy.world, lazy.timing, 1 / 24)
++  assert.equal(lazy.head.stoneHead.f1, 4)
++  assert.equal(lazy.head.stoneHead.stamp, 1)
++
++  const born = scenario()
++  born.world.shrines = born.world.shrines.filter(s => s !== born.head)
++  delete born.head.stoneHead
++  born.timing.afterTurn = () => { born.world.shrines.push(born.head) }
++  advanceGame(born.world, born.timing, 1 / 12)
++  assert.equal(born.head.stoneHead.f1, 4)
++  assert.equal(born.head.stoneHead.stamp, 1)
++
++  const removed = scenario()
++  removed.timing.afterTurn = () => { removed.world.shrines = removed.world.shrines.filter(s => s !== removed.head) }
++  advanceGame(removed.world, removed.timing, 1 / 12)
++  assert.equal(removed.state.f1, 0, 'removed body receives no logical or trailing presentation visit')
++})
++
++test('legacy body checkpoints gain only the gate and a new Scene clock does not replay a turn', () => {
++  const { world, head, state } = scenario()
++  Object.assign(state, { flags3: 0x80000100, stamp: 77, f1: 28 })
++  const restored = migrateCheckpoint(structuredClone(world)),
++    loaded = restored.shrines.find(s => s.id === head.id), timing = clock()
++  initializeStoneHead(loaded, restored.outcome.level)
++  assert.equal(loaded.stoneHead.flags3, 0x80040100)
++  assert.equal(loaded.stoneHead.f1, 28)
++  assert.equal(loaded.stoneHead.stamp, 77)
++  advanceGame(restored, timing, 1 / 24)
++  assert.equal(loaded.stoneHead.f1, 28)
++  advanceGame(restored, timing, 1 / 24)
++  assert.equal(loaded.stoneHead.f1, 32)
++  assert.equal(loaded.stoneHead.stamp, 1)
++})
++
++test('disable and refill notifications retain raw phase then reset before their owned visit', () => {
++  const { world, head, state, timing } = scenario()
++  advanceGame(world, timing, 1 / 12)
++  assert.equal(state.f1, 4)
++  timing.afterTurn = () => {
++    head.enabled = world.turn !== 2
++    syncStoneHeadPresentation(head)
++  }
++  advanceGame(world, timing, 1 / 12)
++  assert.equal(state.f1, 4)
++  assert.equal(stoneHeadFrame(state), 1)
++  assert.equal(state.stamp, 2)
++  advanceGame(world, timing, 1 / 12)
++  assert.equal(state.f1, 4, 'refill resets before exactly one animation visit')
++  assert.equal(state.stamp, 3)
++})
++
++test('trigger exhaustion, pause, land pause and turn wrap preserve the separate decorative owner', () => {
++  const { world, head, state, timing } = scenario()
++  head.active = false
++  head.remaining = 0
++  advanceGame(world, timing, 1 / 24)
++  assert.equal(state.f1, 0)
++  advanceGame(world, timing, 1 / 24)
++  assert.equal(state.f1, 4)
++  const before = structuredClone(state)
++  world.paused = true
++  advanceGame(world, timing, 1)
++  assert.deepEqual(state, before)
++  world.paused = false
++  world.land.landFlags |= 2
++  advanceGame(world, timing, 1)
++  assert.deepEqual(state, before)
++  world.land.landFlags &= ~2
++  world.turn = 0xffffffff
++  advanceGame(world, timing, 1 / 12)
++  assert.equal(world.turn, 0)
++  assert.equal(state.stamp, 0)
++  assert.equal(state.f1, 8)
++})

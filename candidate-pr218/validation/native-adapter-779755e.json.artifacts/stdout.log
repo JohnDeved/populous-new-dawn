@@ -1,0 +1,18 @@
+{
+  "status": "passed",
+  "source": "779755e9ef1343e1e7be959da61ddfa9b12b21c1",
+  "retainedNativeSha256": "bfb4daac97d120f3b735c63b02391bdd1ebf6be6ff66523e277f6d8d2e0824a4",
+  "timelines": [
+    {
+      "list": "primary",
+      "rows": 66
+    },
+    {
+      "list": "secondary",
+      "rows": 66
+    }
+  ],
+  "matchedRows": 132,
+  "transitionControl": true,
+  "limits": "Actual current createStoneHeadAnimation/animateStoneHeads phase adapter against accepted retained native rows. Supplied logical/draw/enable/pause inputs; current World.turn stamp identity differs deliberately from native outer serial. No new original execution, full world/campaign, renderer, allocation or wall-time claim."
+}

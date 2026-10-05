@@ -1,0 +1,28 @@
+diff --git a/app/stone-head-animation.ts b/app/stone-head-animation.ts
+index 4e2d0c6..eda8e8d 100644
+--- a/app/stone-head-animation.ts
++++ b/app/stone-head-animation.ts
+@@ -133,7 +133,10 @@ export function stepStoneHeadAnimation(
+ // Gated ordinary morphs follow logical turns; ungated transitions retain24Hz.
+ // Trigger exhaustion does not delete its independently linked decorative scenery.
+ // Enabled remains unchanged on that original deletion branch, so the loop survives.
+-export function animateStoneHeads(world: World, phase: 'logical' | 'presentation' = 'presentation') {
++export function animateStoneHeads(
++  world: World,
++  phase: 'logical' | 'presentation' = 'presentation'
++) {
+   if (world.paused || world.land.landFlags & 2) return
+   for (const shrine of world.shrines) {
+     const state = initializeStoneHead(shrine, world.outcome.level)
+diff --git a/scripts/check-browser-stone-head-animation.mjs b/scripts/check-browser-stone-head-animation.mjs
+index 7574e4f..3a58669 100644
+--- a/scripts/check-browser-stone-head-animation.mjs
++++ b/scripts/check-browser-stone-head-animation.mjs
+@@ -3,7 +3,6 @@ import { showAllMissions } from './browser-game.mjs'
+ import assert from 'node:assert/strict'
+ import { mkdirSync, writeFileSync } from 'node:fs'
+ import { resolve, join } from 'node:path'
+-import { createHash } from 'node:crypto'
+ import { chromium } from '@playwright/test'
+ import { bindGame } from './browser-game.mjs'
+ import { modelMatrix, modelPoint, projectPoint } from '../app/projection.ts'

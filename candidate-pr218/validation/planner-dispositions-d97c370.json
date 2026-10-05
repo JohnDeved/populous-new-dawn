@@ -1,0 +1,1099 @@
+{
+  "head": "d97c370da3e996e00130610df97d10b827ab5c4b",
+  "plannerSha256": "3cdb9331eb73ba631c9fdd2af187808bdcf427bdb036622ac323cb1265d19656",
+  "checks": [
+    {
+      "id": "building-counterattack-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-building-counterattack.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "camera-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-camera-smoothing.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "camera-clocks path changed: app/game-clock.ts"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "camera-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-camera-motion.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "camera-clocks path changed: app/game-clock.ts"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "campaign-natural-victory-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/local-render/campaign-fixed-turn.mjs",
+        "--port",
+        "4196",
+        "--timeout",
+        "900000",
+        "--output",
+        "$POPULOUS_CAMPAIGN_OUTPUT"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_BROWSER, POPULOUS_CAMPAIGN_OUTPUT",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "clock-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/game-clock.test.mjs",
+        "tests/unit-interpolation.test.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "camera-clocks path changed: app/game-clock.ts"
+      ],
+      "status": "passed",
+      "disposition": "Included in exactd97 full repository check:1134 tests, TypeScript, parity and orchestration passed. This isolated mapped command was not separately repeated.",
+      "evidence": "full-check-d97c370.json"
+    },
+    {
+      "id": "firewarrior-building-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-firewarrior-building.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "messages-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-messages.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "messages-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-messages.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission10-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission10-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission11-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission11.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission11-build-at-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission11-build-at.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission11-housing-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission11-housing.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission11-settlement-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission11-settlement.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission12-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission12-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission12-spy-sabotage-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission12-spy-sabotage.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission13-balloon-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-balloon.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission13-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission13-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission14-rewards-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission14-rewards.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission14-rewards-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission14-rewards.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission14-rewards-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission14-rewards.test.mjs",
+        "tests/mission5-angel.test.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "passed",
+      "disposition": "Included in exactd97 full repository check:1134 tests, TypeScript, parity and orchestration passed. This isolated mapped command was not separately repeated.",
+      "evidence": "full-check-d97c370.json"
+    },
+    {
+      "id": "mission15-prison-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission15-prison.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission15-prison-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission15-prison.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission15-prison-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission15-prison.test.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "passed",
+      "disposition": "Included in exactd97 full repository check:1134 tests, TypeScript, parity and orchestration passed. This isolated mapped command was not separately repeated.",
+      "evidence": "full-check-d97c370.json"
+    },
+    {
+      "id": "mission16-bloodlust-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission16-bloodlust.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission16-bloodlust-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission16-bloodlust.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission16-bloodlust-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission16-bloodlust.test.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "passed",
+      "disposition": "Included in exactd97 full repository check:1134 tests, TypeScript, parity and orchestration passed. This isolated mapped command was not separately repeated.",
+      "evidence": "full-check-d97c370.json"
+    },
+    {
+      "id": "mission17-armageddon-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission17-armageddon.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission17-armageddon-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission17-armageddon.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission17-armageddon-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission17-armageddon.test.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "passed",
+      "disposition": "Included in exactd97 full repository check:1134 tests, TypeScript, parity and orchestration passed. This isolated mapped command was not separately repeated.",
+      "evidence": "full-check-d97c370.json"
+    },
+    {
+      "id": "mission18-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission18.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission18-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission18.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission18-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission18.test.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "passed",
+      "disposition": "Included in exactd97 full repository check:1134 tests, TypeScript, parity and orchestration passed. This isolated mapped command was not separately repeated.",
+      "evidence": "full-check-d97c370.json"
+    },
+    {
+      "id": "mission19-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission19.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission19-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission19.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission19-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission19.test.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "passed",
+      "disposition": "Included in exactd97 full repository check:1134 tests, TypeScript, parity and orchestration passed. This isolated mapped command was not separately repeated.",
+      "evidence": "full-check-d97c370.json"
+    },
+    {
+      "id": "mission20-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission20.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission20-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission20.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission20-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission20.test.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "passed",
+      "disposition": "Included in exactd97 full repository check:1134 tests, TypeScript, parity and orchestration passed. This isolated mapped command was not separately repeated.",
+      "evidence": "full-check-d97c370.json"
+    },
+    {
+      "id": "mission21-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission21.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission21-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission21.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission21-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission21.test.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "passed",
+      "disposition": "Included in exactd97 full repository check:1134 tests, TypeScript, parity and orchestration passed. This isolated mapped command was not separately repeated.",
+      "evidence": "full-check-d97c370.json"
+    },
+    {
+      "id": "mission22-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission22.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission22-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission22-gifts.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission22-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission22.test.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "passed",
+      "disposition": "Included in exactd97 full repository check:1134 tests, TypeScript, parity and orchestration passed. This isolated mapped command was not separately repeated.",
+      "evidence": "full-check-d97c370.json"
+    },
+    {
+      "id": "mission23-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission23.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission23-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission23.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission23-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission23.test.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "passed",
+      "disposition": "Included in exactd97 full repository check:1134 tests, TypeScript, parity and orchestration passed. This isolated mapped command was not separately repeated.",
+      "evidence": "full-check-d97c370.json"
+    },
+    {
+      "id": "mission23-settlement-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission23-settlement.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission4-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission4.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission5-angel-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission5-angel.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission5-angel-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission5-angel.test.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "passed",
+      "disposition": "Included in exactd97 full repository check:1134 tests, TypeScript, parity and orchestration passed. This isolated mapped command was not separately repeated.",
+      "evidence": "full-check-d97c370.json"
+    },
+    {
+      "id": "mission7-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission7.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission7-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission7-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission8-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission8.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "mission8-firewarrior-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-firewarrior.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission9-boat-house-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-boat-house.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "mission9-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission9.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "production-build",
+      "kind": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "application source changed: app/game-clock.ts",
+        "application source changed: app/stone-head-animation.ts",
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "passed",
+      "disposition": "Fresh exactd97 production build passed.",
+      "evidence": "build-d97c370.json"
+    },
+    {
+      "id": "reincarnation-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-reincarnation.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "reincarnation-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-reincarnation.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "application source changed: app/game-clock.ts",
+        "application source changed: app/stone-head-animation.ts",
+        "campaign path changed: decomp/README.md",
+        "cross-cutting path changed: app/game-clock.ts",
+        "unmapped path requires conservative general validation: app/stone-head-animation.ts",
+        "unmapped path requires conservative general validation: decomp/research/stone-head-logical-visits.md",
+        "unmapped path requires conservative general validation: scripts/check-browser-stone-head-animation.mjs",
+        "unmapped path requires conservative general validation: tests/stone-head-animation.test.mjs",
+        "unmapped path requires conservative general validation: tests/stone-head-logical-clock.test.mjs"
+      ],
+      "status": "passed",
+      "disposition": "Included in exactd97 full repository check:1134 tests, TypeScript, parity and orchestration passed. This isolated mapped command was not separately repeated.",
+      "evidence": "full-check-d97c370.json"
+    },
+    {
+      "id": "tutorial-first-lesson-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-tutorial.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "tutorial-first-lesson-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/tutorial.test.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "selected only; planning never executes checks",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "passed",
+      "disposition": "Included in exactd97 full repository check:1134 tests, TypeScript, parity and orchestration passed. This isolated mapped command was not separately repeated.",
+      "evidence": "full-check-d97c370.json"
+    },
+    {
+      "id": "vault-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-vault.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    },
+    {
+      "id": "worship-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-worship.mjs"
+      ],
+      "plannerStatus": "not-run",
+      "plannerReason": "requires an inspected running server/browser setup; planning does not probe or execute it",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign mapping. Finite required rendered acceptance is a short ordinary45 body cadence/mesh observation plus a controlled18-phase geometry check retaining existing assertions. No new result is claimed for this separate mapped route."
+    },
+    {
+      "id": "worship-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-worship.py",
+        "$POPULOUS_EXE"
+      ],
+      "plannerStatus": "blocked",
+      "plannerReason": "missing environment: POPULOUS_EXE",
+      "mappedReasons": [
+        "campaign path changed: decomp/README.md"
+      ],
+      "status": "not-run",
+      "disposition": "Broad shared-clock/campaign file mapping; this helper/controller is unchanged. Changed45 body gate covered by accepted original creation/dispatcher/updater proof and132 retained-row current-adapter comparison plus transition control. No result for this separate mapped command is claimed."
+    }
+  ],
+  "unknownPaths": {
+    "app/stone-head-animation.ts": "Reviewed gate, lazy saved-flag adoption, explicit per-visit helper and logical/presentation owner; focused lifecycle and retained native comparison.",
+    "decomp/research/stone-head-logical-visits.md": "Durable source/proof/fixture ownership note and evidence links; no gameplay effect.",
+    "scripts/check-browser-stone-head-animation.mjs": "Only obsolete speed0/24Hz fixture owner changed to1x/one logical turn; substantive geometry/outcome assertions preserved; unused builtin import removed. Execution remains pending coordinated rendered gate.",
+    "tests/stone-head-animation.test.mjs": "Preserves actual reward/exhaustion result and adds extra-presentation hold before next logical advancement.",
+    "tests/stone-head-logical-clock.test.mjs": "Eight failure-first gate/lifecycle/scheduling tests; final-head8 pass and focused34 accepted carry."
+  },
+  "scope": "Final finite per-check dispositions: exactd97 fullcheck/build/format/ESLint passed; Oxlint baseline and Fallow advisory findings retained; required rendered rows are pending. Broad unchanged native/browser mappings remain explicitly not-run. Source review accepted exact runtime/test/fixture scope.",
+  "additionalQuality": {
+    "fallow": "fallow-d97c370.json:exit0/advisory1893 findings",
+    "oxlint": "rawexit1 baseline1 error/2 warnings, zero additions",
+    "formatAndESLint": "passed"
+  }
+}

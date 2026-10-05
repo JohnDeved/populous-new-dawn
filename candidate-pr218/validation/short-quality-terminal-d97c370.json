@@ -1,0 +1,43 @@
+{
+  "source": "d97c370da3e996e00130610df97d10b827ab5c4b",
+  "scope": "Short preflight quality only; fullcheck/build/browser remain ungranted.",
+  "createdAt": "2026-10-05T17:42:34.167049+00:00",
+  "format": "passed",
+  "eslint": "passed; both changed app files, both tests, browser fixture",
+  "oxlint": {
+    "rawStatus": "failed",
+    "baselineDiagnostics": 3,
+    "candidateDiagnostics": 3,
+    "added": [],
+    "removed": [],
+    "diagnostics": [
+      {
+        "file": "stone-head-animation.ts",
+        "rule": "typescript(consistent-type-definitions)",
+        "severity": "error",
+        "message": "Use `interface` instead of `type`.",
+        "count": 1
+      },
+      {
+        "file": "stone-head-animation.ts",
+        "rule": "eslint(prefer-destructuring)",
+        "severity": "warning",
+        "message": "Use Object destructuring.",
+        "count": 2
+      }
+    ]
+  },
+  "receipts": {
+    "format-final": "704ab52ceda7a029db5e32bcdf49ca2d768105c62ee9331b5de98d6581d3a725",
+    "eslint-final": "0e168e55f994045df19fd595c58466406e45ae4095eeafae98e1a356948852e8",
+    "oxlint-final": "640b26ea224f79d62be35338d0010bf07446ea993a93fa591a8e8c3b7246cbdc",
+    "oxlint-base-3cc": "20762ed3a6d4c9051b860150541b60366dbbb94077c071502cc4ef909a9263f2",
+    "lifecycle-d97c370": "983038e5a2eb82a8581c046ae8c5d008d4f8c6d6bc266c7ee162679955194f53"
+  },
+  "dependencyInode": 925605,
+  "rootLock": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLock": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "sourceStatus": "",
+  "resourcesReleased": true,
+  "note": "All author short jobs have collected terminal results. Closure925605 remains terminal at this checkout for the coordinator."
+}

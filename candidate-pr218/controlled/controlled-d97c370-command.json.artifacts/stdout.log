@@ -1,0 +1,8 @@
+{
+  "status": "FAILED_STONE_HEAD_LIVE",
+  "error": "page.waitForFunction: Timeout 20000ms exceeded.\n    at /workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/controlled-d97c370-render/maintained-stone-checker.mjs:40:14",
+  "stages": [],
+  "views": 0,
+  "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/controlled-d97c370-render/controlled-fixture",
+  "browserCloseDelegated": true
+}

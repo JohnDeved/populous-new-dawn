@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "765d3a27-16ee-4da9-87c3-780c0d2c9163",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "d97c370da3e996e00130610df97d10b827ab5c4b",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "60s",
+    "node",
+    "--test",
+    "tests/stone-head-logical-clock.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+  "startedAt": "2026-10-05T17:41:36.019Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/lifecycle-d97c370.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/lifecycle-d97c370.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T17:41:37.709Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ authored45 constructors retain the original logical animation gate (101.260133ms)\n✔ ordinary body frames wait for logical turns without changing the24Hz presentation clock (108.145792ms)\n✔ each catch-up controller and observer sees the prior body frame before one logical advance (49.04973ms)\n✔ mode4 transition remains exclusively presentation-owned despite the gate bit (29.168697ms)\n✔ lazy, post-turn allocated and removed bodies obey the completed-turn boundary (112.473391ms)\n✔ legacy body checkpoints gain only the gate and a new Scene clock does not replay a turn (169.252138ms)\n✔ disable and refill notifications retain raw phase then reset before their owned visit (59.131356ms)\n✔ trigger exhaustion, pause, land pause and turn wrap preserve the separate decorative owner (32.845228ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1612.235717\n",
+  "stderr": "",
+  "stdoutSha256": "d9200592de9b26bd48ef81a892d3cf091426db5b20bb323cc03ec8e28b220d28",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "d97c370da3e996e00130610df97d10b827ab5c4b",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "head": "d97c370da3e996e00130610df97d10b827ab5c4b",
+  "finishedAt": "2026-10-05T17:55:17.950766+00:00",
+  "checks": {
+    "full-check-d97c370": {
+      "status": "passed",
+      "exitCode": 0,
+      "originalSession": 10632,
+      "receiptSha256": "27503a4744dadbd984f5a0ca4091270546d16a06cdc156902b0d01dafd193fa2",
+      "finishedAt": "2026-10-05T17:53:28.324Z"
+    },
+    "build-d97c370": {
+      "status": "passed",
+      "exitCode": 0,
+      "originalSession": 19185,
+      "receiptSha256": "caf45ab005adda91cd5193bbf31492346b0a16c3898073baa2d6dec32927c5bb",
+      "finishedAt": "2026-10-05T17:53:56.846Z"
+    }
+  },
+  "ownedProcesses": [],
+  "sourceAndLocksStable": true,
+  "resourcesReleased": true,
+  "dependencyTerminalAt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/node_modules",
+  "dependencyInode": 925605,
+  "pending": [
+    "Fallow advisory: requested short same-lane grant, not yet run",
+    "Controlled18-phase rendered fixture",
+    "Ordinary baseline/candidate body observation"
+  ]
+}

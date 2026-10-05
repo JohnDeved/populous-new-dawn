@@ -1,0 +1,38 @@
+✔ only reward-derived model45 sources are initialized; unrelated head families and Vault remain separate (150.696345ms)
+✔ enabled idle cycles18native animation visits without followers; hold/refill retain the original counter rules (1.070787ms)
+✔ raw keypoints use base45indices/scale rather than endpoint face layout; all18cached outputs are distinct (14.128713ms)
+✔ presentation pauses with world and native land pause without touching simulation or RNG (54.820319ms)
+✔ normal authored worship earns Bridge stock while presentation leaves the entire gameplay state unchanged (226.209068ms)
+✖ exhausted trigger does not remove its independent enabled decorative model45 animation (115.544563ms)
+✔ mid-animation new checkpoint keeps phase and old optional-field checkpoint restores safely without rewards (54.120378ms)
+✔ multiple heads keep separate state while30/60/120/144Hz and irregular schedules share one animation timeline (552.596104ms)
+✔ shipped scene updates ordinary head positions byphase and leaves Vault on the existing path (1.08545ms)
+✔ disable and refill within one presentation interval reset once without advancing the clock (0.619871ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 9
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2273.778403
+
+✖ failing tests:
+
+test at tests/stone-head-animation.test.mjs:107:1
+✖ exhausted trigger does not remove its independent enabled decorative model45 animation (115.544563ms)
+  AssertionError [ERR_ASSERTION]: Expected "actual" to be strictly unequal to: 32
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/tests/stone-head-animation.test.mjs:118:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 32,
+    expected: 32,
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }

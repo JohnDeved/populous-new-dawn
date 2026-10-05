@@ -1,0 +1,120 @@
+{
+  "status": "source-prepared-only",
+  "head": "d97c370da3e996e00130610df97d10b827ab5c4b",
+  "originalSha256": "fc9dcc933a7903f1dad4c4180580e06c02904c0ad6498620788add4e456e43fd",
+  "generatedSha256": "15a9d345077248e742afe9518639a2c756c268f29181f71036ed3b2f7a844cda",
+  "wrapperSha256": "32c0d66d88ef24cfdebd386a24713729aa0a1b0d9b9dba033146a593b1329219",
+  "replacements": [
+    {
+      "before": "import { chromium } from '@playwright/test'",
+      "after": "// Browser supplied by owned sandboxed harness.",
+      "matches": 1
+    },
+    {
+      "before": "assert.ok(process.env.PND_QUEUE_JOB_ID && process.env.PND_QUEUE_DEADLINE, 'Use the canonical shared queue')",
+      "after": "assert.ok(globalThis.stoneHeadControlledQA?.signal, 'Use the owned local-render harness')",
+      "matches": 1
+    },
+    {
+      "before": "const argument = process.argv.indexOf('--output-dir')\nassert.ok(argument >= 0 && process.argv[argument + 1])\nconst output = resolve(process.argv[argument + 1]), url = process.env.POPULOUS_URL ?? 'http://127.0.0.1:4318'",
+      "after": "const output = \"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/future-controlled-run/controlled-fixture\", url = globalThis.stoneHeadControlledQA.url",
+      "matches": 1
+    },
+    {
+      "before": "jobId: process.env.PND_QUEUE_JOB_ID",
+      "after": "executionOwner: 'local-render-harness'",
+      "matches": 1
+    },
+    {
+      "before": "const browser = await chromium.launch({ headless: true })",
+      "after": "const browser = { version: () => globalThis.stoneHeadControlledQA.browser.version(), close: async () => {} }",
+      "matches": 1
+    },
+    {
+      "before": "const timer = setTimeout(() => { report.expired = true; void browser.close() }, Math.max(1, Math.min(300000, Date.parse(process.env.PND_QUEUE_DEADLINE) - Date.now() - 30000)))",
+      "after": "const timer = undefined // The outer harness owns the deadline and cleanup.",
+      "matches": 1
+    },
+    {
+      "before": "process.on('SIGTERM', () => void browser.close())",
+      "after": "// Outer harness owns SIGTERM.",
+      "matches": 1
+    },
+    {
+      "before": "process.on('SIGINT', () => void browser.close())",
+      "after": "// Outer harness owns SIGINT.",
+      "matches": 1
+    },
+    {
+      "before": "const context = await browser.newContext({ viewport: { width: 1440, height: 1000 }, deviceScaleFactor: 1 })",
+      "after": "const context = globalThis.stoneHeadControlledQA.context",
+      "matches": 1
+    },
+    {
+      "before": "const page = await context.newPage()",
+      "after": "const page = globalThis.stoneHeadControlledQA.page",
+      "matches": 1
+    },
+    {
+      "before": "report.browserClosed=true",
+      "after": "report.browserCloseDelegated=true",
+      "matches": 1
+    },
+    {
+      "before": "output,browserClosed:true",
+      "after": "output,browserCloseDelegated:true",
+      "matches": 1
+    }
+  ],
+  "relativeImports": [
+    {
+      "before": "from './browser-game.mjs'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/scripts/browser-game.mjs\"",
+      "specifier": "./browser-game.mjs",
+      "matches": 1
+    },
+    {
+      "before": "from './browser-game.mjs'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/scripts/browser-game.mjs\"",
+      "specifier": "./browser-game.mjs",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/projection.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/projection.ts\"",
+      "specifier": "../app/projection.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/model-lighting.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/model-lighting.ts\"",
+      "specifier": "../app/model-lighting.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/painter-order.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/painter-order.ts\"",
+      "specifier": "../app/painter-order.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/model-faces.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/model-faces.ts\"",
+      "specifier": "../app/model-faces.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/stone-head-animation.ts'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/stone-head-animation.ts\"",
+      "specifier": "../app/stone-head-animation.ts",
+      "matches": 1
+    },
+    {
+      "before": "from '../app/original-models.json'",
+      "after": "from \"file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/app/original-models.json\"",
+      "specifier": "../app/original-models.json",
+      "matches": 1
+    }
+  ],
+  "limits": "No package/browser run. Scaffolding substitutions only; original/generated bytes retained. Actual harness output paths are rebound at launch and fingerprinted there."
+}

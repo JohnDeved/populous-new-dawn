@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e0a77022-ec66-42e1-9289-da2217945ff1",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "779755e9ef1343e1e7be959da61ddfa9b12b21c1",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "60s",
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/game-clock.ts",
+    "app/stone-head-animation.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+  "startedAt": "2026-10-05T17:39:16.766Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/format-779755e.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/format-779755e.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T17:39:16.911Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "Checking formatting...\n\napp/stone-head-animation.ts (0ms)\n\nFormat issues found in above 1 files. Run without `--check` to fix.\nFinished in 2ms on 2 files using 1 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "3a0f56eb0f55382b7e6964c43f26bb393342751726265c46632d886e8e6a4f31",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "779755e9ef1343e1e7be959da61ddfa9b12b21c1",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

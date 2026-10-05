@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "4a8e0683-936b-4a16-9bd5-332e0ad03fb3",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "9ae0310831d4163806474d3c11b3bbde2241de93",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/stone-head-logical-fix/compare-retained-native.mjs": "0573ba09d1c708d29fcb2fdf7f2fbf408abe80e3109a7e295f2c774281f35a9d"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "60s",
+    "node",
+    "work/orchestration/stone-head-logical-fix/compare-retained-native.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+  "startedAt": "2026-10-05T17:33:49.932Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/native-adapter-9ae0310.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/native-adapter-9ae0310.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T17:33:50.392Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"status\": \"passed\",\n  \"source\": \"9ae0310831d4163806474d3c11b3bbde2241de93\",\n  \"retainedNativeSha256\": \"bfb4daac97d120f3b735c63b02391bdd1ebf6be6ff66523e277f6d8d2e0824a4\",\n  \"timelines\": [\n    {\n      \"list\": \"primary\",\n      \"rows\": 66\n    },\n    {\n      \"list\": \"secondary\",\n      \"rows\": 66\n    }\n  ],\n  \"matchedRows\": 132,\n  \"transitionControl\": true,\n  \"limits\": \"Actual current createStoneHeadAnimation/animateStoneHeads phase adapter against accepted retained native rows. Supplied logical/draw/enable/pause inputs; current World.turn stamp identity differs deliberately from native outer serial. No new original execution, full world/campaign, renderer, allocation or wall-time claim.\"\n}\n",
+  "stderr": "",
+  "stdoutSha256": "66b7cd7a66706728eb703934990b6617fce778628a326f71d0cf899122175e5c",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "9ae0310831d4163806474d3c11b3bbde2241de93",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/stone-head-logical-fix/compare-retained-native.mjs": "0573ba09d1c708d29fcb2fdf7f2fbf408abe80e3109a7e295f2c774281f35a9d"
+    }
+  }
+}

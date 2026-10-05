@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "8ebf71a6-41ea-449c-b360-4593829b5182",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "2f12897ebf6748f1b54a11394d177f143e9db5daf8e98d3dd344b7e6f38afdbf",
+    "inputs": {}
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "60s",
+    "node",
+    "--test",
+    "tests/stone-head-animation.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+  "startedAt": "2026-10-05T17:28:48.618Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/old-fixture-owner.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-logical-fix/old-fixture-owner.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T17:28:50.979Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✔ only reward-derived model45 sources are initialized; unrelated head families and Vault remain separate (150.696345ms)\n✔ enabled idle cycles18native animation visits without followers; hold/refill retain the original counter rules (1.070787ms)\n✔ raw keypoints use base45indices/scale rather than endpoint face layout; all18cached outputs are distinct (14.128713ms)\n✔ presentation pauses with world and native land pause without touching simulation or RNG (54.820319ms)\n✔ normal authored worship earns Bridge stock while presentation leaves the entire gameplay state unchanged (226.209068ms)\n✖ exhausted trigger does not remove its independent enabled decorative model45 animation (115.544563ms)\n✔ mid-animation new checkpoint keeps phase and old optional-field checkpoint restores safely without rewards (54.120378ms)\n✔ multiple heads keep separate state while30/60/120/144Hz and irregular schedules share one animation timeline (552.596104ms)\n✔ shipped scene updates ordinary head positions byphase and leaves Vault on the existing path (1.08545ms)\n✔ disable and refill within one presentation interval reset once without advancing the clock (0.619871ms)\nℹ tests 10\nℹ suites 0\nℹ pass 9\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2273.778403\n\n✖ failing tests:\n\ntest at tests/stone-head-animation.test.mjs:107:1\n✖ exhausted trigger does not remove its independent enabled decorative model45 animation (115.544563ms)\n  AssertionError [ERR_ASSERTION]: Expected \"actual\" to be strictly unequal to: 32\n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/tests/stone-head-animation.test.mjs:118:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 32,\n    expected: 32,\n    operator: 'notStrictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "f4faffa0fae7626cdc9b8f14c693d2daa30321fc7ac8fc45816532014b4d90a8",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "2f12897ebf6748f1b54a11394d177f143e9db5daf8e98d3dd344b7e6f38afdbf",
+    "inputs": {}
+  }
+}

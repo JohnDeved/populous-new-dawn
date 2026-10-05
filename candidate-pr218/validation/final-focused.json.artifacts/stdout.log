@@ -1,0 +1,42 @@
+✔ render cadence and idle production worship hooks cannot change gameplay, RNG or owned animation state (12739.80804ms)
+✔ paused time stays paused; long active frames retain elapsed time (122.198663ms)
+✔ campaign messages use the presentation clock and freeze while paused (262.349948ms)
+✔ campaign pending auto-open waits for settled motion and consumes one oldest record per presentation visit (46.236356ms)
+✔ ordinary native constructors restore the logical gate without adding interpolation behavior (118.663052ms)
+✔ native person and Splash frames wait for logical visits while clear-bit effects keep 24 Hz (121.983009ms)
+✔ each catch-up turn observes the prior frame before one post-observer logical advance (60.623241ms)
+✔ ordinary owner aliases and a post-turn handoff never advance twice (142.532964ms)
+✔ state0 and removed gated sources do not fall through to presentation advancement (52.071373ms)
+✔ pause, land pause and speed changes preserve owned logical animation visits (67.329828ms)
+✔ legacy save aliases gain the gate without resetting frames or replaying on a new Scene clock (38.814826ms)
+✔ a Splash allocated after processing gets one animation visit but no invented lifetime visit (43.693716ms)
+✔ morph transitions keep one presentation owner even on coincident logical boundaries (75.169094ms)
+✔ Firewarrior descriptor holds are measured in eligible logical visits (29.264096ms)
+✔ post-turn source replacement visits only the active record, including at turn wrap (37.003204ms)
+✔ direct simulation ticks and presentation calls do not manufacture logical visits (33.387231ms)
+✔ only reward-derived model45 sources are initialized; unrelated head families and Vault remain separate (163.479604ms)
+✔ enabled idle cycles18native animation visits without followers; hold/refill retain the original counter rules (0.568985ms)
+✔ raw keypoints use base45indices/scale rather than endpoint face layout; all18cached outputs are distinct (13.602777ms)
+✔ presentation pauses with world and native land pause without touching simulation or RNG (54.786342ms)
+✔ normal authored worship earns Bridge stock while presentation leaves the entire gameplay state unchanged (267.159555ms)
+✔ exhausted trigger does not remove its independent enabled decorative model45 animation (106.45782ms)
+✔ mid-animation new checkpoint keeps phase and old optional-field checkpoint restores safely without rewards (73.67063ms)
+✔ multiple heads keep separate state while30/60/120/144Hz and irregular schedules share one animation timeline (641.411965ms)
+✔ shipped scene updates ordinary head positions byphase and leaves Vault on the existing path (0.994584ms)
+✔ disable and refill within one presentation interval reset once without advancing the clock (0.25944ms)
+✔ authored45 constructors retain the original logical animation gate (97.370901ms)
+✔ ordinary body frames wait for logical turns without changing the24Hz presentation clock (99.210194ms)
+✔ each catch-up controller and observer sees the prior body frame before one logical advance (54.171264ms)
+✔ mode4 transition remains exclusively presentation-owned despite the gate bit (34.468056ms)
+✔ lazy, post-turn allocated and removed bodies obey the completed-turn boundary (106.193523ms)
+✔ legacy body checkpoints gain only the gate and a new Scene clock does not replay a turn (39.885586ms)
+✔ disable and refill notifications retain raw phase then reset before their owned visit (62.459273ms)
+✔ trigger exhaustion, pause, land pause and turn wrap preserve the separate decorative owner (39.151143ms)
+ℹ tests 34
+ℹ suites 0
+ℹ pass 34
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20086.477891
