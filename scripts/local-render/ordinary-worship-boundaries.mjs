@@ -16,7 +16,7 @@ async function installEarlyObserver(page, phase) {
     const { GameScene } = await import('/app/scene.ts'), restorers = []
     const evidence = window.worshipBoundaryEvidence = {
       errors: [], replacement: null, start: null, cues: 0, visits: 0,
-      handoffs: [], draws: {}, drawCosts: [], visibility: [], firstVisibleDraw: null, resumedMotion: null, restored: false,
+      handoffs: [], draws: {}, drawCosts: [], tailWindows: [], visibility: [], firstVisibleDraw: null, resumedMotion: null, restored: false,
     }
     const focus = w => {
       const observed = structuredClone({ level: w.outcome.level, turn: w.turn, paused: w.paused,
@@ -48,6 +48,24 @@ async function installEarlyObserver(page, phase) {
       return retain(observed)
     }
     window.worshipBoundaryFocus = focus
+    const tailWindow = phaseName => {
+      const w = window.worshipBoundaryScene.world, c = w.worshipAcquisition.controllers
+      return { phase: phaseName, turn: w.turn, paused: w.paused, clock: { ...w.worshipAcquisition.clock },
+        spell: c.spell && { active: c.spell.active, model: c.spell.model, giftId: c.spell.giftId, step: c.spell.step, visits: c.spell.visits },
+        companion: c.companion && { active: c.companion.active, model: c.companion.model, step: c.companion.step, visits: c.companion.visits },
+        pulse: c.pulse && { active: c.pulse.active, model: c.pulse.model, remaining: c.pulse.remaining, frame: c.pulse.frame },
+        gifts: w.gifts.filter(g => g.reward === 'lightning').map(g => ({ id: g.id, phase: g.phase, remaining: g.remaining })),
+        eligible: !!c.pulse?.active && !c.spell?.active && !c.companion?.active }
+    }
+    window.worshipBoundaryTailWindow = tailWindow
+    const retainTailWindow = phaseName => {
+      if (phase !== 'tail-save') return
+      const c = window.worshipBoundaryScene.world.worshipAcquisition.controllers,
+        previous = evidence.tailWindows.at(-1)
+      if (c.pulse?.model !== 3 || (!c.pulse.active && !previous?.pulse?.active)) return
+      if (evidence.tailWindows.length >= 128) throw Error('Finite prospective tail observation bound exceeded')
+      evidence.tailWindows.push(tailWindow(phaseName))
+    }
     const observe = fn => { try { return fn() } catch (error) {
       if (evidence.errors.length < 16) evidence.errors.push(String(error.stack ?? error))
     } }
@@ -120,6 +138,7 @@ async function installEarlyObserver(page, phase) {
         const before = observeResume && !evidence.resumedMotion ? observe(motion) : null
         const result = original.apply(this, args)
         evidence.visits++
+        observe(() => retainTailWindow('after-original-worship-visit; clock task may still continue'))
         if (before?.active && !before.paused) observe(() => {
           const after = motion()
           if (after?.giftId === before.giftId && !after.paused &&
@@ -174,6 +193,7 @@ async function installEarlyObserver(page, phase) {
         try { result = original.apply(this, args) }
         finally { duration = performance.now() - started; currentDrawing = null; insideDraw = false }
         observe(() => {
+          retainTailWindow('after-original-overlay-draw; final clock state for this rendered frame')
           if (cost) { costCounts[category]++; evidence.drawCosts.push({ ...cost, milliseconds: duration, measureCalls }) }
           if (awaitingVisibleDraw) {
             evidence.firstVisibleDraw = { turn: scene.world.turn, clock: structuredClone(scene.world.worshipAcquisition.clock) }
@@ -366,7 +386,7 @@ async function saveTailThroughPreparedControls(page, controls, wait, report) {
       if (!c.pulse?.active || c.spell?.active || c.companion?.active) return false
       // This predicate runs between original browser tasks, after the complete
       // clock visit. Retain the observation here, without another host round trip.
-      window.worshipTailInput.onset ??= window.worshipBoundaryFocus(w)
+      window.worshipTailInput.onset ??= window.worshipBoundaryTailWindow('between-browser-tasks-before-trusted-inputs')
       return true
     }, null, 15000, 'Genuine tail before prepared trusted Settings/Save inputs')
     await page.mouse.click(controls.settings.x, controls.settings.y)
@@ -386,7 +406,8 @@ async function saveTailThroughPreparedControls(page, controls, wait, report) {
     assert.equal(event.x, point.x); assert.equal(event.y, point.y); assert.equal(event.state.sameWorld, true)
   }
   report.tailBeforeMenu = input.onset
-  assert.equal(eligibleTail(input.onset), true)
+  assert.equal(input.onset.eligible, true)
+  assert.equal(input.onset.pulse.active, true); assert.equal(input.onset.spell.active, false); assert.equal(input.onset.companion.active, false)
   const savedClick = input.events.find(e => e.target === 'save' && e.stage === 'capture-before-game')
   assert.equal(savedClick.menuOpen, true, 'Save must be reached through the actually open public dialog')
   assert.equal(savedClick.state.tailEligible, true, 'Trusted Save input must still reach a live independent tail')
@@ -654,6 +675,12 @@ export default async function ({ page, context, root, output, receipt, openMissi
       report.continuation = { kind: 'second browser process with verified previous owned cleanup', previousRunId: previous.runId, loaded }
     } else {
       assert.equal(receipt.profile.checkpointAtStart, null)
+      if (phase === 'tail-save') {
+        const before = { viewport: page.viewportSize(), dpr: await page.evaluate(() => devicePixelRatio) }
+        await page.setViewportSize({ width: 960, height: 720 })
+        assert.equal(await page.evaluate(() => devicePixelRatio), before.dpr)
+        report.tailViewport = { before, current: page.viewportSize(), method: 'Actual smaller viewport before the ordinary route; unchanged DPR and clocks' }
+      }
       await openMission(1)
       if (phase === 'hidden') visibilityControl = await prepareNativeVisibility(page, context, receipt, report)
       await prepareM1LightningRoute({ page, waitForShamanReadiness, signal, report, save: saveReport })
