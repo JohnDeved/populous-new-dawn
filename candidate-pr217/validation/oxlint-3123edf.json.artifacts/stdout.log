@@ -1,0 +1,59 @@
+app/animation.ts:4:8: error typescript(consistent-type-definitions): Use `interface` instead of `type`. help: Replace `type Animation = { object: number draw: number morph: number palette: number renderFlags: number f1: number f2: number }` with `interface Animation { object: number draw: number morph: number palette: number renderFlags: number f1: number f2: number }`.
+app/animation.ts:19:8: error typescript(consistent-type-definitions): Use `interface` instead of `type`. help: Replace `type AnimationData = { frameCounts: ArrayLike<number> modelFrames: readonly (readonly number[])[] morphDurations: ArrayLike<number> }` with `interface AnimationData { frameCounts: ArrayLike<number> modelFrames: readonly (readonly number[])[] morphDurations: ArrayLike<number> }`.
+app/animation.ts:84:16: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.
+app/animation.ts:114:13: warning unicorn(no-negated-condition): Unexpected negated condition. help: Remove the negation operator and switch the consequent and alternate branches.
+app/animation.ts:173:18: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.
+app/game-store.ts:24:1: error typescript(consistent-type-definitions): Use `interface` instead of `type`. help: Replace `type LegacyGift = { x: number z: number kind: 'vault' | 'lightning' | 'bridge' remaining: number }` with `interface LegacyGift { x: number z: number kind: 'vault' | 'lightning' | 'bridge' remaining: number }`.
+app/game-store.ts:160:5: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/game-store.ts:160:39: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.
+app/game-store.ts:163:5: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.
+app/game-store.ts:163:37: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.
+app/game-store.ts:190:42: warning eslint(prefer-destructuring): Use Array destructuring. help: Use array destructuring rather than direct member access.
+app/game-store.ts:356:45: warning unicorn(no-array-sort): Use `Array#toSorted()` instead of `Array#sort()`. help: `Array#sort()` mutates the original array. Use `Array#toSorted()` to return a new sorted array without modifying the original.
+app/game-store.ts:383:56: warning unicorn(no-array-sort): Use `Array#toSorted()` instead of `Array#sort()`. help: `Array#sort()` mutates the original array. Use `Array#toSorted()` to return a new sorted array without modifying the original.
+app/live-people.ts:22:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:35:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:42:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:49:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:50:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:51:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:52:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:58:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:59:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:66:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:74:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:82:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:83:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:88:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:94:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:102:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:103:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:110:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:111:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:112:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:113:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:114:1: error import(first): Import statements must come first help: Move import statement to the top of the file
+app/live-people.ts:16:8: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-people.ts:19:35: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-people.ts:10:50: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-people.ts:81:8: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-people.ts:7:69: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-people.ts:34:8: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-people.ts:4:65: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-people.ts:5:30: error import(no-cycle): Dependency cycle detected help: Refactor to remove the cycle. Consider extracting shared code into a separate module that both files can import.
+app/live-people.ts:3:30: error import(no-duplicates): Modules should not be imported multiple times in the same file help: Merge these imports into a single import statement
+app/live-people.ts:82:61: error eslint(no-duplicate-imports): './building-shapes.ts' import is duplicated help: Merge the duplicated import into a single import statement
+app/live-people.ts:332:40: warning eslint(no-shadow): 'b' is already declared in the upper scope. help: Consider renaming 'b' to avoid shadowing the variable from the outer scope.
+app/live-people.ts:391:13: warning eslint(no-shadow): 'people' is already declared in the upper scope. help: Consider renaming 'people' to avoid shadowing the variable from the outer scope.
+app/live-people.ts:442:35: warning eslint(no-shadow): 'u' is already declared in the upper scope. help: Consider renaming 'u' to avoid shadowing the variable from the outer scope.
+app/live-people.ts:506:20: warning eslint(no-shadow): 'p' is already declared in the upper scope. help: Consider renaming 'p' to avoid shadowing the variable from the outer scope.
+app/live-people.ts:507:20: warning eslint(no-shadow): 'p' is already declared in the upper scope. help: Consider renaming 'p' to avoid shadowing the variable from the outer scope.
+app/live-people.ts:521:18: warning eslint(no-shadow): 'p' is already declared in the upper scope. help: Consider renaming 'p' to avoid shadowing the variable from the outer scope.
+app/live-people.ts:915:36: warning eslint(no-shadow): 'b' is already declared in the upper scope. help: Consider renaming 'b' to avoid shadowing the variable from the outer scope.
+app/live-people.ts:1164:38: warning eslint(no-shadow): 'b' is already declared in the upper scope. help: Consider renaming 'b' to avoid shadowing the variable from the outer scope.
+app/live-people.ts:391:22: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.
+app/live-people.ts:436:10: warning unicorn(consistent-function-scoping): Function `unexpected` does not capture any variables from its parent scope help: Move `unexpected` to the outer scope to avoid recreating it on every call.
+app/live-people.ts:609:36: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement
+app/live-people.ts:611:49: error eslint(no-multi-assign): Do not use chained assignment help: Separate each assignment into its own statement
+app/live-people.ts:1073:17: warning eslint(prefer-destructuring): Use Object destructuring. help: Use object destructuring rather than direct member access.
+app/live-people.ts:1135:11: warning unicorn(consistent-function-scoping): Function `unowned` does not capture any variables from its parent scope help: Move `unowned` to the outer scope to avoid recreating it on every call.

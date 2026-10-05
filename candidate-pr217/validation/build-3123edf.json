@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "775e67a8-8ce2-4fd1-a2ae-b5797605d963",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "3123edf97dce9dc13fd3510cdb3ad1d15aedc160",
+    "branch": "fix/sprite-logical-visit-clock",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "300s",
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix",
+  "startedAt": "2026-10-05T16:21:15.537Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/build-3123edf.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/build-3123edf.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T16:21:35.024Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n[1/5] analyze client references...\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n✓ built in 5.26s\n[2/5] analyze server references...\n\u001b[2K\rtransforming...✓ 387 modules transformed.\nrendering chunks...\n✓ built in 1.76s\n[3/5] build rsc environment...\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 5.02s\n[4/5] build client environment...\n\u001b[2K\rtransforming...✓ 428 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.95s\n[5/5] build ssr environment...\n\u001b[2K\rtransforming...✓ 393 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.56s\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:css-data-url (32%)\n  - rsc:virtual-client-package (16%)\n  - vinext:og-inline-fetch-assets (13%)\n  - rsc:rsc-css-export-transform (9%)\n  - vinext:middleware-server-only (6%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:css-data-url (44%)\n  - alias (18%)\n  - rsc:virtual-client-package (9%)\n  - rsc:load-environment-module (6%)\n  - vinext:middleware-server-only (6%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\n",
+  "stdoutSha256": "6753e1bf302230d92897d575f92addabd272d696382c2942998697770dd0cedd",
+  "stderrSha256": "161639865797552a3875ce3f9b93f32950a369c88841cc7035cc6ca012311774",
+  "sourceAfter": {
+    "headOid": "3123edf97dce9dc13fd3510cdb3ad1d15aedc160",
+    "branch": "fix/sprite-logical-visit-clock",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

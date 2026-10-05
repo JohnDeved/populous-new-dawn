@@ -1,0 +1,20 @@
+✔ ordinary native constructors restore the logical gate without adding interpolation behavior (112.167503ms)
+✔ native person and Splash frames wait for logical visits while clear-bit effects keep 24 Hz (49.70959ms)
+✔ each catch-up turn observes the prior frame before one post-observer logical advance (52.637257ms)
+✔ ordinary owner aliases and a post-turn handoff never advance twice (170.418268ms)
+✔ state0 and removed gated sources do not fall through to presentation advancement (53.474965ms)
+✔ pause, land pause and speed changes preserve owned logical animation visits (26.016995ms)
+✔ legacy save aliases gain the gate without resetting frames or replaying on a new Scene clock (32.140289ms)
+✔ a Splash allocated after processing gets one animation visit but no invented lifetime visit (27.808465ms)
+✔ morph transitions keep one presentation owner even on coincident logical boundaries (67.88442ms)
+✔ Firewarrior descriptor holds are measured in eligible logical visits (27.400903ms)
+✔ post-turn source replacement visits only the active record, including at turn wrap (27.929547ms)
+✔ direct simulation ticks and presentation calls do not manufacture logical visits (32.357016ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 12
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1682.962678

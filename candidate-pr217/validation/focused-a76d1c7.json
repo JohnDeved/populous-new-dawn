@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "be50338e-b732-48f7-a9b8-1efc1cdb76c9",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "a76d1c75335b4a857d1ece5bd1d6f7cdefb6552a",
+    "branch": "fix/sprite-logical-visit-clock",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "60s",
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/logical-animation-clock.test.mjs",
+    "tests/game-clock.test.mjs",
+    "tests/live-worship.test.mjs",
+    "tests/shield-spell.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix",
+  "startedAt": "2026-10-05T16:08:25.799Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/focused-a76d1c7.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/focused-a76d1c7.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T16:08:46.335Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ render cadence and idle production worship hooks cannot change gameplay, RNG or owned animation state (12282.176484ms)\n✔ paused time stays paused; long active frames retain elapsed time (111.650477ms)\n✔ campaign messages use the presentation clock and freeze while paused (238.585044ms)\n✔ campaign pending auto-open waits for settled motion and consumes one oldest record per presentation visit (45.590547ms)\n✔ live worship shares an order, occupies exact slots, prays, earns gifts and releases interrupted/dead members (402.931798ms)\n✔ live head rewards, displayed standing roster and group selection retain their distinct native rules (207.174384ms)\n✔ worship motion, prayer frames, pose RNG and rewards are identical at 5–240 Hz and irregular frames (1207.338817ms)\n✔ an unreachable head preserves the existing command without entering an unported retry state (82.055865ms)\n✔ Ctrl waypoints finish at a stone head without replacing the current route or person (141.237113ms)\n✔ training replacements inherit a queued stone-head order and perform the original prayer (154.346443ms)\n✔ queued worship preserves turns, poses, RNG and rewards at 5–240 Hz and irregular frames (1169.566482ms)\n✔ ordinary native constructors restore the logical gate without adding interpolation behavior (129.257511ms)\n✔ native person and Splash frames wait for logical visits while clear-bit effects keep 24 Hz (83.820013ms)\n✔ each catch-up turn observes the prior frame before one post-observer logical advance (51.988651ms)\n✔ ordinary owner aliases and a post-turn handoff never advance twice (135.673892ms)\n✔ state0 and removed gated sources do not fall through to presentation advancement (49.019815ms)\n✔ pause, land pause and speed changes preserve owned logical animation visits (25.945487ms)\n✔ legacy save aliases gain the gate without resetting frames or replaying on a new Scene clock (33.654469ms)\n✔ a Splash allocated after processing gets one animation visit but no invented lifetime visit (43.008617ms)\n✔ morph transitions keep one presentation owner even on coincident logical boundaries (71.370535ms)\n✔ Firewarrior descriptor holds are measured in eligible logical visits (32.242639ms)\n✔ post-turn source replacement visits only the active record, including at turn wrap (27.010004ms)\n✔ direct simulation ticks and presentation calls do not manufacture logical visits (29.73892ms)\n✔ Magical Shield protects six nearby followers for the native lifetime (128.241272ms)\n✔ old checkpoints default new Shield stock without disturbing their world (78.432746ms)\nℹ tests 25\nℹ suites 0\nℹ pass 25\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 20466.94077\n",
+  "stderr": "",
+  "stdoutSha256": "54faf14d509be7e904d312da4179685c62232ff139bb47839f0ffa93ea2d317b",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "a76d1c75335b4a857d1ece5bd1d6f7cdefb6552a",
+    "branch": "fix/sprite-logical-visit-clock",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

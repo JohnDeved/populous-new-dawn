@@ -1,0 +1,7 @@
+{
+  "baseline": 58,
+  "candidate": 58,
+  "introduced": [],
+  "removed": [],
+  "scope": "Rule/message/file multiplicities; original exact byte-bound streams retain locations."
+}

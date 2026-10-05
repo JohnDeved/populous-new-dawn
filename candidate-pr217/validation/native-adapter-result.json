@@ -1,0 +1,84 @@
+{
+  "status": "passed",
+  "retainedNativeSha256": "4a6370c5addef38f68d670f4ff61107f994bf1a1da56b08d31f77f070dff9760",
+  "cases": [
+    {
+      "name": "idle",
+      "model": 2,
+      "samples": 12
+    },
+    {
+      "name": "walk",
+      "model": 2,
+      "samples": 12
+    },
+    {
+      "name": "idle",
+      "model": 3,
+      "samples": 12
+    },
+    {
+      "name": "walk",
+      "model": 3,
+      "samples": 12
+    },
+    {
+      "name": "idle",
+      "model": 4,
+      "samples": 12
+    },
+    {
+      "name": "walk",
+      "model": 4,
+      "samples": 12
+    },
+    {
+      "name": "idle",
+      "model": 5,
+      "samples": 12
+    },
+    {
+      "name": "walk",
+      "model": 5,
+      "samples": 12
+    },
+    {
+      "name": "idle",
+      "model": 6,
+      "samples": 12
+    },
+    {
+      "name": "walk",
+      "model": 6,
+      "samples": 12
+    },
+    {
+      "name": "idle",
+      "model": 7,
+      "samples": 12
+    },
+    {
+      "name": "walk",
+      "model": 7,
+      "samples": 12
+    },
+    {
+      "name": "splash",
+      "samples": 6
+    },
+    {
+      "name": "full hut smoke",
+      "samples": 6
+    },
+    {
+      "name": "partial hut smoke",
+      "samples": 6
+    },
+    {
+      "name": "building damage smoke",
+      "samples": 6
+    }
+  ],
+  "comparisons": 168,
+  "scope": "Actual animateLiveObjects phase routing against accepted retained native timelines; actual current person/Splash creation, native animation poses supplied; clear-bit smoke animation records supplied. Processor bodies, elapsed wall time and gameplay are not executed here. Adapter stamps use completed World.turn and are deliberately not compared to native outer serials. No original probe repeated."
+}

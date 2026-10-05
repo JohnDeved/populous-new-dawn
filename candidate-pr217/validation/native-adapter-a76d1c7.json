@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "552d9a15-ee91-407b-a446-e10867d4edd0",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "a76d1c75335b4a857d1ece5bd1d6f7cdefb6552a",
+    "branch": "fix/sprite-logical-visit-clock",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/sprite-logical-visit-fix/compare-retained-native.mjs": "bc5ce50dd36db4a45f42a74bf59b745c7178055c127f7dcf2c2115c8e8406663"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "60s",
+    "node",
+    "work/orchestration/sprite-logical-visit-fix/compare-retained-native.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix",
+  "startedAt": "2026-10-05T16:11:10.081Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/native-adapter-a76d1c7.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/native-adapter-a76d1c7.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T16:11:11.486Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"status\": \"passed\",\n  \"retainedNativeSha256\": \"4a6370c5addef38f68d670f4ff61107f994bf1a1da56b08d31f77f070dff9760\",\n  \"cases\": [\n    {\n      \"name\": \"idle\",\n      \"model\": 2,\n      \"samples\": 12\n    },\n    {\n      \"name\": \"walk\",\n      \"model\": 2,\n      \"samples\": 12\n    },\n    {\n      \"name\": \"idle\",\n      \"model\": 3,\n      \"samples\": 12\n    },\n    {\n      \"name\": \"walk\",\n      \"model\": 3,\n      \"samples\": 12\n    },\n    {\n      \"name\": \"idle\",\n      \"model\": 4,\n      \"samples\": 12\n    },\n    {\n      \"name\": \"walk\",\n      \"model\": 4,\n      \"samples\": 12\n    },\n    {\n      \"name\": \"idle\",\n      \"model\": 5,\n      \"samples\": 12\n    },\n    {\n      \"name\": \"walk\",\n      \"model\": 5,\n      \"samples\": 12\n    },\n    {\n      \"name\": \"idle\",\n      \"model\": 6,\n      \"samples\": 12\n    },\n    {\n      \"name\": \"walk\",\n      \"model\": 6,\n      \"samples\": 12\n    },\n    {\n      \"name\": \"idle\",\n      \"model\": 7,\n      \"samples\": 12\n    },\n    {\n      \"name\": \"walk\",\n      \"model\": 7,\n      \"samples\": 12\n    },\n    {\n      \"name\": \"splash\",\n      \"samples\": 6\n    },\n    {\n      \"name\": \"full hut smoke\",\n      \"samples\": 6\n    },\n    {\n      \"name\": \"partial hut smoke\",\n      \"samples\": 6\n    },\n    {\n      \"name\": \"building damage smoke\",\n      \"samples\": 6\n    }\n  ],\n  \"comparisons\": 168,\n  \"scope\": \"Actual animateLiveObjects phase routing against accepted retained native timelines; actual current person/Splash creation, native animation poses supplied; clear-bit smoke animation records supplied. Processor bodies, elapsed wall time and gameplay are not executed here. Adapter stamps use completed World.turn and are deliberately not compared to native outer serials. No original probe repeated.\"\n}\n",
+  "stderr": "",
+  "stdoutSha256": "784fa4e60008763fb3f87e77be03f6d6172cbc9dbf1245800339044b655bf44b",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "a76d1c75335b4a857d1ece5bd1d6f7cdefb6552a",
+    "branch": "fix/sprite-logical-visit-clock",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/sprite-logical-visit-fix/compare-retained-native.mjs": "bc5ce50dd36db4a45f42a74bf59b745c7178055c127f7dcf2c2115c8e8406663"
+    }
+  }
+}

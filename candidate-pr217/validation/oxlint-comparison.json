@@ -1,0 +1,24 @@
+{
+  "baselineCount": 58,
+  "candidateCount": 59,
+  "baselineSeverities": {
+    "error": 37,
+    "warning": 21
+  },
+  "candidateSeverities": {
+    "error": 37,
+    "warning": 22
+  },
+  "introduced": [
+    {
+      "diagnostic": [
+        "animation.ts",
+        "warning",
+        "eslint(prefer-destructuring)",
+        "Use Object destructuring."
+      ],
+      "count": 1
+    }
+  ],
+  "removed": []
+}

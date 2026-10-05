@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "af61836c-1dd1-4757-ac95-389a4c620c79",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ed95f0313e367367a32c232eb4b6d1e118068b58",
+    "branch": "fix/sprite-logical-visit-clock",
+    "trackedDiffSha256": "465ece6cf3e72ee10be0a81854b3692b7eec19b15ae2871470f39e2aa12bb543",
+    "inputs": {}
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "60s",
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/level-start.test.mjs",
+    "tests/building-work.test.mjs",
+    "tests/campaign-start-readiness.test.mjs",
+    "tests/campaign-fixed-turn-adapter.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix",
+  "startedAt": "2026-10-05T16:14:43.958Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/legacy-callers-migrated.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/legacy-callers-migrated.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T16:14:58.868Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ building activity matches native geometry, clocks, speed, facing and animation requests (38.182906ms)\n✔ live builders reach work poses, animate, pause, cancel and finish without stale sprites (434.140794ms)\n✔ crews leave finished huts in all four orientations before the plan releases them (2496.581579ms)\n✔ player construction orders approach natively and deposit carried logs before fetching (1536.745908ms)\n{\"label\":\"fixture\",\"ready\":true,\"turn\":1,\"status\":\"playing\"}\n{\"checkpoint\":\"mission-2-start\",\"level\":3,\"status\":\"won\",\"turn\":1,\"population\":{}}\n{\"checkpoint\":\"mission-2-won\",\"level\":3,\"status\":\"won\",\"turn\":1,\"population\":{}}\n{\"checkpoint\":\"mission-2-result\",\"level\":3,\"status\":\"won\",\"turn\":1,\"population\":{}}\n{\"checkpoint\":\"mission-3-continued\",\"level\":3,\"status\":\"won\",\"turn\":1,\"population\":{}}\n{\"checkpoint\":\"mission-3-won\",\"level\":3,\"status\":\"won\",\"turn\":1,\"population\":{}}\n{\"checkpoint\":\"mission-3-result\",\"level\":3,\"status\":\"won\",\"turn\":1,\"population\":{}}\nPASS: fixed-turn diagnostic wins Mission 2, continues, and wins Mission 3; not real-clock gameplay\n✔ sandbox adapter retains every existing assertion, turn bound and campaign action (2.994445ms)\n✔ changed or duplicated maintained checker scaffold fails closed before browser execution (1.351008ms)\n✔ late final screenshot completion cannot mark an aborted campaign scenario passed (5.606206ms)\n✔ actual native triangles supplement the historical fixed anchor scan (4.240214ms)\n✔ geometry candidates cannot bypass foreign object or DOM overlay ownership (3.073523ms)\n✔ normal zero-dt frame refresh resolves stale panels while retaining simulation slots and clock (1.582746ms)\n✔ presentation refresh cannot conceal a simulation change (1.860333ms)\n✔ presentation reservation exception cannot conceal secondary slot allocation (1.247282ms)\n✔ stale pre-refresh reservations fail instead of being normalized by the checker (1.578149ms)\n✔ presentation refresh cannot conceal changed world Map entries (2.003518ms)\n✔ occluded shrine fallback uses bounded ordinary camera drags and strict target re-probes (0.304767ms)\n✔ the shipped right-drag mapping rotates 512 native angle units without panning (54.548401ms)\n✔ Mission 3 trains a bounded Preacher group and retains identified HUD-reachable Braves (0.17306ms)\n✔ additive native Ctrl-five requires the ordinary cancel/deselect before reserving workers (1002.681674ms)\n✔ camera release alone does not make the startup Shaman selectable; observation is read-only (359.04814ms)\n✔ readiness still rejects absent actors, global input locks and paused play (223.513825ms)\n✔ Continue readiness waits on real RAF before suspension with the existing timeout (1.37215ms)\n✔ the production wait polls synchronous false until native selection readiness (2.344028ms)\n✔ ordinary Mission1–3 startup uses native terrain, authored gates and real conversion (593.100892ms)\n✔ native opening excludes Shaman selection, without inventing a casting restriction (103.543969ms)\n✔ checkpoint restore resumes every opening stage without replaying terrain/conversion (2106.785787ms)\n✔ restart gets one fresh sequence; repeated flyby skip does not replay it (429.025297ms)\n✔ only carrier-created stones are obstacles, while legacy sites keep their reservations (69.511259ms)\n✔ opening wave, conversion and stone cues preload their existing original samples (16.953016ms)\n✔ permitted opening casts enter native state22 and resume command18 without a stuck controller (1399.755125ms)\n✔ fresh-load camera follows native cell-edge/center snapping and angle retention (0.481212ms)\n✔ the command18 completion turn owns exactly one native person visit (289.304044ms)\n✔ permitted state22 interruption and completion retain one counter increment per turn (551.083131ms)\n✔ replacement player orders cancel startup before its counter write (121.692083ms)\n✔ only the linked neutral startup conversion flash follows its replacement Brave (134.357816ms)\n✔ a missing converted Brave does not retarget its flash or shorten the native expiry (90.539152ms)\n✔ an invalidated command18 is consumed by the ordinary queue without completing the site (49.451488ms)\nℹ tests 36\nℹ suites 0\nℹ pass 36\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 14837.801317\n",
+  "stderr": "",
+  "stdoutSha256": "8f9ad806afc6a340ef85b9162a913b704737087a3a0226dfff29e75999629aff",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ed95f0313e367367a32c232eb4b6d1e118068b58",
+    "branch": "fix/sprite-logical-visit-clock",
+    "trackedDiffSha256": "465ece6cf3e72ee10be0a81854b3692b7eec19b15ae2871470f39e2aa12bb543",
+    "inputs": {}
+  }
+}

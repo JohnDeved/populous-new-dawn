@@ -1,0 +1,38 @@
+{
+  "head": "3123edf97dce9dc13fd3510cdb3ad1d15aedc160",
+  "finishedAt": "2026-10-05T16:22:16.516739+00:00",
+  "gates": {
+    "full-check-3123edf": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "baab09835a6d170404eb3e06de5eac6726a436d78d22b8d9ceff9c7993ea649e",
+      "originalSession": 9908,
+      "finishedAt": "2026-10-05T16:21:03.659Z"
+    },
+    "build-3123edf": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "3ffce1217cf600eaef866533a542fb9e46bd9d920af468132abb90b812cb6145",
+      "originalSession": 73258,
+      "finishedAt": "2026-10-05T16:21:35.024Z"
+    },
+    "oxlint-3123edf": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "5669a4b1ffcbb6dbc752a5f0c60fc763d0ce49a5b1b65195574c9d572c463e0f",
+      "originalSession": null,
+      "finishedAt": "2026-10-05T16:21:48.606Z"
+    }
+  },
+  "pending": [
+    "oxfmt",
+    "ESLint",
+    "candidate browser"
+  ],
+  "ownedProcesses": [],
+  "resourcesReleased": true,
+  "dependencyTerminalAt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/node_modules",
+  "dependencyInode": 925605,
+  "sourceAndLocksStable": true,
+  "note": "Serial gate chain stopped after oxlint exit1; no source changes or attribution before release. Full check and build passed."
+}

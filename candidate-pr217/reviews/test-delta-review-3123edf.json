@@ -1,0 +1,24 @@
+{
+  "decision": "ACCEPT",
+  "kind": "final-source-preflight-test-delta",
+  "base": "ed95f0313e367367a32c232eb4b6d1e118068b58",
+  "reviewedHead": "3123edf97dce9dc13fd3510cdb3ad1d15aedc160",
+  "trackedStatus": "",
+  "diffSha256": "465ece6cf3e72ee10be0a81854b3692b7eec19b15ae2871470f39e2aa12bb543",
+  "changedTestHashes": {
+    "tests/building-work.test.mjs": "7eb0fb7af31fcfdac9a460dbb1aa10f2429158415e81b3aaf4a9695e5b61d58f",
+    "tests/campaign-fixed-turn-adapter.test.mjs": "5e13dfb4fd0d829c7d4492215e3fce37815dd1e335d2198f61c7110e7a52dff0",
+    "tests/campaign-start-readiness.test.mjs": "4c46bcef44187b66dd78afa4dad7ebdbaa4607a286efdd587c17e9183161b65b",
+    "tests/game.test.mjs": "9e7a6a743dbff918acbd1c23efb3e42d708cf7d2b6429f8aecf4beb223e9373e",
+    "tests/level-start.test.mjs": "02f5f08533807fff59fb847a711f2c6fc436de9f065f590438bbf23c7af71b4f"
+  },
+  "receiptHashes": {
+    "legacy-callers-ed95f03.json": "5ec4296b1a3f0040e4ed5838cee41ab3ee8ce0e0f1f44f8f569107fefa6244e4",
+    "legacy-callers-migrated.json": "c8ae3c497fe04478c87658a79f98b2e21034634e3890c4cbf0173b54e2c1f3fe",
+    "victory-caller-migrated.json": "c9add4ae1721c4357785c036c1d82ec7379d29c0b5c245e801f941489f15e4d5"
+  },
+  "reviewSha256": "6a7b226d9fd99adde0d39332a1a14773727d689c863aad4df151a365a948bbe4",
+  "runtimeReview": "source-review-ed95f031.md",
+  "pending": "Final source-bound check/build, TypeScript quality and ordinary rendered candidate evidence.",
+  "resourcesHeld": []
+}

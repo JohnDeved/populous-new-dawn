@@ -1,0 +1,34 @@
+{
+  "decision": "ACCEPT",
+  "kind": "exact-style-delta-reviewed-carry",
+  "base": "3123edf97dce9dc13fd3510cdb3ad1d15aedc160",
+  "reviewedHead": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+  "trackedStatus": "",
+  "diffSha256": "f99485e3a4d706371f7702085d853f34605686a8f9bda1e3fd2a8568d4a97265",
+  "changedSourceHashes": {
+    "app/animation.ts": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+    "app/live-people.ts": "340d912b2f886e7b520d76310cebffe9a2928363b98c0a44b3dd5fdd47d2c117"
+  },
+  "approvedCarry": [
+    "1126 tests from full-check-3123edf",
+    "parity/orchestration from full-check-3123edf",
+    "bounded 168-snapshot native adapter comparison"
+  ],
+  "freshPassed": [
+    "style-lifecycle: 12 tests",
+    "style-typecheck"
+  ],
+  "pending": [
+    "final-head build",
+    "final scoped quality attribution",
+    "ordinary candidate browser",
+    "terminal evidence review"
+  ],
+  "receiptHashes": {
+    "full-check-3123edf.json": "baab09835a6d170404eb3e06de5eac6726a436d78d22b8d9ceff9c7993ea649e",
+    "style-lifecycle.json": "905432c2003d18700d59cb138a8ea08ad788a918b4eeef3d3baa28bd8037b0f5",
+    "style-typecheck.json": "7a88b4adc659eda4e6654bf915df28cc734869b6215e4d7e2b58bbcdbe36f3e8"
+  },
+  "reviewSha256": "3bcc900df98136377a023da453413725100ad8a97691821278514fa06099aad1",
+  "resourcesHeld": []
+}

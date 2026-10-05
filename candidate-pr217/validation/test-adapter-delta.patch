@@ -1,0 +1,139 @@
+diff --git a/tests/building-work.test.mjs b/tests/building-work.test.mjs
+index ce2d21c..5001daf 100644
+--- a/tests/building-work.test.mjs
++++ b/tests/building-work.test.mjs
+@@ -9,6 +9,7 @@ import {stepBuildingWork,stepBuildingDeparture,stepBuildingApproach} from '../ap
+ import {createMotionRoutes,setDirectPersonDestination} from '../app/person-routes.ts'
+ import {createWorld,placeBuilding,tick,command,unitAnimation,unitAnimationSource} from '../app/model.ts'
+ import {animateLiveObjects} from '../app/live-people.ts'
++import {advanceGame} from '../app/game-clock.ts'
+ import {AUDIO_CUES} from '../app/audio.ts'
+ 
+ test('building activity matches native geometry, clocks, speed, facing and animation requests',()=>{
+@@ -35,9 +36,9 @@ test('live builders reach work poses, animate, pause, cancel and finish without
+   const w=createWorld();w.manaWorld.gameFlags=32
+   w.selected=w.units.filter(u=>u.kind==='brave'&&u.team==='blue').map(u=>u.id)
+   assert.ok(placeBuilding(w,'hut',{x:-2,z:32}))
+-  const b=w.buildings.at(-1),phases=new Set(),fetchers=new Set();let worker
++  const b=w.buildings.at(-1),phases=new Set(),fetchers=new Set(),clock={animationTime:0,animationFrame:0};let worker
+   for(let turn=0;turn<1000&&!worker;turn++){
+-    tick(w,1/12);animateLiveObjects(w);animateLiveObjects(w)
++    advanceGame(w,clock,1/12)
+     for(const u of w.units.filter(u=>u.work===b.id)){
+       if(u.builder?.task===7&&b.timberSearch!=null)fetchers.add(u.id)
+       if(u.builder?.task!==2)continue
+@@ -53,8 +54,8 @@ test('live builders reach work poses, animate, pause, cancel and finish without
+   assert.equal(unitAnimationSource(worker),p);assert.equal(unitAnimation(w,worker),'work')
+   assert.equal(p.object,rules.animationObjects[rules.personAnimationObjects[6*9+2]][0])
+   assert.equal(worker.path.length,0);assert.ok(w.sounds.some(s=>s.cue===20))
+-  const frames=new Set([p.f2]);for(let n=0;n<8;n++){animateLiveObjects(w);frames.add(p.f2)}
+-  assert.ok(frames.size>1,'the work sprite consumes the shared original presentation clock')
++  const frames=new Set([p.f2]);for(let n=0;n<8;n++){advanceGame(w,clock,1/12);frames.add(p.f2)}
++  assert.ok(frames.size>1,'the work sprite advances with its logical controller visits')
+   w.paused=true;const before=JSON.stringify(worker.builder);tick(w,1);animateLiveObjects(w)
+   assert.equal(JSON.stringify(worker.builder),before);w.paused=false
+   w.selected=[worker.id];command(w,{x:-5,z:29})
+diff --git a/tests/campaign-fixed-turn-adapter.test.mjs b/tests/campaign-fixed-turn-adapter.test.mjs
+index cf84262..00e9de1 100644
+--- a/tests/campaign-fixed-turn-adapter.test.mjs
++++ b/tests/campaign-fixed-turn-adapter.test.mjs
+@@ -202,10 +202,10 @@ test('Mission 3 trains a bounded Preacher group and retains identified HUD-reach
+ 
+ 
+ test('additive native Ctrl-five requires the ordinary cancel/deselect before reserving workers', async () => {
+-  const { createWorld, tick, selectFollowers, cancelInteraction, nativePosition } = await import('../app/model.ts')
+-  const { animateLiveObjects } = await import('../app/live-people.ts')
++  const { createWorld, selectFollowers, cancelInteraction, nativePosition } = await import('../app/model.ts')
++  const { advanceGame } = await import('../app/game-clock.ts')
+   const world = createWorld(3)
+-  for (let i = 0; i < 70; i++) { tick(world, 1 / 12); animateLiveObjects(world); animateLiveObjects(world) }
++  advanceGame(world, { animationTime: 0, animationFrame: 0 }, 70 / 12)
+   const point = nativePosition(world, world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'))
+   selectFollowers(world, 2, point, 'all')
+   const all = world.selected.length
+diff --git a/tests/campaign-start-readiness.test.mjs b/tests/campaign-start-readiness.test.mjs
+index 6a633de..2d63325 100644
+--- a/tests/campaign-start-readiness.test.mjs
++++ b/tests/campaign-start-readiness.test.mjs
+@@ -1,12 +1,12 @@
+ import test from 'node:test'
+ import assert from 'node:assert/strict'
+ import { readFileSync } from 'node:fs'
+-import { createWorld, tick, select } from '../app/model.ts'
+-import { animateLiveObjects } from '../app/live-people.ts'
++import { createWorld, select } from '../app/model.ts'
++import { advanceGame } from '../app/game-clock.ts'
+ import { campaignShamanReadiness } from '../scripts/campaign-start-readiness.mjs'
+ 
+ const advance = (world, turns) => {
+-  for (let i = 0; i < turns; i++) { tick(world, 1 / 12); animateLiveObjects(world); animateLiveObjects(world) }
++  advanceGame(world, { animationTime: 0, animationFrame: 0 }, turns / 12)
+ }
+ 
+ test('camera release alone does not make the startup Shaman selectable; observation is read-only', () => {
+diff --git a/tests/game.test.mjs b/tests/game.test.mjs
+index f338681..033593b 100644
+--- a/tests/game.test.mjs
++++ b/tests/game.test.mjs
+@@ -1813,8 +1813,9 @@ test('result camera crosses the world seam, releases input and retains native sk
+ });
+ 
+ 
+-test('victory owns persistent native followers, drops cargo and renders a separate paused animation clock', async () => {
++test('victory owns persistent native followers, drops cargo and pauses logical animation', async () => {
+  const {animateLiveObjects}=await import('../app/live-people.ts');
++ const {advanceGame}=await import('../app/game-clock.ts');
+  const {setAnimationObject}=await import('../app/animation.ts');
+  const w=createWorld();w.units=w.units.filter(u=>u.team==='blue');
+  const worker=w.units.find(u=>u.kind==='brave'),hut=w.buildings.find(b=>b.team==='blue');
+@@ -1832,16 +1833,17 @@ test('victory owns persistent native followers, drops cargo and renders a separa
+  for(const [i,u] of braves.entries()){
+   Object.assign(u,{x:7,z:33});Object.assign(u.native,{anchorX:3840,anchorY:55040,substate:i?4:3,flags2:0x40020000,link:0,target:0,speed:0});
+  }
+- const phases=new Set();
+- for(let i=0;i<96;i++){tick(w,1/12);animateLiveObjects(w);animateLiveObjects(w);for(const u of w.units)phases.add(u.native.substate);}
++ const phases=new Set(),clock={animationTime:0,animationFrame:0};
++ for(let i=0;i<96;i++){advanceGame(w,clock,1/12);for(const u of w.units)phases.add(u.native.substate);}
+  assert.ok(phases.has(5)&&phases.has(6),'circle members enter native chain states');
+  assert.ok(w.units.every((u,i)=>u.native===records[i]),'controllers retain the same person records');
+  assert.ok(w.units.every(u=>u.work===null&&u.inside===null),'legacy auto-housing cannot take over celebrations');
+  assert.ok(w.trees.filter(t=>t.model===11).every(t=>t.logs===1),'loose logs do not regrow');
+  const p=worker.native;setAnimationObject(p,14,40);p.f1=p.f2=0;
+- animateLiveObjects(w);assert.equal(p.f2,1,'animation mutates the owned record');
+- w.paused=true;animateLiveObjects(w);assert.equal(p.f2,1);
+- w.paused=false;p.renderFlags|=2;animateLiveObjects(w);assert.equal(p.f2,1,'native frozen pose survives presentation updates');
++ animateLiveObjects(w);assert.equal(p.f2,0,'presentation alone leaves the logical record unchanged');
++ animateLiveObjects(w,'logical');assert.equal(p.f2,1,'the logical phase mutates the owned record');
++ w.paused=true;animateLiveObjects(w,'logical');assert.equal(p.f2,1);
++ w.paused=false;p.renderFlags|=2;animateLiveObjects(w,'logical');assert.equal(p.f2,1,'native frozen pose survives logical updates');
+ });
+ 
+ test('live blocked followers retain native detour steering and recovery timers', async () => {
+diff --git a/tests/level-start.test.mjs b/tests/level-start.test.mjs
+index e5bf132..a3cdb1c 100644
+--- a/tests/level-start.test.mjs
++++ b/tests/level-start.test.mjs
+@@ -4,12 +4,13 @@ import { createHash } from 'node:crypto'
+ import { createWorld, tick, cast, command, select, nativePosition } from '../app/model.ts'
+ import { canOrder, unitAnimationSource } from '../app/selection-runtime.ts'
+ import { animateLiveObjects } from '../app/live-people.ts'
++import { advanceGame } from '../app/game-clock.ts'
+ import { migrateCheckpoint } from '../app/game-store.ts'
+ import { interruptFlyby } from '../app/flyby.ts'
+ import { levelStartTargetHeight } from '../app/level-start.ts'
+ import { reincarnationStoneRise } from '../app/reincarnation.ts'
+ import units from '../app/original-units.json' with { type: 'json' }
+-const advance = (w, turns) => { for (let i=0;i<turns;i++) { tick(w,1/12); animateLiveObjects(w); animateLiveObjects(w) } }
++const advance = (w, turns) => advanceGame(w, { animationTime: 0, animationFrame: 0 }, turns / 12)
+ const hash = x => createHash('sha256').update(JSON.stringify(x)).digest('hex')
+ const digest = w => ({sites:w.levelStart,land:hash(Array.from(w.land.heights)),people:w.units.map(u=>[u.id,u.team,u.kind,u.x,u.z]),random:w.randomState,effects:w.effects.map(f=>[f.id,f.sprite?.sequence,f.height,f.animation]),sounds:w.sounds})
+ 
+@@ -44,6 +45,8 @@ test('native opening excludes Shaman selection, without inventing a casting rest
+   advance(w,2)
+   assert.equal(unitAnimationSource(shaman).object,520)
+   const frame=shaman.native.f2;animateLiveObjects(w)
++  assert.equal(shaman.native.f2,frame,'presentation alone cannot advance the opening person')
++  advance(w,1)
+   assert.equal(shaman.native.f2,(frame+1)%units.frameCounts[520])
+   advance(w,52)
+   assert.equal(shaman.native.flags4&128,0)

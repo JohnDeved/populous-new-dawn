@@ -1,0 +1,11 @@
+{
+  "head": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+  "paths": {
+    "app/animation.ts": "Branch-aware gate predicate and misleading stamp-name correction; independently reviewed in runtime preflight;168 retained native snapshots plus mode transition tests.",
+    "decomp/research/sprite-logical-visits.md": "Durable accepted native producer/stamp findings and precise adapter/proof limits; indexed in decomp/README.md; documentation-only.",
+    "tests/building-work.test.mjs": "Existing elapsed construction helper uses advanceGame; frame diversity, native pose, pause, cancellation and completion assertions preserved;36-test migration receipt.",
+    "tests/campaign-fixed-turn-adapter.test.mjs": "Startup setup only uses advanceGame; actual Ctrl-five/cancel assertions unchanged;36-test migration receipt.",
+    "tests/campaign-start-readiness.test.mjs": "Startup elapsed helper uses advanceGame; readiness and read-only observer assertions unchanged;36-test migration receipt.",
+    "tests/logical-animation-clock.test.mjs": "12 new lifecycle/phase/scheduling regressions, including model scoping, source aliases, state0, pause/speed/catch-up, checkpoint, allocation, descriptor holds and turn wrap; current-head fresh12 pass."
+  }
+}

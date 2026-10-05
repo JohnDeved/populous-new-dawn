@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "4c6190db-6447-4dc1-8775-69a14fc49550",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "3123edf97dce9dc13fd3510cdb3ad1d15aedc160",
+    "branch": "fix/sprite-logical-visit-clock",
+    "trackedDiffSha256": "56d712c4022652f68f1e1f08a861684bb93a0064c4658b33aa8dc9d7efbc752b",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "60s",
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/animation.ts",
+    "app/game-clock.ts",
+    "app/game-store.ts",
+    "app/live-people.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix",
+  "startedAt": "2026-10-05T16:24:14.333Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/oxfmt-style-delta.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/oxfmt-style-delta.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T16:24:14.487Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "Checking formatting...\n\napp/live-people.ts (2ms)\n\nFormat issues found in above 1 files. Run without `--check` to fix.\nFinished in 6ms on 4 files using 1 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "6b5e77ccf90806f7c6dc135cc1e01e1bc4f8f5d36d58c30705840a5ed8ddfe39",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "3123edf97dce9dc13fd3510cdb3ad1d15aedc160",
+    "branch": "fix/sprite-logical-visit-clock",
+    "trackedDiffSha256": "56d712c4022652f68f1e1f08a861684bb93a0064c4658b33aa8dc9d7efbc752b",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "decision": "ACCEPT",
+  "kind": "source-preflight-only",
+  "base": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
+  "runtimeHead": "a76d1c75335b4a857d1ece5bd1d6f7cdefb6552a",
+  "reviewedHead": "ed95f0313e367367a32c232eb4b6d1e118068b58",
+  "trackedStatus": "",
+  "changedSourceHashes": {
+    "app/animation.ts": "b1eb4271ff6bee3b0bc2f569041c3cee83447a19dfa1e3240c02ff17118338f4",
+    "app/game-clock.ts": "6b01b8be4826e131e6f04a90ea65739146dbbbc8507a0d153d0543aef0222f8c",
+    "app/game-store.ts": "1bb66bc1db93af5bff36c54f2c32630b71000bc5c0085595e6c7f2bc3cf95565",
+    "app/live-people.ts": "630160d775bdce913e0000e0fc559e79dcb7eb1917432aee9a723f71af98cac6",
+    "decomp/README.md": "4cd37cc85de5c132d33da6b8e0cf4508125b0fd13f8f900c69c7face0cee1f33",
+    "decomp/research/sprite-logical-visits.md": "f0ebe91ec762d1d0aaeff21196da2fca4293ae2b5ae6b19b067789c4cfedabe8",
+    "tests/logical-animation-clock.test.mjs": "d641ee9943f65a0d81b9aa5297a4ca8d70a8b549bd753bd899d2a20fa54fdadf"
+  },
+  "fullDiffSha256": "20a9e224089bf9d25ad94b43bc5ebf7c65c4cab7caffc52b59fabc330752b3d1",
+  "docOnlyDelta": [
+    "decomp/README.md"
+  ],
+  "reviewSha256": "260446dee9f363c9bb2a9dc20a0c346dd7d69982a81b2b9e44a073b39ce60780",
+  "verifiedReceipts": {
+    "focused-a76d1c7.json": "63b9549079a1f2fc6c0fea08286c3435cb8cc82370499ee52ffae2761f2dee7d",
+    "native-adapter-a76d1c7.json": "0509a4dd0d6e4c99361ef08242c96ed9f30c9ef04c4907ec8d3b6c7fa9672e21",
+    "native-adapter-result.json": "784fa4e60008763fb3f87e77be03f6d6172cbc9dbf1245800339044b655bf44b",
+    "compare-retained-native.mjs": "bc5ce50dd36db4a45f42a74bf59b745c7178055c127f7dcf2c2115c8e8406663"
+  },
+  "checks": {
+    "sourceReview": "passed",
+    "focusedTests": "passed, reused exact source-bound 25-test receipt",
+    "nativeAdapter": "passed, 168 snapshots, supplied boundaries retained",
+    "gitDiffCheck": "passed",
+    "formatLintQuality": "pending",
+    "checkBuild": "pending",
+    "candidateBrowser": "pending"
+  },
+  "resourcesHeld": [],
+  "restoreBoundary": "Existing ordinary 1x/2x/pause/resume driver plus exact portable legacy/current restoration and new Scene clock tests suffice; no extra browser Save/reload/Load row required.",
+  "pendingDelta": "Author-reported older tick+two-presentation-visit test adapters need a separately frozen test-only migration; runtime preflight remains unchanged."
+}

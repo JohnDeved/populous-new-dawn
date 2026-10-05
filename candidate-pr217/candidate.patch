@@ -1,0 +1,691 @@
+diff --git a/app/animation.ts b/app/animation.ts
+index 1730a49..50d448b 100644
+--- a/app/animation.ts
++++ b/app/animation.ts
+@@ -78,7 +78,17 @@ export function setAnimationObject(s: Animation, draw: number, object: number) {
+   if (d.hold * 4 <= (s.f1 & 65535) || d.reset) s.f1 = 0
+ }
+ 
+-// 0x4ee7b0, including model-sequence and morph clocks. Rendering stamps and
++// Only these branches of 0x4ee7b0 test the logical-processor stamp. Model
++// sequences and morph transitions keep their presentation visit even with the bit.
++export function animationUsesLogicalVisits(p: AnimatedUnit) {
++  const { mode } = rules.animationDescriptors[p.draw]
++  return (
++    !!(p.flags3 & 0x40000) &&
++    (mode === 1 || mode === 2 || (mode === 4 && !(p.renderFlags & 0x1000)))
++  )
++}
++
++// 0x4ee7b0, including model-sequence and morph clocks. Processor stamps and
+ // the loaded frame/morph tables are supplied by their native world consumers.
+ export function stepObjectAnimation(
+   p: AnimatedUnit,
+@@ -88,10 +98,10 @@ export function stepObjectAnimation(
+ ) {
+   if (p.object === 0x650 || p.renderFlags & 2) return
+   const d = rules.animationDescriptors[p.draw],
+-    visible = p.stamp === w.counter || !(p.flags3 & 0x40000)
++    visited = p.stamp === w.counter || !(p.flags3 & 0x40000)
+   switch (d.mode) {
+     case 1:
+-      if (visible) {
++      if (visited) {
+         p.f1 = short(p.f1 + d.step)
+         if (d.hold * 4 <= (p.f1 & 65535)) {
+           p.f1 = short(p.f1 - d.hold * 4)
+@@ -100,7 +110,7 @@ export function stepObjectAnimation(
+       }
+       break
+     case 2:
+-      if (visible) {
++      if (visited) {
+         if (!p.f1) {
+           p.f1 = d.step
+           p.f2 = (p.f2 + 1) & 255
+@@ -125,7 +135,7 @@ export function stepObjectAnimation(
+       if (p.renderFlags & 0x1000) {
+         p.morphTimer = short(p.morphTimer + d.step)
+         if (p.morphFrames * 4 <= p.morphTimer) p.renderFlags = (p.renderFlags & ~0x800) | 0x400
+-      } else if (!(p.renderFlags & 0x400 && !(p.renderFlags & 0x800)) && visible) {
++      } else if (!(p.renderFlags & 0x400 && !(p.renderFlags & 0x800)) && visited) {
+         p.f1 = short(p.f1 + d.step)
+         if (data.morphDurations[p.morph] * 4 + 4 <= (p.f1 & 65535)) p.f1 = 0
+       }
+diff --git a/app/game-clock.ts b/app/game-clock.ts
+index 862de33..94f27ee 100644
+--- a/app/game-clock.ts
++++ b/app/game-clock.ts
+@@ -68,7 +68,7 @@ export function advanceGame(w: World, clock: GameClock, seconds: number) {
+       ui = w.worshipAcquisition.clock,
+       untilUi = presentation ? Math.max(0, (ui.nextVisit - ui.elapsed) / 1000) : Infinity,
+       untilTurn =
+-        presentation && active && w.speed > 0
++        active && w.speed > 0
+           ? Math.max(0, (1 / TURNS_PER_SECOND - w.pendingTime) / w.speed)
+           : Infinity,
+       elapsed = Math.min(
+@@ -77,6 +77,7 @@ export function advanceGame(w: World, clock: GameClock, seconds: number) {
+         untilUi,
+         untilTurn
+       )
++    const previousTurn = w.turn
+     try {
+       if (active) tick(w, elapsed * w.speed, phase.observer)
+     } finally {
+@@ -84,6 +85,9 @@ export function advanceGame(w: World, clock: GameClock, seconds: number) {
+       phase.active = false
+       phase.callbacks.length = 0
+     }
++    // Observers finish first; the next controller turn must see this visit's
++    // frame. Direct tick() remains simulation-only. A land-paused tick has no turn.
++    if (w.turn !== previousTurn) animateLiveObjects(w, 'logical')
+     seconds = Math.max(0, seconds - elapsed)
+     if (presentation) ui.elapsed += elapsed * 1000
+     if (active) clock.animationTime += elapsed
+diff --git a/app/game-store.ts b/app/game-store.ts
+index ba02244..c440ced 100644
+--- a/app/game-store.ts
++++ b/app/game-store.ts
+@@ -225,16 +225,21 @@ export function migrateCheckpoint(world: World) {
+       shrine.reward = shrine.kind === 'vault' ? 'camp' : shrine.kind
+   for (const gift of world.gifts) if ((gift.reward as string) === 'vault') gift.reward = 'camp'
+   for (const unit of world.units)
+-    if (unit.shield && !unit.bloodlust)
+-      for (const person of [
+-        unit.native,
+-        unit.flight,
+-        unit.entry?.person,
+-        unit.builder?.person,
+-        unit.fight?.motion,
+-      ])
+-        if (person && (person.flags3 ?? 0) & 0x80000)
++    for (const person of [
++      unit.native,
++      unit.flight,
++      unit.entry?.person,
++      unit.builder?.person,
++      unit.fight?.motion,
++    ])
++      if (person) {
++        // Legacy checkpoints predate the native ordinary-person animation gate.
++        // Preserve the saved frame/stamp and every active controller alias.
++        if (person.class === 1 && person.model >= 2 && person.model <= 7)
++          person.flags3 = ((person.flags3 ?? 0) | 0x40000) >>> 0
++        if (unit.shield && !unit.bloodlust && (person.flags3 ?? 0) & 0x80000)
+           person.flags3 = (((person.flags3 ?? 0) & ~0x80000) | 0x8000) >>> 0
++      }
+   world.shots.convertWild ??= 0
+   world.giftCounts.convertWild ??= 0
+   world.shots.hypnotise ??= 0
+diff --git a/app/live-people.ts b/app/live-people.ts
+index 626a27c..0a9a16e 100644
+--- a/app/live-people.ts
++++ b/app/live-people.ts
+@@ -60,6 +60,7 @@ import {
+   setAnimationObject,
+   setPersonAnimation,
+   stepObjectAnimation,
++  animationUsesLogicalVisits,
+   type Animation,
+ } from './animation.ts'
+ import {
+@@ -165,7 +166,12 @@ export function createLivePerson(w: World, u: Unit): LivePerson {
+     anchorY: pos.y & 65535,
+     counter: (w.turn - 1) & 255,
+     flags2: u.inside === null ? 0 : 0x800000,
+-    flags3: (u.shield ? 0x8000 : 0) | (u.bloodlust ? 0x80000 : 0),
++    // 0x4d23ed supplies the logical animation gate. Keep models outside the
++    // verified ordinary-person range on their existing adapter.
++    flags3:
++      (model >= 2 && model <= 7 ? 0x40000 : 0) |
++      (u.shield ? 0x8000 : 0) |
++      (u.bloodlust ? 0x80000 : 0),
+     // Preserve the outdoor target eligibility previously supplied by each spell adapter.
+     flags4:
+       0x20000000 |
+@@ -1180,12 +1186,13 @@ export function stepLivePerson(w: World, u: Unit) {
+   p.h = nativePosition(w, u).h
+ }
+ 
+-// Presentation adapter: called after drawing at the selected 24 Hz native rate.
+-// Native rate configuration and visibility catch-up remain pending.
+-export function animateLiveObjects(w: World) {
++// The native processor stamps ordinary people/Splash before their gated animation
++// visit. In the elapsed-time adapter, each completed logical turn owns that visit;
++// ungated branches and other families retain the existing 24 Hz presentation owner.
++export function animateLiveObjects(w: World, phase: 'logical' | 'presentation' = 'presentation') {
+   if (w.paused || w.land.landFlags & 2) return
+   for (const shrine of w.shrines)
+-    if (shrine.active && shrine.knowledgeGlow) {
++    if (phase === 'presentation' && shrine.active && shrine.knowledgeGlow) {
+       // Native draws before advancing; retain that visible sample on this boundary.
+       shrine.knowledgeGlow.displayedFrame = (shrine.knowledgeGlow.f1 & 65535) >>> 2
+       stepObjectAnimation(
+@@ -1198,10 +1205,16 @@ export function animateLiveObjects(w: World) {
+   for (const u of w.units) {
+     const source = unitAnimationSource(u)
+     if (source) {
+-      // Command 27 polls the final frame at 12 Hz. Keep it observable when the
+-      // elapsed 24 Hz animation clock would otherwise wrap past that visit.
++      const logical = source.model >= 2 && source.model <= 7 && animationUsesLogicalVisits(source)
++      if (logical !== (phase === 'logical')) continue
++      // Ownership is independent of eligibility: state0/removed gated records
++      // must not fall back to presentation visits while waiting for a controller.
++      if (logical && (source.class !== 1 || !source.state)) continue
++      // Only the legacy presentation path needs the old final-frame hold.
++      // Logical visits leave command27's final frame for its next controller poll.
+       const p = u.native
+       if (
++        !logical &&
+         source === p &&
+         p.state === 10 &&
+         p.commandStatus === 27 &&
+@@ -1210,13 +1223,15 @@ export function animateLiveObjects(w: World) {
+         p.f2 === sprites.frameCounts[p.object] - 1
+       )
+         continue
++      if (logical) source.stamp = w.turn
+       stepObjectAnimation(
+         source,
+-        { counter: 0, levelFlags: 0, levelFlags2: w.levelFlags2 },
++        { counter: logical ? w.turn : 0, levelFlags: 0, levelFlags2: w.levelFlags2 },
+         { frameCounts: sprites.frameCounts, modelFrames: [], morphDurations: [] },
+         () => stampFootprints(w.footprints, source.x, source.y)
+       )
+     } else if (
++      phase === 'presentation' &&
+       !(w.levelFlags2 & 0x10000) &&
+       u.hp > 0 &&
+       u.inside === null &&
+@@ -1230,17 +1245,25 @@ export function animateLiveObjects(w: World) {
+     }
+   }
+   for (const f of w.effects) {
++    const logical = !!(
++      f.kind === 'splash' &&
++      f.animation &&
++      animationUsesLogicalVisits(f.animation)
++    )
++    if (logical !== (phase === 'logical')) continue
+     if (f.reincarnation) latchShamanDeathFrame(f)
+     const knowledgeGlow = f.sprite?.sequence === 'vault-knowledge-glow' ? f.sprite : undefined,
+       retired = knowledgeGlow && f.kind === 'gift' && 'phase' in f && !f.phase
+     if (f.animation && knowledgeGlow && !retired)
+       knowledgeGlow.frame = (f.animation.f1 & 65535) >>> 2
+-    if (f.animation && !retired)
++    if (f.animation && !retired) {
++      if (logical) f.animation.stamp = w.turn
+       stepObjectAnimation(
+         f.animation,
+-        { counter: 0, levelFlags: 0, levelFlags2: w.levelFlags2 },
++        { counter: logical ? w.turn : 0, levelFlags: 0, levelFlags2: w.levelFlags2 },
+         { frameCounts: sprites.frameCounts, modelFrames: [], morphDurations: [] },
+         () => {}
+       )
++    }
+   }
+ }
+diff --git a/decomp/README.md b/decomp/README.md
+index 4271ccf..479f97c 100644
+--- a/decomp/README.md
++++ b/decomp/README.md
+@@ -36,6 +36,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
+ ## Port index
+ 
+ Recent reusable topic notes: [Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
++[Ordinary person and Splash logical animation visits](research/sprite-logical-visits.md),
+ [Mission 3 Temple world HFX ownership and lifetime](research/vault-knowledge-world-assets.md),
+ [Ordinary spell acquisition screen handoff and arrival deadline](research/worship-grant-handoff.md),
+ [Ordinary acquisition companion and native draw commands](research/worship-grant-presentation.md),
+diff --git a/decomp/research/sprite-logical-visits.md b/decomp/research/sprite-logical-visits.md
+new file mode 100644
+index 0000000..d268511
+--- /dev/null
++++ b/decomp/research/sprite-logical-visits.md
+@@ -0,0 +1,63 @@
++# Ordinary person and Splash animation visits
++
++Issue: [#214](https://github.com/JohnDeved/populous-new-dawn/issues/214).
++Original EXE SHA256:
++`3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f`.
++The [immutable accepted research packet](https://github.com/JohnDeved/populous-new-dawn/tree/681ecb825b997517363b9ab52ac216e394d7b59a/native-logical-gate)
++contains the probe, raw results, scoped disassembly, exact source receipts and
++independent replay/design reviews. This is an eligibility correction, not an
++original elapsed wall-clock calibration or completion of the broad sprite report.
++
++## Native boundary
++
++- `004d23ed`, before the person model switch, ORs flags3 with `0x40100`.
++- `004ed8a0` initializes allocation stamps from `sprite_animation_counter`.
++  `004ed700` writes that counter to object+0x18 after the logical class processor.
++  The outer loop increments the counter each draw iteration.
++- `004ee7b0` modes1/2 and ordinary mode4 require a matching stamp when flags3
++  contains `0x40000`. Mode3 and mode4's `renderFlags & 0x1000` transition ignore
++  this gate. The bit is not a visibility flag.
++- Splash initializer `00513830` supplies `0x40400`. The sampled model74/75/76
++  smoke initializers supply clear flags, retaining their separate animation owner.
++
++The bounded probe covers 18 person creation-prefix cases for models2–7, twelve
++actual setter/dispatcher-stamp/updater timelines, and four effect producers.
++Person logical processor bodies and the documented effect height/audio/state
++leaves are supplied. This is not a full person initializer, renderer, or historical
++OS timing execution. The independent review also inspects later initialization
++writes and current controller masks for preservation of the gate.
++
++## Elapsed-time adapter
++
++`createLivePerson` and checkpoint restoration supply only the proved `0x40000`
++gate for models2–7. Existing movement interpolation keeps its current owner;
++`0x100` is not added. Wildmen/Angel and other families retain their existing path.
++
++`advanceGame` partitions at every logical turn, including high-speed catch-up
++without presentation hooks. Its order is turn body, after-turn observer, queued
++after-turn callbacks, logical animation, then a coincident 24Hz presentation
++visit. `tick` alone remains simulation-only. Land-pause drains no logical visit.
++
++`animateLiveObjects` selects the current source once, including flight, fight,
++native, entry and builder aliases. The logical phase stamps eligible ordinary
++records with the completed `World.turn` and supplies that same value to the
++native-equivalent updater. This stamp is the adapter's last logical animation
++visit, not the original draw serial. State0/removed records retain logical phase
++ownership but are ineligible; detached records do not receive a trailing visit.
++Mode3 and morph-transition branches are presentation-owned even with the gate.
++
++Splash shares the logical phase. A new surviving Splash at the turn boundary gets
++one animation visit without an invented lifetime visit; retired effects get none.
++Other effects, fallback artwork, Stone Heads and UI retain their owners. The
++global presentation frequency remains24Hz. Command27 no longer needs a final-frame
++hold on its logical path because the next controller sees each intermediate frame;
++the legacy presentation path retains its compensation.
++
++Checkpoint migration preserves frames, stamps and status bits across all aliases.
++A new Scene clock cannot replay the saved logical visit. Tests cover these
++lifecycles, allocation, branch transitions, delayed descriptors, turn wrap,
++pause/speed/catch-up and actual worship completion across refresh schedules.
++
++The remaining fallback Firewarrior descriptor-delay lead and the user's broad
++report stay open in #214. Synthetic portable tests and native helper equivalence
++must be supplemented by the ordinary current-source browser comparison.
+diff --git a/tests/building-work.test.mjs b/tests/building-work.test.mjs
+index ce2d21c..5001daf 100644
+--- a/tests/building-work.test.mjs
++++ b/tests/building-work.test.mjs
+@@ -9,6 +9,7 @@ import {stepBuildingWork,stepBuildingDeparture,stepBuildingApproach} from '../ap
+ import {createMotionRoutes,setDirectPersonDestination} from '../app/person-routes.ts'
+ import {createWorld,placeBuilding,tick,command,unitAnimation,unitAnimationSource} from '../app/model.ts'
+ import {animateLiveObjects} from '../app/live-people.ts'
++import {advanceGame} from '../app/game-clock.ts'
+ import {AUDIO_CUES} from '../app/audio.ts'
+ 
+ test('building activity matches native geometry, clocks, speed, facing and animation requests',()=>{
+@@ -35,9 +36,9 @@ test('live builders reach work poses, animate, pause, cancel and finish without
+   const w=createWorld();w.manaWorld.gameFlags=32
+   w.selected=w.units.filter(u=>u.kind==='brave'&&u.team==='blue').map(u=>u.id)
+   assert.ok(placeBuilding(w,'hut',{x:-2,z:32}))
+-  const b=w.buildings.at(-1),phases=new Set(),fetchers=new Set();let worker
++  const b=w.buildings.at(-1),phases=new Set(),fetchers=new Set(),clock={animationTime:0,animationFrame:0};let worker
+   for(let turn=0;turn<1000&&!worker;turn++){
+-    tick(w,1/12);animateLiveObjects(w);animateLiveObjects(w)
++    advanceGame(w,clock,1/12)
+     for(const u of w.units.filter(u=>u.work===b.id)){
+       if(u.builder?.task===7&&b.timberSearch!=null)fetchers.add(u.id)
+       if(u.builder?.task!==2)continue
+@@ -53,8 +54,8 @@ test('live builders reach work poses, animate, pause, cancel and finish without
+   assert.equal(unitAnimationSource(worker),p);assert.equal(unitAnimation(w,worker),'work')
+   assert.equal(p.object,rules.animationObjects[rules.personAnimationObjects[6*9+2]][0])
+   assert.equal(worker.path.length,0);assert.ok(w.sounds.some(s=>s.cue===20))
+-  const frames=new Set([p.f2]);for(let n=0;n<8;n++){animateLiveObjects(w);frames.add(p.f2)}
+-  assert.ok(frames.size>1,'the work sprite consumes the shared original presentation clock')
++  const frames=new Set([p.f2]);for(let n=0;n<8;n++){advanceGame(w,clock,1/12);frames.add(p.f2)}
++  assert.ok(frames.size>1,'the work sprite advances with its logical controller visits')
+   w.paused=true;const before=JSON.stringify(worker.builder);tick(w,1);animateLiveObjects(w)
+   assert.equal(JSON.stringify(worker.builder),before);w.paused=false
+   w.selected=[worker.id];command(w,{x:-5,z:29})
+diff --git a/tests/campaign-fixed-turn-adapter.test.mjs b/tests/campaign-fixed-turn-adapter.test.mjs
+index cf84262..00e9de1 100644
+--- a/tests/campaign-fixed-turn-adapter.test.mjs
++++ b/tests/campaign-fixed-turn-adapter.test.mjs
+@@ -202,10 +202,10 @@ test('Mission 3 trains a bounded Preacher group and retains identified HUD-reach
+ 
+ 
+ test('additive native Ctrl-five requires the ordinary cancel/deselect before reserving workers', async () => {
+-  const { createWorld, tick, selectFollowers, cancelInteraction, nativePosition } = await import('../app/model.ts')
+-  const { animateLiveObjects } = await import('../app/live-people.ts')
++  const { createWorld, selectFollowers, cancelInteraction, nativePosition } = await import('../app/model.ts')
++  const { advanceGame } = await import('../app/game-clock.ts')
+   const world = createWorld(3)
+-  for (let i = 0; i < 70; i++) { tick(world, 1 / 12); animateLiveObjects(world); animateLiveObjects(world) }
++  advanceGame(world, { animationTime: 0, animationFrame: 0 }, 70 / 12)
+   const point = nativePosition(world, world.units.find(unit => unit.team === 'blue' && unit.kind === 'shaman'))
+   selectFollowers(world, 2, point, 'all')
+   const all = world.selected.length
+diff --git a/tests/campaign-start-readiness.test.mjs b/tests/campaign-start-readiness.test.mjs
+index 6a633de..2d63325 100644
+--- a/tests/campaign-start-readiness.test.mjs
++++ b/tests/campaign-start-readiness.test.mjs
+@@ -1,12 +1,12 @@
+ import test from 'node:test'
+ import assert from 'node:assert/strict'
+ import { readFileSync } from 'node:fs'
+-import { createWorld, tick, select } from '../app/model.ts'
+-import { animateLiveObjects } from '../app/live-people.ts'
++import { createWorld, select } from '../app/model.ts'
++import { advanceGame } from '../app/game-clock.ts'
+ import { campaignShamanReadiness } from '../scripts/campaign-start-readiness.mjs'
+ 
+ const advance = (world, turns) => {
+-  for (let i = 0; i < turns; i++) { tick(world, 1 / 12); animateLiveObjects(world); animateLiveObjects(world) }
++  advanceGame(world, { animationTime: 0, animationFrame: 0 }, turns / 12)
+ }
+ 
+ test('camera release alone does not make the startup Shaman selectable; observation is read-only', () => {
+diff --git a/tests/game.test.mjs b/tests/game.test.mjs
+index f338681..033593b 100644
+--- a/tests/game.test.mjs
++++ b/tests/game.test.mjs
+@@ -1813,8 +1813,9 @@ test('result camera crosses the world seam, releases input and retains native sk
+ });
+ 
+ 
+-test('victory owns persistent native followers, drops cargo and renders a separate paused animation clock', async () => {
++test('victory owns persistent native followers, drops cargo and pauses logical animation', async () => {
+  const {animateLiveObjects}=await import('../app/live-people.ts');
++ const {advanceGame}=await import('../app/game-clock.ts');
+  const {setAnimationObject}=await import('../app/animation.ts');
+  const w=createWorld();w.units=w.units.filter(u=>u.team==='blue');
+  const worker=w.units.find(u=>u.kind==='brave'),hut=w.buildings.find(b=>b.team==='blue');
+@@ -1832,16 +1833,17 @@ test('victory owns persistent native followers, drops cargo and renders a separa
+  for(const [i,u] of braves.entries()){
+   Object.assign(u,{x:7,z:33});Object.assign(u.native,{anchorX:3840,anchorY:55040,substate:i?4:3,flags2:0x40020000,link:0,target:0,speed:0});
+  }
+- const phases=new Set();
+- for(let i=0;i<96;i++){tick(w,1/12);animateLiveObjects(w);animateLiveObjects(w);for(const u of w.units)phases.add(u.native.substate);}
++ const phases=new Set(),clock={animationTime:0,animationFrame:0};
++ for(let i=0;i<96;i++){advanceGame(w,clock,1/12);for(const u of w.units)phases.add(u.native.substate);}
+  assert.ok(phases.has(5)&&phases.has(6),'circle members enter native chain states');
+  assert.ok(w.units.every((u,i)=>u.native===records[i]),'controllers retain the same person records');
+  assert.ok(w.units.every(u=>u.work===null&&u.inside===null),'legacy auto-housing cannot take over celebrations');
+  assert.ok(w.trees.filter(t=>t.model===11).every(t=>t.logs===1),'loose logs do not regrow');
+  const p=worker.native;setAnimationObject(p,14,40);p.f1=p.f2=0;
+- animateLiveObjects(w);assert.equal(p.f2,1,'animation mutates the owned record');
+- w.paused=true;animateLiveObjects(w);assert.equal(p.f2,1);
+- w.paused=false;p.renderFlags|=2;animateLiveObjects(w);assert.equal(p.f2,1,'native frozen pose survives presentation updates');
++ animateLiveObjects(w);assert.equal(p.f2,0,'presentation alone leaves the logical record unchanged');
++ animateLiveObjects(w,'logical');assert.equal(p.f2,1,'the logical phase mutates the owned record');
++ w.paused=true;animateLiveObjects(w,'logical');assert.equal(p.f2,1);
++ w.paused=false;p.renderFlags|=2;animateLiveObjects(w,'logical');assert.equal(p.f2,1,'native frozen pose survives logical updates');
+ });
+ 
+ test('live blocked followers retain native detour steering and recovery timers', async () => {
+diff --git a/tests/level-start.test.mjs b/tests/level-start.test.mjs
+index e5bf132..a3cdb1c 100644
+--- a/tests/level-start.test.mjs
++++ b/tests/level-start.test.mjs
+@@ -4,12 +4,13 @@ import { createHash } from 'node:crypto'
+ import { createWorld, tick, cast, command, select, nativePosition } from '../app/model.ts'
+ import { canOrder, unitAnimationSource } from '../app/selection-runtime.ts'
+ import { animateLiveObjects } from '../app/live-people.ts'
++import { advanceGame } from '../app/game-clock.ts'
+ import { migrateCheckpoint } from '../app/game-store.ts'
+ import { interruptFlyby } from '../app/flyby.ts'
+ import { levelStartTargetHeight } from '../app/level-start.ts'
+ import { reincarnationStoneRise } from '../app/reincarnation.ts'
+ import units from '../app/original-units.json' with { type: 'json' }
+-const advance = (w, turns) => { for (let i=0;i<turns;i++) { tick(w,1/12); animateLiveObjects(w); animateLiveObjects(w) } }
++const advance = (w, turns) => advanceGame(w, { animationTime: 0, animationFrame: 0 }, turns / 12)
+ const hash = x => createHash('sha256').update(JSON.stringify(x)).digest('hex')
+ const digest = w => ({sites:w.levelStart,land:hash(Array.from(w.land.heights)),people:w.units.map(u=>[u.id,u.team,u.kind,u.x,u.z]),random:w.randomState,effects:w.effects.map(f=>[f.id,f.sprite?.sequence,f.height,f.animation]),sounds:w.sounds})
+ 
+@@ -44,6 +45,8 @@ test('native opening excludes Shaman selection, without inventing a casting rest
+   advance(w,2)
+   assert.equal(unitAnimationSource(shaman).object,520)
+   const frame=shaman.native.f2;animateLiveObjects(w)
++  assert.equal(shaman.native.f2,frame,'presentation alone cannot advance the opening person')
++  advance(w,1)
+   assert.equal(shaman.native.f2,(frame+1)%units.frameCounts[520])
+   advance(w,52)
+   assert.equal(shaman.native.flags4&128,0)
+diff --git a/tests/logical-animation-clock.test.mjs b/tests/logical-animation-clock.test.mjs
+new file mode 100644
+index 0000000..db5b20d
+--- /dev/null
++++ b/tests/logical-animation-clock.test.mjs
+@@ -0,0 +1,237 @@
++import assert from 'node:assert/strict'
++import test from 'node:test'
++import { createWorld, effect, tick } from '../app/model.ts'
++import { advanceGame, afterCurrentGameTurn } from '../app/game-clock.ts'
++import { createLivePerson, setLivePersonAnimation, animateLiveObjects } from '../app/live-people.ts'
++import { animationUsesLogicalVisits, stepObjectAnimation } from '../app/animation.ts'
++import { migrateCheckpoint } from '../app/game-store.ts'
++import rules from '../app/original-rules.json' with { type: 'json' }
++
++const clock = () => ({ animationTime: 0, animationFrame: 0 })
++
++// A reserved nonzero-state person is still visited by the original primary
++// dispatcher, even though the current person loop takes its state14 early return.
++function reservedPerson() {
++  const world = createWorld(),
++    unit = world.units.find(u => u.team === 'blue' && u.kind === 'brave'),
++    person = createLivePerson(world, unit)
++  world.manaWorld.gameFlags = 32
++  person.state = 14
++  setLivePersonAnimation(world, person, rules.personAnimationObjects[person.model])
++  person.f1 = person.f2 = 0
++  unit.native = person
++  return { world, unit, person, timing: clock() }
++}
++
++test('ordinary native constructors restore the logical gate without adding interpolation behavior', () => {
++  const { world, unit } = reservedPerson()
++  for (const kind of ['brave', 'warrior', 'preacher', 'spy', 'firewarrior', 'shaman']) {
++    const person = createLivePerson(world, { ...unit, kind })
++    assert.equal(person.flags3 & 0x40000, 0x40000, kind)
++    assert.equal(person.flags3 & 0x100, 0, 'modern interpolation keeps its existing owner')
++  }
++  const wild = createLivePerson(world, { ...unit, team: 'wild' })
++  assert.equal(wild.model, 1)
++  assert.equal(wild.flags3 & 0x40000, 0, 'unproved model1 retains its existing adapter')
++})
++
++test('native person and Splash frames wait for logical visits while clear-bit effects keep 24 Hz', () => {
++  const { world, unit, person, timing } = reservedPerson(),
++    splash = effect(world, 'splash', unit, true),
++    ordinary = effect(world, 'birth', unit, true)
++  advanceGame(world, timing, 1 / 24)
++  assert.equal(world.turn, 0)
++  assert.equal(person.f2, 0)
++  assert.equal(splash.animation.f1, 0)
++  assert.equal(ordinary.animation.f1, 4)
++  advanceGame(world, timing, 1 / 24)
++  assert.equal(world.turn, 1)
++  assert.equal(person.f2, 1)
++  assert.equal(person.stamp, 1)
++  assert.equal(splash.animation.f1, 4)
++  assert.equal(splash.animation.stamp, 1)
++  assert.equal(ordinary.animation.f1, 8)
++  assert.equal(timing.animationFrame, 2, 'presentation frequency is unchanged')
++})
++
++test('each catch-up turn observes the prior frame before one post-observer logical advance', () => {
++  const { world, person, timing } = reservedPerson(), events = []
++  world.speed = 4
++  timing.beforeTurn = () => {
++    events.push(['before', person.f2])
++    assert.equal(afterCurrentGameTurn(timing, () => events.push(['queued', person.f2])), true)
++  }
++  timing.afterTurn = () => events.push(['after', person.f2])
++  advanceGame(world, timing, 1 / 4)
++  assert.equal(world.turn, 12)
++  assert.equal(timing.animationFrame, 6)
++  assert.deepEqual(events, Array.from({ length: 12 }, (_, turn) => [
++    ['before', turn % 6], ['after', turn % 6], ['queued', turn % 6],
++  ]).flat())
++  assert.equal(person.stamp, 12)
++  assert.equal(person.f2, 0)
++})
++
++test('ordinary owner aliases and a post-turn handoff never advance twice', () => {
++  for (const owner of ['native', 'flight', 'fight', 'entry', 'builder']) {
++    const { world, unit, person, timing } = reservedPerson()
++    timing.afterTurn = () => {
++      unit.native = null
++      if (owner === 'native') unit.native = person
++      if (owner === 'flight') {
++        unit.flight = person
++        unit.native = person // Same object under two adapter names.
++      }
++      if (owner === 'fight') unit.fight = { action: 'encounter', motion: person }
++      if (owner === 'entry') unit.entry = { person, orders: world.buildingOrders }
++      if (owner === 'builder') unit.builder = { task: 2, phase: 4, person }
++    }
++    advanceGame(world, timing, 1 / 12)
++    assert.equal(person.f2, 1, owner)
++    assert.equal(person.stamp, world.turn, owner)
++  }
++})
++
++test('state0 and removed gated sources do not fall through to presentation advancement', () => {
++  for (const field of ['state', 'class']) {
++    const { world, person, timing } = reservedPerson()
++    timing.afterTurn = () => { person[field] = 0; person.f2 = 3 }
++    advanceGame(world, timing, 1 / 12)
++    assert.equal(person.f2, 3, field)
++    advanceGame(world, timing, 1 / 24)
++    assert.equal(person.f2, 3, `${field}: no intervening logical turn`)
++  }
++})
++
++test('pause, land pause and speed changes preserve owned logical animation visits', () => {
++  const { world, person, timing } = reservedPerson()
++  world.paused = true
++  advanceGame(world, timing, 3)
++  assert.equal(person.f2, 0)
++  world.paused = false
++  world.land.landFlags |= 2
++  advanceGame(world, timing, 1)
++  assert.equal(world.turn, 0)
++  assert.equal(person.f2, 0)
++  world.land.landFlags &= ~2
++  advanceGame(world, timing, 1 / 12)
++  assert.equal(person.f2, 1)
++  world.speed = 2
++  advanceGame(world, timing, 1 / 12)
++  assert.equal(world.turn, 3)
++  assert.equal(person.f2, 3)
++})
++
++test('legacy save aliases gain the gate without resetting frames or replaying on a new Scene clock', () => {
++  const { world, unit, person, timing } = reservedPerson()
++  advanceGame(world, timing, 1 / 12)
++  const savedFrame = person.f2
++  for (const [index, alias] of ['native', 'flight', 'entry', 'builder', 'fight'].entries()) {
++    const record = { ...person, flags3: 0x88000, f1: index & 1, f2: index, stamp: 123 + index }
++    if (alias === 'native' || alias === 'flight') unit[alias] = record
++    if (alias === 'entry') unit.entry = { person: record, orders: world.buildingOrders }
++    if (alias === 'builder') unit.builder = { task: 2, person: record }
++    if (alias === 'fight') unit.fight = { action: 'encounter', motion: record }
++  }
++  const restored = migrateCheckpoint(structuredClone(world)),
++    actor = restored.units.find(u => u.id === unit.id),
++    records = [actor.native, actor.flight, actor.entry.person, actor.builder.person, actor.fight.motion]
++  for (const [index, record] of records.entries()) {
++    assert.equal(record.flags3, 0xc8000)
++    assert.deepEqual([record.f1, record.f2, record.stamp], [index & 1, index, 123 + index])
++  }
++  actor.native = { ...person, f2: savedFrame }
++  actor.flight = undefined
++  actor.entry = actor.builder = undefined
++  actor.fight = null
++  const resumedClock = clock()
++  advanceGame(restored, resumedClock, 1 / 24)
++  assert.equal(actor.native.f2, savedFrame, 'new presentation clock cannot replay a saved turn')
++  advanceGame(restored, resumedClock, 1 / 24)
++  assert.equal(actor.native.f2, (savedFrame + 1) % 6)
++})
++
++test('a Splash allocated after processing gets one animation visit but no invented lifetime visit', () => {
++  const { world, unit, timing } = reservedPerson()
++  let splash
++  timing.afterTurn = () => { splash ??= effect(world, 'splash', unit, true) }
++  advanceGame(world, timing, 1 / 12)
++  assert.equal(splash.age, 0)
++  assert.equal(splash.turnsRemaining, 16)
++  assert.equal(splash.animation.f1, 4)
++  advanceGame(world, timing, 1 / 12)
++  assert.equal(splash.age, 1 / 12)
++  assert.equal(splash.turnsRemaining, 15)
++  assert.equal(splash.animation.f1, 8)
++  splash.turnsRemaining = 1
++  const frame = splash.animation.f1
++  advanceGame(world, timing, 1 / 12)
++  assert.equal(world.effects.includes(splash), false)
++  assert.equal(splash.animation.f1, frame, 'retired effects receive no trailing animation visit')
++})
++
++test('morph transitions keep one presentation owner even on coincident logical boundaries', () => {
++  for (const transition of [false, true]) {
++    const { world, person, timing } = reservedPerson()
++    person.draw = 4
++    person.renderFlags = transition ? 0x1000 : 0
++    person.morphTimer = 0
++    person.morphFrames = 20
++    advanceGame(world, timing, 1 / 12)
++    assert.equal(person.f1, transition ? 0 : 4)
++    assert.equal(person.morphTimer, transition ? 8 : 0)
++  }
++  // Mode3 is not currently produced by the live person adapter. Verify its
++  // native branch contract with the model table supplied by that consumer.
++  const { person } = reservedPerson()
++  person.draw = 3
++  person.renderFlags = 0
++  person.morph = 0
++  assert.equal(animationUsesLogicalVisits(person), false)
++  stepObjectAnimation(person, { counter: 99, levelFlags: 0, levelFlags2: 0 }, {
++    frameCounts: [], modelFrames: [[40, 41, 42, 43, 44, 45, 46, 47, 8]], morphDurations: [],
++  }, () => {})
++  assert.equal(person.f1, 2, 'model sequence advances despite a mismatched logical stamp')
++})
++
++test('Firewarrior descriptor holds are measured in eligible logical visits', () => {
++  const { world, unit, timing } = reservedPerson()
++  unit.kind = 'firewarrior'
++  const person = createLivePerson(world, unit)
++  person.state = 14
++  setLivePersonAnimation(world, person, rules.personAnimationObjects[person.model])
++  person.f1 = person.f2 = 0
++  unit.native = person
++  assert.equal(person.draw, 18)
++  const frames = []
++  for (let i = 0; i < 6; i++) {
++    advanceGame(world, timing, 1 / 12)
++    frames.push([person.f1, person.f2])
++  }
++  assert.deepEqual(frames, [[1, 1], [0, 1], [1, 2], [0, 2], [1, 3], [0, 3]])
++})
++
++test('post-turn source replacement visits only the active record, including at turn wrap', () => {
++  const { world, unit, person, timing } = reservedPerson(),
++    replacement = { ...person }
++  world.turn = 0xffffffff
++  timing.afterTurn = () => { unit.native = replacement }
++  advanceGame(world, timing, 1 / 12)
++  assert.equal(world.turn, 0)
++  assert.equal(person.f2, 0, 'detached owner receives no trailing frame')
++  assert.equal(replacement.f2, 1)
++  assert.equal(replacement.stamp, 0)
++})
++
++test('direct simulation ticks and presentation calls do not manufacture logical visits', () => {
++  const { world, person } = reservedPerson()
++  tick(world, 1 / 12)
++  assert.equal(world.turn, 1)
++  assert.equal(person.f2, 0)
++  animateLiveObjects(world)
++  assert.equal(person.f2, 0)
++  person.model = 1
++  person.flags3 &= ~0x40000
++  animateLiveObjects(world)
++  assert.equal(person.f2, 1, 'unproved model1 keeps its previous presentation path')
++})

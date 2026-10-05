@@ -1,0 +1,33 @@
+✔ render cadence and idle production worship hooks cannot change gameplay, RNG or owned animation state (12282.176484ms)
+✔ paused time stays paused; long active frames retain elapsed time (111.650477ms)
+✔ campaign messages use the presentation clock and freeze while paused (238.585044ms)
+✔ campaign pending auto-open waits for settled motion and consumes one oldest record per presentation visit (45.590547ms)
+✔ live worship shares an order, occupies exact slots, prays, earns gifts and releases interrupted/dead members (402.931798ms)
+✔ live head rewards, displayed standing roster and group selection retain their distinct native rules (207.174384ms)
+✔ worship motion, prayer frames, pose RNG and rewards are identical at 5–240 Hz and irregular frames (1207.338817ms)
+✔ an unreachable head preserves the existing command without entering an unported retry state (82.055865ms)
+✔ Ctrl waypoints finish at a stone head without replacing the current route or person (141.237113ms)
+✔ training replacements inherit a queued stone-head order and perform the original prayer (154.346443ms)
+✔ queued worship preserves turns, poses, RNG and rewards at 5–240 Hz and irregular frames (1169.566482ms)
+✔ ordinary native constructors restore the logical gate without adding interpolation behavior (129.257511ms)
+✔ native person and Splash frames wait for logical visits while clear-bit effects keep 24 Hz (83.820013ms)
+✔ each catch-up turn observes the prior frame before one post-observer logical advance (51.988651ms)
+✔ ordinary owner aliases and a post-turn handoff never advance twice (135.673892ms)
+✔ state0 and removed gated sources do not fall through to presentation advancement (49.019815ms)
+✔ pause, land pause and speed changes preserve owned logical animation visits (25.945487ms)
+✔ legacy save aliases gain the gate without resetting frames or replaying on a new Scene clock (33.654469ms)
+✔ a Splash allocated after processing gets one animation visit but no invented lifetime visit (43.008617ms)
+✔ morph transitions keep one presentation owner even on coincident logical boundaries (71.370535ms)
+✔ Firewarrior descriptor holds are measured in eligible logical visits (32.242639ms)
+✔ post-turn source replacement visits only the active record, including at turn wrap (27.010004ms)
+✔ direct simulation ticks and presentation calls do not manufacture logical visits (29.73892ms)
+✔ Magical Shield protects six nearby followers for the native lifetime (128.241272ms)
+✔ old checkpoints default new Shield stock without disturbing their world (78.432746ms)
+ℹ tests 25
+ℹ suites 0
+ℹ pass 25
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 20466.94077

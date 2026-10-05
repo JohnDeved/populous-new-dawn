@@ -1,0 +1,82 @@
+{
+  "head": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+  "finishedAt": "2026-10-05T16:28:36.313409+00:00",
+  "gates": {
+    "build-d8897cf": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "4d45b7bd788ac9027538b92773b01f63235ea0c4e548f38943d293bda0ca7801",
+      "sourceHead": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+      "finishedAt": "2026-10-05T16:27:32.921Z"
+    },
+    "style-lifecycle": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "905432c2003d18700d59cb138a8ea08ad788a918b4eeef3d3baa28bd8037b0f5",
+      "sourceHead": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+      "finishedAt": "2026-10-05T16:25:13.795Z"
+    },
+    "style-typecheck": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "7a88b4adc659eda4e6654bf915df28cc734869b6215e4d7e2b58bbcdbe36f3e8",
+      "sourceHead": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+      "finishedAt": "2026-10-05T16:25:43.489Z"
+    },
+    "style-oxfmt": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "c50e231585180d3ee4f72bc5fac3fea44838b2e5c4d5f4ce8c2d848149077414",
+      "sourceHead": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+      "finishedAt": "2026-10-05T16:26:05.066Z"
+    },
+    "style-eslint": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "def277c6cb6bf2ae70b7cc3e57565633d6cf3cdc9381da4c1505dbe54367a27c",
+      "sourceHead": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+      "finishedAt": "2026-10-05T16:26:09.100Z"
+    },
+    "style-oxlint": {
+      "status": "failed",
+      "exitCode": 1,
+      "sha256": "32266951eea45f507f9766f8a097f76797a0cefffcd63888ff365490b3ef5c1f",
+      "sourceHead": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+      "finishedAt": "2026-10-05T16:26:05.645Z"
+    },
+    "style-fallow-advisory": {
+      "status": "passed",
+      "exitCode": 0,
+      "sha256": "c51f9eba4c8e3b507f8e103c39df0a0ac328fbeb74ddc217d7febbde2dec948d",
+      "sourceHead": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+      "finishedAt": "2026-10-05T16:26:49.148Z"
+    }
+  },
+  "carry": {
+    "fullCheck": "3123edf full-check-3123edf.json:1126 tests/parity/orchestration passed; explicitly accepted carry, not a fresh d889 full run",
+    "nativeComparison": "a76d1c7 native-adapter-a76d1c7.json:168 retained native snapshots; explicitly accepted carry",
+    "review": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-stamp-gate-audit/work/reviews/sprite-visit-gate-214/style-review-d8897cf.md",
+    "reviewSha256": "3bcc900df98136377a023da453413725100ad8a97691821278514fa06099aad1"
+  },
+  "qualityDisposition": {
+    "oxlint": "Raw exit1 retained; exact a53/candidate comparison shows identical37 errors and21 warnings, zero added diagnostics. Reviewed existing debt, not a clean lint claim.",
+    "fallow": "Advisory exit0 retains1893 threshold findings; not a clean health claim.",
+    "formatAndESLint": "passed"
+  },
+  "unknownPaths": {
+    "app/animation.ts": "Explicitly reviewed in the accepted source/test delta; native animation boundary covered by retained comparison and 12 lifecycle tests; research note is accepted evidence documentation.",
+    "decomp/research/sprite-logical-visits.md": "Explicitly reviewed in the accepted source/test delta; native animation boundary covered by retained comparison and 12 lifecycle tests; research note is accepted evidence documentation.",
+    "tests/building-work.test.mjs": "Explicitly reviewed in the accepted source/test delta; native animation boundary covered by retained comparison and 12 lifecycle tests; research note is accepted evidence documentation.",
+    "tests/campaign-fixed-turn-adapter.test.mjs": "Explicitly reviewed in the accepted source/test delta; native animation boundary covered by retained comparison and 12 lifecycle tests; research note is accepted evidence documentation.",
+    "tests/campaign-start-readiness.test.mjs": "Explicitly reviewed in the accepted source/test delta; native animation boundary covered by retained comparison and 12 lifecycle tests; research note is accepted evidence documentation.",
+    "tests/logical-animation-clock.test.mjs": "Explicitly reviewed in the accepted source/test delta; native animation boundary covered by retained comparison and 12 lifecycle tests; research note is accepted evidence documentation."
+  },
+  "originalBuildSession": 23595,
+  "originalBuildExit": 0,
+  "sourceAndLocksStable": true,
+  "ownedProcesses": [],
+  "resourcesReleased": true,
+  "dependencyTerminalAt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/node_modules",
+  "dependencyInode": 925605,
+  "candidateBrowser": "not-run; awaiting separate coordinator grant"
+}

@@ -1,0 +1,10 @@
+{
+  "source": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
+  "originalSession": 63479,
+  "originalExitCode": 1,
+  "tests": 8,
+  "failures": 8,
+  "testSha256": "747395a99de7ccc7049fb4fb069452cbdb539bbec6a5889db8bef07f7d4a5374",
+  "command": "taskset -c 4 timeout --signal=TERM --kill-after=2s 60s node --test tests/logical-animation-clock.test.mjs",
+  "provenance": "Raw initial failure log retained. Exact eight-test input recovered by removing later appended tests and imports; bytes independently match the initial check-plan.json test hash. This initial shell run preceded formal command-receipt wrapping; no new run or timestamp is claimed."
+}
