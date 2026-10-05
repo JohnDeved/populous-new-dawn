@@ -1,0 +1,162 @@
+{
+  "archive": "reviewed-native-evidence.tar.gz",
+  "archiveBytes": 602639,
+  "archiveSha256": "21f5b0d50685af37899f5b55359c649741594c97fc66934246848a157cec27fb",
+  "uncompressedBytes": 39177842,
+  "memberCount": 37,
+  "members": {
+    "native-guard-motion-followup/0042c210.asm": {
+      "bytes": 4889,
+      "sha256": "c44f6f12287c1c0024994782ce65b221523e1b3f0411d994ec41183b7d21a50f"
+    },
+    "native-guard-motion-followup/00432590.asm": {
+      "bytes": 29577,
+      "sha256": "25a5135785bd307d88864e42d7cec57c55f7f70e47c17a3c63684094598a53f3"
+    },
+    "native-guard-motion-followup/0043daa0.asm": {
+      "bytes": 8112,
+      "sha256": "c487b3870e9939dbc58e2364658856878a010f55abbbc0c566cc09decfa09968"
+    },
+    "native-guard-motion-followup/004d32b0.asm": {
+      "bytes": 44483,
+      "sha256": "bf1a5a4f0c6dc3b0606d99f7f72066d900905ba3b37be2595b86716d4d952d3c"
+    },
+    "native-guard-motion-followup/004d5120.asm": {
+      "bytes": 11880,
+      "sha256": "f73f0ee770dc55adfd01fe6bda60068c1b5360d94da4d2259062ad9451b3dded"
+    },
+    "native-guard-motion-followup/004d73e0.asm": {
+      "bytes": 48031,
+      "sha256": "c75de7e3819ace83a52d6c17d62b3f50310922c4e7a27e78998dac5dd0b1eaeb"
+    },
+    "native-guard-motion-followup/004e6d00.asm": {
+      "bytes": 47735,
+      "sha256": "445bc8b27aa9627b63a520ea700ecae69ba32d91c99c015926526c5272ed19b4"
+    },
+    "native-guard-motion-followup/004ec6f0.asm": {
+      "bytes": 10077,
+      "sha256": "37e305aba123c9dc8e4a7998d43c084057205abe836c3daebdf75a2b17e9c2a4"
+    },
+    "native-guard-motion-followup/004ed700.asm": {
+      "bytes": 5614,
+      "sha256": "aabe726a8a1ff078f110542a69e3f8ebea6a5478b88b5fbec28cad1339106a2e"
+    },
+    "native-guard-motion-followup/004ee770.asm": {
+      "bytes": 1137,
+      "sha256": "ab8756ab1308bfcd1eca7f4c0337b3c7447937e836dbb02289b6d6d40ab0ec76"
+    },
+    "native-guard-motion-followup/attempt-01.json": {
+      "bytes": 7179512,
+      "sha256": "39af2e2e08ac9bbdc567e62691c9ad96755e6543d8a39f1d3cec0e53f25814c1"
+    },
+    "native-guard-motion-followup/attempt-01.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-guard-motion-followup/findings.md": {
+      "bytes": 9406,
+      "sha256": "d6141ebeb95b3b1b0221ffb514ab087dcc7aa94591a456687a6334fd6bcf7737"
+    },
+    "native-guard-motion-followup/manifest.json": {
+      "bytes": 2229,
+      "sha256": "52b6f17dd948ad7ae70f90f1b1b9f28510d3bf601c63fabe00e2a328616f28af"
+    },
+    "native-guard-motion-followup/probe-motion-attempt-02.py": {
+      "bytes": 7049,
+      "sha256": "99468af8d315a39d2b9816016bbac87d1d08055c481442e8ff48d82298cc2547"
+    },
+    "native-guard-motion-followup/probe-motion.py": {
+      "bytes": 8556,
+      "sha256": "c15642c46d8cf593527be3c1fd98d3a396b9f2de49b3397de107b5e5ee059be1"
+    },
+    "native-guard-motion-followup/receipt.json": {
+      "bytes": 5649,
+      "sha256": "26e797f03d13c9fe67173674266ca7bef893b4cb36115f9741ee8b15f8b7c2e7"
+    },
+    "native-guard-motion-followup/result-02.json": {
+      "bytes": 8044984,
+      "sha256": "5250886220ab13a394761797fa5c83a89b8592c19800d3e839baf37e50750c08"
+    },
+    "native-guard-motion-followup/result-02.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-guard-motion-followup/result-03.json": {
+      "bytes": 11742671,
+      "sha256": "13ca18e32601f551ae911ae19d9717725950b18124389666aadd3d0de42759d5"
+    },
+    "native-guard-motion-followup/result-03.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-guard-motion-followup/source-comparison.md": {
+      "bytes": 2317,
+      "sha256": "5be8ef22894afdd398e0bfd9fa685485befa5739f256e4721197b0b1ebafa96d"
+    },
+    "native-guard-motion-followup/verified-summary.json": {
+      "bytes": 63251,
+      "sha256": "513e96d437ba800acdb4d98ec1c9743b5c1e77f9848f5bb23c7182213d296db0"
+    },
+    "native-guard-motion-followup/verify-result.py": {
+      "bytes": 3640,
+      "sha256": "ff245eeb050d4a51fea79844683deb647551e930217c6ad0504241616afc3be1"
+    },
+    "native-guard-motion-review/findings.md": {
+      "bytes": 12103,
+      "sha256": "a8fff8c0cf96b01ae68b15200b11d019c5ea8713a3ef32637ef3726a1e2042ba"
+    },
+    "native-guard-motion-review/independent-audit.py": {
+      "bytes": 11912,
+      "sha256": "44e4cdd898b23faf5e86aae65641d5b6396840f8b44af002f1f480ea88faa563"
+    },
+    "native-guard-motion-review/independent-audit.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-guard-motion-review/independent-audit.stdout.json": {
+      "bytes": 6532,
+      "sha256": "383ecf5f32525537f2d7e4d31cd7c91c4c832a29da75d564ad369a234e71f16f"
+    },
+    "native-guard-motion-review/manifest.json": {
+      "bytes": 1154,
+      "sha256": "6bbcd5c4ecf06c8e252000e483c37758769006e97a5a1c59af760487ce43eebd"
+    },
+    "native-guard-motion-review/preflight.json": {
+      "bytes": 21949,
+      "sha256": "682e51ade81ce2b1989ead73faa502baf2ab135b750422c7a7eec2715879f17d"
+    },
+    "native-guard-motion-review/preservation.json": {
+      "bytes": 20575,
+      "sha256": "996cbe072a687d09efc1123203ecc50a24bce683a88bc00305661eb68731eda4"
+    },
+    "native-guard-motion-review/receipt.json": {
+      "bytes": 4002,
+      "sha256": "27b77a8ae743711a1cef2639d42ddb964d520bfcee43b325cdbd06cae1b7cd94"
+    },
+    "native-guard-motion-review/reviewer-result.json": {
+      "bytes": 11742671,
+      "sha256": "13ca18e32601f551ae911ae19d9717725950b18124389666aadd3d0de42759d5"
+    },
+    "native-guard-motion-review/reviewer-result.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-guard-motion-review/verifier.stderr": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "native-guard-motion-review/verifier.stdout.json": {
+      "bytes": 63251,
+      "sha256": "513e96d437ba800acdb4d98ec1c9743b5c1e77f9848f5bb23c7182213d296db0"
+    },
+    "replay-inputs/probe-guard-lifecycle.py": {
+      "bytes": 12894,
+      "sha256": "7f6ad6a478db9138af4b5ff3d69b612969c5dcc8365ec324309d18771ec77064"
+    }
+  },
+  "frozenPacketManifestSha256": {
+    "native-guard-motion-followup": "52b6f17dd948ad7ae70f90f1b1b9f28510d3bf601c63fabe00e2a328616f28af",
+    "native-guard-motion-review": "6bbcd5c4ecf06c8e252000e483c37758769006e97a5a1c59af760487ce43eebd"
+  },
+  "exclusions": "No original executable, game data (including MWSEARCH.DAT), tools, dependencies, browser profile, credentials, or image of game assets. Archive contains only allowlisted UTF-8 research/review/probe/receipt files."
+}

@@ -1,0 +1,29 @@
+{
+  "scope": "Reviewed controlled native research only; static-only port comparison; no implementation or full-Guard parity claim",
+  "files": {
+    "README.md": {
+      "bytes": 7360,
+      "sha256": "528318ca381b4313ba0004ce837171f3df405d8de0a1205932af9fad2f5fc6f6"
+    },
+    "archive-manifest.json": {
+      "bytes": 6820,
+      "sha256": "071bc0630505846622dd5998690f1e73221c3b31bf949f537bea2eb21c5fed3e"
+    },
+    "independent-review.md": {
+      "bytes": 12103,
+      "sha256": "a8fff8c0cf96b01ae68b15200b11d019c5ea8713a3ef32637ef3726a1e2042ba"
+    },
+    "research-findings.md": {
+      "bytes": 9406,
+      "sha256": "d6141ebeb95b3b1b0221ffb514ab087dcc7aa94591a456687a6334fd6bcf7737"
+    },
+    "reviewed-native-evidence.tar.gz": {
+      "bytes": 602639,
+      "sha256": "21f5b0d50685af37899f5b55359c649741594c97fc66934246848a157cec27fb"
+    },
+    "source-comparison.md": {
+      "bytes": 2317,
+      "sha256": "5be8ef22894afdd398e0bfd9fa685485befa5739f256e4721197b0b1ebafa96d"
+    }
+  }
+}
