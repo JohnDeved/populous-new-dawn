@@ -1,0 +1,1327 @@
+{
+  "startedAt": "2026-10-05T04:00:36.553Z",
+  "source": {
+    "commit": "89c9629991489fd1ce6dc52e938d1cec346bfead",
+    "tree": "5c6e719eb56fed67eb2714d115ba250fb8d59a20",
+    "status": "?? scripts/local-render/ordinary-worship.mjs",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [
+      {
+        "path": "scripts/local-render/ordinary-worship.mjs",
+        "mode": 33188,
+        "sha256": "01520be096bb36bad6ba0c6d04a13190ab242a05be564306eb1050e32c4ac99d"
+      }
+    ],
+    "fingerprint": "f29f731d87871dd255039fd5ab137e4162b8da5e529a3b28e76ad6d4a8892eaf"
+  },
+  "launch": {
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe",
+      "about:blank"
+    ],
+    "timeout": 30000,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "acceptDownloads": false,
+    "serviceWorkers": "block"
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x86c001d2600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x86c001d2600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x86c001d2600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x86c001d2600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "status": "passed",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenario": {
+    "path": "scripts/local-render/ordinary-worship.mjs",
+    "sha256": "01520be096bb36bad6ba0c6d04a13190ab242a05be564306eb1050e32c4ac99d"
+  },
+  "browserVersion": "154.0.8037.92",
+  "runtimeAfter": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenarioAfter": {
+    "path": "scripts/local-render/ordinary-worship.mjs",
+    "sha256": "01520be096bb36bad6ba0c6d04a13190ab242a05be564306eb1050e32c4ac99d"
+  },
+  "result": {
+    "routeName": "m1-bridge",
+    "route": {
+      "mission": 1,
+      "reward": "bridge",
+      "model": 12,
+      "x": -5,
+      "z": 25,
+      "required": 1,
+      "target": 28,
+      "timeout": 120000
+    },
+    "baseline": true,
+    "source": {
+      "commit": "89c9629991489fd1ce6dc52e938d1cec346bfead",
+      "tree": "5c6e719eb56fed67eb2714d115ba250fb8d59a20",
+      "status": "?? scripts/local-render/ordinary-worship.mjs",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked": [
+        {
+          "path": "scripts/local-render/ordinary-worship.mjs",
+          "mode": 33188,
+          "sha256": "01520be096bb36bad6ba0c6d04a13190ab242a05be564306eb1050e32c4ac99d"
+        }
+      ],
+      "fingerprint": "f29f731d87871dd255039fd5ab137e4162b8da5e529a3b28e76ad6d4a8892eaf"
+    },
+    "scenarioSha256": "01520be096bb36bad6ba0c6d04a13190ab242a05be564306eb1050e32c4ac99d",
+    "method": "Shipped UI/mouse orders; real elapsed RAF. Read-only instance callback/Canvas/IndexedDB observations. Camera focus assistance is labeled per order.",
+    "orders": [
+      {
+        "shrine": {
+          "work": 0,
+          "target": 28,
+          "required": 1,
+          "remaining": 0,
+          "growth": 1,
+          "grown": false,
+          "enabled": true,
+          "reset": false,
+          "cooldown": 0,
+          "active": true,
+          "nextSlot": 0,
+          "slotTimer": 0,
+          "range": 1,
+          "followers": 0,
+          "forced": false,
+          "morph": null,
+          "mode": 0,
+          "model": 45,
+          "angle": 0.7853981633974483,
+          "id": 29,
+          "x": -5,
+          "z": 25,
+          "kind": "bridge",
+          "reward": "bridge",
+          "name": "Land Bridge stone head",
+          "progress": 0,
+          "duration": 9.333333333333334,
+          "uses": 0,
+          "stoneHead": {
+            "triggerIndex": 30,
+            "sceneryIndex": 32,
+            "family": 45,
+            "enabled": true,
+            "holdFrame": 1,
+            "object": 45,
+            "draw": 4,
+            "morph": 1,
+            "palette": 240,
+            "renderFlags": 264,
+            "f1": 16,
+            "f2": 0,
+            "stamp": 0,
+            "flags3": 0,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "panelActivity": {
+            "turn": 128,
+            "count": 0
+          },
+          "rewardRecipient": 0
+        },
+        "kind": "brave",
+        "readiness": {
+          "before": {
+            "ready": true,
+            "turn": 142,
+            "inputMask": 0,
+            "selected": [
+              30
+            ],
+            "levelStartPhase": 4,
+            "shaman": {
+              "id": 30,
+              "hp": 100,
+              "canOrder": true,
+              "selectable": true,
+              "state": 19,
+              "flags2": 131072,
+              "flags4": 536871168,
+              "commandStatus": 0
+            },
+            "level": 1
+          },
+          "after": {
+            "ready": true,
+            "turn": 142,
+            "inputMask": 0,
+            "selected": [
+              30
+            ],
+            "levelStartPhase": 4,
+            "shaman": {
+              "id": 30,
+              "hp": 100,
+              "canOrder": true,
+              "selectable": true,
+              "state": 19,
+              "flags2": 131072,
+              "flags4": 536871168,
+              "commandStatus": 0
+            },
+            "level": 1
+          },
+          "samples": 1
+        },
+        "identity": {
+          "sameWorld": true,
+          "connected": true,
+          "loading": false,
+          "paused": false,
+          "inputMask": 0
+        },
+        "skipped": [],
+        "cameraAssistance": "scene.focus before mode setup; ordinary RAF only",
+        "point": {
+          "x": 820,
+          "y": 379,
+          "radius": 6,
+          "neighbors": 9,
+          "center": {
+            "x": 820,
+            "y": 411
+          }
+        },
+        "preClick": {
+          "state": {
+            "turn": 172,
+            "currentScene": true,
+            "sameWorld": true,
+            "paused": false,
+            "inputMask": 0,
+            "overviewStage": null,
+            "mode": null,
+            "selected": [
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              1186,
+              1188
+            ],
+            "keys": [],
+            "lastOrderTurn": 0,
+            "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+            "down": {
+              "x": 0,
+              "y": 0,
+              "button": 0,
+              "extend": false
+            },
+            "drag": null,
+            "targetPerson": null,
+            "targetUnit": null,
+            "targetObject": 29,
+            "ground": {
+              "x": -10.281996936184498,
+              "z": 26.41231402010368
+            },
+            "commandContext": {
+              "target": {
+                "id": 29,
+                "x": -5,
+                "z": 25
+              },
+              "model": 27,
+              "enabled": true,
+              "shrine": 29
+            },
+            "camera": {
+              "point": {
+                "x": -5,
+                "z": 25
+              },
+              "bearing": 4.451612246444131,
+              "position": [
+                30,
+                155,
+                0
+              ],
+              "motion": 0,
+              "resultActive": 0,
+              "transition": false,
+              "native": {
+                "x": 768,
+                "y": 57088,
+                "angle": 1451
+              },
+              "velocity": {
+                "turn": 0,
+                "forward": 0,
+                "side": 0
+              },
+              "navigation": 0
+            },
+            "worshippers": []
+          },
+          "stableInterior": true
+        },
+        "pointer": {
+          "before": {
+            "turn": 172,
+            "currentScene": true,
+            "sameWorld": true,
+            "paused": false,
+            "inputMask": 0,
+            "overviewStage": null,
+            "mode": null,
+            "selected": [
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              1186,
+              1188
+            ],
+            "keys": [],
+            "lastOrderTurn": 0,
+            "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+            "down": {
+              "x": 0,
+              "y": 0,
+              "button": 0,
+              "extend": false
+            },
+            "drag": null,
+            "targetPerson": null,
+            "targetUnit": null,
+            "targetObject": 29,
+            "ground": {
+              "x": -10.281996936184498,
+              "z": 26.41231402010368
+            },
+            "commandContext": {
+              "target": {
+                "id": 29,
+                "x": -5,
+                "z": 25
+              },
+              "model": 27,
+              "enabled": true,
+              "shrine": 29
+            },
+            "camera": {
+              "point": {
+                "x": -5,
+                "z": 25
+              },
+              "bearing": 4.451612246444131,
+              "position": [
+                30,
+                155,
+                0
+              ],
+              "motion": 0,
+              "resultActive": 0,
+              "transition": false,
+              "native": {
+                "x": 768,
+                "y": 57088,
+                "angle": 1451
+              },
+              "velocity": {
+                "turn": 0,
+                "forward": 0,
+                "side": 0
+              },
+              "navigation": 0
+            },
+            "worshippers": []
+          },
+          "events": [
+            {
+              "type": "pointerdown",
+              "stage": "window-capture-before-game",
+              "x": 820,
+              "y": 379,
+              "button": 0,
+              "buttons": 1,
+              "pointerId": 1,
+              "pointerType": "mouse",
+              "isTrusted": true,
+              "targetIsCanvas": true,
+              "composedPathIncludesCanvas": true,
+              "defaultPrevented": false,
+              "modifiers": {
+                "shift": false,
+                "control": false,
+                "alt": false,
+                "meta": false
+              },
+              "state": {
+                "turn": 173,
+                "currentScene": true,
+                "sameWorld": true,
+                "paused": false,
+                "inputMask": 0,
+                "overviewStage": null,
+                "mode": null,
+                "selected": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  1186,
+                  1188
+                ],
+                "keys": [],
+                "lastOrderTurn": 0,
+                "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+                "down": {
+                  "x": 0,
+                  "y": 0,
+                  "button": 0,
+                  "extend": false
+                },
+                "drag": null,
+                "targetPerson": null,
+                "targetUnit": null,
+                "targetObject": 29,
+                "ground": {
+                  "x": -10.281996936184498,
+                  "z": 26.41231402010368
+                },
+                "commandContext": {
+                  "target": {
+                    "id": 29,
+                    "x": -5,
+                    "z": 25
+                  },
+                  "model": 27,
+                  "enabled": true,
+                  "shrine": 29
+                },
+                "camera": {
+                  "point": {
+                    "x": -5,
+                    "z": 25
+                  },
+                  "bearing": 4.451612246444131,
+                  "position": [
+                    30,
+                    155,
+                    0
+                  ],
+                  "motion": 0,
+                  "resultActive": 0,
+                  "transition": false,
+                  "native": {
+                    "x": 768,
+                    "y": 57088,
+                    "angle": 1451
+                  },
+                  "velocity": {
+                    "turn": 0,
+                    "forward": 0,
+                    "side": 0
+                  },
+                  "navigation": 0
+                },
+                "worshippers": []
+              }
+            },
+            {
+              "type": "pointerdown",
+              "stage": "window-bubble-after-game",
+              "x": 820,
+              "y": 379,
+              "button": 0,
+              "buttons": 1,
+              "pointerId": 1,
+              "pointerType": "mouse",
+              "isTrusted": true,
+              "targetIsCanvas": true,
+              "composedPathIncludesCanvas": true,
+              "defaultPrevented": false,
+              "modifiers": {
+                "shift": false,
+                "control": false,
+                "alt": false,
+                "meta": false
+              },
+              "state": {
+                "turn": 173,
+                "currentScene": true,
+                "sameWorld": true,
+                "paused": false,
+                "inputMask": 0,
+                "overviewStage": null,
+                "mode": null,
+                "selected": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  1186,
+                  1188
+                ],
+                "keys": [],
+                "lastOrderTurn": 0,
+                "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+                "down": {
+                  "x": 820,
+                  "y": 379,
+                  "button": 0,
+                  "extend": false
+                },
+                "drag": {
+                  "start": {
+                    "x": -584,
+                    "y": -8810,
+                    "h": 19
+                  },
+                  "end": {
+                    "x": -584,
+                    "y": -8810,
+                    "h": 19
+                  },
+                  "active": false
+                },
+                "targetPerson": null,
+                "targetUnit": null,
+                "targetObject": 29,
+                "ground": {
+                  "x": -10.281996936184498,
+                  "z": 26.41231402010368
+                },
+                "commandContext": {
+                  "target": {
+                    "id": 29,
+                    "x": -5,
+                    "z": 25
+                  },
+                  "model": 27,
+                  "enabled": true,
+                  "shrine": 29
+                },
+                "camera": {
+                  "point": {
+                    "x": -5,
+                    "z": 25
+                  },
+                  "bearing": 4.451612246444131,
+                  "position": [
+                    30,
+                    155,
+                    0
+                  ],
+                  "motion": 0,
+                  "resultActive": 0,
+                  "transition": false,
+                  "native": {
+                    "x": 768,
+                    "y": 57088,
+                    "angle": 1451
+                  },
+                  "velocity": {
+                    "turn": 0,
+                    "forward": 0,
+                    "side": 0
+                  },
+                  "navigation": 0
+                },
+                "worshippers": []
+              }
+            },
+            {
+              "type": "pointerup",
+              "stage": "window-capture-before-game",
+              "x": 820,
+              "y": 379,
+              "button": 0,
+              "buttons": 0,
+              "pointerId": 1,
+              "pointerType": "mouse",
+              "isTrusted": true,
+              "targetIsCanvas": true,
+              "composedPathIncludesCanvas": true,
+              "defaultPrevented": false,
+              "modifiers": {
+                "shift": false,
+                "control": false,
+                "alt": false,
+                "meta": false
+              },
+              "state": {
+                "turn": 173,
+                "currentScene": true,
+                "sameWorld": true,
+                "paused": false,
+                "inputMask": 0,
+                "overviewStage": null,
+                "mode": null,
+                "selected": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  1186,
+                  1188
+                ],
+                "keys": [],
+                "lastOrderTurn": 0,
+                "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+                "down": {
+                  "x": 820,
+                  "y": 379,
+                  "button": 0,
+                  "extend": false
+                },
+                "drag": {
+                  "start": {
+                    "x": -584,
+                    "y": -8810,
+                    "h": 19
+                  },
+                  "end": {
+                    "x": -584,
+                    "y": -8810,
+                    "h": 19
+                  },
+                  "active": false
+                },
+                "targetPerson": null,
+                "targetUnit": null,
+                "targetObject": 29,
+                "ground": {
+                  "x": -10.281996936184498,
+                  "z": 26.41231402010368
+                },
+                "commandContext": {
+                  "target": {
+                    "id": 29,
+                    "x": -5,
+                    "z": 25
+                  },
+                  "model": 27,
+                  "enabled": true,
+                  "shrine": 29
+                },
+                "camera": {
+                  "point": {
+                    "x": -5,
+                    "z": 25
+                  },
+                  "bearing": 4.451612246444131,
+                  "position": [
+                    30,
+                    155,
+                    0
+                  ],
+                  "motion": 0,
+                  "resultActive": 0,
+                  "transition": false,
+                  "native": {
+                    "x": 768,
+                    "y": 57088,
+                    "angle": 1451
+                  },
+                  "velocity": {
+                    "turn": 0,
+                    "forward": 0,
+                    "side": 0
+                  },
+                  "navigation": 0
+                },
+                "worshippers": []
+              }
+            },
+            {
+              "type": "pointerup",
+              "stage": "window-bubble-after-game",
+              "x": 820,
+              "y": 379,
+              "button": 0,
+              "buttons": 0,
+              "pointerId": 1,
+              "pointerType": "mouse",
+              "isTrusted": true,
+              "targetIsCanvas": true,
+              "composedPathIncludesCanvas": true,
+              "defaultPrevented": false,
+              "modifiers": {
+                "shift": false,
+                "control": false,
+                "alt": false,
+                "meta": false
+              },
+              "state": {
+                "turn": 173,
+                "currentScene": true,
+                "sameWorld": true,
+                "paused": false,
+                "inputMask": 0,
+                "overviewStage": null,
+                "mode": null,
+                "selected": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  1186,
+                  1188
+                ],
+                "keys": [],
+                "lastOrderTurn": 173,
+                "message": "Worshipping Land Bridge stone head. One follower is enough.",
+                "down": {
+                  "x": 820,
+                  "y": 379,
+                  "button": 0,
+                  "extend": false
+                },
+                "drag": null,
+                "targetPerson": null,
+                "targetUnit": null,
+                "targetObject": 29,
+                "ground": {
+                  "x": -10.281996936184498,
+                  "z": 26.41231402010368
+                },
+                "commandContext": {
+                  "target": {
+                    "id": 29,
+                    "x": -5,
+                    "z": 25
+                  },
+                  "model": 27,
+                  "enabled": true,
+                  "shrine": 29
+                },
+                "camera": {
+                  "point": {
+                    "x": -5,
+                    "z": 25
+                  },
+                  "bearing": 4.451612246444131,
+                  "position": [
+                    30,
+                    155,
+                    0
+                  ],
+                  "motion": 0,
+                  "resultActive": 0,
+                  "transition": false,
+                  "native": {
+                    "x": 768,
+                    "y": 57088,
+                    "angle": 1451
+                  },
+                  "velocity": {
+                    "turn": 0,
+                    "forward": 0,
+                    "side": 0
+                  },
+                  "navigation": 0
+                },
+                "worshippers": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  1186,
+                  1188
+                ]
+              }
+            }
+          ],
+          "errors": [],
+          "restored": true,
+          "after": {
+            "turn": 174,
+            "currentScene": true,
+            "sameWorld": true,
+            "paused": false,
+            "inputMask": 0,
+            "overviewStage": null,
+            "mode": null,
+            "selected": [
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              1186,
+              1188
+            ],
+            "keys": [],
+            "lastOrderTurn": 173,
+            "message": "Worshipping Land Bridge stone head. One follower is enough.",
+            "down": {
+              "x": 820,
+              "y": 379,
+              "button": 0,
+              "extend": false
+            },
+            "drag": null,
+            "targetPerson": null,
+            "targetUnit": null,
+            "targetObject": 29,
+            "ground": {
+              "x": -10.281996936184498,
+              "z": 26.41231402010368
+            },
+            "commandContext": {
+              "target": {
+                "id": 29,
+                "x": -5,
+                "z": 25
+              },
+              "model": 27,
+              "enabled": true,
+              "shrine": 29
+            },
+            "camera": {
+              "point": {
+                "x": -5,
+                "z": 25
+              },
+              "bearing": 4.451612246444131,
+              "position": [
+                30,
+                155,
+                0
+              ],
+              "motion": 0,
+              "resultActive": 0,
+              "transition": false,
+              "native": {
+                "x": 768,
+                "y": 57088,
+                "angle": 1451
+              },
+              "velocity": {
+                "turn": 0,
+                "forward": 0,
+                "side": 0
+              },
+              "navigation": 0
+            },
+            "worshippers": [
+              13,
+              14,
+              15,
+              16,
+              17,
+              18,
+              1186,
+              1188
+            ]
+          }
+        },
+        "accepted": {
+          "turn": 174,
+          "currentScene": true,
+          "sameWorld": true,
+          "paused": false,
+          "inputMask": 0,
+          "overviewStage": null,
+          "mode": null,
+          "selected": [
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            1186,
+            1188
+          ],
+          "keys": [],
+          "lastOrderTurn": 173,
+          "message": "Worshipping Land Bridge stone head. One follower is enough.",
+          "down": {
+            "x": 820,
+            "y": 379,
+            "button": 0,
+            "extend": false
+          },
+          "drag": null,
+          "targetPerson": null,
+          "targetUnit": null,
+          "targetObject": 29,
+          "ground": {
+            "x": -10.281996936184498,
+            "z": 26.41231402010368
+          },
+          "commandContext": {
+            "target": {
+              "id": 29,
+              "x": -5,
+              "z": 25
+            },
+            "model": 27,
+            "enabled": true,
+            "shrine": 29
+          },
+          "camera": {
+            "point": {
+              "x": -5,
+              "z": 25
+            },
+            "bearing": 4.451612246444131,
+            "position": [
+              30,
+              155,
+              0
+            ],
+            "motion": 0,
+            "resultActive": 0,
+            "transition": false,
+            "native": {
+              "x": 768,
+              "y": 57088,
+              "angle": 1451
+            },
+            "velocity": {
+              "turn": 0,
+              "forward": 0,
+              "side": 0
+            },
+            "navigation": 0
+          },
+          "worshippers": [
+            13,
+            14,
+            15,
+            16,
+            17,
+            18,
+            1186,
+            1188
+          ]
+        }
+      }
+    ],
+    "status": "baseline-observed",
+    "limits": "Headless/software browser functional pixels, not original GPU pixels or hardware performance. Production layout helpers make draw arguments live-binding correspondence, not an independent full raster oracle. Canonical decoded source pixels and any sampled opaque-texel checks are separate evidence. Source-bound body interpolation is intentional. Overlay crops may include companions. No fixed-elapsed/staged run.",
+    "remainingMatrix": [
+      "In-flight controller save/restart without late observer arming",
+      "Pause/resume and hidden-page transitions",
+      "DPR 2 and HUD-size preference changes",
+      "Simultaneous heads and independent pulse replacement",
+      "Representative hardware performance"
+    ],
+    "readiness": {
+      "before": {
+        "ready": true,
+        "turn": 125,
+        "inputMask": 0,
+        "selected": [
+          30
+        ],
+        "levelStartPhase": 4,
+        "shaman": {
+          "id": 30,
+          "hp": 100,
+          "canOrder": true,
+          "selectable": true,
+          "state": 19,
+          "flags2": 131072,
+          "flags4": 536871168,
+          "commandStatus": 0
+        },
+        "level": 1
+      },
+      "after": {
+        "ready": true,
+        "turn": 125,
+        "inputMask": 0,
+        "selected": [
+          30
+        ],
+        "levelStartPhase": 4,
+        "shaman": {
+          "id": 30,
+          "hp": 100,
+          "canOrder": true,
+          "selectable": true,
+          "state": 19,
+          "flags2": 131072,
+          "flags4": 536871168,
+          "commandStatus": 0
+        },
+        "level": 1
+      },
+      "samples": 1
+    },
+    "opening": {
+      "level": 1,
+      "turn": 126,
+      "paused": false,
+      "status": "playing",
+      "blue": [
+        {
+          "id": 13,
+          "kind": "brave"
+        },
+        {
+          "id": 14,
+          "kind": "brave"
+        },
+        {
+          "id": 15,
+          "kind": "brave"
+        },
+        {
+          "id": 16,
+          "kind": "brave"
+        },
+        {
+          "id": 17,
+          "kind": "brave"
+        },
+        {
+          "id": 18,
+          "kind": "brave"
+        },
+        {
+          "id": 30,
+          "kind": "shaman"
+        },
+        {
+          "id": 1186,
+          "kind": "brave"
+        },
+        {
+          "id": 1188,
+          "kind": "brave"
+        }
+      ],
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "contextLost": false,
+      "dpr": 1,
+      "authoredBraves": {
+        "source": "app/level-one.ts",
+        "sourceSha256": "e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33",
+        "bound": [
+          {
+            "sourceIndex": 13,
+            "x": 7,
+            "z": 33,
+            "id": 13
+          },
+          {
+            "sourceIndex": 14,
+            "x": 11,
+            "z": 33,
+            "id": 14
+          },
+          {
+            "sourceIndex": 15,
+            "x": 7,
+            "z": 35,
+            "id": 15
+          },
+          {
+            "sourceIndex": 16,
+            "x": 11,
+            "z": 31,
+            "id": 16
+          },
+          {
+            "sourceIndex": 17,
+            "x": 11,
+            "z": 35,
+            "id": 17
+          },
+          {
+            "sourceIndex": 18,
+            "x": 7,
+            "z": 31,
+            "id": 18
+          }
+        ]
+      },
+      "additionalBraves": [
+        {
+          "id": 1186,
+          "kind": "brave"
+        },
+        {
+          "id": 1188,
+          "kind": "brave"
+        }
+      ]
+    },
+    "shrine": {
+      "work": 0,
+      "target": 28,
+      "required": 1,
+      "remaining": 0,
+      "growth": 1,
+      "grown": false,
+      "enabled": true,
+      "reset": false,
+      "cooldown": 0,
+      "active": true,
+      "nextSlot": 0,
+      "slotTimer": 0,
+      "range": 1,
+      "followers": 0,
+      "forced": false,
+      "morph": null,
+      "mode": 0,
+      "model": 45,
+      "angle": 0.7853981633974483,
+      "id": 29,
+      "x": -5,
+      "z": 25,
+      "kind": "bridge",
+      "reward": "bridge",
+      "name": "Land Bridge stone head",
+      "progress": 0,
+      "duration": 9.333333333333334,
+      "uses": 0,
+      "stoneHead": {
+        "triggerIndex": 30,
+        "sceneryIndex": 32,
+        "family": 45,
+        "enabled": true,
+        "holdFrame": 1,
+        "object": 45,
+        "draw": 4,
+        "morph": 1,
+        "palette": 240,
+        "renderFlags": 264,
+        "f1": 16,
+        "f2": 0,
+        "stamp": 0,
+        "flags3": 0,
+        "morphTimer": 0,
+        "morphFrames": 0
+      },
+      "panelActivity": {
+        "turn": 128,
+        "count": 0
+      },
+      "rewardRecipient": 0
+    },
+    "final": {
+      "turn": 413,
+      "status": "playing",
+      "paused": false,
+      "diagnostics": []
+    },
+    "observer": {
+      "armed": {
+        "turn": 127
+      },
+      "events": [
+        {
+          "kind": "gift-born",
+          "state": {
+            "turn": 328,
+            "paused": false,
+            "mode": "hut",
+            "stock": 0,
+            "count": 0,
+            "gift": {
+              "id": 1192,
+              "phase": 6,
+              "remaining": 82,
+              "frame": 1068
+            },
+            "runtimePresent": false,
+            "overlayPresent": false,
+            "tab": "buildings B"
+          }
+        }
+      ],
+      "samples": [
+        {
+          "stage": "phase-zero-baseline",
+          "state": {
+            "turn": 334,
+            "paused": false,
+            "mode": "hut",
+            "stock": 0,
+            "count": 0,
+            "gift": {
+              "id": 1192,
+              "phase": 0,
+              "remaining": 76,
+              "frame": 1068
+            },
+            "runtimePresent": false,
+            "overlayPresent": false,
+            "tab": "buildings B"
+          },
+          "artifact": "world-phase-zero-baseline.png"
+        }
+      ],
+      "errors": [],
+      "raised": {
+        "state": {
+          "turn": 328,
+          "paused": false,
+          "mode": "hut",
+          "stock": 0,
+          "count": 0,
+          "gift": {
+            "id": 1192,
+            "phase": 6,
+            "remaining": 82,
+            "frame": 1068
+          },
+          "runtimePresent": false,
+          "overlayPresent": false,
+          "tab": "buildings B"
+        },
+        "artifact": "raised-world.png"
+      },
+      "phaseZero": {
+        "turn": 334,
+        "paused": false,
+        "mode": "hut",
+        "stock": 0,
+        "count": 0,
+        "gift": {
+          "id": 1192,
+          "phase": 0,
+          "remaining": 76,
+          "frame": 1068
+        },
+        "runtimePresent": false,
+        "overlayPresent": false,
+        "tab": "buildings B"
+      },
+      "payout": {
+        "before": {
+          "turn": 409,
+          "paused": false,
+          "mode": "hut",
+          "stock": 0,
+          "count": 0,
+          "gift": {
+            "id": 1192,
+            "phase": 0,
+            "remaining": 1,
+            "frame": 1068
+          },
+          "runtimePresent": false,
+          "overlayPresent": false,
+          "tab": "buildings B"
+        },
+        "after": {
+          "turn": 410,
+          "paused": false,
+          "mode": "hut",
+          "stock": 1,
+          "count": 1,
+          "gift": null,
+          "runtimePresent": false,
+          "overlayPresent": false,
+          "tab": "buildings B"
+        }
+      },
+      "last": {
+        "turn": 424,
+        "paused": false,
+        "mode": "hut",
+        "stock": 1,
+        "count": 1,
+        "gift": null,
+        "runtimePresent": false,
+        "overlayPresent": false,
+        "tab": "buildings B"
+      },
+      "restored": true
+    },
+    "baselineStockTiming": {
+      "bornTurn": 328,
+      "initialRemaining": 82,
+      "phaseZeroTurn": 334,
+      "payoutTurn": 410,
+      "observedObjectTurns": 82
+    }
+  },
+  "finishedAt": "2026-10-05T04:01:35.437Z",
+  "sourceAfter": {
+    "commit": "89c9629991489fd1ce6dc52e938d1cec346bfead",
+    "tree": "5c6e719eb56fed67eb2714d115ba250fb8d59a20",
+    "status": "?? scripts/local-render/ordinary-worship.mjs",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [
+      {
+        "path": "scripts/local-render/ordinary-worship.mjs",
+        "mode": 33188,
+        "sha256": "01520be096bb36bad6ba0c6d04a13190ab242a05be564306eb1050e32c4ac99d"
+      }
+    ],
+    "fingerprint": "f29f731d87871dd255039fd5ab137e4162b8da5e529a3b28e76ad6d4a8892eaf"
+  },
+  "profileVerification": {
+    "mode": "created",
+    "origin": "http://127.0.0.1:4358",
+    "cleanupVerified": true,
+    "continuationVerified": true
+  },
+  "redaction": {
+    "kind": "portable redacted copy; original raw receipt retained for independent review",
+    "originalReceiptSha256": "eaf6c82e5f58b8de84dd7059e8faabb8f461a919ccc19f45e8d9ec834dc5d509",
+    "removed": "Checkout/browser/profile filesystem paths and profile identity/storage metadata only. Source/runtime/scenario fingerprints and observed results preserved."
+  }
+}

@@ -1,0 +1,34 @@
+{
+  "originalReceiptSha256": "b0b39754e74a1421309846e8073e1e32d3f7bfec32699d21a5ed6d00667698e1",
+  "status": "passed",
+  "exitCode": 0,
+  "startedAt": "2026-10-05T04:32:08.776Z",
+  "finishedAt": "2026-10-05T04:33:07.117Z",
+  "source": {
+    "headOid": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/ordinary-worship.mjs": "6a9b7f12756cd04d762e4b2ca8ae8ecaafe205846494700cda31b4991bcccd2d",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/ordinary-worship-numeric-copy.json": "794f840b1a0b2a5542380a5a74c8ef2373bb3881ecf6b48f5fd55b82e1d73204",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "sourceAfter": {
+    "headOid": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/ordinary-worship.mjs": "6a9b7f12756cd04d762e4b2ca8ae8ecaafe205846494700cda31b4991bcccd2d",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/ordinary-worship-numeric-copy.json": "794f840b1a0b2a5542380a5a74c8ef2373bb3881ecf6b48f5fd55b82e1d73204",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "stdoutSha256": "f440c3f2dd5de2a2c561e484e574d9898b61c005dd934aee6f6d7866f311b6e6",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "scope": "Outer command proof summary. Original raw logs/receipt retained for review."
+}
