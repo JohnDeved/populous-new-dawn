@@ -1044,6 +1044,7 @@
       ],
       "evidence": [
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
+        { "path": "decomp/research/worship-grant-handoff.md", "heading": "Three findings" },
         { "path": "decomp/research/authored-bridge-origins.md", "heading": "Executable composition proof" },
         {
           "path": "decomp/research/recorded-demo-provenance.md",
