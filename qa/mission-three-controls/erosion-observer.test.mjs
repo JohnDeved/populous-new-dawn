@@ -8,7 +8,7 @@ function fixture() {
   const world = { turn: 100, time: 100 / 12, speed: 1, outcome: { level: 3 }, units: [], effects: [],
     shrines: [{ id: 101, kind: 'erosionEffect', active: true, uses: 0, remaining: 1, forced: false,
       effectTarget: { x: -15, z: 111 }, effectTargets: [{ x: -15, z: 111 }] }],
-    land: { heights: new Int16Array(16384).fill(50), walkMasks: [new Uint8Array(16384), new Uint8Array(16384)] },
+    land: { heights: new Int16Array(16384).fill(50), walkMasks: [new Uint8Array(8192), new Uint8Array(8192)] },
     landVersion: 0, terrainVersion: 0 }
   return { epoch, world }
 }
@@ -134,4 +134,14 @@ test('actual M3 simulation producer exposes shrine-linked64-turn lifecycle to th
   assert.equal(result.effects[0].onset.remaining, 64); assert.equal(result.effects[0].last.remaining, 1)
   assert.equal(result.effects[0].retired.remaining, 0); assert.ok(result.effects[0].changedCells.length > 0)
   assert.deepEqual(epoch.errors, []); assert.deepEqual(JSON.parse(JSON.stringify(result)), result); detach()
+})
+
+
+test('terrain evidence reads four actual packed quarter-cell bits without undefined-to-null loss', () => {
+  const f = fixture(), nativeCell = 136 * 256 + 248
+  f.world.land.walkMasks[0][nativeCell >>> 3] = 1 << (nativeCell & 7)
+  onset(f)
+  const center = f.epoch.erosion.effects[0].terrain.onset.cells.find(cell => cell.index === 68 * 128 + 124)
+  assert.deepEqual(center.walkMasks, [[1, 0, 0, 0], [0, 0, 0, 0]])
+  assert.deepEqual(JSON.parse(JSON.stringify(center)), center)
 })

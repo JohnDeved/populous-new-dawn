@@ -81,7 +81,7 @@ async function actualConsume(root, commands, { defer = false, mutateAfterArchive
   const execute = new AsyncFunction('deps', `
     const { assert, resolve, readQueuedPreservingStop, writeFileSync, commandsPath, output, defer, stopPreserveLatest, log } = deps;
     const receipt = { profile: { runId: 'current' } }, inputs = []; let index = 3, inBatch = true;
-    let preserveStopRequested = false, deferredPreservingStop = false; const saveProgress = () => {};
+    let preserveStopRequested = false, deferredPreservingStop = false, terminalHandling = false; const saveProgress = () => {};
     ${driver.slice(start, end)}
     let caught; try { await consumeQueuedStop({ defer }); } catch(error) { caught = error; }
     return { index, inputs, preserveStopRequested, deferredPreservingStop, caught };
@@ -171,5 +171,18 @@ test('actual flyby, camera, dispatch and victory polling route through preservin
     `)
     await assert.rejects(execute({ assert, value, stop, calls, pollWithPreservation }), error => error === stop, startText)
     assert.deepEqual(calls, ['stop'])
+  }
+})
+
+
+test('preserving Pause can run before diagnostic binding and never invents missing UI state', async () => {
+  const start = driver.indexOf('  const pauseForPreservation ='), end = driver.indexOf('  const stopPreserveLatest =', start)
+  const execute = new AsyncFunction('page', 'button', 'log', `${driver.slice(start, end)}; await pauseForPreservation();`)
+  for (const visible of [true, false]) {
+    const calls = []
+    await execute({ getByRole: () => ({ isVisible: async () => visible }) }, async (...args) => calls.push(args), entry => calls.push(entry))
+    assert.equal(calls.length, visible ? 2 : 1)
+    assert.equal(calls.at(-1).visible, visible); assert.equal(calls.at(-1).clicked, visible)
+    if (visible) assert.deepEqual(calls[0], ['Pause game', { timeout: 5000 }])
   }
 })

@@ -8,7 +8,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createPreparationRecord, validatePreparationRecord, validateLoadedPreparation } from './checkpoint-provenance.mjs'
 import { createSermonRecord, validateSermonRecord, validateLoadedSermon, requirePreservedCheckpoint } from './sermon-checkpoint.mjs'
-import { bindGame, showAllMissions } from '../../scripts/browser-game.mjs'
+import { bindGame } from '../../scripts/browser-game.mjs'
 import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs'
 import { readQueuedPreservingStop, pollWithPreservation } from './queued-stop.mjs'
 import { objectiveProgress, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, activeBudget, requireActiveBudget, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells, requireDeclaredPreacherOrder, requireFirstOwnedListener, waitDisposition, requireCancelledSermon } from './observation.mjs'
@@ -43,7 +43,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     label: 'harness-verified-checkpoint-at-start', checkpoint: structuredClone(receipt.profile.checkpointAtStart),
     profileId: receipt.profile.id, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint,
   } : null
-  let preserveStopRequested = false, deferredPreservingStop = false, inBatch = false
+  let preserveStopRequested = false, deferredPreservingStop = false, inBatch = false, terminalHandling = false
   let preserveVerificationFailed = false
   mkdirSync(commandsPath, { recursive: true })
   for (const name of ['driver.mjs', 'observation.mjs', 'checkpoint-provenance.mjs', 'sermon-checkpoint.mjs', 'recovery-admission.mjs', 'sermon-successor.mjs', 'erosion-observer.mjs', 'queued-stop.mjs', 'command-probes.mjs']) {
@@ -69,59 +69,62 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.match(value, /^[a-z0-9][a-z0-9-]{0,70}$/)
     return value
   }
-  const read = () => page.evaluate(async () => {
-    const s = window.testSceneRef?.current, store = window.testStore
-    if (!s || store.getWorld() !== s.world) throw Error('Current scene/store mismatch')
-    if (window.m3Observation?.scene !== s || window.m3Observation.world !== s.world)
-      throw Error('Diagnostic epoch does not belong to the current scene/world')
-    const { currentPersonOrder } = await import('/app/person-orders.ts')
-    const { liveBuildingAttackTarget } = await import('/app/live-building-combat.ts')
-    const { observeBuilding } = await import('/qa/mission-three-controls/observation.mjs')
-    const { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs')
-    const { default: rules } = await import('/app/original-rules.json')
-    const w = s.world, gl = s.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
-    const person = u => u.builder?.person ?? u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
-    const copy = o => o === undefined ? null : JSON.parse(JSON.stringify(o))
-    return {
-      level: w.outcome.level, turn: w.turn, time: w.time, paused: w.paused, speed: w.speed,
-      status: w.status, inputMask: w.inputMask, lastOrderTurn: w.lastOrderTurn, pointerAck: copy(s.pointerAck), selected: [...w.selected], mode: w.mode,
-      stats: copy(w.stats), shots: copy(w.shots), unlockedTemple: w.unlockedTemple,
-      completedMissions: store.getCompletedMissions(), readiness: campaignShamanReadiness(w),
-      camera: { point: copy(s.viewPoint), position: copy(s.cameraPosition), bearing: s.cameraBearing,
-        motion: copy(s.cameraMotion), overview: s.overviewStage },
-      animationFrame: s.gameClock.animationFrame, frame: s.frame,
-      units: w.units.filter(u => u.hp > 0).map(u => {
-        const p = person(u), n = u.native
-        return { id: u.id, team: u.team, kind: u.kind, x: u.x, z: u.z, hp: u.hp,
-          personOwner: p && (p === u.builder?.person ? 'builder' : p === u.flight ? 'flight' :
-            p === u.fight?.motion ? 'fight' : p === n ? 'native' : 'entry'),
-          fight: p && p === u.fight?.motion ? { group: u.fight.group,
-            groupExists: w.fights.some(f => f.id === u.fight.group), opponent: u.fight.opponent,
-            personId: p.id, state: p.state, flags2: p.flags2 } : null,
-          conversionNative: n && { model: n.model, tribe: n.tribe, life: n.life, state: n.state, vehicle: n.vehicle,
-            workTarget: n.workTarget, flags2: n.flags2, flags4: n.flags4 },
-          preachingEligible: !!n && u.kind === 'brave' && n.model === 2 && n.tribe === 2 && n.life > 0 &&
-            u.inside === null && !u.flight && !(w.outcome.alliances[0] & (1 << n.tribe)) &&
-            !!(rules.personModels[n.model].flags & 32) && !(rules.personStateFlags[n.state] & 32) &&
-            !(n.flags2 & 0x102004) && !(n.flags4 & 8) && !n.vehicle,
-          inside: u.inside, work: u.work, target: copy(u.target), cargo: u.cargo,
-          harvest: copy(u.harvest), delivery: copy(u.delivery), tree: u.tree, builder: u.builder &&
-            { task: u.builder.task, phase: u.builder.phase, busy: u.builder.busy },
-          route: p && { motionIndex: p.motionIndex, destinationX: p.destinationX, destinationY: p.destinationY,
-            goalX: p.goalX, goalY: p.goalY }, nativeState: p?.state,
-          owner: p?.workTarget, timer: p?.timer, flags2: p?.flags2, flags3: p?.flags3,
-          flags4: p?.flags4, order: p && copy(currentPersonOrder(w.buildingOrders, p)),
-          attackBuildingId: p ? liveBuildingAttackTarget(w, p)?.id ?? null : null }
-      }),
-      buildings: w.buildings.filter(b => b.hp > 0).map(observeBuilding),
-      shrines: w.shrines.map(h => ({ id: h.id, kind: h.kind, x: h.x, z: h.z, active: h.active,
-        uses: h.uses, work: h.work, progress: h.progress, followers: h.followers, remaining: h.remaining })),
-      effects: w.effects.map(e => ({ id: e.id, kind: e.kind, x: e.x, z: e.z, age: e.age })),
-      observation: copy(window.m3Observation?.epoch),
-      renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
-      contextLost: gl.isContextLost(), body: document.body.innerText,
-    }
-  })
+  const read = async () => {
+    await consumeQueuedStop()
+    return page.evaluate(async () => {
+      const s = window.testSceneRef?.current, store = window.testStore
+      if (!s || store.getWorld() !== s.world) throw Error('Current scene/store mismatch')
+      if (window.m3Observation?.scene !== s || window.m3Observation.world !== s.world)
+        throw Error('Diagnostic epoch does not belong to the current scene/world')
+      const { currentPersonOrder } = await import('/app/person-orders.ts')
+      const { liveBuildingAttackTarget } = await import('/app/live-building-combat.ts')
+      const { observeBuilding } = await import('/qa/mission-three-controls/observation.mjs')
+      const { campaignShamanReadiness } = await import('/scripts/campaign-start-readiness.mjs')
+      const { default: rules } = await import('/app/original-rules.json')
+      const w = s.world, gl = s.renderer.getContext(), debug = gl.getExtension('WEBGL_debug_renderer_info')
+      const person = u => u.builder?.person ?? u.flight ?? u.fight?.motion ?? u.native ?? u.entry?.person
+      const copy = o => o === undefined ? null : JSON.parse(JSON.stringify(o))
+      return {
+        level: w.outcome.level, turn: w.turn, time: w.time, paused: w.paused, speed: w.speed,
+        status: w.status, inputMask: w.inputMask, lastOrderTurn: w.lastOrderTurn, pointerAck: copy(s.pointerAck), selected: [...w.selected], mode: w.mode,
+        stats: copy(w.stats), shots: copy(w.shots), unlockedTemple: w.unlockedTemple,
+        completedMissions: store.getCompletedMissions(), readiness: campaignShamanReadiness(w),
+        camera: { point: copy(s.viewPoint), position: copy(s.cameraPosition), bearing: s.cameraBearing,
+          motion: copy(s.cameraMotion), overview: s.overviewStage },
+        animationFrame: s.gameClock.animationFrame, frame: s.frame,
+        units: w.units.filter(u => u.hp > 0).map(u => {
+          const p = person(u), n = u.native
+          return { id: u.id, team: u.team, kind: u.kind, x: u.x, z: u.z, hp: u.hp,
+            personOwner: p && (p === u.builder?.person ? 'builder' : p === u.flight ? 'flight' :
+              p === u.fight?.motion ? 'fight' : p === n ? 'native' : 'entry'),
+            fight: p && p === u.fight?.motion ? { group: u.fight.group,
+              groupExists: w.fights.some(f => f.id === u.fight.group), opponent: u.fight.opponent,
+              personId: p.id, state: p.state, flags2: p.flags2 } : null,
+            conversionNative: n && { model: n.model, tribe: n.tribe, life: n.life, state: n.state, vehicle: n.vehicle,
+              workTarget: n.workTarget, flags2: n.flags2, flags4: n.flags4 },
+            preachingEligible: !!n && u.kind === 'brave' && n.model === 2 && n.tribe === 2 && n.life > 0 &&
+              u.inside === null && !u.flight && !(w.outcome.alliances[0] & (1 << n.tribe)) &&
+              !!(rules.personModels[n.model].flags & 32) && !(rules.personStateFlags[n.state] & 32) &&
+              !(n.flags2 & 0x102004) && !(n.flags4 & 8) && !n.vehicle,
+            inside: u.inside, work: u.work, target: copy(u.target), cargo: u.cargo,
+            harvest: copy(u.harvest), delivery: copy(u.delivery), tree: u.tree, builder: u.builder &&
+              { task: u.builder.task, phase: u.builder.phase, busy: u.builder.busy },
+            route: p && { motionIndex: p.motionIndex, destinationX: p.destinationX, destinationY: p.destinationY,
+              goalX: p.goalX, goalY: p.goalY }, nativeState: p?.state,
+            owner: p?.workTarget, timer: p?.timer, flags2: p?.flags2, flags3: p?.flags3,
+            flags4: p?.flags4, order: p && copy(currentPersonOrder(w.buildingOrders, p)),
+            attackBuildingId: p ? liveBuildingAttackTarget(w, p)?.id ?? null : null }
+        }),
+        buildings: w.buildings.filter(b => b.hp > 0).map(observeBuilding),
+        shrines: w.shrines.map(h => ({ id: h.id, kind: h.kind, x: h.x, z: h.z, active: h.active,
+          uses: h.uses, work: h.work, progress: h.progress, followers: h.followers, remaining: h.remaining })),
+        effects: w.effects.map(e => ({ id: e.id, kind: e.kind, x: e.x, z: e.z, age: e.age })),
+        observation: copy(window.m3Observation?.epoch),
+        renderer: debug ? gl.getParameter(debug.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER),
+        contextLost: gl.isContextLost(), body: document.body.innerText,
+      }
+    })
+  }
   const health = snapshot => {
     assert.equal(snapshot.level, 3, 'Remain in Mission 3')
     assert.equal(snapshot.speed, 1, 'Normal game speed only')
@@ -441,7 +444,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     }
   }
   const consumeQueuedStop = async ({ defer = false } = {}) => {
-    if (preserveStopRequested) return
+    if (preserveStopRequested || terminalHandling) return
     const ordinal = inBatch ? index + 1 : Math.max(1, index)
     const pending = readQueuedPreservingStop(commandsPath, ordinal, receipt.profile?.runId ?? receipt.startedAt)
     if (!pending) return
@@ -463,6 +466,16 @@ export default async function missionThreeControls({ page, output, root, signal,
   }
   const pollUI = (check, timeout, label) => pollWithPreservation(check,
     { checkStop: () => consumeQueuedStop(), timeout, label })
+  const bindGameWithPreservation = () => bindGame({
+    waitForSelector: selector => pollUI(() => page.locator(selector).first().isVisible(), 45_000, 'game canvas'),
+    waitForFunction: (predicate, arg, options = {}) => pollUI(() => page.evaluate(predicate, arg), options.timeout ?? 45_000, 'game diagnostic binding'),
+  })
+  const showAllMissionsWithPreservation = async () => {
+    const startup = page.getByRole('dialog', { name: 'Start game', exact: true })
+    await pollUI(() => startup.isVisible(), 45_000, 'mission selection dialog')
+    const all = startup.getByRole('button', { name: 'All missions', exact: true })
+    if (await all.getAttribute('aria-pressed') !== 'true') await all.click()
+  }
   const requireOrderableForWait = state => { health(state); assert.equal(state.paused, false) }
   const mark = async name => {
     safeLabel(name); const s = await snapshot(`milestone-${name}`); health(s)
@@ -566,7 +579,7 @@ export default async function missionThreeControls({ page, output, root, signal,
       acquisitionSource: continuation.source.commit, checkpointSha256: continuation.checkpoint.sha256 })))
     log({ action: 'preparation-load-provenance-accepted', recordPath: path, sha256: hash, observed,
       priorRun: receipt.profile.previousRun ?? null, scope: continuation.scope })
-    await button('Load Game'); await bindGame(page)
+    await button('Load Game'); await bindGameWithPreservation()
     await bindObservation('continuation-entry', checkpoint.time)
     const loaded = await read(); health(loaded); validateLoadedPreparation(continuation, loaded)
     const profile = await readStorage('profile')
@@ -581,7 +594,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.ok(savedSermon, 'Require an observed committed sermon save')
     assert.ok(milestones.some(m => m.name === 'sermon-cancelled'), 'Record cancellation before reload')
     await pause(); await endEpoch()
-    await page.reload({ waitUntil: 'domcontentloaded' }); await button('Load Game'); await bindGame(page)
+    await page.reload({ waitUntil: 'domcontentloaded' }); await button('Load Game'); await bindGameWithPreservation()
     await bindObservation(`reload-${epochs.length}`, savedSermon.time)
     const loaded = await read(), victim = loaded.units.find(u => u.id === savedSermon.victimId)
     assert.equal(loaded.paused, false, 'Load auto-resumes through shipped beginLoad')
@@ -624,7 +637,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     // before diagnostic binding/imports consume the short saved listener timer.
     await button('Pause game')
     log({ action: 'saved-sermon-load-paused-before-observation', autoResumeWitness: 'Visible Pause game control accepted an ordinary UI click' })
-    await bindGame(page)
+    await bindGameWithPreservation()
     await bindObservation('saved-sermon-entry', savedSermon.time)
     const loaded = await read(); health(loaded)
     validateLoadedSermon(sermonRecord, loaded, { pausedByEntryControl: true })
@@ -646,10 +659,19 @@ export default async function missionThreeControls({ page, output, root, signal,
     renameSync(path, resolve(output, 'sermon-record-withheld.json'))
     log({ action: 'sermon-record-withheld', reason: String(reason) }); saveProgress()
   }
+  const pauseForPreservation = async () => {
+    // This must also work while diagnostic bindings/observers are still loading.
+    // If Pause is absent, do not invent a paused state; normal close still owns
+    // stopping the context after the actual latest checkpoint is read.
+    const control = page.getByRole('button', { name: 'Pause game', exact: true })
+    const visible = await control.isVisible()
+    if (visible) await button('Pause game', { timeout: 5000 })
+    log({ action: 'preservation-pause-control', visible, clicked: visible })
+  }
   const stopPreserveLatest = async () => {
     try {
       assert.ok(protectedLatest && typeof observeCheckpoint === 'function', 'Require a known committed latest checkpoint')
-      await pause()
+      await pauseForPreservation()
       const observed = await observeCheckpoint('m3-stop-preserve-latest')
       requirePreservedCheckpoint(protectedLatest.checkpoint, observed)
       log({ action: 'stop-preserve-latest', observed })
@@ -921,8 +943,8 @@ export default async function missionThreeControls({ page, output, root, signal,
     else if (process.env.M3_PREPARATION_RECORD) await loadPreparation(process.env.M3_PREPARATION_RECORD)
     else {
       assert.ok(!receipt.profile || receipt.profile.mode === 'created', 'A reused profile requires explicit preparation provenance')
-      await showAllMissions(page)
-      await button('Mission 3'); await bindGame(page)
+      await showAllMissionsWithPreservation()
+      await button('Mission 3'); await bindGameWithPreservation()
       await bindObservation('entry', 0)
       const initial = await read()
       assert.ok(!initial.completedMissions.includes(3), 'Fresh owned profile starts without M3 completion')
@@ -1011,6 +1033,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     }
     throw new IncompleteRun('command-limit', 'Command count limit reached without completed acceptance')
   } catch (error) {
+    terminalHandling = true
     const incomplete = error instanceof IncompleteRun
     const record = { index, at: new Date().toISOString(), outer: true, code: error?.code,
       error: String(error?.stack ?? error) }

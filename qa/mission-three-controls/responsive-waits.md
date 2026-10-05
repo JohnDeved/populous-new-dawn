@@ -21,14 +21,14 @@ owned by the executor, oversized inputs and observed replacement/drift.
 
 Mixed, wrong-run or changed preserving requests are terminal failures with
 preservation intent already set. The normal command-error handler cannot swallow
-them and continue. An accepted request uses ordinary Pause, actual committed
-checkpoint readback and the normal harness close. It never invokes fallback Save
+them and continue. An accepted request clicks a visible ordinary Pause control with a5-second bound, then reads the actual committed
+checkpoint and uses the normal harness close. If that control is absent during startup, the receipt says so instead of inventing a paused state; normal close still stops the context. It never invokes fallback Save
 or changes clocks, processes, source, World or browser storage directly.
 
 Control is checked before the first active-condition read and each subsequent
 sample, before health/budget/objective handling. Explicit bounded UI polls also
 check it: introduction input release60s, camera settlement30s, fresh dispatch5s,
-victory camera60s and Mission4 button60s. The command-file wait and actual profile
+victory camera60s and Mission4 button60s. Game canvas/diagnostic binding and mission-dialog polls keep45-second bounds. Every full diagnostic read checks control too, except during already-active terminal handling. The command-file wait and actual profile
 readback poll do the same. Individual browser reads/actions retain their existing
 timeouts; responsiveness is between completed asynchronous samples, not an
 unbounded concurrent cancellation mechanism.
@@ -73,7 +73,7 @@ at onset+64. Live duration Infinity is intentionally omitted. Retirement duratio
 is recorded only when finite and equal to actual age. JSON round-trip tests cover
 both synthetic boundaries and the actual simulation producer.
 
-Small radius6 native height/walk-mask snapshots are copied at onset, first active
+Small radius6 native height/walk-mask snapshots (the four actual packed quarter-cell bits per coarse height cell) are copied at onset, first active
 visit, last active visit and retirement, with available finite version values and
 other known terrain controllers. Changed cells are correlated observations;
 other terrain producers are not excluded. No terrain is constructed or adjusted.

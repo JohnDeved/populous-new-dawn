@@ -20,7 +20,7 @@ test('the actual saved-sermon entry admits a subsequent Preacher cancellation or
   const bytes = Buffer.from(JSON.stringify(record)), calls = [], loaded = { turn: 4830, observation: { name: 'saved-sermon-entry' } }
   const execute = new AsyncFunction('deps', `
     const { assert, resolve, readFileSync, writeFileSync, sha256, validateSermonRecord,
-      validateLoadedSermon, observeCheckpoint, button, bindGame, bindObservation, read,
+      validateLoadedSermon, observeCheckpoint, button, bindGameWithPreservation, bindObservation, read,
       health, readStorage, pause, snapshot, log, saveProgress, source, profile } = deps;
     const root = '/owned', output = '/owned/output', url = 'http://127.0.0.1:4366', page = {};
     const receipt = { source, profile }, inputs = [], ids = {}, milestones = [], failures = [], controlStops = [];
@@ -35,7 +35,7 @@ test('the actual saved-sermon entry admits a subsequent Preacher cancellation or
       assert.deepEqual(options, { pausedByEntryControl: true }); calls.push('validate-loaded')
     },
     observeCheckpoint: async () => ({ checkpoint: record.checkpoint }),
-    button: async name => calls.push(name), bindGame: async () => calls.push('bind-game'),
+    button: async name => calls.push(name), bindGameWithPreservation: async () => calls.push('bind-game'),
     bindObservation: async name => calls.push(`epoch:${name}`), read: async () => { calls.push('full-read'); return loaded },
     health: () => {}, readStorage: async () => ({ completed: [] }), pause: async () => calls.push('Pause'),
     snapshot: async () => {}, log: () => {}, saveProgress: () => {} })
@@ -58,6 +58,7 @@ test('the actual preserve-latest action pauses and observes the saved digest bef
   const checkpoint = { turn: 4813, checkpointSha256: 'a'.repeat(64) }, calls = []
   const execute = new AsyncFunction('deps', `
     const { assert, IncompleteRun, requirePreservedCheckpoint, pause, observeCheckpoint, log, protectedLatest, withholdSermonRecord } = deps;
+    const pauseForPreservation = pause;
     ${block('  const stopPreserveLatest =', '  const proveVictory =')}
     return stopPreserveLatest();
   `)
@@ -127,6 +128,7 @@ test('failed preserving-stop validation withholds its sermon record and never re
   const execute = new AsyncFunction('deps', `
     const { assert, IncompleteRun, requirePreservedCheckpoint, pause, observeCheckpoint, log,
       protectedLatest, withholdSermonRecord } = deps;
+    const pauseForPreservation = pause;
     ${block('  const stopPreserveLatest =', '  const proveVictory =')}
     return stopPreserveLatest();
   `)

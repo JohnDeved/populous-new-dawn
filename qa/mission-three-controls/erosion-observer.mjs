@@ -3,10 +3,15 @@ const insist = (value, message) => { if (!value) throw Error(message) }
 const samePoint = (a, b) => a.x === b.x && a.z === b.z
 const refs = new WeakMap()
 const terrain = (world, center) => {
+  insist(world.land.heights.length === 16384 && world.land.walkMasks.every(mask => mask.length === 8192),
+    'Native terrain has128×128 heights and256×256 packed walk bits')
   const x = (center.x >>> 9) & 127, y = (center.y >>> 9) & 127, cells = []
   for (let dy = -6; dy <= 6; dy++) for (let dx = -6; dx <= 6; dx++) {
     const index = ((y + dy) & 127) * 128 + ((x + dx) & 127)
-    cells.push({ index, height: world.land.heights[index], walkMasks: world.land.walkMasks.map(mask => mask[index]) })
+    const nativeCell = ((index & 127) * 2) | ((index >>> 7) * 2 << 8)
+    const quarters = [nativeCell, nativeCell + 1, nativeCell + 256, nativeCell + 257]
+    cells.push({ index, height: world.land.heights[index], walkMasks: world.land.walkMasks.map(mask =>
+      quarters.map(cell => Number(!!(mask[cell >>> 3] & (1 << (cell & 7)))))) })
   }
   const versions = {}
   for (const key of ['landVersion', 'terrainVersion']) if (world[key] !== undefined) {
