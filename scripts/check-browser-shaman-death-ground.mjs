@@ -1,6 +1,7 @@
 // Controlled-clock rendered acceptance, not a real-clock ordinary journey.
 // Mission/H selection, worship, movement, attack and all three Land Bridge casts
 // use public UI clicks. RAF is held; ordinary fixed turns are supplied explicitly.
+// Manual tick bypasses advanceGame's presentation cadence and scene turn observers.
 // No HP, stock, mana, actor, AI, terrain, death effect or outcome is injected.
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
@@ -14,7 +15,7 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
     source: execFileSync('git', ['-C', root, 'rev-parse', 'HEAD'], { encoding: 'utf8' }).trim(),
     baseline,
     clock: 'Held requestAnimationFrame and explicit ordinary tick(world, 1/12); camera preparation consumes no simulation turns.',
-    limits: 'Controlled-clock rendered integration through public UI commands. This is not a real-clock ordinary journey, native raster comparison or hardware performance result.',
+    limits: 'Controlled-clock rendered integration through public UI commands. Manual tick bypasses advanceGame presentation cadence and scene turn observers. This is not a real-clock ordinary journey, native raster comparison or hardware performance result.',
     actions: [],
   }
   const errors = []
@@ -90,8 +91,36 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
       }
       throw Error(`No unobstructed rendered ${kind} hit for ${JSON.stringify(p)}`)
     }, { kind, target })
+    const before = kind === 'spell' ? undefined : await page.evaluate(() => {
+      const w = window.testScene.world
+      return { turn: w.turn, nextId: w.nextId }
+    })
     await page.mouse.click(hit.x, hit.y)
-    report.actions.push({ kind, target, hit })
+    let acceptance
+    if (before) {
+      acceptance = await page.evaluate(async ({ kind, target, before }) => {
+        const w = window.testScene.world
+        const { currentPersonOrder } = await import('/app/person-orders.ts')
+        const u = w.units.find(u => u.team === 'blue' && u.kind === 'shaman')
+        const p = u?.native ?? u?.fight?.motion ?? u?.entry?.person ?? u?.builder?.person
+        const order = p && currentPersonOrder(w.buildingOrders, p)
+        const markers = w.effects.filter(f => f.kind === 'orderMarker' && f.id >= before.nextId)
+        const observed = { turn: w.turn, lastOrderTurn: w.lastOrderTurn, work: u?.work,
+          target: u?.target, selected: !!u && w.selected.includes(u.id),
+          order: order && { model: order.model, a: order.a, b: order.b, references: order.references },
+          markerIds: markers.map(f => f.id) }
+        if (!u || !observed.selected || w.turn !== before.turn || w.lastOrderTurn !== before.turn)
+          throw Error(`UI command was not acknowledged: ${JSON.stringify(observed)}`)
+        if (kind === 'head' && (u.work !== target || order?.model !== 27 || order.a !== target))
+          throw Error(`Worship click did not issue its head order: ${JSON.stringify(observed)}`)
+        if (kind === 'ground' && (order?.model !== 3 || !order.references || !markers.length))
+          throw Error(`Ground click did not issue a movement order/marker: ${JSON.stringify(observed)}`)
+        if (kind === 'person' && u.target !== target)
+          throw Error(`Attack click did not set the intended target: ${JSON.stringify(observed)}`)
+        return observed
+      }, { kind, target, before })
+    }
+    report.actions.push({ kind, target, hit, acceptance })
     return hit
   }
 

@@ -173,6 +173,10 @@ The prepared browser driver uses actual Mission/H selection and canvas/HUD
 clicks for worship, movement, attack and spells. It holds RAF and supplies normal
 fixed turns explicitly, keeping camera/input preparation between turns. This is
 **controlled-clock rendered integration, not a real-clock ordinary journey**.
+Manual `tick` also bypasses `advanceGame`'s presentation cadence and scene turn
+observers; this case does not replace their separate cadence regressions. Immediate
+post-click state must confirm the actual head order, movement order/marker or
+attack target, so a found screen hit or an ignored second attack is insufficient.
 It requires nonzero actual terrain deformation at the actual death point while
 phase1 remains active, living friendly followers, matching candidate body/mesh
 heights and real framebuffer contribution. No stock, mana, HP, actor position,

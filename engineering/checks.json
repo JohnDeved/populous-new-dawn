@@ -5215,6 +5215,7 @@
       ],
       "knownLimits": [
         "RAF is held and ordinary fixed turns are supplied: controlled-clock rendered integration, not a real-clock ordinary journey.",
+        "Manual tick bypasses advanceGame presentation cadence and scene turn observers; those remain separate checks.",
         "Camera preparation is controlled; original raster and hardware performance are not established."
       ],
       "executable": "node",
