@@ -202,8 +202,11 @@ export class WorshipAcquisitionPresentation {
     context.setTransform(ratio, 0, 0, ratio, 0, 0)
     context.clearRect(0, 0, width, height)
     context.imageSmoothingEnabled = false
+    const layouts = new Map<WorshipAcquisitionGeometry, WorshipHudGeometry | null>()
     for (const command of commands) {
-      const current = this.bridge?.measure(command.model, command.geometry)
+      if (!layouts.has(command.geometry))
+        layouts.set(command.geometry, this.bridge?.measure(command.model, command.geometry) ?? null)
+      const current = layouts.get(command.geometry)
       if (!current) continue
       if (command.kind === 'sprite') {
         const sprite = this.sprite(command)
