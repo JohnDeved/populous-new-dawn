@@ -1,0 +1,211 @@
+{
+  "capturedAt": "2026-10-05T00:06:44.244591+00:00",
+  "scope": "In-progress Run12, actual paused boundary3355 after ordinary Load, one training command and accepted forward-threat attack. No suppression/sermon/conversion/victory claim.",
+  "files": [
+    {
+      "path": "browser-12/actions.jsonl",
+      "bytes": 22021,
+      "sha256": "81f7675a51739ac4516800727bcf64bc607f1a910384b11895a8001ebdadbcbb"
+    },
+    {
+      "path": "browser-12/batch-0009.json",
+      "bytes": 58357,
+      "sha256": "1c5e74ccdac7d5abb1b56fe29c9258d7cde476c4cd6c05a9e000a52ea2de275e"
+    },
+    {
+      "path": "browser-12/batch-0009.png",
+      "bytes": 1787984,
+      "sha256": "97bba1927f5d519e49d00b65f768ccb42a10d887a614370aef239a383bac0794"
+    },
+    {
+      "path": "browser-12/checkpoint-provenance.mjs",
+      "bytes": 6863,
+      "sha256": "fa08fcb847f8bc9faf5767f4df4980034084241e0d1f1e2898c10a80e915a767"
+    },
+    {
+      "path": "browser-12/command-probes.mjs",
+      "bytes": 936,
+      "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f"
+    },
+    {
+      "path": "browser-12/commands/0001.json",
+      "bytes": 196,
+      "sha256": "612b8d26fd0607b24e9d584e23fc7881306d15eb7784a29ae1dc52768b322cc0"
+    },
+    {
+      "path": "browser-12/commands/0002.json",
+      "bytes": 193,
+      "sha256": "ddb7e97c8bc30614fd60b30e429c78dff60530d9b01551467d148ff44885fa7d"
+    },
+    {
+      "path": "browser-12/commands/0003.json",
+      "bytes": 227,
+      "sha256": "89033554e7a75562402521964b50c1921aa4cee6e83dbc39f161e52398f03564"
+    },
+    {
+      "path": "browser-12/commands/0004.json",
+      "bytes": 141,
+      "sha256": "9b4969210a6d37aec0d414e5f9422b6bb7e83dbdd251d7724b033cb7a129bf35"
+    },
+    {
+      "path": "browser-12/commands/0005.json",
+      "bytes": 141,
+      "sha256": "57a21da4a8997d37075b7388c7c61c17e7a20f7b424d1b43177bdc8bc6308dc5"
+    },
+    {
+      "path": "browser-12/commands/0006.json",
+      "bytes": 141,
+      "sha256": "9e4de5e6a9f7eb187173370c5044de491c65bb7dea6e448bca958dfa4fc2ab0e"
+    },
+    {
+      "path": "browser-12/commands/0007.json",
+      "bytes": 141,
+      "sha256": "9259889ff646323376b0795c798f9fcba1ddd6f37993b6384651ffb3e081a8e8"
+    },
+    {
+      "path": "browser-12/commands/0008.json",
+      "bytes": 141,
+      "sha256": "d95261e9910e4ddb9ee8147be199befef0ecbdd17f63796f02b602d0caa0b429"
+    },
+    {
+      "path": "browser-12/commands/0009.json",
+      "bytes": 141,
+      "sha256": "b3528cae2a5714c7a8509a9d3de508a14483f9e3fe35662d8c646f091f8ddee9"
+    },
+    {
+      "path": "browser-12/consumed-0001.json",
+      "bytes": 196,
+      "sha256": "612b8d26fd0607b24e9d584e23fc7881306d15eb7784a29ae1dc52768b322cc0"
+    },
+    {
+      "path": "browser-12/consumed-0002.json",
+      "bytes": 193,
+      "sha256": "ddb7e97c8bc30614fd60b30e429c78dff60530d9b01551467d148ff44885fa7d"
+    },
+    {
+      "path": "browser-12/consumed-0003.json",
+      "bytes": 227,
+      "sha256": "89033554e7a75562402521964b50c1921aa4cee6e83dbc39f161e52398f03564"
+    },
+    {
+      "path": "browser-12/consumed-0004.json",
+      "bytes": 141,
+      "sha256": "9b4969210a6d37aec0d414e5f9422b6bb7e83dbdd251d7724b033cb7a129bf35"
+    },
+    {
+      "path": "browser-12/consumed-0005.json",
+      "bytes": 141,
+      "sha256": "57a21da4a8997d37075b7388c7c61c17e7a20f7b424d1b43177bdc8bc6308dc5"
+    },
+    {
+      "path": "browser-12/consumed-0006.json",
+      "bytes": 141,
+      "sha256": "9e4de5e6a9f7eb187173370c5044de491c65bb7dea6e448bca958dfa4fc2ab0e"
+    },
+    {
+      "path": "browser-12/consumed-0007.json",
+      "bytes": 141,
+      "sha256": "9259889ff646323376b0795c798f9fcba1ddd6f37993b6384651ffb3e081a8e8"
+    },
+    {
+      "path": "browser-12/consumed-0008.json",
+      "bytes": 141,
+      "sha256": "d95261e9910e4ddb9ee8147be199befef0ecbdd17f63796f02b602d0caa0b429"
+    },
+    {
+      "path": "browser-12/consumed-0009.json",
+      "bytes": 141,
+      "sha256": "b3528cae2a5714c7a8509a9d3de508a14483f9e3fe35662d8c646f091f8ddee9"
+    },
+    {
+      "path": "browser-12/continuation-opening.json",
+      "bytes": 58236,
+      "sha256": "9d28458b388305aee1614d54f25ab691c734ec5eb54b1d2147e1a5c7f578c80f"
+    },
+    {
+      "path": "browser-12/continuation-opening.png",
+      "bytes": 1896504,
+      "sha256": "589aa840def063c5bc1a23e14e8ce94b07b405e8e325e3cdf3328d2e9ec7d822"
+    },
+    {
+      "path": "browser-12/driver.mjs",
+      "bytes": 53635,
+      "sha256": "5b3498fd704a67acb7d415f4092ab113bb9d67c125c8cf4981faea070df4e791"
+    },
+    {
+      "path": "browser-12/early-preacher-training-started.json",
+      "bytes": 58220,
+      "sha256": "2638c06e5cfc665ee76207b50bf82ffe6ced2061808a45fa39c39f0e1220e753"
+    },
+    {
+      "path": "browser-12/forward-threat-attack-accepted.json",
+      "bytes": 58247,
+      "sha256": "9ed9417da9b197b996e50f944f734127390ac8abf4a21551aa291ab8b2989cd7"
+    },
+    {
+      "path": "browser-12/journey.json",
+      "bytes": 12721,
+      "sha256": "bc24dfb3e739e486950beda70a747bf6c055a4ac99985643221fcbfee2be439a"
+    },
+    {
+      "path": "browser-12/loaded-preparation-record.json",
+      "bytes": 4178,
+      "sha256": "8d4417a5f7f27d2f0354192a5f77c70a0b109867a16074f28ab5136f4935c4c9"
+    },
+    {
+      "path": "browser-12/observation.mjs",
+      "bytes": 21281,
+      "sha256": "b10dafc76189c0a94cba590983cec716159c3def4d5d0f78d7145c883904a5d6"
+    },
+    {
+      "path": "browser-12/preparation-record.json",
+      "bytes": 4178,
+      "sha256": "6ceb8603549bc64e40d54cbb2a2ce85de57f35d0be0fc52b91b504b8c60ed01d"
+    },
+    {
+      "path": "browser-12/scenario-inputs.json",
+      "bytes": 495,
+      "sha256": "b2e9f96b4489a3fe1427a7f2d0bc1fb0e48be75c6b749aee7e523e82986835e3"
+    },
+    {
+      "path": "browser-12.outer.json",
+      "bytes": 2974,
+      "sha256": "72fdb00f7c2bc995d8fac836e9a58faeb1dc3bbc0c96690e2911c97c6129cbd3"
+    },
+    {
+      "path": "run04-run09-run11-comparison.json",
+      "bytes": 19718,
+      "sha256": "a8e89cbb780a23fa05f0d19e94ef119230ce65dc29dc1d7fe0b7e69f51bb9b79"
+    },
+    {
+      "path": "run04-run09-run11-comparison.md",
+      "bytes": 6321,
+      "sha256": "d300b54c81ffaccc4cb3b91a1f2342c369ec3d5f6ecfaeb8d68ed34601c96a47"
+    },
+    {
+      "path": "run12-early-suppression/observation-batch-template.json",
+      "bytes": 153,
+      "sha256": "3abadb0733068e97b02259e882246d816ce4a185e15bad58b1145eea4d71645e"
+    },
+    {
+      "path": "run12-early-suppression/opening-batch.json",
+      "bytes": 196,
+      "sha256": "612b8d26fd0607b24e9d584e23fc7881306d15eb7784a29ae1dc52768b322cc0"
+    },
+    {
+      "path": "run12-early-suppression/packet-preflight.json",
+      "bytes": 692,
+      "sha256": "01f03eb43bc9fcad2078ee57628e1537e3c85319547c6e619eb7a2740ed11d43"
+    },
+    {
+      "path": "run12-early-suppression/tactical-packet-frozen.json",
+      "bytes": 9391,
+      "sha256": "19349703c28352a29598ad2abf4ee7796c5931b9ff0b5d9b356d8091d97e4cc8"
+    },
+    {
+      "path": "run12-early-suppression/tactical-packet.json",
+      "bytes": 8582,
+      "sha256": "a4b627e3d7f725b01d4afa0da29544894c756bf0f93725702da995da58bd339f"
+    }
+  ]
+}
