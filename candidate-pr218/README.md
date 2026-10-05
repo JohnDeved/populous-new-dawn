@@ -28,14 +28,16 @@ and remains advisory. No clean lint/health claim is made. The exact66-check plan
 and five unknown paths have explicit dispositions; broad unchanged mapped probes
 are marked not-run, not relabelled as passes.
 
-The ordinary model45 baseline/candidate captures passed their bounded observations and
-are published separately by their owner; a pinned comparison link will be added.
+The [ordinary model45 comparison and screenshots](https://github.com/JohnDeved/populous-new-dawn/blob/ae22173886532b9a2a05b4822b54651d078425bd/stone-head-pr218/README.md)
+are published separately. The unchanged predicate exposes the old baseline gate
+defect and passes the candidate with public 1×/2× speed and pause controls.
 Controlled session95765 failed before any phase assertion: its20-second input-mask
 wait expired while the failure screenshot still showed Skip introduction. The old
 one-shot visibility check supports an asynchronous startup race. All raw failure
 bytes and the unchanged source/input/outer-cleanup attribution are retained in
 [the controlled packet](controlled/controlled-d97c370-terminal.json).
-A one-line public-button readiness wait is prepared in a separate proof wrapper,
+A one-line public-button readiness wait is independently
+[accepted in a separate proof wrapper](reviews/controlled-startup-repair-review.md),
 with no application change or timeout increase; it has not been run. PR218 remains
 a draft until the controlled fixture succeeds and final review accepts the evidence. The migrated maintained fixture retains every18-phase geometry and
 worship/restore/exhaustion assertion but uses controlled1x/logical-turn steps;

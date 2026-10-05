@@ -1,0 +1,23 @@
+{
+  "decision": "ACCEPT",
+  "kind": "controlled-startup-source-repair-and-failed-run-cleanup",
+  "sourceHead": "d97c370da3e996e00130610df97d10b827ab5c4b",
+  "artifactHashes": {
+    "work/orchestration/stone-head-logical-fix/controlled-render-adapter-startup.mjs": "2e805eb1c5b94be413e072fce69e125d20ddc43b57f2944356f5bc42aaf04eff",
+    "work/orchestration/stone-head-logical-fix/controlled-checker-startup-generated.mjs": "cf9c1943d02f1194fca14ea8059bb9c157d9ff3a0704146794289ff1df10a27f",
+    "work/orchestration/stone-head-logical-fix/controlled-startup-source-check.json": "721795551921771cc368a4b07b5d6d956845af572bdaa2a09a06329c05a901a7",
+    "work/orchestration/stone-head-logical-fix/controlled-startup-wrapper.patch": "7cc7e6e889c1f71be6722074ad0b2143e4fac15900f59d6e53950cb4289f2260",
+    "work/orchestration/stone-head-logical-fix/controlled-d97c370-command.json": "0e15ada5f1f3f0ae7cc0eeebb32eb35a37b773f22307c4a8838cc713dfa4ecd4",
+    "work/orchestration/stone-head-logical-fix/controlled-d97c370-launcher-receipt.json": "7023fb65a6faf61cca12984b21cfad93b96a5790b5f3e3205af7b2edbbef6ec2",
+    "work/orchestration/stone-head-logical-fix/controlled-d97c370-terminal.json": "0e6343e1ad316197960fe6addb4bbcfd73f71f18c741e32c8559b9707c6cfd1a",
+    "work/orchestration/stone-head-logical-fix/controlled-d97c370-render/receipt.json": "aa3d3da2307d8343ceb6027b404a60e9fdaa707c4d47031f0bfeae0d2d6dc836",
+    "work/orchestration/stone-head-logical-fix/controlled-d97c370-render/controlled-fixture/evidence.json": "0ac62cc77995dbb21edd418dfbff25a1f5de5afb511855cc40fee3f6bc7fb8a0",
+    "work/orchestration/stone-head-logical-fix/controlled-d97c370-render/failure-0.png": "25ea4e684ffb8b78a2d3ea7394d42b53689d6405272a06c4def54c0f5d589054"
+  },
+  "exactAddedLine": "  await skip.waitFor({ state: 'visible' }) // Same public readiness contract as the maintained harness; existing20s default.\n",
+  "failedRunStatus": "failed before any body phase assertions; never upgraded to pass",
+  "resourceDisposition": "Supplementary cleanup attribution accepted from exact unchanged harness finalizer plus retained scenario-only failure/no previousFailure and both same-launcher sockets closed; raw conservative launcher false flags unchanged",
+  "reviewSha256": "d42e7d400c7e42c08e822fa51e8f8e5eceb8dc74b391e281d8368b8b000db751",
+  "pending": "Fresh controlled run under a separate coordinator lane grant. Final evidence acceptance remains pending.",
+  "resourcesHeld": []
+}

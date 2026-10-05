@@ -410,8 +410,8 @@
       "sha256": "2214225576712dd14bd1adb89262a10df2e9f2bea09f98606f924c8dcd9602c7"
     },
     "candidate-pr218/README.md": {
-      "bytes": 3390,
-      "sha256": "078dc43910e20b2eb9c1f1d4c48610367770eeb7eacb464e9553d9009f4da49c"
+      "bytes": 3612,
+      "sha256": "a6fe761855417b492eb0dc117db0ada48b3c97a6d836e47993c70ee3fb267d53"
     },
     "candidate-pr218/candidate.patch": {
       "bytes": 20402,
@@ -504,6 +504,14 @@
     "candidate-pr218/reviews/controlled-adapter-preflight.md": {
       "bytes": 3728,
       "sha256": "1caf142762c08b08ae8481dcadb8ae182f76faf4be4e97053145b2e3e78be126"
+    },
+    "candidate-pr218/reviews/controlled-startup-repair-review.json": {
+      "bytes": 2465,
+      "sha256": "83ba6008532a8d5ebb129c39c64ecb17ccbc8bf74f84db6fe1633f6037065ae8"
+    },
+    "candidate-pr218/reviews/controlled-startup-repair-review.md": {
+      "bytes": 3072,
+      "sha256": "d42e7d400c7e42c08e822fa51e8f8e5eceb8dc74b391e281d8368b8b000db751"
     },
     "candidate-pr218/reviews/source-review-d97c370.json": {
       "bytes": 3195,
