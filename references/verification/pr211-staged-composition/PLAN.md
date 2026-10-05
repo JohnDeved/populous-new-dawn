@@ -13,11 +13,24 @@ the scenario's source-only branch is not the game root.
 
 One explicitly staged rendered composition checks an older Lightning destination
 pulse alongside the newer winning Bridge body. Both must bind to distinct actual
-React spell-card rectangles measured by the shipped bridge. The original Canvas
+React spell-card rectangles measured by the shipped bridge. Each matching DOM
+button is independently identified through its read-only React host key, required
+to be `lightning` for model 3 or `bridge` for model 12. The actual fiber stateNode
+must be that button. The source-pinned page keys host buttons with SPELLS.id,
+so this also distinguishes cards carrying the generic Undiscovered spell label;
+the measurement's model argument, rectangle and the bridge's ref map do not
+establish the independent card identity. The original Canvas
 calls must agree with their own geometry, and replacement must not interpolate a
 Bridge body against the previous Lightning binding. A later genuine between-visit
 pose must interpolate against its matching Bridge binding, with both bindings
 still visible. Final-leg mapping is also captured while the old pulse remains.
+Original-clock observation continues through the winning Bridge arrival clamp
+and its next-object-turn payout, both superseded Lightning gifts' complete
+77-turn countdowns and payouts, and final gift/effect/controller/overlay cleanup.
+Two more real object turns must preserve retirement and stock/counts without
+requests or controller replay. Each payout must add exactly one gift count and
+one stock, subject to the source-pinned normal stock limits (four for these spells) and
+the native gift-counter cap of fifteen.
 
 This is not an ordinary M1 route, a natural simultaneous-worship completion, a
 full native scheduler test, a native GPU/pulse raster oracle, a performance claim,
@@ -36,12 +49,14 @@ fixture retain native controller/replacement comparison. No native evidence is
 regenerated. The observer patterns follow the accepted ordinary route and
 boundary drivers; Canvas primitive capture retains the expected-only detached
 Canvas approach from `47b432e34b8064adf3ba7524fece5ef499695a0e`, with the original
-strict `1e-5` comparison and opaque body-texel checks.
+exact deep equality for original translate/rotate inputs, `1e-5` only for
+represented matrices/drawImage arguments, and opaque body-texel checks.
 
 ## Exact setup writes
 
 Start M1 through the existing harness's public mission chooser, in a fresh owned
-profile at 1440 × 1000, DPR 1. Require the current scene/store pair, no existing
+profile at 1440 × 1000, DPR 1. Click the public Resume game button if visible,
+then await the existing read-only Shaman-readiness helper (30-second bound). Require the current scene/store pair, no existing
 gifts, no acquisition controller/requests, no pause, and a hidden overlay.
 
 1. Call `createGift(world, 'lightning', authoredLightningHead, 0,
@@ -85,18 +100,21 @@ of 150 seconds and a 10-second TERM-to-KILL grace. Runtime paths, official brows
 identity, port ownership, cleanup and dependency availability remain the parent's
 execution responsibility; this preparation authorizes no run by itself.
 
-The composition observation window is 15 seconds after setup, with no retry,
+The composition-and-retirement observation window is 15 seconds after setup, with no retry,
 manual stepping, state repair, fabricated sample, or automatic matrix. A missed
 first replacement draw, matching intermediate draw, final-leg draw, real pulse,
 texture, or measurable card is a failed/unproved row, never a relaxed assertion.
 At most two fixture transactions, two nonempty drains, eight selects, sixteen
-errors and three draw samples are retained. A crop is limited to 1,000,000 device
+errors, 128 original object-turn before/after rows and three draw samples are
+retained. Turn capture stops when the terminal retirement observation is established. A crop is limited to 1,000,000 device
 pixels and each written PNG to 8 MB. Actual Canvas calls, transforms, original
 translate/rotate arguments, controller reference ownership, measured DOM cards,
 unchanged draw-owned state, pulse pixels immediately after its original draw,
 body pixels and sampled opaque body texels are retained. Expected transforms use
 only independently calculated expected inputs in a detached Canvas; actual inputs
-are not used to build that numeric oracle or rounded before the `1e-5` check.
+are not used to build that numeric oracle or rounded. Original translate/rotate
+arrays require exact deep equality; only represented matrices/drawImage arguments
+use the original `1e-5` threshold.
 
 Required files are:
 
@@ -104,7 +122,7 @@ Required files are:
 - `staged-bridge-source.png`, SHA checked against the retained ordinary PAL frame
 - Three `staged-{new-binding,intermediate,final-leg}-overlay.png` actual frame captures
 - Three corresponding `-body.png` and three `-old-pulse.png` actual crops
-- `staged-composition-page.png`, page context after the finite samples were observed
+- `staged-composition-page.png`, retired page context after all three payouts and cleanup
 - The existing harness `receipt.json`, `server.log`, browser/runtime/profile and
   source before/after fingerprints, and any failure artifacts
 
@@ -124,3 +142,14 @@ Application checks/build, browser execution, native execution, and rendered
 acceptance: not run. A fresh reviewer must inspect this frozen source before the
 parent runs the single row. Syntax and clean-diff checks do not establish its
 rendered result.
+
+## Fresh source review repairs
+
+The first frozen source at `4a9f3fee032de1d4dcc89b5f65f139a8fd85d849` was
+rejected before execution because it ended before cleanup, did not independently
+identify the measured model-to-card mapping, and allowed primitive-input tolerance.
+The revised source adds the bounded original-turn/payout/retirement observations,
+read-only keyed-host card identity, exact Canvas primitive equality, and public
+Resume/readiness setup. It preserves the original three-gift/two-transaction
+staging, real measured geometry, opaque pixels, old-pulse ownership and genuine
+interpolation requirements. No browser attempt preceded these repairs.

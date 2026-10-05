@@ -2,12 +2,13 @@ import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
+import { pathToFileURL } from 'node:url'
 
 // One deliberately staged composition row. This is not ordinary worship or
 // natural simultaneous completion. The only fixture writes are three createGift
 // calls and their phase/remaining overrides, in two synchronous transactions.
 const application = 'cfa86a32f03d021cd1ad725eed9f458ab239d56b'
-const inputManifestSha256 = '3609985b7ca7a9d6e7bde9628428086c9b38102483173151091c52cf37baa9be'
+const inputManifestSha256 = 'a35c75da2dabcc2d21e8498548752e61ebf3ab13c1d5b248710b1223363199c5'
 const digest = bytes => createHash('sha256').update(bytes).digest('hex')
 const json = value => JSON.stringify(value, (_key, item) =>
   typeof item === 'number' && !Number.isFinite(item) ? String(item) : item, 2) + '\n'
@@ -31,7 +32,8 @@ async function install(page, inputs) {
       label: 'STAGED COMPOSITION: older Lightning pulse plus winning Bridge body',
       armedTurn: world.turn, mutations: [], handoffs: [], selects: [], samples: [],
       firstReplacementVisit: null, decodedBody: null, errors: [], cues: 0, visits: 0,
-      pairStaged: false, completed: false, restored: false,
+      pairStaged: false, samplesComplete: false, completed: false, restored: false,
+      turns: [], arrival: null, retirement: null, terminal: null,
     }
     const copy = value => structuredClone(value)
     const serialize = value => JSON.stringify(value, (_key, item) =>
@@ -44,6 +46,14 @@ async function install(page, inputs) {
       gifts: world.gifts.filter(g => fixtures.includes(g.id)), acquisition: world.worshipAcquisition,
       shots: world.shots, giftCounts: world.giftCounts,
       gameplayRandom: world.randomState, cosmeticRandom: world.cosmeticRandom })
+    const lifecycle = () => copy({ turn: world.turn, paused: world.paused,
+      gifts: world.gifts.filter(g => fixtures.includes(g.id)).map(g => ({ id: g.id, reward: g.reward, phase: g.phase, remaining: g.remaining })),
+      effects: world.effects.filter(g => fixtures.includes(g.id)).map(g => g.id),
+      shots: { bridge: world.shots.bridge, lightning: world.shots.lightning },
+      giftCounts: { bridge: world.giftCounts.bridge, lightning: world.giftCounts.lightning },
+      requests: world.worshipAcquisition.requests,
+      active: Object.fromEntries(['spell', 'companion', 'pulse'].map(key => [key, !!world.worshipAcquisition.controllers[key]?.active])),
+      commands: world.worshipAcquisition.controllers.drawCommands.length, hidden: canvas.hidden })
     const wrap = (owner, key, factory) => {
       const own = Object.hasOwn(owner, key), original = owner[key], replacement = factory(original)
       owner[key] = replacement
@@ -87,21 +97,29 @@ async function install(page, inputs) {
         after: { nextId: world.nextId, effectsLength: world.effects.length, giftsLength: world.gifts.length },
         writes, unchangedWorldOutsideWhitelist: true, auditedUnchangedBytes: unchangedBefore.length })
     }
-    let operation = 'outside', drawing = null
+    let operation = 'outside', drawing = null, beforeTurn = null
     wrap(scene, 'onSound', original => function (...args) {
       const result = original.apply(this, args)
       if (args[0] === 0x71) evidence.cues++
       return result
     })
-    const measuredCard = measurement => {
+    const measuredCard = (measurement, model) => {
       if (!measurement) return null
       const shell = scene.container.parentElement.getBoundingClientRect(), target = measurement.targetRect,
         cards = [...document.querySelectorAll('.spell-card')].flatMap(button => {
-          const rect = button.getBoundingClientRect(), actual = { x: rect.x - shell.x, y: rect.y - shell.y, width: rect.width, height: rect.height }
+          const fiber = button[Object.keys(button).find(key => key.startsWith('__reactFiber'))],
+            rect = button.getBoundingClientRect(), actual = { x: rect.x - shell.x, y: rect.y - shell.y, width: rect.width, height: rect.height }
           return ['x', 'y', 'width', 'height'].every(key => Math.abs(actual[key] - target[key]) < 1e-5)
-            ? [{ label: button.getAttribute('aria-label'), title: button.title, connected: button.isConnected, rect: actual }] : []
+            ? [{ label: button.getAttribute('aria-label'), title: button.title, connected: button.isConnected, rect: actual,
+              reactKey: fiber?.key, exactHostElement: fiber?.stateNode === button }] : []
         })
       require(cards.length === 1, 'Measurement must match exactly one connected real React spell card')
+      // page.tsx independently keys each host button with SPELLS.id. Reading the
+      // actual element's key also identifies undiscovered cards, whose public
+      // labels are deliberately indistinguishable. No bridge ref/map is reused.
+      const expectedKey = { 3: 'lightning', 12: 'bridge' }[model]
+      require(expectedKey && cards[0].exactHostElement && cards[0].reactKey === expectedKey,
+        `Measured model ${model} points to wrong React host key: ${cards[0].reactKey}`)
       return cards[0]
     }
     wrap(presentation.bridge, 'select', original => function (...args) {
@@ -113,9 +131,13 @@ async function install(page, inputs) {
         const gift = world.gifts.find(g => fixtures.includes(g.id) && g.ordinaryWorship.model === args[0] &&
           (operation === 'pair-drain' ? g.id !== fixtures[0] : true)), anchor = gift && presentation.anchors.get(gift.id)
         evidence.selects.push({ operation, model: args[0], giftId: gift?.id, before, measurement: copy(result),
-          card: measuredCard(result), expectedGeometry: result ? worshipHandoffGeometry(result, anchor) : null })
+          card: measuredCard(result, args[0]), expectedGeometry: result ? worshipHandoffGeometry(result, anchor) : null })
       })
       return result
+    })
+    wrap(scene.gameClock, 'beforeTurn', original => function (...args) {
+      beforeTurn = observe(lifecycle)
+      return original.apply(this, args)
     })
     wrap(scene.gameClock, 'afterTurn', original => function (...args) {
       const queued = [...world.worshipAcquisition.requests], before = queued.length ? observe(focus) : null,
@@ -127,16 +149,25 @@ async function install(page, inputs) {
         require(evidence.handoffs.length < 2, 'Handoff transaction bound exceeded')
         evidence.handoffs.push({ queued, before, after: focus(), uiVisitsBefore: visits, uiVisitsAfter: evidence.visits })
       })
+      if (!evidence.completed) observe(() => {
+        require(beforeTurn && evidence.turns.length < 128, 'Original turn observation missing or exceeds 128-turn bound')
+        evidence.turns.push({ before: beforeTurn, after: lifecycle() })
+        beforeTurn = null
+      })
       return result
     })
     wrap(scene.gameClock, 'worshipVisit', original => function (...args) {
-      const previousOperation = operation
+      const previousOperation = operation, beforeVisit = evidence.handoffs.length === 2 && !evidence.arrival ? observe(lifecycle) : null
       operation = 'ui-visit'
       let result
       try { result = original.apply(this, args) } finally { operation = previousOperation }
       evidence.visits++
       observe(() => {
         const a = world.worshipAcquisition, c = a.controllers
+        if (beforeVisit) {
+          const beforeGift = beforeVisit.gifts.find(g => g.id === fixtures[1]), gift = world.gifts.find(g => g.id === fixtures[1])
+          if (beforeGift?.remaining > 1 && gift?.remaining === 1) evidence.arrival = { before: beforeVisit, after: lifecycle() }
+        }
         if (!evidence.pairStaged && c.pulse?.active && c.pulse.model === 3 && c.pulse.remaining === 100) {
           evidence.pairStaged = true
           evidence.oldPulseAtStaging = focus()
@@ -149,7 +180,7 @@ async function install(page, inputs) {
     })
     wrap(presentation.bridge, 'measure', original => function (...args) {
       const result = original.apply(this, args)
-      if (drawing) observe(() => drawing.layouts.push({ geometry: args[1], model: args[0], measurement: copy(result), card: measuredCard(result) }))
+      if (drawing) observe(() => drawing.layouts.push({ geometry: args[1], model: args[0], measurement: copy(result), card: measuredCard(result, args[0]) }))
       return result
     })
     wrap(presentation, 'sprite', original => function (...args) {
@@ -262,7 +293,21 @@ async function install(page, inputs) {
           bodyPixels, pulsePixels: current.pulsePixels, opaqueTexels: texels, hidden: canvas.hidden,
           viewport: [innerWidth, innerHeight], dpr: ratio, overlayPng: canvas.toDataURL() })
         seen.add(tag)
-        evidence.completed = ['new-binding', 'intermediate', 'final-leg'].every(tag => seen.has(tag))
+        evidence.samplesComplete = ['new-binding', 'intermediate', 'final-leg'].every(tag => seen.has(tag))
+      })
+      observe(() => {
+        if (!evidence.samplesComplete || evidence.completed) return
+        const c = world.worshipAcquisition.controllers
+        if (world.gifts.some(g => fixtures.includes(g.id)) || world.effects.some(g => fixtures.includes(g.id)) ||
+            c.spell?.active || c.companion?.active || c.pulse?.active || c.drawCommands.length ||
+            world.worshipAcquisition.requests.length || !canvas.hidden) return
+        evidence.retirement ??= lifecycle()
+        // Two further original object turns establish that cleanup persists and
+        // no late request, controller or duplicate payout appears.
+        if (world.turn >= evidence.retirement.turn + 2) {
+          evidence.terminal = lifecycle()
+          evidence.completed = true
+        }
       })
       return result
     })
@@ -290,17 +335,22 @@ export default async function ({ page, root, output, receipt, openMission, signa
   assert.equal(manifest.application, application)
   for (const [path, expected] of Object.entries(manifest.sha256))
     assert.equal(digest(readFileSync(resolve(root, path))), expected, `Exact cfa application input: ${path}`)
-  const inputs = { art: JSON.parse(readFileSync(resolve(root, 'app/original-worship-acquisition.json'), 'utf8')),
+  const rules = JSON.parse(readFileSync(resolve(root, 'app/original-rules.json'), 'utf8'))
+  const inputs = { stockLimits: { bridge: rules.spellCharging[12].normalLimit, lightning: rules.spellCharging[3].normalLimit }, art: JSON.parse(readFileSync(resolve(root, 'app/original-worship-acquisition.json'), 'utf8')),
     hud: JSON.parse(readFileSync(resolve(root, 'app/original-hud.json'), 'utf8')) },
     report = { status: 'running', application, source: receipt.source, scenarioSha256: digest(readFileSync(new URL(import.meta.url))),
       manifest, inputManifestSha256, label: 'EXPLICITLY STAGED composition, not ordinary or naturally simultaneous worship',
-      scope: 'Three phase-ready gifts, two synchronous source-audited write transactions, two real RAF request drains, three actual rendered dual-binding samples.',
+      scope: 'Three phase-ready gifts, two synchronous source-audited write transactions, two real RAF request drains, three rendered dual-binding samples, all three original payouts and retired overlay held through two more object turns.',
       limits: 'Native-backed component composition only; old pulse uses Lightning instead of Tornado from the eight-case native pair proof. No ordinary M1 progression, native GPU equality, exhaustive pulse raster, hardware timing, or parity claim.',
       browserVersion: receipt.browserVersion, observer: null }
   const save = () => writeFileSync(resolve(output, 'staged-worship-composition.json'), json(report))
   let armed = false
   try {
     await openMission(1)
+    const resume = page.getByRole('button', { name: 'Resume game', exact: true })
+    if (await resume.isVisible()) await resume.click()
+    const { waitForShamanReadiness } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
+    report.readiness = await waitForShamanReadiness(page, { timeout: 30000 })
     signal.throwIfAborted()
     armed = true
     await install(page, inputs)
@@ -391,6 +441,8 @@ export default async function ({ page, root, output, receipt, openMission, signa
       assert.equal(sample.hidden, false)
       const bodyCard = sample.layouts.find(l => l.model === 12).card, pulseCard = sample.layouts.find(l => l.model === 3).card
       assert.equal(bodyCard.connected, true); assert.equal(pulseCard.connected, true)
+      assert.equal(bodyCard.exactHostElement, true); assert.equal(pulseCard.exactHostElement, true)
+      assert.equal(bodyCard.reactKey, 'bridge'); assert.equal(pulseCard.reactKey, 'lightning')
       const center = card => [card.rect.x + card.rect.width / 2, card.rect.y + card.rect.height / 2]
       const [bodyX, bodyY] = center(bodyCard), [pulseX, pulseY] = center(pulseCard)
       assert.ok(Math.hypot(bodyX - pulseX, bodyY - pulseY) > 10, 'Real cards must have distinct target centers')
@@ -412,13 +464,65 @@ export default async function ({ page, root, output, receipt, openMission, signa
       assert.equal(sample.primitives.actual.length, sample.primitives.expected.length)
       sample.primitives.actual.forEach((actual, index) => {
         const expected = sample.primitives.expected[index]
-        assert.equal(actual.kind, expected.kind)
-        assert.equal(actual.args.length, expected.args.length)
-        actual.args.forEach((value, i) => assert.ok(Math.abs(value - expected.args[i]) < 1e-5, `${sample.tag} original ${actual.kind}[${i}]`))
+        assert.deepEqual(actual, expected, `${sample.tag} exact original Canvas ${actual.kind} inputs`)
       })
       assert.ok(sample.bodyPixels.nontransparent > 0 && sample.pulsePixels.nontransparent > 0)
       for (const texel of sample.opaqueTexels) assert.deepEqual(texel.actual, texel.expected)
     }
+    assert.ok(o.arrival, 'Winner must arrive through the original UI visit')
+    assert.equal(o.arrival.after.gifts.find(g => g.id === bridge.id).remaining, 1)
+    assert.deepEqual(o.arrival.after.shots, o.arrival.before.shots, 'Arrival cannot grant stock')
+    assert.deepEqual(o.arrival.after.giftCounts, o.arrival.before.giftCounts)
+    const payoutRows = []
+    for (const row of o.turns) {
+      assert.equal(row.after.turn, row.before.turn + 1)
+      const removed = row.before.gifts.filter(g => !row.after.gifts.some(after => after.id === g.id))
+      const increments = { bridge: 0, lightning: 0 }
+      for (const gift of row.before.gifts) {
+        const after = row.after.gifts.find(g => g.id === gift.id)
+        if (after) assert.equal(after.remaining, gift.remaining - 1, 'Actual object turn owns ordinary countdown')
+        else {
+          assert.equal(gift.remaining, 1, 'Gift pays only when its actual object countdown reaches zero')
+          increments[gift.reward]++
+          payoutRows.push({ id: gift.id, reward: gift.reward, turn: row.after.turn })
+        }
+      }
+      for (const reward of ['bridge', 'lightning']) {
+        assert.equal(row.after.shots[reward], row.before.shots[reward] < inputs.stockLimits[reward]
+          ? Math.min(inputs.stockLimits[reward], row.before.shots[reward] + increments[reward]) : row.before.shots[reward])
+        assert.equal(row.after.giftCounts[reward], Math.min(15, row.before.giftCounts[reward] + increments[reward]))
+      }
+      assert.equal(removed.length, increments.bridge + increments.lightning)
+    }
+    assert.equal(payoutRows.length, 3)
+    assert.equal(payoutRows.find(row => row.id === bridge.id).turn, o.arrival.after.turn + 1, 'Winner pays on next actual object turn')
+    for (const [mutation, write] of [[o.mutations[0], o.mutations[0].writes[0]], [o.mutations[1], o.mutations[1].writes[1]]]) {
+      assert.equal(payoutRows.find(row => row.id === write.final.id).turn, mutation.turn + 77, 'Superseded Lightning retains its full staged countdown')
+      const visits = o.turns.filter(row => row.before.gifts.some(g => g.id === write.final.id))
+      assert.equal(visits.length, 77)
+      visits.forEach((row, index) => assert.equal(row.before.gifts.find(g => g.id === write.final.id).remaining, 77 - index))
+    }
+    assert.ok(o.retirement && o.terminal && o.terminal.turn >= o.retirement.turn + 2)
+    const retirementStates = o.turns.filter(row => row.before.turn >= o.retirement.turn && row.after.turn <= o.terminal.turn)
+      .flatMap(row => [row.before, row.after])
+    assert.ok(retirementStates.length >= 4, 'Two complete real object turns must retain clean retirement')
+    for (const state of [o.retirement, ...retirementStates, o.terminal]) {
+      assert.equal(state.paused, false)
+      assert.deepEqual(state.gifts, []); assert.deepEqual(state.effects, []); assert.deepEqual(state.requests, [])
+      assert.deepEqual(state.active, { spell: false, companion: false, pulse: false })
+      assert.equal(state.commands, 0); assert.equal(state.hidden, true)
+      for (const [reward, count] of [['lightning', 2], ['bridge', 1]]) {
+        const initial = o.mutations[0].beforeFocus
+        assert.equal(state.shots[reward], initial.shots[reward] < inputs.stockLimits[reward]
+          ? Math.min(inputs.stockLimits[reward], initial.shots[reward] + count) : initial.shots[reward])
+        assert.equal(state.giftCounts[reward], Math.min(15, initial.giftCounts[reward] + count))
+      }
+    }
+    assert.deepEqual(o.terminal.shots, o.retirement.shots); assert.deepEqual(o.terminal.giftCounts, o.retirement.giftCounts)
+    assert.deepEqual(o.final.gifts, []); assert.deepEqual(o.final.acquisition.requests, [])
+    assert.deepEqual(o.final.acquisition.controllers.drawCommands, [])
+    for (const key of ['spell', 'companion', 'pulse']) assert.equal(o.final.acquisition.controllers[key]?.active ?? false, false)
+    report.payouts = payoutRows
     report.status = 'passed'; save(); return report
   } catch (error) { report.status = 'failed'; report.failure = error.stack; save(); throw error }
 }
