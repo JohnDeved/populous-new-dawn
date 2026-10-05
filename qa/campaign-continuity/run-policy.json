@@ -1,7 +1,7 @@
 {
   "launchEnabled": true,
-  "applicationCommit": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
-  "applicationTree": "aff807de3b17b32922b2f7e94e94016c22fdc054",
+  "applicationCommit": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "applicationTree": "20b5894d4c17f120cd7608b4138953ea6c5f243f",
   "limits": {
     "missionActiveSeconds": {
       "1": 900,
@@ -20,7 +20,7 @@
     "m3AfterConversionSeconds": 1800,
     "segmentWallMs": 5700000
   },
-  "reason": "Explicit enabled policy prepared for final source review on accepted main 3cc9e83. Browser/profile execution still waits for the coordinator exact launch grant; finite caps and first batch remain unchanged.",
+  "reason": "Enabled finite policy pins accepted merged main3b89912. Exact combined source/runtime review and coordinator launch grant remain required; no old profile reuse or cause attribution from the Stone Head gate.",
   "applicationImports": {
     "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
     "scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80",

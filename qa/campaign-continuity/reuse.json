@@ -1,6 +1,6 @@
 {
   "historicalSourceCommit": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
-  "applicationReferenceCommit": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "applicationReferenceCommit": "3b899125cc8cedef938823718ad5d44f49957b66",
   "files": [
     {
       "path": "observation.mjs",

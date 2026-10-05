@@ -1,10 +1,10 @@
 # Ordinary current-source campaign continuity
 
 Source checkpoint for a fresh Mission 1 → 2 → 3 journey on accepted main
-`3cc9e830d2e7d2aa9844e8104fa51017d65dd171` (tree
-`52671858facb7ad8f6041d410aa350328139fb54`). No fresh gameplay outcome is claimed.
-The adopted app subtree is `aff807de3b17b32922b2f7e94e94016c22fdc054`,
-identical to reviewed PR217 candidate `d8897cf`. The run policy pins actual accepted
+`3b899125cc8cedef938823718ad5d44f49957b66` (tree
+`5228a79f26b90d3daeffe65498c01ada077ba132`). No fresh gameplay outcome is claimed.
+The adopted app subtree is `20b5894d4c17f120cd7608b4138953ea6c5f243f`,
+identical to reviewed PR218 candidate `d97c370`. The run policy pins actual accepted
 main ancestry, current app tree and eight helper imports, and requires clean
 source. The explicit `launchEnabled: true` policy still requires exact source review.
 No browser/profile execution occurs before the coordinator grants the exact run.
@@ -52,7 +52,9 @@ conversion identities and Erosion lifecycle evidence do not claim post-animation
 frames/stamps. The global animationFrame watchdog still observes presentation
 liveness. Synchronous Load actor/terrain/stock checks do not independently prove
 animation-alias/frame restoration; the accepted PR217 clock/migration evidence
-owns that separate claim. The staged tick-only Erosion fixture remains simulation
+owns that separate claim. PR218 adds gated model45 Stone Head body visits after that same observer/queued-callback boundary; ungated transitions retain their presentation owner. This changes rendered body phase, not the first batch's shrine-use/delivered-stock predicates. Its controlled geometry fixture suspends RAF and is separate from ordinary elapsed-clock evidence. Neither prior input miss is attributed to that gate.
+
+The staged tick-only Erosion fixture remains simulation
 coverage, while live readiness and worship are awaited through actual RAF/UI.
 
 ## Finite ordinary inputs
@@ -126,7 +128,7 @@ scenario Save/Load and Continue control ordering, scene/store mismatches,
 checkpoint substitution, prior failed-envelope retention, mission mark isolation
 and cumulative limits. Run `node --test qa/campaign-continuity/*.test.mjs`.
 The orchestration planner selects conservative checks for this new QA path;
-independent review must approve that boundary. The exact PR217 standard
+independent review must approve that boundary. The exact PR218 standard
 check/build receipts and its accepted final-head correspondence are inputs,
 not claims that those commands ran on this combined QA head. A reviewer must
 explicitly accept any carry. Tailwind scans added QA text, so a fresh combined
