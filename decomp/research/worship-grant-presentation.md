@@ -41,6 +41,18 @@ implementation, imported-asset writes, GPU screenshots or parity credit.
    cleared at visit 31 while the pulse remains alive; final pulse cleanup is
    therefore not covered by an unconditional 20-FPS assumption.
 
+   The bounded post-limiter source lookup resolves the fallback owner:
+   `004a42ce` initializes byte `0089ce62` to 40. `004a42eb` passes the original
+   string `DrawFrameRateLimit` at `005cda88` to registry reader `0052a390`;
+   a successful read is clamped to 12..60 before `004a4316` stores the byte.
+   With no limiter bits, `004a4450` waits on its separate
+   `GetTickCount + integer(1000 / 0089ce62)` deadline. Thus the native default
+   tail requests 40 FPS; a configured value or a still-active limiter changes
+   it. Both deadline values are sampled before drawing and the deadline selector
+   is tested afterward, so the frame where a limiter is set/cleared is a distinct
+   boundary. This is pinned-byte/source evidence, not a measurement of the
+   user's native configuration, achieved FPS or a chosen modern timing rule.
+
 3. **A second local handoff replaces the two singleton controllers.** This is
    source/byte evidence, not a new dynamic case. `004841b0` unconditionally clears
    129 bytes at `0098c5a8`, then stores the new reward handle/model/origin/target.
