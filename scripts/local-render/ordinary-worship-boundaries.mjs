@@ -8,7 +8,7 @@ import { checkpointObservation, readCommittedCheckpoint } from './checkpoint-obs
 // One phase per invocation, one frozen scenario for both browser processes.
 // Save and Load use the SAME profile/origin/source/runtime, fresh output paths.
 // No automatic retries: a missed real tail or unavailable hidden state is unproved.
-const phases = new Set(['flight-save', 'flight-load', 'tail-save', 'tail-load', 'hidden'])
+const phases = new Set(['flight-save', 'flight-load', 'tail-save', 'tail-load', 'hidden', 'restart', 'missing-geometry'])
 
 async function installEarlyObserver(page, phase) {
   await page.evaluate(async phase => {
@@ -82,7 +82,9 @@ async function installEarlyObserver(page, phase) {
         })
         wrap(scene.gameClock, 'afterTurn', original => function (...args) {
           const queued = [...scene.world.worshipAcquisition.requests], result = original.apply(this, args)
-          if (queued.length) observe(() => evidence.handoffs.push({ turn: scene.world.turn, queued, focus: focus(scene.world) }))
+          if (queued.length) observe(() => evidence.handoffs.push({ turn: scene.world.turn, queued, focus: focus(scene.world), diagnostics: structuredClone(presentation.diagnostics) }))
+          if (phase === 'missing-geometry' && scene.world.giftCounts.lightning && !evidence.faultPayout)
+            observe(() => { evidence.faultPayout = focus(scene.world) })
           return result
         })
         wrap(scene.gameClock, 'worshipVisit', original => function (...args) {
@@ -175,6 +177,36 @@ async function installEarlyObserver(page, phase) {
       })
       return original.apply(this, args)
     })
+    window.prepareWorshipBoundaryRestart = () => {
+      if (phase !== 'restart' || evidence.restart) throw Error('Unexpected restart observation request')
+      const old = window.worshipBoundaryScene, oldOverlay = old.worshipPresentation.canvas, beforeWorld = store.getWorld()
+      if (old.world !== beforeWorld || !old.world.worshipAcquisition.controllers.spell?.active) throw Error('Restart requires genuine current flight')
+      window.worshipBoundaryOldScene = old
+      window.worshipBoundaryOldOverlay = oldOverlay
+      evidence.restart = { before: focus(old.world), cues: 0, replacement: null, start: null }
+      const unsubscribe = store.subscribe(() => {
+        const world = store.getWorld()
+        if (world === beforeWorld) return
+        observe(() => { evidence.restart.replacement = focus(world) })
+        unsubscribe()
+      })
+      restorers.push(unsubscribe)
+      const restoreRestartStart = wrap(GameScene.prototype, 'start', original => function (...args) {
+        observe(() => {
+          if (this === old || evidence.restart.start) throw Error('Restart did not produce one new scene')
+          window.worshipBoundaryScene = this
+          evidence.restart.start = { focus: focus(this.world), startedBefore: this.started,
+            currentWorld: this.world === store.getWorld(), oldWorldReused: this.world === beforeWorld }
+          wrap(this, 'onSound', original => function (...args) {
+            const result = original.apply(this, args)
+            if (args[0] === 0x71) evidence.restart.cues++
+            return result
+          })
+          restoreRestartStart(); restorers.splice(restorers.indexOf(restoreRestartStart), 1)
+        })
+        return original.apply(this, args)
+      })
+    }
     window.restoreWorshipBoundaryObserver = () => {
       for (const restore of restorers.reverse()) observe(restore)
       evidence.restored = evidence.errors.length === 0
@@ -245,6 +277,97 @@ async function orderLightning(page, waitForShamanReadiness) {
   return { readiness, shrine, point, cameraAssistance: 'scene.focus before targeting; ordinary RAF for geometry/panels' }
 }
 
+async function restartDuringFlight(page, bindGame, waitForShamanReadiness, wait, output) {
+  await page.getByRole('button', { name: 'Game settings', exact: true }).click()
+  const menu = page.locator('dialog.game-dialog')
+  await menu.waitFor({ state: 'visible' })
+  await page.evaluate(() => window.prepareWorshipBoundaryRestart())
+  await menu.getByRole('button', { name: 'Restart world', exact: true }).click()
+  await bindGame(page)
+  await wait(() => !!window.worshipBoundaryEvidence.restart?.start, null, 45000, 'New scene starts after public Restart')
+  const result = await page.evaluate(() => {
+    const old = window.worshipBoundaryOldScene, next = window.worshipBoundaryScene, presentation = old.worshipPresentation,
+      overlays = [...document.querySelectorAll('.worship-acquisition-overlay')]
+    return { observation: window.worshipBoundaryEvidence.restart,
+      old: { disposed: old.disposed, overlayConnected: window.worshipBoundaryOldOverlay.isConnected,
+        sprites: presentation.sprites.size, anchors: presentation.anchors.size, previousParticles: presentation.previousParticles.size },
+      next: { distinct: next !== old, disposed: next.disposed, overlayCount: overlays.length,
+        ownsOnlyOverlay: overlays[0] === next.worshipPresentation.canvas, overlayConnected: next.worshipPresentation.canvas.isConnected,
+        rendererConnected: next.renderer.domElement.isConnected } }
+  })
+  assert.deepEqual(result.old, { disposed: true, overlayConnected: false, sprites: 0, anchors: 0, previousParticles: 0 })
+  assert.deepEqual(result.next, { distinct: true, disposed: false, overlayCount: 1, ownsOnlyOverlay: true, overlayConnected: true, rendererConnected: true })
+  const start = result.observation.start
+  assert.equal(start.startedBefore, false); assert.equal(start.currentWorld, true); assert.equal(start.oldWorldReused, false)
+  assert.deepEqual(start.focus.acquisition.controllers, { spell: null, companion: null, pulse: null, drawCommands: [] })
+  assert.deepEqual(start.focus.acquisition.requests, []); assert.deepEqual(start.focus.acquisition.previousDrawCommands, [])
+  assert.deepEqual(start.focus.gifts, []); assert.equal(start.focus.count, 0)
+  await wait(() => !window.worshipBoundaryScene.world.inputMask || !!(window.worshipBoundaryScene.world.flyby.flags & 1), null, 45000, 'Restart introduction becomes skippable')
+  const skip = page.locator('.skip-introduction')
+  if (await skip.isVisible()) await skip.click()
+  const resume = page.getByRole('button', { name: 'Resume game', exact: true })
+  if (await resume.isVisible()) await resume.click()
+  result.readiness = await waitForShamanReadiness(page, { timeout: 45000 })
+  const turn = (await snap(page)).turn
+  await wait(turn => window.worshipBoundaryScene.world.turn >= turn + 12, turn, 10000, 'Clean replacement remains on ordinary clock')
+  result.after = await snap(page)
+  assert.equal(await page.evaluate(() => window.worshipBoundaryEvidence.restart.cues), 0)
+  assert.equal(result.after.count, 0); assert.deepEqual(result.after.gifts, [])
+  assert.deepEqual(result.after.acquisition.controllers, { spell: null, companion: null, pulse: null, drawCommands: [] })
+  await page.screenshot({ path: resolve(output, 'restart-clean-scene.png') })
+  return result
+}
+
+async function missingGeometry(page, wait, output) {
+  await wait(() => window.worshipBoundaryScene.world.gifts.some(g => g.reward === 'lightning' && g.ordinaryWorship && g.phase > 0), null, 120000, 'Real positive-phase gift before DOM-only fault')
+  const staged = await page.evaluate(() => {
+    const world = window.worshipBoundaryScene.world, gift = world.gifts.find(g => g.reward === 'lightning' && g.ordinaryWorship && g.phase > 0),
+      hud = document.querySelector('.native-hud')
+    if (!gift || world.paused || !hud || hud.getBoundingClientRect().width <= 0) throw Error('Positive-phase DOM fault window unavailable')
+    const priorStyle = hud.getAttribute('style'), state = window.worshipBoundaryFocus(world)
+    window.restoreWorshipGeometryHud = () => {
+      if (document.querySelector('.native-hud') !== hud) throw Error('Fault HUD ownership changed')
+      if (priorStyle === null) hud.removeAttribute('style'); else hud.setAttribute('style', priorStyle)
+      const result = { exactStyle: hud.getAttribute('style') === priorStyle, width: hud.getBoundingClientRect().width }
+      delete window.restoreWorshipGeometryHud
+      if (!result.exactStyle || result.width <= 0) throw Error('Original HUD style did not restore exactly')
+      return result
+    }
+    hud.style.display = 'none' // Explicit exceptional-path DOM fault, never normal acceptance.
+    return { label: 'Staged display:none on actual .native-hud only', priorStyle, state,
+      hiddenRect: { width: hud.getBoundingClientRect().width, offsetWidth: hud.offsetWidth } }
+  })
+  assert.equal(staged.hiddenRect.width, 0); assert.equal(staged.hiddenRect.offsetWidth, 0)
+  const gift = staged.state.gifts[0]
+  await wait(() => window.worshipBoundaryScene.worshipPresentation.diagnostics.length > 0, null, 10000, 'Real missing-geometry diagnostic')
+  const fault = await page.evaluate(() => ({ state: window.worshipBoundaryFocus(window.worshipBoundaryScene.world),
+    diagnostics: window.worshipBoundaryScene.worshipPresentation.diagnostics, cues: window.worshipBoundaryEvidence.cues }))
+  assert.equal(fault.diagnostics.length, 1); assert.equal(fault.diagnostics[0].reason, 'handoff geometry')
+  assert.equal(fault.diagnostics[0].gift, gift.id); assert.equal(fault.diagnostics[0].model, 3)
+  assert.equal(fault.cues, 1); assert.equal(fault.state.paused, false)
+  assert.deepEqual(fault.state.acquisition.controllers, { spell: null, companion: null, pulse: null, drawCommands: [] })
+  await wait(turn => window.worshipBoundaryScene.world.turn >= turn + 2, fault.state.turn, 5000, 'Ordinary unpaused fallback countdown')
+  const counting = await snap(page)
+  assert.equal(counting.paused, false)
+  assert.equal(counting.gifts[0].remaining, fault.state.gifts[0].remaining - (counting.turn - fault.state.turn))
+  assert.equal(counting.count, staged.state.count)
+  await wait(() => !!window.worshipBoundaryEvidence.faultPayout, null, 20000, 'Ordinary countdown pays once')
+  const payout = await page.evaluate(() => window.worshipBoundaryEvidence.faultPayout)
+  assert.equal(payout.turn, staged.state.turn + gift.remaining, 'Unshortened actual remaining countdown owns payout')
+  assert.equal(payout.count, staged.state.count + 1); assert.equal(payout.stock, staged.state.stock + 1)
+  const restoration = await page.evaluate(() => window.restoreWorshipGeometryHud())
+  await wait(turn => window.worshipBoundaryScene.world.turn >= turn + 12, payout.turn, 10000, 'No late controller initialization after HUD restore')
+  const after = await snap(page)
+  assert.equal(after.count, payout.count); assert.equal(after.stock, payout.stock)
+  assert.deepEqual(after.acquisition.requests, [])
+  assert.deepEqual(after.acquisition.controllers, { spell: null, companion: null, pulse: null, drawCommands: [] })
+  assert.equal(await page.evaluate(() => window.worshipBoundaryEvidence.cues), 1)
+  assert.equal(await page.evaluate(() => window.worshipBoundaryScene.worshipPresentation.diagnostics.length), 1)
+  assert.equal(await page.locator('.worship-acquisition-overlay').isHidden(), true)
+  await page.screenshot({ path: resolve(output, 'geometry-fault-restored.png') })
+  return { staged, fault, counting, payout, restoration, after }
+}
+
 export default async function ({ page, context, root, output, receipt, openMission, signal }) {
   const phase = process.env.POPULOUS_WORSHIP_BOUNDARY_PHASE ?? 'flight-save'
   assert.ok(phases.has(phase), `Unknown boundary phase: ${phase}`)
@@ -258,7 +381,7 @@ export default async function ({ page, context, root, output, receipt, openMissi
     method: 'Real RAF, public mouse/HUD/Save/Load. Read-only synchronous replacement and original-once pre-start callback observation. No direct World/clock/RNG mutation.',
     browserVersion: receipt.browserVersion,
     drawCostMethod: 'At most64 active and64 paused samples. Bracket only original presentation.draw; outer state snapshots and PNG capture excluded. Nested observer counters/pass-through wrappers remain; selected draw-argument capture has small extra overhead. Shared CPU/headless/software timing is diagnostic, not FPS or a speedup claim.',
-    pendingAcceptance: ['Live scene disposal and transient-resource cleanup; owned browser termination is not their proof', 'Missing-geometry exceptional path'],
+    coveredBoundary: phase === 'restart' ? 'Actual live old-scene disposal via public Restart, not browser termination' : phase === 'missing-geometry' ? 'Explicit DOM-only exceptional-path geometry fault after a real gift' : phase,
     limits: 'Headless/software functional evidence. Two-process continuation is distinct from fresh-page reload. DPR2 is CDP device emulation, not a physical display. Actual drawImage calls plus bounded alpha output and PNG establish limited overlay correspondence; another concurrent sprite can contribute to the alpha region. No full native raster or hardware performance claim. Tail window may be missed; hidden-state support must be demonstrated.' }
   const saveReport = () => writeFileSync(resolve(output, 'ordinary-worship-boundaries.json'), JSON.stringify(report, null, 2) + '\n')
   let armed = false, cover, cdp, originalDisplay
@@ -320,11 +443,15 @@ export default async function ({ page, context, root, output, receipt, openMissi
       assert.equal(receipt.profile.checkpointAtStart, null)
       await openMission(1)
       report.order = await orderLightning(page, waitForShamanReadiness)
-      await wait(() => {
-        const c = window.worshipBoundaryScene.world.worshipAcquisition.controllers
-        return c.spell?.active && c.spell.step === 2 && c.spell.visits <= 4
-      }, null, 120000, 'Early ordinary flight')
-      if (phase === 'hidden') {
+      if (phase !== 'missing-geometry') await wait(() => {
+          const c = window.worshipBoundaryScene.world.worshipAcquisition.controllers
+          return c.spell?.active && c.spell.step === 2 && c.spell.visits <= 4
+        }, null, 120000, 'Early ordinary flight')
+      if (phase === 'missing-geometry') {
+        report.geometryFault = await missingGeometry(page, wait, output)
+      } else if (phase === 'restart') {
+        report.restart = await restartDuringFlight(page, bindGame, waitForShamanReadiness, wait, output)
+      } else if (phase === 'hidden') {
         await page.evaluate(() => { window.worshipBoundaryEvidence.firstVisibleDraw = null })
         cover = await context.newPage()
         await cover.bringToFront()
@@ -436,6 +563,10 @@ export default async function ({ page, context, root, output, receipt, openMissi
     if (report.status === 'running') report.status = 'failed'
     report.failure = error.stack; throw error
   } finally {
+    if (phase === 'missing-geometry' && !page.isClosed()) {
+      try { report.faultStyleCleanup = await page.evaluate(() => window.restoreWorshipGeometryHud?.() ?? null) }
+      catch (error) { report.cleanupFailure = String(error); report.status = 'failed' }
+    }
     if (cdp) {
       try {
         await cdp.send('Emulation.clearDeviceMetricsOverride')
