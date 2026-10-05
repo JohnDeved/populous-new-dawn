@@ -1,0 +1,56 @@
+{
+  "scope": "Ordinary Lightning candidate row; no before-image pair or full PR acceptance",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "e85cabfa7fbf3d4202b2261985f1d3ad5575d60c",
+  "originalReceiptSha256": "e820f128f859720ead8f7cda9f666cf3188895a69a30ade00159ac297dfd4904",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "bf05f4a906c1ed45a390ebe066650440e2b37c174438c70ac05149feb3b89074"
+    },
+    {
+      "path": "acquisition-complete.png",
+      "sha256": "135241751525f7be69019ad6da0f8845f2c5fa46ce088094d40c1d2b0dc0c326"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "6d91118dc60ac8328c8283a920a258dffe61743fb124a5043fc3c456a4b9a927"
+    },
+    {
+      "path": "decoded-body.png",
+      "sha256": "3673d71f8b851e2251cf3c6d6939b6ea4d3a7aa8ba0b6f714aaab0300a2c7fc5"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "51b0c08b5c7f81c49b30446bca6aca41e6cff1493e2e01318ccd91ff5a3c1912"
+    },
+    {
+      "path": "ordinary-worship-m1-route.mjs",
+      "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+    },
+    {
+      "path": "ordinary-worship.mjs",
+      "sha256": "e109f328e3b0203081df9440e1c2ae5f07b31ff02a29e284367fed05d72c65ce"
+    },
+    {
+      "path": "overlay-final-leg.png",
+      "sha256": "79fc71255550f57897408d399ab6da5d79547b97d78035eab5a6a097e2f5d5b3"
+    },
+    {
+      "path": "overlay-rotated.png",
+      "sha256": "ded5305e72ad46d9d1ad2ce0ccb6b37f38a83746eb22d6e9f753d60c6928711e"
+    },
+    {
+      "path": "phase-zero-composite.png",
+      "sha256": "ea115facc8445800ef5f71d47bacb6064212b162cfbf4b8dc8851fe14a3262de"
+    },
+    {
+      "path": "raised-world.png",
+      "sha256": "917377ef16838abe27089685f599c5214a30f73b37250c62c5f1501f8b8ad2b1"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "def6ffb8260e65b2328029bd7d43be2a0771c5a216982fad3ee8becfb1dc56be"
+    }
+  ]
+}
