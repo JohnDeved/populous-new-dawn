@@ -441,7 +441,7 @@ async function restartDuringFlight(page, bindGame, waitForShamanReadiness, wait,
   return result
 }
 
-async function missingGeometry(page, wait, output) {
+async function missingGeometry(page, wait, output, report) {
   await wait(() => window.worshipBoundaryScene.world.gifts.some(g => g.reward === 'lightning' && g.ordinaryWorship && g.phase > 0), null, 120000, 'Real positive-phase gift before DOM-only fault')
   const staged = await page.evaluate(() => {
     const world = window.worshipBoundaryScene.world, gift = world.gifts.find(g => g.reward === 'lightning' && g.ordinaryWorship && g.phase > 0),
@@ -460,35 +460,49 @@ async function missingGeometry(page, wait, output) {
     return { label: 'Staged display:none on actual .native-hud only', priorStyle, state,
       hiddenRect: { width: hud.getBoundingClientRect().width, offsetWidth: hud.offsetWidth } }
   })
+  const result = report.geometryFault = { staged }
   assert.equal(staged.hiddenRect.width, 0); assert.equal(staged.hiddenRect.offsetWidth, 0)
-  const gift = staged.state.gifts[0]
+  const gift = staged.state.gifts[0], priorControllers = staged.state.acquisition.controllers
+  // The ordinary Bridge prerequisite retires its controllers without deleting
+  // their state. A failed Lightning handoff must preserve that exact prior state.
+  for (const owner of ['spell', 'companion', 'pulse']) {
+    assert.equal(priorControllers[owner]?.active, false)
+    assert.equal(priorControllers[owner]?.model, 12)
+  }
+  assert.notEqual(priorControllers.spell.giftId, gift.id)
+  assert.deepEqual(priorControllers.drawCommands, [])
+  assert.deepEqual(staged.state.acquisition.requests, [])
   await wait(() => window.worshipBoundaryScene.worshipPresentation.diagnostics.length > 0, null, 10000, 'Real missing-geometry diagnostic')
   const fault = await page.evaluate(() => ({ state: window.worshipBoundaryFocus(window.worshipBoundaryScene.world),
     diagnostics: window.worshipBoundaryScene.worshipPresentation.diagnostics, cues: window.worshipBoundaryEvidence.cues }))
+  result.fault = fault
   assert.equal(fault.diagnostics.length, 1); assert.equal(fault.diagnostics[0].reason, 'handoff geometry')
   assert.equal(fault.diagnostics[0].gift, gift.id); assert.equal(fault.diagnostics[0].model, 3)
   assert.equal(fault.cues, 1); assert.equal(fault.state.paused, false)
-  assert.deepEqual(fault.state.acquisition.controllers, { spell: null, companion: null, pulse: null, drawCommands: [] })
+  assert.deepEqual(fault.state.acquisition.controllers, priorControllers, 'Failed handoff preserves the exact retired Bridge controllers')
+  assert.deepEqual(fault.state.acquisition.requests, [])
   await wait(turn => window.worshipBoundaryScene.world.turn >= turn + 2, fault.state.turn, 5000, 'Ordinary unpaused fallback countdown')
-  const counting = await snap(page)
+  const counting = result.counting = await snap(page)
+  assert.deepEqual(counting.acquisition.controllers, priorControllers)
   assert.equal(counting.paused, false)
   assert.equal(counting.gifts[0].remaining, fault.state.gifts[0].remaining - (counting.turn - fault.state.turn))
   assert.equal(counting.count, staged.state.count)
   await wait(() => !!window.worshipBoundaryEvidence.faultPayout, null, 20000, 'Ordinary countdown pays once')
-  const payout = await page.evaluate(() => window.worshipBoundaryEvidence.faultPayout)
+  const payout = result.payout = await page.evaluate(() => window.worshipBoundaryEvidence.faultPayout)
+  assert.deepEqual(payout.acquisition.controllers, priorControllers)
   assert.equal(payout.turn, staged.state.turn + gift.remaining, 'Unshortened actual remaining countdown owns payout')
   assert.equal(payout.count, staged.state.count + 1); assert.equal(payout.stock, staged.state.stock + 1)
-  const restoration = await page.evaluate(() => window.restoreWorshipGeometryHud())
+  const restoration = result.restoration = await page.evaluate(() => window.restoreWorshipGeometryHud())
   await wait(turn => window.worshipBoundaryScene.world.turn >= turn + 12, payout.turn, 10000, 'No late controller initialization after HUD restore')
-  const after = await snap(page)
+  const after = result.after = await snap(page)
   assert.equal(after.count, payout.count); assert.equal(after.stock, payout.stock)
   assert.deepEqual(after.acquisition.requests, [])
-  assert.deepEqual(after.acquisition.controllers, { spell: null, companion: null, pulse: null, drawCommands: [] })
+  assert.deepEqual(after.acquisition.controllers, priorControllers, 'Restoring geometry cannot initialize a rejected request later')
   assert.equal(await page.evaluate(() => window.worshipBoundaryEvidence.cues), 1)
   assert.equal(await page.evaluate(() => window.worshipBoundaryScene.worshipPresentation.diagnostics.length), 1)
   assert.equal(await page.locator('.worship-acquisition-overlay').isHidden(), true)
   await page.screenshot({ path: resolve(output, 'geometry-fault-restored.png') })
-  return { staged, fault, counting, payout, restoration, after }
+  return result
 }
 
 export default async function ({ page, context, root, output, receipt, openMission, signal }) {
@@ -584,7 +598,7 @@ export default async function ({ page, context, root, output, receipt, openMissi
           return c.spell?.active && c.spell.step === 2 && c.spell.visits <= 4
         }, null, 120000, 'Early ordinary flight')
       if (phase === 'missing-geometry') {
-        report.geometryFault = await missingGeometry(page, wait, output)
+        report.geometryFault = await missingGeometry(page, wait, output, report)
       } else if (phase === 'restart') {
         report.restart = await restartDuringFlight(page, bindGame, waitForShamanReadiness, wait, output)
       } else if (phase === 'hidden') {
