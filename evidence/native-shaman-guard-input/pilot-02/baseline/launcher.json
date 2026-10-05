@@ -1,0 +1,86 @@
+{
+  "status": "terminal",
+  "startedAt": "2026-10-05T21:33:22.635959+00:00",
+  "deadline330": "2026-10-05T21:38:52.635959+00:00",
+  "name": "baseline",
+  "head": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "port": 4392,
+  "netNamespace": "net:[4026532405]",
+  "pidNamespace": "pid:[4026532404]",
+  "planSha256": "2e543f7856048b117f5e32236016921cf268dcc5e8c9919d395327dab3ed3572",
+  "command": [
+    "node",
+    "scripts/orchestration/command-receipt.mjs",
+    "--output",
+    "work/orchestration/native-guard-browser-baseline-02/outer.json",
+    "--input",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+    "--input",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-receipt.json",
+    "--input",
+    "node_modules/.package-lock.json",
+    "--",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=15s",
+    "330s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+    "--port",
+    "4392",
+    "--timeout",
+    "300000",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/run"
+  ],
+  "privateTMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-private-tmp-02",
+  "prePorts": [
+    {
+      "host": "127.0.0.1",
+      "closed": true
+    },
+    {
+      "host": "localhost",
+      "closed": true
+    }
+  ],
+  "dependencyInode": 925605,
+  "pid": 17,
+  "finishedAt": "2026-10-05T21:34:25.627159+00:00",
+  "exitCode": 1,
+  "postPorts": [
+    {
+      "host": "127.0.0.1",
+      "closed": true
+    },
+    {
+      "host": "localhost",
+      "closed": true
+    }
+  ],
+  "sourceAfter": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "sourceStatusAfter": "",
+  "outer": {
+    "sha256": "bf9814770919d98aaf625a9f245ae8dce1b16e718a8c67f211a548c19a1859e4",
+    "status": "failed",
+    "failure": null,
+    "exitCode": 1
+  },
+  "inner": {
+    "sha256": "53031cb0d2fa11fbc06131e62d1012f2b9bb401358d639f628d0e639969393f6",
+    "status": "failed",
+    "failure": "AssertionError [ERR_ASSERTION]: Visible integer interior ground with an enabled ordinary move context\n    at Object.move (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/ground-and-dispatch.mjs:100:12)\n    at async nativeGuardWitness (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs:289:5)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/scripts/local-render/harness.mjs:251:21",
+    "exitCode": null
+  },
+  "rootLockSha256After": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLockSha256After": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+}

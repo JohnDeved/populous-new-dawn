@@ -7,8 +7,8 @@ tree `9af7241660efc11eb8969845ab7e587231d906bc`, based on accepted
 `3b899125cc8cedef938823718ad5d44f49957b66`.
 
 **Independent source/focused-runtime and final package ACCEPT. Full check and build
-pass. The ordinary baseline pilot failed before training; candidate rendered
-execution remains not-run.** This packet is not a merged,
+pass. The latest ordinary baseline pilot proves training, then fails before Move/G;
+candidate rendered execution remains not-run.** This packet is not a merged,
 deployed or whole-Guard completion claim. Broader issues #4, #60 and #214 stay open.
 
 ## Result
@@ -141,12 +141,47 @@ requirements and the 60/300/330-second limits are unchanged.
 
 The [accepted revision 4 launch plan](prepared-revision-04/launch-plan-rev4.json)
 uses fresh attempt-02 outputs on the same baseline 4392 then candidate 4393,
-with the same sandboxed browser and fixed sources. It has **not run** and awaits
-release of the shared campaign lane. Genuine Firewarrior training with ordinary
-mana, public move/G/deselect/repeat/cancel/following, both pending Save/Load cycles,
-and paired screenshots remain required. Source preflight does not predict runtime
+with the same sandboxed browser and fixed sources. It ran as pilot 02 below and failed before its first Move/G input. Public
+move/G/deselect/repeat/cancel/following, both pending Save/Load cycles, and paired
+screenshots remain required. Source preflight does not predict runtime
 success. Controlled Node fixtures do not substitute for the rendered gate or
 hardware performance. PR220 remains draft.
+
+## Ordinary pilot 02: genuine training, then invalid Move destination
+
+Revision 4 entered ordinary Mission 10 within the unchanged deadline: Shaman ready
+at 28.651 seconds, roster/hut binding at 31.572 seconds. Original Brave 122 received
+real training input at 37.655 seconds. The passive observer captured actual
+occupancy and 4000-mana cost; the Brave was removed and new model-6 Firewarrior 176
+exited at 55.104 seconds. [Raw actions](pilot-02/baseline/run/actions.jsonl),
+[196 unmodified sampled rows](pilot-02/baseline/run/epoch-0-rows.jsonl) and the
+[failed witness](pilot-02/baseline/run/witness.json) preserve this bounded result.
+
+The initial requested Move point (25,-9) returned no eligible ground pixel. No Move
+click or G was delivered. The selected Firewarrior was healthy at 35 HP, outdoors,
+orderable, native class 1/model 6/state 19/status 0, vehicle 0, with no busy owner.
+Shaman 63 remained at 100 HP. [Pure retained-footprint analysis](pilot-02/diagnosis/ground-footprints.json)
+proves that the requested point is cell 16 inside Firewarrior Hut 98's footprint;
+its friendly completed-building context is command 8, not Move 3. The failed helper
+did not retain individual pixel/context rejections, so the exact visual rejection
+branch remains unknown. Clear footprint alone does not prove valid terrain or input.
+
+Original session 95486 ended normally with exit 1 at 21:34:25.627159 UTC. Both port
+4392 loopbacks closed; source and locks remained unchanged, with no browser errors.
+[Launcher](pilot-02/baseline/launcher.json), [outer receipt](pilot-02/baseline/outer.json)
+and [browser receipt](pilot-02/baseline/run/receipt.json) retain the failed status.
+The conditional candidate did not run, and the shared lane was released.
+
+![Baseline after genuine Firewarrior training, before any Move or G](pilot-02/baseline/run/failure-0.png)
+
+Exact baseline 3b899125, fresh 1440×1000 sandboxed headless context. This proves
+ordinary acquisition in this attempt, not Guard behavior or a successful before
+capture. A bounded source-only correction is being reviewed: retain existing
+finite-pixel rejection diagnostics and prospectively declare a small set of nearby
+Move destinations, including the later Shaman Move. Every chosen point must still
+pass current model-3 context, integer interior, fresh dispatch/acknowledgment and
+recipient checks. Guard/Save/Load assertions and all time limits stay mandatory.
+No replay of revised inputs is included in this checkpoint.
 
 Raw command30 payload b remains unchanged in original snapshots. Independent
 consumer audit permits excluding only that unused word from semantic comparison;

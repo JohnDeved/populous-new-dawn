@@ -1,0 +1,98 @@
+{
+  "scope": "Pure retained-building-footprint and command-priority calculation; no world/actor construction, ticking, browser, terrain synchronization or live mutation. Clear footprint alone does not establish terrain or screen input validity.",
+  "inputs": {
+    "../native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/run/witness.json": "9e5c063ee201c4645c6f62f73a95d5873df274cfa138d88038b24f1c2bfea02f",
+    "app/building-shapes.ts": "8e697a8ac76900bb95183907702323b0d477950c92b3e703744376c0fefc7457",
+    "app/command-context.ts": "b418b37bef71210052645cdba946fc12612a63ec0962c98c65d6ae199a760700"
+  },
+  "retainedTurn": 400,
+  "rows": [
+    {
+      "target": {
+        "x": 25,
+        "z": -9
+      },
+      "native": {
+        "x": 8448,
+        "y": 256
+      },
+      "cell": 16,
+      "buildings": [
+        {
+          "id": 98,
+          "team": "blue",
+          "kind": "firewarriorHut",
+          "model": 8,
+          "pose": {
+            "object": 99,
+            "angle": 0,
+            "anchorX": 7168,
+            "anchorY": 0
+          }
+        }
+      ]
+    },
+    {
+      "target": {
+        "x": 29,
+        "z": -11
+      },
+      "native": {
+        "x": 9472,
+        "y": 768
+      },
+      "cell": 146,
+      "buildings": []
+    },
+    {
+      "target": {
+        "x": 31,
+        "z": -11
+      },
+      "native": {
+        "x": 9984,
+        "y": 768
+      },
+      "cell": 147,
+      "buildings": []
+    },
+    {
+      "target": {
+        "x": 29,
+        "z": -13
+      },
+      "native": {
+        "x": 9472,
+        "y": 1280
+      },
+      "cell": 274,
+      "buildings": [
+        {
+          "id": 107,
+          "team": "blue",
+          "kind": "boatHouse",
+          "model": 13,
+          "pose": {
+            "object": 83,
+            "angle": 512,
+            "anchorX": 9216,
+            "anchorY": 1536
+          }
+        }
+      ]
+    },
+    {
+      "target": {
+        "x": 33,
+        "z": -9
+      },
+      "native": {
+        "x": 10496,
+        "y": 256
+      },
+      "cell": 20,
+      "buildings": []
+    }
+  ],
+  "model6FriendlyCompletedBuildingCommand": 8
+}
