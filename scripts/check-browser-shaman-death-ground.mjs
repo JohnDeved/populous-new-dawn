@@ -43,7 +43,7 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
     bounds: { frameMilliseconds: 1000 / 24, batchFrames: 8, maximumFrames: 10000, browserWallMilliseconds: 420000 },
     limits: 'Controlled-elapsed integration through public gameplay controls with explicit camera-only assistance. Not a real-clock journey, native raster oracle or hardware performance claim. Pixel attribution is an isolated post-frame render diagnostic.',
     baselineScope: baseline ? 'Combined presentation source without the phase1 ground fix; old PR212 baseline receipts are not relabeled' : 'Combined production source with phase1 ground fix',
-    actions: [] }
+    actions: [], picking: [] }
   const errors = [], save = failed => writeFileSync(resolve(output, failed ? 'shaman-ground-failed.json' : 'shaman-ground.json'), JSON.stringify(report, null, 2) + '\n')
   page.on('pageerror', error => errors.push(error.stack ?? error.message))
   page.on('console', message => { if (message.type() === 'error') errors.push(message.text()) })
@@ -161,7 +161,7 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
   // target cell; continuous mouse pixels need not reproduce a Node point exactly.
   async function clickTarget(kind, target) {
     signal.throwIfAborted()
-    const hit = await page.evaluate(async ({ kind, target }) => {
+    const probe = async () => page.evaluate(async ({ kind, target }) => {
       const s = window.testScene, w = s.world
       const p = kind === 'head' ? w.shrines.find(h => h.id === target)
         : kind === 'person' ? w.units.find(u => u.id === target) : target
@@ -176,30 +176,74 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
         y: bounds.top + (1 - screen.y) * bounds.height / 2 }
       const snap = point => ({ x: Math.floor(point.x / 2) * 2 + 1,
         z: -Math.floor(-point.z / 2) * 2 - 1 })
-      const wanted = snap(p), candidates = []
+      const wanted = snap(p), candidates = [], diagnostics = { kind, target, turn: w.turn,
+        center, camera: { ...s.cameraPosition }, tried: 0, outside: 0, person: 0, object: 0,
+        noTerrain: 0, distance: 0, nearest: null, nearestUnobstructed: null }
       for (let dy = -140; dy <= 60; dy += 2)
         for (let dx = -90; dx <= 90; dx += 2) candidates.push({ dx, dy })
       candidates.sort((a, b) => a.dx * a.dx + a.dy * a.dy - b.dx * b.dx - b.dy * b.dy)
       for (const { dx, dy } of candidates) {
         const event = { clientX: center.x + dx, clientY: center.y + dy }
-        if (document.elementFromPoint(event.clientX, event.clientY) !== s.renderer.domElement) continue
+        diagnostics.tried++
+        if (document.elementFromPoint(event.clientX, event.clientY) !== s.renderer.domElement) { diagnostics.outside++; continue }
         if (kind === 'person') {
-          if (s.picking.pickPerson(event) === target) return { x: event.clientX, y: event.clientY, target }
+          if (s.picking.pickPerson(event) === target) return { hit: { x: event.clientX, y: event.clientY, target }, diagnostics }
         } else if (kind === 'head') {
           if (s.picking.pickPerson(event) == null && s.pickWorldObject(event)?.id === target)
-            return { x: event.clientX, y: event.clientY, target }
+            return { hit: { x: event.clientX, y: event.clientY, target }, diagnostics }
         } else {
-          if (kind === 'ground' && (s.picking.pickPerson(event) != null || s.pickWorldObject(event))) continue
           const point = s.pick(event)
-          if (!point) continue
+          if (!point) { diagnostics.noTerrain++; continue }
+          const person = kind === 'ground' ? s.picking.pickPerson(event) : null,
+            object = kind === 'ground' ? s.pickWorldObject(event)?.id ?? null : null,
+            distance = Math.hypot(point.x - p.x, point.z - p.z),
+            candidate = { x: event.clientX, y: event.clientY, point, distance, person, object }
+          if (!diagnostics.nearest || distance < diagnostics.nearest.distance) diagnostics.nearest = candidate
+          if (person != null) { diagnostics.person++; continue }
+          if (object != null) { diagnostics.object++; continue }
+          if (!diagnostics.nearestUnobstructed || distance < diagnostics.nearestUnobstructed.distance)
+            diagnostics.nearestUnobstructed = candidate
           const picked = snap(point)
           if (kind === 'spell' ? picked.x === wanted.x && picked.z === wanted.z
-            : Math.hypot(point.x - p.x, point.z - p.z) <= 0.35)
-            return { x: event.clientX, y: event.clientY, point, snapped: picked, turn: w.turn }
+            : distance <= 0.35)
+            return { hit: { x: event.clientX, y: event.clientY, point, snapped: picked, turn: w.turn }, diagnostics }
+          diagnostics.distance++
         }
       }
-      throw Error(`No unobstructed rendered ${kind} hit for ${JSON.stringify(p)}`)
+      return { hit: null, diagnostics }
     }, { kind, target })
+    let attempt = await probe()
+    report.picking.push(attempt.diagnostics)
+    if (!attempt.hit && kind === 'ground') {
+      // One public camera rotation may expose this same ground target. It does
+      // not relax normal movement ownership or consume any simulation time.
+      await page.locator('.world-viewport canvas.battlefield').focus()
+      const center = await page.locator('.world-viewport canvas.battlefield').boundingBox()
+      assert.ok(center)
+      await page.mouse.move(Math.round(center.x + center.width / 2), Math.round(center.y + center.height / 2))
+      await page.keyboard.down('ArrowLeft')
+      let rotation
+      try {
+        rotation = await page.evaluate(() => {
+          const s = window.testScene, w = s.world,
+            state = () => ({ turn: w.turn, stock: w.shots.bridge, speed: w.speed, paused: w.paused,
+              previous: s.previous, clock: structuredClone(w.worshipAcquisition.clock) }), before = state(),
+            angle = s.cameraPosition.angle
+          if (!s.keys.has('arrowleft') || !(s.navigationButtons() & 16)) throw Error('Public camera rotation key was not owned')
+          for (let frame = 0; frame < 20; frame++) s.updateCameraMotion(1 / 24)
+          s.animate(s.previous)
+          return { before, after: state(), beforeAngle: angle, afterAngle: s.cameraPosition.angle,
+            cameraOnlySteps: 20, publicKey: 'ArrowLeft' }
+        })
+      } finally { await page.keyboard.up('ArrowLeft') }
+      report.picking.push({ rotation })
+      assert.deepEqual(rotation.after, rotation.before, 'Camera preparation must preserve the full acquisition clock and object time')
+      assert.notEqual(rotation.afterAngle, rotation.beforeAngle)
+      assert.equal(await page.evaluate(() => window.testScene.keys.has('arrowleft')), false)
+      attempt = await probe(); report.picking.push(attempt.diagnostics)
+    }
+    const hit = attempt.hit
+    assert.ok(hit, `No unobstructed rendered ${kind} hit for ${JSON.stringify(target)}; bounded picking diagnostics retained`)
     const before = kind === 'spell' ? undefined : await page.evaluate(() => {
       const w = window.testScene.world
       return { turn: w.turn, nextId: w.nextId }
