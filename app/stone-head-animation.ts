@@ -133,7 +133,10 @@ export function stepStoneHeadAnimation(
 // Gated ordinary morphs follow logical turns; ungated transitions retain24Hz.
 // Trigger exhaustion does not delete its independently linked decorative scenery.
 // Enabled remains unchanged on that original deletion branch, so the loop survives.
-export function animateStoneHeads(world: World, phase: 'logical' | 'presentation' = 'presentation') {
+export function animateStoneHeads(
+  world: World,
+  phase: 'logical' | 'presentation' = 'presentation'
+) {
   if (world.paused || world.land.landFlags & 2) return
   for (const shrine of world.shrines) {
     const state = initializeStoneHead(shrine, world.outcome.level)
