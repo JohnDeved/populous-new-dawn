@@ -1,0 +1,44 @@
+{
+  "head": "ef8b56895b16346b172a592e9c04aa4b2b8cd696",
+  "base": "bbd7371e04a55e57b1e368530e92de6777864358",
+  "repairBase": "4bd9d50ffa3e97ad4d1ad3e6468bc2d5affb608c",
+  "status": "source-only-re-review-ready",
+  "files": {
+    "candidate-ef8b568.diff": "309a8daa20388f8edcff4a5e7fbf274dac905879a0c88571a31137a3c5ff027d",
+    "repair-ef8b568.diff": "ae834311b916bdc7342d721bcfb525d199bec75fd6451e94f4610220c8d0ae4b",
+    "tests-ef8b568.json": "be2b1f3e91d1b44ff2650ab512ee7ee19816d149ea2f23b6955b7654e7ae0b24",
+    "regressions-ef8b568.json": "24f446ad5188d8a684e21567ec8d44ecae4120c3dacccb73126534ebf3115587",
+    "structure-ef8b568.json": "0bd791bc2a9f902932f0302dca15378becff24e21247e098babd4878b80928d6",
+    "parity-ef8b568.json": "ce84605668336dfc90f68332b02c8899ff4182456ca1ca4ab9b2d0e4c27223fb",
+    "source-proof-ef8b568.json": "c19505fab532abbc1d59bf809962efa1d43671e7b8518724b1bf36d1d2c1aa49"
+  },
+  "previousRejection": {
+    "path": "work/reviews/responsive-waits-4bd9d50-review.json",
+    "sha256": "907732a75888bd8cd281af628907575b800ae5648995128f1bbec644393682e8"
+  },
+  "immutableReviewerRegressions": {
+    "path": "work/reviews/responsive-waits-4bd9d50-regressions.test.mjs",
+    "sha256": "8e39c39c914e7dcdfeb3e0df654157bcb0bc27af5ae3ff5a6ea3afb73aed53fe"
+  },
+  "repairedFindings": [
+    "W1: one authenticated read/consumption path at idle/main and active waits; malformed/unreadable controls set terminal preservation intent; readable bytes/hash archived; ordinary pending commands remain undispatched; committed-Save deferral retained.",
+    "W2: actual effect/controller reference identity plus immutable onset center x/y/h checked on every visit and retirement; exported history remains finite scalar clones.",
+    "W3: shaman readiness eligibility and named training-building/trainee progress exclude unrelated movement, births, combat and constructions; target-kind completion retained."
+  ],
+  "validation": {
+    "focusedTests": 110,
+    "unchangedReviewerNegatives": 7,
+    "guards": 64,
+    "unchangedProductionAndGateObjects": 18,
+    "structure": "passed",
+    "parity": "passed",
+    "aggregateAndBuild": "Explicit carry from reviewed bbd7371: unchanged production/scripts/tests/engineering/package objects; no full rerun required for this QA-only repair.",
+    "typescriptQuality": "Not applicable; no maintained TypeScript changed."
+  },
+  "resourcesHeld": [],
+  "limits": [
+    "No profile writes, browser/dependency lane, replay or new parity claim.",
+    "Prior actual terminal1c430e41, cumulative980.0833333333333 and failed Erosion wait remain immutable.",
+    "Independent re-review remains required before source use."
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b11f9781-7fc9-491c-91dd-4fa781d6295d",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "ef8b56895b16346b172a592e9c04aa4b2b8cd696",
+    "branch": "qa/mission-three-responsive-waits",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/reviews/responsive-waits-4bd9d50-regressions.test.mjs": "8e39c39c914e7dcdfeb3e0df654157bcb0bc27af5ae3ff5a6ea3afb73aed53fe"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "work/reviews/responsive-waits-4bd9d50-regressions.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-responsive-waits",
+  "startedAt": "2026-10-05T06:27:39.955Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-responsive-waits/work/orchestration/mission-three-responsive-waits/regressions-ef8b568.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-responsive-waits/work/orchestration/mission-three-responsive-waits/regressions-ef8b568.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T06:27:40.105Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ already-present main-loop stop must validate current run before dispatch (1.169795ms)\n✔ unsafe queued-control file must set terminal preservation intent before rejection (0.881483ms)\n✔ malformed preserving-stop request must not silently remain an unserviceable pending request (0.642875ms)\n✔ Erosion evidence must reject replace-controller after onset (1.584668ms)\n✔ Erosion evidence must reject move-native-center after onset (1.197948ms)\n✔ shaman readiness progress excludes an unrelated moving unit (0.567832ms)\n✔ named training progress excludes an unrelated Blue Brave birth (0.509144ms)\nℹ tests 7\nℹ suites 0\nℹ pass 7\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 89.483268\n",
+  "stderr": "",
+  "stdoutSha256": "f285a5e9ff6cbfe58eb4a6411e9df13cc8fb772bd48dcd07002a66e7cf6fd9d6",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "ef8b56895b16346b172a592e9c04aa4b2b8cd696",
+    "branch": "qa/mission-three-responsive-waits",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/reviews/responsive-waits-4bd9d50-regressions.test.mjs": "8e39c39c914e7dcdfeb3e0df654157bcb0bc27af5ae3ff5a6ea3afb73aed53fe"
+    }
+  }
+}

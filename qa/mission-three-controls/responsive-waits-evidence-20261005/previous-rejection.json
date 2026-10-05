@@ -1,0 +1,138 @@
+{
+  "decision": "REJECT",
+  "scope": "Exact source-only review of responsive waiting and prospective Erosion evidence. Existing accepted sermon sequence remains accepted; no profile transition or replay is approved.",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_copied_sermon_admission",
+  "reviewedAt": "2026-10-05T06:15:32.248414+00:00",
+  "head": "4bd9d50ffa3e97ad4d1ad3e6468bc2d5affb608c",
+  "base": "bbd7371e04a55e57b1e368530e92de6777864358",
+  "trackedTreeClean": true,
+  "packet": {
+    "path": "work/orchestration/mission-three-responsive-waits/review-inputs.json",
+    "sha256": "d2c80ae94cd79412608f2db4e2778e8f066d3147ea69d5893f92afcdde5c74cf"
+  },
+  "diff": {
+    "path": "work/orchestration/mission-three-responsive-waits/candidate-4bd9d50.diff",
+    "sha256": "5ad2af93df597239576baa7adc190c851a924dbbd19802017bd86735a5e82c1e"
+  },
+  "findings": [
+    {
+      "id": "W1",
+      "severity": "high",
+      "title": "Stop validation is bypassed at the main queue boundary and validation failures can escape preservation handling",
+      "locations": [
+        "qa/mission-three-controls/driver.mjs:449",
+        "qa/mission-three-controls/driver.mjs:980",
+        "qa/mission-three-controls/queued-stop.mjs:24"
+      ],
+      "evidence": [
+        "A sole stop already present at its ordinal reaches the old direct main-loop branch. A wrong runId is ignored and stopPreserveLatest executes; optional fields and regular-file checks are likewise not applied there.",
+        "O_NOFOLLOW/ownership/size/drift errors thrown by readQueuedPreservingStop occur before preserveStopRequested=true. The generic active-batch catch can swallow them and continue, and preservation/fallback-Save guards do not receive the intended terminal flag.",
+        "Malformed stop JSON such as [{\"action\":\"stop-preserve-latest\"},] returns null and remains unserviceable during a wait."
+      ],
+      "requiredFix": "Use one common validated consumption path for already-present main-loop and newly arriving active-wait controls. Set terminal preservation intent for unsafe/invalid stop validation before propagating errors; recognize and fail closed on malformed preserving requests. Preserve raw bytes/hash/current-run/ordinal evidence when safely readable; never dispatch a wrong-run or mixed request. Retain the pending-Save readback boundary and ordinary-command non-dispatch."
+    },
+    {
+      "id": "W2",
+      "severity": "high",
+      "title": "Erosion proof accepts a replaced controller or changed native center",
+      "locations": [
+        "qa/mission-three-controls/erosion-observer.mjs:73",
+        "qa/mission-three-controls/erosion-observer.mjs:81",
+        "qa/mission-three-controls/erosion-observer.mjs:87"
+      ],
+      "evidence": [
+        "The private map stores the outer effect wrapper only. Replacing effect.erosion with a fresh cloned controller after onset passes all remaining64-turn checks and requireErosionEvidence(...,true).",
+        "Changing the finite native center.x after onset, while preserving effect id/x/z and countdown, also produces accepted retirement evidence. Native center is only target-checked at onset."
+      ],
+      "requiredFix": "Retain/check both the actual effect and actual controller identities. Require the actual controller center to stay equal to its observed authored onset center on each visit and at retirement. Keep all exported historical samples cloned finite scalars and actual zero-counter removal checks."
+    },
+    {
+      "id": "W3",
+      "severity": "medium",
+      "title": "Some typed objective waits still reset on unrelated world progress",
+      "locations": [
+        "qa/mission-three-controls/observation.mjs:370",
+        "qa/mission-three-controls/observation.mjs:391"
+      ],
+      "evidence": [
+        "Actual shaman-ready calls have no IDs. objectiveProgress falls through to progressKey with[], which includes every unit/building; moving an unrelated Yellow Brave changes the key while readiness is unchanged.",
+        "Named Temple/trainee training still includes all Blue unit IDs/kinds. An unrelated Blue Brave birth resets the progress key while the intended training state is unchanged."
+      ],
+      "requiredFix": "Provide objective-specific readiness/training keys or otherwise restrict fallback inputs to the actual objective. Keep Erosion\u2019s correctly scoped retained lifecycle progress. Add negative controls for unrelated movement, births, combat and constructions for affected typed waits."
+    }
+  ],
+  "reproductions": {
+    "command": [
+      "node",
+      "--test",
+      "work/reviews/responsive-waits-4bd9d50-regressions.test.mjs"
+    ],
+    "exitCode": 1,
+    "status": "failed-as-expected-on-candidate",
+    "tests": 7,
+    "passed": 0,
+    "failed": 7,
+    "script": {
+      "path": "work/reviews/responsive-waits-4bd9d50-regressions.test.mjs",
+      "sha256": "8e39c39c914e7dcdfeb3e0df654157bcb0bc27af5ae3ff5a6ea3afb73aed53fe"
+    },
+    "stdout": {
+      "path": "work/reviews/responsive-waits-4bd9d50-regressions.stdout.log",
+      "sha256": "e189c1bc8ce6828b550ba1d145314bc633ee2a0f1813de62bd0fc293cfa98743"
+    },
+    "stderr": {
+      "path": "work/reviews/responsive-waits-4bd9d50-regressions.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "scope": "Exact driver source blocks, actual QA helpers and synthetic /tmp/control/Erosion fixtures. No browser, profile, package or production state mutation."
+  },
+  "verifiedPositiveChecks": {
+    "focused107": {
+      "status": "passed",
+      "path": "work/orchestration/mission-three-responsive-waits/tests-final.json",
+      "sha256": "1631d6f1a92c4c2760bc68981817c29e200d0258dc08340e807824fb20b43df4",
+      "review": "Receipt exact source/sourceAfter and raw stdout/stderr hashes verified; includes actual M3 simulation producer test, not ordinary browser proof."
+    },
+    "structuralAndParity": {
+      "status": "passed",
+      "receipts": [
+        {
+          "path": "work/orchestration/mission-three-responsive-waits/structure-final.json",
+          "sha256": "714de0a2fb3bf2c31f25da1ccff85be524886e3a532fff5b2ad47c7685d23c1c"
+        },
+        {
+          "path": "work/orchestration/mission-three-responsive-waits/parity-final.json",
+          "sha256": "93abceb52c8b7277f34df2f9a92976d169c669be8e3d950ec86fd4dd4fb6ede7"
+        }
+      ]
+    },
+    "failureFirstBaseline": {
+      "path": "work/orchestration/mission-three-responsive-waits/failure-first-baseline.json",
+      "sha256": "6590b1b8f2c17e4c1b16a67592b8d9420f8472ba73c60c0d1e2e230197bbccc5",
+      "scope": "Owner baseline2-stop-regression failure; does not cover the7 reviewer cases."
+    },
+    "sourceEquality": {
+      "status": "passed",
+      "guards": 64,
+      "unchangedProductionAndGateObjects": 18,
+      "maintainedHarnessUnchanged": true,
+      "path": "work/orchestration/mission-three-responsive-waits/source-proof-final.json",
+      "sha256": "495886c8e35f23c284bbda4c923d2834099e51d6291597ade82ca73dddf1477d"
+    },
+    "aggregateAndBuildCarry": "Accepted as an explicit carry boundary: scripts/tests/engineering and production/package inputs equal bbd7371, whose actual1038-test check was previously verified; new QA uses exact107 tests and structural/parity checks. No redundant unrelated full build/check requested for these findings.",
+    "typescriptQuality": "not-applicable; no maintained TypeScript changes. MJS readability/helper reuse inspected; no new lint/format/Fallow or performance claim."
+  },
+  "positiveSourceFindings": [
+    "Valid active-wait controls are checked before first diagnostics and every sample. The explicit UI/binding/readback polls route through the host polling helper.",
+    "Valid stops during an already-issued Save are deferred until committed readback and full protectedLatest digest update; exact-source regression checks this order.",
+    "Ordinary paused Save, terminal preservation and normal harness cleanup remain the state-owning paths; no direct World/storage/clock/process writes are added.",
+    "Erosion capture is prospectively armed, binds exact shrine use/linked target/new effect onset, keeps bounded finite scalar samples, and reads packed256\u00d7256 walk bits without nativePosition.",
+    "No transient Erosion result is claimed for the previous failed browser run; native intercepted evidence and actual simulation tests are correctly distinguished from rendered play."
+  ],
+  "limits": [
+    "Source changes require repair and focused re-review before any use.",
+    "No new profile admission, replay, Erosion parity or hardware claim.",
+    "Original Run14 quarantine and actual prior terminal facts remain unchanged."
+  ],
+  "resourcesHeld": []
+}

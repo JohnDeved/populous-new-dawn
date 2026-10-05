@@ -1,0 +1,55 @@
+{
+  "sourceCommit": "ef8b56895b16346b172a592e9c04aa4b2b8cd696",
+  "base": "bbd7371e04a55e57b1e368530e92de6777864358",
+  "files": [
+    {
+      "file": "source-review.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-responsive-waits/work/reviews/responsive-waits-ef8b568-review.json",
+      "bytes": 11975,
+      "sha256": "6b9bb707650b9e3998624193e489272c8592fa34aeec4e3a97f7b80b298e1c90"
+    },
+    {
+      "file": "previous-rejection.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-responsive-waits/work/reviews/responsive-waits-4bd9d50-review.json",
+      "bytes": 8746,
+      "sha256": "907732a75888bd8cd281af628907575b800ae5648995128f1bbec644393682e8"
+    },
+    {
+      "file": "review-inputs.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-responsive-waits/work/orchestration/mission-three-responsive-waits/review-inputs-ef8b568.json",
+      "bytes": 2671,
+      "sha256": "77400d8a2b3626fa6817d0d6e96e872673c7468cf22bfd69b00fe08c3bf56b5e"
+    },
+    {
+      "file": "source-correspondence.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-responsive-waits/work/orchestration/mission-three-responsive-waits/source-proof-ef8b568.json",
+      "bytes": 13255,
+      "sha256": "c19505fab532abbc1d59bf809962efa1d43671e7b8518724b1bf36d1d2c1aa49"
+    },
+    {
+      "file": "focused-tests.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-responsive-waits/work/orchestration/mission-three-responsive-waits/tests-ef8b568.json",
+      "bytes": 14169,
+      "sha256": "be2b1f3e91d1b44ff2650ab512ee7ee19816d149ea2f23b6955b7654e7ae0b24"
+    },
+    {
+      "file": "reviewer-regressions.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-responsive-waits/work/orchestration/mission-three-responsive-waits/regressions-ef8b568.json",
+      "bytes": 2591,
+      "sha256": "24f446ad5188d8a684e21567ec8d44ecae4120c3dacccb73126534ebf3115587"
+    },
+    {
+      "file": "structure.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-responsive-waits/work/orchestration/mission-three-responsive-waits/structure-ef8b568.json",
+      "bytes": 6444,
+      "sha256": "0bd791bc2a9f902932f0302dca15378becff24e21247e098babd4878b80928d6"
+    },
+    {
+      "file": "parity.json",
+      "sourcePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-responsive-waits/work/orchestration/mission-three-responsive-waits/parity-ef8b568.json",
+      "bytes": 1600,
+      "sha256": "ce84605668336dfc90f68332b02c8899ff4182456ca1ca4ab9b2d0e4c27223fb"
+    }
+  ],
+  "scope": "Source-only accepted QA repair; no new browser/profile/Erosion result. No profile or IndexedDB bytes."
+}

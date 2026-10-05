@@ -1,0 +1,192 @@
+{
+  "decision": "ACCEPT",
+  "scope": "Exact source-only re-review of responsive preserving stops and prospective Erosion observation. No new profile transition, replay, actual rendered Erosion outcome or parity credit is authorized or claimed.",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_copied_sermon_admission",
+  "reviewedAt": "2026-10-05T06:32:51.510044+00:00",
+  "head": "ef8b56895b16346b172a592e9c04aa4b2b8cd696",
+  "base": "bbd7371e04a55e57b1e368530e92de6777864358",
+  "repairBase": "4bd9d50ffa3e97ad4d1ad3e6468bc2d5affb608c",
+  "trackedTreeClean": true,
+  "packet": {
+    "path": "work/orchestration/mission-three-responsive-waits/review-inputs-ef8b568.json",
+    "sha256": "77400d8a2b3626fa6817d0d6e96e872673c7468cf22bfd69b00fe08c3bf56b5e"
+  },
+  "fullDiff": {
+    "path": "work/orchestration/mission-three-responsive-waits/candidate-ef8b568.diff",
+    "sha256": "309a8daa20388f8edcff4a5e7fbf274dac905879a0c88571a31137a3c5ff027d"
+  },
+  "repairDiff": {
+    "path": "work/orchestration/mission-three-responsive-waits/repair-ef8b568.diff",
+    "sha256": "ae834311b916bdc7342d721bcfb525d199bec75fd6451e94f4610220c8d0ae4b"
+  },
+  "changedPaths": [
+    "qa/mission-three-controls/README.md",
+    "qa/mission-three-controls/driver-checkpoint-path.test.mjs",
+    "qa/mission-three-controls/driver.mjs",
+    "qa/mission-three-controls/erosion-observer.mjs",
+    "qa/mission-three-controls/erosion-observer.test.mjs",
+    "qa/mission-three-controls/observation.mjs",
+    "qa/mission-three-controls/queued-stop.mjs",
+    "qa/mission-three-controls/queued-stop.test.mjs",
+    "qa/mission-three-controls/responsive-waits.md",
+    "qa/mission-three-controls/source-manifest.json"
+  ],
+  "sourceFiles": {
+    "qa/mission-three-controls/README.md": "a98ee2fdb99c07b22bf5024dd24f005aa5528b9b19589b8e7eade713d1d2c439",
+    "qa/mission-three-controls/driver-checkpoint-path.test.mjs": "1118638cd83970e83c9abe137825d3b7c625858c6022b7fbb3ccf2bd0edc1f88",
+    "qa/mission-three-controls/driver.mjs": "e2f909f03c77b99f91d1e4d44b293db41de9cbc7f35f8d65cd4359bd68bdc834",
+    "qa/mission-three-controls/erosion-observer.mjs": "19c25f71fcf0b60f24b65c7f8e2753b5bc51edbaca7d7ca540fd0136d6d50a97",
+    "qa/mission-three-controls/erosion-observer.test.mjs": "b3cca25c4aa03c2cf8c64e9ba9066352638b58f52ed7c53e4e665766f107862e",
+    "qa/mission-three-controls/observation.mjs": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a",
+    "qa/mission-three-controls/queued-stop.mjs": "d67b3cca01cb8ac8032e31d3cdf71382d18bcae57397ffe2ebd945d259f12063",
+    "qa/mission-three-controls/queued-stop.test.mjs": "5cfe512105b510ab8780965a64aa005ed3c9fb9f1929212c56244845d77f5d0d",
+    "qa/mission-three-controls/responsive-waits.md": "fcc3bda2617be583b9761163b932e7d2725494ace4e9c6dd232c12c2c44a7fbb",
+    "qa/mission-three-controls/source-manifest.json": "7c04ef0712c063ca3df53f3185117f557db770d54e46ff64696a838864775d8d"
+  },
+  "previousRejection": {
+    "path": "work/reviews/responsive-waits-4bd9d50-review.json",
+    "sha256": "907732a75888bd8cd281af628907575b800ae5648995128f1bbec644393682e8"
+  },
+  "findings": [],
+  "resolvedFindings": [
+    {
+      "id": "W1",
+      "resolution": "Main queue entry now calls the same consumeQueuedStop(includeOrdinary:true) path before archival/diagnostics. Active polls use that path without ordinary consumption. Wrong-run/mixed/unknown-field controls, malformed JSON and unsafe/unreadable filesystem failures set terminal preservation intent before errors propagate; readable bytes/hash are retained, unsafe input is logged without claiming a read. New exact-source composite tests cover both main and active modes, including normal inputs and no ordinary dispatch during waits."
+    },
+    {
+      "id": "W2",
+      "resolution": "Private references now retain both effect and Erosion controller. Every processing/retirement visit checks wrapper identity/target, controller identity and center x/y/h against finite cloned onset values. Added tests cover each changed coordinate/controller/id/target both mid-lifetime and at removal; both original controller/center reproductions reject."
+    },
+    {
+      "id": "W3",
+      "resolution": "Shaman readiness key now uses only actual status/pause/input gating and readiness/Shaman eligibility fields, excluding turns and selection noise. Training uses named building/trainee progress plus the target-kind completion predicate; unrelated Blue births and world actors/buildings no longer reset it. New tests cover unrelated movement, births, combat and construction plus positive relevant progress."
+    }
+  ],
+  "verification": {
+    "focusedTests": 110,
+    "unchangedReviewerRegressions": 7,
+    "checks": {
+      "tests-ef8b568.json": {
+        "path": "work/orchestration/mission-three-responsive-waits/tests-ef8b568.json",
+        "sha256": "be2b1f3e91d1b44ff2650ab512ee7ee19816d149ea2f23b6955b7654e7ae0b24",
+        "status": "passed",
+        "exitCode": 0,
+        "command": [
+          "node",
+          "--test",
+          "qa/mission-three-controls/checkpoint-provenance.test.mjs",
+          "qa/mission-three-controls/command-probes.test.mjs",
+          "qa/mission-three-controls/driver-checkpoint-path.test.mjs",
+          "qa/mission-three-controls/erosion-observer.test.mjs",
+          "qa/mission-three-controls/observation.test.mjs",
+          "qa/mission-three-controls/queued-stop.test.mjs",
+          "qa/mission-three-controls/recovery-admission.test.mjs",
+          "qa/mission-three-controls/sermon-checkpoint.test.mjs",
+          "qa/mission-three-controls/sermon-protocol.test.mjs",
+          "qa/mission-three-controls/sermon-successor.test.mjs",
+          "tests/owned-game-profile.test.mjs",
+          "tests/local-render-harness.test.mjs"
+        ],
+        "source": {
+          "headOid": "ef8b56895b16346b172a592e9c04aa4b2b8cd696",
+          "branch": "qa/mission-three-responsive-waits",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "inputs": {}
+        },
+        "rawStreamsVerified": true
+      },
+      "regressions-ef8b568.json": {
+        "path": "work/orchestration/mission-three-responsive-waits/regressions-ef8b568.json",
+        "sha256": "24f446ad5188d8a684e21567ec8d44ecae4120c3dacccb73126534ebf3115587",
+        "status": "passed",
+        "exitCode": 0,
+        "command": [
+          "node",
+          "--test",
+          "work/reviews/responsive-waits-4bd9d50-regressions.test.mjs"
+        ],
+        "source": {
+          "headOid": "ef8b56895b16346b172a592e9c04aa4b2b8cd696",
+          "branch": "qa/mission-three-responsive-waits",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "inputs": {
+            "work/reviews/responsive-waits-4bd9d50-regressions.test.mjs": "8e39c39c914e7dcdfeb3e0df654157bcb0bc27af5ae3ff5a6ea3afb73aed53fe"
+          }
+        },
+        "rawStreamsVerified": true
+      },
+      "structure-ef8b568.json": {
+        "path": "work/orchestration/mission-three-responsive-waits/structure-ef8b568.json",
+        "sha256": "0bd791bc2a9f902932f0302dca15378becff24e21247e098babd4878b80928d6",
+        "status": "passed",
+        "exitCode": 0,
+        "command": [
+          "node",
+          "scripts/orchestration/cli.mjs",
+          "check"
+        ],
+        "source": {
+          "headOid": "ef8b56895b16346b172a592e9c04aa4b2b8cd696",
+          "branch": "qa/mission-three-responsive-waits",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "inputs": {}
+        },
+        "rawStreamsVerified": true
+      },
+      "parity-ef8b568.json": {
+        "path": "work/orchestration/mission-three-responsive-waits/parity-ef8b568.json",
+        "sha256": "ce84605668336dfc90f68332b02c8899ff4182456ca1ca4ab9b2d0e4c27223fb",
+        "status": "passed",
+        "exitCode": 0,
+        "command": [
+          "node",
+          "scripts/parity.mjs",
+          "check"
+        ],
+        "source": {
+          "headOid": "ef8b56895b16346b172a592e9c04aa4b2b8cd696",
+          "branch": "qa/mission-three-responsive-waits",
+          "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "inputs": {}
+        },
+        "rawStreamsVerified": true
+      }
+    },
+    "regressionScript": {
+      "path": "work/reviews/responsive-waits-4bd9d50-regressions.test.mjs",
+      "sha256": "8e39c39c914e7dcdfeb3e0df654157bcb0bc27af5ae3ff5a6ea3afb73aed53fe"
+    },
+    "regressionIntegrity": "The reviewer script is byte-identical to the rejected-head version and all7 tests pass. The new source-path composite tests additionally verify the relocated main authentication boundary.",
+    "sourceProof": {
+      "path": "work/orchestration/mission-three-responsive-waits/source-proof-ef8b568.json",
+      "sha256": "c19505fab532abbc1d59bf809962efa1d43671e7b8518724b1bf36d1d2c1aa49",
+      "guards": 64,
+      "unchangedProductionAndGateObjects": 18,
+      "maintainedHarnessUnchanged": true,
+      "independentVerification": "All64 file digests and18 Git object equalities checked against bbd7371."
+    },
+    "aggregateAndBuildCarry": "Accepted explicit correspondence to previously reviewed bbd7371 aggregate/build evidence: production, scripts, tests, engineering, package/config and parity objects are unchanged. Exact new QA tests plus structural/parity checks cover this source repair. No fresh full aggregate/build or unrelated heavy rerun is claimed or required by this review.",
+    "typescriptQuality": "Not applicable: no maintained TypeScript changed. MJS readability/helper reuse and complete repair diff inspected; no fresh format/lint/Fallow/performance claim.",
+    "browserAndNative": "Not run. The actual M3 simulation producer test is model/tick evidence only, with native intercepted-source boundaries documented separately."
+  },
+  "retainedPositiveBoundaries": [
+    "All explicit long host polls and full diagnostic reads check queued preservation before ordinary diagnostics/health/budget/objective handling; browser operations retain their existing finite action bounds and asynchronous-sample limitations.",
+    "Valid queued stops during an already-issued Save are deferred until actual committed readback and the full protectedLatest digest update. Existing exact-source test still verifies that order; failures cannot fall back to Save or claim the superseded checkpoint is retained.",
+    "Passive Erosion observation is armed before the ordinary shrine order and ties the exact use transition to newly allocated linked-target effect IDs,64 contiguous present samples and actual zero-counter removal. Late/ambiguous/missing-turn or early-removal evidence rejects.",
+    "Lifecycle/terrain records are finite cloned scalar data. Packed256\u00d7256 walk bits are read as four quarter-cell values for each coarse height cell. The observer avoids nativePosition and all World/storage/clock mutations.",
+    "Terrain changes are correlated observations with other producers disclosed; host screenshots may follow a retained event. No retrospective proof is created for the prior unobserved Erosion effect."
+  ],
+  "remainingBoundaries": [
+    "Future actual gameplay/profile continuation requires its own explicit reviewed binding to the real latest terminal run and cumulative980.0833333333333 with retained failures. This source acceptance is not that admission.",
+    "Already accepted cancellation/reload/same-victim conversion evidence remains unaffected. The previous Erosion lifecycle is still unproved.",
+    "Original Run14 quarantine and actual later terminal/cleanup evidence remain immutable."
+  ],
+  "reviewAccess": {
+    "profiles": false,
+    "browser": false,
+    "dependencies": false,
+    "nativeExecution": false,
+    "writes": "Own work/reviews review artifact only during this re-review; valid source-bound owner test receipts reused."
+  },
+  "resourcesHeld": []
+}
