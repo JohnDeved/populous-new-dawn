@@ -98,7 +98,7 @@ Original 640x480 results:
 The spell controller expands/rotates the spell body while moving via a center
 stage toward that control, then shrinks it. Source `00484870` selects the same
 spell-descriptor body object `005a80de + model*62`. The native scheduler also
-requests six pulse frames starting at HFX1288 at the destination. Complete
+requests a six-frame pulse cycle starting at HFX1288 at the destination. Complete
 companion-controller and final-pixel evidence remains separate; the probe records
 spell raster arguments but supplies its raster function.
 
