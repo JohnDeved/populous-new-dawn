@@ -8,6 +8,7 @@ import { checkpointObservation, readCommittedCheckpoint } from './checkpoint-obs
 // Prepared acceptance inputs, not claimed results. Run one row per fresh owned
 // profile/output. The default is the small diagnostic; no automatic matrix loop.
 export const routes = {
+  'm1-bridge': { mission: 1, reward: 'bridge', model: 12, x: -5, z: 25, required: 1, target: 28, timeout: 120000 },
   'm1-lightning': { mission: 1, reward: 'lightning', model: 3, x: 11, z: 1, required: 1, target: 32, timeout: 120000 },
   'm1-bridge-fallback': { mission: 1, reward: 'bridge', model: 12, x: -5, z: 25, required: 1, target: 28, fallback: true, flightTab: true, timeout: 120000 },
   'm2-tornado': { mission: 2, reward: 'tornado', model: 4, x: -59, z: -105, required: 2, target: 82, flightTab: true, timeout: 300000 },
@@ -336,13 +337,15 @@ async function worshipOrder(page, shrine, kind, report, waitForShamanReadiness) 
   await page.mouse.click(point.x, point.y)
   const accepted = await page.evaluate(({ id, kind }) => {
     const w = window.testStore.getWorld()
-    return { turn: w.turn, paused: w.paused, selected: [...w.selected],
+    return { turn: w.turn, paused: w.paused, selected: [...w.selected], inputMask: w.inputMask,
+      mode: w.mode, message: w.message, lastOrderTurn: w.lastOrderTurn,
       worshippers: w.units.filter(u => u.team === 'blue' && u.kind === kind && u.work === id).map(u => u.id) }
   }, { id: shrine.id, kind })
-  assert.equal(accepted.paused, false)
-  assert.ok(accepted.worshippers.length, `${kind} public worship order must be accepted`)
+  // Retain attempted UI order and rejection feedback even when acceptance fails.
   report.orders.push({ shrine, kind, point, readiness, identity, skipped,
     cameraAssistance: 'scene.focus before mode setup; ordinary RAF only', accepted })
+  assert.equal(accepted.paused, false)
+  assert.ok(accepted.worshippers.length, `${kind} public worship order must be accepted: ${JSON.stringify(accepted)}`)
 }
 
 async function checkpointBeforeOrders(page, root, output, signal) {
@@ -406,7 +409,7 @@ export default async function ({ page, root, output, receipt, openMission, signa
     baseline = process.env.POPULOUS_WORSHIP_BASELINE === '1'
   assert.ok(route, `Unknown POPULOUS_WORSHIP_ROUTE: ${routeName}`)
   if (baseline) {
-    assert.equal(routeName, 'm1-lightning', 'Baseline is limited to the comparable first diagnostic')
+    assert.ok(['m1-bridge', 'm1-lightning'].includes(routeName), 'Baseline is limited to the explicitly comparable M1 diagnostics')
     assert.equal(receipt.source.commit, '89c9629991489fd1ce6dc52e938d1cec346bfead', 'Before-image baseline must be accepted89c9629')
   }
   if (receipt.profile) assert.equal(receipt.profile.mode, 'created', 'Every matrix row needs a fresh task profile')
@@ -510,13 +513,13 @@ export default async function ({ page, root, output, receipt, openMission, signa
       await page.screenshot({ path: resolve(output, 'phase-zero-composite.png') })
     }
     await wait(() => !!window.ordinaryWorship.payout || !!window.ordinaryWorship.errors.length, null, 'Arrival and ordinary next-turn payout', 30000)
-    await wait(baseline => {
+    await wait(({ baseline, reward }) => {
       const w = window.testStore.getWorld()
-      if (baseline) return !w.gifts.some(g => g.reward === 'lightning')
+      if (baseline) return !w.gifts.some(g => g.reward === reward)
       const c = w.worshipAcquisition.controllers
       return !w.gifts.some(g => g.ordinaryWorship) && !c.spell?.active && !c.companion?.active && !c.pulse?.active &&
         c.drawCommands.length === 0 && document.querySelector('.worship-acquisition-overlay').hidden
-    }, baseline, 'Body, companion, pulse and overlay retire', 30000)
+    }, { baseline, reward: route.reward }, 'Body, companion, pulse and overlay retire', 30000)
     report.final = await page.evaluate(() => ({ turn: window.testStore.getWorld().turn,
       status: window.testStore.getWorld().status, paused: window.testStore.getWorld().paused,
       diagnostics: window.testSceneRef.current.worshipPresentation?.diagnostics ?? [] }))
