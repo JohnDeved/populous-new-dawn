@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "continuationKind": "campaign-m3-sermon-bcf8ac55",
+  "priorRunId": "bcf8ac55-e418-49e4-a3d6-b7e804ee31d3",
+  "previousSourceFingerprint": "7510747dc9e1c7c2b26db5b83010a15be9017f1be606c64a3059626180ec2d3b",
+  "currentSourceFingerprint": "5f36e2f0ddd2825514ba385c768449b0d02501a994f0501be3a203011a0e517f",
+  "previousChecker": "e0117226c22ad5a705c4654988f95a528be8e119b78ce53bb0cf13099c6a38e6",
+  "currentChecker": "9b3932ba7f799e6cad6ff033e18f4bc5b635f00122c6c93a324aff784fba90db",
+  "decision": "ACCEPT",
+  "reviewer": "review_campaign_continuity",
+  "reference": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/campaign-m3-sermon-continuation/work/orchestration/campaign-m3-sermon-continuation/review-b45073e/review.json",
+  "referenceSha256": "ed04c3cfc16a5531fb40dcdfe62b467b22d70af35555f6aa50c85060506d0fe0",
+  "reviewedAt": "2026-10-05T22:15:23.232Z",
+  "previousReceiptSha256": "5a934ae4e50ef69bc353ec66df5eb64e90cb2be50d06848650aeec23c31e7214",
+  "profileId": "7c15026e-2bb3-41e9-83e9-ce408b869416",
+  "currentCommit": "b45073eb75f8e2c8aa66ef809e76eaf621a68fc0",
+  "application": "d199649478e710b0b90a2228927645232ef35b687fa2c5899cbad81babb4cfda",
+  "checkpointSha256": "2771e990a00b005fd23a86e7909f7f679c746aab1d977f589162df116934e5fa",
+  "scope": "Exact QA source/checker correspondence for this single immediate predecessor only. All failure/stop history and budgets retained. No browser/lease/lane grant; actual runtime and ordinary pre-entry checkpoint/Load checks remain mandatory."
+}
