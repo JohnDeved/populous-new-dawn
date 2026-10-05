@@ -1,0 +1,75 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "589c82e3-9bb6-4eff-b00e-8413855f9cb3",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "bbd7371e04a55e57b1e368530e92de6777864358",
+    "branch": "qa/mission-three-sermon-continuation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/mission-three-controls/successor-4813/sermon-record.json": "0f2316d2e8043c22117f1150860023301b653b406fa96906315c64761e9d28a3",
+      "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-reference.json": "2ab4f35aa5492f0d3eec96e6d71d0e9f796125a0f4d82a1bbc7eb59403c4d0c0",
+      "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-payload.json": "1d562ec19620c8b1b3c7369db44ff225176c40098a81e5151c073b1dacb8e8b5",
+      "work/reviews/copied-sermon-successor-bbd7371-review.json": "32260e5c45d4a49d9086a05e710e0b0ba08565308a38001a7411f258014e19bd",
+      "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-preflight.json": "460f45e80be22b0e40bc483adc5a22f97e1284be04a517447ac18b52b19afd73",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=15s",
+    "5760s",
+    "taskset",
+    "-c",
+    "0-3",
+    "env",
+    "M3_SERMON_RECORD=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/successor-4813/sermon-record.json",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--port",
+    "4366",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-controls/successor-sermon-01",
+    "--timeout",
+    "5700000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs",
+    "--profile",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/local-render-profiles/mission-three-recovered-sermon-4813",
+    "--profile-correspondence",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/successor-bbd7371-reference.json"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation",
+  "startedAt": "2026-10-05T05:16:52.969Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/successor-sermon-01.outer.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/work/orchestration/mission-three-sermon-continuation/successor-sermon-01.outer.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T05:29:22.312Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "Error: IncompleteRun: No relevant combat progress for two active minutes\n    at waitDiagnosticStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/observation.mjs:311:41)\n    at waitFor (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:426:20)\n    at async erosion (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:813:5)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:928:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21\n    at runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:236:47)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e092290c7b6e7aef8d239901587804515f55f1e3440e80c392791afb6f5ab186",
+  "sourceAfter": {
+    "headOid": "bbd7371e04a55e57b1e368530e92de6777864358",
+    "branch": "qa/mission-three-sermon-continuation",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/mission-three-controls/successor-4813/sermon-record.json": "0f2316d2e8043c22117f1150860023301b653b406fa96906315c64761e9d28a3",
+      "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-reference.json": "2ab4f35aa5492f0d3eec96e6d71d0e9f796125a0f4d82a1bbc7eb59403c4d0c0",
+      "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-payload.json": "1d562ec19620c8b1b3c7369db44ff225176c40098a81e5151c073b1dacb8e8b5",
+      "work/reviews/copied-sermon-successor-bbd7371-review.json": "32260e5c45d4a49d9086a05e710e0b0ba08565308a38001a7411f258014e19bd",
+      "work/orchestration/mission-three-sermon-continuation/successor-bbd7371-preflight.json": "460f45e80be22b0e40bc483adc5a22f97e1284be04a517447ac18b52b19afd73",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

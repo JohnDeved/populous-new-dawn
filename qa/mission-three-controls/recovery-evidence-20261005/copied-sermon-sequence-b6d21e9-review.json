@@ -1,0 +1,70 @@
+{
+  "decision": "ACCEPT",
+  "scope": "Source-bound in-progress ordinary cancellation, checkpoint reload and same-victim conversion sequence only. No terminal/cleanup, Erosion, clean journey, whole native composition or hardware performance acceptance.",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_copied_sermon_admission",
+  "reviewedAt": "2026-10-05T05:30:57.477097+00:00",
+  "sourceCommit": "bbd7371e04a55e57b1e368530e92de6777864358",
+  "runId": "1c430e41-9aca-4a05-bb45-7bd8076ffffd",
+  "proof": {
+    "path": "work/orchestration/mission-three-sermon-continuation/successor-conversion-proof/proof.json",
+    "sha256": "b6d21e9547eb5fe054b0db180f031a4fa18ae4d6b18c9c20ecbf03a3127dd76b"
+  },
+  "journalPrefix": {
+    "path": "work/orchestration/mission-three-sermon-continuation/successor-conversion-proof/actions-through-batch-0002.jsonl",
+    "sha256": "83d707181241b2144916bedabf9394f05f5f7229dfc5200acc0846763c5d436d",
+    "sourcePath": "work/orchestration/mission-three-controls/successor-sermon-01/actions.jsonl",
+    "lineCount": 42
+  },
+  "rawSnapshots": [
+    {
+      "path": "work/orchestration/mission-three-controls/successor-sermon-01/milestone-sermon-cancelled.json",
+      "sha256": "81397193c3dd7801b90de8b4b26bcfdc8d714c4eb70152fcd580bfe9fd86b00a",
+      "turn": 4899
+    },
+    {
+      "path": "work/orchestration/mission-three-controls/successor-sermon-01/milestone-sermon-reloaded.json",
+      "sha256": "cd770988a99552cb48ef502e9b36d4086f3a2e2bc58691b29ce0e4257df27b15",
+      "turn": 4878
+    },
+    {
+      "path": "work/orchestration/mission-three-controls/successor-sermon-01/milestone-conversion.json",
+      "sha256": "6d2354a324e1f64ad6add5af125276423dc4865083d8f0f91a5b3574bb1a7eb2",
+      "turn": 5144
+    },
+    {
+      "path": "work/orchestration/mission-three-controls/successor-sermon-01/batch-0002.json",
+      "sha256": "7d04216442606b46ff1faf6def6b0e3fb76bc01aa686c6f8703f6293e42778b8",
+      "turn": 5186
+    }
+  ],
+  "findings": [],
+  "verified": {
+    "sourceStillFrozenAndClean": true,
+    "cancelAcceptedMoveTurn": 4851,
+    "cancelObservedTurn": 4899,
+    "victimId": 50,
+    "preacherId": 3163,
+    "cancelRepresentation": "Living Yellow Brave, fight-owned person25, workTarget0, released listener flags, no conversionNative representation",
+    "clearedBitObserved": false,
+    "ordinaryReloadObservedTurn": 4860,
+    "observerEpoch": "reload-1",
+    "conversionAdjacentTurns": [
+      4876,
+      4877
+    ],
+    "replacementId": 3242,
+    "singletonPair": true,
+    "replacementFlag3": 16777216,
+    "replacementFlag4": 537133312,
+    "pausedBoundaryTurn": 5186,
+    "cumulativeActiveSeconds": 456.3333333333334,
+    "inheritedFailures": 3,
+    "newFailuresInFrozenPrefix": 0
+  },
+  "limits": [
+    "The active browser run has not produced a terminal receipt or cleanup proof.",
+    "Erosion shrine use is separate from observing the transient effect; current effect lifecycle remains unproved.",
+    "This is a recovered continuation retaining three historical failures, not a clean uninterrupted Run14.",
+    "Combat reuse is recorded honestly; no intermediate cleared-bit observation or new native composite probe is inferred."
+  ]
+}

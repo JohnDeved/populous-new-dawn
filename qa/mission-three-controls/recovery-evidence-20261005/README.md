@@ -11,3 +11,7 @@ See recovered-sermon-01-outcome.json for proof boundaries and raw artifact hashe
 ## Successor observation, still running
 
 The reviewed successor1c430e41 has now observed the actual fresh sequence: accepted Preacher move4851; listener50 owner/flag release at4899 under actual combat ownership; ordinary reload observed at4860 in a new epoch; then singleton50→Blue3242 at4876→4877 with converted flags. The cancellation explicitly has clearedBitObserved:false. The paused boundary5186 carried456.3333333333334 cumulative active seconds and all3 inherited failures with no new failure. See successor-cancel-reload-conversion.json and the frozen journal prefix. Ordinary Erosion is continuing; this is not a clean uninterrupted journey or terminal cleanup result.
+
+## Terminal outcome
+
+The successor ended through its existing progress-stall guard at05:29:12 and closed normally at05:29:19.566. The full4813 checkpoint remained unchanged; cleanup/continuation were verified for this new context only. The three inherited failures remain, and cumulative active time reached980.0833333333333 seconds. The shrine101 order was accepted5362 and one use was observed6003, but no actual Erosion onset/retirement witness was captured, so Erosion remains unproved. No flyby attribution is established. See successor-sermon-01-outcome.json, the full inner/outer receipts and the independent sermon-sequence review.

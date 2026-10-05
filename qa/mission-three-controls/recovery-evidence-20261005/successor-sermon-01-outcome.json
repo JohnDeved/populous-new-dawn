@@ -1,0 +1,80 @@
+{
+  "kind": "terminal-successor-outcome",
+  "runId": "1c430e41-9aca-4a05-bb45-7bd8076ffffd",
+  "sourceCommit": "bbd7371e04a55e57b1e368530e92de6777864358",
+  "status": "failed-prefix-and-unproved-erosion-effect",
+  "freshMilestones": [
+    {
+      "name": "sermon-cancelled",
+      "turn": 4899,
+      "time": 408.25,
+      "epoch": "saved-sermon-entry",
+      "activeSeconds": 425.25000000000006,
+      "at": "2026-10-05T05:17:55.693Z"
+    },
+    {
+      "name": "sermon-reloaded",
+      "turn": 4878,
+      "time": 406.5,
+      "epoch": "reload-1",
+      "activeSeconds": 430.66666666666674,
+      "at": "2026-10-05T05:18:30.825Z"
+    },
+    {
+      "name": "conversion",
+      "turn": 5144,
+      "time": 428.6666666666667,
+      "epoch": "reload-1",
+      "activeSeconds": 452.8333333333334,
+      "at": "2026-10-05T05:18:52.786Z"
+    }
+  ],
+  "inheritedFailureCount": 3,
+  "controlStops": [
+    {
+      "index": 2,
+      "at": "2026-10-05T04:51:09.497Z",
+      "outer": true,
+      "code": "preserve-latest",
+      "error": "IncompleteRun: Requested bounded stop preserving the actual committed checkpoint\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:619:11)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:913:11)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21",
+      "inheritedFromPriorGameplay": true
+    },
+    {
+      "index": 3,
+      "at": "2026-10-05T05:29:12.547Z",
+      "outer": true,
+      "code": "progress-stall",
+      "error": "IncompleteRun: No relevant combat progress for two active minutes\n    at waitDiagnosticStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/observation.mjs:311:41)\n    at waitFor (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:426:20)\n    at async erosion (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:813:5)\n    at async missionThreeControls (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/qa/mission-three-controls/driver.mjs:928:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:167:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-sermon-continuation/scripts/local-render/harness.mjs:254:21"
+    }
+  ],
+  "cumulativeActiveSeconds": 980.0833333333333,
+  "cleanupVerified": true,
+  "continuationVerified": true,
+  "preservedLatest": {
+    "version": 1,
+    "level": 3,
+    "turn": 4813,
+    "time": 401.0833333333333,
+    "checkpointSha256": "720e96e28b46a029e22a1c97729ead760471c96e4e10c59fd5ae620d5e66f57a",
+    "actorsSha256": "c2ce52fb00a0c58c4e0383e95b5a8ab74c98c366e0bfd1ea7cf74a36e9c5c715",
+    "terrainSha256": "99d1626815ea438b5ee9a769e7c30bbec63ea59ec3ce94c63bde7c3796e2e135",
+    "stockSha256": "3ba9bf87e026ccd5d45f1a270e8684896468846ecff1adfbacde67836788272c"
+  },
+  "erosion": {
+    "ordinaryOrderTurn": 5362,
+    "shrineUseObservedTurn": 6003,
+    "effectOnset": "unproved",
+    "effectRetirement": "unproved",
+    "flybyAttribution": "not established"
+  },
+  "terminalObservation": {
+    "path": "work/orchestration/mission-three-controls/successor-sermon-01/terminal-with-latest-preserved.json",
+    "sha256": "b7d71fb34de48c1af6a196294e0a6699d3aeee5f52ea21061774dca332da8bf3",
+    "turn": 11471
+  },
+  "limits": [
+    "Sermon cancellation/reload/same-victim conversion are independently accepted ordinary evidence, not a clean uninterrupted journey.",
+    "New context closed normally; original Run14 cleanup remains unknown.",
+    "No profile/IndexedDB bytes are published."
+  ]
+}

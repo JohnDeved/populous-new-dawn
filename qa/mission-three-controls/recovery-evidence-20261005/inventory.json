@@ -97,11 +97,35 @@
       "sha256": "32260e5c45d4a49d9086a05e710e0b0ba08565308a38001a7411f258014e19bd",
       "bytes": 5795,
       "sourceArtifact": "work/reviews/copied-sermon-successor-bbd7371-review.json"
+    },
+    {
+      "file": "successor-sermon-01.inner.json",
+      "sha256": "e43af2735c564e5d025b13036481187764a4d6d715df68f85f04efbc3e7c6bd6",
+      "bytes": 135234,
+      "sourceArtifact": "work/orchestration/mission-three-controls/successor-sermon-01/receipt.json"
+    },
+    {
+      "file": "successor-sermon-01.outer.json",
+      "sha256": "c1d189d271f39d8472799722369e182a79dca17c1ee6c6a8d1ea6cb9d3646b18",
+      "bytes": 6082,
+      "sourceArtifact": "work/orchestration/mission-three-sermon-continuation/successor-sermon-01.outer.json"
+    },
+    {
+      "file": "successor-sermon-01-outcome.json",
+      "sha256": "a13211799ab291848985487d1a973e0f6041a3c27ea920dbd89676f4171c4053",
+      "bytes": 4280,
+      "sourceArtifact": "work/orchestration/mission-three-sermon-continuation/successor-sermon-01-outcome.json"
+    },
+    {
+      "file": "copied-sermon-sequence-b6d21e9-review.json",
+      "sha256": "b102c0987f9f1eb47ca83d0f1f37661b3f426caa86118118f991e10cc4e0a611",
+      "bytes": 3195,
+      "sourceArtifact": "work/reviews/copied-sermon-sequence-b6d21e9-review.json"
     }
   ],
   "limits": [
     "No browser profile, IndexedDB or private storage files are included.",
     "OriginalRun14 cancellation/cleanup remain failed/unverified. New first recovered cancellation failed; actual saved-state Load and singleton conversion were observed.",
-    "Successor has observed fresh ordinary cancellation/reload/same-victim conversion, with all3 prior failures; the gameplay run is still active and has no terminal cleanup receipt yet."
+    "Successor proved the ordinary sermon sequence and closed normally after an unproved Erosion effect wait stalled. Latest4813 is preserved; all failed-prefix history and980.0833333333333 active seconds remain."
   ]
 }
