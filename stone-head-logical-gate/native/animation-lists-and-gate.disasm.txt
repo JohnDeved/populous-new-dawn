@@ -1,0 +1,540 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004ee770 <.text+0xed770>:
+  4ee770:	f6 05 61 c6 89 00 02 	test   BYTE PTR ds:0x89c661,0x2
+  4ee777:	56                   	push   esi
+  4ee778:	75 34                	jne    0x4ee7ae
+  4ee77a:	8b 35 24 03 89 00    	mov    esi,DWORD PTR ds:0x890324
+  4ee780:	85 f6                	test   esi,esi
+  4ee782:	74 10                	je     0x4ee794
+  4ee784:	56                   	push   esi
+  4ee785:	e8 26 00 00 00       	call   0x4ee7b0
+  4ee78a:	83 c4 04             	add    esp,0x4
+  4ee78d:	8b 76 04             	mov    esi,DWORD PTR [esi+0x4]
+  4ee790:	85 f6                	test   esi,esi
+  4ee792:	75 f0                	jne    0x4ee784
+  4ee794:	8b 35 30 03 89 00    	mov    esi,DWORD PTR ds:0x890330
+  4ee79a:	85 f6                	test   esi,esi
+  4ee79c:	74 10                	je     0x4ee7ae
+  4ee79e:	56                   	push   esi
+  4ee79f:	e8 0c 00 00 00       	call   0x4ee7b0
+  4ee7a4:	83 c4 04             	add    esp,0x4
+  4ee7a7:	8b 76 04             	mov    esi,DWORD PTR [esi+0x4]
+  4ee7aa:	85 f6                	test   esi,esi
+  4ee7ac:	75 f0                	jne    0x4ee79e
+  4ee7ae:	5e                   	pop    esi
+  4ee7af:	c3                   	ret
+  4ee7b0:	53                   	push   ebx
+  4ee7b1:	33 c9                	xor    ecx,ecx
+  4ee7b3:	56                   	push   esi
+  4ee7b4:	57                   	push   edi
+  4ee7b5:	8b 74 24 10          	mov    esi,DWORD PTR [esp+0x10]
+  4ee7b9:	8a 4e 3a             	mov    cl,BYTE PTR [esi+0x3a]
+  4ee7bc:	8d 14 89             	lea    edx,[ecx+ecx*4]
+  4ee7bf:	8d bc 51 f8 6a 5a 00 	lea    edi,[ecx+edx*2+0x5a6af8]
+  4ee7c6:	66 8b 4e 33          	mov    cx,WORD PTR [esi+0x33]
+  4ee7ca:	66 81 f9 50 06       	cmp    cx,0x650
+  4ee7cf:	0f 84 f6 01 00 00    	je     0x4ee9cb
+  4ee7d5:	66 8b 56 35          	mov    dx,WORD PTR [esi+0x35]
+  4ee7d9:	f6 c2 02             	test   dl,0x2
+  4ee7dc:	0f 85 e9 01 00 00    	jne    0x4ee9cb
+  4ee7e2:	33 c0                	xor    eax,eax
+  4ee7e4:	8a 47 04             	mov    al,BYTE PTR [edi+0x4]
+  4ee7e7:	48                   	dec    eax
+  4ee7e8:	83 f8 03             	cmp    eax,0x3
+  4ee7eb:	0f 87 da 01 00 00    	ja     0x4ee9cb
+  4ee7f1:	ff 24 85 d0 e9 4e 00 	jmp    DWORD PTR [eax*4+0x4ee9d0]
+  4ee7f8:	a1 81 79 89 00       	mov    eax,ds:0x897981
+  4ee7fd:	39 46 18             	cmp    DWORD PTR [esi+0x18],eax
+  4ee800:	74 0a                	je     0x4ee80c
+  4ee802:	f6 46 16 04          	test   BYTE PTR [esi+0x16],0x4
+  4ee806:	0f 85 bf 01 00 00    	jne    0x4ee9cb
+  4ee80c:	66 0f be 5f 03       	movsx  bx,BYTE PTR [edi+0x3]
+  4ee811:	66 03 5e 37          	add    bx,WORD PTR [esi+0x37]
+  4ee815:	66 89 5e 37          	mov    WORD PTR [esi+0x37],bx
+  4ee819:	0f b7 d3             	movzx  edx,bx
+  4ee81c:	0f be 47 01          	movsx  eax,BYTE PTR [edi+0x1]
+  4ee820:	c1 e0 02             	shl    eax,0x2
+  4ee823:	3b d0                	cmp    edx,eax
+  4ee825:	0f 8c a0 01 00 00    	jl     0x4ee9cb
+  4ee82b:	66 2b d8             	sub    bx,ax
+  4ee82e:	0f bf c1             	movsx  eax,cx
+  4ee831:	66 89 5e 37          	mov    WORD PTR [esi+0x37],bx
+  4ee835:	2d 4b 04 00 00       	sub    eax,0x44b
+  4ee83a:	3d cd 00 00 00       	cmp    eax,0xcd
+  4ee83f:	0f 87 86 01 00 00    	ja     0x4ee9cb
+  4ee845:	33 c9                	xor    ecx,ecx
+  4ee847:	8a 88 00 ea 4e 00    	mov    cl,BYTE PTR [eax+0x4eea00]
+  4ee84d:	ff 24 8d e0 e9 4e 00 	jmp    DWORD PTR [ecx*4+0x4ee9e0]
+  4ee854:	66 c7 46 33 50 06    	mov    WORD PTR [esi+0x33],0x650
+  4ee85a:	5f                   	pop    edi
+  4ee85b:	5e                   	pop    esi
+  4ee85c:	5b                   	pop    ebx
+  4ee85d:	c3                   	ret
+  4ee85e:	a1 81 79 89 00       	mov    eax,ds:0x897981
+  4ee863:	39 46 18             	cmp    DWORD PTR [esi+0x18],eax
+  4ee866:	74 0a                	je     0x4ee872
+  4ee868:	f6 46 16 04          	test   BYTE PTR [esi+0x16],0x4
+  4ee86c:	0f 85 59 01 00 00    	jne    0x4ee9cb
+  4ee872:	66 8b 46 37          	mov    ax,WORD PTR [esi+0x37]
+  4ee876:	66 85 c0             	test   ax,ax
+  4ee879:	75 28                	jne    0x4ee8a3
+  4ee87b:	66 0f be 47 03       	movsx  ax,BYTE PTR [edi+0x3]
+  4ee880:	0f bf f9             	movsx  edi,cx
+  4ee883:	66 89 46 37          	mov    WORD PTR [esi+0x37],ax
+  4ee887:	8a 56 39             	mov    dl,BYTE PTR [esi+0x39]
+  4ee88a:	fe c2                	inc    dl
+  4ee88c:	8d 1c 7f             	lea    ebx,[edi+edi*2]
+  4ee88f:	88 56 39             	mov    BYTE PTR [esi+0x39],dl
+  4ee892:	a1 44 df 59 00       	mov    eax,ds:0x59df44
+  4ee897:	38 54 58 01          	cmp    BYTE PTR [eax+ebx*2+0x1],dl
+  4ee89b:	77 0c                	ja     0x4ee8a9
+  4ee89d:	c6 46 39 00          	mov    BYTE PTR [esi+0x39],0x0
+  4ee8a1:	eb 06                	jmp    0x4ee8a9
+  4ee8a3:	66 48                	dec    ax
+  4ee8a5:	66 89 46 37          	mov    WORD PTR [esi+0x37],ax
+  4ee8a9:	0f bf c1             	movsx  eax,cx
+  4ee8ac:	3d d8 00 00 00       	cmp    eax,0xd8
+  4ee8b1:	0f 87 14 01 00 00    	ja     0x4ee9cb
+  4ee8b7:	33 c9                	xor    ecx,ecx
+  4ee8b9:	8a 88 e4 ea 4e 00    	mov    cl,BYTE PTR [eax+0x4eeae4]
+  4ee8bf:	ff 24 8d d0 ea 4e 00 	jmp    DWORD PTR [ecx*4+0x4eead0]
+  4ee8c6:	f6 05 a6 5d 89 00 01 	test   BYTE PTR ds:0x895da6,0x1
+  4ee8cd:	0f 85 f8 00 00 00    	jne    0x4ee9cb
+  4ee8d3:	f6 05 a8 5d 89 00 08 	test   BYTE PTR ds:0x895da8,0x8
+  4ee8da:	0f 85 eb 00 00 00    	jne    0x4ee9cb
+  4ee8e0:	56                   	push   esi
+  4ee8e1:	e8 4a 0d fd ff       	call   0x4bf630
+  4ee8e6:	83 c4 04             	add    esp,0x4
+  4ee8e9:	5f                   	pop    edi
+  4ee8ea:	5e                   	pop    esi
+  4ee8eb:	5b                   	pop    ebx
+  4ee8ec:	c3                   	ret
+  4ee8ed:	66 0f be 47 03       	movsx  ax,BYTE PTR [edi+0x3]
+  4ee8f2:	0f be 4e 3b          	movsx  ecx,BYTE PTR [esi+0x3b]
+  4ee8f6:	66 03 46 37          	add    ax,WORD PTR [esi+0x37]
+  4ee8fa:	8d 1c 89             	lea    ebx,[ecx+ecx*4]
+  4ee8fd:	66 89 46 37          	mov    WORD PTR [esi+0x37],ax
+  4ee901:	8d 14 5d 00 00 00 00 	lea    edx,[ebx*2+0x0]
+  4ee908:	0f be 8a 20 a1 5a 00 	movsx  ecx,BYTE PTR [edx+0x5aa120]
+  4ee90f:	0f b7 c0             	movzx  eax,ax
+  4ee912:	c1 e1 02             	shl    ecx,0x2
+  4ee915:	3b c8                	cmp    ecx,eax
+  4ee917:	7f 06                	jg     0x4ee91f
+  4ee919:	66 c7 46 37 00 00    	mov    WORD PTR [esi+0x37],0x0
+  4ee91f:	66 8b 46 37          	mov    ax,WORD PTR [esi+0x37]
+  4ee923:	5f                   	pop    edi
+  4ee924:	66 c1 e8 02          	shr    ax,0x2
+  4ee928:	0f b7 c8             	movzx  ecx,ax
+  4ee92b:	66 0f b6 94 11 18 a1 	movzx  dx,BYTE PTR [ecx+edx*1+0x5aa118]
+  4ee932:	5a 00 
+  4ee934:	66 89 56 33          	mov    WORD PTR [esi+0x33],dx
+  4ee938:	5e                   	pop    esi
+  4ee939:	5b                   	pop    ebx
+  4ee93a:	c3                   	ret
+  4ee93b:	f6 c6 10             	test   dh,0x10
+  4ee93e:	74 29                	je     0x4ee969
+  4ee940:	66 0f be 47 03       	movsx  ax,BYTE PTR [edi+0x3]
+  4ee945:	66 03 46 72          	add    ax,WORD PTR [esi+0x72]
+  4ee949:	33 c9                	xor    ecx,ecx
+  4ee94b:	66 89 46 72          	mov    WORD PTR [esi+0x72],ax
+  4ee94f:	8a 4e 71             	mov    cl,BYTE PTR [esi+0x71]
+  4ee952:	0f bf c0             	movsx  eax,ax
+  4ee955:	c1 e1 02             	shl    ecx,0x2
+  4ee958:	3b c8                	cmp    ecx,eax
+  4ee95a:	7f 6f                	jg     0x4ee9cb
+  4ee95c:	56                   	push   esi
+  4ee95d:	e8 6e e2 f1 ff       	call   0x40cbd0
+  4ee962:	83 c4 04             	add    esp,0x4
+  4ee965:	5f                   	pop    edi
+  4ee966:	5e                   	pop    esi
+  4ee967:	5b                   	pop    ebx
+  4ee968:	c3                   	ret
+  4ee969:	56                   	push   esi
+  4ee96a:	e8 a1 e2 f1 ff       	call   0x40cc10
+  4ee96f:	83 c4 04             	add    esp,0x4
+  4ee972:	85 c0                	test   eax,eax
+  4ee974:	75 55                	jne    0x4ee9cb
+  4ee976:	a1 81 79 89 00       	mov    eax,ds:0x897981
+  4ee97b:	39 46 18             	cmp    DWORD PTR [esi+0x18],eax
+  4ee97e:	74 06                	je     0x4ee986
+  4ee980:	f6 46 16 04          	test   BYTE PTR [esi+0x16],0x4
+  4ee984:	75 45                	jne    0x4ee9cb
+  4ee986:	66 0f be 7f 03       	movsx  di,BYTE PTR [edi+0x3]
+  4ee98b:	0f be 46 3b          	movsx  eax,BYTE PTR [esi+0x3b]
+  4ee98f:	66 03 7e 37          	add    di,WORD PTR [esi+0x37]
+  4ee993:	8b c8                	mov    ecx,eax
+  4ee995:	66 89 7e 37          	mov    WORD PTR [esi+0x37],di
+  4ee999:	8d 14 80             	lea    edx,[eax+eax*4]
+  4ee99c:	8d 04 d2             	lea    eax,[edx+edx*8]
+  4ee99f:	33 d2                	xor    edx,edx
+  4ee9a1:	03 c1                	add    eax,ecx
+  4ee9a3:	c1 e0 03             	shl    eax,0x3
+  4ee9a6:	8b 88 0c cc 87 00    	mov    ecx,DWORD PTR [eax+0x87cc0c]
+  4ee9ac:	8d 1c 89             	lea    ebx,[ecx+ecx*4]
+  4ee9af:	66 8b 94 58 ae cc 87 	mov    dx,WORD PTR [eax+ebx*2+0x87ccae]
+  4ee9b6:	00 
+  4ee9b7:	0f b7 c7             	movzx  eax,di
+  4ee9ba:	8d 0c 95 04 00 00 00 	lea    ecx,[edx*4+0x4]
+  4ee9c1:	3b c8                	cmp    ecx,eax
+  4ee9c3:	7f 06                	jg     0x4ee9cb
+  4ee9c5:	66 c7 46 37 00 00    	mov    WORD PTR [esi+0x37],0x0
+  4ee9cb:	5f                   	pop    edi
+  4ee9cc:	5e                   	pop    esi
+  4ee9cd:	5b                   	pop    ebx
+  4ee9ce:	c3                   	ret
+  4ee9cf:	90                   	nop
+  4ee9d0:	f8                   	clc
+  4ee9d1:	e7 4e                	out    0x4e,eax
+  4ee9d3:	00 5e e8             	add    BYTE PTR [esi-0x18],bl
+  4ee9d6:	4e                   	dec    esi
+  4ee9d7:	00 ed                	add    ch,ch
+  4ee9d9:	e8 4e 00 3b e9       	call   0xe989ea2c
+  4ee9de:	4e                   	dec    esi
+  4ee9df:	00 54 e8 4e          	add    BYTE PTR [eax+ebp*8+0x4e],dl
+  4ee9e3:	00 54 e8 4e          	add    BYTE PTR [eax+ebp*8+0x4e],dl
+  4ee9e7:	00 54 e8 4e          	add    BYTE PTR [eax+ebp*8+0x4e],dl
+  4ee9eb:	00 54 e8 4e          	add    BYTE PTR [eax+ebp*8+0x4e],dl
+  4ee9ef:	00 54 e8 4e          	add    BYTE PTR [eax+ebp*8+0x4e],dl
+  4ee9f3:	00 54 e8 4e          	add    BYTE PTR [eax+ebp*8+0x4e],dl
+  4ee9f7:	00 54 e8 4e          	add    BYTE PTR [eax+ebp*8+0x4e],dl
+  4ee9fb:	00 cb                	add    bl,cl
+  4ee9fd:	e9 4e 00 00 07       	jmp    0x74eea50
+  4eea02:	07                   	pop    es
+  4eea03:	07                   	pop    es
+  4eea04:	07                   	pop    es
+  4eea05:	07                   	pop    es
+  4eea06:	07                   	pop    es
+  4eea07:	07                   	pop    es
+  4eea08:	07                   	pop    es
+  4eea09:	01 07                	add    DWORD PTR [edi],eax
+  4eea0b:	07                   	pop    es
+  4eea0c:	07                   	pop    es
+  4eea0d:	07                   	pop    es
+  4eea0e:	07                   	pop    es
+  4eea0f:	07                   	pop    es
+  4eea10:	07                   	pop    es
+  4eea11:	07                   	pop    es
+  4eea12:	07                   	pop    es
+  4eea13:	07                   	pop    es
+  4eea14:	07                   	pop    es
+  4eea15:	07                   	pop    es
+  4eea16:	07                   	pop    es
+  4eea17:	07                   	pop    es
+  4eea18:	07                   	pop    es
+  4eea19:	07                   	pop    es
+  4eea1a:	07                   	pop    es
+  4eea1b:	07                   	pop    es
+  4eea1c:	07                   	pop    es
+  4eea1d:	07                   	pop    es
+  4eea1e:	07                   	pop    es
+  4eea1f:	07                   	pop    es
+  4eea20:	07                   	pop    es
+  4eea21:	07                   	pop    es
+  4eea22:	07                   	pop    es
+  4eea23:	07                   	pop    es
+  4eea24:	07                   	pop    es
+  4eea25:	07                   	pop    es
+  4eea26:	07                   	pop    es
+  4eea27:	07                   	pop    es
+  4eea28:	07                   	pop    es
+  4eea29:	07                   	pop    es
+  4eea2a:	07                   	pop    es
+  4eea2b:	07                   	pop    es
+  4eea2c:	07                   	pop    es
+  4eea2d:	07                   	pop    es
+  4eea2e:	07                   	pop    es
+  4eea2f:	07                   	pop    es
+  4eea30:	07                   	pop    es
+  4eea31:	07                   	pop    es
+  4eea32:	07                   	pop    es
+  4eea33:	07                   	pop    es
+  4eea34:	07                   	pop    es
+  4eea35:	07                   	pop    es
+  4eea36:	07                   	pop    es
+  4eea37:	07                   	pop    es
+  4eea38:	07                   	pop    es
+  4eea39:	07                   	pop    es
+  4eea3a:	07                   	pop    es
+  4eea3b:	07                   	pop    es
+  4eea3c:	07                   	pop    es
+  4eea3d:	07                   	pop    es
+  4eea3e:	07                   	pop    es
+  4eea3f:	07                   	pop    es
+  4eea40:	07                   	pop    es
+  4eea41:	07                   	pop    es
+  4eea42:	07                   	pop    es
+  4eea43:	07                   	pop    es
+  4eea44:	07                   	pop    es
+  4eea45:	07                   	pop    es
+  4eea46:	07                   	pop    es
+  4eea47:	07                   	pop    es
+  4eea48:	07                   	pop    es
+  4eea49:	07                   	pop    es
+  4eea4a:	07                   	pop    es
+  4eea4b:	07                   	pop    es
+  4eea4c:	07                   	pop    es
+  4eea4d:	07                   	pop    es
+  4eea4e:	07                   	pop    es
+  4eea4f:	07                   	pop    es
+  4eea50:	07                   	pop    es
+  4eea51:	02 07                	add    al,BYTE PTR [edi]
+  4eea53:	07                   	pop    es
+  4eea54:	07                   	pop    es
+  4eea55:	07                   	pop    es
+  4eea56:	07                   	pop    es
+  4eea57:	07                   	pop    es
+  4eea58:	07                   	pop    es
+  4eea59:	07                   	pop    es
+  4eea5a:	07                   	pop    es
+  4eea5b:	07                   	pop    es
+  4eea5c:	07                   	pop    es
+  4eea5d:	07                   	pop    es
+  4eea5e:	07                   	pop    es
+  4eea5f:	03 07                	add    eax,DWORD PTR [edi]
+  4eea61:	07                   	pop    es
+  4eea62:	07                   	pop    es
+  4eea63:	07                   	pop    es
+  4eea64:	07                   	pop    es
+  4eea65:	07                   	pop    es
+  4eea66:	07                   	pop    es
+  4eea67:	07                   	pop    es
+  4eea68:	07                   	pop    es
+  4eea69:	07                   	pop    es
+  4eea6a:	07                   	pop    es
+  4eea6b:	07                   	pop    es
+  4eea6c:	07                   	pop    es
+  4eea6d:	07                   	pop    es
+  4eea6e:	07                   	pop    es
+  4eea6f:	07                   	pop    es
+  4eea70:	07                   	pop    es
+  4eea71:	07                   	pop    es
+  4eea72:	07                   	pop    es
+  4eea73:	07                   	pop    es
+  4eea74:	07                   	pop    es
+  4eea75:	07                   	pop    es
+  4eea76:	07                   	pop    es
+  4eea77:	07                   	pop    es
+  4eea78:	07                   	pop    es
+  4eea79:	07                   	pop    es
+  4eea7a:	07                   	pop    es
+  4eea7b:	07                   	pop    es
+  4eea7c:	07                   	pop    es
+  4eea7d:	07                   	pop    es
+  4eea7e:	07                   	pop    es
+  4eea7f:	07                   	pop    es
+  4eea80:	07                   	pop    es
+  4eea81:	07                   	pop    es
+  4eea82:	07                   	pop    es
+  4eea83:	07                   	pop    es
+  4eea84:	07                   	pop    es
+  4eea85:	07                   	pop    es
+  4eea86:	07                   	pop    es
+  4eea87:	07                   	pop    es
+  4eea88:	07                   	pop    es
+  4eea89:	07                   	pop    es
+  4eea8a:	07                   	pop    es
+  4eea8b:	07                   	pop    es
+  4eea8c:	07                   	pop    es
+  4eea8d:	04 07                	add    al,0x7
+  4eea8f:	07                   	pop    es
+  4eea90:	07                   	pop    es
+  4eea91:	07                   	pop    es
+  4eea92:	07                   	pop    es
+  4eea93:	07                   	pop    es
+  4eea94:	07                   	pop    es
+  4eea95:	07                   	pop    es
+  4eea96:	07                   	pop    es
+  4eea97:	07                   	pop    es
+  4eea98:	07                   	pop    es
+  4eea99:	07                   	pop    es
+  4eea9a:	07                   	pop    es
+  4eea9b:	07                   	pop    es
+  4eea9c:	07                   	pop    es
+  4eea9d:	07                   	pop    es
+  4eea9e:	07                   	pop    es
+  4eea9f:	07                   	pop    es
+  4eeaa0:	07                   	pop    es
+  4eeaa1:	07                   	pop    es
+  4eeaa2:	07                   	pop    es
+  4eeaa3:	07                   	pop    es
+  4eeaa4:	07                   	pop    es
+  4eeaa5:	05 07 07 07 07       	add    eax,0x7070707
+  4eeaaa:	07                   	pop    es
+  4eeaab:	07                   	pop    es
+  4eeaac:	07                   	pop    es
+  4eeaad:	07                   	pop    es
+  4eeaae:	07                   	pop    es
+  4eeaaf:	07                   	pop    es
+  4eeab0:	07                   	pop    es
+  4eeab1:	07                   	pop    es
+  4eeab2:	07                   	pop    es
+  4eeab3:	07                   	pop    es
+  4eeab4:	07                   	pop    es
+  4eeab5:	07                   	pop    es
+  4eeab6:	07                   	pop    es
+  4eeab7:	07                   	pop    es
+  4eeab8:	07                   	pop    es
+  4eeab9:	07                   	pop    es
+  4eeaba:	07                   	pop    es
+  4eeabb:	07                   	pop    es
+  4eeabc:	07                   	pop    es
+  4eeabd:	07                   	pop    es
+  4eeabe:	07                   	pop    es
+  4eeabf:	07                   	pop    es
+  4eeac0:	07                   	pop    es
+  4eeac1:	07                   	pop    es
+  4eeac2:	07                   	pop    es
+  4eeac3:	07                   	pop    es
+  4eeac4:	07                   	pop    es
+  4eeac5:	07                   	pop    es
+  4eeac6:	07                   	pop    es
+  4eeac7:	07                   	pop    es
+  4eeac8:	07                   	pop    es
+  4eeac9:	07                   	pop    es
+  4eeaca:	07                   	pop    es
+  4eeacb:	07                   	pop    es
+  4eeacc:	07                   	pop    es
+  4eeacd:	06                   	push   es
+  4eeace:	8b ff                	mov    edi,edi
+  4eead0:	c6                   	(bad)
+  4eead1:	e8 4e 00 c6 e8       	call   0xe914eb24
+  4eead6:	4e                   	dec    esi
+  4eead7:	00 c6                	add    dh,al
+  4eead9:	e8 4e 00 c6 e8       	call   0xe914eb2c
+  4eeade:	4e                   	dec    esi
+  4eeadf:	00 cb                	add    bl,cl
+  4eeae1:	e9 4e 00 00 04       	jmp    0x44eeb34
+  4eeae6:	04 04                	add    al,0x4
+  4eeae8:	04 04                	add    al,0x4
+  4eeaea:	04 04                	add    al,0x4
+  4eeaec:	04 04                	add    al,0x4
+  4eeaee:	04 04                	add    al,0x4
+  4eeaf0:	04 04                	add    al,0x4
+  4eeaf2:	04 04                	add    al,0x4
+  4eeaf4:	04 04                	add    al,0x4
+  4eeaf6:	04 04                	add    al,0x4
+  4eeaf8:	04 04                	add    al,0x4
+  4eeafa:	04 04                	add    al,0x4
+  4eeafc:	04 04                	add    al,0x4
+  4eeafe:	04 04                	add    al,0x4
+  4eeb00:	04 04                	add    al,0x4
+  4eeb02:	04 04                	add    al,0x4
+  4eeb04:	04 04                	add    al,0x4
+  4eeb06:	04 04                	add    al,0x4
+  4eeb08:	04 04                	add    al,0x4
+  4eeb0a:	04 04                	add    al,0x4
+  4eeb0c:	01 04 04             	add    DWORD PTR [esp+eax*1],eax
+  4eeb0f:	04 04                	add    al,0x4
+  4eeb11:	04 04                	add    al,0x4
+  4eeb13:	04 04                	add    al,0x4
+  4eeb15:	04 04                	add    al,0x4
+  4eeb17:	04 04                	add    al,0x4
+  4eeb19:	04 04                	add    al,0x4
+  4eeb1b:	04 04                	add    al,0x4
+  4eeb1d:	04 04                	add    al,0x4
+  4eeb1f:	04 04                	add    al,0x4
+  4eeb21:	04 04                	add    al,0x4
+  4eeb23:	04 04                	add    al,0x4
+  4eeb25:	04 04                	add    al,0x4
+  4eeb27:	04 04                	add    al,0x4
+  4eeb29:	04 04                	add    al,0x4
+  4eeb2b:	04 02                	add    al,0x2
+  4eeb2d:	04 04                	add    al,0x4
+  4eeb2f:	04 04                	add    al,0x4
+  4eeb31:	04 04                	add    al,0x4
+  4eeb33:	04 04                	add    al,0x4
+  4eeb35:	04 04                	add    al,0x4
+  4eeb37:	04 04                	add    al,0x4
+  4eeb39:	04 04                	add    al,0x4
+  4eeb3b:	04 04                	add    al,0x4
+  4eeb3d:	04 04                	add    al,0x4
+  4eeb3f:	04 04                	add    al,0x4
+  4eeb41:	04 04                	add    al,0x4
+  4eeb43:	04 04                	add    al,0x4
+  4eeb45:	04 04                	add    al,0x4
+  4eeb47:	04 04                	add    al,0x4
+  4eeb49:	04 04                	add    al,0x4
+  4eeb4b:	04 04                	add    al,0x4
+  4eeb4d:	04 04                	add    al,0x4
+  4eeb4f:	04 04                	add    al,0x4
+  4eeb51:	04 04                	add    al,0x4
+  4eeb53:	04 04                	add    al,0x4
+  4eeb55:	04 04                	add    al,0x4
+  4eeb57:	04 04                	add    al,0x4
+  4eeb59:	04 04                	add    al,0x4
+  4eeb5b:	04 04                	add    al,0x4
+  4eeb5d:	04 04                	add    al,0x4
+  4eeb5f:	04 04                	add    al,0x4
+  4eeb61:	04 04                	add    al,0x4
+  4eeb63:	04 04                	add    al,0x4
+  4eeb65:	04 04                	add    al,0x4
+  4eeb67:	04 04                	add    al,0x4
+  4eeb69:	04 04                	add    al,0x4
+  4eeb6b:	04 04                	add    al,0x4
+  4eeb6d:	04 04                	add    al,0x4
+  4eeb6f:	04 04                	add    al,0x4
+  4eeb71:	04 04                	add    al,0x4
+  4eeb73:	04 04                	add    al,0x4
+  4eeb75:	04 04                	add    al,0x4
+  4eeb77:	04 04                	add    al,0x4
+  4eeb79:	04 04                	add    al,0x4
+  4eeb7b:	04 04                	add    al,0x4
+  4eeb7d:	04 04                	add    al,0x4
+  4eeb7f:	04 04                	add    al,0x4
+  4eeb81:	04 04                	add    al,0x4
+  4eeb83:	04 04                	add    al,0x4
+  4eeb85:	04 04                	add    al,0x4
+  4eeb87:	04 04                	add    al,0x4
+  4eeb89:	04 04                	add    al,0x4
+  4eeb8b:	04 04                	add    al,0x4
+  4eeb8d:	04 04                	add    al,0x4
+  4eeb8f:	04 04                	add    al,0x4
+  4eeb91:	04 04                	add    al,0x4
+  4eeb93:	04 04                	add    al,0x4
+  4eeb95:	04 04                	add    al,0x4
+  4eeb97:	04 04                	add    al,0x4
+  4eeb99:	04 04                	add    al,0x4
+  4eeb9b:	04 04                	add    al,0x4
+  4eeb9d:	04 04                	add    al,0x4
+  4eeb9f:	04 04                	add    al,0x4
+  4eeba1:	04 04                	add    al,0x4
+  4eeba3:	04 04                	add    al,0x4
+  4eeba5:	04 04                	add    al,0x4
+  4eeba7:	04 04                	add    al,0x4
+  4eeba9:	04 04                	add    al,0x4
+  4eebab:	04 04                	add    al,0x4
+  4eebad:	04 04                	add    al,0x4
+  4eebaf:	04 04                	add    al,0x4
+  4eebb1:	04 04                	add    al,0x4
+  4eebb3:	04 04                	add    al,0x4
+  4eebb5:	04 04                	add    al,0x4
+  4eebb7:	04 04                	add    al,0x4
+  4eebb9:	04 04                	add    al,0x4
+  4eebbb:	04 03                	add    al,0x3
+  4eebbd:	cc                   	int3
+  4eebbe:	cc                   	int3
+  4eebbf:	cc                   	int3
+  4eebc0:	0f be 44 24 04       	movsx  eax,BYTE PTR [esp+0x4]
+  4eebc5:	83 ec 08             	sub    esp,0x8
+  4eebc8:	8b c8                	mov    ecx,eax
+  4eebca:	8d 14 80             	lea    edx,[eax+eax*4]
+  4eebcd:	56                   	push   esi
+  4eebce:	8d 04 51             	lea    eax,[ecx+edx*2]
+  4eebd1:	8d 34 c0             	lea    esi,[eax+eax*8]
+  4eebd4:	8d 04 f1             	lea    eax,[ecx+esi*8]
+  4eebd7:	8d 74 24 04          	lea    esi,[esp+0x4]
+  4eebdb:	68 00 40 00 00       	push   0x4000
+  4eebe0:	8d 94 81 c8 d1 89 00 	lea    edx,[ecx+eax*4+0x89d1c8]
+  4eebe7:	8d 84 81 ec d1 89 00 	lea    eax,[ecx+eax*4+0x89d1ec]
+  4eebee:	8b 08                	mov    ecx,DWORD PTR [eax]
+  4eebf0:	89 0e                	mov    DWORD PTR [esi],ecx
+  4eebf2:	66 8b 40 04          	mov    ax,WORD PTR [eax+0x4]
+  4eebf6:	66 89 46 04          	mov    WORD PTR [esi+0x4],ax
+  4eebfa:	8d 74 24 08          	lea    esi,[esp+0x8]
+  4eebfe:	66                   	data16
+  4eebff:	8b                   	.byte 0x8b

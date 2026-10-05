@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "eda6c07e-45dc-421d-a9b5-e8d20b27d17c",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+    "branch": "audit/firewarrior-fallback-hold-214",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/stone-head-gate-214/native/probe-stone-gate.py": "f4d96e47b68e0ef57138c4b3bfa3845285ae5530d63b818a9a197b3bc21274f0"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "60s",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "-B",
+    "work/orchestration/stone-head-gate-214/native/probe-stone-gate.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+    "work/orchestration/stone-head-gate-214/native/result.json"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-fallback-hold-audit",
+  "startedAt": "2026-10-05T17:03:57.398Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-fallback-hold-audit/work/orchestration/stone-head-gate-214/native-command.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-fallback-hold-audit/work/orchestration/stone-head-gate-214/native-command.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T17:03:59.118Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\": \"passed-confirmed-model45-gate-mismatch\", \"producerCases\": 2, \"timelines\": 4, \"mismatchRows\": 122, \"executed\": [\"0040cb90\", \"0040cbf0\", \"0040cc10\", \"004851e0\", \"004a5ef0\", \"004a6210\", \"004a6480\", \"004a66c0\", \"004a67d0\", \"004a8b00\", \"004a8ed0\", \"004ed580\", \"004ed640\", \"004ed700\", \"004ee770\", \"004ee7b0\", \"004fbd20\"], \"seconds\": 1.6163555719977012}\n",
+  "stderr": "",
+  "stdoutSha256": "4b9e7aa1b8a16ba9ccf48674560ec1a6e82fa4a1472f871a841e1f41c5dc51e1",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+    "branch": "audit/firewarrior-fallback-hold-214",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/stone-head-gate-214/native/probe-stone-gate.py": "f4d96e47b68e0ef57138c4b3bfa3845285ae5530d63b818a9a197b3bc21274f0"
+    }
+  }
+}

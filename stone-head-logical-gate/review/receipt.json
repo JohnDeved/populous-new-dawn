@@ -1,0 +1,43 @@
+{
+  "decision": "ACCEPT",
+  "kind": "bounded-native-proof-before-implementation",
+  "sourceHead": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "trackedStatus": "",
+  "packetHashes": {
+    "findings.md": "a5783b44092df84429483d283c5416716909da129a6b3570f6341f2b7e3ac8b3",
+    "receipt.json": "71dcdea2f67ac35a6b27a4126ca98dbce6ddd0a944d20ad4845687bd01d9dc83",
+    "native-command.json": "d1358d5f1664a5716e38467d07a537d3a40f818950e757e213716f6d33d237f9",
+    "native/probe-stone-gate.py": "f4d96e47b68e0ef57138c4b3bfa3845285ae5530d63b818a9a197b3bc21274f0",
+    "native/result.json": "bfb4daac97d120f3b735c63b02391bdd1ebf6be6ff66523e277f6d8d2e0824a4"
+  },
+  "replay": {
+    "command": "source ../prerequisites/env.sh; taskset -c 4 timeout --signal=TERM --kill-after=2s 60s \"$POPULOUS_PYTHON\" -B work/orchestration/stone-head-gate-214/native/probe-stone-gate.py \"$POPULOUS_EXE\" work/reviews/stone-head-gate-214/independent-replay.json",
+    "exitCode": 0,
+    "seconds": 1.8866461209981935,
+    "sha256": "e5cd1076275da613a4ba408c6137f301b99b8d008d51b941c8e9f34ff7699c49",
+    "equality": "exact JSON equality to original after excluding seconds only"
+  },
+  "additionalReadSourceHashes": {
+    "app/stone-head-animation.ts": "5691d286c2a26e2af7a6ae55a4cdbd9a018260eeb56eb4a4df2fb62ae0ad02b4",
+    "app/game-clock.ts": "6b01b8be4826e131e6f04a90ea65739146dbbbc8507a0d153d0543aef0222f8c",
+    "app/world-turn.ts": "d322af8560cce8e0e3bc1188ebab7676c1cce3b904563c380562f4c1a932fea8",
+    "app/world-initialization.ts": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+    "app/scene-entities.ts": "cc7cb79c9e92e5b0cb283f745dadec503d8246ab3936b054313d577b97f2c4f4",
+    "app/worship.ts": "f0e60f01e2b164e5d9e0ce6b8bd595ae3e4ca5f62ced9ef7c3e57dfb1ff75618",
+    "tests/stone-head-animation.test.mjs": "7be14bd6cd24502292a7cc055851d306a708223e7b102f5741dfcef33146df92",
+    "scripts/check-browser-stone-head-animation.mjs": "59a6ce09bdfdd0183b0b0b3e760b82096b5c012d2b296f5809a6f4c511009f94",
+    "decomp/generated/004a9030.c": "18f0b9a7c7b083c74e2a84cd2d9b0416eb4393871a0c6ada7192d067dd733559",
+    "decomp/generated/004a6210.c": "e4a03eb4511390bbe82e68ef15f3be936ea3f1ca4098a99fd9ca2903c5ae8409",
+    "decomp/generated/004a6480.c": "77f2a441e9e98ed7e0728c87b2011327765b808340292c261229e389a0175809",
+    "decomp/generated/004a8b00.c": "c710ccc4d47d9c1612436bad41724eae16f6392da8c5a888a5f9e7d5b2706d3d"
+  },
+  "reviewSha256": "33f5cb2344f2dd47ea97860dfc6d2776445dc39db9f1956ceeba0534709d30ba",
+  "limitations": [
+    "controlled original-byte Unicorn execution, not original OS/wall-clock/GPU",
+    "environment leaves supplied; full allocator/outer logical traversal absent",
+    "secondary list is a traversal control",
+    "synthetic mode4 transition control only",
+    "model45 authored decorative body only; Vault/HFX and other scenery excluded"
+  ],
+  "resourcesHeld": []
+}

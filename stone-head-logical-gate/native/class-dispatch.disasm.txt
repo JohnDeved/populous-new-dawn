@@ -1,0 +1,48 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004ed700 <.text+0xec700>:
+  4ed700:	56                   	push   esi
+  4ed701:	33 c0                	xor    eax,eax
+  4ed703:	8b 74 24 08          	mov    esi,DWORD PTR [esp+0x8]
+  4ed707:	8a 46 2a             	mov    al,BYTE PTR [esi+0x2a]
+  4ed70a:	48                   	dec    eax
+  4ed70b:	83 f8 0a             	cmp    eax,0xa
+  4ed70e:	0f 87 ce 00 00 00    	ja     0x4ed7e2
+  4ed714:	ff 24 85 ec d7 4e 00 	jmp    DWORD PTR [eax*4+0x4ed7ec]
+  4ed71b:	56                   	push   esi
+  4ed71c:	e8 8f 5b fe ff       	call   0x4d32b0
+  4ed721:	83 c4 04             	add    esp,0x4
+  4ed724:	a1 81 79 89 00       	mov    eax,ds:0x897981
+  4ed729:	89 46 18             	mov    DWORD PTR [esi+0x18],eax
+  4ed72c:	5e                   	pop    esi
+  4ed72d:	c3                   	ret
+  4ed72e:	56                   	push   esi
+  4ed72f:	e8 4c 5b f1 ff       	call   0x403280
+  4ed734:	83 c4 04             	add    esp,0x4
+  4ed737:	a1 81 79 89 00       	mov    eax,ds:0x897981
+  4ed73c:	89 46 18             	mov    DWORD PTR [esi+0x18],eax
+  4ed73f:	5e                   	pop    esi
+  4ed740:	c3                   	ret
+  4ed741:	56                   	push   esi
+  4ed742:	e8 d9 89 f5 ff       	call   0x446120
+  4ed747:	83 c4 04             	add    esp,0x4
+  4ed74a:	a1 81 79 89 00       	mov    eax,ds:0x897981
+  4ed74f:	89 46 18             	mov    DWORD PTR [esi+0x18],eax
+  4ed752:	5e                   	pop    esi
+  4ed753:	c3                   	ret
+  4ed754:	56                   	push   esi
+  4ed755:	e8 26 60 f7 ff       	call   0x463780
+  4ed75a:	83 c4 04             	add    esp,0x4
+  4ed75d:	a1 81 79 89 00       	mov    eax,ds:0x897981
+  4ed762:	89 46 18             	mov    DWORD PTR [esi+0x18],eax
+  4ed765:	5e                   	pop    esi
+  4ed766:	c3                   	ret
+  4ed767:	56                   	push   esi
+  4ed768:	e8                   	.byte 0xe8
+  4ed769:	13                   	.byte 0x13
+  4ed76a:	8d                   	lea    edi,(bad)
+  4ed76b:	fb                   	sti

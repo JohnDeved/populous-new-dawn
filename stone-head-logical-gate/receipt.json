@@ -1,0 +1,40 @@
+{
+  "head": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "status": "passed-confirmed-mismatch-pending-independent-review",
+  "sourceStatus": "",
+  "createdAt": "2026-10-05T17:07:06.463636+00:00",
+  "originalSession": 23234,
+  "exitCode": 0,
+  "seconds": 1.6163555719977012,
+  "commandReceiptSha256": "d1358d5f1664a5716e38467d07a537d3a40f818950e757e213716f6d33d237f9",
+  "probeSha256": "f4d96e47b68e0ef57138c4b3bfa3845285ae5530d63b818a9a197b3bc21274f0",
+  "resultSha256": "bfb4daac97d120f3b735c63b02391bdd1ebf6be6ff66523e277f6d8d2e0824a4",
+  "findingsSha256": "a5783b44092df84429483d283c5416716909da129a6b3570f6341f2b7e3ac8b3",
+  "sourceHashes": {
+    "app/stone-head-animation.ts": "5691d286c2a26e2af7a6ae55a4cdbd9a018260eeb56eb4a4df2fb62ae0ad02b4",
+    "app/game-clock.ts": "6b01b8be4826e131e6f04a90ea65739146dbbbc8507a0d153d0543aef0222f8c",
+    "app/animation.ts": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+    "app/original-stone-heads.json": "8dfa738e04170a3874baaae433577538326c90786eb000feb08aa31ed0d29f20",
+    "scripts/check-native-stone-head-animation.py": "1424a30d2ff0eb345a17eb2a62c3074a7d63f73c391a8bf7d54cab2117cd3792",
+    "scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+    "decomp/generated/004a5ef0.c": "0115ac213b2acbacdb216c95392549478ea59b53c5b8527e1c189bf226964bed",
+    "decomp/generated/004a67d0.c": "089c338f11aa69f876f9248e25ca9c98aa6ecda0b620e5ed9365893d33d75267",
+    "decomp/generated/004a6210.c": "e4a03eb4511390bbe82e68ef15f3be936ea3f1ca4098a99fd9ca2903c5ae8409",
+    "decomp/generated/004a6480.c": "77f2a441e9e98ed7e0728c87b2011327765b808340292c261229e389a0175809",
+    "decomp/generated/004a8b00.c": "c710ccc4d47d9c1612436bad41724eae16f6392da8c5a888a5f9e7d5b2706d3d",
+    "decomp/generated/004ed580.c": "30f96739bcd6f1703d38d8937b3a5890bffaaf282be069067360bd7a1da118c8",
+    "decomp/generated/004ed700.c": "598f405b7271fdf40b953d45ae594946d0872b5fbe67ff9c9c9880f6a837fdff",
+    "decomp/generated/004ec6f0.c": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+    "decomp/generated/004ee770.c": "e9cc17a9c794e8331ae39bc89857200b9f3aac7676c1510becb71cfd7334a982",
+    "decomp/generated/004ee7b0.c": "8ce7fd89e8e5a9aeae876dc1cb25584c75bad3b65e7aece10667a737213782fb"
+  },
+  "artifacts": {
+    "native/animation-lists-and-gate.disasm.txt": "b58ee362bf1e3ab482c315b8e9becbdf7bd41dcc67efa1bf69ae28612ae3b4da",
+    "native/class-dispatch.disasm.txt": "0cf3fff0e92be6941bef0e7c636b56e708cd579e4fe7f4b6b42012b79728c2e1",
+    "native/class-init.disasm.txt": "123d86596ee9bca8ac0c0937d7c26552b49b0e0a5779dc65f3c4cae0e2f9badc",
+    "native/probe-stone-gate.py": "f4d96e47b68e0ef57138c4b3bfa3845285ae5530d63b818a9a197b3bc21274f0",
+    "native/result.json": "bfb4daac97d120f3b735c63b02391bdd1ebf6be6ff66523e277f6d8d2e0824a4",
+    "native/stone-producer.disasm.txt": "799fae53539877421fc6628f2a10ad24b1daba1596c477bd1ed078b0ce49a398"
+  },
+  "resources": "CPU4 probe terminal; no dependency/browser/Ghidra/original OS work; no resources held."
+}

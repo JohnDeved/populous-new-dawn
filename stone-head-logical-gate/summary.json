@@ -1,0 +1,42 @@
+{
+  "scope": "Model45 body gate only",
+  "cases": [
+    {
+      "list": "primary",
+      "gate": "native",
+      "rows": 66,
+      "rawCounterDifferences": 61,
+      "visiblePhaseDifferences": 54
+    },
+    {
+      "list": "primary",
+      "gate": "clear-bit-control",
+      "rows": 66,
+      "rawCounterDifferences": 0,
+      "visiblePhaseDifferences": 0
+    },
+    {
+      "list": "secondary",
+      "gate": "native",
+      "rows": 66,
+      "rawCounterDifferences": 61,
+      "visiblePhaseDifferences": 54
+    },
+    {
+      "list": "secondary",
+      "gate": "clear-bit-control",
+      "rows": 66,
+      "rawCounterDifferences": 0,
+      "visiblePhaseDifferences": 0
+    }
+  ],
+  "leaves": {
+    "terrain height=128": 18,
+    "land object insertion": 7,
+    "land tile invalidation": 7,
+    "land shadow update": 7,
+    "neighbor object/terrain notifications": 7,
+    "terrain propagation": 4,
+    "audio submission": 38
+  }
+}

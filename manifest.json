@@ -1,5 +1,5 @@
 {
-  "scope": "Issue214 source-bound reported/main baselines, accepted native logical-gate research, and PR217 source/gate receipts. Candidate ordinary capture is published separately. No game binaries, profiles, credentials or dependencies.",
+  "scope": "Issue214 source-bound baselines, accepted native person/Splash and model45 body gate research, and PR217 source/gate acceptance. Ordinary candidate capture is separate. No game binaries/resources, profiles, credentials or dependencies.",
   "files": {
     "observe-sprites-readonly.mjs": {
       "bytes": 6450,
@@ -628,6 +628,70 @@
     "candidate-pr217/reviews/final-review-d8897cf.md": {
       "bytes": 7262,
       "sha256": "03c3cd7361d4da1a965b7f17ec6e9c767dff907629a2af884d4e0ebb85a3af69"
+    },
+    "stone-head-logical-gate/README.md": {
+      "bytes": 2476,
+      "sha256": "7d6f3acd61b9d0f8c05f80eeff8fc55416adc60e2396aeb79eb42b9b26e51d6a"
+    },
+    "stone-head-logical-gate/findings.md": {
+      "bytes": 6111,
+      "sha256": "a5783b44092df84429483d283c5416716909da129a6b3570f6341f2b7e3ac8b3"
+    },
+    "stone-head-logical-gate/native/animation-lists-and-gate.disasm.txt": {
+      "bytes": 25266,
+      "sha256": "b58ee362bf1e3ab482c315b8e9becbdf7bd41dcc67efa1bf69ae28612ae3b4da"
+    },
+    "stone-head-logical-gate/native/class-dispatch.disasm.txt": {
+      "bytes": 2146,
+      "sha256": "0cf3fff0e92be6941bef0e7c636b56e708cd579e4fe7f4b6b42012b79728c2e1"
+    },
+    "stone-head-logical-gate/native/class-init.disasm.txt": {
+      "bytes": 3589,
+      "sha256": "123d86596ee9bca8ac0c0937d7c26552b49b0e0a5779dc65f3c4cae0e2f9badc"
+    },
+    "stone-head-logical-gate/native/probe-stone-gate.py": {
+      "bytes": 10016,
+      "sha256": "f4d96e47b68e0ef57138c4b3bfa3845285ae5530d63b818a9a197b3bc21274f0"
+    },
+    "stone-head-logical-gate/native/result.json": {
+      "bytes": 465789,
+      "sha256": "bfb4daac97d120f3b735c63b02391bdd1ebf6be6ff66523e277f6d8d2e0824a4"
+    },
+    "stone-head-logical-gate/native/stone-producer.disasm.txt": {
+      "bytes": 10843,
+      "sha256": "799fae53539877421fc6628f2a10ad24b1daba1596c477bd1ed078b0ce49a398"
+    },
+    "stone-head-logical-gate/native-command.json": {
+      "bytes": 2573,
+      "sha256": "d1358d5f1664a5716e38467d07a537d3a40f818950e757e213716f6d33d237f9"
+    },
+    "stone-head-logical-gate/native-command.json.artifacts/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "stone-head-logical-gate/native-command.json.artifacts/stdout.log": {
+      "bytes": 359,
+      "sha256": "4b9e7aa1b8a16ba9ccf48674560ec1a6e82fa4a1472f871a841e1f41c5dc51e1"
+    },
+    "stone-head-logical-gate/receipt.json": {
+      "bytes": 3049,
+      "sha256": "71dcdea2f67ac35a6b27a4126ca98dbce6ddd0a944d20ad4845687bd01d9dc83"
+    },
+    "stone-head-logical-gate/review/independent-replay.json": {
+      "bytes": 465789,
+      "sha256": "e5cd1076275da613a4ba408c6137f301b99b8d008d51b941c8e9f34ff7699c49"
+    },
+    "stone-head-logical-gate/review/receipt.json": {
+      "bytes": 2893,
+      "sha256": "fba2642ab7a3bc3c93fd1afc3a47e3a27f2c5864092c2e8042aab74992c1c112"
+    },
+    "stone-head-logical-gate/review/review.md": {
+      "bytes": 8424,
+      "sha256": "33f5cb2344f2dd47ea97860dfc6d2776445dc39db9f1956ceeba0534709d30ba"
+    },
+    "stone-head-logical-gate/summary.json": {
+      "bytes": 931,
+      "sha256": "e146496a9909110874f1fdd335b5c355194a12f15d91ad6fdb899161be39482b"
     }
   }
 }
