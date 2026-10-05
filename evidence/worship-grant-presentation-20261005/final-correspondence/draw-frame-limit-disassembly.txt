@@ -1,0 +1,23 @@
+
+004a42ce <.text+0xa32ce>:
+  4a42ce:	c6 05 62 ce 89 00 28 	mov    BYTE PTR ds:0x89ce62,0x28
+  4a42d5:	a1 54 d9 5c 00       	mov    eax,ds:0x5cd954
+  4a42da:	50                   	push   eax
+  4a42db:	e8 a0 5b 08 00       	call   0x529e80
+  4a42e0:	85 c0                	test   eax,eax
+  4a42e2:	75 37                	jne    0x4a431b
+  4a42e4:	8d 45 ec             	lea    eax,[ebp-0x14]
+  4a42e7:	8d 4d f0             	lea    ecx,[ebp-0x10]
+  4a42ea:	50                   	push   eax
+  4a42eb:	68 88 da 5c 00       	push   0x5cda88
+  4a42f0:	e8 9b 60 08 00       	call   0x52a390
+  4a42f5:	85 c0                	test   eax,eax
+  4a42f7:	75 22                	jne    0x4a431b
+  4a42f9:	83 7d ec 0c          	cmp    DWORD PTR [ebp-0x14],0xc
+  4a42fd:	73 07                	jae    0x4a4306
+  4a42ff:	c7 45 ec 0c 00 00 00 	mov    DWORD PTR [ebp-0x14],0xc
+  4a4306:	83 7d ec 3c          	cmp    DWORD PTR [ebp-0x14],0x3c
+  4a430a:	76 07                	jbe    0x4a4313
+  4a430c:	c7 45 ec 3c 00 00 00 	mov    DWORD PTR [ebp-0x14],0x3c
+  4a4313:	8a 45 ec             	mov    al,BYTE PTR [ebp-0x14]
+  4a4316:	a2 62 ce 89 00       	mov    ds:0x89ce62,al

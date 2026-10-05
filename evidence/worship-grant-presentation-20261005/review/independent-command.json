@@ -1,0 +1,20 @@
+{
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "20s",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "-B",
+    "scripts/probe-native-worship-grant-presentation.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+    "--output",
+    "work/reviews/worship-presentation-7ab7c3e/native"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 5.682138923999446,
+  "head": "7ab7c3ebff125cb3f3a5e23b6da596c7cc95e487",
+  "probeSha256": "a9caf4219317b76a4a13009101b0f353e27f179de34a145de198c9ee19dd98b7",
+  "stdout": "companion-seed1 UI visits 24 sprites 11490 spell calls 0 final cosmetic RNG 0xe3ec0603\ncompanion-seed12345678 UI visits 24 sprites 11490 spell calls 0 final cosmetic RNG 0xa03a2688\ncompanion-initial-pause UI visits 27 sprites 11490 spell calls 0 final cosmetic RNG 0xe3ec0603\ncompanion-mid-pause UI visits 27 sprites 13830 spell calls 0 final cosmetic RNG 0xe3ec0603\nspell-3-visible UI visits 34 sprites 11500 spell calls 30 final cosmetic RNG 0xe3ec0603\nspell-3-offscreen UI visits 34 sprites 11500 spell calls 30 final cosmetic RNG 0xe3ec0603\nspell-4-visible UI visits 34 sprites 11500 spell calls 30 final cosmetic RNG 0xe3ec0603\nspell-4-offscreen UI visits 34 sprites 11500 spell calls 30 final cosmetic RNG 0xe3ec0603\nspell-12-visible UI visits 34 sprites 11500 spell calls 30 final cosmetic RNG 0xe3ec0603\nspell-12-offscreen UI visits 34 sprites 11500 spell calls 30 final cosmetic RNG 0xe3ec0603\nPASS: four companion lifecycles and six composed spell-raster lifecycles\n",
+  "stderr": ""
+}

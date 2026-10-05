@@ -1,0 +1,52 @@
+{
+  "status": "passed",
+  "head": "a7e283e8a3b5151aeeefc1cb882906871e324d83",
+  "acceptedMain": "c53420647c1e58f99b79e58b3720043673dae802",
+  "frozenProof": "7ab7c3ebff125cb3f3a5e23b6da596c7cc95e487",
+  "changedPaths": [
+    "decomp/README.md",
+    "decomp/research/worship-acquisition-vfx.md",
+    "decomp/research/worship-grant-handoff.md",
+    "decomp/research/worship-grant-presentation.md",
+    "engineering/project-map.json",
+    "scripts/probe-native-worship-grant-handoff.py",
+    "scripts/probe-native-worship-grant-presentation.py"
+  ],
+  "inputs": [
+    {
+      "path": "scripts/probe-native-worship-grant-handoff.py",
+      "sha256": "23eea61d2b1060260083d54557108d13f737e9cc807e7313ba18cefa6667f50e",
+      "equalsFrozen": true
+    },
+    {
+      "path": "scripts/probe-native-worship-grant-presentation.py",
+      "sha256": "a9caf4219317b76a4a13009101b0f353e27f179de34a145de198c9ee19dd98b7",
+      "equalsFrozen": true
+    },
+    {
+      "path": "scripts/decomp.py",
+      "sha256": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+      "equalsFrozen": true
+    },
+    {
+      "path": "app/original-constants.json",
+      "sha256": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+      "equalsFrozen": true
+    },
+    {
+      "path": "app/original-hud.json",
+      "sha256": "0e8adea0c55e0967bf62f3da22979da638397771a35f8f0a2309f73dbdceeca9",
+      "equalsFrozen": true
+    },
+    {
+      "path": "app/original-effects.json",
+      "sha256": "8e43389fe9610e70fcedbbd8fe63b11d4addf9a001378225ee5ce273c5b83fdb",
+      "equalsFrozen": true
+    },
+    {
+      "path": "decomp/tools.json",
+      "sha256": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484",
+      "equalsFrozen": true
+    }
+  ]
+}

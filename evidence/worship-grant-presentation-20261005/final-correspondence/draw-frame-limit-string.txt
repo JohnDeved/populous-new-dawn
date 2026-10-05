@@ -1,0 +1,3 @@
+Contents of section .data:
+ 5cda88 44726177 4672616d 65526174 654c696d  DrawFrameRateLim
+ 5cda98 69740000                             it..            

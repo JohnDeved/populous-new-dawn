@@ -1,0 +1,746 @@
+[
+  {
+    "name": "companion-seed1",
+    "uiVisits": 24,
+    "sprites": 11490,
+    "bodyDraws": 0,
+    "paletteSelectors": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "spriteFrames": [
+      318,
+      319,
+      320,
+      321,
+      1288,
+      1289,
+      1290,
+      1291,
+      1292,
+      1293,
+      1294,
+      1295,
+      1296,
+      1297,
+      1298,
+      1299
+    ],
+    "rawArgumentsAllDecoded": true,
+    "firstStates": [
+      {
+        "paused": false,
+        "companionStep": 1,
+        "companionVisits": 1,
+        "activeParticles": 200,
+        "cosmeticRng": 2097172895
+      },
+      {
+        "paused": false,
+        "companionStep": 1,
+        "companionVisits": 2,
+        "activeParticles": 200,
+        "cosmeticRng": 3823896067
+      },
+      {
+        "paused": false,
+        "companionStep": 2,
+        "companionVisits": 1,
+        "activeParticles": 190,
+        "cosmeticRng": 3823896067
+      },
+      {
+        "paused": false,
+        "companionStep": 2,
+        "companionVisits": 2,
+        "activeParticles": 180,
+        "cosmeticRng": 3823896067
+      },
+      {
+        "paused": false,
+        "companionStep": 2,
+        "companionVisits": 3,
+        "activeParticles": 170,
+        "cosmeticRng": 3823896067
+      }
+    ]
+  },
+  {
+    "name": "companion-seed12345678",
+    "uiVisits": 24,
+    "sprites": 11490,
+    "bodyDraws": 0,
+    "paletteSelectors": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "spriteFrames": [
+      318,
+      319,
+      320,
+      321,
+      1288,
+      1289,
+      1290,
+      1291,
+      1292,
+      1293,
+      1294,
+      1295,
+      1296,
+      1297,
+      1298,
+      1299
+    ],
+    "rawArgumentsAllDecoded": true,
+    "firstStates": [
+      {
+        "paused": false,
+        "companionStep": 1,
+        "companionVisits": 1,
+        "activeParticles": 200,
+        "cosmeticRng": 1947988818
+      },
+      {
+        "paused": false,
+        "companionStep": 1,
+        "companionVisits": 2,
+        "activeParticles": 200,
+        "cosmeticRng": 2185852456
+      },
+      {
+        "paused": false,
+        "companionStep": 2,
+        "companionVisits": 1,
+        "activeParticles": 190,
+        "cosmeticRng": 2185852456
+      },
+      {
+        "paused": false,
+        "companionStep": 2,
+        "companionVisits": 2,
+        "activeParticles": 180,
+        "cosmeticRng": 2185852456
+      },
+      {
+        "paused": false,
+        "companionStep": 2,
+        "companionVisits": 3,
+        "activeParticles": 170,
+        "cosmeticRng": 2185852456
+      }
+    ]
+  },
+  {
+    "name": "companion-initial-pause",
+    "uiVisits": 27,
+    "sprites": 11490,
+    "bodyDraws": 0,
+    "paletteSelectors": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "spriteFrames": [
+      318,
+      319,
+      320,
+      321,
+      1288,
+      1289,
+      1290,
+      1291,
+      1292,
+      1293,
+      1294,
+      1295,
+      1296,
+      1297,
+      1298,
+      1299
+    ],
+    "rawArgumentsAllDecoded": true,
+    "firstStates": [
+      {
+        "paused": true,
+        "companionStep": 1,
+        "companionVisits": 0,
+        "activeParticles": 0,
+        "cosmeticRng": 1275068418
+      },
+      {
+        "paused": true,
+        "companionStep": 1,
+        "companionVisits": 0,
+        "activeParticles": 0,
+        "cosmeticRng": 1275068418
+      },
+      {
+        "paused": true,
+        "companionStep": 1,
+        "companionVisits": 0,
+        "activeParticles": 0,
+        "cosmeticRng": 1275068418
+      },
+      {
+        "paused": false,
+        "companionStep": 1,
+        "companionVisits": 1,
+        "activeParticles": 200,
+        "cosmeticRng": 2097172895
+      },
+      {
+        "paused": false,
+        "companionStep": 1,
+        "companionVisits": 2,
+        "activeParticles": 200,
+        "cosmeticRng": 3823896067
+      }
+    ]
+  },
+  {
+    "name": "companion-mid-pause",
+    "uiVisits": 27,
+    "sprites": 13830,
+    "bodyDraws": 0,
+    "paletteSelectors": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "spriteFrames": [
+      318,
+      319,
+      320,
+      321,
+      1288,
+      1289,
+      1290,
+      1291,
+      1292,
+      1293,
+      1294,
+      1295,
+      1296,
+      1297,
+      1298,
+      1299
+    ],
+    "rawArgumentsAllDecoded": true,
+    "firstStates": [
+      {
+        "paused": false,
+        "companionStep": 1,
+        "companionVisits": 1,
+        "activeParticles": 200,
+        "cosmeticRng": 2097172895
+      },
+      {
+        "paused": false,
+        "companionStep": 1,
+        "companionVisits": 2,
+        "activeParticles": 200,
+        "cosmeticRng": 3823896067
+      },
+      {
+        "paused": false,
+        "companionStep": 2,
+        "companionVisits": 1,
+        "activeParticles": 190,
+        "cosmeticRng": 3823896067
+      },
+      {
+        "paused": true,
+        "companionStep": 2,
+        "companionVisits": 1,
+        "activeParticles": 190,
+        "cosmeticRng": 3823896067
+      },
+      {
+        "paused": true,
+        "companionStep": 2,
+        "companionVisits": 1,
+        "activeParticles": 190,
+        "cosmeticRng": 3823896067
+      }
+    ]
+  },
+  {
+    "name": "spell-3-visible",
+    "uiVisits": 34,
+    "sprites": 11500,
+    "bodyDraws": 30,
+    "paletteSelectors": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "spriteFrames": [
+      318,
+      319,
+      320,
+      321,
+      1288,
+      1289,
+      1290,
+      1291,
+      1292,
+      1293,
+      1294,
+      1295,
+      1296,
+      1297,
+      1298,
+      1299
+    ],
+    "rawArgumentsAllDecoded": true,
+    "lastStates": [
+      {
+        "visit": 30,
+        "companionActive": 0,
+        "spellActive": 1,
+        "pulseActive": 1,
+        "pulseRemaining": 4,
+        "limiter": 4
+      },
+      {
+        "visit": 31,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 3,
+        "limiter": 0
+      },
+      {
+        "visit": 32,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 2,
+        "limiter": 0
+      },
+      {
+        "visit": 33,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 1,
+        "limiter": 0
+      },
+      {
+        "visit": 34,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 0,
+        "pulseRemaining": 0,
+        "limiter": 0
+      }
+    ],
+    "scaleRange": [
+      1.625,
+      8.0
+    ]
+  },
+  {
+    "name": "spell-3-offscreen",
+    "uiVisits": 34,
+    "sprites": 11500,
+    "bodyDraws": 30,
+    "paletteSelectors": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "spriteFrames": [
+      318,
+      319,
+      320,
+      321,
+      1288,
+      1289,
+      1290,
+      1291,
+      1292,
+      1293,
+      1294,
+      1295,
+      1296,
+      1297,
+      1298,
+      1299
+    ],
+    "rawArgumentsAllDecoded": true,
+    "lastStates": [
+      {
+        "visit": 30,
+        "companionActive": 0,
+        "spellActive": 1,
+        "pulseActive": 1,
+        "pulseRemaining": 4,
+        "limiter": 4
+      },
+      {
+        "visit": 31,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 3,
+        "limiter": 0
+      },
+      {
+        "visit": 32,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 2,
+        "limiter": 0
+      },
+      {
+        "visit": 33,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 1,
+        "limiter": 0
+      },
+      {
+        "visit": 34,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 0,
+        "pulseRemaining": 0,
+        "limiter": 0
+      }
+    ],
+    "scaleRange": [
+      1.625,
+      8.0
+    ]
+  },
+  {
+    "name": "spell-4-visible",
+    "uiVisits": 34,
+    "sprites": 11500,
+    "bodyDraws": 30,
+    "paletteSelectors": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "spriteFrames": [
+      318,
+      319,
+      320,
+      321,
+      1288,
+      1289,
+      1290,
+      1291,
+      1292,
+      1293,
+      1294,
+      1295,
+      1296,
+      1297,
+      1298,
+      1299
+    ],
+    "rawArgumentsAllDecoded": true,
+    "lastStates": [
+      {
+        "visit": 30,
+        "companionActive": 0,
+        "spellActive": 1,
+        "pulseActive": 1,
+        "pulseRemaining": 4,
+        "limiter": 4
+      },
+      {
+        "visit": 31,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 3,
+        "limiter": 0
+      },
+      {
+        "visit": 32,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 2,
+        "limiter": 0
+      },
+      {
+        "visit": 33,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 1,
+        "limiter": 0
+      },
+      {
+        "visit": 34,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 0,
+        "pulseRemaining": 0,
+        "limiter": 0
+      }
+    ],
+    "scaleRange": [
+      1.625,
+      8.0
+    ]
+  },
+  {
+    "name": "spell-4-offscreen",
+    "uiVisits": 34,
+    "sprites": 11500,
+    "bodyDraws": 30,
+    "paletteSelectors": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "spriteFrames": [
+      318,
+      319,
+      320,
+      321,
+      1288,
+      1289,
+      1290,
+      1291,
+      1292,
+      1293,
+      1294,
+      1295,
+      1296,
+      1297,
+      1298,
+      1299
+    ],
+    "rawArgumentsAllDecoded": true,
+    "lastStates": [
+      {
+        "visit": 30,
+        "companionActive": 0,
+        "spellActive": 1,
+        "pulseActive": 1,
+        "pulseRemaining": 4,
+        "limiter": 4
+      },
+      {
+        "visit": 31,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 3,
+        "limiter": 0
+      },
+      {
+        "visit": 32,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 2,
+        "limiter": 0
+      },
+      {
+        "visit": 33,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 1,
+        "limiter": 0
+      },
+      {
+        "visit": 34,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 0,
+        "pulseRemaining": 0,
+        "limiter": 0
+      }
+    ],
+    "scaleRange": [
+      1.625,
+      8.0
+    ]
+  },
+  {
+    "name": "spell-12-visible",
+    "uiVisits": 34,
+    "sprites": 11500,
+    "bodyDraws": 30,
+    "paletteSelectors": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "spriteFrames": [
+      318,
+      319,
+      320,
+      321,
+      1288,
+      1289,
+      1290,
+      1291,
+      1292,
+      1293,
+      1294,
+      1295,
+      1296,
+      1297,
+      1298,
+      1299
+    ],
+    "rawArgumentsAllDecoded": true,
+    "lastStates": [
+      {
+        "visit": 30,
+        "companionActive": 0,
+        "spellActive": 1,
+        "pulseActive": 1,
+        "pulseRemaining": 4,
+        "limiter": 4
+      },
+      {
+        "visit": 31,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 3,
+        "limiter": 0
+      },
+      {
+        "visit": 32,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 2,
+        "limiter": 0
+      },
+      {
+        "visit": 33,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 1,
+        "limiter": 0
+      },
+      {
+        "visit": 34,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 0,
+        "pulseRemaining": 0,
+        "limiter": 0
+      }
+    ],
+    "scaleRange": [
+      1.625,
+      8.0
+    ]
+  },
+  {
+    "name": "spell-12-offscreen",
+    "uiVisits": 34,
+    "sprites": 11500,
+    "bodyDraws": 30,
+    "paletteSelectors": [
+      -2,
+      -1,
+      0,
+      1,
+      2
+    ],
+    "spriteFrames": [
+      318,
+      319,
+      320,
+      321,
+      1288,
+      1289,
+      1290,
+      1291,
+      1292,
+      1293,
+      1294,
+      1295,
+      1296,
+      1297,
+      1298,
+      1299
+    ],
+    "rawArgumentsAllDecoded": true,
+    "lastStates": [
+      {
+        "visit": 30,
+        "companionActive": 0,
+        "spellActive": 1,
+        "pulseActive": 1,
+        "pulseRemaining": 4,
+        "limiter": 4
+      },
+      {
+        "visit": 31,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 3,
+        "limiter": 0
+      },
+      {
+        "visit": 32,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 2,
+        "limiter": 0
+      },
+      {
+        "visit": 33,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 1,
+        "pulseRemaining": 1,
+        "limiter": 0
+      },
+      {
+        "visit": 34,
+        "companionActive": 0,
+        "spellActive": 0,
+        "pulseActive": 0,
+        "pulseRemaining": 0,
+        "limiter": 0
+      }
+    ],
+    "scaleRange": [
+      1.625,
+      8.0
+    ]
+  }
+]

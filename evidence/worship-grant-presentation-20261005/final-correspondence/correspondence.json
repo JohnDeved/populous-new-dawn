@@ -1,0 +1,68 @@
+{
+  "status": "passed",
+  "head": "a7e283e8a3b5151aeeefc1cb882906871e324d83",
+  "acceptedMain": "c53420647c1e58f99b79e58b3720043673dae802",
+  "frozenNativeProof": "7ab7c3ebff125cb3f3a5e23b6da596c7cc95e487",
+  "changedPathsVsMain": [
+    "decomp/README.md",
+    "decomp/research/worship-acquisition-vfx.md",
+    "decomp/research/worship-grant-handoff.md",
+    "decomp/research/worship-grant-presentation.md",
+    "engineering/project-map.json",
+    "scripts/probe-native-worship-grant-handoff.py",
+    "scripts/probe-native-worship-grant-presentation.py"
+  ],
+  "onlyResearchInputsDifferFromMain": true,
+  "probeAndConsumedSourceCorrespondence": [
+    {
+      "path": "scripts/probe-native-worship-grant-handoff.py",
+      "sha256": "23eea61d2b1060260083d54557108d13f737e9cc807e7313ba18cefa6667f50e",
+      "equalsFrozen": true
+    },
+    {
+      "path": "scripts/probe-native-worship-grant-presentation.py",
+      "sha256": "a9caf4219317b76a4a13009101b0f353e27f179de34a145de198c9ee19dd98b7",
+      "equalsFrozen": true
+    },
+    {
+      "path": "scripts/decomp.py",
+      "sha256": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+      "equalsFrozen": true
+    },
+    {
+      "path": "app/original-constants.json",
+      "sha256": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+      "equalsFrozen": true
+    },
+    {
+      "path": "app/original-hud.json",
+      "sha256": "0e8adea0c55e0967bf62f3da22979da638397771a35f8f0a2309f73dbdceeca9",
+      "equalsFrozen": true
+    },
+    {
+      "path": "app/original-effects.json",
+      "sha256": "8e43389fe9610e70fcedbbd8fe63b11d4addf9a001378225ee5ce273c5b83fdb",
+      "equalsFrozen": true
+    }
+  ],
+  "nativeInputHashes": {
+    "d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "data/mwsearch.dat": "0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0",
+    "levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+    "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+    "data/al0-c.dat": "afc46e78b56f901f1331ceb0b02052eeaba2b6446b8747a03d0f12639ae17310"
+  },
+  "checks": {
+    "syntax": "passed",
+    "metadata": "passed",
+    "whitespace": "passed",
+    "fullCheck": "not-run; all application/package/build inputs equal accepted main",
+    "build": "not-run; all application/package/build inputs equal accepted main",
+    "nativeRepeat": "not-run; exact accepted probe and input bytes unchanged",
+    "browser": "not-run; no live change"
+  },
+  "planDisposition": "Research notes, metadata evidence indexing, and two read-only bounded native probes only. Frozen native results carry by exact byte identity; no TypeScript, package, application, build or renderer input differs from accepted main.",
+  "noteOnlyFollowup": "Binds default40 and registry DrawFrameRateLimit12..60 to inspected original bytes; no native source/input change.",
+  "unknownPathsDisposition": "Five unregistered paths are the two reviewed read-only probes and three research notes. Campaign-wide routed checks do not apply because no application/package/build input differs from accepted main."
+}

@@ -2498,6 +2498,41 @@
       "sha256": "a221e2fa186fdb0373506bdf355a37de3c18349487381fda43a8c6286452fd0e"
     },
     {
+      "path": "final-correspondence/correspondence.json",
+      "bytes": 3277,
+      "sha256": "3da6ec6afc5e9bf0fd01ebc606828e891461746266f7b170fb1fa73b92ee5d01"
+    },
+    {
+      "path": "final-correspondence/draw-frame-limit-disassembly.txt",
+      "bytes": 1145,
+      "sha256": "e03522e07b7648da8ff7fa90b00592e56896bcd3c1f11f6163af0b28af577a92"
+    },
+    {
+      "path": "final-correspondence/draw-frame-limit-string.txt",
+      "bytes": 151,
+      "sha256": "0a284eecc0f796c109f8b8340d11d4b5f990e6c49796c96b6b624b337f382ced"
+    },
+    {
+      "path": "final-correspondence/metadata.json",
+      "bytes": 4432,
+      "sha256": "84779741c1e0890832e4c1e859ffbe5e278ff34d57de311839b19782537e2356"
+    },
+    {
+      "path": "final-correspondence/plan.json",
+      "bytes": 62884,
+      "sha256": "25ef1cf10034ffb8312231524e4cd4e7b6c6cf5cfdb54dd0d6c166306ea10675"
+    },
+    {
+      "path": "final-correspondence/review.md",
+      "bytes": 3775,
+      "sha256": "4d1ea363a5a3015a87b27be487dd744eccaeb498f5d9c6742e63e3b590442f30"
+    },
+    {
+      "path": "final-correspondence/source-correspondence.json",
+      "bytes": 1762,
+      "sha256": "af8f85c962e19d9e3fd17e79170357976de5995432082a694597890cc5f178e8"
+    },
+    {
       "path": "native/companion-disassembly.txt",
       "bytes": 82331,
       "sha256": "60a5bcc3607a6a3f20922542deb181739f3497f754ddd6ea21737d06d59de672"
@@ -2526,6 +2561,36 @@
       "path": "native/stdout.log",
       "bytes": 976,
       "sha256": "858b63a703f5e58e4fd54f0c7de759a3f42a6fda44eeea20cfc189d05aad2e0d"
+    },
+    {
+      "path": "review/independent-command.json",
+      "bytes": 1621,
+      "sha256": "0f7bc775fd471e21db27af4e638d4d1c4082d8826ac11bff9977328b405d22ce"
+    },
+    {
+      "path": "review/independent-probe-result.json.gz",
+      "bytes": 777152,
+      "sha256": "1ec415a61e9acf758b9c388b499b10140004062d763743971c51c280185e8499"
+    },
+    {
+      "path": "review/raw-argument-audit.json",
+      "bytes": 13329,
+      "sha256": "3aa8bf0e9820aba616179bc36eb0a79bc977cb1cd319fee4edebb9e150244ed8"
+    },
+    {
+      "path": "review/review.md",
+      "bytes": 4784,
+      "sha256": "f06721306345ad4f7063278e23f0f5a7f605a006878faa6cde56fad4e048977e"
     }
-  ]
+  ],
+  "finalHead": "a7e283e8a3b5151aeeefc1cb882906871e324d83",
+  "acceptedMain": "c53420647c1e58f99b79e58b3720043673dae802",
+  "independentReview": {
+    "decision": "ACCEPT for bounded native/source research and final source correspondence",
+    "frozenProof": "7ab7c3ebff125cb3f3a5e23b6da596c7cc95e487",
+    "cases": 10,
+    "allRowsEventsMatch": true,
+    "finalCorrespondence": "a7e283e8a3b5151aeeefc1cb882906871e324d83",
+    "fullApplicationGateDisposition": "All application/package/build/test inputs equal accepted main; no repeat check/build/browser/native run needed."
+  }
 }
