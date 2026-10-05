@@ -312,5 +312,11 @@
       "sourceSha256": "8eb2e10043074515bbf7e456c59e3d913907049e05592e1e41a78aeaf6b850ad",
       "sourceBytes": 853
     }
+  },
+  "validation": {
+    "allStoredAndUncompressedSourceHashes": "passed",
+    "rawWhitespaceCheck": "failed: retained objdump .txt files contain original trailing instruction-byte spaces; preserved byte-for-byte for source correspondence",
+    "nonRawWhitespaceCheck": "passed: git diff --check HEAD^ HEAD -- . :(exclude)**/*.txt",
+    "note": "No production code or tested input was changed to suppress a check."
   }
 }
