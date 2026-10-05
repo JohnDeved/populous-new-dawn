@@ -1,9 +1,13 @@
 'use client'
 
 import { hudScale } from './hud-layout.ts'
+import { flushSync } from 'react-dom'
+import type { WorshipAcquisitionGeometry, WorshipSpellModel } from './worship-acquisition.ts'
+import type { WorshipHudGeometry } from './worship-acquisition-layout.ts'
 
 import { MinimapFrame } from './minimap-frame-view'
 import {
+  useCallback,
   useEffect,
   useRef,
   useState,
@@ -117,6 +121,8 @@ export default function Home() {
   const [desktopNotice, setDesktopNotice] = useState(true)
   const [error, setError] = useState('')
   const shell = useRef<HTMLElement>(null)
+  const hudPanel = useRef<HTMLElement>(null)
+  const spellButtons = useRef(new Map<number, HTMLButtonElement>())
   const followerPress = useRef<EventTarget | null>(null)
   const loadRequest = useRef<LoadRequest | null>(null)
   const messageDetails = useRef(new Map<number, HTMLDetailsElement>())
@@ -167,6 +173,92 @@ export default function Home() {
     dialog = useRef<HTMLDialogElement>(null)
   const engine = useRef<GameScene | null>(null),
     audio = useRef<Soundscape | null>(null)
+  const measureWorshipHud = useCallback(
+    (
+      model: WorshipSpellModel,
+      fallback?: WorshipAcquisitionGeometry
+    ): WorshipHudGeometry | null => {
+      const root = shell.current,
+        panel = hudPanel.current,
+        view = viewport.current,
+        button = spellButtons.current.get(model)
+      if (!root?.isConnected || !panel?.isConnected || !view?.isConnected) return null
+      const shellRect = root.getBoundingClientRect(),
+        panelRect = panel.getBoundingClientRect(),
+        viewRect = view.getBoundingClientRect(),
+        scale = panelRect.width / panel.offsetWidth,
+        rectangle = button?.isConnected ? button.getBoundingClientRect() : null,
+        targetHud =
+          rectangle?.width && rectangle.height
+            ? {
+                x: (rectangle.x + rectangle.width / 2 - panelRect.x) / scale,
+                y: (rectangle.y + rectangle.height / 2 - panelRect.y) / scale,
+              }
+            : fallback?.targetHud
+      if (
+        !targetHud ||
+        !Number.isFinite(scale) ||
+        scale <= 0 ||
+        viewRect.width / scale < 16 ||
+        viewRect.height <= 0
+      )
+        return null
+      const targetRect =
+          rectangle?.width && rectangle.height
+            ? {
+                x: rectangle.x - shellRect.x,
+                y: rectangle.y - shellRect.y,
+                width: rectangle.width,
+                height: rectangle.height,
+              }
+            : {
+                x:
+                  panelRect.x -
+                  shellRect.x +
+                  (targetHud.x - fallback!.targetRect.width / 2) * scale,
+                y:
+                  panelRect.y -
+                  shellRect.y +
+                  (targetHud.y - fallback!.targetRect.height / 2) * scale,
+                width: fallback!.targetRect.width * scale,
+                height: fallback!.targetRect.height * scale,
+              },
+        geometry = {
+          viewport: {
+            x: viewRect.x - shellRect.x,
+            y: viewRect.y - shellRect.y,
+            width: viewRect.width,
+            height: viewRect.height,
+          },
+          targetRect,
+          targetHud,
+          hudScale: scale,
+        }
+      return [
+        ...Object.values(geometry.viewport),
+        ...Object.values(targetRect),
+        targetHud.x,
+        targetHud.y,
+      ].every(Number.isFinite)
+        ? geometry
+        : null
+    },
+    []
+  )
+  const selectWorshipSpells = useCallback(
+    (model: WorshipSpellModel) => {
+      if (store.getWorld() !== world) return null
+      // Called synchronously from the scene task, never a React render/lifecycle.
+      // Native automatic panel selection preserves ordinary spell/build modes.
+      flushSync(() => {
+        setTab('spells')
+        setHover(null)
+        update()
+      })
+      return measureWorshipHud(model)
+    },
+    [store, world, update, measureWorshipHud]
+  )
   useEffect(() => {
     if (engine.current)
       engine.current.hoveredSpell =
@@ -227,7 +319,8 @@ export default function Home() {
             }
             update()
           },
-          (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished)
+          (cue, attenuation, pan, finished) => audio.current?.cue(cue, attenuation, pan, finished),
+          { select: selectWorshipSpells, measure: measureWorshipHud }
         )
         scene = created
         engine.current = created
@@ -248,7 +341,7 @@ export default function Home() {
       scene?.dispose()
       if (engine.current === scene) engine.current = null
     }
-  }, [world, update, store, startup])
+  }, [world, update, store, startup, selectWorshipSpells, measureWorshipHud])
   useEffect(() => {
     const modal = startupDialog.current
     if ((startup === 'choice' || selectorOpen) && modal && !modal.open) {
@@ -817,7 +910,7 @@ export default function Home() {
         </div>
       )}
 
-      <aside className="native-hud" aria-label="Tribe controls">
+      <aside ref={hudPanel} className="native-hud" aria-label="Tribe controls">
         <div className="minimap-wrap">
           <canvas
             ref={minimap}
@@ -965,6 +1058,10 @@ export default function Home() {
                   return (
                     <button
                       key={s.id}
+                      ref={element => {
+                        if (element) spellButtons.current.set(s.model, element)
+                        else spellButtons.current.delete(s.model)
+                      }}
                       className="spell-card"
                       style={{
                         borderImageSource: `url('/original/hud-${view.frame}.png')`,

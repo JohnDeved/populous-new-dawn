@@ -10,6 +10,10 @@ import { type FlybyCamera } from './flyby.ts'
 import { FpsGraph } from './fps-graph.ts'
 import { levelStartCamera } from './level-start.ts'
 import { advanceGame } from './game-clock.ts'
+import {
+  WorshipAcquisitionPresentation,
+  type WorshipHudBridge,
+} from './scene-worship-acquisition.ts'
 import { MinimapRenderer } from './minimap-renderer.ts'
 import {
   HOME,
@@ -274,8 +278,12 @@ export class GameScene {
     afterTurn: () => {
       this.unitMotion.afterTurn(this.world)
       this.projectileMotion.afterTurn(this.world)
+      this.worshipPresentation.handoffs()
     },
+    worshipVisit: () => this.worshipPresentation.visit(),
+    presentationHidden: () => document.hidden,
   }
+  worshipPresentation: WorshipAcquisitionPresentation
   terrainVersion = -1
   treeSignature = ''
   onChange: () => void
@@ -304,7 +312,8 @@ export class GameScene {
       attenuation?: number,
       pan?: number,
       finished?: () => void
-    ) => (() => void) | void
+    ) => (() => void) | void,
+    worshipHud?: WorshipHudBridge
   ) {
     this.container = container
     this.mini = minimap
@@ -333,6 +342,7 @@ export class GameScene {
       preload = (
         [
           ['effects', loadTexture('effects'), false],
+          ['hud', loadTexture('hud'), false],
           ['unit-health', loadTexture('unit-health'), false],
           ['atlas', atlasAsset, true],
           [nativeUnits.atlas, unitAtlasAsset, true],
@@ -450,6 +460,7 @@ export class GameScene {
     this.resize = new ResizeObserver(() => this.setSize())
     this.resize.observe(container)
     this.setSize()
+    this.worshipPresentation = new WorshipAcquisitionPresentation(this, worshipHud)
   }
   start() {
     if (this.started) return true
@@ -786,5 +797,6 @@ export class GameScene {
     this.buildingPanels.clear()
     this.objectPanels.dispose()
     this.spellPointer.remove()
+    this.worshipPresentation.dispose()
   }
 }

@@ -794,4 +794,5 @@ export function renderSceneFrame(
   scene.view.painter.cells = scene.world.objectCells
   scene.view.prepare(scene.scene)
   scene.renderer.render(scene.scene, scene.camera)
+  scene.worshipPresentation.rememberBodies()
 }

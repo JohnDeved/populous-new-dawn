@@ -11,6 +11,7 @@ import { isShaman, SPELLS, TURNS_PER_SECOND } from './world-rules.ts'
 import { missionData, tutorialLevel } from './mission-data.ts'
 import { createWorship } from './worship.ts'
 import { worshipAppearanceModel } from './worship-appearance.ts'
+import { ordinaryWorshipSource } from './worship-acquisition-source.ts'
 import { initializeStoneHead } from './stone-head-animation.ts'
 import { unitKindFromModel } from './unit-kinds.ts'
 import { teamForTribe } from './world-types.ts'
@@ -356,6 +357,7 @@ export function createWorld(missionNumber = 1): World {
         z: o.z,
         kind,
         reward: shrineReward,
+        ordinarySpellReward: ordinaryWorshipSource(missionNumber, o.index),
         ...(rewards.length > 1 ? { rewards } : {}),
         ...(kind === 'bridgeEffect'
           ? { bridgeStart: { x: bridge!.x, z: bridge!.z }, bridgeTarget }

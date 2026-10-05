@@ -10,6 +10,8 @@ import {
   authoredWorshipMode,
   worshipAppearanceModel,
 } from './worship-appearance.ts'
+import { restoreOrdinaryWorshipSource } from './worship-acquisition-source.ts'
+import { createWorshipAcquisitionRuntime } from './worship-acquisition-runtime.ts'
 
 const CHECKPOINT_DATABASE = 'populous-new-dawn',
   CHECKPOINT_STORE = 'checkpoints',
@@ -130,6 +132,7 @@ function migrateLegacyBridgeOrigins(world: World) {
 }
 
 export function migrateCheckpoint(world: World) {
+  world.worshipAcquisition ??= createWorshipAcquisitionRuntime()
   restoreSecondaryEffects(world)
   world.outcome.level ??= 1
   world.drawMode ??= 0
@@ -197,6 +200,8 @@ export function migrateCheckpoint(world: World) {
     world.killCredits[3][0] = Math.max(world.killCredits[3][0], world.killCredits[1][0])
   }
   migrateLegacyWorshipAppearance(world)
+  for (const shrine of world.shrines)
+    shrine.ordinarySpellReward ??= restoreOrdinaryWorshipSource(world.outcome.level, shrine)
   // Only recover immutable authored endpoints. Keep active effects and terrain intact.
   migrateLegacyBridgeOrigins(world)
   if (world.outcome.level === 5 && !world.shrines.some(shrine => shrine.kind === 'angel')) {

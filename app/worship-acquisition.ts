@@ -88,6 +88,7 @@ export interface WorshipSpriteCommand extends DrawBinding {
   palette: number | 'ghost'
   rgb: number
   flags: 8
+  particle?: number
 }
 export interface WorshipBodyCommand extends DrawBinding {
   kind: 'body'
@@ -147,8 +148,16 @@ export function startWorshipAcquisition(
   state.companion = {
     ...common,
     particles: Array.from({ length: 200 }, () => ({
-      x: 0, y: 0, speed: 0, angle: 0, turn: 0, life: 0,
-      baseFrame: 0, frame: 0, frameCount: 0, palette: 0,
+      x: 0,
+      y: 0,
+      speed: 0,
+      angle: 0,
+      turn: 0,
+      life: 0,
+      baseFrame: 0,
+      frame: 0,
+      frameCount: 0,
+      palette: 0,
     })),
     trails: Array.from({ length: 4 }, () => ({ age: 0, particles: [] })),
     trailIndex: 0,
@@ -175,19 +184,30 @@ function sprite(
   p: WorshipPoint,
   frame: number,
   palette: number | 'ghost',
-  trail = false
+  trail = false,
+  particle?: number
 ) {
   // Reuse the original HFX dimensions and preserve each native draw anchor.
   const { w: width, h: height } = trail
     ? effects.animations.blastTrail[frame - 314]
     : effects.animations.sparkle[frame - 1288]
   state.drawCommands.push({
-    kind: 'sprite', owner, model: binding.model, geometry: binding.geometry, frame,
+    kind: 'sprite',
+    owner,
+    model: binding.model,
+    geometry: binding.geometry,
+    frame,
     x: p.x - (width >> 1),
     y: p.y + (trail ? -(height >> 1) : Math.trunc((-height * 176) / 256)),
-    width, height, palette,
-    rgb: palette === 'ghost' ? 0xffffff : Number.parseInt(hud.colors[hud.alphaColors[palette + 2]].slice(1), 16),
+    width,
+    height,
+    palette,
+    rgb:
+      palette === 'ghost'
+        ? 0xffffff
+        : Number.parseInt(hud.colors[hud.alphaColors[palette + 2]].slice(1), 16),
     flags: 8,
+    ...(particle === undefined ? {} : { particle }),
   })
 }
 
@@ -197,7 +217,7 @@ function stepCompanion(state: WorshipAcquisitionState, paused: boolean, random: 
   if (c.next) {
     if (!c.step) {
       const radius = Math.trunc(c.geometry.viewport.width / 8)
-      c.drift = short((random() >>> 0) % (radius * 2) - radius)
+      c.drift = short(((random() >>> 0) % (radius * 2)) - radius)
     }
     c.next = false
     c.visits = 0
@@ -213,10 +233,10 @@ function stepCompanion(state: WorshipAcquisitionState, paused: boolean, random: 
         const baseFrame = (random() & 15) === 1 ? 1288 : 1294
         p.x = c.geometry.origin.x
         p.y = c.geometry.origin.y
-        p.speed = (random() >>> 0) % 30 + 14
+        p.speed = ((random() >>> 0) % 30) + 14
         p.angle = ((random() & 511) + angle - 256) & 2047
-        p.turn = (random() >>> 0) % 68 + 68
-        p.life = (random() >>> 0) % 40 + 20
+        p.turn = ((random() >>> 0) % 68) + 68
+        p.life = ((random() >>> 0) % 40) + 20
         p.baseFrame = baseFrame
         p.frameCount = 6
         p.frame = (random() >>> 0) % 6
@@ -251,9 +271,14 @@ function stepCompanion(state: WorshipAcquisitionState, paused: boolean, random: 
     c.target = { x: short(midpoint.x + c.drift), y: midpoint.y }
     const current = c.trails[c.trailIndex]
     current.age = 0
-    current.particles = c.particles.filter(p => p.baseFrame).map(p => ({
-      x: p.x, y: p.y, angle: p.angle, speed: Math.trunc(p.speed / 2),
-    }))
+    current.particles = c.particles
+      .filter(p => p.baseFrame)
+      .map(p => ({
+        x: p.x,
+        y: p.y,
+        angle: p.angle,
+        speed: Math.trunc(p.speed / 2),
+      }))
     c.trailIndex = (c.trailIndex + 1) & 3
     for (const p of c.particles) if (p.baseFrame) move(p, p.angle, p.speed)
     if (!c.colorDone) {
@@ -278,17 +303,18 @@ function stepCompanion(state: WorshipAcquisitionState, paused: boolean, random: 
       trail.age++
       for (const p of trail.particles) {
         move(p, p.angle, p.speed)
-        p.speed = short(Math.trunc(p.speed * 6 / 16))
+        p.speed = short(Math.trunc((p.speed * 6) / 16))
       }
     }
   }
   // Native draw work follows the pause gate and advances the particle frame byte.
   for (const trail of c.trails) {
-    for (const p of trail.particles) sprite(state, c, 'companion', p, 318 + trail.age, 'ghost', true)
+    for (const p of trail.particles)
+      sprite(state, c, 'companion', p, 318 + trail.age, 'ghost', true)
   }
-  for (const p of c.particles) {
+  for (const [index, p] of c.particles.entries()) {
     if (!p.baseFrame) continue
-    sprite(state, c, 'companion', p, p.baseFrame + p.frame, p.palette)
+    sprite(state, c, 'companion', p, p.baseFrame + p.frame, p.palette, false, index)
     p.frame = (p.frame + 1) % p.frameCount
   }
 }
@@ -297,7 +323,11 @@ function startPulse(state: WorshipAcquisitionState, c: WorshipSpellController, r
   state.pulse = { active: true, frame: 0, remaining, model: c.model, geometry: c.geometry }
 }
 
-function stepSpell(state: WorshipAcquisitionState, paused: boolean, arrivals: WorshipAcquisitionArrival[]) {
+function stepSpell(
+  state: WorshipAcquisitionState,
+  paused: boolean,
+  arrivals: WorshipAcquisitionArrival[]
+) {
   const c = state.spell
   if (!c?.active) return
   let entered = false
@@ -324,8 +354,10 @@ function stepSpell(state: WorshipAcquisitionState, paused: boolean, arrivals: Wo
       c.scale = 52
       moving = false
     } else if (c.step === 2) {
-      const speed = Math.trunc(Math.trunc(positionDistance(c.geometry.origin, c.destination) * 180 / 256) / 5)
-      c.speed = Math.max(2, c.visits < 5 ? speed : Math.trunc((11 - c.visits) * speed / 7))
+      const speed = Math.trunc(
+        Math.trunc((positionDistance(c.geometry.origin, c.destination) * 180) / 256) / 5
+      )
+      c.speed = Math.max(2, c.visits < 5 ? speed : Math.trunc(((11 - c.visits) * speed) / 7))
       c.spin = short(c.visits < 9 ? Math.trunc((1934 - c.rotation) / (9 - c.visits)) : c.spin - 51)
       if (c.visits < 5) c.scale = short(c.scale + Math.trunc((256 - c.scale) / (5 - c.visits)))
       if (c.visits >= 12) c.next = true
@@ -341,10 +373,12 @@ function stepSpell(state: WorshipAcquisitionState, paused: boolean, arrivals: Wo
         c.spin = short(c.spin - 28)
         c.angle = angleTo(c.position, c.destination)
       }
-      c.spin = short(c.visits < 6 ? c.spin - 34 : c.visits === 6 ? Math.trunc(c.spin / 2) : c.spin - 22)
+      c.spin = short(
+        c.visits < 6 ? c.spin - 34 : c.visits === 6 ? Math.trunc(c.spin / 2) : c.spin - 22
+      )
       c.scale = Math.max(52, short(c.scale - 20))
       if (c.visits === 4) startPulse(state, c, 100)
-      c.speed = Math.min(80, short(Math.trunc(c.speed * 48 / 32)))
+      c.speed = Math.min(80, short(Math.trunc((c.speed * 48) / 32)))
       const distance = positionDistance(c.position, c.destination)
       if (c.speed * 3 >= distance) arrivals.push({ giftId: c.giftId, model: c.model })
       rotating = true
@@ -364,10 +398,16 @@ function stepSpell(state: WorshipAcquisitionState, paused: boolean, arrivals: Wo
     if (rotating && c.spin) c.rotation = (c.rotation + c.spin) & 2047
   }
   state.drawCommands.push({
-    kind: 'body', model: c.model, geometry: c.geometry,
-    frame: 1056 + c.model, x: c.position.x, y: c.position.y,
-    radians: Math.fround(c.rotation * 0.0030679609375), scale: Math.fround(c.scale / 32),
-    flags: 0, finalLeg: c.step === 4,
+    kind: 'body',
+    model: c.model,
+    geometry: c.geometry,
+    frame: 1056 + c.model,
+    x: c.position.x,
+    y: c.position.y,
+    radians: Math.fround(c.rotation * 0.0030679609375),
+    scale: Math.fround(c.scale / 32),
+    flags: 0,
+    finalLeg: c.step === 4,
   })
 }
 
@@ -392,6 +432,8 @@ export function stepWorshipAcquisition(
 
 /** Rendering is a read-only consumer of the last UI visit, including its final
  * pulse draw before retirement. It never consumes RNG or advances sprite frames. */
-export function getWorshipAcquisitionDrawCommands(state: WorshipAcquisitionState): readonly WorshipAcquisitionDrawCommand[] {
+export function getWorshipAcquisitionDrawCommands(
+  state: WorshipAcquisitionState
+): readonly WorshipAcquisitionDrawCommand[] {
   return state.drawCommands
 }
