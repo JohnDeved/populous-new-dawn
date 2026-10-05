@@ -1746,6 +1746,7 @@ function stepTurn(w: World) {
       else if (tribe === 1) w.redRespawn = w.respawns[tribe]
       if (visual?.reincarnation) {
         setShamanDeathPhase(visual, step.phase)
+        if (step.phase === 1) visual.reincarnation.ground = nativePosition(w, visual).h
         visual.height = (visual.reincarnation.ground + step.height) / 45
       }
       if (step.event === 'splash') effect(w, 'splash', point ?? site)
