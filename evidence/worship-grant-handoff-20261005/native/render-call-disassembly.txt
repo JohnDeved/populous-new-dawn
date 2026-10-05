@@ -1,0 +1,15 @@
+
+00522738 <.text+0x121738>:
+  522738:	e8 23 a2 f7 ff       	call   0x49c960
+  52273d:	6a 01                	push   0x1
+  52273f:	e8 5c e7 f5 ff       	call   0x480ea0
+  522744:	83 c4 04             	add    esp,0x4
+  522747:	f6 05 61 c6 89 00 04 	test   BYTE PTR ds:0x89c661,0x4
+  52274e:	75 0a                	jne    0x52275a
+  522750:	e8 bb e9 f0 ff       	call   0x431110
+  522755:	e8 a6 84 f2 ff       	call   0x44ac00
+  52275a:	e8 91 84 f2 ff       	call   0x44abf0
+  52275f:	e8 8c 7b f2 ff       	call   0x44a2f0
+  522764:	6a 00                	push   0x0
+  522766:	e8 35 e7 f5 ff       	call   0x480ea0
+  52276b:	83 c4 04             	add    esp,0x4

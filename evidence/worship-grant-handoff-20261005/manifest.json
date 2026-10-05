@@ -1,0 +1,96 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded-native-research-evidence",
+  "repository": "JohnDeved/populous-new-dawn",
+  "issue": 30,
+  "base": "dcfb0dc2afe3e2501f964b109933e43d8bdbd451",
+  "proofCommit": "a64758610e4d7732ff935df3543fb5745e3eff37",
+  "probePath": "scripts/probe-native-worship-grant-handoff.py",
+  "probeSha256": "23eea61d2b1060260083d54557108d13f737e9cc807e7313ba18cefa6667f50e",
+  "nativeResult": {
+    "status": "passed",
+    "cases": 17,
+    "processTerminal": true
+  },
+  "toolVersions": {
+    "python": "3.12.14",
+    "unicorn": "2.1.4",
+    "objdump": "GNU Binutils for Debian 2.44"
+  },
+  "inputs": {
+    "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "searchSha256": "0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0"
+  },
+  "limits": [
+    "Original GUI objects are constructed, but main-panel slot occupancy is supplied.",
+    "Landscape bounds and rendered source coordinates are supplied inputs.",
+    "UI visits and reward-object visits are separate clocks; no natural elapsed cadence inferred.",
+    "Spell raster and companion effect processor are intercepted; no pixels or complete sequence claim.",
+    "No original OS execution, current browser execution, implementation, or parity credit.",
+    "Limiter setters are intercepted; outer-loop pacing is separate static byte/source evidence.",
+    "No runtime implementation, browser parity, original-game replay, or hardware performance claim."
+  ],
+  "failureHistory": [
+    {
+      "attempt": 1,
+      "status": "failed",
+      "reason": "Incorrect raster leaf interception; exact source/logs preserved locally."
+    },
+    {
+      "attempt": 2,
+      "status": "failed",
+      "reason": "Pause assertion assumed phase advancement was gated; original advances pending phase before pause test; exact source/logs preserved locally."
+    }
+  ],
+  "checks": {
+    "probe": "passed",
+    "sourceReceiptHash": "passed",
+    "diffCheck": "passed",
+    "orchestrationMetadata": "passed",
+    "fullCheck": "not-run; research only",
+    "build": "not-run; research only",
+    "browser": "not-run; research only"
+  },
+  "files": [
+    {
+      "path": "native/handoff-disassembly.txt",
+      "bytes": 4003,
+      "sha256": "9affb1c6985d0daff496eda549a61893a8805b3cd8c4ed0a2e2f53e551ed9a91"
+    },
+    {
+      "path": "native/limiter-disassembly.txt",
+      "bytes": 2237,
+      "sha256": "3caf1af7209004aa6c71b1916681b4114d373bce4c6bd96ed68ac6675108bac5"
+    },
+    {
+      "path": "native/origin-disassembly.txt",
+      "bytes": 3222,
+      "sha256": "b8c5e8408d4e0141ff7e003ed10702b0d15a901a739cd7ed47d88d99114dca58"
+    },
+    {
+      "path": "native/probe-result.json",
+      "bytes": 426494,
+      "sha256": "c88d8b83d7ed08c9f6aceda1cad9cda18f431ed49db8c3cd261ba55f854a9802"
+    },
+    {
+      "path": "native/render-call-disassembly.txt",
+      "bytes": 656,
+      "sha256": "c60fbcca678d20edc19fa85fde9d6275dff379b3efa91278f82c77071c5b4631"
+    },
+    {
+      "path": "native/spell-controller-disassembly.txt",
+      "bytes": 32471,
+      "sha256": "1946d8fa12d9f834c9f436e4f56e46254f58116910caf6c385a658059f12000c"
+    },
+    {
+      "path": "native/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/stdout.log",
+      "bytes": 931,
+      "sha256": "611448d1190094e388331926dff4e2596950a870f0c4c795b20a5f78e09ef125"
+    }
+  ]
+}

@@ -1,0 +1,51 @@
+
+0049cf90 <.text+0x9bf90>:
+  49cf90:	8a 44 24 04          	mov    al,BYTE PTR [esp+0x4]
+  49cf94:	08 05 d4 ea 96 00    	or     BYTE PTR ds:0x96ead4,al
+  49cf9a:	c3                   	ret
+  49cf9b:	cc                   	int3
+  49cf9c:	cc                   	int3
+  49cf9d:	cc                   	int3
+  49cf9e:	cc                   	int3
+  49cf9f:	cc                   	int3
+  49cfa0:	8a 44 24 04          	mov    al,BYTE PTR [esp+0x4]
+  49cfa4:	f6 d0                	not    al
+  49cfa6:	20 05 d4 ea 96 00    	and    BYTE PTR ds:0x96ead4,al
+  49cfac:	75 0a                	jne    0x49cfb8
+  49cfae:	a1 48 a8 5c 00       	mov    eax,ds:0x5ca848
+  49cfb3:	a3 50 a8 5c 00       	mov    ds:0x5ca850,eax
+  49cfb8:	c3                   	ret
+  49cfb9:	cc                   	int3
+  49cfba:	cc                   	int3
+  49cfbb:	cc                   	int3
+  49cfbc:	cc                   	int3
+  49cfbd:	cc                   	int3
+  49cfbe:	cc                   	int3
+  49cfbf:	cc                   	int3
+  49cfc0:	80 3d 00 f0 88 00 02 	cmp    BYTE PTR ds:0x88f000,0x2
+  49cfc7:	75 0c                	jne    0x49cfd5
+  49cfc9:	80 3d d4 ea 96 00 00 	cmp    BYTE PTR ds:0x96ead4,0x0
+  49cfd0:	74 03                	je     0x49cfd5
+  49cfd2:	b0 01                	mov    al,0x1
+  49cfd4:	c3                   	ret
+  49cfd5:	32 c0                	xor    al,al
+  49cfd7:	c3                   	ret
+  49cfd8:	cc                   	int3
+  49cfd9:	cc                   	int3
+  49cfda:	cc                   	int3
+  49cfdb:	cc                   	int3
+  49cfdc:	cc                   	int3
+  49cfdd:	cc                   	int3
+  49cfde:	cc                   	int3
+  49cfdf:	cc                   	int3
+  49cfe0:	f6 05 d4 ea 96 00 01 	test   BYTE PTR ds:0x96ead4,0x1
+  49cfe7:	b8 3c 00 00 00       	mov    eax,0x3c
+  49cfec:	74 05                	je     0x49cff3
+  49cfee:	b8 18 00 00 00       	mov    eax,0x18
+  49cff3:	f6 05 d4 ea 96 00 04 	test   BYTE PTR ds:0x96ead4,0x4
+  49cffa:	74 05                	je     0x49d001
+  49cffc:	b8 14 00 00 00       	mov    eax,0x14
+  49d001:	f6 05 d4 ea 96 00 02 	test   BYTE PTR ds:0x96ead4,0x2
+  49d008:	74 05                	je     0x49d00f
+  49d00a:	b8 0e 00 00 00       	mov    eax,0xe
+  49d00f:	c3                   	ret

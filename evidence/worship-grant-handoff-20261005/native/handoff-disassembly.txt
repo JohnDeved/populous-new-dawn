@@ -1,0 +1,87 @@
+
+00481490 <.text+0x80490>:
+  481490:	57                   	push   edi
+  481491:	33 c0                	xor    eax,eax
+  481493:	bf 88 8a 98 00       	mov    edi,0x988a88
+  481498:	b9 c6 0e 00 00       	mov    ecx,0xec6
+  48149d:	f3 ab                	rep stos DWORD PTR es:[edi],eax
+  48149f:	aa                   	stos   BYTE PTR es:[edi],al
+  4814a0:	f6 05 46 f7 98 00 08 	test   BYTE PTR ds:0x98f746,0x8
+  4814a7:	b8 01 00 00 00       	mov    eax,0x1
+  4814ac:	a2 96 8a 98 00       	mov    ds:0x988a96,al
+  4814b1:	a2 95 8a 98 00       	mov    ds:0x988a95,al
+  4814b6:	75 0e                	jne    0x4814c6
+  4814b8:	6a ff                	push   0xffffffff
+  4814ba:	6a 00                	push   0x0
+  4814bc:	6a 08                	push   0x8
+  4814be:	e8 3d 8a ff ff       	call   0x479f00
+  4814c3:	83 c4 0c             	add    esp,0xc
+  4814c6:	8b 44 24 08          	mov    eax,DWORD PTR [esp+0x8]
+  4814ca:	50                   	push   eax
+  4814cb:	68 88 8a 98 00       	push   0x988a88
+  4814d0:	e8 2b 04 00 00       	call   0x481900
+  4814d5:	83 c4 08             	add    esp,0x8
+  4814d8:	b8 01 00 00 00       	mov    eax,0x1
+  4814dd:	33 c9                	xor    ecx,ecx
+  4814df:	a2 9b 8a 98 00       	mov    ds:0x988a9b,al
+  4814e4:	66 89 0d 9f 8a 98 00 	mov    WORD PTR ds:0x988a9f,cx
+  4814eb:	88 0d 9d 8a 98 00    	mov    BYTE PTR ds:0x988a9d,cl
+  4814f1:	66 a3 a3 8a 98 00    	mov    ds:0x988aa3,ax
+  4814f7:	ba 08 00 00 00       	mov    edx,0x8
+  4814fc:	c6 05 ed 8a 98 00 64 	mov    BYTE PTR ds:0x988aed,0x64
+  481503:	66 a3 bd 8a 98 00    	mov    ds:0x988abd,ax
+  481509:	88 15 a5 8a 98 00    	mov    BYTE PTR ds:0x988aa5,dl
+  48150f:	c6 05 a1 8a 98 00 07 	mov    BYTE PTR ds:0x988aa1,0x7
+  481516:	66 c7 05 99 8a 98 00 	mov    WORD PTR ds:0x988a99,0x3
+  48151d:	03 00 
+  48151f:	66 89 15 c5 8a 98 00 	mov    WORD PTR ds:0x988ac5,dx
+  481526:	5f                   	pop    edi
+  481527:	66 c7 05 a7 8a 98 00 	mov    WORD PTR ds:0x988aa7,0x14
+  48152e:	14 00 
+  481530:	66 c7 05 c7 8a 98 00 	mov    WORD PTR ds:0x988ac7,0xe
+  481537:	0e 00 
+  481539:	66 89 0d c9 8a 98 00 	mov    WORD PTR ds:0x988ac9,cx
+  481540:	c3                   	ret
+  481541:	cc                   	int3
+  481542:	cc                   	int3
+  481543:	cc                   	int3
+  481544:	cc                   	int3
+  481545:	cc                   	int3
+  481546:	cc                   	int3
+  481547:	cc                   	int3
+  481548:	cc                   	int3
+  481549:	cc                   	int3
+  48154a:	cc                   	int3
+  48154b:	cc                   	int3
+  48154c:	cc                   	int3
+  48154d:	cc                   	int3
+  48154e:	cc                   	int3
+  48154f:	cc                   	int3
+  481550:	56                   	push   esi
+  481551:	33 c0                	xor    eax,eax
+  481553:	8b 74 24 08          	mov    esi,DWORD PTR [esp+0x8]
+  481557:	8a 46 7c             	mov    al,BYTE PTR [esi+0x7c]
+  48155a:	83 f8 02             	cmp    eax,0x2
+  48155d:	74 10                	je     0x48156f
+  48155f:	56                   	push   esi
+  481560:	83 f8 0b             	cmp    eax,0xb
+  481563:	74 1e                	je     0x481583
+  481565:	e8 36 00 00 00       	call   0x4815a0
+  48156a:	83 c4 04             	add    esp,0x4
+  48156d:	5e                   	pop    esi
+  48156e:	c3                   	ret
+  48156f:	56                   	push   esi
+  481570:	e8 4b 04 00 00       	call   0x4819c0
+  481575:	83 c4 04             	add    esp,0x4
+  481578:	56                   	push   esi
+  481579:	e8 12 ff ff ff       	call   0x481490
+  48157e:	83 c4 04             	add    esp,0x4
+  481581:	5e                   	pop    esi
+  481582:	c3                   	ret
+  481583:	e8 28 2c 00 00       	call   0x4841b0
+  481588:	83 c4 04             	add    esp,0x4
+  48158b:	56                   	push   esi
+  48158c:	e8 ff fe ff ff       	call   0x481490
+  481591:	83 c4 04             	add    esp,0x4
+  481594:	5e                   	pop    esi
+  481595:	c3                   	ret

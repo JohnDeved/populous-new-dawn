@@ -1,0 +1,12 @@
+PASS: bounded handoff/controller matrix 17 cases
+model-3-visible origin [420, 180] target [80, 364] UI visits 31 first clamp 28
+model-4-visible origin [420, 180] target [48, 320] UI visits 31 first clamp 28
+model-12-visible origin [420, 180] target [48, 364] UI visits 31 first clamp 29
+offscreen-bit origin [370, 240] target [48, 364] UI visits 31 first clamp 29
+outside-viewport origin [370, 240] target [48, 364] UI visits 31 first clamp 29
+viewport-left-edge origin [370, 240] target [48, 364] UI visits 31 first clamp 29
+viewport-right-edge origin [370, 240] target [48, 364] UI visits 31 first clamp 29
+arrival-bit8 origin [420, 180] target [48, 364] UI visits 31 first clamp None
+glow-allocation-failed origin [420, 180] target [48, 364] UI visits 31 first clamp 29
+nonlocal-recipient-1 origin [0, 0] target [0, 0] UI visits 1 first clamp None
+nonlocal-recipient-255 origin [0, 0] target [0, 0] UI visits 1 first clamp None
