@@ -100,3 +100,27 @@ construction cannot reset either wait. Budgets remain unchanged.
 No new profile admission, continuation, replay or parity credit is granted by
 this source change. Any future resumed gameplay must retain the real latest
 terminal run, cumulative980.0833333333333 and the failed Erosion wait.
+
+
+## Exact later continuation from 1c430e41
+
+The separate `mission3-recovered-sermon-erosion-continuation` kind admits only the
+hash-bound actual terminal run1c430e41 after final target correspondence review.
+It preserves the original recovery and gameplay claims, appends one claim only
+after the normal exclusive lease, and refuses every later entry. Its record is
+assembled now from the real prior emitted record; old nested history stays intact.
+The live driver uses only harness-validated history for this exact kind.
+
+Both the closed7.166666666666686-second epoch and open554.8333333333333-second
+terminal epoch are added to the418.08333333333337 inherited prefix, yielding
+980.0833333333333. All3 failures, both control stops (including progress-stall),
+prior input references and historical milestones remain. Live milestones begin
+only with the original saved prefix; cancel/reload/conversion must be observed
+again before the ordinary Erosion order.
+
+The previously earned conversion anchors the fixed2252.8333333333335 cumulative
+ceiling in both health and wait checks. A fresh conversion cannot extend it.
+90/95-minute walls apply to the new execution scope. Source review approves the
+exact closed-worktree fast-forward and preservation plan first. After separate
+release, source-only checkout precedes actual target-root measurements, then
+final payload review precedes every profile/claim write or browser launch.

@@ -241,7 +241,7 @@ test('reused-entry record failures preserve the harness checkpoint before admiss
 test('the actual successor driver consumes only the harness-validated cumulative history', async () => {
   const start = driver.indexOf('    const priorHistory ='), end = driver.indexOf('    victimSelection = sermonRecord.firstOwned', start)
   const execute = new AsyncFunction('sermonRecord', 'receipt', `
-    const ids = {}, milestones = [], failures = [], controlStops = []; let inheritedActiveSeconds;
+    const ids = {}, milestones = [], failures = [], controlStops = []; let inheritedActiveSeconds, inheritedBudget = null;
     ${driver.slice(start, end)}
     return { inheritedActiveSeconds, failures, controlStops };
   `)

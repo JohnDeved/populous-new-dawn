@@ -36,7 +36,7 @@ export default async function missionThreeControls({ page, output, root, signal,
   const startWall = Date.now(), wallLimit = 90 * 60_000, inputs = [], failures = [], milestones = []
   const epochs = [], controlStops = [], ids = Object.create(null), commandsPath = resolve(output, 'commands')
   const reusedProfile = receipt.profile?.mode === 'reused'
-  let continuation = null, protectedPreparation = null, sermonRecord = null, inheritedActiveSeconds = 0
+  let continuation = null, protectedPreparation = null, sermonRecord = null, inheritedActiveSeconds = 0, inheritedBudget = null
   // The maintained harness read and verified this before invoking the scenario.
   // Protect it even if record path validation/parsing/admission fails below.
   let protectedLatest = reusedProfile && receipt.profile.checkpointAtStart ? {
@@ -58,7 +58,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     status, inputs, ids, epochs, milestones, failures, controlStops, training, victimSelection, sermonPlan,
     entryMode: continuation ? 'checkpoint-continuation' : reusedProfile ? 'checkpoint-entry-rejected' : 'fresh',
     continuation, protectedPreparation, protectedLatest, sermonRecord,
-    preserveStopRequested, preserveVerificationFailed, inheritedActiveSeconds,
+    preserveStopRequested, preserveVerificationFailed, inheritedActiveSeconds, inheritedBudget,
     limits: 'Ordinary UI inputs and normal RAF only; independent Mission 3, software/headless renderer.'
   }, null, 2) + '\n')
   const button = async (name, options = {}) => {
@@ -125,6 +125,8 @@ export default async function missionThreeControls({ page, output, root, signal,
       }
     })
   }
+  const conversionBudgetAnchor = () => inheritedBudget?.priorConversionActiveSeconds ??
+    milestones.find(m => m.name === 'conversion')?.activeSeconds ?? null
   const health = snapshot => {
     assert.equal(snapshot.level, 3, 'Remain in Mission 3')
     assert.equal(snapshot.speed, 1, 'Normal game speed only')
@@ -132,7 +134,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.deepEqual(snapshot.observation?.errors ?? [], [], 'No diagnostic errors')
     assert.deepEqual(snapshot.observation?.speedViolations ?? [], [], 'No speed changes')
     requireNotDefeated(snapshot.status)
-    requireActiveBudget(currentActive(snapshot), milestones.find(m => m.name === 'conversion')?.activeSeconds ?? null)
+    requireActiveBudget(currentActive(snapshot), conversionBudgetAnchor())
   }
   const currentActive = snapshot => inheritedActiveSeconds + epochs.reduce((sum, epoch) => sum + epoch.activeSeconds, 0) +
     (snapshot.observation?.activeSeconds ?? 0)
@@ -425,8 +427,8 @@ export default async function missionThreeControls({ page, output, root, signal,
           units: s.units.filter(u => [condition.id, condition.preacherId].includes(u.id)), stats: s.stats })
         throw actorStop
       }
-      const active = currentActive(s), conversion = milestones.find(m => m.name === 'conversion')
-      const budget = activeBudget(conversion?.activeSeconds ?? null)
+      const active = currentActive(s)
+      const budget = activeBudget(conversionBudgetAnchor())
       const next = objectiveProgress(s, condition, scope, watchIds)
       if (next !== progress) { progress = next; changedAt = active }
       const stop = waitDiagnosticStop({ now: Date.now(), clockAdvancedAt, animationAdvancedAt,
@@ -632,7 +634,9 @@ export default async function missionThreeControls({ page, output, root, signal,
       origin: url, checkpoint: observed.checkpoint })
     protectedLatest = observed
     continuation = { kind: 'saved-sermon', record: sermonRecord, inputSha256: sha256(bytes), priorRun: receipt.profile.previousRun }
-    const priorHistory = sermonRecord.kind === 'mission3-recovered-sermon-successor' ? receipt.profile.gameplayContinuation.history : null
+    const priorHistory = sermonRecord.kind === 'mission3-recovered-sermon-erosion-continuation' ? receipt.profile.erosionContinuation.history :
+      sermonRecord.kind === 'mission3-recovered-sermon-successor' ? receipt.profile.gameplayContinuation.history : null
+    inheritedBudget = sermonRecord.kind === 'mission3-recovered-sermon-erosion-continuation' ? receipt.profile.erosionContinuation.budget : null
     inheritedActiveSeconds = priorHistory?.activeSeconds ?? sermonRecord.activeSeconds
     Object.assign(ids, sermonRecord.ids)
     milestones.push(...sermonRecord.milestones.map(m => ({ ...m, inheritedFromSavedSermon: true })))

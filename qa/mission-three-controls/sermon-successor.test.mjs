@@ -123,6 +123,7 @@ test('actual lease changes only reviewed current binding, preserves first claim,
     let checked = 0
     const deps = { execFileSync, createHash, randomUUID, ...fs, ...path, hostname, isDeepStrictEqual,
       readRecoveryAdmission: () => { throw Error('Must not reinterpret old admission as current target') },
+      readErosionContinuation: () => { throw Error('Earlier successor already claimed; no new correspondence in this fixture') },
       readGameplayContinuation: (_, context, actual) => { checked++; assert.deepEqual(actual, manifest); return structuredClone(f.continuation) } }
     delete deps.default
     const acquire = Function(...Object.keys(deps), source + '\nreturn acquireProfile;')(...Object.values(deps))

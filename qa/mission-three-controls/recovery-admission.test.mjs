@@ -181,7 +181,7 @@ import { EventEmitter } from 'node:events'
 import vm from 'node:vm'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
-async function actualHarnessEntry(mode) {
+async function actualHarnessEntry(mode, erosionContinuation = false) {
   let persisted, finishCalled = false, scenarioCalls = 0, launchCalls = 0, closed = false, reads = 0
   const processFake = new EventEmitter(); processFake.env = {}; processFake.argv = []; processFake.cwd = () => '/fixture'
   const stream = new EventEmitter(); stream.pipe = () => {}
@@ -195,6 +195,12 @@ async function actualHarnessEntry(mode) {
     async close() { closed = true } }
   const admission = admissionFixture(), profile = { id: 'fixture-profile', runId: 'fixture-run', mode: 'reused',
     previousRun: null, recoveryAdmission: admission, recoveryClaim: { runId: 'fixture-run' }, checkpoints: [] }
+  if (erosionContinuation) {
+    profile.previousRun = { runId: '1c430e41-9aca-4a05-bb45-7bd8076ffffd', checkpointAtEnd: checkpoint }
+    profile.recoveryClaim = { runId: '5451f1a6-088f-4dac-94c9-b0f2cc869fd2' }
+    profile.gameplayContinuationClaim = { runId: profile.previousRun.runId }
+    profile.erosionContinuationClaim = { runId: profile.runId, priorRunId: profile.previousRun.runId }
+  }
   const lease = { dataDir: '/owned/browser', profile, finish() { finishCalled = true } }
   let source = fs.readFileSync(new URL('../../scripts/local-render/harness.mjs', import.meta.url), 'utf8')
   source = source.slice(0, source.indexOf('\nif (process.argv[1]')).replace(/^import .*$/gm, '').replaceAll('export ', '')
@@ -247,4 +253,22 @@ test('actual terminal readback failure keeps recovered lease locked without inve
   assert.equal(failed.scenarioCalls, 1); assert.equal(failed.finishCalled, false); assert.equal(failed.closed, true)
   assert.equal(failed.persisted.status, 'failed'); assert.equal(Object.hasOwn(failed.persisted.profile, 'checkpointAtEnd'), false)
   assert.match(failed.persisted.profile.checkpointReadFailure, /fixture readback failed/)
+})
+
+
+test('actual Erosion-entry harness uses the real predecessor and retains all claims on prelaunch and readback failures', async () => {
+  for (const mode of ['match', 'mismatch', 'prelaunch-failure', 'readback-failure']) {
+    const result = await actualHarnessEntry(mode, true), profile = result.persisted.profile
+    assert.equal(profile.previousRun.runId, '1c430e41-9aca-4a05-bb45-7bd8076ffffd')
+    assert.equal(profile.recoveryClaim.runId, '5451f1a6-088f-4dac-94c9-b0f2cc869fd2')
+    assert.equal(profile.gameplayContinuationClaim.runId, profile.previousRun.runId)
+    assert.equal(profile.erosionContinuationClaim.priorRunId, profile.previousRun.runId)
+    assert.equal(profile.erosionContinuationClaim.runId, profile.runId)
+    assert.equal(result.finishCalled, ['match', 'prelaunch-failure'].includes(mode))
+    assert.equal(result.scenarioCalls, ['match', 'readback-failure'].includes(mode) ? 1 : 0)
+    if (mode === 'prelaunch-failure') {
+      assert.equal(result.launchCalls, 0); assert.equal(result.reads, 0)
+      assert.deepEqual(profile.checkpointAtEnd, checkpoint)
+    }
+  }
 })
