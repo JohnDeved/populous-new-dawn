@@ -1,0 +1,60 @@
+{
+  "preparedAt": "2026-10-05T17:59:25.153677+00:00",
+  "status": "source-only-prepared-runtime-not-run",
+  "baselineHead": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "baselineStatus": "",
+  "candidateHead": "d97c370da3e996e00130610df97d10b827ab5c4b",
+  "candidateStatus": "",
+  "driverSha256": "febd084f136389ad254ce04b9a96ec133cdc1bfdfc9b18346d99b4f159a8af01",
+  "analyzerSha256": "8d2db8452e04e3ad1ae88b83f4878fd1323cb54a7233e09e31f0deda28f84d98",
+  "planSha256": "11d2e62c58c2281cf525f5268843892627eae7717d67c8bcd85568485972d8a2",
+  "priorAcceptedObserverSha256": "cb57bd7076cedb08b042b6f8ad843b088fc613ae6863f3fed3742944eb88a060",
+  "candidateReadHashes": {
+    "app/stone-head-animation.ts": "cea958795f6625272498d81b8b0799325805b048da9885db9f904802b56be981",
+    "app/scene-entities.ts": "cc7cb79c9e92e5b0cb283f745dadec503d8246ab3936b054313d577b97f2c4f4",
+    "app/scene-assets.ts": "d475b0017791e1ab0dc81da2e11ade9c1502514eb3f5b955ba825e67c0e9157f",
+    "app/painter.ts": "7fe87a5efa374ad8888e304a59e80e4712f7c5c469ace387f90999aa2a7e21b3",
+    "app/render-view.ts": "5377cdba302416540cd2e9d90d07911dfebd0cae8921891aa06cd59c34a023f4",
+    "app/world-initialization.ts": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+    "app/stone-head-149.ts": "fbdc48ed20df5fc160c23f080d34396e6efbebc13b25aa8bd4cde8205bfd9aaf",
+    "app/model-faces.ts": "6e6d7f28eb6d1f027e571e3541ef751d23b10b99d6813ff7805e5367fca8634d",
+    "app/morph.ts": "e9bb1ef83cf2aea0b3a68b410ce4115d840e7695a993ba28b3c4d7707cda454c",
+    "app/original-stone-heads.json": "8dfa738e04170a3874baaae433577538326c90786eb000feb08aa31ed0d29f20",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "app/original-models.json": "1665fcc36e57bbb765259ec9b7c1755a6b126db837787c9038ed955c76a8afc5",
+    "app/level-one.ts": "e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33",
+    "app/game-clock.ts": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+    "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+    "scripts/local-render/harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c"
+  },
+  "sourceReview": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/reviews/stone-head-logical-visits/source-review-d97c370.md",
+    "sha256": "d9fb6010aa6f67c052b6a5626a04ea1f5815fcba2d3e608e2c6eb8c71cbff64a"
+  },
+  "checks": [
+    {
+      "command": "node --check observe-stone-head-visits.mjs",
+      "status": "passed",
+      "exitCode": 0
+    },
+    {
+      "command": "Python ast.parse of analyze-stone-head-visits.py",
+      "status": "passed",
+      "exitCode": 0
+    },
+    {
+      "command": "ordinary baseline/candidate browser and attribution",
+      "status": "not-run"
+    }
+  ],
+  "samplingSeconds": 22,
+  "expectedRunSeconds": [
+    60,
+    90
+  ],
+  "harnessTimeoutMs": 120000,
+  "outerTimeoutSeconds": 150,
+  "resourcesHeld": [],
+  "previousAnalyzerSha256": "e8d0c3b026c44eb68748de1424062fd552871e07d55b874991be1ac12d598ec4",
+  "analyzerDelta": "Require positive six-vertex sample variation on the same enabled queued body at both1x and2x. Author confirmed first vertices deform; no driver or runtime change."
+}

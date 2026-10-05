@@ -1,0 +1,27 @@
+{
+  "status": "passed",
+  "createdAt": "2026-10-05T18:28:57.393250+00:00",
+  "priorEvidenceCommit": "102736ea2d83249ad30c498bf0161d00bed0af47",
+  "checks": [
+    {
+      "check": "Exact approved observer/analyzer; separate ordinary baseline and candidate captures; screenshots manually reviewed",
+      "status": "passed"
+    },
+    {
+      "command": "python3 stone-head-pr218/analysis/reproduce.py /path/to/game-git-checkout",
+      "exitCode": 0,
+      "status": "passed",
+      "baselineExpectedExit": 1,
+      "candidateExpectedExit": 0,
+      "bothReportsByteIdentical": true
+    },
+    {
+      "check": "Allowlisted ordinary evidence; original rows losslessly gzip-compressed; no profile/cache/dependencies/game/tool/auth data",
+      "status": "passed"
+    },
+    {
+      "check": "New browser/package/source work during publication",
+      "status": "not-run"
+    }
+  ]
+}

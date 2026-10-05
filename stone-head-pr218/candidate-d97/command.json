@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "fc70b615-1961-4d9d-9c3d-3da1c3881bc6",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "d97c370da3e996e00130610df97d10b827ab5c4b",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/stone-head-ordinary-214/observe-stone-head-visits.mjs": "febd084f136389ad254ce04b9a96ec133cdc1bfdfc9b18346d99b4f159a8af01",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/stone-head-ordinary-214/analyze-stone-head-visits.py": "8d2db8452e04e3ad1ae88b83f4878fd1323cb54a7233e09e31f0deda28f84d98",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/stone-head-ordinary-214/launch-candidate-d97c370-body.py": "e62ab0e17dee897793c8558c0ce51688545c6498945321135da93fed48ab1d04",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/playwright-core/lib/coreBundle.js": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+      "node_modules/@playwright/test/package.json": "5587f932b8979b6889654b60e3c28aeb7ca0abbac00eec8c176c939a16149536",
+      "node_modules/vite/package.json": "5d084b8d09cedc0206adeea4096e9aaa5f9489efb919b4dc55486c5ee790a7d2",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "scripts/local-render/harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=3s",
+    "150s",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--port",
+    "4374",
+    "--mission",
+    "1",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-ordinary-214/candidate-d97c370-body-raw-owners",
+    "--timeout",
+    "120000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/stone-head-ordinary-214/observe-stone-head-visits.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+  "startedAt": "2026-10-05T18:20:09.108Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-ordinary-214/candidate-d97c370-body-command.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/stone-head-ordinary-214/candidate-d97c370-body-command.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T18:21:33.923Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\":\"passed\",\"source\":{\"root\":\"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix\",\"commit\":\"d97c370da3e996e00130610df97d10b827ab5c4b\",\"tree\":\"5228a79f26b90d3daeffe65498c01ada077ba132\",\"status\":\"\",\"trackedDiffSha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"untracked\":[],\"fingerprint\":\"6c7bf7c03d3ff530ddf3f7bddcfbac3af36f1b6d221f6313e9e8f2cad897c9f0\"},\"result\":{\"source\":{\"root\":\"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix\",\"commit\":\"d97c370da3e996e00130610df97d10b827ab5c4b\",\"tree\":\"5228a79f26b90d3daeffe65498c01ada077ba132\",\"status\":\"\",\"trackedDiffSha256\":\"e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855\",\"untracked\":[],\"fingerprint\":\"6c7bf7c03d3ff530ddf3f7bddcfbac3af36f1b6d221f6313e9e8f2cad897c9f0\"},\"scenarioSha256\":\"febd084f136389ad254ce04b9a96ec133cdc1bfdfc9b18346d99b4f159a8af01\",\"environment\":{\"userAgent\":\"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/154.0.8037.92 Safari/537.36\",\"viewport\":[1440,1000],\"dpr\":1,\"canvas\":[1240,1000],\"renderer\":\"ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)\",\"timeOrigin\":1791224427571.8},\"coverage\":{\"naturalWalkObserved\":true,\"splashObserved\":false,\"damageSmokeObserved\":false,\"enabledBodyQueued\":true},\"summaries\":[{\"label\":\"normal-speed natural opening\",\"samples\":109,\"elapsedSeconds\":7.999699999999997,\"animationVisits\":192,\"simulationTurns\":96,\"gameTime\":7.999999999999998,\"nativeUnitSamples\":825,\"walkingNativeSamples\":18,\"effectKinds\":[],\"hutSmokeModes\":[\"partial\"]},{\"label\":\"public pause\",\"samples\":25,\"elapsedSeconds\":1.4999000000000016,\"animationVisits\":0,\"simulationTurns\":0,\"gameTime\":0,\"nativeUnitSamples\":175,\"walkingNativeSamples\":0,\"effectKinds\":[],\"hutSmokeModes\":[\"partial\"]},{\"label\":\"public resume\",\"samples\":60,\"elapsedSeconds\":3.999800000000003,\"animationVisits\":96,\"simulationTurns\":48,\"gameTime\":4,\"nativeUnitSamples\":420,\"walkingNativeSamples\":0,\"effectKinds\":[],\"hutSmokeModes\":[\"partial\"]},{\"label\":\"settings pause at 1×\",\"samples\":5,\"elapsedSeconds\":0.26659999999999856,\"animationVisits\":0,\"simulationTurns\":0,\"gameTime\":0,\"nativeUnitSamples\":35,\"walkingNativeSamples\":0,\"effectKinds\":[],\"hutSmokeModes\":[\"partial\"]},{\"label\":\"settings selected 2× while paused\",\"samples\":5,\"elapsedSeconds\":0.3,\"animationVisits\":0,\"simulationTurns\":0,\"gameTime\":0,\"nativeUnitSamples\":35,\"walkingNativeSamples\":0,\"effectKinds\":[],\"hutSmokeModes\":[\"partial\"]},{\"label\":\"shipped 2× speed natural play\",\"samples\":55,\"elapsedSeconds\":4.033199999999997,\"animationVisits\":97,\"simulationTurns\":97,\"gameTime\":8.083333333333332,\"nativeUnitSamples\":385,\"walkingNativeSamples\":0,\"effectKinds\":[],\"hutSmokeModes\":[\"partial\"]},{\"label\":\"public pause at 2×\",\"samples\":25,\"elapsedSeconds\":1.5334000000000014,\"animationVisits\":0,\"simulationTurns\":0,\"gameTime\":0,\"nativeUnitSamples\":175,\"walkingNativeSamples\":0,\"effectKinds\":[],\"hutSmokeModes\":[\"partial\"]},{\"label\":\"settings pause at 2×\",\"samples\":4,\"elapsedSeconds\":0.25,\"animationVisits\":0,\"simulationTurns\":0,\"gameTime\":0,\"nativeUnitSamples\":28,\"walkingNativeSamples\":0,\"effectKinds\":[],\"hutSmokeModes\":[\"partial\"]},{\"label\":\"settings selected 1× while paused\",\"samples\":5,\"elapsedSeconds\":0.2667000000000044,\"animationVisits\":0,\"simulationTurns\":0,\"gameTime\":0,\"nativeUnitSamples\":35,\"walkingNativeSamples\":0,\"effectKinds\":[],\"hutSmokeModes\":[\"partial\"]},{\"label\":\"restored shipped 1× speed\",\"samples\":30,\"elapsedSeconds\":2.0165999999999986,\"animationVisits\":48,\"simulationTurns\":24,\"gameTime\":2,\"nativeUnitSamples\":210,\"walkingNativeSamples\":0,\"effectKinds\":[],\"hutSmokeModes\":[\"partial\"]}],\"artifact\":\"sprite-observations.json\",\"limits\":\"Functional headless rendering only. RAF samples may miss intermediate visits or whole frame cycles. Raw stamps are observations, not an inferred counter or proof that a processor ran. Painter submission is only a liveness aid; the retained screenshots need visual review. Geometry samples cover the first six existing vertices. No native wall-clock, hardware-performance, complete lifecycle or unsampled family claim.\"}}\n",
+  "stderr": "",
+  "stdoutSha256": "66adc34eff57c79f2ff09bce35fe835935ab6cfd7023c752fd4e2b0f3edaf866",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "d97c370da3e996e00130610df97d10b827ab5c4b",
+    "branch": "fix/stone-head-logical-visits",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/stone-head-ordinary-214/observe-stone-head-visits.mjs": "febd084f136389ad254ce04b9a96ec133cdc1bfdfc9b18346d99b4f159a8af01",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/stone-head-ordinary-214/analyze-stone-head-visits.py": "8d2db8452e04e3ad1ae88b83f4878fd1323cb54a7233e09e31f0deda28f84d98",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/stone-head-ordinary-214/launch-candidate-d97c370-body.py": "e62ab0e17dee897793c8558c0ce51688545c6498945321135da93fed48ab1d04",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/playwright-core/lib/coreBundle.js": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+      "node_modules/@playwright/test/package.json": "5587f932b8979b6889654b60e3c28aeb7ca0abbac00eec8c176c939a16149536",
+      "node_modules/vite/package.json": "5d084b8d09cedc0206adeea4096e9aaa5f9489efb919b4dc55486c5ee790a7d2",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "scripts/local-render/harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c"
+    }
+  }
+}

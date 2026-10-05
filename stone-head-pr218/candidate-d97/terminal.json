@@ -1,0 +1,95 @@
+{
+  "status": "passed",
+  "sourceHead": "d97c370da3e996e00130610df97d10b827ab5c4b",
+  "originalSession": 50565,
+  "exitCode": 0,
+  "sourceStable": true,
+  "inputsStable": true,
+  "browserCleanupVerified": true,
+  "listenerClosureVerified": true,
+  "resourcesReleased": true,
+  "outerReceiptSha256": "b65d9058412d0dc2f0df7bf844438f9a10c5159e2eb1cd90c2aa842149c9e078",
+  "innerReceiptSha256": "315eee50bb0d57354c198fa2e52b0ff82f67862a82dd4117f7b836e8348ad557",
+  "launcherReceiptSha256": "ab20d0481e8d8c73c254e161d999d47c1e4eb3dde335e64b392983a6458c8c2e",
+  "rawSha256": "7e59a53b34b2e74bd3c5b31b5025cae368009c795d9e481c7c0acf4f1b28e7b8",
+  "analysisSha256": "1bea97ccccf06ba34d1151fb92781f72d4dccc96f2753d237c1b1b874055815b",
+  "analysisStatus": "passed",
+  "totals": {
+    "existingSamples": 646,
+    "bodySamples": 646,
+    "renderedGeometrySamples": 646,
+    "enabledQueuedSamples": 323,
+    "logicalStampPairs": 440,
+    "unaliasedLogicalPairs": 440,
+    "queuedLogicalPairs": 220,
+    "queuedExtraPresentationHolds": 30
+  },
+  "visualReview": [
+    {
+      "screenshot": "normal-speed-opening.png",
+      "sha256": "04cf712337a6df77e01c3ecd7ef18fa8ff0737a5bddfb0171a71deb680ebf86e",
+      "nearbySavedRow": {
+        "turn": 229,
+        "sceneNow": 27739.1,
+        "headId": 29,
+        "kind": "bridge",
+        "shrinePosition": [
+          -5,
+          25
+        ],
+        "triggerIndex": 30,
+        "sceneryIndex": 32,
+        "bodyFamily": 45,
+        "nativeModel": 45,
+        "groupPosition": [
+          -5,
+          0.5078125,
+          25
+        ],
+        "groupMatrixTranslation": [
+          -5,
+          0.5078125,
+          25
+        ],
+        "phase": 13,
+        "submittedFaces": 46
+      },
+      "visualResult": "Actual tall gray body is visibly rendered to the right of the Blue settlement; distinct from reincarnation stones. The row is adjacent-stage evidence, not an exact screenshot-time clock claim."
+    },
+    {
+      "screenshot": "shipped-2x-speed.png",
+      "sha256": "3123216a6ce4da966364dae1846230ad57cd1a186ddf487a922928ab01ef873d",
+      "nearbySavedRow": {
+        "turn": 468,
+        "sceneNow": 49671.6,
+        "headId": 29,
+        "kind": "bridge",
+        "shrinePosition": [
+          -5,
+          25
+        ],
+        "triggerIndex": 30,
+        "sceneryIndex": 32,
+        "bodyFamily": 45,
+        "nativeModel": 45,
+        "groupPosition": [
+          -5,
+          0.5078125,
+          25
+        ],
+        "groupMatrixTranslation": [
+          -5,
+          0.5078125,
+          25
+        ],
+        "phase": 0,
+        "submittedFaces": 45
+      },
+      "visualResult": "Actual tall gray body is visibly rendered to the right of the Blue settlement; distinct from reincarnation stones. The row is adjacent-stage evidence, not an exact screenshot-time clock claim."
+    }
+  ],
+  "dependencyInode": 925605,
+  "dependencyStillAt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+  "ownershipReturnedTo": "audit_sprite_animation_timing for separately accepted controlled row",
+  "ordinaryLimits": "Existing authored model45 bodies only; Painter-submitted faces are a liveness aid, not pixel visibility proof; ordinary screenshots require separate visual review. Geometry comparison samples six rendered vertices, not all18 controlled phases. Sparse RAF may skip visits; source/eligibility transitions and full-cycle gaps are excluded and counted. Vault/HFX, other scenery, complete native allocator, original wall clock and hardware performance are not claimed."
+}

@@ -1,0 +1,28 @@
+{
+  "kind": "exclusive-dependency-return",
+  "status": "returned",
+  "createdAt": "2026-10-05T18:20:08.155334+00:00",
+  "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/node_modules",
+  "target": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/node_modules",
+  "fullTreeInode": 925605,
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "priorTransfer": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/dependency-transfers/stone-to-ordinary-baseline-20261005T1816/receipt.json",
+    "sha256": "f296fec6d6717cc9930d06f141daa92ad7648832b19debcd7fcafa628c94ed79"
+  },
+  "terminalCommand": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/stone-head-ordinary-214/baseline-3cc9e830-body-command.json",
+    "sha256": "3306d138556d4d1c81683b085f306a071fa07a7f9f4b8eb49a1a30e30451703a",
+    "originalExecutionSession": 93342,
+    "status": "passed",
+    "exitCode": 0
+  },
+  "cleanupReceiptSha256": "10ba5c96770bca80162dc4a0ddc735ff7fb2621491a0fb58fe4735d68c61313a",
+  "repairPredicate": "expected-failed-negative-control",
+  "negativeControlSha256": "13e039ef02eccb38b4235d89b7293a674e3e4e259d1fad11ad9bdef6dc580ceb",
+  "sourceAndInputsStable": true,
+  "scope": "Valid3cc ordinary baseline complete; return exact closure for authorized d97 ordinary row",
+  "verifiedAt": "2026-10-05T18:20:08.156044+00:00",
+  "originalTargetAbsenceRestored": true
+}

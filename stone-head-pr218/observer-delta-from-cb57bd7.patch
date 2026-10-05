@@ -1,0 +1,93 @@
+diff --git a/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/sprite-visit-ordinary-214/observe-sprite-visits.mjs b/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/stone-head-ordinary-214/observe-stone-head-visits.mjs
+index d231d9e..b079538 100644
+--- a/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/sprite-visit-ordinary-214/observe-sprite-visits.mjs
++++ b/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/stone-head-ordinary-214/observe-stone-head-visits.mjs
+@@ -4,16 +4,16 @@ import { createHash } from 'node:crypto'
+ import { resolve } from 'node:path'
+ import { pathToFileURL } from 'node:url'
+ 
+-// Extends the accepted 2d9de66c observer. No game callbacks, clock or live owners are changed.
++// Extends the accepted cb57bd7 ordinary observer with existing model45 body reads. No game callbacks, clock or live owners are changed.
+ export default async function ({ page, root, output, openMission, receipt, signal }) {
+   const report = {
+-    schema: 'sprite-logical-visits-214/v1',
++    schema: 'stone-head-logical-visits-214/v1',
+     scenarioSha256: createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex'),
+     source: JSON.parse(JSON.stringify(receipt.source)),
+     method: 'Ordinary Mission 1 entry, natural opening, public pause/resume and shipped 1×/2× settings. Independent read-only RAF snapshots; no world, clock, terrain, camera, storage or render mutation.',
+     identityScope: 'Owner identities use a local WeakMap per segment; compare them only inside that segment. Aliases identify existing references on the sampled Unit/Effect.',
+     segments: [], actions: [],
+-    limits: 'Functional headless rendering only. RAF samples may miss intermediate visits or whole frame cycles. Raw stamps are observations, not an inferred counter or proof that a processor ran. No native wall-clock, hardware-performance, complete lifecycle or unsampled effect-family claim.',
++    limits: 'Functional headless rendering only. RAF samples may miss intermediate visits or whole frame cycles. Raw stamps are observations, not an inferred counter or proof that a processor ran. Painter submission is only a liveness aid; the retained screenshots need visual review. Geometry samples cover the first six existing vertices. No native wall-clock, hardware-performance, complete lifecycle or unsampled family claim.',
+   }
+   const save = () => writeFileSync(resolve(output, 'sprite-observations.json'), JSON.stringify(report, null, 2) + '\n')
+   const controlState = () => page.evaluate(() => {
+@@ -45,6 +45,7 @@ export default async function ({ page, root, output, openMission, receipt, signa
+     signal.throwIfAborted()
+     const data = await page.evaluate(async ({ label, milliseconds }) => {
+       const { unitAnimationSource, unitAnimation } = await import('/app/model.ts')
++      const { default: rules } = await import('/app/original-rules.json')
+       const rows = [], start = performance.now(), owners = new WeakMap()
+       let nextOwner = 1
+       const identity = p => {
+@@ -86,7 +87,35 @@ export default async function ({ page, root, output, openMission, receipt, signa
+               const state = group.userData.hutOccupancySmoke
+               return state ? [{ id, kind: 'root', visible: state.group.visible, uv: uv(state.sprite), root: state.state.root ? { ...state.state.root } : null }] : []
+             }).concat([...(s.hutSmokePuffs ?? [])].map(([id, group]) => ({ id, kind: 'puff', visible: group.visible, uv: uv(group.children[0]) })))
+-            rows.push({ now, sceneNow: s.previous, turn: w.turn, time: w.time, speed: w.speed, paused: w.paused, landFlags: w.land.landFlags, levelFlags2: w.levelFlags2, animationFrame: s.gameClock.animationFrame, animationTime: s.gameClock.animationTime, smokeAnimationFrame: w.secondaryEffects.animationFrame, selected: [...w.selected], units, effects, smoke, displayedSmoke })
++            const stoneHeads = w.shrines.filter(h => h.model === 45 && h.kind !== 'vault').map(h => {
++              const body = h.stoneHead, group = s.shrineMeshes.get(h.id)?.g, mesh = group?.children[0]
++              const positions = mesh?.geometry?.attributes.position, uvs = mesh?.geometry?.attributes.uv
++              const modes = mesh?.geometry?.attributes.textureMode, painter = s.view.painter
++              const range = mesh && painter.ranges.get(mesh)
++              const submitted = range ? painter.commandsBySlot.slice(range[0], range[0] + range[1]).filter(Boolean) : []
++              const xyz = p => p ? [p.x, p.y, p.z] : null
++              return { id: h.id, kind: h.kind, model: h.model, mode: h.mode ?? null,
++                x: h.x, z: h.z, enabled: h.enabled, active: h.active, followers: h.followers,
++                remaining: h.remaining, uses: h.uses, progress: h.progress,
++                availability: body === undefined ? 'uninitialized' : body === null ? 'unsupported-null' : 'existing',
++                body: body ? { ...native(body), family: body.family, enabled: body.enabled,
++                  holdFrame: body.holdFrame, triggerIndex: body.triggerIndex, sceneryIndex: body.sceneryIndex,
++                  descriptorMode: rules.animationDescriptors[body.draw]?.mode ?? null } : null,
++                rendered: mesh ? { nativeModel: mesh.userData.nativeModel, phase: mesh.userData.stoneHeadFrame ?? null,
++                  groupVisible: group.visible, meshVisible: mesh.visible, objectsVisible: s.objects.visible,
++                  sceneVisible: s.scene.visible, parentIsObjects: group.parent === s.objects,
++                  geometryId: mesh.geometry.uuid, materialId: mesh.material.uuid,
++                  groupPosition: xyz(group.position), meshPosition: xyz(mesh.position),
++                  groupMatrixWorld: [...group.matrixWorld.elements], meshMatrixWorld: [...mesh.matrixWorld.elements],
++                  positionCount: positions?.count ?? null, positionItemSize: positions?.itemSize ?? null,
++                  positionVersion: positions?.version ?? null,
++                  positionSample: positions ? Array.from(positions.array.slice(0, 18)) : null,
++                  uvCount: uvs?.count ?? null, uvSample: uvs ? Array.from(uvs.array.slice(0, 12)) : null,
++                  textureModeSample: modes ? Array.from(modes.array.slice(0, 6)) : null,
++                  painterRange: range ? [...range] : null, submittedFaceCount: submitted.length,
++                  submittedFaceSample: submitted.slice(0, 8).map(c => ({ slot: c.slot, face: c.face, object: c.object, bucket: c.bucket, phase: c.phase })) } : null }
++            })
++            rows.push({ now, sceneNow: s.previous, turn: w.turn, time: w.time, speed: w.speed, paused: w.paused, landFlags: w.land.landFlags, levelFlags2: w.levelFlags2, animationFrame: s.gameClock.animationFrame, animationTime: s.gameClock.animationTime, smokeAnimationFrame: w.secondaryEffects.animationFrame, selected: [...w.selected], units, effects, smoke, displayedSmoke, stoneHeads })
+             if (performance.now() - start >= milliseconds) resolve({ label, requestedMs: milliseconds, rows })
+             else requestAnimationFrame(sample)
+           } catch (error) { resolve({ label, requestedMs: milliseconds, rows, error: String(error) }) }
+@@ -110,7 +139,7 @@ export default async function ({ page, root, output, openMission, receipt, signa
+     if (paused) {
+       assert.equal(data.summary.animationVisits, 0)
+       assert.equal(data.summary.simulationTurns, 0)
+-      const display = row => ({ units: row.units, effects: row.effects, smoke: row.smoke, displayedSmoke: row.displayedSmoke })
++      const display = row => ({ units: row.units, effects: row.effects, smoke: row.smoke, displayedSmoke: row.displayedSmoke, stoneHeads: row.stoneHeads.map(h => ({ ...h, rendered: h.rendered && { ...h.rendered, painterRange: undefined, submittedFaceSample: undefined } })) })
+       for (const row of data.rows.slice(1)) assert.deepEqual(display(row), display(first), `${label}: raw pose and rendered frame/UV freeze`)
+     } else {
+       assert.ok(data.summary.animationVisits > 0 && data.summary.simulationTurns > 0, `${label}: normal clocks advance`)
+@@ -155,8 +184,13 @@ export default async function ({ page, root, output, openMission, receipt, signa
+   await observe('restored shipped 1× speed', 2000, 1, false)
+   report.coverage = { naturalWalkObserved: report.segments.some(s => s.summary.walkingNativeSamples > 0),
+     splashObserved: report.segments.some(s => s.summary.effectKinds.includes('splash')),
+-    damageSmokeObserved: report.segments.some(s => s.summary.effectKinds.includes('buildingSmoke')) }
++    damageSmokeObserved: report.segments.some(s => s.summary.effectKinds.includes('buildingSmoke')),
++    enabledBodyQueued: report.segments.some(s => s.rows.some(row => row.stoneHeads.some(h =>
++      h.enabled && h.body?.family === 45 && h.body.enabled && h.rendered?.nativeModel === 45 &&
++      h.rendered.groupVisible && h.rendered.meshVisible && h.rendered.objectsVisible && h.rendered.sceneVisible &&
++      h.rendered.parentIsObjects && h.rendered.submittedFaceCount > 0))) }
+   save()
+   assert.equal(report.coverage.naturalWalkObserved, true, 'Genuine native-backed natural walk must be observed; absence is not a pass')
++  assert.equal(report.coverage.enabledBodyQueued, true, 'No ordinary enabled model45 body with visible flags and queued faces; retain the gap rather than substitute a fixture')
+   return { source: report.source, scenarioSha256: report.scenarioSha256, environment: report.environment, coverage: report.coverage, summaries: report.segments.map(({ label, summary }) => ({ label, ...summary })), artifact: 'sprite-observations.json', limits: report.limits }
+ }

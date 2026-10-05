@@ -1,0 +1,68 @@
+{
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered",
+    "commit": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+    "tree": "52671858facb7ad8f6041d410aa350328139fb54",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "a19807c61dd50023e1b3a030bc0316213114b93293b57373b712209c3b78ea0f"
+  },
+  "rawSha256": "32addbabe7b1eebe082eb48b64220d9877d135de20daa860c86064f96d0ca508",
+  "images": [
+    {
+      "screenshot": "normal-speed-opening.png",
+      "screenshotSha256": "c1eb074a22568f6658a75f88bb49583a3c48c28ed607dd9ad75eb893e1be43c8",
+      "headId": 29,
+      "kind": "bridge",
+      "triggerIndex": 30,
+      "sceneryIndex": 32,
+      "shrinePosition": [
+        -5,
+        25
+      ],
+      "bodyFamily": 45,
+      "nativeModel": 45,
+      "groupPosition": [
+        -5,
+        0.5078125,
+        25
+      ],
+      "groupMatrixTranslation": [
+        -5,
+        0.5078125,
+        25
+      ],
+      "adjacentSegmentEndTurn": 229,
+      "adjacentSegmentEndPhase": 9,
+      "visualResult": "Actual tall gray bridge body is visible on the right of the Blue settlement, distinct from surrounding reincarnation stones. Raw identity/position is from the same ordinary stage; screenshot phase is not claimed to equal the last sampled phase exactly."
+    },
+    {
+      "screenshot": "shipped-2x-speed.png",
+      "screenshotSha256": "0acdfdc081a953e6d7e80861c578077d75f9dbc1e3d74ccd7e87d9f3a445578c",
+      "headId": 29,
+      "kind": "bridge",
+      "triggerIndex": 30,
+      "sceneryIndex": 32,
+      "shrinePosition": [
+        -5,
+        25
+      ],
+      "bodyFamily": 45,
+      "nativeModel": 45,
+      "groupPosition": [
+        -5,
+        0.5078125,
+        25
+      ],
+      "groupMatrixTranslation": [
+        -5,
+        0.5078125,
+        25
+      ],
+      "adjacentSegmentEndTurn": 472,
+      "adjacentSegmentEndPhase": 12,
+      "visualResult": "Actual tall gray bridge body is visible on the right of the Blue settlement, distinct from surrounding reincarnation stones. Raw identity/position is from the same ordinary stage; screenshot phase is not claimed to equal the last sampled phase exactly."
+    }
+  ]
+}

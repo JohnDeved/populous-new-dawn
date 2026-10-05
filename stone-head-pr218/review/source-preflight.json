@@ -1,0 +1,23 @@
+{
+  "verdict": "ACCEPT SOURCE PREFLIGHT ONLY",
+  "reviewedAt": "2026-10-05T18:15:51.025367+00:00",
+  "inputs": {
+    "observe-stone-head-visits.mjs": "febd084f136389ad254ce04b9a96ec133cdc1bfdfc9b18346d99b4f159a8af01",
+    "analyze-stone-head-visits.py": "8d2db8452e04e3ad1ae88b83f4878fd1323cb54a7233e09e31f0deda28f84d98"
+  },
+  "baseline": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "candidate": "d97c370da3e996e00130610df97d10b827ab5c4b",
+  "findings": [
+    "Reviewed complete observer delta from accepted cb57 driver: direct existing body/mesh/painter reads; no world, camera, render, terrain or lazy-init calls added.",
+    "Painter command object is numeric; bounded face samples do not serialize live mesh references.",
+    "Analyzer binds exact source/raw/driver/data hashes and retains all failures. Geometry variation must be witnessed at both running speeds.",
+    "Ordinary controls and fixed 22-second observation protocol unchanged.",
+    "A fresh baseline is required because previous person captures omitted body state. Baseline repair-predicate failures must remain labelled expected negative controls."
+  ],
+  "conditions": [
+    "Official sandboxed maintained harness, unique outputs/TMP and private port, 120-second harness /150-second outer bounds, same-launcher endpoint cleanup and original session terminal collection.",
+    "Two-ended exclusive inode925605 dependency move only after terminal package release.",
+    "Actual baseline/candidate image inspection must establish body pixel visibility; queued commands alone insufficient.",
+    "All runtime checks and controlled fixture remain pending; this is no gameplay acceptance."
+  ]
+}

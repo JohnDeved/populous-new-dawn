@@ -1,0 +1,927 @@
+{
+  "status": "failed",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered",
+    "commit": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+    "tree": "52671858facb7ad8f6041d410aa350328139fb54",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "a19807c61dd50023e1b3a030bc0316213114b93293b57373b712209c3b78ea0f"
+  },
+  "driverSha256": "febd084f136389ad254ce04b9a96ec133cdc1bfdfc9b18346d99b4f159a8af01",
+  "checkerSha256": "8d2db8452e04e3ad1ae88b83f4878fd1323cb54a7233e09e31f0deda28f84d98",
+  "rawSha256": "32addbabe7b1eebe082eb48b64220d9877d135de20daa860c86064f96d0ca508",
+  "sourceDataSha256": {
+    "original-stone-heads.json": "8dfa738e04170a3874baaae433577538326c90786eb000feb08aa31ed0d29f20",
+    "original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "original-models.json": "1665fcc36e57bbb765259ec9b7c1755a6b126db837787c9038ed955c76a8afc5"
+  },
+  "requiredVisualReview": "Confirm the actual enabled model45 body in normal-speed-opening.png and shipped-2x-speed.png; queued faces alone do not prove pixel visibility.",
+  "failureCounts": {
+    "missingGate": 616,
+    "logicalStamp": 426,
+    "logicalCadence": 298,
+    "sameTurnAdvance": 54
+  },
+  "failureExamples": {
+    "missingGate": [
+      {
+        "label": "normal-speed natural opening",
+        "head": 28,
+        "flags3": 0
+      },
+      {
+        "label": "normal-speed natural opening",
+        "head": 29,
+        "flags3": 0
+      },
+      {
+        "label": "normal-speed natural opening",
+        "head": 28,
+        "flags3": 0
+      }
+    ],
+    "logicalStamp": [
+      {
+        "label": "normal-speed natural opening",
+        "head": 28,
+        "turnBefore": 133,
+        "turnAfter": 134,
+        "presentationDelta": 2,
+        "before": {
+          "ownerIdentity": 10,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 60,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 28,
+          "sceneryIndex": 33,
+          "descriptorMode": 4
+        },
+        "after": {
+          "ownerIdentity": 10,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 68,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 28,
+          "sceneryIndex": 33,
+          "descriptorMode": 4
+        }
+      },
+      {
+        "label": "normal-speed natural opening",
+        "head": 29,
+        "turnBefore": 133,
+        "turnAfter": 134,
+        "presentationDelta": 2,
+        "before": {
+          "ownerIdentity": 11,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 60,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 30,
+          "sceneryIndex": 32,
+          "descriptorMode": 4
+        },
+        "after": {
+          "ownerIdentity": 11,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 68,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 30,
+          "sceneryIndex": 32,
+          "descriptorMode": 4
+        }
+      },
+      {
+        "label": "normal-speed natural opening",
+        "head": 28,
+        "turnBefore": 134,
+        "turnAfter": 135,
+        "presentationDelta": 2,
+        "before": {
+          "ownerIdentity": 10,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 68,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 28,
+          "sceneryIndex": 33,
+          "descriptorMode": 4
+        },
+        "after": {
+          "ownerIdentity": 10,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 4,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 28,
+          "sceneryIndex": 33,
+          "descriptorMode": 4
+        }
+      }
+    ],
+    "logicalCadence": [
+      {
+        "label": "normal-speed natural opening",
+        "head": 28,
+        "turnBefore": 133,
+        "turnAfter": 134,
+        "presentationDelta": 2,
+        "before": {
+          "ownerIdentity": 10,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 60,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 28,
+          "sceneryIndex": 33,
+          "descriptorMode": 4
+        },
+        "after": {
+          "ownerIdentity": 10,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 68,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 28,
+          "sceneryIndex": 33,
+          "descriptorMode": 4
+        }
+      },
+      {
+        "label": "normal-speed natural opening",
+        "head": 29,
+        "turnBefore": 133,
+        "turnAfter": 134,
+        "presentationDelta": 2,
+        "before": {
+          "ownerIdentity": 11,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 60,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 30,
+          "sceneryIndex": 32,
+          "descriptorMode": 4
+        },
+        "after": {
+          "ownerIdentity": 11,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 68,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 30,
+          "sceneryIndex": 32,
+          "descriptorMode": 4
+        }
+      },
+      {
+        "label": "normal-speed natural opening",
+        "head": 28,
+        "turnBefore": 134,
+        "turnAfter": 135,
+        "presentationDelta": 2,
+        "before": {
+          "ownerIdentity": 10,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 68,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 28,
+          "sceneryIndex": 33,
+          "descriptorMode": 4
+        },
+        "after": {
+          "ownerIdentity": 10,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 4,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 28,
+          "sceneryIndex": 33,
+          "descriptorMode": 4
+        }
+      }
+    ],
+    "sameTurnAdvance": [
+      {
+        "label": "normal-speed natural opening",
+        "head": 28,
+        "turnBefore": 139,
+        "turnAfter": 139,
+        "presentationDelta": 1,
+        "before": {
+          "ownerIdentity": 10,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 32,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 28,
+          "sceneryIndex": 33,
+          "descriptorMode": 4
+        },
+        "after": {
+          "ownerIdentity": 10,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 36,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 28,
+          "sceneryIndex": 33,
+          "descriptorMode": 4
+        }
+      },
+      {
+        "label": "normal-speed natural opening",
+        "head": 29,
+        "turnBefore": 139,
+        "turnAfter": 139,
+        "presentationDelta": 1,
+        "before": {
+          "ownerIdentity": 11,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 32,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 30,
+          "sceneryIndex": 32,
+          "descriptorMode": 4
+        },
+        "after": {
+          "ownerIdentity": 11,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 36,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 30,
+          "sceneryIndex": 32,
+          "descriptorMode": 4
+        }
+      },
+      {
+        "label": "normal-speed natural opening",
+        "head": 28,
+        "turnBefore": 142,
+        "turnAfter": 142,
+        "presentationDelta": 1,
+        "before": {
+          "ownerIdentity": 10,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 56,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 28,
+          "sceneryIndex": 33,
+          "descriptorMode": 4
+        },
+        "after": {
+          "ownerIdentity": 10,
+          "class": null,
+          "model": null,
+          "object": 45,
+          "draw": 4,
+          "f1": 60,
+          "f2": 0,
+          "flags3": 0,
+          "stamp": 0,
+          "flags2": null,
+          "flags4": null,
+          "renderFlags": 264,
+          "state": null,
+          "substate": null,
+          "commandStatus": null,
+          "speed": null,
+          "morph": 1,
+          "morphTimer": 0,
+          "morphFrames": 0,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "triggerIndex": 28,
+          "sceneryIndex": 33,
+          "descriptorMode": 4
+        }
+      }
+    ]
+  },
+  "inconclusive": [],
+  "segments": [
+    {
+      "label": "normal-speed natural opening",
+      "speed": 1,
+      "paused": false,
+      "counts": {
+        "existingSamples": 210,
+        "bodySamples": 210,
+        "renderedGeometrySamples": 210,
+        "enabledQueuedSamples": 105,
+        "logicalStampPairs": 182,
+        "unaliasedLogicalPairs": 182,
+        "queuedLogicalPairs": 91,
+        "queuedExtraPresentationHolds": 13
+      },
+      "queuedEnabledPhases": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:11": 18
+      }
+    },
+    {
+      "label": "public pause",
+      "speed": 1,
+      "paused": true,
+      "counts": {
+        "existingSamples": 42,
+        "bodySamples": 42,
+        "renderedGeometrySamples": 42,
+        "enabledQueuedSamples": 21
+      },
+      "queuedEnabledPhases": [
+        2
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 1
+      }
+    },
+    {
+      "label": "public resume",
+      "speed": 1,
+      "paused": false,
+      "counts": {
+        "existingSamples": 120,
+        "bodySamples": 120,
+        "renderedGeometrySamples": 120,
+        "enabledQueuedSamples": 60,
+        "queuedExtraPresentationHolds": 11,
+        "logicalStampPairs": 96,
+        "unaliasedLogicalPairs": 96,
+        "queuedLogicalPairs": 48
+      },
+      "queuedEnabledPhases": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 18
+      }
+    },
+    {
+      "label": "settings pause at 1\u00d7",
+      "speed": 1,
+      "paused": true,
+      "counts": {
+        "existingSamples": 8,
+        "bodySamples": 8,
+        "renderedGeometrySamples": 8,
+        "enabledQueuedSamples": 4
+      },
+      "queuedEnabledPhases": [
+        14
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 1
+      }
+    },
+    {
+      "label": "settings selected 2\u00d7 while paused",
+      "speed": 2,
+      "paused": true,
+      "counts": {
+        "existingSamples": 10,
+        "bodySamples": 10,
+        "renderedGeometrySamples": 10,
+        "enabledQueuedSamples": 5
+      },
+      "queuedEnabledPhases": [
+        14
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 1
+      }
+    },
+    {
+      "label": "shipped 2\u00d7 speed natural play",
+      "speed": 2,
+      "paused": false,
+      "counts": {
+        "existingSamples": 100,
+        "bodySamples": 100,
+        "renderedGeometrySamples": 100,
+        "enabledQueuedSamples": 50,
+        "logicalStampPairs": 98,
+        "unaliasedLogicalPairs": 98,
+        "queuedLogicalPairs": 49
+      },
+      "queuedEnabledPhases": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 18
+      }
+    },
+    {
+      "label": "public pause at 2\u00d7",
+      "speed": 2,
+      "paused": true,
+      "counts": {
+        "existingSamples": 48,
+        "bodySamples": 48,
+        "renderedGeometrySamples": 48,
+        "enabledQueuedSamples": 24
+      },
+      "queuedEnabledPhases": [
+        12
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 1
+      }
+    },
+    {
+      "label": "settings pause at 2\u00d7",
+      "speed": 2,
+      "paused": true,
+      "counts": {
+        "existingSamples": 10,
+        "bodySamples": 10,
+        "renderedGeometrySamples": 10,
+        "enabledQueuedSamples": 5
+      },
+      "queuedEnabledPhases": [
+        0
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 1
+      }
+    },
+    {
+      "label": "settings selected 1\u00d7 while paused",
+      "speed": 1,
+      "paused": true,
+      "counts": {
+        "existingSamples": 10,
+        "bodySamples": 10,
+        "renderedGeometrySamples": 10,
+        "enabledQueuedSamples": 5
+      },
+      "queuedEnabledPhases": [
+        0
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 1
+      }
+    },
+    {
+      "label": "restored shipped 1\u00d7 speed",
+      "speed": 1,
+      "paused": false,
+      "counts": {
+        "existingSamples": 58,
+        "bodySamples": 58,
+        "renderedGeometrySamples": 58,
+        "enabledQueuedSamples": 29,
+        "logicalStampPairs": 50,
+        "unaliasedLogicalPairs": 50,
+        "queuedLogicalPairs": 25,
+        "queuedExtraPresentationHolds": 3
+      },
+      "queuedEnabledPhases": [
+        0,
+        1,
+        2,
+        3,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 17
+      }
+    }
+  ],
+  "limits": "Existing authored model45 bodies only; Painter-submitted faces are a liveness aid, not pixel visibility proof; ordinary screenshots require separate visual review. Geometry comparison samples six rendered vertices, not all18 controlled phases. Sparse RAF may skip visits; source/eligibility transitions and full-cycle gaps are excluded and counted. Vault/HFX, other scenery, complete native allocator, original wall clock and hardware performance are not claimed."
+}

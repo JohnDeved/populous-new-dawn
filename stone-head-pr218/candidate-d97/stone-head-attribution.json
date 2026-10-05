@@ -1,0 +1,350 @@
+{
+  "status": "passed",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+    "commit": "d97c370da3e996e00130610df97d10b827ab5c4b",
+    "tree": "5228a79f26b90d3daeffe65498c01ada077ba132",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "6c7bf7c03d3ff530ddf3f7bddcfbac3af36f1b6d221f6313e9e8f2cad897c9f0"
+  },
+  "driverSha256": "febd084f136389ad254ce04b9a96ec133cdc1bfdfc9b18346d99b4f159a8af01",
+  "checkerSha256": "8d2db8452e04e3ad1ae88b83f4878fd1323cb54a7233e09e31f0deda28f84d98",
+  "rawSha256": "7e59a53b34b2e74bd3c5b31b5025cae368009c795d9e481c7c0acf4f1b28e7b8",
+  "sourceDataSha256": {
+    "original-stone-heads.json": "8dfa738e04170a3874baaae433577538326c90786eb000feb08aa31ed0d29f20",
+    "original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "original-models.json": "1665fcc36e57bbb765259ec9b7c1755a6b126db837787c9038ed955c76a8afc5"
+  },
+  "requiredVisualReview": "Confirm the actual enabled model45 body in normal-speed-opening.png and shipped-2x-speed.png; queued faces alone do not prove pixel visibility.",
+  "failureCounts": {},
+  "failureExamples": {},
+  "inconclusive": [],
+  "segments": [
+    {
+      "label": "normal-speed natural opening",
+      "speed": 1,
+      "paused": false,
+      "counts": {
+        "existingSamples": 218,
+        "bodySamples": 218,
+        "renderedGeometrySamples": 218,
+        "enabledQueuedSamples": 109,
+        "logicalStampPairs": 188,
+        "unaliasedLogicalPairs": 188,
+        "queuedLogicalPairs": 94,
+        "queuedExtraPresentationHolds": 14
+      },
+      "queuedEnabledPhases": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:11": 18
+      }
+    },
+    {
+      "label": "public pause",
+      "speed": 1,
+      "paused": true,
+      "counts": {
+        "existingSamples": 50,
+        "bodySamples": 50,
+        "renderedGeometrySamples": 50,
+        "enabledQueuedSamples": 25
+      },
+      "queuedEnabledPhases": [
+        8
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 1
+      }
+    },
+    {
+      "label": "public resume",
+      "speed": 1,
+      "paused": false,
+      "counts": {
+        "existingSamples": 120,
+        "bodySamples": 120,
+        "renderedGeometrySamples": 120,
+        "enabledQueuedSamples": 60,
+        "logicalStampPairs": 96,
+        "unaliasedLogicalPairs": 96,
+        "queuedLogicalPairs": 48,
+        "queuedExtraPresentationHolds": 11
+      },
+      "queuedEnabledPhases": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 18
+      }
+    },
+    {
+      "label": "settings pause at 1\u00d7",
+      "speed": 1,
+      "paused": true,
+      "counts": {
+        "existingSamples": 10,
+        "bodySamples": 10,
+        "renderedGeometrySamples": 10,
+        "enabledQueuedSamples": 5
+      },
+      "queuedEnabledPhases": [
+        4
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 1
+      }
+    },
+    {
+      "label": "settings selected 2\u00d7 while paused",
+      "speed": 2,
+      "paused": true,
+      "counts": {
+        "existingSamples": 10,
+        "bodySamples": 10,
+        "renderedGeometrySamples": 10,
+        "enabledQueuedSamples": 5
+      },
+      "queuedEnabledPhases": [
+        4
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 1
+      }
+    },
+    {
+      "label": "shipped 2\u00d7 speed natural play",
+      "speed": 2,
+      "paused": false,
+      "counts": {
+        "existingSamples": 110,
+        "bodySamples": 110,
+        "renderedGeometrySamples": 110,
+        "enabledQueuedSamples": 55,
+        "logicalStampPairs": 108,
+        "unaliasedLogicalPairs": 108,
+        "queuedLogicalPairs": 54
+      },
+      "queuedEnabledPhases": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 18
+      }
+    },
+    {
+      "label": "public pause at 2\u00d7",
+      "speed": 2,
+      "paused": true,
+      "counts": {
+        "existingSamples": 50,
+        "bodySamples": 50,
+        "renderedGeometrySamples": 50,
+        "enabledQueuedSamples": 25
+      },
+      "queuedEnabledPhases": [
+        14
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 1
+      }
+    },
+    {
+      "label": "settings pause at 2\u00d7",
+      "speed": 2,
+      "paused": true,
+      "counts": {
+        "existingSamples": 8,
+        "bodySamples": 8,
+        "renderedGeometrySamples": 8,
+        "enabledQueuedSamples": 4
+      },
+      "queuedEnabledPhases": [
+        4
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 1
+      }
+    },
+    {
+      "label": "settings selected 1\u00d7 while paused",
+      "speed": 1,
+      "paused": true,
+      "counts": {
+        "existingSamples": 10,
+        "bodySamples": 10,
+        "renderedGeometrySamples": 10,
+        "enabledQueuedSamples": 5
+      },
+      "queuedEnabledPhases": [
+        4
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 1
+      }
+    },
+    {
+      "label": "restored shipped 1\u00d7 speed",
+      "speed": 1,
+      "paused": false,
+      "counts": {
+        "existingSamples": 60,
+        "bodySamples": 60,
+        "renderedGeometrySamples": 60,
+        "enabledQueuedSamples": 30,
+        "logicalStampPairs": 48,
+        "unaliasedLogicalPairs": 48,
+        "queuedLogicalPairs": 24,
+        "queuedExtraPresentationHolds": 5
+      },
+      "queuedEnabledPhases": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15,
+        16,
+        17
+      ],
+      "witnesses": [
+        [
+          29,
+          30,
+          32
+        ]
+      ],
+      "queuedGeometryVariantsByBody": {
+        "29:9": 18
+      }
+    }
+  ],
+  "limits": "Existing authored model45 bodies only; Painter-submitted faces are a liveness aid, not pixel visibility proof; ordinary screenshots require separate visual review. Geometry comparison samples six rendered vertices, not all18 controlled phases. Sparse RAF may skip visits; source/eligibility transitions and full-cycle gaps are excluded and counted. Vault/HFX, other scenery, complete native allocator, original wall clock and hardware performance are not claimed."
+}

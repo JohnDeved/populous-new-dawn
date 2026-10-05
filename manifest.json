@@ -1,18 +1,18 @@
 {
   "schema": "pnd-sparse-evidence-1",
   "issue": 214,
-  "baselineSource": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
-  "candidateSource": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
-  "priorBaselineEvidenceCommit": "8b5e2134e21b1e128e5e100e4530af1042b75ee5",
-  "evidenceRole": "Ordinary baseline and bounded candidate proof; implementation/native/portable scopes remain separate",
-  "driverSha256": "cb57bd7076cedb08b042b6f8ad843b088fc613ae6863f3fed3742944eb88a060",
-  "candidateAnalyzerSha256": "3aaf2a16871eccbb381dd849bac1ce9a020e95be8c5865f0c1cdc4394106c93d",
-  "nativePacketCommit": "681ecb825b997517363b9ab52ac216e394d7b59a",
-  "fileCountExcludingManifest": 45,
+  "priorEvidenceCommit": "102736ea2d83249ad30c498bf0161d00bed0af47",
+  "evidenceRole": "Bounded ordinary person/Splash and model45 body baseline/candidate records; native/portable/controlled scopes remain separate",
+  "stoneHeadBaselineSource": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "stoneHeadCandidateSource": "d97c370da3e996e00130610df97d10b827ab5c4b",
+  "stoneHeadNativePacketCommit": "e76091766dd2db9d21b6d28ba2075f77a99284df",
+  "stoneHeadObserverSha256": "febd084f136389ad254ce04b9a96ec133cdc1bfdfc9b18346d99b4f159a8af01",
+  "stoneHeadAnalyzerSha256": "8d2db8452e04e3ad1ae88b83f4878fd1323cb54a7233e09e31f0deda28f84d98",
+  "fileCountExcludingManifest": 85,
   "files": {
     "README.md": {
-      "sha256": "9a32c0150daee95a9ef11ecc5bbda0bfb3542adad630085346eaebf04eacda35",
-      "bytes": 6075
+      "sha256": "a95c25b21f835a006821d26aaf47ec4c8f6f12fa599e384fb89fe0904e9b5bc5",
+      "bytes": 913
     },
     "analysis/analyze-baseline.py": {
       "sha256": "b1e64251b50ede16b866ddd136afc8a8ad89230aeb119797b5b5e40066fe0562",
@@ -189,19 +189,186 @@
     "transfer/return.json": {
       "sha256": "bd0a1fa28d1bbbcbbd202a58945e00c011ec96800f5512d659f1aa733c068ce6",
       "bytes": 1995
+    },
+    "person-splash-report.md": {
+      "sha256": "9a32c0150daee95a9ef11ecc5bbda0bfb3542adad630085346eaebf04eacda35",
+      "bytes": 6075
+    },
+    "stone-head-pr218/README.md": {
+      "sha256": "0ccf85a1ee20399c75b080718fdd0acc8c66d988b341decdb214b604425be8cb",
+      "bytes": 5330
+    },
+    "stone-head-pr218/analysis/analyze-stone-head-visits.py": {
+      "sha256": "8d2db8452e04e3ad1ae88b83f4878fd1323cb54a7233e09e31f0deda28f84d98",
+      "bytes": 11755
+    },
+    "stone-head-pr218/analysis/reproduce.py": {
+      "sha256": "2b88096103c4b7b429a14acf5783640da319001e397b04fecbc821d3ec4c888e",
+      "bytes": 2114
+    },
+    "stone-head-pr218/baseline-3cc/command.artifacts/stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "stone-head-pr218/baseline-3cc/command.artifacts/stdout.log": {
+      "sha256": "5483abfb8867ed1b0e886825d0bed554deeafa6c750b2b99f4a08ae1af0ad19a",
+      "bytes": 4152
+    },
+    "stone-head-pr218/baseline-3cc/command.json": {
+      "sha256": "3306d138556d4d1c81683b085f306a071fa07a7f9f4b8eb49a1a30e30451703a",
+      "bytes": 10155
+    },
+    "stone-head-pr218/baseline-3cc/launcher-receipt.json": {
+      "sha256": "10ba5c96770bca80162dc4a0ddc735ff7fb2621491a0fb58fe4735d68c61313a",
+      "bytes": 6560
+    },
+    "stone-head-pr218/baseline-3cc/normal-speed-opening.png": {
+      "sha256": "c1eb074a22568f6658a75f88bb49583a3c48c28ed607dd9ad75eb893e1be43c8",
+      "bytes": 1453119
+    },
+    "stone-head-pr218/baseline-3cc/normal-speed-resumed.png": {
+      "sha256": "03a20792eec4ee3d00a547130088038777a573d11b5139674d75acbfcbc1670f",
+      "bytes": 1457903
+    },
+    "stone-head-pr218/baseline-3cc/receipt.json": {
+      "sha256": "3c73a771c809ea600816fbeac42a8dfd41f55cd4a11d69697a4ee56023ff3d92",
+      "bytes": 7627
+    },
+    "stone-head-pr218/baseline-3cc/server.log": {
+      "sha256": "209b9856a0a9214140ce77d097530a09c891fb76597e00b1186f25d4a32ddb52",
+      "bytes": 830
+    },
+    "stone-head-pr218/baseline-3cc/shipped-2x-speed.png": {
+      "sha256": "0acdfdc081a953e6d7e80861c578077d75f9dbc1e3d74ccd7e87d9f3a445578c",
+      "bytes": 1430889
+    },
+    "stone-head-pr218/baseline-3cc/sprite-observations.json.gz": {
+      "sha256": "08d64a01b61828228f2497617163eb266f0a314a2f6c7e5805044b1b04c935e0",
+      "bytes": 131366,
+      "compression": "gzip, mtime0",
+      "uncompressedSha256": "32addbabe7b1eebe082eb48b64220d9877d135de20daa860c86064f96d0ca508",
+      "uncompressedBytes": 8227029
+    },
+    "stone-head-pr218/baseline-3cc/stone-head-repair-negative-control.json": {
+      "sha256": "13e039ef02eccb38b4235d89b7293a674e3e4e259d1fad11ad9bdef6dc580ceb",
+      "bytes": 22033
+    },
+    "stone-head-pr218/baseline-3cc/terminal.json": {
+      "sha256": "a11cfa546534cdb3eb5f5fee488e5b35c6f455213bd6a951c70f6c491dbc018a",
+      "bytes": 1224
+    },
+    "stone-head-pr218/baseline-3cc/visual-review.json": {
+      "sha256": "938381ed9d92aa804269b3e6c795839186c65cca1143af278ea764e4d5f6d848",
+      "bytes": 2286
+    },
+    "stone-head-pr218/candidate-d97/command.artifacts/stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "stone-head-pr218/candidate-d97/command.artifacts/stdout.log": {
+      "sha256": "66adc34eff57c79f2ff09bce35fe835935ab6cfd7023c752fd4e2b0f3edaf866",
+      "bytes": 4169
+    },
+    "stone-head-pr218/candidate-d97/command.json": {
+      "sha256": "b65d9058412d0dc2f0df7bf844438f9a10c5159e2eb1cd90c2aa842149c9e078",
+      "bytes": 10157
+    },
+    "stone-head-pr218/candidate-d97/launcher-receipt.json": {
+      "sha256": "ab20d0481e8d8c73c254e161d999d47c1e4eb3dde335e64b392983a6458c8c2e",
+      "bytes": 6558
+    },
+    "stone-head-pr218/candidate-d97/normal-speed-opening.png": {
+      "sha256": "04cf712337a6df77e01c3ecd7ef18fa8ff0737a5bddfb0171a71deb680ebf86e",
+      "bytes": 1452838
+    },
+    "stone-head-pr218/candidate-d97/normal-speed-resumed.png": {
+      "sha256": "ae55b30626689331c94f5ebc2061c8871b4628365ae33f162b0f8d93d93d13f8",
+      "bytes": 1452363
+    },
+    "stone-head-pr218/candidate-d97/receipt.json": {
+      "sha256": "315eee50bb0d57354c198fa2e52b0ff82f67862a82dd4117f7b836e8348ad557",
+      "bytes": 7643
+    },
+    "stone-head-pr218/candidate-d97/server.log": {
+      "sha256": "abc0195767093d2000d1ca506f222bae057f8b3dd1fa486e262bc480d6851ca0",
+      "bytes": 829
+    },
+    "stone-head-pr218/candidate-d97/shipped-2x-speed.png": {
+      "sha256": "3123216a6ce4da966364dae1846230ad57cd1a186ddf487a922928ab01ef873d",
+      "bytes": 1431400
+    },
+    "stone-head-pr218/candidate-d97/sprite-observations.json.gz": {
+      "sha256": "50f0db4e7bb29b34ece51c9b671f7278e8273fcc999db4db29fc1e30847d7493",
+      "bytes": 135790,
+      "compression": "gzip, mtime0",
+      "uncompressedSha256": "7e59a53b34b2e74bd3c5b31b5025cae368009c795d9e481c7c0acf4f1b28e7b8",
+      "uncompressedBytes": 8631058
+    },
+    "stone-head-pr218/candidate-d97/stone-head-attribution.json": {
+      "sha256": "1bea97ccccf06ba34d1151fb92781f72d4dccc96f2753d237c1b1b874055815b",
+      "bytes": 7779
+    },
+    "stone-head-pr218/candidate-d97/terminal.json": {
+      "sha256": "5ff3f22087336ac99151e0c6c2a6fb6f89c18cedd61ba35c5d6c39b538be87c2",
+      "bytes": 3570
+    },
+    "stone-head-pr218/launchers/baseline.py": {
+      "sha256": "07a30ba8e7b1449fd71e8de884bf4e87975bafc1718f0fc9b624a339a6cda6e0",
+      "bytes": 5080
+    },
+    "stone-head-pr218/launchers/candidate.py": {
+      "sha256": "e62ab0e17dee897793c8558c0ce51688545c6498945321135da93fed48ab1d04",
+      "bytes": 5079
+    },
+    "stone-head-pr218/observe-stone-head-visits.mjs": {
+      "sha256": "febd084f136389ad254ce04b9a96ec133cdc1bfdfc9b18346d99b4f159a8af01",
+      "bytes": 15051
+    },
+    "stone-head-pr218/observer-delta-from-cb57bd7.patch": {
+      "sha256": "78aec52aec85878e4a8556fb946edb45ac0267603d700a3a2b43684129e69608",
+      "bytes": 9897
+    },
+    "stone-head-pr218/planning/plan.md": {
+      "sha256": "11d2e62c58c2281cf525f5268843892627eae7717d67c8bcd85568485972d8a2",
+      "bytes": 6763
+    },
+    "stone-head-pr218/planning/preparation-receipt.json": {
+      "sha256": "18d51c3abac7b7239c83808e477972a3b32ec650a8e722d7242b5fdd3a55462d",
+      "bytes": 3308
+    },
+    "stone-head-pr218/publication-validation.json": {
+      "sha256": "2337b04fea36a878a8e97d9a47efc37354a2967a8dd8a444ef6acb2cbe0e1d93",
+      "bytes": 881
+    },
+    "stone-head-pr218/report.md": {
+      "sha256": "f94468351a88fd237d3e4702cbc72273e839decffc9cef9dd096086d5bdcf0ba",
+      "bytes": 5728
+    },
+    "stone-head-pr218/review/source-preflight.json": {
+      "sha256": "26e4c1bf38874f3021c85664eb9cccb446d70c4979c57fc76bd1e3735e46d024",
+      "bytes": 1665
+    },
+    "stone-head-pr218/transfer/borrow.json": {
+      "sha256": "f296fec6d6717cc9930d06f141daa92ad7648832b19debcd7fcafa628c94ed79",
+      "bytes": 1231
+    },
+    "stone-head-pr218/transfer/return.json": {
+      "sha256": "71d54ce12ca498ffbba4b0c32e7ba95def23aee3a7591a1e397d5e34730527e9",
+      "bytes": 1683
     }
   },
   "excludes": [
     "profiles",
     "caches",
     "dependencies",
-    "original game/tool binaries",
+    "original game/tool inputs",
     "authentication data",
-    "duplicated native packet"
+    "duplicated native/controlled packets"
   ],
   "limits": [
-    "Ordinary partial hut smoke only; Splash/full/damage smoke unobserved",
-    "Sparse RAF samples, not every intermediate native visit",
-    "No native OS wall-clock or hardware performance claim"
+    "Ordinary Stone Head geometry covers six vertices and UV/material samples, not exhaustive full18phase geometry",
+    "Other scenery/Vault/HFX remain excluded",
+    "Prior person/Splash limits and baseline failure-first labels remain unchanged",
+    "No original OS wall-clock or hardware performance claim"
   ]
 }

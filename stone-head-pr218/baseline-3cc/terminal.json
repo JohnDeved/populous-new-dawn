@@ -1,0 +1,24 @@
+{
+  "status": "observation-passed-negative-control-failed-as-expected",
+  "sourceHead": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "originalSession": 93342,
+  "exitCode": 0,
+  "sourceStable": true,
+  "inputsStable": true,
+  "resourcesReleased": true,
+  "browserCleanupVerified": true,
+  "listenerClosureVerified": true,
+  "outerReceiptSha256": "3306d138556d4d1c81683b085f306a071fa07a7f9f4b8eb49a1a30e30451703a",
+  "innerReceiptSha256": "3c73a771c809ea600816fbeac42a8dfd41f55cd4a11d69697a4ee56023ff3d92",
+  "rawSha256": "32addbabe7b1eebe082eb48b64220d9877d135de20daa860c86064f96d0ca508",
+  "negativeControlSha256": "13e039ef02eccb38b4235d89b7293a674e3e4e259d1fad11ad9bdef6dc580ceb",
+  "negativeFailureCounts": {
+    "missingGate": 616,
+    "logicalStamp": 426,
+    "logicalCadence": 298,
+    "sameTurnAdvance": 54
+  },
+  "visualReview": "Opening and2x screenshots show the ordinary tall model45 body on the right of the Blue settlement; actual body rendered, not only queued faces. No observer camera/world mutation.",
+  "dependencyReturnedTo": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix",
+  "returnReceiptSha256": "71d54ce12ca498ffbba4b0c32e7ba95def23aee3a7591a1e397d5e34730527e9"
+}
