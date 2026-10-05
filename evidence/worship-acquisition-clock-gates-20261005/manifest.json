@@ -1,0 +1,76 @@
+{
+  "purpose": "Accepted bounded check selection and test-only idle production-hook coverage amendment for PR211. Full application/browser/performance execution is still pending.",
+  "applicationHead": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "productionInputsIdenticalTo": "4ea7e56fc4b42fa91c1bb49d5f894237b67cbda2",
+  "base": "89c9629991489fd1ce6dc52e938d1cec346bfead",
+  "coverage": "Five existing gameplay scenarios \u00d7 three speeds \u00d7 seven schedules \u00d7 no-hook/idle-hook = 210 worlds; all four clock tests passed at final clean cfa86a3 in9.216s. Only added UI clock and pre-existing guarded epsilon pendingTime normalization are excluded from gameplay comparisons.",
+  "retention": "First proposed check-set rejection and first working-tree test attempt retained. Addendum accepts final cfa86a3 and explicit stale-path/unknown-path dispositions. No full gate or unrelated native/browser claim.",
+  "files": {
+    "review/addendum-cfa86a3.md": {
+      "sha256": "aef4a8234b8ef882b6e4f387a92c082b2c4559f9725fc6169dc07fb05619301e",
+      "bytes": 2750,
+      "sourceSha256": "aef4a8234b8ef882b6e4f387a92c082b2c4559f9725fc6169dc07fb05619301e",
+      "sourceBytes": 2750
+    },
+    "review/amendment-cfa86a3-receipt.json": {
+      "sha256": "e40859bb2fe1bd22472888e4bc41aab4da569e851687c0421c82a359bbb60631",
+      "bytes": 1019,
+      "sourceSha256": "e40859bb2fe1bd22472888e4bc41aab4da569e851687c0421c82a359bbb60631",
+      "sourceBytes": 1019
+    },
+    "review/receipt.json.gz": {
+      "sha256": "275f593dd71d211c6c93666e6ea3078b2cffa0b65fbd208effe8dd7178eb95f6",
+      "bytes": 19898,
+      "sourceSha256": "a91c2250701ba39cd0c1646d4d1b16c1d13455138e726487f69176d29710b474",
+      "sourceBytes": 275140
+    },
+    "review/review.md": {
+      "sha256": "8fa323bd6d4a6bdce245937edbd2aec4ad1c401ed90dba64df035787c1b24ca3",
+      "bytes": 6751,
+      "sourceSha256": "8fa323bd6d4a6bdce245937edbd2aec4ad1c401ed90dba64df035787c1b24ca3",
+      "sourceBytes": 6751
+    },
+    "selection/4ea7e56/plan.json.gz": {
+      "sha256": "fbefebb27b1cd58708335e1d9ad528abf78b970ae752336c2630932cc16e3153",
+      "bytes": 21342,
+      "sourceSha256": "6900ce04c3d5a8012de71eef88992373901e1657edf8b6da30325b5842533bf2",
+      "sourceBytes": 251170
+    },
+    "selection/4ea7e56/plan-disposition-proposed.json": {
+      "sha256": "703302a8900543ab006fe26278153f79e630e5eaa18d2c121c0ad623de1c8571",
+      "bytes": 48621,
+      "sourceSha256": "703302a8900543ab006fe26278153f79e630e5eaa18d2c121c0ad623de1c8571",
+      "sourceBytes": 48621
+    },
+    "selection/cfa86a3/plan.json.gz": {
+      "sha256": "b2a73cb434585756e5b7d6a9d7cd287b9ed08712f56f4de001e8d7e3024c2e42",
+      "bytes": 21458,
+      "sourceSha256": "1a266185e09e47c8155bc5abb52fe2c91dbcc4ff97bd02398185bd96ce1d464a",
+      "sourceBytes": 251632
+    },
+    "selection/cfa86a3/plan-disposition-proposed.json.gz": {
+      "sha256": "2a50230644014573a8c27ef8a31264b7a8a29347c82a3d376a3c99d4b19bc81c",
+      "bytes": 3732,
+      "sourceSha256": "d058464cf1e68307018d30ed70f6183d4da61558df65c54b675c3903f7d1952d",
+      "sourceBytes": 50098
+    },
+    "clock/portable-attempt-1.json": {
+      "sha256": "152295d69ccc1223688b05f5abff0a61c06239c5dded9930d222f7b46de8a64f",
+      "bytes": 2576,
+      "sourceSha256": "152295d69ccc1223688b05f5abff0a61c06239c5dded9930d222f7b46de8a64f",
+      "sourceBytes": 2576
+    },
+    "clock/portable-final.json": {
+      "sha256": "8e62666f89261373238279294804066fd6a8cd00debb9e0ee1f1fd8415308720",
+      "bytes": 2568,
+      "sourceSha256": "8e62666f89261373238279294804066fd6a8cd00debb9e0ee1f1fd8415308720",
+      "sourceBytes": 2568
+    },
+    "clock/game-clock.test.mjs": {
+      "sha256": "d1aa5d9da0b2903fc3e53d78dee4374eff558098a6cae80bfb3313bc9070c7bb",
+      "bytes": 8582,
+      "sourceSha256": "d1aa5d9da0b2903fc3e53d78dee4374eff558098a6cae80bfb3313bc9070c7bb",
+      "sourceBytes": 8582
+    }
+  }
+}

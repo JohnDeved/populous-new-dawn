@@ -1,0 +1,13 @@
+# Amended check selection accepted
+
+**ACCEPT the amended check selection** at clean frozen `cfa86a32f03d021cd1ad725eed9f458ab239d56b`, base `89c9629991489fd1ce6dc52e938d1cec346bfead`. This supersedes only the check-selection rejection in `review.md`. Production source preflight remains ACCEPT; final standard/browser/performance acceptance is pending.
+
+The entire amendment from `4ea7e56` changes only `tests/game-clock.test.mjs` (+28/-5). Independently verified that app, public assets, package files and tsconfig are byte-identical. No production behavior changed.
+
+The existing five gameplay scenarios, three speeds and seven cadence schedules now each exercise both hook configurations, giving 210 worlds. The hooked branch invokes the actual `startPendingWorshipAcquisitions` and `visitWorshipAcquisition` after the existing unit-motion observer. It asserts hooks ran, rejects unexpected handoffs/geometry/arrival, checks 4000 ms of owned UI elapsed time, and retains every World field, controller, request, gameplay RNG and cosmetic RNG in the comparisons. Only the added UI clock is excluded; the pre-existing pendingTime normalization remains guarded below 1e-9. Animation count remains 96 with sub-epsilon residual. This addresses the concrete always-installed-callback gap without masking a consumed gameplay field or weakening an existing assertion.
+
+The exact clean-head receipt `work/orchestration/worship-acquisition-adapter/idle-clock-review/portable-final.json` reports all four clock tests passed, exit 0, in about 9.2 seconds. Verified source-before/source-after identity, the test/lock input hashes and both raw stdout/stderr artifacts against the receipt. This is inspected owner execution, not a reviewer rerun.
+
+The amended planner still selects 122 checks. Its stdout SHA-256 is `33d9faf994cfe82ec2babf63da2a3fcb0321fd893e97ca016cc062273d3e7fbe`. Both unknown paths now have explicit dispositions. The stale `unit-interpolation.test.mjs` path is correctly identified, with the actual `unit-motion.test.mjs` suite covered by the mandatory standard test glob. All prior check IDs remain, and only `clock-portable` changes disposition. The new idle-clock suite is itself included in that glob.
+
+The bounded dispositions and remaining requirements from the original review still apply: mandatory full check/build, exact final quality dispositions, the public ordinary M1/M2 matrix, separately reviewed checkpoint/pause/display/interruption evidence, and a focused measurement excluding diagnostic-observer overhead. None becomes passed through this plan acceptance. No browser, native, package, build or test process was launched by the reviewer. Hashes and correspondence checks are retained in `amendment-cfa86a3-receipt.json`.

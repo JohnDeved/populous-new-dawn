@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "1f767f0f-fe94-4cd0-98a6-aae520c0102e",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "4ea7e56fc4b42fa91c1bb49d5f894237b67cbda2",
+    "branch": "feat/issue30-worship-acquisition",
+    "trackedDiffSha256": "f02e6b51162fa8e11fd4ca67ce075ed6315d8d08327d624919b7b341cc0cb936",
+    "inputs": {
+      "tests/game-clock.test.mjs": "f0353599b0d9b4fe3a472f02abd2c1b57a854ba63ab2a70120b19c235e16ff37",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=3s",
+    "30s",
+    "node",
+    "--test",
+    "tests/game-clock.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter",
+  "startedAt": "2026-10-05T02:59:07.195Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter/work/orchestration/worship-acquisition-adapter/idle-clock-review/portable-attempt-1.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter/work/orchestration/worship-acquisition-adapter/idle-clock-review/portable-attempt-1.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T02:59:16.701Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ render cadence and idle production worship hooks cannot change gameplay, RNG or owned animation state (8472.075023ms)\n✔ paused time stays paused; long active frames retain elapsed time (98.413142ms)\n✔ campaign messages use the presentation clock and freeze while paused (194.009115ms)\n✔ campaign pending auto-open waits for settled motion and consumes one oldest record per presentation visit (43.771211ms)\nℹ tests 4\nℹ suites 0\nℹ pass 4\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 9432.701722\n",
+  "stderr": "",
+  "stdoutSha256": "0447bfd857c471e8fd3b61400c4b6bf6ff1d15018611d1472549aefac5628dc3",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "4ea7e56fc4b42fa91c1bb49d5f894237b67cbda2",
+    "branch": "feat/issue30-worship-acquisition",
+    "trackedDiffSha256": "f02e6b51162fa8e11fd4ca67ce075ed6315d8d08327d624919b7b341cc0cb936",
+    "inputs": {
+      "tests/game-clock.test.mjs": "f0353599b0d9b4fe3a472f02abd2c1b57a854ba63ab2a70120b19c235e16ff37",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba"
+    }
+  }
+}

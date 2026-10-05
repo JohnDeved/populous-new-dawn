@@ -1,0 +1,26 @@
+{
+  "idle-clock-review/portable-final.json": {
+    "sha256": "8e62666f89261373238279294804066fd6a8cd00debb9e0ee1f1fd8415308720",
+    "sourceAndRawLogsVerified": true
+  },
+  "gates-cfa86a3/plan.json": {
+    "sha256": "1a266185e09e47c8155bc5abb52fe2c91dbcc4ff97bd02398185bd96ce1d464a",
+    "sourceAndRawLogsVerified": true
+  },
+  "gates-cfa86a3/plan-disposition-proposed.json": {
+    "sha256": "d058464cf1e68307018d30ed70f6183d4da61558df65c54b675c3903f7d1952d"
+  },
+  "amendmentDiffSha256": "86b4a7d45ae6411165539b618992fe25b734e1e5362496e35f67b4430db825f3",
+  "head": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "priorHead": "4ea7e56fc4b42fa91c1bb49d5f894237b67cbda2",
+  "productionInputsIdentical": true,
+  "changedDispositionIds": [
+    "clock-portable"
+  ],
+  "amendedUnknownPaths": [
+    "app/scene-hud-runtime.ts",
+    "tests/game-clock.test.mjs"
+  ],
+  "verdict": "ACCEPT amended check selection; final gates remain pending",
+  "reviewExecution": "Source/receipt inspection only; no tests or heavy jobs rerun"
+}

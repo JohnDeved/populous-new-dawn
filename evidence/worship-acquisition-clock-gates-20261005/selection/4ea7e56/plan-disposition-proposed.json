@@ -1,0 +1,514 @@
+{
+  "kind": "proposed bounded check disposition for independent review",
+  "base": "89c9629991489fd1ce6dc52e938d1cec346bfead",
+  "head": "4ea7e56fc4b42fa91c1bb49d5f894237b67cbda2",
+  "plannerReceipt": "plan.json",
+  "plannerStdoutSha256": "270da31f16ac8eb6f90e3ec32f811149c0dcb23d2d5d1af468ecb053dc4e78c4",
+  "plannerSelected": 122,
+  "unknownPaths": {
+    "app/scene-hud-runtime.ts": {
+      "actualDelta": "One final call to scene.worshipPresentation.draw() after drawMinimap(); no prior HUD/bookkeeping operation changes.",
+      "owner": "New scene-worship-acquisition.ts overlay draw boundary; covered by full diff source review through c15edac and exact app correspondence through 4ea7e56.",
+      "acceptance": "Ordinary live draw, crop/command bindings, draw-state/RNG immutability, intermediate sample and layout/pause/checkpoint follow-on browser cases remain required."
+    }
+  },
+  "decisions": {
+    "automatic-boat-crossing-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "building-counterattack-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "camera-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "camera-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "campaign-natural-victory-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "checkpoint-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "clock-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "computer-attack-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "computer-direct-attack-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "construction-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "construction-live-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "construction-native-fetch": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "construction-native-order": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "construction-native-timber-search": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "construction-research-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "early-mission-skies-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "early-mission-skies-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "firewarrior-building-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "follower-task-adapters-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "follower-task-art-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "follower-tasks-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "follower-tasks-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "follower-tasks-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "follower-transports-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "follower-transports-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "follower-transports-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "level-start-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "level-start-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "level-start-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "level-start-static": {
+      "status": "not selected for rerun",
+      "reason": "Source inputs for level-start and shaman asset validation are unchanged. The narrow worship body importer/checker instead verifies exact three-frame append and preservation of every prior HUD rectangle/pixel."
+    },
+    "messages-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "messages-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission10-opening-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission11-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission11-build-at-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission11-housing-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission11-settlement-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission12-opening-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission12-spy-sabotage-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission13-balloon-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission13-opening-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission14-rewards-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission14-rewards-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission14-rewards-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "mission15-prison-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission15-prison-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission15-prison-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "mission16-bloodlust-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission16-bloodlust-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission16-bloodlust-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "mission17-armageddon-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission17-armageddon-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission17-armageddon-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "mission18-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission18-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission18-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "mission19-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission19-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission19-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "mission20-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission20-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission20-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "mission21-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission21-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission21-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "mission22-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission22-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission22-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "mission23-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission23-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission23-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "mission23-settlement-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission4-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission5-angel-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission5-angel-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "mission7-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission7-opening-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission8-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "mission8-firewarrior-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission9-boat-house-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "mission9-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "orchestration-structural": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "orchestration-tests": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "orders-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "orders-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "orders-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "performance-profile": {
+      "status": "focused replacement required; not run",
+      "reason": "Generic profile-game includes synthetic world/renderer variants outside this slice. Prepare focused original-once frame/overlay and geometry-read observations, separated from screenshot/state-clone overhead; headless diagnostic only."
+    },
+    "production-build": {
+      "status": "required; not run at this checkpoint",
+      "reason": "Standard complete application gate; prepared finite cap and exact source/dependency fingerprints."
+    },
+    "queued-timber-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "reincarnation-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "reincarnation-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "reincarnation-wave-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "reincarnation-wave-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "reincarnation-wave-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "repository-check": {
+      "status": "required; not run at this checkpoint",
+      "reason": "Standard complete application gate; prepared finite cap and exact source/dependency fingerprints."
+    },
+    "selection-browser-drag": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "selection-native-drag": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "selection-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "shaman-appearance-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "shaman-appearance-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "shaman-appearance-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "shaman-assets-static": {
+      "status": "not selected for rerun",
+      "reason": "Source inputs for level-start and shaman asset validation are unchanged. The narrow worship body importer/checker instead verifies exact three-frame append and preservation of every prior HUD rectangle/pixel."
+    },
+    "terrain-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "terrain-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "terrain-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "transport-ownership-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "transport-vehicle-materials-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "tutorial-first-lesson-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "tutorial-first-lesson-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "vault-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "vehicle-destruction-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "vehicle-destruction-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "vehicle-exit-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "vehicle-panel-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "vehicle-panel-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "vehicle-panel-portable": {
+      "status": "covered by pending standard gate or retained exact portable receipt",
+      "reason": "npm run check executes tests/*.test.mjs, parity validation and orchestration structure. Retained six focused suites provide 42 direct tests now; full gate still required."
+    },
+    "vehicle-panel-selection-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "vehicle-seats-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "vehicle-unload-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "worship-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    },
+    "worship-native": {
+      "status": "not selected for rerun",
+      "reason": "Broad subsystem routing reaches unchanged native functions/inputs. This slice is source-tagged M1/M2 ordinary acquisition; accepted bounded handoff/presentation/replacement/order native receipts and body-raster source/asset proofs bind the changed consumers. No new claim for this generic native runner."
+    },
+    "zoom-edges-browser": {
+      "status": "not selected as a generic runner; focused browser acceptance pending",
+      "reason": "Broad campaign/scene/atlas path routing. Use reviewed ordinary-worship public-control baseline/candidate matrix and separately reviewed checkpoint/pause/display follow-ons for the actual changed call sites. Existing unrelated runner scope receives no new acceptance claim."
+    }
+  },
+  "additionalRequired": [
+    "Hash-pinned 17/10/3 native original receipts plus independent 8-case request-order proof and their reviews; no native replay warranted by unchanged probes/inputs.",
+    "Read-only fixture auditor and original body-asset checker results with exact source/consumed input correspondence.",
+    "Three ordinary public worship rewards, selected modes, arrival tab reselection, live pixels/draw bindings, fallback/resize and Save/Load.",
+    "In-flight/pulse-tail continuation, pause/hidden transitions, DPR/HUD scale, scene disposal and missing geometry remain acceptance boundaries; use explicit tested/blocked/unproved outcomes.",
+    "Focused software-renderer cost/geometry-read observations need a bounded measurement separate from expensive pixel/state observers. No hardware FPS acceptance follows.",
+    "Retain final TypeScript, formatting, correctness-lint and Fallow dispositions; failures remain failures."
+  ],
+  "resourceConstraint": "Prepared only: full check/build/browser await parent resource release. No planner-selected command was automatically executed."
+}
