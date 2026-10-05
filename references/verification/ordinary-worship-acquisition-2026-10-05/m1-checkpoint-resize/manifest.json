@@ -1,0 +1,64 @@
+{
+  "scope": "Pre-worship checkpoint plus actual acquisition resize; not in-flight restore",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "e85cabfa7fbf3d4202b2261985f1d3ad5575d60c",
+  "originalReceiptSha256": "052718cbc61048e11564802797fbf22741271e6e73f9e1201ae5204cb29938c7",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "0f64054b87c89db8584ca85332c5e7decde2b6a0ce35877897730fa3e5a17e66"
+    },
+    {
+      "path": "acquisition-complete.png",
+      "sha256": "70c6cf01a5ac20dbba51719426134318a76fa487ab65d034e9aeb950860b848a"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "1fef09db9af0d318524852d1d8baffaf72e0293ef46b9a1f0cbccf74bd4d7968"
+    },
+    {
+      "path": "decoded-body.png",
+      "sha256": "3673d71f8b851e2251cf3c6d6939b6ea4d3a7aa8ba0b6f714aaab0300a2c7fc5"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "46ebc786f918b4c14add7ffe52ef62583b53c942bfeb9c151ad1b8c22e9cac73"
+    },
+    {
+      "path": "ordinary-worship-m1-route.mjs",
+      "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+    },
+    {
+      "path": "ordinary-worship.mjs",
+      "sha256": "e109f328e3b0203081df9440e1c2ae5f07b31ff02a29e284367fed05d72c65ce"
+    },
+    {
+      "path": "overlay-intermediate.png",
+      "sha256": "bd12a7bee205288fd8b59c673bd362b0be1165df9e04449c894afe85458104ac"
+    },
+    {
+      "path": "overlay-resized.png",
+      "sha256": "66dfc1a1b3ce58597c8b2c83ef6198e2d49388b4d9a30f148cde3a98a9551e29"
+    },
+    {
+      "path": "overlay-rotated.png",
+      "sha256": "76168640d82f4c4edb0e01d184e4e2dbb70705b22b71b3aa31ab56c9ba29f593"
+    },
+    {
+      "path": "phase-zero-composite.png",
+      "sha256": "b0e00cab91a0022ebbd2023613251be01444f8c5d6e71a7cb96023d276238f55"
+    },
+    {
+      "path": "raised-world.png",
+      "sha256": "8ad3ad28610a316507c9647f3d81fb68266f05df240e53b25422b2c504830e30"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "97ceb4c0818a86c32759774a4305d5f1b02fb508afc62abd666d3a924882274b"
+    },
+    {
+      "path": "saved-settings.png",
+      "sha256": "65cc6de41bdd2cbd0e9331787890e7208dcf75253871a67920d7ae5d154e5054"
+    }
+  ]
+}
