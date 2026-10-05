@@ -10,7 +10,8 @@ import { createPreparationRecord, validatePreparationRecord, validateLoadedPrepa
 import { createSermonRecord, validateSermonRecord, validateLoadedSermon, requirePreservedCheckpoint } from './sermon-checkpoint.mjs'
 import { bindGame, showAllMissions } from '../../scripts/browser-game.mjs'
 import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs'
-import { progressKey, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, activeBudget, requireActiveBudget, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells, requireDeclaredPreacherOrder, requireFirstOwnedListener, waitDisposition, requireCancelledSermon } from './observation.mjs'
+import { readQueuedPreservingStop, pollWithPreservation } from './queued-stop.mjs'
+import { objectiveProgress, IncompleteRun, MissionDefeat, authoredVictimIdentity, acceptedOrderEvidence, activeBudget, requireActiveBudget, waitDiagnosticStop, requireNotDefeated, requiredActorStop, selectSermonAnchor, inOrdinaryPreachingCells, requireDeclaredPreacherOrder, requireFirstOwnedListener, waitDisposition, requireCancelledSermon } from './observation.mjs'
 
 const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const sleep = ms => new Promise(resolve => setTimeout(resolve, ms))
@@ -42,10 +43,10 @@ export default async function missionThreeControls({ page, output, root, signal,
     label: 'harness-verified-checkpoint-at-start', checkpoint: structuredClone(receipt.profile.checkpointAtStart),
     profileId: receipt.profile.id, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint,
   } : null
-  let preserveStopRequested = false
+  let preserveStopRequested = false, deferredPreservingStop = false, inBatch = false
   let preserveVerificationFailed = false
   mkdirSync(commandsPath, { recursive: true })
-  for (const name of ['driver.mjs', 'observation.mjs', 'checkpoint-provenance.mjs', 'sermon-checkpoint.mjs', 'recovery-admission.mjs', 'sermon-successor.mjs', 'command-probes.mjs']) {
+  for (const name of ['driver.mjs', 'observation.mjs', 'checkpoint-provenance.mjs', 'sermon-checkpoint.mjs', 'recovery-admission.mjs', 'sermon-successor.mjs', 'erosion-observer.mjs', 'queued-stop.mjs', 'command-probes.mjs']) {
     const bytes = readFileSync(new URL(name, import.meta.url))
     writeFileSync(resolve(output, name), bytes)
     inputs.push({ name, sha256: sha256(bytes) })
@@ -167,7 +168,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     if (before.inputMask) {
       const skip = page.getByRole('button', { name: /^Skip introduction/ })
       if (await skip.isVisible()) { log({ action: 'skip-introduction', turn: before.turn }); await skip.click() }
-      await page.waitForFunction(() => !window.testSceneRef.current.world.inputMask, null, { timeout: 60_000 })
+      await pollUI(() => page.evaluate(() => !window.testSceneRef.current.world.inputMask), 60_000, 'introduction input release')
     }
   }
   const clear = async () => {
@@ -196,10 +197,10 @@ export default async function missionThreeControls({ page, output, root, signal,
   const map = async point => {
     assert.ok(Number.isFinite(point.x) && Number.isFinite(point.z))
     assert.equal((await read()).mode, null, 'Camera preparation must precede mode selection')
-    const settle = () => page.waitForFunction(() => {
+    const settle = () => pollUI(() => page.evaluate(() => {
       const s = window.testSceneRef.current
       return !s.world.inputMask && !s.cameraMotion.active && !s.resultCamera.active && !s.viewTransition
-    }, null, { timeout: 30_000 })
+    }), 30_000, 'camera settlement')
     await settle()
     const input = await page.evaluate(async p => {
       const s = window.testSceneRef.current, { minimapPick } = await import('/app/minimap.ts')
@@ -295,10 +296,10 @@ export default async function missionThreeControls({ page, output, root, signal,
     // Separate this dispatch from a previous command on the same turn without
     // advancing the simulation ourselves. This makes lastOrderTurn a fresh witness.
     if (before.turn <= before.lastOrderTurn) {
-      await page.waitForFunction(() => {
+      await pollUI(() => page.evaluate(() => {
         const w = window.testSceneRef.current.world
         return w.turn > w.lastOrderTurn
-      }, null, { timeout: 5000 })
+      }), 5000, 'fresh order dispatch turn')
       before = await read(); requireOrderable(before)
       await capturePendingSermon(before, { beforeWorldClick: hit })
     }
@@ -398,12 +399,14 @@ export default async function missionThreeControls({ page, output, root, signal,
     await page.keyboard.press('Escape')
   }
   const waitFor = async (condition, scope = 'combat', watchIds = []) => {
+    await consumeQueuedStop()
     const started = await read(); requireOrderableForWait(started)
     const startActive = currentActive(started)
-    let progress = progressKey(started, scope, watchIds), changedAt = startActive, sampledAt = startActive
+    let progress = objectiveProgress(started, condition, scope, watchIds), changedAt = startActive, sampledAt = startActive
     let lastTurn = started.turn, lastAnimation = started.animationFrame
     let clockAdvancedAt = Date.now(), animationAdvancedAt = Date.now()
     for (;;) {
+      await consumeQueuedStop()
       signal.throwIfAborted()
       const s = await read(); health(s)
       assert.equal(s.paused, false, 'A paused game cannot satisfy an active wait')
@@ -421,7 +424,7 @@ export default async function missionThreeControls({ page, output, root, signal,
       }
       const active = currentActive(s), conversion = milestones.find(m => m.name === 'conversion')
       const budget = activeBudget(conversion?.activeSeconds ?? null)
-      const next = progressKey(s, scope, watchIds)
+      const next = objectiveProgress(s, condition, scope, watchIds)
       if (next !== progress) { progress = next; changedAt = active }
       const stop = waitDiagnosticStop({ now: Date.now(), clockAdvancedAt, animationAdvancedAt,
         wallElapsed: Date.now() - startWall, wallLimit, active, budget, changedAt, scope })
@@ -437,6 +440,29 @@ export default async function missionThreeControls({ page, output, root, signal,
       await sleep(1000)
     }
   }
+  const consumeQueuedStop = async ({ defer = false } = {}) => {
+    if (preserveStopRequested) return
+    const ordinal = inBatch ? index + 1 : Math.max(1, index)
+    const pending = readQueuedPreservingStop(commandsPath, ordinal, receipt.profile?.runId ?? receipt.startedAt)
+    if (!pending) return
+    // Preservation intent is terminal even for an invalid mixed/run-mismatched
+    // request. Ordinary queued commands are never consumed here.
+    preserveStopRequested = true
+    const interruptedIndex = index
+    index = ordinal
+    writeFileSync(resolve(output, `consumed-${String(ordinal).padStart(4, '0')}.json`), pending.bytes, { flag: 'wx' })
+    inputs.push({ name: `commands/${String(ordinal).padStart(4, '0')}.json`, sha256: pending.sha256 })
+    log({ action: 'queued-preserving-stop-consumed', interruptedIndex, ordinal, runId: pending.runId,
+      path: pending.path, inputSha256: pending.sha256, deferredForCommittedReadback: defer, valid: pending.valid })
+    saveProgress()
+    const confirmed = readQueuedPreservingStop(commandsPath, ordinal, receipt.profile?.runId ?? receipt.startedAt)
+    assert.equal(confirmed?.sha256, pending.sha256, 'Queued preserving request remains unchanged')
+    assert.equal(pending.valid, true, pending.reason)
+    if (defer) { deferredPreservingStop = true; return }
+    await stopPreserveLatest()
+  }
+  const pollUI = (check, timeout, label) => pollWithPreservation(check,
+    { checkStop: () => consumeQueuedStop(), timeout, label })
   const requireOrderableForWait = state => { health(state); assert.equal(state.paused, false) }
   const mark = async name => {
     safeLabel(name); const s = await snapshot(`milestone-${name}`); health(s)
@@ -472,7 +498,10 @@ export default async function missionThreeControls({ page, output, root, signal,
     await button('Game settings'); await button('Save checkpoint')
     const matches = value => value?.world?.outcome.level === 3 && value.world.turn === saved.turn &&
       (!sermon || value.world.units.some(u => u.id === ids.victim && u.native?.state === 23 && u.native.workTarget === ids.preacher))
-    assert.equal(await waitForCheckpointReadback(async () => matches(await readStorage('latest'))), true)
+    assert.equal(await waitForCheckpointReadback(async () => {
+      await consumeQueuedStop({ defer: true })
+      return matches(await readStorage('latest'))
+    }), true)
     const committed = await readStorage('latest')
     assert.ok(matches(committed))
     if (receipt.profile && typeof observeCheckpoint === 'function') {
@@ -482,6 +511,8 @@ export default async function missionThreeControls({ page, output, root, signal,
       protectedLatest = observed
     }
     log({ action: 'checkpoint-persisted', label, turn: saved.turn, sermon })
+    if (deferredPreservingStop) await stopPreserveLatest()
+    await consumeQueuedStop()
     await page.getByRole('button', { name: /^Continue Game/ }).click()
     await pause()
     if (sermon) savedSermon = { turn: saved.turn, time: saved.time, victimId: ids.victim,
@@ -627,10 +658,11 @@ export default async function missionThreeControls({ page, output, root, signal,
   }
   const proveVictory = async () => {
     const s = await read(); health(s); assert.equal(s.status, 'won')
-    await page.waitForFunction(() => !window.testSceneRef.current.world.outcome.cameraPlaying, null, { timeout: 60_000 })
-    await page.getByRole('button', { name: /^Continue to Mission 4/ }).waitFor()
+    await pollUI(() => page.evaluate(() => !window.testSceneRef.current.world.outcome.cameraPlaying), 60_000, 'victory camera')
+    await pollUI(() => page.getByRole('button', { name: /^Continue to Mission 4/ }).isVisible(), 60_000, 'Mission4 continuation control')
     assert.ok((await read()).completedMissions.includes(3))
     assert.equal(await waitForCheckpointReadback(async () => {
+      await consumeQueuedStop()
       const profile = await readStorage('profile')
       return profile?.version === 1 && profile.completed.includes(3)
     }), true, 'Await actual profile disk write')
@@ -808,11 +840,22 @@ export default async function missionThreeControls({ page, output, root, signal,
     assert.ok(milestones.some(m => m.name === 'conversion'), 'Finish the protected conversion witness first')
     await resume(); await select('preacher', 'one')
     const preachers = (await read()).selected
+    const declaration = await page.evaluate(async shrineId => {
+      const { armErosionObservation } = await import('/qa/mission-three-controls/erosion-observer.mjs')
+      return armErosionObservation(window.m3Observation.epoch, window.testSceneRef.current.world, shrineId)
+    }, ids.erosion)
+    log({ action: 'erosion-observation-armed', declaration })
     await clickOrder(await targetEntity('shrines', 'erosion'))
     await waitFor({ type: 'shrine-used', id: ids.erosion }, 'worship', [ids.erosion, ...preachers])
-    await waitFor({ type: 'effect-present', kind: 'erosion' }, 'combat')
+    await waitFor({ type: 'erosion-onset', id: ids.erosion }, 'erosion', [ids.erosion])
+    const evidence = retired => page.evaluate(async ({ shrineId, retired }) => {
+      const { requireErosionEvidence } = await import('/qa/mission-three-controls/erosion-observer.mjs')
+      return requireErosionEvidence(window.m3Observation.epoch, shrineId, retired)
+    }, { shrineId: ids.erosion, retired })
+    log({ action: 'erosion-onset-observed', evidence: await evidence(false), scope: 'Prospective per-turn witness; host screenshot may follow retirement' })
     await mark('erosion-start')
-    await waitFor({ type: 'effect-finished', kind: 'erosion' }, 'combat')
+    await waitFor({ type: 'erosion-retired', id: ids.erosion }, 'erosion', [ids.erosion])
+    log({ action: 'erosion-retirement-observed', evidence: await evidence(true) })
     await mark('erosion')
   }
   const dispatch = async command => {
@@ -901,6 +944,7 @@ export default async function missionThreeControls({ page, output, root, signal,
     for (index = 1; index <= 500; index++) {
       const path = resolve(commandsPath, `${String(index).padStart(4, '0')}.json`)
       while (!existsSync(path)) {
+        await consumeQueuedStop()
         signal.throwIfAborted()
         requireNotDefeated(await page.evaluate(() => window.testSceneRef.current.world.status))
         if (Date.now() - startWall >= wallLimit) throw new IncompleteRun('wall-envelope', 'Outer wall resource envelope reached awaiting commands')
@@ -909,6 +953,7 @@ export default async function missionThreeControls({ page, output, root, signal,
       const bytes = readFileSync(path), hash = sha256(bytes)
       writeFileSync(resolve(output, `consumed-${String(index).padStart(4, '0')}.json`), bytes)
       inputs.push({ name: `commands/${String(index).padStart(4, '0')}.json`, sha256: hash }); saveProgress()
+      inBatch = true
       try {
         const commands = JSON.parse(bytes)
         assert.ok(Array.isArray(commands) && commands.length > 0 && commands.length <= 32)
@@ -937,6 +982,7 @@ export default async function missionThreeControls({ page, output, root, signal,
         health(boundary)
         await capturePendingSermon(boundary)
       } catch (error) {
+        if (preserveStopRequested) throw error
         if (error instanceof SermonCaptured) {
           assert.equal(sha256(readFileSync(path)), hash, 'Consumed input bytes did not change')
           log({ action: 'batch-interrupted-for-first-listener', index, inputSha256: hash,
@@ -945,6 +991,7 @@ export default async function missionThreeControls({ page, output, root, signal,
           const boundary = await snapshot(`batch-${String(index).padStart(4, '0')}-sermon-saved`)
           health(boundary)
           log({ action: 'awaiting-input', next: `${String(index + 1).padStart(4, '0')}.json`, paused: true })
+          inBatch = false
           continue
         }
         if (error instanceof IncompleteRun || error instanceof MissionDefeat) throw error
@@ -958,6 +1005,7 @@ export default async function missionThreeControls({ page, output, root, signal,
           parsed.some(command => ['finish', 'stop-preserve-latest'].includes(command?.action)) } catch {}
         if (finishing) throw error
       }
+      inBatch = false
       requireNotDefeated(await page.evaluate(() => window.testSceneRef.current.world.status))
       log({ action: 'awaiting-input', next: `${String(index + 1).padStart(4, '0')}.json`, paused: true })
     }

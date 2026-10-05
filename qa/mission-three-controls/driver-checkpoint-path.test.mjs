@@ -117,7 +117,7 @@ test('the actual terminal preservation branch never invokes Save on unknown chec
     assert.equal(calls[3].matches, false)
   }
   const finishingStart = driver.indexOf('        let finishing = false'),
-    finishingEnd = driver.indexOf('\n      }\n      requireNotDefeated', finishingStart)
+    finishingEnd = driver.indexOf('\n      }\n      inBatch = false', finishingStart)
   const terminal = new AsyncFunction('bytes', 'error', driver.slice(finishingStart, finishingEnd))
   const failure = Error('digest mismatch')
   await assert.rejects(terminal(JSON.stringify([{ action: 'stop-preserve-latest' }]), failure), error => error === failure)

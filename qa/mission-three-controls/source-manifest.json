@@ -241,8 +241,24 @@
     {
       "path": "app/person-state.ts",
       "sha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17"
+    },
+    {
+      "path": "app/erosion.ts",
+      "sha256": "33823b3db91d1a711d4babcd8b435d5344f2e29db8fc593f34d43532623db5e2"
+    },
+    {
+      "path": "app/worship.ts",
+      "sha256": "f0e60f01e2b164e5d9e0ce6b8bd595ae3e4ca5f62ced9ef7c3e57dfb1ff75618"
+    },
+    {
+      "path": "app/native-terrain.ts",
+      "sha256": "bef0de5cda0ab5a54147ff2c91569b97a4e1b58ed46bd1dc9e9a85467f8e17a5"
+    },
+    {
+      "path": "app/scene-effects.ts",
+      "sha256": "b28ab692f58e78ef4cbdd034ad0be5a284cdc87e069febb5f8b1a560d9024bb7"
     }
   ],
   "originalInspectionCommit": "ab6e857553fd2a534bbe34b4ba600df8a40872ff",
-  "sourceRefresh": "Accepted main through PR185/196/197/199. Four guarded callers refreshed after inspecting transport-only additions, unchanged ordinary dispatch/load/clock paths, and rendered-geometry helpers. Other guard hashes and driver bytes unchanged; production build now corresponds to accepted6b6eb68. Marker-expiry repair guards the actual secondary owner, four-turn lifetime, and native/coarse-cell coordinate adapters. Minimap ownership repair additionally guards inverse projection, actual focus completion, and the overlapping HUD tabs. Protected approach uses the actual victim eligibility flags and ordinary preaching cell square; required-actor diagnostics do not change application state. The only PR199 runtime delta fills commandPosition for configurePersonOrder's aboard-airborne branch (person-order-start.ts:60\u201364); Mission3 has no authored vehicles. The inspected descriptor mask preserves unsupported non-raw payloads. Tooling-only PR201 leaves all48 guarded files and M3 direct imports unchanged. Saved-sermon repair additionally guards person ownership, native state cleanup and the browser melee-entry bit producer. Application/runtime remain pinned to b381851; all changes are isolated QA. One-time Run14 copied-storage admission changes the explicitly reviewed harness.mjs and owned-profile.mjs QA runtime. The application remains pinned; the combined application-classifier input hash changes because it includes these two harness files. Typed recoveryAdmission never fabricates a prior gameplay lastRun. A single reviewed successor may use only the real closed failed5451f1a6 receipt and explicit old/new QA-runtime binding; original recovery admission/claim remain immutable. This adds one owned-profile runtime revision, not a fresh storage admission."
+  "sourceRefresh": "Accepted main through PR185/196/197/199. Four guarded callers refreshed after inspecting transport-only additions, unchanged ordinary dispatch/load/clock paths, and rendered-geometry helpers. Other guard hashes and driver bytes unchanged; production build now corresponds to accepted6b6eb68. Marker-expiry repair guards the actual secondary owner, four-turn lifetime, and native/coarse-cell coordinate adapters. Minimap ownership repair additionally guards inverse projection, actual focus completion, and the overlapping HUD tabs. Protected approach uses the actual victim eligibility flags and ordinary preaching cell square; required-actor diagnostics do not change application state. The only PR199 runtime delta fills commandPosition for configurePersonOrder's aboard-airborne branch (person-order-start.ts:60\u201364); Mission3 has no authored vehicles. The inspected descriptor mask preserves unsupported non-raw payloads. Tooling-only PR201 leaves all48 guarded files and M3 direct imports unchanged. Saved-sermon repair additionally guards person ownership, native state cleanup and the browser melee-entry bit producer. Application/runtime remain pinned to b381851; all changes are isolated QA. One-time Run14 copied-storage admission changes the explicitly reviewed harness.mjs and owned-profile.mjs QA runtime. The application remains pinned; the combined application-classifier input hash changes because it includes these two harness files. Typed recoveryAdmission never fabricates a prior gameplay lastRun. A single reviewed successor may use only the real closed failed5451f1a6 receipt and explicit old/new QA-runtime binding; original recovery admission/claim remain immutable. This adds one owned-profile runtime revision, not a fresh storage admission. Responsive-waits/Erosion QA repair additionally guards the unchanged native counter/terrain/worship and non-geometric controller presentation sources. It changes no application or maintained harness bytes and awards no retrospective missed-effect proof."
 }

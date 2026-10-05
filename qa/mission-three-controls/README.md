@@ -379,3 +379,11 @@ Source-only fixtures exercise a non-center registered footprint cell, absent,
 cancelled, dead, unfinished and friendly targets, stale dispatch/selection, and
 lookup nonmutation. They establish the checker contract; the earlier failed
 browser envelopes remain unchanged. The direct lookup adds the57th source guard.
+
+
+## Responsive waits and transient Erosion
+
+See `responsive-waits.md` for authenticated preserving-stop consumption inside
+active/UI/readback polls, safe deferral during an already-issued Save, objective
+progress and prospective per-turn shrine-linked Erosion onset/retirement. These
+are source-only QA changes until separately reviewed ordinary gameplay runs.

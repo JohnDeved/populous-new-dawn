@@ -1,5 +1,6 @@
 // Verification-only observer. It never calls a simulation, command or renderer.
 import { observeCampaignConversions } from '../../scripts/campaign-conversion-observer.mjs'
+import { recordErosionTurn, erosionProgress } from './erosion-observer.mjs'
 
 // This is a source-bound allocation-prefix calculation, not a World creation.
 // In the inspected Mission 3 prefix, every row takes exactly one nextId++ path;
@@ -114,6 +115,7 @@ export function recordTurn(epoch, world) {
   if (epoch.orderMarkers.length > 512) epoch.orderMarkers.splice(0, epoch.orderMarkers.length - 512)
   if (world.speed !== 1 && !epoch.speedViolations.includes(world.speed))
     epoch.speedViolations.push(world.speed)
+  recordErosionTurn(epoch, world)
   const previous = epoch.conversions
   const sermon = epoch.sermon
   if (sermon && !sermon.firstOwned) {
@@ -381,6 +383,18 @@ export function progressKey(snapshot, scope, ids = []) {
   buildings.map(b => [b.id, b.hp, b.progress, b.logs, b.inside, b.occupants, b.queue]), snapshot.status])
 }
 
+// Progress belongs to this objective, never unrelated wandering/combat.
+export function objectiveProgress(snapshot, condition, scope, ids = []) {
+  if (condition.type.startsWith('erosion-')) return erosionProgress(snapshot, condition.id)
+  if (['effect-present', 'effect-finished'].includes(condition.type))
+    return JSON.stringify(snapshot.effects.filter(effect => effect.kind === condition.kind).map(effect => [effect.id, effect.kind, effect.age]))
+  const watched = ids.length ? ids : [condition.id, condition.preacherId, ...(condition.ids ?? [])].filter(Number.isInteger)
+  if (condition.type === 'won') return JSON.stringify([snapshot.status,
+    snapshot.units.filter(unit => unit.team !== 'wild').map(unit => [unit.id, unit.team, unit.hp]),
+    snapshot.buildings.map(building => [building.id, building.team, building.hp])])
+  return progressKey(snapshot, scope, watched)
+}
+
 export function checkCondition(snapshot, condition) {
   const u = snapshot.units.find(u => u.id === condition.id)
   const b = snapshot.buildings.find(b => b.id === condition.id)
@@ -403,6 +417,15 @@ export function checkCondition(snapshot, condition) {
       e.victims.length === 1 && e.replacements.length === 1 &&
       e.victims[0].id === condition.id && e.victims[0].workTarget === condition.preacherId)
     case 'shrine-used': return !!h && h.uses >= (condition.uses ?? 1)
+    case 'erosion-onset': {
+      const e = snapshot.observation.erosion
+      return !!e && e.shrineId === condition.id && !!e.use && e.effects.length === e.targets.length && e.effects.length > 0
+    }
+    case 'erosion-retired': {
+      const e = snapshot.observation.erosion
+      return !!e && e.shrineId === condition.id && !!e.use && e.effects.length === e.targets.length && e.effects.length > 0 &&
+        e.effects.every(effect => effect.retired && effect.samples.length === 64)
+    }
     case 'effect-present': return snapshot.effects.some(e => e.kind === condition.kind)
     case 'effect-finished': return !snapshot.effects.some(e => e.kind === condition.kind)
     case 'target-gone': return !u && !b
