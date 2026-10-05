@@ -1,0 +1,27 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004d23d0 <.text+0xd13d0>:
+  4d23d0:	83 ec 10             	sub    $0x10,%esp
+  4d23d3:	53                   	push   %ebx
+  4d23d4:	56                   	push   %esi
+  4d23d5:	8b 74 24 1c          	mov    0x1c(%esp),%esi
+  4d23d9:	57                   	push   %edi
+  4d23da:	0f be 46 2f          	movsbl 0x2f(%esi),%eax
+  4d23de:	81 4e 10 00 01 00 00 	orl    $0x100,0x10(%esi)
+  4d23e5:	8b c8                	mov    %eax,%ecx
+  4d23e7:	8d 14 80             	lea    (%eax,%eax,4),%edx
+  4d23ea:	8d 04 51             	lea    (%ecx,%edx,2),%eax
+  4d23ed:	81 4e 14 00 01 04 00 	orl    $0x40100,0x14(%esi)
+  4d23f4:	8d 1c c0             	lea    (%eax,%eax,8),%ebx
+  4d23f7:	33 c0                	xor    %eax,%eax
+  4d23f9:	8a 46 2b             	mov    0x2b(%esi),%al
+  4d23fc:	8d 14 d9             	lea    (%ecx,%ebx,8),%edx
+  4d23ff:	48                   	dec    %eax
+  4d2400:	8d bc 91 c8 d1 89 00 	lea    0x89d1c8(%ecx,%edx,4),%edi
+  4d2407:	83 f8 07             	cmp    $0x7,%eax
+  4d240a:	0f 87 c1 02 00 00    	ja     0x4d26d1
+  4d2410:	ff 24 85 18 27 4d 00 	jmp    *0x4d2718(,%eax,4)

@@ -1,0 +1,50 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004a46a0 <.text+0xa36a0>:
+  4a46a0:	75 3c                	jne    0x4a46de
+  4a46a2:	66 81 3d d1 c6 89 00 	cmpw   $0x180,0x89c6d1
+  4a46a9:	80 01 
+  4a46ab:	75 31                	jne    0x4a46de
+  4a46ad:	e8 4e 52 ff ff       	call   0x499900
+  4a46b2:	85 c0                	test   %eax,%eax
+  4a46b4:	74 28                	je     0x4a46de
+  4a46b6:	80 3d 00 f0 88 00 02 	cmpb   $0x2,0x88f000
+  4a46bd:	75 1f                	jne    0x4a46de
+  4a46bf:	88 5d de             	mov    %bl,-0x22(%ebp)
+  4a46c2:	88 5d db             	mov    %bl,-0x25(%ebp)
+  4a46c5:	88 5d dc             	mov    %bl,-0x24(%ebp)
+  4a46c8:	88 5d dd             	mov    %bl,-0x23(%ebp)
+  4a46cb:	88 5d df             	mov    %bl,-0x21(%ebp)
+  4a46ce:	8b 45 df             	mov    -0x21(%ebp),%eax
+  4a46d1:	8b 4d db             	mov    -0x25(%ebp),%ecx
+  4a46d4:	50                   	push   %eax
+  4a46d5:	51                   	push   %ecx
+  4a46d6:	e8 05 6b 08 00       	call   0x52b1e0
+  4a46db:	83 c4 08             	add    $0x8,%esp
+  4a46de:	89 5d f0             	mov    %ebx,-0x10(%ebp)
+  4a46e1:	e8 0a 83 ff ff       	call   0x49c9f0
+  4a46e6:	80 3d 00 f0 88 00 02 	cmpb   $0x2,0x88f000
+  4a46ed:	74 17                	je     0x4a4706
+  4a46ef:	80 3d 00 f0 88 00 07 	cmpb   $0x7,0x88f000
+  4a46f6:	74 0e                	je     0x4a4706
+  4a46f8:	80 3d 00 f0 88 00 0a 	cmpb   $0xa,0x88f000
+  4a46ff:	74 05                	je     0x4a4706
+  4a4701:	e8 8a 66 fd ff       	call   0x47ad90
+  4a4706:	e8 a5 b8 fd ff       	call   0x47ffb0
+  4a470b:	b9 01 00 00 00       	mov    $0x1,%ecx
+  4a4710:	ff 05 81 79 89 00    	incl   0x897981
+  4a4716:	a1 84 d1 89 00       	mov    0x89d184,%eax
+  4a471b:	2b d2                	sub    %edx,%edx
+  4a471d:	f7 f1                	div    %ecx
+  4a471f:	24 01                	and    $0x1,%al
+  4a4721:	41                   	inc    %ecx
+  4a4722:	83 f9 08             	cmp    $0x8,%ecx
+  4a4725:	88 81 84 79 89 00    	mov    %al,0x897984(%ecx)
+  4a472b:	7c e9                	jl     0x4a4716
+  4a472d:	e8                   	.byte 0xe8
+  4a472e:	2e                   	cs
+  4a472f:	df                   	.byte 0xdf

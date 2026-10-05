@@ -1,0 +1,38 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004eda3b <.text+0xeca3b>:
+  4eda3b:	8a 44 24 20          	mov    0x20(%esp),%al
+  4eda3f:	8a 4c 24 24          	mov    0x24(%esp),%cl
+  4eda43:	8a 54 24 28          	mov    0x28(%esp),%dl
+  4eda47:	88 46 2a             	mov    %al,0x2a(%esi)
+  4eda4a:	8b 44 24 2c          	mov    0x2c(%esp),%eax
+  4eda4e:	88 4e 2b             	mov    %cl,0x2b(%esi)
+  4eda51:	88 56 2f             	mov    %dl,0x2f(%esi)
+  4eda54:	8d 56 3d             	lea    0x3d(%esi),%edx
+  4eda57:	8b 08                	mov    (%eax),%ecx
+  4eda59:	89 0a                	mov    %ecx,(%edx)
+  4eda5b:	33 c9                	xor    %ecx,%ecx
+  4eda5d:	66 8b 40 04          	mov    0x4(%eax),%ax
+  4eda61:	66 89 42 04          	mov    %ax,0x4(%edx)
+  4eda65:	89 4e 0c             	mov    %ecx,0xc(%esi)
+  4eda68:	89 4e 10             	mov    %ecx,0x10(%esi)
+  4eda6b:	89 4e 14             	mov    %ecx,0x14(%esi)
+  4eda6e:	66 89 4e 43          	mov    %cx,0x43(%esi)
+  4eda72:	66 89 4e 45          	mov    %cx,0x45(%esi)
+  4eda76:	66 89 4e 47          	mov    %cx,0x47(%esi)
+  4eda7a:	66 89 4e 28          	mov    %cx,0x28(%esi)
+  4eda7e:	8b 15 81 79 89 00    	mov    0x897981,%edx
+  4eda84:	89 56 18             	mov    %edx,0x18(%esi)
+  4eda87:	38 0d 37 ce 89 00    	cmp    %cl,0x89ce37
+  4eda8d:	75 37                	jne    0x4edac6
+  4eda8f:	38 0d 3a 24 89 00    	cmp    %cl,0x89243a
+  4eda95:	74 0d                	je     0x4edaa4
+  4eda97:	81 4e 0c 00 04 00 00 	orl    $0x400,0xc(%esi)
+  4eda9e:	88 0d 3a 24 89 00    	mov    %cl,0x89243a
+  4edaa4:	56                   	push   %esi
+  4edaa5:	e8 d6 fa ff ff       	call   0x4ed580
+  4edaaa:	83 c4 04             	add    $0x4,%esp

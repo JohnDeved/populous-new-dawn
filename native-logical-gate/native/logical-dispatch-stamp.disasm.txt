@@ -1,0 +1,111 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004ed700 <.text+0xec700>:
+  4ed700:	56                   	push   %esi
+  4ed701:	33 c0                	xor    %eax,%eax
+  4ed703:	8b 74 24 08          	mov    0x8(%esp),%esi
+  4ed707:	8a 46 2a             	mov    0x2a(%esi),%al
+  4ed70a:	48                   	dec    %eax
+  4ed70b:	83 f8 0a             	cmp    $0xa,%eax
+  4ed70e:	0f 87 ce 00 00 00    	ja     0x4ed7e2
+  4ed714:	ff 24 85 ec d7 4e 00 	jmp    *0x4ed7ec(,%eax,4)
+  4ed71b:	56                   	push   %esi
+  4ed71c:	e8 8f 5b fe ff       	call   0x4d32b0
+  4ed721:	83 c4 04             	add    $0x4,%esp
+  4ed724:	a1 81 79 89 00       	mov    0x897981,%eax
+  4ed729:	89 46 18             	mov    %eax,0x18(%esi)
+  4ed72c:	5e                   	pop    %esi
+  4ed72d:	c3                   	ret
+  4ed72e:	56                   	push   %esi
+  4ed72f:	e8 4c 5b f1 ff       	call   0x403280
+  4ed734:	83 c4 04             	add    $0x4,%esp
+  4ed737:	a1 81 79 89 00       	mov    0x897981,%eax
+  4ed73c:	89 46 18             	mov    %eax,0x18(%esi)
+  4ed73f:	5e                   	pop    %esi
+  4ed740:	c3                   	ret
+  4ed741:	56                   	push   %esi
+  4ed742:	e8 d9 89 f5 ff       	call   0x446120
+  4ed747:	83 c4 04             	add    $0x4,%esp
+  4ed74a:	a1 81 79 89 00       	mov    0x897981,%eax
+  4ed74f:	89 46 18             	mov    %eax,0x18(%esi)
+  4ed752:	5e                   	pop    %esi
+  4ed753:	c3                   	ret
+  4ed754:	56                   	push   %esi
+  4ed755:	e8 26 60 f7 ff       	call   0x463780
+  4ed75a:	83 c4 04             	add    $0x4,%esp
+  4ed75d:	a1 81 79 89 00       	mov    0x897981,%eax
+  4ed762:	89 46 18             	mov    %eax,0x18(%esi)
+  4ed765:	5e                   	pop    %esi
+  4ed766:	c3                   	ret
+  4ed767:	56                   	push   %esi
+  4ed768:	e8 13 8d fb ff       	call   0x4a6480
+  4ed76d:	83 c4 04             	add    $0x4,%esp
+  4ed770:	a1 81 79 89 00       	mov    0x897981,%eax
+  4ed775:	89 46 18             	mov    %eax,0x18(%esi)
+  4ed778:	5e                   	pop    %esi
+  4ed779:	c3                   	ret
+  4ed77a:	56                   	push   %esi
+  4ed77b:	e8 70 d1 00 00       	call   0x4fa8f0
+  4ed780:	83 c4 04             	add    $0x4,%esp
+  4ed783:	a1 81 79 89 00       	mov    0x897981,%eax
+  4ed788:	89 46 18             	mov    %eax,0x18(%esi)
+  4ed78b:	5e                   	pop    %esi
+  4ed78c:	c3                   	ret
+  4ed78d:	56                   	push   %esi
+  4ed78e:	e8 bd cf 01 00       	call   0x50a750
+  4ed793:	83 c4 04             	add    $0x4,%esp
+  4ed796:	a1 81 79 89 00       	mov    0x897981,%eax
+  4ed79b:	89 46 18             	mov    %eax,0x18(%esi)
+  4ed79e:	5e                   	pop    %esi
+  4ed79f:	c3                   	ret
+  4ed7a0:	56                   	push   %esi
+  4ed7a1:	e8 8a d6 fc ff       	call   0x4bae30
+  4ed7a6:	83 c4 04             	add    $0x4,%esp
+  4ed7a9:	a1 81 79 89 00       	mov    0x897981,%eax
+  4ed7ae:	89 46 18             	mov    %eax,0x18(%esi)
+  4ed7b1:	5e                   	pop    %esi
+  4ed7b2:	c3                   	ret
+  4ed7b3:	56                   	push   %esi
+  4ed7b4:	e8 27 aa fc ff       	call   0x4b81e0
+  4ed7b9:	83 c4 04             	add    $0x4,%esp
+  4ed7bc:	a1 81 79 89 00       	mov    0x897981,%eax
+  4ed7c1:	89 46 18             	mov    %eax,0x18(%esi)
+  4ed7c4:	5e                   	pop    %esi
+  4ed7c5:	c3                   	ret
+  4ed7c6:	56                   	push   %esi
+  4ed7c7:	e8 f4 36 01 00       	call   0x500ec0
+  4ed7cc:	83 c4 04             	add    $0x4,%esp
+  4ed7cf:	a1 81 79 89 00       	mov    0x897981,%eax
+  4ed7d4:	89 46 18             	mov    %eax,0x18(%esi)
+  4ed7d7:	5e                   	pop    %esi
+  4ed7d8:	c3                   	ret
+  4ed7d9:	56                   	push   %esi
+  4ed7da:	e8 61 41 fd ff       	call   0x4c1940
+  4ed7df:	83 c4 04             	add    $0x4,%esp
+  4ed7e2:	a1 81 79 89 00       	mov    0x897981,%eax
+  4ed7e7:	89 46 18             	mov    %eax,0x18(%esi)
+  4ed7ea:	5e                   	pop    %esi
+  4ed7eb:	c3                   	ret
+  4ed7ec:	1b d7                	sbb    %edi,%edx
+  4ed7ee:	4e                   	dec    %esi
+  4ed7ef:	00 2e                	add    %ch,(%esi)
+  4ed7f1:	d7                   	xlat   %ds:(%ebx)
+  4ed7f2:	4e                   	dec    %esi
+  4ed7f3:	00 41 d7             	add    %al,-0x29(%ecx)
+  4ed7f6:	4e                   	dec    %esi
+  4ed7f7:	00 54 d7 4e          	add    %dl,0x4e(%edi,%edx,8)
+  4ed7fb:	00 67 d7             	add    %ah,-0x29(%edi)
+  4ed7fe:	4e                   	dec    %esi
+  4ed7ff:	00 7a d7             	add    %bh,-0x29(%edx)
+  4ed802:	4e                   	dec    %esi
+  4ed803:	00 8d d7 4e 00 a0    	add    %cl,-0x5fffb129(%ebp)
+  4ed809:	d7                   	xlat   %ds:(%ebx)
+  4ed80a:	4e                   	dec    %esi
+  4ed80b:	00                   	.byte 0
+  4ed80c:	b3 d7                	mov    $0xd7,%bl
+  4ed80e:	4e                   	dec    %esi
+	...

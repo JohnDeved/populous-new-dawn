@@ -1,4 +1,4 @@
-# Issue 214: sprite timing baseline
+# Issue 214: sprite timing evidence
 
 This evidence accompanies [issue214](https://github.com/JohnDeved/populous-new-dawn/issues/214).
 It observes the reported/deployed-source commit
@@ -16,6 +16,25 @@ draw40 separately from simulation12; application readiness is not a half-rate
 gate. Potential DirectDraw/semaphore/device waits are established as dependencies,
 with no supplied duration or achieved-rate claim. No runtime rate correction is
 justified by these observations alone; the reported visual issue remains open.
+
+## Confirmed logical-visit mismatch (later investigation at a53fa055)
+
+The independently accepted [native producer/stamp investigation](native-logical-gate/findings.md)
+confirms a bounded adapter defect: ordinary native person creation sets the
+0x40000 logical-animation gate; the current person adapter omits it and supplies
+counter0/stamp0 on every 24Hz visit. Splash retains the gate but also has the
+counter0/stamp0 bypass. Native modes1/2 and ordinary mode4 advance only after the
+logical processor stamps the record; mode3 and morph transitions remain ungated.
+
+The [independent research review](native-logical-gate/review/review.md) accepts
+18 ordinary-person creation-prefix cases (models2–7),12 composed setter/dispatcher/
+updater timelines and four effect producers. Ordinary class processor bodies and
+identified effect leaves are supplied boundaries, not complete lifecycle or
+original elapsed-time proof. The [accepted repair design](native-logical-gate/implementation-proposal.md)
+keeps the global24Hz clock and scopes the implementation to native-backed ordinary
+people and Splash. Implementation and ordinary candidate validation are underway;
+this packet does not claim they have passed. The broad report remains open,
+including fallback-only sprites and the original absolute wall-clock reference.
 
 ## Corrected observation
 

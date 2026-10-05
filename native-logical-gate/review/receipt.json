@@ -1,0 +1,60 @@
+{
+  "decision": "ACCEPT",
+  "scope": "Research packet accepted to start a bounded candidate repair; not implementation or gameplay acceptance.",
+  "sourceCommit": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
+  "sourceStatus": "",
+  "packetFindingsSha256": "f52bb1fb1ff94f30010565555ff8878e60b3e3607ae4b79e3dfa583fb82c77f6",
+  "packetArtifactsVerified": {
+    "native/animation-stamp-gates.disasm.txt": "4edde11b8be24f87987d83ddc58e539ac4eeefc6d903c0ea2676e95dbf528bcd",
+    "native/hut-smoke-producer.disasm.txt": "841d7de84e91a8692cdd43a4bf2d8b5bfce9b1d7588585b9d57c541fc62447f8",
+    "native/logical-dispatch-stamp.disasm.txt": "b9b9a0eef0221465a0475f32f29b218e06f7517533b638284036c711c26f32e8",
+    "native/outer-counter-before-draw.disasm.txt": "9507ecff6d7a3886664447e5e1c6112d5f048cf5a3b23eefe1b56712d6a68440",
+    "native/person-creation-prefix.disasm.txt": "73b39f0deaa4683c653f8d1838c3b496730ad1bbdd9b5dd56702ac2edb19ef72",
+    "native/shadow-interpolation.disasm.txt": "3eae15c1c2fd99e1f2215dbafdebcd94aa4333ea0342fa62f62057e83841e7ee",
+    "native/splash-producer.disasm.txt": "eb3e178efa0c4f5d5f8d7ac57281f9f9b6ac6c4e7d0e531b6435fbc09e52b3b3",
+    "native/allocation-class-initializer.disasm.txt": "59145c12bfa5294ddd1f4e94a413f4f273e6d56c24f8fa0facc6cce85f0f7d8d"
+  },
+  "originalReceiptSha256": "40172883c8b04688fed2b6eeb191eb423f1067c5ea00aff1576e6a3414d2762b",
+  "probeSha256": "d4a49c7125d64e810646ce4b5f0018d961a58cfea270499337b77b164d253ce0",
+  "originalResultSha256": "4a6370c5addef38f68d670f4ff61107f994bf1a1da56b08d31f77f070dff9760",
+  "replayCommand": "source ../prerequisites/env.sh; taskset -c 4 timeout --signal=TERM --kill-after=2s 60s \"$POPULOUS_PYTHON\" -B work/orchestration/sprite-stamp-gate-214/native/probe-stamp-gate.py \"$POPULOUS_EXE\" work/reviews/sprite-visit-gate-214/replay.json",
+  "replayExitCode": 0,
+  "replaySeconds": 1.9276098770060344,
+  "replaySha256": "f373ee79454394aac0b5b66d4e253dac3e84b93d055ea16642a7b8b04f29860f",
+  "replaySemanticEquality": "exact JSON equality after excluding seconds only",
+  "readSourceHashes": {
+    "app/animation.ts": "38f394f7ab0f8080d3c5145d430e75699510fe8d67e7f22d4efe6fb3e89755f9",
+    "app/game-clock.ts": "59d9e492f2567a78c70c1e50b6644b09da095aa1dd4fbc5c2ec7e6752fcfa4ee",
+    "app/game-store.ts": "3da8f63cbd75b5b66ad4947cceeb4265d57de59f129e020ce33c076ce9c22d7b",
+    "app/live-people.ts": "b94e9120cbe56d7e510f8f2fa2aa987e8768a21772acf05c37512f65325d2989",
+    "app/selection-runtime.ts": "999dfa2becc4bf884239b79cf9edeef75a6d74ee5f588b29aff57178ab7deeb6",
+    "app/scene-entities.ts": "cc7cb79c9e92e5b0cb283f745dadec503d8246ab3936b054313d577b97f2c4f4",
+    "app/world-effects.ts": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+    "app/world-turn.ts": "d322af8560cce8e0e3bc1188ebab7676c1cce3b904563c380562f4c1a932fea8",
+    "decomp/generated/004ec6f0.c": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+    "decomp/generated/004ed580.c": "30f96739bcd6f1703d38d8937b3a5890bffaaf282be069067360bd7a1da118c8",
+    "decomp/generated/004ed700.c": "598f405b7271fdf40b953d45ae594946d0872b5fbe67ff9c9c9880f6a837fdff",
+    "decomp/generated/004ed8a0.c": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9",
+    "decomp/generated/004ee770.c": "e9cc17a9c794e8331ae39bc89857200b9f3aac7676c1510becb71cfd7334a982",
+    "decomp/generated/004ee7b0.c": "8ce7fd89e8e5a9aeae876dc1cb25584c75bad3b65e7aece10667a737213782fb",
+    "decomp/generated/004d2740.c": "02dd6d6bcdebfd1fbb5065c50af5e8f40d33140676e99c316ceb3ebe85835747",
+    "decomp/generated/004d32b0.c": "1302bb34e80166d86f96cdf418987ba54a6362f4742760082c656c80b8f96fce",
+    "decomp/generated/004a4450.c": "282e4f65a430b360d390d3f6221409683392c4f32ff4683da7cde0b57585d867",
+    "decomp/generated/004a4960.c": "082373c8c2c9244af20a64d81e6e70f981ff3a3785103dd0ad7858e9ccdbf7df"
+  },
+  "staticByteExcerpts": {
+    "person-initializer-tail.disasm.txt": "5f5a8117c296a76fc361f736530e8c5375c85533f19ae32491789c449ccf74ed",
+    "person-common-initializer.disasm.txt": "222db6e3dc7fff88feffe1c3facb3596a404a59ad38dd70ea3574ab303c6d6b6"
+  },
+  "checks": {
+    "nativeReplay": "passed",
+    "sourceIntegrity": "passed",
+    "packetHashes": "passed",
+    "fullCheck": "not-run: read-only evidence review, not authorized for heavy jobs",
+    "build": "not-run: read-only evidence review",
+    "browser": "not-run: outside this review",
+    "TypeScriptQuality": "not-applicable: no maintained TypeScript changes"
+  },
+  "limits": "Only one native replay. Static byte/source inspection is not execution of complete creation, processors, or original OS game. No source edits, dependency install/copy, full check/build, browser, Ghidra, or original executable launch.",
+  "reviewSha256": "40d06f6f76ae7a7e113676a4e05c360777025c74597cffd4c52ac058b63918db"
+}

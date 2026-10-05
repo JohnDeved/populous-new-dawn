@@ -1,5 +1,5 @@
 {
-  "scope": "Issue214 baseline596 sprite timing evidence; exact raw receipts, observations and checker bytes, with rejected first-observer purity retained. No game binaries, browser profiles, credentials or dependencies.",
+  "scope": "Issue214 source-bound baseline and accepted native research evidence. Native logical producer/stamp mismatch confirmed; candidate implementation and ordinary acceptance remain separate. No game binaries, profiles, credentials or dependencies.",
   "files": {
     "observe-sprites-readonly.mjs": {
       "bytes": 6450,
@@ -70,8 +70,8 @@
       "sha256": "953a18927997c4a15b08b3353345a6cd61ddfc32c271c6b0357166732917cb30"
     },
     "README.md": {
-      "bytes": 6752,
-      "sha256": "049a65cee82d9c7138c556c85113d11da1e6c1d355e50336c98d7a4bb67a2dfb"
+      "bytes": 8071,
+      "sha256": "6e6f1351afb5b6c5a2bdfa70435357c58ba8ea80d9ea6fd2646f84c6266f5e7a"
     },
     "validation/audit.json": {
       "bytes": 4660,
@@ -204,6 +204,78 @@
     "native-pacing/0052bdd0-0052be12.disasm.txt": {
       "bytes": 1424,
       "sha256": "6e522ce9edc0aba8bf7f942183c3f44f93fbff5071fa0ab5ebeb6f9c183a3f29"
+    },
+    "native-logical-gate/findings.md": {
+      "bytes": 8188,
+      "sha256": "f52bb1fb1ff94f30010565555ff8878e60b3e3607ae4b79e3dfa583fb82c77f6"
+    },
+    "native-logical-gate/implementation-proposal.md": {
+      "bytes": 9814,
+      "sha256": "a5300ed73b3fe3b5fe073b3abc73135736143c9d291b3a594f2a8152e6c70841"
+    },
+    "native-logical-gate/native/allocation-class-initializer.disasm.txt": {
+      "bytes": 1797,
+      "sha256": "59145c12bfa5294ddd1f4e94a413f4f273e6d56c24f8fa0facc6cce85f0f7d8d"
+    },
+    "native-logical-gate/native/animation-stamp-gates.disasm.txt": {
+      "bytes": 8326,
+      "sha256": "4edde11b8be24f87987d83ddc58e539ac4eeefc6d903c0ea2676e95dbf528bcd"
+    },
+    "native-logical-gate/native/hut-smoke-producer.disasm.txt": {
+      "bytes": 4503,
+      "sha256": "841d7de84e91a8692cdd43a4bf2d8b5bfce9b1d7588585b9d57c541fc62447f8"
+    },
+    "native-logical-gate/native/logical-dispatch-stamp.disasm.txt": {
+      "bytes": 5076,
+      "sha256": "b9b9a0eef0221465a0475f32f29b218e06f7517533b638284036c711c26f32e8"
+    },
+    "native-logical-gate/native/outer-counter-before-draw.disasm.txt": {
+      "bytes": 2269,
+      "sha256": "9507ecff6d7a3886664447e5e1c6112d5f048cf5a3b23eefe1b56712d6a68440"
+    },
+    "native-logical-gate/native/person-creation-prefix.disasm.txt": {
+      "bytes": 1226,
+      "sha256": "73b39f0deaa4683c653f8d1838c3b496730ad1bbdd9b5dd56702ac2edb19ef72"
+    },
+    "native-logical-gate/native/probe-stamp-gate.py": {
+      "bytes": 9467,
+      "sha256": "d4a49c7125d64e810646ce4b5f0018d961a58cfea270499337b77b164d253ce0"
+    },
+    "native-logical-gate/native/result.json": {
+      "bytes": 336312,
+      "sha256": "4a6370c5addef38f68d670f4ff61107f994bf1a1da56b08d31f77f070dff9760"
+    },
+    "native-logical-gate/native/shadow-interpolation.disasm.txt": {
+      "bytes": 1730,
+      "sha256": "3eae15c1c2fd99e1f2215dbafdebcd94aa4333ea0342fa62f62057e83841e7ee"
+    },
+    "native-logical-gate/native/splash-producer.disasm.txt": {
+      "bytes": 2237,
+      "sha256": "eb3e178efa0c4f5d5f8d7ac57281f9f9b6ac6c4e7d0e531b6435fbc09e52b3b3"
+    },
+    "native-logical-gate/receipt.json": {
+      "bytes": 1766,
+      "sha256": "40172883c8b04688fed2b6eeb191eb423f1067c5ea00aff1576e6a3414d2762b"
+    },
+    "native-logical-gate/review/design-review.md": {
+      "bytes": 3759,
+      "sha256": "169aecb53c4ac843200b93293ebefd59f5a2feb3201252b2666bcb335a8c2cae"
+    },
+    "native-logical-gate/review/person-common-initializer.disasm.txt": {
+      "bytes": 9163,
+      "sha256": "222db6e3dc7fff88feffe1c3facb3596a404a59ad38dd70ea3574ab303c6d6b6"
+    },
+    "native-logical-gate/review/person-initializer-tail.disasm.txt": {
+      "bytes": 11999,
+      "sha256": "5f5a8117c296a76fc361f736530e8c5375c85533f19ae32491789c449ccf74ed"
+    },
+    "native-logical-gate/review/receipt.json": {
+      "bytes": 4825,
+      "sha256": "f91bde42af7d2646259d74fbf36f43bc04c6296acc8850838cfda86d06ad3d0b"
+    },
+    "native-logical-gate/review/review.md": {
+      "bytes": 9576,
+      "sha256": "40d06f6f76ae7a7e113676a4e05c360777025c74597cffd4c52ac058b63918db"
     }
   }
 }

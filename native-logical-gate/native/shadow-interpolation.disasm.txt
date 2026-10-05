@@ -1,0 +1,39 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+0046f850 <.text+0x6e850>:
+  46f850:	8b 44 24 04          	mov    0x4(%esp),%eax
+  46f854:	83 ec 24             	sub    $0x24,%esp
+  46f857:	66 8b 50 43          	mov    0x43(%eax),%dx
+  46f85b:	53                   	push   %ebx
+  46f85c:	66 8b 48 3d          	mov    0x3d(%eax),%cx
+  46f860:	56                   	push   %esi
+  46f861:	66 2b ca             	sub    %dx,%cx
+  46f864:	57                   	push   %edi
+  46f865:	66 8b 58 45          	mov    0x45(%eax),%bx
+  46f869:	66 8b 70 3f          	mov    0x3f(%eax),%si
+  46f86d:	66 2b f3             	sub    %bx,%si
+  46f870:	f6 40 15 01          	testb  $0x1,0x15(%eax)
+  46f874:	74 44                	je     0x46f8ba
+  46f876:	f6 05 61 c6 89 00 02 	testb  $0x2,0x89c661
+  46f87d:	75 3b                	jne    0x46f8ba
+  46f87f:	8b 3d 81 79 89 00    	mov    0x897981,%edi
+  46f885:	2b 78 18             	sub    0x18(%eax),%edi
+  46f888:	74 30                	je     0x46f8ba
+  46f88a:	83 3d 50 a8 5c 00 00 	cmpl   $0x0,0x5ca850
+  46f891:	74 27                	je     0x46f8ba
+  46f893:	0f af 3d 4c a8 5c 00 	imul   0x5ca84c,%edi
+  46f89a:	0f bf c2             	movswl %dx,%eax
+  46f89d:	0f af c7             	imul   %edi,%eax
+  46f8a0:	99                   	cltd
+  46f8a1:	f7 3d 50 a8 5c 00    	idivl  0x5ca850
+  46f8a7:	66 03 c8             	add    %ax,%cx
+  46f8aa:	0f bf c3             	movswl %bx,%eax
+  46f8ad:	0f af c7             	imul   %edi,%eax
+  46f8b0:	99                   	cltd
+  46f8b1:	f7 3d 50 a8 5c 00    	idivl  0x5ca850
+  46f8b7:	66 03 f0             	add    %ax,%si
+  46f8ba:	a1                   	.byte 0xa1

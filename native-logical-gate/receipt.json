@@ -1,0 +1,22 @@
+{
+  "sourceCommit": "a53fa05587c4c1d363e3596162b41fcb9f26e3e8",
+  "sourceStatus": "",
+  "command": "source ../prerequisites/env.sh; taskset -c 4 timeout --signal=TERM --kill-after=2s 60s \"$POPULOUS_PYTHON\" -B work/orchestration/sprite-stamp-gate-214/native/probe-stamp-gate.py \"$POPULOUS_EXE\" work/orchestration/sprite-stamp-gate-214/native/result.json",
+  "originalSession": 42460,
+  "exitCode": 0,
+  "reportedSeconds": 2.282555925004999,
+  "probeSha256": "d4a49c7125d64e810646ce4b5f0018d961a58cfea270499337b77b164d253ce0",
+  "resultSha256": "4a6370c5addef38f68d670f4ff61107f994bf1a1da56b08d31f77f070dff9760",
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "proofKind": "Numbered original producer/dispatcher/animation visits, not supplied wall-clock/native frequency.",
+  "artifacts": {
+    "native/animation-stamp-gates.disasm.txt": "4edde11b8be24f87987d83ddc58e539ac4eeefc6d903c0ea2676e95dbf528bcd",
+    "native/hut-smoke-producer.disasm.txt": "841d7de84e91a8692cdd43a4bf2d8b5bfce9b1d7588585b9d57c541fc62447f8",
+    "native/logical-dispatch-stamp.disasm.txt": "b9b9a0eef0221465a0475f32f29b218e06f7517533b638284036c711c26f32e8",
+    "native/outer-counter-before-draw.disasm.txt": "9507ecff6d7a3886664447e5e1c6112d5f048cf5a3b23eefe1b56712d6a68440",
+    "native/person-creation-prefix.disasm.txt": "73b39f0deaa4683c653f8d1838c3b496730ad1bbdd9b5dd56702ac2edb19ef72",
+    "native/shadow-interpolation.disasm.txt": "3eae15c1c2fd99e1f2215dbafdebcd94aa4333ea0342fa62f62057e83841e7ee",
+    "native/splash-producer.disasm.txt": "eb3e178efa0c4f5d5f8d7ac57281f9f9b6ac6c4e7d0e531b6435fbc09e52b3b3",
+    "native/allocation-class-initializer.disasm.txt": "59145c12bfa5294ddd1f4e94a413f4f273e6d56c24f8fa0facc6cce85f0f7d8d"
+  }
+}
