@@ -688,7 +688,7 @@ export function stepShamanGuard(
 }
 
 function shamanGuardTarget(w: World, order: PersonOrder) {
-  const unit = w.units.find(u => u.id === order.a && u.hp > 0 && u.inside === null),
+  const unit = w.units.find(u => u.id === order.a && u.hp > 0),
     person = unit && personSource(unit)
   if (!unit || (person && (!person.class || person.flags2 & 1 || person.vehicle))) return null
   return outsideBuilding(w, person ?? nativePosition(w, unit))

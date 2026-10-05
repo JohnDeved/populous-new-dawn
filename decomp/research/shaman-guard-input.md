@@ -38,6 +38,12 @@ the port's `Unit.inside` remains null. Distance tests sign-extend each coordinat
 before subtraction: both axes `<824` are near; either goal displacement `>=440`
 replans. These changes do not alter general wrapped movement physics.
 
+Building containment is different: a living Shaman who enters a Tower remains a
+valid Guard target. The same consumer resolves the occupied building's outside
+point. A public Shaman-to-Tower command regression covers real admission,
+continued command30, fresh-G outside destination and cancellation anchor; no
+inside flag is used as a target-loss substitute.
+
 Cancellation/completion use `00433490`/`004389c0` command-position semantics before
 clearing. For command30 this reads the saved target's coordinates even when its
 class/death/vehicle state makes the guard consumer finish. The live port shares

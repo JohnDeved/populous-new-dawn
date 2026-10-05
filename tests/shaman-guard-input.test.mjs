@@ -12,6 +12,7 @@ import { release } from '../app/world-tasks.ts'
 import { canOrder } from '../app/selection-runtime.ts'
 import { BuilderTask } from '../app/building-workers.ts'
 import { boardLiveVehicle } from '../app/live-vehicles.ts'
+import { buildingOutsidePoint, buildingPose } from '../app/building-shapes.ts'
 import vectors from './fixtures/shaman-guard-native.json' with { type: 'json' }
 
 function setup(count = 1) {
@@ -140,6 +141,26 @@ test('target entering a vehicle with inside still null completes the saved guard
   assert.equal(order(w, u), undefined)
   assert.equal(w.manaTribes[0].shamanGuards, 0)
   assert.ok([17, 19].includes(p.state))
+})
+
+test('ordinary Shaman Tower entry retains Guard and resolves its building outside point', () => {
+  const { w, shaman, u, p } = setup()
+  const tower = addBuilding(w, 'blue', 'tower', { x: 8, z: 8 }, true)
+  guardShaman(w); tick(w, 1 / 12)
+  setSelection(w, [shaman.id])
+  assert.equal(command(w, tower), true)
+  for (let turns = 0; turns < 240 && shaman.inside === null; turns++) tick(w, 1 / 12)
+  assert.equal(shaman.inside, tower.id, 'public command and real entry controller reach occupancy')
+  assert.equal((shaman.native ?? shaman.entry.person).vehicle, 0)
+  assert.equal(order(w, u)?.model, 30, 'building containment is not target loss')
+  assert.equal(w.manaTribes[0].shamanGuards, 1)
+  setSelection(w, [u.id]); guardShaman(w); tick(w, 1 / 12)
+  const outside = buildingOutsidePoint(buildingPose(tower))
+  assert.deepEqual([p.goalX, p.goalY], [outside.x & 65535, outside.y & 65535])
+  setSelection(w, [shaman.id]); guardShaman(w)
+  assert.deepEqual([p.anchorX, p.anchorY], [(outside.x & 0xfe00) + 256, (outside.y & 0xfe00) + 256])
+  assert.equal(order(w, u), undefined)
+  assert.equal(w.manaTribes[0].shamanGuards, 0)
 })
 
 for (const c of vectors.lifecycle.filter(c => c.label.startsWith('G-retain-deselect-'))) test(`actual deferred G setters match native phase vector ${c.label}`, () => {
