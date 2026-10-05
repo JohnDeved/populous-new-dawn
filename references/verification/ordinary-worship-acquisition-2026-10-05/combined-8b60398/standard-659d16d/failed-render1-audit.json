@@ -1,0 +1,33 @@
+{
+  "verdict": "FAILED combined rendered row; first Bridge observations accepted only as partial evidence",
+  "head": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+  "receiptSha256": "ca2b401a6e06ee7a302066ef18acfab01f3dc8a092e1861bf3fe06ab5284d3a1",
+  "outerSha256": "7f6723937ccbf2fbfa8d24bca4b1d7e4fe0783dccfdbd2c583b4589388f7d52b",
+  "failedReportSha256": "2f0bb2d287261f9d955fafb9e333d0f12fcf8ff0105761a55540534595b799d3",
+  "bodyPngSha256": "b7da50f03655f86e9bff89568099fabbf29cd4e1f05438494a76315047cb6e7a",
+  "failure": "No unobstructed rendered ground hit for target0,20 before movement/casts/combat/death",
+  "partialWitness": {
+    "giftId": 1192,
+    "handoffTurn": 254,
+    "bodyTurn": 254,
+    "arrivalTurn": 270,
+    "payoutTurn": 271,
+    "retirementTurn": 273,
+    "cueCount": 1,
+    "nontransparentOverlayPixels": 18846
+  },
+  "acquiredStock": 4,
+  "acquiredTurn": 607,
+  "elapsedFrames": 1214,
+  "observedObjectTurnsAfterArming": 535,
+  "observerAndRafRestored": true,
+  "unknownCause": "No per-candidate rejection/distance facts in this run",
+  "unproved": [
+    "shore movement",
+    "three real Bridge casts and living caster",
+    "combat death",
+    "phase1 changing-ground64 samples",
+    "post-frame mesh/pixel ground correspondence"
+  ],
+  "reviewerResourceOwnership": []
+}

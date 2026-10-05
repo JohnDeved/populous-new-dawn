@@ -1,0 +1,39 @@
+{
+  "status": "failed",
+  "source": {
+    "headOid": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+    "branch": "feat/issue30-worship-acquisition",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/playwright-core/lib/coreBundle.js": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+      "scripts/check-browser-shaman-death-ground.mjs": "c4b53c0e0e5eb821721bfc41e266eb7b11f25475eb11b0685edc1e9616df34cb",
+      "scripts/controlled-scene-frames.mjs": "7ec23575119be18bb18ddba834c393527ed8a93f321a1b5a0acf4e82410270ee",
+      "scripts/shaman-worship-ground-observer.mjs": "6af9fedbc79efb21dd34f43baa8ac2309fee5cc56701f577230868ef4df02d4f",
+      "scripts/local-render/harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  },
+  "sourceAfter": {
+    "headOid": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+    "branch": "feat/issue30-worship-acquisition",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "node_modules/playwright-core/lib/coreBundle.js": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+      "scripts/check-browser-shaman-death-ground.mjs": "c4b53c0e0e5eb821721bfc41e266eb7b11f25475eb11b0685edc1e9616df34cb",
+      "scripts/controlled-scene-frames.mjs": "7ec23575119be18bb18ddba834c393527ed8a93f321a1b5a0acf4e82410270ee",
+      "scripts/shaman-worship-ground-observer.mjs": "6af9fedbc79efb21dd34f43baa8ac2309fee5cc56701f577230868ef4df02d4f",
+      "scripts/local-render/harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+    }
+  },
+  "startedAt": "2026-10-05T10:09:26.955Z",
+  "finishedAt": "2026-10-05T10:11:55.832Z",
+  "exitCode": 1,
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "a1ac926f07acaf57a453b4e975e7697e1dd89c514ba56d3906dbd10517727b77",
+  "originalSha256": "7f6723937ccbf2fbfa8d24bca4b1d7e4fe0783dccfdbd2c583b4589388f7d52b"
+}

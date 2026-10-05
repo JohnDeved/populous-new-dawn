@@ -1,0 +1,52 @@
+{
+  "verdict": "ACCEPT exact combined standard gate correspondence",
+  "head": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+  "gates": {
+    "check": {
+      "receipt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter/work/orchestration/combined-659d16d/check.json",
+      "sha256": "dbc0f82407c6bfcafb0406d47cdd2092b72fd3273435ce9f891cfe2eda603ebf",
+      "startedAt": "2026-10-05T10:05:30.562Z",
+      "finishedAt": "2026-10-05T10:08:35.371Z",
+      "source": {
+        "headOid": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+        "branch": "feat/issue30-worship-acquisition",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+          "scripts/check-browser-shaman-death-ground.mjs": "c4b53c0e0e5eb821721bfc41e266eb7b11f25475eb11b0685edc1e9616df34cb",
+          "scripts/controlled-scene-frames.mjs": "7ec23575119be18bb18ddba834c393527ed8a93f321a1b5a0acf4e82410270ee",
+          "scripts/shaman-worship-ground-observer.mjs": "6af9fedbc79efb21dd34f43baa8ac2309fee5cc56701f577230868ef4df02d4f"
+        }
+      },
+      "stdoutSha256": "2761153e189b1006a37a066c01a2745f9e2de81a9185ceb3ae91b3f18dd9a49a",
+      "stderrSha256": "02285cf98c9d88b48ecc3ef7fa38f35659b7c27d82ad3139b4a57f8bed24e9b1"
+    },
+    "build": {
+      "receipt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/worship-acquisition-adapter/work/orchestration/combined-659d16d/build.json",
+      "sha256": "4ac3bf30bbd4cc93a866a2403ae8f76164b6bc0c2dc93560ccb2ca44cf73f0fe",
+      "startedAt": "2026-10-05T10:08:50.216Z",
+      "finishedAt": "2026-10-05T10:09:07.365Z",
+      "source": {
+        "headOid": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+        "branch": "feat/issue30-worship-acquisition",
+        "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "inputs": {
+          "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+          "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+        }
+      },
+      "stdoutSha256": "77296533c677009f5182ecdaf84e0516cffa3044a67ca2e471bcf637add9bab0",
+      "stderrSha256": "16ff4ca67c4c42994baefc4dcf0881cafa77d855e400eef558bc55e15c325c34"
+    }
+  },
+  "tests": 1109,
+  "failures": 0,
+  "skipped": 0,
+  "typecheck": "passed",
+  "parity": "passed",
+  "orchestration": "passed",
+  "build": "passed",
+  "renderedResult": "render1 failed at shore selector; see failed-render1-review.md",
+  "reviewerJobsLaunched": []
+}

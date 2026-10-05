@@ -4,6 +4,15 @@ Application: `cfa86a32f03d021cd1ad725eed9f458ab239d56b`.
 [Final independent acceptance](final-rendered-acceptance.md) closes the agreed
 finite rendered checklist at this exact source.
 
+The subsequent [combined candidate8b60398](combined-8b60398/README.md) normally adopts
+accepted PR212 main596475b and passes the reviewed maintained full-Scene worship,
+public-cast/combat and phase1 ground/mesh check. Its standard gates preserve their
+659d16d source labels, with exact production correspondence and current focused,
+script-quality and rendered evidence. The original cfa/PR212 rows keep their own
+methods and identities. [Issue214](https://github.com/JohnDeved/populous-new-dawn/issues/214)
+tracks the user's broad sprite-speed report separately; these bounded passes do not
+resolve or attribute that timing issue.
+
 Each folder binds its exact executed checker, original raw receipt hashes,
 portable redacted receipts, unchanged screenshots where captured, and independent
 review. Earlier failures remain failures. These browser rows complement the
@@ -33,8 +42,8 @@ all three actual frames, strict sprite/body/texel checks, full immutable fixture
 audits and all payouts/retirement pass. The incompatible body prior differs in both
 geometry and angle category; this proves their combined rejection. Foreign old
 particle slots are absent. [Earlier failed staged2](staged-composition-unproved/README.md)
-remains failed. The agreed finite rendered checklist at exact cfa is complete. The PR stays draft
-until the separately reviewed PR212 integration and current combined gates.
+remains failed. The agreed finite rendered checklist at exact cfa is complete.
+Subsequent PR212 adoption and the accepted current combined gate are linked above.
 
 The before/candidate Bridge pair uses the same real public route and browser,
 1440 × 1000 / DPR 1; images are host-stage captures rather than exact matching
@@ -43,7 +52,7 @@ failed Bridge1's eight verified texels are separately identified observations,
 without converting that failed run into a pass. Other zero-sample rows retain
 their explicit limits. Callback overlay crops carry the precise draw observations.
 
-All browser rows use sandboxed official Chrome Headless Shell 154 / SwiftShader
+All original cfa browser rows use sandboxed official Chrome Headless Shell 154 / SwiftShader
 with bounded CPU affinity. Actual DOM/Canvas input binding and bounded PNG/texel
 observations are not a complete independent native raster oracle or a hardware
 performance result. No original game/tool binaries, installed packages or browser

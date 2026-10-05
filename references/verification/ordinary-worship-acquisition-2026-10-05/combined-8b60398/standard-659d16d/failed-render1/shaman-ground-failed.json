@@ -1,0 +1,540 @@
+{
+  "status": "failed",
+  "source": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+  "sourceReceipt": {
+    "root": "<checkout>",
+    "commit": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+    "tree": "7c872f454534d65e83a602af9283eaa0d89532ae",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "dd7d7eedf5b843e083f96932c663d9573fe73ee98b3fb1f1d6399d12377cac1f"
+  },
+  "baseline": false,
+  "driverSha256": "c4b53c0e0e5eb821721bfc41e266eb7b11f25475eb11b0685edc1e9616df34cb",
+  "frameHelperSha256": "7ec23575119be18bb18ddba834c393527ed8a93f321a1b5a0acf4e82410270ee",
+  "witnessHelperSha256": "6af9fedbc79efb21dd34f43baa8ac2309fee5cc56701f577230868ef4df02d4f",
+  "clock": "Held RAF; original complete Scene.animate receives monotonic 1000/24ms frames at observed normal speed1. No direct tick, advanceGame, UI visit or deadline writes.",
+  "bounds": {
+    "frameMilliseconds": 41.666666666666664,
+    "batchFrames": 8,
+    "maximumFrames": 10000,
+    "browserWallMilliseconds": 420000
+  },
+  "limits": "Controlled-elapsed integration through public gameplay controls with explicit camera-only assistance. Not a real-clock journey, native raster oracle or hardware performance claim. Pixel attribution is an isolated post-frame render diagnostic.",
+  "baselineScope": "Combined production source with phase1 ground fix",
+  "actions": [
+    {
+      "kind": "head",
+      "target": 29,
+      "hit": {
+        "x": 419.68749999999994,
+        "y": 469.8125,
+        "target": 29
+      },
+      "acceptance": {
+        "turn": 72,
+        "lastOrderTurn": 72,
+        "work": 29,
+        "target": null,
+        "selected": true,
+        "order": {
+          "model": 27,
+          "a": 29,
+          "b": 0,
+          "references": 1
+        },
+        "markerIds": []
+      }
+    }
+  ],
+  "assets": [
+    {
+      "key": "hud",
+      "width": 1024,
+      "height": 534,
+      "source": "http://127.0.0.1:4359/original/hud.png"
+    },
+    {
+      "key": "effects",
+      "width": 2048,
+      "height": 6656,
+      "source": "http://127.0.0.1:4359/original/effects.png"
+    }
+  ],
+  "startup": {
+    "ready": true,
+    "turn": 72,
+    "inputMask": 0,
+    "selected": [
+      30
+    ],
+    "levelStartPhase": 4,
+    "shaman": {
+      "id": 30,
+      "hp": 100,
+      "canOrder": true,
+      "selectable": true,
+      "state": 19,
+      "flags2": 131072,
+      "flags4": 536871168,
+      "commandStatus": 0
+    },
+    "level": 1
+  },
+  "shaman": {
+    "id": 30,
+    "hp": 100,
+    "turn": 72
+  },
+  "progress": {
+    "goal": "stock",
+    "reached": true,
+    "frames": 1070,
+    "primed": false,
+    "turns": 535,
+    "startTurn": 72,
+    "turn": 607,
+    "frameMs": 41.666666666666664,
+    "suppliedElapsedMilliseconds": 44583.33333333333,
+    "status": "playing",
+    "stock": 4,
+    "shaman": {
+      "id": 30,
+      "x": -5,
+      "z": 26.75,
+      "hp": 100,
+      "fighting": false
+    },
+    "bridges": [],
+    "rows": []
+  },
+  "acquired": {
+    "goal": "stock",
+    "reached": true,
+    "frames": 1070,
+    "primed": false,
+    "turns": 535,
+    "startTurn": 72,
+    "turn": 607,
+    "frameMs": 41.666666666666664,
+    "suppliedElapsedMilliseconds": 44583.33333333333,
+    "status": "playing",
+    "stock": 4,
+    "shaman": {
+      "id": 30,
+      "x": -5,
+      "z": 26.75,
+      "hp": 100,
+      "fighting": false
+    },
+    "bridges": [],
+    "rows": []
+  },
+  "bridgeWitness": {
+    "targetGiftId": 1192,
+    "handoff": {
+      "before": {
+        "turn": 254,
+        "paused": false,
+        "speed": 1,
+        "stock": 0,
+        "count": 0,
+        "gift": {
+          "id": 1192,
+          "phase": 0,
+          "remaining": 76,
+          "recipient": 0
+        },
+        "requests": [
+          1192
+        ],
+        "clock": {
+          "elapsed": 21150,
+          "nextVisit": 21175,
+          "lastVisit": 21150,
+          "limiter": 0,
+          "normalRate": 40
+        },
+        "spell": null
+      },
+      "after": {
+        "turn": 254,
+        "paused": false,
+        "speed": 1,
+        "stock": 0,
+        "count": 0,
+        "gift": {
+          "id": 1192,
+          "phase": 0,
+          "remaining": 76,
+          "recipient": 0
+        },
+        "requests": [],
+        "clock": {
+          "elapsed": 21150,
+          "nextVisit": 21175,
+          "lastVisit": 21150,
+          "limiter": 0,
+          "normalRate": 40
+        },
+        "spell": {
+          "active": true,
+          "giftId": 1192,
+          "model": 12,
+          "step": 0,
+          "visits": 0,
+          "position": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      }
+    },
+    "body": {
+      "state": {
+        "turn": 254,
+        "paused": false,
+        "speed": 1,
+        "stock": 0,
+        "count": 0,
+        "gift": {
+          "id": 1192,
+          "phase": 0,
+          "remaining": 76,
+          "recipient": 0
+        },
+        "requests": [],
+        "clock": {
+          "elapsed": 21208.333333333467,
+          "nextVisit": 21241,
+          "lastVisit": 21191,
+          "limiter": 4,
+          "normalRate": 40
+        },
+        "spell": {
+          "active": true,
+          "giftId": 1192,
+          "model": 12,
+          "step": 2,
+          "visits": 1,
+          "position": {
+            "x": 229,
+            "y": 167
+          }
+        }
+      },
+      "call": {
+        "args": [
+          60,
+          515,
+          25,
+          15,
+          -71.875,
+          -43.125,
+          143.75,
+          86.25
+        ],
+        "transform": [
+          0.7921066778515465,
+          -0.6103826757887106,
+          0.6103826757887106,
+          0.7921066778515465,
+          469.5,
+          368.5
+        ],
+        "source": "http://127.0.0.1:4359/original/hud.png",
+        "sourceSize": [
+          1024,
+          534
+        ],
+        "alpha": 1
+      },
+      "hidden": false,
+      "canvas": [
+        1440,
+        1000
+      ],
+      "nontransparent": 18846,
+      "limit": "Actual native-body atlas submission and nontransparent overlay; companions may contribute alpha",
+      "artifact": "combined-bridge-body.png"
+    },
+    "arrival": {
+      "before": {
+        "turn": 270,
+        "paused": false,
+        "speed": 1,
+        "stock": 0,
+        "count": 0,
+        "gift": {
+          "id": 1192,
+          "phase": 0,
+          "remaining": 60,
+          "recipient": 0
+        },
+        "requests": [],
+        "clock": {
+          "elapsed": 22541,
+          "nextVisit": 22541,
+          "lastVisit": 22491,
+          "limiter": 4,
+          "normalRate": 40
+        },
+        "spell": {
+          "active": true,
+          "giftId": 1192,
+          "model": 12,
+          "step": 4,
+          "visits": 9,
+          "position": {
+            "x": 247,
+            "y": 240
+          }
+        }
+      },
+      "after": {
+        "turn": 270,
+        "paused": false,
+        "speed": 1,
+        "stock": 0,
+        "count": 0,
+        "gift": {
+          "id": 1192,
+          "phase": 0,
+          "remaining": 1,
+          "recipient": 0
+        },
+        "requests": [],
+        "clock": {
+          "elapsed": 22541,
+          "nextVisit": 22541,
+          "lastVisit": 22541,
+          "limiter": 4,
+          "normalRate": 40
+        },
+        "spell": {
+          "active": true,
+          "giftId": 1192,
+          "model": 12,
+          "step": 4,
+          "visits": 10,
+          "position": {
+            "x": 167,
+            "y": 235
+          }
+        }
+      }
+    },
+    "payout": {
+      "before": {
+        "turn": 270,
+        "paused": false,
+        "speed": 1,
+        "stock": 0,
+        "count": 0,
+        "gift": {
+          "id": 1192,
+          "phase": 0,
+          "remaining": 1,
+          "recipient": 0
+        },
+        "requests": [],
+        "clock": {
+          "elapsed": 22541.66666666684,
+          "nextVisit": 22591,
+          "lastVisit": 22541,
+          "limiter": 4,
+          "normalRate": 40
+        },
+        "spell": {
+          "active": true,
+          "giftId": 1192,
+          "model": 12,
+          "step": 4,
+          "visits": 10,
+          "position": {
+            "x": 167,
+            "y": 235
+          }
+        }
+      },
+      "after": {
+        "turn": 271,
+        "paused": false,
+        "speed": 1,
+        "stock": 1,
+        "count": 1,
+        "requests": [],
+        "clock": {
+          "elapsed": 22541.66666666684,
+          "nextVisit": 22591,
+          "lastVisit": 22541,
+          "limiter": 4,
+          "normalRate": 40
+        },
+        "spell": {
+          "active": true,
+          "giftId": 1192,
+          "model": 12,
+          "step": 4,
+          "visits": 10,
+          "position": {
+            "x": 167,
+            "y": 235
+          }
+        }
+      }
+    },
+    "retirement": {
+      "turn": 273,
+      "paused": false,
+      "speed": 1,
+      "stock": 1,
+      "count": 1,
+      "requests": [],
+      "clock": {
+        "elapsed": 22791.666666666846,
+        "nextVisit": 22816,
+        "lastVisit": 22791,
+        "limiter": 0,
+        "normalRate": 40
+      },
+      "spell": {
+        "active": false,
+        "giftId": 1192,
+        "model": 12,
+        "step": 5,
+        "visits": 0,
+        "position": {
+          "x": 51,
+          "y": 228
+        }
+      }
+    },
+    "errors": [],
+    "restored": true,
+    "visits": 1666,
+    "turns": 535,
+    "cueCount": 1,
+    "groundSteps": [],
+    "scope": "First ordinarily acquired Bridge only; later stock is earned normally",
+    "diagnostics": []
+  },
+  "failure": "page.evaluate: Error: No unobstructed rendered ground hit for {\"x\":0,\"z\":20}\n    at eval (eval at evaluate (:311:30), <anonymous>:38:13)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at clickTarget (<checkout>/scripts/check-browser-shaman-death-ground.mjs:164:28)\n    at checkShamanDeathGround (<checkout>/scripts/check-browser-shaman-death-ground.mjs:285:11)\n    at async runLocalBrowser (<checkout>/scripts/local-render/harness.mjs:164:20)\n    at async file://<checkout>/scripts/local-render/harness.mjs:251:21",
+  "frames": {
+    "total": 1214,
+    "reports": [
+      {
+        "goal": "startup",
+        "bound": 12,
+        "startTurn": 0,
+        "result": {
+          "reached": false,
+          "frames": 24,
+          "primed": true,
+          "turns": 12,
+          "startTurn": 0,
+          "turn": 12,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 1000
+        }
+      },
+      {
+        "goal": "startup",
+        "bound": 12,
+        "startTurn": 12,
+        "result": {
+          "reached": false,
+          "frames": 24,
+          "primed": false,
+          "turns": 12,
+          "startTurn": 12,
+          "turn": 24,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 1000
+        }
+      },
+      {
+        "goal": "startup",
+        "bound": 12,
+        "startTurn": 24,
+        "result": {
+          "reached": false,
+          "frames": 24,
+          "primed": false,
+          "turns": 12,
+          "startTurn": 24,
+          "turn": 36,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 1000
+        }
+      },
+      {
+        "goal": "startup",
+        "bound": 12,
+        "startTurn": 36,
+        "result": {
+          "reached": false,
+          "frames": 24,
+          "primed": false,
+          "turns": 12,
+          "startTurn": 36,
+          "turn": 48,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 1000
+        }
+      },
+      {
+        "goal": "startup",
+        "bound": 12,
+        "startTurn": 48,
+        "result": {
+          "reached": false,
+          "frames": 24,
+          "primed": false,
+          "turns": 12,
+          "startTurn": 48,
+          "turn": 60,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 1000
+        }
+      },
+      {
+        "goal": "startup",
+        "bound": 12,
+        "startTurn": 60,
+        "result": {
+          "reached": false,
+          "frames": 24,
+          "primed": false,
+          "turns": 12,
+          "startTurn": 60,
+          "turn": 72,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 1000
+        }
+      },
+      {
+        "goal": "stock",
+        "bound": 2200,
+        "startTurn": 72,
+        "result": {
+          "reached": true,
+          "frames": 1070,
+          "primed": false,
+          "turns": 535,
+          "startTurn": 72,
+          "turn": 607,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 44583.33333333333
+        }
+      }
+    ]
+  },
+  "rafRestored": true,
+  "errors": [],
+  "portableCopy": {
+    "originalSha256": "2f0bb2d287261f9d955fafb9e333d0f12fcf8ff0105761a55540534595b799d3",
+    "redaction": "Local checkout root replaced; all observations and failed status retained"
+  }
+}

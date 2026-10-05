@@ -1,0 +1,53 @@
+{
+  "kind": "pnd-command-receipt",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+    "branch": "evidence/worship-shaman-combined-driver",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-shaman-death-ground.mjs": "c4b53c0e0e5eb821721bfc41e266eb7b11f25475eb11b0685edc1e9616df34cb",
+      "scripts/controlled-scene-frames.mjs": "7ec23575119be18bb18ddba834c393527ed8a93f321a1b5a0acf4e82410270ee",
+      "scripts/shaman-worship-ground-observer.mjs": "6af9fedbc79efb21dd34f43baa8ac2309fee5cc56701f577230868ef4df02d4f",
+      "tests/controlled-scene-frames.test.mjs": "1dfc61127fd488394b06502ee15d0213452c22e2472ed44e3c08e2ed458923b7",
+      "engineering/checks.json": "22c99fc5ad206142c3d4abb19bd73a4f847823969685a0c0e89a8daf7e8f590c",
+      "engineering/project-map.json": "f27a21599fa68cd6cdc3afd13d262f67a5d7cabfa4375f93e75db4745f526089"
+    }
+  },
+  "sourceAfter": {
+    "headOid": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+    "branch": "evidence/worship-shaman-combined-driver",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-shaman-death-ground.mjs": "c4b53c0e0e5eb821721bfc41e266eb7b11f25475eb11b0685edc1e9616df34cb",
+      "scripts/controlled-scene-frames.mjs": "7ec23575119be18bb18ddba834c393527ed8a93f321a1b5a0acf4e82410270ee",
+      "scripts/shaman-worship-ground-observer.mjs": "6af9fedbc79efb21dd34f43baa8ac2309fee5cc56701f577230868ef4df02d4f",
+      "tests/controlled-scene-frames.test.mjs": "1dfc61127fd488394b06502ee15d0213452c22e2472ed44e3c08e2ed458923b7",
+      "engineering/checks.json": "22c99fc5ad206142c3d4abb19bd73a4f847823969685a0c0e89a8daf7e8f590c",
+      "engineering/project-map.json": "f27a21599fa68cd6cdc3afd13d262f67a5d7cabfa4375f93e75db4745f526089"
+    }
+  },
+  "command": [
+    "timeout",
+    "90s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node",
+    "--test",
+    "tests/controlled-scene-frames.test.mjs",
+    "tests/shaman-death-ground.test.mjs",
+    "tests/shaman-death-cadence.test.mjs",
+    "tests/shaman-death-vfx.test.mjs",
+    "tests/orchestration.test.mjs"
+  ],
+  "startedAt": "2026-10-05T10:00:49.399Z",
+  "finishedAt": "2026-10-05T10:00:55.836Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdoutSha256": "e00ad873d05ea760377a0d43cf56d9733bacc126b9c8a4cffd0f3c8856830263",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "originalReceiptSha256": "2c0e3f04ace3719da2918ee4cd8eeece7b3362ff700e075b4c62bc3512919231",
+  "rawOutputScope": "Original logs retained and independently verified; portable stdout/stderr preserve exact text except local root redaction."
+}

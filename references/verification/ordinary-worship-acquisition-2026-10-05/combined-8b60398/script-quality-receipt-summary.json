@@ -1,0 +1,48 @@
+{
+  "status": "passed",
+  "source": {
+    "headOid": "8b6039811adf58e4a4196fae48b56efc80613f19",
+    "branch": "feat/issue30-worship-acquisition",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-shaman-death-ground.mjs": "80143075952bf18688ce6f18b3600547cd43c062ac0ce354c878407a986b4d6e",
+      "scripts/controlled-scene-frames.mjs": "7ec23575119be18bb18ddba834c393527ed8a93f321a1b5a0acf4e82410270ee",
+      "scripts/shaman-worship-ground-observer.mjs": "6af9fedbc79efb21dd34f43baa8ac2309fee5cc56701f577230868ef4df02d4f",
+      "tests/controlled-scene-frames.test.mjs": "1dfc61127fd488394b06502ee15d0213452c22e2472ed44e3c08e2ed458923b7",
+      "eslint.config.mjs": "9578a25ed5bb7d9d6cd35f99459aa4b7987c9e32612ef1e020fa58826dc35543",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "sourceAfter": {
+    "headOid": "8b6039811adf58e4a4196fae48b56efc80613f19",
+    "branch": "feat/issue30-worship-acquisition",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-shaman-death-ground.mjs": "80143075952bf18688ce6f18b3600547cd43c062ac0ce354c878407a986b4d6e",
+      "scripts/controlled-scene-frames.mjs": "7ec23575119be18bb18ddba834c393527ed8a93f321a1b5a0acf4e82410270ee",
+      "scripts/shaman-worship-ground-observer.mjs": "6af9fedbc79efb21dd34f43baa8ac2309fee5cc56701f577230868ef4df02d4f",
+      "tests/controlled-scene-frames.test.mjs": "1dfc61127fd488394b06502ee15d0213452c22e2472ed44e3c08e2ed458923b7",
+      "eslint.config.mjs": "9578a25ed5bb7d9d6cd35f99459aa4b7987c9e32612ef1e020fa58826dc35543",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "timeout",
+    "60s",
+    "taskset",
+    "-c",
+    "4",
+    "node",
+    "node_modules/eslint/bin/eslint.js",
+    "scripts/check-browser-shaman-death-ground.mjs",
+    "scripts/controlled-scene-frames.mjs",
+    "scripts/shaman-worship-ground-observer.mjs",
+    "tests/controlled-scene-frames.test.mjs"
+  ],
+  "startedAt": "2026-10-05T10:23:15.939Z",
+  "finishedAt": "2026-10-05T10:23:18.608Z",
+  "exitCode": 0,
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "originalSha256": "cf508589c42497a1f86787ddeefd257afd1b44b280dd4c596f806722d0700f1d"
+}

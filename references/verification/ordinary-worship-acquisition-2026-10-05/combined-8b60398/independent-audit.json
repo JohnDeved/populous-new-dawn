@@ -1,0 +1,96 @@
+{
+  "verdict": "ACCEPT bounded combined candidate rendered row",
+  "head": "8b6039811adf58e4a4196fae48b56efc80613f19",
+  "receiptSha256": "57a56f4073a24f7b663023aff3994f75fe338610d204115658586f515e8d103a",
+  "outerSha256": "12827f44fdeef7e0555601857985d9e297b8d3750cd8d6380c9a798f2fa8aff6",
+  "reportSha256": "f691776e26a8af5c737d66abc1f393cfb7b839a9a0b34c8bf4009f09c495b6d9",
+  "qualityReceiptSha256": "cf508589c42497a1f86787ddeefd257afd1b44b280dd4c596f806722d0700f1d",
+  "elapsedFrames": 2302,
+  "firstBridge": {
+    "giftId": 1192,
+    "handoff": 254,
+    "body": 254,
+    "arrival": 270,
+    "payout": 271,
+    "retirement": 273,
+    "bodyAndCompanionAlphaPixels": 18846
+  },
+  "publicCasts": [
+    [
+      638,
+      {
+        "x": 1,
+        "z": 3
+      },
+      4,
+      3
+    ],
+    [
+      846,
+      {
+        "x": 1,
+        "z": -21
+      },
+      3,
+      2
+    ],
+    [
+      1052,
+      {
+        "x": 1,
+        "z": -29
+      },
+      2,
+      1
+    ]
+  ],
+  "injuryHp": 37,
+  "livingCasterHpAtController": 22.05,
+  "deathTurn": 1083,
+  "groundSampleCount": 64,
+  "nativeStepSampleCount": 64,
+  "groundHeights": [
+    184,
+    185,
+    186
+  ],
+  "groundTurns": [
+    1088,
+    1151
+  ],
+  "stableEffectId": 6189,
+  "frameSource": 352,
+  "isolatedFramebufferContributionReported": 219,
+  "allObservationAndRafRestored": true,
+  "consoleWarningCount": 22,
+  "standardGateHead": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+  "unchangedProductionTreeAndPackageObjects": {
+    "app": {
+      "659d16d71276cfd8e09a21c841d99b1dd07112ac": "0add49474ffa3db5216ae3715952e15d86651435",
+      "8b6039811adf58e4a4196fae48b56efc80613f19": "0add49474ffa3db5216ae3715952e15d86651435"
+    },
+    "public": {
+      "659d16d71276cfd8e09a21c841d99b1dd07112ac": "745281827f348df17acbfe39b0be5bdf19415d7d",
+      "8b6039811adf58e4a4196fae48b56efc80613f19": "745281827f348df17acbfe39b0be5bdf19415d7d"
+    },
+    "package.json": {
+      "659d16d71276cfd8e09a21c841d99b1dd07112ac": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1",
+      "8b6039811adf58e4a4196fae48b56efc80613f19": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1"
+    },
+    "package-lock.json": {
+      "659d16d71276cfd8e09a21c841d99b1dd07112ac": "97cd9ade0190af96e99b389c93d4ee20bef5065c",
+      "8b6039811adf58e4a4196fae48b56efc80613f19": "97cd9ade0190af96e99b389c93d4ee20bef5065c"
+    }
+  },
+  "limits": [
+    "controlled elapsed Scene.animate, not real clock",
+    "zero-elapsed camera assistance and one public rotation",
+    "body alpha may contain companion pixels",
+    "219 is established isolated render diagnostic, not full native raster oracle",
+    "historical PR212 negative control remains separately labeled; no combined negative-control row claimed",
+    "Issue214 broad absolute sprite cadence remains unresolved; this finite controller/render evidence does not establish all-sprite original-frame-rate parity"
+  ],
+  "reviewerResourceOwnership": [],
+  "finalizedAt": "2026-10-05T10:42Z",
+  "issue214": "https://github.com/JohnDeved/populous-new-dawn/issues/214"
+}

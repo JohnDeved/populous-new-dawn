@@ -1,0 +1,39 @@
+{
+  "status": "passed",
+  "source": {
+    "headOid": "8b6039811adf58e4a4196fae48b56efc80613f19",
+    "branch": "evidence/worship-shaman-combined-driver",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-shaman-death-ground.mjs": "80143075952bf18688ce6f18b3600547cd43c062ac0ce354c878407a986b4d6e"
+    }
+  },
+  "sourceAfter": {
+    "headOid": "8b6039811adf58e4a4196fae48b56efc80613f19",
+    "branch": "evidence/worship-shaman-combined-driver",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-browser-shaman-death-ground.mjs": "80143075952bf18688ce6f18b3600547cd43c062ac0ce354c878407a986b4d6e"
+    }
+  },
+  "command": [
+    "timeout",
+    "90s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node",
+    "--test",
+    "tests/controlled-scene-frames.test.mjs",
+    "tests/shaman-death-ground.test.mjs",
+    "tests/shaman-death-cadence.test.mjs",
+    "tests/shaman-death-vfx.test.mjs",
+    "tests/orchestration.test.mjs"
+  ],
+  "startedAt": "2026-10-05T10:17:56.238Z",
+  "finishedAt": "2026-10-05T10:18:03.473Z",
+  "exitCode": 0,
+  "stdoutSha256": "e088725849c884802ccd9383da2031cf7fc5b7fb2df8ffffcc32747c96c376c5",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "originalSha256": "6b0275da1d4305deae8ea4fc6c7f8184bb586a3ec27a38913998257f8b4a3957"
+}

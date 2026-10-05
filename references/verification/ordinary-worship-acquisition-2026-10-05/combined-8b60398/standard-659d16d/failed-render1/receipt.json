@@ -1,0 +1,66 @@
+{
+  "startedAt": "2026-10-05T10:09:27.027Z",
+  "source": {
+    "root": "<checkout>",
+    "commit": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+    "tree": "7c872f454534d65e83a602af9283eaa0d89532ae",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "dd7d7eedf5b843e083f96932c663d9573fe73ee98b3fb1f1d6399d12377cac1f"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "<link rel=preload> must have a valid `as` value",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x30e40079a200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x30e40079a200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x30e40079a200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x30e40079a200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "status": "failed",
+  "browserVersion": "154.0.8037.92",
+  "failure": "AssertionError [ERR_ASSERTION]: page.evaluate: Error: No unobstructed rendered ground hit for {\"x\":0,\"z\":20}\n    at eval (eval at evaluate (:311:30), <anonymous>:38:13)\n    at UtilityScript.evaluate (<anonymous>:313:16)\n    at UtilityScript.<anonymous> (<anonymous>:1:44)\n    at clickTarget (<checkout>/scripts/check-browser-shaman-death-ground.mjs:164:28)\n    at checkShamanDeathGround (<checkout>/scripts/check-browser-shaman-death-ground.mjs:285:11)\n    at async runLocalBrowser (<checkout>/scripts/local-render/harness.mjs:164:20)\n    at async file://<checkout>/scripts/local-render/harness.mjs:251:21\n\n'failed' !== 'passed'\n\n    at checkShamanDeathGround (file://<checkout>/scripts/check-browser-shaman-death-ground.mjs:390:10)\n    at async runLocalBrowser (file://<checkout>/scripts/local-render/harness.mjs:164:20)\n    at async file://<checkout>/scripts/local-render/harness.mjs:251:21",
+  "finishedAt": "2026-10-05T10:11:52.893Z",
+  "sourceAfter": {
+    "root": "<checkout>",
+    "commit": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+    "tree": "7c872f454534d65e83a602af9283eaa0d89532ae",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "dd7d7eedf5b843e083f96932c663d9573fe73ee98b3fb1f1d6399d12377cac1f"
+  },
+  "portableCopy": {
+    "originalSha256": "ca2b401a6e06ee7a302066ef18acfab01f3dc8a092e1861bf3fe06ab5284d3a1",
+    "redaction": "Local checkout root replaced; all observations and failed status retained"
+  }
+}

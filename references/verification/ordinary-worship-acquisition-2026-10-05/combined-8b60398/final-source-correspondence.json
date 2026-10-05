@@ -1,0 +1,19 @@
+{
+  "current": "8b6039811adf58e4a4196fae48b56efc80613f19",
+  "standardGatedHead": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+  "acceptedWorshipHead": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "mergedMain": "596475b6839c948604897f8b68ff89c6290cf39d",
+  "onlyChangeAfterStandardGates": "scripts/check-browser-shaman-death-ground.mjs",
+  "unchangedGitTreesAndBlobs": {
+    "app": "0add49474ffa3db5216ae3715952e15d86651435",
+    "public": "745281827f348df17acbfe39b0be5bdf19415d7d",
+    "package.json": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1",
+    "package-lock.json": "97cd9ade0190af96e99b389c93d4ee20bef5065c",
+    "scripts/controlled-scene-frames.mjs": "107fe76288106b31990dc3ee74f0b04b6a89c776",
+    "scripts/shaman-worship-ground-observer.mjs": "fb8fd59cc78e719f50448bda98f8a90cd88bb599",
+    "tests/controlled-scene-frames.test.mjs": "b2c6e14e5333964738e3a044886e85fd9d7d3072",
+    "engineering/checks.json": "8e027a0b14fb96f77ba668320d781fec774e181a",
+    "engineering/project-map.json": "60dda00e0b456049cff50ddcd4cbd97d0fbecd3b"
+  },
+  "currentChecks": "50 focused cases, scoped four-file ESLint and actual combined rendered successor at exact8b60398; full check/build preserve their659d16d source identities."
+}

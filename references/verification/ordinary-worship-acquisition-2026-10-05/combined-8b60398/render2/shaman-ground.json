@@ -1,0 +1,7367 @@
+{
+  "status": "passed",
+  "source": "8b6039811adf58e4a4196fae48b56efc80613f19",
+  "sourceReceipt": {
+    "root": "<checkout>",
+    "commit": "8b6039811adf58e4a4196fae48b56efc80613f19",
+    "tree": "397a0e31a5232fa479e8d0972a4a929343ecec67",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "83dccd8ed06d50b1dcc43a3883d5f51d30e7c449f7fc611b36d47dfc5fe50a6e"
+  },
+  "baseline": false,
+  "driverSha256": "80143075952bf18688ce6f18b3600547cd43c062ac0ce354c878407a986b4d6e",
+  "frameHelperSha256": "7ec23575119be18bb18ddba834c393527ed8a93f321a1b5a0acf4e82410270ee",
+  "witnessHelperSha256": "6af9fedbc79efb21dd34f43baa8ac2309fee5cc56701f577230868ef4df02d4f",
+  "clock": "Held RAF; original complete Scene.animate receives monotonic 1000/24ms frames at observed normal speed1. No direct tick, advanceGame, UI visit or deadline writes.",
+  "bounds": {
+    "frameMilliseconds": 41.666666666666664,
+    "batchFrames": 8,
+    "maximumFrames": 10000,
+    "browserWallMilliseconds": 420000
+  },
+  "limits": "Controlled-elapsed integration through public gameplay controls with explicit camera-only assistance. Not a real-clock journey, native raster oracle or hardware performance claim. Pixel attribution is an isolated post-frame render diagnostic.",
+  "baselineScope": "Combined production source with phase1 ground fix",
+  "actions": [
+    {
+      "kind": "head",
+      "target": 29,
+      "hit": {
+        "x": 419.68749999999994,
+        "y": 469.8125,
+        "target": 29
+      },
+      "acceptance": {
+        "turn": 72,
+        "lastOrderTurn": 72,
+        "work": 29,
+        "target": null,
+        "selected": true,
+        "order": {
+          "model": 27,
+          "a": 29,
+          "b": 0,
+          "references": 1
+        },
+        "markerIds": []
+      }
+    },
+    {
+      "kind": "ground",
+      "target": {
+        "x": 0,
+        "z": 20
+      },
+      "hit": {
+        "x": 820,
+        "y": 414,
+        "point": {
+          "x": 0,
+          "z": 20
+        },
+        "snapped": {
+          "x": 1,
+          "z": 19
+        },
+        "turn": 607
+      },
+      "acceptance": {
+        "turn": 607,
+        "lastOrderTurn": 607,
+        "work": null,
+        "target": null,
+        "selected": true,
+        "order": {
+          "model": 3,
+          "a": 2048,
+          "b": 58368,
+          "references": 1
+        },
+        "markerIds": [
+          1196
+        ]
+      }
+    },
+    {
+      "kind": "spell",
+      "target": {
+        "x": 0,
+        "z": 4
+      },
+      "hit": {
+        "x": 820,
+        "y": 412,
+        "point": {
+          "x": 0,
+          "z": 4
+        },
+        "snapped": {
+          "x": 1,
+          "z": 3
+        },
+        "turn": 638
+      }
+    },
+    {
+      "cast": {
+        "before": {
+          "stock": 4,
+          "turn": 638,
+          "nextId": 1198,
+          "hp": 100
+        },
+        "after": {
+          "stock": 3,
+          "turn": 638,
+          "projectile": {
+            "id": 1198,
+            "spell": "bridge",
+            "target": {
+              "x": 1,
+              "z": 3
+            },
+            "caster": 30,
+            "phase": "windup"
+          }
+        }
+      }
+    },
+    {
+      "kind": "ground",
+      "target": {
+        "x": 1,
+        "z": -3
+      },
+      "hit": {
+        "x": 820,
+        "y": 410.25,
+        "point": {
+          "x": 0.971900496851049,
+          "z": -3.0352780870402967
+        },
+        "snapped": {
+          "x": 1,
+          "z": -3
+        },
+        "turn": 738
+      },
+      "acceptance": {
+        "turn": 738,
+        "lastOrderTurn": 738,
+        "work": null,
+        "target": null,
+        "selected": true,
+        "order": {
+          "model": 3,
+          "a": 2297,
+          "b": 64265,
+          "references": 1
+        },
+        "markerIds": [
+          3747
+        ]
+      }
+    },
+    {
+      "kind": "ground",
+      "target": {
+        "x": 1,
+        "z": -7
+      },
+      "hit": {
+        "x": 820,
+        "y": 413.625,
+        "point": {
+          "x": 0.9851147686862305,
+          "z": -7.022734592640063
+        },
+        "snapped": {
+          "x": 1,
+          "z": -7
+        },
+        "turn": 829
+      },
+      "acceptance": {
+        "turn": 829,
+        "lastOrderTurn": 829,
+        "work": null,
+        "target": null,
+        "selected": true,
+        "order": {
+          "model": 3,
+          "a": 2300,
+          "b": 65286,
+          "references": 1
+        },
+        "markerIds": [
+          3753
+        ]
+      }
+    },
+    {
+      "kind": "spell",
+      "target": {
+        "x": 1,
+        "z": -21
+      },
+      "hit": {
+        "x": 820,
+        "y": 408.6875,
+        "point": {
+          "x": 0.9955581888103779,
+          "z": -21.00254153246999
+        },
+        "snapped": {
+          "x": 1,
+          "z": -21
+        },
+        "turn": 846
+      }
+    },
+    {
+      "cast": {
+        "before": {
+          "stock": 3,
+          "turn": 846,
+          "nextId": 3754,
+          "hp": 100
+        },
+        "after": {
+          "stock": 2,
+          "turn": 846,
+          "projectile": {
+            "id": 3754,
+            "spell": "bridge",
+            "target": {
+              "x": 1,
+              "z": -21
+            },
+            "caster": 30,
+            "phase": "windup"
+          }
+        }
+      }
+    },
+    {
+      "kind": "person",
+      "target": 33,
+      "hit": {
+        "x": 820,
+        "y": 355.25,
+        "target": 33
+      },
+      "acceptance": {
+        "turn": 946,
+        "lastOrderTurn": 946,
+        "work": null,
+        "target": 33,
+        "selected": true,
+        "markerIds": []
+      }
+    },
+    {
+      "kind": "spell",
+      "target": {
+        "x": 1,
+        "z": -29
+      },
+      "hit": {
+        "x": 820,
+        "y": 351.8125,
+        "point": {
+          "x": 0.9876296110971907,
+          "z": -29.016873766435936
+        },
+        "snapped": {
+          "x": 1,
+          "z": -29
+        },
+        "turn": 1052
+      }
+    },
+    {
+      "cast": {
+        "before": {
+          "stock": 2,
+          "turn": 1052,
+          "nextId": 5804,
+          "hp": 37
+        },
+        "after": {
+          "stock": 1,
+          "turn": 1052,
+          "projectile": {
+            "id": 5804,
+            "spell": "bridge",
+            "target": {
+              "x": 1,
+              "z": -29
+            },
+            "caster": 30,
+            "phase": "windup"
+          }
+        }
+      }
+    },
+    {
+      "kind": "person",
+      "target": 33,
+      "hit": {
+        "x": 820,
+        "y": 386.1875,
+        "target": 33
+      },
+      "acceptance": {
+        "turn": 1060,
+        "lastOrderTurn": 1060,
+        "work": null,
+        "target": 33,
+        "selected": true,
+        "markerIds": []
+      }
+    }
+  ],
+  "picking": [
+    {
+      "kind": "head",
+      "target": 29,
+      "turn": 72,
+      "center": {
+        "x": 419.68749999999994,
+        "y": 469.8125
+      },
+      "camera": {
+        "x": 768,
+        "y": 57088,
+        "angle": 256
+      },
+      "tried": 1,
+      "outside": 0,
+      "person": 0,
+      "object": 0,
+      "noTerrain": 0,
+      "distance": 0,
+      "nearest": null,
+      "nearestUnobstructed": null
+    },
+    {
+      "kind": "ground",
+      "target": {
+        "x": 0,
+        "z": 20
+      },
+      "turn": 607,
+      "center": {
+        "x": 820,
+        "y": 414
+      },
+      "camera": {
+        "x": 2048,
+        "y": 58368,
+        "angle": 256
+      },
+      "tried": 9191,
+      "outside": 1184,
+      "person": 22,
+      "object": 1486,
+      "noTerrain": 802,
+      "distance": 5697,
+      "nearest": {
+        "x": 820,
+        "y": 414,
+        "point": {
+          "x": 0,
+          "z": 20
+        },
+        "distance": 0,
+        "person": null,
+        "object": 29
+      },
+      "nearestUnobstructed": {
+        "x": 790,
+        "y": 414,
+        "point": {
+          "x": -0.6650228407830241,
+          "z": 18.981538446632953
+        },
+        "distance": 1.216354929471633,
+        "person": null,
+        "object": null
+      }
+    },
+    {
+      "rotation": {
+        "before": {
+          "turn": 607,
+          "stock": 4,
+          "speed": 1,
+          "paused": false,
+          "previous": 53234.63333332954,
+          "clock": {
+            "elapsed": 50583.33333333252,
+            "nextVisit": 50589,
+            "lastVisit": 50539,
+            "limiter": 4,
+            "normalRate": 40
+          }
+        },
+        "after": {
+          "turn": 607,
+          "stock": 4,
+          "speed": 1,
+          "paused": false,
+          "previous": 53234.63333332954,
+          "clock": {
+            "elapsed": 50583.33333333252,
+            "nextVisit": 50589,
+            "lastVisit": 50539,
+            "limiter": 4,
+            "normalRate": 40
+          }
+        },
+        "beforeAngle": 256,
+        "afterAngle": 1784,
+        "cameraOnlySteps": 20,
+        "publicKey": "ArrowLeft"
+      }
+    },
+    {
+      "kind": "ground",
+      "target": {
+        "x": 0,
+        "z": 20
+      },
+      "turn": 607,
+      "center": {
+        "x": 820,
+        "y": 414
+      },
+      "camera": {
+        "x": 2048,
+        "y": 58368,
+        "angle": 1784
+      },
+      "tried": 1,
+      "outside": 0,
+      "person": 0,
+      "object": 0,
+      "noTerrain": 0,
+      "distance": 0,
+      "nearest": {
+        "x": 820,
+        "y": 414,
+        "point": {
+          "x": 0,
+          "z": 20
+        },
+        "distance": 0,
+        "person": null,
+        "object": null
+      },
+      "nearestUnobstructed": {
+        "x": 820,
+        "y": 414,
+        "point": {
+          "x": 0,
+          "z": 20
+        },
+        "distance": 0,
+        "person": null,
+        "object": null
+      }
+    },
+    {
+      "kind": "spell",
+      "target": {
+        "x": 0,
+        "z": 4
+      },
+      "turn": 638,
+      "center": {
+        "x": 820,
+        "y": 412
+      },
+      "camera": {
+        "x": 2048,
+        "y": 62464,
+        "angle": 1784
+      },
+      "tried": 1,
+      "outside": 0,
+      "person": 0,
+      "object": 0,
+      "noTerrain": 0,
+      "distance": 0,
+      "nearest": {
+        "x": 820,
+        "y": 412,
+        "point": {
+          "x": 0,
+          "z": 4
+        },
+        "distance": 0,
+        "person": null,
+        "object": null
+      },
+      "nearestUnobstructed": {
+        "x": 820,
+        "y": 412,
+        "point": {
+          "x": 0,
+          "z": 4
+        },
+        "distance": 0,
+        "person": null,
+        "object": null
+      }
+    },
+    {
+      "kind": "ground",
+      "target": {
+        "x": 1,
+        "z": -3
+      },
+      "turn": 738,
+      "center": {
+        "x": 820,
+        "y": 410.25
+      },
+      "camera": {
+        "x": 2304,
+        "y": 64256,
+        "angle": 1784
+      },
+      "tried": 1,
+      "outside": 0,
+      "person": 0,
+      "object": 0,
+      "noTerrain": 0,
+      "distance": 0,
+      "nearest": {
+        "x": 820,
+        "y": 410.25,
+        "point": {
+          "x": 0.971900496851049,
+          "z": -3.0352780870402967
+        },
+        "distance": 0.045101280496684985,
+        "person": null,
+        "object": null
+      },
+      "nearestUnobstructed": {
+        "x": 820,
+        "y": 410.25,
+        "point": {
+          "x": 0.971900496851049,
+          "z": -3.0352780870402967
+        },
+        "distance": 0.045101280496684985,
+        "person": null,
+        "object": null
+      }
+    },
+    {
+      "kind": "ground",
+      "target": {
+        "x": 1,
+        "z": -7
+      },
+      "turn": 829,
+      "center": {
+        "x": 820,
+        "y": 413.625
+      },
+      "camera": {
+        "x": 2304,
+        "y": 65280,
+        "angle": 1784
+      },
+      "tried": 1,
+      "outside": 0,
+      "person": 0,
+      "object": 0,
+      "noTerrain": 0,
+      "distance": 0,
+      "nearest": {
+        "x": 820,
+        "y": 413.625,
+        "point": {
+          "x": 0.9851147686862305,
+          "z": -7.022734592640063
+        },
+        "distance": 0.02717410189452512,
+        "person": null,
+        "object": null
+      },
+      "nearestUnobstructed": {
+        "x": 820,
+        "y": 413.625,
+        "point": {
+          "x": 0.9851147686862305,
+          "z": -7.022734592640063
+        },
+        "distance": 0.02717410189452512,
+        "person": null,
+        "object": null
+      }
+    },
+    {
+      "kind": "spell",
+      "target": {
+        "x": 1,
+        "z": -21
+      },
+      "turn": 846,
+      "center": {
+        "x": 820,
+        "y": 408.6875
+      },
+      "camera": {
+        "x": 2304,
+        "y": 3328,
+        "angle": 1784
+      },
+      "tried": 1,
+      "outside": 0,
+      "person": 0,
+      "object": 0,
+      "noTerrain": 0,
+      "distance": 0,
+      "nearest": {
+        "x": 820,
+        "y": 408.6875,
+        "point": {
+          "x": 0.9955581888103779,
+          "z": -21.00254153246999
+        },
+        "distance": 0.005117526154331661,
+        "person": null,
+        "object": null
+      },
+      "nearestUnobstructed": {
+        "x": 820,
+        "y": 408.6875,
+        "point": {
+          "x": 0.9955581888103779,
+          "z": -21.00254153246999
+        },
+        "distance": 0.005117526154331661,
+        "person": null,
+        "object": null
+      }
+    },
+    {
+      "kind": "person",
+      "target": 33,
+      "turn": 946,
+      "center": {
+        "x": 820,
+        "y": 357.25
+      },
+      "camera": {
+        "x": 2304,
+        "y": 4864,
+        "angle": 1784
+      },
+      "tried": 2,
+      "outside": 0,
+      "person": 0,
+      "object": 0,
+      "noTerrain": 0,
+      "distance": 0,
+      "nearest": null,
+      "nearestUnobstructed": null
+    },
+    {
+      "kind": "spell",
+      "target": {
+        "x": 1,
+        "z": -29
+      },
+      "turn": 1052,
+      "center": {
+        "x": 820,
+        "y": 351.8125
+      },
+      "camera": {
+        "x": 2304,
+        "y": 5376,
+        "angle": 1784
+      },
+      "tried": 1,
+      "outside": 0,
+      "person": 0,
+      "object": 0,
+      "noTerrain": 0,
+      "distance": 0,
+      "nearest": {
+        "x": 820,
+        "y": 351.8125,
+        "point": {
+          "x": 0.9876296110971907,
+          "z": -29.016873766435936
+        },
+        "distance": 0.020922488268397984,
+        "person": null,
+        "object": null
+      },
+      "nearestUnobstructed": {
+        "x": 820,
+        "y": 351.8125,
+        "point": {
+          "x": 0.9876296110971907,
+          "z": -29.016873766435936
+        },
+        "distance": 0.020922488268397984,
+        "person": null,
+        "object": null
+      }
+    },
+    {
+      "kind": "person",
+      "target": 33,
+      "turn": 1060,
+      "center": {
+        "x": 820,
+        "y": 386.1875
+      },
+      "camera": {
+        "x": 2263,
+        "y": 3758,
+        "angle": 1784
+      },
+      "tried": 1,
+      "outside": 0,
+      "person": 0,
+      "object": 0,
+      "noTerrain": 0,
+      "distance": 0,
+      "nearest": null,
+      "nearestUnobstructed": null
+    }
+  ],
+  "assets": [
+    {
+      "key": "hud",
+      "width": 1024,
+      "height": 534,
+      "source": "http://127.0.0.1:4359/original/hud.png"
+    },
+    {
+      "key": "effects",
+      "width": 2048,
+      "height": 6656,
+      "source": "http://127.0.0.1:4359/original/effects.png"
+    }
+  ],
+  "startup": {
+    "ready": true,
+    "turn": 72,
+    "inputMask": 0,
+    "selected": [
+      30
+    ],
+    "levelStartPhase": 4,
+    "shaman": {
+      "id": 30,
+      "hp": 100,
+      "canOrder": true,
+      "selectable": true,
+      "state": 19,
+      "flags2": 131072,
+      "flags4": 536871168,
+      "commandStatus": 0
+    },
+    "level": 1
+  },
+  "shaman": {
+    "id": 30,
+    "hp": 100,
+    "turn": 72
+  },
+  "progress": {
+    "goal": "ground-samples",
+    "reached": true,
+    "frames": 128,
+    "primed": false,
+    "turns": 64,
+    "startTurn": 1087,
+    "turn": 1151,
+    "frameMs": 41.666666666666664,
+    "suppliedElapsedMilliseconds": 5333.333333333333,
+    "status": "playing",
+    "stock": 1,
+    "body": {
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1
+    },
+    "bridges": [],
+    "rows": [
+      {
+        "turn": 1088,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 462,
+        "randomState": 2103042293,
+        "cosmeticRandom": {
+          "randomState": 1357686124
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 28
+          }
+        ]
+      },
+      {
+        "turn": 1089,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 461,
+        "randomState": 4042230436,
+        "cosmeticRandom": {
+          "randomState": 515491916
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 29
+          }
+        ]
+      },
+      {
+        "turn": 1090,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 460,
+        "randomState": 4042230436,
+        "cosmeticRandom": {
+          "randomState": 2101478779
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 30
+          }
+        ]
+      },
+      {
+        "turn": 1091,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 459,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 3261382263
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 31
+          }
+        ]
+      },
+      {
+        "turn": 1092,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 458,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1220360497
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 32
+          }
+        ]
+      },
+      {
+        "turn": 1093,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 457,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1663073434
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 33
+          }
+        ]
+      },
+      {
+        "turn": 1094,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 456,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1062761702
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 34
+          }
+        ]
+      },
+      {
+        "turn": 1095,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 455,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 728376302
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 35
+          }
+        ]
+      },
+      {
+        "turn": 1096,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 454,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1086277685
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 36
+          }
+        ]
+      },
+      {
+        "turn": 1097,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 453,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1710666807
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 37
+          }
+        ]
+      },
+      {
+        "turn": 1098,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 452,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1965553367
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 38
+          }
+        ]
+      },
+      {
+        "turn": 1099,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 451,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 2675019118
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 39
+          }
+        ]
+      },
+      {
+        "turn": 1100,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "meshY": 1.4453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 450,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 4067185823
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 40
+          }
+        ]
+      },
+      {
+        "turn": 1101,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "meshY": 1.4453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 449,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 2716516623
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 41
+          }
+        ]
+      },
+      {
+        "turn": 1102,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 448,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1629482097
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 42
+          }
+        ]
+      },
+      {
+        "turn": 1103,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 447,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 2944574739
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 43
+          }
+        ]
+      },
+      {
+        "turn": 1104,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 446,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1480396842
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 44
+          }
+        ]
+      },
+      {
+        "turn": 1105,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "meshY": 1.4375,
+        "visible": true,
+        "source": 352,
+        "remaining": 445,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1645799538
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 45
+          }
+        ]
+      },
+      {
+        "turn": 1106,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "meshY": 1.4453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 444,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1714317040
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 46
+          }
+        ]
+      },
+      {
+        "turn": 1107,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "meshY": 1.4453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 443,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 493361574
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 47
+          }
+        ]
+      },
+      {
+        "turn": 1108,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "meshY": 1.4453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 442,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 2187798495
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 48
+          }
+        ]
+      },
+      {
+        "turn": 1109,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "meshY": 1.4453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 441,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 3070596466
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 49
+          }
+        ]
+      },
+      {
+        "turn": 1110,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "meshY": 1.4453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 440,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 815954569
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 50
+          }
+        ]
+      },
+      {
+        "turn": 1111,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "meshY": 1.4453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 439,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 2156783249
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 51
+          }
+        ]
+      },
+      {
+        "turn": 1112,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 438,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 1527495632
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 52
+          }
+        ]
+      },
+      {
+        "turn": 1113,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 437,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 1673970825
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 53
+          }
+        ]
+      },
+      {
+        "turn": 1114,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "meshY": 1.4453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 436,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 3103748815
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 54
+          }
+        ]
+      },
+      {
+        "turn": 1115,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "meshY": 1.4453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 435,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 210743844
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 55
+          }
+        ]
+      },
+      {
+        "turn": 1116,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "meshY": 1.4453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 434,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 3735845515
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 56
+          }
+        ]
+      },
+      {
+        "turn": 1117,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "meshY": 1.4453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 433,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 2964255027
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 57
+          }
+        ]
+      },
+      {
+        "turn": 1118,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 432,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 278405805
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 58
+          }
+        ]
+      },
+      {
+        "turn": 1119,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 431,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 2931649012
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 59
+          }
+        ]
+      },
+      {
+        "turn": 1120,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 430,
+        "randomState": 1056229265,
+        "cosmeticRandom": {
+          "randomState": 1065842041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 60
+          }
+        ]
+      },
+      {
+        "turn": 1121,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 429,
+        "randomState": 1460185509,
+        "cosmeticRandom": {
+          "randomState": 399468325
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 61
+          }
+        ]
+      },
+      {
+        "turn": 1122,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "meshY": 1.4453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 428,
+        "randomState": 1460185509,
+        "cosmeticRandom": {
+          "randomState": 3716582544
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 62
+          }
+        ]
+      },
+      {
+        "turn": 1123,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 427,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 307738852
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1124,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 426,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 307738852
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1125,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 425,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 3793680731
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1126,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 424,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 416580702
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1127,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 423,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 3756786212
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1128,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 422,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 1813519828
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1129,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 421,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 3113941733
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1130,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 420,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1131,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 419,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1132,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 418,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1133,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 417,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1134,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 416,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1135,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 415,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1136,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 414,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1137,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 413,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1138,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 412,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 3154452937
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1139,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 411,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 1111998421
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1140,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 410,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 4003868877
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1141,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 409,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 1315154701
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1142,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 408,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 1617069540
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1143,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 407,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 1243334227
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1144,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 406,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 1486101212
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1145,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 405,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 3386656607
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1146,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 404,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 3398440704
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1147,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 403,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 3741138644
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1148,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 402,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 3248410835
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1149,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 401,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 747688441
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1150,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 400,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 3015910617
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      },
+      {
+        "turn": 1151,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "meshY": 1.453125,
+        "visible": true,
+        "source": 352,
+        "remaining": 399,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 2864969542
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": []
+      }
+    ]
+  },
+  "acquired": {
+    "goal": "stock",
+    "reached": true,
+    "frames": 1070,
+    "primed": false,
+    "turns": 535,
+    "startTurn": 72,
+    "turn": 607,
+    "frameMs": 41.666666666666664,
+    "suppliedElapsedMilliseconds": 44583.33333333333,
+    "status": "playing",
+    "stock": 4,
+    "shaman": {
+      "id": 30,
+      "x": -5,
+      "z": 26.75,
+      "hp": 100,
+      "fighting": false
+    },
+    "bridges": [],
+    "rows": []
+  },
+  "bridgeWitness": {
+    "targetGiftId": 1192,
+    "handoff": {
+      "before": {
+        "turn": 254,
+        "paused": false,
+        "speed": 1,
+        "stock": 0,
+        "count": 0,
+        "gift": {
+          "id": 1192,
+          "phase": 0,
+          "remaining": 76,
+          "recipient": 0
+        },
+        "requests": [
+          1192
+        ],
+        "clock": {
+          "elapsed": 21150,
+          "nextVisit": 21175,
+          "lastVisit": 21150,
+          "limiter": 0,
+          "normalRate": 40
+        },
+        "spell": null
+      },
+      "after": {
+        "turn": 254,
+        "paused": false,
+        "speed": 1,
+        "stock": 0,
+        "count": 0,
+        "gift": {
+          "id": 1192,
+          "phase": 0,
+          "remaining": 76,
+          "recipient": 0
+        },
+        "requests": [],
+        "clock": {
+          "elapsed": 21150,
+          "nextVisit": 21175,
+          "lastVisit": 21150,
+          "limiter": 0,
+          "normalRate": 40
+        },
+        "spell": {
+          "active": true,
+          "giftId": 1192,
+          "model": 12,
+          "step": 0,
+          "visits": 0,
+          "position": {
+            "x": 0,
+            "y": 0
+          }
+        }
+      }
+    },
+    "body": {
+      "state": {
+        "turn": 254,
+        "paused": false,
+        "speed": 1,
+        "stock": 0,
+        "count": 0,
+        "gift": {
+          "id": 1192,
+          "phase": 0,
+          "remaining": 76,
+          "recipient": 0
+        },
+        "requests": [],
+        "clock": {
+          "elapsed": 21208.333333333456,
+          "nextVisit": 21241,
+          "lastVisit": 21191,
+          "limiter": 4,
+          "normalRate": 40
+        },
+        "spell": {
+          "active": true,
+          "giftId": 1192,
+          "model": 12,
+          "step": 2,
+          "visits": 1,
+          "position": {
+            "x": 229,
+            "y": 167
+          }
+        }
+      },
+      "call": {
+        "args": [
+          60,
+          515,
+          25,
+          15,
+          -71.875,
+          -43.125,
+          143.75,
+          86.25
+        ],
+        "transform": [
+          0.7921066778515465,
+          -0.6103826757887106,
+          0.6103826757887106,
+          0.7921066778515465,
+          469.5,
+          368.5
+        ],
+        "source": "http://127.0.0.1:4359/original/hud.png",
+        "sourceSize": [
+          1024,
+          534
+        ],
+        "alpha": 1
+      },
+      "hidden": false,
+      "canvas": [
+        1440,
+        1000
+      ],
+      "nontransparent": 18846,
+      "limit": "Actual native-body atlas submission and nontransparent overlay; companions may contribute alpha",
+      "artifact": "combined-bridge-body.png"
+    },
+    "arrival": {
+      "before": {
+        "turn": 270,
+        "paused": false,
+        "speed": 1,
+        "stock": 0,
+        "count": 0,
+        "gift": {
+          "id": 1192,
+          "phase": 0,
+          "remaining": 60,
+          "recipient": 0
+        },
+        "requests": [],
+        "clock": {
+          "elapsed": 22541,
+          "nextVisit": 22541,
+          "lastVisit": 22491,
+          "limiter": 4,
+          "normalRate": 40
+        },
+        "spell": {
+          "active": true,
+          "giftId": 1192,
+          "model": 12,
+          "step": 4,
+          "visits": 9,
+          "position": {
+            "x": 247,
+            "y": 240
+          }
+        }
+      },
+      "after": {
+        "turn": 270,
+        "paused": false,
+        "speed": 1,
+        "stock": 0,
+        "count": 0,
+        "gift": {
+          "id": 1192,
+          "phase": 0,
+          "remaining": 1,
+          "recipient": 0
+        },
+        "requests": [],
+        "clock": {
+          "elapsed": 22541,
+          "nextVisit": 22541,
+          "lastVisit": 22541,
+          "limiter": 4,
+          "normalRate": 40
+        },
+        "spell": {
+          "active": true,
+          "giftId": 1192,
+          "model": 12,
+          "step": 4,
+          "visits": 10,
+          "position": {
+            "x": 167,
+            "y": 235
+          }
+        }
+      }
+    },
+    "payout": {
+      "before": {
+        "turn": 270,
+        "paused": false,
+        "speed": 1,
+        "stock": 0,
+        "count": 0,
+        "gift": {
+          "id": 1192,
+          "phase": 0,
+          "remaining": 1,
+          "recipient": 0
+        },
+        "requests": [],
+        "clock": {
+          "elapsed": 22541.666666666828,
+          "nextVisit": 22591,
+          "lastVisit": 22541,
+          "limiter": 4,
+          "normalRate": 40
+        },
+        "spell": {
+          "active": true,
+          "giftId": 1192,
+          "model": 12,
+          "step": 4,
+          "visits": 10,
+          "position": {
+            "x": 167,
+            "y": 235
+          }
+        }
+      },
+      "after": {
+        "turn": 271,
+        "paused": false,
+        "speed": 1,
+        "stock": 1,
+        "count": 1,
+        "requests": [],
+        "clock": {
+          "elapsed": 22541.666666666828,
+          "nextVisit": 22591,
+          "lastVisit": 22541,
+          "limiter": 4,
+          "normalRate": 40
+        },
+        "spell": {
+          "active": true,
+          "giftId": 1192,
+          "model": 12,
+          "step": 4,
+          "visits": 10,
+          "position": {
+            "x": 167,
+            "y": 235
+          }
+        }
+      }
+    },
+    "retirement": {
+      "turn": 273,
+      "paused": false,
+      "speed": 1,
+      "stock": 1,
+      "count": 1,
+      "requests": [],
+      "clock": {
+        "elapsed": 22791.666666666835,
+        "nextVisit": 22816,
+        "lastVisit": 22791,
+        "limiter": 0,
+        "normalRate": 40
+      },
+      "spell": {
+        "active": false,
+        "giftId": 1192,
+        "model": 12,
+        "step": 5,
+        "visits": 0,
+        "position": {
+          "x": 51,
+          "y": 228
+        }
+      }
+    },
+    "errors": [],
+    "restored": true,
+    "visits": 3478,
+    "turns": 1079,
+    "cueCount": 1,
+    "groundSteps": [
+      {
+        "turn": 1088,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 462,
+        "randomState": 2103042293,
+        "cosmeticRandom": {
+          "randomState": 1357686124
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 28
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1089,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 461,
+        "randomState": 4042230436,
+        "cosmeticRandom": {
+          "randomState": 515491916
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 29
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1090,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 460,
+        "randomState": 4042230436,
+        "cosmeticRandom": {
+          "randomState": 2101478779
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 30
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1091,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 459,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 3261382263
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 31
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1092,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 458,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1220360497
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 32
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1093,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 457,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1663073434
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 33
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1094,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 456,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1062761702
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 34
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1095,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 455,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 728376302
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 35
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1096,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 454,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1086277685
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 36
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1097,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 453,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1710666807
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 37
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1098,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 452,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1965553367
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 38
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1099,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 451,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 2675019118
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 39
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1100,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "remaining": 450,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 4067185823
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 40
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1101,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "remaining": 449,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 2716516623
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 41
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1102,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 448,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1629482097
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 42
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1103,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 447,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 2944574739
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 43
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1104,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 446,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1480396842
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 44
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1105,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 184,
+        "stored": 184,
+        "height": 184,
+        "remaining": 445,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1645799538
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 45
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1106,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "remaining": 444,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 1714317040
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 46
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1107,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "remaining": 443,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 493361574
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 47
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1108,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "remaining": 442,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 2187798495
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 48
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1109,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "remaining": 441,
+        "randomState": 3881232532,
+        "cosmeticRandom": {
+          "randomState": 3070596466
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 49
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1110,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "remaining": 440,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 815954569
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 50
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1111,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "remaining": 439,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 2156783249
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 51
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1112,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 438,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 1527495632
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 52
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1113,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 437,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 1673970825
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 53
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1114,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "remaining": 436,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 3103748815
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 54
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1115,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "remaining": 435,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 210743844
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 55
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1116,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "remaining": 434,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 3735845515
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 56
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1117,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "remaining": 433,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 2964255027
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 57
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1118,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 432,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 278405805
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 58
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1119,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 431,
+        "randomState": 1799748275,
+        "cosmeticRandom": {
+          "randomState": 2931649012
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 59
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1120,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 430,
+        "randomState": 1056229265,
+        "cosmeticRandom": {
+          "randomState": 1065842041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 60
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1121,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 429,
+        "randomState": 1460185509,
+        "cosmeticRandom": {
+          "randomState": 399468325
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 61
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1122,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 185,
+        "stored": 185,
+        "height": 185,
+        "remaining": 428,
+        "randomState": 1460185509,
+        "cosmeticRandom": {
+          "randomState": 3716582544
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [
+          {
+            "id": 5830,
+            "turn": 62
+          }
+        ],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1123,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 427,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 307738852
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1124,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 426,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 307738852
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1125,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 425,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 3793680731
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1126,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 424,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 416580702
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1127,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 423,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 3756786212
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1128,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 422,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 1813519828
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1129,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 421,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 3113941733
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1130,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 420,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1131,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 419,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1132,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 418,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1133,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 417,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1134,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 416,
+        "randomState": 1786299944,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1135,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 415,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1136,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 414,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1137,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 413,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 388247041
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1138,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 412,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 3154452937
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1139,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 411,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 1111998421
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1140,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 410,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 4003868877
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1141,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 409,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 1315154701
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1142,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 408,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 1617069540
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1143,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 407,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 1243334227
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1144,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 406,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 1486101212
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1145,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 405,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 3386656607
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1146,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 404,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 3398440704
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1147,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 403,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 3741138644
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1148,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 402,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 3248410835
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1149,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 401,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 747688441
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1150,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 400,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 3015910617
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      },
+      {
+        "turn": 1151,
+        "id": 6189,
+        "x": 0.34375,
+        "z": -22.17578125,
+        "phase": 1,
+        "ground": 186,
+        "stored": 186,
+        "height": 186,
+        "remaining": 399,
+        "randomState": 3666985003,
+        "cosmeticRandom": {
+          "randomState": 2864969542
+        },
+        "braves": 8,
+        "status": "playing",
+        "bridges": [],
+        "stage": "after-original-World-turn-before-frame-render"
+      }
+    ],
+    "scope": "First ordinarily acquired Bridge only; later stock is earned normally",
+    "diagnostics": []
+  },
+  "shore": {
+    "goal": "position",
+    "reached": true,
+    "frames": 62,
+    "primed": false,
+    "turns": 31,
+    "startTurn": 607,
+    "turn": 638,
+    "frameMs": 41.666666666666664,
+    "suppliedElapsedMilliseconds": 2583.333333333333,
+    "status": "playing",
+    "stock": 4,
+    "shaman": {
+      "id": 30,
+      "x": -0.39453125,
+      "z": 20.78515625,
+      "hp": 100,
+      "fighting": false
+    },
+    "bridges": [],
+    "rows": []
+  },
+  "injured": {
+    "goal": "injured",
+    "reached": true,
+    "frames": 212,
+    "primed": false,
+    "turns": 106,
+    "startTurn": 946,
+    "turn": 1052,
+    "frameMs": 41.666666666666664,
+    "suppliedElapsedMilliseconds": 8833.333333333332,
+    "status": "playing",
+    "stock": 2,
+    "shaman": {
+      "id": 30,
+      "x": 1.42578125,
+      "z": -23.07421875,
+      "hp": 37,
+      "fighting": true
+    },
+    "bridges": [],
+    "rows": []
+  },
+  "deathCast": {
+    "stock": 1,
+    "turn": 1052,
+    "projectile": {
+      "id": 5804,
+      "spell": "bridge",
+      "target": {
+        "x": 1,
+        "z": -29
+      },
+      "caster": 30,
+      "phase": "windup"
+    }
+  },
+  "controller": {
+    "goal": "controller",
+    "reached": true,
+    "frames": 16,
+    "primed": false,
+    "turns": 8,
+    "startTurn": 1052,
+    "turn": 1060,
+    "frameMs": 41.666666666666664,
+    "suppliedElapsedMilliseconds": 666.6666666666666,
+    "status": "playing",
+    "stock": 1,
+    "shaman": {
+      "id": 30,
+      "x": 1.42578125,
+      "z": -23.07421875,
+      "hp": 22.05,
+      "fighting": true
+    },
+    "bridges": [
+      {
+        "id": 5830,
+        "turn": 0
+      }
+    ],
+    "rows": []
+  },
+  "death": {
+    "goal": "death",
+    "reached": true,
+    "frames": 46,
+    "primed": false,
+    "turns": 23,
+    "startTurn": 1060,
+    "turn": 1083,
+    "frameMs": 41.666666666666664,
+    "suppliedElapsedMilliseconds": 1916.6666666666665,
+    "status": "playing",
+    "stock": 1,
+    "body": {
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 0
+    },
+    "bridges": [
+      {
+        "id": 5830,
+        "turn": 23
+      }
+    ],
+    "rows": []
+  },
+  "before": {
+    "turn": 1087,
+    "id": 6189,
+    "x": 0.34375,
+    "z": -22.17578125,
+    "phase": 1,
+    "ground": 184,
+    "stored": 184,
+    "height": 184,
+    "meshY": 1.4375,
+    "visible": true,
+    "source": 352,
+    "remaining": 463,
+    "randomState": 4153551757,
+    "cosmeticRandom": {
+      "randomState": 804179793
+    },
+    "braves": 8,
+    "status": "playing",
+    "bridges": [
+      {
+        "id": 5830,
+        "turn": 27
+      }
+    ]
+  },
+  "samples": [
+    {
+      "turn": 1088,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 462,
+      "randomState": 2103042293,
+      "cosmeticRandom": {
+        "randomState": 1357686124
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 28
+        }
+      ]
+    },
+    {
+      "turn": 1089,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 461,
+      "randomState": 4042230436,
+      "cosmeticRandom": {
+        "randomState": 515491916
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 29
+        }
+      ]
+    },
+    {
+      "turn": 1090,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 460,
+      "randomState": 4042230436,
+      "cosmeticRandom": {
+        "randomState": 2101478779
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 30
+        }
+      ]
+    },
+    {
+      "turn": 1091,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 459,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 3261382263
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 31
+        }
+      ]
+    },
+    {
+      "turn": 1092,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 458,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1220360497
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 32
+        }
+      ]
+    },
+    {
+      "turn": 1093,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 457,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1663073434
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 33
+        }
+      ]
+    },
+    {
+      "turn": 1094,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 456,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1062761702
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 34
+        }
+      ]
+    },
+    {
+      "turn": 1095,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 455,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 728376302
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 35
+        }
+      ]
+    },
+    {
+      "turn": 1096,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 454,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1086277685
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 36
+        }
+      ]
+    },
+    {
+      "turn": 1097,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 453,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1710666807
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 37
+        }
+      ]
+    },
+    {
+      "turn": 1098,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 452,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1965553367
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 38
+        }
+      ]
+    },
+    {
+      "turn": 1099,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 451,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 2675019118
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 39
+        }
+      ]
+    },
+    {
+      "turn": 1100,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "meshY": 1.4453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 450,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 4067185823
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 40
+        }
+      ]
+    },
+    {
+      "turn": 1101,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "meshY": 1.4453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 449,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 2716516623
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 41
+        }
+      ]
+    },
+    {
+      "turn": 1102,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 448,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1629482097
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 42
+        }
+      ]
+    },
+    {
+      "turn": 1103,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 447,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 2944574739
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 43
+        }
+      ]
+    },
+    {
+      "turn": 1104,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 446,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1480396842
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 44
+        }
+      ]
+    },
+    {
+      "turn": 1105,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "meshY": 1.4375,
+      "visible": true,
+      "source": 352,
+      "remaining": 445,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1645799538
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 45
+        }
+      ]
+    },
+    {
+      "turn": 1106,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "meshY": 1.4453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 444,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1714317040
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 46
+        }
+      ]
+    },
+    {
+      "turn": 1107,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "meshY": 1.4453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 443,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 493361574
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 47
+        }
+      ]
+    },
+    {
+      "turn": 1108,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "meshY": 1.4453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 442,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 2187798495
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 48
+        }
+      ]
+    },
+    {
+      "turn": 1109,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "meshY": 1.4453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 441,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 3070596466
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 49
+        }
+      ]
+    },
+    {
+      "turn": 1110,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "meshY": 1.4453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 440,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 815954569
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 50
+        }
+      ]
+    },
+    {
+      "turn": 1111,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "meshY": 1.4453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 439,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 2156783249
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 51
+        }
+      ]
+    },
+    {
+      "turn": 1112,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 438,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 1527495632
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 52
+        }
+      ]
+    },
+    {
+      "turn": 1113,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 437,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 1673970825
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 53
+        }
+      ]
+    },
+    {
+      "turn": 1114,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "meshY": 1.4453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 436,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 3103748815
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 54
+        }
+      ]
+    },
+    {
+      "turn": 1115,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "meshY": 1.4453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 435,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 210743844
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 55
+        }
+      ]
+    },
+    {
+      "turn": 1116,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "meshY": 1.4453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 434,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 3735845515
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 56
+        }
+      ]
+    },
+    {
+      "turn": 1117,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "meshY": 1.4453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 433,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 2964255027
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 57
+        }
+      ]
+    },
+    {
+      "turn": 1118,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 432,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 278405805
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 58
+        }
+      ]
+    },
+    {
+      "turn": 1119,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 431,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 2931649012
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 59
+        }
+      ]
+    },
+    {
+      "turn": 1120,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 430,
+      "randomState": 1056229265,
+      "cosmeticRandom": {
+        "randomState": 1065842041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 60
+        }
+      ]
+    },
+    {
+      "turn": 1121,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 429,
+      "randomState": 1460185509,
+      "cosmeticRandom": {
+        "randomState": 399468325
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 61
+        }
+      ]
+    },
+    {
+      "turn": 1122,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "meshY": 1.4453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 428,
+      "randomState": 1460185509,
+      "cosmeticRandom": {
+        "randomState": 3716582544
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 62
+        }
+      ]
+    },
+    {
+      "turn": 1123,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 427,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 307738852
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1124,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 426,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 307738852
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1125,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 425,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 3793680731
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1126,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 424,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 416580702
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1127,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 423,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 3756786212
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1128,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 422,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 1813519828
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1129,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 421,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 3113941733
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1130,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 420,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1131,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 419,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1132,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 418,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1133,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 417,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1134,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 416,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1135,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 415,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1136,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 414,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1137,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 413,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1138,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 412,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 3154452937
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1139,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 411,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 1111998421
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1140,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 410,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 4003868877
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1141,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 409,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 1315154701
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1142,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 408,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 1617069540
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1143,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 407,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 1243334227
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1144,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 406,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 1486101212
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1145,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 405,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 3386656607
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1146,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 404,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 3398440704
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1147,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 403,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 3741138644
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1148,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 402,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 3248410835
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1149,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 401,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 747688441
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1150,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 400,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 3015910617
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    },
+    {
+      "turn": 1151,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "meshY": 1.453125,
+      "visible": true,
+      "source": 352,
+      "remaining": 399,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 2864969542
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": []
+    }
+  ],
+  "nativeGroundSteps": [
+    {
+      "turn": 1088,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 462,
+      "randomState": 2103042293,
+      "cosmeticRandom": {
+        "randomState": 1357686124
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 28
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1089,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 461,
+      "randomState": 4042230436,
+      "cosmeticRandom": {
+        "randomState": 515491916
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 29
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1090,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 460,
+      "randomState": 4042230436,
+      "cosmeticRandom": {
+        "randomState": 2101478779
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 30
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1091,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 459,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 3261382263
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 31
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1092,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 458,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1220360497
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 32
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1093,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 457,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1663073434
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 33
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1094,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 456,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1062761702
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 34
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1095,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 455,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 728376302
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 35
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1096,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 454,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1086277685
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 36
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1097,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 453,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1710666807
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 37
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1098,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 452,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1965553367
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 38
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1099,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 451,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 2675019118
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 39
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1100,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "remaining": 450,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 4067185823
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 40
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1101,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "remaining": 449,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 2716516623
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 41
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1102,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 448,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1629482097
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 42
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1103,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 447,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 2944574739
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 43
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1104,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 446,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1480396842
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 44
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1105,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 184,
+      "stored": 184,
+      "height": 184,
+      "remaining": 445,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1645799538
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 45
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1106,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "remaining": 444,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 1714317040
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 46
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1107,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "remaining": 443,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 493361574
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 47
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1108,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "remaining": 442,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 2187798495
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 48
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1109,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "remaining": 441,
+      "randomState": 3881232532,
+      "cosmeticRandom": {
+        "randomState": 3070596466
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 49
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1110,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "remaining": 440,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 815954569
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 50
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1111,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "remaining": 439,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 2156783249
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 51
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1112,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 438,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 1527495632
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 52
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1113,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 437,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 1673970825
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 53
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1114,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "remaining": 436,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 3103748815
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 54
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1115,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "remaining": 435,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 210743844
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 55
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1116,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "remaining": 434,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 3735845515
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 56
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1117,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "remaining": 433,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 2964255027
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 57
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1118,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 432,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 278405805
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 58
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1119,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 431,
+      "randomState": 1799748275,
+      "cosmeticRandom": {
+        "randomState": 2931649012
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 59
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1120,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 430,
+      "randomState": 1056229265,
+      "cosmeticRandom": {
+        "randomState": 1065842041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 60
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1121,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 429,
+      "randomState": 1460185509,
+      "cosmeticRandom": {
+        "randomState": 399468325
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 61
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1122,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 185,
+      "stored": 185,
+      "height": 185,
+      "remaining": 428,
+      "randomState": 1460185509,
+      "cosmeticRandom": {
+        "randomState": 3716582544
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [
+        {
+          "id": 5830,
+          "turn": 62
+        }
+      ],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1123,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 427,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 307738852
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1124,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 426,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 307738852
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1125,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 425,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 3793680731
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1126,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 424,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 416580702
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1127,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 423,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 3756786212
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1128,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 422,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 1813519828
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1129,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 421,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 3113941733
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1130,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 420,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1131,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 419,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1132,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 418,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1133,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 417,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1134,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 416,
+      "randomState": 1786299944,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1135,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 415,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1136,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 414,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1137,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 413,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 388247041
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1138,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 412,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 3154452937
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1139,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 411,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 1111998421
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1140,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 410,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 4003868877
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1141,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 409,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 1315154701
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1142,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 408,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 1617069540
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1143,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 407,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 1243334227
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1144,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 406,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 1486101212
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1145,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 405,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 3386656607
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1146,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 404,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 3398440704
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1147,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 403,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 3741138644
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1148,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 402,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 3248410835
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1149,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 401,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 747688441
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1150,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 400,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 3015910617
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    },
+    {
+      "turn": 1151,
+      "id": 6189,
+      "x": 0.34375,
+      "z": -22.17578125,
+      "phase": 1,
+      "ground": 186,
+      "stored": 186,
+      "height": 186,
+      "remaining": 399,
+      "randomState": 3666985003,
+      "cosmeticRandom": {
+        "randomState": 2864969542
+      },
+      "braves": 8,
+      "status": "playing",
+      "bridges": [],
+      "stage": "after-original-World-turn-before-frame-render"
+    }
+  ],
+  "after": {
+    "turn": 1151,
+    "id": 6189,
+    "x": 0.34375,
+    "z": -22.17578125,
+    "phase": 1,
+    "ground": 186,
+    "stored": 186,
+    "height": 186,
+    "meshY": 1.453125,
+    "visible": true,
+    "source": 352,
+    "remaining": 399,
+    "randomState": 3666985003,
+    "cosmeticRandom": {
+      "randomState": 2864969542
+    },
+    "braves": 8,
+    "status": "playing",
+    "bridges": []
+  },
+  "pixels": 219,
+  "pixelMethod": "Post-frame renderer-only attribution; ordinary complete zero-elapsed Scene frame restores final output afterward",
+  "frames": {
+    "total": 2302,
+    "reports": [
+      {
+        "goal": "startup",
+        "bound": 12,
+        "startTurn": 0,
+        "result": {
+          "reached": false,
+          "frames": 24,
+          "primed": true,
+          "turns": 12,
+          "startTurn": 0,
+          "turn": 12,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 1000
+        }
+      },
+      {
+        "goal": "startup",
+        "bound": 12,
+        "startTurn": 12,
+        "result": {
+          "reached": false,
+          "frames": 24,
+          "primed": false,
+          "turns": 12,
+          "startTurn": 12,
+          "turn": 24,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 1000
+        }
+      },
+      {
+        "goal": "startup",
+        "bound": 12,
+        "startTurn": 24,
+        "result": {
+          "reached": false,
+          "frames": 24,
+          "primed": false,
+          "turns": 12,
+          "startTurn": 24,
+          "turn": 36,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 1000
+        }
+      },
+      {
+        "goal": "startup",
+        "bound": 12,
+        "startTurn": 36,
+        "result": {
+          "reached": false,
+          "frames": 24,
+          "primed": false,
+          "turns": 12,
+          "startTurn": 36,
+          "turn": 48,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 1000
+        }
+      },
+      {
+        "goal": "startup",
+        "bound": 12,
+        "startTurn": 48,
+        "result": {
+          "reached": false,
+          "frames": 24,
+          "primed": false,
+          "turns": 12,
+          "startTurn": 48,
+          "turn": 60,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 1000
+        }
+      },
+      {
+        "goal": "startup",
+        "bound": 12,
+        "startTurn": 60,
+        "result": {
+          "reached": false,
+          "frames": 24,
+          "primed": false,
+          "turns": 12,
+          "startTurn": 60,
+          "turn": 72,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 1000
+        }
+      },
+      {
+        "goal": "stock",
+        "bound": 2200,
+        "startTurn": 72,
+        "result": {
+          "reached": true,
+          "frames": 1070,
+          "primed": false,
+          "turns": 535,
+          "startTurn": 72,
+          "turn": 607,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 44583.33333333333
+        }
+      },
+      {
+        "goal": "position",
+        "bound": 300,
+        "startTurn": 607,
+        "result": {
+          "reached": true,
+          "frames": 62,
+          "primed": false,
+          "turns": 31,
+          "startTurn": 607,
+          "turn": 638,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 2583.333333333333
+        }
+      },
+      {
+        "goal": "turns",
+        "bound": 100,
+        "startTurn": 638,
+        "result": {
+          "reached": true,
+          "frames": 200,
+          "primed": false,
+          "turns": 100,
+          "startTurn": 638,
+          "turn": 738,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 8333.333333333332
+        }
+      },
+      {
+        "goal": "position",
+        "bound": 500,
+        "startTurn": 738,
+        "result": {
+          "reached": true,
+          "frames": 182,
+          "primed": false,
+          "turns": 91,
+          "startTurn": 738,
+          "turn": 829,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 7583.333333333333
+        }
+      },
+      {
+        "goal": "position",
+        "bound": 150,
+        "startTurn": 829,
+        "result": {
+          "reached": true,
+          "frames": 34,
+          "primed": false,
+          "turns": 17,
+          "startTurn": 829,
+          "turn": 846,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 1416.6666666666665
+        }
+      },
+      {
+        "goal": "turns",
+        "bound": 100,
+        "startTurn": 846,
+        "result": {
+          "reached": true,
+          "frames": 200,
+          "primed": false,
+          "turns": 100,
+          "startTurn": 846,
+          "turn": 946,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 8333.333333333332
+        }
+      },
+      {
+        "goal": "injured",
+        "bound": 600,
+        "startTurn": 946,
+        "result": {
+          "reached": true,
+          "frames": 212,
+          "primed": false,
+          "turns": 106,
+          "startTurn": 946,
+          "turn": 1052,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 8833.333333333332
+        }
+      },
+      {
+        "goal": "controller",
+        "bound": 60,
+        "startTurn": 1052,
+        "result": {
+          "reached": true,
+          "frames": 16,
+          "primed": false,
+          "turns": 8,
+          "startTurn": 1052,
+          "turn": 1060,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 666.6666666666666
+        }
+      },
+      {
+        "goal": "death",
+        "bound": 120,
+        "startTurn": 1060,
+        "result": {
+          "reached": true,
+          "frames": 46,
+          "primed": false,
+          "turns": 23,
+          "startTurn": 1060,
+          "turn": 1083,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 1916.6666666666665
+        }
+      },
+      {
+        "goal": "phase1",
+        "bound": 8,
+        "startTurn": 1083,
+        "result": {
+          "reached": true,
+          "frames": 8,
+          "primed": false,
+          "turns": 4,
+          "startTurn": 1083,
+          "turn": 1087,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 333.3333333333333
+        }
+      },
+      {
+        "goal": "ground-samples",
+        "bound": 64,
+        "startTurn": 1087,
+        "result": {
+          "reached": true,
+          "frames": 128,
+          "primed": false,
+          "turns": 64,
+          "startTurn": 1087,
+          "turn": 1151,
+          "frameMs": 41.666666666666664,
+          "suppliedElapsedMilliseconds": 5333.333333333333
+        }
+      }
+    ]
+  },
+  "rafRestored": true,
+  "errors": [],
+  "portableCopy": {
+    "originalSha256": "f691776e26a8af5c737d66abc1f393cfb7b839a9a0b34c8bf4009f09c495b6d9",
+    "redaction": "Local checkout/browser paths replaced; observed fields and source fingerprints retained"
+  }
+}

@@ -1,0 +1,221 @@
+{
+  "version": 1,
+  "applicationAndChecker": "8b6039811adf58e4a4196fae48b56efc80613f19",
+  "standardGates": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+  "renderedStatus": "passed",
+  "independentRenderedReview": "ACCEPT; bounded acquisition/controller and Shaman-ground integration. Issue214 broad sprite timing unresolved.",
+  "files": {
+    "README.md": {
+      "sha256": "9191c93dd2eee8f7c999a7225e8c4fe7190b24bc96614c18a9f4e35a06fbbb42",
+      "bytes": 4740
+    },
+    "final-source-correspondence.json": {
+      "sha256": "70f6ce189c23212dd2d56c341e2b88dceda569baa08f57fa30f1fd32edc82cd0",
+      "bytes": 1226
+    },
+    "focused-receipt-summary.json": {
+      "sha256": "eb54cc1ef9c75064188d3f2b9fb845a566fb58a25b901f042b5279b967b9a46c",
+      "bytes": 1451
+    },
+    "focused-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "focused-stdout.log": {
+      "sha256": "e088725849c884802ccd9383da2031cf7fc5b7fb2df8ffffcc32747c96c376c5",
+      "bytes": 5082
+    },
+    "independent-audit.json": {
+      "sha256": "2511a41ef7e58e9507e220c007c0804f171b6b7accf1c1a8bf38d8a4245928b8",
+      "bytes": 3033
+    },
+    "independent-review.md": {
+      "sha256": "c02d806320688fc82a915e1b6911f8d7f866f51c8b45c372305c06e750a4014f",
+      "bytes": 6956
+    },
+    "receipt-8b60398.json": {
+      "sha256": "a750c52b70101d402f58541f279c35d234fb7fd0569a2b17e7c4b3e5cf0c7888",
+      "bytes": 753
+    },
+    "render2/combined-bridge-body.png": {
+      "sha256": "b7da50f03655f86e9bff89568099fabbf29cd4e1f05438494a76315047cb6e7a",
+      "bytes": 77198
+    },
+    "render2/command-summary.json": {
+      "sha256": "9821857c3f697e354784f8b3df4f827f5857720922288485a8dcab988d598d14",
+      "bytes": 3227
+    },
+    "render2/ground-after.png": {
+      "sha256": "d1e8af5764d0261c7d146a9cb4b2a0c05e077d8ed13b624c345f42c0b20b774e",
+      "bytes": 1699167
+    },
+    "render2/ground-before.png": {
+      "sha256": "8460effe811093891e7e10fbffd3316040e982f2a46cd41d11aee0affdffd165",
+      "bytes": 1694204
+    },
+    "render2/receipt.json": {
+      "sha256": "db6b9f7e3910a78d1a1327142426bf82b1e715658b174fd2a6a97af5406f8c3a",
+      "bytes": 177648
+    },
+    "render2/shaman-ground.json": {
+      "sha256": "2843ed22387c28e20c4b9d57f75b4a67266e905bd8eb405d696cc84728c32e48",
+      "bytes": 159621
+    },
+    "render2/stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "render2/stdout.log": {
+      "sha256": "6a882c5500eae69fc88ae41f72bd8d23255c52b300599f3976f91c51e8f33d83",
+      "bytes": 93342
+    },
+    "review-8b60398.md": {
+      "sha256": "90c805fc00439d50a93a8c91b4a72843e332efbf139bf1214a76762fd504022e",
+      "bytes": 2466
+    },
+    "script-quality-receipt-summary.json": {
+      "sha256": "40a5755abae0b1ddad280a9fc09b1d40a2446436f8f44ed860731bf1e5460698",
+      "bytes": 2554
+    },
+    "script-quality-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "script-quality-stdout.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "source/check-browser-shaman-death-ground.mjs": {
+      "sha256": "80143075952bf18688ce6f18b3600547cd43c062ac0ce354c878407a986b4d6e",
+      "bytes": 27127
+    },
+    "source/controlled-scene-frames.mjs": {
+      "sha256": "7ec23575119be18bb18ddba834c393527ed8a93f321a1b5a0acf4e82410270ee",
+      "bytes": 4308
+    },
+    "source/controlled-scene-frames.test.mjs": {
+      "sha256": "1dfc61127fd488394b06502ee15d0213452c22e2472ed44e3c08e2ed458923b7",
+      "bytes": 4170
+    },
+    "source/shaman-worship-ground-observer.mjs": {
+      "sha256": "6af9fedbc79efb21dd34f43baa8ac2309fee5cc56701f577230868ef4df02d4f",
+      "bytes": 8033
+    },
+    "standard-659d16d/build-receipt-summary.json": {
+      "sha256": "40a6a8c3281853a41c793ba64b95caf411fa81ed81a394101114028e62da730d",
+      "bytes": 1653
+    },
+    "standard-659d16d/build-stderr.log": {
+      "sha256": "16ff4ca67c4c42994baefc4dcf0881cafa77d855e400eef558bc55e15c325c34",
+      "bytes": 1454
+    },
+    "standard-659d16d/build-stdout.log": {
+      "sha256": "77296533c677009f5182ecdaf84e0516cffa3044a67ca2e471bcf637add9bab0",
+      "bytes": 1143
+    },
+    "standard-659d16d/check-browser-shaman-death-ground.mjs": {
+      "sha256": "c4b53c0e0e5eb821721bfc41e266eb7b11f25475eb11b0685edc1e9616df34cb",
+      "bytes": 24132
+    },
+    "standard-659d16d/check-receipt-summary.json": {
+      "sha256": "d0aab758e3364cec0311766f9b270cb96427f2dda2183b7a827f63fe7455e7a7",
+      "bytes": 2365
+    },
+    "standard-659d16d/check-stderr.log": {
+      "sha256": "02285cf98c9d88b48ecc3ef7fa38f35659b7c27d82ad3139b4a57f8bed24e9b1",
+      "bytes": 1119
+    },
+    "standard-659d16d/check-stdout.log": {
+      "sha256": "2761153e189b1006a37a066c01a2745f9e2de81a9185ceb3ae91b3f18dd9a49a",
+      "bytes": 116049
+    },
+    "standard-659d16d/controlled-scene-frames.mjs": {
+      "sha256": "7ec23575119be18bb18ddba834c393527ed8a93f321a1b5a0acf4e82410270ee",
+      "bytes": 4308
+    },
+    "standard-659d16d/controlled-scene-frames.test.mjs": {
+      "sha256": "1dfc61127fd488394b06502ee15d0213452c22e2472ed44e3c08e2ed458923b7",
+      "bytes": 4170
+    },
+    "standard-659d16d/failed-render1/combined-bridge-body.png": {
+      "sha256": "b7da50f03655f86e9bff89568099fabbf29cd4e1f05438494a76315047cb6e7a",
+      "bytes": 77198
+    },
+    "standard-659d16d/failed-render1/command-summary.json": {
+      "sha256": "334d672dbecb616a3de9b2757b8f27c1eac8d2819d1624fc42d9f11539e760dc",
+      "bytes": 2854
+    },
+    "standard-659d16d/failed-render1/failure-0.png": {
+      "sha256": "205dff9c393d7de735c5fffd66b8623a11bee7c370af22e26633b53beabe8a85",
+      "bytes": 1832963
+    },
+    "standard-659d16d/failed-render1/receipt.json": {
+      "sha256": "16d8e629ccb519309dd667fa0879e4852fb9c058d821f205f6bb2d66fe1d500d",
+      "bytes": 4532
+    },
+    "standard-659d16d/failed-render1/shaman-ground-failed.json": {
+      "sha256": "4f21dec03ebdbb82f33af12f88fc8513f916d73d0a65aa6996bcf65b43e57922",
+      "bytes": 13024
+    },
+    "standard-659d16d/failed-render1-audit.json": {
+      "sha256": "ddb248b06dc05a379c07356f77a33cba6c1577ac372c2b4e36049792ada67dbf",
+      "bytes": 1299
+    },
+    "standard-659d16d/failed-render1-review.md": {
+      "sha256": "f558140e3cd1ec7cf6d9309d7084168d14b30469ae081e06c13a4bcd4d427902",
+      "bytes": 2284
+    },
+    "standard-659d16d/focused-receipt-summary.json": {
+      "sha256": "5b67fbbda99d6bf0b8ad493362c25ea7f455f8c469a22dc42fc5f3c447300a81",
+      "bytes": 2790
+    },
+    "standard-659d16d/focused-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "standard-659d16d/focused-stdout.log": {
+      "sha256": "e00ad873d05ea760377a0d43cf56d9733bacc126b9c8a4cffd0f3c8856830263",
+      "bytes": 5077
+    },
+    "standard-659d16d/receipt-659d16d.json": {
+      "sha256": "0768fedee0c24fe7c9e3dcf4a459842429f84ac328450459fc04e778d53550e0",
+      "bytes": 2238
+    },
+    "standard-659d16d/registry-receipt-summary.json": {
+      "sha256": "7a674afd69dcefcdff15c0b64f02824ac9a1ce8efc29078f64fde9e0c130480f",
+      "bytes": 1640
+    },
+    "standard-659d16d/registry-stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "standard-659d16d/registry-stdout.log": {
+      "sha256": "75a86e68ff6448c4d17fe1aa484f861f8b65ef66f9c34ed2e73bb196118b2a7c",
+      "bytes": 4432
+    },
+    "standard-659d16d/review-659d16d.md": {
+      "sha256": "18cb98fc2d84d622877eab14cc1e86b8b3884e3bda881fa544e7509731fd4c84",
+      "bytes": 4577
+    },
+    "standard-659d16d/runtime.json": {
+      "sha256": "8711b8cfff04ecd8ad57916908a0716b53516c31b8f683a821dcf928a59f5417",
+      "bytes": 719
+    },
+    "standard-659d16d/shaman-worship-ground-observer.mjs": {
+      "sha256": "6af9fedbc79efb21dd34f43baa8ac2309fee5cc56701f577230868ef4df02d4f",
+      "bytes": 8033
+    },
+    "standard-659d16d/source-correspondence.json": {
+      "sha256": "ec8971731294722064b9296a9d5fe97f4b629e63f82911a1ff9a33ad5eab8089",
+      "bytes": 1397
+    },
+    "standard-659d16d/standard-gates-659d16d.json": {
+      "sha256": "995ee2136b3fdbb11a10a95490a02a743467fbc031ad88cad75bb9f9598004f1",
+      "bytes": 2788
+    },
+    "standard-659d16d/standard-gates-659d16d.md": {
+      "sha256": "019197ef19a7d7e7dee804d4187ae0df601c04fe487f98e8673124a81499d078",
+      "bytes": 1392
+    }
+  }
+}

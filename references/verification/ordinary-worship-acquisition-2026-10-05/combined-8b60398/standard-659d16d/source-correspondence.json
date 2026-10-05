@@ -1,0 +1,11 @@
+{
+  "head": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+  "acceptedMain": "596475b6839c948604897f8b68ff89c6290cf39d",
+  "acceptedWorship": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "productionDiffFromAcceptedWorship": "diff --git a/app/world-turn.ts b/app/world-turn.ts\nindex 2839f02..f7f68da 100644\n--- a/app/world-turn.ts\n+++ b/app/world-turn.ts\n@@ -1753,6 +1753,7 @@ function stepTurn(w: World) {\n       else if (tribe === 1) w.redRespawn = w.respawns[tribe]\n       if (visual?.reincarnation) {\n         setShamanDeathPhase(visual, step.phase)\n+        if (step.phase === 1) visual.reincarnation.ground = nativePosition(w, visual).h\n         visual.height = (visual.reincarnation.ground + step.height) / 45\n       }\n       if (step.event === 'splash') effect(w, 'splash', point ?? site)\n",
+  "mappedUnknownPaths": {
+    "app/scene-hud-runtime.ts": "Unchanged from accepted cfa; original source and actual ordinary HUD matrix carry, plus current combined gate",
+    "tests/game-clock.test.mjs": "Unchanged from accepted cfa; executes again in current full npm check"
+  },
+  "gateSelection": "Run exact current check/build and maintained combined rendered check. Accepted original native/browser/cost leaves retain their cfa source labels; app change from cfa is exactly the reviewed merged PR212 phase1 ground assignment. No unrelated all-subsystem browser/native repetition."
+}

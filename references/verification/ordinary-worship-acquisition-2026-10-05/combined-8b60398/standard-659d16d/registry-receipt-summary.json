@@ -1,0 +1,38 @@
+{
+  "kind": "pnd-command-receipt",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+    "branch": "evidence/worship-shaman-combined-driver",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "engineering/checks.json": "22c99fc5ad206142c3d4abb19bd73a4f847823969685a0c0e89a8daf7e8f590c",
+      "engineering/project-map.json": "f27a21599fa68cd6cdc3afd13d262f67a5d7cabfa4375f93e75db4745f526089"
+    }
+  },
+  "sourceAfter": {
+    "headOid": "659d16d71276cfd8e09a21c841d99b1dd07112ac",
+    "branch": "evidence/worship-shaman-combined-driver",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "engineering/checks.json": "22c99fc5ad206142c3d4abb19bd73a4f847823969685a0c0e89a8daf7e8f590c",
+      "engineering/project-map.json": "f27a21599fa68cd6cdc3afd13d262f67a5d7cabfa4375f93e75db4745f526089"
+    }
+  },
+  "command": [
+    "timeout",
+    "60s",
+    "node",
+    "scripts/orchestration/cli.mjs",
+    "check"
+  ],
+  "startedAt": "2026-10-05T10:01:35.009Z",
+  "finishedAt": "2026-10-05T10:01:35.283Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdoutSha256": "75a86e68ff6448c4d17fe1aa484f861f8b65ef66f9c34ed2e73bb196118b2a7c",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "originalReceiptSha256": "1e952404896aecc38f620ae54b8c43285e8dbae21e3b2dc37261b7028e5768fd",
+  "rawOutputScope": "Original logs retained and independently verified; portable stdout/stderr preserve exact text except local root redaction."
+}
