@@ -245,20 +245,6 @@ export default function Home() {
     },
     []
   )
-  const selectWorshipSpells = useCallback(
-    (model: WorshipSpellModel) => {
-      if (store.getWorld() !== world) return null
-      // Called synchronously from the scene task, never a React render/lifecycle.
-      // Native automatic panel selection preserves ordinary spell/build modes.
-      flushSync(() => {
-        setTab('spells')
-        setHover(null)
-        update()
-      })
-      return measureWorshipHud(model)
-    },
-    [store, world, update, measureWorshipHud]
-  )
   useEffect(() => {
     if (engine.current)
       engine.current.hoveredSpell =
@@ -299,6 +285,17 @@ export default function Home() {
     if (startup !== 'playing') return
     let disposed = false,
       scene: GameScene | null = null
+    const selectWorshipSpells = (model: WorshipSpellModel) => {
+      if (disposed || store.getWorld() !== world) return null
+      // The scene task owns this synchronous commit; React does not call it
+      // during render. Automatic native selection preserves spell/build mode.
+      flushSync(() => {
+        setTab('spells')
+        setHover(null)
+        update()
+      })
+      return measureWorshipHud(model)
+    }
     if (window.innerWidth < 900)
       store.change(w => {
         w.paused = true
@@ -341,7 +338,7 @@ export default function Home() {
       scene?.dispose()
       if (engine.current === scene) engine.current = null
     }
-  }, [world, update, store, startup, selectWorshipSpells, measureWorshipHud])
+  }, [world, update, store, startup, measureWorshipHud])
   useEffect(() => {
     const modal = startupDialog.current
     if ((startup === 'choice' || selectorOpen) && modal && !modal.open) {
