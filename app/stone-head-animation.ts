@@ -1,4 +1,9 @@
-import { setAnimationObject, stepObjectAnimation, type AnimatedUnit } from './animation.ts'
+import {
+  animationUsesLogicalVisits,
+  setAnimationObject,
+  stepObjectAnimation,
+  type AnimatedUnit,
+} from './animation.ts'
 import { morphCoordinate } from './morph.ts'
 import { missionData } from './mission-data.ts'
 import type { Point, Shrine, World } from './world-types.ts'
@@ -62,7 +67,8 @@ export function createStoneHeadAnimation(
     f1: 0,
     f2: 0,
     stamp: 0,
-    flags3: 0,
+    // 004a5fdc: class5/model9 ordinary morphs require a logical-processor visit.
+    flags3: 0x40000,
     morphTimer: 0,
     morphFrames: 0,
   }
@@ -81,6 +87,8 @@ export function initializeStoneHead(shrine: Shrine, mission: number): StoneHeadA
     const source = originalStoneHeadSource(mission, shrine)
     shrine.stoneHead = source ? createStoneHeadAnimation(shrine.enabled, source) : null
   }
+  // Existing checkpoints keep their phase/stamp; only restore the omitted gate.
+  if (shrine.stoneHead?.family === 45) shrine.stoneHead.flags3 |= 0x40000
   return shrine.stoneHead
 }
 
@@ -109,19 +117,30 @@ export function syncStoneHeadPresentation(shrine: Shrine) {
     syncStoneHeadEnabled(shrine.stoneHead, shrine.enabled)
 }
 
-export function stepStoneHeadAnimation(state: StoneHeadAnimation, enabled: boolean) {
+// One explicit eligible visit, also used by per-visit geometry comparisons.
+// Elapsed gameplay supplies its completed logical turn through animateStoneHeads.
+export function stepStoneHeadAnimation(
+  state: StoneHeadAnimation,
+  enabled: boolean,
+  counter = state.stamp
+) {
   syncStoneHeadEnabled(state, enabled)
-  stepObjectAnimation(state, { counter: 0, levelFlags: 0, levelFlags2: 0 }, animationData, () => {})
+  state.stamp = counter
+  stepObjectAnimation(state, { counter, levelFlags: 0, levelFlags2: 0 }, animationData, () => {})
 }
 
-// One call on the existing chronological24Hz boundary; no render-FPS timer.
+// Gated ordinary morphs follow logical turns; ungated transitions retain24Hz.
 // Trigger exhaustion does not delete its independently linked decorative scenery.
 // Enabled remains unchanged on that original deletion branch, so the loop survives.
-export function animateStoneHeads(world: World) {
+export function animateStoneHeads(world: World, phase: 'logical' | 'presentation' = 'presentation') {
   if (world.paused || world.land.landFlags & 2) return
   for (const shrine of world.shrines) {
     const state = initializeStoneHead(shrine, world.outcome.level)
-    if (state) stepStoneHeadAnimation(state, shrine.enabled)
+    if (!state) continue
+    syncStoneHeadEnabled(state, shrine.enabled)
+    const logical = animationUsesLogicalVisits(state)
+    if (logical === (phase === 'logical'))
+      stepStoneHeadAnimation(state, shrine.enabled, logical ? world.turn : state.stamp)
   }
 }
 
