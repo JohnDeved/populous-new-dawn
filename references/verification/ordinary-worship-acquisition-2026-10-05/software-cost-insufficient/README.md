@@ -24,3 +24,5 @@ snapshots, Canvas interception, PNG reads and summary calculations are outside i
 No competing owned browser/package/native measurement ran during this row; the
 shared host itself is not represented as isolated benchmark hardware. The original
 process exited 1 normally with verified cleanup and observer restoration.
+
+The separately retained [two-acquisition successor](../software-cost/README.md) subsequently passed the unchanged sample requirement and independent review.

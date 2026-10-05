@@ -18,18 +18,20 @@ accepted native controller/request and hooked-clock matrix; neither replaces the
 | [Explicit missing-geometry fault](m1-missing-geometry/README.md) | Accepted full fallback countdown, exact original HUD restoration and no late activation |
 | [Native hidden window and Resume](m1-hidden/README.md) | Accepted trusted visibility, exact hidden hold, first-draw clock and same-World public Resume |
 
-[Pulse-only Save/Load](m1-tail-unproved/README.md) remains unproved: the final
-bounded public Save reached an already retired pulse. The [software-cost row](software-cost-insufficient/README.md)
-retains six active samples after eight warmups, below the unchanged required sixteen.
-Both failed rows and their independent reviews remain explicit.
+The [genuine pulse-only Save](m1-tail-save/README.md) and [fresh-process Load](m1-tail-load/README.md)
+are independently accepted, preserving exact state/deadline/RNG and the first real
+pulse-only output across 960×720→1440×1000 layout. The [software-cost successor](software-cost/README.md)
+is also accepted: two ordinary acquisitions provide 17 active samples after each
+round's unchanged warmups. Earlier [tail4](m1-tail-unproved/README.md) and
+[cost1](software-cost-insufficient/README.md) remain failed.
 
 The [staged composition3](staged-composition/README.md) is independently accepted:
 all three actual frames, strict sprite/body/texel checks, full immutable fixture
 audits and all payouts/retirement pass. The incompatible body prior differs in both
 geometry and angle category; this proves their combined rejection. Foreign old
 particle slots are absent. [Earlier failed staged2](staged-composition-unproved/README.md)
-remains failed. Tail-only restore and sufficient active cost samples are the two
-remaining closing gaps; the PR stays draft.
+remains failed. The agreed finite rendered checklist at exact cfa is complete. The PR stays draft
+until the separately reviewed PR212 integration and current combined gates.
 
 The before/candidate Bridge pair uses the same real public route and browser,
 1440 × 1000 / DPR 1; images are host-stage captures rather than exact matching
@@ -45,6 +47,6 @@ performance result. No original game/tool binaries, installed packages or browse
 profiles are distributed. Original local receipts and raw logs remain retained
 for independent review; public copies remove process/profile path and identity data.
 
-[Two reviewed measurement methods](prepared-tail-cost/README.md) are queued for
-coordinator-admitted execution. Their source preflights do not close the two
-remaining runtime gaps.
+The [earlier source-only review](prepared-tail-cost/README.md) remains a historical
+preflight. Its accepted actual successors are the pulse pair and software-cost
+rows linked above. No old failure has been relabeled.

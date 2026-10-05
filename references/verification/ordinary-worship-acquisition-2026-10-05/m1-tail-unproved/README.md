@@ -25,3 +25,5 @@ retains this rendered checkpoint gap. Native/controller clone coverage and the
 accepted active-flight Save/Load pair are valid separate evidence and do not
 substitute for pulse-only browser restore. Any retained screenshot is failure
 context, not evidence of an eligible saved tail.
+
+The separately retained [pulse Save](../m1-tail-save/README.md) and [Load](../m1-tail-load/README.md) successor subsequently passed independent review.

@@ -1,0 +1,37 @@
+{
+  "scope": "Accepted genuine pulse-only Save",
+  "status": "passed",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "67d195cb0ea76615d797ba09e10259fda6a1cbec",
+  "originalReceiptSha256": "fad1331676f95e088d2294ff730346c3a037db39b91d9dcfd9fd73a367af37c0",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "f5fd12a3fffd4fddcd8ebfa2e151b8c4c0e7679a235f19e0cb8c12db6132cd34"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "a0b5cd22acee346eec64218f04b03346c4907e5634b350db57616853e8628969"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "5cd383df0dec0b4fb4691eb5abba4b9ff48efa81312ffb376b4ba68ba826bce6"
+    },
+    {
+      "path": "ordinary-worship-boundaries.mjs",
+      "sha256": "2759a0e9353f10c9b87de6c751d7caf33ce62994c78966bc7577ba065139a4e8"
+    },
+    {
+      "path": "ordinary-worship-m1-route.mjs",
+      "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "dd0f3b6194d735838b2c1e5e05b5f7dc757c4c66dfefb28873c9ac860bbcf3b6"
+    },
+    {
+      "path": "saved-settings.png",
+      "sha256": "b1f1e1b6a21e7dcd3b0e0dc0e1355856dcbdbffc5b758d8530ed38d11e5cd2ce"
+    }
+  ]
+}

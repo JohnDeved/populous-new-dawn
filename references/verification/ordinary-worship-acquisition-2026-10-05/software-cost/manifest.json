@@ -1,0 +1,37 @@
+{
+  "scope": "Software original-overlay-draw cost across two ordinary acquisitions; no hardware/FPS/speedup claim",
+  "status": "passed",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "fa0ec9806a0259f1f7845b870dc62210142bd745",
+  "originalReceiptSha256": "0cf8a74edb43a155650f8031bc59d32c8acfb757de1914433cca92162333189d",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "474794485d50183673c4454b0ccba0c35276ef1234a6cb2a56a8820c9ac9ab21"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "b7965fed8cd37b6566de248fcfcdacda7b72de0cd0067a66714ff75a204cb45b"
+    },
+    {
+      "path": "cost-workload-complete.png",
+      "sha256": "1cc7879dd2c048a941f6557a9bb4d331147ca412bebff4ae4ba1fb73a5debd47"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "febe87a3f96d5cbe4e6ae9f9892d76c2a748c794c2f900dbb7dbce3c68bd4297"
+    },
+    {
+      "path": "ordinary-worship-cost.mjs",
+      "sha256": "856378d00be6d7403660252e26111b67034a37815038d64dd37ede2c8b7ed375"
+    },
+    {
+      "path": "ordinary-worship-m1-route.mjs",
+      "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "5c4d4555f10987f7fe69b2bc40ff2ae4e51273bab32136e52bc96ededbab5fa9"
+    }
+  ]
+}

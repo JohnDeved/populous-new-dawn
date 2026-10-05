@@ -1,0 +1,4040 @@
+{
+  "startedAt": "2026-10-05T08:59:56.295Z",
+  "source": {
+    "commit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+    "tree": "fd4b236264fa8758f488f1fa5735df0314f01107",
+    "status": "?? scripts/local-render/ordinary-worship-boundaries.mjs\n?? scripts/local-render/ordinary-worship-cost.mjs\n?? scripts/local-render/ordinary-worship-m1-route.mjs\n?? scripts/local-render/ordinary-worship.mjs\n?? scripts/local-render/staged-worship-composition-inputs.json\n?? scripts/local-render/staged-worship-composition.mjs",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [
+      {
+        "path": "scripts/local-render/ordinary-worship-boundaries.mjs",
+        "mode": 33188,
+        "sha256": "2759a0e9353f10c9b87de6c751d7caf33ce62994c78966bc7577ba065139a4e8"
+      },
+      {
+        "path": "scripts/local-render/ordinary-worship-cost.mjs",
+        "mode": 33188,
+        "sha256": "856378d00be6d7403660252e26111b67034a37815038d64dd37ede2c8b7ed375"
+      },
+      {
+        "path": "scripts/local-render/ordinary-worship-m1-route.mjs",
+        "mode": 33188,
+        "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+      },
+      {
+        "path": "scripts/local-render/ordinary-worship.mjs",
+        "mode": 33188,
+        "sha256": "e109f328e3b0203081df9440e1c2ae5f07b31ff02a29e284367fed05d72c65ce"
+      },
+      {
+        "path": "scripts/local-render/staged-worship-composition-inputs.json",
+        "mode": 33188,
+        "sha256": "a35c75da2dabcc2d21e8498548752e61ebf3ab13c1d5b248710b1223363199c5"
+      },
+      {
+        "path": "scripts/local-render/staged-worship-composition.mjs",
+        "mode": 33188,
+        "sha256": "c1bf3ba66e7b0d33ffb2c9b4bdef754603955d51c4833a986378b6e10200e849"
+      }
+    ],
+    "fingerprint": "06f4db09c70281772ac4572396fa632e5b1d36aa7b00df7e458fb549be239319"
+  },
+  "launch": {
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe",
+      "about:blank"
+    ],
+    "timeout": 30000,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "acceptDownloads": false,
+    "serviceWorkers": "block"
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x1140019e800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x1140019e800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x1140019e800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x1140019e800]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content."
+  ],
+  "status": "passed",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenario": {
+    "path": "scripts/local-render/ordinary-worship-cost.mjs",
+    "sha256": "856378d00be6d7403660252e26111b67034a37815038d64dd37ede2c8b7ed375"
+  },
+  "browserVersion": "154.0.8037.92",
+  "runtimeAfter": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenarioAfter": {
+    "path": "scripts/local-render/ordinary-worship-cost.mjs",
+    "sha256": "856378d00be6d7403660252e26111b67034a37815038d64dd37ede2c8b7ed375"
+  },
+  "result": {
+    "status": "passed",
+    "source": {
+      "commit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+      "tree": "fd4b236264fa8758f488f1fa5735df0314f01107",
+      "status": "?? scripts/local-render/ordinary-worship-boundaries.mjs\n?? scripts/local-render/ordinary-worship-cost.mjs\n?? scripts/local-render/ordinary-worship-m1-route.mjs\n?? scripts/local-render/ordinary-worship.mjs\n?? scripts/local-render/staged-worship-composition-inputs.json\n?? scripts/local-render/staged-worship-composition.mjs",
+      "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "untracked": [
+        {
+          "path": "scripts/local-render/ordinary-worship-boundaries.mjs",
+          "mode": 33188,
+          "sha256": "2759a0e9353f10c9b87de6c751d7caf33ce62994c78966bc7577ba065139a4e8"
+        },
+        {
+          "path": "scripts/local-render/ordinary-worship-cost.mjs",
+          "mode": 33188,
+          "sha256": "856378d00be6d7403660252e26111b67034a37815038d64dd37ede2c8b7ed375"
+        },
+        {
+          "path": "scripts/local-render/ordinary-worship-m1-route.mjs",
+          "mode": 33188,
+          "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+        },
+        {
+          "path": "scripts/local-render/ordinary-worship.mjs",
+          "mode": 33188,
+          "sha256": "e109f328e3b0203081df9440e1c2ae5f07b31ff02a29e284367fed05d72c65ce"
+        },
+        {
+          "path": "scripts/local-render/staged-worship-composition-inputs.json",
+          "mode": 33188,
+          "sha256": "a35c75da2dabcc2d21e8498548752e61ebf3ab13c1d5b248710b1223363199c5"
+        },
+        {
+          "path": "scripts/local-render/staged-worship-composition.mjs",
+          "mode": 33188,
+          "sha256": "c1bf3ba66e7b0d33ffb2c9b4bdef754603955d51c4833a986378b6e10200e849"
+        }
+      ],
+      "fingerprint": "06f4db09c70281772ac4572396fa632e5b1d36aa7b00df7e458fb549be239319"
+    },
+    "rounds": [
+      {
+        "index": 1,
+        "status": "observed",
+        "orders": [
+          {
+            "shrine": {
+              "work": 0,
+              "target": 28,
+              "required": 1,
+              "remaining": 0,
+              "growth": 1,
+              "grown": false,
+              "enabled": true,
+              "reset": false,
+              "cooldown": 0,
+              "active": true,
+              "nextSlot": 0,
+              "slotTimer": 0,
+              "range": 1,
+              "followers": 0,
+              "forced": false,
+              "morph": null,
+              "mode": 0,
+              "model": 45,
+              "angle": 0.7853981633974483,
+              "id": 29,
+              "x": -5,
+              "z": 25,
+              "kind": "bridge",
+              "reward": "bridge",
+              "ordinarySpellReward": {
+                "head": 30,
+                "reward": 31,
+                "slot": 0,
+                "model": 12
+              },
+              "name": "Land Bridge stone head",
+              "progress": 0,
+              "duration": 9.333333333333334,
+              "uses": 0,
+              "stoneHead": {
+                "triggerIndex": 30,
+                "sceneryIndex": 32,
+                "family": 45,
+                "enabled": true,
+                "holdFrame": 1,
+                "object": 45,
+                "draw": 4,
+                "morph": 1,
+                "palette": 240,
+                "renderFlags": 264,
+                "f1": 64,
+                "f2": 0,
+                "stamp": 0,
+                "flags3": 0,
+                "morphTimer": 0,
+                "morphFrames": 0
+              },
+              "panelActivity": {
+                "turn": 124,
+                "count": 0
+              },
+              "rewardRecipient": 0
+            },
+            "kind": "brave",
+            "readiness": {
+              "before": {
+                "ready": true,
+                "turn": 175,
+                "inputMask": 0,
+                "selected": [
+                  30
+                ],
+                "levelStartPhase": 4,
+                "shaman": {
+                  "id": 30,
+                  "hp": 100,
+                  "canOrder": true,
+                  "selectable": true,
+                  "state": 19,
+                  "flags2": 131072,
+                  "flags4": 536871168,
+                  "commandStatus": 0
+                },
+                "level": 1
+              },
+              "after": {
+                "ready": true,
+                "turn": 175,
+                "inputMask": 0,
+                "selected": [
+                  30
+                ],
+                "levelStartPhase": 4,
+                "shaman": {
+                  "id": 30,
+                  "hp": 100,
+                  "canOrder": true,
+                  "selectable": true,
+                  "state": 19,
+                  "flags2": 131072,
+                  "flags4": 536871168,
+                  "commandStatus": 0
+                },
+                "level": 1
+              },
+              "samples": 1
+            },
+            "identity": {
+              "sameWorld": true,
+              "connected": true,
+              "loading": false,
+              "paused": false,
+              "inputMask": 0
+            },
+            "skipped": [],
+            "cameraAssistance": "scene.focus before mode setup; ordinary RAF only",
+            "point": {
+              "x": 820,
+              "y": 379,
+              "radius": 6,
+              "neighbors": 9,
+              "center": {
+                "x": 820,
+                "y": 411
+              }
+            },
+            "preClick": {
+              "state": {
+                "turn": 213,
+                "currentScene": true,
+                "sameWorld": true,
+                "paused": false,
+                "inputMask": 0,
+                "overviewStage": null,
+                "mode": null,
+                "selected": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  1186,
+                  1188
+                ],
+                "keys": [],
+                "lastOrderTurn": 0,
+                "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+                "down": {
+                  "x": 0,
+                  "y": 0,
+                  "button": 0,
+                  "extend": false
+                },
+                "drag": null,
+                "targetPerson": null,
+                "targetUnit": null,
+                "targetObject": 29,
+                "ground": {
+                  "x": -10.085497220335242,
+                  "z": 26.62882810442113
+                },
+                "commandContext": {
+                  "target": {
+                    "id": 29,
+                    "x": -5,
+                    "z": 25
+                  },
+                  "model": 27,
+                  "enabled": true,
+                  "shrine": 29
+                },
+                "camera": {
+                  "point": {
+                    "x": -5,
+                    "z": 25
+                  },
+                  "bearing": 4.40252486123179,
+                  "position": [
+                    30,
+                    155,
+                    0
+                  ],
+                  "motion": 0,
+                  "resultActive": 0,
+                  "transition": false,
+                  "native": {
+                    "x": 768,
+                    "y": 57088,
+                    "angle": 1435
+                  },
+                  "velocity": {
+                    "turn": 0,
+                    "forward": 0,
+                    "side": 0
+                  },
+                  "navigation": 0
+                },
+                "worshippers": []
+              },
+              "stableInterior": true
+            },
+            "pointer": {
+              "before": {
+                "turn": 213,
+                "currentScene": true,
+                "sameWorld": true,
+                "paused": false,
+                "inputMask": 0,
+                "overviewStage": null,
+                "mode": null,
+                "selected": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  1186,
+                  1188
+                ],
+                "keys": [],
+                "lastOrderTurn": 0,
+                "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+                "down": {
+                  "x": 0,
+                  "y": 0,
+                  "button": 0,
+                  "extend": false
+                },
+                "drag": null,
+                "targetPerson": null,
+                "targetUnit": null,
+                "targetObject": 29,
+                "ground": {
+                  "x": -10.085497220335242,
+                  "z": 26.62882810442113
+                },
+                "commandContext": {
+                  "target": {
+                    "id": 29,
+                    "x": -5,
+                    "z": 25
+                  },
+                  "model": 27,
+                  "enabled": true,
+                  "shrine": 29
+                },
+                "camera": {
+                  "point": {
+                    "x": -5,
+                    "z": 25
+                  },
+                  "bearing": 4.40252486123179,
+                  "position": [
+                    30,
+                    155,
+                    0
+                  ],
+                  "motion": 0,
+                  "resultActive": 0,
+                  "transition": false,
+                  "native": {
+                    "x": 768,
+                    "y": 57088,
+                    "angle": 1435
+                  },
+                  "velocity": {
+                    "turn": 0,
+                    "forward": 0,
+                    "side": 0
+                  },
+                  "navigation": 0
+                },
+                "worshippers": []
+              },
+              "events": [
+                {
+                  "type": "pointerdown",
+                  "stage": "window-capture-before-game",
+                  "x": 820,
+                  "y": 379,
+                  "button": 0,
+                  "buttons": 1,
+                  "pointerId": 1,
+                  "pointerType": "mouse",
+                  "isTrusted": true,
+                  "targetIsCanvas": true,
+                  "composedPathIncludesCanvas": true,
+                  "defaultPrevented": false,
+                  "modifiers": {
+                    "shift": false,
+                    "control": false,
+                    "alt": false,
+                    "meta": false
+                  },
+                  "state": {
+                    "turn": 214,
+                    "currentScene": true,
+                    "sameWorld": true,
+                    "paused": false,
+                    "inputMask": 0,
+                    "overviewStage": null,
+                    "mode": null,
+                    "selected": [
+                      13,
+                      14,
+                      15,
+                      16,
+                      17,
+                      18,
+                      1186,
+                      1188
+                    ],
+                    "keys": [],
+                    "lastOrderTurn": 0,
+                    "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+                    "down": {
+                      "x": 0,
+                      "y": 0,
+                      "button": 0,
+                      "extend": false
+                    },
+                    "drag": null,
+                    "targetPerson": null,
+                    "targetUnit": null,
+                    "targetObject": 29,
+                    "ground": {
+                      "x": -10.085497220335242,
+                      "z": 26.62882810442113
+                    },
+                    "commandContext": {
+                      "target": {
+                        "id": 29,
+                        "x": -5,
+                        "z": 25
+                      },
+                      "model": 27,
+                      "enabled": true,
+                      "shrine": 29
+                    },
+                    "camera": {
+                      "point": {
+                        "x": -5,
+                        "z": 25
+                      },
+                      "bearing": 4.40252486123179,
+                      "position": [
+                        30,
+                        155,
+                        0
+                      ],
+                      "motion": 0,
+                      "resultActive": 0,
+                      "transition": false,
+                      "native": {
+                        "x": 768,
+                        "y": 57088,
+                        "angle": 1435
+                      },
+                      "velocity": {
+                        "turn": 0,
+                        "forward": 0,
+                        "side": 0
+                      },
+                      "navigation": 0
+                    },
+                    "worshippers": []
+                  }
+                },
+                {
+                  "type": "pointerdown",
+                  "stage": "window-bubble-after-game",
+                  "x": 820,
+                  "y": 379,
+                  "button": 0,
+                  "buttons": 1,
+                  "pointerId": 1,
+                  "pointerType": "mouse",
+                  "isTrusted": true,
+                  "targetIsCanvas": true,
+                  "composedPathIncludesCanvas": true,
+                  "defaultPrevented": false,
+                  "modifiers": {
+                    "shift": false,
+                    "control": false,
+                    "alt": false,
+                    "meta": false
+                  },
+                  "state": {
+                    "turn": 214,
+                    "currentScene": true,
+                    "sameWorld": true,
+                    "paused": false,
+                    "inputMask": 0,
+                    "overviewStage": null,
+                    "mode": null,
+                    "selected": [
+                      13,
+                      14,
+                      15,
+                      16,
+                      17,
+                      18,
+                      1186,
+                      1188
+                    ],
+                    "keys": [],
+                    "lastOrderTurn": 0,
+                    "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+                    "down": {
+                      "x": 820,
+                      "y": 379,
+                      "button": 0,
+                      "extend": false
+                    },
+                    "drag": {
+                      "start": {
+                        "x": -534,
+                        "y": -8865,
+                        "h": 22
+                      },
+                      "end": {
+                        "x": -534,
+                        "y": -8865,
+                        "h": 22
+                      },
+                      "active": false
+                    },
+                    "targetPerson": null,
+                    "targetUnit": null,
+                    "targetObject": 29,
+                    "ground": {
+                      "x": -10.085497220335242,
+                      "z": 26.62882810442113
+                    },
+                    "commandContext": {
+                      "target": {
+                        "id": 29,
+                        "x": -5,
+                        "z": 25
+                      },
+                      "model": 27,
+                      "enabled": true,
+                      "shrine": 29
+                    },
+                    "camera": {
+                      "point": {
+                        "x": -5,
+                        "z": 25
+                      },
+                      "bearing": 4.40252486123179,
+                      "position": [
+                        30,
+                        155,
+                        0
+                      ],
+                      "motion": 0,
+                      "resultActive": 0,
+                      "transition": false,
+                      "native": {
+                        "x": 768,
+                        "y": 57088,
+                        "angle": 1435
+                      },
+                      "velocity": {
+                        "turn": 0,
+                        "forward": 0,
+                        "side": 0
+                      },
+                      "navigation": 0
+                    },
+                    "worshippers": []
+                  }
+                },
+                {
+                  "type": "pointerup",
+                  "stage": "window-capture-before-game",
+                  "x": 820,
+                  "y": 379,
+                  "button": 0,
+                  "buttons": 0,
+                  "pointerId": 1,
+                  "pointerType": "mouse",
+                  "isTrusted": true,
+                  "targetIsCanvas": true,
+                  "composedPathIncludesCanvas": true,
+                  "defaultPrevented": false,
+                  "modifiers": {
+                    "shift": false,
+                    "control": false,
+                    "alt": false,
+                    "meta": false
+                  },
+                  "state": {
+                    "turn": 214,
+                    "currentScene": true,
+                    "sameWorld": true,
+                    "paused": false,
+                    "inputMask": 0,
+                    "overviewStage": null,
+                    "mode": null,
+                    "selected": [
+                      13,
+                      14,
+                      15,
+                      16,
+                      17,
+                      18,
+                      1186,
+                      1188
+                    ],
+                    "keys": [],
+                    "lastOrderTurn": 0,
+                    "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+                    "down": {
+                      "x": 820,
+                      "y": 379,
+                      "button": 0,
+                      "extend": false
+                    },
+                    "drag": {
+                      "start": {
+                        "x": -534,
+                        "y": -8865,
+                        "h": 22
+                      },
+                      "end": {
+                        "x": -534,
+                        "y": -8865,
+                        "h": 22
+                      },
+                      "active": false
+                    },
+                    "targetPerson": null,
+                    "targetUnit": null,
+                    "targetObject": 29,
+                    "ground": {
+                      "x": -10.085497220335242,
+                      "z": 26.62882810442113
+                    },
+                    "commandContext": {
+                      "target": {
+                        "id": 29,
+                        "x": -5,
+                        "z": 25
+                      },
+                      "model": 27,
+                      "enabled": true,
+                      "shrine": 29
+                    },
+                    "camera": {
+                      "point": {
+                        "x": -5,
+                        "z": 25
+                      },
+                      "bearing": 4.40252486123179,
+                      "position": [
+                        30,
+                        155,
+                        0
+                      ],
+                      "motion": 0,
+                      "resultActive": 0,
+                      "transition": false,
+                      "native": {
+                        "x": 768,
+                        "y": 57088,
+                        "angle": 1435
+                      },
+                      "velocity": {
+                        "turn": 0,
+                        "forward": 0,
+                        "side": 0
+                      },
+                      "navigation": 0
+                    },
+                    "worshippers": []
+                  }
+                },
+                {
+                  "type": "pointerup",
+                  "stage": "window-bubble-after-game",
+                  "x": 820,
+                  "y": 379,
+                  "button": 0,
+                  "buttons": 0,
+                  "pointerId": 1,
+                  "pointerType": "mouse",
+                  "isTrusted": true,
+                  "targetIsCanvas": true,
+                  "composedPathIncludesCanvas": true,
+                  "defaultPrevented": false,
+                  "modifiers": {
+                    "shift": false,
+                    "control": false,
+                    "alt": false,
+                    "meta": false
+                  },
+                  "state": {
+                    "turn": 214,
+                    "currentScene": true,
+                    "sameWorld": true,
+                    "paused": false,
+                    "inputMask": 0,
+                    "overviewStage": null,
+                    "mode": null,
+                    "selected": [
+                      13,
+                      14,
+                      15,
+                      16,
+                      17,
+                      18,
+                      1186,
+                      1188
+                    ],
+                    "keys": [],
+                    "lastOrderTurn": 214,
+                    "message": "Worshipping Land Bridge stone head. One follower is enough.",
+                    "down": {
+                      "x": 820,
+                      "y": 379,
+                      "button": 0,
+                      "extend": false
+                    },
+                    "drag": null,
+                    "targetPerson": null,
+                    "targetUnit": null,
+                    "targetObject": 29,
+                    "ground": {
+                      "x": -10.085497220335242,
+                      "z": 26.62882810442113
+                    },
+                    "commandContext": {
+                      "target": {
+                        "id": 29,
+                        "x": -5,
+                        "z": 25
+                      },
+                      "model": 27,
+                      "enabled": true,
+                      "shrine": 29
+                    },
+                    "camera": {
+                      "point": {
+                        "x": -5,
+                        "z": 25
+                      },
+                      "bearing": 4.40252486123179,
+                      "position": [
+                        30,
+                        155,
+                        0
+                      ],
+                      "motion": 0,
+                      "resultActive": 0,
+                      "transition": false,
+                      "native": {
+                        "x": 768,
+                        "y": 57088,
+                        "angle": 1435
+                      },
+                      "velocity": {
+                        "turn": 0,
+                        "forward": 0,
+                        "side": 0
+                      },
+                      "navigation": 0
+                    },
+                    "worshippers": [
+                      13,
+                      14,
+                      15,
+                      16,
+                      17,
+                      18,
+                      1186,
+                      1188
+                    ]
+                  }
+                }
+              ],
+              "errors": [],
+              "restored": true,
+              "after": {
+                "turn": 216,
+                "currentScene": true,
+                "sameWorld": true,
+                "paused": false,
+                "inputMask": 0,
+                "overviewStage": null,
+                "mode": null,
+                "selected": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  1186,
+                  1188
+                ],
+                "keys": [],
+                "lastOrderTurn": 214,
+                "message": "Worshipping Land Bridge stone head. One follower is enough.",
+                "down": {
+                  "x": 820,
+                  "y": 379,
+                  "button": 0,
+                  "extend": false
+                },
+                "drag": null,
+                "targetPerson": null,
+                "targetUnit": null,
+                "targetObject": 29,
+                "ground": {
+                  "x": -10.085497220335242,
+                  "z": 26.62882810442113
+                },
+                "commandContext": {
+                  "target": {
+                    "id": 29,
+                    "x": -5,
+                    "z": 25
+                  },
+                  "model": 27,
+                  "enabled": true,
+                  "shrine": 29
+                },
+                "camera": {
+                  "point": {
+                    "x": -5,
+                    "z": 25
+                  },
+                  "bearing": 4.40252486123179,
+                  "position": [
+                    30,
+                    155,
+                    0
+                  ],
+                  "motion": 0,
+                  "resultActive": 0,
+                  "transition": false,
+                  "native": {
+                    "x": 768,
+                    "y": 57088,
+                    "angle": 1435
+                  },
+                  "velocity": {
+                    "turn": 0,
+                    "forward": 0,
+                    "side": 0
+                  },
+                  "navigation": 0
+                },
+                "worshippers": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  1186,
+                  1188
+                ]
+              }
+            },
+            "accepted": {
+              "turn": 216,
+              "currentScene": true,
+              "sameWorld": true,
+              "paused": false,
+              "inputMask": 0,
+              "overviewStage": null,
+              "mode": null,
+              "selected": [
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                1186,
+                1188
+              ],
+              "keys": [],
+              "lastOrderTurn": 214,
+              "message": "Worshipping Land Bridge stone head. One follower is enough.",
+              "down": {
+                "x": 820,
+                "y": 379,
+                "button": 0,
+                "extend": false
+              },
+              "drag": null,
+              "targetPerson": null,
+              "targetUnit": null,
+              "targetObject": 29,
+              "ground": {
+                "x": -10.085497220335242,
+                "z": 26.62882810442113
+              },
+              "commandContext": {
+                "target": {
+                  "id": 29,
+                  "x": -5,
+                  "z": 25
+                },
+                "model": 27,
+                "enabled": true,
+                "shrine": 29
+              },
+              "camera": {
+                "point": {
+                  "x": -5,
+                  "z": 25
+                },
+                "bearing": 4.40252486123179,
+                "position": [
+                  30,
+                  155,
+                  0
+                ],
+                "motion": 0,
+                "resultActive": 0,
+                "transition": false,
+                "native": {
+                  "x": 768,
+                  "y": 57088,
+                  "angle": 1435
+                },
+                "velocity": {
+                  "turn": 0,
+                  "forward": 0,
+                  "side": 0
+                },
+                "navigation": 0
+              },
+              "worshippers": [
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                1186,
+                1188
+              ]
+            }
+          }
+        ],
+        "readiness": {
+          "before": {
+            "ready": true,
+            "turn": 124,
+            "inputMask": 0,
+            "selected": [
+              30
+            ],
+            "levelStartPhase": 4,
+            "shaman": {
+              "id": 30,
+              "hp": 100,
+              "canOrder": true,
+              "selectable": true,
+              "state": 19,
+              "flags2": 131072,
+              "flags4": 536871168,
+              "commandStatus": 0
+            },
+            "level": 1
+          },
+          "after": {
+            "ready": true,
+            "turn": 124,
+            "inputMask": 0,
+            "selected": [
+              30
+            ],
+            "levelStartPhase": 4,
+            "shaman": {
+              "id": 30,
+              "hp": 100,
+              "canOrder": true,
+              "selectable": true,
+              "state": 19,
+              "flags2": 131072,
+              "flags4": 536871168,
+              "commandStatus": 0
+            },
+            "level": 1
+          },
+          "samples": 1
+        },
+        "initial": {
+          "turn": 125,
+          "stock": 0,
+          "count": 0,
+          "status": "playing",
+          "paused": false,
+          "sameWorld": true,
+          "dpr": 1,
+          "viewport": [
+            1440,
+            1000
+          ],
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "contextLost": false,
+          "head": {
+            "work": 0,
+            "target": 28,
+            "required": 1,
+            "remaining": 0,
+            "growth": 1,
+            "grown": false,
+            "enabled": true,
+            "reset": false,
+            "cooldown": 0,
+            "active": true,
+            "nextSlot": 0,
+            "slotTimer": 0,
+            "range": 1,
+            "followers": 0,
+            "forced": false,
+            "morph": null,
+            "mode": 0,
+            "model": 45,
+            "angle": 0.7853981633974483,
+            "id": 29,
+            "x": -5,
+            "z": 25,
+            "kind": "bridge",
+            "reward": "bridge",
+            "ordinarySpellReward": {
+              "head": 30,
+              "reward": 31,
+              "slot": 0,
+              "model": 12
+            },
+            "name": "Land Bridge stone head",
+            "progress": 0,
+            "duration": 9.333333333333334,
+            "uses": 0,
+            "stoneHead": {
+              "triggerIndex": 30,
+              "sceneryIndex": 32,
+              "family": 45,
+              "enabled": true,
+              "holdFrame": 1,
+              "object": 45,
+              "draw": 4,
+              "morph": 1,
+              "palette": 240,
+              "renderFlags": 264,
+              "f1": 64,
+              "f2": 0,
+              "stamp": 0,
+              "flags3": 0,
+              "morphTimer": 0,
+              "morphFrames": 0
+            },
+            "panelActivity": {
+              "turn": 124,
+              "count": 0
+            },
+            "rewardRecipient": 0
+          }
+        },
+        "final": {
+          "turn": 398,
+          "stock": 1,
+          "count": 1,
+          "status": "playing",
+          "diagnostics": [],
+          "overlayHidden": true
+        },
+        "samples": {
+          "mode": "off",
+          "counts": {
+            "idle": 41,
+            "active": 16
+          },
+          "idle": [
+            {
+              "turn": 133,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 134,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 135,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 136,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 136,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0.10000000149011612,
+              "measureCalls": 0
+            },
+            {
+              "turn": 137,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 138,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 139,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 139,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 140,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 141,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 142,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0.10000000149011612,
+              "measureCalls": 0
+            },
+            {
+              "turn": 143,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 144,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 144,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 145,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 146,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 147,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 148,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 148,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 149,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 150,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 151,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 152,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 153,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 153,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 154,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 155,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 156,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 157,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0.10000000149011612,
+              "measureCalls": 0
+            },
+            {
+              "turn": 157,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 158,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            }
+          ],
+          "active": [
+            {
+              "turn": 384,
+              "paused": false,
+              "commandCount": 211,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": false,
+              "milliseconds": 0.30000000447034836,
+              "measureCalls": 1
+            },
+            {
+              "turn": 385,
+              "paused": false,
+              "commandCount": 111,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": false,
+              "milliseconds": 0.29999999701976776,
+              "measureCalls": 1
+            },
+            {
+              "turn": 387,
+              "paused": false,
+              "commandCount": 31,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": false,
+              "milliseconds": 0.20000000298023224,
+              "measureCalls": 1
+            },
+            {
+              "turn": 388,
+              "paused": false,
+              "commandCount": 2,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": true,
+              "milliseconds": 0.20000000298023224,
+              "measureCalls": 1
+            },
+            {
+              "turn": 389,
+              "paused": false,
+              "commandCount": 2,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": true,
+              "milliseconds": 0.10000000149011612,
+              "measureCalls": 1
+            },
+            {
+              "turn": 390,
+              "paused": false,
+              "commandCount": 2,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": true,
+              "milliseconds": 0.19999999552965164,
+              "measureCalls": 1
+            },
+            {
+              "turn": 391,
+              "paused": false,
+              "commandCount": 2,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": true,
+              "milliseconds": 0,
+              "measureCalls": 1
+            },
+            {
+              "turn": 393,
+              "paused": false,
+              "commandCount": 1,
+              "referenceCount": 1,
+              "body": false,
+              "pulse": true,
+              "milliseconds": 0,
+              "measureCalls": 1
+            }
+          ],
+          "restored": true
+        }
+      },
+      {
+        "index": 2,
+        "status": "observed",
+        "orders": [
+          {
+            "shrine": {
+              "work": 0,
+              "target": 28,
+              "required": 1,
+              "remaining": 0,
+              "growth": 1,
+              "grown": false,
+              "enabled": true,
+              "reset": false,
+              "cooldown": 0,
+              "active": true,
+              "nextSlot": 0,
+              "slotTimer": 0,
+              "range": 1,
+              "followers": 0,
+              "forced": false,
+              "morph": null,
+              "mode": 0,
+              "model": 45,
+              "angle": 0.7853981633974483,
+              "id": 29,
+              "x": -5,
+              "z": 25,
+              "kind": "bridge",
+              "reward": "bridge",
+              "ordinarySpellReward": {
+                "head": 30,
+                "reward": 31,
+                "slot": 0,
+                "model": 12
+              },
+              "name": "Land Bridge stone head",
+              "progress": 0,
+              "duration": 9.333333333333334,
+              "uses": 0,
+              "stoneHead": {
+                "triggerIndex": 30,
+                "sceneryIndex": 32,
+                "family": 45,
+                "enabled": true,
+                "holdFrame": 1,
+                "object": 45,
+                "draw": 4,
+                "morph": 1,
+                "palette": 240,
+                "renderFlags": 264,
+                "f1": 44,
+                "f2": 0,
+                "stamp": 0,
+                "flags3": 0,
+                "morphTimer": 0,
+                "morphFrames": 0
+              },
+              "panelActivity": {
+                "turn": 392,
+                "count": 0
+              },
+              "rewardRecipient": 0
+            },
+            "kind": "brave",
+            "readiness": {
+              "before": {
+                "ready": true,
+                "turn": 439,
+                "inputMask": 0,
+                "selected": [
+                  30
+                ],
+                "levelStartPhase": 4,
+                "shaman": {
+                  "id": 30,
+                  "hp": 100,
+                  "canOrder": true,
+                  "selectable": true,
+                  "state": 19,
+                  "flags2": 131072,
+                  "flags4": 536871168,
+                  "commandStatus": 0
+                },
+                "level": 1
+              },
+              "after": {
+                "ready": true,
+                "turn": 439,
+                "inputMask": 0,
+                "selected": [
+                  30
+                ],
+                "levelStartPhase": 4,
+                "shaman": {
+                  "id": 30,
+                  "hp": 100,
+                  "canOrder": true,
+                  "selectable": true,
+                  "state": 19,
+                  "flags2": 131072,
+                  "flags4": 536871168,
+                  "commandStatus": 0
+                },
+                "level": 1
+              },
+              "samples": 1
+            },
+            "identity": {
+              "sameWorld": true,
+              "connected": true,
+              "loading": false,
+              "paused": false,
+              "inputMask": 0
+            },
+            "skipped": [],
+            "cameraAssistance": "scene.focus before mode setup; ordinary RAF only",
+            "point": {
+              "x": 820,
+              "y": 379,
+              "radius": 6,
+              "neighbors": 9,
+              "center": {
+                "x": 820,
+                "y": 411
+              }
+            },
+            "preClick": {
+              "state": {
+                "turn": 470,
+                "currentScene": true,
+                "sameWorld": true,
+                "paused": false,
+                "inputMask": 0,
+                "overviewStage": null,
+                "mode": null,
+                "selected": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  1186,
+                  1188
+                ],
+                "keys": [],
+                "lastOrderTurn": 0,
+                "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+                "down": {
+                  "x": 0,
+                  "y": 0,
+                  "button": 0,
+                  "extend": false
+                },
+                "drag": null,
+                "targetPerson": null,
+                "targetUnit": null,
+                "targetObject": 29,
+                "ground": {
+                  "x": -10.085497220335242,
+                  "z": 26.62882810442113
+                },
+                "commandContext": {
+                  "target": {
+                    "id": 29,
+                    "x": -5,
+                    "z": 25
+                  },
+                  "model": 27,
+                  "enabled": true,
+                  "shrine": 29
+                },
+                "camera": {
+                  "point": {
+                    "x": -5,
+                    "z": 25
+                  },
+                  "bearing": 4.40252486123179,
+                  "position": [
+                    30,
+                    155,
+                    0
+                  ],
+                  "motion": 0,
+                  "resultActive": 0,
+                  "transition": false,
+                  "native": {
+                    "x": 768,
+                    "y": 57088,
+                    "angle": 1435
+                  },
+                  "velocity": {
+                    "turn": 0,
+                    "forward": 0,
+                    "side": 0
+                  },
+                  "navigation": 0
+                },
+                "worshippers": []
+              },
+              "stableInterior": true
+            },
+            "pointer": {
+              "before": {
+                "turn": 470,
+                "currentScene": true,
+                "sameWorld": true,
+                "paused": false,
+                "inputMask": 0,
+                "overviewStage": null,
+                "mode": null,
+                "selected": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  1186,
+                  1188
+                ],
+                "keys": [],
+                "lastOrderTurn": 0,
+                "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+                "down": {
+                  "x": 0,
+                  "y": 0,
+                  "button": 0,
+                  "extend": false
+                },
+                "drag": null,
+                "targetPerson": null,
+                "targetUnit": null,
+                "targetObject": 29,
+                "ground": {
+                  "x": -10.085497220335242,
+                  "z": 26.62882810442113
+                },
+                "commandContext": {
+                  "target": {
+                    "id": 29,
+                    "x": -5,
+                    "z": 25
+                  },
+                  "model": 27,
+                  "enabled": true,
+                  "shrine": 29
+                },
+                "camera": {
+                  "point": {
+                    "x": -5,
+                    "z": 25
+                  },
+                  "bearing": 4.40252486123179,
+                  "position": [
+                    30,
+                    155,
+                    0
+                  ],
+                  "motion": 0,
+                  "resultActive": 0,
+                  "transition": false,
+                  "native": {
+                    "x": 768,
+                    "y": 57088,
+                    "angle": 1435
+                  },
+                  "velocity": {
+                    "turn": 0,
+                    "forward": 0,
+                    "side": 0
+                  },
+                  "navigation": 0
+                },
+                "worshippers": []
+              },
+              "events": [
+                {
+                  "type": "pointerdown",
+                  "stage": "window-capture-before-game",
+                  "x": 820,
+                  "y": 379,
+                  "button": 0,
+                  "buttons": 1,
+                  "pointerId": 1,
+                  "pointerType": "mouse",
+                  "isTrusted": true,
+                  "targetIsCanvas": true,
+                  "composedPathIncludesCanvas": true,
+                  "defaultPrevented": false,
+                  "modifiers": {
+                    "shift": false,
+                    "control": false,
+                    "alt": false,
+                    "meta": false
+                  },
+                  "state": {
+                    "turn": 472,
+                    "currentScene": true,
+                    "sameWorld": true,
+                    "paused": false,
+                    "inputMask": 0,
+                    "overviewStage": null,
+                    "mode": null,
+                    "selected": [
+                      13,
+                      14,
+                      15,
+                      16,
+                      17,
+                      18,
+                      1186,
+                      1188
+                    ],
+                    "keys": [],
+                    "lastOrderTurn": 0,
+                    "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+                    "down": {
+                      "x": 0,
+                      "y": 0,
+                      "button": 0,
+                      "extend": false
+                    },
+                    "drag": null,
+                    "targetPerson": null,
+                    "targetUnit": null,
+                    "targetObject": 29,
+                    "ground": {
+                      "x": -10.085497220335242,
+                      "z": 26.62882810442113
+                    },
+                    "commandContext": {
+                      "target": {
+                        "id": 29,
+                        "x": -5,
+                        "z": 25
+                      },
+                      "model": 27,
+                      "enabled": true,
+                      "shrine": 29
+                    },
+                    "camera": {
+                      "point": {
+                        "x": -5,
+                        "z": 25
+                      },
+                      "bearing": 4.40252486123179,
+                      "position": [
+                        30,
+                        155,
+                        0
+                      ],
+                      "motion": 0,
+                      "resultActive": 0,
+                      "transition": false,
+                      "native": {
+                        "x": 768,
+                        "y": 57088,
+                        "angle": 1435
+                      },
+                      "velocity": {
+                        "turn": 0,
+                        "forward": 0,
+                        "side": 0
+                      },
+                      "navigation": 0
+                    },
+                    "worshippers": []
+                  }
+                },
+                {
+                  "type": "pointerdown",
+                  "stage": "window-bubble-after-game",
+                  "x": 820,
+                  "y": 379,
+                  "button": 0,
+                  "buttons": 1,
+                  "pointerId": 1,
+                  "pointerType": "mouse",
+                  "isTrusted": true,
+                  "targetIsCanvas": true,
+                  "composedPathIncludesCanvas": true,
+                  "defaultPrevented": false,
+                  "modifiers": {
+                    "shift": false,
+                    "control": false,
+                    "alt": false,
+                    "meta": false
+                  },
+                  "state": {
+                    "turn": 472,
+                    "currentScene": true,
+                    "sameWorld": true,
+                    "paused": false,
+                    "inputMask": 0,
+                    "overviewStage": null,
+                    "mode": null,
+                    "selected": [
+                      13,
+                      14,
+                      15,
+                      16,
+                      17,
+                      18,
+                      1186,
+                      1188
+                    ],
+                    "keys": [],
+                    "lastOrderTurn": 0,
+                    "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+                    "down": {
+                      "x": 820,
+                      "y": 379,
+                      "button": 0,
+                      "extend": false
+                    },
+                    "drag": {
+                      "start": {
+                        "x": -534,
+                        "y": -8865,
+                        "h": 22
+                      },
+                      "end": {
+                        "x": -534,
+                        "y": -8865,
+                        "h": 22
+                      },
+                      "active": false
+                    },
+                    "targetPerson": null,
+                    "targetUnit": null,
+                    "targetObject": 29,
+                    "ground": {
+                      "x": -10.085497220335242,
+                      "z": 26.62882810442113
+                    },
+                    "commandContext": {
+                      "target": {
+                        "id": 29,
+                        "x": -5,
+                        "z": 25
+                      },
+                      "model": 27,
+                      "enabled": true,
+                      "shrine": 29
+                    },
+                    "camera": {
+                      "point": {
+                        "x": -5,
+                        "z": 25
+                      },
+                      "bearing": 4.40252486123179,
+                      "position": [
+                        30,
+                        155,
+                        0
+                      ],
+                      "motion": 0,
+                      "resultActive": 0,
+                      "transition": false,
+                      "native": {
+                        "x": 768,
+                        "y": 57088,
+                        "angle": 1435
+                      },
+                      "velocity": {
+                        "turn": 0,
+                        "forward": 0,
+                        "side": 0
+                      },
+                      "navigation": 0
+                    },
+                    "worshippers": []
+                  }
+                },
+                {
+                  "type": "pointerup",
+                  "stage": "window-capture-before-game",
+                  "x": 820,
+                  "y": 379,
+                  "button": 0,
+                  "buttons": 0,
+                  "pointerId": 1,
+                  "pointerType": "mouse",
+                  "isTrusted": true,
+                  "targetIsCanvas": true,
+                  "composedPathIncludesCanvas": true,
+                  "defaultPrevented": false,
+                  "modifiers": {
+                    "shift": false,
+                    "control": false,
+                    "alt": false,
+                    "meta": false
+                  },
+                  "state": {
+                    "turn": 472,
+                    "currentScene": true,
+                    "sameWorld": true,
+                    "paused": false,
+                    "inputMask": 0,
+                    "overviewStage": null,
+                    "mode": null,
+                    "selected": [
+                      13,
+                      14,
+                      15,
+                      16,
+                      17,
+                      18,
+                      1186,
+                      1188
+                    ],
+                    "keys": [],
+                    "lastOrderTurn": 0,
+                    "message": "Select a brave and send them to the southern stone head to worship for Land Bridge.",
+                    "down": {
+                      "x": 820,
+                      "y": 379,
+                      "button": 0,
+                      "extend": false
+                    },
+                    "drag": {
+                      "start": {
+                        "x": -534,
+                        "y": -8865,
+                        "h": 22
+                      },
+                      "end": {
+                        "x": -534,
+                        "y": -8865,
+                        "h": 22
+                      },
+                      "active": false
+                    },
+                    "targetPerson": null,
+                    "targetUnit": null,
+                    "targetObject": 29,
+                    "ground": {
+                      "x": -10.085497220335242,
+                      "z": 26.62882810442113
+                    },
+                    "commandContext": {
+                      "target": {
+                        "id": 29,
+                        "x": -5,
+                        "z": 25
+                      },
+                      "model": 27,
+                      "enabled": true,
+                      "shrine": 29
+                    },
+                    "camera": {
+                      "point": {
+                        "x": -5,
+                        "z": 25
+                      },
+                      "bearing": 4.40252486123179,
+                      "position": [
+                        30,
+                        155,
+                        0
+                      ],
+                      "motion": 0,
+                      "resultActive": 0,
+                      "transition": false,
+                      "native": {
+                        "x": 768,
+                        "y": 57088,
+                        "angle": 1435
+                      },
+                      "velocity": {
+                        "turn": 0,
+                        "forward": 0,
+                        "side": 0
+                      },
+                      "navigation": 0
+                    },
+                    "worshippers": []
+                  }
+                },
+                {
+                  "type": "pointerup",
+                  "stage": "window-bubble-after-game",
+                  "x": 820,
+                  "y": 379,
+                  "button": 0,
+                  "buttons": 0,
+                  "pointerId": 1,
+                  "pointerType": "mouse",
+                  "isTrusted": true,
+                  "targetIsCanvas": true,
+                  "composedPathIncludesCanvas": true,
+                  "defaultPrevented": false,
+                  "modifiers": {
+                    "shift": false,
+                    "control": false,
+                    "alt": false,
+                    "meta": false
+                  },
+                  "state": {
+                    "turn": 472,
+                    "currentScene": true,
+                    "sameWorld": true,
+                    "paused": false,
+                    "inputMask": 0,
+                    "overviewStage": null,
+                    "mode": null,
+                    "selected": [
+                      13,
+                      14,
+                      15,
+                      16,
+                      17,
+                      18,
+                      1186,
+                      1188
+                    ],
+                    "keys": [],
+                    "lastOrderTurn": 472,
+                    "message": "Worshipping Land Bridge stone head. One follower is enough.",
+                    "down": {
+                      "x": 820,
+                      "y": 379,
+                      "button": 0,
+                      "extend": false
+                    },
+                    "drag": null,
+                    "targetPerson": null,
+                    "targetUnit": null,
+                    "targetObject": 29,
+                    "ground": {
+                      "x": -10.085497220335242,
+                      "z": 26.62882810442113
+                    },
+                    "commandContext": {
+                      "target": {
+                        "id": 29,
+                        "x": -5,
+                        "z": 25
+                      },
+                      "model": 27,
+                      "enabled": true,
+                      "shrine": 29
+                    },
+                    "camera": {
+                      "point": {
+                        "x": -5,
+                        "z": 25
+                      },
+                      "bearing": 4.40252486123179,
+                      "position": [
+                        30,
+                        155,
+                        0
+                      ],
+                      "motion": 0,
+                      "resultActive": 0,
+                      "transition": false,
+                      "native": {
+                        "x": 768,
+                        "y": 57088,
+                        "angle": 1435
+                      },
+                      "velocity": {
+                        "turn": 0,
+                        "forward": 0,
+                        "side": 0
+                      },
+                      "navigation": 0
+                    },
+                    "worshippers": [
+                      13,
+                      14,
+                      15,
+                      16,
+                      17,
+                      18,
+                      1186,
+                      1188
+                    ]
+                  }
+                }
+              ],
+              "errors": [],
+              "restored": true,
+              "after": {
+                "turn": 473,
+                "currentScene": true,
+                "sameWorld": true,
+                "paused": false,
+                "inputMask": 0,
+                "overviewStage": null,
+                "mode": null,
+                "selected": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  1186,
+                  1188
+                ],
+                "keys": [],
+                "lastOrderTurn": 472,
+                "message": "Worshipping Land Bridge stone head. One follower is enough.",
+                "down": {
+                  "x": 820,
+                  "y": 379,
+                  "button": 0,
+                  "extend": false
+                },
+                "drag": null,
+                "targetPerson": null,
+                "targetUnit": null,
+                "targetObject": 29,
+                "ground": {
+                  "x": -10.085497220335242,
+                  "z": 26.62882810442113
+                },
+                "commandContext": {
+                  "target": {
+                    "id": 29,
+                    "x": -5,
+                    "z": 25
+                  },
+                  "model": 27,
+                  "enabled": true,
+                  "shrine": 29
+                },
+                "camera": {
+                  "point": {
+                    "x": -5,
+                    "z": 25
+                  },
+                  "bearing": 4.40252486123179,
+                  "position": [
+                    30,
+                    155,
+                    0
+                  ],
+                  "motion": 0,
+                  "resultActive": 0,
+                  "transition": false,
+                  "native": {
+                    "x": 768,
+                    "y": 57088,
+                    "angle": 1435
+                  },
+                  "velocity": {
+                    "turn": 0,
+                    "forward": 0,
+                    "side": 0
+                  },
+                  "navigation": 0
+                },
+                "worshippers": [
+                  13,
+                  14,
+                  15,
+                  16,
+                  17,
+                  18,
+                  1186,
+                  1188
+                ]
+              }
+            },
+            "accepted": {
+              "turn": 473,
+              "currentScene": true,
+              "sameWorld": true,
+              "paused": false,
+              "inputMask": 0,
+              "overviewStage": null,
+              "mode": null,
+              "selected": [
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                1186,
+                1188
+              ],
+              "keys": [],
+              "lastOrderTurn": 472,
+              "message": "Worshipping Land Bridge stone head. One follower is enough.",
+              "down": {
+                "x": 820,
+                "y": 379,
+                "button": 0,
+                "extend": false
+              },
+              "drag": null,
+              "targetPerson": null,
+              "targetUnit": null,
+              "targetObject": 29,
+              "ground": {
+                "x": -10.085497220335242,
+                "z": 26.62882810442113
+              },
+              "commandContext": {
+                "target": {
+                  "id": 29,
+                  "x": -5,
+                  "z": 25
+                },
+                "model": 27,
+                "enabled": true,
+                "shrine": 29
+              },
+              "camera": {
+                "point": {
+                  "x": -5,
+                  "z": 25
+                },
+                "bearing": 4.40252486123179,
+                "position": [
+                  30,
+                  155,
+                  0
+                ],
+                "motion": 0,
+                "resultActive": 0,
+                "transition": false,
+                "native": {
+                  "x": 768,
+                  "y": 57088,
+                  "angle": 1435
+                },
+                "velocity": {
+                  "turn": 0,
+                  "forward": 0,
+                  "side": 0
+                },
+                "navigation": 0
+              },
+              "worshippers": [
+                13,
+                14,
+                15,
+                16,
+                17,
+                18,
+                1186,
+                1188
+              ]
+            }
+          }
+        ],
+        "restart": {
+          "distinctScene": true,
+          "distinctWorld": true,
+          "oldDisposed": true,
+          "oldOverlayConnected": false,
+          "currentWorld": true,
+          "overlayCount": 1
+        },
+        "readiness": {
+          "before": {
+            "ready": false,
+            "turn": 86,
+            "inputMask": 64,
+            "selected": [
+              30
+            ],
+            "levelStartPhase": 4,
+            "shaman": {
+              "id": 30,
+              "hp": 100,
+              "canOrder": true,
+              "selectable": true,
+              "state": 19,
+              "flags2": 131072,
+              "flags4": 536871168,
+              "commandStatus": 0
+            },
+            "level": 1
+          },
+          "after": {
+            "ready": true,
+            "turn": 391,
+            "inputMask": 0,
+            "selected": [
+              30
+            ],
+            "levelStartPhase": 4,
+            "shaman": {
+              "id": 30,
+              "hp": 100,
+              "canOrder": true,
+              "selectable": true,
+              "state": 19,
+              "flags2": 131072,
+              "flags4": 536871168,
+              "commandStatus": 0
+            },
+            "level": 1
+          },
+          "samples": 25
+        },
+        "initial": {
+          "turn": 392,
+          "stock": 0,
+          "count": 0,
+          "status": "playing",
+          "paused": false,
+          "sameWorld": true,
+          "dpr": 1,
+          "viewport": [
+            1440,
+            1000
+          ],
+          "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+          "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+          "contextLost": false,
+          "head": {
+            "work": 0,
+            "target": 28,
+            "required": 1,
+            "remaining": 0,
+            "growth": 1,
+            "grown": false,
+            "enabled": true,
+            "reset": false,
+            "cooldown": 0,
+            "active": true,
+            "nextSlot": 0,
+            "slotTimer": 0,
+            "range": 1,
+            "followers": 0,
+            "forced": false,
+            "morph": null,
+            "mode": 0,
+            "model": 45,
+            "angle": 0.7853981633974483,
+            "id": 29,
+            "x": -5,
+            "z": 25,
+            "kind": "bridge",
+            "reward": "bridge",
+            "ordinarySpellReward": {
+              "head": 30,
+              "reward": 31,
+              "slot": 0,
+              "model": 12
+            },
+            "name": "Land Bridge stone head",
+            "progress": 0,
+            "duration": 9.333333333333334,
+            "uses": 0,
+            "stoneHead": {
+              "triggerIndex": 30,
+              "sceneryIndex": 32,
+              "family": 45,
+              "enabled": true,
+              "holdFrame": 1,
+              "object": 45,
+              "draw": 4,
+              "morph": 1,
+              "palette": 240,
+              "renderFlags": 264,
+              "f1": 44,
+              "f2": 0,
+              "stamp": 0,
+              "flags3": 0,
+              "morphTimer": 0,
+              "morphFrames": 0
+            },
+            "panelActivity": {
+              "turn": 392,
+              "count": 0
+            },
+            "rewardRecipient": 0
+          }
+        },
+        "final": {
+          "turn": 657,
+          "stock": 1,
+          "count": 1,
+          "status": "playing",
+          "diagnostics": [],
+          "overlayHidden": true
+        },
+        "samples": {
+          "mode": "off",
+          "counts": {
+            "idle": 42,
+            "active": 17
+          },
+          "idle": [
+            {
+              "turn": 400,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 401,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0.10000000149011612,
+              "measureCalls": 0
+            },
+            {
+              "turn": 401,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 402,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 403,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 404,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 405,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 406,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 406,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 407,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 408,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 409,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 410,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 410,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 411,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 412,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0.10000000149011612,
+              "measureCalls": 0
+            },
+            {
+              "turn": 413,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 414,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 415,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 415,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 416,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 417,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 417,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 418,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 419,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 420,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 421,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 421,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 422,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 423,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0.10000000149011612,
+              "measureCalls": 0
+            },
+            {
+              "turn": 424,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            },
+            {
+              "turn": 424,
+              "paused": false,
+              "commandCount": 0,
+              "referenceCount": 0,
+              "body": false,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 0
+            }
+          ],
+          "active": [
+            {
+              "turn": 643,
+              "paused": false,
+              "commandCount": 311,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": false,
+              "milliseconds": 0.7999999970197678,
+              "measureCalls": 1
+            },
+            {
+              "turn": 644,
+              "paused": false,
+              "commandCount": 211,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": false,
+              "milliseconds": 0.9000000059604645,
+              "measureCalls": 1
+            },
+            {
+              "turn": 646,
+              "paused": false,
+              "commandCount": 111,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": false,
+              "milliseconds": 0.20000000298023224,
+              "measureCalls": 1
+            },
+            {
+              "turn": 647,
+              "paused": false,
+              "commandCount": 31,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": false,
+              "milliseconds": 0,
+              "measureCalls": 1
+            },
+            {
+              "turn": 648,
+              "paused": false,
+              "commandCount": 2,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": true,
+              "milliseconds": 0.3999999985098839,
+              "measureCalls": 1
+            },
+            {
+              "turn": 649,
+              "paused": false,
+              "commandCount": 2,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": true,
+              "milliseconds": 0.3999999985098839,
+              "measureCalls": 1
+            },
+            {
+              "turn": 650,
+              "paused": false,
+              "commandCount": 2,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": true,
+              "milliseconds": 0.5,
+              "measureCalls": 1
+            },
+            {
+              "turn": 651,
+              "paused": false,
+              "commandCount": 2,
+              "referenceCount": 1,
+              "body": true,
+              "pulse": true,
+              "milliseconds": 0,
+              "measureCalls": 1
+            },
+            {
+              "turn": 653,
+              "paused": false,
+              "commandCount": 1,
+              "referenceCount": 1,
+              "body": false,
+              "pulse": true,
+              "milliseconds": 0.10000000149011612,
+              "measureCalls": 1
+            }
+          ],
+          "restored": true
+        }
+      }
+    ],
+    "host": {
+      "platform": "linux",
+      "release": "6.18.44",
+      "arch": "x64",
+      "logicalCpuCount": 9,
+      "cpuModels": [
+        "AMD EPYC 9V74 80-Core Processor"
+      ],
+      "availableParallelism": 4,
+      "cpuAffinity": "0-3"
+    },
+    "scenarioSha256": "856378d00be6d7403660252e26111b67034a37815038d64dd37ede2c8b7ed375",
+    "helperSha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879",
+    "workload": {
+      "mission": 1,
+      "head": "Authored ordinary Land Bridge (-5,25)",
+      "viewport": [
+        1440,
+        1000
+      ],
+      "dpr": 1,
+      "clock": "Real RAF and shipped public worship order",
+      "idleWarmup": 8,
+      "idleSamples": 32,
+      "activeWarmup": 8,
+      "maximumActiveSamples": 128,
+      "minimumActiveSamples": 16,
+      "maximumAcquisitions": 4,
+      "repetition": "Public Restart between ordinary acquisitions; eight idle and active warmups and 32 idle samples per fresh World; aggregate 16 active samples required within original 180-second deadline"
+    },
+    "measurement": "Elapsed performance.now around original presentation.draw only. Inputs/categories prepared before timer; arrays/statistics after timer. A minimal bridge.measure call-count wrapper remains inside measured call. No screenshots, pixel reads, state clones, drawImage/Canvas primitive or clock hooks inside measurement.",
+    "limits": "Sandboxed headless software-renderer/shared cloud CPU diagnostic costs only. Browser timer quantization and minimal call-count-wrapper overhead retained. No hardware FPS, total frame time, uncontended hardware performance or speedup claim.",
+    "initial": {
+      "turn": 125,
+      "stock": 0,
+      "count": 0,
+      "status": "playing",
+      "paused": false,
+      "sameWorld": true,
+      "dpr": 1,
+      "viewport": [
+        1440,
+        1000
+      ],
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "webgl": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+      "contextLost": false,
+      "head": {
+        "work": 0,
+        "target": 28,
+        "required": 1,
+        "remaining": 0,
+        "growth": 1,
+        "grown": false,
+        "enabled": true,
+        "reset": false,
+        "cooldown": 0,
+        "active": true,
+        "nextSlot": 0,
+        "slotTimer": 0,
+        "range": 1,
+        "followers": 0,
+        "forced": false,
+        "morph": null,
+        "mode": 0,
+        "model": 45,
+        "angle": 0.7853981633974483,
+        "id": 29,
+        "x": -5,
+        "z": 25,
+        "kind": "bridge",
+        "reward": "bridge",
+        "ordinarySpellReward": {
+          "head": 30,
+          "reward": 31,
+          "slot": 0,
+          "model": 12
+        },
+        "name": "Land Bridge stone head",
+        "progress": 0,
+        "duration": 9.333333333333334,
+        "uses": 0,
+        "stoneHead": {
+          "triggerIndex": 30,
+          "sceneryIndex": 32,
+          "family": 45,
+          "enabled": true,
+          "holdFrame": 1,
+          "object": 45,
+          "draw": 4,
+          "morph": 1,
+          "palette": 240,
+          "renderFlags": 264,
+          "f1": 64,
+          "f2": 0,
+          "stamp": 0,
+          "flags3": 0,
+          "morphTimer": 0,
+          "morphFrames": 0
+        },
+        "panelActivity": {
+          "turn": 124,
+          "count": 0
+        },
+        "rewardRecipient": 0
+      }
+    },
+    "final": {
+      "turn": 657,
+      "stock": 1,
+      "count": 1,
+      "status": "playing",
+      "diagnostics": [],
+      "overlayHidden": true
+    },
+    "samples": {
+      "restored": true,
+      "idle": [
+        {
+          "turn": 133,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 134,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 135,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 136,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 136,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0.10000000149011612,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 137,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 138,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 139,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 139,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 140,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 141,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 142,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0.10000000149011612,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 143,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 144,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 144,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 145,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 146,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 147,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 148,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 148,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 149,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 150,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 151,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 152,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 153,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 153,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 154,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 155,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 156,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 157,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0.10000000149011612,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 157,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 158,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 1
+        },
+        {
+          "turn": 400,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 401,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0.10000000149011612,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 401,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 402,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 403,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 404,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 405,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 406,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 406,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 407,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 408,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 409,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 410,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 410,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 411,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 412,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0.10000000149011612,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 413,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 414,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 415,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 415,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 416,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 417,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 417,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 418,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 419,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 420,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 421,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 421,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 422,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 423,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0.10000000149011612,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 424,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        },
+        {
+          "turn": 424,
+          "paused": false,
+          "commandCount": 0,
+          "referenceCount": 0,
+          "body": false,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 0,
+          "acquisition": 2
+        }
+      ],
+      "active": [
+        {
+          "turn": 384,
+          "paused": false,
+          "commandCount": 211,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": false,
+          "milliseconds": 0.30000000447034836,
+          "measureCalls": 1,
+          "acquisition": 1
+        },
+        {
+          "turn": 385,
+          "paused": false,
+          "commandCount": 111,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": false,
+          "milliseconds": 0.29999999701976776,
+          "measureCalls": 1,
+          "acquisition": 1
+        },
+        {
+          "turn": 387,
+          "paused": false,
+          "commandCount": 31,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": false,
+          "milliseconds": 0.20000000298023224,
+          "measureCalls": 1,
+          "acquisition": 1
+        },
+        {
+          "turn": 388,
+          "paused": false,
+          "commandCount": 2,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": true,
+          "milliseconds": 0.20000000298023224,
+          "measureCalls": 1,
+          "acquisition": 1
+        },
+        {
+          "turn": 389,
+          "paused": false,
+          "commandCount": 2,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": true,
+          "milliseconds": 0.10000000149011612,
+          "measureCalls": 1,
+          "acquisition": 1
+        },
+        {
+          "turn": 390,
+          "paused": false,
+          "commandCount": 2,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": true,
+          "milliseconds": 0.19999999552965164,
+          "measureCalls": 1,
+          "acquisition": 1
+        },
+        {
+          "turn": 391,
+          "paused": false,
+          "commandCount": 2,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": true,
+          "milliseconds": 0,
+          "measureCalls": 1,
+          "acquisition": 1
+        },
+        {
+          "turn": 393,
+          "paused": false,
+          "commandCount": 1,
+          "referenceCount": 1,
+          "body": false,
+          "pulse": true,
+          "milliseconds": 0,
+          "measureCalls": 1,
+          "acquisition": 1
+        },
+        {
+          "turn": 643,
+          "paused": false,
+          "commandCount": 311,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": false,
+          "milliseconds": 0.7999999970197678,
+          "measureCalls": 1,
+          "acquisition": 2
+        },
+        {
+          "turn": 644,
+          "paused": false,
+          "commandCount": 211,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": false,
+          "milliseconds": 0.9000000059604645,
+          "measureCalls": 1,
+          "acquisition": 2
+        },
+        {
+          "turn": 646,
+          "paused": false,
+          "commandCount": 111,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": false,
+          "milliseconds": 0.20000000298023224,
+          "measureCalls": 1,
+          "acquisition": 2
+        },
+        {
+          "turn": 647,
+          "paused": false,
+          "commandCount": 31,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": false,
+          "milliseconds": 0,
+          "measureCalls": 1,
+          "acquisition": 2
+        },
+        {
+          "turn": 648,
+          "paused": false,
+          "commandCount": 2,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": true,
+          "milliseconds": 0.3999999985098839,
+          "measureCalls": 1,
+          "acquisition": 2
+        },
+        {
+          "turn": 649,
+          "paused": false,
+          "commandCount": 2,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": true,
+          "milliseconds": 0.3999999985098839,
+          "measureCalls": 1,
+          "acquisition": 2
+        },
+        {
+          "turn": 650,
+          "paused": false,
+          "commandCount": 2,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": true,
+          "milliseconds": 0.5,
+          "measureCalls": 1,
+          "acquisition": 2
+        },
+        {
+          "turn": 651,
+          "paused": false,
+          "commandCount": 2,
+          "referenceCount": 1,
+          "body": true,
+          "pulse": true,
+          "milliseconds": 0,
+          "measureCalls": 1,
+          "acquisition": 2
+        },
+        {
+          "turn": 653,
+          "paused": false,
+          "commandCount": 1,
+          "referenceCount": 1,
+          "body": false,
+          "pulse": true,
+          "milliseconds": 0.10000000149011612,
+          "measureCalls": 1,
+          "acquisition": 2
+        }
+      ]
+    },
+    "statistics": {
+      "idle": {
+        "count": 64,
+        "min": 0,
+        "median": 0,
+        "p95": 0.10000000149011612,
+        "max": 0.10000000149011612,
+        "total": 0.6000000089406967,
+        "zeroSamples": 58
+      },
+      "active": {
+        "count": 17,
+        "min": 0,
+        "median": 0.20000000298023224,
+        "p95": 0.7999999970197678,
+        "max": 0.9000000059604645,
+        "total": 4.600000008940697,
+        "zeroSamples": 4
+      }
+    }
+  },
+  "finishedAt": "2026-10-05T09:01:55.016Z",
+  "sourceAfter": {
+    "commit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+    "tree": "fd4b236264fa8758f488f1fa5735df0314f01107",
+    "status": "?? scripts/local-render/ordinary-worship-boundaries.mjs\n?? scripts/local-render/ordinary-worship-cost.mjs\n?? scripts/local-render/ordinary-worship-m1-route.mjs\n?? scripts/local-render/ordinary-worship.mjs\n?? scripts/local-render/staged-worship-composition-inputs.json\n?? scripts/local-render/staged-worship-composition.mjs",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [
+      {
+        "path": "scripts/local-render/ordinary-worship-boundaries.mjs",
+        "mode": 33188,
+        "sha256": "2759a0e9353f10c9b87de6c751d7caf33ce62994c78966bc7577ba065139a4e8"
+      },
+      {
+        "path": "scripts/local-render/ordinary-worship-cost.mjs",
+        "mode": 33188,
+        "sha256": "856378d00be6d7403660252e26111b67034a37815038d64dd37ede2c8b7ed375"
+      },
+      {
+        "path": "scripts/local-render/ordinary-worship-m1-route.mjs",
+        "mode": 33188,
+        "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+      },
+      {
+        "path": "scripts/local-render/ordinary-worship.mjs",
+        "mode": 33188,
+        "sha256": "e109f328e3b0203081df9440e1c2ae5f07b31ff02a29e284367fed05d72c65ce"
+      },
+      {
+        "path": "scripts/local-render/staged-worship-composition-inputs.json",
+        "mode": 33188,
+        "sha256": "a35c75da2dabcc2d21e8498548752e61ebf3ab13c1d5b248710b1223363199c5"
+      },
+      {
+        "path": "scripts/local-render/staged-worship-composition.mjs",
+        "mode": 33188,
+        "sha256": "c1bf3ba66e7b0d33ffb2c9b4bdef754603955d51c4833a986378b6e10200e849"
+      }
+    ],
+    "fingerprint": "06f4db09c70281772ac4572396fa632e5b1d36aa7b00df7e458fb549be239319"
+  },
+  "profileVerification": {
+    "mode": "created",
+    "origin": "http://127.0.0.1:4359",
+    "cleanupVerified": true,
+    "continuationVerified": true
+  },
+  "redaction": {
+    "kind": "portable redacted copy; original raw receipt retained for independent review",
+    "originalReceiptSha256": "0cf8a74edb43a155650f8031bc59d32c8acfb757de1914433cca92162333189d",
+    "removed": "Checkout/browser/profile paths and profile identity/storage metadata only. Source/runtime/scenario fingerprints and observed results preserved."
+  }
+}

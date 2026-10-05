@@ -1,0 +1,40 @@
+{
+  "originalReceiptSha256": "e3900496994bf1a1feabe1cb28e841d56a94f11835d9ab3b8f001fb598ed0eac",
+  "status": "passed",
+  "exitCode": 0,
+  "startedAt": "2026-10-05T08:55:02.549Z",
+  "finishedAt": "2026-10-05T08:57:03.009Z",
+  "source": {
+    "headOid": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/ordinary-worship-boundaries.mjs": "2759a0e9353f10c9b87de6c751d7caf33ce62994c78966bc7577ba065139a4e8",
+      "scripts/local-render/ordinary-worship-m1-route.mjs": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879",
+      "scripts/local-render/ordinary-worship-cost.mjs": "856378d00be6d7403660252e26111b67034a37815038d64dd37ede2c8b7ed375",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/accepted-tail-cost-resume-copy-20261005T0853.json": "f613855241b90678266a41450ae801e96bb9f7d3d7acdaaefaa29fca7fcc499d",
+      "work/orchestration/dependency-transfers/shaman-before-to-worship-candidate-20261005T0853/receipt.json": "0e5258b80588ff5d7340ea6230e83e2c0eeb8de72d9ddb868ca6994a0457dd81",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "sourceAfter": {
+    "headOid": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/ordinary-worship-boundaries.mjs": "2759a0e9353f10c9b87de6c751d7caf33ce62994c78966bc7577ba065139a4e8",
+      "scripts/local-render/ordinary-worship-m1-route.mjs": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879",
+      "scripts/local-render/ordinary-worship-cost.mjs": "856378d00be6d7403660252e26111b67034a37815038d64dd37ede2c8b7ed375",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/accepted-tail-cost-resume-copy-20261005T0853.json": "f613855241b90678266a41450ae801e96bb9f7d3d7acdaaefaa29fca7fcc499d",
+      "work/orchestration/dependency-transfers/shaman-before-to-worship-candidate-20261005T0853/receipt.json": "0e5258b80588ff5d7340ea6230e83e2c0eeb8de72d9ddb868ca6994a0457dd81",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "stdoutSha256": "e7432b62e6ac510fcb81d5e01eeb7c6610907cc91f1a59d936ce09cb0111b5a1",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "scope": "Outer command summary. Original raw logs/receipt retained for independent review."
+}

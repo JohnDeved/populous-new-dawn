@@ -1,0 +1,37 @@
+{
+  "scope": "Accepted pulse-only Load in a fresh browser process",
+  "status": "passed",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "67d195cb0ea76615d797ba09e10259fda6a1cbec",
+  "originalReceiptSha256": "1b96eccdc85b1fc098f8ceed0017c48e6f28e12cc683433f9894443da22be067",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "7e3bc6e7a01b52cda6ff1a77c52002f60b6e3db3637afb5ddb5071f27ffb35e7"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "b3becb7af0ec310ccd26b1aabfd2f16ebe3c4762d15be28674e6cc07b3de1170"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "5cd383df0dec0b4fb4691eb5abba4b9ff48efa81312ffb376b4ba68ba826bce6"
+    },
+    {
+      "path": "ordinary-worship-boundaries.mjs",
+      "sha256": "2759a0e9353f10c9b87de6c751d7caf33ce62994c78966bc7577ba065139a4e8"
+    },
+    {
+      "path": "ordinary-worship-m1-route.mjs",
+      "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+    },
+    {
+      "path": "overlay-restored-first-frame.png",
+      "sha256": "cac58bc1ad7d3fb90d4e4be76aa1251a4d9cbf4115e0be8e6e9ea7794cb07bea"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "e15e5c645e851260414143c79d36675ae484656310dd810ed1918db4194f2da7"
+    }
+  ]
+}
