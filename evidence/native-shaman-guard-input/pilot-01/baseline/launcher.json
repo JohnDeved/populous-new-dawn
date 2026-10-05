@@ -1,0 +1,74 @@
+{
+  "status": "terminal",
+  "startedAt": "2026-10-05T20:46:24.396675+00:00",
+  "deadline330": "2026-10-05T20:51:54.396675+00:00",
+  "name": "baseline",
+  "head": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "port": 4392,
+  "netNamespace": "net:[4026532326]",
+  "pidNamespace": "pid:[4026532325]",
+  "planSha256": "b17eab90f45c263f76f153426ceb8934dd5a52373c3be4c927675000039d6916",
+  "command": [
+    "node",
+    "scripts/orchestration/command-receipt.mjs",
+    "--output",
+    "work/orchestration/native-guard-browser-baseline-01/outer.json",
+    "--input",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+    "--input",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-receipt.json",
+    "--input",
+    "node_modules/.package-lock.json",
+    "--",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=15s",
+    "330s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+    "--port",
+    "4392",
+    "--timeout",
+    "300000",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-01/run"
+  ],
+  "privateTMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-private-tmp-01",
+  "prePortsFree": true,
+  "pid": 16,
+  "finishedAt": "2026-10-05T20:47:43.909862+00:00",
+  "exitCode": 1,
+  "postPorts": [
+    {
+      "host": "127.0.0.1",
+      "closed": true
+    },
+    {
+      "host": "localhost",
+      "closed": true
+    }
+  ],
+  "sourceAfter": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "sourceStatusAfter": "",
+  "outer": {
+    "sha256": "8f7f82b1d23f1ba79894e7f821ba57d84b211b0d72736b3b8a694f0fe4ba1ce4",
+    "status": "failed",
+    "failure": null,
+    "exitCode": 1
+  },
+  "inner": {
+    "sha256": "5faaee3df939fcba9a5e20640bc572cee2a12b8ff202de6a84f7645e1d91366e",
+    "status": "failed",
+    "failure": "AssertionError [ERR_ASSERTION]: Entry/readiness real-clock bound\n    at nativeGuardWitness (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs:219:12)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-before/scripts/local-render/harness.mjs:251:21",
+    "exitCode": null
+  }
+}

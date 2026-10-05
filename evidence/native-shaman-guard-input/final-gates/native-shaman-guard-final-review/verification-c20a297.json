@@ -1,0 +1,1179 @@
+{
+  "decision": "ACCEPT final package and launcher preflight; ordinary rendered acceptance pending",
+  "base": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "head": "c20a297f5f815ce404f796b08f77ea56396f96da",
+  "tree": "9af7241660efc11eb8969845ab7e587231d906bc",
+  "sourceManifestSha256": "0c3fb40f5a584824da3faac2180fdb9fbf275ae60196be9292fac8e6b679dcd3",
+  "changedSourceHashesVerified": 19,
+  "receipts": [
+    {
+      "path": "work/orchestration/native-shaman-guard-input/build-c20a297.json",
+      "sha256": "d0d8d83f3cd072fdf5087caef7ca8e33e927cb2f718814d60ceb9cf4d3f21227",
+      "status": "passed",
+      "exitCode": 0,
+      "command": [
+        "timeout",
+        "180s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "build"
+      ],
+      "sourceStable": true,
+      "rawBytesAndHashesMatch": true,
+      "stdoutSha256": "8a9b406e7e833469e6d2f3fee39a7ac5666f5708fc6b108be20b86969b61d237",
+      "stderrSha256": "8e85c133e9872c2a260b67ae4626e0663a1cf2a43f8ff9fb20e7fc2818e2f69a"
+    },
+    {
+      "path": "work/orchestration/native-shaman-guard-input/final-eslint-baseline-c20a297.json",
+      "sha256": "043d23346ff276beaf5180df3ea1e884990fd4dd511f7b25fbc28e3849bd5f94",
+      "status": "failed",
+      "exitCode": 1,
+      "command": [
+        "timeout",
+        "120s",
+        "taskset",
+        "-c",
+        "0-3",
+        "bash",
+        "-c",
+        "git show 3b899125cc8cedef938823718ad5d44f49957b66:app/world-turn.ts | node_modules/.bin/eslint --stdin --stdin-filename app/world-turn.ts"
+      ],
+      "sourceStable": true,
+      "rawBytesAndHashesMatch": true,
+      "stdoutSha256": "105bef648bf59ba70b4115168cb02a8c9470e33c3a65aede64f84ac778e9c245",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/native-shaman-guard-input/final-eslint-c20a297.json",
+      "sha256": "2d2872dd3786b838e4a7c938e8ee62c0ac51bead84b9d22a179ea300e6fb1b6c",
+      "status": "failed",
+      "exitCode": 1,
+      "command": [
+        "timeout",
+        "120s",
+        "taskset",
+        "-c",
+        "0-3",
+        "node_modules/.bin/eslint",
+        "app/live-command.ts",
+        "app/live-movement.ts",
+        "app/live-people.ts",
+        "app/person-order-update.ts",
+        "app/selection-runtime.ts",
+        "app/shaman-guard.ts",
+        "app/world-turn.ts",
+        "app/world-tasks.ts"
+      ],
+      "sourceStable": true,
+      "rawBytesAndHashesMatch": true,
+      "stdoutSha256": "105bef648bf59ba70b4115168cb02a8c9470e33c3a65aede64f84ac778e9c245",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/native-shaman-guard-input/final-fallow-dupes-c20a297.json",
+      "sha256": "5821b52cb3649d3d1b161e266cde7de451412945650a22efc6fa0e2e0eafe58a",
+      "status": "passed",
+      "exitCode": 0,
+      "command": [
+        "timeout",
+        "120s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "quality:dupes"
+      ],
+      "sourceStable": true,
+      "rawBytesAndHashesMatch": true,
+      "stdoutSha256": "fc0e31addb4f1cd9c776354d0dc027054f036995b755f5500846b844fc15912b",
+      "stderrSha256": "7aec5937e5195a063ae46db7c7a52b758b10b35434b602a03ae3dffd51bbe800"
+    },
+    {
+      "path": "work/orchestration/native-shaman-guard-input/final-fallow-health-c20a297.json",
+      "sha256": "701fa20bd7aa4cab323d10a37bfff388c0e3ba76d2c7882d567d1036487e2aca",
+      "status": "passed",
+      "exitCode": 0,
+      "command": [
+        "timeout",
+        "120s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "quality:health"
+      ],
+      "sourceStable": true,
+      "rawBytesAndHashesMatch": true,
+      "stdoutSha256": "11badf713547055da50e606e5c30eabede07414f5682636f12c97ebc1e9aeb55",
+      "stderrSha256": "79c3427b3c2a970d3a43998ac4ef43a5a118b3f41e04cbc6a19837e223c41389"
+    },
+    {
+      "path": "work/orchestration/native-shaman-guard-input/final-fallow-unused-c20a297.json",
+      "sha256": "e435ddd595f814545c31f97912652d9ada538eaefe0ddc616a4fe7f8c7dcb589",
+      "status": "failed",
+      "exitCode": 1,
+      "command": [
+        "timeout",
+        "120s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "quality:unused"
+      ],
+      "sourceStable": true,
+      "rawBytesAndHashesMatch": true,
+      "stdoutSha256": "047c2ba5b9f21d23fd2815d0f77c190365be650f89406bca7136f9da66bcd053",
+      "stderrSha256": "6f34863e80a764d9731eae7bb4e4414cc451f6e9738bb1cb20bcac56cb2973c1"
+    },
+    {
+      "path": "work/orchestration/native-shaman-guard-input/final-format-global-c20a297.json",
+      "sha256": "519b1de4f4a8d775d91899a8d41bdfc49b71dc593f4df32bbced91792c8b2e88",
+      "status": "failed",
+      "exitCode": 1,
+      "command": [
+        "timeout",
+        "120s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "format:check"
+      ],
+      "sourceStable": true,
+      "rawBytesAndHashesMatch": true,
+      "stdoutSha256": "7ef30a2574818f4212b00db2e1bc3442f5f15aa9886c525a9ca6942d0980c375",
+      "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "path": "work/orchestration/native-shaman-guard-input/final-format-scoped-c20a297.json",
+      "sha256": "d7ff74c0a40cc90e6458968b8dd37b4daf9f92c7d7fe93d8c08372331bc18195",
+      "status": "passed",
+      "exitCode": 0,
+      "command": [
+        "timeout",
+        "120s",
+        "taskset",
+        "-c",
+        "0-3",
+        "node_modules/.bin/oxfmt",
+        "--check",
+        "app/live-command.ts",
+        "app/live-movement.ts",
+        "app/live-people.ts",
+        "app/person-order-update.ts",
+        "app/selection-runtime.ts",
+        "app/shaman-guard.ts",
+        "app/world-turn.ts",
+        "app/world-tasks.ts"
+      ],
+      "sourceStable": true,
+      "rawBytesAndHashesMatch": true,
+      "stdoutSha256": "4453fd9dde6e738b577b1e52f4b4c17b4a17bb0d6dacb698b9606e2122ac0720",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/native-shaman-guard-input/final-oxlint-baseline-c20a297.json",
+      "sha256": "602ebae21df54a9f0c4c56ebb204e412c5210210711747de901b20094b7dc505",
+      "status": "failed",
+      "exitCode": 1,
+      "command": [
+        "timeout",
+        "120s",
+        "taskset",
+        "-c",
+        "0-3",
+        "bash",
+        "-c",
+        "cd ../native-shaman-guard-before && /workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/node_modules/.bin/oxlint --config /workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/.oxlintrc.json --disable-nested-config app/live-command.ts app/live-movement.ts app/live-people.ts app/person-order-update.ts app/selection-runtime.ts app/world-turn.ts app/world-tasks.ts"
+      ],
+      "sourceStable": true,
+      "rawBytesAndHashesMatch": true,
+      "stdoutSha256": "90fede7eebf35fc81596b06d83f3f8b2bc1da27f6fb53209fa1b4cdf34dde2d7",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/native-shaman-guard-input/final-oxlint-c20a297.json",
+      "sha256": "a7c806d8f2f7932e597c43f4e17845ae32dff20e65cc345a2958cd8368cfc58a",
+      "status": "failed",
+      "exitCode": 1,
+      "command": [
+        "timeout",
+        "120s",
+        "taskset",
+        "-c",
+        "0-3",
+        "node_modules/.bin/oxlint",
+        "app/live-command.ts",
+        "app/live-movement.ts",
+        "app/live-people.ts",
+        "app/person-order-update.ts",
+        "app/selection-runtime.ts",
+        "app/shaman-guard.ts",
+        "app/world-turn.ts",
+        "app/world-tasks.ts"
+      ],
+      "sourceStable": true,
+      "rawBytesAndHashesMatch": true,
+      "stdoutSha256": "77f9a70b3715dadeb093f032a5012f1d1732275a2cd58f2d9bf41edd9d175dbf",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/native-shaman-guard-input/fullcheck-c20a297.json",
+      "sha256": "3964ed4c0c75151cd8bd40e5dea83f2b4da54341df85d7ba5c3ef343cce6aad0",
+      "status": "passed",
+      "exitCode": 0,
+      "command": [
+        "timeout",
+        "300s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "check"
+      ],
+      "sourceStable": true,
+      "rawBytesAndHashesMatch": true,
+      "stdoutSha256": "25856cc9eff6884e04cf5016516d8e9474591e471e0c7b63d84a094c29960992",
+      "stderrSha256": "734ccd19a31fce6b86708ba92aae98b5811c1a2e2999fe39d3e4d09c79cbe657"
+    }
+  ],
+  "plannerSha256": "9295b90bdd54a97685ec98185978d90bdf5843bdd0036e5469ce974eaace1424",
+  "plannerDispositions": [
+    {
+      "id": "automatic-boat-crossing-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "building-counterattack-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "campaign-natural-victory-browser",
+      "kind": "browser",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "clock-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "blocked",
+      "reason": "Pre-existing planner path tests/unit-interpolation.test.mjs is absent at both base and candidate. Existing tests/game-clock.test.mjs and tests/unit-motion.test.mjs, which imports the interpolation native fixture, pass within fullcheck. No clock coverage or launch blocker; repair planner metadata separately."
+    },
+    {
+      "id": "computer-attack-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "computer-direct-attack-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "construction-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "construction-live-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "construction-native-fetch",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "construction-native-order",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "construction-native-timber-search",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "construction-research-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "firewarrior-building-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "follower-task-adapters-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "follower-task-art-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "follower-tasks-browser",
+      "kind": "browser",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "follower-tasks-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "follower-tasks-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "follower-transports-browser",
+      "kind": "browser",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "follower-transports-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "follower-transports-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "level-start-browser",
+      "kind": "browser",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "level-start-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "level-start-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "level-start-static",
+      "kind": "static",
+      "plannerStatus": "blocked",
+      "status": "not-applicable",
+      "reason": "No authored level-start or Shaman asset input/export changed; broad routing does not require unrelated asset revalidation."
+    },
+    {
+      "id": "messages-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "messages-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission10-opening-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission11-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission11-build-at-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission11-housing-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission11-settlement-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission12-opening-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission12-spy-sabotage-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission13-balloon-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission13-opening-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission14-rewards-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission14-rewards-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission14-rewards-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "mission15-prison-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission15-prison-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission15-prison-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "mission16-bloodlust-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission16-bloodlust-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission16-bloodlust-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "mission17-armageddon-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission17-armageddon-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission17-armageddon-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "mission18-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission18-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission18-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "mission19-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission19-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission19-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "mission20-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission20-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission20-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "mission21-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission21-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission21-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "mission22-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission22-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission22-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "mission23-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission23-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission23-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "mission23-settlement-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission4-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission5-angel-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission5-angel-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "mission7-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission7-opening-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission8-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "mission8-firewarrior-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission9-boat-house-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "mission9-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "orchestration-structural",
+      "kind": "metadata",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "orchestration-tests",
+      "kind": "metadata",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "orders-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "orders-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "orders-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "production-build",
+      "kind": "build",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "build-c20a297.json",
+      "reason": "Exact final-head production build."
+    },
+    {
+      "id": "queued-timber-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "reincarnation-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "reincarnation-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "reincarnation-wave-browser",
+      "kind": "browser",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "reincarnation-wave-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "reincarnation-wave-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "shaman-appearance-browser",
+      "kind": "browser",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "shaman-appearance-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "shaman-appearance-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "shaman-assets-static",
+      "kind": "static",
+      "plannerStatus": "blocked",
+      "status": "not-applicable",
+      "reason": "No authored level-start or Shaman asset input/export changed; broad routing does not require unrelated asset revalidation."
+    },
+    {
+      "id": "shaman-death-ground-browser",
+      "kind": "browser",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "shaman-death-ground-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "shaman-death-ground-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "transport-ownership-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "transport-vehicle-materials-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "tutorial-first-lesson-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "tutorial-first-lesson-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "vault-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "vehicle-destruction-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "vehicle-destruction-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "vehicle-exit-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "vehicle-panel-browser",
+      "kind": "browser",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "vehicle-panel-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "vehicle-panel-portable",
+      "kind": "portable",
+      "plannerStatus": "not-run",
+      "status": "passed",
+      "evidence": "fullcheck-c20a297.json",
+      "reason": "All selected existing test files are included by tests/*.test.mjs; repository check also executes orchestration structural validation."
+    },
+    {
+      "id": "vehicle-panel-selection-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "vehicle-seats-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "vehicle-unload-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    },
+    {
+      "id": "worship-browser",
+      "kind": "browser",
+      "plannerStatus": "not-run",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unrelated mission/transport/construction/appearance acceptance is not claimed. Paired ordinary Mission10 Guard is the required rendered integration for this slice. Fresh campaign is a separate open gate."
+    },
+    {
+      "id": "worship-native",
+      "kind": "native",
+      "plannerStatus": "blocked",
+      "status": "not-run",
+      "requiredForThisChange": false,
+      "reason": "Broad subsystem selection; unchanged native routines are not re-proved wholesale. Accepted hash-bound Guard lifecycle/producer/key/distance/payload/supersession packets cover the changed boundary; maintained native-vector tests passed in fullcheck. No broader equivalence claim."
+    }
+  ],
+  "unknownPaths": {
+    "app/world-tasks.ts": "Explicitly reviewed pending Guard supersession path; public move/attack/worship/entry failure-first and subsequent-controller evidence accepted at c20.",
+    "decomp/research/shaman-guard-input.md": "Reviewed finite native evidence plus roster/legacy/controller limits; no executable effect.",
+    "tests/fixtures/shaman-guard-native.json": "Generated raw bindings and b-only normalization independently accepted; extractor --check and full native-vector suite pass."
+  },
+  "quality": {
+    "eslintStdoutByteIdentical": true,
+    "oxlintBaseline": 394,
+    "oxlintCandidate": 394,
+    "introduced": [],
+    "removed": [],
+    "globalFormatting": "Failed on unchanged render-view.ts and viewport-bounds.ts; all eight changed runtime paths pass.",
+    "fallow": "Advisories retained: health1903/18629, duplicate lines13137 (9.5%), unused7files/3dependencies/38imports/1unlisted dependency/20cycles. No baseline-equality claim for Fallow."
+  },
+  "launcher": {
+    "path": "work/orchestration/native-guard-browser-execution/launch-plan-rev3.json",
+    "sha256": "b17eab90f45c263f76f153426ceb8934dd5a52373c3be4c927675000039d6916",
+    "verified": "Exact scenario/packet/preflight/browser/root-lock hashes, clean baseline/candidate full/app trees, identical maintained harness and fresh outputs. Actual port/dependency/terminal cleanup remains owner responsibility.",
+    "scenarioSha256": "1889980ca4e2b9288e2f069708c6da0a3f3b3d263693152454fee94670d1d086",
+    "preparationReceiptSha256": "90624ba41e75cb149384aec317fec4e77a1b4ddfba7f05e6c073ff6c408bda6e",
+    "harnessSha256": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c"
+  },
+  "requiredPending": [
+    {
+      "id": "paired-ordinary-mission10-guard",
+      "status": "not-run",
+      "reason": "Complete accepted revision3 baseline then candidate runtime/pixels, real training and both pending Save/Load cycles."
+    }
+  ],
+  "limits": [
+    "Baseline Oxlint wrapper fingerprints the candidate checkout; command names the dedicated baseline worktree, independently verified clean at exact base. Baseline ESLint explicitly reads the fixed base Git blob.",
+    "Fullcheck/build receipts bind clean HEAD before/after. Current root/installed locks match final quality comparison and launcher; gate receipts themselves have no explicit dependency --input fields.",
+    "No production edit, gate rerun, browser/server/profile action, dependency move or parity recording occurred in review."
+  ]
+}

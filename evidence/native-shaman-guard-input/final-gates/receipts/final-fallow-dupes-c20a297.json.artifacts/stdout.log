@@ -1,0 +1,214 @@
+
+> populous-first-dawn@0.1.0 quality:dupes
+> fallow dupes
+
+● Duplicates (666 clone groups)
+
+    485 lines  2 instances  dup:c77b3abb6f87acd9-r109
+    scripts/check-browser-mission12-vault-bridge.mjs:36-520
+    scripts/check-browser-spy-combat-lifecycle.mjs:36-520
+
+    227 lines  2 instances  dup:c77b3abb6f87acd9-r395
+    scripts/check-browser-mission12-vault-bridge.mjs:523-749
+    scripts/check-browser-spy-combat-lifecycle.mjs:1168-1394
+
+    120 lines  2 instances  dup:c77b3abb6f87acd9-r107
+    scripts/check-browser-shaman-death-cadence.mjs:154-253
+    scripts/check-browser-shaman-death-vfx.mjs:65-184
+
+      5 lines  37 instances  spread 7  dup:c77b3abb6f87acd9-r155
+    scripts/check-browser-balloon-hut-menu.mjs:98-102
+    scripts/check-browser-balloon-hut-menu.mjs:133-137
+    scripts/check-browser-balloon-hut-menu.mjs:161-165
+    scripts/check-browser-balloon-hut-menu.mjs:240-244
+    scripts/check-browser-balloon-hut-menu.mjs:451-455
+    scripts/check-browser-boat-house-menu.mjs:107-111
+    scripts/check-browser-boat-house-menu.mjs:170-174
+    scripts/check-browser-boat-house-menu.mjs:213-217
+    scripts/check-browser-firewarrior-building.mjs:31-35
+    scripts/check-browser-firewarrior-building.mjs:114-118
+    scripts/check-browser-mission11.mjs:15-19
+    scripts/check-browser-mission11.mjs:100-104
+    scripts/check-browser-mission11.mjs:139-143
+    scripts/check-browser-mission11.mjs:176-180
+    scripts/check-browser-mission11.mjs:209-213
+    scripts/check-browser-mission11.mjs:233-237
+    scripts/check-browser-mission11.mjs:260-264
+    scripts/check-browser-mission11.mjs:754-758
+    scripts/check-browser-mission11.mjs:795-799
+    scripts/check-browser-mission11.mjs:854-858
+    scripts/check-browser-mission11.mjs:1060-1064
+    scripts/check-browser-mission11.mjs:1565-1569
+    scripts/check-browser-mission22.mjs:13-17
+    scripts/check-browser-mission22.mjs:60-64
+    scripts/check-browser-mission22.mjs:90-94
+    scripts/check-browser-mission8.mjs:97-101
+    scripts/check-browser-mission8.mjs:334-338
+    scripts/check-browser-mission9.mjs:109-113
+    scripts/check-browser-mission9.mjs:338-342
+    scripts/check-browser-mission9.mjs:447-451
+    scripts/check-browser-mission9.mjs:519-523
+    scripts/check-browser-mission9.mjs:597-601
+    scripts/check-browser-mission9.mjs:663-667
+    scripts/check-browser-mission9.mjs:832-836
+    scripts/check-browser-mission9.mjs:891-895
+    scripts/check-browser-mission9.mjs:1162-1166
+    scripts/check-browser-mission9.mjs:1208-1212
+
+      6 lines  27 instances  spread 6  dup:c77b3abb6f87acd9-r2
+    scripts/check-browser-balloon-hut-menu.mjs:98-103
+    scripts/check-browser-balloon-hut-menu.mjs:133-138
+    scripts/check-browser-balloon-hut-menu.mjs:161-166
+    scripts/check-browser-balloon-hut-menu.mjs:240-245
+    scripts/check-browser-balloon-hut-menu.mjs:451-456
+    scripts/check-browser-boat-house-menu.mjs:170-175
+    scripts/check-browser-boat-house-menu.mjs:213-218
+    scripts/check-browser-mission11.mjs:100-105
+    scripts/check-browser-mission11.mjs:139-144
+    scripts/check-browser-mission11.mjs:176-181
+    scripts/check-browser-mission11.mjs:209-214
+    scripts/check-browser-mission11.mjs:233-238
+    scripts/check-browser-mission11.mjs:260-265
+    scripts/check-browser-mission11.mjs:854-859
+    scripts/check-browser-mission11.mjs:1060-1065
+    scripts/check-browser-mission11.mjs:1565-1570
+    scripts/check-browser-mission22.mjs:13-18
+    scripts/check-browser-mission22.mjs:60-65
+    scripts/check-browser-mission22.mjs:90-95
+    scripts/check-browser-mission8.mjs:97-102
+    scripts/check-browser-mission8.mjs:334-339
+    scripts/check-browser-mission9.mjs:109-114
+    scripts/check-browser-mission9.mjs:338-343
+    scripts/check-browser-mission9.mjs:519-524
+    scripts/check-browser-mission9.mjs:597-602
+    scripts/check-browser-mission9.mjs:663-668
+    scripts/check-browser-mission9.mjs:1208-1213
+
+     83 lines  2 instances  dup:c77b3abb6f87acd9-r47
+    scripts/check-browser-balloon-hut-menu.mjs:129-211
+    scripts/check-browser-mission11.mjs:229-308
+
+     14 lines  11 instances  dup:c77b3abb6f87acd9-r386
+    scripts/check-browser-firewarrior-building.mjs:6-15
+    scripts/check-browser-mission14-rewards.mjs:6-17
+    scripts/check-browser-mission16-bloodlust.mjs:6-17
+    scripts/check-browser-mission17-armageddon.mjs:6-17
+    scripts/check-browser-mission18.mjs:6-17
+    scripts/check-browser-mission19.mjs:6-17
+    scripts/check-browser-mission20.mjs:6-17
+    scripts/check-browser-mission21.mjs:47-58
+    scripts/check-browser-mission22.mjs:172-183
+    scripts/check-browser-mission23.mjs:6-19
+    scripts/check-browser-vehicle-destruction.mjs:6-15
+
+     13 lines  12 instances  dup:c77b3abb6f87acd9-r542
+    scripts/check-browser-firewarrior-building.mjs:6-14
+    scripts/check-browser-mission14-rewards.mjs:6-16
+    scripts/check-browser-mission16-bloodlust.mjs:6-16
+    scripts/check-browser-mission17-armageddon.mjs:6-16
+    scripts/check-browser-mission18.mjs:6-16
+    scripts/check-browser-mission19.mjs:6-16
+    scripts/check-browser-mission20.mjs:6-16
+    scripts/check-browser-mission21.mjs:47-57
+    scripts/check-browser-mission22.mjs:172-182
+    scripts/check-browser-mission23.mjs:6-18
+    scripts/check-browser-tutorial.mjs:5-15
+    scripts/check-browser-vehicle-destruction.mjs:6-14
+
+      8 lines  15 instances  dup:c77b3abb6f87acd9-r339
+    scripts/check-browser-building-menu.mjs:20-25
+    scripts/check-browser-firewarrior-building.mjs:8-13
+    scripts/check-browser-mission14-rewards.mjs:8-15
+    scripts/check-browser-mission15-prison.mjs:9-16
+    scripts/check-browser-mission16-bloodlust.mjs:8-15
+    scripts/check-browser-mission17-armageddon.mjs:8-15
+    scripts/check-browser-mission18.mjs:8-15
+    scripts/check-browser-mission19.mjs:8-15
+    scripts/check-browser-mission20.mjs:8-15
+    scripts/check-browser-mission21.mjs:49-56
+    scripts/check-browser-mission22.mjs:174-181
+    scripts/check-browser-mission23.mjs:8-15
+    scripts/check-browser-tutorial.mjs:7-14
+    scripts/check-browser-vehicle-destruction.mjs:8-13
+    scripts/check-browser-world-picking.mjs:8-11
+
+      8 lines  28 instances  spread 1  dup:ad93bb41
+    scripts/check-browser-area-attack.mjs:106-113
+    scripts/check-browser-building-clearing.mjs:130-137
+    scripts/check-browser-building-ground.mjs:14-14
+    scripts/check-browser-building-ground.mjs:78-78
+    scripts/check-browser-building-objects.mjs:25-25
+    scripts/check-browser-building-terrain.mjs:79-79
+    scripts/check-browser-combat-queues.mjs:109-116
+    scripts/check-browser-construction.mjs:70-70
+    scripts/check-browser-construction.mjs:100-100
+    scripts/check-browser-globe-effects.mjs:43-43
+    scripts/check-browser-housing-entry.mjs:75-76
+    scripts/check-browser-hut-occupancy-smoke.mjs:718-725
+    scripts/check-browser-hut-upgrade.mjs:53-53
+    scripts/check-browser-hut-upgrade.mjs:69-69
+    scripts/check-browser-mission3-convert-task.mjs:67-69
+    scripts/check-browser-mission3-preacher-task.mjs:101-108
+    scripts/check-browser-mixed-building-orders.mjs:128-135
+    scripts/check-browser-queued-dismantling.mjs:63-63
+    scripts/check-browser-scenery-fire.mjs:39-41
+    scripts/check-browser-selection.mjs:28-28
+    scripts/check-browser-spell-halo.mjs:32-32
+    scripts/check-browser-spell-halo.mjs:56-56
+    scripts/check-browser-tower-entry.mjs:86-93
+    scripts/check-browser-training.mjs:56-57
+    scripts/check-browser-tree-growth.mjs:51-51
+    scripts/check-browser-unit-shadows.mjs:76-78
+    scripts/check-browser-worship-waypoints.mjs:112-119
+    scripts/local-render/building-construction-gauge.mjs:66-68
+
+  ... and 656 more clone groups
+  Duplicate code blocks - https://docs.fallow.tools/explanations/duplication#clone-groups
+
+● Clone families (102 with multiple groups)
+
+  5 groups, 105 lines across app/computer-runtime.ts
+    → Extract 5 shared clone groups (105 lines) from computer-runtime.ts into app
+
+  3 groups, 17 lines across app/computer.ts
+    → Extract shared function (6 lines) from computer.ts, computer.ts
+    → Extract shared function (6 lines) from computer.ts, computer.ts
+    → Extract shared function (5 lines) from computer.ts, computer.ts, computer.ts
+
+  2 groups, 18 lines across app/hud-selection.ts, app/hud-tasks.ts
+    → Extract shared function (12 lines) from hud-selection.ts, hud-tasks.ts
+    → Extract shared function (6 lines) from hud-selection.ts, hud-tasks.ts
+
+  2 groups, 18 lines across app/live-combat.ts
+    → Extract shared function (13 lines) from live-combat.ts, live-combat.ts
+    → Extract shared function (5 lines) from live-combat.ts, live-combat.ts
+
+  2 groups, 23 lines across app/native-terrain.ts
+    → Extract shared function (10 lines) from native-terrain.ts, native-terrain.ts
+    → Extract shared function (13 lines) from native-terrain.ts, native-terrain.ts, native-terrain.ts
+
+  2 groups, 16 lines across scripts/browser-game.mjs, scripts/check-browser-building-smoke.mjs
+    → Extract shared function (6 lines) from browser-game.mjs, check-browser-building-smoke.mjs
+    → Extract shared function (10 lines) from browser-game.mjs, check-browser-building-smoke.mjs
+
+  2 groups, 25 lines across scripts/browser-game.mjs, scripts/check-browser-vault-appearance.mjs
+    → Extract shared function (14 lines) from browser-game.mjs, check-browser-vault-appearance.mjs
+    → Extract shared function (11 lines) from browser-game.mjs, check-browser-vault-appearance.mjs
+
+  4 groups, 41 lines across scripts/check-browser-area-attack.mjs, scripts/check-browser-combat-queues.mjs
+    → Extract shared function (10 lines) from check-browser-area-attack.mjs, check-browser-combat-queues.mjs
+    → Extract shared function (10 lines) from check-browser-area-attack.mjs, check-browser-combat-queues.mjs
+    → Extract shared function (11 lines) from check-browser-area-attack.mjs, check-browser-combat-queues.mjs
+    → Extract shared function (10 lines) from check-browser-area-attack.mjs, check-browser-combat-queues.mjs
+
+  2 groups, 14 lines across scripts/check-browser-audio-pause.mjs, scripts/check-browser-background-audio.mjs
+    → Extract shared function (9 lines) from check-browser-audio-pause.mjs, check-browser-background-audio.mjs
+    → Extract shared function (5 lines) from check-browser-audio-pause.mjs, check-browser-background-audio.mjs
+
+  12 groups, 156 lines across scripts/check-browser-balloon-hut-menu.mjs, scripts/check-browser-boat-house-menu.mjs
+    → Extract 12 shared clone groups (156 lines) from check-browser-balloon-hut-menu.mjs, check-browser-boat-house-menu.mjs into scripts
+
+  ... and 92 more families
+
+  Groups of related clones across the same files — https://docs.fallow.tools/explanations/duplication#clone-families
+

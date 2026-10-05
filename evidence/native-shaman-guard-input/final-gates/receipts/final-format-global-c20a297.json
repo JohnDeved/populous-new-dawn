@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "4c7debed-aeba-4b9b-903e-a6846d19a12f",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "c20a297f5f815ce404f796b08f77ea56396f96da",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "timeout",
+    "120s",
+    "taskset",
+    "-c",
+    "0-3",
+    "npm",
+    "run",
+    "format:check"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+  "startedAt": "2026-10-05T20:40:32.392Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-format-global-c20a297.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-format-global-c20a297.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T20:40:32.783Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 format:check\n> oxfmt --check \"app/**/*.{ts,tsx}\"\n\nChecking formatting...\n\napp/render-view.ts (2ms)\napp/viewport-bounds.ts (0ms)\n\nFormat issues found in above 2 files. Run without `--check` to fix.\nFinished in 40ms on 243 files using 4 threads.\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n",
+  "stdoutSha256": "7ef30a2574818f4212b00db2e1bc3442f5f15aa9886c525a9ca6942d0980c375",
+  "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+  "sourceAfter": {
+    "headOid": "c20a297f5f815ce404f796b08f77ea56396f96da",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

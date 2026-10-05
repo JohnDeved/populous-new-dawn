@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "089394c1-6a32-46c4-8b9c-b4bef0a1ee8e",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "c20a297f5f815ce404f796b08f77ea56396f96da",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "timeout",
+    "120s",
+    "taskset",
+    "-c",
+    "0-3",
+    "npm",
+    "run",
+    "quality:unused"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+  "startedAt": "2026-10-05T20:40:41.843Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-fallow-unused-c20a297.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-fallow-unused-c20a297.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T20:40:42.520Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 quality:unused\n> fallow dead-code\n\n── Unused Code ─────────────────────────────────────\n\n● Unused files (7)\n  qa/audio-check.mjs\n  qa/browser-check.mjs\n  qa/flyby-check.mjs\n  qa/inspect.mjs\n  qa/native-visuals.mjs\n  qa/projection-check.mjs\n  worker/index.ts\n  Files not reachable from any entry point — https://docs.fallow.tools/explanations/dead-code#unused-files\n  To suppress: // fallow-ignore-file unused-file\n\n── Dependencies ─────────────────────────────────────\n\n● Unused devDependencies (3)\n  @vitejs/plugin-rsc\n  oxc-standard\n  react-server-dom-webpack\n  Listed in devDependencies but never imported or referenced — https://docs.fallow.tools/explanations/dead-code#unused-dependencies\n\n● Unresolved imports (38)\n  scripts/bench-formation-phase.mjs (3)\n    :8 ../app/.formation-phase-baseline.ts\n    :9 ../app/.formation-movement-baseline.ts\n    :10 ../app/.formation-world-turn-baseline.ts\n  scripts/bench-terrain-notifications.mjs (2)\n    :9 ../app/.terrain-notifications-baseline.ts\n    :10 ../app/.terrain-notifications-world-turn-baseline.ts\n  scripts/check-browser-hut-occupancy-smoke.mjs (2)\n    :536 /app/original-effects.json\n    :537 /app/original-rules.json\n  scripts/shaman-worship-ground-observer.mjs (2)\n    :10 /app/original-worship-acquisition.json\n    :11 /app/original-hud.json\n  qa/native-visuals.mjs\n    :20 /app/original-units.json\n  qa/projection-check.mjs\n    :52 /app/original-models.json\n  scripts/bench-command-context.mjs\n    :8 ../app/.command-context-baseline.ts\n  scripts/bench-route-recovery.mjs\n    :9 ../app/.route-recovery-baseline.ts\n  scripts/bench-world-height.mjs\n    :9 ../app/.world-height-baseline.ts\n  scripts/check-browser-background-audio.mjs\n    :202 /app/original-music.json\n  ... and 23 more in 23 files (--format json for full list)\n  Import paths that could not be resolved, check for missing packages or broken paths. Framework-specific imports may need a plugin: https://docs.fallow.tools/plugins — https://docs.fallow.tools/explanations/dead-code#unresolved-imports\n  To suppress: // fallow-ignore-next-line unresolved-import\n\n● Unlisted dependencies (1)\n  next\n  Packages imported in code but missing from package.json — https://docs.fallow.tools/explanations/dead-code#unlisted-dependencies\n\n── Structure ─────────────────────────────────────\n\n● Circular dependencies (20)\n  app/computer-runtime.ts (4 cycles)\n    → live-building-entry.ts → model.ts → computer-runtime.ts\n    → live-movement.ts → model.ts → computer-runtime.ts\n    → live-pathfinding.ts → model.ts → computer-runtime.ts\n    → live-people.ts → model.ts → computer-runtime.ts\n\n  app/live-building-combat.ts (3 cycles)\n    → live-building-entry.ts → live-movement.ts → live-building-combat.ts\n    → live-building-entry.ts → world-tasks.ts → live-building-combat.ts\n    → live-movement.ts → live-building-combat.ts\n\n  app/campaign-command-runtime.ts (2 cycles)\n    → live-building-combat.ts → model.ts → campaign-command-runtime.ts\n    → live-movement.ts → model.ts → campaign-command-runtime.ts\n\n  app/combat-runtime.ts (2 cycles)\n    → live-people.ts → model.ts → combat-runtime.ts\n    → world-tasks.ts → live-building-combat.ts → combat-runtime.ts\n\n  app/construction-runtime.ts (2 cycles)\n    → live-building-entry.ts → model.ts → construction-runtime.ts\n    → live-people.ts → model.ts → construction-runtime.ts\n\n  app/live-building-entry.ts (2 cycles)\n    → live-movement.ts → live-building-entry.ts\n    → live-people.ts → live-building-entry.ts\n\n  app/live-movement.ts (2 cycles)\n    → live-people.ts → live-movement.ts\n    → world-tasks.ts → live-movement.ts\n\n  app/live-people.ts (2 cycles)\n    → live-resting.ts → live-people.ts\n    → world-tasks.ts → live-people.ts\n\n  app/live-pathfinding.ts\n    → live-people.ts → live-pathfinding.ts\n\n  Import cycles that can cause initialization failures and prevent tree-shaking — https://docs.fallow.tools/explanations/dead-code#circular-dependencies\n  To suppress: // fallow-ignore-next-line circular-dependency\n\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\nloaded config: /workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/.fallowrc.json\n  770 entry points detected (504 manual entry, 265 plugin, 1 package.json)\n\n✗ 7 files · 3 dev/optional dependencies · 38 unresolved imports · 1 unlisted dependency · 20 circular dependencies (0.31s)\n",
+  "stdoutSha256": "047c2ba5b9f21d23fd2815d0f77c190365be650f89406bca7136f9da66bcd053",
+  "stderrSha256": "6f34863e80a764d9731eae7bb4e4414cc451f6e9738bb1cb20bcac56cb2973c1",
+  "sourceAfter": {
+    "headOid": "c20a297f5f815ce404f796b08f77ea56396f96da",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

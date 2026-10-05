@@ -1,0 +1,6 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+loaded config: /workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/.fallowrc.json
+note: skipped 221 files matching default duplicates ignores (use --explain-skipped for the list)
+note: module wiring excluded from clone detection (--no-ignore-imports to include it)
+
+✗ 13,137 lines (9.5%) duplicated across 261 files (0.39s)

@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "0d771da4-c613-489b-a227-0f412315b3cf",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "c20a297f5f815ce404f796b08f77ea56396f96da",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  },
+  "command": [
+    "timeout",
+    "180s",
+    "taskset",
+    "-c",
+    "0-3",
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix",
+  "startedAt": "2026-10-05T20:38:14.058Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/build-c20a297.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/build-c20a297.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T20:38:33.552Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n[1/5] analyze client references...\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n✓ built in 4.52s\n[2/5] analyze server references...\n\u001b[2K\rtransforming...✓ 388 modules transformed.\nrendering chunks...\n✓ built in 1.56s\n[3/5] build rsc environment...\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 5.70s\n[4/5] build client environment...\n\u001b[2K\rtransforming...✓ 429 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 3.31s\n[5/5] build ssr environment...\n\u001b[2K\rtransforming...✓ 394 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.68s\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (20%)\n  - vinext:og-inline-fetch-assets (19%)\n  - alias (14%)\n  - vinext:middleware-server-only (12%)\n  - vinext:css-data-url (10%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vite-plugin-commonjs (31%)\n  - rsc:virtual-client-package (16%)\n  - rsc:load-environment-module (15%)\n  - vinext:middleware-server-only (6%)\n  - vinext:og-inline-fetch-assets (4%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:css-data-url (17%)\n  - vinext:middleware-server-only (16%)\n  - vinext:og-inline-fetch-assets (13%)\n  - vinext:validate-middleware-exports (11%)\n  - rsc:virtual-client-package (10%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\n",
+  "stdoutSha256": "8a9b406e7e833469e6d2f3fee39a7ac5666f5708fc6b108be20b86969b61d237",
+  "stderrSha256": "8e85c133e9872c2a260b67ae4626e0663a1cf2a43f8ff9fb20e7fc2818e2f69a",
+  "sourceAfter": {
+    "headOid": "c20a297f5f815ce404f796b08f77ea56396f96da",
+    "branch": "fix/native-shaman-guard-input",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {}
+  }
+}

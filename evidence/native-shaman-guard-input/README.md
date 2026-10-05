@@ -1,4 +1,4 @@
-# Bounded native Shaman Guard input: accepted source proof
+# Bounded native Shaman Guard input: source, package and failed pilot evidence
 
 [PR220](https://github.com/JohnDeved/populous-new-dawn/pull/220),
 [issue219](https://github.com/JohnDeved/populous-new-dawn/issues/219).
@@ -6,8 +6,9 @@ Candidate [c20a297](https://github.com/JohnDeved/populous-new-dawn/commit/c20a29
 tree `9af7241660efc11eb8969845ab7e587231d906bc`, based on accepted
 `3b899125cc8cedef938823718ad5d44f49957b66`.
 
-**Independent source/focused-runtime ACCEPT. Full check/build, final quality and
-ordinary rendered acceptance remain pending.** This packet is not a merged,
+**Independent source/focused-runtime and final package ACCEPT. Full check and build
+pass. The ordinary baseline pilot failed before training; candidate rendered
+execution remains not-run.** This packet is not a merged,
 deployed or whole-Guard completion claim. Broader issues #4, #60 and #214 stay open.
 
 ## Result
@@ -62,7 +63,35 @@ All retained artifacts are byte-exact copies, listed in [manifest.json](manifest
 Receipt paths still describe their original execution locations. No original game
 binary, animation asset, tool distribution, profile or credential is included.
 
-## Quality and remaining gates
+## Final package gates and review
+
+The [final independent package/launcher review](final-gates/native-shaman-guard-final-review/review-c20a297-gates-launch.md)
+accepts the exact clean c20a297 source and the following retained gates:
+
+- [Full check](final-gates/receipts/fullcheck-c20a297.json): 1,238 tests pass, zero
+  failures/skips/cancellations, plus typecheck, parity and orchestration checks.
+- [Production build](final-gates/receipts/build-c20a297.json): exit 0.
+- [Scoped formatting](final-gates/receipts/final-format-scoped-c20a297.json): all
+  eight changed runtime paths pass. Global formatting retains failures in
+  unchanged `render-view.ts` and `viewport-bounds.ts`.
+- [Final comparison](final-gates/receipts/final-quality-comparison-c20a297.json):
+  ESLint output is byte-identical to the fixed base; Oxlint has 394 baseline and
+  394 candidate diagnostics, zero introduced. These are retained failed/advisory
+  tool statuses, not claims of a clean repository. The earlier 388 count covered
+  seven files; the final eight-file set additionally includes `world-tasks.ts`.
+- Fallow health and duplication commands exit 0. Unused/circular analysis exits 1
+  with disclosed advisory findings; no equality-to-baseline claim is made.
+
+The [112-check disposition](final-gates/native-shaman-guard-final-review/verification-c20a297.json)
+records commands covered by full check and the bounded native/browser scope.
+Pre-existing `clock-portable` names a nonexistent interpolation test and is blocked
+as written. The actual game-clock/unit-motion tests pass within full check. This
+separate metadata defect does not imply that its exact command was executed.
+Fullcheck/build source fingerprints are exact; those two receipts do not themselves
+contain explicit dependency-input hashes. The final comparison and launcher bind
+the installed/root locks separately.
+
+## Historical quality correspondence
 
 Earlier ddd0904 typecheck and scoped formatting passed. Its exact app-only diff
 equals the receipt fingerprint [703249dc…](manifests/prior-quality-source-correspondence.json).
@@ -70,13 +99,44 @@ Scoped ESLint was byte-identical to baseline world-turn findings; normalized
 Oxlint reported388 baseline and388 candidate diagnostics with none introduced.
 These are corroborating earlier receipts, not exact-head quality claims for later
 repairs. Unchanged global-format failures in render-view.ts/viewport-bounds.ts
-remain disclosed. Final standard and quality gates are still required on c20a297.
+remain disclosed. The final c20a297 gates above supersede the pending status of
+this historical checkpoint without relabelling its receipts.
 
-The ordinary Mission10 witness must train a genuine Firewarrior through completed
-hut149 with ordinary mana, then observe public move/G/deselect/repeat/cancel,
-following and Save/Load in a real-clock browser. No screenshot pair is claimed
-here because that gate has not run. Controlled Node fixtures do not substitute
-for the ordinary rendered witness or hardware performance.
+## Ordinary pilot 01: retained failure, candidate not run
+
+The [reviewed revision 3 scenario](pilot-01/revision-03/scenario.mjs) ran on the
+unchanged baseline under the [accepted sequential launch plan](final-gates/native-guard-browser-execution/launch-plan-rev3.json).
+Its entry-time assertion failed before training or any Guard input. Original
+session 88672 ended normally with exit 1; source/inputs stayed unchanged and both
+loopback forms of port 4392 were closed. The conditional candidate was not run.
+See the [raw launcher](pilot-01/baseline/launcher.json),
+[outer receipt](pilot-01/baseline/outer.json), [browser receipt](pilot-01/baseline/run/receipt.json),
+[passive witness](pilot-01/baseline/run/witness.json), and
+[source-bound diagnosis](final-gates/native-guard-browser-diagnosis/failed-pilot-01.md).
+
+The last read was actually ready and unpaused at turn 592/inputMask 0. The
+checker measured total entry elapsed time; the maintained helper can wait 45 seconds
+for a nonexistent introductory Skip button. That stage duration is source-inferred,
+not separately measured in this attempt. Two later prerequisites were also invalid:
+authored hut index 149 becomes live building 98, and five original Braves had six
+natural births by the last read. A [construction observation](final-gates/native-guard-browser-diagnosis/mission10-construction.json)
+ties the hut's authored model/native anchor and original Brave identities to the
+retained runtime. It is initialization evidence, not a gameplay replay.
+
+![Baseline Mission 10 before training, failed entry-time pilot](pilot-01/baseline/run/failure-0.png)
+
+Screenshot: exact baseline 3b899125, fresh 1440×1000 sandboxed headless context,
+ordinary Mission 10 before training. It is not a Guard before/after comparison.
+Software WebGL warnings limit performance interpretation. Warrior 113 already has
+30.7 HP near a Green Tower; the training area is not established as safe.
+
+A reviewed driver repair must retain the 60-second entry/300-second capture limits,
+use normal readiness/visible Skip, bind the authored hut through its actual live
+identity and record original Braves separately from births. Then a separately
+granted baseline/candidate pair must train a genuine Firewarrior with ordinary mana
+and observe public move/G/deselect/repeat/cancel, following and pending Save/Load.
+Controlled Node fixtures do not substitute for that rendered gate or hardware
+performance. PR220 remains draft.
 
 Raw command30 payload b remains unchanged in original snapshots. Independent
 consumer audit permits excluding only that unused word from semantic comparison;

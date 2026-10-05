@@ -1,0 +1,5 @@
+npm warn Unknown env config "http-proxy". This will stop working in the next major version of npm.
+loaded config: /workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-shaman-guard-fix/.fallowrc.json
+  note: git churn analysis took 2.0s (cached for next run at same HEAD)
+
+✗ 1903 above threshold · 18629 analyzed (2.36s)
