@@ -18,8 +18,10 @@ implementation, imported-asset writes, GPU screenshots or parity credit.
    `0089d178` stays unchanged. Mid-sequence pause freezes motion/time/RNG while
    sprite frame bytes still advance in the later draw branch. Three paused
    visits produce 27 total visits with the same final cosmetic RNG as 24 normal
-   visits. Initial pause consumes the pending phase transition before freezing,
-   as already established by the first handoff proof.
+   visits. Initial pause consumes the pending phase transition and one cosmetic
+   RNG update before freezing: seed 1 becomes 1275068418 at instructions
+   `00482356..0048238c`, before the pause test. Repeated paused calls then retain
+   that RNG state. Gameplay RNG remains unchanged.
 
 2. The real palette consumer `00516270` selects original AL/palette colors before
    each captured `005162e0` sprite submission. Signed selectors `-2,-1,0,1,2`
@@ -88,6 +90,9 @@ rectangle; executes all companion/spell movement, RNG and lifetime work; selects
 palette/RGB; and emits full-screen clip requests `[0,0,640,480]` then restore.
 The raster hooks record arguments only. They do not execute texture upload,
 blend/clip queue processing, GPU drawing or original-game wall-clock scheduling.
+The recorded `0047e070` ECX is zero because this isolated fixture does not
+initialize a real texture context; bank address `009910e8` is also opaque here.
+These are call-contract values, not validated renderer/device handles.
 The limiter setters execute as ordinary bit writes in this extension, but the
 outer GetTickCount pacing remains source-only evidence.
 
