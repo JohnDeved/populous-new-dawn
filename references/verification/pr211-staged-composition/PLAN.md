@@ -106,7 +106,10 @@ first replacement draw, matching intermediate draw, final-leg draw, real pulse,
 texture, or measurable card is a failed/unproved row, never a relaxed assertion.
 At most two fixture transactions, two nonempty drains, eight selects, sixteen
 errors, 128 original object-turn before/after rows and three draw samples are
-retained. Turn capture stops when the terminal retirement observation is established. A crop is limited to 1,000,000 device
+retained. Turn capture stops when the terminal retirement observation is established.
+Only those three sampled draws retain sprite submissions, capped at 1,100 commands
+per draw. Two independent sprite-frame decodes are capped at 10,000 source pixels
+each and retain three opaque texels each; no extra frame or fixture is introduced. A crop is limited to 1,000,000 device
 pixels and each written PNG to 8 MB. Actual Canvas calls, transforms, original
 translate/rotate arguments, controller reference ownership, measured DOM cards,
 unchanged draw-owned state, pulse pixels immediately after its original draw,
@@ -153,3 +156,49 @@ read-only keyed-host card identity, exact Canvas primitive equality, and public
 Resume/readiness setup. It preserves the original three-gift/two-transaction
 staging, real measured geometry, opaque pixels, old-pulse ownership and genuine
 interpolation requirements. No browser attempt preceded these repairs.
+
+## Same-frame sprite audit
+
+The accepted `d303f1abe6bc99e1f0aac2748a9537c907b85e0a` source is extended only
+inside its three existing captured draws. Every actual Canvas submission is tied
+to the exact original command reference/index; sprite calls must use the exact
+canvas returned by the original sprite method. The complete ordered sequence,
+including body position in the list and each owner/model/frame/palette/rgb, must
+match the unchanged command list without missing or duplicated submissions.
+Returned dimensions must match the canonical hash-pinned ghost or sparkle frame.
+
+Every sprite's actual destination rectangle and transform are compared with the
+reviewed source mapping. The old pulse uses its own measured card target. Ghosts
+stay discrete. Stable particle slots may interpolate only with an actual prior
+slot holding the identical geometry object. The new-binding sample must submit
+stable particles without blending previous ownership; the genuine fractional
+intermediate sample must include a changed matching-prior particle pose. The
+report separates absent prior slots from observed foreign-prior rejections.
+The old companion may have retired before the pulse triggered replacement, so
+zero foreign-prior slots does not claim that mismatched-slot branch was exercised.
+The existing required incompatible-body-owner sample remains unchanged.
+
+One real ghost and one real nonwhite sprite submission retain independent pixel
+proofs. A separately decoded `/original/effects.png` image, with metadata and bytes
+pinned in the existing input manifest, supplies the expected source pixels; the
+renderer cache is never the expected pixel source. Each proof retains three
+opaque source texels and read-only returned-canvas texels. Ghost pixels must equal
+the untinted ordinary source exactly. Tinted pixels must exactly equal
+`round(sourceRGB * tintRGB / 255)` with unchanged alpha, and at least one nonzero
+channel must change. The proof records the real submitted image identity, source
+frame/dimensions, actual alpha, and smoothing=false. Missing eligible proofs fail
+within the original bounded row; no extra draws or relaxed comparisons are used.
+
+All sampled ghost draws require actual alpha equal to an expected-only detached
+Canvas set to 85/255; requested and represented values are recorded separately.
+All other sampled sprites require alpha one. No alpha tolerance is introduced.
+This establishes source-pixel and primitive opacity wiring, not a full ghost
+composited-raster or original-GPU equivalence claim. Existing body/pulse pixels,
+exact translate/rotate inputs, independent card identity, fixture write audit,
+three payouts and two clean retirement turns remain required.
+
+Source-only verification of this extension is syntax and clean diff validation.
+Read-only inspection of the pinned effects PNG confirms all relevant sparkle
+frames have at least six opaque texels, and ghost frames 318–321 have respectively
+23, 15, 7 and 3 opaque texels; this is sample-availability inspection, not browser
+acceptance. No browser/server/package/dependency action was performed.

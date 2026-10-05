@@ -15,12 +15,20 @@ const json = value => JSON.stringify(value, (_key, item) =>
 
 async function install(page, inputs) {
   await page.evaluate(async inputs => {
+    // Independent read-only atlas decode; it never uses the renderer's cached
+    // sprite canvas or texture object as the expected pixel source.
+    const effectsAtlas = new Image()
+    effectsAtlas.src = '/original/effects.png'
+    await effectsAtlas.decode()
+    if (effectsAtlas.naturalWidth !== inputs.effects.width || effectsAtlas.naturalHeight !== inputs.effects.height)
+      throw Error('Independent effects-atlas dimensions do not match pinned metadata')
     const { createGift } = await import('/app/model.ts'),
       { worshipHandoffGeometry, worshipDrawPoint, interpolateWorshipPoint, worshipTargetPoint } =
         await import('/app/worship-acquisition-layout.ts'),
       scene = window.testSceneRef.current, world = scene.world,
       presentation = scene.worshipPresentation, canvas = presentation.canvas,
       context = canvas.getContext('2d'), oracle = document.createElement('canvas').getContext('2d'),
+      alphaOracle = document.createElement('canvas').getContext('2d'),
       restorers = [], fixtures = [], seen = new Set()
     if (world !== window.testStore.getWorld() || world.outcome.level !== 1 || world.paused ||
         world.gifts.length || world.worshipAcquisition.requests.length ||
@@ -34,6 +42,7 @@ async function install(page, inputs) {
       firstReplacementVisit: null, decodedBody: null, errors: [], cues: 0, visits: 0,
       pairStaged: false, samplesComplete: false, completed: false, restored: false,
       turns: [], arrival: null, retirement: null, terminal: null,
+      spriteProofs: { ghost: null, tint: null }, spriteProofAttempts: { ghost: false, tint: false },
     }
     const copy = value => structuredClone(value)
     const serialize = value => JSON.stringify(value, (_key, item) =>
@@ -206,12 +215,67 @@ async function install(page, inputs) {
       return { bounds: [left, top, image.width, image.height], pixels: image.data,
         nontransparent: image.data.filter((_byte, i) => i % 4 === 3 && image.data[i] > 0).length, png: out.toDataURL() }
     }
+    const spriteFrame = command => {
+      // These two native-backed command families select their own canonical
+      // metadata rows, independently of the renderer's flattened atlas search.
+      const frame = (command.palette === 'ghost' ? inputs.effects.animations.blastTrail : inputs.effects.animations.sparkle)
+        .find(frame => frame.source === command.frame)
+      require(frame, 'Command has no pinned ordinary ghost/sparkle frame')
+      return frame
+    }
+    const submissionIdentity = (command, index) => ({ index, kind: command.kind, model: command.model, frame: command.frame,
+      ...(command.kind === 'sprite' ? { owner: command.owner, palette: command.palette, rgb: command.rgb, particle: command.particle } : {}) })
+    const spritePixels = (kind, command, sprite, call, commandIndex) => {
+      const frame = spriteFrame(command), source = document.createElement('canvas')
+      require(frame.w * frame.h <= 10_000 && sprite.width === frame.w && sprite.height === frame.h, 'Sprite decode dimensions exceed the finite frame bound')
+      source.width = frame.w; source.height = frame.h
+      const sourceRect = [(frame.index % 8) * 256, Math.floor(frame.index / 8) * 256, frame.w, frame.h],
+        sourceContext = source.getContext('2d')
+      sourceContext.drawImage(effectsAtlas, ...sourceRect, 0, 0, frame.w, frame.h)
+      const sourcePixels = sourceContext.getImageData(0, 0, frame.w, frame.h).data,
+        actualContext = sprite.getContext('2d'), color = [command.rgb >>> 16, (command.rgb >>> 8) & 255, command.rgb & 255], texels = []
+      require(kind === 'ghost' ? command.palette === 'ghost' && command.rgb === 0xffffff : command.palette !== 'ghost' && command.rgb !== 0xffffff,
+        'Sprite proof must exercise ordinary ghost pixels or a real nonwhite tint')
+      for (let y = 0; y < frame.h && texels.length < 3; y++) for (let x = 0; x < frame.w && texels.length < 3; x++) {
+        const offset = (y * frame.w + x) * 4, rgba = [...sourcePixels.slice(offset, offset + 4)]
+        if (rgba[3] !== 255) continue
+        const expected = kind === 'ghost' ? [...rgba] : [...rgba.slice(0, 3).map((value, channel) => Math.round(value * color[channel] / 255)), rgba[3]],
+          changed = expected.slice(0, 3).some((value, channel) => rgba[channel] !== 0 && value !== rgba[channel])
+        if (kind === 'tint' && !changed) continue
+        texels.push({ local: [x, y], source: [sourceRect[0] + x, sourceRect[1] + y], sourceRgba: rgba, expected,
+          actual: [...actualContext.getImageData(x, y, 1, 1).data], nonzeroChannelChanged: changed })
+      }
+      require(texels.length === 3, `Missing three eligible opaque ${kind} texels in the bounded actual sprite sample`)
+      return { tag: drawing.tag, commandIndex, command: copy(command), call, frame, sourceRect,
+        source: { url: effectsAtlas.currentSrc, size: [effectsAtlas.naturalWidth, effectsAtlas.naturalHeight] },
+        returnedSpriteSize: [sprite.width, sprite.height], color, texels,
+        limit: 'Source-to-returned-sprite pixels only; actual ghost destination alpha/order, not full composited-raster equivalence' }
+    }
     wrap(context, 'drawImage', original => function (...args) {
       const result = original.apply(this, args)
       if (drawing) observe(() => {
         const transform = this.getTransform(), base = { args: args.slice(1),
           transform: [transform.a, transform.b, transform.c, transform.d, transform.e, transform.f],
           alpha: this.globalAlpha, smoothing: this.imageSmoothingEnabled }
+        require(drawing.submissions.length < 1100, 'Actual submission capture exceeds 1100 commands in a sampled frame')
+        if (args.length === 5) {
+          const sprite = drawing.sprite, command = sprite?.command, commandIndex = drawing.commandIndices.get(command)
+          require(Number.isInteger(commandIndex) && command.kind === 'sprite' && args[0] === sprite.image,
+            'Actual sprite draw must use its exact original command and returned canvas')
+          alphaOracle.globalAlpha = command.palette === 'ghost' ? 85 / 255 : 1
+          const frame = spriteFrame(command)
+          require(args[0] instanceof HTMLCanvasElement && args[0].width === frame.w && args[0].height === frame.h, 'Returned sprite canvas must match its pinned frame dimensions')
+          const call = { kind: 'sprite', commandIndex, identity: submissionIdentity(command, commandIndex),
+            imageIdentityMatched: args[0] === sprite.image, sourceFrame: frame, returnedSpriteSize: [args[0].width, args[0].height],
+            ...base, requestedAlpha: command.palette === 'ghost' ? 85 / 255 : 1,
+            expectedRepresentedAlpha: alphaOracle.globalAlpha }
+          drawing.submissions.push(call)
+          const kind = command.palette === 'ghost' ? 'ghost' : command.rgb !== 0xffffff ? 'tint' : null
+          if (kind && !evidence.spriteProofAttempts[kind]) {
+            evidence.spriteProofAttempts[kind] = true
+            evidence.spriteProofs[kind] = spritePixels(kind, command, args[0], call, commandIndex)
+          }
+        }
         if (args.length === 5 && drawing.sprite?.command === drawing.pulse && args[0] === drawing.sprite.image) {
           drawing.pulseCall = { kind: 'pulse', ...base }
           drawing.pulsePixels = cropPixels(drawing.pulseCall)
@@ -219,6 +283,8 @@ async function install(page, inputs) {
         if (args.length === 9 && args[0] instanceof HTMLImageElement) {
           require(!drawing.bodyCall, 'Expected one winning body submission')
           const art = inputs.art.bodyFrames[12], rect = inputs.hud.rects[art.source]
+          drawing.submissions.push({ kind: 'body', commandIndex: drawing.commandIndices.get(drawing.body),
+            identity: submissionIdentity(drawing.body, drawing.commandIndices.get(drawing.body)), ...base, requestedAlpha: 1, expectedRepresentedAlpha: 1 })
           drawing.bodyCall = { kind: 'body', ...base, source: args[0].currentSrc, sourceSize: [args[0].naturalWidth, args[0].naturalHeight] }
           if (!evidence.decodedBody) {
             const decode = document.createElement('canvas'); decode.width = art.w; decode.height = art.h
@@ -242,13 +308,17 @@ async function install(page, inputs) {
           !seen.has('intermediate') && matches && changed && fraction > 0 && fraction < 1 ? 'intermediate' :
             !seen.has('final-leg') && body.finalLeg && matches && fraction > 0 && fraction < 1 ? 'final-leg' : null),
         before = tag ? observe(focus) : null
-      drawing = tag ? { body, pulse, layouts: [], primitives: [], sprite: null, bodyCall: null, pulseCall: null } : null
+      drawing = tag ? { tag, body, pulse, layouts: [], primitives: [], sprite: null, bodyCall: null, pulseCall: null,
+        commands, commandIndices: new Map(commands.map((command, index) => [command, index])), submissions: [],
+        previousParticles: new Map(a.previousDrawCommands.filter(c => c.kind === 'sprite' && c.particle !== undefined).map(c => [c.particle, c])),
+        expectedSubmissions: commands.map(submissionIdentity) } : null
       const current = drawing
       let result
       try { result = original.apply(this, args) } finally { drawing = null }
       if (current) observe(() => {
         const after = focus(), bodyLayout = current.layouts.find(l => l.geometry === body.geometry),
           pulseLayout = current.layouts.find(l => l.geometry === pulse.geometry)
+        require(current.expectedSubmissions.length <= 1100 && current.commandIndices.size === current.expectedSubmissions.length, 'Each bounded draw command must have a unique reference identity')
         require(current.bodyCall && current.pulseCall && bodyLayout?.measurement && pulseLayout?.measurement, 'Both real Canvas submissions and card measurements required')
         require(current.layouts.length === 2, 'Exactly two reference geometries must be measured once each')
         require(body.geometry !== pulse.geometry && serialize(bodyLayout.card.rect) !== serialize(pulseLayout.card.rect), 'Old pulse and new body require distinct real cards')
@@ -268,6 +338,35 @@ async function install(page, inputs) {
           expectedPulse = { args: [target.x + (pulse.x - pulse.geometry.target.x) * pulseScale,
             target.y + (pulse.y - pulse.geometry.target.y) * pulseScale, pulse.width * pulseScale, pulse.height * pulseScale],
             transform: [ratio, 0, 0, ratio, 0, 0] }, bodyPixels = cropPixels(current.bodyCall), texels = []
+        const spriteMappings = current.commands.flatMap((command, commandIndex) => {
+          if (command.kind !== 'sprite') return []
+          const mappedLayout = current.layouts.find(layout => layout.geometry === command.geometry)?.measurement
+          require(mappedLayout, 'Each sprite must have its actual owned measured geometry')
+          const previous = command.particle === undefined ? undefined : current.previousParticles.get(command.particle),
+            matchingPriorGeometry = !!previous && previous.geometry === command.geometry,
+            eligible = command.owner !== 'pulse' && command.palette !== 'ghost' && matchingPriorGeometry,
+            frame = spriteFrame(command)
+          let point
+          if (command.owner === 'pulse') {
+            const target = worshipTargetPoint(mappedLayout)
+            point = { x: target.x + (command.x - command.geometry.target.x) * mappedLayout.hudScale,
+              y: target.y + (command.y - command.geometry.target.y) * mappedLayout.hudScale }
+          } else {
+            require(command.palette !== 'ghost' || command.particle === undefined, 'Native ghost trails have no interpolation slot')
+            const interpolated = interpolateWorshipPoint(command, eligible ? previous : undefined, fraction)
+            point = worshipDrawPoint({ x: interpolated.x + command.width / 2, y: interpolated.y + command.height / 2 }, command.geometry, mappedLayout)
+            point.x -= command.width * mappedLayout.hudScale / 2
+            point.y -= command.height * mappedLayout.hudScale / 2
+          }
+          return [{ commandIndex, frame, owner: command.owner, palette: command.palette, particle: command.particle,
+            model: command.model, current: { x: command.x, y: command.y },
+            previous: previous ? { x: previous.x, y: previous.y, model: previous.model, particle: previous.particle } : null,
+            matchingPriorGeometry, interpolated: eligible,
+            foreignPriorRefused: !!previous && !matchingPriorGeometry,
+            changedMatchingPose: eligible && (previous.x !== command.x || previous.y !== command.y),
+            expected: { args: [point.x, point.y, command.width * mappedLayout.hudScale, command.height * mappedLayout.hudScale],
+              transform: [ratio, 0, 0, ratio, 0, 0] } }]
+        })
         const [ba, bb, bc, bd, be, bf] = current.bodyCall.transform, [bx, by, bw, bh] = current.bodyCall.args.slice(4),
           sxScale = ba * bw / art.crop.width, syScale = bd * bh / art.crop.height
         if (!body.radians && Math.abs(bb) < 1e-8 && Math.abs(bc) < 1e-8 && sxScale >= 2 && syScale >= 2) {
@@ -288,6 +387,7 @@ async function install(page, inputs) {
           oldPulseGeometryOwned: pulse.geometry === a.controllers.pulse.geometry, bodyGeometryOwned: body.geometry === a.controllers.spell.geometry,
           body: copy(body), pulse: copy(pulse), layouts: current.layouts.map(l => ({ model: l.model, measurement: l.measurement, card: l.card })),
           bodyCall: current.bodyCall, pulseCall: current.pulseCall, expectedBody, expectedPulse,
+          submissions: current.submissions, expectedSubmissions: current.expectedSubmissions, spriteMappings,
           primitives: { actual: current.primitives, expected: expectedPrimitives },
           numericOracle: 'Detached Canvas executes expected-only DPR/translate/rotate; original actual inputs are retained without alteration',
           bodyPixels, pulsePixels: current.pulsePixels, opaqueTexels: texels, hidden: canvas.hidden,
@@ -336,11 +436,11 @@ export default async function ({ page, root, output, receipt, openMission, signa
   for (const [path, expected] of Object.entries(manifest.sha256))
     assert.equal(digest(readFileSync(resolve(root, path))), expected, `Exact cfa application input: ${path}`)
   const rules = JSON.parse(readFileSync(resolve(root, 'app/original-rules.json'), 'utf8'))
-  const inputs = { stockLimits: { bridge: rules.spellCharging[12].normalLimit, lightning: rules.spellCharging[3].normalLimit }, art: JSON.parse(readFileSync(resolve(root, 'app/original-worship-acquisition.json'), 'utf8')),
+  const inputs = { effects: JSON.parse(readFileSync(resolve(root, 'app/original-effects.json'), 'utf8')), stockLimits: { bridge: rules.spellCharging[12].normalLimit, lightning: rules.spellCharging[3].normalLimit }, art: JSON.parse(readFileSync(resolve(root, 'app/original-worship-acquisition.json'), 'utf8')),
     hud: JSON.parse(readFileSync(resolve(root, 'app/original-hud.json'), 'utf8')) },
     report = { status: 'running', application, source: receipt.source, scenarioSha256: digest(readFileSync(new URL(import.meta.url))),
       manifest, inputManifestSha256, label: 'EXPLICITLY STAGED composition, not ordinary or naturally simultaneous worship',
-      scope: 'Three phase-ready gifts, two synchronous source-audited write transactions, two real RAF request drains, three rendered dual-binding samples, all three original payouts and retired overlay held through two more object turns.',
+      scope: 'Three phase-ready gifts, two synchronous source-audited write transactions, two real RAF request drains, three rendered dual-binding samples with bounded sprite order/mapping/ghost/tint checks, all three original payouts and retired overlay held through two more object turns.',
       limits: 'Native-backed component composition only; old pulse uses Lightning instead of Tornado from the eight-case native pair proof. No ordinary M1 progression, native GPU equality, exhaustive pulse raster, hardware timing, or parity claim.',
       browserVersion: receipt.browserVersion, observer: null }
   const save = () => writeFileSync(resolve(output, 'staged-worship-composition.json'), json(report))
@@ -468,6 +568,72 @@ export default async function ({ page, root, output, receipt, openMission, signa
       })
       assert.ok(sample.bodyPixels.nontransparent > 0 && sample.pulsePixels.nontransparent > 0)
       for (const texel of sample.opaqueTexels) assert.deepEqual(texel.actual, texel.expected)
+      assert.deepEqual(sample.submissions.map(call => call.commandIndex), sample.expectedSubmissions.map(command => command.index),
+        'Every original draw command must reach Canvas exactly once in its existing identity order')
+      sample.submissions.forEach((call, index) => {
+        const command = sample.expectedSubmissions[index]
+        assert.equal(call.kind, command.kind)
+        assert.deepEqual(call.identity, command, 'Owner/model/frame/palette/rgb and command identity retain original order')
+        assert.equal(call.alpha, call.expectedRepresentedAlpha, 'Exact expected-only Canvas alpha representation')
+        assert.equal(call.requestedAlpha, command.palette === 'ghost' ? 85 / 255 : 1)
+        assert.equal(call.smoothing, false)
+        if (call.kind === 'sprite') {
+          const mapping = sample.spriteMappings.find(mapping => mapping.commandIndex === call.commandIndex)
+          assert.equal(call.imageIdentityMatched, true)
+          assert.equal(call.sourceFrame.source, command.frame)
+          assert.deepEqual(call.sourceFrame, mapping.frame)
+          assert.deepEqual(call.returnedSpriteSize, [mapping.frame.w, mapping.frame.h])
+          for (const key of ['args', 'transform']) {
+            assert.equal(call[key].length, mapping.expected[key].length)
+            call[key].forEach((value, i) => assert.ok(Math.abs(value - mapping.expected[key][i]) < 1e-5,
+              `${sample.tag} sprite ${call.commandIndex} ${key}[${i}]`))
+          }
+          if (mapping.owner === 'pulse' || mapping.palette === 'ghost') assert.equal(mapping.interpolated, false)
+          if (mapping.foreignPriorRefused) assert.equal(mapping.interpolated, false)
+        }
+      })
+    }
+    const newParticles = initial.spriteMappings.filter(mapping => mapping.particle !== undefined)
+    assert.ok(newParticles.length > 0, 'New binding must submit real stable particle slots')
+    newParticles.forEach(mapping => {
+      assert.equal(mapping.matchingPriorGeometry, false, 'First replacement frame must not blend old particle ownership')
+      assert.equal(mapping.interpolated, false)
+      if (mapping.previous) assert.equal(mapping.foreignPriorRefused, true)
+    })
+    const intermediate = o.samples.find(sample => sample.tag === 'intermediate')
+    assert.ok(intermediate.spriteMappings.some(mapping => mapping.interpolated && mapping.changedMatchingPose),
+      'A genuine fractional frame must contain a changed matching-prior particle pose')
+    report.spriteBindingCoverage = {
+      replacementSlots: newParticles.length,
+      foreignPriorSlotsRefused: newParticles.filter(mapping => mapping.foreignPriorRefused).length,
+      foreignPriorBrowserCoverage: newParticles.some(mapping => mapping.foreignPriorRefused) ? 'observed' : 'not observed: no prior foreign particle slots remain at this late-pulse replacement',
+      absentPriorSlots: newParticles.filter(mapping => !mapping.previous).length,
+      changedMatchingIntermediateSlots: intermediate.spriteMappings.filter(mapping => mapping.interpolated && mapping.changedMatchingPose).length,
+      limitation: 'No interpolation from an old owner is permitted; absent prior slots are distinguished from exercised foreign-prior rejection.' }
+    for (const kind of ['ghost', 'tint']) {
+      const proof = o.spriteProofs[kind]
+      assert.equal(o.spriteProofAttempts[kind], true)
+      assert.ok(proof, `Missing actual ${kind} submission within the three original sampled draws`)
+      const sample = o.samples.find(sample => sample.tag === proof.tag), command = sample.expectedSubmissions[proof.commandIndex]
+      assert.equal(command.kind, 'sprite'); assert.equal(command.frame, proof.command.frame)
+      assert.equal(command.rgb, proof.command.rgb); assert.equal(command.palette, proof.command.palette)
+      assert.deepEqual(proof.returnedSpriteSize, [proof.frame.w, proof.frame.h])
+      assert.equal(proof.call.alpha, proof.call.expectedRepresentedAlpha)
+      assert.equal(proof.texels.length, 3)
+      if (kind === 'ghost') {
+        assert.equal(proof.command.palette, 'ghost'); assert.equal(proof.command.rgb, 0xffffff)
+        assert.equal(proof.call.requestedAlpha, 85 / 255)
+      } else {
+        assert.notEqual(proof.command.palette, 'ghost'); assert.notEqual(proof.command.rgb, 0xffffff)
+        assert.ok(proof.texels.some(texel => texel.nonzeroChannelChanged))
+      }
+      for (const texel of proof.texels) {
+        assert.equal(texel.sourceRgba[3], 255)
+        const expected = kind === 'ghost' ? texel.sourceRgba : [
+          ...texel.sourceRgba.slice(0, 3).map((value, channel) => Math.round(value * proof.color[channel] / 255)), 255]
+        assert.deepEqual(texel.expected, expected)
+        assert.deepEqual(texel.actual, expected, 'Independent pinned-atlas texel to actual returned-sprite pixel equality')
+      }
     }
     assert.ok(o.arrival, 'Winner must arrive through the original UI visit')
     assert.equal(o.arrival.after.gifts.find(g => g.id === bridge.id).remaining, 1)
