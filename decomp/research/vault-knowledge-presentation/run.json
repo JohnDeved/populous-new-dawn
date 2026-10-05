@@ -1,0 +1,50 @@
+{
+  "base": "596475b6839c948604897f8b68ff89c6290cf39d",
+  "comparedCombinedHead": "06e9547b670de331e833afc3e8fd2600f0899b31",
+  "status": "passed",
+  "exitCode": 0,
+  "python": "3.12.14",
+  "unicorn": "2.1.4",
+  "cpuAffinity": [
+    4
+  ],
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "20s",
+    "python",
+    "-B",
+    "scripts/probe-native-vault-knowledge.py",
+    "$POPULOUS_EXE",
+    "--output",
+    "work/orchestration/vault-knowledge/native-attempt-5"
+  ],
+  "seconds": 0.9383703779894859,
+  "probeSha256": "b200263a6fb22d9d99e9c372b75b84d7a52c16979f3b15f9cf08947fc9327099",
+  "resultSha256": "a22b8fa6e933b09651b39fffe59734001837d6836dd3d6672c815f99bb24a0fb",
+  "stdoutSha256": "9a36961358d1b533d63e376450a82f34bb32c73be14e105b5c7e1d3a5f5b89cf",
+  "stderr": "empty",
+  "failedAttempts": [
+    {
+      "attempt": 1,
+      "status": "failed",
+      "error": "AssertionError()",
+      "probeSha256": "364f43082903ef1d1de353605ad45b37d43d827467d949fa678b3179416eaa35",
+      "resultSha256": "5140b1736433a430d7fccdf0ee79f760d6aafba550d5f9fe1f71e4c6410d8a90"
+    },
+    {
+      "attempt": 3,
+      "status": "failed",
+      "error": "AssertionError(('actual scheduler to geometry consumer boundary', '0x480ea0', '0x480f16', [['actual scheduler to geometry consumer boundary', 'entered', '0x4839f0', 9989024], ['actual scheduler to geometry consumer boundary', 'geometry-dispatch', '0x473210', 95, 147, 131], ['actual scheduler to geometry consumer boundary', 'entered', '0x4839f0', 9989024], ['actual scheduler to geometry consumer boundary', 'geometry-dispatch', '0x473210', 95, 147, 131], ['actual scheduler to geometry consumer boundary', 'entered', '0x4839f0', 9989024], ['actual scheduler to geometry consumer boundary', 'geometry-dispatch', '0x473210', 95, 147, 131], ['actual scheduler to geometry consumer boundary', 'entered', '0x4839f0', 9989024], ['actual scheduler to geometry consumer boundary', 'geometry-dispatch', '0x473210', 95, 147, 131]]))",
+      "probeSha256": "d369723e4de27c6c0bfc918ea2dc28fcbd3a9360e8060b839afc68a2e3cd2294",
+      "resultSha256": "b496d88194402590fdacdeb8d63a6d14154b97bfcf204401296acc94f4905de3"
+    }
+  ],
+  "limits": [
+    "Native geometry renderers and companion processor are intercepted.",
+    "World HFX resource read executes a bounded instruction slice with primitive type and stack object supplied.",
+    "No browser run, original-game replay, full build/check, or parity credit.",
+    "Allocation failure branches are preserved in original code but not executed by this success-path probe."
+  ]
+}

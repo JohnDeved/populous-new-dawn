@@ -36,6 +36,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 ## Port index
 
 Recent reusable topic notes: [Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
+[Mission 3 Vault knowledge resources and presentation boundaries](research/vault-knowledge-presentation.md),
 [Ordinary spell acquisition screen handoff and arrival deadline](research/worship-grant-handoff.md),
 [Ordinary acquisition companion and native draw commands](research/worship-grant-presentation.md),
 [Second ordinary gift replacement and independent payout](research/worship-grant-replacement.md),
