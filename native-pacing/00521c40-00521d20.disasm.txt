@@ -1,0 +1,74 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00521c40 <.text+0x120c40>:
+  521c40:	56                   	push   %esi
+  521c41:	a1 3c f1 98 00       	mov    0x98f13c,%eax
+  521c46:	57                   	push   %edi
+  521c47:	8b f1                	mov    %ecx,%esi
+  521c49:	50                   	push   %eax
+  521c4a:	8b 38                	mov    (%eax),%edi
+  521c4c:	ff 57 60             	call   *0x60(%edi)
+  521c4f:	85 c0                	test   %eax,%eax
+  521c51:	75 34                	jne    0x521c87
+  521c53:	83 3d 28 ea 98 00 00 	cmpl   $0x0,0x98ea28
+  521c5a:	74 0f                	je     0x521c6b
+  521c5c:	a1 28 ea 98 00       	mov    0x98ea28,%eax
+  521c61:	50                   	push   %eax
+  521c62:	8b 38                	mov    (%eax),%edi
+  521c64:	ff 57 60             	call   *0x60(%edi)
+  521c67:	85 c0                	test   %eax,%eax
+  521c69:	75 1c                	jne    0x521c87
+  521c6b:	8b 86 ec 00 00 00    	mov    0xec(%esi),%eax
+  521c71:	85 c0                	test   %eax,%eax
+  521c73:	0f 84 a4 00 00 00    	je     0x521d1d
+  521c79:	50                   	push   %eax
+  521c7a:	8b 00                	mov    (%eax),%eax
+  521c7c:	ff 50 60             	call   *0x60(%eax)
+  521c7f:	85 c0                	test   %eax,%eax
+  521c81:	0f 84 96 00 00 00    	je     0x521d1d
+  521c87:	68 28 dc 5d 00       	push   $0x5ddc28
+  521c8c:	e8 3f 58 f3 ff       	call   0x4574d0
+  521c91:	83 c4 04             	add    $0x4,%esp
+  521c94:	e8 f7 b2 fd ff       	call   0x4fcf90
+  521c99:	8b ce                	mov    %esi,%ecx
+  521c9b:	e8 80 eb f8 ff       	call   0x4b0820
+  521ca0:	8b ce                	mov    %esi,%ecx
+  521ca2:	e8 c9 f6 f8 ff       	call   0x4b1370
+  521ca7:	80 3d 00 f0 88 00 02 	cmpb   $0x2,0x88f000
+  521cae:	8b f8                	mov    %eax,%edi
+  521cb0:	75 07                	jne    0x521cb9
+  521cb2:	e8 e9 35 f9 ff       	call   0x4b52a0
+  521cb7:	eb 0e                	jmp    0x521cc7
+  521cb9:	80 3d 00 f0 88 00 0a 	cmpb   $0xa,0x88f000
+  521cc0:	75 05                	jne    0x521cc7
+  521cc2:	e8 19 6b f0 ff       	call   0x4287e0
+  521cc7:	e8 e4 b2 fd ff       	call   0x4fcfb0
+  521ccc:	81 ff 7c 01 76 88    	cmp    $0x8876017c,%edi
+  521cd2:	74 32                	je     0x521d06
+  521cd4:	81 ff 0e 00 07 80    	cmp    $0x8007000e,%edi
+  521cda:	74 2a                	je     0x521d06
+  521cdc:	c7 86 cc 00 00 00 00 	movl   $0x0,0xcc(%esi)
+  521ce3:	00 00 00 
+  521ce6:	85 ff                	test   %edi,%edi
+  521ce8:	7d 0d                	jge    0x521cf7
+  521cea:	68 dc db 5d 00       	push   $0x5ddbdc
+  521cef:	e8 dc 57 f3 ff       	call   0x4574d0
+  521cf4:	83 c4 04             	add    $0x4,%esp
+  521cf7:	8b ce                	mov    %esi,%ecx
+  521cf9:	e8 02 ff f8 ff       	call   0x4b1c00
+  521cfe:	e8 2d 18 f8 ff       	call   0x4a3530
+  521d03:	5f                   	pop    %edi
+  521d04:	5e                   	pop    %esi
+  521d05:	c3                   	ret
+  521d06:	c7 86 cc 00 00 00 01 	movl   $0x1,0xcc(%esi)
+  521d0d:	00 00 00 
+  521d10:	68 00 dc 5d 00       	push   $0x5ddc00
+  521d15:	e8 b6 57 f3 ff       	call   0x4574d0
+  521d1a:	83 c4 04             	add    $0x4,%esp
+  521d1d:	5f                   	pop    %edi
+  521d1e:	5e                   	pop    %esi
+  521d1f:	c3                   	ret

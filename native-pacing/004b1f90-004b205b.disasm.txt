@@ -1,0 +1,59 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004b1f90 <.text+0xb0f90>:
+  4b1f90:	45                   	inc    %ebp
+  4b1f91:	f0 83 c4 04          	lock add $0x4,%esp
+  4b1f95:	8b f0                	mov    %eax,%esi
+  4b1f97:	89 5d fc             	mov    %ebx,-0x4(%ebp)
+  4b1f9a:	85 f6                	test   %esi,%esi
+  4b1f9c:	0f 84 84 00 00 00    	je     0x4b2026
+  4b1fa2:	8b ce                	mov    %esi,%ecx
+  4b1fa4:	8d be 50 06 00 00    	lea    0x650(%esi),%edi
+  4b1faa:	e8 81 e2 ff ff       	call   0x4b0230
+  4b1faf:	c6 45 fc 01          	movb   $0x1,-0x4(%ebp)
+  4b1fb3:	8b cf                	mov    %edi,%ecx
+  4b1fb5:	c7 07 90 f1 58 00    	movl   $0x58f190,(%edi)
+  4b1fbb:	e8 80 74 05 00       	call   0x509440
+  4b1fc0:	8b cf                	mov    %edi,%ecx
+  4b1fc2:	c7 07 88 f1 58 00    	movl   $0x58f188,(%edi)
+  4b1fc8:	e8 33 7b 05 00       	call   0x509b00
+  4b1fcd:	c7 86 b0 1d 00 00 c0 	movl   $0x58f0c0,0x1db0(%esi)
+  4b1fd4:	f0 58 00 
+  4b1fd7:	c6 45 fc 02          	movb   $0x2,-0x4(%ebp)
+  4b1fdb:	8b fe                	mov    %esi,%edi
+  4b1fdd:	89 9e b4 1d 00 00    	mov    %ebx,0x1db4(%esi)
+  4b1fe3:	c6 45 fc 03          	movb   $0x3,-0x4(%ebp)
+  4b1fe7:	89 9e b8 1d 00 00    	mov    %ebx,0x1db8(%esi)
+  4b1fed:	88 5d fc             	mov    %bl,-0x4(%ebp)
+  4b1ff0:	c7 86 b0 1d 00 00 40 	movl   $0x58f640,0x1db0(%esi)
+  4b1ff7:	f6 58 00 
+  4b1ffa:	c7 06 c8 f6 58 00    	movl   $0x58f6c8,(%esi)
+  4b2000:	eb 26                	jmp    0x4b2028
+  4b2002:	8b 4d f0             	mov    -0x10(%ebp),%ecx
+  4b2005:	81 c1 b0 1d 00 00    	add    $0x1db0,%ecx
+  4b200b:	e9 10 f6 f5 ff       	jmp    0x411620
+  4b2010:	8b 4d f0             	mov    -0x10(%ebp),%ecx
+  4b2013:	81 c1 b0 1d 00 00    	add    $0x1db0,%ecx
+  4b2019:	e9 d2 00 00 00       	jmp    0x4b20f0
+  4b201e:	8b 4d f0             	mov    -0x10(%ebp),%ecx
+  4b2021:	e9 5a e2 ff ff       	jmp    0x4b0280
+  4b2026:	33 ff                	xor    %edi,%edi
+  4b2028:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%ebp)
+  4b202f:	6a 00                	push   $0x0
+  4b2031:	89 3d f4 c2 af 00    	mov    %edi,0xafc2f4
+  4b2037:	83 7d 18 00          	cmpl   $0x0,0x18(%ebp)
+  4b203b:	74 0d                	je     0x4b204a
+  4b203d:	68 48 02 59 00       	push   $0x590248
+  4b2042:	e8 99 d4 f7 ff       	call   0x42f4e0
+  4b2047:	50                   	push   %eax
+  4b2048:	eb 04                	jmp    0x4b204e
+  4b204a:	6a 00                	push   $0x0
+  4b204c:	6a 00                	push   $0x0
+  4b204e:	e8 8d 86 07 00       	call   0x52a6e0
+  4b2053:	50                   	push   %eax
+  4b2054:	8b cf                	mov    %edi,%ecx
+  4b2056:	e8 35 e2 ff ff       	call   0x4b0290

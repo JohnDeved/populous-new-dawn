@@ -1,0 +1,71 @@
+{
+  "verifiedScopedDisassemblies": {
+    "004b0170-004b01c0.disasm.txt": {
+      "verifiedBytes": 80,
+      "sha256": "2ac039d837bdd7ec57d5d4593231e739b29fa30b1874fb02433724f506ac9a44"
+    },
+    "004b0870-004b0b20.disasm.txt": {
+      "verifiedBytes": 688,
+      "sha256": "f1cd87607d4915b68659264e19b5c5ab2fa2a32af656b7f20bc1cea7a9a61948"
+    },
+    "0052bdd0-0052be12.disasm.txt": {
+      "verifiedBytes": 66,
+      "sha256": "6e522ce9edc0aba8bf7f942183c3f44f93fbff5071fa0ab5ebeb6f9c183a3f29"
+    },
+    "004a42a0-004a431b.disasm.txt": {
+      "verifiedBytes": 123,
+      "sha256": "b6d465be5b4bb70dfd264cbfa8eb135cfb7d653b1a137cb1bd49881609db3298"
+    },
+    "004b0c10-004b0c80.disasm.txt": {
+      "verifiedBytes": 112,
+      "sha256": "8497ce846e153d496ac6d36c65422880b2887efa340f3b289731277a6c9a0a9b"
+    },
+    "004a458c-004a47d8.disasm.txt": {
+      "verifiedBytes": 588,
+      "sha256": "d57506babeb4bcef16f0ea447bbffa8138a9f053b8ea16fc6ba41af0b95120cf"
+    },
+    "004b25d0-004b2682.disasm.txt": {
+      "verifiedBytes": 178,
+      "sha256": "f9c50d1868c206bbf5b0adbc4eb668be5231f0acd119ffd885f98fcc66254640"
+    },
+    "004fd260-004fd2e5.disasm.txt": {
+      "verifiedBytes": 133,
+      "sha256": "e2ccc77b41990c0b475aa93b96d1386192c5b35932c0a4270c3c84e7ae46100b"
+    },
+    "00529dd0-00529e60.disasm.txt": {
+      "verifiedBytes": 144,
+      "sha256": "eb9af6094fe8bb0d8afe4b1290b377c4a16b54abfe9df98301ba6dab9a21c254"
+    },
+    "004a4450-004a44f3.disasm.txt": {
+      "verifiedBytes": 163,
+      "sha256": "11cb39f8cf7bd35ed48df5ebbc67c61def801d826141e0849b9e7b5093384ba7"
+    },
+    "004b1f90-004b205b.disasm.txt": {
+      "verifiedBytes": 203,
+      "sha256": "8e56b97b28a387609c5b16d053dec5e2fad961b550b45ea0e3520d0410d4ce85"
+    },
+    "00521c40-00521d20.disasm.txt": {
+      "verifiedBytes": 224,
+      "sha256": "069f94a8f9a103122dc00a9a0d7fdb5953f8c9c0edd0f0207151ab49d5ecf37f"
+    },
+    "004fd370-004fd3d9.disasm.txt": {
+      "verifiedBytes": 105,
+      "sha256": "3a4267b245b1fe34876833f4c95f92d6f6b0c2b4d7a8696d90370b13f948ebf5"
+    },
+    "0049a940-0049ad18.disasm.txt": {
+      "verifiedBytes": 983,
+      "sha256": "11a914ccff096131d262c2090910c6ad8b17c48d86353d45c0c8e34a9b181ce6"
+    },
+    "004a4bc9-004a4ca4.disasm.txt": {
+      "verifiedBytes": 219,
+      "sha256": "20ac550a39f92c2c633a64c84a75302cebe2f06c9ae21f119f68fcfc691487b9"
+    },
+    "00529e80-00529ef3.disasm.txt": {
+      "verifiedBytes": 115,
+      "sha256": "54dfed26643fc00baca439bbd3cb886d048bd6df2fafbcaf688f3c64596df92a"
+    }
+  },
+  "constructedUiVtableSlot0x14": "0x00521c40",
+  "readonlyGuard": "Probe checks final bytes of mapped readable nonwritable PE sections after every case",
+  "wholeImageNegativeSearchLimit": "Explicit disassembly operands only; no all-alias runtime-write assertion"
+}

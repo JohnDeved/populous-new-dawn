@@ -1,0 +1,44 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004a42a0 <.text+0xa32a0>:
+  4a42a0:	64 a1 00 00 00 00    	mov    %fs:0x0,%eax
+  4a42a6:	55                   	push   %ebp
+  4a42a7:	8b ec                	mov    %esp,%ebp
+  4a42a9:	6a ff                	push   $0xffffffff
+  4a42ab:	68 32 44 4a 00       	push   $0x4a4432
+  4a42b0:	50                   	push   %eax
+  4a42b1:	64 89 25 00 00 00 00 	mov    %esp,%fs:0x0
+  4a42b8:	83 ec 10             	sub    $0x10,%esp
+  4a42bb:	8d 4d f0             	lea    -0x10(%ebp),%ecx
+  4a42be:	56                   	push   %esi
+  4a42bf:	57                   	push   %edi
+  4a42c0:	33 f6                	xor    %esi,%esi
+  4a42c2:	e8 b9 61 08 00       	call   0x52a480
+  4a42c7:	56                   	push   %esi
+  4a42c8:	8d 4d f0             	lea    -0x10(%ebp),%ecx
+  4a42cb:	89 75 fc             	mov    %esi,-0x4(%ebp)
+  4a42ce:	c6 05 62 ce 89 00 28 	movb   $0x28,0x89ce62
+  4a42d5:	a1 54 d9 5c 00       	mov    0x5cd954,%eax
+  4a42da:	50                   	push   %eax
+  4a42db:	e8 a0 5b 08 00       	call   0x529e80
+  4a42e0:	85 c0                	test   %eax,%eax
+  4a42e2:	75 37                	jne    0x4a431b
+  4a42e4:	8d 45 ec             	lea    -0x14(%ebp),%eax
+  4a42e7:	8d 4d f0             	lea    -0x10(%ebp),%ecx
+  4a42ea:	50                   	push   %eax
+  4a42eb:	68 88 da 5c 00       	push   $0x5cda88
+  4a42f0:	e8 9b 60 08 00       	call   0x52a390
+  4a42f5:	85 c0                	test   %eax,%eax
+  4a42f7:	75 22                	jne    0x4a431b
+  4a42f9:	83 7d ec 0c          	cmpl   $0xc,-0x14(%ebp)
+  4a42fd:	73 07                	jae    0x4a4306
+  4a42ff:	c7 45 ec 0c 00 00 00 	movl   $0xc,-0x14(%ebp)
+  4a4306:	83 7d ec 3c          	cmpl   $0x3c,-0x14(%ebp)
+  4a430a:	76 07                	jbe    0x4a4313
+  4a430c:	c7 45 ec 3c 00 00 00 	movl   $0x3c,-0x14(%ebp)
+  4a4313:	8a 45 ec             	mov    -0x14(%ebp),%al
+  4a4316:	a2 62 ce 89 00       	mov    %al,0x89ce62

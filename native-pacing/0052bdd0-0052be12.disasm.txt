@@ -1,0 +1,33 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+0052bdd0 <.text+0x12add0>:
+  52bdd0:	83 7c 24 04 00       	cmpl   $0x0,0x4(%esp)
+  52bdd5:	56                   	push   %esi
+  52bdd6:	8b f1                	mov    %ecx,%esi
+  52bdd8:	74 1c                	je     0x52bdf6
+  52bdda:	6a ff                	push   $0xffffffff
+  52bddc:	8b 06                	mov    (%esi),%eax
+  52bdde:	50                   	push   %eax
+  52bddf:	ff 15 cc c6 d0 00    	call   *0xd0c6cc
+  52bde5:	83 f8 01             	cmp    $0x1,%eax
+  52bde8:	1b c0                	sbb    %eax,%eax
+  52bdea:	f7 d8                	neg    %eax
+  52bdec:	89 46 04             	mov    %eax,0x4(%esi)
+  52bdef:	8b 46 04             	mov    0x4(%esi),%eax
+  52bdf2:	5e                   	pop    %esi
+  52bdf3:	c2 04 00             	ret    $0x4
+  52bdf6:	6a 05                	push   $0x5
+  52bdf8:	8b 06                	mov    (%esi),%eax
+  52bdfa:	50                   	push   %eax
+  52bdfb:	ff 15 cc c6 d0 00    	call   *0xd0c6cc
+  52be01:	83 f8 01             	cmp    $0x1,%eax
+  52be04:	1b c0                	sbb    %eax,%eax
+  52be06:	f7 d8                	neg    %eax
+  52be08:	89 46 04             	mov    %eax,0x4(%esi)
+  52be0b:	8b 46 04             	mov    0x4(%esi),%eax
+  52be0e:	5e                   	pop    %esi
+  52be0f:	c2 04 00             	ret    $0x4

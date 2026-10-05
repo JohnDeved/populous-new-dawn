@@ -1,0 +1,7 @@
+	0090c6cc  <none>  0265  WaitForSingleObject
+	0090c784  <none>  0144  GetTickCount
+ 0090c014	0090c404 00000000 00000000 0090ce20 0090c844
+	0090c844  <none>  01af  PeekMessageA
+	0090c860  <none>  0243  TranslateMessage
+	0090c8a0  <none>  0152  InvalidateRect
+	0090c8d8  <none>  0090  DispatchMessageA

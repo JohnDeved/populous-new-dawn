@@ -7,6 +7,16 @@ It observes the reported/deployed-source commit
 absolute sprite speed. Later main `71b3860e7025a9534d56248c194aa18610b5df4d` was
 not rendered by this run.
 
+The [24Hz provenance and current-main correspondence](provenance.md) preserve the
+originating adapter choice, speed/fallback/visibility owners, and source adoption
+without relabelling baseline receipts. The independently reviewed
+[original caller-pacing investigation](native-pacing/findings.md) adds19 finite
+native boundary cases with a byte-identical independent replay. Startup requests
+draw40 separately from simulation12; application readiness is not a half-rate
+gate. Potential DirectDraw/semaphore/device waits are established as dependencies,
+with no supplied duration or achieved-rate claim. No runtime rate correction is
+justified by these observations alone; the reported visual issue remains open.
+
 ## Corrected observation
 
 The independently reviewed read-only observer uses ordinary Mission1 startup,

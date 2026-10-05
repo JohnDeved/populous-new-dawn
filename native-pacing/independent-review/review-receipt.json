@@ -1,0 +1,16 @@
+{
+  "verdict": "ACCEPT finite native pacing research; absolute cadence unresolved",
+  "findingsSha256": "550506ac29fd13d2aa7823938c01acbb574cdbd1ea5583e46eed773ca6b3bd74",
+  "sourceReceiptSha256": "9b8721c13bcd56530eb6059f15a576679920fefb1d68fd94272ce59fffb0ab93",
+  "probeSha256": "9f0420c4288eff677715c6bd91b9ddfb25c96915e30eab48c768921f3f8e989a",
+  "originalResultSha256": "dfd2f5daa201ddef9dc706adda593008a875a459075418de6389dbfb5d008345",
+  "replayCommandSha256": "d9d6f809d6b9bac653fe945ba68fe290904e9b0834e6e7fb865a53a28477291e",
+  "replayResultSha256": "dfd2f5daa201ddef9dc706adda593008a875a459075418de6389dbfb5d008345",
+  "byteCorrespondenceSha256": "7ae455555a9c2a9673c1d1ef4a18e9a9532e7b9f5bc4857cf6301fa18d5f8a62",
+  "reviewSha256": "7823eab1cdcb4bc2bde430ae1a87c2fd72244939cdf01fb54ce1e0c67737089a",
+  "replayedCaseCount": 19,
+  "verifiedScopedDisassemblyBytes": 4124,
+  "verifiedScopedExcerpts": 16,
+  "sourceEdits": [],
+  "resourcesHeld": []
+}

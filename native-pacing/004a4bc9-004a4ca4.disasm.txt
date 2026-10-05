@@ -1,0 +1,57 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004a4bc9 <.text+0xa3bc9>:
+  4a4bc9:	e8 a2 da 00 00       	call   0x4b2670
+  4a4bce:	85 c0                	test   %eax,%eax
+  4a4bd0:	0f 84 c9 00 00 00    	je     0x4a4c9f
+  4a4bd6:	f6 05 61 c6 89 00 08 	testb  $0x8,0x89c661
+  4a4bdd:	74 16                	je     0x4a4bf5
+  4a4bdf:	80 3d 9d 56 89 00 00 	cmpb   $0x0,0x89569d
+  4a4be6:	74 0d                	je     0x4a4bf5
+  4a4be8:	83 3d 84 d1 89 00 00 	cmpl   $0x0,0x89d184
+  4a4bef:	0f 84 aa 00 00 00    	je     0x4a4c9f
+  4a4bf5:	e8 46 b4 f7 ff       	call   0x420040
+  4a4bfa:	f6 05 63 c6 89 00 80 	testb  $0x80,0x89c663
+  4a4c01:	0f 85 93 00 00 00    	jne    0x4a4c9a
+  4a4c07:	e8 64 d9 07 00       	call   0x522570
+  4a4c0c:	85 c0                	test   %eax,%eax
+  4a4c0e:	75 0a                	jne    0x4a4c1a
+  4a4c10:	81 0d 61 c6 89 00 00 	orl    $0x800000,0x89c661
+  4a4c17:	00 80 00 
+  4a4c1a:	83 3d 1c d9 5c 00 00 	cmpl   $0x0,0x5cd91c
+  4a4c21:	75 77                	jne    0x4a4c9a
+  4a4c23:	ff 05 44 a4 5c 00    	incl   0x5ca444
+  4a4c29:	e8 32 86 05 00       	call   0x4fd260
+  4a4c2e:	6a 00                	push   $0x0
+  4a4c30:	e8 1b da 00 00       	call   0x4b2650
+  4a4c35:	50                   	push   %eax
+  4a4c36:	e8 95 51 08 00       	call   0x529dd0
+  4a4c3b:	83 c4 08             	add    $0x8,%esp
+  4a4c3e:	83 f8 01             	cmp    $0x1,%eax
+  4a4c41:	1a c0                	sbb    %al,%al
+  4a4c43:	f6 d8                	neg    %al
+  4a4c45:	a2 40 df 59 00       	mov    %al,0x59df40
+  4a4c4a:	e8 01 da 00 00       	call   0x4b2650
+  4a4c4f:	50                   	push   %eax
+  4a4c50:	e8 6b 35 08 00       	call   0x5281c0
+  4a4c55:	83 c4 04             	add    $0x4,%esp
+  4a4c58:	e8 f3 d9 00 00       	call   0x4b2650
+  4a4c5d:	8b 48 24             	mov    0x24(%eax),%ecx
+  4a4c60:	66 89 0d d5 c6 89 00 	mov    %cx,0x89c6d5
+  4a4c67:	e8 e4 d9 00 00       	call   0x4b2650
+  4a4c6c:	8b 48 20             	mov    0x20(%eax),%ecx
+  4a4c6f:	66 89 0d d7 c6 89 00 	mov    %cx,0x89c6d7
+  4a4c76:	e8 45 b3 fd ff       	call   0x47ffc0
+  4a4c7b:	e8 a0 b8 fd ff       	call   0x480520
+  4a4c80:	e8 cb d9 00 00       	call   0x4b2650
+  4a4c85:	50                   	push   %eax
+  4a4c86:	e8 d5 51 08 00       	call   0x529e60
+  4a4c8b:	c6 05 40 df 59 00 00 	movb   $0x0,0x59df40
+  4a4c92:	83 c4 04             	add    $0x4,%esp
+  4a4c95:	e8 56 86 05 00       	call   0x4fd2f0
+  4a4c9a:	e8 d1 9a 04 00       	call   0x4ee770
+  4a4c9f:	e8 cc 4a fe ff       	call   0x489770

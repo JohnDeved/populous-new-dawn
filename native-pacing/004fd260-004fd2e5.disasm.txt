@@ -1,0 +1,40 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+004fd260 <.text+0xfc260>:
+  4fd260:	64 a1 00 00 00 00    	mov    %fs:0x0,%eax
+  4fd266:	55                   	push   %ebp
+  4fd267:	8b ec                	mov    %esp,%ebp
+  4fd269:	6a ff                	push   $0xffffffff
+  4fd26b:	68 d3 d2 4f 00       	push   $0x4fd2d3
+  4fd270:	50                   	push   %eax
+  4fd271:	64 89 25 00 00 00 00 	mov    %esp,%fs:0x0
+  4fd278:	83 ec 0c             	sub    $0xc,%esp
+  4fd27b:	83 3d d8 54 5d 00 00 	cmpl   $0x0,0x5d54d8
+  4fd282:	75 42                	jne    0x4fd2c6
+  4fd284:	83 3d 34 57 5d 00 00 	cmpl   $0x0,0x5d5734
+  4fd28b:	75 33                	jne    0x4fd2c0
+  4fd28d:	6a 00                	push   $0x0
+  4fd28f:	8d 4d e8             	lea    -0x18(%ebp),%ecx
+  4fd292:	68 78 8f a6 00       	push   $0xa68f78
+  4fd297:	e8 04 eb 02 00       	call   0x52bda0
+  4fd29c:	6a 01                	push   $0x1
+  4fd29e:	8d 4d e8             	lea    -0x18(%ebp),%ecx
+  4fd2a1:	c7 45 fc 00 00 00 00 	movl   $0x0,-0x4(%ebp)
+  4fd2a8:	e8 23 eb 02 00       	call   0x52bdd0
+  4fd2ad:	c7 45 f0 01 00 00 00 	movl   $0x1,-0x10(%ebp)
+  4fd2b4:	c7 45 fc ff ff ff ff 	movl   $0xffffffff,-0x4(%ebp)
+  4fd2bb:	e8 1d 00 00 00       	call   0x4fd2dd
+  4fd2c0:	ff 05 34 57 5d 00    	incl   0x5d5734
+  4fd2c6:	8b 45 f4             	mov    -0xc(%ebp),%eax
+  4fd2c9:	8b e5                	mov    %ebp,%esp
+  4fd2cb:	64 a3 00 00 00 00    	mov    %eax,%fs:0x0
+  4fd2d1:	5d                   	pop    %ebp
+  4fd2d2:	c3                   	ret
+  4fd2d3:	b8 88 59 59 00       	mov    $0x595988,%eax
+  4fd2d8:	e9 13 e5 05 00       	jmp    0x55b7f0
+  4fd2dd:	8d 4d e8             	lea    -0x18(%ebp),%ecx
+  4fd2e0:	e9 db ea 02 00       	jmp    0x52bdc0

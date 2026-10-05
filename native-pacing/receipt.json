@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "exit_code": 0,
+  "cpu": 4,
+  "timeout_seconds": 20,
+  "case_count": 19,
+  "reported_execution_wall_seconds": 0.10713943,
+  "timestamp_utc": "2026-10-05T10:58:48Z",
+  "base_head": "596475b6839c948604897f8b68ff89c6290cf39d",
+  "repository_status_before": "clean",
+  "command": "source /workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/env.sh; timeout --signal=TERM --kill-after=2s 20s taskset -c 4 \"$POPULOUS_PYTHON\" -B /workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-sprite-pacing-214/probe-boundaries.py /workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-timing-audit \"$POPULOUS_EXE\" /workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-sprite-pacing-214/result.json",
+  "executable_sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "tool_versions": {
+    "objdump": "GNU objdump (GNU Binutils for Debian) 2.44",
+    "unicorn": "2.1.4"
+  },
+  "script_sha256": "9f0420c4288eff677715c6bd91b9ddfb25c96915e30eab48c768921f3f8e989a",
+  "result_sha256": "dfd2f5daa201ddef9dc706adda593008a875a459075418de6389dbfb5d008345"
+}

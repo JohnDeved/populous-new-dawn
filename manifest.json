@@ -70,8 +70,8 @@
       "sha256": "953a18927997c4a15b08b3353345a6cd61ddfc32c271c6b0357166732917cb30"
     },
     "README.md": {
-      "bytes": 6040,
-      "sha256": "3a27d666bfd71a94222a7d2c744c5cb8d2c7fc303261453d5ffecac3398aeab1"
+      "bytes": 6752,
+      "sha256": "049a65cee82d9c7138c556c85113d11da1e6c1d355e50336c98d7a4bb67a2dfb"
     },
     "validation/audit.json": {
       "bytes": 4660,
@@ -92,6 +92,118 @@
     "adoption/relevant-source.patch": {
       "bytes": 15109,
       "sha256": "b09860540ead6095a207a37ad66a726ed88c3d4da034a3096cf7b920cd39670a"
+    },
+    "native-pacing/findings.md": {
+      "bytes": 10895,
+      "sha256": "550506ac29fd13d2aa7823938c01acbb574cdbd1ea5583e46eed773ca6b3bd74"
+    },
+    "native-pacing/probe-boundaries.py": {
+      "bytes": 6760,
+      "sha256": "9f0420c4288eff677715c6bd91b9ddfb25c96915e30eab48c768921f3f8e989a"
+    },
+    "native-pacing/receipt.json": {
+      "bytes": 1123,
+      "sha256": "9b8721c13bcd56530eb6059f15a576679920fefb1d68fd94272ce59fffb0ab93"
+    },
+    "native-pacing/result.json": {
+      "bytes": 15892,
+      "sha256": "dfd2f5daa201ddef9dc706adda593008a875a459075418de6389dbfb5d008345"
+    },
+    "native-pacing/config-descriptors.json": {
+      "bytes": 10467,
+      "sha256": "eddf9bb1e894191dcbf03b19ac6de521cfe6a38cdfe1c54700f9d19120d7bc42"
+    },
+    "native-pacing/direct-references.txt": {
+      "bytes": 686,
+      "sha256": "d3caedb9f63d9e30dad3eff6891a8713ac60ffa2b900b5c4162c954f732eabe2"
+    },
+    "native-pacing/imports.txt": {
+      "bytes": 300,
+      "sha256": "0490de75f749a20eb604afe790f087db62768c617e1c6b37da7fcfbbc3c1fd81"
+    },
+    "native-pacing/independent-review/review.md": {
+      "bytes": 6479,
+      "sha256": "7823eab1cdcb4bc2bde430ae1a87c2fd72244939cdf01fb54ce1e0c67737089a"
+    },
+    "native-pacing/independent-review/review-receipt.json": {
+      "bytes": 959,
+      "sha256": "96b87cac5081c268734554c70fd0a9f31abc64ba2ff94b0f5b404ddaa94c4d04"
+    },
+    "native-pacing/independent-review/byte-correspondence.json": {
+      "bytes": 2801,
+      "sha256": "7ae455555a9c2a9673c1d1ef4a18e9a9532e7b9f5bc4857cf6301fa18d5f8a62"
+    },
+    "native-pacing/independent-review/replay-command.json": {
+      "bytes": 1402,
+      "sha256": "d9d6f809d6b9bac653fe945ba68fe290904e9b0834e6e7fb865a53a28477291e"
+    },
+    "native-pacing/independent-review/replay-result.json": {
+      "bytes": 15892,
+      "sha256": "dfd2f5daa201ddef9dc706adda593008a875a459075418de6389dbfb5d008345"
+    },
+    "native-pacing/0049a940-0049ad18.disasm.txt": {
+      "bytes": 15264,
+      "sha256": "11a914ccff096131d262c2090910c6ad8b17c48d86353d45c0c8e34a9b181ce6"
+    },
+    "native-pacing/004a42a0-004a431b.disasm.txt": {
+      "bytes": 2031,
+      "sha256": "b6d465be5b4bb70dfd264cbfa8eb135cfb7d653b1a137cb1bd49881609db3298"
+    },
+    "native-pacing/004a4450-004a44f3.disasm.txt": {
+      "bytes": 2392,
+      "sha256": "11cb39f8cf7bd35ed48df5ebbc67c61def801d826141e0849b9e7b5093384ba7"
+    },
+    "native-pacing/004a458c-004a47d8.disasm.txt": {
+      "bytes": 7998,
+      "sha256": "d57506babeb4bcef16f0ea447bbffa8138a9f053b8ea16fc6ba41af0b95120cf"
+    },
+    "native-pacing/004a4bc9-004a4ca4.disasm.txt": {
+      "bytes": 2592,
+      "sha256": "20ac550a39f92c2c633a64c84a75302cebe2f06c9ae21f119f68fcfc691487b9"
+    },
+    "native-pacing/004b0170-004b01c0.disasm.txt": {
+      "bytes": 1136,
+      "sha256": "2ac039d837bdd7ec57d5d4593231e739b29fa30b1874fb02433724f506ac9a44"
+    },
+    "native-pacing/004b0870-004b0b20.disasm.txt": {
+      "bytes": 10836,
+      "sha256": "f1cd87607d4915b68659264e19b5c5ab2fa2a32af656b7f20bc1cea7a9a61948"
+    },
+    "native-pacing/004b0c10-004b0c80.disasm.txt": {
+      "bytes": 2485,
+      "sha256": "8497ce846e153d496ac6d36c65422880b2887efa340f3b289731277a6c9a0a9b"
+    },
+    "native-pacing/004b1f90-004b205b.disasm.txt": {
+      "bytes": 2767,
+      "sha256": "8e56b97b28a387609c5b16d053dec5e2fad961b550b45ea0e3520d0410d4ce85"
+    },
+    "native-pacing/004b25d0-004b2682.disasm.txt": {
+      "bytes": 2992,
+      "sha256": "f9c50d1868c206bbf5b0adbc4eb668be5231f0acd119ffd885f98fcc66254640"
+    },
+    "native-pacing/004fd260-004fd2e5.disasm.txt": {
+      "bytes": 1817,
+      "sha256": "e2ccc77b41990c0b475aa93b96d1386192c5b35932c0a4270c3c84e7ae46100b"
+    },
+    "native-pacing/004fd370-004fd3d9.disasm.txt": {
+      "bytes": 1508,
+      "sha256": "3a4267b245b1fe34876833f4c95f92d6f6b0c2b4d7a8696d90370b13f948ebf5"
+    },
+    "native-pacing/00521c40-00521d20.disasm.txt": {
+      "bytes": 3366,
+      "sha256": "069f94a8f9a103122dc00a9a0d7fdb5953f8c9c0edd0f0207151ab49d5ecf37f"
+    },
+    "native-pacing/00529dd0-00529e60.disasm.txt": {
+      "bytes": 3063,
+      "sha256": "eb9af6094fe8bb0d8afe4b1290b377c4a16b54abfe9df98301ba6dab9a21c254"
+    },
+    "native-pacing/00529e80-00529ef3.disasm.txt": {
+      "bytes": 2270,
+      "sha256": "54dfed26643fc00baca439bbd3cb886d048bd6df2fafbcaf688f3c64596df92a"
+    },
+    "native-pacing/0052bdd0-0052be12.disasm.txt": {
+      "bytes": 1424,
+      "sha256": "6e522ce9edc0aba8bf7f942183c3f44f93fbff5071fa0ab5ebeb6f9c183a3f29"
     }
   }
 }

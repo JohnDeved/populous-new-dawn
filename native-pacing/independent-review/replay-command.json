@@ -1,0 +1,28 @@
+{
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "20s",
+    "taskset",
+    "-c",
+    "4",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "-B",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-sprite-pacing-214/probe-boundaries.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-timing-audit",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-sprite-pacing-214/independent-review/replay-result.json"
+  ],
+  "startedAt": "2026-10-05T11:03:13.962088+00:00",
+  "wallSeconds": 0.31970037599967327,
+  "exitCode": 0,
+  "scriptSha256": "9f0420c4288eff677715c6bd91b9ddfb25c96915e30eab48c768921f3f8e989a",
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "sourceHead": "596475b6839c948604897f8b68ff89c6290cf39d",
+  "stdout": "{\"status\": \"passed\", \"cases\": 19, \"output\": \"/workspace/scratch/69fd8163d94e/cloud-dev-20261004/native-sprite-pacing-214/independent-review/replay-result.json\"}\n",
+  "stderr": "",
+  "limitations": "Isolated Unicorn bytes only; registry/COM leaves supplied, no clock/OS/device timing.",
+  "replaySha256": "dfd2f5daa201ddef9dc706adda593008a875a459075418de6389dbfb5d008345",
+  "exactResultMatchesOriginal": true
+}

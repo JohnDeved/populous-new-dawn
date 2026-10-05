@@ -1,0 +1,13 @@
+  49ca60:	80 3d d4 ea 96 00 00 	cmpb   $0x0,0x96ead4
+  49cf94:	08 05 d4 ea 96 00    	or     %al,0x96ead4
+  49cfa6:	20 05 d4 ea 96 00    	and    %al,0x96ead4
+  49cfc9:	80 3d d4 ea 96 00 00 	cmpb   $0x0,0x96ead4
+  49cfe0:	f6 05 d4 ea 96 00 01 	testb  $0x1,0x96ead4
+  49cff3:	f6 05 d4 ea 96 00 04 	testb  $0x4,0x96ead4
+  49d001:	f6 05 d4 ea 96 00 02 	testb  $0x2,0x96ead4
+  4a42ce:	c6 05 62 ce 89 00 28 	movb   $0x28,0x89ce62
+  4a4316:	a2 62 ce 89 00       	mov    %al,0x89ce62
+  4a45c8:	8a 0d 62 ce 89 00    	mov    0x89ce62,%cl
+  4b01a1:	a3 40 dc 5c 00       	mov    %eax,0x5cdc40
+  4b0a1c:	89 1d 40 dc 5c 00    	mov    %ebx,0x5cdc40
+  4b267c:	a1 40 dc 5c 00       	mov    0x5cdc40,%eax

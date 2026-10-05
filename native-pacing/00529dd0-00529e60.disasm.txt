@@ -1,0 +1,69 @@
+
+/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe:     file format pei-i386
+
+
+Disassembly of section .text:
+
+00529dd0 <.text+0x128dd0>:
+  529dd0:	83 ec 6c             	sub    $0x6c,%esp
+  529dd3:	c7 44 24 00 6c 00 00 	movl   $0x6c,0x0(%esp)
+  529dda:	00 
+  529ddb:	8d 4c 24 00          	lea    0x0(%esp),%ecx
+  529ddf:	56                   	push   %esi
+  529de0:	8b 74 24 74          	mov    0x74(%esp),%esi
+  529de4:	57                   	push   %edi
+  529de5:	6a 00                	push   $0x0
+  529de7:	6a 01                	push   $0x1
+  529de9:	8b 46 4c             	mov    0x4c(%esi),%eax
+  529dec:	51                   	push   %ecx
+  529ded:	8b 38                	mov    (%eax),%edi
+  529def:	6a 00                	push   $0x0
+  529df1:	50                   	push   %eax
+  529df2:	ff 57 64             	call   *0x64(%edi)
+  529df5:	8b f8                	mov    %eax,%edi
+  529df7:	85 ff                	test   %edi,%edi
+  529df9:	74 41                	je     0x529e3c
+  529dfb:	81 ff c2 01 76 88    	cmp    $0x887601c2,%edi
+  529e01:	75 23                	jne    0x529e26
+  529e03:	56                   	push   %esi
+  529e04:	e8 07 fb ff ff       	call   0x529910
+  529e09:	83 c4 04             	add    $0x4,%esp
+  529e0c:	85 c0                	test   %eax,%eax
+  529e0e:	74 16                	je     0x529e26
+  529e10:	8b 46 4c             	mov    0x4c(%esi),%eax
+  529e13:	6a 00                	push   $0x0
+  529e15:	8d 4c 24 0c          	lea    0xc(%esp),%ecx
+  529e19:	6a 01                	push   $0x1
+  529e1b:	51                   	push   %ecx
+  529e1c:	8b 38                	mov    (%eax),%edi
+  529e1e:	6a 00                	push   $0x0
+  529e20:	50                   	push   %eax
+  529e21:	ff 57 64             	call   *0x64(%edi)
+  529e24:	8b f8                	mov    %eax,%edi
+  529e26:	85 ff                	test   %edi,%edi
+  529e28:	74 12                	je     0x529e3c
+  529e2a:	b8 ff ff ff ff       	mov    $0xffffffff,%eax
+  529e2f:	5f                   	pop    %edi
+  529e30:	c7 46 18 00 00 00 00 	movl   $0x0,0x18(%esi)
+  529e37:	5e                   	pop    %esi
+  529e38:	83 c4 6c             	add    $0x6c,%esp
+  529e3b:	c3                   	ret
+  529e3c:	8b 44 24 2c          	mov    0x2c(%esp),%eax
+  529e40:	89 46 18             	mov    %eax,0x18(%esi)
+  529e43:	8b 44 24 7c          	mov    0x7c(%esp),%eax
+  529e47:	85 c0                	test   %eax,%eax
+  529e49:	74 06                	je     0x529e51
+  529e4b:	8b 4c 24 2c          	mov    0x2c(%esp),%ecx
+  529e4f:	89 08                	mov    %ecx,(%eax)
+  529e51:	33 c0                	xor    %eax,%eax
+  529e53:	5f                   	pop    %edi
+  529e54:	5e                   	pop    %esi
+  529e55:	83 c4 6c             	add    $0x6c,%esp
+  529e58:	c3                   	ret
+  529e59:	cc                   	int3
+  529e5a:	cc                   	int3
+  529e5b:	cc                   	int3
+  529e5c:	cc                   	int3
+  529e5d:	cc                   	int3
+  529e5e:	cc                   	int3
+  529e5f:	cc                   	int3
