@@ -206,7 +206,8 @@ visits, while the after-read occurred five turns after dispatch. The copied
 acceptance helper supports an epoch marker journal that this dedicated observer
 omitted. This supports a lifetime/observation explanation, but does not recover or
 prove an unrecorded marker. No marker predicate is waived. The complete copied
-input-helper/observer contract is being audited before any correction or replay.
+input-helper/observer contract audit and reviewed revision 6 below address the
+observation boundary before any further replay.
 
 [Raw actions](pilot-03/baseline/run/actions.jsonl),
 [passive training rows](pilot-03/baseline/run/epoch-0-rows.jsonl),
@@ -222,6 +223,45 @@ input-helper/observer contract is being audited before any correction or replay.
 Exact baseline 3b899125, fresh 1440×1000 sandboxed headless context. The movement
 message and actual walking actor corroborate the bounded input result. This is not
 a successful before capture, Guard acceptance or hardware-performance proof.
+
+## Reviewed revision 6: synchronous input evidence, replay pending
+
+The [independent revision 6 source review](prepared-revision-06/native-guard-browser-preflight-review/review-revision-06.md)
+**ACCEPTs the complete adapter correction**: 12 source/provenance checks and all
+28 focused cases pass, including 10 cases executing the actual adapter/listener/
+finish/acceptance path. Read the [complete contract audit](prepared-revision-06/native-guard-browser-preparation/contract-audit.md),
+[frozen preparation receipt](prepared-revision-06/native-guard-browser-preparation/preparation-receipt.json),
+and [independent result](prepared-revision-06/native-guard-browser-preflight-review/source-checks-revision-06.json).
+The byte-exact review retains its original workspace file-line links; their portable
+source equivalents are [pointer handling](https://github.com/JohnDeved/populous-new-dawn/blob/c20a297f5f815ce404f796b08f77ea56396f96da/app/scene-input-runtime.ts#L375)
+and [marker lifetime](https://github.com/JohnDeved/populous-new-dawn/blob/c20a297f5f815ce404f796b08f77ea56396f96da/app/world-effects.ts#L119).
+
+The existing pointer observer now captures passive command snapshots immediately
+before and after the actual handler. Source proves command, marker insertion and
+acknowledgment are synchronous before that existing post-handler listener. Exact
+scene/world/epoch, selection, dispatch turn, acknowledgment, real new marker and
+secondary ownership, and the selected actor's actual command-owner/current-cursor
+record must agree. The generic acceptance helper remains byte-identical, including
+legitimate fresh input to an unchanged same-target order. Diagnostics preserve
+original picker return/error behavior and do not add picker, renderer or clock calls.
+
+Command ownership is recorded separately from renderer ownership. A captured
+model-3 queue assignment does not establish native adoption. A later empty queue
+with the same ordinary idle owner does not prove completed movement. Delayed health,
+ordinary eligibility, continuous renderer identity, Guard adoption/following and
+Save/Load checks remain separate requirements. The unchanged independent RAF
+observer still owns phase evidence. Missing/stale/wrong-cell/wrong-owner markers,
+old-only/later-slot orders, wrong epochs, Load reset, diagnostic errors and original
+picker exceptions have executed negative tests.
+
+The [revision 6 launch plan](prepared-revision-06/launch-plan-rev6.json), SHA256
+`f1bf383242780847e8d8f47068a6d2b3bdda1e0a1ceb441ac4262e2ba8b2f216`,
+keeps the same fixed sources, sandboxed browser, ports 4392/4393, CPU allocation,
+six prospective destinations and 60/300/330-second limits, with fresh attempt-04
+outputs. It is **prepared, not run**. The currently active campaign must reach
+verified terminal cleanup and release shared dependencies before a new coordinator
+grant. This source acceptance does not relabel pilot 03 or establish browser,
+Guard, checkpoint, performance or merge acceptance. PR220 remains draft.
 
 Raw command30 payload b remains unchanged in original snapshots. Independent
 consumer audit permits excluding only that unused word from semantic comparison;

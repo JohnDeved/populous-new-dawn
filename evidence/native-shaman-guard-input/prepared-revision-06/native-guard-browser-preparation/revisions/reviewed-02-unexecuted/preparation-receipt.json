@@ -1,0 +1,48 @@
+{
+  "status": "passed",
+  "kind": "source-only preparation checks",
+  "time": "2026-10-05T20:26:12.624Z",
+  "node": "v24.19.0",
+  "checks": [
+    "The complete first reviewed packet, including its scenario/observer/receipt, is preserved byte-for-byte as unexecuted history",
+    "Every original accepted helper and old preparation source retains its supplied hash",
+    "All eight accepted local closures match the original body plus enumerated adaptations",
+    "Browser probes and replacement observers match their copied source boundary",
+    "Both frozen runtime source manifests match Git; candidate tracked source remains clean",
+    "Every prepared module passes Node syntax; scenario import has no execution side effects",
+    "Pure mocks reject silhouette-edge targets and disabled contexts, and preserve live-input ownership under mutating clone-only validators",
+    "Six identity/target regression cases pass: Unit/native swaps, intervening row swaps, source ownership, verified Load-only rebind, current-order selection, pending target0, saved target/queue/aliases",
+    "Narrow checkpoint observer preserves marker, target, aliases and guard count without modifying supplied data"
+  ],
+  "identityTargetRegressions": {
+    "command": "node --test guard-assertions.test.mjs",
+    "exitCode": 0,
+    "stdout": "✔ pins both actual Unit and native owner identities for the full epoch (2.600051ms)\n✔ every sampled row rejects replacement even when surrounding reads look unchanged (0.622837ms)\n✔ ordinary read cannot silently rebind after a changed epoch/world/scene (1.447417ms)\n✔ only the CURRENT active order can satisfy native Guard (0.52529ms)\n✔ pending initial G may carry target0; adoption must configure the actual target (0.619852ms)\n✔ Load binding validates captured aliases, saved target and exact Guard queue before pinning (1.558534ms)\nℹ tests 6\nℹ suites 0\nℹ pass 6\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 92.174142\n"
+  },
+  "inputs": {
+    "accepted-input.mjs": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+    "attempt-01-provenance.json": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+    "attempt-01-verifier.mjs.txt": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+    "browser-probes.mjs": "04be28c504df1a3360c9c43d24092259e1f49f8e4eb4927b0592854428392b01",
+    "checkpoint-guard.mjs": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+    "ground-and-dispatch.mjs": "9674da60506da52fef704a51183afc3284cd8499a9af7799b97ca21152a577ba",
+    "guard-assertions.mjs": "33effcf8f9170e93803509f2323b1bcede5ae1a2677677c64f7216312214c08c",
+    "guard-assertions.test.mjs": "a4da720b9ea437ae1413cfb0390a2aebc8c01999ed945a761b94143afa5d655e",
+    "observer.mjs": "e3b4ef888ed57f0035309ac79e9b5b81e1634f14a5eaf1418306fa1c69e75a95",
+    "ordinary-input.mjs": "20e9403ff42c405acf625b4a0a43f33b1ad57c33559a78a8f2bb1a492ba474d4",
+    "plan.md": "1d0ea7b4c2b3b30ee38eb2f84733eacf550e44720f9a6d257a95242d0b099ff0",
+    "preparation-failure-01.json": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+    "provenance.json": "c9e36f415cc7294897e2984f021cdabc7b16d7cd4489b45dc2e35ccbc4ace6d3",
+    "replacement-observer.mjs": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+    "revision-history.json": "3316617c926b492c412cdbc774268f1ea685f17accdfc5defeace7ca1a8eb95b",
+    "runtime-sources.json": "305edd4de358a6d671f91ead747e6be64af4c99674e6833742c95dc23d3d400b",
+    "scenario.mjs": "1889980ca4e2b9288e2f069708c6da0a3f3b3d263693152454fee94670d1d086",
+    "verify-preparation.mjs": "7f9c1f43feeed3f5bb030d29efed257934ce3d18c8406c2a3f75471533cf637f"
+  },
+  "browser": "not-run",
+  "server": "not-run",
+  "build": "not-run",
+  "profiles": "not-touched",
+  "dependencies": "not-touched",
+  "parity": "no-credit"
+}
