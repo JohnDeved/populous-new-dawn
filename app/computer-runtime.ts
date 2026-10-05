@@ -1785,7 +1785,7 @@ function computerSpellPerson(w: World, u: Unit): SpellTargetUnit {
     y: p.y,
     flags2: u.inside === null ? 0 : 0x800000,
     flags4: live?.flags4 ?? (u.invisibility ? 0x1000 : 0),
-    assignment: 0,
+    assignment: live?.assignment ?? 0,
     disguise: 0,
   }
 }
