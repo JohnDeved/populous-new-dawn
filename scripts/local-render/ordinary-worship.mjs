@@ -4,15 +4,16 @@ import { readFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { checkpointObservation, readCommittedCheckpoint } from './checkpoint-observer.mjs'
+import { prepareM1LightningRoute, publicWorshipOrder as worshipOrder } from './ordinary-worship-m1-route.mjs'
 
 // Prepared acceptance inputs, not claimed results. Run one row per fresh owned
 // profile/output. The default is the small diagnostic; no automatic matrix loop.
 export const routes = {
   'm1-bridge': { mission: 1, reward: 'bridge', model: 12, x: -5, z: 25, required: 1, target: 28, timeout: 120000 },
-  'm1-lightning': { mission: 1, reward: 'lightning', model: 3, x: 11, z: 1, required: 1, target: 32, timeout: 120000 },
+  'm1-lightning': { mission: 1, reward: 'lightning', model: 3, x: 11, z: 1, required: 1, target: 32, timeout: 300000 },
   'm1-bridge-fallback': { mission: 1, reward: 'bridge', model: 12, x: -5, z: 25, required: 1, target: 28, fallback: true, flightTab: true, timeout: 120000 },
   'm2-tornado': { mission: 2, reward: 'tornado', model: 4, x: -59, z: -105, required: 2, target: 82, flightTab: true, timeout: 300000 },
-  'm1-checkpoint-resize': { mission: 1, reward: 'lightning', model: 3, x: 11, z: 1, required: 1, target: 32, checkpoint: true, resize: true, flightTab: true, timeout: 150000 },
+  'm1-checkpoint-resize': { mission: 1, reward: 'lightning', model: 3, x: 11, z: 1, required: 1, target: 32, checkpoint: true, resize: true, flightTab: true, timeout: 300000 },
 }
 const digest = bytes => createHash('sha256').update(bytes).digest('hex')
 
@@ -274,79 +275,6 @@ async function installObserver(page, input) {
   }, input)
 }
 
-async function clearSelection(page) {
-  for (let attempt = 0; attempt < 3; attempt++) {
-    if (await page.evaluate(() => !window.testStore.getWorld().mode && !window.testStore.getWorld().selected.length)) return
-    await page.keyboard.press('Escape')
-  }
-  assert.equal(await page.evaluate(() => !window.testStore.getWorld().mode && !window.testStore.getWorld().selected.length), true)
-}
-
-async function worshipOrder(page, shrine, kind, report, waitForShamanReadiness) {
-  const resume = page.getByRole('button', { name: 'Resume game', exact: true })
-  if (await resume.isVisible()) await resume.click()
-  const flybyDeadline = performance.now() + 45000, skipped = []
-  for (;;) {
-    const state = await page.evaluate(() => ({ turn: window.testStore.getWorld().turn, inputMask: window.testStore.getWorld().inputMask }))
-    if (!state.inputMask) break
-    assert.ok(performance.now() < flybyDeadline, `Reward flyby/input gate before ${kind} worship did not finish`)
-    const skip = page.locator('.skip-introduction')
-    if (await skip.isVisible()) { await skip.click(); skipped.push(state) }
-    else await page.waitForTimeout(100)
-  }
-  const readiness = await waitForShamanReadiness(page, { timeout: 45000 })
-  const identity = await page.evaluate(() => {
-    const scene = window.testSceneRef.current, world = window.testStore.getWorld()
-    return { sameWorld: scene.world === world, connected: scene.renderer.domElement.isConnected,
-      loading: !!document.querySelector('.loading-world'), paused: world.paused, inputMask: world.inputMask }
-  })
-  assert.deepEqual(identity, { sameWorld: true, connected: true, loading: false, paused: false, inputMask: 0 })
-  await clearSelection(page)
-  if (kind === 'shaman') await page.getByRole('button', { name: 'followers', exact: true }).click()
-  await page.getByRole('button', { name: kind === 'shaman' ? 'Select and focus shaman' : `Select ${kind}`, exact: true }).click(
-    kind === 'brave' ? { modifiers: ['Shift'] } : {})
-  // Camera assistance only. This shipped helper also clears mode; call it before
-  // selecting the public test mode. Let ordinary RAF update geometry and panels.
-  await page.evaluate(shrine => window.testSceneRef.current.focus(shrine), shrine)
-  await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))))
-  const point = await page.evaluate(id => {
-    const scene = window.testSceneRef.current, head = scene.world.shrines.find(s => s.id === id),
-      bounds = scene.container.getBoundingClientRect(), mesh = scene.shrineMeshes.get(id)?.g,
-      projected = scene.screen(mesh?.position ?? head),
-      center = { x: bounds.x + (projected.x + 1) * bounds.width / 2, y: bounds.y + (1 - projected.y) * bounds.height / 2 },
-      owns = point => scene.picking.pickPerson(point) === null && scene.pickWorldObject(point)?.id === id &&
-        document.elementFromPoint(point.clientX, point.clientY) === scene.renderer.domElement
-    for (let dy = -140; dy <= 60; dy += 4) for (let dx = -100; dx <= 100; dx += 4) {
-      const p = { clientX: center.x + dx, clientY: center.y + dy }
-      if (owns(p)) return { x: p.clientX, y: p.clientY }
-    }
-    const candidates = []
-    mesh?.traverse(child => {
-      if (child.userData.nativeModel === undefined || !child.visible) return
-      for (const command of scene.picking.model(child, JSON.stringify(scene.view.projection))) {
-        if (command.kind !== 'model') continue
-        const p = { clientX: bounds.x + command.points.reduce((n, p) => n + p.x, 0) / command.points.length,
-          clientY: bounds.y + command.points.reduce((n, p) => n + p.y, 0) / command.points.length }
-        candidates.push(p)
-      }
-    })
-    const hit = candidates.find(owns)
-    if (!hit) throw Error(`No canvas-owned shrine hit for ${id}`)
-    return { x: hit.clientX, y: hit.clientY }
-  }, shrine.id)
-  await page.mouse.click(point.x, point.y)
-  const accepted = await page.evaluate(({ id, kind }) => {
-    const w = window.testStore.getWorld()
-    return { turn: w.turn, paused: w.paused, selected: [...w.selected], inputMask: w.inputMask,
-      mode: w.mode, message: w.message, lastOrderTurn: w.lastOrderTurn,
-      worshippers: w.units.filter(u => u.team === 'blue' && u.kind === kind && u.work === id).map(u => u.id) }
-  }, { id: shrine.id, kind })
-  // Retain attempted UI order and rejection feedback even when acceptance fails.
-  report.orders.push({ shrine, kind, point, readiness, identity, skipped,
-    cameraAssistance: 'scene.focus before mode setup; ordinary RAF only', accepted })
-  assert.equal(accepted.paused, false)
-  assert.ok(accepted.worshippers.length, `${kind} public worship order must be accepted: ${JSON.stringify(accepted)}`)
-}
 
 async function checkpointBeforeOrders(page, root, output, signal) {
   const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
@@ -465,6 +393,8 @@ export default async function ({ page, root, output, receipt, openMission, signa
       // startup readiness settles. Additional living followers remain in play.
       report.opening.additionalBraves = report.opening.blue.filter(u => u.kind === 'brave' && !bound.some(b => b.id === u.id))
     }
+    if (route.mission === 1 && route.reward === 'lightning')
+      await prepareM1LightningRoute({ page, waitForShamanReadiness, signal, report, save })
     if (route.checkpoint) report.checkpoint = await checkpointBeforeOrders(page, root, output, signal)
     if (baseline) await installBaselineObserver(page, route)
     else {
