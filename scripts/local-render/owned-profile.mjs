@@ -6,6 +6,7 @@ import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path
 import { hostname } from 'node:os'
 import { isDeepStrictEqual } from 'node:util'
 import { readRecoveryAdmission } from '../../qa/mission-three-controls/recovery-admission.mjs'
+import { readGameplayContinuation } from '../../qa/mission-three-controls/sermon-successor.mjs'
 
 export const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
 const json = value => JSON.stringify(value, null, 2) + '\n'
@@ -75,18 +76,26 @@ export function acquireProfile({ path, root, origin, source, inputs, runtime, ou
   inspectPath(path, { privateOwner: true })
   const marker = resolve(path, markerName), lock = resolve(path, lockName), dataDir = resolve(path, 'browser')
   const binding = { root, origin, application: inputs.application, runtime }
-  let manifest, recoveryAdmission = null
+  let manifest, recoveryAdmission = null, gameplayContinuation = null
   if (created) {
     manifest = { version: 1, purpose: 'populous-local-render-game-only', id: randomUUID(), path, createdAt: new Date().toISOString(), binding, lastRun: null }
     writeFileSync(marker, json(manifest), { flag: 'wx', mode: 0o600 })
     mkdirSync(dataDir, { mode: 0o700 })
   } else {
     manifest = readOwnedJson(marker)
-    if (manifest.version !== 1 || manifest.purpose !== 'populous-local-render-game-only' || !/^[0-9a-f-]{36}$/.test(manifest.id ?? '') || manifest.path !== path || !isDeepStrictEqual(manifest.binding, binding)) throw Error('Profile ownership or game/runtime/origin inputs do not match; use a new task profile')
-    if (manifest.recoveryAdmission) {
-      if (manifest.lastRun || manifest.recoveryClaim) throw Error('Single-segment recovery already claimed; preserve it for review')
-      recoveryAdmission = readRecoveryAdmission(manifest.recoveryAdmission,
-        { root, path, id: manifest.id, origin, source, inputs, runtime, scenario, correspondence }, { storagePath: dataDir })
+    if (manifest.version !== 1 || manifest.purpose !== 'populous-local-render-game-only' || !/^[0-9a-f-]{36}$/.test(manifest.id ?? '') || manifest.path !== path) throw Error('Profile ownership or game/runtime/origin inputs do not match; use a new task profile')
+    if (manifest.gameplayContinuationClaim) throw Error('The single reviewed gameplay successor is already claimed; preserve it for review')
+    if (manifest.recoveryAdmission && manifest.lastRun && correspondence) {
+      gameplayContinuation = readGameplayContinuation(correspondence,
+        { root, path, id: manifest.id, origin, source, inputs, runtime, scenario }, manifest)
+      recoveryAdmission = gameplayContinuation.recoveryAdmission
+    } else {
+      if (!isDeepStrictEqual(manifest.binding, binding)) throw Error('Profile ownership or game/runtime/origin inputs do not match; use a new task profile')
+      if (manifest.recoveryAdmission) {
+        if (manifest.lastRun || manifest.recoveryClaim) throw Error('Single-segment recovery already claimed; preserve it for review')
+        recoveryAdmission = readRecoveryAdmission(manifest.recoveryAdmission,
+          { root, path, id: manifest.id, origin, source, inputs, runtime, scenario, correspondence }, { storagePath: dataDir })
+      }
     }
     if ((!recoveryAdmission || manifest.lastRun) && (!manifest.lastRun?.cleanupVerified || !manifest.lastRun.continuationVerified || !Object.hasOwn(manifest.lastRun, 'checkpointAtEnd'))) throw Error('Profile has no verified terminal provenance; preserve it for review')
     inspectPath(dataDir, { privateOwner: true })
@@ -107,14 +116,18 @@ export function acquireProfile({ path, root, origin, source, inputs, runtime, ou
   // wx refuses live, stale, corrupt, or symlink locks alike. Never infer ownership
   // from a PID, kill an unknown process, or automatically remove a stale lock.
   writeFileSync(lock, json(owner), { flag: 'wx', mode: 0o600 })
-  if (recoveryAdmission && !manifest.lastRun) {
-    manifest = { ...manifest, recoveryClaim: { runId } }
+  if (gameplayContinuation || (recoveryAdmission && !manifest.lastRun)) {
+    manifest = gameplayContinuation ? { ...manifest, binding, gameplayContinuationClaim: {
+      runId, priorRunId: manifest.lastRun.runId, correspondenceSha256: gameplayContinuation.reference.sha256,
+      reference: gameplayContinuation.reference, previousBinding: manifest.binding,
+    } } : { ...manifest, recoveryClaim: { runId } }
     const temp = resolve(path, `claim-${runId}.tmp`)
     writeFileSync(temp, json(manifest), { flag: 'wx', mode: 0o600 })
     renameSync(temp, marker)
   }
   const profile = { id: manifest.id, path, runId, mode: created ? 'created' : 'reused', origin, inputs, correspondence: review, previousRun: manifest.lastRun, checkpoints: [],
-    ...(recoveryAdmission ? { recoveryAdmission, recoveryClaim: manifest.recoveryClaim } : {}) }
+    ...(recoveryAdmission ? { recoveryAdmission, recoveryClaim: manifest.recoveryClaim } : {}),
+    ...(gameplayContinuation ? { gameplayContinuation, gameplayContinuationClaim: manifest.gameplayContinuationClaim } : {}) }
   let finished = false
   return { dataDir, profile,
     finish(receipt, cleanupVerified) {

@@ -45,7 +45,7 @@ export default async function missionThreeControls({ page, output, root, signal,
   let preserveStopRequested = false
   let preserveVerificationFailed = false
   mkdirSync(commandsPath, { recursive: true })
-  for (const name of ['driver.mjs', 'observation.mjs', 'checkpoint-provenance.mjs', 'sermon-checkpoint.mjs', 'recovery-admission.mjs', 'command-probes.mjs']) {
+  for (const name of ['driver.mjs', 'observation.mjs', 'checkpoint-provenance.mjs', 'sermon-checkpoint.mjs', 'recovery-admission.mjs', 'sermon-successor.mjs', 'command-probes.mjs']) {
     const bytes = readFileSync(new URL(name, import.meta.url))
     writeFileSync(resolve(output, name), bytes)
     inputs.push({ name, sha256: sha256(bytes) })
@@ -574,10 +574,12 @@ export default async function missionThreeControls({ page, output, root, signal,
       origin: url, checkpoint: observed.checkpoint })
     protectedLatest = observed
     continuation = { kind: 'saved-sermon', record: sermonRecord, inputSha256: sha256(bytes), priorRun: receipt.profile.previousRun }
-    inheritedActiveSeconds = sermonRecord.activeSeconds
+    const priorHistory = sermonRecord.kind === 'mission3-recovered-sermon-successor' ? receipt.profile.gameplayContinuation.history : null
+    inheritedActiveSeconds = priorHistory?.activeSeconds ?? sermonRecord.activeSeconds
     Object.assign(ids, sermonRecord.ids)
     milestones.push(...sermonRecord.milestones.map(m => ({ ...m, inheritedFromSavedSermon: true })))
-    failures.push(...sermonRecord.failures.map(f => ({ ...f, inheritedFromSavedSermon: true })))
+    failures.push(...(priorHistory?.failures ?? sermonRecord.failures).map(f => ({ ...f, inheritedFromSavedSermon: true })))
+    controlStops.push(...(priorHistory?.controlStops ?? []).map(stop => ({ ...stop, inheritedFromPriorGameplay: true })))
     victimSelection = sermonRecord.firstOwned
     sermonPlan = { epoch: sermonRecord.epoch, declaration: sermonRecord.declaration,
       inheritedFromSavedSermon: { source: sermonRecord.source, savedByRunId: sermonRecord.savedByRunId } }
@@ -585,7 +587,7 @@ export default async function missionThreeControls({ page, output, root, signal,
       victimId: ids.victim, preacherId: ids.preacher, blueIds: sermonRecord.retainedBlueIds }
     log({ action: 'saved-sermon-provenance-verified', input: path, inputSha256: sha256(bytes), observed,
       originalSource: sermonRecord.source, savedByRunId: sermonRecord.savedByRunId,
-      retainedFailureCount: sermonRecord.failures.length, scope: sermonRecord.scope })
+      retainedFailureCount: failures.length, inheritedControlStopCount: controlStops.length, scope: sermonRecord.scope })
     await button('Load Game')
     // The visible Pause control witnesses ordinary Load's auto-resume. Pause
     // before diagnostic binding/imports consume the short saved listener timer.

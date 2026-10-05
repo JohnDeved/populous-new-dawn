@@ -13,7 +13,7 @@ const sha256 = value => createHash('sha256').update(value).digest('hex')
 
 test('the actual saved-sermon entry admits a subsequent Preacher cancellation order without rearming', async () => {
   const source = { fingerprint: 'b'.repeat(64) }, profile = { runId: 'new-run', previousRun: { runId: 'saved-run' } }
-  const record = { source, savedByRunId: 'saved-run', activeSeconds: 401, checkpoint: { turn: 4813, time: 401 },
+  const record = { kind: 'mission3-ui-sermon', gameplayContinuation: { history: { activeSeconds: 0, failures: [], controlStops: [] } }, source, savedByRunId: 'saved-run', activeSeconds: 401, checkpoint: { turn: 4813, time: 401 },
     ids: { preacher: 3163, victim: 50 }, retainedBlueIds: [3163], epoch: 'original-entry',
     declaration: { preacherId: 3163, armedAtTurn: 4101, candidateIds: [50] },
     firstOwned: { victim: { id: 50 } }, milestones: [{ name: 'sermon-saved' }], failures: [{ error: 'retained' }] }
@@ -23,11 +23,11 @@ test('the actual saved-sermon entry admits a subsequent Preacher cancellation or
       validateLoadedSermon, observeCheckpoint, button, bindGame, bindObservation, read,
       health, readStorage, pause, snapshot, log, saveProgress, source, profile } = deps;
     const root = '/owned', output = '/owned/output', url = 'http://127.0.0.1:4366', page = {};
-    const receipt = { source, profile }, inputs = [], ids = {}, milestones = [], failures = [];
+    const receipt = { source, profile }, inputs = [], ids = {}, milestones = [], failures = [], controlStops = [];
     let continuation, sermonRecord, protectedLatest, inheritedActiveSeconds, victimSelection, sermonPlan, savedSermon;
     ${block('  const loadSavedSermon =', '  const stopPreserveLatest =')}
     await loadSavedSermon('/owned/work/orchestration/mission-three-controls/prior/sermon-record.json');
-    return { sermonPlan, savedSermon, victimSelection, milestones, failures, protectedLatest };
+    return { sermonPlan, savedSermon, victimSelection, milestones, failures, protectedLatest, inheritedActiveSeconds, controlStops };
   `)
   const result = await execute({ assert, resolve, sha256, source, profile,
     readFileSync: () => bytes, writeFileSync: () => calls.push('write-provenance'),
@@ -44,6 +44,8 @@ test('the actual saved-sermon entry admits a subsequent Preacher cancellation or
   assert.equal(result.sermonPlan.epoch, 'original-entry', 'Inherited declaration keeps its original epoch label')
   assert.deepEqual(result.sermonPlan.inheritedFromSavedSermon.source, source)
   assert.ok(result.failures[0].inheritedFromSavedSermon)
+  assert.equal(result.inheritedActiveSeconds, 401, 'Unvalidated history on an ordinary record cannot reset time')
+  assert.equal(result.failures.length, 1, 'Unvalidated history on an ordinary record cannot erase failures')
   assert.deepEqual(calls.filter(c => c.startsWith('epoch:')), ['epoch:saved-sermon-entry'])
   assert.deepEqual(calls.filter(c => ['Load Game', 'Pause game', 'bind-game', 'full-read', 'validate-loaded'].includes(c)),
     ['Load Game', 'Pause game', 'bind-game', 'full-read', 'validate-loaded'])
@@ -232,4 +234,22 @@ test('reused-entry record failures preserve the harness checkpoint before admiss
     assert.ok(!writes.includes('/owned/output/sermon-record.json'))
     assert.ok(!writes.includes('/owned/output/preparation-record.json'))
   }
+})
+
+
+test('the actual successor driver consumes only the harness-validated cumulative history', async () => {
+  const start = driver.indexOf('    const priorHistory ='), end = driver.indexOf('    victimSelection = sermonRecord.firstOwned', start)
+  const execute = new AsyncFunction('sermonRecord', 'receipt', `
+    const ids = {}, milestones = [], failures = [], controlStops = []; let inheritedActiveSeconds;
+    ${driver.slice(start, end)}
+    return { inheritedActiveSeconds, failures, controlStops };
+  `)
+  const history = { activeSeconds: 418.08333333333337, failures: [{ index: 29 }, { index: 48 }, { index: 1 }],
+    controlStops: [{ code: 'preserve-latest' }] }
+  const record = { kind: 'mission3-recovered-sermon-successor', activeSeconds: 407.75, ids: {}, milestones: [], failures: [],
+    gameplayContinuation: { history: { activeSeconds: 0, failures: [], controlStops: [] } } }
+  const result = await execute(record, { profile: { gameplayContinuation: { history } } })
+  assert.equal(result.inheritedActiveSeconds, history.activeSeconds); assert.equal(result.failures.length, 3)
+  assert.equal(result.controlStops[0].code, 'preserve-latest')
+  assert.equal(result.controlStops[0].inheritedFromPriorGameplay, true)
 })

@@ -73,7 +73,7 @@ sermon record to`sermon-record-withheld.json`. The valid forwarding filename is
 absent and the validator rejects the blocked annotation even if renamed manually.
 The first failure reason is retained. Generic harness`continuationVerified`
 still concerns its own terminal readback/source/lease checks; it does not establish
-that the scenario's intended Save was preserved. The harness remains unchanged.
+that the scenario's intended Save was preserved. The generic terminal readback semantics remain unchanged; the explicit recovery admissions below extend entry provenance.
 
 ## Genuine saved-sermon Load
 
@@ -133,3 +133,37 @@ Any later segment would require a separately reviewed cumulative-forwarding chan
 The immutable Run14 source/profile/acquisition/onset/milestones stay distinct from
 the newly assembled recovered record and validator-measured full checkpoint digest.
 Fresh cancellation, reload, conversion and later milestones must be observed again.
+
+## One successor after the real failed recovery segment
+
+Recovered run5451f1a6 on3ddb1dd genuinely loaded4813 and preserved its full digest.
+The first paused opening was4870: binding/observer imports/full reads before Pause
+consumed57 turns, leaving listener50 timer5. The observer then saw50→Blue3242 at
+4876→4877, before the cancellation move accepted4889. Cancellation remains failed;
+no post-cancellation reload or later milestone was earned. Supported preserving
+stop closed normally with the original4813 checkpoint unchanged and all3 failures
+retained. Original Run14 cleanup is still unknown.
+
+Saved-sermon entry now clicks the visible Pause game control immediately after
+ordinary Load, before diagnostic binding/imports/reads. That accepted UI control
+is the explicit auto-resume witness. The later full read must be actually paused
+and must retain the same listener, Preacher and Blue identities. No game clock,
+World, timer or storage field is changed by this repair.
+
+One separately reviewed successor can consume only the actual5451f1a6 terminal
+receipt, journey, terminal snapshot, actions and emitted record at their exact
+hashes. It retains418.08333333333337 active seconds:407.75 inherited plus the10.3333
+seconds in the open terminal epoch (there were no closed epochs). Its cumulative
+history contains all3 failures and the preserving control stop. Original record
+fields stay unchanged; a new successor record is labelled assembled now and
+references the immutable prior record. The driver reads cumulative history only
+from the harness-validated successor object, never arbitrary ordinary-record fields.
+
+The first recoveryAdmission and recoveryClaim remain immutable. The lease verifies
+the old marker binding against the real terminal receipt, then permits only the
+exact reviewed new QA/runtime binding under a fresh exclusive lock. A separate
+one-time gameplayContinuationClaim retains the old binding and prior run. Standard
+finish writes only the actual current terminal receipt. An existing successor
+claim, wrong predecessor or third entry is rejected. This is a narrow reviewed
+continuation of a real closed gameplay profile, with no storage recopy, new profile
+identity, new recovery admission or reset of failed history.
