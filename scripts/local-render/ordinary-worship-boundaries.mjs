@@ -23,16 +23,29 @@ async function installEarlyObserver(page, phase) {
         acquisition: w.worshipAcquisition, gifts: w.gifts.filter(g => g.reward === 'lightning'),
         stock: w.shots.lightning, count: w.giftCounts.lightning,
         gameplayRandom: w.randomState, cosmeticRandom: w.cosmeticRandom })
-      // JSON cannot represent Infinity. Encode the native gift duration only in
-      // observation copies, so the saved raw receipt and fresh IndexedDB read
-      // compare the same lossless value. Never coerce null to Infinity or write
-      // this representation into the live World/checkpoint.
-      for (const gift of observed.gifts) {
-        if (gift.duration === Infinity) gift.duration = { pndNumber: '+Infinity' }
-        else if (typeof gift.duration !== 'number' || !Number.isFinite(gift.duration))
+      // Preserve JSON-unsafe values only in observation copies. The native
+      // gift duration is the sole admitted infinity; never repair a stored null.
+      for (const gift of observed.gifts)
+        if (typeof gift.duration !== 'number' || (!Number.isFinite(gift.duration) && gift.duration !== Infinity))
           throw Error('Unexpected gift duration in boundary observation')
+      const retain = (value, path = '') => {
+        if (typeof value === 'number') {
+          if (value === Infinity && /^gifts\.\d+\.duration$/.test(path)) return { pndNumber: '+Infinity' }
+          if (!Number.isFinite(value)) throw Error(`Unexpected nonfinite number at ${path}`)
+          return Object.is(value, -0) ? { pndNumber: '-0' } : value
+        }
+        if (value === undefined) return { pndValue: 'undefined' }
+        if (value === null || typeof value === 'string' || typeof value === 'boolean') return value
+        if (Array.isArray(value)) return Array.from({ length: value.length }, (_, i) =>
+          i in value ? retain(value[i], `${path}.${i}`) : { pndValue: 'array-hole' })
+        if (typeof value !== 'object' || Object.getPrototypeOf(value) !== Object.prototype)
+          throw Error(`Unsupported observation value at ${path}`)
+        if (Object.hasOwn(value, 'pndNumber') || Object.hasOwn(value, 'pndValue'))
+          throw Error(`Reserved observation tag in original state at ${path}`)
+        return Object.fromEntries(Object.entries(value).map(([key, item]) =>
+          [key, retain(item, path ? `${path}.${key}` : key)]))
       }
-      return observed
+      return retain(observed)
     }
     window.worshipBoundaryFocus = focus
     const observe = fn => { try { return fn() } catch (error) {
@@ -391,7 +404,7 @@ export default async function ({ page, context, root, output, receipt, openMissi
   const { bindGame, waitForShamanReadiness } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)
   const { waitForCheckpointReadback } = await import(pathToFileURL(resolve(root, 'scripts/checkpoint-readback.mjs')).href)
   const report = { phase, status: 'running', source: receipt.source,
-    focusEncoding: 'Observation-only gift.duration +Infinity is represented as {pndNumber: +Infinity}; finite numbers unchanged, null/other nonfinite values rejected.',
+    focusEncoding: 'Observation-only typed tags preserve native gift.duration +Infinity, negative zero, undefined and array holes across JSON. All other nonfinite values, null duration, unsupported objects and original reserved tags fail; finite numbers remain exact.',
     scenarioSha256: createHash('sha256').update(readFileSync(new URL(import.meta.url))).digest('hex'),
     method: 'Real RAF, public mouse/HUD/Save/Load. Read-only synchronous replacement and original-once pre-start callback observation. No direct World/clock/RNG mutation.',
     browserVersion: receipt.browserVersion, routeHelperSha256: m1RouteSource.helperSha256,
