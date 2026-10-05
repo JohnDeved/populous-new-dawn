@@ -1,0 +1,105 @@
+{
+  "schemaVersion": 1,
+  "kind": "bounded-native-singleton-replacement-proof",
+  "issue": 30,
+  "source": "d0666bae45421da88690d14d528385054cea4cb2",
+  "probeSha256": "3b21c881745c7c04cf0fd7ba2fa241f83558ca7302def7d3225c6d0b7d9c0444",
+  "status": "passed",
+  "cases": 3,
+  "independentReview": "ACCEPT",
+  "independentRowsEventsEqual": true,
+  "rawReceipt": {
+    "bytes": 6083095,
+    "sha256": "1436642482fb5e5297fceff03374822ca73a68875239182e082f656e4bb7d343",
+    "compression": "gzip, mtime 0"
+  },
+  "inputHashes": {
+    "data/hfx0-0.dat": "681eb1734fd73f86a6a52a8540415ec69a241a378161b60e9c9da1263d4ee0bf",
+    "data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+    "data/al0-c.dat": "afc46e78b56f901f1331ceb0b02052eeaba2b6446b8747a03d0f12639ae17310"
+  },
+  "executable": {
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "bytes": 2275840,
+    "debugDirectoryRva": 0,
+    "debugDirectorySize": 0
+  },
+  "searchSha256": "0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0",
+  "constantTargets": 244,
+  "readonlyRegionsGuarded": [
+    {
+      "address": "00401000",
+      "bytes": 1592320,
+      "sha256": "d920f4a9258f74b084600993baed8e61ceb4c7f80c461034a2fa322947304aa4"
+    },
+    {
+      "address": "00586000",
+      "bytes": 34816,
+      "sha256": "258c22ccfe30ead96c8d45312f615ad7e246548132f2ea157043555e65f3a5de"
+    },
+    {
+      "address": "0058f000",
+      "bytes": 34304,
+      "sha256": "6f74c652727585ce4e55f720c3326326169fc6119de7eb77e3e521213f9d2e49"
+    },
+    {
+      "address": "00d25000",
+      "bytes": 12288,
+      "sha256": "029a7dceabe616cfc20c84b170f4ea543eec546c0576d1601af363fe3353b7d9"
+    },
+    {
+      "address": "00d28000",
+      "bytes": 146944,
+      "sha256": "7bf1d46494475590e68b70c87a7e7b643457466f7c3631aa5e82f9d02706275e"
+    }
+  ],
+  "limits": [
+    "Separate native UI and object visits; no natural elapsed-time or original frame pacing execution.",
+    "Direct second phase-zero handoff with a separate valid reward handle; ordinary head callback ordering is outside scope.",
+    "Actual controllers/palette selection/raster arguments execute as in accepted presentation proof; raster/device boundaries remain supplied.",
+    "004ef180 removal bookkeeping is supplied exactly as in accepted17-case handoff proof; stock/gift counters execute natively.",
+    "No runtime implementation, GPU pixels, browser state or parity credit."
+  ],
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 1016,
+      "sha256": "7813ace1ef2bb38ebd962b35684f405ef76a2eb608fdfd7f6dfb3912624ca411"
+    },
+    {
+      "path": "native/probe-result.json.gz",
+      "bytes": 217925,
+      "sha256": "5c4a1011fb00a2e43a9941d0cca16918a8b5bffda450a25a68573ad1409aadf9"
+    },
+    {
+      "path": "native/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native/stdout.log",
+      "bytes": 362,
+      "sha256": "df9059fec057a69498446cc96cea14f9cb98a446082c44bf25d88b4135a82e84"
+    },
+    {
+      "path": "review/independent-command.json",
+      "bytes": 999,
+      "sha256": "cc8751e2438985419e1835f867f655d809589cd92e2652253e4141f9dbb8bc30"
+    },
+    {
+      "path": "review/independent-probe-result.json.gz",
+      "bytes": 217925,
+      "sha256": "a5682e1a204de06ee054c1bd055e705f6760f43e6b385b9624c7e59d859d1cfd"
+    },
+    {
+      "path": "review/receipt-audit.json",
+      "bytes": 1485,
+      "sha256": "4d8d562267346bf005823a2e59d1aada8a0fc590026ef52a43cfec62d95dcb93"
+    },
+    {
+      "path": "review/review.md",
+      "bytes": 4158,
+      "sha256": "87995e75cacc9feac4c22d2b7fd404f53f823ff6243dfc0c8de66d85b31a3103"
+    }
+  ]
+}

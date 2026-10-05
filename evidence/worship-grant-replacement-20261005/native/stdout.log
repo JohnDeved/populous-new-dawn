@@ -1,0 +1,4 @@
+bridge-replaced-at-10 old timer 76 new UI visits 34 both rewards granted exactly once
+bridge-replaced-at-26 old timer 76 new UI visits 34 both rewards granted exactly once
+bridge-replaced-at-30 old timer 1 new UI visits 34 both rewards granted exactly once
+PASS: three original singleton replacement cases, existing pulse preservation and both payout directions

@@ -1,0 +1,89 @@
+[
+  {
+    "case": "bridge-replaced-at-10",
+    "oldTimer": 76,
+    "pulsePreserved": true,
+    "pulseActive": false,
+    "newHandoffStates": {
+      "handle": 902,
+      "model": 3,
+      "companionStep": 0,
+      "spellVisits": 0
+    },
+    "newClampVisit": 29,
+    "newUiVisits": 34,
+    "deletionCalls": [
+      [
+        "remove-reward",
+        902
+      ],
+      [
+        "remove-reward",
+        900
+      ]
+    ],
+    "finalCounters": [
+      17,
+      17
+    ],
+    "bodyDraws": 30
+  },
+  {
+    "case": "bridge-replaced-at-26",
+    "oldTimer": 76,
+    "pulsePreserved": true,
+    "pulseActive": true,
+    "newHandoffStates": {
+      "handle": 902,
+      "model": 3,
+      "companionStep": 0,
+      "spellVisits": 0
+    },
+    "newClampVisit": 29,
+    "newUiVisits": 34,
+    "deletionCalls": [
+      [
+        "remove-reward",
+        902
+      ],
+      [
+        "remove-reward",
+        900
+      ]
+    ],
+    "finalCounters": [
+      17,
+      17
+    ],
+    "bodyDraws": 30
+  },
+  {
+    "case": "bridge-replaced-at-30",
+    "oldTimer": 1,
+    "pulsePreserved": true,
+    "pulseActive": true,
+    "newHandoffStates": {
+      "handle": 902,
+      "model": 3,
+      "companionStep": 0,
+      "spellVisits": 0
+    },
+    "newClampVisit": 29,
+    "newUiVisits": 34,
+    "deletionCalls": [
+      [
+        "remove-reward",
+        900
+      ],
+      [
+        "remove-reward",
+        902
+      ]
+    ],
+    "finalCounters": [
+      17,
+      17
+    ],
+    "bodyDraws": 30
+  }
+]

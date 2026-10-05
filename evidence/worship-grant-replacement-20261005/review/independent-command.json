@@ -1,0 +1,20 @@
+{
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=2s",
+    "20s",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "-B",
+    "scripts/probe-native-worship-grant-replacement.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+    "--output",
+    "work/reviews/worship-replacement-d0666ba/native"
+  ],
+  "exitCode": 0,
+  "wallSeconds": 3.1418117560024257,
+  "head": "d0666bae45421da88690d14d528385054cea4cb2",
+  "probeSha256": "3b21c881745c7c04cf0fd7ba2fa241f83558ca7302def7d3225c6d0b7d9c0444",
+  "stdout": "bridge-replaced-at-10 old timer 76 new UI visits 34 both rewards granted exactly once\nbridge-replaced-at-26 old timer 76 new UI visits 34 both rewards granted exactly once\nbridge-replaced-at-30 old timer 1 new UI visits 34 both rewards granted exactly once\nPASS: three original singleton replacement cases, existing pulse preservation and both payout directions\n",
+  "stderr": ""
+}
