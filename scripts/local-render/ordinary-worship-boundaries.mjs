@@ -10,8 +10,8 @@ import { checkpointObservation, readCommittedCheckpoint } from './checkpoint-obs
 // No automatic retries: a missed real tail or unavailable hidden state is unproved.
 const phases = new Set(['flight-save', 'flight-load', 'tail-save', 'tail-load', 'hidden'])
 
-async function installEarlyObserver(page) {
-  await page.evaluate(async () => {
+async function installEarlyObserver(page, phase) {
+  await page.evaluate(async phase => {
     const { GameScene } = await import('/app/scene.ts'), restorers = []
     const evidence = window.worshipBoundaryEvidence = {
       errors: [], replacement: null, start: null, cues: 0, visits: 0,
@@ -94,11 +94,26 @@ async function installEarlyObserver(page) {
           if (currentDrawing && args[0] === 3) currentDrawing.layout = result
           return result
         })
+        wrap(presentation, 'sprite', original => function (...args) {
+          const result = original.apply(this, args)
+          // Bind the actual returned sprite canvas to its original command.
+          // This is draw wiring evidence, not an independent source-raster oracle.
+          if (currentDrawing) currentDrawing.spriteRequest = { command: args[0], image: result }
+          return result
+        })
         wrap(ctx, 'drawImage', original => function (...args) {
           const result = original.apply(this, args)
           if (currentDrawing && args.length === 9 && args[0] instanceof HTMLImageElement) observe(() => {
             const t = this.getTransform()
-            currentDrawing.bodyCall = { args: args.slice(1), transform: [t.a, t.b, t.c, t.d, t.e, t.f] }
+            currentDrawing.bodyCall = { kind: 'body', args: args.slice(1), transform: [t.a, t.b, t.c, t.d, t.e, t.f], alpha: this.globalAlpha }
+          })
+          if (currentDrawing && args.length === 5) observe(() => {
+            const request = currentDrawing.spriteRequest
+            if (request?.command.owner !== 'pulse' || request.command.model !== 3 || args[0] !== request.image) return
+            const t = this.getTransform()
+            currentDrawing.pulseCall = { kind: 'pulse', frame: request.command.frame,
+              args: args.slice(1), transform: [t.a, t.b, t.c, t.d, t.e, t.f], alpha: this.globalAlpha,
+              sourceSize: [request.image.width, request.image.height] }
           })
           return result
         })
@@ -111,7 +126,7 @@ async function installEarlyObserver(page) {
               category, commandCount: commands.length, referenceCount: new Set(commands.map(c => c.geometry)).size,
               turn: scene.world.turn, viewport: [innerWidth, innerHeight], dpr: devicePixelRatio,
             } : null
-          currentDrawing = tag && command && !evidence.draws[tag] ? { tag, command, layout: null, bodyCall: null } : null
+          currentDrawing = tag && command && !evidence.draws[tag] ? { tag, command, layout: null, bodyCall: null, pulseCall: null } : null
           const drawing = currentDrawing
           let result, duration
           measureCalls = 0; insideDraw = true
@@ -124,10 +139,33 @@ async function installEarlyObserver(page) {
               evidence.firstVisibleDraw = { turn: scene.world.turn, clock: structuredClone(scene.world.worshipAcquisition.clock) }
               awaitingVisibleDraw = false
             }
-            if (drawing) evidence.draws[tag] = { turn: scene.world.turn,
-              command: structuredClone(drawing.command), layout: structuredClone(drawing.layout), bodyCall: drawing.bodyCall,
-              canvas: [canvas.width, canvas.height], dpr: devicePixelRatio,
-              viewport: [innerWidth, innerHeight], hidden: canvas.hidden, png: canvas.toDataURL() }
+            if (drawing) {
+              const call = phase === 'tail-load' && tag === 'restored-first-frame' ? drawing.pulseCall : drawing.bodyCall
+              const alpha = { testedPixels: 0, nontransparent: 0, samples: [], bounds: null }
+              if (call) {
+                const [a, b, c, d, e, f] = call.transform,
+                  [x, y, w, h] = call.kind === 'body' ? call.args.slice(4) : call.args,
+                  corners = [[x, y], [x + w, y], [x + w, y + h], [x, y + h]].map(([x, y]) => [a * x + c * y + e, b * x + d * y + f]),
+                  left = Math.max(0, Math.floor(Math.min(...corners.map(p => p[0])))),
+                  top = Math.max(0, Math.floor(Math.min(...corners.map(p => p[1])))),
+                  right = Math.min(canvas.width, Math.ceil(Math.max(...corners.map(p => p[0])))),
+                  bottom = Math.min(canvas.height, Math.ceil(Math.max(...corners.map(p => p[1]))))
+                if (right > left && bottom > top) {
+                  const count = (right - left) * (bottom - top)
+                  if (count > 1_000_000) throw Error('Overlay alpha observation exceeds bounded region')
+                  const pixels = ctx.getImageData(left, top, right - left, bottom - top)
+                  alpha.bounds = [left, top, pixels.width, pixels.height]; alpha.testedPixels = count
+                  for (let i = 3; i < pixels.data.length; i += 4) if (pixels.data[i]) {
+                    alpha.nontransparent++
+                    if (alpha.samples.length < 8) alpha.samples.push([left + ((i >>> 2) % pixels.width), top + Math.floor((i >>> 2) / pixels.width), pixels.data[i]])
+                  }
+                }
+              }
+              evidence.draws[tag] = { turn: scene.world.turn,
+                command: structuredClone(drawing.command), layout: structuredClone(drawing.layout), bodyCall: drawing.bodyCall, pulseCall: drawing.pulseCall,
+                alpha, canvas: [canvas.width, canvas.height], dpr: devicePixelRatio,
+                viewport: [innerWidth, innerHeight], hidden: canvas.hidden, png: canvas.toDataURL() }
+            }
           })
           return result
         })
@@ -142,7 +180,7 @@ async function installEarlyObserver(page) {
       evidence.restored = evidence.errors.length === 0
       delete window.restoreWorshipBoundaryObserver
     }
-  })
+  }, phase)
 }
 
 async function readStoredFocus(page) {
@@ -220,7 +258,8 @@ export default async function ({ page, context, root, output, receipt, openMissi
     method: 'Real RAF, public mouse/HUD/Save/Load. Read-only synchronous replacement and original-once pre-start callback observation. No direct World/clock/RNG mutation.',
     browserVersion: receipt.browserVersion,
     drawCostMethod: 'At most64 active and64 paused samples. Bracket only original presentation.draw; outer state snapshots and PNG capture excluded. Nested observer counters/pass-through wrappers remain; selected draw-argument capture has small extra overhead. Shared CPU/headless/software timing is diagnostic, not FPS or a speedup claim.',
-    limits: 'Headless/software functional evidence. Two-process continuation is distinct from fresh-page reload. DPR2 is CDP device emulation, not a physical display. No full native raster or hardware performance claim. Tail window may be missed; hidden-state support must be demonstrated.' }
+    pendingAcceptance: ['Live scene disposal and transient-resource cleanup; owned browser termination is not their proof', 'Missing-geometry exceptional path'],
+    limits: 'Headless/software functional evidence. Two-process continuation is distinct from fresh-page reload. DPR2 is CDP device emulation, not a physical display. Actual drawImage calls plus bounded alpha output and PNG establish limited overlay correspondence; another concurrent sprite can contribute to the alpha region. No full native raster or hardware performance claim. Tail window may be missed; hidden-state support must be demonstrated.' }
   const saveReport = () => writeFileSync(resolve(output, 'ordinary-worship-boundaries.json'), JSON.stringify(report, null, 2) + '\n')
   let armed = false, cover, cdp, originalDisplay
   const wait = async (predicate, argument, timeout, label) => {
@@ -237,12 +276,15 @@ export default async function ({ page, context, root, output, receipt, openMissi
     return snap(page)
   }
   try {
-    await installEarlyObserver(page); armed = true
+    await installEarlyObserver(page, phase); armed = true
     if (loading) {
       const previous = receipt.profile.previousRun
       assert.equal(previous.status, 'passed'); assert.equal(previous.cleanupVerified, true); assert.equal(previous.continuationVerified, true)
       assert.equal(previous.sourceFingerprint, receipt.source.fingerprint, 'Both processes require the exact same frozen source')
-      const prior = JSON.parse(readFileSync(previous.receiptPath, 'utf8'))
+      const priorBytes = readFileSync(previous.receiptPath), priorDigest = createHash('sha256').update(priorBytes).digest('hex')
+      assert.equal(priorDigest, previous.receiptSha256, 'Previous receipt bytes must match the owned-profile marker before trusting their result')
+      const prior = JSON.parse(priorBytes.toString('utf8'))
+      report.previousReceiptIntegrity = { sha256: priorDigest, verified: true }
       assert.equal(prior.result.phase, tail ? 'tail-save' : 'flight-save')
       assert.equal(prior.scenario.sha256, report.scenarioSha256)
       assert.deepEqual(receipt.profile.checkpointAtStart, prior.profile.checkpointAtEnd)
@@ -263,7 +305,11 @@ export default async function ({ page, context, root, output, receipt, openMissi
       assert.deepEqual(start.focus.acquisition, savedFocus.acquisition, 'Observer was armed before the first real RAF visit')
       report.saved = { checkpoint: stored, focus: savedFocus }
       report.final = await finish()
-      assert.equal(await page.evaluate(() => !!window.worshipBoundaryEvidence.draws['restored-first-frame']), true, 'Early observer must retain the real restored body/pulse draw')
+      const firstDraw = await page.evaluate(() => window.worshipBoundaryEvidence.draws['restored-first-frame'])
+      assert.ok(firstDraw, 'Early observer must retain the real restored body/pulse draw')
+      assert.ok(tail ? firstDraw.pulseCall : firstDraw.bodyCall, 'Restored frame needs a phase-appropriate actual drawImage call')
+      assert.equal(firstDraw.hidden, false)
+      assert.ok(firstDraw.alpha.testedPixels > 0 && firstDraw.alpha.nontransparent > 0, 'Restored frame needs actual nontransparent overlay output')
       const pending = Number(savedFocus.gifts.some(g => g.ordinaryWorship && g.remaining > 0))
       assert.equal(report.final.count, savedFocus.count + pending, 'No lost or duplicate payout after restart')
       assert.equal(report.final.stock, savedFocus.stock + pending)
