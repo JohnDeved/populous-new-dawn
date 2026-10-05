@@ -1,0 +1,45 @@
+{
+  "scope": "Software draw-cost sample is insufficient",
+  "status": "failed",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "463da5b11c11af2a0d14e3a74c118bc17e9cb622",
+  "originalReceiptSha256": "f3246f4cf1c14606e158c0661ae7eedc289cc3b2fd1fd1888664b0ca7592e183",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "1b87d8cff68d0c8719c632a6a1f36fcea6834708e8dc52a12738f1d229cfa64c"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "c1737448212ae518eb586e55a33e8abd494a20b5062b69cc4320bbb31b23c60f"
+    },
+    {
+      "path": "cost-workload-complete.png",
+      "sha256": "8cd86b5c870632d34c3407f486ebaf4c9470551094ab2eb51af19628f3f10250"
+    },
+    {
+      "path": "failure-0.png",
+      "sha256": "e3b3e5fcb02411a53029867bf198ec9bbf0abc824970d0d9c67af81889b7f3dc"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "048fd548e5c57e51ff3ed29f80844079946c78016e632b53557fdb0f269c5404"
+    },
+    {
+      "path": "observations.redacted.json",
+      "sha256": "4f9dcfd3447c4037da8932986e8202cbe5215b9f4871cd6e266c9321440cd1db"
+    },
+    {
+      "path": "ordinary-worship-cost.mjs",
+      "sha256": "53914dac654c32d5c31bcfeee7b0c4acc0c1bc9afe8086af3090c47f91256419"
+    },
+    {
+      "path": "ordinary-worship-m1-route.mjs",
+      "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "5b139d4dd416c2620a6497b3d9d193068123f54a4073af9ff8ffc31b67e8c933"
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+{
+  "scope": "Pulse-only checkpoint remains unproved",
+  "status": "failed",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "7c7d483b47955e3cc55d635fd323b596d973b399",
+  "originalReceiptSha256": "e2fb79a6b1594af577527cd641980626f6dd81b37a243b1b368860d53754d03f",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "4e6659749afb122d18edb44e45c633fe16d829b6673b28ee9b0ef1271380e366"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "f2afe27cfe84b1661185fb673f369cd986c62e1656b2f1e6be2896c848bad395"
+    },
+    {
+      "path": "failure-0.png",
+      "sha256": "2e45b92cc3f8daecdd3f6ebe049ec6e6806238a222f96af4108258d17c4e63d6"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "ff54db68a3772249611a8bd0d0f9c39afee3d947b84a0490add473f327d9d3b2"
+    },
+    {
+      "path": "observations.redacted.json",
+      "sha256": "b79268a25c38a77834fea9bae43699b65e2d88338d545ce2b52104740f3f4e51"
+    },
+    {
+      "path": "ordinary-worship-boundaries.mjs",
+      "sha256": "69b676d0ac4afd6d49984019431b609bfa8b06034111922c7d8ef0923450d761"
+    },
+    {
+      "path": "ordinary-worship-m1-route.mjs",
+      "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "c9e27e0605137806d6654d215f903d70dcee60ef9016d7a20ffa9ea1ddac2176"
+    }
+  ]
+}

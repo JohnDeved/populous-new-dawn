@@ -1,0 +1,20 @@
+# Final bounded staged renderer decision
+
+REJECT full staged renderer acceptance. No further retry is recommended in this batch. staged-worship-composition-2 remains failed for missing mandatory new-binding Canvas output, even though its independent partial evidence is useful. This is a measured observation/scheduling coverage blocker, not a demonstrated production defect.
+
+Exact production cfa86a32f03d021cd1ad725eed9f458ab239d56b used reviewedaa2114b scenario16382157a348ef54ead1eb9d5d4726f76d436e5e0afa9b54563599dd762b0727. All36 pinned source/asset inputs independently match. Source/runtime/scenario before-after match; raw receipt7408441d5a19a9fd96121191ff2d01583360bf6ea92317541ce06a0a5183bb23, inner terminal2026-10-05T07:05:12.934Z, outer exit1, owned cleanup/continuation verified. There are no observer errors and observer restoration passed.
+
+The exact4.43/4.47MB setup audits each took106.4/107.7ms. The first replacement visit at138 has the new Bridge controller; the first original draw at139 already has model12 body and matching model12 prior, step2/visits2. All8 compact original-draw observations have matching prior geometry. The actual mismatched-old/new-prior renderer guard was never sampled. Lower viewport960x720 did not recover this one-visit window. Increasing a bound or claiming a native visit as a rendered frame would not close it.
+
+The corrected lifecycle observer completed93 original turns without errors, independently of sample completeness. Three actual payouts are retained: Bridge1191 at155, old Lightning1190 at200 and superseded Lightning1192 at214. Both Lightning countdowns retain all77 turns. Retirement214 and clean terminal216 have no gifts/effects/requests/active controllers/draw commands, hidden overlay and correct Bridge1/Lightning2 stock/count. Exact original turn decrement and payout assertions were independently recomputed from raw rows.
+
+Separately verified partial renderer facts from the two existing intermediate/final-leg samples:
+- Different actual connected React host cards bind Lightning/model3 old pulse and Bridge/model12 new body; geometry ownership and draw read-only state are exact.
+- Exact original translate/rotate inputs and existing1e-5 represented matrix/draw-argument checks pass. There are782 and162 ordered original Canvas submissions with matching kind/owner/model/frame/palette/RGB identity, returned sprite image identity/dimensions, alpha and no smoothing.
+-190 changed matching-prior particle slots genuinely interpolate in the fractional intermediate frame; pulse and ghost mapping stays discrete.
+- Three ghost frame320 texels and three meaningful nonwhite tinted frame1290 texels match independent decoding of pinned effects.png, including round(sourceRGB*tintRGB/255). Actual ghost draw alpha is85/255 and agrees with the expected-only Canvas representation. These are source-to-returned-sprite pixel and actual draw-argument facts, not full composited raster equivalence.
+- The canonical Bridge frame1068 decoded RGBA hash9c767bdc31459d0c23226bfe7939b3f457bd1b44a27b37dcaa00ece13bbaa61d matches. Both sampled frames have0 eligible opaque body destination texels; that leaf remains explicitly unproved here.
+
+The intermediate/final overlay PNGs were visually inspected and show simultaneous old pulse/new body. The page screenshot is after lifecycle retirement, so its caption must describe completed staged outcome rather than the earlier composition. These partial facts may support their precise leaves while preserving overall FAILED status.
+
+Remaining renderer blocker: actual first new-binding Canvas submission refusing a mismatched old body prior, plus its required new-binding particle/no-prior mapping sample. The previously agreed absent-foreign-prior-particle limit does not waive this missing whole sample. Pure/controller/source proof and two later real frames do not satisfy that explicitly required actual caller coverage. Full native raster, hardware GPU parity, natural simultaneous requests and complete original-game parity remain outside the proved scope.

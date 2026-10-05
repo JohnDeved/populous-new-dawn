@@ -1,0 +1,153 @@
+{
+  "startedAt": "2026-10-05T07:07:42.777Z",
+  "source": {
+    "commit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+    "tree": "fd4b236264fa8758f488f1fa5735df0314f01107",
+    "status": "?? scripts/local-render/ordinary-worship-cost.mjs\n?? scripts/local-render/ordinary-worship-m1-route.mjs\n?? scripts/local-render/ordinary-worship.mjs\n?? scripts/local-render/staged-worship-composition-inputs.json\n?? scripts/local-render/staged-worship-composition.mjs",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [
+      {
+        "path": "scripts/local-render/ordinary-worship-cost.mjs",
+        "mode": 33188,
+        "sha256": "53914dac654c32d5c31bcfeee7b0c4acc0c1bc9afe8086af3090c47f91256419"
+      },
+      {
+        "path": "scripts/local-render/ordinary-worship-m1-route.mjs",
+        "mode": 33188,
+        "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+      },
+      {
+        "path": "scripts/local-render/ordinary-worship.mjs",
+        "mode": 33188,
+        "sha256": "e109f328e3b0203081df9440e1c2ae5f07b31ff02a29e284367fed05d72c65ce"
+      },
+      {
+        "path": "scripts/local-render/staged-worship-composition-inputs.json",
+        "mode": 33188,
+        "sha256": "a35c75da2dabcc2d21e8498548752e61ebf3ab13c1d5b248710b1223363199c5"
+      },
+      {
+        "path": "scripts/local-render/staged-worship-composition.mjs",
+        "mode": 33188,
+        "sha256": "16382157a348ef54ead1eb9d5d4726f76d436e5e0afa9b54563599dd762b0727"
+      }
+    ],
+    "fingerprint": "5dc80ea9d824f8d71990f8b25fbd93ceb720d1931c6949c52d94f65d78924ecb"
+  },
+  "launch": {
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe",
+      "about:blank"
+    ],
+    "timeout": 30000,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "acceptDownloads": false,
+    "serviceWorkers": "block"
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x9c4001be600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x9c4001be600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x9c4001be600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x9c4001be600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "status": "failed",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenario": {
+    "path": "scripts/local-render/ordinary-worship-cost.mjs",
+    "sha256": "53914dac654c32d5c31bcfeee7b0c4acc0c1bc9afe8086af3090c47f91256419"
+  },
+  "browserVersion": "154.0.8037.92",
+  "runtimeAfter": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenarioAfter": {
+    "path": "scripts/local-render/ordinary-worship-cost.mjs",
+    "sha256": "53914dac654c32d5c31bcfeee7b0c4acc0c1bc9afe8086af3090c47f91256419"
+  },
+  "failure": "AssertionError [ERR_ASSERTION]: Retain at least 16 active frames after 8 warmup calls\n    at default (file://<checkout>/scripts/local-render/ordinary-worship-cost.mjs:120:12)\n    at async runLocalBrowser (file://<checkout>/scripts/local-render/harness.mjs:164:20)\n    at async file://<checkout>/scripts/local-render/harness.mjs:251:21",
+  "finishedAt": "2026-10-05T07:08:44.116Z",
+  "sourceAfter": {
+    "commit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+    "tree": "fd4b236264fa8758f488f1fa5735df0314f01107",
+    "status": "?? scripts/local-render/ordinary-worship-cost.mjs\n?? scripts/local-render/ordinary-worship-m1-route.mjs\n?? scripts/local-render/ordinary-worship.mjs\n?? scripts/local-render/staged-worship-composition-inputs.json\n?? scripts/local-render/staged-worship-composition.mjs",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [
+      {
+        "path": "scripts/local-render/ordinary-worship-cost.mjs",
+        "mode": 33188,
+        "sha256": "53914dac654c32d5c31bcfeee7b0c4acc0c1bc9afe8086af3090c47f91256419"
+      },
+      {
+        "path": "scripts/local-render/ordinary-worship-m1-route.mjs",
+        "mode": 33188,
+        "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+      },
+      {
+        "path": "scripts/local-render/ordinary-worship.mjs",
+        "mode": 33188,
+        "sha256": "e109f328e3b0203081df9440e1c2ae5f07b31ff02a29e284367fed05d72c65ce"
+      },
+      {
+        "path": "scripts/local-render/staged-worship-composition-inputs.json",
+        "mode": 33188,
+        "sha256": "a35c75da2dabcc2d21e8498548752e61ebf3ab13c1d5b248710b1223363199c5"
+      },
+      {
+        "path": "scripts/local-render/staged-worship-composition.mjs",
+        "mode": 33188,
+        "sha256": "16382157a348ef54ead1eb9d5d4726f76d436e5e0afa9b54563599dd762b0727"
+      }
+    ],
+    "fingerprint": "5dc80ea9d824f8d71990f8b25fbd93ceb720d1931c6949c52d94f65d78924ecb"
+  },
+  "profileVerification": {
+    "mode": "created",
+    "origin": "http://127.0.0.1:4359",
+    "cleanupVerified": true,
+    "continuationVerified": true,
+    "checkpointAtEnd": null
+  },
+  "redaction": {
+    "kind": "portable failed-run copy; failure status is unchanged",
+    "originalReceiptSha256": "f3246f4cf1c14606e158c0661ae7eedc289cc3b2fd1fd1888664b0ca7592e183",
+    "removed": "Local checkout/browser/profile paths and profile identity only. Task-created checkpoint hashes and observed state remain as evidence."
+  }
+}

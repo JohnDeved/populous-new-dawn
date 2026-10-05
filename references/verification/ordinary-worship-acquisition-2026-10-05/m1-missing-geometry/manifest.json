@@ -1,0 +1,37 @@
+{
+  "scope": "Explicit missing-geometry fault after ordinary worship",
+  "status": "passed",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "7c7d483b47955e3cc55d635fd323b596d973b399",
+  "originalReceiptSha256": "016a47f5a3200d10911fbb4ce5ac68f37f570da00a4358e6131cee05f5d89996",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "05789ec12b7de06aa32893a08f6220e48dbb170b95d2c927a1797056b0c7e51f"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "77904e3e1a1db75d0856f5218003cb9e4ba92a2ad7d7ca1ac89a34ec1fa495d2"
+    },
+    {
+      "path": "geometry-fault-restored.png",
+      "sha256": "46adf370438ef9dceba6e0bf10594744adb09025b9b93d3120331a4b8c79c378"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "4e323285c466359ff881ce6bb9bc987870887fa4ebde8863254435601fd11660"
+    },
+    {
+      "path": "ordinary-worship-boundaries.mjs",
+      "sha256": "69b676d0ac4afd6d49984019431b609bfa8b06034111922c7d8ef0923450d761"
+    },
+    {
+      "path": "ordinary-worship-m1-route.mjs",
+      "sha256": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "2e890bc3656aa52618e28eec4c9fb8b26a8fb1a2209c4a7669fc588f06a1b453"
+    }
+  ]
+}

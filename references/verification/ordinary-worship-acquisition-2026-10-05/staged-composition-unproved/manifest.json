@@ -1,0 +1,73 @@
+{
+  "scope": "Staged old-pulse/new-body composition remains incomplete",
+  "status": "failed",
+  "sourceCommit": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "driverCommit": "aa2114b6f71abbc9b34b8cae97914bbe221d91e0",
+  "originalReceiptSha256": "7408441d5a19a9fd96121191ff2d01583360bf6ea92317541ce06a0a5183bb23",
+  "portableFiles": [
+    {
+      "path": "README.md",
+      "sha256": "23a3bf061d57ebc97b5918485d3d7ea733957176bc7c61b8908964bc2211b234"
+    },
+    {
+      "path": "command-summary.json",
+      "sha256": "a0ecb24acca4c344be8146990c2eddab64e6bfe34b957e6f4d08426e00ee8604"
+    },
+    {
+      "path": "failure-0.png",
+      "sha256": "9658ea0e926140e7ed388b0be85fd750725925d2e68ee89d6f49f619fa1e2cb9"
+    },
+    {
+      "path": "independent-review.md",
+      "sha256": "870f9cc0260e62fd3f4300f742e9c461f329f88597fa79d09375302151f0f0d0"
+    },
+    {
+      "path": "observations.redacted.json",
+      "sha256": "22b3cd5925c71f1e6a51180de59b1ebecba2c10ab2c475fb0e9806893110b68f"
+    },
+    {
+      "path": "receipt.redacted.json",
+      "sha256": "42303463c6007e44abfbbe200f08063626be22ea3c9ab7c15021829ee6913e26"
+    },
+    {
+      "path": "staged-bridge-source.png",
+      "sha256": "a1d72918689252694cfabe26f6a00b1f1a7a70d0192afb3ba4bfbb3d3b1270fc"
+    },
+    {
+      "path": "staged-composition-page.png",
+      "sha256": "61a8b11a72908817fe04a998d223a630deed92d772ff322715bd236fd9ab46f4"
+    },
+    {
+      "path": "staged-final-leg-body.png",
+      "sha256": "c90d6940d65a95e28fde109edc8028f0801cc8cf37942cd8e84af3d4015a0bba"
+    },
+    {
+      "path": "staged-final-leg-old-pulse.png",
+      "sha256": "8a8993490be16a86dd98a3a3aa2932a9bf6b9024d784a3c3d3804addc1044390"
+    },
+    {
+      "path": "staged-final-leg-overlay.png",
+      "sha256": "9be957a359be25885bf77a90743aebe1dea95f0eef046bfb3cac4b620b85666e"
+    },
+    {
+      "path": "staged-intermediate-body.png",
+      "sha256": "c878999293b4d8e3e924364e4f5af0b65587a05132862f90b114c2b87b074d93"
+    },
+    {
+      "path": "staged-intermediate-old-pulse.png",
+      "sha256": "f6855b422e4f31e347446230898820d6cf4ee555f759f5ebdd574f054d51ff24"
+    },
+    {
+      "path": "staged-intermediate-overlay.png",
+      "sha256": "24de14af9697855d980424845fbcb6178e7aee3059ef5c03be6580d8071d2bbf"
+    },
+    {
+      "path": "staged-worship-composition-inputs.json",
+      "sha256": "a35c75da2dabcc2d21e8498548752e61ebf3ab13c1d5b248710b1223363199c5"
+    },
+    {
+      "path": "staged-worship-composition.mjs",
+      "sha256": "16382157a348ef54ead1eb9d5d4726f76d436e5e0afa9b54563599dd762b0727"
+    }
+  ]
+}

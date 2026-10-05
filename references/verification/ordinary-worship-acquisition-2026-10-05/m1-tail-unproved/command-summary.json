@@ -1,0 +1,35 @@
+{
+  "originalReceiptSha256": "d5555ec8d311649b1319e5d93e85332fda3a66436970f1c3ce3a16b29c5233c4",
+  "status": "failed",
+  "exitCode": 1,
+  "startedAt": "2026-10-05T07:01:17.011Z",
+  "finishedAt": "2026-10-05T07:03:04.059Z",
+  "source": {
+    "headOid": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/ordinary-worship-boundaries.mjs": "69b676d0ac4afd6d49984019431b609bfa8b06034111922c7d8ef0923450d761",
+      "scripts/local-render/ordinary-worship-m1-route.mjs": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/ordinary-worship-missing-geometry-4/receipt.json": "016a47f5a3200d10911fbb4ce5ac68f37f570da00a4358e6131cee05f5d89996",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "sourceAfter": {
+    "headOid": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/ordinary-worship-boundaries.mjs": "69b676d0ac4afd6d49984019431b609bfa8b06034111922c7d8ef0923450d761",
+      "scripts/local-render/ordinary-worship-m1-route.mjs": "30cb88b50c95c3e80a2f890082345ba6c34c91c42e512c2950631665d3aa8879",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "work/orchestration/ordinary-worship-missing-geometry-4/receipt.json": "016a47f5a3200d10911fbb4ce5ac68f37f570da00a4358e6131cee05f5d89996",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "240e494ae1f55a1146fcee97b6b1f0934e9eb4df1a9a52c409ae30e3aabfbd99"
+}
