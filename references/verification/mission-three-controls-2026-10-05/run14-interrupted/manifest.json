@@ -1,0 +1,101 @@
+{
+  "capturedAt": "2026-10-05T03:07:54.589858+00:00",
+  "scope": "Run14 genuine first-onset Save and retained cancellation assertion; exec interrupted130, inner cleanup/continuation unverified. Only diagnostics, screenshots and hash inventory; no browser storage/profile bytes.",
+  "files": [
+    {
+      "path": "run14-observations/journey.json",
+      "bytes": 32416,
+      "sha256": "194264849c6ad9233f05d654cde004360d0d8a48f011cd314aa7a9347e45c892"
+    },
+    {
+      "path": "run14-observations/actions.jsonl",
+      "bytes": 71737,
+      "sha256": "e05875087f01720a853872dadeeae70e9108e0a362ae446c099b4f694e810403"
+    },
+    {
+      "path": "run14-observations/driver.mjs",
+      "bytes": 56481,
+      "sha256": "1e4e4131d9e3abfbb30ff8e22c031b9eadec193e7d5dbc8898021dc8c32800ed"
+    },
+    {
+      "path": "run14-observations/observation.mjs",
+      "bytes": 23089,
+      "sha256": "4159fdbcc6c32bb28781590718ee07c69d46ff490d4b958624c716545fc2efe9"
+    },
+    {
+      "path": "run14-observations/milestone-listener.json",
+      "bytes": 62101,
+      "sha256": "be103ff553f3fd576ed05bae7d79abf5dfc540ba219ac32c6039d12be9e1f7bf"
+    },
+    {
+      "path": "run14-observations/interruption-observation.json",
+      "bytes": 1577,
+      "sha256": "98b22881ee89abdae8daa37dd7fb5c92c05ca0991618e3c14af0442c9840343a"
+    },
+    {
+      "path": "run14-observations/inventory.json",
+      "bytes": 1625,
+      "sha256": "0b1ba66741b9ef26636af96cace6344abce51cca8796fecb69fe044628cd7f24"
+    },
+    {
+      "path": "run14-observations/batch-0048-failed.json",
+      "bytes": 63610,
+      "sha256": "e197a35949a166e90bd4c3e80daf10e3067c59467faf6cf19b87b8114b6e89d9"
+    },
+    {
+      "path": "run14-observations/consumed-0048.json",
+      "bytes": 73,
+      "sha256": "d5da26439d3e13079904f99899a645818cd1368f72ee2173c75b13fc065ba862"
+    },
+    {
+      "path": "run14-observations/sermon-saved.json",
+      "bytes": 62101,
+      "sha256": "7892ad2f4ec5153ac3e69bcbae5152bbca3c353558db13993adc6928336c498d"
+    },
+    {
+      "path": "run14-observations/batch-0047-sermon-saved.json",
+      "bytes": 63383,
+      "sha256": "c9eb0db550d37bd4f73300189adf89843510b770a991b3ac5820bbb6d8929014"
+    },
+    {
+      "path": "screenshots/sermon-saved.png",
+      "bytes": 1917698,
+      "sha256": "1a8a2925ca1b72f06fd48ba389de13166f96f8c1e9c8eca384f86f83055cdfcf"
+    },
+    {
+      "path": "screenshots/batch-0047-sermon-saved.png",
+      "bytes": 1914076,
+      "sha256": "6200c2694bc6d0f1c2c332ecd23f59c79444137d798c24a82aa5ae34d2984a7c"
+    },
+    {
+      "path": "screenshots/batch-0048-failed.png",
+      "bytes": 1919337,
+      "sha256": "5144a01579f9271da0e51d896d3dd1028e7904140fe4251062025322da7bdb30"
+    },
+    {
+      "path": "browser-14.outer.json",
+      "bytes": 2620,
+      "sha256": "fbc95425865cc1c803b6e7ca78708b78f4b77a1b0591bfe1f3ce0c4fec74e585"
+    },
+    {
+      "path": "run14-holding-observations.json",
+      "bytes": 11671,
+      "sha256": "c8c4805d1b93bda1a6ed85b14545123a9a00023fc10ec83092ac9cce858d48a4"
+    },
+    {
+      "path": "holding-observation-logs/stdout.log",
+      "bytes": 8575,
+      "sha256": "4127764842b1e846c19980cf475db1cffbb339739b93faf8dfae48c12325df56"
+    },
+    {
+      "path": "holding-observation-logs/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "recovery-snapshot-hash-inventory.json",
+      "bytes": 87731,
+      "sha256": "34ff30b75ef9e44ec8e85f8d5f4638296297632000f9f8c5a130221175efbd65"
+    }
+  ]
+}
