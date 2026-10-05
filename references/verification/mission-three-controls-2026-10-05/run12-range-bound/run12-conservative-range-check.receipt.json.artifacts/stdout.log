@@ -1,0 +1,13 @@
+{
+  "minimumNative": 2448,
+  "minimumWorld": 9.5625,
+  "nonnegativeHeightDomain": [
+    0,
+    1024
+  ],
+  "casterToRequestedMaximum": 6,
+  "pickedPointDeviationUpperBound": 1.5,
+  "quantizationAllowance": 0.02,
+  "minimumMarginWorld": 2.0425,
+  "scope": "Conservative source range bound only; actual paused position and nonnegative terrain height remain prerequisites. No claim about old unretained pick/canvas/error or combat immunity."
+}

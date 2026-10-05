@@ -1,0 +1,35 @@
+{
+  "kind": "source-only-conservative-range-check",
+  "minimumNative": 2448,
+  "minimumWorld": 9.5625,
+  "checkedHeights": [
+    0,
+    1024
+  ],
+  "retainedHeight": 182,
+  "normalFlags": 0,
+  "rangeBands": [
+    204,
+    230,
+    256,
+    281,
+    307,
+    332,
+    358,
+    384
+  ],
+  "blastNormalRange": 3072,
+  "authoredHeightMax": 1024,
+  "requestedDistanceMaximumWorld": 6,
+  "pickDeviationMaximumWorld": 1.5,
+  "unroundedMarginWorld": 2.0625,
+  "conservativeQuantizationAllowanceWorld": 0.02,
+  "marginAfterAllowanceWorld": 2.0425,
+  "conditions": [
+    "Actual caster is stationary and>=75HP; actual requested target is freshly observed.",
+    "Caster terrain height must be nonnegative. Retained boundary height182 is proved separately. For future terrain, reject sea/unknown corners; source-authored positive local corners plus opening/building writers bounded to positive heights support nonnegative interpolation without knowing exact graded height.",
+    "No terrain-changing spells/effects may invalidate that local lower-bound argument.",
+    "The helper still must validate actual renderer ownership, picked-point tolerance and spell eligibility."
+  ],
+  "unknown": "This lower bound is not a live spellTargetError observation and gives no immunity to combat or incoming spells."
+}

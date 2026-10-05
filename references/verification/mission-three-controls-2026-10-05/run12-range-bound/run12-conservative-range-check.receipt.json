@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "6f819492-517d-44d8-8c42-e6b8c30b39ed",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "02301bce433cf69c1b439e9025d3495ec19e5d5b",
+    "branch": "qa/mission-three-controls-recovered",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/mission-three-controls/run12-conservative-range-check.mjs": "f63414b0138c1071da82b321e524dd27f4351b7b3ff866657b97e37300fa5edd",
+      "app/spell-casting.ts": "d24000b5e151f1407f24646f8af1dd258d505938fb94681e9fafd2bd26f90905",
+      "app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    }
+  },
+  "command": [
+    "node",
+    "work/orchestration/mission-three-controls/run12-conservative-range-check.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered",
+  "startedAt": "2026-10-05T00:33:45.135Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/work/orchestration/mission-three-controls/run12-conservative-range-check.receipt.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission-three-controls-recovered/work/orchestration/mission-three-controls/run12-conservative-range-check.receipt.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T00:33:45.715Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"minimumNative\": 2448,\n  \"minimumWorld\": 9.5625,\n  \"nonnegativeHeightDomain\": [\n    0,\n    1024\n  ],\n  \"casterToRequestedMaximum\": 6,\n  \"pickedPointDeviationUpperBound\": 1.5,\n  \"quantizationAllowance\": 0.02,\n  \"minimumMarginWorld\": 2.0425,\n  \"scope\": \"Conservative source range bound only; actual paused position and nonnegative terrain height remain prerequisites. No claim about old unretained pick/canvas/error or combat immunity.\"\n}\n",
+  "stderr": "",
+  "stdoutSha256": "765850930f3abf2103a7cd9cb9c80093f57cd17e72e84cb42c1f7665e38e7ddb",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "02301bce433cf69c1b439e9025d3495ec19e5d5b",
+    "branch": "qa/mission-three-controls-recovered",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/mission-three-controls/run12-conservative-range-check.mjs": "f63414b0138c1071da82b321e524dd27f4351b7b3ff866657b97e37300fa5edd",
+      "app/spell-casting.ts": "d24000b5e151f1407f24646f8af1dd258d505938fb94681e9fafd2bd26f90905",
+      "app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    }
+  }
+}

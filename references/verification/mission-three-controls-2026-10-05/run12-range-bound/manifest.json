@@ -1,0 +1,30 @@
+{
+  "scope": "Offline conservative spell-range arithmetic only; no new runtime proof or next-run authorization.",
+  "files": [
+    {
+      "path": "run12-conservative-range-check.mjs",
+      "sha256": "f63414b0138c1071da82b321e524dd27f4351b7b3ff866657b97e37300fa5edd",
+      "bytes": 1230
+    },
+    {
+      "path": "run12-conservative-range-check.json",
+      "sha256": "6eaef0e848db716004deff40b62375bf60ec1480edac81de540871ebd5a1152d",
+      "bytes": 1298
+    },
+    {
+      "path": "run12-conservative-range-check.receipt.json",
+      "sha256": "ee6f94349f069e14572a31533a3cce4fca487f2c18f112199c648af50bd832f9",
+      "bytes": 2987
+    },
+    {
+      "path": "run12-conservative-range-check.receipt.json.artifacts/stdout.log",
+      "sha256": "765850930f3abf2103a7cd9cb9c80093f57cd17e72e84cb42c1f7665e38e7ddb",
+      "bytes": 441
+    },
+    {
+      "path": "run12-conservative-range-check.receipt.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    }
+  ]
+}
