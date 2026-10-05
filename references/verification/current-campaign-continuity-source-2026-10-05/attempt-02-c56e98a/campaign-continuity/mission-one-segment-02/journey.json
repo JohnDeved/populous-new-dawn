@@ -1,0 +1,311 @@
+{
+  "status": "failed",
+  "currentEpoch": {
+    "name": "entry-1",
+    "baselineGameTime": 0,
+    "lastGameTime": 63.833333333333336,
+    "activeSeconds": 63.833333333333336,
+    "firstTurn": 15,
+    "lastTurn": 766,
+    "samples": 752,
+    "conversions": {
+      "level": 1,
+      "turn": 766,
+      "units": [
+        {
+          "id": 13,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 14,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 15,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 16,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 17,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 18,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 30,
+          "kind": "shaman",
+          "team": "blue",
+          "hp": 100,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 32,
+          "kind": "shaman",
+          "team": "red",
+          "hp": 100,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 33,
+          "kind": "warrior",
+          "team": "red",
+          "hp": 90,
+          "state": 10,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871176
+        },
+        {
+          "id": 34,
+          "kind": "warrior",
+          "team": "red",
+          "hp": 90,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 35,
+          "kind": "brave",
+          "team": "red",
+          "hp": 50,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        },
+        {
+          "id": 38,
+          "kind": "brave",
+          "team": "red",
+          "hp": 50,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 671088896
+        },
+        {
+          "id": 1184,
+          "kind": "brave",
+          "team": "red",
+          "hp": 50,
+          "flags3": 0,
+          "flags4": 0
+        },
+        {
+          "id": 1186,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "flags3": 0,
+          "flags4": 0
+        },
+        {
+          "id": 1188,
+          "kind": "brave",
+          "team": "blue",
+          "hp": 50,
+          "flags3": 0,
+          "flags4": 0
+        },
+        {
+          "id": 1190,
+          "kind": "brave",
+          "team": "red",
+          "hp": 50,
+          "state": 19,
+          "workTarget": 0,
+          "flags3": 262144,
+          "flags4": 536871168
+        }
+      ],
+      "events": []
+    },
+    "errors": [],
+    "speedViolations": [],
+    "firstConversion": null,
+    "orderMarkerCursor": 0,
+    "orderMarkers": [],
+    "sermon": null,
+    "level": 1
+  },
+  "kind": "fresh-current-campaign",
+  "level": 1,
+  "inputs": [
+    {
+      "name": "scenario.mjs",
+      "sha256": "4b637afdea26ec4d5caf3afbc5ba3aa738df70740295c0e765d8ae374be14273"
+    },
+    {
+      "name": "boundaries.mjs",
+      "sha256": "7615c6541f633203306584dda0d08f02dceb301cda21888791325131497a6313"
+    },
+    {
+      "name": "routes.mjs",
+      "sha256": "9c9ef454e1f2efa04d44ac11828f42c4d6c7f2f7db1be037e9dd7b1e4fff7198"
+    },
+    {
+      "name": "run-policy.json",
+      "sha256": "e2d3e9253ef24d8887678b0ecd1f812d059956eb35b1670fe5ce82a36c012dae"
+    },
+    {
+      "name": "observation.mjs",
+      "sha256": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a"
+    },
+    {
+      "name": "erosion-observer.mjs",
+      "sha256": "19c25f71fcf0b60f24b65c7f8e2753b5bc51edbaca7d7ca540fd0136d6d50a97"
+    },
+    {
+      "name": "queued-stop.mjs",
+      "sha256": "d67b3cca01cb8ac8032e31d3cdf71382d18bcae57397ffe2ebd945d259f12063"
+    },
+    {
+      "name": "command-probes.mjs",
+      "sha256": "4361392253e40746e7a7957bf840691e9869d7e5f00fccc9210ff582f5a5d7cb"
+    },
+    {
+      "name": "commands/0001.json",
+      "sha256": "ed33faf9afeb4c2a19fa3e1cbc60747a4b5e2d0d409aef77d192fa2eacb3944b"
+    },
+    {
+      "name": "commands/0002.json",
+      "sha256": "b3e8307411be29638a8755ad260fc55b12a61f2dbe185916ece0ff1afd144b93"
+    }
+  ],
+  "ids": {
+    "vault": 2,
+    "lightning": 28,
+    "bridge": 29
+  },
+  "epochs": [],
+  "milestones": [],
+  "failures": [
+    {
+      "level": 1,
+      "index": 1,
+      "inputSha256": "ed33faf9afeb4c2a19fa3e1cbc60747a4b5e2d0d409aef77d192fa2eacb3944b",
+      "error": "Error: Missing fresh command dispatch and pointer acknowledgement\n    at acceptedOrderEvidence (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/observation.mjs:52:11)\n    at clickOrder (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:405:24)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1057:26)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+      "at": "2026-10-05T18:36:48.650Z"
+    }
+  ],
+  "controlStops": [
+    {
+      "level": 1,
+      "index": 2,
+      "at": "2026-10-05T18:37:17.058Z",
+      "error": "IncompleteRun: Requested bounded stop with committed latest preserved\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:849:11)\n    at async consumeQueuedStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:568:5)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1044:23)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+      "code": "preserve-latest"
+    }
+  ],
+  "transitions": [],
+  "checkpointProofs": [],
+  "acceptedCasts": [],
+  "protectedLatest": null,
+  "savedSermon": null,
+  "training": null,
+  "victimSelection": null,
+  "sermonPlan": null,
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "commit": "c56e98af1b7cbeaa4fdc1898a31759f30960966f",
+    "tree": "74dd4c8ca08595b253415507b1d0f530686d160c",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "1007c0ed324fcddf691da18fe0ac77c0971609d21da5ed25d91be50bc73ee21c"
+  },
+  "profileId": "d488e7d1-98a5-48f6-a4ce-31019482eca3",
+  "runId": "625b85ed-d3cf-433a-9bec-1f409cdcc141",
+  "policy": {
+    "launchEnabled": true,
+    "applicationCommit": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+    "applicationTree": "aff807de3b17b32922b2f7e94e94016c22fdc054",
+    "limits": {
+      "missionActiveSeconds": {
+        "1": 900,
+        "2": 1500,
+        "3": 2400
+      },
+      "campaignActiveSeconds": 4800,
+      "missionWallMs": {
+        "1": 1800000,
+        "2": 5400000,
+        "3": 5400000
+      },
+      "wallMs": 12600000,
+      "noProgressActiveSeconds": 120,
+      "m3BeforeConversionSeconds": 900,
+      "m3AfterConversionSeconds": 1800,
+      "segmentWallMs": 5700000
+    },
+    "reason": "Explicit enabled policy prepared for final source review on accepted main 3cc9e83. Browser/profile execution still waits for the coordinator exact launch grant; finite caps and first batch remain unchanged.",
+    "applicationImports": {
+      "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+      "scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80",
+      "scripts/campaign-conversion-observer.mjs": "36e6d8a30547f566ed4ba26816d797d0e6dd625c72385bf73aab0e2b988266aa",
+      "scripts/campaign-start-readiness.mjs": "214ffc2ce95ea039328e356d493ba8beb887e2d5ef1084b672fb0413fac48d28",
+      "scripts/local-render/harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "scripts/local-render/owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "scripts/local-render/checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "scripts/local-render/vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "ownedWallMs": 104563,
+  "missionWallMs": {
+    "1": 104563,
+    "2": 0,
+    "3": 0
+  },
+  "browserErrors": [],
+  "preserveStopRequested": true,
+  "preserveVerificationFailed": false
+}

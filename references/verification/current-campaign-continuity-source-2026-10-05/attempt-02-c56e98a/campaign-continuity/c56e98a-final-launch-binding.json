@@ -1,0 +1,183 @@
+{
+  "kind": "exact-c56-fresh-build-and-launch-binding",
+  "createdAt": "2026-10-05T18:31:35.324481+00:00",
+  "sourceHead": "c56e98af1b7cbeaa4fdc1898a31759f30960966f",
+  "acceptedApplicationMain": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "appTree": "aff807de3b17b32922b2f7e94e94016c22fdc054",
+  "priorSourceReview": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-c56e98a/review.json",
+    "sha256": "9b8d64920e10b8deebb8b57a31bec3b50f98c62b4d69bc2424eac24f6ed2474d",
+    "decision": "ACCEPT"
+  },
+  "productionCorrespondence": {
+    "unchangedTrackedObjects": 3567,
+    "extraQAPaths": [
+      "qa/campaign-continuity/README.md",
+      "qa/campaign-continuity/boundaries.mjs",
+      "qa/campaign-continuity/boundaries.test.mjs",
+      "qa/campaign-continuity/command-probes.mjs",
+      "qa/campaign-continuity/command-probes.test.mjs",
+      "qa/campaign-continuity/entity-input.test.mjs",
+      "qa/campaign-continuity/erosion-observer.mjs",
+      "qa/campaign-continuity/erosion-observer.test.mjs",
+      "qa/campaign-continuity/mission-one-first-batch.json",
+      "qa/campaign-continuity/observation.mjs",
+      "qa/campaign-continuity/observation.test.mjs",
+      "qa/campaign-continuity/queued-stop.mjs",
+      "qa/campaign-continuity/queued-stop.test.mjs",
+      "qa/campaign-continuity/reuse.json",
+      "qa/campaign-continuity/reuse.test.mjs",
+      "qa/campaign-continuity/routes.mjs",
+      "qa/campaign-continuity/routes.test.mjs",
+      "qa/campaign-continuity/run-policy.json",
+      "qa/campaign-continuity/scenario-paths.test.mjs",
+      "qa/campaign-continuity/scenario.mjs"
+    ],
+    "exactBaseObjectsEqual": true,
+    "candidatePR218Adopted": false
+  },
+  "componentCarry": {
+    "priorAcceptedCorrespondence": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/901a4e1-gate-correspondence.json",
+      "sha256": "c1b1aacb5cc96f782eb8d99b61a45c31562f7e5433c1809e321e2143e2544922"
+    },
+    "priorBindingReview": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-901a4e1/review.json",
+      "sha256": "01111d025d638dc983d42042aba84384bc2c34f412f7a190c13b408fdd97ccbc"
+    },
+    "currentSourceReview": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/review-c56e98a/review.json",
+      "sha256": "9b8d64920e10b8deebb8b57a31bec3b50f98c62b4d69bc2424eac24f6ed2474d"
+    },
+    "statement": "Use only the accepted PR217 chain:1126 standard tests/parity at3123edf, accepted style normalization to d8897cf, fresh d889 typecheck/lifecycle, tree-identical accepted main3cc, and unchanged production/standard inputs in c56. No1134 PR218 carry, no new combined npm check claim."
+  },
+  "checks": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-error-focused.json",
+      "sha256": "0d6b4915f84065c051f509ed07d9b7cb3d6816ee4230f3f3cb7087af2fd81d10",
+      "command": [
+        "node",
+        "--test",
+        "qa/campaign-continuity/boundaries.test.mjs",
+        "qa/campaign-continuity/command-probes.test.mjs",
+        "qa/campaign-continuity/entity-input.test.mjs",
+        "qa/campaign-continuity/erosion-observer.test.mjs",
+        "qa/campaign-continuity/observation.test.mjs",
+        "qa/campaign-continuity/queued-stop.test.mjs",
+        "qa/campaign-continuity/reuse.test.mjs",
+        "qa/campaign-continuity/routes.test.mjs",
+        "qa/campaign-continuity/scenario-paths.test.mjs"
+      ],
+      "status": "passed",
+      "streams": [
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-error-focused.json.artifacts/stdout.log",
+          "sha256": "50f52fb637b944ad48b07f1d833bbebe2952fb289ee3394dddc88945bc87e2ea"
+        },
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-error-focused.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-error-structure.json",
+      "sha256": "5dda0abd360c55ef7ddc18b8f0dda1dc4f7cbd7205fdef45d7a54b6a2ea50f6c",
+      "command": [
+        "node",
+        "scripts/orchestration/cli.mjs",
+        "check"
+      ],
+      "status": "passed",
+      "streams": [
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-error-structure.json.artifacts/stdout.log",
+          "sha256": "e3b8ae285f539427fd2ebf60d218e2f6a1aaff5da2bca00113015da16d9756e7"
+        },
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-error-structure.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-error-diff.json",
+      "sha256": "ba85376a41b22bdcb30cfeb1867e0da0388a227664843fb755a5fc501f682471",
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+        "HEAD"
+      ],
+      "status": "passed",
+      "streams": [
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-error-diff.json.artifacts/stdout.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/entity-input-error-diff.json.artifacts/stderr.log",
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        }
+      ]
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/c56e98a-build.json",
+      "sha256": "0446542c442834af5ac1f19f3bcfc8089d538f2b76d241df413b41adae153260",
+      "command": [
+        "taskset",
+        "-c",
+        "0-3",
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "120s",
+        "npm",
+        "run",
+        "build"
+      ],
+      "status": "passed",
+      "streams": [
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/c56e98a-build.json.artifacts/stdout.log",
+          "sha256": "53b29cf6caf5366645176eaa50c1dd94ec7d0e062844a929f1c644adad3927cd"
+        },
+        {
+          "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/c56e98a-build.json.artifacts/stderr.log",
+          "sha256": "58b40756f8939eee6fbc0275cf8bbd52d208e27a782874d203bd251b7ff74ab2"
+        }
+      ]
+    }
+  ],
+  "directTests": 89,
+  "freshBuild": {
+    "originalExecSession": 67062,
+    "exitCode": 0,
+    "boundSeconds": 120,
+    "receiptSha256": "0446542c442834af5ac1f19f3bcfc8089d538f2b76d241df413b41adae153260"
+  },
+  "profileInputs": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/c56e98a-profile-inputs.json",
+    "sha256": "69c6c0a111054c12a2743efa8ea6824f6a89fa189f08d80ee9520f0b780a5284"
+  },
+  "launchPlan": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/c56e98a-launch-plan.json",
+    "sha256": "22cbb78d8ea9ddecb6066e16d41451e73dc7187489591a5ca7679bdcb31a1f5e"
+  },
+  "launcher": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/launch-mission-one-c56e98a.py",
+    "sha256": "5212f90068fe66051ed14c6252214a25f900c085aeaa359da8f9bbb1f7e70538",
+    "status": "Prepared, compiled as Python source only; not executed"
+  },
+  "transfer": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/dependency-transfers/stone-to-campaign-20261005T1828/receipt.json",
+    "sha256": "2a9df2ed48780ec7727ceea523f7a221ae5f21aa2b4c861fa5fa6a706af3bf8e"
+  },
+  "firstBatch": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/mission-one-first-batch.json",
+    "sha256": "ed33faf9afeb4c2a19fa3e1cbc60747a4b5e2d0d409aef77d192fa2eacb3944b",
+    "status": "Unchanged and unqueued"
+  },
+  "remaining": "Final independent exact build/runtime/profile/launch binding ACCEPT, then parent exact runtime grant. No profile/server/browser/TMP/output has been created for attempt02."
+}

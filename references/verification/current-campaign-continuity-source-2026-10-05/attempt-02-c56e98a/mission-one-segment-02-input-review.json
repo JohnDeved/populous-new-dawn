@@ -1,0 +1,96 @@
+{
+  "kind": "independent-attempt02-shrine-input-source-diagnosis",
+  "createdAt": "2026-10-05T18:45:35.100Z",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_campaign_continuity",
+  "head": "c56e98af1b7cbeaa4fdc1898a31759f30960966f",
+  "decision": "CAUSE UNKNOWN; actual event-delivery and picker discrepancy established",
+  "runId": "625b85ed-d3cf-433a-9bec-1f409cdcc141",
+  "evidence": [
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-02/actions.jsonl",
+      "sha256": "7d87b5a209ebd5830a4a54456cbb995e6fe3e90f99d95c1eefde6ee0e51d10dd"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-02/receipt.json",
+      "sha256": "fb52560566538100af09901786a6d1187676f2409d82c4f92fd282ea51437683"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-02/batch-0001-failed.json",
+      "sha256": "683dfa4a988ad836c243f12dac5bccc7a95c02ee657efa8f007f93949f6a3efa"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-02/terminal.json",
+      "sha256": "832ab5245e9bf3cefea27039a59375e03565e1afc141c028bcc07493f7e013d1"
+    }
+  ],
+  "source": [
+    {
+      "path": "qa/campaign-continuity/scenario.mjs",
+      "sha256": "4b637afdea26ec4d5caf3afbc5ba3aa738df70740295c0e765d8ae374be14273"
+    },
+    {
+      "path": "qa/campaign-continuity/command-probes.mjs",
+      "sha256": "4361392253e40746e7a7957bf840691e9869d7e5f00fccc9210ff582f5a5d7cb"
+    },
+    {
+      "path": "app/scene-picking.ts",
+      "sha256": "24e81f731ab76a49ebb08eb3ff1f3e3c6fa71f71bf3292b1c224c887e8abd180"
+    },
+    {
+      "path": "app/scene-input-runtime.ts",
+      "sha256": "54def129260b6ffebbb4ddfd23591360ae004abe1adefeaaaf47757eaefd28f5"
+    },
+    {
+      "path": "app/scene-entities.ts",
+      "sha256": "cc7cb79c9e92e5b0cb283f745dadec503d8246ab3936b054313d577b97f2c4f4"
+    },
+    {
+      "path": "app/scene.ts",
+      "sha256": "8789a7751dd748ac5ebf86f3747e031070356840e787433225da801da5ac9c0b"
+    },
+    {
+      "path": "app/world-picking.ts",
+      "sha256": "b2e69234d2a5cf7603e7e8a1a19314b6a3213ccd5ede83e9b8c6e4e5844175f8"
+    },
+    {
+      "path": "app/stone-head-animation.ts",
+      "sha256": "5691d286c2a26e2af7a6ae55a4cdbd9a018260eeb56eb4a4df2fb62ae0ad02b4"
+    },
+    {
+      "path": "app/original-stone-heads.json",
+      "sha256": "8dfa738e04170a3874baaae433577538326c90786eb000feb08aa31ed0d29f20"
+    }
+  ],
+  "established": [
+    "At turn698 the detached diagnostic identified enabled model27 and shrine29 for selected Shaman30.",
+    "The final25-pixel integer-neighborhood check accepted(806,289) at turn714. Delivered trusted primary pointerdown/up arrived at precisely(806,289), both canvas-owned/targeted, at turn715; buttons were1 then0. No rounding or off-canvas delivery discrepancy is present in this trace.",
+    "Actual handler picker observation recorded pickPerson/pickUnit null on down, and pickPerson/pickWorldObject null on up. The observer restored all wrapped methods with no diagnostic errors. LastOrderTurn and pointerAck remained unchanged across690→738.",
+    "The actual pointerUp invocation reached pickWorldObject. Its source control flow therefore passed the inputMask/overviewStage/primary-button early-return gates and had a selected group with no targeting mode at that call.",
+    "The settled-camera record equals the failed and terminal snapshot camera values. This is bracketing evidence, not an event-time camera/projection sample."
+  ],
+  "callerContract": {
+    "verdict": "No demonstrated plain-point versus PointerEvent semantic mismatch",
+    "basis": "QA inspectEntityPoint builds{clientX,clientY} and calls the same scene methods as the actual event handler. observeEntityPointer preserves the original receiver/arguments. ScenePicking.pick reads only clientX/clientY from its event argument, subtracts renderer canvas rect, then truncates to integer local pixels; it does not use event.type/buttons/options. The actual event coordinates match the QA point exactly.",
+    "limit": "The live DOM rectangle itself was not captured at714/715. Actual arguments/receiver identity tokens were not separately logged; equivalence here is the reviewed source contract plus actual captured event coordinates."
+  },
+  "temporalGeometry": {
+    "sourceFact": {
+      "triggerIndex": 30,
+      "sceneryIndex": 32
+    },
+    "family": "Authored model45 Stone Head family with18-frame morph loop, not a source guarantee of static geometry.",
+    "producer": "app/stone-head-animation.ts:animateStoneHeads/stoneHeadFrame; app/scene-entities.ts:updateShrinesFrame copies frame positions into the mesh BufferAttribute and increments its version. app/scene.ts:animate advances and updates those meshes before rendering.",
+    "picker": "app/scene-picking.ts:pick/model uses frame/view/local pixel keys, BufferAttribute identity/version/world matrix and current painter/terrain ordering; app/world-picking.ts allows later painter ground/model/person hits to replace the result.",
+    "conclusion": "A frame/geometry/painter change between714 and715 is possible under this source. Actual morph displacement or cache/painter incoherence is NOT established by the retained trace."
+  },
+  "missingEvidence": [
+    "Same-boundary scene/World identity token and canvas rect/projection/frame key at final probe and delivered event.",
+    "Shrine29 model identity, stoneHeadFrame/morph frame and BufferAttribute version/geometry at both boundaries.",
+    "Underlying mixed ScenePicking.pick result/lastKind and whether the result came from cache or fresh painter/terrain arbitration.",
+    "Fallback terrain pick and actual command context, if any, after the world-object miss."
+  ],
+  "boundedFinding": "The new capture rules out failure to deliver the ordinary pointer pair and narrows the discrepancy to a model/world-object hit changing between final preflight and actual handler. It does not distinguish temporal morph movement, other rendered/painter state change, rect/projection change or an unobserved cache/context condition. Do not label an animation or application regression, and do not claim the previous fractional-edge hypothesis was confirmed.",
+  "statusScope": "Attempt02 remains failed: terminal paused766/time63.833333333333336, empty checkpoint, no earned bridge stock or mission outcome. Normal cleanup flags are retained; no third run or source fix is authorized by this review.",
+  "actions": "Read-only journal/source/terminal inspection and one bounded pure source lookup for the authored model family. No browser/package job, profile access, code change or replay.",
+  "resourcesHeld": []
+}

@@ -1,0 +1,34 @@
+{
+  "kind": "exclusive-dependency-return",
+  "verifiedAt": "2026-10-05T18:39:06.595525+00:00",
+  "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/node_modules",
+  "target": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/node_modules",
+  "dependencyInode": 925605,
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "sourceAfterExists": false,
+  "preservedStub": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/stone-head-logical-visit-fix/work/orchestration/dependency-transfers/campaign-to-stone-20261005T1838/prior-lock-only-stub",
+  "preservedStubInode": 1979760,
+  "originalSession": 97599,
+  "originalExitCode": 1,
+  "runId": "625b85ed-d3cf-433a-9bec-1f409cdcc141",
+  "cleanupVerified": true,
+  "continuationVerified": true,
+  "originClosed": true,
+  "rawReceipts": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-02/receipt.json",
+      "sha256": "fb52560566538100af09901786a6d1187676f2409d82c4f92fd282ea51437683"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-02.outer.json",
+      "sha256": "6e0320c3fc100f1fdc546700a6e4716ec3eab5dadaf421f31cd136c4f9d74660"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-02.launcher.json",
+      "sha256": "a7d3431dba8daf2fa38f67d25dd65f1c2685935cf02b20e31d76e28dc66be7f3"
+    }
+  ],
+  "status": "returned",
+  "scope": "Normal terminal of failed fresh M1 attempt02; no profile bytes moved and no third attempt authorized."
+}

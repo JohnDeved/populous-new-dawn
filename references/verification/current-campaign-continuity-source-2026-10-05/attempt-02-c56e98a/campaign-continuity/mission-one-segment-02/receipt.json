@@ -1,0 +1,130 @@
+{
+  "startedAt": "2026-10-05T18:35:09.132Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "commit": "c56e98af1b7cbeaa4fdc1898a31759f30960966f",
+    "tree": "74dd4c8ca08595b253415507b1d0f530686d160c",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "1007c0ed324fcddf691da18fe0ac77c0971609d21da5ed25d91be50bc73ee21c"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe",
+      "--user-data-dir=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3cc9e83-m1-02/browser",
+      "about:blank"
+    ],
+    "timeout": 30000,
+    "viewport": {
+      "width": 1440,
+      "height": 1000
+    },
+    "acceptDownloads": false,
+    "serviceWorkers": "block"
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "<link rel=preload> must have a valid `as` value",
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0xc74001bc200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0xc74001bc200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0xc74001bc200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0xc74001bc200]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "status": "failed",
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenario": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs",
+    "sha256": "4b637afdea26ec4d5caf3afbc5ba3aa738df70740295c0e765d8ae374be14273"
+  },
+  "profile": {
+    "id": "d488e7d1-98a5-48f6-a4ce-31019482eca3",
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3cc9e83-m1-02",
+    "runId": "625b85ed-d3cf-433a-9bec-1f409cdcc141",
+    "mode": "created",
+    "origin": "http://127.0.0.1:4375",
+    "inputs": {
+      "application": "84dd34962ec0095bb25d2a0662f128ca6d5f638d259be20f1c412428e9b47bf5",
+      "checker": "ea4046be2f36e399a8ea3f6bbed2208417930de300034c154ce8936b7bdea75b"
+    },
+    "correspondence": null,
+    "previousRun": null,
+    "checkpoints": [
+      {
+        "label": "campaign stop preserve latest",
+        "observedAt": "2026-10-05T18:37:17.058Z",
+        "profileId": "d488e7d1-98a5-48f6-a4ce-31019482eca3",
+        "runId": "625b85ed-d3cf-433a-9bec-1f409cdcc141",
+        "sourceFingerprint": "1007c0ed324fcddf691da18fe0ac77c0971609d21da5ed25d91be50bc73ee21c",
+        "checkpoint": null
+      },
+      {
+        "label": "campaign terminal latest",
+        "observedAt": "2026-10-05T18:37:20.322Z",
+        "profileId": "d488e7d1-98a5-48f6-a4ce-31019482eca3",
+        "runId": "625b85ed-d3cf-433a-9bec-1f409cdcc141",
+        "sourceFingerprint": "1007c0ed324fcddf691da18fe0ac77c0971609d21da5ed25d91be50bc73ee21c",
+        "checkpoint": null
+      }
+    ],
+    "checkpointAtStart": null,
+    "checkpointAtEnd": null,
+    "cleanupVerified": true,
+    "continuationVerified": true
+  },
+  "browserVersion": "154.0.8037.92",
+  "runtimeAfter": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "scenarioAfter": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs",
+    "sha256": "4b637afdea26ec4d5caf3afbc5ba3aa738df70740295c0e765d8ae374be14273"
+  },
+  "failure": "IncompleteRun: Requested bounded stop with committed latest preserved\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:849:11)\n    at async consumeQueuedStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:568:5)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1044:23)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21",
+  "finishedAt": "2026-10-05T18:37:22.405Z",
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "commit": "c56e98af1b7cbeaa4fdc1898a31759f30960966f",
+    "tree": "74dd4c8ca08595b253415507b1d0f530686d160c",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "1007c0ed324fcddf691da18fe0ac77c0971609d21da5ed25d91be50bc73ee21c"
+  }
+}

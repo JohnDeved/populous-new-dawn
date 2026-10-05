@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "1e266ecd-0f15-4e41-97b8-f49077288133",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "c56e98af1b7cbeaa4fdc1898a31759f30960966f",
+    "branch": "qa/current-campaign-continuity",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "qa/campaign-continuity/mission-one-first-batch.json": "ed33faf9afeb4c2a19fa3e1cbc60747a4b5e2d0d409aef77d192fa2eacb3944b",
+      "qa/campaign-continuity/run-policy.json": "e2d3e9253ef24d8887678b0ecd1f812d059956eb35b1670fe5ce82a36c012dae",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "2110s",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "--port",
+    "4375",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-02",
+    "--mission",
+    "1",
+    "--timeout",
+    "2100000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs",
+    "--profile",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3cc9e83-m1-02",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+  "startedAt": "2026-10-05T18:35:08.779Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-02.outer.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-02.outer.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-05T18:37:25.071Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "Error: IncompleteRun: Requested bounded stop with committed latest preserved\n    at stopPreserveLatest (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:849:11)\n    at async consumeQueuedStop (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:568:5)\n    at async campaignContinuity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs:1044:23)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:164:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21\n    at runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:233:47)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/scripts/local-render/harness.mjs:251:21\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e41e28256d583ccb20134a3c8717a85a66fd5145cb9dcccb3a27d18d7667479d",
+  "sourceAfter": {
+    "headOid": "c56e98af1b7cbeaa4fdc1898a31759f30960966f",
+    "branch": "qa/current-campaign-continuity",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "qa/campaign-continuity/mission-one-first-batch.json": "ed33faf9afeb4c2a19fa3e1cbc60747a4b5e2d0d409aef77d192fa2eacb3944b",
+      "qa/campaign-continuity/run-policy.json": "e2d3e9253ef24d8887678b0ecd1f812d059956eb35b1670fe5ce82a36c012dae",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}
