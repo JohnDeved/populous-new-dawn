@@ -586,10 +586,15 @@ export default async function missionThreeControls({ page, output, root, signal,
     log({ action: 'saved-sermon-provenance-verified', input: path, inputSha256: sha256(bytes), observed,
       originalSource: sermonRecord.source, savedByRunId: sermonRecord.savedByRunId,
       retainedFailureCount: sermonRecord.failures.length, scope: sermonRecord.scope })
-    await button('Load Game'); await bindGame(page)
+    await button('Load Game')
+    // The visible Pause control witnesses ordinary Load's auto-resume. Pause
+    // before diagnostic binding/imports consume the short saved listener timer.
+    await button('Pause game')
+    log({ action: 'saved-sermon-load-paused-before-observation', autoResumeWitness: 'Visible Pause game control accepted an ordinary UI click' })
+    await bindGame(page)
     await bindObservation('saved-sermon-entry', savedSermon.time)
-    const loaded = await read(); health(loaded); validateLoadedSermon(sermonRecord, loaded)
-    await pause()
+    const loaded = await read(); health(loaded)
+    validateLoadedSermon(sermonRecord, loaded, { pausedByEntryControl: true })
     const storedProfile = await readStorage('profile')
     assert.ok(!storedProfile?.completed?.includes(3), 'M3 is absent before saved-sermon continuation')
     assert.equal(sha256(readFileSync(path)), sha256(bytes), 'Input sermon provenance remains unchanged')

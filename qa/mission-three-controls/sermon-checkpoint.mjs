@@ -81,9 +81,10 @@ export function validateSermonRecord(record, { source, profile, origin, checkpoi
   return copy({ ...record, recordedByRunId: profile.runId, ...(qaResume ? { qaResume } : {}) })
 }
 
-export function validateLoadedSermon(record, state) {
+export function validateLoadedSermon(record, state, { pausedByEntryControl = false } = {}) {
   assert.equal(state.level, 3); assert.equal(state.speed, 1); assert.equal(state.status, 'playing')
-  assert.equal(state.paused, false, 'Ordinary Load auto-resumes')
+  assert.equal(state.paused, pausedByEntryControl, pausedByEntryControl ?
+    'The immediate ordinary Pause control must have paused the loaded game' : 'Ordinary Load auto-resumes')
   assert.ok(!state.completedMissions.includes(3))
   assert.ok(state.turn >= record.checkpoint.turn && state.time >= record.checkpoint.time)
   const victim = state.units.find(u => u.id === record.ids.victim)

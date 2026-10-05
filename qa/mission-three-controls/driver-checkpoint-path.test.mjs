@@ -31,10 +31,12 @@ test('the actual saved-sermon entry admits a subsequent Preacher cancellation or
   `)
   const result = await execute({ assert, resolve, sha256, source, profile,
     readFileSync: () => bytes, writeFileSync: () => calls.push('write-provenance'),
-    validateSermonRecord: value => value, validateLoadedSermon: () => calls.push('validate-loaded'),
+    validateSermonRecord: value => value, validateLoadedSermon: (_, state, options) => {
+      assert.deepEqual(options, { pausedByEntryControl: true }); calls.push('validate-loaded')
+    },
     observeCheckpoint: async () => ({ checkpoint: record.checkpoint }),
-    button: async name => calls.push(name), bindGame: async () => {},
-    bindObservation: async name => calls.push(`epoch:${name}`), read: async () => loaded,
+    button: async name => calls.push(name), bindGame: async () => calls.push('bind-game'),
+    bindObservation: async name => calls.push(`epoch:${name}`), read: async () => { calls.push('full-read'); return loaded },
     health: () => {}, readStorage: async () => ({ completed: [] }), pause: async () => calls.push('Pause'),
     snapshot: async () => {}, log: () => {}, saveProgress: () => {} })
   requireDeclaredPreacherOrder({ selected: [3163], units: [{ id: 3163, team: 'blue', kind: 'preacher' }] }, !!result.sermonPlan)
@@ -43,6 +45,10 @@ test('the actual saved-sermon entry admits a subsequent Preacher cancellation or
   assert.deepEqual(result.sermonPlan.inheritedFromSavedSermon.source, source)
   assert.ok(result.failures[0].inheritedFromSavedSermon)
   assert.deepEqual(calls.filter(c => c.startsWith('epoch:')), ['epoch:saved-sermon-entry'])
+  assert.deepEqual(calls.filter(c => ['Load Game', 'Pause game', 'bind-game', 'full-read', 'validate-loaded'].includes(c)),
+    ['Load Game', 'Pause game', 'bind-game', 'full-read', 'validate-loaded'])
+  assert.ok(calls.indexOf('Pause game') < calls.indexOf('epoch:saved-sermon-entry'), 'No observer import precedes the first ordinary Pause')
+  assert.ok(!calls.includes('Pause'), 'Entry does not run the full-read pause helper before its first Pause')
   assert.ok(!calls.includes('Save checkpoint'))
 })
 

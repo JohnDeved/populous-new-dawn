@@ -111,3 +111,14 @@ test('preserve-latest stop accepts only the observed committed checkpoint and ne
   assert.throws(() => checkpoint.requirePreservedCheckpoint(expected, { ...observed,
     checkpoint: { ...expected, actorsSha256: '0'.repeat(64) } }))
 })
+
+
+test('pause-first entry validates an actually paused loaded state without claiming an unpaused observation', () => {
+  const input = fixture(), record = checkpoint.createSermonRecord(input)
+  assert.doesNotThrow(() => checkpoint.validateLoadedSermon(record, input.state, { pausedByEntryControl: true }))
+  assert.throws(() => checkpoint.validateLoadedSermon(record, { ...input.state, paused: false }, { pausedByEntryControl: true }))
+  assert.throws(() => checkpoint.validateLoadedSermon(record, input.state))
+  for (const change of [{ nativeState: 19 }, { owner: 999 }, { team: 'blue' }, { hp: 0 }])
+    assert.throws(() => checkpoint.validateLoadedSermon(record, { ...input.state,
+      units: input.state.units.map(unit => unit.id === 50 ? { ...unit, ...change } : unit) }, { pausedByEntryControl: true }))
+})
