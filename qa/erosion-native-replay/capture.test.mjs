@@ -69,3 +69,28 @@ test('original afterTurn exception propagates unchanged and diagnostics never ru
   assert.equal(calls, 1); assert.throws(() => handle.read(), /Incomplete/)
   handle.dispose()
 })
+
+for (const [label, diagnostic] of [['empty string', ''], ['empty stringifier', { toString: () => '' }],
+  ['zero', 0], ['false', false], ['null', null], ['undefined', undefined]]) {
+  test(`a final attribution ${label} throw cannot be exported as successful evidence`, () => {
+    const f = fixture(), effect = f.onset()
+    for (let i = 0; i < 64; i++) {
+      f.world.turn++
+      const alive = stepErosion(f.world.land, effect.erosion, f.world, { sound() {}, terrain() {} })
+      if (!alive) {
+        f.world.effects = []
+        f.epoch.erosion.effects[0].retired = { turnAfter: f.world.turn }
+      }
+      const before = structuredClone(f.world)
+      const descriptor = Object.getOwnPropertyDescriptor(effect.erosion, 'remaining')
+      try {
+        if (!alive) Object.defineProperty(effect.erosion, 'remaining', { configurable: true, get() { throw diagnostic } })
+        assert.equal(f.clock.afterTurn(i), i)
+      } finally { Object.defineProperty(effect.erosion, 'remaining', descriptor) }
+      assert.deepEqual(f.world, before)
+    }
+    assert.equal(f.calls(), 65); assert.equal(effect.erosion.remaining, 0)
+    assert.throws(() => f.observer.read(), 'Every diagnosed attribution error must reject evidence')
+    f.observer.dispose()
+  })
+}

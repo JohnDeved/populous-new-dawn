@@ -116,6 +116,40 @@ test('after-copy diagnostic failure cannot replace an application exception', ()
   assert.equal(handle.read().visits[0].completed, false)
 })
 
+for (const [label, diagnostic] of [['empty string', ''], ['empty stringifier', { toString: () => '' }],
+  ['zero', 0], ['false', false], ['null', null], ['undefined', undefined]]) {
+  test(`a thrown ${label} permanently invalidates capture while all original calls continue`, () => {
+    const f = fixture(), handle = armErosionCapture(f.erosion), originalPerformance = globalThis.performance
+    let timingReads = 0, calls = 0
+    try {
+      globalThis.performance = { now() { if (++timingReads === 4) throw diagnostic; return timingReads } }
+      for (let i = 0; i < 64; i++) observeErosionStep(f.land, f.erosion, f.game, {}, () => {
+        calls++; f.game.randomState++; return --f.erosion.remaining > 0
+      })
+    } finally { globalThis.performance = originalPerformance }
+    handle.detach()
+    const capture = handle.read()
+    assert.equal(calls, 64); assert.equal(f.erosion.remaining, 0)
+    assert.equal(f.game.randomState, 0x87654321 + 64)
+    assert.ok(capture.failure, 'Diagnostic failure must retain a nonempty marker')
+    assert.equal(capture.visits.length, 1, 'No collection resumes after any diagnostic throw')
+    assert.equal(timingReads, 4)
+  })
+}
+
+test('an empty diagnostic throw cannot replace an application exception', () => {
+  const f = fixture(), handle = armErosionCapture(f.erosion), originalPerformance = globalThis.performance
+  const sentinel = new Error('original application failure'); let timingReads = 0, calls = 0
+  try {
+    globalThis.performance = { now() { if (++timingReads === 4) throw ''; return timingReads } }
+    assert.throws(() => observeErosionStep(f.land, f.erosion, f.game, {}, () => {
+      calls++; throw sentinel
+    }), error => error === sentinel)
+  } finally { globalThis.performance = originalPerformance }
+  assert.equal(calls, 1); assert.ok(handle.read().failure)
+  assert.equal(handle.read().visits[0].completed, false)
+})
+
 test('diagnostic append failure disables capture and still invokes the body once', () => {
   const f = fixture(), handle = armErosionCapture(f.erosion), push = Array.prototype.push
   let calls = 0, result

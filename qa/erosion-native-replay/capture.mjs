@@ -11,7 +11,7 @@ export function attachErosionCapture(clock, world, epoch, attribution) {
   let lastTurn = world.turn, effect, controller, handle, onsetTurn, failure = null, disposed = false
   const fail = error => {
     failure = 'Erosion capture attribution failed'
-    try { failure = String(error) } catch {}
+    try { failure = String(error) || failure } catch {}
     handle?.detach()
   }
   const observe = () => {

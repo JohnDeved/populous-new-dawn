@@ -40,7 +40,7 @@ function diagnose(capture: Capture, action: () => void) {
     // Even a hostile/unprintable diagnostic error cannot replace a game error.
     capture.failure = 'Erosion observation failed'
     try {
-      capture.failure = String(error)
+      capture.failure = String(error) || capture.failure
     } catch {
       // Keep the safe fallback when even diagnostic stringification fails.
     }
