@@ -1,0 +1,139 @@
+{
+  "kind": "reviewed-inputs-pending-exact-launch-grant",
+  "preparedAt": "2026-10-05T16:57:04.243267+00:00",
+  "sourceHead": "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+  "sourceFingerprint": "1953a21079a5813c9d4caa94819e4e5fd4e7758e28794878206edc88378fe529",
+  "sourcePolicyEnabled": true,
+  "operationalGrantReceived": false,
+  "profileInputs": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/901a4e1-profile-inputs.json",
+    "sha256": "b9e141044801791cfab5a0c95f5528a4be4be0ff5cd27e4c0f0013695dd3196d"
+  },
+  "policy": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/run-policy.json",
+    "sha256": "e2d3e9253ef24d8887678b0ecd1f812d059956eb35b1670fe5ce82a36c012dae",
+    "limits": {
+      "missionActiveSeconds": {
+        "1": 900,
+        "2": 1500,
+        "3": 2400
+      },
+      "campaignActiveSeconds": 4800,
+      "missionWallMs": {
+        "1": 1800000,
+        "2": 5400000,
+        "3": 5400000
+      },
+      "wallMs": 12600000,
+      "noProgressActiveSeconds": 120,
+      "m3BeforeConversionSeconds": 900,
+      "m3AfterConversionSeconds": 1800,
+      "segmentWallMs": 5700000
+    }
+  },
+  "origin": "http://127.0.0.1:4375",
+  "profilePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3cc9e83",
+  "profileExists": false,
+  "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-01",
+  "outputExists": false,
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=10s",
+    "2110s",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "--port",
+    "4375",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-01",
+    "--mission",
+    "1",
+    "--timeout",
+    "2100000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs",
+    "--profile",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3cc9e83",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell"
+  ],
+  "outerCommandReceipt": "work/orchestration/campaign-continuity/mission-one-segment-01.outer.json",
+  "sourceReceiptBeforeAndAfterRequired": true,
+  "originOwnership": "No server or socket scope acquired. Before launch, probe4375 only inside the intended execution scope; require both absence and owned strictPort startup. Never attach to or stop an unknown responder.",
+  "firstBatch": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/mission-one-first-batch.json",
+    "sha256": "ed33faf9afeb4c2a19fa3e1cbc60747a4b5e2d0d409aef77d192fa2eacb3944b",
+    "commands": [
+      {
+        "action": "resume"
+      },
+      {
+        "action": "select",
+        "kind": "shaman"
+      },
+      {
+        "action": "order-entity",
+        "collection": "shrines",
+        "id": "bridge"
+      },
+      {
+        "action": "wait",
+        "condition": {
+          "type": "shrine-used",
+          "id": "bridge"
+        },
+        "scope": "worship",
+        "watchIds": [
+          "bridge"
+        ]
+      },
+      {
+        "action": "wait",
+        "condition": {
+          "type": "stock-at-least",
+          "spell": "bridge",
+          "count": 4
+        },
+        "scope": "worship",
+        "watchIds": [
+          "bridge"
+        ]
+      },
+      {
+        "action": "pause"
+      },
+      {
+        "action": "mark",
+        "name": "bridge-stock"
+      },
+      {
+        "action": "snapshot",
+        "name": "m1-first-bridge-stock"
+      }
+    ],
+    "status": "prepared, unqueued",
+    "enqueueBoundary": "Only after actual fresh leased runId and paused Mission1 opening are logged. Archive exact bytes through the existing command protocol."
+  },
+  "normalSegmentBoundary": "M1 actual victory/profile[1], ordinary Continue2 with current World/scene correspondence, actual committed Save2 and normal harness cleanup. Further segment entry requires that real emitted boundary plus terminal receipt/source/runtime identity.",
+  "preservingControl": {
+    "template": [
+      {
+        "action": "stop-preserve-latest",
+        "runId": "<read from the actual current lease>"
+      }
+    ],
+    "status": "not enqueued",
+    "target": "sole exact next numbered command; active batch reader preempts long waits. Never signal the live wrapper abruptly or issue fallback Save."
+  },
+  "remaining": [
+    "Final independent enabled-policy/source/runtime/component-carry review",
+    "Parent exact launch grant for this source/root/origin/profile/command"
+  ],
+  "limits": "No browser launched, no profile created, no first batch dispatched. Fresh ordinary campaign evidence must be earned; accepted logical gating is not whole original timing/parity or hardware proof."
+}

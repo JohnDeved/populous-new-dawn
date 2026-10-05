@@ -1,0 +1,58 @@
+{
+  "kind": "independent-first-mission-attempt-and-publication-review",
+  "createdAt": "2026-10-05T17:17:34.993Z",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_campaign_continuity",
+  "decision": "ACCEPT evidence and publication claims; campaign attempt FAILED",
+  "sourceHead": "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+  "sourceFingerprint": "1953a21079a5813c9d4caa94819e4e5fd4e7758e28794878206edc88378fe529",
+  "runId": "5c92fac0-f9d6-4e8a-ac5f-57a8b98dd528",
+  "packet": {
+    "path": "work/orchestration/campaign-continuity/mission-one-segment-01-terminal-packet.json",
+    "sha256": "a8cc25dd30a86330d4da8d0a38e6950298bfa0766d3cca2910682a0e6408e68c"
+  },
+  "publication": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity-evidence/references/verification/current-campaign-continuity-source-2026-10-05/adoption-901a4e1",
+    "manifestSha256": "38cfa90839a4c9d39e7cbdeb14fa28884558f44155c3c0c4bcf47219d431da93",
+    "readmeSha256": "24d78b2523e5831b8ea69f0e8b3787edd0f37292e1fbba167d11e94840cac34d",
+    "allowlistedFiles": 36,
+    "allCopiesMatchOriginals": true,
+    "noExtraFilesBeyondReadmeManifest": true
+  },
+  "findings": [],
+  "observed": {
+    "readinessTurn": 411,
+    "openingTurn": 435,
+    "shamanId": 30,
+    "shrineId": 29,
+    "probeTurn": 664,
+    "dispatchObservation": [
+      684,
+      702
+    ],
+    "lastOrderTurn": [
+      0,
+      0
+    ],
+    "pointerAckUnchanged": true,
+    "terminalTurn": 723,
+    "activeSeconds": 60.25,
+    "paused": true,
+    "worldStatus": "playing",
+    "bridgeShots": 0,
+    "shrineUses": 0,
+    "failures": 1,
+    "controlStops": 1,
+    "browserErrors": 0,
+    "checkpointAtStart": null,
+    "checkpointAtEnd": null,
+    "milestones": 0,
+    "transitions": 0,
+    "checkpointProofs": 0
+  },
+  "cleanupAssessment": "Raw inner receipt records matching source/runtime before and after, normal browser cleanup and continuation verification. Outer command ended exit1 with signal:null; launcher waited for that command and measured both IPv4/IPv6 port4375 refused in the same recorded network namespace. No terminal cleanup override appears. The successful maintained lease.finish path supports owner-lock release without reading the profile. Two-ended dependency-return record is hash-bound to these terminal receipts and records donor inode925605 and campaign absence. This verifies the recorded owned-run closure, not a present global process survey.",
+  "captionAssessment": "Viewed the actual failed-boundary PNG. It visibly shows WORLD PAUSED and the Mission1 scene; the caption correctly labels the paused failed-command boundary. It does not depict or claim worship completion.",
+  "diagnosisScope": "The journal establishes no accepted shrine command and no fresh dispatch/ack. The dispatch-time browser event coordinates, current actual event hit and command context are absent. Fractional edge-hit/context rejection or an application/animation regression remains unproved. No causal finding is added.",
+  "claimLimits": "Accept the failed attempt as honestly recorded evidence only. No bridge stock, victory, Continue, Save/Load, campaign completion, native parity, calibrated timing or hardware-performance credit. Browser warnings remain in the raw receipt; zero browserErrors is not a warning-free claim. The earlier source acceptance remains separate. No completed Continue/Save boundary exists, so this failed profile is not an admissible campaign continuation predecessor.",
+  "reviewActions": "Read-only original and publication bytes, JSON/log inspection, screenshot viewing, and this one ignored review artifact. No browser/package/profile/source operation or live scope probe.",
+  "resourcesHeld": []
+}

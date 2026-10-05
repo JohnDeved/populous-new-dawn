@@ -1,0 +1,43 @@
+{
+  "kind": "exclusive-dependency-transfer",
+  "createdAt": "2026-10-05T16:53:19.091462+00:00",
+  "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/node_modules",
+  "target": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/node_modules",
+  "sourceInode": 925605,
+  "targetBefore": {
+    "exists": false
+  },
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "priorTerminal": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/work/orchestration/sprite-visit-ordinary-214/candidate-d8897cf-launcher-receipt.json",
+    "sha256": "7ccf37c744698ea490dc54b8949daf6de29616a2e70b238978ff7149d0eb524b",
+    "finishedAt": "2026-10-05T16:30:59.283602+00:00",
+    "commandExitCode": 0,
+    "innerStatus": "passed",
+    "browserCleanupVerified": true,
+    "listenerClosureVerified": true,
+    "postTcp": [
+      {
+        "host": "127.0.0.1",
+        "port": 4374,
+        "code": 111,
+        "closed": true
+      },
+      {
+        "host": "::1",
+        "port": 4374,
+        "code": 111,
+        "closed": true
+      }
+    ]
+  },
+  "scope": "One fresh bounded combined build; retain ready tree pending exact parent campaign launch grant. This transfer does not authorize or execute browser/profile entry. Historical donor stubs remain untouched.",
+  "status": "transferred",
+  "verifiedAt": "2026-10-05T16:53:19.092082+00:00",
+  "targetAfterInode": 925605,
+  "donorStubInode": 1972307,
+  "donorStubFiles": [
+    ".package-lock.json"
+  ]
+}

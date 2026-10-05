@@ -1,0 +1,10 @@
+[
+  { "action": "resume" },
+  { "action": "select", "kind": "shaman" },
+  { "action": "order-entity", "collection": "shrines", "id": "bridge" },
+  { "action": "wait", "condition": { "type": "shrine-used", "id": "bridge" }, "scope": "worship", "watchIds": ["bridge"] },
+  { "action": "wait", "condition": { "type": "stock-at-least", "spell": "bridge", "count": 4 }, "scope": "worship", "watchIds": ["bridge"] },
+  { "action": "pause" },
+  { "action": "mark", "name": "bridge-stock" },
+  { "action": "snapshot", "name": "m1-first-bridge-stock" }
+]

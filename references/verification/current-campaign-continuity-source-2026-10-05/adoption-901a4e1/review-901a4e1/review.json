@@ -1,0 +1,154 @@
+{
+  "kind": "independent-enabled-campaign-final-source-policy-input-review",
+  "createdAt": "2026-10-05T17:01:58.243Z",
+  "reviewer": "/root/finish_reviewed_pr_batch/review_campaign_continuity",
+  "decision": "ACCEPT",
+  "sourceHead": "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+  "sourceTree": "421d5dc5c17f73718ba173efb1e32b502ad5b7d0",
+  "acceptedMain": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "appTree": "aff807de3b17b32922b2f7e94e94016c22fdc054",
+  "priorAcceptedQA": "7fa2db1a4676cc16e47955ae2cc9608b58c71849",
+  "scope": "Accept the exact enabled QA source, finite policy, prepared ordinary Mission 1 first batch, measured prelaunch input binding, and explicit gate correspondence. The coordinator may now decide the exact operational launch grant. This review did not launch or acquire a browser/profile/server, enqueue gameplay input, or claim fresh campaign completion.",
+  "handoff": {
+    "path": "work/orchestration/campaign-continuity/901a4e1-handoff.json",
+    "sha256": "89895d08cf0acaa02492a9b4e8200d0014b1cf548ef9d6ead4a10e1a02adb109"
+  },
+  "verification": {
+    "path": "work/orchestration/campaign-continuity/review-901a4e1/verification.json",
+    "sha256": "20f51f708cac6ff5d5485f0a5a990326104e7f282bb0b9970d34c3c8ba5c7802"
+  },
+  "gateCorrespondence": {
+    "path": "work/orchestration/campaign-continuity/901a4e1-gate-correspondence.json",
+    "sha256": "c1b1aacb5cc96f782eb8d99b61a45c31562f7e5433c1809e321e2143e2544922"
+  },
+  "profileInputs": {
+    "path": "work/orchestration/campaign-continuity/901a4e1-profile-inputs.json",
+    "sha256": "b9e141044801791cfab5a0c95f5528a4be4be0ff5cd27e4c0f0013695dd3196d"
+  },
+  "launchPlan": {
+    "path": "work/orchestration/campaign-continuity/901a4e1-launch-plan.json",
+    "sha256": "e365282e5c97c6988433098910d88d3bbcf8577ad90c2950cbf543191930cd58"
+  },
+  "findings": [],
+  "deltaAssessment": [
+    "Only README.md, boundaries.test.mjs, reuse.json, run-policy.json and scenario-paths.test.mjs changed within QA relative to accepted7fa2db1. All executable route/helper/observer/Save/Load/Continue/control bodies and the first Mission 1 batch remain byte-identical.",
+    "Enabled policy pins actual accepted main3cc9e83 and the exact app subtree aff807de, with the same eight application/harness import hashes and unchanged finite active/wall/progress caps. Existing clean-source, ancestry, app-tree and import guards remain.",
+    "The stage-specific guard regression executes the actual source guard with disabled and enabled policies; the actual enabled module is imported only to inspect its AsyncFunction default export. No harness or scenario function is invoked. The source has no profile/browser acquisition at module import.",
+    "PR217 logical animation happens after simulation afterTurn observers and queued callbacks. The QA observer therefore keeps its simulation-state meaning. Sermon ownership/conversion identities and prospective Erosion lifecycle observations remain valid; neither this hook nor narrow actor/terrain/stock Load projections are relabelled as animation frame/stamp or alias-restoration evidence.",
+    "The first batch remains eight ordinary controls: resume, select current Shaman, order observed bridge shrine, wait for actual shrine use, wait for four delivered shots, pause, mark, snapshot. It remains unqueued, uses current observed aliases and requires the genuine paused Mission1 opening before dispatch."
+  ],
+  "gates": [
+    {
+      "component": "application typecheck",
+      "decision": "ACCEPT CARRY",
+      "origin": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+      "receipt": "../sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/style-typecheck.json",
+      "sha256": "7a88b4adc659eda4e6654bf915df28cc734869b6215e4d7e2b58bbcdbe36f3e8",
+      "basis": "All3567 existing tracked mode/type/object identities equal d889/main3cc9; only19 QA .mjs/.json/.md additions exist, outside explicit TypeScript entry globs, with no changed existing imports or config/locks."
+    },
+    {
+      "component": "standard1126 tests and parity",
+      "decision": "ACCEPT EXPLICIT TWO-STEP CARRY",
+      "origin": "3123edf97dce9dc13fd3510cdb3ad1d15aedc160",
+      "receipt": "../sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/full-check-3123edf.json",
+      "sha256": "baab09835a6d170404eb3e06de5eac6726a436d78d22b8d9ceff9c7993ea649e",
+      "intermediate": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+      "intermediateReview": {
+        "path": "../sprite-stamp-gate-audit/work/reviews/sprite-visit-gate-214/style-review-d8897cf.md",
+        "sha256": "3bcc900df98136377a023da453413725100ad8a97691821278514fa06099aad1"
+      },
+      "basis": "Independently inspected the exact two-file style delta: one JSON descriptor property read becomes equivalent destructuring, and a Splash expression is line-wrapped without changed tokens/order. Prior reviewer explicitly accepted full standard/parity carry; fresh12 lifecycle and typecheck receipts at d889 were also inspected. Candidate then preserves every existing d889 object. New QA tests have their own current-head receipt."
+    },
+    {
+      "component": "campaign QA81",
+      "decision": "ACCEPT FRESH PASS",
+      "receipt": "work/orchestration/campaign-continuity/adopt-3cc9-focused.json",
+      "sha256": "112c0e34378a9ae5056ed5b8bb303add56f8b652d3440f24cbde1df78001a7db"
+    },
+    {
+      "component": "orchestration structure",
+      "decision": "ACCEPT FRESH PASS",
+      "receipt": "work/orchestration/campaign-continuity/adopt-3cc9-structure.json",
+      "sha256": "d5acfe34ac64aa424466c7d418fc2832e438f99d91777cae0aed16aa18bb6b7e"
+    },
+    {
+      "component": "whitespace",
+      "decision": "ACCEPT FRESH PASS",
+      "receipt": "work/orchestration/campaign-continuity/adopt-3cc9-diff.json",
+      "sha256": "7004faaa0c16c32955b018e7be137189babd77f7a75cebc8c96e7d5aab0eb651"
+    },
+    {
+      "component": "production build",
+      "decision": "ACCEPT FRESH PASS; NO OLD BUILD CARRY",
+      "receipt": "work/orchestration/campaign-continuity/adopt-3cc9-build.json",
+      "sha256": "c68df37ffbd97c7956544b9add6bae862c1dcd45afc4c54e94b086a65b8d6207",
+      "basis": "Fresh exact901a4e build covers Tailwind automatic scanning of QA text, which invalidates app-only build correspondence. Bound120s execution completed with exit0 in18.72s; raw logs, clean before/after source and both lock fingerprints verified."
+    }
+  ],
+  "aggregateClaim": "The combined npm run check command was not executed. Its relevant components are explicitly carried/fresh as above; neither1126 tests nor the full aggregate may be called a fresh901a4e invocation.",
+  "prelaunchBinding": {
+    "sourceFingerprint": "1953a21079a5813c9d4caa94819e4e5fd4e7758e28794878206edc88378fe529",
+    "application": "84dd34962ec0095bb25d2a0662f128ca6d5f638d259be20f1c412428e9b47bf5",
+    "checker": "33b16c22a615cb9cd0edaf39e289e05d119cd2cbd98049368ae4a1fc326ce34a",
+    "scenarioSha256": "8f0a323c4ff3d07537ff6cf081c09be96e639547d096c53cb0a32dc4cb9f2140",
+    "policySha256": "e2d3e9253ef24d8887678b0ecd1f812d059956eb35b1670fe5ce82a36c012dae",
+    "origin": "http://127.0.0.1:4375",
+    "profilePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3cc9e83",
+    "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-01",
+    "firstBatchSha256": "ed33faf9afeb4c2a19fa3e1cbc60747a4b5e2d0d409aef77d192fa2eacb3944b",
+    "command": [
+      "taskset",
+      "-c",
+      "0-3",
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "2110s",
+      "node",
+      "scripts/local-render/harness.mjs",
+      "--game-root",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+      "--port",
+      "4375",
+      "--output",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-01",
+      "--mission",
+      "1",
+      "--timeout",
+      "2100000",
+      "--scenario",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs",
+      "--profile",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3cc9e83",
+      "--browser",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell"
+    ],
+    "runtime": {
+      "node": "v24.19.0",
+      "platform": "linux",
+      "arch": "x64",
+      "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+      "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+      "playwright": "1.63.0",
+      "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+      "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "harness": {
+        "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+        "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+        "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+        "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+      }
+    },
+    "reviewerVerified": "Recomputed sourceReceipt and profileInputReceipt without acquiring a profile; rehashed scenario/harness sources; verified all19 QA working/frozen hashes and actual repository identities. Verified profile/output absence, canonical owned-profile path contract, plan command arguments and unchanged caps. Runtime package/browser values are bound owner measurements, not a reviewer browser/dependency inspection.",
+    "operationalLaunchGrantReceived": false
+  },
+  "retainedRequirements": [
+    "Fresh owned empty game-only profile and ordinary Select Mission1/Start Mission1; no old-profile adoption.",
+    "Only actual completed Continue→Save segments with exact terminal source/runtime/checkpoint/error binding may resume; unknown cleanup rejects and earlier helper failures remain.",
+    "Responsive authenticated preserving-stop protocol, sequential committed Save/readback/ordinary Load, and original observer ownership/disposal remain mandatory.",
+    "The parent exact operational grant applies to the frozen source/root/origin/profile/runtime/command in this packet. Runtime bytes or source changes require affected revalidation."
+  ],
+  "limits": "Fresh ordinary campaign outcomes, complete native parity, absolute original animation cadence, native pixel equivalence and hardware performance are not established. Source tests retain their simulation-only or source-only meanings. Existing accepted quality debt is not erased; no blanket repository-wide clean lint claim is made.",
+  "reviewerResources": "No browser, profile acquisition, server, dependency transfer/install, package command or heavy job. Read-only source/input/receipt inspection and ignored review artifact writes only. No resources held.",
+  "conclusion": "No remaining source/policy/input/carry blocker for the parent to grant the exact first Mission1 stage. Operational execution and later campaign evidence remain with the owner/coordinator."
+}

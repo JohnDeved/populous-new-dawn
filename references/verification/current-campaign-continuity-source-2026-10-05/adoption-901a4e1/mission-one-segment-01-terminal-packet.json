@@ -1,0 +1,151 @@
+{
+  "kind": "current-campaign-mission-one-first-attempt-terminal",
+  "assembledAt": "2026-10-05T17:12:09.155541+00:00",
+  "sourceHead": "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+  "applicationMain": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "sourceFingerprint": "1953a21079a5813c9d4caa94819e4e5fd4e7758e28794878206edc88378fe529",
+  "runId": "5c92fac0-f9d6-4e8a-ac5f-57a8b98dd528",
+  "profileId": "8e33764d-c63b-4452-bbb8-92dddf5a4bea",
+  "originalExecSession": 41055,
+  "status": "failed",
+  "outcome": "Fresh Mission1 readiness succeeded; first shrine click had no fresh dispatch or acknowledgement; bridge stock not earned. Authenticated preserving stop completed normally with initial empty slot unchanged.",
+  "opening": {
+    "turn": 435,
+    "activeSeconds": 36.25,
+    "shamanId": 30,
+    "readyTurn": 411
+  },
+  "terminal": {
+    "turn": 723,
+    "activeSeconds": 60.25,
+    "paused": true,
+    "status": "playing",
+    "checkpoint": null,
+    "failures": 1,
+    "controlStops": 1,
+    "browserErrors": 0,
+    "cleanupVerified": true,
+    "continuationVerified": true,
+    "originClosed": true,
+    "ownerLockAbsent": true
+  },
+  "inputEvidence": {
+    "selected": [
+      30
+    ],
+    "shrineId": 29,
+    "probeTurn": 664,
+    "clickBeforeTurn": 684,
+    "observedAfterTurn": 702,
+    "point": {
+      "x": 814.1875,
+      "y": 288.625
+    },
+    "beforeLastOrderTurn": 0,
+    "afterLastOrderTurn": 0,
+    "beforePointerAck": {
+      "target": 0,
+      "until": 0
+    },
+    "afterPointerAck": {
+      "target": 0,
+      "until": 0
+    }
+  },
+  "diagnosis": {
+    "established": "No command accepted; selected Shaman healthy, world unpaused/no input mask at click precondition; minimap camera settled and static shrine identified beforehand.",
+    "unresolved": "No browser-delivered event coordinate, current hit or clone command-context witness was captured at dispatch; a boundary hit or context rejection cannot be distinguished.",
+    "hypothesis": "First fractional edge candidate may differ from the eventual browser event hit. This is unproved and is not attributed to logical animation changes."
+  },
+  "gates": "Accepted source/component carry/fresh QA/build remain separate from failed ordinary campaign outcome. No victory, Continue, Save/Load or native parity credit.",
+  "dependencyReturn": {
+    "path": "work/orchestration/dependency-transfers/campaign-to-sprite-20261005T1710/receipt.json",
+    "sha256": "394830116ca132cda2e9f257c587eba10ed6d3b9dcbf32e8d23167ea8c33fc31",
+    "inode": 925605,
+    "target": "sprite-animation-gate-fix/node_modules",
+    "campaignDependencyAbsent": true
+  },
+  "privacy": "Only source, diagnostic game observations, screenshot, receipt and hashes; no browser profile, storage or IndexedDB bytes.",
+  "files": [
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-01/actions.jsonl",
+      "bytes": 9242,
+      "sha256": "e4eaeee9be6bd88f950ade7f05d309be4790b545ac19f2b4ff849c10dedbe59a"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-01/consumed-0001.json",
+      "bytes": 546,
+      "sha256": "ed33faf9afeb4c2a19fa3e1cbc60747a4b5e2d0d409aef77d192fa2eacb3944b"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-01/consumed-0002.json",
+      "bytes": 102,
+      "sha256": "7417e9321c85d1dcf26d582f6d1b3d40fd24a5dbce5e1f8a4c0a6d09bc449b87"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-01/m1-opening.json",
+      "bytes": 21723,
+      "sha256": "cd196fd126b0b9aeddcd25b364b620d95700bb9b7a6747e4070cd20342af367b"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-01/batch-0001-failed.json",
+      "bytes": 21783,
+      "sha256": "45dcfce7d21e2d0ba064121406616aeb0f3705ad5568a54875401d90acae1bb1"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-01/batch-0001-failed.png",
+      "bytes": 1673204,
+      "sha256": "befba07aaca978d9637910eb0ec250c61aa8cec62e73d7eb985fab19db83021a"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-01/terminal.json",
+      "bytes": 21782,
+      "sha256": "e385f601509f767602022d322317bdcdb59dee5fafec9fdce79e7f1e761e2a67"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-01/journey.json",
+      "bytes": 9877,
+      "sha256": "b6b6e198dd61c811ba5187f832cb0a430b33e827414df4217c134c0c528c4979"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-01/receipt.json",
+      "bytes": 7261,
+      "sha256": "fb39f5c91c2de0c53387924266ed5793154c67af3315d7c7383ddbe5e650fe09"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-01/server.log",
+      "bytes": 830,
+      "sha256": "0f85b18ad4f8ec1ea27e213a1e5f3a9f71b83efc88e3c14bc77b84a30021fabc"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-01.outer.json",
+      "bytes": 4364,
+      "sha256": "4d0855bb598d5403241d4d357017c27e47b6712c1c46a719a153eefe2b879ffe"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-01.launcher.json",
+      "bytes": 4729,
+      "sha256": "9ac1ab642c46937798930a7542096cb95ad780e3e31e15206d17e7c8ebf2acaf"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/launch-mission-one-901a4e1.py",
+      "bytes": 5528,
+      "sha256": "2044fe034957a8cc44c374a41d58fa16518072fa4c6d3e43f0e77dd656b3cc2d"
+    },
+    {
+      "path": "work/orchestration/dependency-transfers/campaign-to-sprite-20261005T1710/receipt.json",
+      "bytes": 2072,
+      "sha256": "394830116ca132cda2e9f257c587eba10ed6d3b9dcbf32e8d23167ea8c33fc31"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-01.outer.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/mission-one-segment-01.outer.json.artifacts/stderr.log",
+      "bytes": 1227,
+      "sha256": "26b9da9acbea164533e7ecb60c78ae5ec15355a8ce018a8b4f806505d5468cb0"
+    }
+  ]
+}

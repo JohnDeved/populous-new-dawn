@@ -1,0 +1,109 @@
+{
+  "head": "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+  "tree": "421d5dc5c17f73718ba173efb1e32b502ad5b7d0",
+  "main": "3cc9e830d2e7d2aa9844e8104fa51017d65dd171",
+  "candidate": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+  "unchangedExistingObjects": 3567,
+  "addedQAObjects": 19,
+  "allQAWorkingAndFrozenHashesVerified": true,
+  "verifiedReceipts": [
+    {
+      "path": "work/orchestration/campaign-continuity/adopt-3cc9-focused.json",
+      "sha256": "112c0e34378a9ae5056ed5b8bb303add56f8b652d3440f24cbde1df78001a7db",
+      "head": "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+      "status": "passed",
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/adopt-3cc9-structure.json",
+      "sha256": "d5acfe34ac64aa424466c7d418fc2832e438f99d91777cae0aed16aa18bb6b7e",
+      "head": "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+      "status": "passed",
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/adopt-3cc9-diff.json",
+      "sha256": "7004faaa0c16c32955b018e7be137189babd77f7a75cebc8c96e7d5aab0eb651",
+      "head": "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+      "status": "passed",
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "work/orchestration/campaign-continuity/adopt-3cc9-build.json",
+      "sha256": "c68df37ffbd97c7956544b9add6bae862c1dcd45afc4c54e94b086a65b8d6207",
+      "head": "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+      "status": "passed",
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/full-check-3123edf.json",
+      "sha256": "baab09835a6d170404eb3e06de5eac6726a436d78d22b8d9ceff9c7993ea649e",
+      "head": "3123edf97dce9dc13fd3510cdb3ad1d15aedc160",
+      "status": "passed",
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/style-typecheck.json",
+      "sha256": "7a88b4adc659eda4e6654bf915df28cc734869b6215e4d7e2b58bbcdbe36f3e8",
+      "head": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+      "status": "passed",
+      "rawStreamsVerified": true
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-animation-gate-fix/work/orchestration/sprite-logical-visit-fix/build-d8897cf.json",
+      "sha256": "4d45b7bd788ac9027538b92773b01f63235ea0c4e548f38943d293bda0ca7801",
+      "head": "d8897cf8eeac1886d2f653af2cad0674c6bfa91a",
+      "status": "passed",
+      "rawStreamsVerified": true
+    }
+  ],
+  "acceptedStyleCarry": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/sprite-stamp-gate-audit/work/reviews/sprite-visit-gate-214/style-review-d8897cf.md",
+    "sha256": "3bcc900df98136377a023da453413725100ad8a97691821278514fa06099aad1"
+  },
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity",
+    "commit": "901a4e15e676a2e08c986066aedde9f8a243ba0a",
+    "tree": "421d5dc5c17f73718ba173efb1e32b502ad5b7d0",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "1953a21079a5813c9d4caa94819e4e5fd4e7758e28794878206edc88378fe529"
+  },
+  "inputs": {
+    "application": "84dd34962ec0095bb25d2a0662f128ca6d5f638d259be20f1c412428e9b47bf5",
+    "checker": "33b16c22a615cb9cd0edaf39e289e05d119cd2cbd98049368ae4a1fc326ce34a"
+  },
+  "scenario": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/qa/campaign-continuity/scenario.mjs",
+    "sha256": "8f0a323c4ff3d07537ff6cf081c09be96e639547d096c53cb0a32dc4cb9f2140"
+  },
+  "runtime": {
+    "node": "v24.19.0",
+    "platform": "linux",
+    "arch": "x64",
+    "browserPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "playwright": "1.63.0",
+    "playwrightCoreSha256": "549070af3acabb3efcc4f55bfe6210f9f7c2fcf633cf7eaa59bfe60719969171",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "harness": {
+      "harness.mjs": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+      "owned-profile.mjs": "d19de6c1b9137fc998868d0e096bdc97fe9caa6b2852c96584fdea99a72f5e2a",
+      "checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27"
+    }
+  },
+  "runtimeScope": "Owner-measured prelaunch runtime packet is hash-bound; reviewer independently recomputed repository/source/scenario/harness inputs, without opening browser binary or dependencies. Actual launch must retain these runtime bytes.",
+  "sourcePolicyEnabled": true,
+  "limitsUnchanged": true,
+  "origin": "http://127.0.0.1:4375",
+  "profilePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/local-render-profiles/current-campaign-3cc9e83",
+  "profileAbsent": true,
+  "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/current-campaign-continuity/work/orchestration/campaign-continuity/mission-one-segment-01",
+  "outputAbsent": true,
+  "profilePathContractVerifiedWithoutAcquisition": true,
+  "preparedBatchMatches": true,
+  "operationalLaunchGranted": false,
+  "reviewerBrowserOrProfileActions": false
+}
