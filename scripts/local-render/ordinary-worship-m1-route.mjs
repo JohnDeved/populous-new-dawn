@@ -270,23 +270,34 @@ export async function prepareM1LightningRoute({ page, waitForShamanReadiness, si
     record({ kind: 'select-shaman', state })
     assert.deepEqual(state.selected, [state.shaman.id]); assert.equal(state.mode, null)
   }
-  const ground = (point, spell = null) => page.evaluate(async ({ point, spell }) => {
-    const s = window.testSceneRef.current, r = s.container.getBoundingClientRect(), projected = s.screen(point),
-      center = { x: r.x + (projected.x + 1) * r.width / 2, y: r.y + (1 - projected.y) * r.height / 2 },
-      { supportsFollower, spellTargetError } = await import('/app/model.ts'), probe = structuredClone(s.world)
-    // Imported validation synchronizes terrain caches. Use a detached clone,
-    // never the live World, for both support and spell-range diagnostics.
-    for (let radius = 0; radius <= 32; radius += 2) for (const [dx, dy] of [[0, -radius], [0, radius], [-radius, 0], [radius, 0]]) {
-      const event = { clientX: center.x + dx, clientY: center.y + dy }
-      if (document.elementFromPoint(event.clientX, event.clientY) !== s.renderer.domElement ||
-          s.picking.pickPerson(event) !== null || s.pickWorldObject(event)) continue
-      const hit = s.pick(event)
-      if (!hit || Math.hypot(hit.x - point.x, hit.z - point.z) > 0.5 || !supportsFollower(probe, hit)) continue
-      const error = spell ? spellTargetError(probe, spell, hit) : null
-      if (!error) return { x: event.clientX, y: event.clientY, point: { x: hit.x, z: hit.z }, lead: point, error }
-    }
-    throw Error(`No valid canvas-owned dry ground near archived ${point.x},${point.z}`)
-  }, { point, spell })
+  const ground = async (point, spell = null) => {
+    const search = await page.evaluate(async ({ point, spell }) => {
+      const s = window.testSceneRef.current, r = s.container.getBoundingClientRect(), projected = s.screen(point),
+        center = { x: r.x + (projected.x + 1) * r.width / 2, y: r.y + (1 - projected.y) * r.height / 2 },
+        { supportsFollower, spellTargetError } = await import('/app/model.ts'), probe = structuredClone(s.world), candidates = []
+      // Imported validation synchronizes terrain caches. Use a detached clone,
+      // never the live World, for both support and spell-range diagnostics.
+      for (let radius = 0; radius <= 32; radius += 2) for (const [dx, dy] of [[0, -radius], [0, radius], [-radius, 0], [radius, 0]]) {
+        const event = { clientX: center.x + dx, clientY: center.y + dy },
+          canvasOwned = document.elementFromPoint(event.clientX, event.clientY) === s.renderer.domElement,
+          person = s.picking.pickPerson(event), object = s.pickWorldObject(event)?.id ?? null,
+          hit = s.pick(event), distance = hit ? Math.hypot(hit.x - point.x, hit.z - point.z) : null,
+          supported = hit ? supportsFollower(probe, hit) : false,
+          error = hit && spell ? spellTargetError(probe, spell, hit) : null
+        candidates.push({ x: event.clientX, y: event.clientY, canvasOwned, person, object,
+          hit: hit && { x: hit.x, z: hit.z }, distance, supported, error })
+        // scene-input-runtime.pointerUp intentionally ignores people/objects
+        // in spell mode and uses the terrain pick. Movement still excludes them.
+        if (!canvasOwned || (!spell && (person !== null || object !== null)) ||
+            !hit || distance > 0.5 || !supported || error) continue
+        return { target: { x: event.clientX, y: event.clientY, point: { x: hit.x, z: hit.z }, lead: point, error }, candidates }
+      }
+      return { target: null, candidates }
+    }, { point, spell })
+    record({ kind: 'ground-pick', lead: point, spell, policy: spell ? 'Shipped spell-mode terrain pick' : 'Unobstructed movement target', ...search })
+    assert.ok(search.target, `No valid canvas-owned dry ground near archived ${point.x},${point.z}; see bounded ground-pick diagnostics`)
+    return search.target
+  }
   try {
     await ready('Bridge worship'); await selectShaman()
     result.initial = await snapshot(page)
