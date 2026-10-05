@@ -1,0 +1,24 @@
+{
+  "launchEnabled": false,
+  "applicationCommit": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "applicationTree": "0add49474ffa3db5216ae3715952e15d86651435",
+  "limits": {
+    "missionActiveSeconds": {
+      "1": 900,
+      "2": 1500,
+      "3": 2400
+    },
+    "campaignActiveSeconds": 4800,
+    "missionWallMs": {
+      "1": 1800000,
+      "2": 5400000,
+      "3": 5400000
+    },
+    "wallMs": 12600000,
+    "noProgressActiveSeconds": 120,
+    "m3BeforeConversionSeconds": 900,
+    "m3AfterConversionSeconds": 1800,
+    "segmentWallMs": 5700000
+  },
+  "reason": "Proposed caps for source review. Launch disabled until final application/source and runtime review; no browser run is authorized by this file."
+}

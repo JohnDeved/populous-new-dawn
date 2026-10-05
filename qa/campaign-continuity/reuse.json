@@ -1,0 +1,318 @@
+{
+  "historicalSourceCommit": "5de3c5715f05cce509a6d7a86c2b17752aac8c2a",
+  "applicationReferenceCommit": "71b3860e7025a9534d56248c194aa18610b5df4d",
+  "files": [
+    {
+      "path": "observation.mjs",
+      "sourcePath": "qa/mission-three-controls/observation.mjs",
+      "sha256": "6b8502473443891217ce4dd3c10dbbe59674f9eaca5628a936a4509aef5f815a",
+      "byteIdentical": true
+    },
+    {
+      "path": "erosion-observer.mjs",
+      "sourcePath": "qa/mission-three-controls/erosion-observer.mjs",
+      "sha256": "19c25f71fcf0b60f24b65c7f8e2753b5bc51edbaca7d7ca540fd0136d6d50a97",
+      "byteIdentical": true
+    },
+    {
+      "path": "queued-stop.mjs",
+      "sourcePath": "qa/mission-three-controls/queued-stop.mjs",
+      "sha256": "d67b3cca01cb8ac8032e31d3cdf71382d18bcae57397ffe2ebd945d259f12063",
+      "byteIdentical": true
+    },
+    {
+      "path": "command-probes.mjs",
+      "sourcePath": "qa/mission-three-controls/command-probes.mjs",
+      "sha256": "7e6cf1b08757dd740f0b40f7ea59edd1282f1c158442632a6ef1aee6101b398f",
+      "byteIdentical": true
+    },
+    {
+      "path": "observation.test.mjs",
+      "sourcePath": "qa/mission-three-controls/observation.test.mjs",
+      "sha256": "53011926b04fc7dbfcad32d3318015a6f1736e67f5c75ae6ad62d2ddfd182a4a",
+      "byteIdentical": true
+    },
+    {
+      "path": "erosion-observer.test.mjs",
+      "sourcePath": "qa/mission-three-controls/erosion-observer.test.mjs",
+      "sha256": "b3cca25c4aa03c2cf8c64e9ba9066352638b58f52ed7c53e4e665766f107862e",
+      "byteIdentical": true
+    },
+    {
+      "path": "command-probes.test.mjs",
+      "sourcePath": "qa/mission-three-controls/command-probes.test.mjs",
+      "sha256": "9286d404028dc6d261a6c587de8b1347a1b6bad8ecf545ffab9764f4c7340e6c",
+      "byteIdentical": true
+    }
+  ],
+  "unchangedActionSections": [
+    {
+      "name": "acquire",
+      "sourceSha256": "1f2bebc9f6b9490a4341adb05bdf1ecf7b9ba764eed242a4f0b6f93a0e07af9e",
+      "currentSha256": "1f2bebc9f6b9490a4341adb05bdf1ecf7b9ba764eed242a4f0b6f93a0e07af9e"
+    },
+    {
+      "name": "approachSermon",
+      "sourceSha256": "5e4dc8a069b92c7f58d8a72fa06c4e1eff6ce687c10b6165edb8dcd3e2cdccad",
+      "currentSha256": "5e4dc8a069b92c7f58d8a72fa06c4e1eff6ce687c10b6165edb8dcd3e2cdccad"
+    },
+    {
+      "name": "bindGameWithPreservation",
+      "sourceSha256": "1930079623b9bf97ee22fa01b3211a4e6fa7b849ef2a3a47e241f98fd93de4cd",
+      "currentSha256": "1930079623b9bf97ee22fa01b3211a4e6fa7b849ef2a3a47e241f98fd93de4cd"
+    },
+    {
+      "name": "build",
+      "sourceSha256": "6a14915c66d8a033208f30274b68913b55bb3cc26eb8b3e70670de48a7c1f4af",
+      "currentSha256": "6a14915c66d8a033208f30274b68913b55bb3cc26eb8b3e70670de48a7c1f4af"
+    },
+    {
+      "name": "cancelSermon",
+      "sourceSha256": "c6a764522626d89775dc784d58fc4fdf884e85a56d0f3c70d2dde1c0f1fa83bc",
+      "currentSha256": "c6a764522626d89775dc784d58fc4fdf884e85a56d0f3c70d2dde1c0f1fa83bc"
+    },
+    {
+      "name": "capturePendingSermon",
+      "sourceSha256": "4f1d12a8017554bcc76456102de179cbe9ab1a16f5c569d4d5cb5564c0874a84",
+      "currentSha256": "4f1d12a8017554bcc76456102de179cbe9ab1a16f5c569d4d5cb5564c0874a84"
+    },
+    {
+      "name": "clear",
+      "sourceSha256": "aa4d1d59f37e1fb6f15e2bf198c1328b999f4ab0f818b27a8953efcfe72870d3",
+      "currentSha256": "aa4d1d59f37e1fb6f15e2bf198c1328b999f4ab0f818b27a8953efcfe72870d3"
+    },
+    {
+      "name": "clickOrder",
+      "sourceSha256": "0bcdcda0386b72c89749ac6422966c208d5fe6a71d3aed9504863233457963da",
+      "currentSha256": "0bcdcda0386b72c89749ac6422966c208d5fe6a71d3aed9504863233457963da"
+    },
+    {
+      "name": "consumeQueuedStop",
+      "sourceSha256": "2908f3f81b56ea2f16dbfae05040b4f87a4fbc87fbd4ab620132093abe18ff55",
+      "currentSha256": "2908f3f81b56ea2f16dbfae05040b4f87a4fbc87fbd4ab620132093abe18ff55"
+    },
+    {
+      "name": "entityHit",
+      "sourceSha256": "7b90527f9d78d0d2df4154d4a4facb3ef6f44898c944367b7c0077c27731f7d8",
+      "currentSha256": "7b90527f9d78d0d2df4154d4a4facb3ef6f44898c944367b7c0077c27731f7d8"
+    },
+    {
+      "name": "finishPreacherTraining",
+      "sourceSha256": "ede1050cbb3c526ce78b9180deda5e746da420e9edcbe9374c2a88ab3d78d466",
+      "currentSha256": "ede1050cbb3c526ce78b9180deda5e746da420e9edcbe9374c2a88ab3d78d466"
+    },
+    {
+      "name": "move",
+      "sourceSha256": "3dfd3262234d336986b32e407e49a0258e21ed771f3cebe845b9903abccd6498",
+      "currentSha256": "3dfd3262234d336986b32e407e49a0258e21ed771f3cebe845b9903abccd6498"
+    },
+    {
+      "name": "pause",
+      "sourceSha256": "942b0c0316446c963a22667f135120f18552428fe3efe256fabe5e6c1e990427",
+      "currentSha256": "942b0c0316446c963a22667f135120f18552428fe3efe256fabe5e6c1e990427"
+    },
+    {
+      "name": "pollUI",
+      "sourceSha256": "910d305ea569a4f38d4e8acd69f824effa82e7bd8fdf1dd9d00962b4334ca8cd",
+      "currentSha256": "910d305ea569a4f38d4e8acd69f824effa82e7bd8fdf1dd9d00962b4334ca8cd"
+    },
+    {
+      "name": "requireOrderable",
+      "sourceSha256": "f51a22ee80eadfde358de55ef8a403fac5452fcb606bb547c46f3d2c3229b171",
+      "currentSha256": "f51a22ee80eadfde358de55ef8a403fac5452fcb606bb547c46f3d2c3229b171"
+    },
+    {
+      "name": "requireOrderableForWait",
+      "sourceSha256": "0b41be6baf57f749afabd7a16973f18f7a6303316d4f560fd4990d0cb1fca539",
+      "currentSha256": "0b41be6baf57f749afabd7a16973f18f7a6303316d4f560fd4990d0cb1fca539"
+    },
+    {
+      "name": "resolveId",
+      "sourceSha256": "803a58211bf78866ee060077dc837685ea1de69482691e0eb84e9501ee8da741",
+      "currentSha256": "803a58211bf78866ee060077dc837685ea1de69482691e0eb84e9501ee8da741"
+    },
+    {
+      "name": "resume",
+      "sourceSha256": "63e571deb5d605343359187b8088d565ba896bdbd98913063a6649f4614553bb",
+      "currentSha256": "63e571deb5d605343359187b8088d565ba896bdbd98913063a6649f4614553bb"
+    },
+    {
+      "name": "returnShamanHome",
+      "sourceSha256": "ab9ec9e324b143ebc4b293ac1f967b1baed66d3c4397498d8b5618dd7f079285",
+      "currentSha256": "ab9ec9e324b143ebc4b293ac1f967b1baed66d3c4397498d8b5618dd7f079285"
+    },
+    {
+      "name": "rotate",
+      "sourceSha256": "2c8eb2f0c9466675d5a2898082ce14b64682cff282fb2aa436273993e9b63ad5",
+      "currentSha256": "2c8eb2f0c9466675d5a2898082ce14b64682cff282fb2aa436273993e9b63ad5"
+    },
+    {
+      "name": "safeLabel",
+      "sourceSha256": "d086b8c947e0bf779fbf8087f8353971d7ca55793373a178bb1a42fabc3d65ab",
+      "currentSha256": "d086b8c947e0bf779fbf8087f8353971d7ca55793373a178bb1a42fabc3d65ab"
+    },
+    {
+      "name": "select",
+      "sourceSha256": "69fcebe844ca926262ec415665c08829e31ddb08a6c83d32b1179fd9e5eb83f1",
+      "currentSha256": "69fcebe844ca926262ec415665c08829e31ddb08a6c83d32b1179fd9e5eb83f1"
+    },
+    {
+      "name": "skipFlyby",
+      "sourceSha256": "cb491c944d530e085c0c00253028fc7314d459ff77cb6baa6df1f0b11df0632f",
+      "currentSha256": "cb491c944d530e085c0c00253028fc7314d459ff77cb6baa6df1f0b11df0632f"
+    },
+    {
+      "name": "snapshot",
+      "sourceSha256": "f9931cecf68f80eaa86eff1bf402e571b6059f80e22d317200bd880b2ff002f3",
+      "currentSha256": "f9931cecf68f80eaa86eff1bf402e571b6059f80e22d317200bd880b2ff002f3"
+    },
+    {
+      "name": "targetEntity",
+      "sourceSha256": "fdae321ee136c42bd057430bb6427b8784f3f7cc553243e57c147706d4342585",
+      "currentSha256": "fdae321ee136c42bd057430bb6427b8784f3f7cc553243e57c147706d4342585"
+    }
+  ],
+  "adaptedActionSections": [
+    {
+      "name": "authoredVictim",
+      "sourceSha256": "ad048726b3a9b8ab18c4d89394b52e6f762b04f4e106a7a211863d882cb88e52",
+      "currentSha256": "16d9d1c5cbedde91641c02ad6b0e88fdb44a30357cb9db4caa53b4b5b62207d1"
+    },
+    {
+      "name": "bindObservation",
+      "sourceSha256": "4b2d5bc7e8f267ac948d99bcd885fd69260c788e40568d287caf9bdf30e84a85",
+      "currentSha256": "a99aca9b5e33b8a5b373497e9d696ac86a7dca848d246fe785fe36192d7b7c72"
+    },
+    {
+      "name": "button",
+      "sourceSha256": "3bcb86edffd6869250b8971925089612b378528500345b2e510e141dd84b6d28",
+      "currentSha256": "26a4b9173c2a50c398f260beb3ebe2ff31d2ad38d51207242527418b638d508f"
+    },
+    {
+      "name": "captureSermon",
+      "sourceSha256": "2a75d9c592898e978d960607e2b8ad9f26c1e037b3f213bcadc339f5876b84da",
+      "currentSha256": "0e2486c2f9b531a5b9be9cf2fa69dd941990b095c253bde6b6e9afe7d8bfa3fc"
+    },
+    {
+      "name": "cast",
+      "sourceSha256": "ae649e162da4b31450d6365fc550abbab03ee04c64e148eb547c80226d1f493b",
+      "currentSha256": "e9e6f5049e4dafe8b089bc91d5f3a400f108c2dc93a714aea7a97bc54531aa63"
+    },
+    {
+      "name": "completeConversion",
+      "sourceSha256": "04b6a8b3bcc17978f6b18cf99e6768ca7f8a26b6845e421dbc395c94948b071c",
+      "currentSha256": "d6f430bf34552bc87254de921bc128cabef3f94d95aa8c527edb1279b7dc5c18"
+    },
+    {
+      "name": "currentActive",
+      "sourceSha256": "5cca0b3f187f93ba44ed3453f98d3251c0d1432c8a9e76ad0ce04f51d74e47ac",
+      "currentSha256": "5c98e1bbf847dbeffb749d73b4b28c098a3831ba37dcb30b35cdaaec285e2b41"
+    },
+    {
+      "name": "declareSermon",
+      "sourceSha256": "a63f58b34c018b0a88d941c8d0b4c3b9deb6c5a650dfff7582368c71bc4ffa35",
+      "currentSha256": "3149a2741a089e598eacef757212ccbde47e4de4e66c97a30e757f10d02fcc00"
+    },
+    {
+      "name": "dispatch",
+      "sourceSha256": "91f2e2f1d56efd8f4b7029f13928ddb8500c9a56ef11bc2137dc8e1c4da860fc",
+      "currentSha256": "f2b45d39de46af4c037ff2b6afa465a89bb525620ca3fa02287c2018fe7b29cd"
+    },
+    {
+      "name": "endEpoch",
+      "sourceSha256": "f652f676572cfa40ab2180932446d3e80802004693d59de5931377cf5924e15b",
+      "currentSha256": "e31e838b9f1627db6b5e2b507495ea79c735bfec5acf57fc52b5962b2d3b1823"
+    },
+    {
+      "name": "erosion",
+      "sourceSha256": "0a2be534b13c155a883689ffe83ca3abb61a0981895d803b955d575d36b9425e",
+      "currentSha256": "e67fc902c0b2584e59f7dbe71135933a79979a3e2d7f9918de2031f4a2bd6af2"
+    },
+    {
+      "name": "groundHit",
+      "sourceSha256": "59393ebeaf5eb6f5472c5ab3af0c72bbf7d6c13c5aeb76d109b523e450fd759a",
+      "currentSha256": "cd196bde6d9f2b1a575c92c9c54f472fa378df2668c2ab9a1f83e8f4199c1382"
+    },
+    {
+      "name": "health",
+      "sourceSha256": "fff7718ee100136ac8fd82b2b7642c30912dfd876557147722be14c22e387722",
+      "currentSha256": "cae69ae1d4d6f0cb6b6aa8e9b9dc7359e517c7306dfdc4c75ca84f90a4365c09"
+    },
+    {
+      "name": "log",
+      "sourceSha256": "267c178e527811907cc91909413456ab00a14cb11edc0c0f7d68d2b75308c43f",
+      "currentSha256": "8a3ce047ef2557e2600063650b887112a641c3b863b90cd53f119811ab575888"
+    },
+    {
+      "name": "map",
+      "sourceSha256": "3a569ed63281c15fc7b98ba907469cbe993c7123be748c85250b6a9dc935bf38",
+      "currentSha256": "3b6959efeac8c1b97cb2a8b4a3a6cdfeeeff7f9b07e98f3dfc5ef6a5b5f6f4b9"
+    },
+    {
+      "name": "mark",
+      "sourceSha256": "3755d40a858210ef473bfdc9a56eea11944410be246583b5dde4dcf1ada68e98",
+      "currentSha256": "e2bc6678c5d0fb3ae3d4812c4d654a37fcec81e992c4a1b51dfe7b43896cc7f0"
+    },
+    {
+      "name": "pauseForPreservation",
+      "sourceSha256": "4000eef0b65e3232116fb0026ae921cf6c97925c5068fc7f4e877a38cc551f72",
+      "currentSha256": "f801ecaa472771cb4e500d79c22d2336aa964e007c209f87835e1826aa8a536d"
+    },
+    {
+      "name": "prepareTemple",
+      "sourceSha256": "2c6108e6f628dca0e376e3cdf3db7aea30813a6818e54754c4e942b42245453f",
+      "currentSha256": "e27fc3c96134581a61e0f4071d407bcbe9899ad27bbb3161157630d93c72fdba"
+    },
+    {
+      "name": "proveVictory",
+      "sourceSha256": "f7cd9d002ba1ff7d4acc35ece8518e4b0571336c466a699fc0fee9409fe314ab",
+      "currentSha256": "936dbfa18ceb1cb7f4a5fb6ca1488a1fe09472fe8ee13aa00a7d42fa8267beba"
+    },
+    {
+      "name": "read",
+      "sourceSha256": "e60053a3bf2d9d371448b85410b298e137a93e130f2ac391a3360ad94cadb577",
+      "currentSha256": "1529837285558aa1ec7b6c5fd51da99f76e970f1a76a42aa85d328b938ef07df"
+    },
+    {
+      "name": "readStorage",
+      "sourceSha256": "44f08d77d93d6cde9de14e9147e90372f2051f1d3dd902d2248f11c689a1cd61",
+      "currentSha256": "0e3a432f85ffb7fb8a2e08a794bbab7d3f022cf1046c18a0a60bc1cd3ede4319"
+    },
+    {
+      "name": "reloadSermon",
+      "sourceSha256": "9dab7875a6065f5c12b446436ee21f0058b1111cd824244dfd5cb422ebb5f12b",
+      "currentSha256": "83e9f750b788ccca5f3010e3f3af8e6c7c615ca7ed25be945985e43d970ed217"
+    },
+    {
+      "name": "saveCheckpoint",
+      "sourceSha256": "8e47fd506b4d528e8ae957e6b26049aec41338b629ee16e3d3286a96b45f4259",
+      "currentSha256": "60910d3a2ab796d38304e0b3a8fc5e923552e4e57f3443f474d62c932bff3eae"
+    },
+    {
+      "name": "saveProgress",
+      "sourceSha256": "47854f588fc3b15ffcf0195109eaee95479031e9753cd34fd2a7ec31481fddaf",
+      "currentSha256": "770524119e0d1ab69d76e4fcf47ad29aa9f7fab3968c65f7311eb2dc2d8a75cf"
+    },
+    {
+      "name": "startPreacherTraining",
+      "sourceSha256": "2263bd5b00719a416e04346cdd08f937103e3798d19cae90a0dc90e87f435114",
+      "currentSha256": "7f7f2da583e3d184d7957d77efb1bca183821328a4f35417582a2225effaaefe"
+    },
+    {
+      "name": "startWall",
+      "sourceSha256": "f8a955b2d0486719607cfaae112627e270697fb11e9ab517e7b3b62bd436a014",
+      "currentSha256": "53b1431a6219df9099f3f99b81d0d1d957f15d48a9534bcc0fb4ebc3bf690a92"
+    },
+    {
+      "name": "stopPreserveLatest",
+      "sourceSha256": "ba1e87a0458a9c1b73d6214e1799c122dda48564410e00bec51b2f91bddad10a",
+      "currentSha256": "67904c634739fa1cb5ff700683806854c2571d76ca20b2d47251704595ecc3ea"
+    },
+    {
+      "name": "waitFor",
+      "sourceSha256": "3edff49cea7ebf50d59465763c316266511183eaa9e303dcfa0681c06152cce7",
+      "currentSha256": "0388f036d21e8003983d83a62388a7cc40861a76a6641943486b66c213e0fd86"
+    }
+  ],
+  "scope": "Hashes establish source reuse only, never fresh gameplay evidence. Section hashes extend to the next two-space const declaration."
+}
