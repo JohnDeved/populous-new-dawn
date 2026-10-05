@@ -549,6 +549,7 @@ async function missingGeometry(page, wait, output, report) {
         // Clear the introduced CSSOM property before removing the originally
         // absent attribute; preserve strict null equality after both operations.
         hud.style.removeProperty('display')
+        hud.getAttribute('style') // Synchronize Chrome154's pending CSSOM attribute before exact removal.
         hud.removeAttribute('style')
       } else hud.setAttribute('style', priorStyle)
       window.observeWorshipGeometryRestoration = () => ({ sameHud: document.querySelector('.native-hud') === hud,
@@ -701,6 +702,7 @@ export default async function ({ page, context, root, output, receipt, openMissi
             element.style.display = 'none'
             if (priorStyle === null) {
               element.style.removeProperty('display')
+              element.getAttribute('style')
               element.removeAttribute('style')
             } else element.setAttribute('style', priorStyle)
             cases.push({ priorStyle, actualStyle: element.getAttribute('style'), connected: element.isConnected })
