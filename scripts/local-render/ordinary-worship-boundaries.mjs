@@ -533,7 +533,12 @@ async function missingGeometry(page, wait, output, report) {
     const priorStyle = hud.getAttribute('style'), state = window.worshipBoundaryFocus(world)
     window.restoreWorshipGeometryHud = () => {
       if (document.querySelector('.native-hud') !== hud) throw Error('Fault HUD ownership changed')
-      if (priorStyle === null) hud.removeAttribute('style'); else hud.setAttribute('style', priorStyle)
+      if (priorStyle === null) {
+        // Clear the introduced CSSOM property before removing the originally
+        // absent attribute; preserve strict null equality after both operations.
+        hud.style.removeProperty('display')
+        hud.removeAttribute('style')
+      } else hud.setAttribute('style', priorStyle)
       window.observeWorshipGeometryRestoration = () => ({ sameHud: document.querySelector('.native-hud') === hud,
         exactStyle: hud.getAttribute('style') === priorStyle, priorStyle, actualStyle: hud.getAttribute('style'),
         width: hud.getBoundingClientRect().width, offsetWidth: hud.offsetWidth,
