@@ -1,0 +1,15 @@
+{
+  "scope": "Exact independent finite rendered acceptance at cfa; later combined integration gates remain separate",
+  "productionHead": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "trueBaseline": "89c9629991489fd1ce6dc52e938d1cec346bfead",
+  "portableFiles": [
+    {
+      "path": "final-rendered-acceptance.md",
+      "sha256": "29bc5d432f09e201b5b33ecbe082c21add350bb59a8d8980036c094fcc599bda"
+    },
+    {
+      "path": "final-rendered-acceptance.json",
+      "sha256": "f2f005f5b01b62d2f7f258327348f75d29d97d334e686c1e57a5bbed293d2f12"
+    }
+  ]
+}

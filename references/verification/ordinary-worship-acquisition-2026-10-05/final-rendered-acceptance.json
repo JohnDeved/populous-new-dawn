@@ -1,0 +1,92 @@
+{
+  "verdict": "ACCEPT agreed finite PR211 rendered changed-caller checklist",
+  "productionHead": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "trueBaseline": "89c9629991489fd1ce6dc52e938d1cec346bfead",
+  "finalizedAt": "2026-10-05T09:07Z",
+  "remainingBlockersWithinAgreedRenderedScope": [],
+  "reviews": [
+    {
+      "row": "True89c baseline Bridge2",
+      "path": "ordinary-worship-browser-driver/work/reviews/ordinary-worship-baseline2-independent/review.md",
+      "sha256": "72b732b6d4ec6adc9448e061500e3fde898ff3aed34cda00150259ad2a076671"
+    },
+    {
+      "row": "Candidate Bridge pair",
+      "path": "ordinary-worship-browser-driver/work/reviews/ordinary-worship-bridge-pair-independent/review.md",
+      "sha256": "0f74d392538b900b6e91e18c93b08ea65848d05677fbdb77f85aebd2fc116315"
+    },
+    {
+      "row": "Ordinary M1 Lightning4",
+      "path": "ordinary-worship-browser-driver/work/reviews/ordinary-worship-lightning4-independent/review.md",
+      "sha256": "51b0c08b5c7f81c49b30446bca6aca41e6cff1493e2e01318ccd91ff5a3c1912"
+    },
+    {
+      "row": "Offscreen fallback/tab reselection1",
+      "path": "ordinary-worship-browser-driver/work/reviews/ordinary-worship-fallback1-independent/review.md",
+      "sha256": "36b4c8f0c1a8dd9998baefb195cb286351a73b000a5716e6044191b4d3b0cd79"
+    },
+    {
+      "row": "Ordinary M2 Tornado1",
+      "path": "ordinary-worship-browser-driver/work/reviews/ordinary-worship-tornado1-independent/review.md",
+      "sha256": "b0e2c9d8d04f1c9494e28598f419108cac3d1fa52ab21fcf7780d6c85e40691b"
+    },
+    {
+      "row": "Pre-order checkpoint/resize1",
+      "path": "ordinary-worship-browser-driver/work/reviews/ordinary-worship-checkpoint-resize1-independent/review.md",
+      "sha256": "46ebc786f918b4c14add7ffe52ef62583b53c942bfeb9c151ad1b8c22e9cac73"
+    },
+    {
+      "row": "Active-flight Save3/Load3",
+      "path": "ordinary-worship-lightning-boundaries/work/reviews/ordinary-worship-flight-pair3-independent/review.md",
+      "sha256": "44c9b56aca6e3a66dfb24c06ffb800a3d15a1746c26f1b86f5c5cf5d5d78696d"
+    },
+    {
+      "row": "Public Restart1",
+      "path": "ordinary-worship-lightning-boundaries/work/reviews/ordinary-worship-restart1-independent/review.md",
+      "sha256": "a1ebc5da002605b9cdf4fce56c2442e4f51cc76b349ea6cf2a9575c202d6230e"
+    },
+    {
+      "row": "Actual hidden2/public Resume",
+      "path": "ordinary-worship-lightning-boundaries/work/reviews/ordinary-worship-hidden2-independent/review.md",
+      "sha256": "4b1016e2eaf4d870eddc491363a7d1ad10e575c15c37161b0bc65a8e4428e6e7"
+    },
+    {
+      "row": "Explicit DOM fault4",
+      "path": "ordinary-worship-lightning-boundaries/work/reviews/ordinary-worship-fault4-independent/review.md",
+      "sha256": "4e323285c466359ff881ce6bb9bc987870887fa4ebde8863254435601fd11660"
+    },
+    {
+      "row": "Explicit staged composition3",
+      "path": "ordinary-worship-composition-driver/work/reviews/staged-worship-composition3-independent/review.md",
+      "sha256": "06ad8ba9e4b062a3fca87d403b394ab5e40f5a601aa6bed18939d7bd008ae159"
+    },
+    {
+      "row": "Independent-tail Save5/Load5",
+      "path": "ordinary-worship-lightning-boundaries/work/reviews/ordinary-worship-tail-pair5-independent/review.md",
+      "sha256": "5cd383df0dec0b4fb4691eb5abba4b9ff48efa81312ffb376b4ba68ba826bce6"
+    },
+    {
+      "row": "Focused software draw cost2",
+      "path": "ordinary-worship-cost-driver/work/reviews/ordinary-worship-cost2-independent/review.md",
+      "sha256": "febe87a3f96d5cbe4e6ae9f9892d76c2a748c794c2f900dbb7dbce3c68bd4297"
+    }
+  ],
+  "latestRawReceipts": {
+    "tailSave5": "fad1331676f95e088d2294ff730346c3a037db39b91d9dcfd9fd73a367af37c0",
+    "tailLoad5": "1b96eccdc85b1fc098f8ceed0017c48e6f28e12cc683433f9894443da22be067",
+    "cost2": "0cf8a74edb43a155650f8031bc59d32c8acfb757de1914433cca92162333189d",
+    "composition3": "aa9a3274af007d73648e87d513e60570b170ba639e841bf488d318627ee82fcf"
+  },
+  "preservedLimits": [
+    "No complete original-game parity claim",
+    "No independent full native/composited raster or hardware GPU parity",
+    "Cost is software method diagnostic, not FPS/frame time or speedup",
+    "Simultaneous replacement composition is explicitly staged; natural simultaneous route unproved",
+    "No actual foreign prior particle slots in late-pulse browser replacement",
+    "Body incompatible-prior guard observed with geometry and angle-category mismatch; not isolated geometry-only causation",
+    "Some individual ordinary rows have zero eligible opaque texels; their scopes remain unchanged",
+    "All failed attempts retained; positive partial observations do not turn failed rows into passes"
+  ],
+  "resourcesHeld": [],
+  "externalActionsByReviewer": []
+}

@@ -1,6 +1,9 @@
 # PR211 ordinary worship acquisition browser evidence
 
 Application: `cfa86a32f03d021cd1ad725eed9f458ab239d56b`.
+[Final independent acceptance](final-rendered-acceptance.md) closes the agreed
+finite rendered checklist at this exact source.
+
 Each folder binds its exact executed checker, original raw receipt hashes,
 portable redacted receipts, unchanged screenshots where captured, and independent
 review. Earlier failures remain failures. These browser rows complement the
