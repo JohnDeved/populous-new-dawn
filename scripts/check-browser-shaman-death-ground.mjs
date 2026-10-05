@@ -24,7 +24,8 @@ export default async function checkShamanDeathGround({ page, url, root, output, 
   page.setDefaultTimeout(45000)
   await page.addInitScript(() => { window.requestAnimationFrame = () => 0 })
   await page.goto(url, { waitUntil: 'domcontentloaded' })
-  await page.getByRole('button', { name: 'Mission 1', exact: true }).click()
+  await page.getByRole('button', { name: 'Select Mission 1', exact: true }).click()
+  await page.getByRole('button', { name: 'Start Mission 1', exact: true }).click()
   await bindGame(page)
   const skip = page.getByRole('button', { name: /Skip introduction/i })
   for (let batch = 0; batch < 80; batch++) {
