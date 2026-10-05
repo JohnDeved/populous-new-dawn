@@ -78,7 +78,17 @@ export function setAnimationObject(s: Animation, draw: number, object: number) {
   if (d.hold * 4 <= (s.f1 & 65535) || d.reset) s.f1 = 0
 }
 
-// 0x4ee7b0, including model-sequence and morph clocks. Rendering stamps and
+// Only these branches of 0x4ee7b0 test the logical-processor stamp. Model
+// sequences and morph transitions keep their presentation visit even with the bit.
+export function animationUsesLogicalVisits(p: AnimatedUnit) {
+  const mode = rules.animationDescriptors[p.draw].mode
+  return (
+    !!(p.flags3 & 0x40000) &&
+    (mode === 1 || mode === 2 || (mode === 4 && !(p.renderFlags & 0x1000)))
+  )
+}
+
+// 0x4ee7b0, including model-sequence and morph clocks. Processor stamps and
 // the loaded frame/morph tables are supplied by their native world consumers.
 export function stepObjectAnimation(
   p: AnimatedUnit,
@@ -88,10 +98,10 @@ export function stepObjectAnimation(
 ) {
   if (p.object === 0x650 || p.renderFlags & 2) return
   const d = rules.animationDescriptors[p.draw],
-    visible = p.stamp === w.counter || !(p.flags3 & 0x40000)
+    visited = p.stamp === w.counter || !(p.flags3 & 0x40000)
   switch (d.mode) {
     case 1:
-      if (visible) {
+      if (visited) {
         p.f1 = short(p.f1 + d.step)
         if (d.hold * 4 <= (p.f1 & 65535)) {
           p.f1 = short(p.f1 - d.hold * 4)
@@ -100,7 +110,7 @@ export function stepObjectAnimation(
       }
       break
     case 2:
-      if (visible) {
+      if (visited) {
         if (!p.f1) {
           p.f1 = d.step
           p.f2 = (p.f2 + 1) & 255
@@ -125,7 +135,7 @@ export function stepObjectAnimation(
       if (p.renderFlags & 0x1000) {
         p.morphTimer = short(p.morphTimer + d.step)
         if (p.morphFrames * 4 <= p.morphTimer) p.renderFlags = (p.renderFlags & ~0x800) | 0x400
-      } else if (!(p.renderFlags & 0x400 && !(p.renderFlags & 0x800)) && visible) {
+      } else if (!(p.renderFlags & 0x400 && !(p.renderFlags & 0x800)) && visited) {
         p.f1 = short(p.f1 + d.step)
         if (data.morphDurations[p.morph] * 4 + 4 <= (p.f1 & 65535)) p.f1 = 0
       }
