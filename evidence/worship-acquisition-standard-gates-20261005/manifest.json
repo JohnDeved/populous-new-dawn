@@ -1,0 +1,85 @@
+{
+  "purpose": "Terminal standard check/build at clean cfa86a3 for PR211; browser pilots and final acceptance remain separate.",
+  "head": "cfa86a32f03d021cd1ad725eed9f458ab239d56b",
+  "base": "89c9629991489fd1ce6dc52e938d1cec346bfead",
+  "check": {
+    "status": "passed",
+    "tests": 1096,
+    "passed": 1096,
+    "failed": 0,
+    "durationSeconds": 173.37,
+    "components": [
+      "typecheck",
+      "tests",
+      "parity check",
+      "orchestration check"
+    ],
+    "capSeconds": 240
+  },
+  "build": {
+    "status": "passed",
+    "durationSeconds": 18.16,
+    "capSeconds": 90
+  },
+  "resources": {
+    "cpus": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "affinityBefore": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8
+    ],
+    "affinityAfter": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "visibleCpuCount": 9,
+    "loadAverage": [
+      0.0,
+      0.02294921875,
+      0.4697265625
+    ],
+    "meminfo": {
+      "MemTotal": "       10206508 kB",
+      "MemAvailable": "    7493088 kB"
+    },
+    "constraint": "Independent capped functional execution only; previous owned run cleanup unverified. No uncontended or hardware performance claim."
+  },
+  "ownership": "Private TMPDIR and exclusively held dependency tree; both commands ran sequentially and returned terminal. Four-CPU independent functional lane. No M3 source, runtime or browser files used.",
+  "limits": [
+    "No ordinary browser acquisition, pixel, checkpoint or performance claim follows from these gates.",
+    "No uncontended or hardware-performance claim.",
+    "Prior correctness-lint/format/advisory findings retain their recorded failed statuses.",
+    "Operational launch contract stays with local raw receipts; its SHA is bound before/after execution. No browser profile content is included."
+  ],
+  "files": {
+    "check.json.gz": {
+      "sha256": "3116fa02b5c24cb54f9038309209d26e4782ca704d9dd0152c825c238ef8bbe7",
+      "bytes": 40821,
+      "sourceSha256": "9cf4c4425ca33ae231df25e67fa82eb4735a001552d4d0f465c9fa2cf7435e46",
+      "sourceBytes": 120405,
+      "stdoutSha256": "d9b24463e942092741ea7085689e0448f4375bed31caf6a6d2d160b9eb25cc5f",
+      "stderrSha256": "02285cf98c9d88b48ecc3ef7fa38f35659b7c27d82ad3139b4a57f8bed24e9b1"
+    },
+    "build.json.gz": {
+      "sha256": "5fee8b996101c23ed6c444eebd95681b5f3d74639c5e8743c70d4fafaf25bcb1",
+      "bytes": 2094,
+      "sourceSha256": "0c4adb999a6859c2acae9ca8ea33e0c738760d40a2bf9ff0cb495644b768adf4",
+      "sourceBytes": 5817,
+      "stdoutSha256": "f52d3c9f50208095cca6d85f3109182d8a17752ac7aa2f6997f407112b3f2f2a",
+      "stderrSha256": "c53dc435a91cf5f26c3503c37b5d2a9d98c9823aea505134ff376e340f42d27f"
+    }
+  }
+}
