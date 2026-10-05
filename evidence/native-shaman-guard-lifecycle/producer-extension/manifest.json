@@ -1,0 +1,265 @@
+{
+  "schemaVersion": 1,
+  "kind": "independently-reviewed-native-producer-caller-extension",
+  "sourceRepository": "JohnDeved/populous-new-dawn",
+  "sourceCommit": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "baselinePublicationCommit": "6cbae1169517a295a323ce8dcbf67a29ce61d02d",
+  "baselineManifestSha256": "75c7d2e774e8624aed540851fd0012579da2876154d99f12a46a2b476c281f81",
+  "scope": "Bounded original-native producer/caller evidence and source-only controller map; no runtime, physical-stop, continuous-phase or browser parity.",
+  "independentReviewSha256": "bf66f503726eb744333ce3f2365da15c7a4aef52003fb3ac0fd20c168045e14b",
+  "findingsSha256": "0e67b49df68f3211ccedd147afed12be32cee3a9b6aa5114062f052da2abeabe",
+  "tools": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "unicorn": "2.1.4",
+    "capstone": "5.0.7"
+  },
+  "originalRecordedSourceRoot": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered",
+  "baselineDependencies": [
+    {
+      "path": "../native-guard-lifecycle-20261005/probe-guard-lifecycle.py",
+      "sha256": "7f6ad6a478db9138af4b5ff3d69b612969c5dcc8365ec324309d18771ec77064",
+      "gitBlobOid": "a95d54c63dbdf5d3ea2745b4f32500fd8a99ecc5"
+    },
+    {
+      "path": "../native-guard-lifecycle-20261005/attempt-04.json",
+      "sha256": "7c7d6eff380665b6240822b29e38e9eff47de1c1a4c8855b58b4b5c71bde3711",
+      "gitBlobOid": "e355342620945a9edda3b52763b1831414ecba4e"
+    },
+    {
+      "path": "../native-guard-lifecycle-20261005/findings.md",
+      "sha256": "32e27423b6accdc8571e90dae2433b7da0fc237b82f3a1b1d0a89a5cc0ceaaec",
+      "gitBlobOid": "da164153f6cb0bbdab3a9feaf1a04a24cb7d866b"
+    },
+    {
+      "path": "../native-guard-lifecycle-review-20261005/review.md",
+      "sha256": "27538c420093465594e9bd3fb519b5801d59871c31ae8d5e75472532905e2798",
+      "gitBlobOid": "fe43929fc1825cbcb45b77f1f1db2d82c68aa621"
+    },
+    {
+      "path": "../manifest.json",
+      "sha256": "75c7d2e774e8624aed540851fd0012579da2876154d99f12a46a2b476c281f81",
+      "gitBlobOid": "87e12a9117e7534a91af27fa5ad0b25e086e1000"
+    }
+  ],
+  "sourceAuditDependencies": {
+    "app/live-command.ts": {
+      "sha256": "c613176708e99a19243e10ccaf2af4b83eba73a259c8ac6623e12f31f70ca324",
+      "gitBlobOid": "4052213eb01b8cf0f41f6af0262d135382767482"
+    },
+    "app/live-movement.ts": {
+      "sha256": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5",
+      "gitBlobOid": "344cd1dce46b5a8463a4fb48706cde010b1c4ad7"
+    },
+    "app/live-people.ts": {
+      "sha256": "340d912b2f886e7b520d76310cebffe9a2928363b98c0a44b3dd5fdd47d2c117",
+      "gitBlobOid": "0a9a16ec771141134c5ba9617b8607731a7559a9"
+    },
+    "app/live-resting.ts": {
+      "sha256": "3164a20ff88fb05d919f8f53fd179b0375350c631af5420d667f7106d7f5f515",
+      "gitBlobOid": "b8a896332b80141940991c17c8246502c0400fe0"
+    },
+    "app/live-building-entry.ts": {
+      "sha256": "94aca18d9dfb6fadb1df9f9f747a22683ff14c4f42ed3629ebb668688efe647f",
+      "gitBlobOid": "a0c091b824a773cb952e0db2e8ac47fd8991775e"
+    },
+    "app/live-construction-runtime.ts": {
+      "sha256": "232fe5fd59ead259fc09d94ec524fba173549e32fc07ab14f6b1006d631cd6fa",
+      "gitBlobOid": "f05e86ea8b51e6fd71d4d2d2f06cd9090555f2ed"
+    },
+    "app/construction-runtime.ts": {
+      "sha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "gitBlobOid": "6bf9da076f1fd108c6f6e784a836727132a31e5c"
+    },
+    "app/selection-runtime.ts": {
+      "sha256": "999dfa2becc4bf884239b79cf9edeef75a6d74ee5f588b29aff57178ab7deeb6",
+      "gitBlobOid": "287090e5f4c67bb10d5bd721454f08ad23897e4f"
+    },
+    "app/world-turn.ts": {
+      "sha256": "d322af8560cce8e0e3bc1188ebab7676c1cce3b904563c380562f4c1a932fea8",
+      "gitBlobOid": "f7f68dabeb775d6f1708206952106cf850281626"
+    },
+    "app/world-tasks.ts": {
+      "sha256": "92d4fde9cd0b553a63288263fe3f4ba9918fcdad635436157965438b1cb0024e",
+      "gitBlobOid": "2c3e905e773cbcc3cdc8680594337baaed282624"
+    },
+    "app/person-update.ts": {
+      "sha256": "0d77d8decb63f78dd0a129ad8d95953d628c71028921299325f832e924cffc9f",
+      "gitBlobOid": "fc06c796d11aee13c9d1b0cd9eecdc785ed5cbd4"
+    },
+    "app/person-orders.ts": {
+      "sha256": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394",
+      "gitBlobOid": "1c196faa0f6298f81d402054714fae04e6c8030f"
+    },
+    "app/person-state.ts": {
+      "sha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+      "gitBlobOid": "9796bd863ac2fe5f7450f7e26cdb52ccae5c9beb"
+    },
+    "app/live-vehicles.ts": {
+      "sha256": "7fbff4f2197bf77f6cad8ca6a9265dbc95ea74cc89270b814f11991c1265cebb",
+      "gitBlobOid": "d889343b444dc29efc104b556d7a15b33a0e720d"
+    },
+    "app/page.tsx": {
+      "sha256": "50358f6ae119026e8b1f9215fa436126bb26b7595832140c136ed271fbc52fc2",
+      "gitBlobOid": "899ae80d6aa19381b1749e516f7ec0e18495f276"
+    },
+    "app/game-store.ts": {
+      "sha256": "1bb66bc1db93af5bff36c54f2c32630b71000bc5c0085595e6c7f2bc3cf95565",
+      "gitBlobOid": "c440ced482f0035bc31e8f12a3370d7fe962c2e8"
+    },
+    "app/world-types.ts": {
+      "sha256": "39d0cf2a822e90a077ef86e43f74fb35e6966fe873f60d8e5b820f42c00cb3c4",
+      "gitBlobOid": "abfbd7ffba89e2d864d9a4f94dd88e3ece5d71c4"
+    },
+    "decomp/generated/0043e8e0.c": {
+      "sha256": "39b7c6e645760a599abecb4e44861da69ebc08c3d3370dff0c3835934e9fd309",
+      "gitBlobOid": "84736619371ad4ffe2ad1934177d84565bbb8f92"
+    },
+    "decomp/generated/004aab80.c": {
+      "sha256": "a286e361005571ddcba7405348e2582aa061c3f427d1a8e8fed09a5d1e7890a8",
+      "gitBlobOid": "62d2658fafa320562ce66d65ec3ca6c9deb807e0"
+    },
+    "decomp/generated/0042bfa0.c": {
+      "sha256": "e7fe92583b3cbccd1ff60ca7e8300ede66bf4479e1e4fb85444ba6d41755acd7",
+      "gitBlobOid": "823470a207107c54672daaef78f464a5b6b8c854"
+    }
+  },
+  "files": [
+    {
+      "path": "README.md",
+      "bytes": 6650,
+      "sha256": "195234ac9a123ce3148d2c834525310933204c602bf9b390ed8b6be883f03e27",
+      "gitBlobOid": "81a8865f9df1da627b0cbca64deca511f8f9deb2",
+      "source": "publication wrapper"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/004999d0.asm",
+      "bytes": 769,
+      "sha256": "c75d4289179e4c6ecc57250c2336133047395d1004e80ce3c19c6c8c9482f1c9",
+      "gitBlobOid": "f6d077f72f876cd953d76e7ed5319e607038f73b",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/004999d0.asm",
+      "originalSha256": "c75d4289179e4c6ecc57250c2336133047395d1004e80ce3c19c6c8c9482f1c9"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/key-mode-receipt.json",
+      "bytes": 5790,
+      "sha256": "498f623e4492189f406a3e1587c6ebd250e2ae5ac01b25a63613cb3df6f1ce6a",
+      "gitBlobOid": "1b4c6fa709e6e6d464409ac9fa7dba16ca69c884",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/key-mode-receipt.json",
+      "originalSha256": "498f623e4492189f406a3e1587c6ebd250e2ae5ac01b25a63613cb3df6f1ce6a"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/key-mode-result.json",
+      "bytes": 9282,
+      "sha256": "d4462509561db958ad03b884430e50b3b81d623693804bde7a8a71b3078324ff",
+      "gitBlobOid": "8766e81217061a0984f4650836ede75c3c3cb043",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/key-mode-result.json",
+      "originalSha256": "d4462509561db958ad03b884430e50b3b81d623693804bde7a8a71b3078324ff"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/key-mode.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitBlobOid": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/key-mode.stderr",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/probe-guard-key-mode.py",
+      "bytes": 3361,
+      "sha256": "ead992a61285f60faa20b53c27c549a74a0e742aa665f6be39d1feb159e1bfea",
+      "gitBlobOid": "951dc6c34b47e3109be0e3c483e9e6c5932fb1d4",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/probe-guard-key-mode.py",
+      "originalSha256": "ead992a61285f60faa20b53c27c549a74a0e742aa665f6be39d1feb159e1bfea"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/probe-guard-producer.py",
+      "bytes": 8957,
+      "sha256": "24921a87e6e42340434a1b79ddc88a7823437ea940711dab4ff1ea54911e3340",
+      "gitBlobOid": "9bc10e9bace39013388bb0748f9055c130e237ed",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/probe-guard-producer.py",
+      "originalSha256": "24921a87e6e42340434a1b79ddc88a7823437ea940711dab4ff1ea54911e3340"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/producer-attempt-01.json",
+      "bytes": 300593,
+      "sha256": "92153069ba20138e60280cb639cfc2f794d1ed4532e7234dbaa79e39843bc922",
+      "gitBlobOid": "e9ab78c6b7f1ec16529ab7696b9ace93b31430f5",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/producer-attempt-01.json",
+      "originalSha256": "92153069ba20138e60280cb639cfc2f794d1ed4532e7234dbaa79e39843bc922"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/producer-attempt-01.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitBlobOid": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/producer-attempt-01.stderr",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/producer-findings.md",
+      "bytes": 13130,
+      "sha256": "0e67b49df68f3211ccedd147afed12be32cee3a9b6aa5114062f052da2abeabe",
+      "gitBlobOid": "d336f6328ed25435c81e8e762f146634c859ca74",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/producer-findings.md",
+      "originalSha256": "0e67b49df68f3211ccedd147afed12be32cee3a9b6aa5114062f052da2abeabe"
+    },
+    {
+      "path": "native-guard-lifecycle-20261005/producer-receipt.json",
+      "bytes": 5652,
+      "sha256": "454af6fb12e1c8a1e9281f4a164eb53033b8e10a4386fda7b926972a5591e61d",
+      "gitBlobOid": "f1e4bf3a1a6ed3c492ed827482100f5bd680cb56",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-20261005/producer-receipt.json",
+      "originalSha256": "454af6fb12e1c8a1e9281f4a164eb53033b8e10a4386fda7b926972a5591e61d"
+    },
+    {
+      "path": "native-guard-lifecycle-review-20261005/extension-review.md",
+      "bytes": 7467,
+      "sha256": "bf66f503726eb744333ce3f2365da15c7a4aef52003fb3ac0fd20c168045e14b",
+      "gitBlobOid": "abccb1d211809a88313ec7c80fa2aedd98365489",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-review-20261005/extension-review.md",
+      "originalSha256": "bf66f503726eb744333ce3f2365da15c7a4aef52003fb3ac0fd20c168045e14b"
+    },
+    {
+      "path": "native-guard-lifecycle-review-20261005/key-mode-replay.json",
+      "bytes": 9282,
+      "sha256": "d4462509561db958ad03b884430e50b3b81d623693804bde7a8a71b3078324ff",
+      "gitBlobOid": "8766e81217061a0984f4650836ede75c3c3cb043",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-review-20261005/key-mode-replay.json",
+      "originalSha256": "d4462509561db958ad03b884430e50b3b81d623693804bde7a8a71b3078324ff"
+    },
+    {
+      "path": "native-guard-lifecycle-review-20261005/key-mode-replay.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitBlobOid": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-review-20261005/key-mode-replay.stderr",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "native-guard-lifecycle-review-20261005/producer-replay.json",
+      "bytes": 300593,
+      "sha256": "92153069ba20138e60280cb639cfc2f794d1ed4532e7234dbaa79e39843bc922",
+      "gitBlobOid": "e9ab78c6b7f1ec16529ab7696b9ace93b31430f5",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-review-20261005/producer-replay.json",
+      "originalSha256": "92153069ba20138e60280cb639cfc2f794d1ed4532e7234dbaa79e39843bc922"
+    },
+    {
+      "path": "native-guard-lifecycle-review-20261005/producer-replay.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gitBlobOid": "e69de29bb2d1d6434b8b29ae775ad8c2e48c5391",
+      "sourcePath": "work/orchestration/native-guard-lifecycle-review-20261005/producer-replay.stderr",
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "replayConstraint": "Frozen extensions require the adjacent exact baseline script and its entire captured JSON output hash; relocation of absolute paths or changed interpreter identity prevents exact replay.",
+  "excluded": [
+    "game executable/assets",
+    "tool binaries/dependencies",
+    "credentials/environment files",
+    "browser profiles",
+    "runtime implementation",
+    "unrelated evidence"
+  ],
+  "manifestSelfHash": "Excluded from file list; obtain identity from immutable publication commit and handoff."
+}

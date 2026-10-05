@@ -1,0 +1,398 @@
+{
+  "scope": "Native G key/default-selection-mode boundary; no real input or OS event loop.\nRuns real clear_level_global_vars, process_cmd(action0xc1), mode4999d0 and\ntribe-command82 dispatch. Palette/globe/reset leaves and outgoing emission are\nsupplied. The captured emitted argument is copied into a packet fixture before\nreal dispatch; no claim is made about the intervening native packet scheduler.\n",
+  "identity": {
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "bytes": 2275840,
+    "debugDirectoryRva": 0,
+    "debugDirectorySize": 0
+  },
+  "baselineSha256": "7f6ad6a478db9138af4b5ff3d69b612969c5dcc8365ec324309d18771ec77064",
+  "baselineResultSha256": "7c7d6eff380665b6240822b29e38e9eff47de1c1a4c8855b58b4b5c71bde3711",
+  "leaves": {
+    "004a32d0": "palette-reset",
+    "0041ce00": "globe-initialize",
+    "00475530": "auxiliary-reset",
+    "00479cf0": "outgoing-tribe-command"
+  },
+  "baselineLeaves": {
+    "004e9d80": "destination-planning",
+    "0047a550": "selection-ui-refresh",
+    "0048a050": "selection-voice"
+  },
+  "keyRecord": "67c100000011000000000000",
+  "sourceHashes": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/native-guard-lifecycle-20261005/probe-guard-key-mode.py": "ead992a61285f60faa20b53c27c549a74a0e742aa665f6be39d1feb159e1bfea",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da"
+  },
+  "cases": [
+    {
+      "initialFlags": 0,
+      "initializedFlags": 65600,
+      "modeHelperReturn": 1,
+      "initializationLeaves": [
+        {
+          "address": "004a32d0",
+          "name": "palette-reset",
+          "args": []
+        },
+        {
+          "address": "0041ce00",
+          "name": "globe-initialize",
+          "args": []
+        },
+        {
+          "address": "00475530",
+          "name": "auxiliary-reset",
+          "args": []
+        }
+      ],
+      "emittedCommand": [
+        {
+          "address": "00479cf0",
+          "name": "outgoing-tribe-command",
+          "args": [
+            0,
+            130,
+            1
+          ]
+        }
+      ],
+      "packetBoundary": "Captured emitted third argument supplied as packet+4; packet+12=0x82",
+      "beforeDispatch": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 19,
+        "substate": 0,
+        "counter": 0,
+        "flags2": 0,
+        "flags3": 262144,
+        "flags4": 0,
+        "x": 4096,
+        "y": 4096,
+        "goalX": 4096,
+        "goalY": 4096,
+        "speed": 0,
+        "target": 0,
+        "assignment": 0,
+        "selection": 128,
+        "cursor": 0,
+        "status": 0,
+        "source": 48,
+        "renderFlags": 256,
+        "f1": 1,
+        "f2": 3,
+        "draw": 18,
+        "stamp": 0,
+        "commands": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "immediate": 0,
+        "guardCount": 0,
+        "poolCursor": 1,
+        "poolActive": 0,
+        "orders": [
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          }
+        ]
+      },
+      "afterDispatch": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 19,
+        "substate": 0,
+        "counter": 0,
+        "flags2": 16,
+        "flags3": 262144,
+        "flags4": 0,
+        "x": 4096,
+        "y": 4096,
+        "goalX": 4096,
+        "goalY": 4096,
+        "speed": 0,
+        "target": 0,
+        "assignment": 0,
+        "selection": 128,
+        "cursor": 0,
+        "status": 0,
+        "source": 48,
+        "renderFlags": 256,
+        "f1": 1,
+        "f2": 3,
+        "draw": 18,
+        "stamp": 0,
+        "commands": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "immediate": 0,
+        "guardCount": 0,
+        "poolCursor": 2,
+        "poolActive": 1,
+        "orders": [
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 30,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 73,
+            "b": 0
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          }
+        ]
+      }
+    },
+    {
+      "initialFlags": 1048576,
+      "initializedFlags": 1114176,
+      "modeHelperReturn": 0,
+      "initializationLeaves": [
+        {
+          "address": "004a32d0",
+          "name": "palette-reset",
+          "args": []
+        },
+        {
+          "address": "0041ce00",
+          "name": "globe-initialize",
+          "args": []
+        },
+        {
+          "address": "00475530",
+          "name": "auxiliary-reset",
+          "args": []
+        }
+      ],
+      "emittedCommand": [
+        {
+          "address": "00479cf0",
+          "name": "outgoing-tribe-command",
+          "args": [
+            0,
+            130,
+            0
+          ]
+        }
+      ],
+      "packetBoundary": "Captured emitted third argument supplied as packet+4; packet+12=0x82",
+      "beforeDispatch": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 19,
+        "substate": 0,
+        "counter": 0,
+        "flags2": 0,
+        "flags3": 262144,
+        "flags4": 0,
+        "x": 4096,
+        "y": 4096,
+        "goalX": 4096,
+        "goalY": 4096,
+        "speed": 0,
+        "target": 0,
+        "assignment": 0,
+        "selection": 128,
+        "cursor": 0,
+        "status": 0,
+        "source": 48,
+        "renderFlags": 256,
+        "f1": 1,
+        "f2": 3,
+        "draw": 18,
+        "stamp": 0,
+        "commands": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "immediate": 0,
+        "guardCount": 0,
+        "poolCursor": 1,
+        "poolActive": 0,
+        "orders": [
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          }
+        ]
+      },
+      "afterDispatch": {
+        "id": 1,
+        "class": 1,
+        "model": 6,
+        "state": 19,
+        "substate": 0,
+        "counter": 0,
+        "flags2": 16,
+        "flags3": 262144,
+        "flags4": 0,
+        "x": 4096,
+        "y": 4096,
+        "goalX": 4096,
+        "goalY": 4096,
+        "speed": 0,
+        "target": 0,
+        "assignment": 0,
+        "selection": 0,
+        "cursor": 0,
+        "status": 0,
+        "source": 48,
+        "renderFlags": 256,
+        "f1": 1,
+        "f2": 3,
+        "draw": 18,
+        "stamp": 0,
+        "commands": [
+          1,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "immediate": 0,
+        "guardCount": 0,
+        "poolCursor": 2,
+        "poolActive": 1,
+        "orders": [
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 30,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 73,
+            "b": 0
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          },
+          {
+            "model": 0,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 0,
+            "b": 0
+          }
+        ]
+      }
+    }
+  ]
+}

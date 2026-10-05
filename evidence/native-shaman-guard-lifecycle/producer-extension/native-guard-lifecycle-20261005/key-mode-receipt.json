@@ -1,0 +1,69 @@
+{
+  "status": "passed",
+  "exitCode": 0,
+  "command": "source ../prerequisites/env.sh && timeout 60s taskset -c 4 env PYTHONDONTWRITEBYTECODE=1 \"$POPULOUS_PYTHON\" work/orchestration/native-guard-lifecycle-20261005/probe-guard-key-mode.py \"$POPULOUS_EXE\" \"$PWD\"",
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered",
+  "head": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "trackedStatus": "",
+  "caseCount": 2,
+  "stepCount": 0,
+  "probeSha256": "ead992a61285f60faa20b53c27c549a74a0e742aa665f6be39d1feb159e1bfea",
+  "resultSha256": "d4462509561db958ad03b884430e50b3b81d623693804bde7a8a71b3078324ff",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "baselineProbeSha256": "7f6ad6a478db9138af4b5ff3d69b612969c5dcc8365ec324309d18771ec77064",
+  "baselineOutputSha256": "7c7d6eff380665b6240822b29e38e9eff47de1c1a4c8855b58b4b5c71bde3711",
+  "inputHashes": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/native-guard-lifecycle-20261005/probe-guard-key-mode.py": "ead992a61285f60faa20b53c27c549a74a0e742aa665f6be39d1feb159e1bfea",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da"
+  },
+  "baselineInputHashes": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vstart-0.ani": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vfra-0.ani": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/native-guard-lifecycle-20261005/probe-guard-lifecycle.py": "7f6ad6a478db9138af4b5ff3d69b612969c5dcc8365ec324309d18771ec77064",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/app/original-constants.json": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c"
+  },
+  "tools": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "unicorn": "2.1.4",
+    "capstone": "5.0.7"
+  },
+  "scope": "Native G key/default-selection-mode boundary; no real input or OS event loop.\nRuns real clear_level_global_vars, process_cmd(action0xc1), mode4999d0 and\ntribe-command82 dispatch. Palette/globe/reset leaves and outgoing emission are\nsupplied. The captured emitted argument is copied into a packet fixture before\nreal dispatch; no claim is made about the intervening native packet scheduler.\n",
+  "suppliedLeaves": {
+    "004a32d0": "palette-reset",
+    "0041ce00": "globe-initialize",
+    "00475530": "auxiliary-reset",
+    "00479cf0": "outgoing-tribe-command"
+  },
+  "baselineLeaves": {
+    "004e9d80": "destination-planning",
+    "0047a550": "selection-ui-refresh",
+    "0048a050": "selection-voice"
+  },
+  "sourceAuditHashes": {
+    "app/live-command.ts": "c613176708e99a19243e10ccaf2af4b83eba73a259c8ac6623e12f31f70ca324",
+    "app/live-movement.ts": "ac380ae97c2e985aaff710b90b9185f94ba962bbaaf167b6f6facc5e73bd28e5",
+    "app/live-people.ts": "340d912b2f886e7b520d76310cebffe9a2928363b98c0a44b3dd5fdd47d2c117",
+    "app/live-resting.ts": "3164a20ff88fb05d919f8f53fd179b0375350c631af5420d667f7106d7f5f515",
+    "app/live-building-entry.ts": "94aca18d9dfb6fadb1df9f9f747a22683ff14c4f42ed3629ebb668688efe647f",
+    "app/live-construction-runtime.ts": "232fe5fd59ead259fc09d94ec524fba173549e32fc07ab14f6b1006d631cd6fa",
+    "app/construction-runtime.ts": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+    "app/selection-runtime.ts": "999dfa2becc4bf884239b79cf9edeef75a6d74ee5f588b29aff57178ab7deeb6",
+    "app/world-turn.ts": "d322af8560cce8e0e3bc1188ebab7676c1cce3b904563c380562f4c1a932fea8",
+    "app/world-tasks.ts": "92d4fde9cd0b553a63288263fe3f4ba9918fcdad635436157965438b1cb0024e",
+    "app/person-update.ts": "0d77d8decb63f78dd0a129ad8d95953d628c71028921299325f832e924cffc9f",
+    "app/person-orders.ts": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394",
+    "app/person-state.ts": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+    "app/live-vehicles.ts": "7fbff4f2197bf77f6cad8ca6a9265dbc95ea74cc89270b814f11991c1265cebb",
+    "app/page.tsx": "50358f6ae119026e8b1f9215fa436126bb26b7595832140c136ed271fbc52fc2",
+    "app/game-store.ts": "1bb66bc1db93af5bff36c54f2c32630b71000bc5c0085595e6c7f2bc3cf95565",
+    "app/world-types.ts": "39d0cf2a822e90a077ef86e43f74fb35e6966fe873f60d8e5b820f42c00cb3c4",
+    "decomp/generated/0043e8e0.c": "39b7c6e645760a599abecb4e44861da69ebc08c3d3370dff0c3835934e9fd309",
+    "decomp/generated/004aab80.c": "a286e361005571ddcba7405348e2582aa061c3f427d1a8e8fed09a5d1e7890a8",
+    "decomp/generated/0042bfa0.c": "e7fe92583b3cbccd1ff60ca7e8300ede66bf4479e1e4fb85444ba6d41755acd7"
+  }
+}
