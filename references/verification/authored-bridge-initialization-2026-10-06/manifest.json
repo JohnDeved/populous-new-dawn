@@ -1,0 +1,15 @@
+{
+  "sourceHead": "b28b031f6917f6d814536ba10a7d46e7be71de05",
+  "allowlistedFilesSha256": {
+    "findings.md": "4257b03e040f06545cb90f5407f7fc09a2a982ce1d889e4c06e1b6a05cfc67ad",
+    "independent-review.md": "17426160be6f605c00f54eb35b1a35af92c4c0d22ea8cde44e7951bb0f0bff23",
+    "independent-review.json": "ee13811699f567aefcfcdd4a91591d9392fcbc9165583cf51bbfc8e88ba0b5fb",
+    "probe.py": "d5ed3a8c2b7bee1f6306f6c64681e792552e878210a483dab15dfe91af152b11",
+    "observations.json": "069a1f6d9cf1555e04ab66135e2a56b2957d1adb2e3549f2e59ceb50d5740770",
+    "executed-instructions.json": "374fb20c75729b816a73d7a2437a80703bf3a4ea9f7c3ec9ab504d9bc6ebe332",
+    "receipt.json": "cdc05b83d5602b65b71b0230e271a5ab967e974d0b32f169dc8c2da0e2dea451",
+    "receipt.json.artifacts/stdout.log": "44022d2f01233965c6b4a68c3cc54045e78dd55682ca11ee4a5bf9ed690c2adc",
+    "receipt.json.artifacts/stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "excluded": "No game binaries, assets, profiles, credentials, environment files, package trees or unrelated logs."
+}

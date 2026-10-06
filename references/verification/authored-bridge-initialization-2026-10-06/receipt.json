@@ -1,0 +1,82 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "f6699745-b5f2-4220-87db-43085229856e",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "b28b031f6917f6d814536ba10a7d46e7be71de05",
+    "branch": "integration/accepted-main-20261004",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/bridge-reward-activation-assessment/probe.py": "d5ed3a8c2b7bee1f6306f6c64681e792552e878210a483dab15dfe91af152b11",
+      "scripts/check-native-authored-bridges.py": "620a9e0041be295b5c845f8d34cbc7fafb4d645fc5fb4162f9ceda4e66689a4f",
+      "scripts/check-native-land-bridge.py": "46dce40d24a1c589915c4a68e2f821f9540f0084107fee4f97cd6f5a8b530c27",
+      "scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "app/land-bridge.ts": "b616b62e26e73dd51606d7b1e6deaf78bd31c07cb5036148f017a563b40bcac1",
+      "app/native-terrain.ts": "bef0de5cda0ab5a54147ff2c91569b97a4e1b58ed46bd1dc9e9a85467f8e17a5",
+      "app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "app/original-constants.json": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+      "app/world-turn.ts": "42d9aa4228b091acb49ac6c108f6464852435d7bfaa5d8a8b82e375de0f8577e",
+      "app/world-effects.ts": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+      "app/spell-trails.ts": "884319866f64247e81d6ec2f5aeda1be57ea2c306b2c5f57d7b1e9562bd0fa67",
+      "tests/authored-bridges.test.mjs": "76b80caa2a0cdbe57d32fa67f8115618bf0c4cf66f22b6fc504562acc23e46e2",
+      "decomp/tools.json": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2002.dat": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24"
+    }
+  },
+  "command": [
+    "timeout",
+    "60s",
+    "taskset",
+    "-c",
+    "4",
+    "env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "work/orchestration/bridge-reward-activation-assessment/probe.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered",
+  "startedAt": "2026-10-06T01:07:44.295Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/bridge-reward-activation-assessment/receipt.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/integration-publish-recovered/work/orchestration/bridge-reward-activation-assessment/receipt.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T01:07:44.602Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\"status\": \"passed\", \"firstState\": {\"turn\": 1, \"alongY\": false, \"startCell\": 24762, \"endCell\": 24778, \"direction\": 2, \"crossStep\": 0, \"heightStep\": 0, \"raiseWater\": true}, \"nextState\": {\"turn\": 2, \"alongY\": false, \"startCell\": 24762, \"endCell\": 24778, \"direction\": 2, \"crossStep\": 0, \"heightStep\": 0, \"raiseWater\": true}, \"firstTerrainDeltas\": 0, \"nextTerrainDeltas\": 28, \"nextTrails\": 36, \"nextChanged\": 36, \"rngWrites\": 0, \"executedInstructions\": 6872}\n",
+  "stderr": "",
+  "stdoutSha256": "44022d2f01233965c6b4a68c3cc54045e78dd55682ca11ee4a5bf9ed690c2adc",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "b28b031f6917f6d814536ba10a7d46e7be71de05",
+    "branch": "integration/accepted-main-20261004",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/bridge-reward-activation-assessment/probe.py": "d5ed3a8c2b7bee1f6306f6c64681e792552e878210a483dab15dfe91af152b11",
+      "scripts/check-native-authored-bridges.py": "620a9e0041be295b5c845f8d34cbc7fafb4d645fc5fb4162f9ceda4e66689a4f",
+      "scripts/check-native-land-bridge.py": "46dce40d24a1c589915c4a68e2f821f9540f0084107fee4f97cd6f5a8b530c27",
+      "scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "app/land-bridge.ts": "b616b62e26e73dd51606d7b1e6deaf78bd31c07cb5036148f017a563b40bcac1",
+      "app/native-terrain.ts": "bef0de5cda0ab5a54147ff2c91569b97a4e1b58ed46bd1dc9e9a85467f8e17a5",
+      "app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "app/original-constants.json": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+      "app/world-turn.ts": "42d9aa4228b091acb49ac6c108f6464852435d7bfaa5d8a8b82e375de0f8577e",
+      "app/world-effects.ts": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+      "app/spell-trails.ts": "884319866f64247e81d6ec2f5aeda1be57ea2c306b2c5f57d7b1e9562bd0fa67",
+      "tests/authored-bridges.test.mjs": "76b80caa2a0cdbe57d32fa67f8115618bf0c4cf66f22b6fc504562acc23e46e2",
+      "decomp/tools.json": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/levl2002.dat": "83f5c446975398b163ef00526567f7a86b2666d26f9f026231ec0b36bf5a289f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24"
+    }
+  }
+}
