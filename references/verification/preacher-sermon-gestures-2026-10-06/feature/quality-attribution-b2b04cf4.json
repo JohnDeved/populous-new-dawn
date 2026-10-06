@@ -1,0 +1,353 @@
+{
+  "status": "no-introduced-findings",
+  "head": "b2b04cf4915dafc7165e961f9b45ddb3efd4d103",
+  "base": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+  "baselineWholeAppTree": "00f20a2d45a10b42145b9c342cf1583ce9dc0006",
+  "oxfmt": "passed",
+  "eslint": {
+    "status": "failed",
+    "candidate": 1,
+    "baseline": 1,
+    "introduced": 0
+  },
+  "oxlint": {
+    "status": "failed",
+    "candidate": 20,
+    "baseline": 20,
+    "introduced": [],
+    "removed": [],
+    "pairedDiagnostics": [
+      {
+        "file": "preacher-conversion.ts",
+        "code": "unicorn(prefer-export-from)",
+        "severity": "warning",
+        "message": "Prefer re-exporting directly from the source module.",
+        "labels": [
+          {
+            "label": "Imported here.",
+            "line": 1,
+            "column": 1,
+            "length": 56
+          },
+          {
+            "label": "Re-exported here.",
+            "line": 222,
+            "column": 33,
+            "length": 16
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "import(no-cycle)",
+        "severity": "error",
+        "message": "Dependency cycle detected",
+        "labels": [
+          {
+            "label": null,
+            "line": 79,
+            "column": 34,
+            "length": 22
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "import(no-cycle)",
+        "severity": "error",
+        "message": "Dependency cycle detected",
+        "labels": [
+          {
+            "label": null,
+            "line": 28,
+            "column": 8,
+            "length": 27
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "import(no-cycle)",
+        "severity": "error",
+        "message": "Dependency cycle detected",
+        "labels": [
+          {
+            "label": null,
+            "line": 22,
+            "column": 42,
+            "length": 26
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "import(no-cycle)",
+        "severity": "error",
+        "message": "Dependency cycle detected",
+        "labels": [
+          {
+            "label": null,
+            "line": 29,
+            "column": 62,
+            "length": 23
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "import(no-cycle)",
+        "severity": "error",
+        "message": "Dependency cycle detected",
+        "labels": [
+          {
+            "label": null,
+            "line": 21,
+            "column": 8,
+            "length": 18
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "import(no-cycle)",
+        "severity": "error",
+        "message": "Dependency cycle detected",
+        "labels": [
+          {
+            "label": null,
+            "line": 23,
+            "column": 33,
+            "length": 19
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "import(no-cycle)",
+        "severity": "error",
+        "message": "Dependency cycle detected",
+        "labels": [
+          {
+            "label": null,
+            "line": 12,
+            "column": 8,
+            "length": 12
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "import(no-cycle)",
+        "severity": "error",
+        "message": "Dependency cycle detected",
+        "labels": [
+          {
+            "label": null,
+            "line": 2,
+            "column": 30,
+            "length": 18
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "import(no-duplicates)",
+        "severity": "error",
+        "message": "Modules should not be imported multiple times in the same file",
+        "labels": [
+          {
+            "label": "It is first imported here",
+            "line": 1,
+            "column": 30,
+            "length": 22
+          },
+          {
+            "label": null,
+            "line": 31,
+            "column": 38,
+            "length": 22
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "eslint(no-duplicate-imports)",
+        "severity": "error",
+        "message": "'./building-shapes.ts' import is duplicated",
+        "labels": [
+          {
+            "label": "This import is duplicated",
+            "line": 31,
+            "column": 38,
+            "length": 22
+          },
+          {
+            "label": "Can be merged with this import",
+            "line": 1,
+            "column": 30,
+            "length": 22
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "eslint(no-shadow)",
+        "severity": "warning",
+        "message": "'building' is already declared in the upper scope.",
+        "labels": [
+          {
+            "label": "'building' is declared here",
+            "line": 715,
+            "column": 32,
+            "length": 8
+          },
+          {
+            "label": "shadowed declaration is here",
+            "line": 712,
+            "column": 9,
+            "length": 8
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "eslint(no-shadow)",
+        "severity": "warning",
+        "message": "'building' is already declared in the upper scope.",
+        "labels": [
+          {
+            "label": "'building' is declared here",
+            "line": 733,
+            "column": 36,
+            "length": 8
+          },
+          {
+            "label": "shadowed declaration is here",
+            "line": 712,
+            "column": 9,
+            "length": 8
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "eslint(no-shadow)",
+        "severity": "warning",
+        "message": "'target' is already declared in the upper scope.",
+        "labels": [
+          {
+            "label": "'target' is declared here",
+            "line": 746,
+            "column": 16,
+            "length": 6
+          },
+          {
+            "label": "shadowed declaration is here",
+            "line": 714,
+            "column": 9,
+            "length": 6
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "unicorn(consistent-existence-index-check)",
+        "severity": "warning",
+        "message": "Prefer `=== -1` over `< 0` to check non-existence.",
+        "labels": [
+          {
+            "label": null,
+            "line": 516,
+            "column": 7,
+            "length": 8
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "eslint(no-multi-assign)",
+        "severity": "error",
+        "message": "Do not use chained assignment",
+        "labels": [
+          {
+            "label": null,
+            "line": 734,
+            "column": 24,
+            "length": 72
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "eslint(no-multi-assign)",
+        "severity": "error",
+        "message": "Do not use chained assignment",
+        "labels": [
+          {
+            "label": null,
+            "line": 847,
+            "column": 19,
+            "length": 26
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "eslint(no-multi-assign)",
+        "severity": "error",
+        "message": "Do not use chained assignment",
+        "labels": [
+          {
+            "label": null,
+            "line": 848,
+            "column": 19,
+            "length": 26
+          }
+        ]
+      },
+      {
+        "file": "live-movement.ts",
+        "code": "unicorn(no-lonely-if)",
+        "severity": "warning",
+        "message": "Unexpected `if` as the only statement in a `if` block without `else`.",
+        "labels": [
+          {
+            "label": null,
+            "line": 866,
+            "column": 9,
+            "length": 2
+          },
+          {
+            "label": null,
+            "line": 856,
+            "column": 7,
+            "length": 2
+          }
+        ]
+      },
+      {
+        "file": "audio.ts",
+        "code": "eslint(prefer-destructuring)",
+        "severity": "warning",
+        "message": "Use Object destructuring.",
+        "labels": [
+          {
+            "label": null,
+            "line": 105,
+            "column": 19,
+            "length": 18
+          }
+        ]
+      }
+    ]
+  },
+  "pairing": "Exact rule/severity/message and every span length/column/unchanged source line; raw cycle path notes retained in the receipts.",
+  "rawReceipts": {
+    "quality-oxfmt-02.json": "242dcfea6aad68efa8900bc31efca7e5da5d551e01fa3a727122ee2dc24021e9",
+    "quality-eslint-02.json": "d9bcb5d9924bd17ff71b24235918be321dab13a86eedc745a6dcf7ef833f71e1",
+    "quality-eslint-base-01.json": "d4c06a266f2f164f2021fdd1935bd3e08bbf8ba2708a80c734c238ebba5ae463",
+    "quality-oxlint-02.json": "f5bfab09024dad33c1b55ef9f632fa6f5835593359d14d6fef14009cec0c60e1",
+    "quality-oxlint-base-02.json": "b23b2d27d490284123b279f470e250705c23977c0c463b6613fdc8029dfdc6a3"
+  },
+  "limits": "Existing ESLint/Oxlint failures remain explicit; this is introduced-finding attribution, not clean lint."
+}

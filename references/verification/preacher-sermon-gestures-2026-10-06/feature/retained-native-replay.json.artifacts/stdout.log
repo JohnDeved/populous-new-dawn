@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "scope": "Candidate port against unchanged accepted supplied-state native rows",
+  "pairs": 63,
+  "knownStateOrReturnResidualRows": 4,
+  "comparedRequests": 73,
+  "rawResidualRows": 44,
+  "wholeSermonEquality": "not-claimed",
+  "audio": "request-only interception; live owner flag tested separately",
+  "newNativeExecution": false,
+  "nodeVersion": "v24.19.0"
+}

@@ -1,0 +1,30 @@
+{
+  "originalHead": "c169cf80b287fa2f166113409a6a30dd242faf38",
+  "correctedHead": "19c88e1ceabbfe28ed8524410aaf2b1dfaf6bd3d",
+  "originalManifestSha256": "5e01eb2c7c02179051f0e2b239c7ad067d7cbf28e11569d9663846a46c61526a",
+  "correctedManifestSha256": "125acb5330e5487c7c5bd6438c13c2ec975ecb9d04538560ee9898d885b4a3b7",
+  "probeSha256": "34f2216bccbf6c30e1d0b163ea2627c0a66d55a4e16e5a0085d5466c0b2d44de",
+  "hostCheckSourceSha256": "1b0a64e4817a41c686a90c8c55fb40f8017a4fca3f1e3314cae932f67f208e2e",
+  "hostCheckCommand": [
+    "../prerequisites/venv/bin/python",
+    "-B",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/work/reviews/check-preacher-preflight-failures.py"
+  ],
+  "hostCheckExitCode": 0,
+  "hostCheckStdoutSha256": "d4135e08905693fdfd71869eb84ca814d9f1a50bedfbaf37cf7591a9606c7c44",
+  "hostCheckStderr": "",
+  "preflightCommand": [
+    "../prerequisites/venv/bin/python",
+    "-B",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/decomp/research/preacher-sermon-gestures/compare.py",
+    "--validate"
+  ],
+  "preflightExitCode": 0,
+  "preflightStdout": "{\n  \"status\": \"preflight-passed\",\n  \"nativeExecution\": \"not-run\",\n  \"portExecution\": \"not-run\",\n  \"cases\": 27,\n  \"controllerCalls\": 63,\n  \"boundaries\": 22,\n  \"manifestSha256\": \"125acb5330e5487c7c5bd6438c13c2ec975ecb9d04538560ee9898d885b4a3b7\"\n}\n",
+  "preflightStderr": "",
+  "unchanged": "AST equality for run_native/differences/assert_failure_first; byte equality for cases.json and compare-port.mjs against original proposal",
+  "nativeExecution": "not-run",
+  "portExecution": "not-run",
+  "browser": "not-run",
+  "childTerminationTest": "simulated TimeoutExpired; no child process launched by host test"
+}

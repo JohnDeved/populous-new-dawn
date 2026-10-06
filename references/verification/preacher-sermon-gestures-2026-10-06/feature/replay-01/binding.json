@@ -1,0 +1,45 @@
+{
+  "head": "89596a69513462634f77738977e353167e5e2ecb",
+  "candidateSourceBefore": {
+    "app/animation.ts": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+    "app/melee-engagement.ts": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde",
+    "app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "app/original-units.json": "e55160f7b2f269213de064a0db928708855b7e22affe6902a66ed3183bf9a12c",
+    "app/person-motion.ts": "a8e87abdb010c7dcb20f4bfd438ec1340f82f2e92a8c4f1053c487c6c32d75d0",
+    "app/person-orders.ts": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394",
+    "app/person-state.ts": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+    "app/preacher-conversion.ts": "2369864ac8f0d20d51a1570bc8bddc608241d3da55fea6fba4b3a233e0c7933d",
+    "scripts/check-preacher-gesture-replay.py": "ed9f84bb8709a3782d494ad317f8d399d07cec36a9d6e76cd2f6db1d1c58d363",
+    "scripts/preacher-gesture-replay.mjs": "672dcbd94d7228d4e84712427a54aa67ad1e52d4b32e1b84c52dee11fb5e0bc9"
+  },
+  "nativeInputs": {
+    "native.json": "bce40128163d945f90d56392c4fb8ecd21765f7e7ed3724b4ff5f90ac41c034d",
+    "supplied-input.json": "a708520a0297fad98a655670d11a8614bda45c8f5f2c6d39b5f65881e2aa3502",
+    "frozen-manifest.json": "125acb5330e5487c7c5bd6438c13c2ec975ecb9d04538560ee9898d885b4a3b7"
+  },
+  "nodePath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "nodeSha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+  "caseCount": 27,
+  "controllerPairs": 63,
+  "candidateSourceAfter": {
+    "app/animation.ts": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+    "app/melee-engagement.ts": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde",
+    "app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "app/original-units.json": "e55160f7b2f269213de064a0db928708855b7e22affe6902a66ed3183bf9a12c",
+    "app/person-motion.ts": "a8e87abdb010c7dcb20f4bfd438ec1340f82f2e92a8c4f1053c487c6c32d75d0",
+    "app/person-orders.ts": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394",
+    "app/person-state.ts": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+    "app/preacher-conversion.ts": "2369864ac8f0d20d51a1570bc8bddc608241d3da55fea6fba4b3a233e0c7933d",
+    "scripts/check-preacher-gesture-replay.py": "ed9f84bb8709a3782d494ad317f8d399d07cec36a9d6e76cd2f6db1d1c58d363",
+    "scripts/preacher-gesture-replay.mjs": "672dcbd94d7228d4e84712427a54aa67ad1e52d4b32e1b84c52dee11fb5e0bc9"
+  },
+  "nativeInputsAfter": {
+    "native.json": "bce40128163d945f90d56392c4fb8ecd21765f7e7ed3724b4ff5f90ac41c034d",
+    "supplied-input.json": "a708520a0297fad98a655670d11a8614bda45c8f5f2c6d39b5f65881e2aa3502",
+    "frozen-manifest.json": "125acb5330e5487c7c5bd6438c13c2ec975ecb9d04538560ee9898d885b4a3b7"
+  },
+  "nodeSha256After": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+  "unchanged": true
+}

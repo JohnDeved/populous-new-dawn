@@ -1,0 +1,8 @@
+{
+  "checkedAt": "2026-10-06T13:36:35.213761+00:00",
+  "method": "Same-invocation scan after receipt child returned; task package-process names with exact feature cwd only. GNU timeout owns TERM + 3s KILL for expiry.",
+  "receiptStatus": "passed",
+  "exitCode": 0,
+  "sourceStable": true,
+  "remainingTaskPackageProcesses": []
+}

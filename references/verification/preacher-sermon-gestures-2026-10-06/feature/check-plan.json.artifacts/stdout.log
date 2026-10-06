@@ -1,0 +1,3087 @@
+{
+  "version": 1,
+  "base": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+  "head": "cf223a2b5611c9bc852755aa2228baadc98a2cb5",
+  "changes": [
+    {
+      "path": "app/audio.ts",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "696d570b569a16c0402ad59c4fad59737554a3349b78acd5110844474cf52a5b",
+      "changeHash": "e90146aa1b4d69e11c45aa26f9cfe610ccef201fa309e41319a478483bf57474"
+    },
+    {
+      "path": "app/live-movement.ts",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "ddb085910d28e63c0fdca51961a633dbcb923b182ae8b6feb1a862f1b5d350fd",
+      "changeHash": "dd1be1b658c59040b76ff8313e590d3ae5521823f549d94b2c6c24d806cafd34"
+    },
+    {
+      "path": "app/original-units.json",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "e55160f7b2f269213de064a0db928708855b7e22affe6902a66ed3183bf9a12c",
+      "changeHash": "e1f9c0138718c646f4b9dba3170e277b935090498cee2c588702a9934188a471"
+    },
+    {
+      "path": "app/preacher-conversion.ts",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "2369864ac8f0d20d51a1570bc8bddc608241d3da55fea6fba4b3a233e0c7933d",
+      "changeHash": "f2f23d18b6cd5f980c5e52ff8fc4e49216858aca0f11f65a74ea5ac9e49b187a"
+    },
+    {
+      "path": "decomp/README.md",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "315610c8dedb697d99540a9def7eb3bcd53a3b3c1185b34049ff8013719bdf31",
+      "changeHash": "92f04adea580334801c6f681782e51409102fe9ea85893404eafbeead7815e26"
+    },
+    {
+      "path": "decomp/research/preacher-sermon-gestures.md",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "c4892b73bdb40e8ec9b443dac95147fdb3d52c89b610e8a34d9e593beda06f3d",
+      "changeHash": "fd9cc33bf3261a6be63f8be77dda15ec8cb76946279d6bbdc270f390ae84d41d"
+    },
+    {
+      "path": "engineering/project-map.json",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "ba8ef89c34314418d04785529dbb35e558e6cdd639ee8e9b844d4d4e5bc25085",
+      "changeHash": "50717ce34b1fdbeb1c8e2b9ba4af6fbd2849c5829d0a9e0f9544a6bee6b8a11d"
+    },
+    {
+      "path": "public/original/provenance.json",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "8a77d7d177009a49b18ff14741a55d27ee42aefc727484547a61aee2a98344b1",
+      "changeHash": "8e6f2fa4655bbda6aacdf60f71aa01ed4bf5f5d280ea5f9a676d5bcffbec3c95"
+    },
+    {
+      "path": "public/original/unit-layers.png",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "c61aabf4692fc518efa3c879827298cf767831e308560fbad80ca03aee09aa4d",
+      "changeHash": "8cff5cb521677a94aa2048883f5453a19a6224c1697fb2f2015d5d9e6b2367a5"
+    },
+    {
+      "path": "scripts/check-preacher-gesture-assets.py",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "5d7e8fe558a9651876b619d01bdf3b03961d3e619f6f1b6fdf4b2e6508f74815",
+      "changeHash": "fb9d2ebb746a498a89beb61bd09426fb33f6f889ef1dd8d1dc6050d3fdb4f2f5"
+    },
+    {
+      "path": "scripts/check-preacher-gesture-replay.py",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "8c287bd082e879a76204c994ef1e31c67dddc38afa68a9b85f06aac02a3b1ce0",
+      "changeHash": "388c853aac3a2d7433f65911ff977f9960f1db32e4e20735ee5e06e727087643"
+    },
+    {
+      "path": "scripts/import-original.py",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0",
+      "changeHash": "a63b96b44bfa3f67f2847a6adffd8bc8f5001065197b75553100780b3a14d756"
+    },
+    {
+      "path": "scripts/preacher-gesture-replay.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "672dcbd94d7228d4e84712427a54aa67ad1e52d4b32e1b84c52dee11fb5e0bc9",
+      "changeHash": "815712095cc0dc349528bb37a799c2333a12d7d0c0eb2b5e550f4f18cd2d4463"
+    },
+    {
+      "path": "tests/preacher-conversion.test.mjs",
+      "status": "M",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "56086093f194c3cc8091f60d9605454fc20163f32112dcd8ebdfd69cc72e66e9",
+      "changeHash": "3eb2ec8b7a5c8588e3bff7f5548bbcca81d7ddf2827e683ac2c9212dc949ad62"
+    },
+    {
+      "path": "tests/preacher-gestures.test.mjs",
+      "status": "A",
+      "endpoint": "path",
+      "source": "branch",
+      "hash": "93b2cdd8fc5106c7ce7e77b3a7b902edafa98394305ff8e178bc8f1aac8ccbfe",
+      "changeHash": "c0f962f0a79a1a01728abee13ede520e838a84e89bdbaff58edecf0ad9d267ae"
+    }
+  ],
+  "affectedSubsystems": [
+    "campaign",
+    "follower-transport-controls",
+    "movement-orders",
+    "shaman-appearance"
+  ],
+  "unknownPaths": [
+    "app/audio.ts",
+    "app/preacher-conversion.ts",
+    "tests/preacher-conversion.test.mjs"
+  ],
+  "checks": [
+    {
+      "id": "automatic-boat-crossing-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/automatic-boat-crossing.test.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "The real multi-person command, matching-leg driver wait, checkpoint, sailing, landing, and retained objective completion are covered by mission9-browser.",
+        "Full or unavailable Boat retry is established only by native route evidence; this portable check covers exclusion, not the live retry schedule."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "building-counterattack-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-building-counterattack.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Indexed search, alliance/disguise, and person-order leaves are intercepted; browser regressions cover their integrated consumers."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "campaign-natural-victory-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/local-render/campaign-fixed-turn.mjs",
+        "--port",
+        "4196",
+        "--timeout",
+        "900000",
+        "--output",
+        "$POPULOUS_CAMPAIGN_OUTPUT"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs",
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Suspends RAF and directly calls tick(world, 1/12); internal camera focus and read-only picking/pathfinding assist rendered controls. No injected entities, resources, victory, AI state, or profile.",
+        "Not ordinary real-clock gameplay, native-equivalent timing, full original-game parity, or hardware performance; direct All missions setup starts Mission 2.",
+        "Conversion requires a separately observed native preacher-victim replacement; death/disappearance and victory alone do not prove it.",
+        "A passing route can record zero Blue Preacher conversions; this check alone does not complete conversion acceptance."
+      ],
+      "prerequisites": [
+        "Installed official Chrome Headless Shell",
+        "Private installed dependencies",
+        "Reserved local browser lane",
+        "Unique output directory"
+      ],
+      "sideEffects": [
+        "Writes isolated browser-context campaign profile state, owned server caches, screenshots, adapter and source-bound JSON report in the requested output directory"
+      ],
+      "resources": [
+        "Owned local server on port 4196 and sandboxed browser; run serially"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_BROWSER, POPULOUS_CAMPAIGN_OUTPUT"
+    },
+    {
+      "id": "computer-attack-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-computer-attack.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Phase-16 target collection remains a controlled world input; damage success and empty-target retry branches are not executed end-to-end."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent levels/cpscr010.dat and levels/cpscr058.dat are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "computer-direct-attack-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-command-28.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Does not execute the command-28 combat body, target lifecycle, attacking-shaman branch, vehicles, or ranged members."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "firewarrior-building-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-firewarrior-building.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs",
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Accelerates training mana and positions the trained Firewarrior and authentic hostile people to isolate the authored building target.",
+        "Broad terrain line-of-fire, plans, Bloodlust, tower-origin building attacks, and building destruction remain deferred."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "follower-task-art-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-follower-task-art.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "follower-transport-controls path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Supplied raster/coordinate leaves; no original-game runtime or complete painter-order claim."
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "follower-transports-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--game-root",
+        ".",
+        "--scenario",
+        "scripts/check-browser-follower-transports.mjs",
+        "--port",
+        "4357",
+        "--output",
+        "work/orchestration/follower-transports-browser",
+        "--timeout",
+        "600000"
+      ],
+      "reasons": [
+        "follower-transport-controls path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Supporting injected crews/crafts are explicitly labelled; no natural acquisition, Windows full-frame parity or hardware-performance claim.",
+        "Boat driver-Spy disguise is a bounded supporting fixture; non-driver scheduling and Balloon commandPosition remain outside this claim."
+      ],
+      "prerequisites": [
+        "Reserved local browser/server lane",
+        "Exclusive installed dependencies",
+        "Official sandboxed Headless Shell"
+      ],
+      "sideEffects": [
+        "Writes ignored capture/receipt output and private local server caches"
+      ],
+      "resources": [
+        "Exclusive browser and port4357"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_BROWSER"
+    },
+    {
+      "id": "follower-transports-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-follower-transports.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "follower-transport-controls path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "UI/sound and world leaves are supplied; no full original-game loop proof."
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "follower-transports-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/follower-transports.test.mjs",
+        "tests/follower-transport-runtime.test.mjs",
+        "tests/browser-follower-transports-checker.test.mjs",
+        "tests/hud-layout.test.mjs",
+        "tests/follower-transport-owner-consumers.test.mjs",
+        "tests/transport-pixel-reference.test.mjs"
+      ],
+      "reasons": [
+        "follower-transport-controls path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Supporting class/owner fixtures do not establish natural acquisition or arbitrary mixed-tribe admission."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "level-start-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-level-start.mjs"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/original-units.json",
+        "shaman-appearance path changed: public/original/provenance.json",
+        "shaman-appearance path changed: public/original/unit-layers.png",
+        "shaman-appearance path changed: scripts/import-original.py"
+      ],
+      "knownLimits": [
+        "UI restart/checkpoint acceptance also requires corresponding portable/store checks; native evidence is separate."
+      ],
+      "prerequisites": [
+        "Reserved Linux HeadlessShell browser/server slot",
+        "Playwright Chromium with verified local launch wrapper",
+        "Unique output directory"
+      ],
+      "sideEffects": [
+        "Writes screenshots and a commit-labelled JSON report to the requested output directory"
+      ],
+      "resources": [
+        "Serialized local Linux browser/server QA slot"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_URL, POPULOUS_LEVEL_START_OUTPUT"
+    },
+    {
+      "id": "level-start-native",
+      "kind": "native",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-native-level-start.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/original-units.json",
+        "shaman-appearance path changed: public/original/provenance.json",
+        "shaman-appearance path changed: public/original/unit-layers.png",
+        "shaman-appearance path changed: scripts/import-original.py"
+      ],
+      "knownLimits": [
+        "Supplied allocation, registration, notification and animation leaves; not full original game execution."
+      ],
+      "prerequisites": [
+        "Hash-matching supplied original EXE and adjacent mwsearch data",
+        "Explicit isolated native-execution authorization",
+        "Python with Unicorn and Capstone"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE"
+    },
+    {
+      "id": "level-start-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/level-start.test.mjs"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/original-units.json",
+        "shaman-appearance path changed: public/original/provenance.json",
+        "shaman-appearance path changed: public/original/unit-layers.png",
+        "shaman-appearance path changed: scripts/import-original.py"
+      ],
+      "knownLimits": [
+        "Browser pixels and native instruction comparisons run separately."
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "level-start-static",
+      "kind": "static",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-static-level-start.py",
+        "--data-root",
+        "$POPULOUS_DATA_ROOT"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/original-units.json",
+        "shaman-appearance path changed: public/original/provenance.json",
+        "shaman-appearance path changed: public/original/unit-layers.png",
+        "shaman-appearance path changed: scripts/import-original.py"
+      ],
+      "knownLimits": [
+        "Not an original raster or browser comparison; append-preservation uses an optional captured baseline."
+      ],
+      "prerequisites": [
+        "Supplied hash-matching original game data",
+        "Python with Pillow"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT"
+    },
+    {
+      "id": "messages-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-messages.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The accessible browser text popup is a modern adapter, not original font/raster parity."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes /private/tmp/populous-messages.png"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "messages-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-messages.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Remaining Mission 1 campaign bytecode branches require a separately supplied cpscr010.dat; other notification classes and the original popup renderer remain outside this check."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable",
+        "Adjacent Mission 2 and Mission 4 scripts plus language, palette, and HFX data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission10-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission10-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Message, head, flyby, and outcome consumers are intercepted; commands 1131 and 1202 receive supplied results. The timer, level-flag, and player-result-flag leaves execute natively.",
+        "The full native level, Boat route, trigger clones, and class-7 model-90/model-26 terrain consumers are not executed."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 10 level, header, script, and language data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission11-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission11.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Seeds Mission 10 victory to isolate the continuation and does not prove natural Mission 10 completion.",
+        "Seeds Mission 11 victory after proving its bounded opening/settlement path; natural Mission 11 completion remains deferred.",
+        "Mission 11 later housing/staffing/attacks/objectives; Mission 12 later AI, objectives, victory, broader Spy detection/reinforcement/death, normal cross-island transport to sabotage, Balloon behavior, and opcode 1190's downstream consumer; and Mission 13 later AI, objectives, victory, Balloon combat targeting/feedback, exact Balloon art, and full script command coverage remain deferred; destruction is covered separately."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission11-build-at-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission11-build-at.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The completed model-3 count and an inert base building are supplied; the live browser check owns the naturally upgraded Hut and first eligible turn 4605.",
+        "Candidate acceptance is forced to reject. Natural Mission 11 terrain acceptance, worker construction, rendering, and checkpoint continuation remain browser evidence."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 11 script"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission11-housing-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission11-housing.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The probe calls the producer directly with the accepted tower owner, its 0xda7a base cell, and model availability supplied. Cadence, construction-task limit, and housing-target gates are static reviewed evidence; the browser check owns the natural tower, site selection, construction, upgrades, and rendering.",
+        "The first BUILD_AT tower is covered separately by mission11-build-at-native after this probe's model-3 Hut prerequisite matures."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 11 script"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission11-settlement-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission11-settlement.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The available-Brave count is intercepted as six from the supplied raw level records.",
+        "Terrain acceptance, plan insertion, worker movement, completion, rendering, and checkpoint restoration remain browser evidence."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 11 level, header, and scripts"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission12-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission12-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Flyby commands are recorded at the dispatcher; rendering and input release remain browser evidence.",
+        "Producer current-base and available-Brave leaves are supplied from the verified level; loaded-world ownership, site choice, workers, and construction remain portable/browser evidence.",
+        "Opcode 1190's downstream object-flag consumer and every later Mission 12 branch remain unresolved."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 12 level, header, three scripts, and English language data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission12-spy-sabotage-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission12-spy-sabotage.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Allocation, terrain, movement, animation, and teardown leaves are supplied; full native gameplay is not executed.",
+        "The exact original UI setter for disguise choice, ordinary discovery percentages, render pixels, and save-file serialization remain browser/portable or open evidence."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission13-balloon-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-balloon.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Descriptor bytes do not execute the producer or a complete native world.",
+        "Construction, recurring production, player controls, persistence, rendering, and full-world integration remain portable/browser evidence.",
+        "Exact native per-tick steering, combat targeting/feedback, downstream ejected-passenger fate, audio, and source artwork remain unresolved; destruction is covered separately."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission13-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission13-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Flyby commands are recorded at the dispatcher; rendering and input release remain browser evidence.",
+        "Object populations and knowledge links are decoded from the verified level without a full native world load.",
+        "Later Mission 13 AI, objectives, victory, Balloon combat targeting/feedback, and exact Balloon art remain unresolved; construction, transport, and destruction are separate browser/native Balloon evidence."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 13 level, header, scripts 29/30, and English language data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission14-rewards-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission14-rewards.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Followers are positioned at authored worship rings and accumulated work is bounded after real input establishes worship.",
+        "Headless GPU pixels do not establish exact native raster parity.",
+        "Later Mission 14 AI and victory behavior remain outside this feature slice."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes and restores the browser checkpoint database"
+      ],
+      "resources": [
+        "Fixed server and browser storage resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission14-rewards-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission14-rewards.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Allocation, deletion, audio playback, template copy, shared-reference outcome, cleanup, and shaman initialization are intercepted leaves documented in the research note.",
+        "Projectile transit, live Angel combat, renderer/audio playback, native save serialization, and browser reachability are not proved by this probe."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 14 level and constant data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission14-rewards-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission14-rewards.test.mjs",
+        "tests/mission5-angel.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The test bounds worship duration after real follower orders reach the authored ring.",
+        "The browser models the linked spell rewards but not the heads' class-7 decoration clones.",
+        "Later Mission 14 AI and victory behavior remain outside this feature slice."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission15-prison-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission15-prison.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The selected Brave is placed at the authored Prison edge, simulation RNG is fixed for route repeatability, and damage is bounded after the first real pointer-issued strike.",
+        "The expiry timer is bounded to one turn after the live mission starts.",
+        "Headless GPU pixels do not establish exact native raster parity; exact Prison debris/audio and later Mission 15 AI remain open."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes and restores the browser checkpoint database"
+      ],
+      "resources": [
+        "Fixed server and browser storage resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission15-prison-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission15-prison.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Presentation, registration, adjacency, footprint enumeration, and generic state/motion leaves are supplied as documented in the research note.",
+        "The probe does not emulate plan allocation, terrain routing, audiovisual playback, queued-Lightning delay, or downstream generic Shaman-defeat UI."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 15 level and script data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission15-prison-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission15-prison.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The test bounds Prison damage after one real ordinary follower strike.",
+        "Exact Prison debris/audio and later Mission 15 AI remain outside this feature slice."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission16-bloodlust-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission16-bloodlust.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The check positions worshippers and combatants to bound pathfinding time.",
+        "Headless GPU rendering does not establish exact native HFX raster parity."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes and restores the browser checkpoint database"
+      ],
+      "resources": [
+        "Fixed server and browser storage resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission16-bloodlust-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission16-bloodlust.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The expiry driver intercepts unrelated AI, motion, presentation, and cleanup leaves.",
+        "Firewarrior and rendering consumers reuse already-reviewed exports rather than duplicate emulation here."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 16 level and script data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission16-bloodlust-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission16-bloodlust.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Original HFX artwork and a distinct AI Bloodlust casting policy are not established."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission17-armageddon-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission17-armageddon.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Worshippers are placed at native slots and the blue roster is enlarged to bound the winning run.",
+        "Enemy life is cleared after real central battle orders begin; the portable check separately covers defeat and a full natural melee run was observed during implementation."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes and restores the browser checkpoint database"
+      ],
+      "resources": [
+        "Fixed server and browser storage resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission17-armageddon-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission17-armageddon.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Arena phase behavior is established by the registered controller exports and portable/live checks rather than emulated in this probe.",
+        "Allocation, unit-state leaves, and audio playback are intercepted."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent Mission 17 level data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission17-armageddon-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission17-armageddon.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The portable result counterexamples remove one side after real battle orders begin to keep runtime bounded.",
+        "Exact native camera interpolation, audio, and Shaman automatic spell choices remain presentation/controller limits."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission18-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission18.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The focused browser check accelerates worship after followers enter their native slots.",
+        "The portable check owns Red patrol, Armageddon arena, checkpoint, and both result directions."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission18-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission18.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The native check byte-verifies the authored script and data rather than running a complete game process.",
+        "Device rasterization, non-lens view configuration, recurring command 1074, and later Mission 18 AI remain open."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 18 level and data files"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission18-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission18.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Result counterexamples remove one side after arena battle orders begin to bound runtime.",
+        "Later recurring AI, exact Shaman spell choices, camera interpolation, and audio remain open."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission19-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission19.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The focused browser check supplies worship followers at their native slots and accelerates completed worship work.",
+        "The portable check owns checkpoint continuation and all objective result directions."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission19-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission19.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Only allocator and retirement leaves are intercepted in the executable Teleport timing probe.",
+        "Warning 127/128 reachability, audiovisual presentation, and later Mission 19 AI remain open."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 19 level and data files"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission19-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission19.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Focused objective cases place the script clock at its native cadence before changing the relevant population state.",
+        "Warning 127/128, later AI, exact rendering, and audio remain open."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission20-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission20.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The focused browser check supplies worship followers at authored slots and accelerates completed worship work.",
+        "The portable check owns checkpoint continuation; later Mission 20 AI and exact audiovisual presentation remain open."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission20-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission20.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Allocation, deletion, template-copy, first-processing, and presentation leaves are intercepted.",
+        "Complete post-dispatch terrain, damage, rendering, and audio evolution remains browser integration evidence."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 20 level and script files"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission20-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission20.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The focused test supplies worship followers at authored slots and accelerates completed worship work.",
+        "Exact class-7 presentation/audio and later Mission 20 AI remain open."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission21-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission21.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The browser check advances ordinary fixed turns between player actions; it does not record a native route-timing playthrough.",
+        "Exact class-7/model-39 presentation, later faults, AI, and mission outcome remain open."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission21-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission21.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Allocation, template copy, first-processing, deletion, worship presentation, and shared-reference leaves are intercepted.",
+        "This is not a full native route-timing playthrough, renderer/audio comparison, checkpoint proof, later-fault proof, AI proof, or mission-outcome proof."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 21 level, header, script, and language files"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission21-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission21.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The portable check drives production command APIs; the browser check supplies the shipped-control proof.",
+        "Native end-to-end route timing, exact class-7/model-39 presentation, later faults, AI, and mission outcome remain open."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission22-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission22.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The browser check advances ordinary fixed turns between player actions; it does not record a native route-timing playthrough.",
+        "Exact stone animation/assets, AI, objective, and mission outcome remain open."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission22-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission22-gifts.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Allocation, template copy, deletion, selected presentation data, person eligibility, and some vehicle setup leaves are intercepted.",
+        "The probe does not establish the full trigger controller's generic completion cue, a native route-timing playthrough, exact renderer comparison, save-format proof, AI proof, or mission-outcome proof."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 22 level, header, script, and language files"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission22-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission22.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The portable check drives production commands; the browser check supplies shipped-control proof.",
+        "Exact stone animation/assets, AI, objective, and mission outcome remain open."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission23-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission23.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The focused check positions authored units, supplies one Land Bridge stock, and advances fixed turns after shipped pointer orders establish worship.",
+        "Boat production/transport, training, attacks, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission23-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission23.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Focused allocation and presentation leaves may be intercepted and documented by the probe.",
+        "The check does not establish Mission 23 AI, natural outcome, exact rendering/audio, or a complete native playthrough."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 23 level, header, script, and language files"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission23-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission23.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The focused check supplies one Land Bridge stock and accelerates completed worship work after real orders establish followers.",
+        "Boat production/transport, training, attacks, natural outcome, Missions 24-25, and exact audiovisual presentation remain open."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission23-settlement-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission23-settlement.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The probe supplies authored Shaman origins and available Brave counts; later cases supply completed-building lists, building availability, and distinct current-base sentinels.",
+        "It does not execute terrain-site acceptance, construction completion, training, attacks, combat, or outcome."
+      ],
+      "prerequisites": [
+        "Hash-verified user-supplied executable with adjacent Mission 23 level, header, and script files"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent game data are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission4-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission4.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Injects prior Mission 3 and Mission 4 wins, accelerates Mission 4 tutorial conditions, positions one Mission 5 follower at the Boat worship ring and the Shaman at the Angel trigger, injects late-mission population/kill thresholds plus one reachable survivor, and removes Mission 5 enemy forces before exercising the real outcome/profile path; starting-route terrain progression, broader recurring AI, the Angel reward, complete housed-Preacher behavior, and other Mission 5 combat remain deferred.",
+        "Mission 5 opening events and trigger come from the imported original script; native timing has not been independently replayed.",
+        "Mission 6 later ordinary attacks, broader BUILD_AT behavior, later producer profiles, and later mission-specific content remain deferred."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission5-angel-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission5-angel.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "An existing warrior is positioned at the worship ring to bound travel; no head, Angel, enemy, or completion state is injected.",
+        "Headless GPU pixels do not establish full original raster parity.",
+        "The check proves visible movement and cue presence, not exact native flight speed, height, or activation timing."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes /private/tmp/populous-mission5-angel.png"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission5-angel-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/mission5-angel.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The browser check bounds cleanup after combat; model-91's exact sprite presentation remains deferred.",
+        "Flight speed 128, the stable +100 initial-height offset, and combined 0xd9/0xdb spawn timing are bounded approximations because native chase height and activation ordering remain unrecovered."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "mission7-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission7.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Seeds Mission 6 victory, positions the authentic Shaman at the remote Vault entrance, and positions the converted follower within casting range.",
+        "It does not prove the full-map Vault route, natural Mission 6 or Mission 7 victory, later Mission 7 AI, or Erosion acquisition."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission7-opening-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-mission7-opening.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The native game-command dispatcher is intercepted; existing focused checks cover the bound message and flyby handlers.",
+        "Mission 7 attack AI, later messages, Erosion acquisition, and victory remain excluded."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable and adjacent Mission 7 script"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable and adjacent levels/cpscr021.dat are read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission8-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission8.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs",
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Seeds Mission 7 victory, positions the authentic Shaman at the remote Vault entrance, clears construction/Firewarrior selections, accelerates training mana, and positions authentic enemies in range.",
+        "Mission 8 AI, tutorials, victory, and broader Firewarrior Bloodlust, terrain line-of-fire, target damage, and trail behavior remain deferred."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "mission8-firewarrior-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-firewarrior.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs",
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Global order/projectile allocation, audio, trail, and the downstream kill-credit consumer are intercepted; the completed-building branch is established by indexed byte-verified exports rather than a constructed native probe; browser terrain occlusion, the special level-flag range, Bloodlust, broad target damage, and complete native play remain deferred."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent constant.dat",
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission9-boat-house-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-boat-house.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs",
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Shape enumeration, allocation storage, height, routing, boarding, motion, and removal leaves are supplied; the external work increment and full native world remain outside this probe."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable with adjacent game data"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "mission9-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-mission9.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs",
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Seeds Mission 8 and Mission 9 victory before exercising Mission 10 through rendered player input.",
+        "Mission 9 AI, victory, tutorials, recurring Boat production, Boat combat targeting/feedback, and exact replacement hull art remain deferred; destruction is covered separately.",
+        "The complete native simultaneous multi-person crossing schedule is not byte-executed end to end; native route/vehicle probes and the live Mission 10 composition divide that evidence.",
+        "After four rendered Blasts, surviving nearby defenders are removed to isolate second-Totem checkpoint continuation; this check does not prove fully player-driven defender clearance.",
+        "Mission 10 full AI, Shaman-loss branch, natural endgame victory, and exact model-90/model-26 terrain equivalence remain deferred."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "orchestration-structural",
+      "kind": "metadata",
+      "command": [
+        "node",
+        "scripts/orchestration/cli.mjs",
+        "check"
+      ],
+      "reasons": [
+        "workflow path changed: engineering/project-map.json"
+      ],
+      "knownLimits": [
+        "Structural validation does not certify evidence semantics or enforce an OS sandbox."
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0",
+        "Git"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "orchestration-tests",
+      "kind": "metadata",
+      "command": [
+        "node",
+        "--test",
+        "tests/orchestration.test.mjs",
+        "tests/workflow-handoff.test.mjs",
+        "tests/workflow-policy.test.mjs"
+      ],
+      "reasons": [
+        "workflow path changed: engineering/project-map.json"
+      ],
+      "knownLimits": [
+        "Synthetic repositories validate mechanics; live assertions cover only the mapped performance boundaries named by this suite."
+      ],
+      "prerequisites": [
+        "Node.js >=22.13.0"
+      ],
+      "sideEffects": [
+        "May refresh ignored work/orchestration/index.json",
+        "Temporary directories only"
+      ],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "orders-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-ground-waypoints.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Does not prove Boat construction, combat, native artwork, or mixed transport queues."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "May write /private/tmp captures"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "orders-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-orders.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "World consumers and full scheduling are supplied or separately checked."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [
+        "Writes tracked player-order and ground-input fixtures even without --record"
+      ],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "orders-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/player-orders.test.mjs",
+        "tests/ground-waypoints.test.mjs",
+        "tests/live-movement.test.mjs",
+        "tests/world-movement.test.mjs",
+        "tests/command-context.test.mjs",
+        "tests/shaman-guard-native.test.mjs",
+        "tests/shaman-guard-input.test.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Does not cover every command class, vehicle, allocator, or scheduler path."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "production-build",
+      "kind": "build",
+      "command": [
+        "npm",
+        "run",
+        "build"
+      ],
+      "reasons": [
+        "application source changed: app/audio.ts",
+        "application source changed: app/live-movement.ts",
+        "application source changed: app/original-units.json",
+        "application source changed: app/preacher-conversion.ts",
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs",
+        "follower-transport-controls path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "A successful build does not establish browser behavior or native parity."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [
+        "Writes ignored dist/ and Wrangler logs"
+      ],
+      "resources": [
+        "Shared build directories; run serially"
+      ],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "queued-timber-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-command-target.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Does not cover loose-log mode, automatic timber search, or every scenery chain collision."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "reincarnation-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-reincarnation.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Headless browser rendering does not establish original full-frame raster parity."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes /private/tmp screenshots"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "reincarnation-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-reincarnation.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Allocation, sound, registration, and deletion consumers are supplied; the live browser integration is checked separately."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "reincarnation-wave-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-reincarnation-wave.mjs",
+        "--mission",
+        "2",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/original-units.json",
+        "shaman-appearance path changed: public/original/provenance.json",
+        "shaman-appearance path changed: public/original/unit-layers.png",
+        "shaman-appearance path changed: scripts/import-original.py"
+      ],
+      "knownLimits": [
+        "Command adapter is not pointer-picking proof.",
+        "Staged intruders are separate from natural gameplay acceptance.",
+        "Linux headless rendering cannot establish hardware performance."
+      ],
+      "prerequisites": [
+        "Owned local game server",
+        "Supported sandboxed Playwright browser"
+      ],
+      "sideEffects": [
+        "Writes source-bound captures/report to unique artifact directory"
+      ],
+      "resources": [
+        "Shared browser/server lane; serialize"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_ARTIFACT_DIR, POPULOUS_HEADLESS_SHELL"
+    },
+    {
+      "id": "reincarnation-wave-native",
+      "kind": "native",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-native-reincarnation-wave.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/original-units.json",
+        "shaman-appearance path changed: public/original/provenance.json",
+        "shaman-appearance path changed: public/original/unit-layers.png",
+        "shaman-appearance path changed: scripts/import-original.py"
+      ],
+      "knownLimits": [
+        "Supplied rendering, sound, removal and unrelated world leaves; spawn requests are supplied, not a successful native spawn.",
+        "Earlier corrupt-search receipts through94e88b4 are superseded."
+      ],
+      "prerequisites": [
+        "Hash-verified original EXE, levels/constant.dat and data/mwsearch.dat",
+        "Pinned Unicorn environment"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE, POPULOUS_PYTHON"
+    },
+    {
+      "id": "reincarnation-wave-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/reincarnation-wave.test.mjs",
+        "tests/level-start.test.mjs",
+        "tests/person-panic.test.mjs"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/original-units.json",
+        "shaman-appearance path changed: public/original/provenance.json",
+        "shaman-appearance path changed: public/original/unit-layers.png",
+        "shaman-appearance path changed: scripts/import-original.py"
+      ],
+      "knownLimits": [
+        "Supporting fixtures and source integration do not establish rendered acceptance."
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "repository-check",
+      "kind": "portable",
+      "command": [
+        "npm",
+        "run",
+        "check"
+      ],
+      "reasons": [
+        "application source changed: app/audio.ts",
+        "application source changed: app/live-movement.ts",
+        "application source changed: app/original-units.json",
+        "application source changed: app/preacher-conversion.ts",
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs",
+        "follower-transport-controls path changed: app/live-movement.ts",
+        "unmapped path requires conservative general validation: app/audio.ts",
+        "unmapped path requires conservative general validation: app/preacher-conversion.ts",
+        "unmapped path requires conservative general validation: tests/preacher-conversion.test.mjs",
+        "workflow integration changed: engineering/project-map.json"
+      ],
+      "knownLimits": [
+        "Does not run native executable, browser integration, or hardware performance checks."
+      ],
+      "prerequisites": [
+        "Installed npm dependencies"
+      ],
+      "sideEffects": [
+        "May update ignored tool caches"
+      ],
+      "resources": [
+        "Serialize with other full test runs"
+      ],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "shaman-appearance-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-shaman-appearance.mjs",
+        "--reference-report",
+        "$POPULOUS_SHAMAN_REFERENCE",
+        "--output-dir",
+        "$POPULOUS_SHAMAN_OUTPUT",
+        "--headed"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/original-units.json",
+        "shaman-appearance path changed: public/original/provenance.json",
+        "shaman-appearance path changed: public/original/unit-layers.png",
+        "shaman-appearance path changed: scripts/import-original.py"
+      ],
+      "knownLimits": [
+        "Requires an explicit browser/GPU slot; cannot run from a portable aggregate.",
+        "Controlled pose/death edge cases supplement ordinary mission startup; no144fps or performance-nonregression claim."
+      ],
+      "prerequisites": [
+        "Owned server at127.0.0.1:4318",
+        "Installed Playwright browser",
+        "Static reference report from the current atlas",
+        "A new unique ignored output directory",
+        "Explicit runtime resource grant"
+      ],
+      "sideEffects": [
+        "Creates an isolated browser profile and writes only the supplied new artifact directory"
+      ],
+      "resources": [
+        "Browser/GPU/server serialized by explicit CEO grant"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_URL, POPULOUS_SHAMAN_REFERENCE, POPULOUS_SHAMAN_OUTPUT"
+    },
+    {
+      "id": "shaman-appearance-native",
+      "kind": "native",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-native-shaman-appearance.py",
+        "$POPULOUS_EXE",
+        "--output",
+        "$POPULOUS_SHAMAN_NATIVE_OUTPUT"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/original-units.json",
+        "shaman-appearance path changed: public/original/provenance.json",
+        "shaman-appearance path changed: public/original/unit-layers.png",
+        "shaman-appearance path changed: scripts/import-original.py"
+      ],
+      "knownLimits": [
+        "Requires a separate native-execution grant; not included in browser/GPU approval.",
+        "Original world draw is separate static evidence; this does not execute the entire graphics loop."
+      ],
+      "prerequisites": [
+        "Documented native Python environment",
+        "Hash-verified supplied EXE/adjacent assets",
+        "Explicit native resource grant"
+      ],
+      "sideEffects": [
+        "Writes a new explicitly supplied evidence JSON; never records fixtures"
+      ],
+      "resources": [
+        "Native execution serialized by CEO"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_EXE, POPULOUS_SHAMAN_NATIVE_OUTPUT"
+    },
+    {
+      "id": "shaman-appearance-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/shaman-appearance.test.mjs",
+        "tests/sprite-layers.test.mjs"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/original-units.json",
+        "shaman-appearance path changed: public/original/provenance.json",
+        "shaman-appearance path changed: public/original/unit-layers.png",
+        "shaman-appearance path changed: scripts/import-original.py"
+      ],
+      "knownLimits": [
+        "Portable checks do not certify rendered gameplay or complete native animation timing."
+      ],
+      "prerequisites": [
+        "Node.js >=22.13 with TypeScript stripping",
+        "Installed repository dependencies"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "shaman-assets-static",
+      "kind": "static",
+      "command": [
+        "$POPULOUS_PYTHON",
+        "-B",
+        "scripts/check-static-shaman-appearance.py",
+        "--data-root",
+        "$POPULOUS_DATA_ROOT"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/original-units.json",
+        "shaman-appearance path changed: public/original/provenance.json",
+        "shaman-appearance path changed: public/original/unit-layers.png",
+        "shaman-appearance path changed: scripts/import-original.py"
+      ],
+      "knownLimits": [
+        "Static original-byte comparison; no native executable or browser is run."
+      ],
+      "prerequisites": [
+        "Existing Python environment with Pillow",
+        "Supplied hash-matching original data root"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_PYTHON, POPULOUS_DATA_ROOT"
+    },
+    {
+      "id": "shaman-death-ground-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/local-render/harness.mjs",
+        "--scenario",
+        "scripts/check-browser-shaman-death-ground.mjs",
+        "--mission",
+        "1",
+        "--browser",
+        "$POPULOUS_HEADLESS_SHELL",
+        "--output",
+        "$POPULOUS_ARTIFACT_DIR",
+        "--timeout",
+        "480000"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/original-units.json",
+        "shaman-appearance path changed: public/original/provenance.json",
+        "shaman-appearance path changed: public/original/unit-layers.png",
+        "shaman-appearance path changed: scripts/import-original.py"
+      ],
+      "knownLimits": [
+        "Held RAF; full Scene.animate at24Hz/1x, not real time. Zero-time camera assist; no World injection. No native raster/hardware claim."
+      ],
+      "prerequisites": [
+        "Verified installed dependencies",
+        "Supported sandboxed browser"
+      ],
+      "sideEffects": [
+        "Writes source-bound screenshots/report in an owned artifact directory"
+      ],
+      "resources": [
+        "Shared browser/server lane; serialize"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_HEADLESS_SHELL, POPULOUS_ARTIFACT_DIR"
+    },
+    {
+      "id": "shaman-death-ground-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-shaman-death-ground.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/original-units.json",
+        "shaman-appearance path changed: public/original/provenance.json",
+        "shaman-appearance path changed: public/original/unit-layers.png",
+        "shaman-appearance path changed: scripts/import-original.py"
+      ],
+      "knownLimits": [
+        "Registration, support predicates, audio, bookkeeping and spawning are supplied leaves.",
+        "The current caller uses ordinary combat death and supplied post-death terrain; no shipped spell or native raster claim."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment and Node.js",
+        "Hash-verified executable, levels/constant.dat, data/mwsearch.dat, data/vstart-0.ani and data/vfra-0.ani"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs; coordinate CPU use"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "shaman-death-ground-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--test",
+        "tests/shaman-death-ground.test.mjs",
+        "tests/shaman-death-cadence.test.mjs",
+        "tests/shaman-death-vfx.test.mjs",
+        "tests/controlled-scene-frames.test.mjs"
+      ],
+      "reasons": [
+        "shaman-appearance path changed: app/original-units.json",
+        "shaman-appearance path changed: public/original/provenance.json",
+        "shaman-appearance path changed: public/original/unit-layers.png",
+        "shaman-appearance path changed: scripts/import-original.py"
+      ],
+      "knownLimits": [
+        "Death-terrain/drowning fixtures and fake-Scene bounds; actual rendering separate."
+      ],
+      "prerequisites": [
+        "Node.js with TypeScript stripping"
+      ],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "transport-ownership-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "scripts/check-native-transport-ownership.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "follower-transport-controls path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Native-only writer evidence is composed with live portable/browser adapters; supplied animation/world leaves and truncated command/timer boundaries remain explicit."
+      ],
+      "prerequisites": [
+        "Verified original executable",
+        "Documented Unicorn Python environment"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Read-only native inputs"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "transport-vehicle-materials-native",
+      "kind": "native",
+      "command": [
+        "python3",
+        "-B",
+        "scripts/check-native-vehicle-materials.py",
+        "$POPULOUS_EXE",
+        "$POPULOUS_LIVE_MODEL_INPUT"
+      ],
+      "reasons": [
+        "follower-transport-controls path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Requires read-only model capture from the approved browser run; no synthetic input or fixture recording.",
+        "No final native GPU rasterization or hardware-performance claim."
+      ],
+      "prerequisites": [
+        "Verified executable and original objects/objs0-2.dat, facs0-2.dat and pnts0-2.dat",
+        "Actual captured live-vehicle-models.json from the source-bound transport browser run"
+      ],
+      "sideEffects": [
+        "Writes native-vehicle-materials.json beside the captured input with exclusive creation"
+      ],
+      "resources": [
+        "Read-only native inputs; unique capture/output directory"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE, POPULOUS_LIVE_MODEL_INPUT"
+    },
+    {
+      "id": "tutorial-first-lesson-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-tutorial.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Headless browser rendering does not establish exact native presentation.",
+        "Right-click overview exit, later lessons, completion, and original frontend styling remain deferred."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "Fixed server and browser resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "tutorial-first-lesson-portable",
+      "kind": "portable",
+      "command": [
+        "node",
+        "--experimental-strip-types",
+        "--test",
+        "tests/tutorial.test.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "The portable check changes the same world-owned draw mode that the Scene owns in the browser check.",
+        "Later Tutorial lessons, later scripted trigger heads, completion, and native presentation remain deferred."
+      ],
+      "prerequisites": [],
+      "sideEffects": [],
+      "resources": [],
+      "status": "not-run",
+      "reason": "selected only; planning never executes checks"
+    },
+    {
+      "id": "vault-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-vault.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs",
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Movement, adjacency, trigger association, animation, audio, and decorative consumers are supplied; browser pathfinding adapts those leaves."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "vehicle-destruction-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-vehicle-destruction.mjs"
+      ],
+      "reasons": [
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "The authored Boat owner is changed to an enemy tribe for the bounded interaction because supported campaign content does not yet produce an enemy vehicle.",
+        "Occupied ejection is native/portable evidence; downstream passenger terrain fate, exact effects, audio, and enemy vehicle AI remain open."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes only isolated browser-context IndexedDB state"
+      ],
+      "resources": [
+        "Fixed game server and browser; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "vehicle-destruction-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-vehicle-damage.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "follower-transport-controls path changed: app/live-movement.ts",
+        "movement-orders path changed: app/live-movement.ts"
+      ],
+      "knownLimits": [
+        "Exit-target search, asset-backed animation, and generic initialization leaves are supplied; audiovisual effects, final removal, and downstream passenger water/land survival remain portable/static evidence or open."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    },
+    {
+      "id": "worship-browser",
+      "kind": "browser",
+      "command": [
+        "node",
+        "scripts/check-browser-worship.mjs"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Headless browser rendering does not establish original full-frame raster parity or generic pickup behavior."
+      ],
+      "prerequisites": [
+        "Running game server",
+        "Playwright Chromium"
+      ],
+      "sideEffects": [
+        "Writes /private/tmp screenshots"
+      ],
+      "resources": [
+        "Fixed server/capture resources; run serially"
+      ],
+      "status": "not-run",
+      "reason": "requires an inspected running server/browser setup; planning does not probe or execute it"
+    },
+    {
+      "id": "worship-native",
+      "kind": "native",
+      "command": [
+        ".tools/decomp/oracle/bin/python",
+        "scripts/check-native-worship.py",
+        "$POPULOUS_EXE"
+      ],
+      "reasons": [
+        "campaign path changed: decomp/README.md",
+        "campaign path changed: decomp/research/preacher-sermon-gestures.md",
+        "campaign path changed: public/original/provenance.json",
+        "campaign path changed: scripts/check-preacher-gesture-assets.py",
+        "campaign path changed: scripts/check-preacher-gesture-replay.py",
+        "campaign path changed: scripts/import-original.py",
+        "campaign path changed: scripts/preacher-gesture-replay.mjs",
+        "campaign path changed: tests/preacher-gestures.test.mjs"
+      ],
+      "knownLimits": [
+        "Reward allocation, sunlight, deletion, and Windows UI consumers are supplied; generic command-29 pickup and competitive ownership are not covered."
+      ],
+      "prerequisites": [
+        "Documented Unicorn Python environment",
+        "Hash-verified user-supplied executable"
+      ],
+      "sideEffects": [],
+      "resources": [
+        "External executable is read-only"
+      ],
+      "status": "blocked",
+      "reason": "missing environment: POPULOUS_EXE"
+    }
+  ],
+  "executesChecks": false
+}

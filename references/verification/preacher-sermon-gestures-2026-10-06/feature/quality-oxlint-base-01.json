@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "562dcaf4-51b5-4580-aea2-091f266400a4",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6ded591b9e969bdb3ad98d789d319bf3bf6fbe55",
+    "branch": "fix/preacher-sermon-gestures-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+      "node_modules/oxc-standard/.oxlintrc.json": "12a8af193abedfc648f0b37822a0092df18b5cd83644b8e6bd57d0f1e24d2bbc",
+      "node_modules/oxlint/package.json": "194e9ac91a3525151344674311b8272ad2f81ce0a2efc3ec5454a60dfc3d14b6",
+      "work/orchestration/preacher-gesture-fix/quality-baseline-inputs.json": "6448dbfaf25880ec9b28c23a85f80686bb9f5fdbdf9345cb49d55a7d1473b13e",
+      "../reviewed-parity-four-integration-20261006/app/audio.ts": "492d035ba3ca1420d055c6bca65d23e466a8aac2fac4420487b469397520d763",
+      "../reviewed-parity-four-integration-20261006/app/live-movement.ts": "18d87ec0e7baf08b31ac0e618fdba4c8c0f0521cd25b166da7dd787b95baca77",
+      "../reviewed-parity-four-integration-20261006/app/preacher-conversion.ts": "b00e5fa81527600589f3e3bf24c815fa665aba8b1c56b2518c162d9b8f197cae"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=3s",
+    "60s",
+    "taskset",
+    "-c",
+    "4",
+    "env",
+    "TMPDIR=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-quality-6ded591b-20261006/tmp",
+    "XDG_CACHE_HOME=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-quality-6ded591b-20261006/cache",
+    "node_modules/.bin/oxlint",
+    "--config",
+    ".oxlintrc.json",
+    "--format",
+    "json",
+    "../reviewed-parity-four-integration-20261006/app/audio.ts",
+    "../reviewed-parity-four-integration-20261006/app/live-movement.ts",
+    "../reviewed-parity-four-integration-20261006/app/preacher-conversion.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006",
+  "startedAt": "2026-10-06T13:17:30.430Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/work/orchestration/preacher-gesture-fix/quality-oxlint-base-01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/work/orchestration/preacher-gesture-fix/quality-oxlint-base-01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T13:17:30.711Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "Error: `../reviewed-parity-four-integration-20261006/app/preacher-conversion.ts`: PATH must not contain\n\"..\"\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "a7220393763e4a1ad845ddd33bb6ebf4d51f3b73680693ccf52a9bfca6edd4cb",
+  "sourceAfter": {
+    "headOid": "6ded591b9e969bdb3ad98d789d319bf3bf6fbe55",
+    "branch": "fix/preacher-sermon-gestures-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+      "node_modules/oxc-standard/.oxlintrc.json": "12a8af193abedfc648f0b37822a0092df18b5cd83644b8e6bd57d0f1e24d2bbc",
+      "node_modules/oxlint/package.json": "194e9ac91a3525151344674311b8272ad2f81ce0a2efc3ec5454a60dfc3d14b6",
+      "work/orchestration/preacher-gesture-fix/quality-baseline-inputs.json": "6448dbfaf25880ec9b28c23a85f80686bb9f5fdbdf9345cb49d55a7d1473b13e",
+      "../reviewed-parity-four-integration-20261006/app/audio.ts": "492d035ba3ca1420d055c6bca65d23e466a8aac2fac4420487b469397520d763",
+      "../reviewed-parity-four-integration-20261006/app/live-movement.ts": "18d87ec0e7baf08b31ac0e618fdba4c8c0f0521cd25b166da7dd787b95baca77",
+      "../reviewed-parity-four-integration-20261006/app/preacher-conversion.ts": "b00e5fa81527600589f3e3bf24c815fa665aba8b1c56b2518c162d9b8f197cae"
+    }
+  }
+}

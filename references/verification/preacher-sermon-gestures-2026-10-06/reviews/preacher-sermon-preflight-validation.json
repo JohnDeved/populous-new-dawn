@@ -1,0 +1,18 @@
+{
+  "command": [
+    "../prerequisites/venv/bin/python",
+    "-B",
+    "decomp/research/preacher-sermon-gestures/compare.py",
+    "--validate"
+  ],
+  "exitCode": 0,
+  "stdout": "{\n  \"status\": \"preflight-passed\",\n  \"nativeExecution\": \"not-run\",\n  \"portExecution\": \"not-run\",\n  \"cases\": 27,\n  \"controllerCalls\": 63,\n  \"boundaries\": 22,\n  \"manifestSha256\": \"5e01eb2c7c02179051f0e2b239c7ad067d7cbf28e11569d9663846a46c61526a\"\n}\n",
+  "stderr": "",
+  "pythonAst": "passed",
+  "json": "passed",
+  "originalStaticResultUnchanged": true,
+  "portSyntaxRuntime": "not-run; no Node execution grant",
+  "native": "not-run",
+  "browser": "not-run",
+  "preflightSha256": "5e01eb2c7c02179051f0e2b239c7ad067d7cbf28e11569d9663846a46c61526a"
+}

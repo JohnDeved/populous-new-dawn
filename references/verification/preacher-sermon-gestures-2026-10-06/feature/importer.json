@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "5443d01c-f7d9-4530-9099-3ea52acebf47",
+  "status": "invalidated",
+  "phase": "finished",
+  "source": {
+    "headOid": "5717405ef1583d36a25797b0b9db2dc629b5f54f",
+    "branch": "fix/preacher-sermon-gestures-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/import-original.py": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    }
+  },
+  "command": [
+    "../prerequisites/venv/bin/python",
+    "-B",
+    "scripts/import-original.py",
+    "../prerequisites/game",
+    "--units-only"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006",
+  "startedAt": "2026-10-06T12:37:20.816Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/work/orchestration/preacher-gesture-fix/importer.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/work/orchestration/preacher-gesture-fix/importer.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T12:37:23.909Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Appended 140 original unit frames and 48 pieces; atlas 2048x8192; old frame/piece indices and animation clocks preserved.\n",
+  "stderr": "",
+  "stdoutSha256": "8e127d657a3b8823e226a1fc05b7a480f0661ac6f6645556dfdf94084b766d6e",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "5717405ef1583d36a25797b0b9db2dc629b5f54f",
+    "branch": "fix/preacher-sermon-gestures-20261006",
+    "trackedDiffSha256": "69227815ff17332c785c6d30c1f5f3d306ee1b6310d8e0a212e23a96c57ff427",
+    "inputs": {
+      "scripts/import-original.py": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    }
+  }
+}

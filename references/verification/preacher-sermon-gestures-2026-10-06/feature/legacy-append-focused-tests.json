@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "95330d4e-c41a-4b55-8845-dd4d3d860226",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6ded591b9e969bdb3ad98d789d319bf3bf6fbe55",
+    "branch": "fix/preacher-sermon-gestures-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/shaman-appearance.test.mjs": "6d5e353eff99237da76f1fb7c894d788da265af60a56dc5db6819c5fbc49d44e",
+      "tests/sprite-layers.test.mjs": "3317e2e7d1e41ec24926af998a80ad082d0f9e62c971083cea6e73cf913b9194",
+      "tests/firewarrior-firing-artwork.test.mjs": "ade463513b9b3c904e98d349c7f972d62263ad3ad2887048b2528358e98e4c32",
+      "tests/fixtures/preacher-gesture-artwork.json": "a533b0ea8adea95f1476623b2bfd3fa8f3272a7d35bbde05a04653214e711a2c",
+      "tests/fixtures/firewarrior-firing-artwork.json": "e22a5f28c06c135539e578077c6e0cae5c94a7d8b0084c7e1645bc930b76b449",
+      "app/original-units.json": "e55160f7b2f269213de064a0db928708855b7e22affe6902a66ed3183bf9a12c",
+      "public/original/unit-layers.png": "c61aabf4692fc518efa3c879827298cf767831e308560fbad80ca03aee09aa4d"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/shaman-appearance.test.mjs",
+    "tests/sprite-layers.test.mjs",
+    "tests/firewarrior-firing-artwork.test.mjs",
+    "tests/preacher-gestures.test.mjs",
+    "tests/preacher-conversion.test.mjs",
+    "tests/logical-animation-clock.test.mjs",
+    "tests/combat-orders.test.mjs",
+    "tests/audio-pause.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006",
+  "startedAt": "2026-10-06T13:04:50.058Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/work/orchestration/preacher-gesture-fix/legacy-append-focused-tests.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/work/orchestration/preacher-gesture-fix/legacy-append-focused-tests.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T13:05:29.916Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ pausing an unfinished music play preserves enabled sound and later resume (19.657009ms)\n✔ late rejection from an older resume cannot cancel the newest playing request (5.992135ms)\n✔ a superseded context resume does not submit an extra music play (23.193949ms)\n✔ mute cancels pending playback without recreating the background timer (3.778563ms)\n✔ dispose cancels pending playback without recreating the background timer (3.546328ms)\n✔ the current playback failure still rejects rather than hiding a real media error (7.435631ms)\n✔ current context errors propagate, while a disposed request cannot report a stale failure (3.85342ms)\n✔ initial enable can finish while paused without turning the sound setting off (5.134393ms)\n✔ enable reports cancellation when muted during its pending playback (5.507908ms)\n✔ original automatic commands preserve normal queues, share one reference-counted record and handle allocation exhaustion (404.819645ms)\n✔ native scan dispatch preserves pending bits, suppression, specialist selection and consumer call counts (2.541148ms)\n✔ ordinary combat entry reveals a completed Spy disguise (1442.193782ms)\n✔ live campaign scan suppression consumes pending alerts without changing person counters or sprites (1191.489496ms)\n✔ dead building attackers release queued shaman-guard duty (1986.349456ms)\n✔ fight motion initializes its retained sermon without a native owner (1515.643531ms)\n✔ coastal response targets come from the corrected native cell, including its newly exposed edge (320.849966ms)\n✔ tower counterattacks ignore hostile people in water (378.562978ms)\n✔ coastal area/dismantling order preparation matches full native calls and retains flags on identical commands (1.109155ms)\n✔ live same-cell followers share one automatic command 21 and resume their queued destination (1376.034508ms)\n✔ an on-foot Firewarrior owns one automatic response per cooldown and yields to player movement (4299.885021ms)\n✔ an on-foot Firewarrior repeatedly launches at and damages a completed enemy building (273.455519ms)\n✔ automatic combat restarts a retained direct tree harvest instead of harvesting during battle (621.5615ms)\n✔ live automatic combat consumes a pending worship scan without replacing command 27 (299.762782ms)\n✔ live automatic allocation failure preserves its source and queued order (272.820887ms)\n✔ live automatic sharing leaves a nonmatching same-cell peer untouched (340.160579ms)\n✔ live preacher response retains its sermon queue and resumes conversion (81.390262ms)\n✔ preacher response allocation failure consumes the scan without changing its queue (164.571514ms)\n✔ Firewarrior row15 has its own eight-direction five-frame firing family (1.59844ms)\n✔ firing pieces use disjoint 32px subslots while every old atlas origin stays fixed (29.182967ms)\n✔ ordinary native constructors restore the logical gate without adding interpolation behavior (182.042187ms)\n✔ native person and Splash frames wait for logical visits while clear-bit effects keep 24 Hz (151.180331ms)\n✔ each catch-up turn observes the prior frame before one post-observer logical advance (125.676016ms)\n✔ ordinary owner aliases and a post-turn handoff never advance twice (312.305625ms)\n✔ state0 and removed gated sources do not fall through to presentation advancement (121.179599ms)\n✔ pause, land pause and speed changes preserve owned logical animation visits (72.119754ms)\n✔ legacy save aliases gain the gate without resetting frames or replaying on a new Scene clock (191.986359ms)\n✔ a Splash allocated after processing gets one animation visit but no invented lifetime visit (129.75877ms)\n✔ morph transitions keep one presentation owner even on coincident logical boundaries (130.353867ms)\n✔ Firewarrior descriptor holds are measured in eligible logical visits (100.457523ms)\n✔ post-turn source replacement visits only the active record, including at turn wrap (51.656633ms)\n✔ direct simulation ticks and presentation calls do not manufacture logical visits (94.271534ms)\n✔ native conversion delay uses the recovered 200/3 timing basis (1.572421ms)\n✔ a full order pool does not stop a moving Preacher without attaching its sermon (126.547732ms)\n✔ inside command 31 binds its building and uses the native five-cell sermon radius (107.584524ms)\n✔ conversion moves a newborn outside a building footprint before centering it (144.596713ms)\n✔ sermon poses preserve native multi-turn RNG timing (53.5149ms)\n✔ an idle preacher sermons, converts by replacement, and releases listeners on a new order (1076.326639ms)\n✔ preacher conversion is independent of display refresh rate (870.339102ms)\n✔ queued command 31 rewrites to friendly building entry or ground movement (76.952646ms)\n✔ live sermon selects original source176 with the shared cosmetic RNG and returns on its logical boundary (1057.301066ms)\n✔ source176 checkpoints preserve active ownership, phase and RNG without a second birth (715.451068ms)\n✔ live sermon selects original source184 with the shared cosmetic RNG and returns on its logical boundary (342.624081ms)\n✔ source184 checkpoints preserve active ownership, phase and RNG without a second birth (794.916185ms)\n✔ live entry and loop setters restore first-frame delay and loop assignment without clearing other bits (186.698681ms)\n✔ unsuccessful gesture decisions advance the shared cosmetic stream once without taking simulation randomness (302.951263ms)\n✔ a paused logical clock preserves an active gesture and presentation visits do not advance it (106.847281ms)\n✔ flight and encounter owners suppress the detached sermon animation; ordinary movement supersedes it (104.823135ms)\n✔ live blue sermon for player tribe0 requests cue51 with its actual owner (290.43211ms)\n✔ live red sermon for player tribe0 requests cue189 with its actual owner (282.805601ms)\n✔ live red sermon for player tribe1 requests cue51 with its actual owner (205.421104ms)\n✔ newly acquired listeners do not retroactively request a sermon cue (156.894067ms)\n✔ both sermon cue families have actual sample preload coverage (6.004334ms)\n✔ the live order dispatcher shares gesture ownership across commands17/31/32 (353.017167ms)\n✔ Shaman import preserves every prior frame, piece and animation entry (122.68285ms)\n✔ actual tribe selects every native Shaman source and eight original directions (6.975023ms)\n✔ Shaman idle artwork uses all four distinct original body pieces (2.32644ms)\n✔ reincarnation distinguishes tribe bodies from shared spirit sources and layer owners (2.227123ms)\n✔ shipped live and effect renderers consume the Shaman selector without changing generic mechanics (0.545779ms)\n✔ all 3276 previous occupied sprite rectangles retain their reviewed RGBA (253.438415ms)\n✔ real Mission 23 Shaman identity and death heading survive checkpoint reconstruction (1796.74241ms)\n✔ unit atlas retains reviewed tribe/state/direction layers when new models append (260.268909ms)\n✔ brave carry animations retain the baked timber body layer (0.678927ms)\nℹ tests 72\nℹ suites 0\nℹ pass 72\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 39557.297879\n",
+  "stderr": "",
+  "stdoutSha256": "eded421e4fd736923a2f65aa659f7a399a73ee9987472b53bb7c083cef107944",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "6ded591b9e969bdb3ad98d789d319bf3bf6fbe55",
+    "branch": "fix/preacher-sermon-gestures-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/shaman-appearance.test.mjs": "6d5e353eff99237da76f1fb7c894d788da265af60a56dc5db6819c5fbc49d44e",
+      "tests/sprite-layers.test.mjs": "3317e2e7d1e41ec24926af998a80ad082d0f9e62c971083cea6e73cf913b9194",
+      "tests/firewarrior-firing-artwork.test.mjs": "ade463513b9b3c904e98d349c7f972d62263ad3ad2887048b2528358e98e4c32",
+      "tests/fixtures/preacher-gesture-artwork.json": "a533b0ea8adea95f1476623b2bfd3fa8f3272a7d35bbde05a04653214e711a2c",
+      "tests/fixtures/firewarrior-firing-artwork.json": "e22a5f28c06c135539e578077c6e0cae5c94a7d8b0084c7e1645bc930b76b449",
+      "app/original-units.json": "e55160f7b2f269213de064a0db928708855b7e22affe6902a66ed3183bf9a12c",
+      "public/original/unit-layers.png": "c61aabf4692fc518efa3c879827298cf767831e308560fbad80ca03aee09aa4d"
+    }
+  }
+}

@@ -1,0 +1,51 @@
+✔ native conversion delay uses the recovered 200/3 timing basis (3.355235ms)
+✔ a full order pool does not stop a moving Preacher without attaching its sermon (297.352734ms)
+✔ inside command 31 binds its building and uses the native five-cell sermon radius (130.350796ms)
+✔ conversion moves a newborn outside a building footprint before centering it (100.729114ms)
+✔ sermon poses preserve native multi-turn RNG timing (48.689646ms)
+✔ an idle preacher sermons, converts by replacement, and releases listeners on a new order (626.184993ms)
+✔ preacher conversion is independent of display refresh rate (837.400775ms)
+✔ queued command 31 rewrites to friendly building entry or ground movement (71.236935ms)
+✔ live sermon selects original source176 with the shared cosmetic RNG and returns on its logical boundary (403.845594ms)
+✔ source176 checkpoints preserve active ownership, phase and RNG without a second birth (808.845231ms)
+✔ live sermon selects original source184 with the shared cosmetic RNG and returns on its logical boundary (247.67292ms)
+✔ source184 checkpoints preserve active ownership, phase and RNG without a second birth (293.526432ms)
+✔ live entry and loop setters restore first-frame delay and loop assignment without clearing other bits (101.82632ms)
+✔ unsuccessful gesture decisions advance the shared cosmetic stream once without taking simulation randomness (236.780628ms)
+✔ a paused logical clock preserves an active gesture and presentation visits do not advance it (105.908413ms)
+✔ flight and encounter owners suppress the detached sermon animation; ordinary movement supersedes it (100.731831ms)
+✔ live blue sermon requests cue51 with its actual owner before the empty scan clears listeners (279.966882ms)
+✔ live red sermon requests cue189 with its actual owner before the empty scan clears listeners (347.90759ms)
+✖ newly acquired listeners do not retroactively request a sermon cue (307.882153ms)
+✔ both sermon cue families have actual sample preload coverage (2.215725ms)
+ℹ tests 20
+ℹ suites 0
+ℹ pass 19
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 9274.020616
+
+✖ failing tests:
+
+test at tests/preacher-gestures.test.mjs:176:1
+✖ newly acquired listeners do not retroactively request a sermon cue (307.882153ms)
+  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:
+  
+    assert.ok(person.assignment & 64)
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/tests/preacher-gestures.test.mjs:182:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 0,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

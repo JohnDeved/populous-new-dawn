@@ -1,0 +1,12 @@
+Review candidate cf223a2b5611c9bc852755aa2228baadc98a2cb5
+Base169b5f38e8cc9f7aacbae222ba804ac519ec1f27. Research560fc/native19c/ordinarybaseline9a54 untouched.
+
+Final focused tests:61/61 PASS, source cf223a2b. Retained native replay:27 cases/63 controller-updater pairs,73 matched semantic requests; four exact known state/return residual rows; no new original instruction execution. Asset preservation/idempotence PASS at f4df0c95, applicable to current identical app/public/importer/checker bytes. Original failure-first tests:0/12 before; intermediate19/20 exposed a supplied range fixture error, corrected without weakening assertions. The mutating importer exit0 generic receipt is invalidated by its intentional output changes and is not claimed as a gate.
+
+All raw receipts and replay outputs are retained in work/orchestration/preacher-gesture-fix and this packet. The exact native reference inputs remain hash-pinned in the candidate checker; the original raw native run lives in the unchanged research tree and its separate preservation archive.
+
+Read-only planner selected broad subsystem checks and conservatively leaves app/audio.ts, app/preacher-conversion.ts and tests/preacher-conversion.test.mjs unmapped. Manual disposition: audio preload and owned completion are directly covered by preacher-gestures/audio-pause; preaching state/RNG/phases by the retained-native comparison, live gesture/conversion and logical-clock tests; the existing conversion helper inputs changed only for the required pose/frame/sound contract. Standard full check/build and maintained-TypeScript formatting/lint gates remain pending parent coordination. No npm dependency transfer occurred; planner's unset environment fields are not claims that restored inputs are unavailable.
+
+Fresh implementation/source review and candidate ordinary rendering are pending. QA is adapting the accepted baseline's actual controls; natural176+184/return, texture upload8192, realSave/Load and supersession remain required. Whole-sermon/audio/OS/hardware parity and issue214 completion are not claimed. No parity ledger, unrelated AI or runtime files changed.
+
+No task-owned process remains. Local Git/evidence preservation is unpushed and not reset-durable. No upload or connector code write performed.

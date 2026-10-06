@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "7069422a-b70b-4e44-8380-85b66784708d",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "f4df0c9583a40ec0cbb1e83a1de45a2930aa2df9",
+    "branch": "fix/preacher-sermon-gestures-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/preacher-gestures.test.mjs": "d4f32941ca8eaa301c53b62294e67394e28d1a83b1003429f3cd481bd8ff27d9",
+      "app/preacher-conversion.ts": "2369864ac8f0d20d51a1570bc8bddc608241d3da55fea6fba4b3a233e0c7933d",
+      "app/live-movement.ts": "ddb085910d28e63c0fdca51961a633dbcb923b182ae8b6feb1a862f1b5d350fd",
+      "app/audio.ts": "696d570b569a16c0402ad59c4fad59737554a3349b78acd5110844474cf52a5b"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/preacher-gestures.test.mjs",
+    "tests/preacher-conversion.test.mjs",
+    "tests/logical-animation-clock.test.mjs",
+    "tests/combat-orders.test.mjs",
+    "tests/audio-pause.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006",
+  "startedAt": "2026-10-06T12:38:10.060Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/work/orchestration/preacher-gesture-fix/focused-tests.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/work/orchestration/preacher-gesture-fix/focused-tests.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T12:38:30.542Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ pausing an unfinished music play preserves enabled sound and later resume (12.167629ms)\n✔ late rejection from an older resume cannot cancel the newest playing request (7.923823ms)\n✔ a superseded context resume does not submit an extra music play (12.177595ms)\n✔ mute cancels pending playback without recreating the background timer (2.409693ms)\n✔ dispose cancels pending playback without recreating the background timer (5.402299ms)\n✔ the current playback failure still rejects rather than hiding a real media error (1.494676ms)\n✔ current context errors propagate, while a disposed request cannot report a stale failure (0.668502ms)\n✔ initial enable can finish while paused without turning the sound setting off (5.375199ms)\n✔ enable reports cancellation when muted during its pending playback (2.798119ms)\n✔ original automatic commands preserve normal queues, share one reference-counted record and handle allocation exhaustion (104.315277ms)\n✔ native scan dispatch preserves pending bits, suppression, specialist selection and consumer call counts (1.698549ms)\n✔ ordinary combat entry reveals a completed Spy disguise (861.81002ms)\n✔ live campaign scan suppression consumes pending alerts without changing person counters or sprites (310.209343ms)\n✔ dead building attackers release queued shaman-guard duty (187.818075ms)\n✔ fight motion initializes its retained sermon without a native owner (114.52579ms)\n✔ coastal response targets come from the corrected native cell, including its newly exposed edge (112.311172ms)\n✔ tower counterattacks ignore hostile people in water (258.572274ms)\n✔ coastal area/dismantling order preparation matches full native calls and retains flags on identical commands (3.351689ms)\n✔ live same-cell followers share one automatic command 21 and resume their queued destination (321.495235ms)\n✔ an on-foot Firewarrior owns one automatic response per cooldown and yields to player movement (1477.704968ms)\n✔ an on-foot Firewarrior repeatedly launches at and damages a completed enemy building (200.58219ms)\n✔ automatic combat restarts a retained direct tree harvest instead of harvesting during battle (247.71476ms)\n✔ live automatic combat consumes a pending worship scan without replacing command 27 (165.178239ms)\n✔ live automatic allocation failure preserves its source and queued order (128.40029ms)\n✔ live automatic sharing leaves a nonmatching same-cell peer untouched (234.770938ms)\n✔ live preacher response retains its sermon queue and resumes conversion (525.20105ms)\n✔ preacher response allocation failure consumes the scan without changing its queue (215.040107ms)\n✔ ordinary native constructors restore the logical gate without adding interpolation behavior (376.984512ms)\n✔ native person and Splash frames wait for logical visits while clear-bit effects keep 24 Hz (173.373565ms)\n✔ each catch-up turn observes the prior frame before one post-observer logical advance (105.517149ms)\n✔ ordinary owner aliases and a post-turn handoff never advance twice (244.107253ms)\n✔ state0 and removed gated sources do not fall through to presentation advancement (74.460402ms)\n✔ pause, land pause and speed changes preserve owned logical animation visits (44.191765ms)\n✔ legacy save aliases gain the gate without resetting frames or replaying on a new Scene clock (47.096617ms)\n✔ a Splash allocated after processing gets one animation visit but no invented lifetime visit (52.916041ms)\n✔ morph transitions keep one presentation owner even on coincident logical boundaries (201.218775ms)\n✔ Firewarrior descriptor holds are measured in eligible logical visits (43.229805ms)\n✔ post-turn source replacement visits only the active record, including at turn wrap (52.412594ms)\n✔ direct simulation ticks and presentation calls do not manufacture logical visits (50.534886ms)\n✔ native conversion delay uses the recovered 200/3 timing basis (2.870075ms)\n✔ a full order pool does not stop a moving Preacher without attaching its sermon (180.392286ms)\n✔ inside command 31 binds its building and uses the native five-cell sermon radius (164.808737ms)\n✔ conversion moves a newborn outside a building footprint before centering it (93.22555ms)\n✔ sermon poses preserve native multi-turn RNG timing (53.990649ms)\n✔ an idle preacher sermons, converts by replacement, and releases listeners on a new order (523.966007ms)\n✔ preacher conversion is independent of display refresh rate (1398.501236ms)\n✔ queued command 31 rewrites to friendly building entry or ground movement (102.433011ms)\n✔ live sermon selects original source176 with the shared cosmetic RNG and returns on its logical boundary (546.836906ms)\n✔ source176 checkpoints preserve active ownership, phase and RNG without a second birth (281.544679ms)\n✔ live sermon selects original source184 with the shared cosmetic RNG and returns on its logical boundary (256.812606ms)\n✔ source184 checkpoints preserve active ownership, phase and RNG without a second birth (493.556402ms)\n✔ live entry and loop setters restore first-frame delay and loop assignment without clearing other bits (109.722153ms)\n✔ unsuccessful gesture decisions advance the shared cosmetic stream once without taking simulation randomness (201.671559ms)\n✔ a paused logical clock preserves an active gesture and presentation visits do not advance it (91.989349ms)\n✔ flight and encounter owners suppress the detached sermon animation; ordinary movement supersedes it (102.104844ms)\n✔ live blue sermon requests cue51 with its actual owner before the empty scan clears listeners (308.025332ms)\n✔ live red sermon requests cue189 with its actual owner before the empty scan clears listeners (178.167262ms)\n✔ newly acquired listeners do not retroactively request a sermon cue (186.831265ms)\n✔ both sermon cue families have actual sample preload coverage (3.040549ms)\nℹ tests 59\nℹ suites 0\nℹ pass 59\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 20385.189424\n",
+  "stderr": "",
+  "stdoutSha256": "8124ab2353f061dac7d7c5f95a113275555c8d36e1f8a26408a96612c1ea1a9f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "f4df0c9583a40ec0cbb1e83a1de45a2930aa2df9",
+    "branch": "fix/preacher-sermon-gestures-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/preacher-gestures.test.mjs": "d4f32941ca8eaa301c53b62294e67394e28d1a83b1003429f3cd481bd8ff27d9",
+      "app/preacher-conversion.ts": "2369864ac8f0d20d51a1570bc8bddc608241d3da55fea6fba4b3a233e0c7933d",
+      "app/live-movement.ts": "ddb085910d28e63c0fdca51961a633dbcb923b182ae8b6feb1a862f1b5d350fd",
+      "app/audio.ts": "696d570b569a16c0402ad59c4fad59737554a3349b78acd5110844474cf52a5b"
+    }
+  }
+}

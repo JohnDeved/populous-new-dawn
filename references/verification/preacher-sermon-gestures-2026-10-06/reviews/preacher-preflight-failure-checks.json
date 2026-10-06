@@ -1,0 +1,66 @@
+{
+  "status": "passed",
+  "scope": "Host-only simulated native/port control-flow failures; no original instructions, application code or child process ran. Kill/reap relies on the standard subprocess.run timeout contract, not this mock.",
+  "checks": [
+    {
+      "scenario": "success-clean",
+      "exitCode": 0,
+      "postflight": "passed",
+      "stubCalls": {
+        "nativeStub": 1,
+        "portStub": 1
+      },
+      "status": "passed",
+      "stdout": "{\"status\": \"diagnosis-supported\", \"wholeSermonEquality\": \"rejected\", \"controllerCalls\": 0, \"divergentRows\": 0, \"ordinaryPlay\": \"not-established\", \"audioRNG\": \"not-executed; supplied leaf\", \"manifestSha256\": \"25c093b64abcf88d4d45da68e086fe067e9fac2fa4dfb019775d9d7487708cdc\", \"postflightStatus\": \"passed\"}\n",
+      "stderr": ""
+    },
+    {
+      "scenario": "success-input-drift",
+      "exitCode": 2,
+      "postflight": "blocked",
+      "stubCalls": {
+        "nativeStub": 1,
+        "portStub": 1
+      },
+      "status": "passed",
+      "stdout": "",
+      "stderr": "Postflight source/input/manifest identity drift; see postflight.json\n"
+    },
+    {
+      "scenario": "failure-clean",
+      "exitCode": 2,
+      "postflight": "passed",
+      "stubCalls": {
+        "nativeStub": 1,
+        "portStub": 0
+      },
+      "status": "passed",
+      "stdout": "",
+      "stderr": "RuntimeError: simulated native failure; no native call\n"
+    },
+    {
+      "scenario": "failure-input-drift",
+      "exitCode": 2,
+      "postflight": "blocked",
+      "stubCalls": {
+        "nativeStub": 1,
+        "portStub": 0
+      },
+      "status": "passed",
+      "stdout": "",
+      "stderr": "RuntimeError: simulated native failure; no native call; Postflight source/input/manifest identity drift; see postflight.json\n"
+    },
+    {
+      "scenario": "timeout-streams",
+      "exitCode": 2,
+      "postflight": "passed",
+      "stubCalls": {
+        "nativeStub": 1,
+        "portStub": 1
+      },
+      "status": "passed",
+      "stdout": "",
+      "stderr": "Blocked: Port process timed out; captured streams retained\n"
+    }
+  ]
+}

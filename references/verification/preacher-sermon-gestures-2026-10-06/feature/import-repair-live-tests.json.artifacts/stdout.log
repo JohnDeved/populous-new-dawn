@@ -1,0 +1,31 @@
+✔ pausing an unfinished music play preserves enabled sound and later resume (15.479217ms)
+✔ late rejection from an older resume cannot cancel the newest playing request (9.410441ms)
+✔ a superseded context resume does not submit an extra music play (24.171648ms)
+✔ mute cancels pending playback without recreating the background timer (3.54649ms)
+✔ dispose cancels pending playback without recreating the background timer (3.253376ms)
+✔ the current playback failure still rejects rather than hiding a real media error (3.705856ms)
+✔ current context errors propagate, while a disposed request cannot report a stale failure (3.829279ms)
+✔ initial enable can finish while paused without turning the sound setting off (6.653117ms)
+✔ enable reports cancellation when muted during its pending playback (6.234566ms)
+✔ live sermon selects original source176 with the shared cosmetic RNG and returns on its logical boundary (846.484178ms)
+✔ source176 checkpoints preserve active ownership, phase and RNG without a second birth (382.328281ms)
+✔ live sermon selects original source184 with the shared cosmetic RNG and returns on its logical boundary (263.398558ms)
+✔ source184 checkpoints preserve active ownership, phase and RNG without a second birth (190.281744ms)
+✔ live entry and loop setters restore first-frame delay and loop assignment without clearing other bits (122.180314ms)
+✔ unsuccessful gesture decisions advance the shared cosmetic stream once without taking simulation randomness (215.808192ms)
+✔ a paused logical clock preserves an active gesture and presentation visits do not advance it (103.141998ms)
+✔ flight and encounter owners suppress the detached sermon animation; ordinary movement supersedes it (113.63423ms)
+✔ live blue sermon for player tribe0 requests cue51 with its actual owner (326.365463ms)
+✔ live red sermon for player tribe0 requests cue189 with its actual owner (509.888533ms)
+✔ live red sermon for player tribe1 requests cue51 with its actual owner (216.660877ms)
+✔ newly acquired listeners do not retroactively request a sermon cue (123.275358ms)
+✔ both sermon cue families have actual sample preload coverage (8.923314ms)
+✔ the live order dispatcher shares gesture ownership across commands17/31/32 (336.503914ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7099.839782

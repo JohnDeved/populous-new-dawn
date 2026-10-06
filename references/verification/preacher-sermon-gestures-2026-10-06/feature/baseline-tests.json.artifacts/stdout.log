@@ -1,0 +1,294 @@
+✖ live sermon selects original source176 with the shared cosmetic RNG and returns on its logical boundary (584.77345ms)
+✖ source176 checkpoints preserve active ownership, phase and RNG without a second birth (398.734769ms)
+✖ live sermon selects original source184 with the shared cosmetic RNG and returns on its logical boundary (178.547268ms)
+✖ source184 checkpoints preserve active ownership, phase and RNG without a second birth (141.765636ms)
+✖ live entry and loop setters restore first-frame delay and loop assignment without clearing other bits (116.229958ms)
+✖ unsuccessful gesture decisions advance the shared cosmetic stream once without taking simulation randomness (122.698669ms)
+✖ a paused logical clock preserves an active gesture and presentation visits do not advance it (84.205942ms)
+✖ flight and encounter owners suppress the detached sermon animation; ordinary movement supersedes it (103.805544ms)
+✖ live blue sermon requests cue51 with its actual owner before the empty scan clears listeners (111.31527ms)
+✖ live red sermon requests cue189 with its actual owner before the empty scan clears listeners (267.939875ms)
+✖ newly acquired listeners do not retroactively request a sermon cue (310.394107ms)
+✖ both sermon cue families have actual sample preload coverage (1.350613ms)
+ℹ tests 12
+ℹ suites 0
+ℹ pass 0
+ℹ fail 12
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 5238.451795
+
+✖ failing tests:
+
+test at tests/preacher-gestures.test.mjs:45:3
+✖ live sermon selects original source176 with the shared cosmetic RNG and returns on its logical boundary (584.77345ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  168 !== 176
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/tests/preacher-gestures.test.mjs:52:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 168,
+    expected: 176,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/preacher-gestures.test.mjs:67:3
+✖ source176 checkpoints preserve active ownership, phase and RNG without a second birth (398.734769ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  168 !== 176
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/tests/preacher-gestures.test.mjs:70:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 168,
+    expected: 176,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/preacher-gestures.test.mjs:45:3
+✖ live sermon selects original source184 with the shared cosmetic RNG and returns on its logical boundary (178.547268ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  168 !== 184
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/tests/preacher-gestures.test.mjs:52:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 168,
+    expected: 184,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/preacher-gestures.test.mjs:67:3
+✖ source184 checkpoints preserve active ownership, phase and RNG without a second birth (141.765636ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  168 !== 184
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/tests/preacher-gestures.test.mjs:70:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 168,
+    expected: 184,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/preacher-gestures.test.mjs:91:1
+✖ live entry and loop setters restore first-frame delay and loop assignment without clearing other bits (116.229958ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    [
+      160,
+  -   1,
+      0,
+  +   2,
+      7
+    ]
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/tests/preacher-gestures.test.mjs:96:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: [ 160, 0, 2, 7 ],
+    expected: [ 160, 1, 0, 7 ],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/preacher-gestures.test.mjs:103:1
+✖ unsuccessful gesture decisions advance the shared cosmetic stream once without taking simulation randomness (122.698669ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  1 !== 1275068418
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/tests/preacher-gestures.test.mjs:111:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 1,
+    expected: 1275068418,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/preacher-gestures.test.mjs:116:1
+✖ a paused logical clock preserves an active gesture and presentation visits do not advance it (84.205942ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  168 !== 176
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/tests/preacher-gestures.test.mjs:119:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 168,
+    expected: 176,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/preacher-gestures.test.mjs:129:1
+✖ flight and encounter owners suppress the detached sermon animation; ordinary movement supersedes it (103.805544ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  168 !== 176
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/tests/preacher-gestures.test.mjs:132:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 168,
+    expected: 176,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/preacher-gestures.test.mjs:152:3
+✖ live blue sermon requests cue51 with its actual owner before the empty scan clears listeners (111.31527ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + undefined
+  - {
+  -   cue: 51,
+  -   owner: 1184,
+  -   serial: 7,
+  -   turn: 72,
+  -   x: 11,
+  -   z: 33
+  - }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/tests/preacher-gestures.test.mjs:158:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { serial: 7, cue: 51, x: 11, z: 33, turn: 72, owner: 1184 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/preacher-gestures.test.mjs:152:3
+✖ live red sermon requests cue189 with its actual owner before the empty scan clears listeners (267.939875ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+  + undefined
+  - {
+  -   cue: 189,
+  -   owner: 1184,
+  -   serial: 7,
+  -   turn: 72,
+  -   x: 11,
+  -   z: 33
+  - }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/tests/preacher-gestures.test.mjs:158:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: { serial: 7, cue: 189, x: 11, z: 33, turn: 72, owner: 1184 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/preacher-gestures.test.mjs:176:1
+✖ newly acquired listeners do not retroactively request a sermon cue (310.394107ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  
+  168 !== 176
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/tests/preacher-gestures.test.mjs:181:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 168,
+    expected: 176,
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at tests/preacher-gestures.test.mjs:186:1
+✖ both sermon cue families have actual sample preload coverage (1.350613ms)
+  AssertionError [ERR_ASSERTION]: cue51 must be loaded before playback
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/tests/preacher-gestures.test.mjs:188:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: false,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

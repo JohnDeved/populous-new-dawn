@@ -1,0 +1,18 @@
+{
+  "session": 24873,
+  "runId": "cededb68-c5ed-41dc-9d8c-3d88584cf2e9",
+  "startedAt": "2026-10-06T11:57:21.828Z",
+  "finishedAt": "2026-10-06T11:57:25.938Z",
+  "receiptStatus": "passed",
+  "receiptExitCode": 0,
+  "sourceBeforeAfterEqual": true,
+  "postflightStatus": "passed",
+  "postflightChecks": 26,
+  "port": {
+    "status": "exited",
+    "exitCode": 0,
+    "timedOut": false
+  },
+  "matchingOwnedProcesses": [],
+  "gitStatus": ""
+}

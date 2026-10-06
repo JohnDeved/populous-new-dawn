@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b86cab26-6459-487e-a84e-3d021d5f8743",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "13a8625c12f075fadea544e324a430d6e16e6741",
+    "branch": "fix/preacher-sermon-gestures-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/preacher-gestures.test.mjs": "cb87deb652c1c65ba81be74776a528238c58496bb768d1e8f8d6e8d9cc9eb35c",
+      "app/preacher-conversion.ts": "2369864ac8f0d20d51a1570bc8bddc608241d3da55fea6fba4b3a233e0c7933d",
+      "app/live-movement.ts": "ddb085910d28e63c0fdca51961a633dbcb923b182ae8b6feb1a862f1b5d350fd",
+      "app/audio.ts": "696d570b569a16c0402ad59c4fad59737554a3349b78acd5110844474cf52a5b"
+    }
+  },
+  "command": [
+    "node",
+    "--test",
+    "--test-concurrency=1",
+    "tests/preacher-gestures.test.mjs",
+    "tests/preacher-conversion.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006",
+  "startedAt": "2026-10-06T12:34:48.609Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/work/orchestration/preacher-gesture-fix/controller-tests.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/work/orchestration/preacher-gesture-fix/controller-tests.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T12:34:58.079Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✔ native conversion delay uses the recovered 200/3 timing basis (3.355235ms)\n✔ a full order pool does not stop a moving Preacher without attaching its sermon (297.352734ms)\n✔ inside command 31 binds its building and uses the native five-cell sermon radius (130.350796ms)\n✔ conversion moves a newborn outside a building footprint before centering it (100.729114ms)\n✔ sermon poses preserve native multi-turn RNG timing (48.689646ms)\n✔ an idle preacher sermons, converts by replacement, and releases listeners on a new order (626.184993ms)\n✔ preacher conversion is independent of display refresh rate (837.400775ms)\n✔ queued command 31 rewrites to friendly building entry or ground movement (71.236935ms)\n✔ live sermon selects original source176 with the shared cosmetic RNG and returns on its logical boundary (403.845594ms)\n✔ source176 checkpoints preserve active ownership, phase and RNG without a second birth (808.845231ms)\n✔ live sermon selects original source184 with the shared cosmetic RNG and returns on its logical boundary (247.67292ms)\n✔ source184 checkpoints preserve active ownership, phase and RNG without a second birth (293.526432ms)\n✔ live entry and loop setters restore first-frame delay and loop assignment without clearing other bits (101.82632ms)\n✔ unsuccessful gesture decisions advance the shared cosmetic stream once without taking simulation randomness (236.780628ms)\n✔ a paused logical clock preserves an active gesture and presentation visits do not advance it (105.908413ms)\n✔ flight and encounter owners suppress the detached sermon animation; ordinary movement supersedes it (100.731831ms)\n✔ live blue sermon requests cue51 with its actual owner before the empty scan clears listeners (279.966882ms)\n✔ live red sermon requests cue189 with its actual owner before the empty scan clears listeners (347.90759ms)\n✖ newly acquired listeners do not retroactively request a sermon cue (307.882153ms)\n✔ both sermon cue families have actual sample preload coverage (2.215725ms)\nℹ tests 20\nℹ suites 0\nℹ pass 19\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 9274.020616\n\n✖ failing tests:\n\ntest at tests/preacher-gestures.test.mjs:176:1\n✖ newly acquired listeners do not retroactively request a sermon cue (307.882153ms)\n  AssertionError [ERR_ASSERTION]: The expression evaluated to a falsy value:\n  \n    assert.ok(person.assignment & 64)\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/tests/preacher-gestures.test.mjs:182:10)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: 0,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "54f81771ad39cca03065916743be53992ad8779c2b836a2a196439cada10223b",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "13a8625c12f075fadea544e324a430d6e16e6741",
+    "branch": "fix/preacher-sermon-gestures-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/preacher-gestures.test.mjs": "cb87deb652c1c65ba81be74776a528238c58496bb768d1e8f8d6e8d9cc9eb35c",
+      "app/preacher-conversion.ts": "2369864ac8f0d20d51a1570bc8bddc608241d3da55fea6fba4b3a233e0c7933d",
+      "app/live-movement.ts": "ddb085910d28e63c0fdca51961a633dbcb923b182ae8b6feb1a862f1b5d350fd",
+      "app/audio.ts": "696d570b569a16c0402ad59c4fad59737554a3349b78acd5110844474cf52a5b"
+    }
+  }
+}

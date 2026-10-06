@@ -1,0 +1,149 @@
+{
+  "status": "full-check-and-build-passed",
+  "head": "b2b04cf4915dafc7165e961f9b45ddb3efd4d103",
+  "appTree": "ebffcbf36afa3ac4ecd5f33a60e01c93e659f20f",
+  "publicTree": "7afafb32546784eea20fd993df0f9eb5f9b86779",
+  "checkTests": 1343,
+  "receipts": {
+    "full-check-01.json": {
+      "sha256": "db0e7bb0a51276549a7d3e4f1eeee9afbdb91f245bf42223d663cf4e588fca81",
+      "status": "passed",
+      "startedAt": "2026-10-06T13:29:12.032Z",
+      "finishedAt": "2026-10-06T13:36:35.145Z",
+      "exitCode": 0,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=3s",
+        "897s",
+        "taskset",
+        "-c",
+        "0-3",
+        "env",
+        "TMPDIR=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-gates-b2b04cf4-20261006/check/tmp",
+        "XDG_CACHE_HOME=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-gates-b2b04cf4-20261006/check/cache",
+        "npm_config_cache=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-gates-b2b04cf4-20261006/check/npm-cache",
+        "CLOUDFLARE_CF_FETCH_ENABLED=false",
+        "WRANGLER_SEND_METRICS=false",
+        "npm",
+        "run",
+        "check"
+      ]
+    },
+    "build-01.json": {
+      "sha256": "02cb480163deb44144e90b7fb701f87a88dc56ce7c5e3684aac3e03a14141b53",
+      "status": "passed",
+      "startedAt": "2026-10-06T13:37:16.894Z",
+      "finishedAt": "2026-10-06T13:37:59.965Z",
+      "exitCode": 0,
+      "command": [
+        "timeout",
+        "--signal=TERM",
+        "--kill-after=3s",
+        "297s",
+        "taskset",
+        "-c",
+        "0-3",
+        "env",
+        "TMPDIR=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-gates-b2b04cf4-20261006/build/tmp",
+        "XDG_CACHE_HOME=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-gates-b2b04cf4-20261006/build/cache",
+        "npm_config_cache=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-gates-b2b04cf4-20261006/build/npm-cache",
+        "CLOUDFLARE_CF_FETCH_ENABLED=false",
+        "WRANGLER_SEND_METRICS=false",
+        "npm",
+        "run",
+        "build"
+      ]
+    }
+  },
+  "cleanup": {
+    "full-check-01-cleanup.json": {
+      "sha256": "0b03c75282a4d41a8a49ee034e2b8e024a84bcc297dfa8722a9a20176e5e5407",
+      "result": {
+        "checkedAt": "2026-10-06T13:36:35.213761+00:00",
+        "method": "Same-invocation scan after receipt child returned; task package-process names with exact feature cwd only. GNU timeout owns TERM + 3s KILL for expiry.",
+        "receiptStatus": "passed",
+        "exitCode": 0,
+        "sourceStable": true,
+        "remainingTaskPackageProcesses": []
+      }
+    },
+    "build-01-cleanup.json": {
+      "sha256": "9664f1b1fad3da00ef9bd020a211cb68925f7e2c84fff98f4cae95f7dea6f6c8",
+      "result": {
+        "checkedAt": "2026-10-06T13:38:00.038192+00:00",
+        "method": "Same-invocation scan after receipt child returned; task package-process names with exact feature cwd only. GNU timeout owns TERM + 3s KILL for expiry.",
+        "receiptStatus": "passed",
+        "exitCode": 0,
+        "sourceStable": true,
+        "remainingTaskPackageProcesses": []
+      }
+    }
+  },
+  "quality": {
+    "oxfmt": "passed",
+    "eslint": "failed; exactly one accepted169b baseline finding",
+    "oxlint": "failed; exactly twenty accepted169b baseline findings",
+    "introducedFindings": 0,
+    "attributionSha256": "91fd6e847d463a7f03ff29b2ec767c5a9c6683fe1b13694583e71fdf05c1d8b1",
+    "fallow": "No new advisory job; existing baseline evidence retained under the parent grant."
+  },
+  "priorReplay": {
+    "sourceHead": "cf223a2b5611c9bc852755aa2228baadc98a2cb5",
+    "candidateInputsStillIdentical": {
+      "app/animation.ts": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+      "app/melee-engagement.ts": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde",
+      "app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "app/original-units.json": "e55160f7b2f269213de064a0db928708855b7e22affe6902a66ed3183bf9a12c",
+      "app/person-motion.ts": "a8e87abdb010c7dcb20f4bfd438ec1340f82f2e92a8c4f1053c487c6c32d75d0",
+      "app/person-orders.ts": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394",
+      "app/person-state.ts": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+      "app/preacher-conversion.ts": "2369864ac8f0d20d51a1570bc8bddc608241d3da55fea6fba4b3a233e0c7933d",
+      "scripts/check-preacher-gesture-replay.py": "8c287bd082e879a76204c994ef1e31c67dddc38afa68a9b85f06aac02a3b1ce0",
+      "scripts/preacher-gesture-replay.mjs": "672dcbd94d7228d4e84712427a54aa67ad1e52d4b32e1b84c52dee11fb5e0bc9"
+    },
+    "caseCount": 27,
+    "controllerUpdaterPairs": 63,
+    "newNativeExecution": false,
+    "wholeSermonEquality": false
+  },
+  "priorAssetCheck": {
+    "sourceHead": "f4df0c9583a40ec0cbb1e83a1de45a2930aa2df9",
+    "candidateInputsStillIdentical": {
+      "app/original-units.json": "e55160f7b2f269213de064a0db928708855b7e22affe6902a66ed3183bf9a12c",
+      "public/original/unit-layers.png": "c61aabf4692fc518efa3c879827298cf767831e308560fbad80ca03aee09aa4d",
+      "public/original/provenance.json": "8a77d7d177009a49b18ff14741a55d27ee42aefc727484547a61aee2a98344b1",
+      "scripts/import-original.py": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    },
+    "rerun": false
+  },
+  "dependencyHandoff": {
+    "state": "idle; donor awaiting parent-coordinated next owner",
+    "device": 27,
+    "inode": 1978923,
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/node_modules",
+    "hashes": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    },
+    "transferReceiptSha256": "3e10524cc1846eecec2aa6084674a1b86e8b8af8e5c3a7c4526cb4f7a37c1338"
+  },
+  "archive": {
+    "file": "gates-b2b04cf4.tar.gz",
+    "sha256": "144318ecadf2785bf207bc0330d1f472fda3b031acfed6729a450c96e2591be1"
+  },
+  "sourceBundle": {
+    "file": "feature-b2b04cf4.bundle",
+    "sha256": "9aa2c27775cb8a5544498b44521d66f72f7b659b0b0376027942ff46e6a80803",
+    "prerequisite": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27"
+  },
+  "remaining": [
+    "Independent final gate evidence review",
+    "Candidate ordinary rendered Save/Load/supersession acceptance",
+    "Normal Git publication after root transport diagnosis"
+  ],
+  "preservation": "Local only; unpushed and not reset-durable.",
+  "createdAt": "2026-10-06T13:39:33.086775+00:00"
+}

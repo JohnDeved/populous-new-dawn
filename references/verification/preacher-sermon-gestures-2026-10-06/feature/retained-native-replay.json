@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "f19f31d6-b91d-4031-b64b-a08704aff493",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "89596a69513462634f77738977e353167e5e2ecb",
+    "branch": "fix/preacher-sermon-gestures-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-preacher-gesture-replay.py": "ed9f84bb8709a3782d494ad317f8d399d07cec36a9d6e76cd2f6db1d1c58d363",
+      "scripts/preacher-gesture-replay.mjs": "672dcbd94d7228d4e84712427a54aa67ad1e52d4b32e1b84c52dee11fb5e0bc9",
+      "app/preacher-conversion.ts": "2369864ac8f0d20d51a1570bc8bddc608241d3da55fea6fba4b3a233e0c7933d"
+    }
+  },
+  "command": [
+    "../prerequisites/venv/bin/python",
+    "-B",
+    "scripts/check-preacher-gesture-replay.py",
+    "../preacher-sermon-gestures-20261006/work/orchestration/preacher-sermon-native/run-01",
+    "--output",
+    "work/orchestration/preacher-gesture-fix/replay-01"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006",
+  "startedAt": "2026-10-06T12:44:11.780Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/work/orchestration/preacher-gesture-fix/retained-native-replay.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/work/orchestration/preacher-gesture-fix/retained-native-replay.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T12:44:13.487Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"status\": \"passed\",\n  \"scope\": \"Candidate port against unchanged accepted supplied-state native rows\",\n  \"pairs\": 63,\n  \"knownStateOrReturnResidualRows\": 4,\n  \"comparedRequests\": 73,\n  \"rawResidualRows\": 44,\n  \"wholeSermonEquality\": \"not-claimed\",\n  \"audio\": \"request-only interception; live owner flag tested separately\",\n  \"newNativeExecution\": false,\n  \"nodeVersion\": \"v24.19.0\"\n}\n",
+  "stderr": "",
+  "stdoutSha256": "35c7bd171e9982c834d2615949ba6e5c6a73e4bae3e1e14368202a7c0cb39251",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "89596a69513462634f77738977e353167e5e2ecb",
+    "branch": "fix/preacher-sermon-gestures-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-preacher-gesture-replay.py": "ed9f84bb8709a3782d494ad317f8d399d07cec36a9d6e76cd2f6db1d1c58d363",
+      "scripts/preacher-gesture-replay.mjs": "672dcbd94d7228d4e84712427a54aa67ad1e52d4b32e1b84c52dee11fb5e0bc9",
+      "app/preacher-conversion.ts": "2369864ac8f0d20d51a1570bc8bddc608241d3da55fea6fba4b3a233e0c7933d"
+    }
+  }
+}

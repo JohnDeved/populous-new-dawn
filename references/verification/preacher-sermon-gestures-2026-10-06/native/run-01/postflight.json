@@ -1,0 +1,187 @@
+{
+  "status": "passed",
+  "checks": [
+    {
+      "kind": "manifest",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/decomp/research/preacher-sermon-gestures/preflight.json",
+      "expectedSha256": "125acb5330e5487c7c5bd6438c13c2ec975ecb9d04538560ee9898d885b4a3b7",
+      "actualSha256": "125acb5330e5487c7c5bd6438c13c2ec975ecb9d04538560ee9898d885b4a3b7",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/animation.ts",
+      "expectedSha256": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+      "actualSha256": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/game-clock.ts",
+      "expectedSha256": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+      "actualSha256": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/live-movement.ts",
+      "expectedSha256": "18d87ec0e7baf08b31ac0e618fdba4c8c0f0521cd25b166da7dd787b95baca77",
+      "actualSha256": "18d87ec0e7baf08b31ac0e618fdba4c8c0f0521cd25b166da7dd787b95baca77",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/live-people.ts",
+      "expectedSha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+      "actualSha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/melee-engagement.ts",
+      "expectedSha256": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde",
+      "actualSha256": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/native-math.ts",
+      "expectedSha256": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+      "actualSha256": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/original-rules.json",
+      "expectedSha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "actualSha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/original-units.json",
+      "expectedSha256": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+      "actualSha256": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/person-motion.ts",
+      "expectedSha256": "a8e87abdb010c7dcb20f4bfd438ec1340f82f2e92a8c4f1053c487c6c32d75d0",
+      "actualSha256": "a8e87abdb010c7dcb20f4bfd438ec1340f82f2e92a8c4f1053c487c6c32d75d0",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/person-order-update.ts",
+      "expectedSha256": "23c2ff6108958715e45dc3caa034e5a3a558fdfcffa936e9129396ec8c48b286",
+      "actualSha256": "23c2ff6108958715e45dc3caa034e5a3a558fdfcffa936e9129396ec8c48b286",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/person-orders.ts",
+      "expectedSha256": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394",
+      "actualSha256": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/person-state.ts",
+      "expectedSha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+      "actualSha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/preacher-conversion.ts",
+      "expectedSha256": "b00e5fa81527600589f3e3bf24c815fa665aba8b1c56b2518c162d9b8f197cae",
+      "actualSha256": "b00e5fa81527600589f3e3bf24c815fa665aba8b1c56b2518c162d9b8f197cae",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/selection-runtime.ts",
+      "expectedSha256": "d1b61309818d87e85e329c24fd7384ebd00b474b4dbe8f57ef84061ecbb2be71",
+      "actualSha256": "d1b61309818d87e85e329c24fd7384ebd00b474b4dbe8f57ef84061ecbb2be71",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/app/world-turn.ts",
+      "expectedSha256": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
+      "actualSha256": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/decomp/research/preacher-sermon-gestures/cases.json",
+      "expectedSha256": "3693e3738f70feb41fc3c1f89bdb42311b884e699abe2307db386000cff19108",
+      "actualSha256": "3693e3738f70feb41fc3c1f89bdb42311b884e699abe2307db386000cff19108",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/decomp/research/preacher-sermon-gestures/compare-port.mjs",
+      "expectedSha256": "6fbb68f2810e701544009127ad9abfb19cb1d7c0e92e4f6236bdc87f650e0e31",
+      "actualSha256": "6fbb68f2810e701544009127ad9abfb19cb1d7c0e92e4f6236bdc87f650e0e31",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/decomp/research/preacher-sermon-gestures/compare.py",
+      "expectedSha256": "34f2216bccbf6c30e1d0b163ea2627c0a66d55a4e16e5a0085d5466c0b2d44de",
+      "actualSha256": "34f2216bccbf6c30e1d0b163ea2627c0a66d55a4e16e5a0085d5466c0b2d44de",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/decomp/research/preacher-sermon-gestures/comparison-plan.md",
+      "expectedSha256": "62a165a4c4846b203ff12181ca232afcc6126c1e5f55b5d37344c00bc46fac27",
+      "actualSha256": "62a165a4c4846b203ff12181ca232afcc6126c1e5f55b5d37344c00bc46fac27",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/decomp/tools.json",
+      "expectedSha256": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484",
+      "actualSha256": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484",
+      "status": "passed"
+    },
+    {
+      "kind": "source",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/scripts/decomp.py",
+      "expectedSha256": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+      "actualSha256": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+      "status": "passed"
+    },
+    {
+      "kind": "input",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+      "expectedSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "actualSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "status": "passed"
+    },
+    {
+      "kind": "input",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vstart-0.ani",
+      "expectedSha256": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa",
+      "actualSha256": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa",
+      "status": "passed"
+    },
+    {
+      "kind": "input",
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vfra-0.ani",
+      "expectedSha256": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258",
+      "actualSha256": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258",
+      "status": "passed"
+    },
+    {
+      "kind": "node",
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "expectedSha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+      "actualSha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+      "status": "passed"
+    }
+  ]
+}

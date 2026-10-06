@@ -1,0 +1,10 @@
+{
+  "status": "diagnosis-supported",
+  "wholeSermonEquality": "rejected",
+  "controllerCalls": 63,
+  "divergentRows": 62,
+  "ordinaryPlay": "not-established",
+  "audioRNG": "not-executed; supplied leaf",
+  "manifestSha256": "125acb5330e5487c7c5bd6438c13c2ec975ecb9d04538560ee9898d885b4a3b7",
+  "postflightStatus": "passed"
+}

@@ -1,0 +1,47 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "60baee73-297e-473f-9558-585531227364",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "f4df0c9583a40ec0cbb1e83a1de45a2930aa2df9",
+    "branch": "fix/preacher-sermon-gestures-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/import-original.py": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0",
+      "app/original-units.json": "e55160f7b2f269213de064a0db928708855b7e22affe6902a66ed3183bf9a12c",
+      "public/original/unit-layers.png": "c61aabf4692fc518efa3c879827298cf767831e308560fbad80ca03aee09aa4d"
+    }
+  },
+  "command": [
+    "../prerequisites/venv/bin/python",
+    "-B",
+    "scripts/import-original.py",
+    "../prerequisites/game",
+    "--units-only"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006",
+  "startedAt": "2026-10-06T12:38:08.518Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/work/orchestration/preacher-gesture-fix/importer-idempotence.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gesture-fix-20261006/work/orchestration/preacher-gesture-fix/importer-idempotence.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T12:38:09.889Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Appended 0 original unit frames and 0 pieces; atlas 2048x8192; old frame/piece indices and animation clocks preserved.\n",
+  "stderr": "",
+  "stdoutSha256": "a8e8b447e86f5d85c1aa297f39ea035d920dd4582202871a8f67e6d3eabbdaa9",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "f4df0c9583a40ec0cbb1e83a1de45a2930aa2df9",
+    "branch": "fix/preacher-sermon-gestures-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/import-original.py": "02127ee637d42c033119a16045c26b01adaa7d8c2833a82c3bedd03d247039e0",
+      "app/original-units.json": "e55160f7b2f269213de064a0db928708855b7e22affe6902a66ed3183bf9a12c",
+      "public/original/unit-layers.png": "c61aabf4692fc518efa3c879827298cf767831e308560fbad80ca03aee09aa4d"
+    }
+  }
+}

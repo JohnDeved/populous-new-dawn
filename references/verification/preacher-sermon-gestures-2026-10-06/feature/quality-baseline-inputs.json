@@ -1,0 +1,17 @@
+{
+  "base": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+  "readRoot": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/reviewed-parity-four-integration-20261006",
+  "readRootHead": "15a057056d88282686d2eb7e84dae1c843f6edb8",
+  "exactBaseBytes": {
+    "app/audio.ts": "492d035ba3ca1420d055c6bca65d23e466a8aac2fac4420487b469397520d763",
+    "app/live-movement.ts": "18d87ec0e7baf08b31ac0e618fdba4c8c0f0521cd25b166da7dd787b95baca77",
+    "app/preacher-conversion.ts": "b00e5fa81527600589f3e3bf24c815fa665aba8b1c56b2518c162d9b8f197cae",
+    ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479",
+    ".oxlintrc.json": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+    "eslint.config.mjs": "9578a25ed5bb7d9d6cd35f99459aa4b7987c9e32612ef1e020fa58826dc35543",
+    "tsconfig.json": "b91b0d5ff0f30cbfaa9f0bf4ca023a753d70f2ac32845d965186d098edc09fd3",
+    "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba"
+  },
+  "scope": "Read-only scoped quality baseline; base app/config bytes checked against exact169b Git blobs",
+  "scratch": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-quality-6ded591b-20261006"
+}
