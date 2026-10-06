@@ -1,0 +1,14 @@
+{
+  "mode": "source-only, no draft import or execution",
+  "base": "c849415e32a231aceb71bf74a43a541a74e3397e",
+  "inspectedMain": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "manifestSha256": "7a622a9e1a16af1c1857d6435d37aeced1b43afe527818d4357276778c62d3c8",
+  "checks": {
+    "astParseBothPythonFiles": "passed",
+    "33SourceFingerprintsAndMainByteCorrespondence": "passed",
+    "artifactAndPreparationHashes": "passed",
+    "whitespace": "passed",
+    "nativeApplicationPackageBrowserGhidra": "not-run"
+  },
+  "limitations": "Existing-Shaman setup, immutable loader/guards, native runner, leaf classification, traces and temporal proof remain unimplemented. No executable freeze or original-byte result."
+}

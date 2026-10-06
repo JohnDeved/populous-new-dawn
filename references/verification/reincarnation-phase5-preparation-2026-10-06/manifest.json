@@ -1,0 +1,83 @@
+{
+  "mode": "source preparation; static PE only; draft never imported/executed",
+  "inspectedMain": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "planHead": "c849415e32a231aceb71bf74a43a541a74e3397e",
+  "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "python": "3.12.14",
+  "capstone": "5.0.7",
+  "ranges": [
+    {
+      "start": "004d23d0",
+      "endExclusive": "004d2717",
+      "sha256": "f8f1c7570028be8dd9d105671d652a9790afc709a429d9e5748156177395bec6"
+    },
+    {
+      "start": "004d5920",
+      "endExclusive": "004d5b5c",
+      "sha256": "8d032712205c00c6fe31a9faf46e7d15d2209e5a195bd8384a942d24bdf121d4"
+    },
+    {
+      "start": "004ed8a0",
+      "endExclusive": "004edad7",
+      "sha256": "b01bd6455270b28325b5e1f985d18feef91f7b453c83ad1827b0b9dede6d23b0"
+    },
+    {
+      "start": "004ed580",
+      "endExclusive": "004ed605",
+      "sha256": "34e1cb6e933a2637449fccbd8a78978b3286108f5dc91668a85cc82e15911393"
+    },
+    {
+      "start": "004ed640",
+      "endExclusive": "004ed6c4",
+      "sha256": "6e3e2eda73f3071bdc699413e4f9a90d4d33050a3f24a26a24dd4b1b76ab9c17"
+    }
+  ],
+  "classDescriptorStride": 3,
+  "classDescriptors": {
+    "1": "080800",
+    "7": "5e2802",
+    "10": "133000"
+  },
+  "shamanInitializerTableTarget": "004d25d5",
+  "nativeBoundariesSha256": "fe2a0904e263686370d44b243142234525f514fc9c4b3aabaced871f239595a6",
+  "sources": {
+    "app/world-turn.ts": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
+    "app/reincarnation.ts": "d361f22db204184515e63c2dc134c78f42110a1a49e7d071b26223993eb1d182",
+    "app/reincarnation-wave-runtime.ts": "2fd81857a0abdb0b12c8d6e48b7c2990950bb3eb51a29271a3a6f62458f81535",
+    "app/world-state.ts": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+    "app/world-effects.ts": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+    "app/level-start-runtime.ts": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b",
+    "app/level-start.ts": "987b88e203cc863df79ca1afddb602329f9b68f29be715b6ddb1c4fd48c29948",
+    "app/spell-trails.ts": "884319866f64247e81d6ec2f5aeda1be57ea2c306b2c5f57d7b1e9562bd0fa67",
+    "app/game-store.ts": "1bb66bc1db93af5bff36c54f2c32630b71000bc5c0085595e6c7f2bc3cf95565",
+    "app/world-initialization.ts": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+    "scripts/check-native-reincarnation.py": "506127e98cd0564fe8ab4bc75c0a55adcb224135e38edac6f50e21bf7d9f26a2",
+    "scripts/check-native-reincarnation-wave.py": "a14dad04230853d0ecd941d204f6603c7e68c36b6b750cfdbd7a3bf55344fc32",
+    "scripts/check-native-level-start.py": "9227c7676e59c3f8477fc3d560d599ecbc7de553eb9155b1359a4100c04d6a88",
+    "scripts/check-browser-reincarnation-wave.mjs": "b52cd9475e6fcc00e15d3e7c9cca0d6056e5ed8d7cb86c61ec4efed589d1d314",
+    "decomp/generated/004ec6f0.c": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+    "decomp/generated/004ed8a0.c": "0a3e6654f1c046935bf0a75e32d8691f641fa13fad6c82dc06f3783ba520e5c9",
+    "decomp/generated/004ed580.c": "30f96739bcd6f1703d38d8937b3a5890bffaaf282be069067360bd7a1da118c8",
+    "decomp/generated/00509c10.c": "a0a2c32a6880db40bd55984cf55e8be386d9c3e56967362f46811eb83e8d3a13",
+    "decomp/generated/0050bcd0.c": "36fffb0674cbcdf4351bc9b5fd1ad6f198ef9455fbc5b38a3ad6229e306fac46",
+    "decomp/generated/0050ccd0.c": "be2da2a13d821668426dbcd24c098bbc6a46059743822c9cea8817499779e44c",
+    "decomp/generated/0050bf60.c": "2b526f2d55ff31b711ea2c50298e1d74e33e042e6d798f036787a6710a089c77",
+    "decomp/generated/004d2740.c": "02dd6d6bcdebfd1fbb5065c50af5e8f40d33140676e99c316ceb3ebe85835747",
+    "decomp/generated/00432260.c": "23e7e3767d6ab658025e4a0474e86bdad7264b2852b401a48b65c07f1a33ca3d",
+    "decomp/generated/004ee470.c": "ea580251ff6bd4de4efa0984310f41086acc964695584aafa2f4caf5c006e29d",
+    "decomp/generated/004ee4f0.c": "41a9628238bb14cfd8a6e945df0de187ba5df7525a56a17bdcc5e33479b0ba1a",
+    "decomp/generated/004ef180.c": "021baf2a38e2dcf2062bdffc12aa449b5f2e789898aab1e776f1c1a0913802ae",
+    "decomp/generated/004a3940.c": "47669140587f7baea77e2d2a45d9fee3c5eab19a464c70eb41676fe754858ecd",
+    "decomp/generated/004d47d0.c": "6b49ff975df8853455a07e2d8939349658f57c7687b87848ff77d8fa6a63215d",
+    "decomp/generated/004e9b40.c": "964ecf5fabb3c247b4b1c569652b101cc59ad32648932e44ad33275f6fce581c",
+    "decomp/generated/004ea460.c": "56430181ab3862db90e3f01c5b800efd64abd092417b335ae546da9a82d8af50",
+    "decomp/generated/0050bd70.c": "f253a0a5bea221eb5bdde7d75cf41500bf74e1de270312dcfb36f804e0f7d811",
+    "decomp/generated/0050beb0.c": "32e7a655dfbd2b07ec294f09cd8a4640be42e89bed78b2e096aa070342f6b4fd",
+    "scripts/check-native-shaman-death-ground.py": "b880152e87e24a44dff7d0eb196c37d64f4ab877f1e8aa7124fe25800c495045"
+  },
+  "preparationSources": {
+    "phase5-fixture-draft.py": "df45f6039d43a71a801049d93ece9416a96ae71f2a814ab5085306e773d40946",
+    "extract-boundaries.py": "059998cb0f7ef83b2dbf95151150e320472409d7478688282dc5fa62440fe0a3",
+    "README.md": "3c42f9e18e9bef32753037a32086e84893a4c6b2bfdc1a25e9f0a7ed375b42b4"
+  }
+}
