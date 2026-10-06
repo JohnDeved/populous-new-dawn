@@ -286,6 +286,7 @@ export default async function firingCandidate({page,root,output,receipt,signal,u
     failures.push({error:String(error?.stack??error)});progress('failed');throw error
   } finally {
     let cleanupFailure
+    if(pauseMouseHeld){pauseMouseHeld=false;try{await page.mouse.up({button:'left'})}catch(e){cleanupFailure??=e}}
     if(textureObserverInstalled)try {
       textureCleanup=await page.evaluate(()=>{
         const owned=window.firewarriorTextureObserver
@@ -294,7 +295,6 @@ export default async function firingCandidate({page,root,output,receipt,signal,u
       })
       assert.equal(textureCleanup.failure,null);assert.equal(textureCleanup.restored,true)
     }catch(e){cleanupFailure??=e}
-    if(pauseMouseHeld){pauseMouseHeld=false;try{await page.mouse.up({button:'left'})}catch(e){cleanupFailure??=e}}
     try{await detectionHandle?.dispose()}catch(e){cleanupFailure??=e}
     try{const pending=await page.evaluate(()=>window.firewarriorPauseInput?.finish()??null);if(pending)log({action:'pause-observer-cleanup',pending})}catch(e){cleanupFailure??=e}
     try{await drain(true)}catch(e){cleanupFailure??=e}
