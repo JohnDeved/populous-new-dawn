@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "b4143af7-f403-4116-ab51-d9c615c55594",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+    "branch": "fix/authored-bridge-initialization",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-native-land-bridge.py": "46dce40d24a1c589915c4a68e2f821f9540f0084107fee4f97cd6f5a8b530c27",
+      "scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+      "decomp/tools.json": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484",
+      "app/original-constants.json": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24"
+    }
+  },
+  "command": [
+    "timeout",
+    "120s",
+    "taskset",
+    "-c",
+    "4",
+    "env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "scripts/check-native-land-bridge.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization",
+  "startedAt": "2026-10-06T02:40:33.346Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/work/orchestration/authored-bridge-initialization/final-native-generic-d9aa205.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/work/orchestration/authored-bridge-initialization/final-native-generic-d9aa205.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T02:41:18.082Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "PASS: 96 complete native Land Bridge lifetimes (6048 turns), all terrain heights, ordered trails, notifications and controller state\n",
+  "stderr": "",
+  "stdoutSha256": "31b2c9eca0fd81fba53dbed8e7bfdcf74a8cf870b97f59a018dae0dc3c76f9b7",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+    "branch": "fix/authored-bridge-initialization",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-native-land-bridge.py": "46dce40d24a1c589915c4a68e2f821f9540f0084107fee4f97cd6f5a8b530c27",
+      "scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+      "decomp/tools.json": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484",
+      "app/original-constants.json": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/levels/constant.dat": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24"
+    }
+  }
+}

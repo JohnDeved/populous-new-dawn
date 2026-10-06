@@ -1,0 +1,1 @@
+PASS: TypeScript and emitted JavaScript syntax trees are identical; only call formatting changed

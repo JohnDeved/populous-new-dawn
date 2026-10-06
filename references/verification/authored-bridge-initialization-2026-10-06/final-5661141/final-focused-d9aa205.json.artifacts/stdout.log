@@ -1,0 +1,15 @@
+✔ authored origins survive initialization for all five currently live campaign bridge heads (483.639011ms)
+✔ ordinary Mission 2 worship creates the authored crossing and every live terrain turn matches it (1143.781712ms)
+✔ legacy migration recovers only missing immutable origins without replaying active terrain (632.105337ms)
+✔ component checkpoint preserves authored birth caches when sampled terrain changes before the next visit (492.136337ms)
+✔ pre-activation legacy save and mid-bridge checkpoint continue once at the authored origin (1280.978855ms)
+✔ complete Land Bridge lifetimes match native terrain, ordered trails and notifications (430.855882ms)
+✔ live bridge terrain and particle cleanup are identical across refresh rates and stalls (2480.955396ms)
+ℹ tests 7
+ℹ suites 0
+ℹ pass 7
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 7974.050438

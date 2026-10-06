@@ -1,0 +1,13 @@
+{
+  "status": "verified-before-move",
+  "at": "2026-10-06T02:38:27.335013+00:00",
+  "donor": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-final-gate-c172e14",
+  "recipient": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization",
+  "inode": 925605,
+  "installedLockInode": 925696,
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "sourceHead": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+  "releaseBasis": "Coordinator reported dependency925605 terminal in erosion-final-gate-c172e14 and authorized receipted move for PR226 final validation.",
+  "method": "same-filesystem rename; exact installed-lock-only donor stub; no dependency install/copy/link"
+}

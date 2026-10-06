@@ -1,0 +1,2 @@
+PASS: 5 authored bridge producers, real clone/dispatch, 315 native terrain turns; Missions 1 and 3 have none
+PASS: ordinary Mission 2 rendered bridge endpoints and all 16,384 final terrain heights match native producer/controller replay

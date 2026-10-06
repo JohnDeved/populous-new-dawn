@@ -1,0 +1,111 @@
+{
+  "finalSource": "56611410b260fa4a7abc38d83ad3aec6678841f3",
+  "semanticSource": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+  "receipts": {
+    "final-focused-d9aa205": {
+      "status": "passed",
+      "exitCode": 0,
+      "head": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+      "sha256": "caa90a73b76bf4a2bc18354c9acf12dece6232913d98aa6aabe9a40c8ced08f8"
+    },
+    "final-native-authored-d9aa205": {
+      "status": "passed",
+      "exitCode": 0,
+      "head": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+      "sha256": "f9f7b1fd958547ea9d85b5aeb1ebe7685f39c8a7da207ef11ee8dd6f0565c698"
+    },
+    "final-native-generic-d9aa205": {
+      "status": "passed",
+      "exitCode": 0,
+      "head": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+      "sha256": "bc4b1ecbc041ce753bdf057efbb06623cf9e364487bfdbb928fd3b337dde24f4"
+    },
+    "final-check-d9aa205": {
+      "status": "passed",
+      "exitCode": 0,
+      "head": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+      "sha256": "0d516298663ea92274009bc0c5c2cd3b1effeb4b0bd1a7796269abb9a55b7976"
+    },
+    "final-build-d9aa205": {
+      "status": "passed",
+      "exitCode": 0,
+      "head": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+      "sha256": "e911da95ce441a320576016a9f332328a4706d652ff527e640d6051541f1a52e"
+    },
+    "final-format-d9aa205": {
+      "status": "failed",
+      "exitCode": 1,
+      "head": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+      "sha256": "ef28f2808358994eb0476114a1d21d0fdfa54435e583bee09f148c251dfa464e"
+    },
+    "final-eslint-d9aa205": {
+      "status": "failed",
+      "exitCode": 1,
+      "head": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+      "sha256": "851407d90aa6c2fb8508f69983bd7e0c6b4eb17c1f611b8c09413333dce4cf87"
+    },
+    "format-correspondence-reviewed-command": {
+      "status": "passed",
+      "exitCode": 0,
+      "head": "56611410b260fa4a7abc38d83ad3aec6678841f3",
+      "sha256": "79ce5112fc8323e88cd222fac93ffa2438a1ed1437a578f74eb5b4c299c26220"
+    },
+    "final-format-5661141": {
+      "status": "failed",
+      "exitCode": 1,
+      "head": "56611410b260fa4a7abc38d83ad3aec6678841f3",
+      "sha256": "6955971f9ea97771a6cea18a8095fecc56b776f099e49249b451b014eae1d9f5"
+    },
+    "final-format-scoped-5661141": {
+      "status": "passed",
+      "exitCode": 0,
+      "head": "56611410b260fa4a7abc38d83ad3aec6678841f3",
+      "sha256": "f04aa0a87dcb096cc54624cf20bba7db9d46370a32e2c0e16d172af0da063d1e"
+    },
+    "quality-delta-command-5661141": {
+      "status": "passed",
+      "exitCode": 0,
+      "head": "56611410b260fa4a7abc38d83ad3aec6678841f3",
+      "sha256": "e16e303a451deddd06c25e0f2d96e30e6546fc257607a141dde135c529d7e99f"
+    },
+    "final-oxlint-5661141": {
+      "status": "failed",
+      "exitCode": 1,
+      "head": "56611410b260fa4a7abc38d83ad3aec6678841f3",
+      "sha256": "6c0d34df573a7e6111bee6132e35cab0d83be1eb187945cc616b625576a5cf54"
+    },
+    "final-fallow-health-5661141": {
+      "status": "passed",
+      "exitCode": 0,
+      "head": "56611410b260fa4a7abc38d83ad3aec6678841f3",
+      "sha256": "84776060726d01ff025ae66421fb49d979c4e41eed215b0ebf18596c6bd3b477"
+    },
+    "final-fallow-dupes-5661141": {
+      "status": "passed",
+      "exitCode": 0,
+      "head": "56611410b260fa4a7abc38d83ad3aec6678841f3",
+      "sha256": "f82f32320f5215a992d3f29c0350986435823cb9f1cc6911b67fea8c031588a2"
+    },
+    "final-fallow-unused-5661141": {
+      "status": "failed",
+      "exitCode": 1,
+      "head": "56611410b260fa4a7abc38d83ad3aec6678841f3",
+      "sha256": "40c5609e4277a693d89f6c4bc1578d4d1997b3d74352b8bc397cec2ee0022424"
+    },
+    "browser-command-5661141-01": {
+      "status": "passed",
+      "exitCode": 0,
+      "head": "56611410b260fa4a7abc38d83ad3aec6678841f3",
+      "sha256": "b64b0f48c7584d561c6152fa986403f93879e87efa237e4e40a20f5754a68a99"
+    },
+    "native-browser-command-5661141": {
+      "status": "passed",
+      "exitCode": 0,
+      "head": "56611410b260fa4a7abc38d83ad3aec6678841f3",
+      "sha256": "51a967108b2ea41e190c3a04388e29b70ccb9b7dca814e64e8644cce49480c94"
+    }
+  },
+  "correspondence": "format-correspondence-reviewed.json verifies exact TypeScript/emitted JS syntax trees and emitted JS byte equality. Prior check/build/native passes remain actual d9 executions.",
+  "quality": "Scoped formatting passes after correcting the introduced line wrapping. Global format retains two byte-unchanged files. Full ESLint/Oxlint remain failed; exact changed-file accepted-main comparison has zero added diagnostics (208/279 unchanged). Fallow health/dupes exit0 with findings; unused exit1 is advisory, not a tool failure.",
+  "browser": "passed on actual5661141, original session63033, separate native captured-terrain replay passed in session8643"
+}

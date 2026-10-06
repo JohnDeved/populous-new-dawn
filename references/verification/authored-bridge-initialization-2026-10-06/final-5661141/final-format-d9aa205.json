@@ -1,0 +1,48 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "96d98118-9dfe-41f5-aed0-4fbea158a78b",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+    "branch": "fix/authored-bridge-initialization",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "timeout",
+    "120s",
+    "taskset",
+    "-c",
+    "4",
+    "npm",
+    "run",
+    "format:check"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization",
+  "startedAt": "2026-10-06T02:45:58.918Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/work/orchestration/authored-bridge-initialization/final-format-d9aa205.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/work/orchestration/authored-bridge-initialization/final-format-d9aa205.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T02:45:59.454Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 format:check\n> oxfmt --check \"app/**/*.{ts,tsx}\"\n\nChecking formatting...\n\napp/render-view.ts (1ms)\napp/viewport-bounds.ts (0ms)\napp/world-turn.ts (3ms)\n\nFormat issues found in above 3 files. Run without `--check` to fix.\nFinished in 146ms on 244 files using 1 threads.\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n",
+  "stdoutSha256": "60c3d4fcb1738aa2ff3313ef5cb3018bc69d0913510ca071523174de7b9d0e36",
+  "stderrSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+  "sourceAfter": {
+    "headOid": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+    "branch": "fix/authored-bridge-initialization",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

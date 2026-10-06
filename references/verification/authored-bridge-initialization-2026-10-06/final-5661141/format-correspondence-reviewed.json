@@ -1,0 +1,14 @@
+{
+  "status": "passed",
+  "sourceBefore": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+  "sourceAfter": "56611410b260fa4a7abc38d83ad3aec6678841f3",
+  "onlyChangedFile": "app/world-turn.ts",
+  "beforeSha256": "462f1ba508b3c802172e6bafdfced855bb679d16c410ab6786b085f7cac08cd7",
+  "afterSha256": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
+  "sourceSyntaxTreeSha256": "6e43ba5732e07f359b6fb22086900adf50013765e19a4bdc691e2036d5723071",
+  "emittedJavaScriptSyntaxTreeSha256": "9e57c76824d1ef5fa497a6614193e9c61a49f27b24ddc54d2272935874f685c0",
+  "emittedBytesIdentical": true,
+  "typescriptVersion": "5.9.3",
+  "claim": "Only formatter whitespace changed. TypeScript and emitted-JavaScript syntax trees are exactly equal after removing positions/trivia. Prior executions remain labelled with their actual source head.",
+  "diagnostic": "The earlier ad hoc scanner-or-emit assertion was inconclusive. This retained parsed-tree check separately reports exact emitted-byte equality; no runtime difference is inferred from the earlier diagnostic."
+}

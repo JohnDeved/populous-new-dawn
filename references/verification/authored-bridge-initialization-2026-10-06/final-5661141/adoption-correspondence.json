@@ -1,0 +1,19 @@
+{
+  "status": "passed",
+  "baseMain": "e931f8903d2f1a91b14fdc1fdb011b72f4cf4718",
+  "sourceBefore": "55c684cd2c4cc80a7e06786e24f0d87f4a0a5cd5",
+  "adoptedHead": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+  "tree": "be58ccf57de2d9b317ed9feceef8e4484b143d17",
+  "appTree": "04489bdff006c321984c71cbde91ba0eb58e1973",
+  "diffAgainstMainSha256": "29c5a4eced68ab579705504e3d3d25dbabe568d64c53f890c6ca0695257df3ed",
+  "filesSha256": {
+    "app/world-turn.ts": "462f1ba508b3c802172e6bafdfced855bb679d16c410ab6786b085f7cac08cd7",
+    "decomp/research/authored-bridge-origins.md": "8ddfc10700621d58465e11f67d00a175b8776eeb08f54592978b9cd11047d2c1",
+    "scripts/check-native-authored-bridges.py": "d6232d7ae67b7422b4f1b4aad4b1255888c3d24bee1fa059210298a978fce962",
+    "tests/authored-bridges.test.mjs": "e5bd0491d4947964ca782bc6affa66f69bf0a6c8224f2d4b6de5b4e576d6e26e"
+  },
+  "exactAuthoredOnlyRuntimeInsertion": true,
+  "genericConstructorAndCastUnchanged": true,
+  "driverSha256": "3e8ad3a90e505fc4ea439f959aaf8d9e845c1c12eec70b271f3c130f55562aa5",
+  "untouched": "All Erosion source/pins/evidence exactly match accepted main; no historical receipt refreshed."
+}

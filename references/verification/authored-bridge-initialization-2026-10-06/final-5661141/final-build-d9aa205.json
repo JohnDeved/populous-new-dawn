@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "2aba2892-f8db-4198-9532-ef33ea4cf535",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+    "branch": "fix/authored-bridge-initialization",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "timeout",
+    "--kill-after=10s",
+    "600s",
+    "taskset",
+    "-c",
+    "0-3",
+    "npm",
+    "run",
+    "build"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization",
+  "startedAt": "2026-10-06T02:45:22.990Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/work/orchestration/authored-bridge-initialization/final-build-d9aa205.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/work/orchestration/authored-bridge-initialization/final-build-d9aa205.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T02:45:39.831Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "\n> populous-first-dawn@0.1.0 build\n> WRANGLER_LOG_PATH=.wrangler/wrangler.log vinext build\n\n\n  vinext build  (Vite 8.0.13)\n\n[1/5] analyze client references...\n\u001b[2K\rtransforming...✓ 272 modules transformed.\nrendering chunks...\n✓ built in 3.93s\n[2/5] analyze server references...\n\u001b[2K\rtransforming...✓ 389 modules transformed.\nrendering chunks...\n✓ built in 1.51s\n[3/5] build rsc environment...\n\u001b[2K\rtransforming...✓ 270 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 4.43s\n[4/5] build client environment...\n\u001b[2K\rtransforming...✓ 430 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.88s\n[5/5] build ssr environment...\n\u001b[2K\rtransforming...✓ 395 modules transformed.\nrendering chunks...\ncomputing gzip size...\n✓ built in 2.48s\n\u001b[0m\n  Route (app)\n  ─ ? /\n\n  ? Unknown\n\n  ? Some routes could not be classified. vinext currently uses static analysis\n    and cannot detect dynamic API usage (headers(), cookies(), etc.) at build time.\n    Automatic classification will be improved in a future release.\n\n  Build complete. Run `vinext start` to start the production server.\n\n",
+  "stderr": "npm warn Unknown env config \"http-proxy\". This will stop working in the next major version of npm.\n\u001b[33m▲ \u001b[43;33m[\u001b[43;30mWARNING\u001b[43;33m]\u001b[0m \u001b[1mProxy environment variables detected. We'll use your proxy for fetch requests.\u001b[0m\n\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - rsc:virtual-client-package (36%)\n  - vinext:og-inline-fetch-assets (14%)\n  - alias (11%)\n  - vinext:css-data-url (8%)\n  - rsc:rsc-css-export-transform (6%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n\u001b[33m[PLUGIN_TIMINGS] \u001b[0mYour build spent significant time in plugins. Here is a breakdown:\n  - vinext:middleware-server-only (52%)\n  - rsc:load-environment-module (15%)\n  - rsc:virtual-client-package (9%)\n  - rsc:scan-strip (4%)\n  - vinext:og-inline-fetch-assets (3%)\nSee https://rolldown.rs/options/checks#plugintimings for more details.\n\n[plugin builtin:vite-reporter] \n(!) Some chunks are larger than 500 kB after minification. Consider:\n- Using dynamic import() to code-split the application\n- Use build.rolldownOptions.output.codeSplitting to improve chunking: https://rolldown.rs/reference/OutputOptions.codeSplitting\n- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.\nnpm notice\nnpm notice New major version of npm available! 11.9.0 -> 12.2.0\nnpm notice Changelog: https://github.com/npm/cli/releases/tag/v12.2.0\nnpm notice To update run: npm install -g npm@12.2.0\nnpm notice\n",
+  "stdoutSha256": "3e2134964e50eb144cc2b618a3ac4d40707d2cbfb6c26f08c64e38e6d0cdd5c3",
+  "stderrSha256": "19c694dc0be9119d3982774a6cbcc383917d9f9ddde4eac6b3a409c0cf4bfcd9",
+  "sourceAfter": {
+    "headOid": "d9aa20570e4a3d6c1dcc308a6bb9aaab97606798",
+    "branch": "fix/authored-bridge-initialization",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}
