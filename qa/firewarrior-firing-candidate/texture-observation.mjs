@@ -77,10 +77,12 @@ export function installTextureObserver(realm = globalThis) {
     for (const [name, descriptor] of originals) {
       const wrapper = function (...args) {
         let result, before
-        if (active && name === 'texStorage2D' && args[0] === this.TEXTURE_2D) {
+        if (active && name === 'texStorage2D') {
           try {
-            const bound = this.getParameter(this.TEXTURE_BINDING_2D)
-            before = { bound, immutable: bound ? this.getTexParameter(this.TEXTURE_2D, this.TEXTURE_IMMUTABLE_FORMAT) : null }
+            if (this && args[0] === this.TEXTURE_2D) {
+              const bound = this.getParameter(this.TEXTURE_BINDING_2D)
+              before = { bound, immutable: bound ? this.getTexParameter(this.TEXTURE_2D, this.TEXTURE_IMMUTABLE_FORMAT) : null }
+            }
           } catch { fail('Observation failed before texStorage2D') }
         }
         try { result = Reflect.apply(descriptor.value, this, args) }

@@ -100,6 +100,13 @@ test('original exceptions retain identity and create no successful upload record
   assert.equal(read.records.length, 0); assert.match(read.failure, /Original texStorage2D threw/)
 })
 
+test('invalid receiver still reaches the original once and preserves its exception', () => {
+  const f = fixture(), error = new Error('Original invalid receiver')
+  f.setFailure(error)
+  assert.throws(() => f.gl.texStorage2D.call(null, 3553, 1, 35907, 2048, 8128), value => value === error)
+  assert.equal(f.calls.length, 1); assert.equal(f.calls[0].receiver, null)
+})
+
 test('observation faults preserve the original return, and fail evidence closed', () => {
   const f = fixture(); f.gl.bindTexture(3553, f.texture)
   f.gl.getParameter = () => { throw Error('Read unavailable') }
