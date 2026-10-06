@@ -63,8 +63,10 @@ New static observations from the pinned EXE:
    `004ed8a0(7, 9, owner, point)` at `004da160` without testing the person
    result. It returns the **person**, not the effect.
 3. Indexed `004ed8a0`/`004ed580` and `00509c10` dispatch class7/model9 through
-   the effect preinitializer `0050bcd0` to `0050ccd0`. The default burst adds90
-   native height and makes32 model3 allocation attempts. Only successful children
+   the effect preinitializer `0050bcd0` to `0050ccd0`. The preinitializer first
+   clamps the saved site's height to current terrain; the default burst then
+   adds90 native height and makes32 model3 allocation attempts. Record saved
+   site, current ground, root and child heights separately. Only successful children
    receive the producer's lifetime/speed/direction writes and its three gameplay
    RNG draws. The real model3 initializer `0050bf60` separately consumes cosmetic
    RNG; that initializer was supplied in the old isolated effect9 probe.
@@ -107,43 +109,62 @@ startup conversion/stone behavior into all Shaman allocation paths.
 ## Minimum next proof, then one ordinary witness
 
 The next authorized phase should be an evidence-only probe, with its result
-independently reviewed before any runtime change:
+independently reviewed before any runtime change. The first executable freeze
+is **one fixed phase5 success case**, not the complete matrix below:
 
-1. Execute phase5 `005029d0` → real `004da0f0` → real `004ed8a0` with the actual
+1. Supply one phase5 model12 body, one declared low/high free-list state with
+   enough capacity for success, fixed owner/site/terrain and both RNG seeds.
+   Execute `005029d0` → real `004da0f0` → real `004ed8a0` with the actual
    class1 initializer and class7/model9/model3 initializers. Keep person
    registration, tribe Shaman-handle ownership, allocator argument-stack
-   consumption, list insertion and removal visible. Supply only identified
+   top/flag consumption, list insertion and body retirement visible. Record
+   the successful person's native initialization and both RNG owners;96 burst
+   producer draws are not the complete caller's RNG cost. Supply only identified
    rendering/audio/world leaves. Load original constants/search/animation inputs
    as required and guard every configured constant and mapped read-only region
-   across setup and each call; avoid the former oversized reset.
-2. Cover all four owners/local audio, saved-site versus raised current ground,
+   across setup and each call; avoid the former oversized reset. End at this
+   one controller-call return. First scheduled visits, lifetime, capacity reuse,
+   four-owner coverage and a browser comparison are not this first result.
+2. Freeze a separate later creation/failure stage before covering all four
+   owners/local audio, saved-site versus raised current ground,
    existing Shaman, and genuine free-list exhaustion: person failure while an
    effect slot exists; person success with root failure; root success with zero,
    partial and all32 children. Record requested and successful allocations,
    exact positions, class counters, both RNG streams, person result, body state,
    sound, root/child lifetime and links. Restore capacity only on the next visit
    to distinguish person retry from root/child and phase4-wave no-retry behavior.
-3. Continue the real outer traversal from the accepted phase4 boundary through
+3. Separately freeze the temporal stage: continue the real outer traversal from
+   the accepted phase4 boundary through
    wave visit5, phase5 creation, first new-object visits and complete burst
    cleanup. This establishes ordering relative to the still-live mode2 wave.
    Snapshot the allocator immediately before the first final spawn request;
    do not invent a whole-game capacity model from an isolated case.
-4. Compare that bounded composed trace with the actual browser world-turn caller.
-   The unchanged source must expose zero final-burst allocations/pixels as the
-   expected missing edge, while existing body, wave and height behavior remain
-   separately supported. Do not synthesize new HP, actors or timers to count as
-   ordinary gameplay acceptance.
+4. Only after those stages, compare with the actual browser world-turn caller.
+   Current `addUnit` creates `native: null`; retain that initializer difference
+   rather than silently supplying a native person to isolate pixels. The
+   unchanged source has no final-burst producer, while existing body, wave and
+   height behavior remain separately supported. Do not synthesize new HP,
+   actors or timers to count as ordinary gameplay acceptance.
 
-For the ordinary rendered witness, reuse the shipped Mission2 entry, Skip/H and
-real attack-command combat route from `check-browser-reincarnation-wave.mjs`.
-Keep friendly followers alive; reach the final spawn naturally. Record body ID,
-site/wave ID and its visit5, new Shaman ID, both RNGs, before/during/after frames,
-actual spark contribution, public checkpoint continuation, pause and cleanup.
-Run the same driver on frozen before/candidate sources. Label command-adapter
-targeting and any held clock honestly; neither implies pointer-picking or
-real-clock gameplay evidence. Add portable Missions1/3 caller coverage and a
-public-input witness there only if the composed trace reveals a mission-specific
-branch. No repeat of PR212's Land Bridge/phase1 height journey is needed.
+`check-browser-reincarnation-wave.mjs` is reusable only as a **fixed-step rendered
+diagnostic**: it directly calls `command`/`tick`, writes `world.speed = 0`, and
+calls `scene.animate` with supplied times. Its optional injected target/Swamp
+section is excluded from this task. A bounded before/candidate adaptation can
+observe body/site/wave/new-Shaman IDs, both RNGs, spawn-frame spark contribution,
+checkpoint continuation and cleanup; it is not ordinary elapsed-time acceptance.
+
+A separate later ordinary Mission2 witness must enter through shipped mission,
+Skip/H and public pointer attack controls, let the existing elapsed-time game
+clock advance, and reach combat death/reincarnation with surviving followers.
+It must avoid direct `tick`/`command`, speed0 clock substitution, supplied
+`scene.animate` times, injected targets/Swamps, or supplied HP/actors/timers.
+Record the same identities and visible final burst, and exercise public
+Save/Load and pause without replay. The accepted command-adapter evidence
+supports route feasibility, not an already-proved public-pointer/natural-clock
+witness. If that route encounters a blocker, report it instead of relabeling
+the diagnostic. Add portable Missions1/3 caller coverage; expand ordinary
+mission coverage only if the composition exposes a mission-specific branch.
+No repeat of PR212's Land Bridge/phase1 height journey is needed.
 
 Stop this source-only phase after the indexed assessment and retained static
 packet. Do not implement before the final-person/companion boundary is proved;
