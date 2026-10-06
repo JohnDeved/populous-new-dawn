@@ -36,6 +36,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 ## Port index
 
 Recent reusable topic notes: [Preacher sermon gestures and original artwork](research/preacher-sermon-gestures.md),
+[Automatic Preacher sermon trigger and paired proof plan](research/preacher-response-trigger.md),
 [Shrine Erosion activation](research/erosion-activation.md),
 [Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
 [Ordinary native Shaman Guard input and deferred ownership](research/shaman-guard-input.md),

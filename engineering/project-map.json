@@ -813,6 +813,7 @@
       "decomp/research/mission3-preaching-message.md",
       "decomp/research/preacher-spell-retaliation.md",
       "decomp/research/preacher-sermon-gestures.md",
+      "decomp/research/preacher-response-trigger.md",
       "tests/preacher-gestures.test.mjs",
       "scripts/check-preacher-gesture-assets.py",
       "scripts/check-preacher-gesture-replay.py",
