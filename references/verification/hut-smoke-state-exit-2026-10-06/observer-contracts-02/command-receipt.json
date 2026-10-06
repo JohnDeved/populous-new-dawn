@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "bd94ac37-b3d8-4caa-9d0a-2e09c599c069",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "615807a9470f0a06617f7f1a5f855296b3e5aa44",
+    "branch": "research/hut-smoke-ordinary-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/hut-smoke-ignition.mjs": "13006e9d9124910d54031d8886b13b4c8393efa05dd54fffa2c3dbfed1a179c5",
+      "scripts/local-render/hut-smoke-ignition-observer.mjs": "8a50fa4bb93b6bb0fb9b927056dacb085049cb2125ebd6bb4db2579ea6f8b735",
+      "tests/hut-smoke-ignition-observer.test.mjs": "f31df10058cb90c1e581b71d0bb81cf84bb32c089e66601b4024e17d2da1fa3c",
+      "app/original-effects.json": "8e43389fe9610e70fcedbbd8fe63b11d4addf9a001378225ee5ce273c5b83fdb",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "decomp/research/hut-smoke-state-exit/ordinary-checker-manifest.json": "5832e676027f24b67313480cb9964964f6607e3086bcf652f8a98c4b96dfeae8",
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "work/orchestration/hut-smoke-state-exit/host-observer-contracts-02.py": "3d9eb40640d331928549739086fce7ab0426ea4c5e4a6e5f88cbcd23e2d7ea75"
+    }
+  },
+  "command": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "15s",
+    "/bin/sh",
+    "-c",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node --max-old-space-size=1024 --test --test-concurrency=1 --test-reporter=tap tests/hut-smoke-ignition-observer.test.mjs && /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node --max-old-space-size=1024 --check scripts/local-render/hut-smoke-ignition.mjs && /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node --max-old-space-size=1024 --check scripts/local-render/hut-smoke-ignition-observer.mjs && /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node --max-old-space-size=1024 --check tests/hut-smoke-ignition-observer.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006",
+  "startedAt": "2026-10-06T22:39:03.141Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/orchestration/hut-smoke-state-exit/observer-contracts-02/command-receipt.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/orchestration/hut-smoke-state-exit/observer-contracts-02/command-receipt.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T22:39:03.365Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "TAP version 13\n# Subtest: observer forwards each original render receiver, arguments and exact result without a synthetic call\nok 1 - observer forwards each original render receiver, arguments and exact result without a synthetic call\n  ---\n  duration_ms: 4.871543\n  type: 'test'\n  ...\n# Subtest: observer propagates the exact original render exception and never takes a successful-frame sample\nok 2 - observer propagates the exact original render exception and never takes a successful-frame sample\n  ---\n  duration_ms: 0.604668\n  type: 'test'\n  ...\n# Subtest: diagnostic identity and readback errors remain bounded without changing original render results\nok 3 - diagnostic identity and readback errors remain bounded without changing original render results\n  ---\n  duration_ms: 1.176417\n  type: 'test'\n  ...\n# Subtest: observer refuses to overwrite a later renderer owner during close\nok 4 - observer refuses to overwrite a later renderer owner during close\n  ---\n  duration_ms: 0.265114\n  type: 'test'\n  ...\n1..4\n# tests 4\n# suites 0\n# pass 4\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 92.477487\n",
+  "stderr": "",
+  "stdoutSha256": "69527949451d5f0531aa4d5dbf467e69085e579ab6c44ad0d58e5347a786c1df",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "615807a9470f0a06617f7f1a5f855296b3e5aa44",
+    "branch": "research/hut-smoke-ordinary-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/local-render/hut-smoke-ignition.mjs": "13006e9d9124910d54031d8886b13b4c8393efa05dd54fffa2c3dbfed1a179c5",
+      "scripts/local-render/hut-smoke-ignition-observer.mjs": "8a50fa4bb93b6bb0fb9b927056dacb085049cb2125ebd6bb4db2579ea6f8b735",
+      "tests/hut-smoke-ignition-observer.test.mjs": "f31df10058cb90c1e581b71d0bb81cf84bb32c089e66601b4024e17d2da1fa3c",
+      "app/original-effects.json": "8e43389fe9610e70fcedbbd8fe63b11d4addf9a001378225ee5ce273c5b83fdb",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "decomp/research/hut-smoke-state-exit/ordinary-checker-manifest.json": "5832e676027f24b67313480cb9964964f6607e3086bcf652f8a98c4b96dfeae8",
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "work/orchestration/hut-smoke-state-exit/host-observer-contracts-02.py": "3d9eb40640d331928549739086fce7ab0426ea4c5e4a6e5f88cbcd23e2d7ea75"
+    }
+  }
+}

@@ -1,0 +1,34 @@
+TAP version 13
+# Subtest: observer forwards each original render receiver, arguments and exact result without a synthetic call
+ok 1 - observer forwards each original render receiver, arguments and exact result without a synthetic call
+  ---
+  duration_ms: 4.871543
+  type: 'test'
+  ...
+# Subtest: observer propagates the exact original render exception and never takes a successful-frame sample
+ok 2 - observer propagates the exact original render exception and never takes a successful-frame sample
+  ---
+  duration_ms: 0.604668
+  type: 'test'
+  ...
+# Subtest: diagnostic identity and readback errors remain bounded without changing original render results
+ok 3 - diagnostic identity and readback errors remain bounded without changing original render results
+  ---
+  duration_ms: 1.176417
+  type: 'test'
+  ...
+# Subtest: observer refuses to overwrite a later renderer owner during close
+ok 4 - observer refuses to overwrite a later renderer owner during close
+  ---
+  duration_ms: 0.265114
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 92.477487

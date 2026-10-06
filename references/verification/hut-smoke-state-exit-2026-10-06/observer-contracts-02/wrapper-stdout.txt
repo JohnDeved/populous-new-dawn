@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/hut-smoke-state-exit/observer-contracts-02/command-receipt.json",
+  "headOid": "615807a9470f0a06617f7f1a5f855296b3e5aa44",
+  "exitCode": 0,
+  "stdoutSha256": "69527949451d5f0531aa4d5dbf467e69085e579ab6c44ad0d58e5347a786c1df",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
