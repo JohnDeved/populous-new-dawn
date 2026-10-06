@@ -1,0 +1,6 @@
+{
+  "three/package.json": "1d5c438acdc1fe5a52fb8ede2e417afd91fec91d22275c40f7b739591b24e4df",
+  "three/src/renderers/webgl/WebGLTextures.js": "241557c9b4a4cbbc76f4328329f6a26db2f27162e327ac2bb9eb4f851744184a",
+  "three/src/renderers/webgl/WebGLCapabilities.js": "19d270a7ec31b7d8c2673e4868384e8290306fd9340613e8f7726352e6974c3d",
+  "three/src/renderers/webgl/WebGLProperties.js": "fefb713d30e2df865b867e725592e8949c5735805a7d8963b98eb471c06c1589"
+}
