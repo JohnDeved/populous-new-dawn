@@ -1,0 +1,42 @@
+{
+  "scope": "Fixed supplied-state controller/setter/updater comparisons; no live ownership or elapsed-wall-time claim.",
+  "defaults": {
+    "pairs": 1,
+    "person": {"class": 1, "model": 4, "state": 10, "substate": 3, "counter": 15, "tribe": 0, "id": 1, "physics": 15, "flags2": 2097152, "flags3": 262144, "flags4": 0, "stamp": 0, "object": 168, "draw": 14, "renderFlags": 384, "f1": 0, "f2": 0, "morph": 0, "palette": 240, "x": 16384, "y": 16384, "h": 0, "goalX": 16384, "goalY": 16384, "angle": 200, "heading": 200, "turnAngle": 200, "speed": 0, "motionGroup": 0, "motionIndex": 0, "timer": 0, "life": 1000, "maxLife": 1000, "assignment": 0, "statusFlags": 2, "cargo": 0, "vehicle": 0, "commandCursor": 0, "commandStatus": 17, "commandAux": 3, "animationMode": 0, "commandPhase": 0, "immediateCommand": 0, "workTarget": 0, "previousState": 0},
+    "cosmeticRandom": 0,
+    "simulationRandom": 4,
+    "acquisitionCount": 0,
+    "firstAngle": 333
+  },
+  "main": [
+    {"id": "entry-to-first-loop", "pairs": 9, "cosmeticRandom": 1, "person": {"substate": 2, "flags2": 1075838976, "counter": 7, "object": 48, "draw": 16, "f1": 7, "f2": 2}},
+    {"id": "gesture98-to-return", "pairs": 11, "cosmeticRandom": 0},
+    {"id": "gesture99-to-return", "pairs": 19, "cosmeticRandom": 3},
+    {"id": "no-gesture-residue2", "cosmeticRandom": 1},
+    {"id": "no-gesture-residue3", "cosmeticRandom": 2}
+  ],
+  "boundaries": [
+    {"id": "counter15-no-decision", "person": {"counter": 14}},
+    {"id": "98-final-f1zero", "person": {"object": 176, "statusFlags": 3, "f2": 9}},
+    {"id": "98-final-f1one", "person": {"object": 176, "statusFlags": 3, "f2": 9, "f1": 1}},
+    {"id": "98-nonfinal-f1zero", "person": {"object": 176, "statusFlags": 3, "f2": 8}},
+    {"id": "98-nonfinal-f1one", "person": {"object": 176, "statusFlags": 3, "f2": 8, "f1": 1}},
+    {"id": "99-final-f1zero", "person": {"object": 184, "statusFlags": 3, "f2": 17}},
+    {"id": "99-final-f1one", "person": {"object": 184, "statusFlags": 3, "f2": 17, "f1": 1}},
+    {"id": "99-nonfinal-f1zero", "person": {"object": 184, "statusFlags": 3, "f2": 16}},
+    {"id": "99-nonfinal-f1one", "person": {"object": 184, "statusFlags": 3, "f2": 16, "f1": 1}},
+    {"id": "turning-bit2-clear", "cosmeticRandom": 1, "person": {"statusFlags": 0}},
+    {"id": "speed-interruption", "person": {"speed": 1}},
+    {"id": "flags2-bit4-interruption", "person": {"flags2": 2097156}},
+    {"id": "flags2-bit2000-interruption", "person": {"flags2": 2105344}},
+    {"id": "timer838-decision", "person": {"timer": 838}},
+    {"id": "timer839-no-decision", "person": {"timer": 839}},
+    {"id": "timer839-turning-known-difference", "cosmeticRandom": 1, "person": {"timer": 839, "statusFlags": 0}},
+    {"id": "timer839-active-final", "person": {"timer": 839, "object": 176, "statusFlags": 3, "f2": 9}},
+    {"id": "prior-listener-player-cue", "person": {"assignment": 64}},
+    {"id": "prior-listener-other-cue", "person": {"assignment": 64, "tribe": 2}},
+    {"id": "acquire-after-decision-no-retroactive-cue", "acquisitionCount": 1},
+    {"id": "command32-expiry-even", "cosmeticRandom": 1, "person": {"timer": 32, "commandStatus": 32}},
+    {"id": "command32-expiry-odd-known-difference", "cosmeticRandom": 1, "person": {"timer": 32, "commandStatus": 32, "counter": 16}}
+  ]
+}

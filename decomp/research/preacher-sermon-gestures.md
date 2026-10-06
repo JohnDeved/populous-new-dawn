@@ -306,3 +306,10 @@ Implementation remains blocked pending a separately authorized native comparison
 and fresh ordinary browser baseline. Later artwork planning must respect the
 accepted firing atlas 2048×8128 and supplied MAX_TEXTURE_SIZE8192 limit; this
 audit does not measure remaining capacity or authorize an append.
+
+The frozen supplied-state probe preparation is documented in
+[comparison-plan.md](preacher-sermon-gestures/comparison-plan.md), with exact
+source/input/case fingerprints in its preflight.json. It has not executed native
+instructions or the port. The separately approved combined169b application is
+the preferred future ordinary baseline; the two Mission3 AI changes remain
+explicit in the preparation manifest.

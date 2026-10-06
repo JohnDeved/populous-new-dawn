@@ -1,0 +1,92 @@
+{
+  "status": "prepared-not-executed",
+  "scope": "63 fixed supplied-state sermon/controller/setter/logical-updater comparisons. Native and port execution require a separate grant. No full game, renderer, ordinary-play or whole-sermon equality claim.",
+  "preparationBase": "e72837e42ca445ac1220d6c8a1291c0d71adec3e",
+  "applicationBase": "89e68606a406f93715b930550317519818ddc081",
+  "preferredOrdinaryBaseline": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+  "reviewSha256": "eee9eb599eda650ee24c6a67e850566db325c5882a6647150416bb6cf5bb0645",
+  "gameRoot": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game",
+  "executable": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+  "inputSha256": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vstart-0.ani": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vfra-0.ani": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258"
+  },
+  "sourceSha256": {
+    "app/animation.ts": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+    "app/game-clock.ts": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+    "app/live-movement.ts": "18d87ec0e7baf08b31ac0e618fdba4c8c0f0521cd25b166da7dd787b95baca77",
+    "app/live-people.ts": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+    "app/melee-engagement.ts": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde",
+    "app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "app/original-units.json": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+    "app/person-motion.ts": "a8e87abdb010c7dcb20f4bfd438ec1340f82f2e92a8c4f1053c487c6c32d75d0",
+    "app/person-order-update.ts": "23c2ff6108958715e45dc3caa034e5a3a558fdfcffa936e9129396ec8c48b286",
+    "app/person-orders.ts": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394",
+    "app/person-state.ts": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+    "app/preacher-conversion.ts": "b00e5fa81527600589f3e3bf24c815fa665aba8b1c56b2518c162d9b8f197cae",
+    "app/selection-runtime.ts": "d1b61309818d87e85e329c24fd7384ebd00b474b4dbe8f57ef84061ecbb2be71",
+    "app/world-turn.ts": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
+    "decomp/research/preacher-sermon-gestures/cases.json": "3693e3738f70feb41fc3c1f89bdb42311b884e699abe2307db386000cff19108",
+    "decomp/research/preacher-sermon-gestures/compare-port.mjs": "6fbb68f2810e701544009127ad9abfb19cb1d7c0e92e4f6236bdc87f650e0e31",
+    "decomp/research/preacher-sermon-gestures/compare.py": "938e0238b4e0bbbfcc24748a564e1ddec7065c7d305e98f1b5a34869100d467e",
+    "decomp/research/preacher-sermon-gestures/comparison-plan.md": "9fc66ae69a2fdcd1b0853ab14bca8f5198d1b7c7495b6bcc73317e4b284f1ca8",
+    "decomp/tools.json": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484",
+    "scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da"
+  },
+  "nodePath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "nodeSha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+  "tools": {
+    "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+    "capstoneDistribution": "5.0.7",
+    "unicornDistribution": "2.1.4",
+    "nodeVersion": "not-executed during preparation"
+  },
+  "instructionRanges": {
+    "0043a4d0-0043abd7": "f3692dea852244c891912f6afb13db05ae5b0f63cb1d4c2e06f5d139af9eecc8",
+    "004d4ee0-004d4f3d": "90e25c04d3895f5b92100131ba1de0bf5464848b5b643d48f924b277d1168739",
+    "004d4040-004d4297": "ee45d83c5df4a8c9a6d00315b3fdbcfc2d4bb263cc055ec42e635fefa72aedfd",
+    "004ee700-004ee76c": "72362f2cb43f60870b96001d79a62aa9cc808e837b1dc6ba1d7fe68a58a6379e",
+    "004ee7b0-004ee7f8": "5de60c62c9676e271ddc790945a03e4f8d53031b95cdc0f43e62fd97897acdcf",
+    "004ee85e-004ee8ed": "83a70a58d3b9e61bbdafdc41ad233310903e58048a1a6ddc565f015dabb4d2db",
+    "004ee9cb-004ee9cf": "e2f8cc83e68b6c30bec3ab3d825d0d8649e6061c8713ae0fb0e8ae9279cb712f"
+  },
+  "controllerCalls": 63,
+  "limits": {
+    "controllerCalls": 80,
+    "boundaryCases": 24,
+    "instructionsPerCall": 100000,
+    "secondsPerCall": 1,
+    "totalNativeSeconds": 60,
+    "portSeconds": 15
+  },
+  "outputDirectory": "work/orchestration/preacher-sermon-native/run-01",
+  "combinedIdenticalScope": {
+    "app/animation.ts": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+    "app/game-clock.ts": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+    "app/live-movement.ts": "18d87ec0e7baf08b31ac0e618fdba4c8c0f0521cd25b166da7dd787b95baca77",
+    "app/live-people.ts": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+    "app/melee-engagement.ts": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde",
+    "app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "app/person-motion.ts": "a8e87abdb010c7dcb20f4bfd438ec1340f82f2e92a8c4f1053c487c6c32d75d0",
+    "app/person-order-update.ts": "23c2ff6108958715e45dc3caa034e5a3a558fdfcffa936e9129396ec8c48b286",
+    "app/person-orders.ts": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394",
+    "app/person-state.ts": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+    "app/preacher-conversion.ts": "b00e5fa81527600589f3e3bf24c815fa665aba8b1c56b2518c162d9b8f197cae",
+    "app/selection-runtime.ts": "d1b61309818d87e85e329c24fd7384ebd00b474b4dbe8f57ef84061ecbb2be71",
+    "app/world-turn.ts": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a"
+  },
+  "combinedAiDifferences": {
+    "app/campaign-command-runtime.ts": {
+      "604506b19d79fdcaefa771f8e027ad206dfc2cc7": "7721cdb9954edc737d6c13828b42e69dac09b8046db8f93b7a7e92a05e0c908b",
+      "169b5f38e8cc9f7aacbae222ba804ac519ec1f27": "5badf47c9b0e55d99f307a1a82c3ba311c835ac78edeabc9f6c7796a39314182"
+    },
+    "app/computer-runtime.ts": {
+      "604506b19d79fdcaefa771f8e027ad206dfc2cc7": "1ca8fd533d5634cc5d82feb5909ab136506c966713c04508b1d487167e052f5c",
+      "169b5f38e8cc9f7aacbae222ba804ac519ec1f27": "fcaea74faacf6477a25c186b668eadc8e3a5a887cc74157683f818ee1a576872"
+    }
+  },
+  "futureArtworkConstraint": "Accepted firing packed2048x8128; supplied actual MAX_TEXTURE_SIZE8192. No capacity or pixel proof in this probe."
+}
