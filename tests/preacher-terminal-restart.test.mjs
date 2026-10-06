@@ -140,12 +140,59 @@ test('a following command still releases and returns before the new restart stop
   }
 })
 
-test('terminal turning remains outside this fix and preserves its known port RNG outcome', () => {
+test('terminal mode0 turning now preserves the retained native RNG outcome', () => {
   const state = setup()
   Object.assign(state.p, { counter: 0, statusFlags: 0, assignment: 0, animationMode: 0 })
   state.world.randomState = 4
   assert.equal(controller(state), 0)
-  assert.deepEqual([state.p.animationMode, state.p.assignment, state.world.randomState], [1, 16, 3138912261])
+  assert.deepEqual([state.p.animationMode, state.p.assignment, state.world.randomState], [0, 0, 4])
   assert.equal(state.world.poseRandom.randomState, proof.input.cosmeticRandom)
   assert.deepEqual(state.calls, [['acquire', 3]])
 })
+
+// These supplied controller rows follow the original timer jump and mode bodies.
+// Modes1/2 are source-backed boundary regressions, not additional native executions.
+// Equal angle/heading and in-range phases leave their other ownership/width gaps alone.
+const turningBaseFlags = 0x02220200
+const turningFacingFlags = turningBaseFlags | 0x1080
+const turningEntryFlags = turningBaseFlags | 0x40000000
+const turningDraw = 3138912261
+const turningRows = [
+  ['mode0 before cutoff', [838, 16, 0, 320, 7], [839, 3, 1, 272, 7, 11008, turningBaseFlags, turningDraw]],
+  ['mode0 at cutoff', [839, 16, 0, 320, 7], [840, 4, 0, 256, 7, 11008, turningEntryFlags, 4]],
+  ['mode1 entry before cutoff', [838, 8, 1, 272, 7], [839, 3, 1, 256, 39, 718, turningFacingFlags, 4]],
+  ['mode1 entry at cutoff', [839, 8, 1, 272, 7], [840, 4, 1, 272, 7, 11008, turningEntryFlags, 4]],
+  ['mode1 expiry before cutoff', [838, 8, 1, 256, 1], [839, 3, 0, 272, 0, 11008, turningBaseFlags, 4]],
+  ['mode1 expiry at cutoff', [839, 8, 1, 256, 1], [840, 4, 1, 256, 1, 11008, turningEntryFlags, 4]],
+  ['mode2 before cutoff off the decision counter', [838, 9, 2, 256, 7], [839, 3, 0, 272, 7, 5, turningFacingFlags, turningDraw]],
+  ['mode2 at cutoff off the decision counter', [839, 9, 2, 256, 7], [840, 4, 2, 256, 7, 11008, turningEntryFlags, 4]],
+  ['mode2 above cutoff', [840, 9, 2, 256, 7], [841, 4, 2, 256, 7, 11008, turningEntryFlags, 4]],
+  ['bit2 suppresses mode0 below cutoff', [838, 16, 0, 256, 7], [839, 3, 0, 256, 7, 11008, turningBaseFlags, 4], { statusFlags: 3 }],
+  ['bit2 suppresses mode1 below cutoff', [838, 8, 1, 272, 7], [839, 3, 1, 272, 7, 11008, turningBaseFlags, 4], { statusFlags: 3 }],
+  ['bit2 suppresses mode2 below cutoff', [838, 9, 2, 256, 7], [839, 3, 2, 256, 7, 11008, turningBaseFlags, 4], { statusFlags: 3 }],
+  ['speed interruption remains outside the timer guard', [840, 8, 2, 256, 7], [840, 3, 1, 272, 7, 11008, turningBaseFlags, 4], { speed: 73 }],
+  ['flag4 interruption remains outside the timer guard', [840, 8, 2, 256, 7], [840, 3, 1, 272, 7, 11008, turningBaseFlags | 4, 4], { flags2: turningBaseFlags | 4 }],
+  ['flag2000 interruption remains outside the timer guard', [840, 8, 2, 256, 7], [840, 3, 1, 272, 7, 11008, turningBaseFlags | 0x2000, 4], { flags2: turningBaseFlags | 0x2000 }],
+]
+
+for (const [name, input, output, overrides = {}] of turningRows) {
+  test(`shared sermon timer boundary: ${name}`, () => {
+    const state = setup()
+    const [timer, counter, animationMode, assignment, commandPhase] = input
+    Object.assign(state.p, { substate: 3, speed: 0, statusFlags: 1, f1: 1,
+      angle: 694, heading: 694, turnAngle: 11008, flags2: turningBaseFlags,
+      timer, counter, animationMode, assignment, commandPhase, ...overrides })
+    state.world.randomState = 4
+    const expectedPerson = structuredClone(state.p), expectedWorld = structuredClone(state.world)
+    const keys = ['timer', 'substate', 'animationMode', 'assignment', 'commandPhase', 'turnAngle', 'flags2']
+    keys.forEach((key, index) => { expectedPerson[key] = output[index] })
+    // The existing empty-acquisition adapter sets bit2 after the turning work.
+    if (!(counter & 1)) expectedPerson.statusFlags |= 2
+    expectedWorld.randomState = output[7]
+    assert.equal(controller(state), 0)
+    assert.deepEqual(state.p, expectedPerson, 'Every person/queue/source/frame field stays accounted for')
+    assert.deepEqual(state.world, expectedWorld, 'Only the declared simulation draw may change world state')
+    assert.deepEqual(state.calls, counter & 1 ? [] : [['acquire', 3]],
+      'The even scan tail remains outside the timer guard; no animation/audio/stop/release call')
+  })
+}
