@@ -23,10 +23,17 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('game', type=Path)
     parser.add_argument('--native-helper', type=Path, required=True)
+    parser.add_argument('--candidate', action='store_true', help='Verify the frozen bounded candidate changes')
     args = parser.parse_args()
     sha = lambda p: hashlib.sha256(p.read_bytes()).hexdigest()
     command = lambda *argv: subprocess.check_output(argv, cwd=ROOT, text=True).strip()
-    assert command('git', 'diff', BASE, '--', 'app', 'public') == '', 'Application/artwork changed'
+    if args.candidate:
+        expected = json.loads((HERE / 'candidate-sources.json').read_text())
+        changed = command('git', 'diff', '--name-only', BASE, '--', 'app', 'public').splitlines()
+        assert set(changed) == set(expected), 'Unexpected candidate application/artwork scope'
+        assert all(sha(ROOT / name) == digest for name, digest in expected.items()), 'Candidate bytes changed'
+    else:
+        assert command('git', 'diff', BASE, '--', 'app', 'public') == '', 'Application/artwork changed'
     assert sha(args.game / 'd3dpoptb.exe') == EXE_SHA
     assert sha(args.native_helper) == MAPPER_SHA
     helper_root = args.native_helper.resolve().parents[1]
@@ -84,6 +91,7 @@ def main():
         'status': 'passed', 'nativeExecution': False, 'portExecution': False,
         'browserExecution': False, 'sourceHead': command('git', 'rev-parse', 'HEAD'),
         'sourceStatus': command('git', 'status', '--short'), 'applicationBase': BASE,
+        'candidateSourceManifest': sha(HERE / 'candidate-sources.json') if args.candidate else None,
         'priorAudit': 'efd5d17293b18802b3cdca447b2efa8de8aca5b0',
         'python': {'path': str(Path(sys.executable).resolve()), 'version': sys.version},
         'unicornVersion': importlib.metadata.version('unicorn'),
