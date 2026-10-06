@@ -391,7 +391,8 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     }, { id: shamanId, point: shore.point }, { timeout: 180000 })
     await pause()
     report.shoreArrival = await read(); save()
-    await view({ x: 0, z: 4 }) // Camera preparation precedes ordinary spell selection.
+    // One ordinary camera offset keeps the fixed Bridge target outside the central Pause badge.
+    await view({ x: 0, z: 12 }) // Actual cast target remains (0,4); ownership checks stay strict.
     await action('select-earned-Land-Bridge', () => page.keyboard.press('2'))
     assert.equal((await read()).mode, 'bridge')
     const bridgePoint = await fixedGround({ x: 0, z: 4 }, 'bridge')
