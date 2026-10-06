@@ -1,0 +1,10 @@
+{
+  "time": "2026-10-06T21:33:15.532001+00:00",
+  "status": "ACCEPT-one-case-execution-preflight",
+  "source": "7e22a80c8dceefd047ac7e17521353f2045b72f1",
+  "currentHead": "07e54532b41a2d1b04d16db5f8dffd48648962b4",
+  "reviewSha256": "f9042d85ab336f19b2439a5987399ca3ed048d7fdc098a713aab490dec32774a",
+  "nativeResult": "not-yet-reviewed",
+  "sourceManifestSha256": "6e8511cda38fc12061165d83e0fe6f749fb30a53c628a48d55e0a3139ab6035c",
+  "verifiedHashes": 54
+}
