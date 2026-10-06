@@ -1,8 +1,8 @@
 {
-  "status": "source-only-unexecuted-target-revalidation-correction",
+  "status": "source-only-unexecuted-earned-bridge-prerequisite",
   "applicationCommit": "b26f66b24da4fe133441e83c5377467a5066ef64",
   "files": {
-    "scripts/local-render/hut-smoke-ignition.mjs": "63b702c0515d7fce66f0c5818e754a7f72fc74cf54fc820e44849843b778a03c",
+    "scripts/local-render/hut-smoke-ignition.mjs": "efb5848bdf7525ceac90758e0d5d5349b51315db70158ba36594883dcb8ae75f",
     "scripts/local-render/hut-smoke-ignition-observer.mjs": "8a50fa4bb93b6bb0fb9b927056dacb085049cb2125ebd6bb4db2579ea6f8b735",
     "scripts/local-render/harness.mjs": "fb07de9e278f26b2b32324defeb6164832472a58d422aead1032b7db7ee85fcf",
     "scripts/local-render/owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
@@ -29,6 +29,17 @@
     "decomp/research/hut-smoke-state-exit/ordinary-checker-plan.md": "c0e63abb394a50dd7833818171b3a7e96c4244645d3ac060dbfadcf445e3345f",
     "decomp/research/hut-smoke-state-exit/ordinary-checker-launch-draft.json": "19ad4fd758e4fd771af6b99534090588e6af6998f14949b1809a8680c1a3deb8",
     "tests/hut-smoke-ignition-observer.test.mjs": "f31df10058cb90c1e581b71d0bb81cf84bb32c089e66601b4024e17d2da1fa3c",
-    "decomp/research/hut-smoke-state-exit/ordinary-target-revalidation-correction.md": "4b3678e7be8d94dcd351ec3f6b0bdc6508c2ac60beb533fad6fd4fe7525f6102"
+    "decomp/research/hut-smoke-state-exit/ordinary-target-revalidation-correction.md": "4b3678e7be8d94dcd351ec3f6b0bdc6508c2ac60beb533fad6fd4fe7525f6102",
+    "decomp/research/hut-smoke-state-exit/ordinary-bridge-prerequisite.md": "9d976bcf81aeb13a34f883640ef70bd31a0e0fe511b905b2b21dd15ed54a2aeb",
+    "app/level-one.ts": "e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33",
+    "app/unit-kinds.ts": "5c6903d13aef2e99645fc8cfa3d86afde5e109a6b099aa775f0061f8b060162f",
+    "app/live-pathfinding.ts": "3a52a138448bcaae35acc85818a38381ea85d03717c750f51a33b8aad802c939",
+    "app/live-worship.ts": "31d3a291fa1f8d543f3da918d5eb4eb8208c46e6e9d3192ad14c5f7012ec47e6",
+    "app/worship.ts": "f0e60f01e2b164e5d9e0ce6b8bd595ae3e4ca5f62ced9ef7c3e57dfb1ff75618",
+    "app/world-coordinates.ts": "5fab890c7ab683323d873c7350700a0bb3bf977f1b6512ddca6fa823f5a5fa4f",
+    "app/world-terrain-runtime.ts": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757",
+    "app/selection-runtime.ts": "d1b61309818d87e85e329c24fd7384ebd00b474b4dbe8f57ef84061ecbb2be71",
+    "app/live-combat.ts": "12107b400388222fb75453f86d055d6ea053813da355a75cf6a10ddb3553933a",
+    "app/person-orders.ts": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394"
   }
 }
