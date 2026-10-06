@@ -123,7 +123,12 @@ separate from Erosion issue 223.
 ## Live adapter and checkpoint boundary
 
 Fresh worlds preserve `bridgeStart` from the linked record and place the live
-bridge effect there. The controller remains unchanged. Legacy checkpoint migration
+bridge effect there. New authored rewards save initialized birth-time caches.
+Older checkpoints with a turn-0 bridge keep their existing decoding and next-step
+initialization from saved terrain. Historical birth-time terrain is unavailable,
+so those caches cannot safely be reconstructed retroactively; no migration is
+introduced by the initialization repair. The controller remains unchanged.
+Legacy checkpoint migration
 matches the immutable head position, range, heading and existing target, accepting
 only an unambiguous authored source. It does not reconstruct the world, advance
 worship, reset random state, replay a consumed head, or change terrain/in-flight
