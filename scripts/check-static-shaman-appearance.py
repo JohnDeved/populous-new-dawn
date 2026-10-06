@@ -52,7 +52,8 @@ def main():
     for index, piece in enumerate(units['pieces']):
         w, h, rgba = bank[piece['source']]
         assert (w, h) == (piece['w'], piece['h'])
-        x, y = index % units['columns'] * units['cell'], index // units['columns'] * units['cell']
+        x = piece.get('atlasX', index % units['columns'] * units['cell'])
+        y = piece.get('atlasY', index // units['columns'] * units['cell'])
         assert atlas.crop((x, y, x + w, y + h)).tobytes() == rgba, ('original pixel', index)
         piece_hashes.append(digest(rgba))
     for packed, frame in enumerate(units['frames']):
@@ -119,10 +120,11 @@ def main():
         for name, states in old['animations'].items():
             assert all(units['animations'][name][state] == value for state, value in states.items())
             additions = units['animations'][name].keys() - states.keys()
-            allowed = {'restingGesture'} if name in ('blue-firewarrior', 'red-firewarrior') else set()
+            allowed = {'restingGesture', 'firing'} if name in ('blue-firewarrior', 'red-firewarrior') else set()
             assert additions <= allowed, ('unrelated animation addition', name, additions)
         for index, piece in enumerate(old['pieces']):
-            x, y = index % old['columns'] * old['cell'], index // old['columns'] * old['cell']
+            x = piece.get('atlasX', index % old['columns'] * old['cell'])
+            y = piece.get('atlasY', index // old['columns'] * old['cell'])
             rectangle = (x, y, x + piece['w'], y + piece['h'])
             assert previous.crop(rectangle).tobytes() == atlas.crop(rectangle).tobytes(), index
         preservation = {

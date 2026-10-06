@@ -1,6 +1,6 @@
 """Decode the supplied Populous assets; never execute the Windows installer.
 Usage: python3 scripts/import-original.py /path/to/extracted/game [--units-only | --vehicles-only | --training-huts-only | --hut-smoke-only]
---units-only appends Shaman families and Firewarrior resting artwork and writes only
+--units-only appends Shaman families and Firewarrior resting/firing artwork and writes only
 app/original-units.json, public/original/unit-layers.png and provenance.json.
 --vehicles-only appends original mesh143/144 to original-models.json and its
 provenance modelIds; it never regenerates the shared object atlas.
@@ -165,7 +165,7 @@ def building_shapes(data, objects, smoke_offsets=b''):
     return dict(objects=indices,origins=origins,shapes=shapes,cells=list(data[64*48:]),socketOffsets={str(model):offsets[i] for i,model in enumerate(corrected)})
 
 def append_unit_families(source, project):
-    """Append original Shaman families and the Firewarrior resting gesture.
+    """Append original Shaman families and Firewarrior resting/firing artwork.
 
     This bounded mode writes only original-units.json, unit-layers.png and its
     provenance.json. The normal full importer calls it after producing that same
@@ -231,8 +231,8 @@ def append_unit_families(source, project):
     # exact RGBA rectangle survives; new pieces may use formerly empty tail cells.
     for index, item in enumerate(old_pieces):
         width, height, rgba = bank[item['source']]
-        x = (index % units['columns']) * units['cell']
-        y = (index // units['columns']) * units['cell']
+        x = item.get('atlasX', (index % units['columns']) * units['cell'])
+        y = item.get('atlasY', (index // units['columns']) * units['cell'])
         for row in range(height):
             at = ((y + row) * old_width + x) * 4
             assert old_pixels[at:at + width * 4] == rgba[row * width * 4:(row + 1) * width * 4]
@@ -287,18 +287,57 @@ def append_unit_families(source, project):
     append_sources([resting_source])
     for team in ['blue', 'red']:
         units['animations'][team + '-firewarrior']['restingGesture'] = directions(resting_source)
+    # Command21 firing uses model6 row15, distinct from the existing melee key.
+    # Append after source720 so all established frame/piece indices remain stable.
+    firing_object = rules['personAnimationObjects'][15 * 9 + 6]
+    firing_source, firing_draw = rules['animationObjects'][firing_object]
+    assert (firing_object, firing_source, firing_draw) == (94, 56, 13)
+    firing_pieces = sorted({piece for direction in range(8)
+                            for frame in cycle(firing_source + direction)[0]
+                            for piece, *_ in raw_layers(frame)} - {22})
+    assert len(firing_pieces) == 80
+    append_sources([firing_source])
+    first_firing_piece = piece_index[firing_pieces[0]]
+    assert (units['width'], units['cell'], units['columns']) == (2048, 64, 32)
+    assert first_firing_piece == 4042, 'The reviewed firing append follows the complete resting artwork'
+    firing_height = ((first_firing_piece + units['columns'] - 1) // units['columns']) * units['cell']
+    assert firing_height == 8128
+    for offset, source_piece in enumerate(firing_pieces):
+        index = piece_index[source_piece]
+        assert index == first_firing_piece + offset
+        piece = units['pieces'][index]
+        assert max(piece['w'], piece['h']) <= 32
+        # Four 32px subslots in each of 20 unused tail cells keep the original
+        # 2048x8128 atlas; old piece indices/coordinates and full cells stay fixed.
+        container = first_firing_piece + offset // 4
+        x = (container % units['columns']) * units['cell'] + (offset % 2) * 32
+        y = (container // units['columns']) * units['cell'] + ((offset // 2) % 2) * 32
+        assert x + 32 <= old_width and y + 32 <= firing_height
+        if index < len(old_pieces):
+            assert (piece.get('atlasX'), piece.get('atlasY')) == (x, y), 'Refuse to repack existing artwork'
+        else:
+            for row in range(32):
+                if y + row < old_height:
+                    at = ((y + row) * old_width + x) * 4
+                    assert not any(old_pixels[at:at + 32 * 4]), 'Firing destination must be empty'
+        piece.update(atlasX=x, atlasY=y)
+    for team in ['blue', 'red']:
+        units['animations'][team + '-firewarrior']['firing'] = directions(firing_source)
     assert units['frames'][:len(old_frames)] == old_frames
     assert units['pieces'][:len(old_pieces)] == old_pieces
     assert all(units['animations'][name][state] == value
                for name, states in old_animations.items() for state, value in states.items())
     cell, columns = units['cell'], units['columns']
     width = units['width']
-    height = ((len(units['pieces']) + columns - 1) // columns) * cell
+    bottom = max(piece.get('atlasY', (i // columns) * cell) + piece['h']
+                 for i, piece in enumerate(units['pieces']))
+    height = max(old_height, ((bottom + cell - 1) // cell) * cell)
     assert width == cell * columns
     pixels = bytearray(width * height * 4)
     for i, piece in enumerate(units['pieces']):
         w, h, rgba = bank[piece['source']]
-        x, y = (i % columns) * cell, (i // columns) * cell
+        x = piece.get('atlasX', (i % columns) * cell)
+        y = piece.get('atlasY', (i // columns) * cell)
         for row in range(h):
             at = ((y + row) * width + x) * 4
             pixels[at:at + w * 4] = rgba[row * w * 4:(row + 1) * w * 4]
