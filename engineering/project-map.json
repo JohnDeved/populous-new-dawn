@@ -585,7 +585,8 @@
         "scripts/controlled-scene-frames.mjs",
         "scripts/shaman-worship-ground-observer.mjs",
         "tests/controlled-scene-frames.test.mjs",
-        "decomp/research/shaman-death-vfx.md"
+        "decomp/research/shaman-death-vfx.md",
+        "decomp/research/reincarnation-final-burst.md"
       ],
       "sharedPaths": [
         "app/scene-entities.ts",
@@ -640,6 +641,10 @@
         {
           "path": "decomp/research/shaman-death-vfx.md",
           "heading": "Phase1 ground"
+        },
+        {
+          "path": "decomp/research/reincarnation-final-burst.md",
+          "heading": "Final reincarnated-Shaman burst: source-only assessment (#30)"
         }
       ],
       "nativeAddresses": [
@@ -673,6 +678,7 @@
       ],
       "unresolved": [
         "Static original-byte evidence and bounded live checks do not certify a full native graphics loop, complete death-frame timing or performance nonregression.",
+        "Final Shaman spawn omits the original model9 burst; exact person/effect allocation, failure/retry and visit-order composition require the indexed evidence-only proof before a runtime repair.",
         "Generic follower/Spy behavior and simulation state remain outside the Shaman-only appearance repair."
       ]
     },
