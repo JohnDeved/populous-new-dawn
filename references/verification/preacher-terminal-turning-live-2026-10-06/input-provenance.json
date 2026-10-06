@@ -1,0 +1,268 @@
+{
+  "acceptedPacketManifest": {
+    "status": "source-only proposal; not executed",
+    "head": "a00eadc811e227559f9a2713eedbee5cd08af1c1",
+    "tree": "57121b0e4a66c74e4e4321524ed9c6406cdb7de9",
+    "caseCount": 1,
+    "unitCount": 6,
+    "wrapperCalls": 3,
+    "updaterCalls": 3,
+    "sourceClosureFileCount": 216,
+    "runtimeEdits": false,
+    "testImplementation": false,
+    "newExecution": false,
+    "files": {
+      "README.md": {
+        "sha256": "e9830b674fb5b5be1494af175b66b6c1bdeffc4ac2615b6ac97dd5983fa869c8",
+        "bytes": 2282
+      },
+      "field-supply-ledger.json": {
+        "sha256": "27b44c0b828cab0c2da31467bfb9baa0d0ac477b0005b154d87b02c73c2411a6",
+        "bytes": 6666
+      },
+      "proposal.json": {
+        "sha256": "170f53c8206d9482120c11577f20e147d8bb4f9ae7ac563ad447e74d5a16d77d",
+        "bytes": 7675
+      },
+      "retained-inputs.json": {
+        "sha256": "5c611f659c2aafdf468a441ff78d5ee8fb41d6cd7542920c918c38d903fc3d1f",
+        "bytes": 38530
+      },
+      "source-binding.json": {
+        "sha256": "e02264dc62f74657ecf776d443752666341aa51bf20f8faf9ccf013a60f5c5dd",
+        "bytes": 210666
+      }
+    }
+  },
+  "fullOrdinaryRecordCanonicalSha256": "569f0216f758038594065de6fa9b0d8582a80ec61a982cfcb8cec3467a1ce368",
+  "fullOrdinaryPersonCanonicalSha256": "a99b40162049d4118857f1fc47958465eb5666ca1901c16d4c4f8bc3a0cb5d6e",
+  "nativeProposalCanonicalSha256": "dc56a75fa65fe634630f01e206e80855190b5c37eb1cc63ce00a906ecd490911",
+  "nativeRecords": [
+    {
+      "id": 3164,
+      "canonicalRecordSha256": "dfc17e4930d632432d0a33a6d88245afcfdd67b8488abe13aa8ed60c04f1c5e9",
+      "raw256Sha256": "ef507e497f3c0b5813b1f8f2d3b0722c044c57661eeedfe79d3a943f5d08f204"
+    },
+    {
+      "id": 3165,
+      "canonicalRecordSha256": "dfb801e2e46e3df60f5d1a9dd4cb49bd2f7b6bd87d27b0ac159878b103c3c5d2",
+      "raw256Sha256": "73ba4b980f28261de5f49277240f6be688d8ec8525e534fa80163e9bac454df2"
+    },
+    {
+      "id": 3166,
+      "canonicalRecordSha256": "7b5d373d24e70e7b980a73a4e16873a4aaa7d7abc36451fb3dc1e241c7a29602",
+      "raw256Sha256": "e2e0c688655c3675de4ddcb8d747e5625e1018272117f4f35eb17a9ada7fe36a"
+    },
+    {
+      "id": 3167,
+      "canonicalRecordSha256": "f67b735c3205953e8199e3bac1a59b90e90e1ba69a2ddd956d15e1957c3b5e38",
+      "raw256Sha256": "d8f72cf91c1074ade6c43cabe94de5c37e2eddffcc163e70ad750c3c4b7ccfdd"
+    },
+    {
+      "id": 3168,
+      "canonicalRecordSha256": "5a4cc0e1ee6a188d3202729406d360bba5956aef7df1f55f5b27f11f3704707e",
+      "raw256Sha256": "1244eef31b053300d0c57ab2337328ef7b508a51e5e36abff063cb3f2ed62dc3"
+    },
+    {
+      "id": 3169,
+      "canonicalRecordSha256": "b76bc4cd73642f20a17e66e1713d7632e1b24c010769d202c7a142b558d9f33e",
+      "raw256Sha256": "8f877c8560366329161470812f0969fe96dc87338d4ef2d7ed3bd51e4f4a61d1"
+    }
+  ],
+  "verifiedInputFiles": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-baseline-20261006/work/orchestration/preacher-gesture-baseline/browser-attempt-01/phases.jsonl",
+      "bytes": 5731606,
+      "sha256": "d7f623cc9b8315a0a17d974fb6b7108b7271ce0b0a4cf827fa55cd897e27c7bb",
+      "expectedSha256": "d7f623cc9b8315a0a17d974fb6b7108b7271ce0b0a4cf827fa55cd897e27c7bb",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/decomp/research/preacher-sermon-gestures/result.json",
+      "bytes": 199780,
+      "sha256": "4711c12f4ab006e33e410f6ac47166c2930154bf691cc7364ac606d27ca8d1ec",
+      "expectedSha256": "4711c12f4ab006e33e410f6ac47166c2930154bf691cc7364ac606d27ca8d1ec",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/work/orchestration/preacher-sermon-native/run-01/frozen-manifest.json",
+      "bytes": 7151,
+      "sha256": "125acb5330e5487c7c5bd6438c13c2ec975ecb9d04538560ee9898d885b4a3b7",
+      "expectedSha256": "125acb5330e5487c7c5bd6438c13c2ec975ecb9d04538560ee9898d885b4a3b7",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/work/orchestration/preacher-sermon-native/run-01/native.json",
+      "bytes": 866481,
+      "sha256": "bce40128163d945f90d56392c4fb8ecd21765f7e7ed3724b4ff5f90ac41c034d",
+      "expectedSha256": "bce40128163d945f90d56392c4fb8ecd21765f7e7ed3724b4ff5f90ac41c034d",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-sermon-gestures-20261006/work/orchestration/preacher-sermon-native/run-01/supplied-input.json",
+      "bytes": 42125,
+      "sha256": "a708520a0297fad98a655670d11a8614bda45c8f5f2c6d39b5f65881e2aa3502",
+      "expectedSha256": "a708520a0297fad98a655670d11a8614bda45c8f5f2c6d39b5f65881e2aa3502",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/animation.ts",
+      "bytes": 7107,
+      "sha256": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+      "expectedSha256": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/live-combat.ts",
+      "bytes": 13566,
+      "sha256": "12107b400388222fb75453f86d055d6ea053813da355a75cf6a10ddb3553933a",
+      "expectedSha256": "12107b400388222fb75453f86d055d6ea053813da355a75cf6a10ddb3553933a",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/live-movement.ts",
+      "bytes": 36012,
+      "sha256": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20",
+      "expectedSha256": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/live-people.ts",
+      "bytes": 44800,
+      "sha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+      "expectedSha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/melee-engagement.ts",
+      "bytes": 4313,
+      "sha256": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde",
+      "expectedSha256": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/native-math.ts",
+      "bytes": 3594,
+      "sha256": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+      "expectedSha256": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/object-cells.ts",
+      "bytes": 2522,
+      "sha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909",
+      "expectedSha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/original-constants.json",
+      "bytes": 6992,
+      "sha256": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+      "expectedSha256": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/original-rules.json",
+      "bytes": 77119,
+      "sha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "expectedSha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/person-state.ts",
+      "bytes": 16473,
+      "sha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+      "expectedSha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/preacher-conversion.ts",
+      "bytes": 7428,
+      "sha256": "a402baa5e394ebf13347a3b371a957d25cb2bd519b44da77a886646a710fd784",
+      "expectedSha256": "a402baa5e394ebf13347a3b371a957d25cb2bd519b44da77a886646a710fd784",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/unit-kinds.ts",
+      "bytes": 697,
+      "sha256": "5c6903d13aef2e99645fc8cfa3d86afde5e109a6b099aa775f0061f8b060162f",
+      "expectedSha256": "5c6903d13aef2e99645fc8cfa3d86afde5e109a6b099aa775f0061f8b060162f",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/app/world-types.ts",
+      "bytes": 15202,
+      "sha256": "39d0cf2a822e90a077ef86e43f74fb35e6966fe873f60d8e5b820f42c00cb3c4",
+      "expectedSha256": "39d0cf2a822e90a077ef86e43f74fb35e6966fe873f60d8e5b820f42c00cb3c4",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/decomp/generated/0043a4d0.c",
+      "bytes": 11021,
+      "sha256": "468e8230bd5ccf922c0237163fbf5e92fa00948b0d1fd98ac46b7e0a35d33188",
+      "expectedSha256": "468e8230bd5ccf922c0237163fbf5e92fa00948b0d1fd98ac46b7e0a35d33188",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/scripts/check-native-object-cells.py",
+      "bytes": 4206,
+      "sha256": "6ddac0efcc82c749dee534b2003f11271306b86e72ae2f0db98b5da84c6cb032",
+      "expectedSha256": "6ddac0efcc82c749dee534b2003f11271306b86e72ae2f0db98b5da84c6cb032",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-restart-fix-20261006/work/orchestration/preacher-terminal-restart-fix/replay-after-01/port.stdout.json",
+      "bytes": 452130,
+      "sha256": "2bb2a99933482b2c87bda7540b79caac40d0ec5189952b069956afd31d7e4b23",
+      "expectedSha256": "2bb2a99933482b2c87bda7540b79caac40d0ec5189952b069956afd31d7e4b23",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-turning-outline-20261006/case-input-proposal.json",
+      "bytes": 20382,
+      "sha256": "cb82a929da6f450f8232f24a1d8ffde71e5038508d5a894592267df4b5c9a704",
+      "expectedSha256": "cb82a929da6f450f8232f24a1d8ffde71e5038508d5a894592267df4b5c9a704",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-turning-outline-20261006/evidence.json",
+      "bytes": 69237,
+      "sha256": "37ab506760f5bea2e3148f01073ab1370b56d2932034206fcc17a28519381c7b",
+      "expectedSha256": "37ab506760f5bea2e3148f01073ab1370b56d2932034206fcc17a28519381c7b",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-turning-outline-20261006/outline.md",
+      "bytes": 10310,
+      "sha256": "1591eeb21e48f56a4b077ec53562933224ba0d7e2399aa7bb164da3e4534946e",
+      "expectedSha256": "1591eeb21e48f56a4b077ec53562933224ba0d7e2399aa7bb164da3e4534946e",
+      "status": "matched"
+    },
+    {
+      "path": "/workspace/shared/preacher-cutoff-passive-result-e49e4473/raw-evidence.tar.gz",
+      "bytes": 2249603,
+      "sha256": "3117f7f3f7cd389624c850e0e34620d41cde035b9871e6293349a84f2f1360f9",
+      "expectedSha256": "3117f7f3f7cd389624c850e0e34620d41cde035b9871e6293349a84f2f1360f9",
+      "status": "matched"
+    }
+  ],
+  "ordinaryStream": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-baseline-20261006/work/orchestration/preacher-gesture-baseline/browser-attempt-01/phases.jsonl",
+    "bytes": 5731606,
+    "sha256": "d7f623cc9b8315a0a17d974fb6b7108b7271ce0b0a4cf827fa55cd897e27c7bb",
+    "line": 2295,
+    "lineWithNewlineSha256": "8a55cc01c3e8ccc5b74f2ca2e3f6b6bf388906a6f74ccaa8bee150274bfff4e3",
+    "lineWithoutNewlineSha256": "e4f2501ee502fe714e9c36fd4956667cd79f122d20b1959f227cf098a2977749"
+  },
+  "passiveArchive": {
+    "path": "/workspace/shared/preacher-cutoff-passive-result-e49e4473/raw-evidence.tar.gz",
+    "bytes": 2249603,
+    "sha256": "3117f7f3f7cd389624c850e0e34620d41cde035b9871e6293349a84f2f1360f9",
+    "member": "work/orchestration/preacher-cutoff-passive/browser-attempt-01/phases.jsonl",
+    "memberSha256": "2b1b83b3963e77e080472e1ac66fae5a5dccb35a9525e1cffb00bec6d4e9c9dc",
+    "line": 2319,
+    "lineWithNewlineSha256": "054c57fe0d1c96ba102649fc4071fc570142d5b5047c457a334e1739187004e2"
+  },
+  "hashEncoding": "UTF-8 JSON with sorted keys, compact comma/colon separators, ensure_ascii=false, no trailing newline. Stream-line hashes INCLUDE their retained newline.",
+  "classification": "Source-only implementation with provisional expectations. Retained native runs are earlier boundaries, not an executed result for this new case."
+}
