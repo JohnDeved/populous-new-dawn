@@ -1,0 +1,53 @@
+{
+  "status": "plan-only-no-new-driver-or-execution",
+  "applicationMain": "d35835caba6f6d89d9ca97a4f87a4b68744a6bbf",
+  "acceptedQa": "0ef63ba8e1dbf2ef51e33626948e179116c40ca4",
+  "nativeProofSource": "90d79f20",
+  "trees": {
+    "app": "ebffcbf36afa3ac4ecd5f33a60e01c93e659f20f",
+    "public": "7afafb32546784eea20fd993df0f9eb5f9b86779",
+    "scripts": "e60da49f0c994dd2bc2bd50f2ffbeca730dd2786",
+    "tests": "420c5b2f91eafe428d3204a3c088012c422058d2"
+  },
+  "applicationFiles": {
+    "app/preacher-conversion.ts": "2369864ac8f0d20d51a1570bc8bddc608241d3da55fea6fba4b3a233e0c7933d",
+    "app/live-movement.ts": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20",
+    "app/person-state.ts": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+    "app/live-people.ts": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+    "app/game-clock.ts": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+    "app/scene.ts": "8789a7751dd748ac5ebf86f3747e031070356840e787433225da801da5ac9c0b",
+    "app/scene-entities.ts": "95a2a64f5741ca3445431a4b962e7a0aeef6e502841f56b2b90138addb236952",
+    "app/original-units.json": "e55160f7b2f269213de064a0db928708855b7e22affe6902a66ed3183bf9a12c",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+    "scripts/local-render/harness.mjs": "fb07de9e278f26b2b32324defeb6164832472a58d422aead1032b7db7ee85fcf"
+  },
+  "inheritedFiles": {
+    "qa/preacher-gesture-candidate/acquire.mjs": "4fef9e4e3d3def13d7f685724b88a14253d7eeb63c888a0b11ef79643b6aa8ec",
+    "qa/preacher-gesture-candidate/ground-input.mjs": "0e108c481d44441078e8ce5317654baa0a4535ca461e90b29e7455d4c8802b6d",
+    "qa/preacher-gesture-candidate/ground-dispatch.mjs": "42139eca57022912489c4a036981794afd668b3f335ef376e6abbe54e5f89e72",
+    "qa/preacher-gesture-candidate/render-observation.mjs": "86ec0d5b68ebfd8f93324d5cce38001060da48301c72a66b6a57e15c6b1d2682",
+    "qa/preacher-gesture-candidate/expected-runtime.json": "14b1df0f9b38157214acbd8370cc53992ebb0ee15e72a30f6d556d373b2bf617",
+    "qa/preacher-gesture-baseline/observe.mjs": "38924d397c0fe342e14713410abf1ffc6a56dd44ab7ad3f011477b6718dcfcb9",
+    "qa/preacher-gesture-baseline/inherited/accepted-input.mjs": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+    "qa/preacher-gesture-baseline/inherited/ground-and-dispatch.mjs": "f7b5ba5703e155ed5962685735eae3092dffd47fab49256b8e5cb197bd4f82b1",
+    "qa/preacher-gesture-baseline/inherited/browser-probes.mjs": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+    "qa/preacher-gesture-baseline/inherited/ordinary-input.mjs": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+    "qa/preacher-gesture-baseline/inherited/input-boundary.mjs": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+    "qa/preacher-gesture-baseline/inherited/observer.mjs": "b00d2465b9b9bb7a574a8c151ec35d1cda5423c847e138b808a8e16ad47d9186"
+  },
+  "caps": {
+    "acquisitionMs": 360000,
+    "observationMs": 120000,
+    "logicalVisits": 900,
+    "harnessMs": 540000,
+    "outerInterruptSeconds": 570,
+    "outerKillGraceSeconds": 20,
+    "maxNaturalPixelCrops": 3,
+    "maxCropPixels": [
+      128,
+      128
+    ]
+  },
+  "futureApplicationAdoption": "Only exact independently accepted fix under parent coordination, with revised pins and fresh source review. No current claim of fix adoption."
+}
