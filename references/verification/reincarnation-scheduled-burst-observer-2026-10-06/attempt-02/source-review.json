@@ -1,0 +1,15 @@
+{
+  "verdict": "ACCEPT observer-only proposal; one retry awaits CPU4 release",
+  "head": "b48519e0bf7a39bd9ea7b401e01e3fbe731441c9",
+  "probeSha256": "fc4d89b00385b3ed8b9d7b73763a08863b98b4fbd9a89b54c3ef11b9bf1be1e0",
+  "launchSha256": "cc93c16078c4ee4eb3d88c20c9913332a40360e002f6e1234d973bc0ee606130",
+  "inputsVerified": 46,
+  "independentChecks": [
+    "Full107-line observer-only diff inspected. Nine unchanged helper bodies and all native write/map/hook/call AST expressions independently equal.",
+    "Retirement/free checks preserve exact preoperation links and verify native local head/neighbor/cell/counter changes; full801-record disjoint partition and cell graph remain checked every returned call.",
+    "Generation identity and raw retirement/free events remain. Fixture, supplies, native function/limits and all post-call lifetime expectations unchanged.",
+    "Elapsed/callback/supplied-entry/timeout telemetry precedes assertion on success and failure; callback starts correctly distinguished from retired instructions.",
+    "All46 input hashes verified and fresh02 cwd absent; original source/launcher/failed raw attempt preserved."
+  ],
+  "bounds": "UnchangedCPU4/11calls/1s+200k per call/20s TERM+5s/15s CPU/1GiB AS/32MiB output/128FD/core0. No automatic retry."
+}

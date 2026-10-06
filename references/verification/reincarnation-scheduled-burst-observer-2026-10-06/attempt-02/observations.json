@@ -1,0 +1,203 @@
+{
+  "status": "passed; independent result review pending",
+  "source": "b48519e0bf7a39bd9ea7b401e01e3fbe731441c9",
+  "oneNewlyAuthorizedInvocation": true,
+  "nativeStartedAt": "2026-10-06T23:20:55.161Z",
+  "nativeFinishedAt": "2026-10-06T23:21:01.101Z",
+  "exitCode": 0,
+  "receiptInputCount": 47,
+  "inputsUnchanged": true,
+  "calls": 11,
+  "metrics": [
+    {
+      "turn": 1,
+      "elapsedNs": 12084047,
+      "instructionCallbacks": 680,
+      "suppliedEntrySkips": 23,
+      "nativeInstructionStarts": 657,
+      "unicornTimeout": false
+    },
+    {
+      "turn": 2,
+      "elapsedNs": 480907063,
+      "instructionCallbacks": 46493,
+      "suppliedEntrySkips": 31,
+      "nativeInstructionStarts": 46462,
+      "unicornTimeout": false
+    },
+    {
+      "turn": 3,
+      "elapsedNs": 294058953,
+      "instructionCallbacks": 31696,
+      "suppliedEntrySkips": 21,
+      "nativeInstructionStarts": 31675,
+      "unicornTimeout": false
+    },
+    {
+      "turn": 4,
+      "elapsedNs": 337133774,
+      "instructionCallbacks": 34504,
+      "suppliedEntrySkips": 21,
+      "nativeInstructionStarts": 34483,
+      "unicornTimeout": false
+    },
+    {
+      "turn": 5,
+      "elapsedNs": 396604755,
+      "instructionCallbacks": 36648,
+      "suppliedEntrySkips": 33,
+      "nativeInstructionStarts": 36615,
+      "unicornTimeout": false
+    },
+    {
+      "turn": 6,
+      "elapsedNs": 743114555,
+      "instructionCallbacks": 59689,
+      "suppliedEntrySkips": 34,
+      "nativeInstructionStarts": 59655,
+      "unicornTimeout": false
+    },
+    {
+      "turn": 7,
+      "elapsedNs": 464578738,
+      "instructionCallbacks": 57260,
+      "suppliedEntrySkips": 22,
+      "nativeInstructionStarts": 57238,
+      "unicornTimeout": false
+    },
+    {
+      "turn": 8,
+      "elapsedNs": 532838759,
+      "instructionCallbacks": 59922,
+      "suppliedEntrySkips": 34,
+      "nativeInstructionStarts": 59888,
+      "unicornTimeout": false
+    },
+    {
+      "turn": 9,
+      "elapsedNs": 507014665,
+      "instructionCallbacks": 59797,
+      "suppliedEntrySkips": 46,
+      "nativeInstructionStarts": 59751,
+      "unicornTimeout": false
+    },
+    {
+      "turn": 10,
+      "elapsedNs": 775290752,
+      "instructionCallbacks": 62249,
+      "suppliedEntrySkips": 22,
+      "nativeInstructionStarts": 62227,
+      "unicornTimeout": false
+    },
+    {
+      "turn": 11,
+      "elapsedNs": 538597848,
+      "instructionCallbacks": 53576,
+      "suppliedEntrySkips": 46,
+      "nativeInstructionStarts": 53530,
+      "unicornTimeout": false
+    }
+  ],
+  "maximumCallElapsedNs": 775290752,
+  "maximumInstructionCallbacks": 62249,
+  "birthPerson": {
+    "handle": 834,
+    "born": 6,
+    "visits": [
+      7,
+      8,
+      9,
+      10,
+      11
+    ],
+    "retired": null,
+    "freed": null
+  },
+  "birthRoot": {
+    "handle": 835,
+    "born": 6,
+    "visits": [
+      7,
+      8
+    ],
+    "retired": 8,
+    "freed": 10
+  },
+  "childRetirementCounts": {
+    "10": 21,
+    "11": 11
+  },
+  "birthChildFreeCountAtStop": 0,
+  "reusedBodyAndRoot": [
+    {
+      "reuse": [
+        0,
+        292
+      ],
+      "pointer": 33554688,
+      "turn": 9
+    },
+    {
+      "reuse": [
+        195,
+        356
+      ],
+      "pointer": 33669632,
+      "turn": 11
+    }
+  ],
+  "allocationCounts": {
+    "class7/model8": 1,
+    "class7/model60": 32,
+    "class7/model61": 320,
+    "class1/model7": 1,
+    "class7/model9": 1,
+    "class7/model3": 32
+  },
+  "finalListCounts": {
+    "active": 226,
+    "retiring": 96,
+    "highFree": 479,
+    "lowFree": 0
+  },
+  "finalRngs": {
+    "gameplay": 1172462824,
+    "cosmetic": 3611742733
+  },
+  "rngWriteSequenceExactlyMatchesAcceptedSuccess": 196,
+  "conditionalLogicalRngAdvancesReusedFromAcceptedSuccess": {
+    "gameplay": 98,
+    "cosmetic": 32
+  },
+  "prefixExactRawRecordsCallsAndCoreEventsMatchAttempt01": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "fullWaveAtStop": {
+    "handle": 641,
+    "class": 7,
+    "model": 8,
+    "state": 7,
+    "phase": 10,
+    "counter": 4,
+    "owner": 0,
+    "flags2": 268566528,
+    "flags4": 536870912,
+    "object": 0,
+    "renderFlags": 33046,
+    "x": 4096,
+    "y": 4096,
+    "h": 256,
+    "remaining": -1,
+    "timerOrLink": 642
+  },
+  "accessCountRows": 63505,
+  "limits": "One supplied successful component timeline; later ordinary-Shaman/outside-world/audio/light/presentation owners supplied. No native mission/full-world RNG, app equality, raster or ordinary-play claim."
+}

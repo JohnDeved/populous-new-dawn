@@ -1,0 +1,38 @@
+{
+  "startedAt": "2026-10-06T23:20:54.292843+00:00",
+  "finishedAt": "2026-10-06T23:21:01.625439+00:00",
+  "seconds": 7.332645720991422,
+  "source": "b48519e0bf7a39bd9ea7b401e01e3fbe731441c9",
+  "launchSha256": "cc93c16078c4ee4eb3d88c20c9913332a40360e002f6e1234d973bc0ee606130",
+  "supervisorExitCode": 0,
+  "ownedProcesses": [
+    {
+      "pid": 15,
+      "ppid": 5,
+      "pgid": 15,
+      "session": 15,
+      "startTicks": 7281734
+    },
+    {
+      "pid": 35,
+      "ppid": 15,
+      "pgid": 35,
+      "session": 15,
+      "startTicks": 7281821
+    },
+    {
+      "pid": 36,
+      "ppid": 35,
+      "pgid": 35,
+      "session": 15,
+      "startTicks": 7281821
+    }
+  ],
+  "checkedGroups": [
+    15,
+    35
+  ],
+  "remainingGroups": [],
+  "resourcesReleased": true,
+  "oneInvocation": true
+}
