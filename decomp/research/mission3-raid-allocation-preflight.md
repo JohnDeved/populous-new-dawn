@@ -1,8 +1,12 @@
 # Mission3 raid allocation: PhaseA source preflight
 
 Status: original witnesses independently accepted; bounded repair passes all five
-native pairs and the unchanged natural raid/checkpoint test. Standard/quality
-acceptance remains pending. Owner: [issue227](https://github.com/JohnDeved/populous-new-dawn/issues/227).
+native pairs, the unchanged natural raid/checkpoint test and standard check/build.
+Scoped formatting/ESLint pass; baseline Oxlint and advisory Fallow findings remain
+explicit. Final independent acceptance is pending. Owner:
+[issue227](https://github.com/JohnDeved/populous-new-dawn/issues/227).
+The [acceptance index](../../references/verification/mission3-raid-allocation-2026-10-06/README.md)
+records exact tested-source correspondence and retained quality limitations.
 Runtime base is
 `89e68606a406f93715b930550317519818ddc081`. Changes are two evidence programs,
 a controlled fixture, an optional shared-loader buffer argument, this note and raw
@@ -309,7 +313,7 @@ missions retain their previous behavior; selection, recruitment, geometry and
 combat are unchanged.
 
 The new actual-adapter regression compares the existing pair driver against the
-reviewed original observations, including all task fields, profile, read order,
+reviewed original observations, including all projected task fields, profile, read order,
 RNG and explicit occupied-record preservation. On unchanged runtime source
 `1831cddb7e1b0c25dedaa1669b0df9f7c1aac116`, it failed the three expected
 disabled/cap/full cases and passed nominal/last-slot. Raw failure output is retained
