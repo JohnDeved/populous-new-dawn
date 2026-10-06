@@ -1,0 +1,8 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/69fd8163d94e/reincarnation-scheduled-burst-run-20261006-01/references/verification/reincarnation-scheduled-burst-2026-10-06/probe-timeline.py", line 560, in <module>
+    print(json.dumps(run_fixed_timeline(Path(sys.argv[2]), execute_reviewed=True)), flush=True)
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/workspace/scratch/69fd8163d94e/reincarnation-scheduled-burst-run-20261006-01/references/verification/reincarnation-scheduled-burst-2026-10-06/probe-timeline.py", line 496, in run_fixed_timeline
+    assert cpu.reg_read(UC_X86_REG_EIP) == STOP and cpu.reg_read(UC_X86_REG_ESP) == STACK + 4
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError

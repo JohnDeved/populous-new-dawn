@@ -1,0 +1,46 @@
+{
+  "status": "failed/inconclusive: bounded emulation returned before required EIP/ESP on call10",
+  "source": "16c5cde60580c74985593779541b6048e0cc7e4c",
+  "oneInvocation": true,
+  "nativeStartedAt": "2026-10-06T23:11:26.142Z",
+  "nativeFinishedAt": "2026-10-06T23:11:32.660Z",
+  "exitCode": 1,
+  "inputsUnchanged": true,
+  "receiptInputCount": 44,
+  "validatedOuterCalls": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9
+  ],
+  "partialOuterCall": 10,
+  "call11Started": false,
+  "partialEip": "0x401b99",
+  "partialEsp": "0x21ecfe8",
+  "stoppedInstruction": "00401b99 ret in real high/low free-list return 00401b40",
+  "limitInterpretation": "emu_start returned without an exception before STOP under its fixed 1s/200000 ceiling; retained data does not distinguish timeout from instruction count. No manual stop or retry occurred. This is not an eleven-call PASS.",
+  "rootThroughCall9": {
+    "generation": "195",
+    "handle": 835,
+    "born": 6,
+    "visits": [
+      7,
+      8
+    ],
+    "retired": 8,
+    "freed": null,
+    "birthHeight": 346
+  },
+  "birthGenerations": 34,
+  "partialCall10LastFreedGeneration": {
+    "freed": 52,
+    "turn": 10,
+    "pointer": 33633024
+  },
+  "limits": "Supplied fixture/outside-world/ordinary Shaman/audio/presentation; no native mission, application, raster or ordinary-play claim."
+}

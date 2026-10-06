@@ -1,0 +1,20 @@
+{
+  "verdict": "ACCEPT one bounded native scheduling invocation",
+  "head": "16c5cde60580c74985593779541b6048e0cc7e4c",
+  "reviewedAt": "2026-10-06T23:10:00Z",
+  "probeSha256": "d6034f564b02ef6497edf5da3f8a8d03469aadc7876ea5ce114812cd5470ce84",
+  "launchSha256": "1706c3a9e850b1bf0a2720d00a6881f78a8249c6a003b7f8c6e2646d093ef721",
+  "verified": {
+    "inputs": 43,
+    "exactSuppliedCallSites": 29,
+    "astWithoutImport": true,
+    "freshCwdAbsent": true
+  },
+  "scope": "Exactly11 actual004ec6f0 calls; original creation/traversal/cell movement/unlink/retirement/free lists; host-only generation identities; supplied outside-world and later ordinary-Shaman consumers remain explicit. No application/full-game/render claim.",
+  "bounds": "CPU4,20s TERM+5s KILL,15s CPU,1GiB AS,32MiB output,128FD,core0; per-call1s/200k instructions; no automatic retry.",
+  "reviewNotes": [
+    "Inspected full probe and exact ABI table; original handle table, constants, animation counts and readonly PE sections remain immutable.",
+    "Only driver return address/ESP changes between calls; generation-aware retirement avoids falsely treating reused pointers as still freed.",
+    "The initial review-only AST check failed to resolve named AUDIO_RECORD inside SUPPLIES; corrected static name substitution above verified all29 call sites without import/native execution."
+  ]
+}

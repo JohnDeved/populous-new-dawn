@@ -1,0 +1,47 @@
+{
+  "source": "16c5cde60580c74985593779541b6048e0cc7e4c",
+  "probeSha256": "d6034f564b02ef6497edf5da3f8a8d03469aadc7876ea5ce114812cd5470ce84",
+  "launchSha256": "1706c3a9e850b1bf0a2720d00a6881f78a8249c6a003b7f8c6e2646d093ef721",
+  "toolSession": 31122,
+  "firstToolChunk": "f6039e",
+  "terminalToolChunk": "1ecd24",
+  "runCount": 1,
+  "files": {
+    "README.md": {
+      "sha256": "22a51476e3417c2454737532e85cbc2edd7f073070f50da1768726c3d1ceb1e3",
+      "bytes": 2300
+    },
+    "native-stderr.log": {
+      "sha256": "c3fd95ac8ee6bf9d8a7ba016655201710e504598049c3c7fbf93329374770731",
+      "bytes": 812
+    },
+    "native-stdout.log": {
+      "sha256": "74416fb07a847f486e0dd9a6d4fdbb12c1478be101ded170735aa7fcaa994906",
+      "bytes": 4647404
+    },
+    "observations.json": {
+      "sha256": "4414d4bad99bcdd4936f0e094e751f441359dd5e10216254475dd7dd4b9cdfd5",
+      "bytes": 1347
+    },
+    "owned-cleanup.json": {
+      "sha256": "e5694f01cd277ce9635639631f0a6867f1830f7f643c334d421e9a709f5299df",
+      "bytes": 797
+    },
+    "receipt.json": {
+      "sha256": "11b1f143a347134c893ba7b596ab688db726f1b9e98c71df9522684417c12832",
+      "bytes": 4854161
+    },
+    "source-review.json": {
+      "sha256": "4219f36dce3dbc8b682f7f347d999d6ecea87d2659df93b7c632d608aa0401a3",
+      "bytes": 1363
+    },
+    "supervisor.stderr.log": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "supervisor.stdout.log": {
+      "sha256": "dcf338d8bf224eb4697763c3015ad8d67d4cbb47ea0cdcf046dcb9058679d61a",
+      "bytes": 368
+    }
+  }
+}

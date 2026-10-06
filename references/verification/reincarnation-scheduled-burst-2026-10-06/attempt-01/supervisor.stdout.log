@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "output": "work/orchestration/reincarnation-scheduled-burst-20261006/attempt-01/receipt.json",
+  "headOid": "16c5cde60580c74985593779541b6048e0cc7e4c",
+  "exitCode": 1,
+  "stdoutSha256": "74416fb07a847f486e0dd9a6d4fdbb12c1478be101ded170735aa7fcaa994906",
+  "stderrSha256": "c3fd95ac8ee6bf9d8a7ba016655201710e504598049c3c7fbf93329374770731"
+}
