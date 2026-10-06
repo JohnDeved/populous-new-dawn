@@ -30,7 +30,7 @@ function row(turn, phase = 'afterTurn', response = false) {
       primaryGuardIds: [], availableOrder: true, gameFlags: 0, levelFlags2: 0, scanMask: 15,
       braves: [{ id: 6, unitId: 6, identity: 6, class: 1, kind: 'brave', team: 'red', hp: 50, inside: null,
         nativeOnly: true, registeredOwner: true, positionCoherent: true, routeOwner: 6, motionGroup: 0, x: 0x2180, y: 0x2100, model: 2, tribe: 1, state: 17,
-        life: 1000, flags2: 0x20000, flags4: 0, workFlags: 0, vehicle: 0, reverseAlliance: 0 }] } }
+        life: 1000, flags2: 0x20000, flags4: 0, workFlags: 0, vehicle: 0, disguise: 0, reverseAlliance: 0 }] } }
 }
 
 test('baseline absence requires a source-bound due visit while destination remains pending', () => {
@@ -175,6 +175,7 @@ test('both omission and first32 require the same eligible native reference and c
     b => { b.flags2 = undefined }, b => { b.flags2 = 0x20000 + 0.5 }, b => { b.flags2 = 0x100020000 },
     b => { b.flags4 = undefined }, b => { b.flags4 = 0.5 }, b => { b.flags4 = -1 },
     b => { b.vehicle = undefined }, b => { b.vehicle = 0.5 }, b => { b.vehicle = 65536 },
+    b => { b.disguise = undefined }, b => { b.disguise = 0.5 }, b => { b.disguise = 256 },
     b => { b.life = 1000.5; b.hp = 50.025 }, b => { b.life = 32768; b.hp = 1638.4 }]) {
     const changed = structuredClone(after); change(changed.facts.braves[0])
     assert.equal(qualifyingVisit(before, changed), null)

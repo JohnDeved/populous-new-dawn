@@ -19,6 +19,7 @@ export function eligibleObservedBrave(source, brave) {
     brave.nativeOnly && brave.registeredOwner && brave.positionCoherent && word(brave.x) && word(brave.y) &&
     eligibleBraveState(brave.state) && brave.workFlags === 0 && word(brave.vehicle) && !brave.vehicle &&
     dword(brave.flags2) && dword(brave.flags4) &&
+    Number.isInteger(brave.disguise) && brave.disguise >= 0 && brave.disguise <= 255 &&
     !(brave.flags2 & 0x810000) && !!(brave.flags2 & 0x20000) && !(brave.flags4 & 0x1000) &&
     Number.isInteger(brave.reverseAlliance) && !(brave.reverseAlliance & (1 << source.tribe)) &&
     cell(brave).every((n, i) => Math.abs(((n - cell(source)[i] + 64) & 127) - 64) <= 1)
