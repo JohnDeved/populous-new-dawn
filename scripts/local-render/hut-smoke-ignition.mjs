@@ -210,12 +210,16 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
         actorId, stock: world.shots[spell], rejection }
       if (rejection || world.paused || world.mode !== spell || world.shots[spell] <= 0) return preflight
       if (window.hutCastInput) throw Error('A cast observation is already armed')
-      const record = { before: [], after: [] }
+      const record = { before: [], after: [], errors: [] }
       const sample = event => ({ turn: world.turn, stock: world.shots[spell], gifts: world.giftCounts[spell],
         mode: world.mode, trusted: event.isTrusted, button: event.button, canvasTarget: event.target === canvas,
         worldMatches: scene.world === world && window.testStore.getWorld() === world,
         caster: world.units.find(unit => unit.id === actorId)?.id ?? null })
-      const before = event => record.before.push(sample(event)), after = event => record.after.push(sample(event))
+      const observe = (phase, event) => {
+        try { record[phase].push(sample(event)) }
+        catch (error) { if (record.errors.length < 8) record.errors.push(String(error?.stack ?? error)) }
+      }
+      const before = event => observe('before', event), after = event => observe('after', event)
       canvas.addEventListener('pointerup', before, true); canvas.addEventListener('pointerup', after)
       window.hutCastInput = { finish() {
         canvas.removeEventListener('pointerup', before, true); canvas.removeEventListener('pointerup', after)
@@ -232,6 +236,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
       delivered = await page.evaluate(() => { const observer = window.hutCastInput; delete window.hutCastInput; return observer?.finish() })
       report.actions.push({ label: 'actual-cast-stock', spell, delivered }); save()
     }
+    assert.deepEqual(delivered.errors, [])
     assert.equal(delivered.before.length, 1); assert.equal(delivered.after.length, 1)
     const before = delivered.before[0], after = delivered.after[0]
     assert.ok([before, after].every(row => row.trusted && row.button === 0 && row.canvasTarget && row.worldMatches && row.caster === originalShamanId))
@@ -386,7 +391,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
       const actor = window.testSceneRef.current.world.units.find(unit => unit.id === id)
       if (!actor || actor.hp <= 0) throw Error('Original Shaman was lost before the shore')
       const person = actor.builder?.person ?? actor.flight ?? actor.fight?.motion ?? actor.native ?? actor.entry?.person
-      return actor.inside === null && !actor.path.length && (person?.speed ?? 0) === 0 &&
+      return actor.inside === null && !actor.path.length && person && Number.isFinite(person.speed) && person.speed === 0 &&
         Math.hypot(actor.x - point.x, actor.z - point.z) < 0.35
     }, { id: shamanId, point: shore.point }, { timeout: 180000 })
     await pause()
