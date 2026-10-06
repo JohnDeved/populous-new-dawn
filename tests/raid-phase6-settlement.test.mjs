@@ -143,3 +143,34 @@ test('unknown owned records and the uncomposed state33 release branch stay unset
   Object.assign(unreleased.p, { state: 33, substate: 1 })
   step(unreleased, 2, 23)
 })
+
+test('unknown consumed order fields cannot admit a settled sermon', () => {
+  const malformed = [
+    c => { delete c.p.immediateCommand },
+    c => { c.p.immediateCommand = 65536 },
+    c => { c.p.immediateCommand = -1 },
+    c => { c.p.immediateCommand = 0; delete c.p.commandCursor },
+    c => { c.p.immediateCommand = 0; c.p.commandCursor = 256 },
+    c => { c.p.immediateCommand = 0; delete c.p.commands },
+    c => { c.p.immediateCommand = 0; c.p.commands[0] = 65536 },
+    c => { delete c.w.buildingOrders.records[254].flags },
+    c => { c.w.buildingOrders.records[254].flags = 256 },
+    c => { delete c.w.buildingOrders.records[254].model },
+    c => { c.w.buildingOrders.records[254].model = 256 },
+  ]
+  for (const mutate of malformed) {
+    const context = oneMember()
+    mutate(context)
+    step(context, 2, 6)
+  }
+})
+
+test('valid immediate sermons never consume an unknown shadowed queue', () => {
+  const immediate = oneMember()
+  delete immediate.p.commands
+  delete immediate.p.commandCursor
+  step(immediate, 2, 23)
+  const queued = oneMember()
+  queued.p.immediateCommand = 0
+  step(queued, 2, 23)
+})
