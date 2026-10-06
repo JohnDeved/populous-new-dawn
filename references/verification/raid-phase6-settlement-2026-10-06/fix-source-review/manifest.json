@@ -1,0 +1,8 @@
+{
+  "decision": "ACCEPT source and focused evidence",
+  "head": "3007dd9f1865bc616568ba473758f1246c82c1a7",
+  "files": {
+    "review.md": "a88b0c7d11700c754185c39d8c6818238b3a30db3a32b7e0d0e52dd79d24714b",
+    "verification.json": "54a973bb05dc5abe0af5028dd5802ff43d2a5270647237d9bc540810aca17cf4"
+  }
+}

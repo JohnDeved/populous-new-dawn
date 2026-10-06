@@ -1,0 +1,17 @@
+✔ actual phase6 caller matches retained native captured-combat-timeout (92.686937ms)
+✔ actual phase6 caller matches retained native captured-moving-not-settled (77.668632ms)
+✔ stopped active sermon settles; its current immediate command owns eligibility (158.834873ms)
+✔ state flags require zero speed and do not make stationary attack19 settled (232.382055ms)
+✔ a later combat member still forces elapsed after an earlier unsettled member (33.753733ms)
+✔ the original airborne timeout bit is consumed from the registered owner (23.285702ms)
+✔ unknown owned records and the uncomposed state33 release branch stay unsettled (106.577608ms)
+✔ unknown consumed order fields cannot admit a settled sermon (301.763981ms)
+✔ valid immediate sermons never consume an unknown shadowed queue (44.596432ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 9
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2472.207652

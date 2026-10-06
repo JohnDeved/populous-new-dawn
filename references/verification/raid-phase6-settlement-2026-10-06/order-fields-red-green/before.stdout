@@ -1,0 +1,46 @@
+✔ actual phase6 caller matches retained native captured-combat-timeout (94.217343ms)
+✔ actual phase6 caller matches retained native captured-moving-not-settled (39.390176ms)
+✔ stopped active sermon settles; its current immediate command owns eligibility (206.935216ms)
+✔ state flags require zero speed and do not make stationary attack19 settled (88.69204ms)
+✔ a later combat member still forces elapsed after an earlier unsettled member (32.558393ms)
+✔ the original airborne timeout bit is consumed from the registered owner (32.900471ms)
+✔ unknown owned records and the uncomposed state33 release branch stay unsettled (120.154885ms)
+✖ unknown consumed order fields cannot admit a settled sermon (34.902683ms)
+✔ valid immediate sermons never consume an unknown shadowed queue (64.300843ms)
+ℹ tests 9
+ℹ suites 0
+ℹ pass 8
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1865.730678
+
+✖ failing tests:
+
+test at tests/raid-phase6-settlement.test.mjs:147:1
+✖ unknown consumed order fields cannot admit a settled sermon (34.902683ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  
+    {
+      elapsed: 2,
+  +   phase: 23
+  -   phase: 6
+    }
+  
+      at step (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:57:10)
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs:164:5)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: { elapsed: 2, phase: 23 },
+    expected: { elapsed: 2, phase: 6 },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }

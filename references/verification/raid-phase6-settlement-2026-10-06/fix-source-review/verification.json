@@ -1,0 +1,22 @@
+{
+  "decision": "ACCEPT source and focused evidence",
+  "head": "3007dd9f1865bc616568ba473758f1246c82c1a7",
+  "proofBase": "bc5debd5c0271efc9cd892111563cc740eeebc91",
+  "nativeResultReviewManifest": "fe774f98d3e5e0c6e7b5391cd1421a7a36efcc80430fed85088819e8a1678d8a",
+  "inputs": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/app/computer-runtime.ts": "74004f5c9ebc08f53ff9173d4bd34f7821fdf2f9424e47ee984b18d57e90eba7",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/raid-phase6-settlement.test.mjs": "8865697b1ba859149f3799c451b31858f6679cab019c51811f0ab9edaea8f68f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/app/computer.ts": "7e7425a46cba84fa4eeb4c29be92c25c848f992b94e2912d570b9959027a666d",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/tests/mission6.test.mjs": "76506b6ad0b5df21b6b6a803ebe2174351d425e321c97a542b679e6a5ed290e7",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-settlement-fix-20261006/caller-before-01.json": "71e0e374eaffdab250e97918333fae278421f3318180ebedc26122936140d0e0",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-settlement-fix-20261006/caller-after-01.json": "a38f0a9b3422385b90fd3a391a59ce38b59d7c262588939bc4158add4e0b314c",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-settlement-fix-20261006/order-fields-before-01.json": "dc9ef16305573c8a4e3b179926c64f1ae42be4188e116e1480c5633f8605f25a",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-settlement-fix-20261006/order-fields-after-01.json": "59286cea94a7948805fdb007b2af153df928325b1d40046e1ef2d3add99ea95c",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-settlement-fix-20261006/caller-terminal-process-check.json": "32f5b6da54cb82a89857b7316630201530ef467b5878be0c2a59327205a8af64"
+  },
+  "pending": [
+    "unchanged Mission6 diagnostic",
+    "integrated source and quality/full check/build",
+    "ordinary candidate automatic32/listener/lifecycle evidence"
+  ]
+}
