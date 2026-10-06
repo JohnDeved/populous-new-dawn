@@ -23,6 +23,9 @@ export function release(w: World, u: Unit, preserveOrders = false) {
 }
 export function releaseTasks(w: World, u: Unit, preserveOrders = false) {
   const directTree = preserveOrders && u.work === null ? u.tree : null
+  // A replacement clears queued G before resting's eager state initializer.
+  // Keep native bit16: it legitimately prepares the replacement next turn.
+  if (!preserveOrders && u.native?.guardInputPending) cancelLiveOrder(w, u)
   cancelLiveResting(w, u)
   if (preserveOrders) {
     // Combat takes the same person/queue; its state initializer releases training slots.

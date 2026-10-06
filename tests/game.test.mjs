@@ -2241,7 +2241,8 @@ test('live followers share routes, advance before exact arrival and release ever
  assert.deepEqual(findPath(w,a,ENEMY),[]);assert.equal(w.pathfinding.people.get(a.id),pa);assert.equal(w.pathfinding.people.get(b.id),pb);assert.equal(refs(),2,'an unreachable preview preserves existing orders');
  const searches=w.pathfinding.state.searches;assert.ok(findPath(w,a,goal).length);
  assert.equal(refs(),2,'a preview borrows and releases the shared route');assert.equal(w.pathfinding.state.searches,searches,'preview reuses the live route');
- w.selected=[a.id];guardShaman(w);assert.equal(refs(),1);assert.equal(w.pathfinding.people.has(a.id),false);
+ w.selected=[a.id];guardShaman(w);assert.equal(refs(),2,'G defers the route handoff to native preparation');assert.equal(w.pathfinding.people.get(a.id),pa);
+ tick(w,1/12);assert.equal(refs(),1);assert.equal(a.native,pa);assert.equal(pa.commandStatus,30);
  until(w,()=>pb.motionGroup===0,15);
  assert.ok(Math.hypot(b.x-goal.x,b.z-goal.z)>0,'native route arrival precedes exact task arrival');
  assert.ok(Math.max(Math.abs(b.x-goal.x),Math.abs(b.z-goal.z))<=224/256);

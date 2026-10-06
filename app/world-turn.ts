@@ -1526,7 +1526,8 @@ function stepTurn(w: World) {
     if (builderActivity(u) && work && 'hp' in work) processBuilderWork(w, u, work)
     if (
       u.native &&
-      ([3, 6, 7, 16, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
+      (u.native.guardInputPending ||
+        [3, 6, 7, 16, 22, 27, 30, 33].includes(activeOrder?.model ?? 0) ||
         (activeOrder?.model === 18 && !!(activeOrder.flags & 1)) ||
         (activeOrder?.model === 28 && nativePersonTribe(u) === w.manaWorld.playerTribe && !target))
     ) {
@@ -1597,7 +1598,9 @@ function stepTurn(w: World) {
       u.work === null &&
       u.target === null &&
       u.tree === null &&
-      !u.guard
+      !u.guard &&
+      activeOrder?.model !== 30 &&
+      !u.native?.guardInputPending
     ) {
       u.idleTurns++
       if (u.idleTurns > 16 && (w.turn & 15) === 0) {

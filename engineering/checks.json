@@ -831,7 +831,9 @@
         "tests/ground-waypoints.test.mjs",
         "tests/live-movement.test.mjs",
         "tests/world-movement.test.mjs",
-        "tests/command-context.test.mjs"
+        "tests/command-context.test.mjs",
+        "tests/shaman-guard-native.test.mjs",
+        "tests/shaman-guard-input.test.mjs"
       ],
       "cwd": ".",
       "env": [],
@@ -842,6 +844,8 @@
         "app/model.ts",
         "app/world-turn.ts",
         "app/person-orders.ts",
+        "app/shaman-guard.ts",
+        "tests/fixtures/shaman-guard-native.json",
         "tests/fixtures/player-order-append.json",
         "tests/fixtures/movement-order.json"
       ],
