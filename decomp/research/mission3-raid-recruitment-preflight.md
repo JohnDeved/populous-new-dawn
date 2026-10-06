@@ -1,6 +1,7 @@
 # Mission 3 first raid selection: two-pair execution preflight
 
-**Prepared, not executed.** This implements the independently accepted
+**Frozen preflight; [attempt1 now has a retained mismatch](mission3-raid-recruitment-witness.md).**
+The input manifest below retains its original pre-execution identity. This implements the independently accepted
 [source-only four-case proposal](mission3-raid-recruitment-origin.md), with the
 review's narrowed first experiment. There is no runtime repair or native/browser
 parity result. The third and fourth proposed cases are not executable through

@@ -1088,6 +1088,7 @@
       "evidence": [
         { "path": "decomp/README.md", "heading": "Campaign interpreter comparison" },
         { "path": "decomp/research/mission3-raid-recruitment-origin.md", "heading": "Finding and boundary" },
+        { "path": "decomp/research/mission3-raid-recruitment-witness.md", "heading": "Executed boundary and result" },
         { "path": "decomp/research/worship-grant-handoff.md", "heading": "Three findings" },
         { "path": "decomp/research/worship-grant-presentation.md", "heading": "Three findings" },
         { "path": "decomp/research/worship-grant-replacement.md", "heading": "Dynamic result" },

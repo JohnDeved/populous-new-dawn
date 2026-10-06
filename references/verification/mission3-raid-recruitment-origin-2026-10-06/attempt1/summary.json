@@ -1,0 +1,82 @@
+{
+  "foregroundSession": 95054,
+  "runId": "74f02de0-9cd3-4da2-a9d8-ea845d8dc57e",
+  "sourceHead": "cff436a3b1f3e19470fd533b658d607829caad70",
+  "startedAt": "2026-10-06T05:55:15.869Z",
+  "finishedAt": "2026-10-06T05:55:17.782Z",
+  "receiptStatus": "failed",
+  "probeStatus": "mismatch",
+  "exitCode": 1,
+  "sourceAnd254InputsUnchanged": true,
+  "executedNativeCalls": 2,
+  "executedPortableCalls": 2,
+  "caseFacts": [
+    {
+      "id": "common-origin-control",
+      "nativeOrigin": 25852,
+      "portableOrigin": 25852,
+      "nativeIds": [
+        306,
+        302,
+        303
+      ],
+      "portableIds": [
+        306,
+        302,
+        303
+      ],
+      "differentComparisonFields": [],
+      "recordedNonComparedTribeInputDifferences": [
+        "radius"
+      ],
+      "stopPc": "004cb6da",
+      "nativeCallTraceEntries": 64,
+      "tcgBufferBytes": 16777216,
+      "peakRssKiB": 145576
+    },
+    {
+      "id": "no-base-authored-coordinates",
+      "nativeOrigin": 24794,
+      "portableOrigin": 25852,
+      "nativeIds": [
+        301,
+        302,
+        303
+      ],
+      "portableIds": [
+        306,
+        302,
+        303
+      ],
+      "differentComparisonFields": [
+        "selector",
+        "ids",
+        "ranks",
+        "flags3"
+      ],
+      "recordedNonComparedTribeInputDifferences": [
+        "hasBase",
+        "base",
+        "radius"
+      ],
+      "stopPc": "004cb6da",
+      "nativeCallTraceEntries": 64,
+      "tcgBufferBytes": 16777216,
+      "peakRssKiB": 145576
+    }
+  ],
+  "cleanup": {
+    "foregroundSessionTerminal": true,
+    "portableWaitReturnedZero": true,
+    "nativeOwnedObjectsReleasedBeforeShutdown": true,
+    "matchingProcessesAfterTerminal": 0,
+    "scope": "Original foreground session completed; adapter close waited for exit0 and rejected extra output; pgrep found no matching probe/adapter process."
+  },
+  "boundsClaim": "Both finite calls stopped at004cb6da; write, task/person/order preservation and limit assertions passed. RSS is not gameplay/hardware performance evidence.",
+  "rawSha256": {
+    "receipt.json": "1851fdbdc7f36859ea07b7179be87cd50c82c553c591c881b191f5d4adc94364",
+    "stderr.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout.log": "e6d29dcc7df45d3d8e4b3df43b6f8388fba6fdcf6e32eec0ede56e00c25549ea",
+    "launch.json": "60f151575955eccdf569da31b6c2f548eb7e7322e3bb5abb7e0be8f912acae8c"
+  }
+}

@@ -2,7 +2,8 @@
 
 The accepted plan now has a separate [two-pair probe preflight](mission3-raid-recruitment-preflight.md).
 It records unequal radius inputs honestly and stops incremental pairing at the
-first declared difference. Preparation is not execution or a runtime repair.
+first declared difference. The separate [executed origin witness](mission3-raid-recruitment-witness.md)
+retains its controlled limits; no runtime repair is included.
 
 ## Finding and boundary
 
