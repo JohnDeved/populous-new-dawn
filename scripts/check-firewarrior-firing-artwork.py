@@ -19,6 +19,7 @@ BASE = 'b0208188b8de345a6ad5e86cb7c49769624dda86'
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('game', type=Path)
+    parser.add_argument('--write-witness', type=Path, help='Create the explicitly requested immutable CI pixel witness once')
     args = parser.parse_args()
     read_base = lambda name: subprocess.check_output(['git', 'show', BASE + ':' + name], cwd=ROOT)
     sha = lambda value: hashlib.sha256(value).hexdigest()
@@ -139,6 +140,21 @@ def main():
         for row in range(height):
             at = ((y + row) * nw + x) * 4
             assert after[at:at + width * 4] == rgba[row * width * 4:(row + 1) * width * 4]
+    if args.write_witness:
+        # Preparation only: pin original input-derived pixels, never consume or
+        # update this witness during ordinary verification or CI tests.
+        witness = {
+            'historical': {'commit': BASE, 'pngSha256': sha(read_base('public/original/unit-layers.png')),
+                           'rgbaSha256': sha(before)},
+            'atlas': {'width': ow, 'height': oh, 'columns': columns, 'cell': cell,
+                      'oldFrames': len(old['frames']), 'oldPieces': len(old['pieces'])},
+            'nativeInputs': {'data/' + name: sha(data) for name, data in inputs.items()},
+            'pieces': [{**piece, 'rgbaSha256': sha(bank[piece['source']][2])}
+                       for piece in new['pieces'][len(old['pieces']):]],
+        }
+        with args.write_witness.open('x') as output:
+            json.dump(witness, output, indent=2)
+            output.write('\n')
     print(json.dumps({'status': 'passed', 'base': BASE, 'oldFrames': len(old['frames']),
                       'oldPieces': len(old['pieces']), 'addedFrames': 25, 'addedPieces': 80,
                       'sharedShadowSource': 22, 'atlasDimensions': [nw, nh],
