@@ -6,7 +6,7 @@ import {
   type OrderPool,
   type PersonOrder,
 } from './person-orders.ts'
-import { defaultPersonState, type StatefulPerson } from './person-state.ts'
+import { defaultPersonState, stopPersonMovement, type StatefulPerson } from './person-state.ts'
 
 type PreachingPerson = StatefulPerson & {
   class: number
@@ -213,7 +213,10 @@ export function stepPreachingOrder(
           p.assignment |= 16
         }
       }
-      if (p.timer >= 840) p.substate = 4
+      if (p.timer >= 840) {
+        p.substate = 4
+        p.flags2 = (p.flags2 | 0x40000000) >>> 0
+      }
     }
   } else if (p.substate === 4) {
     if (hasFollowingPersonOrder(w.orders, p)) {
@@ -223,6 +226,7 @@ export function stepPreachingOrder(
     }
     p.substate = 2
     p.flags2 = (p.flags2 | 0x40000000) >>> 0
+    stopPersonMovement(p, (_, object) => effects.animate(object))
   } else if (p.substate === 5) {
     scans = true
     if (close(p)) {
