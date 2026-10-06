@@ -1,6 +1,5 @@
 import { buildingPose } from './building-shapes.ts'
 import { releaseTasks } from './world-tasks.ts'
-import { sound } from './world-effects.ts'
 import {
   buildingModel,
   browserPosition,
@@ -8,6 +7,7 @@ import {
   addUnit,
   population,
   supportsFollower,
+  sound,
   type World,
   type Unit,
 } from './model.ts'
