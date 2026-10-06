@@ -1,0 +1,32 @@
+{
+  "decision": "ACCEPT test source and one replay preflight",
+  "head": "47186efd776b6dcc278a967ac009da0be5166af8",
+  "testSha256": "cd2d76a714ce4b116afb2cfa2265dbae4496c36665c9a611a891507726d2d004",
+  "preflightSha256": "8902f996a606fe7b899346f5825103c423f879d93da8b66d1be2ace3f3e895db",
+  "appSha256": "74004f5c9ebc08f53ff9173d4bd34f7821fdf2f9424e47ee984b18d57e90eba7",
+  "files": [
+    {
+      "path": "work/orchestration/raid-phase6-mission6-02/diagnostic.mjs",
+      "bytes": 15142,
+      "sha256": "268d44a42519d134122ade6c34f2f2b44abf1ff4438d64067291dd08d88c5171"
+    },
+    {
+      "path": "work/orchestration/raid-phase6-mission6-02/guardian.py",
+      "bytes": 2462,
+      "sha256": "8cec1f2a4f0abf8059bfe9a86fe1b50823df77a81c1e080be6a6df171423610e"
+    },
+    {
+      "path": "work/orchestration/raid-phase6-mission6-02/provenance.json",
+      "bytes": 514,
+      "sha256": "c4fc29bfd3bbb105b30dcc0f333b99169b159405fc14f09e0af0c70a0a41f56d"
+    },
+    {
+      "path": "work/orchestration/raid-phase6-mission6-02/scenario-source.txt",
+      "bytes": 8570,
+      "sha256": "41eb4bb5e2cfb332416bb15df8edfb5d7752552dcc031755da68799c2717a733"
+    }
+  ],
+  "unchangedScenarioPrefixAndOtherTests": true,
+  "unchangedObserverPrefix": true,
+  "unchangedGuardian": true
+}

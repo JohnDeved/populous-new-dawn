@@ -1,0 +1,146 @@
+{
+  "decision": "ACCEPT diagnostic; approve stronger lifecycle-test proposal in principle",
+  "sourceHead": "3007dd9f1865bc616568ba473758f1246c82c1a7",
+  "rawManifestSha256": "3a5975b90bf02c94311316907c966a0b45afd8f0ef1a1b18ac73df4f584d919e",
+  "traceSha256": "49fca2fd28c04f3ab560b7eb151d3968c9a4ec8916526195fe66c665f7b4a0b4",
+  "scenarioSha256": "316220d90c5ed15db31b419d839874e26a4823c85c76f92f056b0c6ef3d0a0d6",
+  "unchangedObserverSha256": "8d3a09a334663e12056a6c3c5c187819009246916635ae925712fc6d7bb76823",
+  "maxActiveTasksByWorld": {
+    "1": 0,
+    "2": 0,
+    "3": 1,
+    "4": 1,
+    "5": 1
+  },
+  "phase6Window": [
+    [
+      8317,
+      0,
+      6,
+      1,
+      [
+        386,
+        415,
+        445,
+        398
+      ]
+    ],
+    [
+      8318,
+      0,
+      6,
+      1,
+      [
+        386,
+        415,
+        445,
+        398
+      ]
+    ],
+    [
+      8319,
+      0,
+      6,
+      1,
+      [
+        386,
+        415,
+        445,
+        398
+      ]
+    ],
+    [
+      8320,
+      0,
+      6,
+      1,
+      [
+        386,
+        415,
+        445,
+        398
+      ]
+    ],
+    [
+      8321,
+      1801,
+      23,
+      1,
+      [
+        386,
+        415,
+        445,
+        398
+      ]
+    ],
+    [
+      8322,
+      1801,
+      23,
+      1,
+      [
+        386,
+        415,
+        445,
+        398
+      ]
+    ],
+    [
+      8323,
+      1801,
+      23,
+      1,
+      [
+        386,
+        415,
+        445,
+        398
+      ]
+    ],
+    [
+      8324,
+      1801,
+      23,
+      0,
+      []
+    ]
+  ],
+  "terminalRaiderHp": {
+    "386": 90,
+    "415": 90,
+    "445": 90,
+    "398": 28.6
+  },
+  "sourceStable": true,
+  "cleanup": {
+    "startedAt": "2026-10-06T23:31:22.001627+00:00",
+    "termDeadline": "2026-10-06T23:33:22.001627+00:00",
+    "killDeadline": "2026-10-06T23:33:32.001627+00:00",
+    "timeoutSeconds": 120,
+    "killGraceSeconds": 10,
+    "cpu": [
+      4
+    ],
+    "cleanupSignals": [],
+    "command": [
+      "/usr/bin/timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "120s",
+      "/usr/bin/taskset",
+      "--cpu-list",
+      "4",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-mission6-01/diagnostic.mjs"
+    ],
+    "pid": 25,
+    "processGroup": 25,
+    "processIdentity": "25 (timeout) R 24 25 25 0 -1 4194304 22 0 0 0 0 0 0 0 20 0 1 0 7344505 454656 0 18446744073709551615 94011831504896 94011831527945 140729320404320 0 0 0 0 0 0 0 0 0 17 8 0 0 0 0 0 94011831544272 94011831546436 94012561002496 140729320413217 140729320413514 140729320413514 140729320419303 0\n",
+    "elapsedSeconds": 33.18643326500023,
+    "exitCode": 1,
+    "remainingProcessGroupMembers": [],
+    "resourcesReleased": true,
+    "finishedAt": "2026-10-06T23:31:55.188570+00:00"
+  },
+  "limits": "phase6 timeout correspondence and existing port retirement only; original wider cleanup/lifetime and mixed-target gap remain"
+}

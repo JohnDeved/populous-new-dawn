@@ -1,0 +1,8 @@
+{
+  "decision": "ACCEPT test source and one replay preflight",
+  "head": "47186efd776b6dcc278a967ac009da0be5166af8",
+  "files": {
+    "review.md": "f6d46351d8a970a28830ce5cf8be17caaec12ea1813201b9420e030f93e2987e",
+    "verification.json": "1ec6ac04f8f5446279448649cbb6331ab435661818b2f5bf4425677d5bb78e50"
+  }
+}

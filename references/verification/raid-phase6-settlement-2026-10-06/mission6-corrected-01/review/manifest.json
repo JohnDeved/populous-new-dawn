@@ -1,0 +1,9 @@
+{
+  "head": "3007dd9f1865bc616568ba473758f1246c82c1a7",
+  "decision": "ACCEPT diagnostic; approve stronger lifecycle-test proposal in principle",
+  "files": {
+    "review.md": "4b6afaafee60dcff8357abb83fc8914fdb92d30b2618f1ac5127a3527c1e430d",
+    "verification.json": "fb47379d4717a7d22bb1b1c2eb1e4b8d3a472fe71943c5343cab1ffb92960bf4",
+    "selected-rows.json": "7bc77dbf2a94b695392393d3fc43632cac82fb9d4d8ff43e3a93f92b64c98c53"
+  }
+}

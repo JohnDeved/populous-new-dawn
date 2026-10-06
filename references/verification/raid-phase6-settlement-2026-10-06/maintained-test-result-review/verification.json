@@ -1,0 +1,50 @@
+{
+  "decision": "ACCEPT maintained scenario replay",
+  "head": "47186efd776b6dcc278a967ac009da0be5166af8",
+  "rawManifestSha256": "70bfd39d49e925383d6e197805a8130c040aec8d6b185e94db4677be454240cd",
+  "receiptSha256": "56002952941c76ca762e6435c69f4872c5efbb74e7f9d6a08b163f90d3330f2f",
+  "traceSha256": "49fca2fd28c04f3ab560b7eb151d3968c9a4ec8916526195fe66c665f7b4a0b4",
+  "byteIdenticalToPreviousFailedTailTrace": true,
+  "result": {
+    "name": "Mission 6 Chumara trains Preachers and launches its first mixed raid",
+    "kind": "fixed-step maintained scenario",
+    "status": "passed",
+    "startedAt": "2026-10-06T23:39:18.940Z",
+    "finishedAt": "2026-10-06T23:39:54.994Z",
+    "tickCount": 8760,
+    "preachingCount": 500,
+    "finalTurn": 8760
+  },
+  "cleanup": {
+    "startedAt": "2026-10-06T23:39:17.332209+00:00",
+    "termDeadline": "2026-10-06T23:41:17.332209+00:00",
+    "killDeadline": "2026-10-06T23:41:27.332209+00:00",
+    "timeoutSeconds": 120,
+    "killGraceSeconds": 10,
+    "cpu": [
+      4
+    ],
+    "cleanupSignals": [],
+    "command": [
+      "/usr/bin/timeout",
+      "--signal=TERM",
+      "--kill-after=10s",
+      "120s",
+      "/usr/bin/taskset",
+      "--cpu-list",
+      "4",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-fix-20261006/work/orchestration/raid-phase6-mission6-02/diagnostic.mjs"
+    ],
+    "pid": 25,
+    "processGroup": 25,
+    "processIdentity": "25 (timeout) R 24 25 25 0 -1 4194304 7 0 0 0 0 0 0 0 20 0 1 0 7392038 417792 0 18446744073709551615 0 0 140727259654177 0 0 0 0 0 0 0 0 0 17 4 0 0 0 0 0 0 0 0 140727259654177 0 0 0 0\n",
+    "elapsedSeconds": 37.79221156600397,
+    "exitCode": 0,
+    "remainingProcessGroupMembers": [],
+    "resourcesReleased": true,
+    "finishedAt": "2026-10-06T23:39:55.124432+00:00"
+  },
+  "sourceBeforeAfterEqual": true,
+  "pending": "integrated quality/full/build and ordinary candidate lifecycle"
+}

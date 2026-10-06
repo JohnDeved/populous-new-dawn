@@ -1,0 +1,8 @@
+{
+  "decision": "ACCEPT maintained scenario replay",
+  "head": "47186efd776b6dcc278a967ac009da0be5166af8",
+  "files": {
+    "review.md": "dd2157c588154747cf6882af9ef0b06316acedd939fd4e8b88db290a73009630",
+    "verification.json": "72020530d4aea0edbe1112226e0eb90fa1b950fc04f7f058844e16ed02fe4aec"
+  }
+}
