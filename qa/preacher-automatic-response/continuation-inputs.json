@@ -1,13 +1,13 @@
 {
-  "phase": "load-diagnostics",
-  "priorRunId": "23b0d01b-42e2-4165-8efd-dec93138e910",
+  "phase": "continuation",
+  "priorRunId": "a1c63887-fcca-4d5b-bc90-1fe0f8b8b9d1",
   "profileId": "18a43673-dbce-42e2-97f0-f9e07c32df11",
   "application": "d10fcfa5e7879af71558f05bf559ca3e89d2d5869901a08617774d31952a7679",
-  "previousChecker": "33c3c6572311c35dcf16b61ba81346a6087d457ebffde47a31424be8c25cf658",
-  "previousSourceFingerprint": "2424d76f44c5285ba8d868e5b69420e50da9383eb99ae45476d67721d1c2de43",
-  "previousSourceCommit": "1aa0414b6cad3d1ae7946d7d8dd6852d46ef9fa0",
-  "previousReceipt": "work/orchestration/preacher-automatic-response/baseline/attempt01/receipt.json",
-  "previousReceiptSha256": "3a7cfc71971a61b00578f36020373bde06adf1f24811a29493ee954129eeca8e",
+  "previousChecker": "e62b07445a6eae745e493b1c6f507f4cf0da146e09e51178c331114bd7f5355a",
+  "previousSourceFingerprint": "addf04cb9084bfe0008da402e4637d921cbdb3a37cec3c149263b0a3ec1e225a",
+  "previousSourceCommit": "35f3e4b5360ab74222ef74b20ba23896ab0557f5",
+  "previousReceipt": "work/orchestration/preacher-automatic-response/baseline/load-diagnostics01/receipt.json",
+  "previousReceiptSha256": "b5a49a24884a3270e0df45facaef0c35e3f862130166a78e1e0db85f6752a143",
   "checkpoint": {
     "version": 1,
     "level": 3,
@@ -163,7 +163,9 @@
     "sha256": "6468d3f5e96111db0f0a667a2c49c069d842fce9bc68f8d267177cfe7b19759e",
     "firstAdmission": "work/orchestration/preacher-automatic-response/baseline/attempt01/first-trainee-admission.json",
     "firstAdmissionSha256": "b06494e3c5745e87517fd13599c6a489ff15c29a4aa45a555a643cd983d549ab",
-    "status": "Original ordinary acquisition succeeded inside a failed approach run; no automatic32 witness."
+    "status": "Original ordinary acquisition succeeded inside a failed approach run; no automatic32 witness.",
+    "sourceCommit": "1aa0414b6cad3d1ae7946d7d8dd6852d46ef9fa0",
+    "runId": "23b0d01b-42e2-4165-8efd-dec93138e910"
   },
   "caps": {
     "scenarioMs": 90000,
@@ -173,5 +175,17 @@
     "diagnosticPeople": 256,
     "screenshots": 1
   },
-  "scope": "Actual Load Game then ordinary Pause, complete bounded candidate/route diagnostic reads, no movement or Save; preserve committed3336."
+  "scope": "Genuine3336 Load prefix; load-diagnostics stops after Pause. Separately reviewed crossing phase resumes, clears actual forward defender, chooses one crossing from current coherent17/19 Brave geometry, and never Saves.",
+  "crossingCaps": {
+    "loadedControlBindingMs": 20000,
+    "defenderAndApproachMs": 180000,
+    "defenderMs": 90000,
+    "harnessMs": 420000,
+    "outerInterruptSeconds": 450,
+    "outerKillGraceSeconds": 20,
+    "candidateLimit": 4,
+    "endpointsPerCandidate": 2,
+    "pendingMarginNative": 768,
+    "pathPointLimit": 512
+  }
 }

@@ -2,13 +2,14 @@ import assert from 'node:assert/strict'
 import test from 'node:test'
 import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
-import { movingEncounter, qualifyingVisit, createResponseTracker } from './observe.mjs'
+import { movingEncounter, qualifyingVisit, createResponseTracker, eligibleBraveState } from './observe.mjs'
 import { responseProjection, requireResponseCheckpoint, requireSameCheckpoint } from './checkpoint.mjs'
 import { requireCleanup } from './scenario.mjs'
 import { chainPhaseObservers } from '../preacher-gesture-baseline/observe.mjs'
 import { chooseForwardDefender, requireDefenderRemoval } from './forward-defender.mjs'
 import { readResponsePeople } from './diagnostics.mjs'
 import { requireContinuation } from './load-diagnostics.mjs'
+import { coherentCrossingBrave, crossingWitness } from './crossing-input.mjs'
 
 // Supplied diagnostic records test acceptance logic only. They are not ordinary
 // gameplay, native execution or rendered evidence.
@@ -126,6 +127,8 @@ test('reused drivers stay byte-identical and new observation contains no World/t
   const pins = JSON.parse(readFileSync(new URL('./source-inputs.json', import.meta.url)))
   for (const [path, hash] of Object.entries(pins.inheritedFiles))
     assert.equal(createHash('sha256').update(readFileSync(new URL(`../../${path}`, import.meta.url))).digest('hex'), hash, path)
+  for (const [path, entry] of Object.entries(pins.adaptedFiles ?? {}))
+    assert.equal(createHash('sha256').update(readFileSync(new URL(`../../${path}`, import.meta.url))).digest('hex'), entry.sha256, path)
   const source = readFileSync(new URL('./observe.mjs', import.meta.url), 'utf8')
   assert.doesNotMatch(source, /renderer\.render\s*\(|\b(?:tick|advanceGame|animateLiveObjects)\s*\(|nativeGuardRead\(/)
   assert.doesNotMatch(source, /(?:\bw|\bworld|\bnative|\bscene\.world)\.[A-Za-z]+\s*=(?!=)/)
@@ -133,6 +136,31 @@ test('reused drivers stay byte-identical and new observation contains no World/t
   assert.doesNotMatch(scenario, /local-render\/harness|waitForFunction\(async|\.put\(|\.add\(/)
   assert.match(scenario, /readQueuedPreservingStop/); assert.match(scenario, /requireSameCheckpoint/)
   assert.equal(pins.candidateTrees, null, 'Candidate cannot launch before adopted reviewed application')
+})
+
+test('observed state19 is admitted without admitting listeners or unknown ownership', () => {
+  assert.equal(eligibleBraveState(17), true); assert.equal(eligibleBraveState(19), true)
+  for (const state of [23, undefined, null, 0, 10]) assert.equal(eligibleBraveState(state), false)
+  const item = { kind: 'brave', team: 'yellow', hp: 50, inside: null, nativeOnly: true,
+    native: { state: 19 }, pathLength: 0, predicates: { nativeReverse: [], ownership: [], oldQaPrefilter: ['not-idle17', 'outside-secondary3x3'] } }
+  assert.equal(coherentCrossingBrave(item), true)
+  for (const mutate of [v => { v.native.state = 23 }, v => { v.nativeOnly = false },
+    v => { v.predicates.ownership = ['selected-record-missing'] }, v => { v.pathLength = 1 },
+    v => { v.predicates.nativeReverse = ['actual-workFlags-not0'] }]) {
+    const bad = structuredClone(item); mutate(bad); assert.equal(coherentCrossingBrave(bad), false)
+  }
+})
+
+test('geometry requires two adjacent secondary cells, primary clearance and a pending destination margin', () => {
+  const path = [-12, -14, -16, -18, -20].map(x => ({ x, z: -93 })), destination = { x: -21, z: -93 }
+  const context = { model: 3, enabled: true, buildingId: null, personId: null, shrineId: null, treeId: null, vehicleId: null }
+  const result = crossingWitness(path, [124, 42], destination, [], context)
+  assert.ok(result); assert.ok(result.witnesses.length >= 2)
+  assert.equal(crossingWitness(path, [124, 42], { x: -17, z: -93 }, [], context), null)
+  assert.equal(crossingWitness(path, [124, 42], destination, [[125, 42]], context), null)
+  assert.equal(crossingWitness([path[1]], [124, 42], destination, [], context), null)
+  assert.equal(crossingWitness(path, [124, 42], destination, [], { ...context, model: 31 }), null)
+  assert.equal(crossingWitness(path, [124, 42], destination, [], { ...context, personId: 53 }), null)
 })
 
 test('forward removal requires the actual defender gone, original healthy actors and real arrival', () => {

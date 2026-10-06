@@ -10,6 +10,7 @@ import { waitForCheckpointReadback } from '../../scripts/checkpoint-readback.mjs
 import { requireResponseCheckpoint, requireSameCheckpoint } from './checkpoint.mjs'
 import { clearForwardDefender } from './forward-defender.mjs'
 import loadDiagnostics from './load-diagnostics.mjs'
+import { chooseCrossing, confirmCrossing } from './crossing-input.mjs'
 
 export function requireCleanup(value) {
   assert.ok(value && !value.error, value?.error ?? 'Missing cleanup')
@@ -21,12 +22,15 @@ export function requireCleanup(value) {
 
 export default async function responseScenario(context) {
   if (process.env.PND_RESPONSE_PHASE === 'load-diagnostics') return loadDiagnostics(context)
+  const loadedPrefix = process.env.PND_RESPONSE_PHASE === 'crossing' ? await loadDiagnostics(context) : null
   const { page, output, receipt, signal, observeCheckpoint } = context
   const baseline = process.env.PND_RESPONSE_SIDE === 'baseline', started = performance.now()
   assert.ok(['baseline', 'candidate'].includes(process.env.PND_RESPONSE_SIDE))
-  assert.equal(receipt.profile?.mode, 'created'); assert.equal(receipt.profile.checkpointAtStart, null)
-  const commands = resolve(output, 'commands'); mkdirSync(commands)
-  const report = { side: process.env.PND_RESPONSE_SIDE, status: 'running', stages: [], failures: [], events: [], screenshots: [],
+  if (loadedPrefix) assert.equal(baseline, true, 'This continuation grants baseline crossing only')
+  assert.equal(receipt.profile?.mode, loadedPrefix ? 'reused' : 'created')
+  if (!loadedPrefix) assert.equal(receipt.profile.checkpointAtStart, null)
+  const commands = resolve(output, 'commands'); if (!loadedPrefix) mkdirSync(commands)
+  const report = { side: process.env.PND_RESPONSE_SIDE, status: 'running', loadedPrefix, stages: [], failures: [], events: [], screenshots: [],
     scope: 'Ordinary automatic32 reachability and owned queue lifecycle; original component proof and pixels are separate.' }
   let acquisition, progress, saved, restored, originalFinished = false, activeStage, primaryFailure, stopped = false, epoch = 'original'
   const persist = () => writeFileSync(resolve(output, 'response.json'), JSON.stringify({ ...report,
@@ -93,9 +97,14 @@ export default async function responseScenario(context) {
     return { ...committed, before, provenance }
   }
   try {
-    begin('ordinary-acquisition-and-safe17', 360000)
-    acquisition = await acquirePreacher({ ...context, signal: { throwIfAborted: check } })
+    begin(loadedPrefix ? 'bind-genuinely-loaded-acquisition' : 'ordinary-acquisition-and-safe17', loadedPrefix ? 20000 : 360000)
+    if (loadedPrefix) await button('Resume game')
+    acquisition = await acquirePreacher({ ...context, signal: { throwIfAborted: check }, loadedAcquisition: loadedPrefix ? {
+      ids: loadedPrefix.originalActors, originalAcquisition: loadedPrefix.originalAcquisition,
+      boundaryActorId: loadedPrefix.boundary.response.actor.id,
+      checkpointSha256: loadedPrefix.committedAfter.checkpoint.checkpointSha256 } : null })
     const id = acquisition.preacherId
+    if (!loadedPrefix) {
     const initial = await acquisition.dispatch.clickOrder(acquisition.safe)
     assert.equal(initial.inputAfter.units.find(u => u.id === id).order.model, 3)
     await poll(async () => {
@@ -104,15 +113,24 @@ export default async function responseScenario(context) {
       if (u.order?.model !== 17 || u.native?.commandStatus !== 17 || u.native.substate !== 2) return false
       acquisition.finishAcquisition({ turn: row.turn, person: u.native }); return true
     })
+    }
     end({ id, templeId: acquisition.templeId, traineeId: acquisition.traineeId })
-    begin('ordinary-acquisition-checkpoint', 15000)
-    report.acquisitionCheckpoint = await saveCheckpoint('acquired-checkpoint', false); end({ committed: true })
+    if (!loadedPrefix) {
+      begin('ordinary-acquisition-checkpoint', 15000)
+      report.acquisitionCheckpoint = await saveCheckpoint('acquired-checkpoint', false); end({ committed: true })
+    }
 
     begin('forward-defender-and-first-automatic32', 180000)
     report.forwardDefender = await clearForwardDefender({ page, acquisition, check }); persist()
     await acquisition.select('preacher')
-    await acquisition.ordinary.map({ x: -39, z: -110 })
-    const hit = await acquisition.ground({ x: -39, z: -110 }); assert.ok(hit, 'Declared approach ground is unavailable')
+    if (loadedPrefix) {
+      report.crossingPlan = await chooseCrossing(page, id); check(); persist()
+      assert.ok(report.crossingPlan.chosen, 'No coherent actual Brave has a bounded clear crossing')
+    }
+    const destination = loadedPrefix ? report.crossingPlan.chosen.destination : { x: -39, z: -110 }
+    await acquisition.ordinary.map(destination)
+    const hit = await acquisition.ground(destination); assert.ok(hit, 'Declared approach ground is unavailable')
+    if (loadedPrefix) { report.crossingConfirmed = await confirmCrossing(page, report.crossingPlan, hit); check(); persist() }
     await page.evaluate(async ({ id, baseline }) => {
       const { installResponseObservation } = await import('/qa/preacher-automatic-response/observe.mjs')
       return installResponseObservation({ id, baseline })
@@ -207,12 +225,17 @@ export default async function responseScenario(context) {
     try {
       const cleanup = await page.evaluate(finished => {
         const pointer = window.campaignEntityPointer?.finish(); delete window.campaignEntityPointer
+        delete window.preacherCrossingPin
         const observer = !finished ? window.preacherResponse?.finish() : undefined
         const tail = window.preacherResponse?.drain()
         window.campaignReplacement?.dispose?.()
         return { pointer, observer, tail }
       }, originalFinished)
       retain(cleanup.tail); requireCleanup(cleanup)
+      if (loadedPrefix) {
+        report.committedAfterCrossing = await observeCheckpoint('After ordinary crossing - no Save')
+        assert.deepEqual(report.committedAfterCrossing.checkpoint, receipt.profile.checkpointAtStart)
+      }
       writeFileSync(resolve(output, 'observer-cleanup.json'), JSON.stringify(cleanup, null, 2) + '\n')
     } catch (error) {
       report.failures.push(String(error?.stack ?? error)); report.status = 'failed'

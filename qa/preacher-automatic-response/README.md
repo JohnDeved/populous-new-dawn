@@ -51,6 +51,58 @@ Continuation envelope: same origin4407/profile/application/browser/dependency
 pins, fresh output and0700 TMP/cache, CPU0–3;90s scenario,180s harness,210s INT plus
 20s kill grace. No source migration or stale-profile lock recovery is allowed.
 
+## Proposed single measured crossing
+
+The accepted Load-only segment at QA35f3e4b5 restored3336 exactly, auto-resumed to
+first bound3376 and paused3387. Its21 records contain18 Yellow Braves,2 Shamans
+and1 Preacher. Exactly13 Braves have coherent registered native records with
+empty native-reverse/ownership rejection lists:2734,2631,2495,2699,3033,2975,
+2909,3067,48,50,51,52,53. Every one is state19. The earlier claim of14 was a count
+error. Two builder-owned records have actual registration/position mismatches;
+three housed Braves have no selected native record. These are current3387 facts,
+not reconstructed Run01 positions.
+
+The narrow acceptance correction adds observed19 alongside17, preserving all
+other source/target ownership, flags, health, path, range, admission and cadence
+guards. Native reverse excludes23; the19 allowance is backed by that recovered
+source and the observed ordinary records, not a new original-executable case.
+Unknown native ownership and listener23 remain rejected. Complete rejected records
+remain in the new phase stream.
+
+`PND_RESPONSE_PHASE=crossing` reuses genuine3336 Load and the original acquisition
+proof. The acquisition helper has one explicit loaded-prefix branch; its existing
+selection/minimap/ground/dispatch bodies stay unchanged, and no new Vault/Temple/
+training occurs. The branch rebinds current controls and validates the actual
+loaded actors. The manifest distinguishes this adapted helper from byte-identical
+inherited files. The original acquisition source/run labels remain1aa0414b/Run01.
+
+After ordinary Resume, repeat the bounded actual forward-defender removal because
+3158 is restored by3336 Load. That does not clear all primary threats: Yellow
+Shaman47 near(-44.24,-103.68) remains visible in complete specialist diagnostics.
+Freshly re-read coherent Yellow Braves, rank by current wrapped distance and ID,
+and consider only the first4. Each gets two prospective endpoints6 or8 units past
+its current position in the approach direction. Reject anything without a clear
+native model3 context. On a detached World with its own cloned Preacher, reuse
+`findPath`; no planned route is installed. The path must have two consecutive
+waypoints in the Brave's real3×3 secondary cells, each more than768 native units
+from the destination and outside every current specialist's conservative5×5 guard.
+At most8 paths of512 points are inspected. If none qualifies, fail without input.
+
+Choose exactly one such crossing. Prepare the camera, obtain a real visible clear
+ground hit through the existing5×5/native-context helper, then re-observe the same
+actual Brave record/cell and all primary threats. Revalidate the path/margin for
+the actual picked point before the one ordinary movement click. No fixed village
+point, target-ID guess, enemy click, alternate target or reissue is used. Predicted
+path geometry only selects the tactic; actual adjacent callback records still
+have to prove the qualifying moving3 visit with pending destination. Ordinary17
+on arrival remains failure. No Save is issued; committed3336 is checked unchanged.
+
+Proposed crossing envelope:90s Load diagnostic prefix,20s control rebinding,
+the existing180s combined defender/approach stage with90s defender sub-cap;
+420s harness,450s outer INT plus20s kill grace, CPU0–3, same4407/profile/game.
+Fresh output/TMP and exact reviewed correspondence from the immediately prior
+successful Load-only run are mandatory. This crossing source has not run.
+
 ## Three separate claims
 
 The accepted supplied original/old-port comparison at `d0f1092f` establishes

@@ -5,6 +5,7 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 const queue = row => [row.person.commandCursor, row.commands, row.queued]
 const short = n => (n << 16) >> 16
 const cell = p => [(p.x >>> 9) & 127, (p.y >>> 9) & 127]
+export const eligibleBraveState = state => state === 17 || state === 19
 
 export function admittedMovingLane(row) {
   const a = row.admission
@@ -161,7 +162,7 @@ export async function installResponseObservation({ id, baseline = false, loaded 
     for (const other of w.units) {
       const v = other.native
       if (!p || other.kind !== 'brave' || other.hp <= 0 || other.inside !== null || !v || v.class !== 1 ||
-        v.model !== 2 || v.tribe < 0 || v.tribe === p.tribe || v.state !== 17 || v.life <= 0 ||
+        v.model !== 2 || v.tribe < 0 || v.tribe === p.tribe || !eligibleBraveState(v.state) || v.life <= 0 ||
         v.workFlags !== 0 || v.vehicle || v.flags2 & 0x810000 || v.flags4 & 0x1000 ||
         other.flight || other.fight || other.builder || other.entry || other.path.length ||
         w.outcome.alliances[v.tribe] & (1 << p.tribe) || !inEngagementArea(p, v, 3) ||

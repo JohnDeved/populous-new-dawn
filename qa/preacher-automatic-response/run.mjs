@@ -11,14 +11,14 @@ import scenario from './scenario.mjs'
 const root = process.cwd(), here = resolve(root, 'qa/preacher-automatic-response')
 const options = parseOptions(process.argv.slice(2)), side = process.env.PND_RESPONSE_SIDE
 const phase = process.env.PND_RESPONSE_PHASE ?? 'fresh'
-assert.ok(['fresh', 'load-diagnostics'].includes(phase))
+assert.ok(['fresh', 'load-diagnostics', 'crossing'].includes(phase))
 const git = (...args) => execFileSync('git', args, { cwd: root, encoding: 'utf8' }).trim()
 const sha = file => createHash('sha256').update(readFileSync(file)).digest('hex')
 const inputs = JSON.parse(readFileSync(resolve(here, 'source-inputs.json')))
 assert.ok(['baseline', 'candidate'].includes(side))
 assert.equal(resolve(options.gameRoot), root); assert.equal(options.port, inputs.ports[side])
-const continuation = phase === 'load-diagnostics' ? JSON.parse(readFileSync(resolve(here, 'continuation-inputs.json'))) : null
-assert.equal(options.timeout, continuation ? continuation.caps.harnessMs : inputs.caps.harnessMs)
+const continuation = phase !== 'fresh' ? JSON.parse(readFileSync(resolve(here, 'continuation-inputs.json'))) : null
+assert.equal(options.timeout, phase === 'crossing' ? continuation.crossingCaps.harnessMs : continuation ? continuation.caps.harnessMs : inputs.caps.harnessMs)
 assert.equal(resolve(options.profile), resolve(root, inputs.profiles[side]))
 assert.equal(resolve(options.scenario), resolve(here, 'scenario.mjs'))
 if (continuation) {
@@ -35,6 +35,7 @@ assert.equal(git('rev-parse', 'HEAD'), process.env.PND_QA_HEAD); assert.equal(gi
 const trees = inputs[side + 'Trees']; assert.ok(trees, 'Reviewed producer/consumer candidate has not been adopted')
 for (const [name, expected] of Object.entries(trees)) assert.equal(git('rev-parse', `HEAD:${name}`), expected, name)
 for (const [file, expected] of Object.entries(inputs.inheritedFiles)) assert.equal(sha(resolve(root, file)), expected, file)
+for (const [file, entry] of Object.entries(inputs.adaptedFiles ?? {})) assert.equal(sha(resolve(root, file)), entry.sha256, file)
 const require = createRequire(resolve(root, 'package.json'))
 const expectedRuntime = JSON.parse(readFileSync(resolve(root, 'qa/preacher-gesture-candidate/expected-runtime.json')))
 const runtime = () => ({ node: process.version, browserSha256: sha(resolve(options.browserPath)),
@@ -45,7 +46,7 @@ const runtime = () => ({ node: process.version, browserSha256: sha(resolve(optio
   three: Object.fromEntries(Object.keys(expectedRuntime.three).map(n => [n, sha(resolve(root, 'node_modules', n))])),
   serverDependencies: Object.fromEntries(Object.keys(expectedRuntime.serverDependencies).map(n => [n, sha(resolve(root, 'node_modules', n))])) })
 const runtimeBefore = runtime(); assert.deepEqual(runtimeBefore, expectedRuntime)
-const sourceFiles = [...readdirSync(here).filter(n => /\.(mjs|json|md)$/.test(n)).map(n => `qa/preacher-automatic-response/${n}`), ...Object.keys(inputs.inheritedFiles)]
+const sourceFiles = [...readdirSync(here).filter(n => /\.(mjs|json|md)$/.test(n)).map(n => `qa/preacher-automatic-response/${n}`), ...Object.keys(inputs.inheritedFiles), ...Object.keys(inputs.adaptedFiles ?? {})]
 const hashes = () => Object.fromEntries(sourceFiles.map(n => [n, sha(resolve(root, n))]))
 const sourceBefore = hashes()
 // This consumes an actual review record. It cannot create approval or substitute

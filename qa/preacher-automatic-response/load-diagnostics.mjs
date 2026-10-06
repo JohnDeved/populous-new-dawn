@@ -30,7 +30,9 @@ export default async function loadDiagnostics({ page, root, output, receipt, sig
   assert.equal(sha(pins.originalAcquisition.firstAdmission), pins.originalAcquisition.firstAdmissionSha256)
   const started = performance.now(), commands = resolve(output, 'commands'); mkdirSync(commands)
   const report = { status: 'running', phase: 'load-diagnostics', originalAcquisition: pins.originalAcquisition,
-    prefixSourceCommit: pins.previousSourceCommit, prefixRunId: pins.priorRunId, failures: [],
+    originalActors: pins.originalActors,
+    prefixSourceCommit: pins.originalAcquisition.sourceCommit ?? pins.previousSourceCommit,
+    prefixRunId: pins.originalAcquisition.runId ?? pins.priorRunId, failures: [],
     scope: 'Ordinary Load3336 then Pause and read-only current geometry. No new movement, Save, automatic-response or conversion claim.' }
   const save = () => writeFileSync(resolve(output, 'load-diagnostics.json'), JSON.stringify({ ...report,
     source: receipt.source, elapsedMs: performance.now() - started }, null, 2) + '\n')

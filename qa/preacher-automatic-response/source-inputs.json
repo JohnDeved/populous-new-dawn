@@ -11,7 +11,6 @@
     "qa/preacher-gesture-baseline/inherited/ordinary-input.mjs": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
     "qa/preacher-gesture-baseline/inherited/browser-probes.mjs": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
     "qa/preacher-gesture-baseline/inherited/observer.mjs": "b00d2465b9b9bb7a574a8c151ec35d1cda5423c847e138b808a8e16ad47d9186",
-    "qa/preacher-gesture-candidate/acquire.mjs": "4fef9e4e3d3def13d7f685724b88a14253d7eeb63c888a0b11ef79643b6aa8ec",
     "qa/preacher-gesture-candidate/ground-input.mjs": "0e108c481d44441078e8ce5317654baa0a4535ca461e90b29e7455d4c8802b6d",
     "qa/preacher-gesture-candidate/ground-dispatch.mjs": "42139eca57022912489c4a036981794afd668b3f335ef376e6abbe54e5f89e72",
     "qa/preacher-gesture-candidate/load-boundary.mjs": "46ca676143212890e4465d2daf857e959377f93eed2b9f1179d8af05edbf5940",
@@ -44,5 +43,12 @@
   "profiles": {
     "baseline": "work/local-render-profiles/preacher-response-baseline",
     "candidate": "work/local-render-profiles/preacher-response-candidate"
+  },
+  "adaptedFiles": {
+    "qa/preacher-gesture-candidate/acquire.mjs": {
+      "baseSha256": "4fef9e4e3d3def13d7f685724b88a14253d7eeb63c888a0b11ef79643b6aa8ec",
+      "sha256": "175ed68921f4e94c6a598a7bb6fbddb0b9bf1fad3b6a73ca097959c58c01d487",
+      "reason": "Only add binding to a genuinely verified ordinary Load prefix; unchanged existing input helper bodies and original acquisition path. No actor/state injection or new training."
+    }
   }
 }
