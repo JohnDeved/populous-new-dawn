@@ -1,0 +1,9 @@
+# Independent a02 component result review
+
+ACCEPT the narrowly scoped native result on2136f8df17d1e46d9a3d75f984af98898e8d5eef. The original failed a01 stays retained separately.
+
+The terminal receipt records21:39:01.622159–21:39:01.856394UTC, exit0, all56 input hashes unchanged and no remaining owned process. I recomputed stdout/stderr hashes and decoded all six179-byte before/after building/root/child records independently. Stdout SHA256:a20ab0ea632b582f74bd24d5c14d968b4cb11d8d3d5f3f5a7e75fe20b311d3c7; stderr54ee9051ce3a6312af1862733b322068a6600a6838118d14040433cd17f05c7f. The other CPU4 receipt ends21:38:34.819UTC, before this run begins; those intervals do not overlap. No performance inference is made.
+
+The actual ignition changes building state2 to4 with timer127 and all three resident IDs/count/records intact. Root1999 becomes class0; actual unlink makes it free-head and reduces allocated count2 to1, with159 unique free records. The release-return checkpoint independently observes that mutation before the initializer clears the building's root handle. Child1998 retains every non-link byte at ignition, including position, frame and lifetime9. Its sole later real secondary visit advances counter37 to38 and lifetime9 to8. No root visit or new child occurs; existing RNG/seed invariants pass.
+
+The six logged raw owner arguments33554432 correctly decode to tribe0 under the original byte ABI. Class/model and full pointer remain checked. Six failed class5 fire requests are supplied, as are terrain/sunlight and the root/child/resident setup history. This does not compare successful fire streams or establish real Lightning admission/rendered gameplay. It establishes original immediate root retirement and surviving-child behavior under this fixed composition. Proceed to the separately reviewed real production-caller comparison; no app repair or ordinary acceptance is implied by this result alone.

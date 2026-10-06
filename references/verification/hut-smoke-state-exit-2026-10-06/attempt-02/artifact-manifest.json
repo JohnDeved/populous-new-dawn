@@ -1,0 +1,54 @@
+{
+  "status": "independently-accepted-native-component",
+  "sourceHead": "2136f8df17d1e46d9a3d75f984af98898e8d5eef",
+  "executedProbeSha256": "ef2f20f3547ebf313fd95c2381ce6e4d1568a9a9788243bcac571d45ce78da55",
+  "files": {
+    "abi-correction-review.md": {
+      "sha256": "f643f2fe33795088723facf7144e689d7fd2f9ec73f7cbfebf756ecd762d8bf4",
+      "bytes": 1038
+    },
+    "host-one-case.py": {
+      "sha256": "abe42777d90b483e35c00d17591e1f60b6911fd368b469d1e0edd45417c23d29",
+      "bytes": 4956
+    },
+    "receipt.json": {
+      "sha256": "2c52d4f68011422a73ac9ff63666674f287c1e3c1ea75e8dc38cf17ea449974e",
+      "bytes": 23315
+    },
+    "result-review.md": {
+      "sha256": "ba2d402c994f9d0bb5a3edee586778d873c2b1dbc8df8919d51c1ccf8aab08e3",
+      "bytes": 1927
+    },
+    "result.md": {
+      "sha256": "e126557a3597122f4a40f33eb8ba43ad1e3003a1ba1ef4db5fabc53f54572ac2",
+      "bytes": 4508
+    },
+    "scheduling.json": {
+      "sha256": "5bb369ecf12b2ee8cd51351da6ccd47cb1a7b8a404235b064bbe5030324e5dcf",
+      "bytes": 613
+    },
+    "source-launch.json": {
+      "sha256": "e29215ca7189fb57d3fc00ed9184ff455d3d103b8c6443edb77d7a7781af1e65",
+      "bytes": 1602
+    },
+    "source-manifest.json": {
+      "sha256": "997f5d408f998d4fac368788e3ca8d4ed8c055c1aad557494abcadf7d6f37c4f",
+      "bytes": 9748
+    },
+    "source-probe.py": {
+      "sha256": "ef2f20f3547ebf313fd95c2381ce6e4d1568a9a9788243bcac571d45ce78da55",
+      "bytes": 13522
+    },
+    "stderr.txt": {
+      "sha256": "54ee9051ce3a6312af1862733b322068a6600a6838118d14040433cd17f05c7f",
+      "bytes": 816
+    },
+    "stdout.json": {
+      "sha256": "a20ab0ea632b582f74bd24d5c14d968b4cb11d8d3d5f3f5a7e75fe20b311d3c7",
+      "bytes": 12961
+    }
+  },
+  "originalBinaryOrDataIncluded": false,
+  "firstAttemptPreserved": true,
+  "furtherNativeRun": false
+}

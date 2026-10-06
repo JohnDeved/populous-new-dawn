@@ -5,6 +5,14 @@ Source audit for [issue 214](https://github.com/JohnDeved/populous-new-dawn/issu
 This identifies a concrete unbound state-transition consumer. It is not a
 failure-first runtime result, an implemented repair, or a global timing finding.
 
+Later bounded execution: [attempt 02](../../references/verification/hut-smoke-state-exit-2026-10-06/attempt-02/result.md)
+passed the one full-root/child original-byte composition after the explicitly
+retained [attempt-01 ABI-checker failure](../../references/verification/hut-smoke-state-exit-2026-10-06/attempt-01/result.md).
+Its [independent result review](../../references/verification/hut-smoke-state-exit-2026-10-06/attempt-02/result-review.md)
+accepts the bounded composition; supporting live and ordinary rendered comparisons
+remain unrun. Its supplied fire/terrain/initialization boundaries
+must remain attached to any claim.
+
 ## Finding
 
 The original building class initializer removes its retained chimney-smoke root

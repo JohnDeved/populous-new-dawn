@@ -1,0 +1,42 @@
+{
+  "status": "source-only-abi-correction-awaiting-review-and-grant",
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006",
+  "argv": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "30s",
+    "/usr/bin/prlimit",
+    "--as=1073741824",
+    "--cpu=20",
+    "--",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "-B",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/decomp/research/hut-smoke-state-exit/probe-ignition-root-draft.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe"
+  ],
+  "environment": {
+    "PYTHONNOUSERSITE": "1",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  },
+  "freshOutputDirectory": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/native-one-case-20261006-a02",
+  "hostGuardSha256": {
+    "/usr/bin/timeout": "6ca1891dfc0b05d7680770c2884c0391b92467c7bb6500a5c84677e6481739f1",
+    "/usr/bin/prlimit": "06275e616ca2b721482aeb564260489be3fdc6d5f86836b4a78e96485845f060"
+  },
+  "guards": {
+    "exclusiveParentCoordinationRequired": true,
+    "exactDraftReviewRequired": true,
+    "outputDirectoryMustNotExist": true,
+    "oneForegroundInvocationMustOwnAndAwaitProcessGroup": true,
+    "noAutomaticRetry": true,
+    "noDetachedChildrenPortsOrServices": true
+  },
+  "capture": [
+    "stdout",
+    "stderr",
+    "exitCode",
+    "sourceAndInputHashesBeforeAndAfter",
+    "sameInvocationProcessTermination"
+  ]
+}

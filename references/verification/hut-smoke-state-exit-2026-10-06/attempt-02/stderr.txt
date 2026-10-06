@@ -1,0 +1,6 @@
+{"event": "fire-allocation-arguments", "rawDwords": [5, 10, 33554432, 34590664], "decodedByteArguments": [5, 10, 0], "point": 34590664}
+{"event": "fire-allocation-arguments", "rawDwords": [5, 10, 33554432, 34590664], "decodedByteArguments": [5, 10, 0], "point": 34590664}
+{"event": "fire-allocation-arguments", "rawDwords": [5, 10, 33554432, 34590664], "decodedByteArguments": [5, 10, 0], "point": 34590664}
+{"event": "fire-allocation-arguments", "rawDwords": [5, 10, 33554432, 34590664], "decodedByteArguments": [5, 10, 0], "point": 34590664}
+{"event": "fire-allocation-arguments", "rawDwords": [5, 10, 33554432, 34590664], "decodedByteArguments": [5, 10, 0], "point": 34590664}
+{"event": "fire-allocation-arguments", "rawDwords": [5, 10, 33554432, 34590664], "decodedByteArguments": [5, 10, 0], "point": 34590664}
