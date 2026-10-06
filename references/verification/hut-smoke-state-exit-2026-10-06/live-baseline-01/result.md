@@ -1,6 +1,7 @@
 # Controlled live baseline: intended missing-retirement assertion failed
 
-The one authorized supporting Node invocation reached the intended red assertion
+The [independent result review](result-review.md) accepts the intended failure
+evidence. The one authorized supporting Node invocation reached the intended red assertion
 at source `1d62a8181432b65106fe77f77b9f48cb07d95194`. All app and fixture sources
 correspond exactly to main `1c7e6b05687aca14d9350e17c7ae14dc6c68bb97`; the
 capture is unchanged from reviewed preparation commit `07e54532`, SHA-256

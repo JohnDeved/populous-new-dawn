@@ -134,3 +134,28 @@ Ghidra project, importer, fixture recording, build server or browser is reserved
 by this audit. Executable proof, browser pixels and code gates are **not run**.
 Docs-only validation is limited to static fingerprints, JSON/link structure and
 `git diff --check`; no gameplay or parity claim is added.
+
+## Runtime candidate after accepted native and live failure evidence
+
+The [controlled baseline result review](../../references/verification/hut-smoke-state-exit-2026-10-06/live-baseline-01/result-review.md)
+accepts the intended failure and its narrow caller meaning. The resulting
+candidate changes only three runtime files: both actual ignition callbacks
+(`spell-effects-runtime.ts` and Spy sabotage in `live-building-combat.ts`) call
+the existing smoke reconciler after their fire/person initialization; shared
+`hut-smoke-runtime.ts` eligibility requires completed state2 when a damage state
+exists. Completed legacy huts with null/absent damage state remain eligible.
+
+The existing secondary restore owner applies that same eligibility before
+paused scene reconstruction, removing the historical burning-root combination
+proved by the baseline. It introduces no checkpoint field or history. Child
+records, phases, lifetime and RNG remain with their existing owners. There is no
+renderer-only suppression, clock change, new allocator or generic ignition API.
+
+`tests/hut-smoke-ignition.test.mjs` supplies focused full/partial/missing-root,
+fire-before-retirement, blocked/protected/repeated ignition, paused historical
+restore, legacy completed/missing-owner and actual Spy command15-dispatch cases.
+The existing captured native/live comparison remains unchanged for the
+failure-first rerun. The added focused tests and runtime candidate are currently
+**unexecuted** pending dependency/resource coordination. Standard/quality gates,
+fresh independent runtime review, main adoption and ordinary Mission1 rendered
+acceptance are still required; no fix-completion or parity claim is made.

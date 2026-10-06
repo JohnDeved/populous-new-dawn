@@ -1,5 +1,5 @@
 {
-  "status": "expected-baseline-assertion-failed-awaiting-independent-result-review",
+  "status": "independently-accepted-intended-baseline-failure",
   "sourceHead": "1d62a8181432b65106fe77f77b9f48cb07d95194",
   "appCorrespondence": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
   "captureSha256": "b2e40bb1a451d87d194db4508188aa3829b256dbdd73bd101474457ad400ff51",
@@ -21,9 +21,13 @@
       "sha256": "7899f06e10c2178877573a01dedc8837c5d295eb831c1b7ac9939ed80ea2b5cf",
       "bytes": 8846
     },
+    "result-review.md": {
+      "sha256": "f2d60abbf3656eb986542045afa7384a0de2ec0af4d58981f63121b98a562aee",
+      "bytes": 2038
+    },
     "result.md": {
-      "sha256": "f509eb0f4b6438372384cf548b099fea24c3ce65b579e2f51f92dd695f951325",
-      "bytes": 4396
+      "sha256": "9f65661e836e27d83dcb1eb79a4a47c0736bc56cb9a10b3a3d8697e4ae379b08",
+      "bytes": 4485
     },
     "source-capture.mjs": {
       "sha256": "b2e40bb1a451d87d194db4508188aa3829b256dbdd73bd101474457ad400ff51",
