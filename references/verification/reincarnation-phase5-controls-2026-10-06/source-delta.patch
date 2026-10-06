@@ -1,0 +1,205 @@
+--- accepted-success/probe-draft.py
++++ proposed-controls/probe-controls-draft.py
+@@ -1,7 +1,7 @@
+-"""ONE phase5 success composition, source draft only; never executed yet.
+-
+-No import/run of the earlier 16-case fixture. No outer loop or browser caller.
+-Prepared execution requires the explicit launcher flag; no execution has occurred.
++"""Three named phase5 allocation controls, source-only and unexecuted.
++
++Success fixture is preserved separately. One named control per invocation.
++No outer loop, second visit, capacity restoration, automatic retry or browser.
+ """
+ import hashlib
+ import json
+@@ -10,7 +10,19 @@
+ from pathlib import Path
+ 
+ ROOT = Path(__file__).resolve().parents[3]
++EXECUTABLE_FREEZE = False
+ TRANSLATION_BUFFER_BYTES = 64 * 1024 * 1024
++CONTROLS = {
++    "person-failure-low-burst": {"highOccupied": 1101, "highFree": 0, "lowFree": 33,
++                                 "person": False, "root": True, "children": 32,
++                                 "gameplayAdvances": 96, "cosmeticAdvances": 32},
++    "person-success-burst-failure": {"highOccupied": 1, "highFree": 1, "lowFree": 0,
++                                     "person": True, "root": False, "children": 0,
++                                     "gameplayAdvances": 2, "cosmeticAdvances": 0},
++    "both-exhausted": {"highOccupied": 1, "highFree": 0, "lowFree": 0,
++                       "person": False, "root": False, "children": 0,
++                       "gameplayAdvances": 0, "cosmeticAdvances": 0},
++}
+ EXE_SHA = '3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f'
+ INPUTS = {
+     'mwsearch.dat': '0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0',
+@@ -39,10 +51,11 @@
+     return hashlib.sha256(data).hexdigest()
+ 
+ 
+-def prepare_one_success(exe, *, execute_reviewed=False):
+-    if not execute_reviewed:
++def prepare_one_control(exe, control_name, *, execute_reviewed=False):
++    if not EXECUTABLE_FREEZE or not execute_reviewed:
+         raise RuntimeError('Use only the reviewed, separately authorized single-run launcher')
+-    # These imports and the CPU constructor have NOT been invoked in preparation.
++    control = CONTROLS[control_name]  # Closed three-case set; no caller-supplied fixture fields.
++    # This new control source has NOT been imported or executed.
+     sys.path.insert(0, str(ROOT / 'scripts'))
+     from decomp import native_cpu, configure_native_constants
+     from unicorn import UC_HOOK_CODE, UC_HOOK_MEM_READ, UC_HOOK_MEM_WRITE, UC_MEM_WRITE
+@@ -112,18 +125,35 @@
+     assert bytes(cpu.mem_read(0x5a6830 + 3, 3)) == bytes.fromhex('080800')
+     assert bytes(cpu.mem_read(0x5a6830 + 21, 3)) == bytes.fromhex('5e2802')
+ 
+-    # One high-pool body640 and34 real free records641..674. Low pool empty.
+-    for offset in range(34):
+-        record, index = POOL + offset * 256, 641 + offset
+-        write(record, 'II', record - 256 if offset else 0,
+-              record + 256 if offset < 33 else 0)
++    # Actual primary allocator inputs. Class1 and class7 normally share the high
++    # pool. Only class7 may fall back to low when high occupancy exceeds1100.
++    # Occupied filler records are supplied inert reservations, not native history.
++    high_occupied = [640, *range(641, 640 + control['highOccupied'])]
++    high_free = list(range(640 + control['highOccupied'],
++                           640 + control['highOccupied'] + control['highFree']))
++    low_free = list(range(1, 1 + control['lowFree']))
++    pointers = {640: BODY}
++    for index in high_occupied[1:] + high_free:
++        pointers[index] = POOL + (index - 641) * 256
++    for index in low_free:
++        pointers[index] = 0x2080000 + (index - 1) * 256
++    assert max(pointers) < 2048 and len(pointers) <= 1134
++    for index, record in pointers.items():
+         write(record + 0x24, 'H', index)
+         write(TABLE + index * 4, 'I', record)
+-    write(0x89031c, 'I', POOL)
+-    write(0x890324, 'I', BODY)
+-    write(0x89c651, 'I', 1)
+-    write(TABLE + 640 * 4, 'I', BODY)
+-    write(BODY + 0x24, 'H', 640)
++    def chain(indices):
++        for offset, index in enumerate(indices):
++            write(pointers[index], 'II', pointers[indices[offset - 1]] if offset else 0,
++                  pointers[indices[offset + 1]] if offset + 1 < len(indices) else 0)
++        return pointers[indices[0]] if indices else 0
++    write(0x890324, 'I', chain(high_occupied))
++    write(0x89031c, 'I', chain(high_free))
++    write(0x890320, 'I', chain(low_free))
++    for index in high_occupied[1:]:
++        write(pointers[index] + 0x2a, 'BBB', 7, 9, 0)
++    write(0x89c651, 'I', control['highOccupied'])
++    write(0x89c659, 'I', 0)
++    write(0x89d180, 'I', control['highOccupied'])
+     write(BODY + 0x2a, 'BBBBBB', 10, 12, 12, 5, 0, 0)
+     write(BODY + 0xc, 'I', 0x40020000)
+     write(BODY + 0x35, 'H', 0x10)
+@@ -132,7 +162,11 @@
+     write(BODY + 0x74, 'BB', 7, 7)
+     write(LAND + (16 * 128 + 16) * 16 + 6, 'H', 640)
+     write(TRIBE + 0x911, 'HHh', 4096, 4096, 240)
+-    write(TRIBE + 0x91d, 'I', 1)  # Supplied surviving-population gate context.
++    write(TRIBE + 0x91d, 'I', 1)
++
++    def snapshot_records():
++        return {str(index): bytes(cpu.mem_read(record, 0xb3)).hex()
++                for index, record in pointers.items()}
+ 
+     # Supplied loaded-table boundary, derived from the exact VSTART/VFRA inputs;
+     # original file loading/rendering does not execute. Real object setters do.
+@@ -172,7 +206,7 @@
+ 
+     initial = {'ownership': ownership(),
+                'body': bytes(cpu.mem_read(BODY, 0xb3)).hex(),
+-               'pool': bytes(cpu.mem_read(POOL, 34 * 256)).hex()}
++               'suppliedRecords': snapshot_records()}
+ 
+     def on_memory(_, access, address, size, value, user):
+         eip = cpu.reg_read(UC_X86_REG_EIP)
+@@ -245,40 +279,63 @@
+                       'rawEax': cpu.reg_read(UC_X86_REG_EAX), 'ownership': ownership(),
+                       'events': events, 'directCalls': calls, 'accesses': sorted(accesses),
+                       'body': bytes(cpu.mem_read(BODY, 0xb3)).hex(),
+-                      'pool': bytes(cpu.mem_read(POOL, 34 * 256)).hex()}), flush=True)
++                      'suppliedRecords': snapshot_records()}), flush=True)
+     assert cpu.reg_read(UC_X86_REG_EIP) == STOP
+     assert cpu.reg_read(UC_X86_REG_ESP) == STACK + 4
+-    guard('after the one phase5 success call')
++    guard('after the one named phase5 control call')
+ 
+     requests = [event['request'] for event in events if 'request' in event]
+     returned = [event['return'] for event in events if 'return' in event]
+-    assert [(row['class'], row['model']) for row in requests] == [(1, 7), (7, 9)] + [(7, 3)] * 32
++    expected_requests = [(1, 7), (7, 9)] + ([(7, 3)] * 32 if control['root'] else [])
++    assert [(row['class'], row['model']) for row in requests] == expected_requests
+     assert (requests[0]['argumentStack'], requests[0]['argumentFlag']) == (ARGS + 20, 1)
+     assert (requests[1]['argumentStack'], requests[1]['argumentFlag']) == (ARGS, 0)
+-    assert len(returned) == 34 and all(row['result'] for row in returned)
+-    person = next(row['result'] for row in returned if row['class'] == 1)
+-    root = next(row['result'] for row in returned if row['model'] == 9)
+-    sparks = [row['result'] for row in returned if row['model'] == 3]
++    person_row = next(row for row in returned if row['class'] == 1)
++    root_row = next(row for row in returned if row['model'] == 9)
++    person, root = person_row['result'], root_row['result']
++    sparks = [row['result'] for row in returned if row['model'] == 3 and row['result']]
++    assert bool(person) == control['person'] and bool(root) == control['root']
++    assert len(sparks) == control['children']
++    assert (person_row['afterArgumentStack'], person_row['afterArgumentFlag']) == (ARGS, 0)
+     assert read(TRIBE + 0x89d, 'I') == person
+-    assert read(person + 0x5d, 'H') == 0
++    assert read(TRIBE + 0x91d, 'I') == 1 + int(bool(person))
+     assert next(event['rawEax'] for event in events if event.get('boundary') == '0x4da16d') == person
+-    assert read(TRIBE + 0x91d, 'I') == 2
+-    assert read(person + 0x41, 'h') == 128
+-    assert read(root + 0x41, 'h') == 330
+-    assert all(read(spark + 0x41, 'h') == 330 for spark in sparks)
+-    assert read(BODY + 0x2a, 'B') == 0 and read(0x890328, 'I') == BODY
++    if person:
++        assert read(person + 0x41, 'h') == 128 and read(person + 0x5d, 'H') == 0
++        assert read(BODY + 0x2a, 'B') == 0 and read(0x890328, 'I') == BODY
++    else:
++        assert read(BODY + 0x2a, 'B') == 10 and read(BODY + 0x2d, 'B') == 5
++        assert read(0x890328, 'I') == 0
++    if root:
++        assert read(root + 0x41, 'h') == 330
++        assert all(read(spark + 0x41, 'h') == 330 for spark in sparks)
++        assert read(root + 0x24, 'H') < 640  # The real low-pool fallback, not a fake effect pool.
+     assert read(0x892443, 'I') == ARGS and read(0x89243a, 'B') == 0
+     assert not allocation_stack
+-    assert [event['suppliedSound'] for event in events if 'suppliedSound' in event] == [[0, 107, 1]]
++    expected_sound = [[0, 107, 1]] if person else []
++    assert [event['suppliedSound'] for event in events if 'suppliedSound' in event] == expected_sound
++    successful = int(bool(person)) + int(bool(root)) + len(sparks)
++    assert read(0x89c651, 'I') == control['highOccupied'] + successful
++    assert read(0x89c659, 'I') == (33 if root else 0)
++    assert read(0x96eac2, 'B') == (250 + int(bool(person))) & 255
++    assert read(0x96eac8, 'B') == (250 + int(bool(root)) + len(sparks)) & 255
++    def advance(seed, count):
++        for _ in range(count):
++            seed = (seed * 0x24a1 + 0x24df) & 0xffffffff
++            seed = ((seed >> 13) | (seed << 19)) & 0xffffffff
++        return seed
++    assert rngs()['gameplay'] == advance(before_rngs['gameplay'], control['gameplayAdvances'])
++    assert rngs()['cosmetic'] == advance(before_rngs['cosmetic'], control['cosmeticAdvances'])
+     return {
+-        'mode': 'one fixed phase5 creation, no scheduled visits/lifetime/capacity/browser claim',
++        'mode': 'one named phase5 allocation control; no second visit/lifetime/app claim',
++        'control': control_name, 'controlInputs': control,
+         'executable': identity, 'inputs': INPUTS, 'beforeRngs': before_rngs, 'afterRngs': rngs(),
+         'translationBufferBytes': cpu.ctl_get_tcg_buffer_size(),
+         'initial': initial, 'finalOwnership': ownership(),
+         'savedSite': [4096, 4096, 240], 'currentGround': 128,
+         'events': events, 'directCalls': calls, 'accesses': sorted(accesses),
+         'records': {str(read(record + 0x24, 'H')): bytes(cpu.mem_read(record, 0xb3)).hex()
+-                    for record in [BODY, person, root, *sparks]},
++                    for record in [BODY, *[p for p in (person, root) if p], *sparks]},
+         'remainingHighFree': read(0x89031c, 'I'), 'remainingLowFree': read(0x890320, 'I'),
+         'activeHead': read(0x890324, 'I'), 'retirementHead': read(0x890328, 'I'),
+         'classSeeds': list(cpu.mem_read(0x96eac1, 12)),
+@@ -286,6 +343,4 @@
+ 
+ 
+ if __name__ == '__main__':
+-    if len(sys.argv) != 3 or sys.argv[1] != '--execute-reviewed':
+-        raise SystemExit('Usage after separate launch authorization: probe-draft.py --execute-reviewed EXE')
+-    print(json.dumps(prepare_one_success(Path(sys.argv[2]), execute_reviewed=True)), flush=True)
++    raise SystemExit('SOURCE PROPOSAL ONLY: control execution is not frozen or authorized')

@@ -1,0 +1,63 @@
+{
+  "mode": "source-only three-control proposal; no module import/native/app execution",
+  "acceptedSuccessSource": "dbec147f4aae79a40a917b195f7d8d3b58d63bf8",
+  "acceptedSuccessProbeSha256": "a37d1a93702507eca13e42b1c012cad844dc1c46adf292da8df5f63554149f56",
+  "acceptedResultPublication": "72a18e461a9c3ffaf71815e5a22afb77f549d7dc",
+  "proposedCases": {
+    "person-failure-low-burst": {
+      "highOccupied": 1101,
+      "highFree": 0,
+      "lowFree": 33,
+      "person": false,
+      "root": true,
+      "children": 32,
+      "gameplayAdvances": 96,
+      "cosmeticAdvances": 32
+    },
+    "person-success-burst-failure": {
+      "highOccupied": 1,
+      "highFree": 1,
+      "lowFree": 0,
+      "person": true,
+      "root": false,
+      "children": 0,
+      "gameplayAdvances": 2,
+      "cosmeticAdvances": 0
+    },
+    "both-exhausted": {
+      "highOccupied": 1,
+      "highFree": 0,
+      "lowFree": 0,
+      "person": false,
+      "root": false,
+      "children": 0,
+      "gameplayAdvances": 0,
+      "cosmeticAdvances": 0
+    }
+  },
+  "maximumSuppliedRecords": 1134,
+  "nativeCallsPerFutureInvocation": 1,
+  "futureInvocationsProposed": 3,
+  "checks": {
+    "astAndClosedCaseNames": "passed",
+    "singleNativeCallNoCaseRunner": "passed",
+    "recordCountsUniqueHandlesAndBounds": "passed",
+    "sameRealCallSetSoundLeafPinnedInputs": "passed",
+    "acceptedSuccessAndOldSixteenCaseUnchanged": "passed",
+    "nativeAppPackageBrowserExecution": "not-run"
+  },
+  "files": {
+    "README.md": {
+      "sha256": "c9aef4095babeefc250f9eeaa4d971d94fb00dbb06bcb2680430e3712c9d0557",
+      "bytes": 4498
+    },
+    "probe-controls-draft.py": {
+      "sha256": "0c24825af1da81e3e1def7da95b4d1bb126ab1f6b6c59f2240675545e5573264",
+      "bytes": 18703
+    },
+    "source-delta.patch": {
+      "sha256": "878dcc459df61b54725fc0296899f247e48d082d6823baf837a6ecaccd625757",
+      "bytes": 11523
+    }
+  }
+}
