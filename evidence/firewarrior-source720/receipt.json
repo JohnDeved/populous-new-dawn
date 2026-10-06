@@ -1,0 +1,61 @@
+{
+  "kind": "static-source-assets-retained-rows",
+  "sourceHead": "89e68606a406f93715b930550317519818ddc081",
+  "sourceTree": "ff777b7a230700cbcd7dce78b959943681175084",
+  "worktree": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-source720-recheck-20261006",
+  "python": "3.12.14 (main, Aug 25 2026, 14:00:49) [Clang 22.1.3 ]",
+  "finalCommand": "source ../prerequisites/env.sh && env PYTHONDONTWRITEBYTECODE=1 python evidence/firewarrior-source720/audit.py \"$POPULOUS_GAME\" > evidence/firewarrior-source720/result-04.json 2> evidence/firewarrior-source720/result-04.stderr",
+  "status": "passed",
+  "exitCode": 0,
+  "finalResult": "result-04.json",
+  "finalResultSha256": "e68584c1a35ffba2d8b707d49f335208910f2aba823a6c0345163e021badbb65",
+  "inputPreservation": "Every input digest recorded by final result was reread and matched after the run.",
+  "attempts": [
+    {
+      "result": "result-01.json",
+      "stderr": "result-01.stderr",
+      "exitCode": 127,
+      "status": "failed-before-Python",
+      "reason": "Restored environment variable names differ"
+    },
+    {
+      "result": "result-02.json",
+      "stderr": "result-02.stderr",
+      "exitCode": 1,
+      "status": "failed-proof-assertion",
+      "script": "audit-attempt-02.py.txt",
+      "reason": "Descriptor type10 incorrectly equated directly to render primitive13"
+    },
+    {
+      "result": "result-03.json",
+      "stderr": "result-03.stderr",
+      "exitCode": 0,
+      "status": "passed",
+      "script": "audit-attempt-03.py.txt",
+      "scope": "Core source/assets/rows; before additional dispatch proof"
+    },
+    {
+      "result": "result-04.json",
+      "stderr": "result-04.stderr",
+      "exitCode": 0,
+      "status": "passed",
+      "script": "audit.py",
+      "scope": "Adds actual type10 to primitive13 mapping and sampled render override predicates"
+    }
+  ],
+  "notRun": [
+    "original native emulation",
+    "original OS executable",
+    "native sprite checker",
+    "browser",
+    "full check",
+    "build",
+    "importer",
+    "asset/fixture recording"
+  ],
+  "limitedClaims": [
+    "Importer omission and original static lookup",
+    "Retained ordinary missing-artwork witness",
+    "No new elapsed timing, pixels, hardware or complete rendering claim"
+  ]
+}

@@ -1,0 +1,51 @@
+{
+  "status": "prepared-not-run-awaits-dependency-transfer",
+  "purpose": "One source-reviewed visible baseline03 witness using ordinary separation and trusted pre-held Pause release",
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89",
+  "outerReceipt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/outer.json",
+  "command": [
+    "timeout",
+    "390s",
+    "taskset",
+    "-c",
+    "0-3",
+    "env",
+    "TMPDIR=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/tmp",
+    "CLOUDFLARE_CF_FETCH_ENABLED=false",
+    "WRANGLER_SEND_METRICS=false",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/extract-browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--port",
+    "4394",
+    "--mission",
+    "10",
+    "--timeout",
+    "360000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/scenario.mjs",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/run"
+  ],
+  "inputs": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/scenario.mjs": "cd699e6dcb29c57ba09ca7381fd3eb86416d8a44e5939eec8f9fe01f5adb0102",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/observer.mjs": "fdb190a30dbd70e31c093c7cc5ee6865756c0d43a7bd7946167a6c15a2f70669",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/preflight.json": "c6b4d452ed506fc001b375fcceddc1a73f9662ba61e95ae074923fe0a13ebc7f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/pause-input.mjs": "ea87c0024e1934fefbfa7cdf22c414a5fedf620e885c5ca60823fdee6a30bb0c",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/pause-input.test.mjs": "d618c7dcd2f9a4a1191ab988af15b5aec93c76ab3a1a4a42039b8d2d2f6a85e4"
+  },
+  "dependencies": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/node_modules",
+    "device": 27,
+    "inode": 1978923,
+    "transferReceipt": "work/orchestration/dependency-transfers/firewarrior-to-baseline-20261006T0458.json",
+    "currentPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/node_modules",
+    "requiredTransfer": "Receipted rename fix-to-baseline after terminal standard gates and browser grant; no install/copy."
+  },
+  "terminalAction": "Preserve complete failure/pass receipts and raw rows; inspect before pixels and cleanup before any candidate; no automatic retry."
+}

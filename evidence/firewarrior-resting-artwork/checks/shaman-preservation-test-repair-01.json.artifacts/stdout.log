@@ -1,0 +1,18 @@
+✔ native Firewarrior resting source720 resolves its actual original frames (2.394679ms)
+✔ Shaman import preserves every prior frame, piece and animation entry (45.881038ms)
+✔ actual tribe selects every native Shaman source and eight original directions (2.581785ms)
+✔ Shaman idle artwork uses all four distinct original body pieces (0.333995ms)
+✔ reincarnation distinguishes tribe bodies from shared spirit sources and layer owners (0.284021ms)
+✔ shipped live and effect renderers consume the Shaman selector without changing generic mechanics (0.60752ms)
+✔ all 3276 previous occupied sprite rectangles retain their reviewed RGBA (477.291436ms)
+✔ real Mission 23 Shaman identity and death heading survive checkpoint reconstruction (1237.417164ms)
+✔ unit atlas retains reviewed tribe/state/direction layers when new models append (19.333869ms)
+✔ brave carry animations retain the baked timber body layer (0.424389ms)
+ℹ tests 10
+ℹ suites 0
+ℹ pass 10
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 2208.888287

@@ -1,0 +1,27 @@
+✖ native Firewarrior resting source720 resolves its actual original frames (2.669647ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 201.146393
+
+✖ failing tests:
+
+test at tests/firewarrior-resting-artwork.test.mjs:10:1
+✖ native Firewarrior resting source720 resolves its actual original frames (2.669647ms)
+  AssertionError [ERR_ASSERTION]: blue native source720 must bypass named-pose fallback
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/tests/firewarrior-resting-artwork.test.mjs:20:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: undefined,
+    expected: true,
+    operator: '==',
+    diff: 'simple'
+  }

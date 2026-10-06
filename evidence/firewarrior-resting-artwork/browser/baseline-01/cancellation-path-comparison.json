@@ -1,0 +1,884 @@
+{
+  "historical-candidate06": [
+    {
+      "line": 48,
+      "action": "initial-Move-input-and-later-owner",
+      "turn": 438,
+      "selected": [
+        176
+      ],
+      "fwId": 176,
+      "position": [
+        24.72265625,
+        -3
+      ],
+      "pose": "walk",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 0,
+        "commandStatus": 3,
+        "activeId": 35,
+        "target": 0,
+        "counter": 182,
+        "f1": 1,
+        "f2": 0,
+        "timer": 0,
+        "speed": 60,
+        "goalX": 9996,
+        "goalY": 1018,
+        "assignment": 280,
+        "guardInputPending": null
+      },
+      "order": {
+        "id": 35,
+        "model": 3,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 9996,
+        "b": 1018
+      }
+    },
+    {
+      "line": 53,
+      "action": "key-g",
+      "turn": 490,
+      "selected": [
+        176
+      ],
+      "fwId": 176,
+      "position": [
+        31,
+        -11
+      ],
+      "pose": "selected",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 48,
+        "draw": 18,
+        "state": 19,
+        "substate": 4,
+        "commandStatus": 0,
+        "activeId": 0,
+        "target": 0,
+        "counter": 234,
+        "f1": 0,
+        "f2": 1,
+        "timer": 4,
+        "speed": 0,
+        "goalX": 9984,
+        "goalY": 768,
+        "assignment": 281,
+        "guardInputPending": null
+      },
+      "order": null
+    },
+    {
+      "line": 54,
+      "action": "key-g-observed",
+      "turn": 494,
+      "selected": [
+        176
+      ],
+      "fwId": 176,
+      "position": [
+        31.33984375,
+        -10.75
+      ],
+      "pose": "walk",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 1,
+        "commandStatus": 30,
+        "activeId": 36,
+        "target": 63,
+        "counter": 238,
+        "f1": 1,
+        "f2": 0,
+        "timer": 0,
+        "speed": 58,
+        "goalX": 9472,
+        "goalY": 64768,
+        "assignment": 272,
+        "guardInputPending": null
+      },
+      "order": {
+        "id": 36,
+        "model": 30,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 63,
+        "b": 0
+      }
+    },
+    {
+      "line": 71,
+      "action": "key-g",
+      "turn": 636,
+      "selected": [
+        176
+      ],
+      "fwId": 176,
+      "position": [
+        29.29296875,
+        -5.16796875
+      ],
+      "pose": "walk",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 1,
+        "commandStatus": 30,
+        "activeId": 36,
+        "target": 63,
+        "counter": 124,
+        "f1": 1,
+        "f2": 3,
+        "timer": 0,
+        "speed": 58,
+        "goalX": 9472,
+        "goalY": 64768,
+        "assignment": 272,
+        "guardInputPending": null
+      },
+      "order": {
+        "id": 36,
+        "model": 30,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 63,
+        "b": 0
+      }
+    },
+    {
+      "line": 72,
+      "action": "key-g-observed",
+      "turn": 640,
+      "selected": [
+        176
+      ],
+      "fwId": 176,
+      "position": [
+        28.85546875,
+        -4.7265625
+      ],
+      "pose": "walk",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 1,
+        "commandStatus": 30,
+        "activeId": 38,
+        "target": 63,
+        "counter": 128,
+        "f1": 1,
+        "f2": 1,
+        "timer": 0,
+        "speed": 58,
+        "goalX": 9472,
+        "goalY": 64768,
+        "assignment": 272,
+        "guardInputPending": null
+      },
+      "order": {
+        "id": 38,
+        "model": 30,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 63,
+        "b": 0
+      }
+    },
+    {
+      "line": 80,
+      "action": "key-g",
+      "turn": 717,
+      "selected": [],
+      "fwId": 176,
+      "position": [
+        29.046875,
+        -5.23828125
+      ],
+      "pose": "walk",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 1,
+        "commandStatus": 30,
+        "activeId": 38,
+        "target": 63,
+        "counter": 205,
+        "f1": 0,
+        "f2": 3,
+        "timer": 0,
+        "speed": 58,
+        "goalX": 9472,
+        "goalY": 64768,
+        "assignment": 272,
+        "guardInputPending": null
+      },
+      "order": {
+        "id": 38,
+        "model": 30,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 63,
+        "b": 0
+      }
+    },
+    {
+      "line": 81,
+      "action": "key-g-observed",
+      "turn": 720,
+      "selected": [],
+      "fwId": 176,
+      "position": [
+        28.859375,
+        -4.7109375
+      ],
+      "pose": "idle",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 19,
+        "substate": 2,
+        "commandStatus": 0,
+        "activeId": 0,
+        "target": 63,
+        "counter": 208,
+        "f1": 1,
+        "f2": 2,
+        "timer": 0,
+        "speed": 61,
+        "goalX": 9472,
+        "goalY": 64768,
+        "assignment": 273,
+        "guardInputPending": null
+      },
+      "order": null
+    },
+    {
+      "line": 89,
+      "action": "key-g",
+      "turn": 797,
+      "selected": [
+        176
+      ],
+      "fwId": 176,
+      "position": [
+        29,
+        -5
+      ],
+      "pose": "selected",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 48,
+        "draw": 18,
+        "state": 19,
+        "substate": 5,
+        "commandStatus": 0,
+        "activeId": 0,
+        "target": 63,
+        "counter": 29,
+        "f1": 1,
+        "f2": 0,
+        "timer": 0,
+        "speed": 0,
+        "goalX": 9472,
+        "goalY": 64768,
+        "assignment": 273,
+        "guardInputPending": null
+      },
+      "order": null
+    },
+    {
+      "line": 90,
+      "action": "key-g-observed",
+      "turn": 800,
+      "selected": [
+        176
+      ],
+      "fwId": 176,
+      "position": [
+        29,
+        -5
+      ],
+      "pose": "selected",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 1,
+        "commandStatus": 30,
+        "activeId": 40,
+        "target": 63,
+        "counter": 32,
+        "f1": 0,
+        "f2": 1,
+        "timer": 0,
+        "speed": 65,
+        "goalX": 9472,
+        "goalY": 64768,
+        "assignment": 272,
+        "guardInputPending": null
+      },
+      "order": {
+        "id": 40,
+        "model": 30,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 63,
+        "b": 0
+      }
+    },
+    {
+      "line": 97,
+      "action": "key-g",
+      "turn": 872,
+      "selected": [
+        63
+      ],
+      "fwId": 176,
+      "position": [
+        29,
+        -5
+      ],
+      "pose": "idle",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 1,
+        "commandStatus": 30,
+        "activeId": 40,
+        "target": 63,
+        "counter": 104,
+        "f1": 0,
+        "f2": 1,
+        "timer": 0,
+        "speed": 65,
+        "goalX": 9472,
+        "goalY": 64768,
+        "assignment": 272,
+        "guardInputPending": null
+      },
+      "order": {
+        "id": 40,
+        "model": 30,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 63,
+        "b": 0
+      }
+    },
+    {
+      "line": 98,
+      "action": "key-g-observed",
+      "turn": 875,
+      "selected": [
+        63
+      ],
+      "fwId": 176,
+      "position": [
+        28.7421875,
+        -4.91015625
+      ],
+      "pose": "idle",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 19,
+        "substate": 2,
+        "commandStatus": 0,
+        "activeId": 0,
+        "target": 63,
+        "counter": 107,
+        "f1": 1,
+        "f2": 0,
+        "timer": 0,
+        "speed": 59,
+        "goalX": 9472,
+        "goalY": 64768,
+        "assignment": 273,
+        "guardInputPending": null
+      },
+      "order": null
+    },
+    {
+      "line": 108,
+      "action": "key-g",
+      "turn": 922,
+      "selected": [
+        176
+      ],
+      "fwId": 176,
+      "position": [
+        29,
+        -5
+      ],
+      "pose": "selected",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 48,
+        "draw": 18,
+        "state": 19,
+        "substate": 5,
+        "commandStatus": 0,
+        "activeId": 0,
+        "target": 63,
+        "counter": 154,
+        "f1": 1,
+        "f2": 1,
+        "timer": 0,
+        "speed": 0,
+        "goalX": 9472,
+        "goalY": 64768,
+        "assignment": 273,
+        "guardInputPending": null
+      },
+      "order": null
+    },
+    {
+      "line": 109,
+      "action": "key-g-observed",
+      "turn": 925,
+      "selected": [
+        176
+      ],
+      "fwId": 176,
+      "position": [
+        29,
+        -5
+      ],
+      "pose": "selected",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 1,
+        "commandStatus": 30,
+        "activeId": 44,
+        "target": 63,
+        "counter": 157,
+        "f1": 0,
+        "f2": 2,
+        "timer": 0,
+        "speed": 58,
+        "goalX": 9472,
+        "goalY": 64768,
+        "assignment": 272,
+        "guardInputPending": null
+      },
+      "order": {
+        "id": 44,
+        "model": 30,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 63,
+        "b": 0
+      }
+    },
+    {
+      "line": 148,
+      "action": "key-g",
+      "turn": 1196,
+      "selected": [
+        176
+      ],
+      "fwId": 176,
+      "position": [
+        25.359375,
+        -1.640625
+      ],
+      "pose": "walk",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 1,
+        "commandStatus": 30,
+        "activeId": 44,
+        "target": 63,
+        "counter": 172,
+        "f1": 1,
+        "f2": 2,
+        "timer": 0,
+        "speed": 58,
+        "goalX": 8518,
+        "goalY": 63837,
+        "assignment": 272,
+        "guardInputPending": null
+      },
+      "order": {
+        "id": 44,
+        "model": 30,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 63,
+        "b": 0
+      }
+    },
+    {
+      "line": 149,
+      "action": "key-g-observed",
+      "turn": 1196,
+      "selected": [
+        176
+      ],
+      "fwId": 176,
+      "position": [
+        25.359375,
+        -1.640625
+      ],
+      "pose": "walk",
+      "sourceIdentity": 69,
+      "nativeIdentity": 69,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 1,
+        "commandStatus": 0,
+        "activeId": 53,
+        "target": 63,
+        "counter": 172,
+        "f1": 1,
+        "f2": 2,
+        "timer": 0,
+        "speed": 58,
+        "goalX": 8518,
+        "goalY": 63837,
+        "assignment": 272,
+        "guardInputPending": true
+      },
+      "order": {
+        "id": 53,
+        "model": 30,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 63,
+        "b": 0
+      }
+    },
+    {
+      "line": 176,
+      "action": "key-g",
+      "turn": 1325,
+      "selected": [],
+      "fwId": 176,
+      "position": [
+        25.49609375,
+        -1.4453125
+      ],
+      "pose": "walk",
+      "sourceIdentity": 83,
+      "nativeIdentity": 83,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 1,
+        "commandStatus": 30,
+        "activeId": 53,
+        "target": 63,
+        "counter": 45,
+        "f1": 1,
+        "f2": 3,
+        "timer": 0,
+        "speed": 62,
+        "goalX": 8518,
+        "goalY": 63837,
+        "assignment": 272,
+        "guardInputPending": null
+      },
+      "order": {
+        "id": 53,
+        "model": 30,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 63,
+        "b": 0
+      }
+    },
+    {
+      "line": 177,
+      "action": "key-g-observed",
+      "turn": 1325,
+      "selected": [],
+      "fwId": 176,
+      "position": [
+        25.49609375,
+        -1.4453125
+      ],
+      "pose": "walk",
+      "sourceIdentity": 83,
+      "nativeIdentity": 83,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 1,
+        "commandStatus": 0,
+        "activeId": 0,
+        "target": 63,
+        "counter": 45,
+        "f1": 1,
+        "f2": 3,
+        "timer": 0,
+        "speed": 62,
+        "goalX": 8518,
+        "goalY": 63837,
+        "assignment": 272,
+        "guardInputPending": true
+      },
+      "order": null
+    }
+  ],
+  "new-baseline01": [
+    {
+      "line": 48,
+      "action": "initial-Move-input-and-later-owner",
+      "turn": 492,
+      "selected": [
+        178
+      ],
+      "fwId": 178,
+      "position": [
+        24.7890625,
+        -3.328125
+      ],
+      "pose": "walk",
+      "sourceIdentity": 70,
+      "nativeIdentity": 70,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 0,
+        "commandStatus": 3,
+        "activeId": 35,
+        "target": 0,
+        "counter": 236,
+        "f1": 0,
+        "f2": 1,
+        "timer": 0,
+        "speed": 58,
+        "goalX": 9996,
+        "goalY": 1018,
+        "assignment": 280,
+        "guardInputPending": null
+      },
+      "order": {
+        "id": 35,
+        "model": 3,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 9996,
+        "b": 1018
+      }
+    },
+    {
+      "line": 53,
+      "action": "key-g",
+      "turn": 495,
+      "selected": [
+        178
+      ],
+      "fwId": 178,
+      "position": [
+        25.421875,
+        -3.22265625
+      ],
+      "pose": "walk",
+      "sourceIdentity": 70,
+      "nativeIdentity": 70,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 0,
+        "commandStatus": 3,
+        "activeId": 35,
+        "target": 0,
+        "counter": 239,
+        "f1": 1,
+        "f2": 3,
+        "timer": 0,
+        "speed": 58,
+        "goalX": 9996,
+        "goalY": 1018,
+        "assignment": 280,
+        "guardInputPending": null
+      },
+      "order": {
+        "id": 35,
+        "model": 3,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 9996,
+        "b": 1018
+      }
+    },
+    {
+      "line": 54,
+      "action": "key-g-observed",
+      "turn": 500,
+      "selected": [
+        178
+      ],
+      "fwId": 178,
+      "position": [
+        26.375,
+        -3.33984375
+      ],
+      "pose": "walk",
+      "sourceIdentity": 70,
+      "nativeIdentity": 70,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 1,
+        "commandStatus": 30,
+        "activeId": 36,
+        "target": 63,
+        "counter": 244,
+        "f1": 1,
+        "f2": 2,
+        "timer": 0,
+        "speed": 60,
+        "goalX": 9472,
+        "goalY": 64768,
+        "assignment": 272,
+        "guardInputPending": null
+      },
+      "order": {
+        "id": 36,
+        "model": 30,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 63,
+        "b": 0
+      }
+    },
+    {
+      "line": 57,
+      "action": "key-g",
+      "turn": 514,
+      "selected": [],
+      "fwId": 178,
+      "position": [
+        28.8515625,
+        -4.90234375
+      ],
+      "pose": "walk",
+      "sourceIdentity": 70,
+      "nativeIdentity": 70,
+      "native": {
+        "object": 40,
+        "draw": 18,
+        "state": 10,
+        "substate": 1,
+        "commandStatus": 30,
+        "activeId": 36,
+        "target": 63,
+        "counter": 2,
+        "f1": 1,
+        "f2": 1,
+        "timer": 0,
+        "speed": 60,
+        "goalX": 9472,
+        "goalY": 64768,
+        "assignment": 272,
+        "guardInputPending": null
+      },
+      "order": {
+        "id": 36,
+        "model": 30,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 63,
+        "b": 0
+      }
+    },
+    {
+      "line": 58,
+      "action": "key-g-observed",
+      "turn": 519,
+      "selected": [],
+      "fwId": 178,
+      "position": [
+        29,
+        -5
+      ],
+      "pose": "idle",
+      "sourceIdentity": 70,
+      "nativeIdentity": 70,
+      "native": {
+        "object": 48,
+        "draw": 18,
+        "state": 19,
+        "substate": 4,
+        "commandStatus": 0,
+        "activeId": 0,
+        "target": 63,
+        "counter": 7,
+        "f1": 0,
+        "f2": 4,
+        "timer": 8,
+        "speed": 0,
+        "goalX": 9472,
+        "goalY": 64768,
+        "assignment": 273,
+        "guardInputPending": null
+      },
+      "order": null
+    }
+  ]
+}

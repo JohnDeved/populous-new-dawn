@@ -1,0 +1,123 @@
+{
+  "scope": "Static loader flag normalization; no original loader/render execution or runtime fix",
+  "executableSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "span": {
+    "start": "0x42c5b7",
+    "stop": "0x42c5e3",
+    "sha256": "b875c7c66aeebf532c2fd131971321e45a40e87853ec75bf84bbc2d0b975a7a8",
+    "instructions": [
+      {
+        "address": "0x42c5b7",
+        "bytes": "668b4606",
+        "mnemonic": "mov",
+        "operands": "ax, word ptr [esi + 6]"
+      },
+      {
+        "address": "0x42c5bb",
+        "bytes": "0fb7c8",
+        "mnemonic": "movzx",
+        "operands": "ecx, ax"
+      },
+      {
+        "address": "0x42c5be",
+        "bytes": "6625f0ff",
+        "mnemonic": "and",
+        "operands": "ax, 0xfff0"
+      },
+      {
+        "address": "0x42c5c2",
+        "bytes": "f6c101",
+        "mnemonic": "test",
+        "operands": "cl, 1"
+      },
+      {
+        "address": "0x42c5c5",
+        "bytes": "66894606",
+        "mnemonic": "mov",
+        "operands": "word ptr [esi + 6], ax"
+      },
+      {
+        "address": "0x42c5c9",
+        "bytes": "7406",
+        "mnemonic": "je",
+        "operands": "0x42c5d1"
+      },
+      {
+        "address": "0x42c5cb",
+        "bytes": "0c01",
+        "mnemonic": "or",
+        "operands": "al, 1"
+      },
+      {
+        "address": "0x42c5cd",
+        "bytes": "66894606",
+        "mnemonic": "mov",
+        "operands": "word ptr [esi + 6], ax"
+      },
+      {
+        "address": "0x42c5d1",
+        "bytes": "f6c102",
+        "mnemonic": "test",
+        "operands": "cl, 2"
+      },
+      {
+        "address": "0x42c5d4",
+        "bytes": "7404",
+        "mnemonic": "je",
+        "operands": "0x42c5da"
+      },
+      {
+        "address": "0x42c5d6",
+        "bytes": "804e0602",
+        "mnemonic": "or",
+        "operands": "byte ptr [esi + 6], 2"
+      },
+      {
+        "address": "0x42c5da",
+        "bytes": "f6c104",
+        "mnemonic": "test",
+        "operands": "cl, 4"
+      },
+      {
+        "address": "0x42c5dd",
+        "bytes": "7404",
+        "mnemonic": "je",
+        "operands": "0x42c5e3"
+      },
+      {
+        "address": "0x42c5df",
+        "bytes": "804e0608",
+        "mnemonic": "or",
+        "operands": "byte ptr [esi + 6], 8"
+      }
+    ]
+  },
+  "formula": "loaded = (raw & 0xfff0) | (raw & 3) | ((raw & 4) << 1)",
+  "source720RawLowFlags": [
+    0,
+    4
+  ],
+  "rawBit4LayerOccurrences": 70,
+  "bluePerson2Variant1AdmittedBit4Occurrences": 70,
+  "bit4Pieces": [
+    22
+  ],
+  "bit4TypeChoices": [
+    [
+      0,
+      1
+    ]
+  ],
+  "sourceHashes": {
+    "scripts/import-original.py": "c85ae306c3021815ac3f727b23f6d9edca2eed579ebc434fbb831ab69d48f9c8",
+    "scripts/check-native-sprite-layers.py": "4f63b9a23d1570d4807032ff98f4df81e27f0571f39e026e37b8af0777f2b278",
+    "app/sprite-layers.ts": "5ceb5fddb5703198df08b83fc567b1cd8fc48c292749bf73101ba0032e680ecd",
+    "app/scene-entities.ts": "cc7cb79c9e92e5b0cb283f745dadec503d8246ab3936b054313d577b97f2c4f4"
+  },
+  "currentBoundary": {
+    "importer": "frame_layers/raw_layers stores raw VELE flags in runtime metadata",
+    "checker": "copies raw VELE bytes and adjusts HSPR reference scaling; does not normalize low flag bits",
+    "runtime": "spriteLayers derives draw.flags from raw low nibble; scene-entities uses draw.flags bit1 for mirroring and its independent drawFlags for material transparency",
+    "limit": "Geometry, layer selection and RGBA preservation are separate from native raster-flag semantics. No new semantic mapping is inferred."
+  }
+}

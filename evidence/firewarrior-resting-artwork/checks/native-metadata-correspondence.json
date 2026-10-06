@@ -1,0 +1,11 @@
+{
+  "nativeHead": "bfdce034117e2f4d86c86c97fa4d3c06df4b3e65",
+  "currentHead": "a577e3635e303e5026a4a576963d135f9b1641d4",
+  "onlyChangedPaths": [
+    "engineering/project-map.json"
+  ],
+  "checkerSha256": "95ce087acbcf76f2b54513c6d10e746ee0349ec25362bb2bcabbf9afcb9b9548",
+  "nativeRawSha256": "cf258351eb7bbf12b92f7cf76c1cf0804d6a38a004533ad1e2f6d39a1f9d5abe",
+  "nativeInputHashesUnchanged": true,
+  "status": "passed-metadata-only-correspondence"
+}

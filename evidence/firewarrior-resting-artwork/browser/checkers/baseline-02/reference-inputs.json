@@ -1,0 +1,17 @@
+{
+  "commit": "b49b0f42ff8641db4b5d90f05df726c7aaa9a326",
+  "prefix": "evidence/native-shaman-guard-input/candidate06-provenance/revision-08/",
+  "files": {
+    "accepted-input.mjs": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+    "browser-probes.mjs": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+    "entry-identity.mjs": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+    "ground-and-dispatch.mjs": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7",
+    "input-boundary.mjs": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+    "observer.mjs": "98bc28e08c1cc035765686a4b61c5cb9cd1ecde5fcea134ea26474899abdc82c",
+    "ordinary-input.mjs": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+    "guard-assertions.mjs": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+    "mission10-construction.json": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+    "event-deadlines.mjs": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7",
+    "reference-scenario.mjs.txt": "198073123b03c51f92a18ce0b2b18c23117bccee6b59ad97d743f89fbefd5279"
+  }
+}

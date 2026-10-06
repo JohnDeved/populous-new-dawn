@@ -1,0 +1,941 @@
+{
+  "testedProductionHead": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+  "reviewSha256": "ce2e8d408377e4a8d16665bcd8e2d7a68c21e74ea347648b728b2ca1bcc3f06b",
+  "files": [
+    {
+      "path": "evidence/firewarrior-resting-artwork/README.md",
+      "bytes": 7411,
+      "sha256": "fd1999ed4390e37ca89dccb2e90c63bf0fa424b203766ed2b5e9ec85c4fccf2e"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/artifact-index.json",
+      "bytes": 82710,
+      "sha256": "9e93b3e50314e66d10b197424c2289b33bf57fcc0be274bf9e694163ae1c28d4"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-01/cancellation-path-comparison.json",
+      "bytes": 17417,
+      "sha256": "e07e0b433e6d0ae3b8c60f7636df1f4bed36f714614c916a0dff8f14b3946c2a"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-01/failure-analysis-01.json",
+      "bytes": 116162,
+      "sha256": "70283dd6f8fcde5f12ddc7253edc03950be9aaca81edebd98eb1255e8ec8e14c"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-01/outer.json",
+      "bytes": 4665,
+      "sha256": "08ade566258831852da5a5d8bab1a37fe60535d2a690af227892bf3eab6d45e0"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-01/outer.json.artifacts/stderr.log",
+      "bytes": 998,
+      "sha256": "14cc28da8cfed164ad1822870e442369ecccb2498f2df3bea12f38ad2b3cee7d"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-01/outer.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-01/raw-phase-diagnosis.json",
+      "bytes": 17557,
+      "sha256": "fb81858700107c2e0371be1631f2581eceab111371ea49fcf5b961e6d7a176eb"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-01/run/actions.jsonl.gz",
+      "bytes": 38059,
+      "sha256": "1ec7219e239eeb70ffef346e1307b775f56e8d24879830cdb9062e57337dab16"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-01/run/epoch-0-rows.jsonl.gz",
+      "bytes": 263280,
+      "sha256": "9a8cf8110c90711cfd54480b8bf943f384d3b5d1b5b63bfcb399a62dd430db11"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-01/run/failure-0.png",
+      "bytes": 1882322,
+      "sha256": "ef4e8d7f270fddaf2dbab4dfe8fc0e0bced17f6db4718ab899138ac5e4156aec"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-01/run/receipt.json",
+      "bytes": 2947,
+      "sha256": "1b9bc22d17beb9d572ffd4628ffc851d2e0c4bc4664e5852b2a6fc233e6eae15"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-01/run/server.log",
+      "bytes": 702,
+      "sha256": "b6e098863dc7ae861e63cc42678dd2bfdaa28e105eacf6a80703816dfc6540f8"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-01/run/training-hut-target.png",
+      "bytes": 1902814,
+      "sha256": "2f12159adb80a64b5e219acabc3762387412c27319c9852bab8fc1c320d227de"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-01/run/witness.json",
+      "bytes": 194500,
+      "sha256": "f9e2541722e30b3568b56d3ba022c2aec0c445ea922fc2dac356d60c0ac779e3"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/failure-analysis-02.json",
+      "bytes": 11981,
+      "sha256": "d556dcef3eb0a2e49234959dc9e9eef299b0b176f9cd2602b6639e2cefaa56cc"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/outer.json",
+      "bytes": 6203,
+      "sha256": "68a6af6167cc5034dc6d8a99a4555b83a8b7164d665b9e2e97b6683b755f9ed6"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/outer.json.artifacts/stderr.log",
+      "bytes": 1014,
+      "sha256": "e204b42b867d7fdd18f9354be07ca6be59b7ba87b74cb5d202c734c8f41244da"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/outer.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/run/actions.jsonl.gz",
+      "bytes": 45747,
+      "sha256": "f3fa5b145bb4407d80bb18895f2b9762e48e6f0f1457344e7a7f87ce2a895d11"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/run/epoch-0-rows.jsonl.gz",
+      "bytes": 163899,
+      "sha256": "9d19982a952c84f140fb5edb49cd154d9637f2e0f6359ba3bef9c86edab88176"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/run/failure-0.png",
+      "bytes": 1796149,
+      "sha256": "ca08334aa2e8f72b52e2d66fd60d12230bb1dcbc0e508e8c614e049925331087"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/run/guard-deselected.png",
+      "bytes": 1875651,
+      "sha256": "76a5db15fa040c047fee20d559c052f0e5405040c05188c4bbf64a17308fd15f"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/run/guard-empty-cancelled.png",
+      "bytes": 1865712,
+      "sha256": "39b613e6ce70b6916aab844efd69017c0afb6f554abcb2e6388af559a9106956"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/run/guard-first-G-adopted.png",
+      "bytes": 1884741,
+      "sha256": "09aa6606114b7b820b3c210baebc636af88abdf0016e3aa6a76e39c490cdc849"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/run/guard-repeat-G-adopted.png",
+      "bytes": 1869552,
+      "sha256": "eb246524136c75db12b4f02602ad51c26b1dd7d2ce8357239985acebe0df6334"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/run/receipt.json",
+      "bytes": 2963,
+      "sha256": "23824b9c4a0c2682b33a6ab7cf47d91141b64eaad1603c2fb0ca23d396d9204a"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/run/server.log",
+      "bytes": 578,
+      "sha256": "d95529c66362e6a8921b00d54e3f6962b08f18abb639d183885e053d4fb60e2f"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/run/training-hut-target.png",
+      "bytes": 1901057,
+      "sha256": "e29ab1a8aa5937ab12265ef55a74ee03c208497b4bdfc2ab181cad42cd7607fd"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-02/run/witness.json",
+      "bytes": 186791,
+      "sha256": "76d692447d4bd77567ebf2b7bd6749f5c19878038a2ce0e2c3f203fa081744e7"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/outer.json",
+      "bytes": 127371,
+      "sha256": "fa6de7d24bbdd64511e437745b18d4cb771eacd2f6e559ba4b8efa7bc20f2a4c"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/outer.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/outer.json.artifacts/stdout.log",
+      "bytes": 106450,
+      "sha256": "e200d4b7f0a8fd454bd9708088e71baeeab851d5cb392c36bef37d8a09707d3f"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/run/actions.jsonl.gz",
+      "bytes": 58881,
+      "sha256": "bb07c53c2f4f1abd19dcbe3ebf37c36019720f9c729ee7ea62de78f0046842c2"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/run/epoch-0-rows.jsonl.gz",
+      "bytes": 211082,
+      "sha256": "9240f3df2cd6b281a45268b82ef2eab696d7b5c38d6c835af8745b17765ed50f"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/run/guard-deselected.png",
+      "bytes": 1871877,
+      "sha256": "f28c9c4e4058593507c9ec04c6710bf82456be8daf01455d47abedad07312d3d"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/run/guard-empty-cancelled.png",
+      "bytes": 1867496,
+      "sha256": "6d6adc7465d272734245f2e57ed1c410da7555414ac6ce650a0a4adadf2e3435"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/run/guard-first-G-adopted.png",
+      "bytes": 1882250,
+      "sha256": "9bc442b7ad23ff55b8bb30a55db35aedcd638a70b7c2a0c9957a49c8dedaf5ae"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/run/guard-repeat-G-adopted.png",
+      "bytes": 1865711,
+      "sha256": "be303199c0653d0c41aeea6549a6487cedaeeb930381012344b02fa46f08c612"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/run/natural-source720-idle.png",
+      "bytes": 1621780,
+      "sha256": "dcd5f566c9d617995d2795dbd373f9c1e65b34b7d8d0e135d2312e59985f2db0"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/run/natural-source720-selected.png",
+      "bytes": 1618945,
+      "sha256": "838b2acdee04925759de3e3a41ebf23dbc44ae40a752bd31481d0c317d04155f"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/run/receipt.json",
+      "bytes": 263002,
+      "sha256": "99a51cf8e4eba34e0809d9de6cd12865a3d0a8dc1422150642376d222e0ec1b4"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/run/server.log",
+      "bytes": 576,
+      "sha256": "394ea73455939537a66a0f277c7ae34e75b48d5a62222dec6ff7ebd4127b941c"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/run/training-hut-target.png",
+      "bytes": 1901911,
+      "sha256": "d3c76f7589def140bf6796f25b984420ebd43bcb567e9618479958d7e7e30055"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/baseline-03/run/witness.json",
+      "bytes": 268659,
+      "sha256": "67fb007e007ff5020bd79d46554e03a14033edadb89280bf98d8bc90d5387cdc"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/outer.json",
+      "bytes": 130794,
+      "sha256": "774a618acac551a19c7e28b98ee4d3c24e0485d38dd42e4c5065156397867382"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/outer.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/outer.json.artifacts/stdout.log",
+      "bytes": 109365,
+      "sha256": "6121c5962d008e3a39e479a93172e9c3b61a18844cf36c6efe79df52cb31d5a2"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/run/actions.jsonl.gz",
+      "bytes": 59415,
+      "sha256": "a8f49354d6f3a4364fc7fe79023ab106b9ad455ab17292b7932b1f438292a150"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/run/epoch-0-rows.jsonl.gz",
+      "bytes": 279637,
+      "sha256": "49d056e0f34acadc70098d0165073f3c9e7c05afbf3a6da6f7a9e52f66761dd9"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/run/guard-deselected.png",
+      "bytes": 1872268,
+      "sha256": "95558c9ecb2a722161536ae5c6e9a8a9ea5f375a32f551a5bfd8e0b64548b681"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/run/guard-empty-cancelled.png",
+      "bytes": 1866976,
+      "sha256": "60424ea4655e993b5cd7d57efbb554d7173fc541d384771d78383dd50a8c223e"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/run/guard-first-G-adopted.png",
+      "bytes": 1883670,
+      "sha256": "a3dd2a9e82df7fdd51cccf8faa8af0544b471256adb1cb0c1b7a1f45a2553746"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/run/guard-repeat-G-adopted.png",
+      "bytes": 1867720,
+      "sha256": "cbd3b3d01ed320f1ef4de5f90b1a1160cf9c29f69b5f2dd2f5b65ecf1c081648"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/run/natural-source720-idle.png",
+      "bytes": 1612474,
+      "sha256": "4720623469345d066374ef269d9f0d94bfcf8dafc136b111dbf2cc45898e04f9"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/run/natural-source720-selected.png",
+      "bytes": 1614483,
+      "sha256": "fdbad549f6dec3d3b719552eaa4ee18fb5be97c9e2ced80da2b0905dab0b14fe"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/run/receipt.json",
+      "bytes": 267984,
+      "sha256": "78abd74662a28b3e32cf4b5bf54b1d7eaa8c562dd29e1b7e25352e5e04bf4f77"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/run/server.log",
+      "bytes": 952,
+      "sha256": "930c4f6baf92a16e606d02b715534584744c50fc7f516570e48f6c3395fe9471"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/run/training-hut-target.png",
+      "bytes": 1901560,
+      "sha256": "575fc072aa26c8674788cdd88828f790cc01c619a4f0ec670e7d49ac8f6df0e2"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/run/witness.json",
+      "bytes": 273745,
+      "sha256": "472e4edc37e746cb967adcdd7f50f20182009015b7f1651d9760dad247294988"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/candidate-01/terminal-cleanup-observation.json",
+      "bytes": 1225,
+      "sha256": "3d3894695d2d4ec6e34fc0c9437e8f3bb9857253f99c512e566bf33403211b04"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/accepted-input.mjs",
+      "bytes": 2669,
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/browser-probes.mjs",
+      "bytes": 10184,
+      "sha256": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/entry-identity.mjs",
+      "bytes": 4037,
+      "sha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/event-deadlines.mjs",
+      "bytes": 983,
+      "sha256": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/gesture-progress.mjs",
+      "bytes": 516,
+      "sha256": "d3c8017f1c03427ee43474c9f645ae1297dee0a4224efcdbb7991eeeb9e1ae4f"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/gesture-progress.test.mjs",
+      "bytes": 989,
+      "sha256": "4036ab35628370fd61b40f095718604f29ddf234505129e11bae2d9a2b488f53"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/ground-and-dispatch.mjs",
+      "bytes": 9833,
+      "sha256": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/guard-assertions.mjs",
+      "bytes": 5929,
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/input-boundary.mjs",
+      "bytes": 5075,
+      "sha256": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/mission10-construction.json",
+      "bytes": 3768,
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/observer.mjs",
+      "bytes": 14084,
+      "sha256": "fdb190a30dbd70e31c093c7cc5ee6865756c0d43a7bd7946167a6c15a2f70669"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/ordinary-input.mjs",
+      "bytes": 9677,
+      "sha256": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/pause-input.mjs",
+      "bytes": 3108,
+      "sha256": "ea87c0024e1934fefbfa7cdf22c414a5fedf620e885c5ca60823fdee6a30bb0c"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/pause-input.test.mjs",
+      "bytes": 1950,
+      "sha256": "d618c7dcd2f9a4a1191ab988af15b5aec93c76ab3a1a4a42039b8d2d2f6a85e4"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/preflight.json",
+      "bytes": 8754,
+      "sha256": "c6b4d452ed506fc001b375fcceddc1a73f9662ba61e95ae074923fe0a13ebc7f"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/reference-inputs.json",
+      "bytes": 1215,
+      "sha256": "0ce920931c2976013d6678489112c63ba2ffa6c832c44029130b5579df5d5e6c"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/reference-scenario.mjs.txt",
+      "bytes": 30017,
+      "sha256": "198073123b03c51f92a18ce0b2b18c23117bccee6b59ad97d743f89fbefd5279"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/accepted/scenario.mjs",
+      "bytes": 32561,
+      "sha256": "cd699e6dcb29c57ba09ca7381fd3eb86416d8a44e5939eec8f9fe01f5adb0102"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/accepted-input.mjs",
+      "bytes": 2669,
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/browser-probes.mjs",
+      "bytes": 10184,
+      "sha256": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/entry-identity.mjs",
+      "bytes": 4037,
+      "sha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/event-deadlines.mjs",
+      "bytes": 983,
+      "sha256": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/gesture-progress.mjs",
+      "bytes": 516,
+      "sha256": "d3c8017f1c03427ee43474c9f645ae1297dee0a4224efcdbb7991eeeb9e1ae4f"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/gesture-progress.test.mjs",
+      "bytes": 989,
+      "sha256": "4036ab35628370fd61b40f095718604f29ddf234505129e11bae2d9a2b488f53"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/ground-and-dispatch.mjs",
+      "bytes": 9833,
+      "sha256": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/guard-assertions.mjs",
+      "bytes": 5929,
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/input-boundary.mjs",
+      "bytes": 5075,
+      "sha256": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/mission10-construction.json",
+      "bytes": 3768,
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/observer.mjs",
+      "bytes": 14058,
+      "sha256": "98bc28e08c1cc035765686a4b61c5cb9cd1ecde5fcea134ea26474899abdc82c"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/ordinary-input.mjs",
+      "bytes": 9677,
+      "sha256": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/preflight.json",
+      "bytes": 5794,
+      "sha256": "56aff8d41f262344acbb0009fe16a1cf992ae09f16d76a69c9fa223e671a9adb"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/reference-inputs.json",
+      "bytes": 1215,
+      "sha256": "0ce920931c2976013d6678489112c63ba2ffa6c832c44029130b5579df5d5e6c"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/reference-scenario.mjs.txt",
+      "bytes": 30017,
+      "sha256": "198073123b03c51f92a18ce0b2b18c23117bccee6b59ad97d743f89fbefd5279"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-01/scenario.mjs",
+      "bytes": 26915,
+      "sha256": "6a374a5a2a1178638638365e8611241c0678bf440316828b2a78962227fc0a2d"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/accepted-input.mjs",
+      "bytes": 2669,
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/browser-probes.mjs",
+      "bytes": 10184,
+      "sha256": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/entry-identity.mjs",
+      "bytes": 4037,
+      "sha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/event-deadlines.mjs",
+      "bytes": 983,
+      "sha256": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/gesture-progress.mjs",
+      "bytes": 516,
+      "sha256": "d3c8017f1c03427ee43474c9f645ae1297dee0a4224efcdbb7991eeeb9e1ae4f"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/gesture-progress.test.mjs",
+      "bytes": 989,
+      "sha256": "4036ab35628370fd61b40f095718604f29ddf234505129e11bae2d9a2b488f53"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/ground-and-dispatch.mjs",
+      "bytes": 9833,
+      "sha256": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/guard-assertions.mjs",
+      "bytes": 5929,
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/input-boundary.mjs",
+      "bytes": 5075,
+      "sha256": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/mission10-construction.json",
+      "bytes": 3768,
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/observer.mjs",
+      "bytes": 14084,
+      "sha256": "fdb190a30dbd70e31c093c7cc5ee6865756c0d43a7bd7946167a6c15a2f70669"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/ordinary-input.mjs",
+      "bytes": 9677,
+      "sha256": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/preflight.json",
+      "bytes": 7497,
+      "sha256": "e644afbdf2d9db38878d47156db051a672c585f7f7292b5f364990668a36f9fd"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/reference-inputs.json",
+      "bytes": 1215,
+      "sha256": "0ce920931c2976013d6678489112c63ba2ffa6c832c44029130b5579df5d5e6c"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/reference-scenario.mjs.txt",
+      "bytes": 30017,
+      "sha256": "198073123b03c51f92a18ce0b2b18c23117bccee6b59ad97d743f89fbefd5279"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/baseline-02/scenario.mjs",
+      "bytes": 28910,
+      "sha256": "c0afa8374e5ad7fd215a31050633b4fd6323bc568c70498c853f5faa1c78e7b9"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/revision-07-candidate-launch.json",
+      "bytes": 4298,
+      "sha256": "ac142cc29ffbc4929ca3b4e1bbcc969eca5ccccfca2c601518172aa7fd3ac6db"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/revision-07-controls.json",
+      "bytes": 4261,
+      "sha256": "30c0a6bb6f705a1ccfbe90510167749c9cb6e2861c752e4367a695f5b8fcf657"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/browser/checkers/revision-07-launch.json",
+      "bytes": 3838,
+      "sha256": "9759a340b45aa47550fef6278246173cc3061254907dd5713c6b47ffacb661c4"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/baseline-lint.json",
+      "bytes": 280948,
+      "sha256": "1843c6f1b600fee267dd559aa2109ebbc95008693dca70674beb9496740ba85b"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/baseline-lint.json.artifacts/stderr.log",
+      "bytes": 99,
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/baseline-lint.json.artifacts/stdout.log",
+      "bytes": 277225,
+      "sha256": "703605f2a34c82508fe7038034911b982867739ad222d7e6e67795b76d939fa4"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/failure-first-01.json",
+      "bytes": 3356,
+      "sha256": "6e617718f02863791d381a3697944d0dd5beea7ac5e6a432af48a98bf7328548"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/failure-first-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/failure-first-01.json.artifacts/stdout.log",
+      "bytes": 1042,
+      "sha256": "0190a40a10bb4c3994303b3eed1047652a68fffe2ac506fe0b4354656e9c4c3c"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-01/full-check.json",
+      "bytes": 129900,
+      "sha256": "41857f8e8d712c0f7ee76421cc0b77ce538c388b8471382d9fef9ab06c36ebf9"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-01/full-check.json.artifacts/stderr.log",
+      "bytes": 505,
+      "sha256": "773016a4fac40395712b8f85fa45304a160cba0b0c44aa3aa5dbd006b6de058a"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-01/full-check.json.artifacts/stdout.log",
+      "bytes": 123644,
+      "sha256": "f288cb44a38472c6b023f294d03cb75aef3579023b74eed96ceaa4a2d27225da"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-02/affected-js-quality.json",
+      "bytes": 3596,
+      "sha256": "e097e6d0ece7187c7e1e3835f93f07124210f8729315ff223bd67160c796315e"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-02/affected-js-quality.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-02/affected-js-quality.json.artifacts/stdout.log",
+      "bytes": 1157,
+      "sha256": "91f8eceba29f6b4b4f256ea040c32624d17685f3d0c755a502e1aadd019b99fd"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-02/build.json",
+      "bytes": 7988,
+      "sha256": "6091d815b0abb88b17d19148c8eab8652178675ff2d511281c4354cfa6b4f7d1"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-02/build.json.artifacts/stderr.log",
+      "bytes": 2133,
+      "sha256": "25af2ec44493f339bc9a517dbc42be2dc3c891b04178cde292a165e6a6a7c8af"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-02/build.json.artifacts/stdout.log",
+      "bytes": 1143,
+      "sha256": "5e149e65b43f299084c25b20aff439514cb54ee2fafccc0fb524f626c61b6dbe"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-02/full-check.json",
+      "bytes": 141912,
+      "sha256": "0efde1dd037a9a584f8c37e7258c66733437ded23c181016e17b1d05dc76220c"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-02/full-check.json.artifacts/stderr.log",
+      "bytes": 1119,
+      "sha256": "02285cf98c9d88b48ecc3ef7fa38f35659b7c27d82ad3139b4a57f8bed24e9b1"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-02/full-check.json.artifacts/stdout.log",
+      "bytes": 134314,
+      "sha256": "d07907a5148b12cb1c961810aa36182d0a024f1ad26fee4f453c27eaf546a9a7"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-02/lint-standard.json",
+      "bytes": 283279,
+      "sha256": "4d416402d1d74e3fe71ce8880f7722f33d813936cbd7f7b94eab7150cb08c3dc"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-02/lint-standard.json.artifacts/stderr.log",
+      "bytes": 99,
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-02/lint-standard.json.artifacts/stdout.log",
+      "bytes": 277225,
+      "sha256": "975f7663dfe66a55caa96d0d4583c4a9b1d35a1fc230b8e736ca9f96dd122903"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-02/paired-lint-comparison.json",
+      "bytes": 1238,
+      "sha256": "52b97110e5c134dae47ed7a7a48cd320d7af2d6ce709a57baae2aea6b608c4ec"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/final-gates-02/quality-disposition.json",
+      "bytes": 16970,
+      "sha256": "9a66df79df9b3bd7b14ce6fb7e59da333bf1acd3e6f57e1d102971a3bca4c62a"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/focused-after-01.json",
+      "bytes": 2706,
+      "sha256": "ec1b70006e2e63bbafd87c9c4b194d435ffe556157c610e8bbf31d660b866196"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/focused-after-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/focused-after-01.json.artifacts/stdout.log",
+      "bytes": 378,
+      "sha256": "b366a2cdb10d78cd0b0d05d50f34a09f40fafffde6fea10285155c2630fc27c3"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/idempotent-import-01.json",
+      "bytes": 4088,
+      "sha256": "007f3adb343b5e3701c195006780972e3b7afca700db8a318d26244f7c93b517"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/idempotent-import-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/idempotent-import-01.json.artifacts/stdout.log",
+      "bytes": 119,
+      "sha256": "f740b7d42a997dae976fa5f074864cc478cdd12d9b40921eeca045e7b32def65"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/import-01.json",
+      "bytes": 2721,
+      "sha256": "eb9cc9a89f6fcd4e4766ba55b2dac040f966cd1b430ab4efbb4132e9fa087e3a"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/native-layers-01.json",
+      "bytes": 1310595,
+      "sha256": "482c8863f79d801143751f0c35fd6c719eea2b6b9f0749fe788c8a9d9b3fb22f"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/native-layers-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/native-layers-01.json.artifacts/stdout.log",
+      "bytes": 1152562,
+      "sha256": "cf258351eb7bbf12b92f7cf76c1cf0804d6a38a004533ad1e2f6d39a1f9d5abe"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/native-metadata-correspondence.json",
+      "bytes": 453,
+      "sha256": "7b5c6c2dbc653068f8b3514414f243089cf98a2347e9a96acb6c459e41fcc333"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/native-preflight-run-01.json",
+      "bytes": 6279,
+      "sha256": "f2ff905fc56693d27e7b191a1967b546d7d82671267450f23c16dff451f8484d"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/native-preflight-scaled.json",
+      "bytes": 6264,
+      "sha256": "c9a70b9151e9f6371c82b9514b33d6d461d1c333faa83a0ef3f3365bdec1b6c5"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/shaman-preservation-test-correspondence.json",
+      "bytes": 6679,
+      "sha256": "27b7427de8c0b80534458f3f41d9f9d984536a9ade77ddf932eba8cfc5f09ffd"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/shaman-preservation-test-repair-01.json",
+      "bytes": 3467,
+      "sha256": "2b4d8e2d1e0c4035e4e543e898fa02448c9d9cffa4a5e6c52f6a72e7a23519c2"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/shaman-preservation-test-repair-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/shaman-preservation-test-repair-01.json.artifacts/stdout.log",
+      "bytes": 1054,
+      "sha256": "76982a31508c4959e6f142807e563019fd40f2767cc0ff5d3679c9cc38b35c6f"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/static-pixels-01.json",
+      "bytes": 6083,
+      "sha256": "c24d60b8f793849bfb4811a06c8661f17c5a17eb8b69a2e5bf2d911bf4760e6a"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/static-pixels-01.json.artifacts/stderr.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/static-pixels-01.json.artifacts/stdout.log",
+      "bytes": 1957,
+      "sha256": "0a317f4b262c8d3d31d8136cb96fd8712393235bc4e97fed84d8d73ea783d3c5"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/checks/static-pixels-result-01.json",
+      "bytes": 103187,
+      "sha256": "ae76ccfdf6b25fc0de29a59f439bf641c8f68d606a72e5ee6099768354e40645"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/independent-review-b020.md",
+      "bytes": 7706,
+      "sha256": "ce2e8d408377e4a8d16665bcd8e2d7a68c21e74ea347648b728b2ca1bcc3f06b"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/ordinary-summary.json",
+      "bytes": 5862,
+      "sha256": "ac2df7d7335082f5c8c5e6829ffb360f5ec443f0240624f4d849c917b912a64f"
+    },
+    {
+      "path": "evidence/firewarrior-resting-artwork/production-correspondence.json",
+      "bytes": 3737,
+      "sha256": "becd9afadde16ebf737175c7f5ac53303969d80fe1ca847af34319c573407727"
+    },
+    {
+      "path": "evidence/firewarrior-source720/README.md",
+      "bytes": 15550,
+      "sha256": "a959ec4fea794cc87b891b30a5979f0fdfd1c29d0dd9d7d3a9c669f48f79580f"
+    },
+    {
+      "path": "evidence/firewarrior-source720/audit-attempt-02.py.txt",
+      "bytes": 14078,
+      "sha256": "08f4523a9dfbe70c61196ff5488362c06a82ed47663a34768b61eae9bd9bdd62"
+    },
+    {
+      "path": "evidence/firewarrior-source720/audit-attempt-03.py.txt",
+      "bytes": 14006,
+      "sha256": "056925fc68bc3c215f098fc4c47fd218930b2b3d7b1318590f3db83e3b59d9a3"
+    },
+    {
+      "path": "evidence/firewarrior-source720/audit.py",
+      "bytes": 15100,
+      "sha256": "8c95b6005a63aadea8d6549ef330b7bda051c93c3fe148195be284ccc2209701"
+    },
+    {
+      "path": "evidence/firewarrior-source720/loader-flags.json",
+      "bytes": 3557,
+      "sha256": "325318d65544220bb4720ee89e5beebbb9adf36b029469b25abe0a6ddf44e944"
+    },
+    {
+      "path": "evidence/firewarrior-source720/manifest.json",
+      "bytes": 3694,
+      "sha256": "ffcae1ed00818ab15c1eb177648dbbc74f44bf082aba2fb5f3c27b25fd86969d"
+    },
+    {
+      "path": "evidence/firewarrior-source720/missing-piece-headers.json",
+      "bytes": 3842,
+      "sha256": "e5cdf52d15c934e09f25615c8746098aaef69601675cb7245e1fe145d56668cd"
+    },
+    {
+      "path": "evidence/firewarrior-source720/receipt.json",
+      "bytes": 2281,
+      "sha256": "3d4c4e7c2b80673321172caa5b15bddb7d22826a4b81697d7aeb2d994954aeb7"
+    },
+    {
+      "path": "evidence/firewarrior-source720/result-01.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-source720/result-01.stderr",
+      "bytes": 39,
+      "sha256": "b08237bca0bce0c9a157251757f02b90f3abaad4c148fe84b37e391804c0bdb0"
+    },
+    {
+      "path": "evidence/firewarrior-source720/result-02.json",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-source720/result-02.stderr",
+      "bytes": 373,
+      "sha256": "1c907acd17a08e609c5e8bf8eb16b92d7cdf7529050320b018315e04ebeb9653"
+    },
+    {
+      "path": "evidence/firewarrior-source720/result-03.json",
+      "bytes": 118465,
+      "sha256": "28ffc187662b2475b65492e35e228fb53a39a3b938963dbb81205f7c7034ffe7"
+    },
+    {
+      "path": "evidence/firewarrior-source720/result-03.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-source720/result-04.json",
+      "bytes": 123082,
+      "sha256": "e68584c1a35ffba2d8b707d49f335208910f2aba823a6c0345163e021badbb65"
+    },
+    {
+      "path": "evidence/firewarrior-source720/result-04.stderr",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "evidence/firewarrior-source720/retained/README.md",
+      "bytes": 31285,
+      "sha256": "a9537f3175dbcb6ad08683c4c6f2c1633b31b4a43a76d288596721ebbf3b622c"
+    },
+    {
+      "path": "evidence/firewarrior-source720/retained/baseline04/outer.json",
+      "bytes": 4394,
+      "sha256": "82cd3539c8bd17f076766201e4ce730d7732019f3a8cf2773238c61a95bd27e7"
+    },
+    {
+      "path": "evidence/firewarrior-source720/retained/baseline04/run/epoch-0-rows.jsonl.gz",
+      "bytes": 145525,
+      "sha256": "9fbf97fcceb7b90f5546668dcfac1b957d4de12a495d9aafc8832049985e9437"
+    },
+    {
+      "path": "evidence/firewarrior-source720/retained/baseline04/run/receipt.json",
+      "bytes": 3039,
+      "sha256": "b0d60ad815c37be710356f7e9b01cdb41d02925c1c272d3c5b491c8aa5273c2c"
+    },
+    {
+      "path": "evidence/firewarrior-source720/retained/candidate06/outer.json",
+      "bytes": 143255,
+      "sha256": "16d7c479a9e2a0c50d0b8a2c1101501905e9b04982a5322974d1cb1c41b35b38"
+    },
+    {
+      "path": "evidence/firewarrior-source720/retained/candidate06/run/epoch-0-rows.jsonl.gz",
+      "bytes": 215201,
+      "sha256": "c93e6d6a2689bbfce0250c1dbf7a34b7b871f38c11fa8b294c5016a9a9f2b2da"
+    },
+    {
+      "path": "evidence/firewarrior-source720/retained/candidate06/run/epoch-1-rows.jsonl.gz",
+      "bytes": 24362,
+      "sha256": "1a6ae044872e914cdde3395db3995f64049d0ca9e3d5c79966ed2b6b8547ce00"
+    },
+    {
+      "path": "evidence/firewarrior-source720/retained/candidate06/run/epoch-2-rows.jsonl.gz",
+      "bytes": 17200,
+      "sha256": "94012db0b9524bc2ce09a4727469983f29e8bd64c932fe0a431907b2783520e6"
+    },
+    {
+      "path": "evidence/firewarrior-source720/retained/candidate06/run/receipt.json",
+      "bytes": 317941,
+      "sha256": "351f930f25c74b4669f1ff15f58a8be652d5e6ea5785f6d96c656364f35d74aa"
+    },
+    {
+      "path": "evidence/firewarrior-source720/retained/manifest.json",
+      "bytes": 179239,
+      "sha256": "41134c548e36f9e77314ba9bed5a1a4d458379768502ccf1c098ddc2db7fa8e2"
+    }
+  ]
+}

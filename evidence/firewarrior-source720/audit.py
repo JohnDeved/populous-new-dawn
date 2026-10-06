@@ -1,0 +1,273 @@
+"""Static original-byte, original-asset and retained-browser audit.
+
+Usage: python audit.py GAME_ROOT
+Prints JSON only. Does not emulate or launch original code, decode pixels, run a
+browser, import the application, or write generated assets/fixtures.
+"""
+import collections
+import gzip
+import hashlib
+import json
+import math
+from pathlib import Path
+import struct
+import subprocess
+import sys
+
+from capstone import Cs, CS_ARCH_X86, CS_MODE_32, __version__ as capstone_version
+
+here = Path(__file__).resolve().parent
+root = here.parents[1]
+game = Path(sys.argv[1]).resolve()
+source_head = '89e68606a406f93715b930550317519818ddc081'
+candidate_head = 'c20a297f5f815ce404f796b08f77ea56396f96da'
+baseline_head = '3b899125cc8cedef938823718ad5d44f49957b66'
+evidence_head = 'b49b0f42ff8641db4b5d90f05df726c7aaa9a326'
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+def git(*args):
+    return subprocess.check_output(['git', '--no-optional-locks', *args], cwd=root)
+
+def read_file(path):
+    data = path.read_bytes()
+    report['inputs'][str(path.relative_to(game) if path.is_relative_to(game)
+                         else path.relative_to(root))] = sha(data)
+    return data
+
+report = {'scope': __doc__, 'sourceHead': source_head, 'candidateHead': candidate_head,
+          'baselineHead': baseline_head, 'evidenceHead': evidence_head,
+          'python': sys.version, 'capstone': capstone_version, 'inputs': {},
+          'sourceCorrespondence': {}, 'retainedRuns': [], 'source720Rows': []}
+assert git('rev-parse', 'HEAD:app').decode().strip() == \
+    '6f4235c9e6ca59f478d3c9834a9740a0c5142318'
+for path in ['app/person-idle.ts', 'app/scene-entities.ts', 'app/original-units.json',
+             'app/original-rules.json', 'scripts/import-original.py']:
+    data = read_file(root / path)
+    assert data == git('show', candidate_head + ':' + path), path
+    assert data == git('show', source_head + ':' + path), path
+    report['sourceCorrespondence'][path] = {'sha256': sha(data), 'identical': True}
+rules = json.loads((root / 'app/original-rules.json').read_text())
+units = json.loads((root / 'app/original-units.json').read_text())
+
+exe = read_file(game / 'd3dpoptb.exe')
+assert sha(exe) == '3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f'
+pe = struct.unpack_from('<I', exe, 60)[0]
+assert exe[pe:pe+4] == b'PE\0\0'
+assert struct.unpack_from('<H', exe, pe+24)[0] == 0x10b
+section_count = struct.unpack_from('<H', exe, pe+6)[0]
+optional_size = struct.unpack_from('<H', exe, pe+20)[0]
+image_base = struct.unpack_from('<I', exe, pe+24+28)[0]
+
+def read_va(address, size):
+    for i in range(section_count):
+        _, _, rva, length, offset = struct.unpack_from(
+            '<8sIIII', exe, pe+24+optional_size+i*40)
+        start = image_base+rva
+        if start <= address and address+size <= start+length:
+            return exe[offset+address-start:offset+address-start+size]
+    raise ValueError(f'Unbacked original address {address:08x}')
+
+report['originalObjects'] = []
+for index, expected in [(161, [712, 14]), (162, [728, 15]), (163, [720, 18])]:
+    address = 0x5a6858+index*4
+    raw = read_va(address, 4)
+    value = list(struct.unpack('<hh', raw))
+    assert value == expected == rules['animationObjects'][index]
+    report['originalObjects'].append({'index': index, 'address': f'{address:08x}',
+                                      'bytes': raw.hex(), 'sourceAndDraw': value})
+descriptor_address = 0x5a6af8+18*11
+raw = read_va(descriptor_address, 11)
+descriptor = {'hold': struct.unpack_from('<b', raw, 1)[0],
+              'step': struct.unpack_from('<b', raw, 3)[0], 'mode': raw[4],
+              'person': raw[5], 'variant': raw[6], 'palette': raw[7],
+              'reset': raw[8], 'flags': struct.unpack_from('<H', raw, 9)[0]}
+assert descriptor == rules['animationDescriptors'][18]
+report['originalDescriptor18'] = {'address': f'{descriptor_address:08x}',
+                                 'bytes': raw.hex(), 'descriptorByte0': raw[0], **descriptor}
+assert raw[0] == 10
+selector = read_va(0x46f068+raw[0]-1, 1)[0]
+target_bytes = read_va(0x46f03c+selector*4, 4)
+target = struct.unpack('<I', target_bytes)[0]
+assert target == 0x46ef12
+assert read_va(target, 7).hex() == 'c605e6ca87000d'
+report['renderDispatch'] = {'descriptorType': raw[0], 'selector': selector,
+    'selectorAddress': f'{0x46f068+raw[0]-1:08x}',
+    'targetAddress': f'{0x46f03c+selector*4:08x}', 'targetBytes': target_bytes.hex(),
+    'caseTarget': f'{target:08x}', 'polygonType': 13,
+    'limit': 'Static jump-table and case instructions; no queue or renderer executed.'}
+
+disassembler = Cs(CS_ARCH_X86, CS_MODE_32)
+report['originalInstructions'] = {}
+for label, start, stop in [('model6-gesture-producer', 0x4d7d06, 0x4d7dac),
+                          ('descriptor-dispatch', 0x46ee7c, 0x46ee98),
+                          ('person-queue-producer', 0x46ef12, 0x46ef20),
+                          ('person-frame-lookup', 0x468c37, 0x468d86)]:
+    data = read_va(start, stop-start)
+    instructions = list(disassembler.disasm(data, start))
+    # Each retained span must end exactly at an instruction boundary.
+    assert instructions and instructions[-1].address+instructions[-1].size == stop, label
+    report['originalInstructions'][label] = {
+        'start': f'{start:08x}', 'stop': f'{stop:08x}', 'sha256': sha(data),
+        'rows': [{'address': f'{i.address:08x}', 'bytes': i.bytes.hex(),
+                  'mnemonic': i.mnemonic, 'operands': i.op_str} for i in instructions]}
+assert read_va(0x4d7d5e, 5).hex() == '68a3000000'
+assert read_va(0x4d7d64, 5).hex() == 'e8d7c2ffff'
+assert read_va(0x468d82, 4).hex() == '668b3442'
+
+exports = json.loads(read_file(root / 'decomp/exports.json'))
+hashes = next((value for value in exports.values()
+               if isinstance(value, dict) and '004d73e0.c' in value), None)
+assert hashes is not None, 'Indexed export digest map'
+report['indexedExports'] = {}
+for name in ['004d73e0.c', '004d4040.c', '004ee700.c', '004673b0.c',
+             '0042c320.c', '00450e60.c', '0045f9d0.c', '0046ec80.c', '0046f080.c']:
+    data = read_file(root / 'decomp/generated' / name)
+    assert sha(data) == hashes[name], name
+    report['indexedExports'][name] = sha(data)
+
+start_bytes = read_file(game / 'data/vstart-0.ani')
+frame_bytes = read_file(game / 'data/vfra-0.ani')
+element_bytes = read_file(game / 'data/vele-0.ani')
+assert sha(start_bytes) == '64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa'
+assert sha(frame_bytes) == 'c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258'
+provenance = json.loads(read_file(root / 'public/original/provenance.json'))
+assert sha(element_bytes) == provenance['sha256']['data/vele-0.ani']
+for name in ['data/hspr0-0.dat', 'data/pal0-c.dat']:
+    assert sha(read_file(game / name)) == provenance['sha256'][name]
+starts = list(struct.iter_unpack('<HH', start_bytes))
+frames = list(struct.iter_unpack('<HBBBBH', frame_bytes))
+elements = list(struct.iter_unpack('<HhhHH', element_bytes))
+
+def chain(source):
+    first, mirror = starts[source]
+    index, sequence = first, []
+    while index and index not in sequence:
+        assert index < len(frames)
+        sequence.append(index)
+        index = frames[index][-1]
+    assert sequence and index in (0, first)
+    return {'source': source, 'mirrorWord': mirror, 'flip': bool(mirror),
+            'frames': sequence}
+
+def layers(frame):
+    index, seen, result = frames[frame][0], set(), []
+    while index:
+        assert index < len(elements) and index not in seen
+        seen.add(index)
+        reference, x, y, flags, next_index = elements[index]
+        assert reference % 6 == 0 and reference > 0
+        result.append({'element': index, 'piece': reference//6-1,
+                       'x': x, 'y': y, 'flags': flags})
+        index = next_index
+    return result
+
+chains720 = [chain(source) for source in range(720, 728)]
+chains728 = [chain(source) for source in range(728, 736)]
+assert all(a['frames'] != b['frames'] for a, b in zip(chains720, chains728))
+needed_frames = {f for c in chains720 for f in c['frames']}
+needed_pieces = {layer['piece'] for f in needed_frames for layer in layers(f)}
+missing_frames = needed_frames-{f['source'] for f in units['frames']}
+missing_pieces = needed_pieces-{p['source'] for p in units['pieces']}
+assert len(needed_frames) == len(missing_frames) == 70
+assert len(needed_pieces) == 134 and len(missing_pieces) == 38
+report['assetChains'] = {'source720': chains720, 'source728': chains728,
+    'neededFrames': sorted(needed_frames), 'missingFrames': sorted(missing_frames),
+    'neededPieces': sorted(needed_pieces), 'missingPieces': sorted(missing_pieces),
+    'allNeededLayers': {str(f): layers(f) for f in sorted(needed_frames)},
+    'rawLayerLowFlags': sorted({x['flags'] & 15 for f in needed_frames for x in layers(f)})}
+report['currentArtwork'] = {}
+for signature in ['blue-firewarrior', 'red-firewarrior']:
+    states = units['animations'][signature]
+    assert states['idleGesture'][0]['source'] == 728
+    assert not any(d[0]['source'] == 720 for d in states.values())
+    report['currentArtwork'][signature] = {state: directions[0]['source']
+                                          for state, directions in states.items()}
+
+retained = here / 'retained'
+manifest_bytes = read_file(retained / 'manifest.json')
+assert manifest_bytes == git('show', evidence_head + ':evidence/native-shaman-guard-input/manifest.json')
+manifest = {entry['path']: entry for entry in json.loads(manifest_bytes)['artifacts']}
+for run, expected_head, status, code in [('baseline04', baseline_head, 'failed', 1),
+                                       ('candidate06', candidate_head, 'passed', 0)]:
+    receipts = {}
+    for name in ['run/receipt.json', 'outer.json']:
+        relative = run+'/'+name
+        data = read_file(retained / relative)
+        assert sha(data) == manifest[relative]['sha256']
+        receipt = json.loads(data)
+        key = 'commit' if name.startswith('run/') else 'headOid'
+        assert receipt['source'][key] == expected_head
+        assert receipt['source'] == receipt['sourceAfter']
+        assert receipt['status'] == status
+        if name == 'outer.json':
+            assert receipt['exitCode'] == code
+        receipts[name] = {'sha256': sha(data), 'source': receipt['source'],
+                          'status': receipt['status'], 'exitCode': receipt.get('exitCode')}
+    for file in sorted((retained/run/'run').glob('epoch-*-rows.jsonl.gz')):
+        relative = str(file.relative_to(retained))
+        data = read_file(file)
+        assert sha(data) == manifest[relative]['sha256']
+        expanded = gzip.decompress(data)
+        assert sha(expanded) == manifest[relative]['uncompressedSha256']
+        rows = [json.loads(line) for line in expanded.splitlines()]
+        assert len(rows) == manifest[relative]['uncompressedLines']
+        people = [(line+1, row, u) for line, row in enumerate(rows)
+                  for u in row['units'] if u['kind'] == 'firewarrior']
+        groups = collections.Counter()
+        for line, row, unit in people:
+            source = next((p for p in unit['owners'] if p['identity'] == unit['sourceIdentity']), None)
+            has_art = source is not None and any(d[0]['source'] == source['object']
+                for d in units['animations']['blue-firewarrior'].values())
+            groups[(unit['pose'], 'no-source' if source is None else
+                    'native-art' if has_art else 'missing-native-art')] += 1
+            if run != 'candidate06' or source is None or source['object'] != 720:
+                continue
+            assert unit['sourceIdentity'] == unit['nativeIdentity'] == source['identity']
+            assert [source['class'], source['model'], source['state'], source['draw']] == [1, 6, 19, 18]
+            assert source['flags4'] & (0x400000 | 0x20) == 0
+            assert source['renderFlags'] & (0x10 | 0x40) == 0
+            assert unit['team'] == 'blue' and unit['mesh']['visible']
+            camera = round(row['camera']['bearing'] * 1024 / math.pi)
+            heading = math.floor((math.pi-unit['heading']) * 1024/math.pi + 0.5)
+            short = lambda value: (value+32768) % 65536-32768
+            direction = ((short(camera)-short(source['angle'])-0x380) & 0x700) >> 8
+            browser_direction = ((short(camera)-short(heading)-0x380) & 0x700) >> 8
+            assert direction == browser_direction
+            expected_frame = chains720[direction]['frames'][source['f2']]
+            actual_frame = units['frames'][unit['mesh']['frame']]['source']
+            assert actual_frame not in needed_frames
+            report['source720Rows'].append({'file': relative, 'line': line,
+                'epoch': row['epoch'], 'turn': row['turn'], 'now': row['now'],
+                'pose': unit['pose'], 'unitId': unit['id'], 'guard': unit['guard'],
+                'selected': unit['selected'], 'sourceIdentity': unit['sourceIdentity'],
+                'nativeIdentity': unit['nativeIdentity'],
+                'native': {k: source[k] for k in ['class', 'model', 'state', 'substate',
+                    'object', 'draw', 'f1', 'f2', 'stamp', 'flags4', 'renderFlags', 'angle', 'timer']},
+                'source96Override': bool(source['flags4'] & 0x400000),
+                'disguiseBranch': bool(source['flags4'] & 0x20),
+                'hiddenRenderFlag': bool(source['renderFlags'] & 0x10),
+                'alternatePrimitive26': bool(source['renderFlags'] & 0x40),
+                'direction': direction, 'expectedVstart': 720+direction,
+                'expectedVfra': expected_frame, 'expectedFlip': chains720[direction]['flip'],
+                'meshFrame': unit['mesh']['frame'], 'actualMeshVfra': actual_frame,
+                'actualFlip': unit['mesh']['frameFlip'],
+                'fallbackArtworkSource': units['animations']['blue-firewarrior'][unit['pose']][0]['source']})
+        report['retainedRuns'].append({'file': relative, 'sha256': sha(data),
+            'expandedSha256': sha(expanded), 'rows': len(rows), 'firewarriorSamples': len(people),
+            'groups': [{'pose': p, 'resolution': k, 'count': n} for (p, k), n in sorted(groups.items())],
+            'receipts': receipts})
+
+observations = report['source720Rows']
+assert len(observations) == 24
+assert [x['line'] for x in observations] == list(range(629, 653))
+assert collections.Counter(x['pose'] for x in observations) == {'idle': 20, 'selected': 4}
+assert [observations[0]['turn'], observations[-1]['turn']] == [897, 921]
+report['observerLimits'] = ['Independent RAF can skip logical turns; rows do not prove every visit.',
+    'The original renderer frame expectation is a static byte/table derivation, not new native execution.',
+    'Current pixels and software/hardware performance were not re-observed.',
+    'Raw layer metadata is decoded; HSPR source720 pixels were not decoded or rendered.']
+report['inputs']['evidence/firewarrior-source720/audit.py'] = sha(Path(__file__).read_bytes())
+report['status'] = 'passed-static-and-retained-observation-recheck'
+print(json.dumps(report, indent=2))

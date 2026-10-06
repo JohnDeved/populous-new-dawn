@@ -1,0 +1,69 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "9b3a2303-cd30-42c9-a741-8241b399f220",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "32b619f677e91e83c5115583c2eba3235e91cc33",
+    "branch": "fix/firewarrior-resting-artwork-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-static-shaman-appearance.py": "496ff2dbb31eda9f9f27d49834b54dd630990d49b3063a16146b90d232ea31c3",
+      "scripts/import-original.py": "bf412564052bb6a3a7ac5c12190608b450407400f73d99f5becbdf40a7ae30bb",
+      "app/original-units.json": "7ad4cfe64aa6bff0c1de8be2761d7c37c7849ff8b391b37758f37cd3778e52c6",
+      "public/original/unit-layers.png": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd",
+      "../prerequisites/game/data/vstart-0.ani": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa",
+      "../prerequisites/game/data/vfra-0.ani": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258",
+      "../prerequisites/game/data/vele-0.ani": "e6158220383ae2f17db8d12844c16e4fb931030780fb3d02416fde303257a7c9",
+      "../prerequisites/game/data/hspr0-0.dat": "62e5cc915a16302670027bac9535f6b90f00e38694575294418dcefb04394655",
+      "../prerequisites/game/data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+    }
+  },
+  "command": [
+    "timeout",
+    "60s",
+    "taskset",
+    "-c",
+    "0-3",
+    "env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "python",
+    "scripts/check-static-shaman-appearance.py",
+    "--data-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game",
+    "--baseline-dir",
+    "work/orchestration/firewarrior-resting/baseline",
+    "--output",
+    "work/orchestration/firewarrior-resting/static-pixels-result-01.json"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006",
+  "startedAt": "2026-10-06T03:58:11.048Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/static-pixels-01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/static-pixels-01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T03:58:12.753Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "{\n  \"status\": \"PASS_STATIC_SHAMAN_ASSETS\",\n  \"scriptSha256\": \"496ff2dbb31eda9f9f27d49834b54dd630990d49b3063a16146b90d232ea31c3\",\n  \"inputIdentities\": [\n    {\n      \"path\": \"data/vstart-0.ani\",\n      \"bytes\": 3168,\n      \"sha256\": \"64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa\"\n    },\n    {\n      \"path\": \"data/vfra-0.ani\",\n      \"bytes\": 31688,\n      \"sha256\": \"c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258\"\n    },\n    {\n      \"path\": \"data/vele-0.ani\",\n      \"bytes\": 160760,\n      \"sha256\": \"e6158220383ae2f17db8d12844c16e4fb931030780fb3d02416fde303257a7c9\"\n    },\n    {\n      \"path\": \"data/hspr0-0.dat\",\n      \"bytes\": 1471487,\n      \"sha256\": \"62e5cc915a16302670027bac9535f6b90f00e38694575294418dcefb04394655\"\n    },\n    {\n      \"path\": \"data/pal0-c.dat\",\n      \"bytes\": 1024,\n      \"sha256\": \"6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53\"\n    }\n  ],\n  \"originalFrames\": 5091,\n  \"originalPieces\": 4042,\n  \"directionalSources\": 360,\n  \"firewarriorRestingDirections\": 16,\n  \"atlasSha256\": \"9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd\",\n  \"atlasSize\": [\n    2048,\n    8128\n  ],\n  \"reviewedLayerFixtures\": 576,\n  \"reviewedPieceHashes\": 3216,\n  \"preservation\": {\n    \"oldFrames\": 5021,\n    \"oldPieces\": 4004,\n    \"oldFramesSha256\": \"6d2a9abb7e8bbd6d32b35aaf999093671355402d1480aafcf31facc4635d4a0d\",\n    \"oldPiecesSha256\": \"113f1251728d3fc8fe90b5984e7539fc6711cdea29414b9c0f5f749a2bbef9f9\",\n    \"oldAnimationsSha256\": \"8b1f070152376934f5af23adc698980c7da2063add9d83774b0b5a1d5e91d1d0\",\n    \"oldPieceHashesSha256\": \"044cefcab1dd57b6dea5b7152557a9e1792eba6b087e7b3eae587cd7d0e838b6\",\n    \"addedFrames\": 70,\n    \"addedPieces\": 38\n  },\n  \"referenceKind\": \"static original layer bytes with retained no-owner/mirror/shadow contract; no new native execution\",\n  \"limits\": \"Original byte/asset comparison, not native execution, browser rendering or gameplay/performance acceptance.\"\n}\n",
+  "stderr": "",
+  "stdoutSha256": "0a317f4b262c8d3d31d8136cb96fd8712393235bc4e97fed84d8d73ea783d3c5",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "32b619f677e91e83c5115583c2eba3235e91cc33",
+    "branch": "fix/firewarrior-resting-artwork-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-static-shaman-appearance.py": "496ff2dbb31eda9f9f27d49834b54dd630990d49b3063a16146b90d232ea31c3",
+      "scripts/import-original.py": "bf412564052bb6a3a7ac5c12190608b450407400f73d99f5becbdf40a7ae30bb",
+      "app/original-units.json": "7ad4cfe64aa6bff0c1de8be2761d7c37c7849ff8b391b37758f37cd3778e52c6",
+      "public/original/unit-layers.png": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd",
+      "../prerequisites/game/data/vstart-0.ani": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa",
+      "../prerequisites/game/data/vfra-0.ani": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258",
+      "../prerequisites/game/data/vele-0.ani": "e6158220383ae2f17db8d12844c16e4fb931030780fb3d02416fde303257a7c9",
+      "../prerequisites/game/data/hspr0-0.dat": "62e5cc915a16302670027bac9535f6b90f00e38694575294418dcefb04394655",
+      "../prerequisites/game/data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+    }
+  }
+}

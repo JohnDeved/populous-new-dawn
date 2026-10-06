@@ -1,0 +1,73 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "2b72c83e-2527-4915-9d1b-44e68e58ae99",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "89e68606a406f93715b930550317519818ddc081",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/scenario.mjs": "c0afa8374e5ad7fd215a31050633b4fd6323bc568c70498c853f5faa1c78e7b9",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/observer.mjs": "fdb190a30dbd70e31c093c7cc5ee6865756c0d43a7bd7946167a6c15a2f70669",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/preflight.json": "e644afbdf2d9db38878d47156db051a672c585f7f7292b5f364990668a36f9fd",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-launch.json": "c5cb7beb61cb69e2da12afba2ee28aceccbebdb72d6c2f6f8c0da2a772ec1d4d"
+    }
+  },
+  "command": [
+    "timeout",
+    "390s",
+    "taskset",
+    "-c",
+    "0-3",
+    "env",
+    "TMPDIR=/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/tmp",
+    "CLOUDFLARE_CF_FETCH_ENABLED=false",
+    "WRANGLER_SEND_METRICS=false",
+    "node",
+    "scripts/local-render/harness.mjs",
+    "--game-root",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89",
+    "--browser",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/extract-browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "--port",
+    "4394",
+    "--mission",
+    "10",
+    "--timeout",
+    "360000",
+    "--scenario",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/scenario.mjs",
+    "--output",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/run"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89",
+  "startedAt": "2026-10-06T05:19:32.302Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/outer.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/outer.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T05:21:53.769Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "Error: AssertionError [ERR_ASSERTION]: Public Pause missed the declared early gesture phase\n    at firewarriorRestingWitness (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/scenario.mjs:309:12)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/scripts/local-render/harness.mjs:153:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/scripts/local-render/harness.mjs:240:21\n    at runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/scripts/local-render/harness.mjs:222:47)\n    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/scripts/local-render/harness.mjs:240:21\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e204b42b867d7fdd18f9354be07ca6be59b7ba87b74cb5d202c734c8f41244da",
+  "sourceAfter": {
+    "headOid": "89e68606a406f93715b930550317519818ddc081",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/scenario.mjs": "c0afa8374e5ad7fd215a31050633b4fd6323bc568c70498c853f5faa1c78e7b9",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/observer.mjs": "fdb190a30dbd70e31c093c7cc5ee6865756c0d43a7bd7946167a6c15a2f70669",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/preflight.json": "e644afbdf2d9db38878d47156db051a672c585f7f7292b5f364990668a36f9fd",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-launch.json": "c5cb7beb61cb69e2da12afba2ee28aceccbebdb72d6c2f6f8c0da2a772ec1d4d"
+    }
+  }
+}

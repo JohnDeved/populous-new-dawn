@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "e00abd8d-8108-45ac-a5ba-d46d79bd4c3d",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+    "branch": "fix/firewarrior-resting-artwork-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/firewarrior-resting/browser-preparation/scenario.mjs": "cd699e6dcb29c57ba09ca7381fd3eb86416d8a44e5939eec8f9fe01f5adb0102",
+      "work/orchestration/firewarrior-resting/browser-preparation/observer.mjs": "fdb190a30dbd70e31c093c7cc5ee6865756c0d43a7bd7946167a6c15a2f70669",
+      "work/orchestration/firewarrior-resting/browser-preparation/pause-input.mjs": "ea87c0024e1934fefbfa7cdf22c414a5fedf620e885c5ca60823fdee6a30bb0c",
+      "work/orchestration/firewarrior-resting/browser-preparation/pause-input.test.mjs": "d618c7dcd2f9a4a1191ab988af15b5aec93c76ab3a1a4a42039b8d2d2f6a85e4",
+      "work/orchestration/firewarrior-resting/browser-preparation/preflight.json": "c6b4d452ed506fc001b375fcceddc1a73f9662ba61e95ae074923fe0a13ebc7f"
+    }
+  },
+  "command": [
+    "timeout",
+    "20s",
+    "taskset",
+    "-c",
+    "0-3",
+    "python",
+    "-c",
+    "import subprocess; p=\"work/orchestration/firewarrior-resting/browser-preparation/\"; [subprocess.run([\"node\",\"--check\",p+n],check=True) for n in [\"scenario.mjs\",\"observer.mjs\",\"pause-input.mjs\"]]; subprocess.run([\"node\",\"--test\",p+\"gesture-progress.test.mjs\",p+\"pause-input.test.mjs\"],check=True)"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006",
+  "startedAt": "2026-10-06T05:57:58.069Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-07-controls.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-07-controls.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T05:57:58.625Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ repeated snapshots do not prove gesture progress (2.218408ms)\n✔ a frame change without a logical turn is rejected (0.40501ms)\n✔ logical turns alone or later idle frames do not prove source720 advances (0.435585ms)\n✔ native frame progress over observed logical turns permits retained sampling gaps (1.150906ms)\n✔ only the complete trusted public Pause input proves the frozen phase (2.381039ms)\n✔ synthetic, wrong-target and moved-owner traces are rejected (2.560155ms)\n✔ missing click, repeated release and unchanged pause state are rejected (1.566231ms)\n✔ late phase and clock/phase movement across the pause handler are rejected (8.066838ms)\nℹ tests 8\nℹ suites 0\nℹ pass 8\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 138.115847\n",
+  "stderr": "",
+  "stdoutSha256": "cb0e50151ad5cd15ac0560add32a961ca1badbb1a225e5c9c8cf2b261b45fc46",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+    "branch": "fix/firewarrior-resting-artwork-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "work/orchestration/firewarrior-resting/browser-preparation/scenario.mjs": "cd699e6dcb29c57ba09ca7381fd3eb86416d8a44e5939eec8f9fe01f5adb0102",
+      "work/orchestration/firewarrior-resting/browser-preparation/observer.mjs": "fdb190a30dbd70e31c093c7cc5ee6865756c0d43a7bd7946167a6c15a2f70669",
+      "work/orchestration/firewarrior-resting/browser-preparation/pause-input.mjs": "ea87c0024e1934fefbfa7cdf22c414a5fedf620e885c5ca60823fdee6a30bb0c",
+      "work/orchestration/firewarrior-resting/browser-preparation/pause-input.test.mjs": "d618c7dcd2f9a4a1191ab988af15b5aec93c76ab3a1a4a42039b8d2d2f6a85e4",
+      "work/orchestration/firewarrior-resting/browser-preparation/preflight.json": "c6b4d452ed506fc001b375fcceddc1a73f9662ba61e95ae074923fe0a13ebc7f"
+    }
+  }
+}

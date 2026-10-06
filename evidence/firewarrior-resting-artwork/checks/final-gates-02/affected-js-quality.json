@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ab8082fc-66ad-45e9-8ddc-682f29f6f72a",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+    "branch": "fix/firewarrior-resting-artwork-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/firewarrior-resting-artwork.test.mjs": "a817633f4eb4201b93b03c181db05658c7e7b8694bb9372b38cbc2021f91fa92",
+      "tests/shaman-appearance.test.mjs": "18b330f673771df62356b19533e303bca43bed008658c9b7bfc1e267980d42b8",
+      "tests/sprite-layers.test.mjs": "02df534fe9f215437f27168a2f8ec17cc02ba799f5f080dcb6dc1cb9e2d4054b"
+    }
+  },
+  "command": [
+    "timeout",
+    "30s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node_modules/.bin/oxlint",
+    "tests/firewarrior-resting-artwork.test.mjs",
+    "tests/shaman-appearance.test.mjs",
+    "tests/sprite-layers.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006",
+  "startedAt": "2026-10-06T05:48:30.682Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/affected-js-quality.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/affected-js-quality.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T05:48:30.863Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "tests/sprite-layers.test.mjs:28:9: warning unicorn(consistent-function-scoping): Function `sources` does not capture any variables from its parent scope help: Move `sources` to the outer scope to avoid recreating it on every call.\ntests/sprite-layers.test.mjs:31:22: warning eslint(prefer-destructuring): Use Array destructuring. help: Use array destructuring rather than direct member access.\ntests/firewarrior-resting-artwork.test.mjs:12:22: warning eslint(prefer-destructuring): Use Array destructuring. help: Use array destructuring rather than direct member access.\ntests/shaman-appearance.test.mjs:143:35: warning eslint(no-shadow): 'u' is already declared in the upper scope. help: Consider renaming 'u' to avoid shadowing the variable from the outer scope.\ntests/shaman-appearance.test.mjs:81:33: warning eslint(no-nested-ternary): Do not nest ternary expressions. help: Refactor nested ternary expressions into if-else statements for better readability.\ntests/shaman-appearance.test.mjs:81:65: warning unicorn(no-nested-ternary): Unexpected nested ternary expression without parentheses. help: Add parentheses around the nested ternary expression.\n",
+  "stderr": "",
+  "stdoutSha256": "91f8eceba29f6b4b4f256ea040c32624d17685f3d0c755a502e1aadd019b99fd",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+    "branch": "fix/firewarrior-resting-artwork-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/firewarrior-resting-artwork.test.mjs": "a817633f4eb4201b93b03c181db05658c7e7b8694bb9372b38cbc2021f91fa92",
+      "tests/shaman-appearance.test.mjs": "18b330f673771df62356b19533e303bca43bed008658c9b7bfc1e267980d42b8",
+      "tests/sprite-layers.test.mjs": "02df534fe9f215437f27168a2f8ec17cc02ba799f5f080dcb6dc1cb9e2d4054b"
+    }
+  }
+}

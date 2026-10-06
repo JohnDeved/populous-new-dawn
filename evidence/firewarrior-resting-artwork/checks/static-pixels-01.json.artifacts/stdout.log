@@ -1,0 +1,54 @@
+{
+  "status": "PASS_STATIC_SHAMAN_ASSETS",
+  "scriptSha256": "496ff2dbb31eda9f9f27d49834b54dd630990d49b3063a16146b90d232ea31c3",
+  "inputIdentities": [
+    {
+      "path": "data/vstart-0.ani",
+      "bytes": 3168,
+      "sha256": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa"
+    },
+    {
+      "path": "data/vfra-0.ani",
+      "bytes": 31688,
+      "sha256": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258"
+    },
+    {
+      "path": "data/vele-0.ani",
+      "bytes": 160760,
+      "sha256": "e6158220383ae2f17db8d12844c16e4fb931030780fb3d02416fde303257a7c9"
+    },
+    {
+      "path": "data/hspr0-0.dat",
+      "bytes": 1471487,
+      "sha256": "62e5cc915a16302670027bac9535f6b90f00e38694575294418dcefb04394655"
+    },
+    {
+      "path": "data/pal0-c.dat",
+      "bytes": 1024,
+      "sha256": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+    }
+  ],
+  "originalFrames": 5091,
+  "originalPieces": 4042,
+  "directionalSources": 360,
+  "firewarriorRestingDirections": 16,
+  "atlasSha256": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd",
+  "atlasSize": [
+    2048,
+    8128
+  ],
+  "reviewedLayerFixtures": 576,
+  "reviewedPieceHashes": 3216,
+  "preservation": {
+    "oldFrames": 5021,
+    "oldPieces": 4004,
+    "oldFramesSha256": "6d2a9abb7e8bbd6d32b35aaf999093671355402d1480aafcf31facc4635d4a0d",
+    "oldPiecesSha256": "113f1251728d3fc8fe90b5984e7539fc6711cdea29414b9c0f5f749a2bbef9f9",
+    "oldAnimationsSha256": "8b1f070152376934f5af23adc698980c7da2063add9d83774b0b5a1d5e91d1d0",
+    "oldPieceHashesSha256": "044cefcab1dd57b6dea5b7152557a9e1792eba6b087e7b3eae587cd7d0e838b6",
+    "addedFrames": 70,
+    "addedPieces": 38
+  },
+  "referenceKind": "static original layer bytes with retained no-owner/mirror/shadow contract; no new native execution",
+  "limits": "Original byte/asset comparison, not native execution, browser rendering or gameplay/performance acceptance."
+}

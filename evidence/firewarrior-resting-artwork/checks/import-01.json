@@ -1,0 +1,47 @@
+{
+  "kind": "authorized-bounded-unit-import",
+  "head": "275919ef2a93aed1dc8a2d43c9e2eeaf2fd45990",
+  "inputs": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/scripts/import-original.py": "bf412564052bb6a3a7ac5c12190608b450407400f73d99f5becbdf40a7ae30bb",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vstart-0.ani": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vfra-0.ani": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vele-0.ani": "e6158220383ae2f17db8d12844c16e4fb931030780fb3d02416fde303257a7c9",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/hspr0-0.dat": "62e5cc915a16302670027bac9535f6b90f00e38694575294418dcefb04394655",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+  },
+  "before": {
+    "app/original-units.json": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+    "public/original/unit-layers.png": "09f8637991a8c6af1dfb0339aec9093ba82fc50dc4efd5bc61bf781359ef1ff4",
+    "public/original/provenance.json": "5c811a6a5c43b5b5baf5236e65a5d477c315bdf8172f4e9aa13447f1b7158408"
+  },
+  "command": [
+    "timeout",
+    "60s",
+    "taskset",
+    "-c",
+    "0-3",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "-B",
+    "scripts/import-original.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game",
+    "--units-only"
+  ],
+  "startedAt": 1791259048.7138958,
+  "exitCode": 0,
+  "seconds": 1.3296473660002448,
+  "after": {
+    "app/original-units.json": "7ad4cfe64aa6bff0c1de8be2761d7c37c7849ff8b391b37758f37cd3778e52c6",
+    "public/original/unit-layers.png": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd",
+    "public/original/provenance.json": "fa03c1e323054e559309a36ced0dbace5c8bfd5d5f79913e6fc9b5b0dfa1a85d"
+  },
+  "changedPaths": [
+    "app/original-units.json",
+    "public/original/provenance.json",
+    "public/original/unit-layers.png"
+  ],
+  "stdoutSha256": "56b831e02252667337220f5b7dca3c81e19fddeab1cdf72a44a7dee9d15d4a38",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "inputPreserved": true,
+  "status": "passed"
+}

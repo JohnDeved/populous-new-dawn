@@ -1,0 +1,3267 @@
+{
+  "kind": "bounded-source-package-rendered-candidate-and-preserved-failed-prefix",
+  "candidate": "c20a297f5f815ce404f796b08f77ea56396f96da",
+  "tree": "9af7241660efc11eb8969845ab7e587231d906bc",
+  "base": "3b899125cc8cedef938823718ad5d44f49957b66",
+  "status": "source/focused/package and revision8 source preflight accepted; candidate06 bounded rendered run and final independent review accepted, including following and both pending Save/Load cycles; baseline04 and candidate05 remain failed; no whole-Guard or merge-completion claim",
+  "artifacts": [
+    {
+      "path": "manifests/source-manifest.json",
+      "source": "work/orchestration/native-shaman-guard-input/source-manifest.json",
+      "sha256": "d68a969a8c01951c8734274e22423e9b8ff1604029df76dd3a6463371f977b72",
+      "bytes": 2978
+    },
+    {
+      "path": "manifests/source-manifest-328aad3.json",
+      "source": "work/orchestration/native-shaman-guard-input/source-manifest-328aad3.json",
+      "sha256": "3302088ea03bd0cb581380b1d7cdb26ca4457cec095cffe03a71fe4acb6f33cb",
+      "bytes": 2666
+    },
+    {
+      "path": "manifests/source-manifest-c20a297.json",
+      "source": "work/orchestration/native-shaman-guard-input/source-manifest-c20a297.json",
+      "sha256": "0c3fb40f5a584824da3faac2180fdb9fbf275ae60196be9292fac8e6b679dcd3",
+      "bytes": 4542
+    },
+    {
+      "path": "manifests/prior-quality-source-correspondence.json",
+      "source": "work/orchestration/native-shaman-guard-input/prior-quality-source-correspondence.json",
+      "sha256": "2f6dfa03ec24ced658433a7a97b473bc3883dece6307c9f68e764b4f6bb98e95",
+      "bytes": 292
+    },
+    {
+      "path": "manifests/quality-diagnostic-comparison.json",
+      "source": "work/orchestration/native-shaman-guard-input/quality-diagnostic-comparison.json",
+      "sha256": "760fec4e7380b7e8e5765cca0a04233687524fea8bd7da010959d2b39aa393f2",
+      "bytes": 89
+    },
+    {
+      "path": "receipts/focused-supersession-final.json",
+      "source": "work/orchestration/native-shaman-guard-input/focused-supersession-final.json",
+      "sha256": "90cd41970ef1ae3c41be739e4c45a54b32d111dd6e2bf8137c9a14e8d4ac8de0",
+      "bytes": 11203
+    },
+    {
+      "path": "receipts/focused-supersession-final.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/focused-supersession-final.json.artifacts/stdout.log",
+      "sha256": "2a735260bd8a26f0c450c41b5776832e9f2c3ee74ac445a463fc418eb8349355",
+      "bytes": 9466
+    },
+    {
+      "path": "receipts/focused-supersession-final.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/focused-supersession-final.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "receipts/focused-ddd0904.json",
+      "source": "work/orchestration/native-shaman-guard-input/focused-ddd0904.json",
+      "sha256": "fe25666b4fea30b072c2e02772bb10b22d3f7530ba769b2d1fcfe5b60f73c6df",
+      "bytes": 10692
+    },
+    {
+      "path": "receipts/focused-ddd0904.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/focused-ddd0904.json.artifacts/stdout.log",
+      "sha256": "d15a974240e814e8bef3c6ab6aa80c3cc4b81d96c59af18372340dbff888c252",
+      "bytes": 8982
+    },
+    {
+      "path": "receipts/focused-ddd0904.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/focused-ddd0904.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "receipts/contained-target-before.json",
+      "source": "work/orchestration/native-shaman-guard-input/contained-target-before.json",
+      "sha256": "252bcec6aa349bf6f7a2ee760715ce08b8d44fb157f499bf2f92a9643803bed0",
+      "bytes": 2710
+    },
+    {
+      "path": "receipts/contained-target-before.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/contained-target-before.json.artifacts/stdout.log",
+      "sha256": "007fce64c23e6f8ab3d89db64556deaf42954757371b9f1704c46c8bd7042b0f",
+      "bytes": 1048
+    },
+    {
+      "path": "receipts/contained-target-before.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/contained-target-before.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "receipts/contained-target-after.json",
+      "source": "work/orchestration/native-shaman-guard-input/contained-target-after.json",
+      "sha256": "cddc74258e7a64bfa7f9c19fafbc846cceffde61482e8729ff593037c4d55f61",
+      "bytes": 2343
+    },
+    {
+      "path": "receipts/contained-target-after.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/contained-target-after.json.artifacts/stdout.log",
+      "sha256": "a803c02ee3770bb8b7837c9b1940d5cd9e14724fa93e4da56efb714df3b59f0c",
+      "bytes": 652
+    },
+    {
+      "path": "receipts/contained-target-after.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/contained-target-after.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "receipts/supersession-before.json",
+      "source": "work/orchestration/native-shaman-guard-input/supersession-before.json",
+      "sha256": "6a60bd5d5cc2754abdda277e880b2af4197fb2f88f77202dec1c17a31b73a995",
+      "bytes": 8020
+    },
+    {
+      "path": "receipts/supersession-before.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/supersession-before.json.artifacts/stdout.log",
+      "sha256": "ab3e4eadccdbb6c1f7166bb270845ced6959031bb6d9b3fc11b4b0dc4e975b66",
+      "bytes": 6222
+    },
+    {
+      "path": "receipts/supersession-before.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/supersession-before.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "receipts/supersession-after.json",
+      "source": "work/orchestration/native-shaman-guard-input/supersession-after.json",
+      "sha256": "fe9fa04eb756c94d8e854dac14c5dc1fb9e751f2ad5696d3c981912abb269460",
+      "bytes": 2142
+    },
+    {
+      "path": "receipts/supersession-after.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/supersession-after.json.artifacts/stdout.log",
+      "sha256": "21f31abf26a36b62e72c30f4281a9faa453d86526960c264853618714840c5b5",
+      "bytes": 502
+    },
+    {
+      "path": "receipts/supersession-after.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/supersession-after.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "receipts/baseline-regressions.json",
+      "source": "work/orchestration/native-shaman-guard-input/baseline-regressions.json",
+      "sha256": "32c569e6b9f7c791177a611d36c95b6444e2f54e5622c678367ea0965f887c7d",
+      "bytes": 36127
+    },
+    {
+      "path": "receipts/baseline-regressions.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/baseline-regressions.json.artifacts/stdout.log",
+      "sha256": "aa0443ad1e0efe9680200d33163f44e79b4ae256b3f7ae4cd815611fc7082c91",
+      "bytes": 32531
+    },
+    {
+      "path": "receipts/baseline-regressions.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/baseline-regressions.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "receipts/baseline-distances.json",
+      "source": "work/orchestration/native-shaman-guard-input/baseline-distances.json",
+      "sha256": "230d9345a2240c7f094d1754256acc14fbd25c69e9dd518e63fd101308472fc4",
+      "bytes": 9769
+    },
+    {
+      "path": "receipts/baseline-distances.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/baseline-distances.json.artifacts/stdout.log",
+      "sha256": "d3d84a6269a2628996e1d4e08225340da8a61c3ed4a3d84e923b8a931fbf764e",
+      "bytes": 7417
+    },
+    {
+      "path": "receipts/baseline-distances.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/baseline-distances.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "receipts/typecheck-final.json",
+      "source": "work/orchestration/native-shaman-guard-input/typecheck-final.json",
+      "sha256": "975d29518a70006f04fa297cfde9463540f19083b90ec8b055b72c24e8a4db8a",
+      "bytes": 1697
+    },
+    {
+      "path": "receipts/typecheck-final.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/typecheck-final.json.artifacts/stdout.log",
+      "sha256": "5b3b688caa668685eebda41ca93c4e60de869bac3645a0b25bf22809e6c84ba5",
+      "bytes": 55
+    },
+    {
+      "path": "receipts/typecheck-final.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/typecheck-final.json.artifacts/stderr.log",
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "bytes": 99
+    },
+    {
+      "path": "receipts/format-final.json",
+      "source": "work/orchestration/native-shaman-guard-input/format-final.json",
+      "sha256": "3d1bd873df0178261b91e55cff324a78c3509a5f362c9704dcd51c4ba5fb38ec",
+      "bytes": 1850
+    },
+    {
+      "path": "receipts/format-final.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/format-final.json.artifacts/stdout.log",
+      "sha256": "6b559a2a2ad322c566cb1f559ef27b7ac4b3b8db1a87dace1b33132f9ca7f250",
+      "bytes": 110
+    },
+    {
+      "path": "receipts/format-final.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/format-final.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "receipts/lint-scoped.json",
+      "source": "work/orchestration/native-shaman-guard-input/lint-scoped.json",
+      "sha256": "fe02703ad024c7fa8fc798ac333e65d16090ced0b1f3aa7baebb3993e2afedf8",
+      "bytes": 24543
+    },
+    {
+      "path": "receipts/lint-scoped.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/lint-scoped.json.artifacts/stdout.log",
+      "sha256": "105bef648bf59ba70b4115168cb02a8c9470e33c3a65aede64f84ac778e9c245",
+      "bytes": 22608
+    },
+    {
+      "path": "receipts/lint-scoped.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/lint-scoped.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "receipts/eslint-baseline.json",
+      "source": "work/orchestration/native-shaman-guard-input/eslint-baseline.json",
+      "sha256": "22a53b3d7be80383900b702452f306299e1a9a4e733203b19a72920b62df2126",
+      "bytes": 24487
+    },
+    {
+      "path": "receipts/eslint-baseline.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/eslint-baseline.json.artifacts/stdout.log",
+      "sha256": "105bef648bf59ba70b4115168cb02a8c9470e33c3a65aede64f84ac778e9c245",
+      "bytes": 22608
+    },
+    {
+      "path": "receipts/eslint-baseline.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/eslint-baseline.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "receipts/oxlint-scoped-final.json",
+      "source": "work/orchestration/native-shaman-guard-input/oxlint-scoped-final.json",
+      "sha256": "bb3e6a24cb66a96878adcb64f088fbe94e5dffcc3c4233b7a86732db8a24684e",
+      "bytes": 65818
+    },
+    {
+      "path": "receipts/oxlint-scoped-final.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/oxlint-scoped-final.json.artifacts/stdout.log",
+      "sha256": "4c7f8a68d5561ff306aefb6befdb76313c6f802386153e6613b89863d49040ca",
+      "bytes": 63694
+    },
+    {
+      "path": "receipts/oxlint-scoped-final.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/oxlint-scoped-final.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "receipts/oxlint-baseline-configured.json",
+      "source": "work/orchestration/native-shaman-guard-input/oxlint-baseline-configured.json",
+      "sha256": "1e6a421f9400acb87d8ce77d83b37c6576254f56e1def8efec7de51b28150c9a",
+      "bytes": 66022
+    },
+    {
+      "path": "receipts/oxlint-baseline-configured.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/oxlint-baseline-configured.json.artifacts/stdout.log",
+      "sha256": "e11d271fca96dcdf2f29b5457330d38808857c27d4ac83d83e2a62efb72fd820",
+      "bytes": 63694
+    },
+    {
+      "path": "receipts/oxlint-baseline-configured.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/oxlint-baseline-configured.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "receipts/vectors-ddd0904.json",
+      "source": "work/orchestration/native-shaman-guard-input/vectors-ddd0904.json",
+      "sha256": "c442bc8378cae04fe9117d898445aa6b291aeb2fc04a45e1d357c4713359d145",
+      "bytes": 2814
+    },
+    {
+      "path": "receipts/vectors-ddd0904.json.artifacts/stdout.log",
+      "source": "work/orchestration/native-shaman-guard-input/vectors-ddd0904.json.artifacts/stdout.log",
+      "sha256": "66febff59dc955a4eabdf6e9942c291da8c2570f7e7dfb174120d8176a95b8a7",
+      "bytes": 115
+    },
+    {
+      "path": "receipts/vectors-ddd0904.json.artifacts/stderr.log",
+      "source": "work/orchestration/native-shaman-guard-input/vectors-ddd0904.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "baseline/baseline-regressions.test.mjs",
+      "source": "work/orchestration/native-shaman-guard-input/baseline-regressions.test.mjs",
+      "sha256": "89a51585cf334f8ab07749ece1b68424b7c92e25cd53a57c1bf9e0ec056f4851",
+      "bytes": 15398
+    },
+    {
+      "path": "baseline/baseline-distances.test.mjs",
+      "source": "work/orchestration/native-shaman-guard-input/baseline-distances.test.mjs",
+      "sha256": "92004a8b2f71557837810d40098825fedf0869d2749978b0e4c919194c3b1900",
+      "bytes": 808
+    },
+    {
+      "path": "baseline/failure-first.log",
+      "source": "work/orchestration/native-shaman-guard-input/failure-first.log",
+      "sha256": "ca1262bdaa417b809564778a2cc8a11943bc7c2b65bd849971c960772e41aa84",
+      "bytes": 15808
+    },
+    {
+      "path": "review/review-c20a297.md",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/review-c20a297.md",
+      "sha256": "176ed5311d69e98120ef83447384fbc18f25755f9626824b2bc8e667d304f3d6",
+      "bytes": 7593
+    },
+    {
+      "path": "review/check-contained-target.mjs",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/check-contained-target.mjs",
+      "sha256": "4f260faefa3c0454c7916016dc55a842a760aecf6e186a7bbcac75dc67ec06fc",
+      "bytes": 1828
+    },
+    {
+      "path": "review/contained-target.json",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/contained-target.json",
+      "sha256": "2a1bc54f3d4c1ae3cf1e4e56211d0501c31f3257c4749e488c6dc4c8454a8efb",
+      "bytes": 289
+    },
+    {
+      "path": "review/contained-target.stderr",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/contained-target.stderr",
+      "sha256": "d4eacbbe0f8ad6cffb03eae664470903def063126ec70010e60822d0081073fc",
+      "bytes": 725
+    },
+    {
+      "path": "review/check-same-turn-state.mjs",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/check-same-turn-state.mjs",
+      "sha256": "10cac272b5636e7b82bbf42935b60b1bde22ffa09eac081d6df6cddfa888343a",
+      "bytes": 1750
+    },
+    {
+      "path": "review/same-turn-state.json",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/same-turn-state.json",
+      "sha256": "ef327de5ea6f10f21b66a198023d7fd176b1d20e03a6cbb54cfec441fdaa30be",
+      "bytes": 3707
+    },
+    {
+      "path": "review/check-native-supersession.py",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/check-native-supersession.py",
+      "sha256": "4d41f43b90d27354fa5c01dfc601d064f800e7b9b99f6c5694feb18a0d1605d5",
+      "bytes": 2211
+    },
+    {
+      "path": "review/native-supersession.json",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/native-supersession.json",
+      "sha256": "f27f202d9f936df58d1c1b1359a807649cfdee75ae79c89a99447bf2c5dc3a8a",
+      "bytes": 8981
+    },
+    {
+      "path": "review/native-supersession.stderr",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/native-supersession.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "candidate/decomp/research/shaman-guard-input.md",
+      "source": "decomp/research/shaman-guard-input.md",
+      "sha256": "9f9c8f6545a3b56c1c3dcaa8ab8628869f99ab66cdf5a3d9ca03f22b624da6cc",
+      "bytes": 9908
+    },
+    {
+      "path": "candidate/app/shaman-guard.ts",
+      "source": "app/shaman-guard.ts",
+      "sha256": "3d35fe7fb9c63770d564a9caab239434bded6952326f486df474eba0fa94b83a",
+      "bytes": 1556
+    },
+    {
+      "path": "candidate/scripts/extract-shaman-guard-vectors.mjs",
+      "source": "scripts/extract-shaman-guard-vectors.mjs",
+      "sha256": "0225409acd307b4d3088e7bd0a99342d839ddb48fa7819da17d02b262f2d59ea",
+      "bytes": 3320
+    },
+    {
+      "path": "candidate/tests/shaman-guard-input.test.mjs",
+      "source": "tests/shaman-guard-input.test.mjs",
+      "sha256": "dc824667dd60b225ab038bd5fa8a95d604ad1840643c98deff54cc067d56ed5e",
+      "bytes": 17863
+    },
+    {
+      "path": "candidate/tests/shaman-guard-native.test.mjs",
+      "source": "tests/shaman-guard-native.test.mjs",
+      "sha256": "39b8330271439cbb24aa3d671508b82116aeb45928b8c31a060f57c33429ecb2",
+      "bytes": 4132
+    },
+    {
+      "path": "candidate.patch",
+      "source": "git diff --binary 3b899125 c20a297",
+      "sha256": "727468f709d9c612b77db8e4a32d7bac113a40e88f87c9e94cd1ff03db10cdd1",
+      "bytes": 493679
+    },
+    {
+      "path": "review/check-next-controller-visits.mjs",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/check-next-controller-visits.mjs",
+      "sha256": "138e95d0f42b6d88761711d07a5edf01d91491d1d3642ec29b55831a55b11898",
+      "bytes": 2871
+    },
+    {
+      "path": "review/next-controller-visits-c20a297.json",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/next-controller-visits-c20a297.json",
+      "sha256": "c0109beabbb9428a0732fc835cf6f2c40124d56c8cb2b080c26bda9e4d4922c1",
+      "bytes": 13286
+    },
+    {
+      "path": "review/focused-c20a297.log",
+      "source": "work/orchestration/native-shaman-guard-review-ddd0904/focused-c20a297.log",
+      "sha256": "521e2bf4e8e0bb9e5913346b5c3930faeec85d74f0df1d709d11ba3bb4b38f72",
+      "bytes": 9480
+    },
+    {
+      "path": "native-shaman-guard-input/source-manifest-c20a297.json",
+      "source": "work/orchestration/native-shaman-guard-input/source-manifest-c20a297.json",
+      "sha256": "0c3fb40f5a584824da3faac2180fdb9fbf275ae60196be9292fac8e6b679dcd3",
+      "bytes": 4542
+    },
+    {
+      "path": "final-gates/receipts/fullcheck-c20a297.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/fullcheck-c20a297.json",
+      "sha256": "3964ed4c0c75151cd8bd40e5dea83f2b4da54341df85d7ba5c3ef343cce6aad0",
+      "bytes": 132379
+    },
+    {
+      "path": "final-gates/receipts/fullcheck-c20a297.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/fullcheck-c20a297.json.artifacts/stderr.log",
+      "sha256": "734ccd19a31fce6b86708ba92aae98b5811c1a2e2999fe39d3e4d09c79cbe657",
+      "bytes": 911
+    },
+    {
+      "path": "final-gates/receipts/fullcheck-c20a297.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/fullcheck-c20a297.json.artifacts/stdout.log",
+      "sha256": "25856cc9eff6884e04cf5016516d8e9474591e471e0c7b63d84a094c29960992",
+      "bytes": 128045
+    },
+    {
+      "path": "final-gates/receipts/build-c20a297.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/build-c20a297.json",
+      "sha256": "d0d8d83f3cd072fdf5087caef7ca8e33e927cb2f718814d60ceb9cf4d3f21227",
+      "bytes": 4690
+    },
+    {
+      "path": "final-gates/receipts/build-c20a297.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/build-c20a297.json.artifacts/stderr.log",
+      "sha256": "8e85c133e9872c2a260b67ae4626e0663a1cf2a43f8ff9fb20e7fc2818e2f69a",
+      "bytes": 1837
+    },
+    {
+      "path": "final-gates/receipts/build-c20a297.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/build-c20a297.json.artifacts/stdout.log",
+      "sha256": "8a9b406e7e833469e6d2f3fee39a7ac5666f5708fc6b108be20b86969b61d237",
+      "bytes": 1143
+    },
+    {
+      "path": "final-gates/receipts/check-plan-c20a297.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/check-plan-c20a297.json",
+      "sha256": "9295b90bdd54a97685ec98185978d90bdf5843bdd0036e5469ce974eaace1424",
+      "bytes": 123402
+    },
+    {
+      "path": "final-gates/receipts/final-quality-comparison-c20a297.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-quality-comparison-c20a297.json",
+      "sha256": "79c71d1516228cbd42fdefb4f04dd3e8d57f6ba0359c508a513c77ad8030130b",
+      "bytes": 673
+    },
+    {
+      "path": "final-gates/receipts/final-fallow-health-c20a297.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-fallow-health-c20a297.json",
+      "sha256": "701fa20bd7aa4cab323d10a37bfff388c0e3ba76d2c7882d567d1036487e2aca",
+      "bytes": 47653
+    },
+    {
+      "path": "final-gates/receipts/final-fallow-health-c20a297.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-fallow-health-c20a297.json.artifacts/stderr.log",
+      "sha256": "79c3427b3c2a970d3a43998ac4ef43a5a118b3f41e04cbc6a19837e223c41389",
+      "bytes": 328
+    },
+    {
+      "path": "final-gates/receipts/final-fallow-health-c20a297.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-fallow-health-c20a297.json.artifacts/stdout.log",
+      "sha256": "11badf713547055da50e606e5c30eabede07414f5682636f12c97ebc1e9aeb55",
+      "bytes": 44694
+    },
+    {
+      "path": "final-gates/receipts/final-fallow-dupes-c20a297.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-fallow-dupes-c20a297.json",
+      "sha256": "5821b52cb3649d3d1b161e266cde7de451412945650a22efc6fa0e2e0eafe58a",
+      "bytes": 12998
+    },
+    {
+      "path": "final-gates/receipts/final-fallow-dupes-c20a297.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-fallow-dupes-c20a297.json.artifacts/stderr.log",
+      "sha256": "7aec5937e5195a063ae46db7c7a52b758b10b35434b602a03ae3dffd51bbe800",
+      "bytes": 448
+    },
+    {
+      "path": "final-gates/receipts/final-fallow-dupes-c20a297.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-fallow-dupes-c20a297.json.artifacts/stdout.log",
+      "sha256": "fc0e31addb4f1cd9c776354d0dc027054f036995b755f5500846b844fc15912b",
+      "bytes": 10766
+    },
+    {
+      "path": "final-gates/receipts/final-eslint-baseline-c20a297.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-eslint-baseline-c20a297.json",
+      "sha256": "043d23346ff276beaf5180df3ea1e884990fd4dd511f7b25fbc28e3849bd5f94",
+      "bytes": 24515
+    },
+    {
+      "path": "final-gates/receipts/final-eslint-baseline-c20a297.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-eslint-baseline-c20a297.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "final-gates/receipts/final-eslint-baseline-c20a297.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-eslint-baseline-c20a297.json.artifacts/stdout.log",
+      "sha256": "105bef648bf59ba70b4115168cb02a8c9470e33c3a65aede64f84ac778e9c245",
+      "bytes": 22608
+    },
+    {
+      "path": "final-gates/receipts/final-format-global-c20a297.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-format-global-c20a297.json",
+      "sha256": "519b1de4f4a8d775d91899a8d41bdfc49b71dc593f4df32bbced91792c8b2e88",
+      "bytes": 1951
+    },
+    {
+      "path": "final-gates/receipts/final-format-global-c20a297.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-format-global-c20a297.json.artifacts/stderr.log",
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "bytes": 99
+    },
+    {
+      "path": "final-gates/receipts/final-format-global-c20a297.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-format-global-c20a297.json.artifacts/stdout.log",
+      "sha256": "7ef30a2574818f4212b00db2e1bc3442f5f15aa9886c525a9ca6942d0980c375",
+      "bytes": 273
+    },
+    {
+      "path": "final-gates/receipts/final-oxlint-c20a297.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-oxlint-c20a297.json",
+      "sha256": "a7c806d8f2f7932e597c43f4e17845ae32dff20e65cc345a2958cd8368cfc58a",
+      "bytes": 67002
+    },
+    {
+      "path": "final-gates/receipts/final-oxlint-c20a297.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-oxlint-c20a297.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "final-gates/receipts/final-oxlint-c20a297.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-oxlint-c20a297.json.artifacts/stdout.log",
+      "sha256": "77f9a70b3715dadeb093f032a5012f1d1732275a2cd58f2d9bf41edd9d175dbf",
+      "bytes": 64844
+    },
+    {
+      "path": "final-gates/receipts/final-eslint-c20a297.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-eslint-c20a297.json",
+      "sha256": "2d2872dd3786b838e4a7c938e8ee62c0ac51bead84b9d22a179ea300e6fb1b6c",
+      "bytes": 24587
+    },
+    {
+      "path": "final-gates/receipts/final-eslint-c20a297.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-eslint-c20a297.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "final-gates/receipts/final-eslint-c20a297.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-eslint-c20a297.json.artifacts/stdout.log",
+      "sha256": "105bef648bf59ba70b4115168cb02a8c9470e33c3a65aede64f84ac778e9c245",
+      "bytes": 22608
+    },
+    {
+      "path": "final-gates/receipts/final-format-scoped-c20a297.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-format-scoped-c20a297.json",
+      "sha256": "d7ff74c0a40cc90e6458968b8dd37b4daf9f92c7d7fe93d8c08372331bc18195",
+      "bytes": 1906
+    },
+    {
+      "path": "final-gates/receipts/final-format-scoped-c20a297.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-format-scoped-c20a297.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "final-gates/receipts/final-format-scoped-c20a297.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-format-scoped-c20a297.json.artifacts/stdout.log",
+      "sha256": "4453fd9dde6e738b577b1e52f4b4c17b4a17bb0d6dacb698b9606e2122ac0720",
+      "bytes": 110
+    },
+    {
+      "path": "final-gates/receipts/final-fallow-unused-c20a297.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-fallow-unused-c20a297.json",
+      "sha256": "e435ddd595f814545c31f97912652d9ada538eaefe0ddc616a4fe7f8c7dcb589",
+      "bytes": 6460
+    },
+    {
+      "path": "final-gates/receipts/final-fallow-unused-c20a297.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-fallow-unused-c20a297.json.artifacts/stderr.log",
+      "sha256": "6f34863e80a764d9731eae7bb4e4414cc451f6e9738bb1cb20bcac56cb2973c1",
+      "bytes": 409
+    },
+    {
+      "path": "final-gates/receipts/final-fallow-unused-c20a297.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-fallow-unused-c20a297.json.artifacts/stdout.log",
+      "sha256": "047c2ba5b9f21d23fd2815d0f77c190365be650f89406bca7136f9da66bcd053",
+      "bytes": 4376
+    },
+    {
+      "path": "final-gates/receipts/final-oxlint-baseline-c20a297.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-oxlint-baseline-c20a297.json",
+      "sha256": "602ebae21df54a9f0c4c56ebb204e412c5210210711747de901b20094b7dc505",
+      "bytes": 67200
+    },
+    {
+      "path": "final-gates/receipts/final-oxlint-baseline-c20a297.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-oxlint-baseline-c20a297.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "final-gates/receipts/final-oxlint-baseline-c20a297.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-input/final-oxlint-baseline-c20a297.json.artifacts/stdout.log",
+      "sha256": "90fede7eebf35fc81596b06d83f3f8b2bc1da27f6fb53209fa1b4cdf34dde2d7",
+      "bytes": 64844
+    },
+    {
+      "path": "final-gates/native-shaman-guard-final-review/review-c20a297-gates-launch.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-final-review/review-c20a297-gates-launch.md",
+      "sha256": "5a7141b9377043b2dedea37b33cffc8f2b18ae96e5d4fc720844e5804f02e6bb",
+      "bytes": 5372
+    },
+    {
+      "path": "final-gates/native-shaman-guard-final-review/verification-c20a297.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-final-review/verification-c20a297.json",
+      "sha256": "adc3262d84d286fad6cf2b69085d1d7e865762029ed7fe7b7dd4d5870f5ad007",
+      "bytes": 58430
+    },
+    {
+      "path": "final-gates/native-shaman-guard-review-ddd0904/review-c20a297.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-shaman-guard-review-ddd0904/review-c20a297.md",
+      "sha256": "176ed5311d69e98120ef83447384fbc18f25755f9626824b2bc8e667d304f3d6",
+      "bytes": 7593
+    },
+    {
+      "path": "final-gates/native-guard-browser-preflight-review/review-revision-03.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/review-revision-03.md",
+      "sha256": "8c64e2d88264cb969bbbd74c43f739531b8a1cea09b1f19598120900af74b549",
+      "bytes": 4297
+    },
+    {
+      "path": "final-gates/native-guard-browser-execution/launch-plan-rev3.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-execution/launch-plan-rev3.json",
+      "sha256": "b17eab90f45c263f76f153426ceb8934dd5a52373c3be4c927675000039d6916",
+      "bytes": 5921
+    },
+    {
+      "path": "final-gates/native-guard-browser-diagnosis/mission10-construction.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-diagnosis/mission10-construction.json",
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "bytes": 3768
+    },
+    {
+      "path": "final-gates/native-guard-browser-diagnosis/failed-pilot-01.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-diagnosis/failed-pilot-01.md",
+      "sha256": "5f48ebcb3cb7989fee0bfd707d80a9af314a868d13ea2a10c39b7177b4ae6836",
+      "bytes": 5015
+    },
+    {
+      "path": "pilot-01/revision-03/accepted-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "bytes": 2669
+    },
+    {
+      "path": "pilot-01/revision-03/attempt-01-provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/attempt-01-provenance.json",
+      "sha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+      "bytes": 5311
+    },
+    {
+      "path": "pilot-01/revision-03/attempt-01-verifier.mjs.txt",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/attempt-01-verifier.mjs.txt",
+      "sha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+      "bytes": 6963
+    },
+    {
+      "path": "pilot-01/revision-03/browser-probes.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/browser-probes.mjs",
+      "sha256": "04be28c504df1a3360c9c43d24092259e1f49f8e4eb4927b0592854428392b01",
+      "bytes": 9926
+    },
+    {
+      "path": "pilot-01/revision-03/checkpoint-guard.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/checkpoint-guard.mjs",
+      "sha256": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+      "bytes": 2953
+    },
+    {
+      "path": "pilot-01/revision-03/ground-and-dispatch.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/ground-and-dispatch.mjs",
+      "sha256": "9674da60506da52fef704a51183afc3284cd8499a9af7799b97ca21152a577ba",
+      "bytes": 6237
+    },
+    {
+      "path": "pilot-01/revision-03/guard-assertions.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/guard-assertions.mjs",
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "bytes": 5929
+    },
+    {
+      "path": "pilot-01/revision-03/guard-assertions.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/guard-assertions.test.mjs",
+      "sha256": "3bbadb73d827213c78861132da40b29f6571db67992444a139b48f49f305efa4",
+      "bytes": 6742
+    },
+    {
+      "path": "pilot-01/revision-03/observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/observer.mjs",
+      "sha256": "e3b4ef888ed57f0035309ac79e9b5b81e1634f14a5eaf1418306fa1c69e75a95",
+      "bytes": 9787
+    },
+    {
+      "path": "pilot-01/revision-03/ordinary-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/ordinary-input.mjs",
+      "sha256": "20e9403ff42c405acf625b4a0a43f33b1ad57c33559a78a8f2bb1a492ba474d4",
+      "bytes": 9628
+    },
+    {
+      "path": "pilot-01/revision-03/plan.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/plan.md",
+      "sha256": "d1607bdc68d133acb7970b233d704521316a6758dc2d2539533c7f018fbf9718",
+      "bytes": 17044
+    },
+    {
+      "path": "pilot-01/revision-03/preparation-failure-01.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/preparation-failure-01.json",
+      "sha256": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+      "bytes": 663
+    },
+    {
+      "path": "pilot-01/revision-03/preparation-receipt.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/preparation-receipt.json",
+      "sha256": "90624ba41e75cb149384aec317fec4e77a1b4ddfba7f05e6c073ff6c408bda6e",
+      "bytes": 3904
+    },
+    {
+      "path": "pilot-01/revision-03/provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/provenance.json",
+      "sha256": "923651804c999ca804acdffff591c0cd4836a3674dae0d4aa3177486ae76fe8b",
+      "bytes": 7002
+    },
+    {
+      "path": "pilot-01/revision-03/replacement-observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/replacement-observer.mjs",
+      "sha256": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+      "bytes": 1783
+    },
+    {
+      "path": "pilot-01/revision-03/revision-history.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/revision-history.json",
+      "sha256": "4aa0155c02ce9b14900ec12d706088dfe5a6221de5e38b48681472e3f58d0aa2",
+      "bytes": 4235
+    },
+    {
+      "path": "pilot-01/revision-03/runtime-sources.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/runtime-sources.json",
+      "sha256": "305edd4de358a6d671f91ead747e6be64af4c99674e6833742c95dc23d3d400b",
+      "bytes": 6794
+    },
+    {
+      "path": "pilot-01/revision-03/scenario.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/scenario.mjs",
+      "sha256": "1889980ca4e2b9288e2f069708c6da0a3f3b3d263693152454fee94670d1d086",
+      "bytes": 25035
+    },
+    {
+      "path": "pilot-01/revision-03/verify-preparation.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/verify-preparation.mjs",
+      "sha256": "7f9c1f43feeed3f5bb030d29efed257934ce3d18c8406c2a3f75471533cf637f",
+      "bytes": 8472
+    },
+    {
+      "path": "pilot-01/baseline/launcher.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-01/launcher.json",
+      "sha256": "230b1d342b452cb84ff3c3978486f012a1ee098925079eedcc194252321fbca9",
+      "bytes": 3101
+    },
+    {
+      "path": "pilot-01/baseline/launcher.stdout.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-01/launcher.stdout.log",
+      "sha256": "5e4ab5e4a073655c841610191ac35bc3c9bff87d9370475c90c7765d672f5f74",
+      "bytes": 349
+    },
+    {
+      "path": "pilot-01/baseline/launcher.stderr.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-01/launcher.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "pilot-01/baseline/outer.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-01/outer.json",
+      "sha256": "8f7f82b1d23f1ba79894e7f821ba57d84b211b0d72736b3b8a694f0fe4ba1ce4",
+      "bytes": 4207
+    },
+    {
+      "path": "pilot-01/baseline/outer.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-01/outer.json.artifacts/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "pilot-01/baseline/outer.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-01/outer.json.artifacts/stderr.log",
+      "sha256": "6fe539a99d50bf06627c1f524412c2a78a3a524305b4d7364e35839e68b16023",
+      "bytes": 919
+    },
+    {
+      "path": "pilot-01/baseline/run/receipt.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-01/run/receipt.json",
+      "sha256": "5faaee3df939fcba9a5e20640bc572cee2a12b8ff202de6a84f7645e1d91366e",
+      "bytes": 2852
+    },
+    {
+      "path": "pilot-01/baseline/run/witness.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-01/run/witness.json",
+      "sha256": "acca3f144cf2f0ff8c8e9131214f02bf9ecb1fdb0ef7555c6f05b68132602fad",
+      "bytes": 97467
+    },
+    {
+      "path": "pilot-01/baseline/run/server.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-01/run/server.log",
+      "sha256": "75076da33f09a62103dc1ef4b83a492e8620553c13c76d19ab91540a6afb6714",
+      "bytes": 828
+    },
+    {
+      "path": "pilot-01/baseline/run/failure-0.png",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-01/run/failure-0.png",
+      "sha256": "f74ab4ebae86e6a1699b2c77fc0e11a20765c0c3eea7f4a6fc99acf9511e244e",
+      "bytes": 1799179
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/accepted-input.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "bytes": 2669
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/attempt-01-provenance.json",
+      "source": "work/orchestration/native-guard-browser-preparation/attempt-01-provenance.json",
+      "sha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+      "bytes": 5311
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/attempt-01-verifier.mjs.txt",
+      "source": "work/orchestration/native-guard-browser-preparation/attempt-01-verifier.mjs.txt",
+      "sha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+      "bytes": 6963
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/browser-probes.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/browser-probes.mjs",
+      "sha256": "04be28c504df1a3360c9c43d24092259e1f49f8e4eb4927b0592854428392b01",
+      "bytes": 9926
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/checkpoint-guard.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/checkpoint-guard.mjs",
+      "sha256": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+      "bytes": 2953
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/entry-identity.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/entry-identity.mjs",
+      "sha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+      "bytes": 4037
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/entry-identity.test.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/entry-identity.test.mjs",
+      "sha256": "00c7ef31353bd7066ac4b48693664d996b96b30e1645a4fb743af2c2cb8fe806",
+      "bytes": 4619
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/ground-and-dispatch.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/ground-and-dispatch.mjs",
+      "sha256": "9674da60506da52fef704a51183afc3284cd8499a9af7799b97ca21152a577ba",
+      "bytes": 6237
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/guard-assertions.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/guard-assertions.mjs",
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "bytes": 5929
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/guard-assertions.test.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/guard-assertions.test.mjs",
+      "sha256": "3bbadb73d827213c78861132da40b29f6571db67992444a139b48f49f305efa4",
+      "bytes": 6742
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/mission10-construction.json",
+      "source": "work/orchestration/native-guard-browser-preparation/mission10-construction.json",
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "bytes": 3768
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/observer.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/observer.mjs",
+      "sha256": "f172a58ccea14a3038eea1803b1e6b52c30f89a219846a83f4dfd5df3d43c1df",
+      "bytes": 11539
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/ordinary-input.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/ordinary-input.mjs",
+      "sha256": "20e9403ff42c405acf625b4a0a43f33b1ad57c33559a78a8f2bb1a492ba474d4",
+      "bytes": 9628
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/plan.md",
+      "source": "work/orchestration/native-guard-browser-preparation/plan.md",
+      "sha256": "93727bb8c830568b74d707798c43423fd019ae2e01ac28faba8382f58ddf65da",
+      "bytes": 20246
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/preparation-failure-01.json",
+      "source": "work/orchestration/native-guard-browser-preparation/preparation-failure-01.json",
+      "sha256": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+      "bytes": 663
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/preparation-receipt.json",
+      "source": "work/orchestration/native-guard-browser-preparation/preparation-receipt.json",
+      "sha256": "bd1d39c0f75a43e7142ab552b6587d81e60de7c9d95501dc208540dbb8028a95",
+      "bytes": 5081
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/provenance.json",
+      "source": "work/orchestration/native-guard-browser-preparation/provenance.json",
+      "sha256": "20a2081c319528b9f199fa9d0207d94ecc0dfc827ed255f2743dca287231b539",
+      "bytes": 8402
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/replacement-observer.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/replacement-observer.mjs",
+      "sha256": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+      "bytes": 1783
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revision-history.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revision-history.json",
+      "sha256": "65bd8a92770cde4e3a86519998831f55ea92f5c5e34c99aaae86301110b88e49",
+      "bytes": 6543
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/accepted-input.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "bytes": 2669
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/attempt-01-provenance.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/attempt-01-provenance.json",
+      "sha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+      "bytes": 5311
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/attempt-01-verifier.mjs.txt",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/attempt-01-verifier.mjs.txt",
+      "sha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+      "bytes": 6963
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/browser-probes.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/browser-probes.mjs",
+      "sha256": "04be28c504df1a3360c9c43d24092259e1f49f8e4eb4927b0592854428392b01",
+      "bytes": 9926
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/checkpoint-guard.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/checkpoint-guard.mjs",
+      "sha256": "c60d682ac063741304ad96a2223c626fc8d7cc2797fcc38c6250696e16e21627",
+      "bytes": 2944
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/ground-and-dispatch.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/ground-and-dispatch.mjs",
+      "sha256": "9674da60506da52fef704a51183afc3284cd8499a9af7799b97ca21152a577ba",
+      "bytes": 6237
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/observer.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/observer.mjs",
+      "sha256": "e3b4ef888ed57f0035309ac79e9b5b81e1634f14a5eaf1418306fa1c69e75a95",
+      "bytes": 9787
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/ordinary-input.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/ordinary-input.mjs",
+      "sha256": "20e9403ff42c405acf625b4a0a43f33b1ad57c33559a78a8f2bb1a492ba474d4",
+      "bytes": 9628
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/plan.md",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/plan.md",
+      "sha256": "8c3f994e1bf5def111b4b498bd7169ba59a5596fceb4276b7f4833579a704d70",
+      "bytes": 14531
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/preparation-failure-01.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/preparation-failure-01.json",
+      "sha256": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+      "bytes": 663
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/preparation-receipt.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/preparation-receipt.json",
+      "sha256": "f73ee982ac848f7d53a857d0434a22362a6077946624db6e3bafd97970e99997",
+      "bytes": 2465
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/provenance.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/provenance.json",
+      "sha256": "db6e4c742b9b036ffe78407da357c23f46158cc3b05d16155727f5a7483b58f6",
+      "bytes": 6009
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/replacement-observer.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/replacement-observer.mjs",
+      "sha256": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+      "bytes": 1783
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/runtime-sources.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/runtime-sources.json",
+      "sha256": "305edd4de358a6d671f91ead747e6be64af4c99674e6833742c95dc23d3d400b",
+      "bytes": 6794
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/scenario.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/scenario.mjs",
+      "sha256": "7a92ba31ab35f3e6b0945821b1660b8436d360b8d60892580dc695a6a797483e",
+      "bytes": 22869
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/verify-preparation.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/verify-preparation.mjs",
+      "sha256": "1b864ef04c5599fecf6ea4ee4acf2bd2e26bf2acce9b2e385b7266201f9a9cfb",
+      "bytes": 6967
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/accepted-input.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "bytes": 2669
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/attempt-01-provenance.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/attempt-01-provenance.json",
+      "sha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+      "bytes": 5311
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/attempt-01-verifier.mjs.txt",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/attempt-01-verifier.mjs.txt",
+      "sha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+      "bytes": 6963
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/browser-probes.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/browser-probes.mjs",
+      "sha256": "04be28c504df1a3360c9c43d24092259e1f49f8e4eb4927b0592854428392b01",
+      "bytes": 9926
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/checkpoint-guard.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/checkpoint-guard.mjs",
+      "sha256": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+      "bytes": 2953
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/ground-and-dispatch.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/ground-and-dispatch.mjs",
+      "sha256": "9674da60506da52fef704a51183afc3284cd8499a9af7799b97ca21152a577ba",
+      "bytes": 6237
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/guard-assertions.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/guard-assertions.mjs",
+      "sha256": "33effcf8f9170e93803509f2323b1bcede5ae1a2677677c64f7216312214c08c",
+      "bytes": 5824
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/guard-assertions.test.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/guard-assertions.test.mjs",
+      "sha256": "a4da720b9ea437ae1413cfb0390a2aebc8c01999ed945a761b94143afa5d655e",
+      "bytes": 6575
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/observer.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/observer.mjs",
+      "sha256": "e3b4ef888ed57f0035309ac79e9b5b81e1634f14a5eaf1418306fa1c69e75a95",
+      "bytes": 9787
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/ordinary-input.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/ordinary-input.mjs",
+      "sha256": "20e9403ff42c405acf625b4a0a43f33b1ad57c33559a78a8f2bb1a492ba474d4",
+      "bytes": 9628
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/plan.md",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/plan.md",
+      "sha256": "1d0ea7b4c2b3b30ee38eb2f84733eacf550e44720f9a6d257a95242d0b099ff0",
+      "bytes": 16766
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/preparation-failure-01.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/preparation-failure-01.json",
+      "sha256": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+      "bytes": 663
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/preparation-receipt.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/preparation-receipt.json",
+      "sha256": "bc2ecf3856656d190ffdb3ca26c65874e558cf65e4381ca09a66526b81142d0d",
+      "bytes": 3903
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/provenance.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/provenance.json",
+      "sha256": "c9e36f415cc7294897e2984f021cdabc7b16d7cd4489b45dc2e35ccbc4ace6d3",
+      "bytes": 6774
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/replacement-observer.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/replacement-observer.mjs",
+      "sha256": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+      "bytes": 1783
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/revision-history.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/revision-history.json",
+      "sha256": "3316617c926b492c412cdbc774268f1ea685f17accdfc5defeace7ca1a8eb95b",
+      "bytes": 2038
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/runtime-sources.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/runtime-sources.json",
+      "sha256": "305edd4de358a6d671f91ead747e6be64af4c99674e6833742c95dc23d3d400b",
+      "bytes": 6794
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/scenario.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/scenario.mjs",
+      "sha256": "1889980ca4e2b9288e2f069708c6da0a3f3b3d263693152454fee94670d1d086",
+      "bytes": 25035
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/verify-preparation.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/verify-preparation.mjs",
+      "sha256": "7f9c1f43feeed3f5bb030d29efed257934ce3d18c8406c2a3f75471533cf637f",
+      "bytes": 8472
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/accepted-input.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "bytes": 2669
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/attempt-01-provenance.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/attempt-01-provenance.json",
+      "sha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+      "bytes": 5311
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/attempt-01-verifier.mjs.txt",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/attempt-01-verifier.mjs.txt",
+      "sha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+      "bytes": 6963
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/browser-probes.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/browser-probes.mjs",
+      "sha256": "04be28c504df1a3360c9c43d24092259e1f49f8e4eb4927b0592854428392b01",
+      "bytes": 9926
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/checkpoint-guard.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/checkpoint-guard.mjs",
+      "sha256": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+      "bytes": 2953
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/ground-and-dispatch.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/ground-and-dispatch.mjs",
+      "sha256": "9674da60506da52fef704a51183afc3284cd8499a9af7799b97ca21152a577ba",
+      "bytes": 6237
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/guard-assertions.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/guard-assertions.mjs",
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "bytes": 5929
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/guard-assertions.test.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/guard-assertions.test.mjs",
+      "sha256": "3bbadb73d827213c78861132da40b29f6571db67992444a139b48f49f305efa4",
+      "bytes": 6742
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/observer.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/observer.mjs",
+      "sha256": "e3b4ef888ed57f0035309ac79e9b5b81e1634f14a5eaf1418306fa1c69e75a95",
+      "bytes": 9787
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/ordinary-input.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/ordinary-input.mjs",
+      "sha256": "20e9403ff42c405acf625b4a0a43f33b1ad57c33559a78a8f2bb1a492ba474d4",
+      "bytes": 9628
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/plan.md",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/plan.md",
+      "sha256": "d1607bdc68d133acb7970b233d704521316a6758dc2d2539533c7f018fbf9718",
+      "bytes": 17044
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/preparation-failure-01.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/preparation-failure-01.json",
+      "sha256": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+      "bytes": 663
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/preparation-receipt.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/preparation-receipt.json",
+      "sha256": "90624ba41e75cb149384aec317fec4e77a1b4ddfba7f05e6c073ff6c408bda6e",
+      "bytes": 3904
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/provenance.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/provenance.json",
+      "sha256": "923651804c999ca804acdffff591c0cd4836a3674dae0d4aa3177486ae76fe8b",
+      "bytes": 7002
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/replacement-observer.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/replacement-observer.mjs",
+      "sha256": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+      "bytes": 1783
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/revision-history.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/revision-history.json",
+      "sha256": "4aa0155c02ce9b14900ec12d706088dfe5a6221de5e38b48681472e3f58d0aa2",
+      "bytes": 4235
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/runtime-sources.json",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/runtime-sources.json",
+      "sha256": "305edd4de358a6d671f91ead747e6be64af4c99674e6833742c95dc23d3d400b",
+      "bytes": 6794
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/scenario.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/scenario.mjs",
+      "sha256": "1889980ca4e2b9288e2f069708c6da0a3f3b3d263693152454fee94670d1d086",
+      "bytes": 25035
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/verify-preparation.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/verify-preparation.mjs",
+      "sha256": "7f9c1f43feeed3f5bb030d29efed257934ce3d18c8406c2a3f75471533cf637f",
+      "bytes": 8472
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/runtime-sources.json",
+      "source": "work/orchestration/native-guard-browser-preparation/runtime-sources.json",
+      "sha256": "af4d9f76ba2a2173201fa1cb4df5f47584e78d252b3cddc1c8d5770eb678f763",
+      "bytes": 8855
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/scenario.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/scenario.mjs",
+      "sha256": "7e2c40f3bf9db50f1a546dcae5b28582dc43c1db84fe1c2c020824381aa5ded3",
+      "bytes": 28322
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preparation/verify-preparation.mjs",
+      "source": "work/orchestration/native-guard-browser-preparation/verify-preparation.mjs",
+      "sha256": "563d7ea8f72eda2403ccdfe9fa195feb1fd9edaad3a711e2c514b7186e84a804",
+      "bytes": 9348
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preflight-review/review-revision-03.md",
+      "source": "work/orchestration/native-guard-browser-preflight-review/review-revision-03.md",
+      "sha256": "8c64e2d88264cb969bbbd74c43f739531b8a1cea09b1f19598120900af74b549",
+      "bytes": 4297
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preflight-review/review-revision-04.md",
+      "source": "work/orchestration/native-guard-browser-preflight-review/review-revision-04.md",
+      "sha256": "13806e5dfd1e7cd92ec2ea4a47ee1f63d7658a2d2781161ade256e467751584d",
+      "bytes": 4765
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preflight-review/source-checks-revision-04.json",
+      "source": "work/orchestration/native-guard-browser-preflight-review/source-checks-revision-04.json",
+      "sha256": "694bbdac95f8db5a48ee670485fd90efe7a5766068c67fc2ef08412958f88522",
+      "bytes": 5080
+    },
+    {
+      "path": "prepared-revision-04/native-guard-browser-preflight-review/source-checks-revision-04.stderr",
+      "source": "work/orchestration/native-guard-browser-preflight-review/source-checks-revision-04.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "prepared-revision-04/launch-plan-rev4.json",
+      "source": "work/orchestration/native-guard-browser-execution/launch-plan-rev4.json",
+      "sha256": "2e543f7856048b117f5e32236016921cf268dcc5e8c9919d395327dab3ed3572",
+      "bytes": 6978
+    },
+    {
+      "path": "pilot-02/baseline/launcher.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/launcher.json",
+      "sha256": "b75b0d5016b442c79f5d6119490b15081c7058e8c899f4cc6b16fa5dc895de8c",
+      "bytes": 3668
+    },
+    {
+      "path": "pilot-02/baseline/launcher.stdout.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/launcher.stdout.log",
+      "sha256": "d86ec67548dae32ca6570b6baaee7357b64ef99eac43eccbe3e8a930ff54f1c6",
+      "bytes": 349
+    },
+    {
+      "path": "pilot-02/baseline/launcher.stderr.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/launcher.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "pilot-02/baseline/outer.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/outer.json",
+      "sha256": "bf9814770919d98aaf625a9f245ae8dce1b16e718a8c67f211a548c19a1859e4",
+      "bytes": 4436
+    },
+    {
+      "path": "pilot-02/baseline/outer.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/outer.json.artifacts/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "pilot-02/baseline/outer.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/outer.json.artifacts/stderr.log",
+      "sha256": "318bbfb7dfcd962c47e08923c67f61c7377767a1896a87eea0182612862666d6",
+      "bytes": 1147
+    },
+    {
+      "path": "pilot-02/baseline/run/receipt.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/run/receipt.json",
+      "sha256": "53031cb0d2fa11fbc06131e62d1012f2b9bb401358d639f628d0e639969393f6",
+      "bytes": 3136
+    },
+    {
+      "path": "pilot-02/baseline/run/witness.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/run/witness.json",
+      "sha256": "9e5c063ee201c4645c6f62f73a95d5873df274cfa138d88038b24f1c2bfea02f",
+      "bytes": 137800
+    },
+    {
+      "path": "pilot-02/baseline/run/server.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/run/server.log",
+      "sha256": "2a5b0e81aed9c298c35430105d2dc11778e125cb4a470405c0dfe0ebe290fbc7",
+      "bytes": 827
+    },
+    {
+      "path": "pilot-02/baseline/run/actions.jsonl",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/run/actions.jsonl",
+      "sha256": "661958e9248d7b88666c1fa3c7551bc469e3d6dd3d2a60b488d66d7ea6b07255",
+      "bytes": 333976
+    },
+    {
+      "path": "pilot-02/baseline/run/epoch-0-rows.jsonl",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/run/epoch-0-rows.jsonl",
+      "sha256": "0248cc1277db0f653d47a901c8db5d635f06bc8bcc99355dd285c06822669ecb",
+      "bytes": 2402007
+    },
+    {
+      "path": "pilot-02/baseline/run/failure-0.png",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-02/run/failure-0.png",
+      "sha256": "dd2c0dac4efdef85e7a0c69710dd256917e08e67ed4f394f931bdb4d5753fd58",
+      "bytes": 1905025
+    },
+    {
+      "path": "pilot-02/diagnosis/inspect-ground-footprints.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-diagnosis/attempt-02/inspect-ground-footprints.mjs",
+      "sha256": "0913d84df13f7f7ec4522dddafc5b9b9e0f175c9d8c08a43f7e56d80c37398dd",
+      "bytes": 1687
+    },
+    {
+      "path": "pilot-02/diagnosis/ground-footprints.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-diagnosis/attempt-02/ground-footprints.json",
+      "sha256": "fbc9a4f7f1878705b7111c7c871e616b519633970efba59a6800893556ebe34e",
+      "bytes": 2146
+    },
+    {
+      "path": "pilot-03/revision-05/accepted-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "bytes": 2669
+    },
+    {
+      "path": "pilot-03/revision-05/attempt-01-provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/attempt-01-provenance.json",
+      "sha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+      "bytes": 5311
+    },
+    {
+      "path": "pilot-03/revision-05/attempt-01-verifier.mjs.txt",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/attempt-01-verifier.mjs.txt",
+      "sha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+      "bytes": 6963
+    },
+    {
+      "path": "pilot-03/revision-05/attempt-02-ground-footprints.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/attempt-02-ground-footprints.json",
+      "sha256": "fbc9a4f7f1878705b7111c7c871e616b519633970efba59a6800893556ebe34e",
+      "bytes": 2146
+    },
+    {
+      "path": "pilot-03/revision-05/browser-probes.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/browser-probes.mjs",
+      "sha256": "04be28c504df1a3360c9c43d24092259e1f49f8e4eb4927b0592854428392b01",
+      "bytes": 9926
+    },
+    {
+      "path": "pilot-03/revision-05/checkpoint-guard.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/checkpoint-guard.mjs",
+      "sha256": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+      "bytes": 2953
+    },
+    {
+      "path": "pilot-03/revision-05/entry-identity.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/entry-identity.mjs",
+      "sha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+      "bytes": 4037
+    },
+    {
+      "path": "pilot-03/revision-05/entry-identity.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/entry-identity.test.mjs",
+      "sha256": "00c7ef31353bd7066ac4b48693664d996b96b30e1645a4fb743af2c2cb8fe806",
+      "bytes": 4619
+    },
+    {
+      "path": "pilot-03/revision-05/ground-and-dispatch.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/ground-and-dispatch.mjs",
+      "sha256": "77f7e1a162b23d271c8a2e645b504a5f4c8b8ba8ced885c350e244e5aaf51614",
+      "bytes": 9581
+    },
+    {
+      "path": "pilot-03/revision-05/ground-probe.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/ground-probe.test.mjs",
+      "sha256": "35631ceca11cea487b8cbea367fe3650d49d6ed2ec7095720286e41f832e49f8",
+      "bytes": 8021
+    },
+    {
+      "path": "pilot-03/revision-05/guard-assertions.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/guard-assertions.mjs",
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "bytes": 5929
+    },
+    {
+      "path": "pilot-03/revision-05/guard-assertions.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/guard-assertions.test.mjs",
+      "sha256": "3bbadb73d827213c78861132da40b29f6571db67992444a139b48f49f305efa4",
+      "bytes": 6742
+    },
+    {
+      "path": "pilot-03/revision-05/mission10-construction.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/mission10-construction.json",
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "bytes": 3768
+    },
+    {
+      "path": "pilot-03/revision-05/observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/observer.mjs",
+      "sha256": "f172a58ccea14a3038eea1803b1e6b52c30f89a219846a83f4dfd5df3d43c1df",
+      "bytes": 11539
+    },
+    {
+      "path": "pilot-03/revision-05/ordinary-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/ordinary-input.mjs",
+      "sha256": "20e9403ff42c405acf625b4a0a43f33b1ad57c33559a78a8f2bb1a492ba474d4",
+      "bytes": 9628
+    },
+    {
+      "path": "pilot-03/revision-05/plan.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/plan.md",
+      "sha256": "d0e9f99387901e8ff7f0e2402486661f6a5c872392bba15823efd29062b3dad3",
+      "bytes": 23086
+    },
+    {
+      "path": "pilot-03/revision-05/preparation-failure-01.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-failure-01.json",
+      "sha256": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+      "bytes": 663
+    },
+    {
+      "path": "pilot-03/revision-05/preparation-receipt.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-receipt.json",
+      "sha256": "ef73ba4d447b6c34fd8fe4180c051d03ba478cd35162059195314308023f2d48",
+      "bytes": 6691
+    },
+    {
+      "path": "pilot-03/revision-05/provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/provenance.json",
+      "sha256": "56c775955d9da1c29b1243afc298a827f670e8b886dcc4bd22365ec1921bf1fd",
+      "bytes": 10143
+    },
+    {
+      "path": "pilot-03/revision-05/replacement-observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/replacement-observer.mjs",
+      "sha256": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+      "bytes": 1783
+    },
+    {
+      "path": "pilot-03/revision-05/retained-ground-inputs.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/retained-ground-inputs.json",
+      "sha256": "121e949e5a94280a3360d580076e2ce5b44145e92c747cefe909a2e3fbcc3fda",
+      "bytes": 8209
+    },
+    {
+      "path": "pilot-03/revision-05/revision-history.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revision-history.json",
+      "sha256": "4f6f7dc35d2149f9e6cfe7bfb78d47764a2079dbebfb24a61a29157a921646e6",
+      "bytes": 9055
+    },
+    {
+      "path": "pilot-03/revision-05/runtime-sources.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/runtime-sources.json",
+      "sha256": "f40c2658f4697057ff2a85de7a4185fe5e1cb8b577b6f8e7678da8a28704336b",
+      "bytes": 9737
+    },
+    {
+      "path": "pilot-03/revision-05/scenario.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+      "sha256": "946f849dbe69e157f9231cfd07fabcf2057abdc034a5a573083447903a4d70ad",
+      "bytes": 28321
+    },
+    {
+      "path": "pilot-03/revision-05/verify-preparation.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/verify-preparation.mjs",
+      "sha256": "40aaa8e674851be04335ab8ac5ed992829523842eb0d5edd3603977ac54d015f",
+      "bytes": 10334
+    },
+    {
+      "path": "pilot-03/review/review-revision-05.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/review-revision-05.md",
+      "sha256": "7a280a5d8406ebdfb5f51b5dd20b04573bd8b5c83db61f71cccf67b69f4225c8",
+      "bytes": 4329
+    },
+    {
+      "path": "pilot-03/review/source-checks-revision-05.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/source-checks-revision-05.json",
+      "sha256": "a81402b65b0e6c4e9848893d5013ff93327454ef4a76b2d38fb3007bdeddab5f",
+      "bytes": 6694
+    },
+    {
+      "path": "pilot-03/review/source-checks-revision-05.stderr",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/source-checks-revision-05.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "pilot-03/launch-plan-rev5.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-execution/launch-plan-rev5.json",
+      "sha256": "61f078939b2177a56d143eddcb6406aeee7eec5dfd3987cb3285b7a5a85eeffb",
+      "bytes": 8096
+    },
+    {
+      "path": "pilot-03/baseline/launcher.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/launcher.json",
+      "sha256": "c4b050204e7e8a2ec526f8c90af104efed5ce05831723a291a57130773a2a837",
+      "bytes": 4000
+    },
+    {
+      "path": "pilot-03/baseline/launcher.stdout.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/launcher.stdout.log",
+      "sha256": "513317e2c9db320adb0eee1d58d72294080a9ce5be9b9c350b47edb7ae7a60c1",
+      "bytes": 349
+    },
+    {
+      "path": "pilot-03/baseline/launcher.stderr.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/launcher.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "pilot-03/baseline/outer.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/outer.json",
+      "sha256": "afdc22bd7c860a6fd452a57ed9643124c03490b4c3e8d92d6f47fcc12537119d",
+      "bytes": 4768
+    },
+    {
+      "path": "pilot-03/baseline/outer.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/outer.json.artifacts/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "pilot-03/baseline/outer.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/outer.json.artifacts/stderr.log",
+      "sha256": "c6e4833550e73e2b282dd3f36b86355d67fb4a620868e663106bbd9feb9005af",
+      "bytes": 1477
+    },
+    {
+      "path": "pilot-03/baseline/run/receipt.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/run/receipt.json",
+      "sha256": "2f8c50b693737054e0a0486f6dfd922650fedc2da879f14a9092d62adf2a77f6",
+      "bytes": 3413
+    },
+    {
+      "path": "pilot-03/baseline/run/witness.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/run/witness.json",
+      "sha256": "c150861c85e336bf330a303e736441f01a38b2275932a1e6e239a8bf75e8816b",
+      "bytes": 139703
+    },
+    {
+      "path": "pilot-03/baseline/run/server.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/run/server.log",
+      "sha256": "41fac4a740640a0cd5aa92f99eeb38d5605ca569171b434d4bc04d7c60b293b9",
+      "bytes": 575
+    },
+    {
+      "path": "pilot-03/baseline/run/actions.jsonl",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/run/actions.jsonl",
+      "sha256": "126276c889f2e3de0a1e6f26f09951969d79c461b497bb8440019048857f4a35",
+      "bytes": 370142
+    },
+    {
+      "path": "pilot-03/baseline/run/epoch-0-rows.jsonl",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/run/epoch-0-rows.jsonl",
+      "sha256": "278f06a38e604c5c8410d3f948975bf96885de68f898ae771471622ee50968c1",
+      "bytes": 2422169
+    },
+    {
+      "path": "pilot-03/baseline/run/failure-0.png",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-03/run/failure-0.png",
+      "sha256": "c99181760f09208961cf93245ac05a99595484d43c9430272668f7e297d862b5",
+      "bytes": 1884546
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/accepted-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "bytes": 2669
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/attempt-01-provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/attempt-01-provenance.json",
+      "sha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+      "bytes": 5311
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/attempt-01-verifier.mjs.txt",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/attempt-01-verifier.mjs.txt",
+      "sha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+      "bytes": 6963
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/attempt-02-ground-footprints.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/attempt-02-ground-footprints.json",
+      "sha256": "fbc9a4f7f1878705b7111c7c871e616b519633970efba59a6800893556ebe34e",
+      "bytes": 2146
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/browser-probes.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/browser-probes.mjs",
+      "sha256": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+      "bytes": 10184
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/checkpoint-guard.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/checkpoint-guard.mjs",
+      "sha256": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+      "bytes": 2953
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/contract-audit.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/contract-audit.md",
+      "sha256": "7345817861b036bb169a342966f8161ba05d45d0e8eb08dadb60318914bbac43",
+      "bytes": 7671
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/entry-identity.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/entry-identity.mjs",
+      "sha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+      "bytes": 4037
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/entry-identity.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/entry-identity.test.mjs",
+      "sha256": "00c7ef31353bd7066ac4b48693664d996b96b30e1645a4fb743af2c2cb8fe806",
+      "bytes": 4619
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/ground-and-dispatch.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/ground-and-dispatch.mjs",
+      "sha256": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7",
+      "bytes": 9833
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/ground-probe.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/ground-probe.test.mjs",
+      "sha256": "3217095d138ce753e1d77180ca9fcc95da2eefa860418eea42487a247722b3b9",
+      "bytes": 7820
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/guard-assertions.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/guard-assertions.mjs",
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "bytes": 5929
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/guard-assertions.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/guard-assertions.test.mjs",
+      "sha256": "3bbadb73d827213c78861132da40b29f6571db67992444a139b48f49f305efa4",
+      "bytes": 6742
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/input-boundary.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/input-boundary.mjs",
+      "sha256": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+      "bytes": 5075
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/input-boundary.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/input-boundary.test.mjs",
+      "sha256": "59a40334c1bcb518bd1b644a8c6bd05a00cd24f783ab17da926b63b42392a44a",
+      "bytes": 14236
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/mission10-construction.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/mission10-construction.json",
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "bytes": 3768
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/observer.mjs",
+      "sha256": "98bc28e08c1cc035765686a4b61c5cb9cd1ecde5fcea134ea26474899abdc82c",
+      "bytes": 14058
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/ordinary-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/ordinary-input.mjs",
+      "sha256": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+      "bytes": 9677
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/plan.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/plan.md",
+      "sha256": "560f3404b45af5c1641b54f920e8bda4d7d024f18ad2413517e3e4290f0f30eb",
+      "bytes": 24795
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/preparation-failure-01.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-failure-01.json",
+      "sha256": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+      "bytes": 663
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/preparation-receipt.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-receipt.json",
+      "sha256": "06bd45b3aa708e3246109a27d83553b2f105320b54c954a580ffcc4b660b101d",
+      "bytes": 8474
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/provenance.json",
+      "sha256": "434f54e368d8277977371456e5f1f272440252fa1de41a7f92032a164564f9b1",
+      "bytes": 13744
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/replacement-observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/replacement-observer.mjs",
+      "sha256": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+      "bytes": 1783
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/retained-ground-inputs.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/retained-ground-inputs.json",
+      "sha256": "121e949e5a94280a3360d580076e2ce5b44145e92c747cefe909a2e3fbcc3fda",
+      "bytes": 8209
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revision-history.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revision-history.json",
+      "sha256": "1d47c5f25060626624d6ca83c18195f7bf206012acd4bfe6458bb2bf96866379",
+      "bytes": 11930
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/accepted-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "bytes": 2669
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/attempt-01-provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/attempt-01-provenance.json",
+      "sha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+      "bytes": 5311
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/attempt-01-verifier.mjs.txt",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/attempt-01-verifier.mjs.txt",
+      "sha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+      "bytes": 6963
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/browser-probes.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/browser-probes.mjs",
+      "sha256": "04be28c504df1a3360c9c43d24092259e1f49f8e4eb4927b0592854428392b01",
+      "bytes": 9926
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/checkpoint-guard.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/checkpoint-guard.mjs",
+      "sha256": "c60d682ac063741304ad96a2223c626fc8d7cc2797fcc38c6250696e16e21627",
+      "bytes": 2944
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/ground-and-dispatch.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/ground-and-dispatch.mjs",
+      "sha256": "9674da60506da52fef704a51183afc3284cd8499a9af7799b97ca21152a577ba",
+      "bytes": 6237
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/observer.mjs",
+      "sha256": "e3b4ef888ed57f0035309ac79e9b5b81e1634f14a5eaf1418306fa1c69e75a95",
+      "bytes": 9787
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/ordinary-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/ordinary-input.mjs",
+      "sha256": "20e9403ff42c405acf625b4a0a43f33b1ad57c33559a78a8f2bb1a492ba474d4",
+      "bytes": 9628
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/plan.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/plan.md",
+      "sha256": "8c3f994e1bf5def111b4b498bd7169ba59a5596fceb4276b7f4833579a704d70",
+      "bytes": 14531
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/preparation-failure-01.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/preparation-failure-01.json",
+      "sha256": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+      "bytes": 663
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/preparation-receipt.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/preparation-receipt.json",
+      "sha256": "f73ee982ac848f7d53a857d0434a22362a6077946624db6e3bafd97970e99997",
+      "bytes": 2465
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/provenance.json",
+      "sha256": "db6e4c742b9b036ffe78407da357c23f46158cc3b05d16155727f5a7483b58f6",
+      "bytes": 6009
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/replacement-observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/replacement-observer.mjs",
+      "sha256": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+      "bytes": 1783
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/runtime-sources.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/runtime-sources.json",
+      "sha256": "305edd4de358a6d671f91ead747e6be64af4c99674e6833742c95dc23d3d400b",
+      "bytes": 6794
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/scenario.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/scenario.mjs",
+      "sha256": "7a92ba31ab35f3e6b0945821b1660b8436d360b8d60892580dc695a6a797483e",
+      "bytes": 22869
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/verify-preparation.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-01-unexecuted/verify-preparation.mjs",
+      "sha256": "1b864ef04c5599fecf6ea4ee4acf2bd2e26bf2acce9b2e385b7266201f9a9cfb",
+      "bytes": 6967
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/accepted-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "bytes": 2669
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/attempt-01-provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/attempt-01-provenance.json",
+      "sha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+      "bytes": 5311
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/attempt-01-verifier.mjs.txt",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/attempt-01-verifier.mjs.txt",
+      "sha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+      "bytes": 6963
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/browser-probes.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/browser-probes.mjs",
+      "sha256": "04be28c504df1a3360c9c43d24092259e1f49f8e4eb4927b0592854428392b01",
+      "bytes": 9926
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/checkpoint-guard.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/checkpoint-guard.mjs",
+      "sha256": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+      "bytes": 2953
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/ground-and-dispatch.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/ground-and-dispatch.mjs",
+      "sha256": "9674da60506da52fef704a51183afc3284cd8499a9af7799b97ca21152a577ba",
+      "bytes": 6237
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/guard-assertions.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/guard-assertions.mjs",
+      "sha256": "33effcf8f9170e93803509f2323b1bcede5ae1a2677677c64f7216312214c08c",
+      "bytes": 5824
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/guard-assertions.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/guard-assertions.test.mjs",
+      "sha256": "a4da720b9ea437ae1413cfb0390a2aebc8c01999ed945a761b94143afa5d655e",
+      "bytes": 6575
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/observer.mjs",
+      "sha256": "e3b4ef888ed57f0035309ac79e9b5b81e1634f14a5eaf1418306fa1c69e75a95",
+      "bytes": 9787
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/ordinary-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/ordinary-input.mjs",
+      "sha256": "20e9403ff42c405acf625b4a0a43f33b1ad57c33559a78a8f2bb1a492ba474d4",
+      "bytes": 9628
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/plan.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/plan.md",
+      "sha256": "1d0ea7b4c2b3b30ee38eb2f84733eacf550e44720f9a6d257a95242d0b099ff0",
+      "bytes": 16766
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/preparation-failure-01.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/preparation-failure-01.json",
+      "sha256": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+      "bytes": 663
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/preparation-receipt.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/preparation-receipt.json",
+      "sha256": "bc2ecf3856656d190ffdb3ca26c65874e558cf65e4381ca09a66526b81142d0d",
+      "bytes": 3903
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/provenance.json",
+      "sha256": "c9e36f415cc7294897e2984f021cdabc7b16d7cd4489b45dc2e35ccbc4ace6d3",
+      "bytes": 6774
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/replacement-observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/replacement-observer.mjs",
+      "sha256": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+      "bytes": 1783
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/revision-history.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/revision-history.json",
+      "sha256": "3316617c926b492c412cdbc774268f1ea685f17accdfc5defeace7ca1a8eb95b",
+      "bytes": 2038
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/runtime-sources.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/runtime-sources.json",
+      "sha256": "305edd4de358a6d671f91ead747e6be64af4c99674e6833742c95dc23d3d400b",
+      "bytes": 6794
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/scenario.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/scenario.mjs",
+      "sha256": "1889980ca4e2b9288e2f069708c6da0a3f3b3d263693152454fee94670d1d086",
+      "bytes": 25035
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/verify-preparation.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-02-unexecuted/verify-preparation.mjs",
+      "sha256": "7f9c1f43feeed3f5bb030d29efed257934ce3d18c8406c2a3f75471533cf637f",
+      "bytes": 8472
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/accepted-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "bytes": 2669
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/attempt-01-provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/attempt-01-provenance.json",
+      "sha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+      "bytes": 5311
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/attempt-01-verifier.mjs.txt",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/attempt-01-verifier.mjs.txt",
+      "sha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+      "bytes": 6963
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/browser-probes.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/browser-probes.mjs",
+      "sha256": "04be28c504df1a3360c9c43d24092259e1f49f8e4eb4927b0592854428392b01",
+      "bytes": 9926
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/checkpoint-guard.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/checkpoint-guard.mjs",
+      "sha256": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+      "bytes": 2953
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/ground-and-dispatch.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/ground-and-dispatch.mjs",
+      "sha256": "9674da60506da52fef704a51183afc3284cd8499a9af7799b97ca21152a577ba",
+      "bytes": 6237
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/guard-assertions.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/guard-assertions.mjs",
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "bytes": 5929
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/guard-assertions.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/guard-assertions.test.mjs",
+      "sha256": "3bbadb73d827213c78861132da40b29f6571db67992444a139b48f49f305efa4",
+      "bytes": 6742
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/observer.mjs",
+      "sha256": "e3b4ef888ed57f0035309ac79e9b5b81e1634f14a5eaf1418306fa1c69e75a95",
+      "bytes": 9787
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/ordinary-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/ordinary-input.mjs",
+      "sha256": "20e9403ff42c405acf625b4a0a43f33b1ad57c33559a78a8f2bb1a492ba474d4",
+      "bytes": 9628
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/plan.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/plan.md",
+      "sha256": "d1607bdc68d133acb7970b233d704521316a6758dc2d2539533c7f018fbf9718",
+      "bytes": 17044
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/preparation-failure-01.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/preparation-failure-01.json",
+      "sha256": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+      "bytes": 663
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/preparation-receipt.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/preparation-receipt.json",
+      "sha256": "90624ba41e75cb149384aec317fec4e77a1b4ddfba7f05e6c073ff6c408bda6e",
+      "bytes": 3904
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/provenance.json",
+      "sha256": "923651804c999ca804acdffff591c0cd4836a3674dae0d4aa3177486ae76fe8b",
+      "bytes": 7002
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/replacement-observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/replacement-observer.mjs",
+      "sha256": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+      "bytes": 1783
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/revision-history.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/revision-history.json",
+      "sha256": "4aa0155c02ce9b14900ec12d706088dfe5a6221de5e38b48681472e3f58d0aa2",
+      "bytes": 4235
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/runtime-sources.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/runtime-sources.json",
+      "sha256": "305edd4de358a6d671f91ead747e6be64af4c99674e6833742c95dc23d3d400b",
+      "bytes": 6794
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/scenario.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/scenario.mjs",
+      "sha256": "1889980ca4e2b9288e2f069708c6da0a3f3b3d263693152454fee94670d1d086",
+      "bytes": 25035
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/verify-preparation.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-03-baseline-failed/verify-preparation.mjs",
+      "sha256": "7f9c1f43feeed3f5bb030d29efed257934ce3d18c8406c2a3f75471533cf637f",
+      "bytes": 8472
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/accepted-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "bytes": 2669
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/attempt-01-provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/attempt-01-provenance.json",
+      "sha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+      "bytes": 5311
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/attempt-01-verifier.mjs.txt",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/attempt-01-verifier.mjs.txt",
+      "sha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+      "bytes": 6963
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/browser-probes.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/browser-probes.mjs",
+      "sha256": "04be28c504df1a3360c9c43d24092259e1f49f8e4eb4927b0592854428392b01",
+      "bytes": 9926
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/checkpoint-guard.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/checkpoint-guard.mjs",
+      "sha256": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+      "bytes": 2953
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/entry-identity.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/entry-identity.mjs",
+      "sha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+      "bytes": 4037
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/entry-identity.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/entry-identity.test.mjs",
+      "sha256": "00c7ef31353bd7066ac4b48693664d996b96b30e1645a4fb743af2c2cb8fe806",
+      "bytes": 4619
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/ground-and-dispatch.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/ground-and-dispatch.mjs",
+      "sha256": "9674da60506da52fef704a51183afc3284cd8499a9af7799b97ca21152a577ba",
+      "bytes": 6237
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/guard-assertions.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/guard-assertions.mjs",
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "bytes": 5929
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/guard-assertions.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/guard-assertions.test.mjs",
+      "sha256": "3bbadb73d827213c78861132da40b29f6571db67992444a139b48f49f305efa4",
+      "bytes": 6742
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/mission10-construction.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/mission10-construction.json",
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "bytes": 3768
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/observer.mjs",
+      "sha256": "f172a58ccea14a3038eea1803b1e6b52c30f89a219846a83f4dfd5df3d43c1df",
+      "bytes": 11539
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/ordinary-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/ordinary-input.mjs",
+      "sha256": "20e9403ff42c405acf625b4a0a43f33b1ad57c33559a78a8f2bb1a492ba474d4",
+      "bytes": 9628
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/plan.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/plan.md",
+      "sha256": "93727bb8c830568b74d707798c43423fd019ae2e01ac28faba8382f58ddf65da",
+      "bytes": 20246
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/preparation-failure-01.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/preparation-failure-01.json",
+      "sha256": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+      "bytes": 663
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/preparation-receipt.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/preparation-receipt.json",
+      "sha256": "bd1d39c0f75a43e7142ab552b6587d81e60de7c9d95501dc208540dbb8028a95",
+      "bytes": 5081
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/provenance.json",
+      "sha256": "20a2081c319528b9f199fa9d0207d94ecc0dfc827ed255f2743dca287231b539",
+      "bytes": 8402
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/replacement-observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/replacement-observer.mjs",
+      "sha256": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+      "bytes": 1783
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/revision-history.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/revision-history.json",
+      "sha256": "65bd8a92770cde4e3a86519998831f55ea92f5c5e34c99aaae86301110b88e49",
+      "bytes": 6543
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/runtime-sources.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/runtime-sources.json",
+      "sha256": "af4d9f76ba2a2173201fa1cb4df5f47584e78d252b3cddc1c8d5770eb678f763",
+      "bytes": 8855
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/scenario.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/scenario.mjs",
+      "sha256": "7e2c40f3bf9db50f1a546dcae5b28582dc43c1db84fe1c2c020824381aa5ded3",
+      "bytes": 28322
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/verify-preparation.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-04-baseline-failed/verify-preparation.mjs",
+      "sha256": "563d7ea8f72eda2403ccdfe9fa195feb1fd9edaad3a711e2c514b7186e84a804",
+      "bytes": 9348
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/accepted-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "bytes": 2669
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/attempt-01-provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/attempt-01-provenance.json",
+      "sha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+      "bytes": 5311
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/attempt-01-verifier.mjs.txt",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/attempt-01-verifier.mjs.txt",
+      "sha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+      "bytes": 6963
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/attempt-02-ground-footprints.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/attempt-02-ground-footprints.json",
+      "sha256": "fbc9a4f7f1878705b7111c7c871e616b519633970efba59a6800893556ebe34e",
+      "bytes": 2146
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/browser-probes.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/browser-probes.mjs",
+      "sha256": "04be28c504df1a3360c9c43d24092259e1f49f8e4eb4927b0592854428392b01",
+      "bytes": 9926
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/checkpoint-guard.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/checkpoint-guard.mjs",
+      "sha256": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+      "bytes": 2953
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/entry-identity.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/entry-identity.mjs",
+      "sha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+      "bytes": 4037
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/entry-identity.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/entry-identity.test.mjs",
+      "sha256": "00c7ef31353bd7066ac4b48693664d996b96b30e1645a4fb743af2c2cb8fe806",
+      "bytes": 4619
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/ground-and-dispatch.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/ground-and-dispatch.mjs",
+      "sha256": "77f7e1a162b23d271c8a2e645b504a5f4c8b8ba8ced885c350e244e5aaf51614",
+      "bytes": 9581
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/ground-probe.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/ground-probe.test.mjs",
+      "sha256": "35631ceca11cea487b8cbea367fe3650d49d6ed2ec7095720286e41f832e49f8",
+      "bytes": 8021
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/guard-assertions.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/guard-assertions.mjs",
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "bytes": 5929
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/guard-assertions.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/guard-assertions.test.mjs",
+      "sha256": "3bbadb73d827213c78861132da40b29f6571db67992444a139b48f49f305efa4",
+      "bytes": 6742
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/mission10-construction.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/mission10-construction.json",
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "bytes": 3768
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/observer.mjs",
+      "sha256": "f172a58ccea14a3038eea1803b1e6b52c30f89a219846a83f4dfd5df3d43c1df",
+      "bytes": 11539
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/ordinary-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/ordinary-input.mjs",
+      "sha256": "20e9403ff42c405acf625b4a0a43f33b1ad57c33559a78a8f2bb1a492ba474d4",
+      "bytes": 9628
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/plan.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/plan.md",
+      "sha256": "d0e9f99387901e8ff7f0e2402486661f6a5c872392bba15823efd29062b3dad3",
+      "bytes": 23086
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/preparation-failure-01.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/preparation-failure-01.json",
+      "sha256": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+      "bytes": 663
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/preparation-receipt.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/preparation-receipt.json",
+      "sha256": "ef73ba4d447b6c34fd8fe4180c051d03ba478cd35162059195314308023f2d48",
+      "bytes": 6691
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/provenance.json",
+      "sha256": "56c775955d9da1c29b1243afc298a827f670e8b886dcc4bd22365ec1921bf1fd",
+      "bytes": 10143
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/replacement-observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/replacement-observer.mjs",
+      "sha256": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+      "bytes": 1783
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/retained-ground-inputs.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/retained-ground-inputs.json",
+      "sha256": "121e949e5a94280a3360d580076e2ce5b44145e92c747cefe909a2e3fbcc3fda",
+      "bytes": 8209
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/revision-history.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/revision-history.json",
+      "sha256": "4f6f7dc35d2149f9e6cfe7bfb78d47764a2079dbebfb24a61a29157a921646e6",
+      "bytes": 9055
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/runtime-sources.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/runtime-sources.json",
+      "sha256": "f40c2658f4697057ff2a85de7a4185fe5e1cb8b577b6f8e7678da8a28704336b",
+      "bytes": 9737
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/scenario.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/scenario.mjs",
+      "sha256": "946f849dbe69e157f9231cfd07fabcf2057abdc034a5a573083447903a4d70ad",
+      "bytes": 28321
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/verify-preparation.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-05-baseline-failed/verify-preparation.mjs",
+      "sha256": "40aaa8e674851be04335ab8ac5ed992829523842eb0d5edd3603977ac54d015f",
+      "bytes": 10334
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/runtime-sources.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/runtime-sources.json",
+      "sha256": "f28083ac8a279dc5500551e84a0e62573fe0b8a0048deb82e139dbfa2c6e277a",
+      "bytes": 11480
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/scenario.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+      "sha256": "a317dca2b6a4ee559a95e24ed15d1455081ac76bdc7052fe20c233cef4ba5647",
+      "bytes": 28646
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preparation/verify-preparation.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/verify-preparation.mjs",
+      "sha256": "0f9f88ca7217660199303a614f5dd85e4fb8b4682b15626573f16e7ad7eb72bc",
+      "bytes": 11741
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preflight-review/review-revision-06.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/review-revision-06.md",
+      "sha256": "b27fcb2a3b41ded25bcee9250851a7e8492b13cb1d3a29dc486b5ab4c7182183",
+      "bytes": 6835
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preflight-review/source-checks-revision-06.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/source-checks-revision-06.json",
+      "sha256": "be2e7a1bf4d99bc190978584060636e9206a2ca0504533d1d54cb1026e80702f",
+      "bytes": 8478
+    },
+    {
+      "path": "prepared-revision-06/native-guard-browser-preflight-review/source-checks-revision-06.stderr",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/source-checks-revision-06.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "prepared-revision-06/launch-plan-rev6.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-execution/launch-plan-rev6.json",
+      "sha256": "f1bf383242780847e8d8f47068a6d2b3bdda1e0a1ceb441ac4262e2ba8b2f216",
+      "bytes": 8901
+    },
+    {
+      "path": "baseline04/launcher.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/launcher.json",
+      "sha256": "26e372ec19efd424555434ca128dd3e0045790a4e6373e675e7b590c7587cde0",
+      "bytes": 3722
+    },
+    {
+      "path": "baseline04/launcher.stderr.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/launcher.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "baseline04/launcher.stdout.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/launcher.stdout.log",
+      "sha256": "4697285bd62494e752617c79d23c905ba6fbaa251f7899acb4ac484f5349a634",
+      "bytes": 349
+    },
+    {
+      "path": "baseline04/outer.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/outer.json",
+      "sha256": "82cd3539c8bd17f076766201e4ce730d7732019f3a8cf2773238c61a95bd27e7",
+      "bytes": 4394
+    },
+    {
+      "path": "baseline04/outer.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/outer.json.artifacts/stderr.log",
+      "sha256": "4347c91b07dd065d408e9c73349d664c7b4704b5bf9bbd0108bb1c34eac4ea7c",
+      "bytes": 1105
+    },
+    {
+      "path": "baseline04/outer.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/outer.json.artifacts/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "baseline04/run/actions.jsonl",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/run/actions.jsonl",
+      "sha256": "58e75accf96f51403edcbdbee332a223589c1099acbaf3be1998028c87eea58a",
+      "bytes": 884881
+    },
+    {
+      "path": "baseline04/run/epoch-0-rows.jsonl.gz",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/run/epoch-0-rows.jsonl",
+      "sha256": "9fbf97fcceb7b90f5546668dcfac1b957d4de12a495d9aafc8832049985e9437",
+      "bytes": 145525,
+      "encoding": "gzip; compression level 9; mtime 0; no original filename",
+      "uncompressedSha256": "b18af8108c0ed963c81e3d2f47175173e00b54f67535093e4c8836813eb6732d",
+      "uncompressedBytes": 9196820,
+      "uncompressedLines": 724
+    },
+    {
+      "path": "baseline04/run/guard-06000-first-G.png",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/run/guard-06000-first-G.png",
+      "sha256": "47c3706eed2bb67f952c5e8056900f25b88f852949e07d2f4702b96aa48c381b",
+      "bytes": 1885748
+    },
+    {
+      "path": "baseline04/run/guard-36000-shaman-cancel.png",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/run/guard-36000-shaman-cancel.png",
+      "sha256": "d79c02acce7e132eb68f94aa2cefb0999cf0cc4b4fe3706e8c5c748091450ac7",
+      "bytes": 1803540
+    },
+    {
+      "path": "baseline04/run/receipt.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/run/receipt.json",
+      "sha256": "b0d60ad815c37be710356f7e9b01cdb41d02925c1c272d3c5b491c8aa5273c2c",
+      "bytes": 3039
+    },
+    {
+      "path": "baseline04/run/server.log",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/run/server.log",
+      "sha256": "24dd8bd8e234b033ff0ae9d43c811d3c64b35e5b27ceaa4f269475fd660f68f9",
+      "bytes": 827
+    },
+    {
+      "path": "baseline04/run/witness.json",
+      "source": "native-shaman-guard-before/work/orchestration/native-guard-browser-baseline-04/run/witness.json",
+      "sha256": "37fefa1049a3223379984eaf8f0338a6641e5aed15d9f7c171ceaea29c1cb74d",
+      "bytes": 188804
+    },
+    {
+      "path": "candidate05/launcher.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/launcher.json",
+      "sha256": "3ed64106c3ae509f86bfcf1b7f4e76d5852e6878fa3130534b805cc160ac9f47",
+      "bytes": 3719
+    },
+    {
+      "path": "candidate05/launcher.stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/launcher.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "candidate05/launcher.stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/launcher.stdout.log",
+      "sha256": "e51948b64185806c4b4b29dc8ad2587dce85383e3e2a6e9a58e74f436010fce0",
+      "bytes": 350
+    },
+    {
+      "path": "candidate05/outer.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/outer.json",
+      "sha256": "19cb2d0b0243567b0308dd86a3ebe12012252d3ef3845e5c6c4d286eca3ea6e0",
+      "bytes": 4434
+    },
+    {
+      "path": "candidate05/outer.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/outer.json.artifacts/stderr.log",
+      "sha256": "5fd50fe09ab02e5b2e8ade61582d101d7fbf855897846a2f2b060219439a08a8",
+      "bytes": 1099
+    },
+    {
+      "path": "candidate05/outer.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/outer.json.artifacts/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "candidate05/run/actions.jsonl",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/run/actions.jsonl",
+      "sha256": "bc7bf6c64175fa6d4840ece1b7ec41eb85b9ac6017e2914e5ba94780c11cab59",
+      "bytes": 850452
+    },
+    {
+      "path": "candidate05/run/epoch-0-rows.jsonl.gz",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/run/epoch-0-rows.jsonl",
+      "sha256": "c34b8b0994e3c9bef85aded2a262bcab443551a005f69a14f6c11579f7ac0198",
+      "bytes": 143125,
+      "encoding": "gzip; compression level 9; mtime 0; no original filename",
+      "uncompressedSha256": "292272b6feb723ceca0f00fd9d8e178d599c0136d52d299399610e1e826a480e",
+      "uncompressedBytes": 8869254,
+      "uncompressedLines": 693
+    },
+    {
+      "path": "candidate05/run/guard-06000-first-G.png",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/run/guard-06000-first-G.png",
+      "sha256": "914fc0dd068e41a89e2692e499ee18dd677e75c7c9f0f1580e5bcb103042e6f8",
+      "bytes": 1883445
+    },
+    {
+      "path": "candidate05/run/guard-36000-shaman-cancel.png",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/run/guard-36000-shaman-cancel.png",
+      "sha256": "e9c6fb2b07a4ce1803676934ddb29181c876d628bd6170a615a1599860f3292a",
+      "bytes": 1802236
+    },
+    {
+      "path": "candidate05/run/receipt.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/run/receipt.json",
+      "sha256": "cf0641b21aa401bf4b93f9ba932c8b1a28a6c8c9e772c05e955349fe3026fe5a",
+      "bytes": 3029
+    },
+    {
+      "path": "candidate05/run/server.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/run/server.log",
+      "sha256": "9b68e51d7db6b45ca284b45dc08e88893aed2510fd2a761a84e097129e02515c",
+      "bytes": 828
+    },
+    {
+      "path": "candidate05/run/witness.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-05/run/witness.json",
+      "sha256": "10008f618bdb23ebdae5bed9c1f753bb505394036e6b11884aae9a0aac986524",
+      "bytes": 188426
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/accepted-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "bytes": 2669
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/attempt-01-provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/attempt-01-provenance.json",
+      "sha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+      "bytes": 5311
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/attempt-01-verifier.mjs.txt",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/attempt-01-verifier.mjs.txt",
+      "sha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+      "bytes": 6963
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/attempt-02-ground-footprints.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/attempt-02-ground-footprints.json",
+      "sha256": "fbc9a4f7f1878705b7111c7c871e616b519633970efba59a6800893556ebe34e",
+      "bytes": 2146
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/attempt-04-timing-attribution.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/attempt-04-timing-attribution.json",
+      "sha256": "6ed3c6a7024e3ea53088b70ed99ba397902e27a7b4e8906acabf26223010dc6e",
+      "bytes": 7401
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/browser-probes.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/browser-probes.mjs",
+      "sha256": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+      "bytes": 10184
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/checkpoint-guard.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/checkpoint-guard.mjs",
+      "sha256": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+      "bytes": 2953
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/contract-audit.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/contract-audit.md",
+      "sha256": "7345817861b036bb169a342966f8161ba05d45d0e8eb08dadb60318914bbac43",
+      "bytes": 7671
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/entry-identity.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/entry-identity.mjs",
+      "sha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+      "bytes": 4037
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/entry-identity.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/entry-identity.test.mjs",
+      "sha256": "00c7ef31353bd7066ac4b48693664d996b96b30e1645a4fb743af2c2cb8fe806",
+      "bytes": 4619
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/ground-and-dispatch.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/ground-and-dispatch.mjs",
+      "sha256": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7",
+      "bytes": 9833
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/ground-probe.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/ground-probe.test.mjs",
+      "sha256": "3217095d138ce753e1d77180ca9fcc95da2eefa860418eea42487a247722b3b9",
+      "bytes": 7820
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/guard-assertions.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/guard-assertions.mjs",
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "bytes": 5929
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/guard-assertions.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/guard-assertions.test.mjs",
+      "sha256": "3bbadb73d827213c78861132da40b29f6571db67992444a139b48f49f305efa4",
+      "bytes": 6742
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/input-boundary.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/input-boundary.mjs",
+      "sha256": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+      "bytes": 5075
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/input-boundary.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/input-boundary.test.mjs",
+      "sha256": "59a40334c1bcb518bd1b644a8c6bd05a00cd24f783ab17da926b63b42392a44a",
+      "bytes": 14236
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/mission10-construction.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/mission10-construction.json",
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "bytes": 3768
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/observer.mjs",
+      "sha256": "98bc28e08c1cc035765686a4b61c5cb9cd1ecde5fcea134ea26474899abdc82c",
+      "bytes": 14058
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/ordinary-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/ordinary-input.mjs",
+      "sha256": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+      "bytes": 9677
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/plan.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/plan.md",
+      "sha256": "3c09404bc5c7e374eeab25ca9b139e5ec66c602126c2708fedc559a8bc971144",
+      "bytes": 26916
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/preparation-failure-01.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/preparation-failure-01.json",
+      "sha256": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+      "bytes": 663
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/preparation-receipt.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/preparation-receipt.json",
+      "sha256": "5ef0c2eecbd4dfe388bf40a577cba8d88d0465515f6fd7d2767c8dbcc2bd596a",
+      "bytes": 8589
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/provenance.json",
+      "sha256": "434f54e368d8277977371456e5f1f272440252fa1de41a7f92032a164564f9b1",
+      "bytes": 13744
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/replacement-observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/replacement-observer.mjs",
+      "sha256": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+      "bytes": 1783
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/retained-ground-inputs.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/retained-ground-inputs.json",
+      "sha256": "121e949e5a94280a3360d580076e2ce5b44145e92c747cefe909a2e3fbcc3fda",
+      "bytes": 8209
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/revision-history.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/revision-history.json",
+      "sha256": "e510f59c06d03fdf62484046f699ad71f15067be4182f4a348c1416fe677f715",
+      "bytes": 15002
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/runtime-sources.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/runtime-sources.json",
+      "sha256": "f28083ac8a279dc5500551e84a0e62573fe0b8a0048deb82e139dbfa2c6e277a",
+      "bytes": 11480
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/scenario.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/scenario.mjs",
+      "sha256": "1650ddce505056d4cade2fccff681303ce204f753a8964a4d187baa68066c274",
+      "bytes": 28991
+    },
+    {
+      "path": "control-prefix-provenance/revision-07/verify-preparation.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revisions/reviewed-07-candidate-failed/verify-preparation.mjs",
+      "sha256": "0f9f88ca7217660199303a614f5dd85e4fb8b4682b15626573f16e7ad7eb72bc",
+      "bytes": 11741
+    },
+    {
+      "path": "control-prefix-provenance/review/review-revision-07.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/review-revision-07.md",
+      "sha256": "32341b1ec23a0290345d773111f5a821dbdfc360759bfddce2820f3183e815cf",
+      "bytes": 5646
+    },
+    {
+      "path": "control-prefix-provenance/review/source-checks-revision-07.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/source-checks-revision-07.json",
+      "sha256": "c9004c3816cfe861d23dd210dcbc001ae046b19eb686673101f88ad9983eeddc",
+      "bytes": 8585
+    },
+    {
+      "path": "control-prefix-provenance/review/source-checks-revision-07.stderr",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/source-checks-revision-07.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "control-prefix-provenance/launch-plan-rev7-candidate.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-execution/launch-plan-rev7-candidate.json",
+      "sha256": "2e7203d162a2f70bb2615a433017c586c937c81331bb1736e8f423d9bff4e174",
+      "bytes": 43254
+    },
+    {
+      "path": "control-prefix-summary.json",
+      "source": "derived from the byte-exact baseline04/candidate05 actions, witness and receipts; raw source links and line references are included",
+      "sha256": "d17ea19d34f5c76466337aefc5f3d7bf5c9fdd7bbc61677b27eaa894db4bba61",
+      "bytes": 25022,
+      "kind": "derived-summary"
+    },
+    {
+      "path": "control-prefix-provenance/review/review-publication.md",
+      "source": "independent read-only publication review report; reviewed content digests included",
+      "sha256": "67b363e46c655d578bbf768a059f5b48d438ba5b95d0441f3f6cdb997d50635b",
+      "bytes": 4080,
+      "kind": "publication-review"
+    },
+    {
+      "path": "candidate06/derived-summary.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/derived-summary.json",
+      "sha256": "92f759c6e61c08e6c819caa01dde38e45cba02c17f400a745eb34c5b39794a9b",
+      "bytes": 13893,
+      "kind": "derived-summary"
+    },
+    {
+      "path": "candidate06/launcher.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/launcher.json",
+      "sha256": "73d4566933c2459beefea823249d314fb971bf6f561dc8d92bc3872b37482cd4",
+      "bytes": 3117
+    },
+    {
+      "path": "candidate06/launcher.stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/launcher.stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "candidate06/launcher.stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/launcher.stdout.log",
+      "sha256": "dbbfb2708243cea47c13a9c6d6347a5c5113ac59ee97876bf0fdcc1abe1d98cc",
+      "bytes": 350
+    },
+    {
+      "path": "candidate06/outer.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/outer.json",
+      "sha256": "16d7c479a9e2a0c50d0b8a2c1101501905e9b04982a5322974d1cb1c41b35b38",
+      "bytes": 143255
+    },
+    {
+      "path": "candidate06/outer.json.artifacts/stderr.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/outer.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "candidate06/outer.json.artifacts/stdout.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/outer.json.artifacts/stdout.log",
+      "sha256": "0c4b3fb1d2c20c26f00ca53e2d3f7e57ebffb107522e82376bce36b1a4c6610b",
+      "bytes": 123071
+    },
+    {
+      "path": "candidate06/run/actions.jsonl",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/actions.jsonl",
+      "sha256": "193846e6f8b0b4637152287af99b2b0ffa0e98a8ec9637ee31100036c8f0eb74",
+      "bytes": 1274031
+    },
+    {
+      "path": "candidate06/run/checkpoint-cancel-resumed-5s.png",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/checkpoint-cancel-resumed-5s.png",
+      "sha256": "762188d9a674859dae6af3c2fe84476dc596a33b2f342e1baedd257fbb6d7fe1",
+      "bytes": 1800252
+    },
+    {
+      "path": "candidate06/run/checkpoint-cancel-saved.png",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/checkpoint-cancel-saved.png",
+      "sha256": "c9824668902c4169e8baf00bcb9f18e410bcf6f458669b40766411b9705d0d24",
+      "bytes": 731000
+    },
+    {
+      "path": "candidate06/run/checkpoint-replace-resumed-5s.png",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/checkpoint-replace-resumed-5s.png",
+      "sha256": "e72f812d05a44540535a4f3870e5c1c84160c756b059076c97ad5930ea8794a4",
+      "bytes": 1796410
+    },
+    {
+      "path": "candidate06/run/checkpoint-replace-saved.png",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/checkpoint-replace-saved.png",
+      "sha256": "29f258a441423c7a3d8d38e92355c0dbbeac39064e7763ae3347ea66e7b42f89",
+      "bytes": 720139
+    },
+    {
+      "path": "candidate06/run/epoch-0-rows.jsonl.gz",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/epoch-0-rows.jsonl",
+      "sha256": "c93e6d6a2689bbfce0250c1dbf7a34b7b871f38c11fa8b294c5016a9a9f2b2da",
+      "bytes": 215201,
+      "encoding": "gzip; compression level 9; mtime 0; no original filename",
+      "uncompressedSha256": "69797c8a8a9178db827a9c6357c10090b042ab918cdd09e45bb18ff77454b853",
+      "uncompressedBytes": 11501388,
+      "uncompressedLines": 883
+    },
+    {
+      "path": "candidate06/run/epoch-1-rows.jsonl.gz",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/epoch-1-rows.jsonl",
+      "sha256": "1a6ae044872e914cdde3395db3995f64049d0ca9e3d5c79966ed2b6b8547ce00",
+      "bytes": 24362,
+      "encoding": "gzip; compression level 9; mtime 0; no original filename",
+      "uncompressedSha256": "560eb39cd58c57572cf572058bbb48fcc406164494d4d53d79c760391e675022",
+      "uncompressedBytes": 1000636,
+      "uncompressedLines": 73
+    },
+    {
+      "path": "candidate06/run/epoch-2-rows.jsonl.gz",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/epoch-2-rows.jsonl",
+      "sha256": "94012db0b9524bc2ce09a4727469983f29e8bd64c932fe0a431907b2783520e6",
+      "bytes": 17200,
+      "encoding": "gzip; compression level 9; mtime 0; no original filename",
+      "uncompressedSha256": "09521405186336347bcfb8060401c66f13f5746cae87bae9047cc4c9aec221bd",
+      "uncompressedBytes": 1012327,
+      "uncompressedLines": 75
+    },
+    {
+      "path": "candidate06/run/guard-06000-first-G.png",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/guard-06000-first-G.png",
+      "sha256": "b89c62e2a38beea6367536e28df8a15d385fbf0b2ba4e8f0de6c47ffa42205f4",
+      "bytes": 1885563
+    },
+    {
+      "path": "candidate06/run/guard-11000-deselected.png",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/guard-11000-deselected.png",
+      "sha256": "bb8e92936206091a5b51fe2e4fb23bb16a3208611f77f060fbc76ff527d9d8d1",
+      "bytes": 1876617
+    },
+    {
+      "path": "candidate06/run/guard-18000-repeat-G.png",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/guard-18000-repeat-G.png",
+      "sha256": "dca8dce11e6443a0114c7c16ac36e89022aab57b3674c7fb9b4245ee6f8553a7",
+      "bytes": 1864422
+    },
+    {
+      "path": "candidate06/run/guard-24000-empty-cancel.png",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/guard-24000-empty-cancel.png",
+      "sha256": "0fd8de1894d2ec8c2263545d277f00f475617fccf9075a8be675db17a64f4062",
+      "bytes": 1876245
+    },
+    {
+      "path": "candidate06/run/guard-36000-shaman-cancel.png",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/guard-36000-shaman-cancel.png",
+      "sha256": "73c20f8d8302d85a49fc777cf94525bf51ed12a5a0c6a16382f3bf9c1fb7df59",
+      "bytes": 1803418
+    },
+    {
+      "path": "candidate06/run/guard-follow-accepted-plus-6000.png",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/guard-follow-accepted-plus-6000.png",
+      "sha256": "daf7b8e0042d2320b80d08b5700fa9254cbe861dc31caa0f833b9da2fbc47220",
+      "bytes": 1781354
+    },
+    {
+      "path": "candidate06/run/receipt.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/receipt.json",
+      "sha256": "351f930f25c74b4669f1ff15f58a8be652d5e6ea5785f6d96c656364f35d74aa",
+      "bytes": 317941
+    },
+    {
+      "path": "candidate06/run/server.log",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/server.log",
+      "sha256": "d4ae6cf853fc38ddb807b5122e5117e0e2007505af039f96133d36c8f19072d3",
+      "bytes": 575
+    },
+    {
+      "path": "candidate06/run/training-hut-target.png",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/training-hut-target.png",
+      "sha256": "830115089f2db3efb5d882c37dd16a2c78b9af9b0f16af53a94cf1f15909adc2",
+      "bytes": 1901347
+    },
+    {
+      "path": "candidate06/run/witness.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-candidate-06/run/witness.json",
+      "sha256": "0378b83c6cbda07740c8b14a8979f93bb2cc65c59a04f24ea166ecde81c3ca10",
+      "bytes": 317602
+    },
+    {
+      "path": "candidate06-provenance/revision-08/accepted-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "bytes": 2669
+    },
+    {
+      "path": "candidate06-provenance/revision-08/attempt-01-provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/attempt-01-provenance.json",
+      "sha256": "5381f423733c6fcb6c3bbb0cea69d6e485eda55c62fafdcff56dda764cbe56fd",
+      "bytes": 5311
+    },
+    {
+      "path": "candidate06-provenance/revision-08/attempt-01-verifier.mjs.txt",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/attempt-01-verifier.mjs.txt",
+      "sha256": "0b981780d514461616d8053406ac0c4d0c0d160b4717cbf8ea2a1283659c7b9d",
+      "bytes": 6963
+    },
+    {
+      "path": "candidate06-provenance/revision-08/attempt-02-ground-footprints.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/attempt-02-ground-footprints.json",
+      "sha256": "fbc9a4f7f1878705b7111c7c871e616b519633970efba59a6800893556ebe34e",
+      "bytes": 2146
+    },
+    {
+      "path": "candidate06-provenance/revision-08/attempt-04-timing-attribution.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/attempt-04-timing-attribution.json",
+      "sha256": "6ed3c6a7024e3ea53088b70ed99ba397902e27a7b4e8906acabf26223010dc6e",
+      "bytes": 7401
+    },
+    {
+      "path": "candidate06-provenance/revision-08/browser-probes.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/browser-probes.mjs",
+      "sha256": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+      "bytes": 10184
+    },
+    {
+      "path": "candidate06-provenance/revision-08/candidate05-timing-attribution.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/candidate05-timing-attribution.json",
+      "sha256": "76beffc990436083bc145f06e787dfff86a67c4999b211500dfe75e4458acffa",
+      "bytes": 1635
+    },
+    {
+      "path": "candidate06-provenance/revision-08/checkpoint-guard.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/checkpoint-guard.mjs",
+      "sha256": "fd4b3c0f15b12591dee45ad75b0ff70c8a37bf818e437ff449819e5d6b1e438f",
+      "bytes": 2953
+    },
+    {
+      "path": "candidate06-provenance/revision-08/contract-audit.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/contract-audit.md",
+      "sha256": "7345817861b036bb169a342966f8161ba05d45d0e8eb08dadb60318914bbac43",
+      "bytes": 7671
+    },
+    {
+      "path": "candidate06-provenance/revision-08/entry-identity.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/entry-identity.mjs",
+      "sha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+      "bytes": 4037
+    },
+    {
+      "path": "candidate06-provenance/revision-08/entry-identity.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/entry-identity.test.mjs",
+      "sha256": "00c7ef31353bd7066ac4b48693664d996b96b30e1645a4fb743af2c2cb8fe806",
+      "bytes": 4619
+    },
+    {
+      "path": "candidate06-provenance/revision-08/event-deadlines.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/event-deadlines.mjs",
+      "sha256": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7",
+      "bytes": 983
+    },
+    {
+      "path": "candidate06-provenance/revision-08/event-deadlines.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/event-deadlines.test.mjs",
+      "sha256": "672c27d5a9b88b913b2797ee6f5eb73223c3587dc189b7c7457dce6f4ac12b95",
+      "bytes": 1759
+    },
+    {
+      "path": "candidate06-provenance/revision-08/ground-and-dispatch.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/ground-and-dispatch.mjs",
+      "sha256": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7",
+      "bytes": 9833
+    },
+    {
+      "path": "candidate06-provenance/revision-08/ground-probe.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/ground-probe.test.mjs",
+      "sha256": "3217095d138ce753e1d77180ca9fcc95da2eefa860418eea42487a247722b3b9",
+      "bytes": 7820
+    },
+    {
+      "path": "candidate06-provenance/revision-08/guard-assertions.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/guard-assertions.mjs",
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "bytes": 5929
+    },
+    {
+      "path": "candidate06-provenance/revision-08/guard-assertions.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/guard-assertions.test.mjs",
+      "sha256": "3bbadb73d827213c78861132da40b29f6571db67992444a139b48f49f305efa4",
+      "bytes": 6742
+    },
+    {
+      "path": "candidate06-provenance/revision-08/input-boundary.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/input-boundary.mjs",
+      "sha256": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+      "bytes": 5075
+    },
+    {
+      "path": "candidate06-provenance/revision-08/input-boundary.test.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/input-boundary.test.mjs",
+      "sha256": "59a40334c1bcb518bd1b644a8c6bd05a00cd24f783ab17da926b63b42392a44a",
+      "bytes": 14236
+    },
+    {
+      "path": "candidate06-provenance/revision-08/mission10-construction.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/mission10-construction.json",
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "bytes": 3768
+    },
+    {
+      "path": "candidate06-provenance/revision-08/observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/observer.mjs",
+      "sha256": "98bc28e08c1cc035765686a4b61c5cb9cd1ecde5fcea134ea26474899abdc82c",
+      "bytes": 14058
+    },
+    {
+      "path": "candidate06-provenance/revision-08/ordinary-input.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/ordinary-input.mjs",
+      "sha256": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+      "bytes": 9677
+    },
+    {
+      "path": "candidate06-provenance/revision-08/plan.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/plan.md",
+      "sha256": "87f3a57d5caf410699a5cb579a7469c98eb5d0f709a09e7f4924ea5a80ae253a",
+      "bytes": 30384
+    },
+    {
+      "path": "candidate06-provenance/revision-08/preparation-failure-01.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-failure-01.json",
+      "sha256": "89e41eeee7f37a8e3cfa40770132d5d9e9f77eef586d34674b79ddb1723db837",
+      "bytes": 663
+    },
+    {
+      "path": "candidate06-provenance/revision-08/preparation-receipt.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/preparation-receipt.json",
+      "sha256": "f35d3c7da5a7fbf7ab063d19b35e41d61658b6162c7a35bcc651add73c4b8a61",
+      "bytes": 9741
+    },
+    {
+      "path": "candidate06-provenance/revision-08/provenance.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/provenance.json",
+      "sha256": "434f54e368d8277977371456e5f1f272440252fa1de41a7f92032a164564f9b1",
+      "bytes": 13744
+    },
+    {
+      "path": "candidate06-provenance/revision-08/replacement-observer.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/replacement-observer.mjs",
+      "sha256": "0e207f7c89b9f3146f46a6e420ad94ccd6887895cf0456db8e5b057c2b43c345",
+      "bytes": 1783
+    },
+    {
+      "path": "candidate06-provenance/revision-08/retained-ground-inputs.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/retained-ground-inputs.json",
+      "sha256": "121e949e5a94280a3360d580076e2ce5b44145e92c747cefe909a2e3fbcc3fda",
+      "bytes": 8209
+    },
+    {
+      "path": "candidate06-provenance/revision-08/revision-history.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/revision-history.json",
+      "sha256": "3da97fd62d789582eb898c238daa50df4ac87d5cdd9b14db2931a95c4a5206b9",
+      "bytes": 18256
+    },
+    {
+      "path": "candidate06-provenance/revision-08/runtime-sources.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/runtime-sources.json",
+      "sha256": "f28083ac8a279dc5500551e84a0e62573fe0b8a0048deb82e139dbfa2c6e277a",
+      "bytes": 11480
+    },
+    {
+      "path": "candidate06-provenance/revision-08/scenario.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/scenario.mjs",
+      "sha256": "198073123b03c51f92a18ce0b2b18c23117bccee6b59ad97d743f89fbefd5279",
+      "bytes": 30017
+    },
+    {
+      "path": "candidate06-provenance/revision-08/verify-preparation.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preparation/verify-preparation.mjs",
+      "sha256": "f9a8e09b56853d6f7b3f7c9596b25ee100fafdf1f97f6b3736820076aafb4d4f",
+      "bytes": 12179
+    },
+    {
+      "path": "candidate06-provenance/review/review-revision-08.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/review-revision-08.md",
+      "sha256": "3a4a6be47cde5680d360dc0dd0d8e31adacd32ce32c9281e0a58e4636b359ac5",
+      "bytes": 5723
+    },
+    {
+      "path": "candidate06-provenance/review/source-checks-revision-08.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/source-checks-revision-08.json",
+      "sha256": "703fbd237fbf255937a7755a569768b453375e7ea2d57ce4bd42198fd58dc137",
+      "bytes": 9740
+    },
+    {
+      "path": "candidate06-provenance/review/source-checks-revision-08.stderr",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-preflight-review/source-checks-revision-08.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "candidate06-provenance/launch-plan-rev8-candidate.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-browser-execution/launch-plan-rev8-candidate.json",
+      "sha256": "aa6bb2d72f365bab00a11735cdf43473b691cc78ce1676f80c997ef8968947fa",
+      "bytes": 44166
+    },
+    {
+      "path": "candidate06-provenance/final-review/review-candidate06-final.md",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-final-evidence-review/review-candidate06-final.md",
+      "sha256": "c060ec584bdb39c21878b995d5eef4396f2d1a91e032d210a22275427e27f963",
+      "bytes": 9124
+    },
+    {
+      "path": "candidate06-provenance/final-review/verify-candidate06.mjs",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-final-evidence-review/verify-candidate06.mjs",
+      "sha256": "c315175544d8b669322d6d8e1f52807c3951d309f2b4f75590175dc1bb9efe72",
+      "bytes": 9123
+    },
+    {
+      "path": "candidate06-provenance/final-review/verification-candidate06.json",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-final-evidence-review/verification-candidate06.json",
+      "sha256": "f4cbe27448ce7bcce28002f6ec58a7c70251a8fbe659d6e6a7c4b16186304e80",
+      "bytes": 10865
+    },
+    {
+      "path": "candidate06-provenance/final-review/verification-candidate06.stderr",
+      "source": "native-shaman-guard-fix/work/orchestration/native-guard-final-evidence-review/verification-candidate06.stderr",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    {
+      "path": "candidate06-provenance/publication-verification.json",
+      "source": "author evidence publication verification; exact verified snapshot hashes and check dispositions included",
+      "sha256": "13d7ad193e60a068a62572400a59f3e4b05e6f9df33cd2938196bff02dbc3517",
+      "bytes": 2328,
+      "kind": "publication-verification"
+    }
+  ]
+}

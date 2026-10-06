@@ -1,0 +1,1420 @@
+{
+  "testedProductionHead": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+  "productionAppTree": "70ca3233de4be0a958d47b84b9723b69291d1b34",
+  "staticProofCommit": "6fbcd4e35b3e6d687feec8e87a8b641b53f3831e",
+  "files": [
+    {
+      "file": "browser/baseline-01/cancellation-path-comparison.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-01/cancellation-path-comparison.json",
+      "sha256": "e07e0b433e6d0ae3b8c60f7636df1f4bed36f714614c916a0dff8f14b3946c2a",
+      "sourceSha256": "e07e0b433e6d0ae3b8c60f7636df1f4bed36f714614c916a0dff8f14b3946c2a",
+      "sourceBytes": 17417,
+      "storedBytes": 17417,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-01/failure-analysis-01.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-01/failure-analysis-01.json",
+      "sha256": "70283dd6f8fcde5f12ddc7253edc03950be9aaca81edebd98eb1255e8ec8e14c",
+      "sourceSha256": "70283dd6f8fcde5f12ddc7253edc03950be9aaca81edebd98eb1255e8ec8e14c",
+      "sourceBytes": 116162,
+      "storedBytes": 116162,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-01/outer.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-01/outer.json",
+      "sha256": "08ade566258831852da5a5d8bab1a37fe60535d2a690af227892bf3eab6d45e0",
+      "sourceSha256": "08ade566258831852da5a5d8bab1a37fe60535d2a690af227892bf3eab6d45e0",
+      "sourceBytes": 4665,
+      "storedBytes": 4665,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-01/outer.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-01/outer.json.artifacts/stderr.log",
+      "sha256": "14cc28da8cfed164ad1822870e442369ecccb2498f2df3bea12f38ad2b3cee7d",
+      "sourceSha256": "14cc28da8cfed164ad1822870e442369ecccb2498f2df3bea12f38ad2b3cee7d",
+      "sourceBytes": 998,
+      "storedBytes": 998,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-01/outer.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-01/outer.json.artifacts/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBytes": 0,
+      "storedBytes": 0,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-01/raw-phase-diagnosis.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-01/raw-phase-diagnosis.json",
+      "sha256": "fb81858700107c2e0371be1631f2581eceab111371ea49fcf5b961e6d7a176eb",
+      "sourceSha256": "fb81858700107c2e0371be1631f2581eceab111371ea49fcf5b961e6d7a176eb",
+      "sourceBytes": 17557,
+      "storedBytes": 17557,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-01/run/actions.jsonl.gz",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-01/run/actions.jsonl",
+      "sha256": "1ec7219e239eeb70ffef346e1307b775f56e8d24879830cdb9062e57337dab16",
+      "sourceSha256": "1c246b0a8585640dd35912c608c0e8330186166e0f912e8eb7e6a437341e60e7",
+      "sourceBytes": 498808,
+      "storedBytes": 38059,
+      "encoding": "gzip"
+    },
+    {
+      "file": "browser/baseline-01/run/epoch-0-rows.jsonl.gz",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-01/run/epoch-0-rows.jsonl",
+      "sha256": "9a8cf8110c90711cfd54480b8bf943f384d3b5d1b5b63bfcb399a62dd430db11",
+      "sourceSha256": "4a7292426627d21fe35e8c18b9c6dcbab22017949d4c3658e991706c9a1382ed",
+      "sourceBytes": 16829709,
+      "storedBytes": 263280,
+      "encoding": "gzip"
+    },
+    {
+      "file": "browser/baseline-01/run/failure-0.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-01/run/failure-0.png",
+      "sha256": "ef4e8d7f270fddaf2dbab4dfe8fc0e0bced17f6db4718ab899138ac5e4156aec",
+      "sourceSha256": "ef4e8d7f270fddaf2dbab4dfe8fc0e0bced17f6db4718ab899138ac5e4156aec",
+      "sourceBytes": 1882322,
+      "storedBytes": 1882322,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-01/run/receipt.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-01/run/receipt.json",
+      "sha256": "1b9bc22d17beb9d572ffd4628ffc851d2e0c4bc4664e5852b2a6fc233e6eae15",
+      "sourceSha256": "1b9bc22d17beb9d572ffd4628ffc851d2e0c4bc4664e5852b2a6fc233e6eae15",
+      "sourceBytes": 2947,
+      "storedBytes": 2947,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-01/run/server.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-01/run/server.log",
+      "sha256": "b6e098863dc7ae861e63cc42678dd2bfdaa28e105eacf6a80703816dfc6540f8",
+      "sourceSha256": "b6e098863dc7ae861e63cc42678dd2bfdaa28e105eacf6a80703816dfc6540f8",
+      "sourceBytes": 702,
+      "storedBytes": 702,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-01/run/training-hut-target.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-01/run/training-hut-target.png",
+      "sha256": "2f12159adb80a64b5e219acabc3762387412c27319c9852bab8fc1c320d227de",
+      "sourceSha256": "2f12159adb80a64b5e219acabc3762387412c27319c9852bab8fc1c320d227de",
+      "sourceBytes": 1902814,
+      "storedBytes": 1902814,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-01/run/witness.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-01/run/witness.json",
+      "sha256": "f9e2541722e30b3568b56d3ba022c2aec0c445ea922fc2dac356d60c0ac779e3",
+      "sourceSha256": "f9e2541722e30b3568b56d3ba022c2aec0c445ea922fc2dac356d60c0ac779e3",
+      "sourceBytes": 194500,
+      "storedBytes": 194500,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-02/failure-analysis-02.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/failure-analysis-02.json",
+      "sha256": "d556dcef3eb0a2e49234959dc9e9eef299b0b176f9cd2602b6639e2cefaa56cc",
+      "sourceSha256": "d556dcef3eb0a2e49234959dc9e9eef299b0b176f9cd2602b6639e2cefaa56cc",
+      "sourceBytes": 11981,
+      "storedBytes": 11981,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-02/outer.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/outer.json",
+      "sha256": "68a6af6167cc5034dc6d8a99a4555b83a8b7164d665b9e2e97b6683b755f9ed6",
+      "sourceSha256": "68a6af6167cc5034dc6d8a99a4555b83a8b7164d665b9e2e97b6683b755f9ed6",
+      "sourceBytes": 6203,
+      "storedBytes": 6203,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-02/outer.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/outer.json.artifacts/stderr.log",
+      "sha256": "e204b42b867d7fdd18f9354be07ca6be59b7ba87b74cb5d202c734c8f41244da",
+      "sourceSha256": "e204b42b867d7fdd18f9354be07ca6be59b7ba87b74cb5d202c734c8f41244da",
+      "sourceBytes": 1014,
+      "storedBytes": 1014,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-02/outer.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/outer.json.artifacts/stdout.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBytes": 0,
+      "storedBytes": 0,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-02/run/actions.jsonl.gz",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/run/actions.jsonl",
+      "sha256": "f3fa5b145bb4407d80bb18895f2b9762e48e6f0f1457344e7a7f87ce2a895d11",
+      "sourceSha256": "cbed10105c1492dda3b69a229afd8cda371a31d74cc086e9bd60817fd450bd81",
+      "sourceBytes": 813957,
+      "storedBytes": 45747,
+      "encoding": "gzip"
+    },
+    {
+      "file": "browser/baseline-02/run/epoch-0-rows.jsonl.gz",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/run/epoch-0-rows.jsonl",
+      "sha256": "9d19982a952c84f140fb5edb49cd154d9637f2e0f6359ba3bef9c86edab88176",
+      "sourceSha256": "82d82bb0bf866cd02362bf3428a6d6aeca3cb262376e2cfded2543526ebf0ea2",
+      "sourceBytes": 9656680,
+      "storedBytes": 163899,
+      "encoding": "gzip"
+    },
+    {
+      "file": "browser/baseline-02/run/failure-0.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/run/failure-0.png",
+      "sha256": "ca08334aa2e8f72b52e2d66fd60d12230bb1dcbc0e508e8c614e049925331087",
+      "sourceSha256": "ca08334aa2e8f72b52e2d66fd60d12230bb1dcbc0e508e8c614e049925331087",
+      "sourceBytes": 1796149,
+      "storedBytes": 1796149,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-02/run/guard-deselected.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/run/guard-deselected.png",
+      "sha256": "76a5db15fa040c047fee20d559c052f0e5405040c05188c4bbf64a17308fd15f",
+      "sourceSha256": "76a5db15fa040c047fee20d559c052f0e5405040c05188c4bbf64a17308fd15f",
+      "sourceBytes": 1875651,
+      "storedBytes": 1875651,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-02/run/guard-empty-cancelled.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/run/guard-empty-cancelled.png",
+      "sha256": "39b613e6ce70b6916aab844efd69017c0afb6f554abcb2e6388af559a9106956",
+      "sourceSha256": "39b613e6ce70b6916aab844efd69017c0afb6f554abcb2e6388af559a9106956",
+      "sourceBytes": 1865712,
+      "storedBytes": 1865712,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-02/run/guard-first-G-adopted.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/run/guard-first-G-adopted.png",
+      "sha256": "09aa6606114b7b820b3c210baebc636af88abdf0016e3aa6a76e39c490cdc849",
+      "sourceSha256": "09aa6606114b7b820b3c210baebc636af88abdf0016e3aa6a76e39c490cdc849",
+      "sourceBytes": 1884741,
+      "storedBytes": 1884741,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-02/run/guard-repeat-G-adopted.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/run/guard-repeat-G-adopted.png",
+      "sha256": "eb246524136c75db12b4f02602ad51c26b1dd7d2ce8357239985acebe0df6334",
+      "sourceSha256": "eb246524136c75db12b4f02602ad51c26b1dd7d2ce8357239985acebe0df6334",
+      "sourceBytes": 1869552,
+      "storedBytes": 1869552,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-02/run/receipt.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/run/receipt.json",
+      "sha256": "23824b9c4a0c2682b33a6ab7cf47d91141b64eaad1603c2fb0ca23d396d9204a",
+      "sourceSha256": "23824b9c4a0c2682b33a6ab7cf47d91141b64eaad1603c2fb0ca23d396d9204a",
+      "sourceBytes": 2963,
+      "storedBytes": 2963,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-02/run/server.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/run/server.log",
+      "sha256": "d95529c66362e6a8921b00d54e3f6962b08f18abb639d183885e053d4fb60e2f",
+      "sourceSha256": "d95529c66362e6a8921b00d54e3f6962b08f18abb639d183885e053d4fb60e2f",
+      "sourceBytes": 578,
+      "storedBytes": 578,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-02/run/training-hut-target.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/run/training-hut-target.png",
+      "sha256": "e29ab1a8aa5937ab12265ef55a74ee03c208497b4bdfc2ab181cad42cd7607fd",
+      "sourceSha256": "e29ab1a8aa5937ab12265ef55a74ee03c208497b4bdfc2ab181cad42cd7607fd",
+      "sourceBytes": 1901057,
+      "storedBytes": 1901057,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-02/run/witness.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02/run/witness.json",
+      "sha256": "76d692447d4bd77567ebf2b7bd6749f5c19878038a2ce0e2c3f203fa081744e7",
+      "sourceSha256": "76d692447d4bd77567ebf2b7bd6749f5c19878038a2ce0e2c3f203fa081744e7",
+      "sourceBytes": 186791,
+      "storedBytes": 186791,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-03/outer.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/outer.json",
+      "sha256": "fa6de7d24bbdd64511e437745b18d4cb771eacd2f6e559ba4b8efa7bc20f2a4c",
+      "sourceSha256": "fa6de7d24bbdd64511e437745b18d4cb771eacd2f6e559ba4b8efa7bc20f2a4c",
+      "sourceBytes": 127371,
+      "storedBytes": 127371,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-03/outer.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/outer.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBytes": 0,
+      "storedBytes": 0,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-03/outer.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/outer.json.artifacts/stdout.log",
+      "sha256": "e200d4b7f0a8fd454bd9708088e71baeeab851d5cb392c36bef37d8a09707d3f",
+      "sourceSha256": "e200d4b7f0a8fd454bd9708088e71baeeab851d5cb392c36bef37d8a09707d3f",
+      "sourceBytes": 106450,
+      "storedBytes": 106450,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-03/run/actions.jsonl.gz",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/run/actions.jsonl",
+      "sha256": "bb07c53c2f4f1abd19dcbe3ebf37c36019720f9c729ee7ea62de78f0046842c2",
+      "sourceSha256": "e14deff5ddbc1d28cc1f51258befad84877cd7f5e3fac1c7c9466eacf8941e52",
+      "sourceBytes": 1091495,
+      "storedBytes": 58881,
+      "encoding": "gzip"
+    },
+    {
+      "file": "browser/baseline-03/run/epoch-0-rows.jsonl.gz",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/run/epoch-0-rows.jsonl",
+      "sha256": "9240f3df2cd6b281a45268b82ef2eab696d7b5c38d6c835af8745b17765ed50f",
+      "sourceSha256": "50027383ee950b02ea14126ffea39bdb761ef744c1d0e76e513c910cbee88017",
+      "sourceBytes": 12829106,
+      "storedBytes": 211082,
+      "encoding": "gzip"
+    },
+    {
+      "file": "browser/baseline-03/run/guard-deselected.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/run/guard-deselected.png",
+      "sha256": "f28c9c4e4058593507c9ec04c6710bf82456be8daf01455d47abedad07312d3d",
+      "sourceSha256": "f28c9c4e4058593507c9ec04c6710bf82456be8daf01455d47abedad07312d3d",
+      "sourceBytes": 1871877,
+      "storedBytes": 1871877,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-03/run/guard-empty-cancelled.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/run/guard-empty-cancelled.png",
+      "sha256": "6d6adc7465d272734245f2e57ed1c410da7555414ac6ce650a0a4adadf2e3435",
+      "sourceSha256": "6d6adc7465d272734245f2e57ed1c410da7555414ac6ce650a0a4adadf2e3435",
+      "sourceBytes": 1867496,
+      "storedBytes": 1867496,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-03/run/guard-first-G-adopted.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/run/guard-first-G-adopted.png",
+      "sha256": "9bc442b7ad23ff55b8bb30a55db35aedcd638a70b7c2a0c9957a49c8dedaf5ae",
+      "sourceSha256": "9bc442b7ad23ff55b8bb30a55db35aedcd638a70b7c2a0c9957a49c8dedaf5ae",
+      "sourceBytes": 1882250,
+      "storedBytes": 1882250,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-03/run/guard-repeat-G-adopted.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/run/guard-repeat-G-adopted.png",
+      "sha256": "be303199c0653d0c41aeea6549a6487cedaeeb930381012344b02fa46f08c612",
+      "sourceSha256": "be303199c0653d0c41aeea6549a6487cedaeeb930381012344b02fa46f08c612",
+      "sourceBytes": 1865711,
+      "storedBytes": 1865711,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-03/run/natural-source720-idle.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/run/natural-source720-idle.png",
+      "sha256": "dcd5f566c9d617995d2795dbd373f9c1e65b34b7d8d0e135d2312e59985f2db0",
+      "sourceSha256": "dcd5f566c9d617995d2795dbd373f9c1e65b34b7d8d0e135d2312e59985f2db0",
+      "sourceBytes": 1621780,
+      "storedBytes": 1621780,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-03/run/natural-source720-selected.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/run/natural-source720-selected.png",
+      "sha256": "838b2acdee04925759de3e3a41ebf23dbc44ae40a752bd31481d0c317d04155f",
+      "sourceSha256": "838b2acdee04925759de3e3a41ebf23dbc44ae40a752bd31481d0c317d04155f",
+      "sourceBytes": 1618945,
+      "storedBytes": 1618945,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-03/run/receipt.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/run/receipt.json",
+      "sha256": "99a51cf8e4eba34e0809d9de6cd12865a3d0a8dc1422150642376d222e0ec1b4",
+      "sourceSha256": "99a51cf8e4eba34e0809d9de6cd12865a3d0a8dc1422150642376d222e0ec1b4",
+      "sourceBytes": 263002,
+      "storedBytes": 263002,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-03/run/server.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/run/server.log",
+      "sha256": "394ea73455939537a66a0f277c7ae34e75b48d5a62222dec6ff7ebd4127b941c",
+      "sourceSha256": "394ea73455939537a66a0f277c7ae34e75b48d5a62222dec6ff7ebd4127b941c",
+      "sourceBytes": 576,
+      "storedBytes": 576,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-03/run/training-hut-target.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/run/training-hut-target.png",
+      "sha256": "d3c76f7589def140bf6796f25b984420ebd43bcb567e9618479958d7e7e30055",
+      "sourceSha256": "d3c76f7589def140bf6796f25b984420ebd43bcb567e9618479958d7e7e30055",
+      "sourceBytes": 1901911,
+      "storedBytes": 1901911,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/baseline-03/run/witness.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-03/run/witness.json",
+      "sha256": "67fb007e007ff5020bd79d46554e03a14033edadb89280bf98d8bc90d5387cdc",
+      "sourceSha256": "67fb007e007ff5020bd79d46554e03a14033edadb89280bf98d8bc90d5387cdc",
+      "sourceBytes": 268659,
+      "storedBytes": 268659,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/candidate-01/outer.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/outer.json",
+      "sha256": "774a618acac551a19c7e28b98ee4d3c24e0485d38dd42e4c5065156397867382",
+      "sourceSha256": "774a618acac551a19c7e28b98ee4d3c24e0485d38dd42e4c5065156397867382",
+      "sourceBytes": 130794,
+      "storedBytes": 130794,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/candidate-01/outer.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/outer.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBytes": 0,
+      "storedBytes": 0,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/candidate-01/outer.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/outer.json.artifacts/stdout.log",
+      "sha256": "6121c5962d008e3a39e479a93172e9c3b61a18844cf36c6efe79df52cb31d5a2",
+      "sourceSha256": "6121c5962d008e3a39e479a93172e9c3b61a18844cf36c6efe79df52cb31d5a2",
+      "sourceBytes": 109365,
+      "storedBytes": 109365,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/candidate-01/run/actions.jsonl.gz",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/run/actions.jsonl",
+      "sha256": "a8f49354d6f3a4364fc7fe79023ab106b9ad455ab17292b7932b1f438292a150",
+      "sourceSha256": "d36829c26e2f11d4af5a80c1cf6568092ba647b0dd01140cf7cd8b86338d118e",
+      "sourceBytes": 1095856,
+      "storedBytes": 59415,
+      "encoding": "gzip"
+    },
+    {
+      "file": "browser/candidate-01/run/epoch-0-rows.jsonl.gz",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/run/epoch-0-rows.jsonl",
+      "sha256": "49d056e0f34acadc70098d0165073f3c9e7c05afbf3a6da6f7a9e52f66761dd9",
+      "sourceSha256": "358e1eb61e9cc08f85a849304b3787e78a5517f80304e8d15e4d5d65f6a662ca",
+      "sourceBytes": 16926814,
+      "storedBytes": 279637,
+      "encoding": "gzip"
+    },
+    {
+      "file": "browser/candidate-01/run/guard-deselected.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/run/guard-deselected.png",
+      "sha256": "95558c9ecb2a722161536ae5c6e9a8a9ea5f375a32f551a5bfd8e0b64548b681",
+      "sourceSha256": "95558c9ecb2a722161536ae5c6e9a8a9ea5f375a32f551a5bfd8e0b64548b681",
+      "sourceBytes": 1872268,
+      "storedBytes": 1872268,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/candidate-01/run/guard-empty-cancelled.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/run/guard-empty-cancelled.png",
+      "sha256": "60424ea4655e993b5cd7d57efbb554d7173fc541d384771d78383dd50a8c223e",
+      "sourceSha256": "60424ea4655e993b5cd7d57efbb554d7173fc541d384771d78383dd50a8c223e",
+      "sourceBytes": 1866976,
+      "storedBytes": 1866976,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/candidate-01/run/guard-first-G-adopted.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/run/guard-first-G-adopted.png",
+      "sha256": "a3dd2a9e82df7fdd51cccf8faa8af0544b471256adb1cb0c1b7a1f45a2553746",
+      "sourceSha256": "a3dd2a9e82df7fdd51cccf8faa8af0544b471256adb1cb0c1b7a1f45a2553746",
+      "sourceBytes": 1883670,
+      "storedBytes": 1883670,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/candidate-01/run/guard-repeat-G-adopted.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/run/guard-repeat-G-adopted.png",
+      "sha256": "cbd3b3d01ed320f1ef4de5f90b1a1160cf9c29f69b5f2dd2f5b65ecf1c081648",
+      "sourceSha256": "cbd3b3d01ed320f1ef4de5f90b1a1160cf9c29f69b5f2dd2f5b65ecf1c081648",
+      "sourceBytes": 1867720,
+      "storedBytes": 1867720,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/candidate-01/run/natural-source720-idle.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/run/natural-source720-idle.png",
+      "sha256": "4720623469345d066374ef269d9f0d94bfcf8dafc136b111dbf2cc45898e04f9",
+      "sourceSha256": "4720623469345d066374ef269d9f0d94bfcf8dafc136b111dbf2cc45898e04f9",
+      "sourceBytes": 1612474,
+      "storedBytes": 1612474,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/candidate-01/run/natural-source720-selected.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/run/natural-source720-selected.png",
+      "sha256": "fdbad549f6dec3d3b719552eaa4ee18fb5be97c9e2ced80da2b0905dab0b14fe",
+      "sourceSha256": "fdbad549f6dec3d3b719552eaa4ee18fb5be97c9e2ced80da2b0905dab0b14fe",
+      "sourceBytes": 1614483,
+      "storedBytes": 1614483,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/candidate-01/run/receipt.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/run/receipt.json",
+      "sha256": "78abd74662a28b3e32cf4b5bf54b1d7eaa8c562dd29e1b7e25352e5e04bf4f77",
+      "sourceSha256": "78abd74662a28b3e32cf4b5bf54b1d7eaa8c562dd29e1b7e25352e5e04bf4f77",
+      "sourceBytes": 267984,
+      "storedBytes": 267984,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/candidate-01/run/server.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/run/server.log",
+      "sha256": "930c4f6baf92a16e606d02b715534584744c50fc7f516570e48f6c3395fe9471",
+      "sourceSha256": "930c4f6baf92a16e606d02b715534584744c50fc7f516570e48f6c3395fe9471",
+      "sourceBytes": 952,
+      "storedBytes": 952,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/candidate-01/run/training-hut-target.png",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/run/training-hut-target.png",
+      "sha256": "575fc072aa26c8674788cdd88828f790cc01c619a4f0ec670e7d49ac8f6df0e2",
+      "sourceSha256": "575fc072aa26c8674788cdd88828f790cc01c619a4f0ec670e7d49ac8f6df0e2",
+      "sourceBytes": 1901560,
+      "storedBytes": 1901560,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/candidate-01/run/witness.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/run/witness.json",
+      "sha256": "472e4edc37e746cb967adcdd7f50f20182009015b7f1651d9760dad247294988",
+      "sourceSha256": "472e4edc37e746cb967adcdd7f50f20182009015b7f1651d9760dad247294988",
+      "sourceBytes": 273745,
+      "storedBytes": 273745,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/accepted-input.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "sourceSha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "sourceBytes": 2669,
+      "storedBytes": 2669,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/browser-probes.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/browser-probes.mjs",
+      "sha256": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+      "sourceSha256": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+      "sourceBytes": 10184,
+      "storedBytes": 10184,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/entry-identity.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/entry-identity.mjs",
+      "sha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+      "sourceSha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+      "sourceBytes": 4037,
+      "storedBytes": 4037,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/event-deadlines.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/event-deadlines.mjs",
+      "sha256": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7",
+      "sourceSha256": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7",
+      "sourceBytes": 983,
+      "storedBytes": 983,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/gesture-progress.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/gesture-progress.mjs",
+      "sha256": "d3c8017f1c03427ee43474c9f645ae1297dee0a4224efcdbb7991eeeb9e1ae4f",
+      "sourceSha256": "d3c8017f1c03427ee43474c9f645ae1297dee0a4224efcdbb7991eeeb9e1ae4f",
+      "sourceBytes": 516,
+      "storedBytes": 516,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/gesture-progress.test.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/gesture-progress.test.mjs",
+      "sha256": "4036ab35628370fd61b40f095718604f29ddf234505129e11bae2d9a2b488f53",
+      "sourceSha256": "4036ab35628370fd61b40f095718604f29ddf234505129e11bae2d9a2b488f53",
+      "sourceBytes": 989,
+      "storedBytes": 989,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/ground-and-dispatch.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/ground-and-dispatch.mjs",
+      "sha256": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7",
+      "sourceSha256": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7",
+      "sourceBytes": 9833,
+      "storedBytes": 9833,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/guard-assertions.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/guard-assertions.mjs",
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "sourceSha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "sourceBytes": 5929,
+      "storedBytes": 5929,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/input-boundary.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/input-boundary.mjs",
+      "sha256": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+      "sourceSha256": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+      "sourceBytes": 5075,
+      "storedBytes": 5075,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/mission10-construction.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/mission10-construction.json",
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "sourceSha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "sourceBytes": 3768,
+      "storedBytes": 3768,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/observer.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/observer.mjs",
+      "sha256": "98bc28e08c1cc035765686a4b61c5cb9cd1ecde5fcea134ea26474899abdc82c",
+      "sourceSha256": "98bc28e08c1cc035765686a4b61c5cb9cd1ecde5fcea134ea26474899abdc82c",
+      "sourceBytes": 14058,
+      "storedBytes": 14058,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/ordinary-input.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/ordinary-input.mjs",
+      "sha256": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+      "sourceSha256": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+      "sourceBytes": 9677,
+      "storedBytes": 9677,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/preflight.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/preflight.json",
+      "sha256": "56aff8d41f262344acbb0009fe16a1cf992ae09f16d76a69c9fa223e671a9adb",
+      "sourceSha256": "56aff8d41f262344acbb0009fe16a1cf992ae09f16d76a69c9fa223e671a9adb",
+      "sourceBytes": 5794,
+      "storedBytes": 5794,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/reference-inputs.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/reference-inputs.json",
+      "sha256": "0ce920931c2976013d6678489112c63ba2ffa6c832c44029130b5579df5d5e6c",
+      "sourceSha256": "0ce920931c2976013d6678489112c63ba2ffa6c832c44029130b5579df5d5e6c",
+      "sourceBytes": 1215,
+      "storedBytes": 1215,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/reference-scenario.mjs.txt",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/reference-scenario.mjs.txt",
+      "sha256": "198073123b03c51f92a18ce0b2b18c23117bccee6b59ad97d743f89fbefd5279",
+      "sourceSha256": "198073123b03c51f92a18ce0b2b18c23117bccee6b59ad97d743f89fbefd5279",
+      "sourceBytes": 30017,
+      "storedBytes": 30017,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-01/scenario.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-03-baseline01-failed/scenario.mjs",
+      "sha256": "6a374a5a2a1178638638365e8611241c0678bf440316828b2a78962227fc0a2d",
+      "sourceSha256": "6a374a5a2a1178638638365e8611241c0678bf440316828b2a78962227fc0a2d",
+      "sourceBytes": 26915,
+      "storedBytes": 26915,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/accepted-input.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "sourceSha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "sourceBytes": 2669,
+      "storedBytes": 2669,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/browser-probes.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/browser-probes.mjs",
+      "sha256": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+      "sourceSha256": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+      "sourceBytes": 10184,
+      "storedBytes": 10184,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/entry-identity.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/entry-identity.mjs",
+      "sha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+      "sourceSha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+      "sourceBytes": 4037,
+      "storedBytes": 4037,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/event-deadlines.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/event-deadlines.mjs",
+      "sha256": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7",
+      "sourceSha256": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7",
+      "sourceBytes": 983,
+      "storedBytes": 983,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/gesture-progress.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/gesture-progress.mjs",
+      "sha256": "d3c8017f1c03427ee43474c9f645ae1297dee0a4224efcdbb7991eeeb9e1ae4f",
+      "sourceSha256": "d3c8017f1c03427ee43474c9f645ae1297dee0a4224efcdbb7991eeeb9e1ae4f",
+      "sourceBytes": 516,
+      "storedBytes": 516,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/gesture-progress.test.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/gesture-progress.test.mjs",
+      "sha256": "4036ab35628370fd61b40f095718604f29ddf234505129e11bae2d9a2b488f53",
+      "sourceSha256": "4036ab35628370fd61b40f095718604f29ddf234505129e11bae2d9a2b488f53",
+      "sourceBytes": 989,
+      "storedBytes": 989,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/ground-and-dispatch.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/ground-and-dispatch.mjs",
+      "sha256": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7",
+      "sourceSha256": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7",
+      "sourceBytes": 9833,
+      "storedBytes": 9833,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/guard-assertions.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/guard-assertions.mjs",
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "sourceSha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "sourceBytes": 5929,
+      "storedBytes": 5929,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/input-boundary.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/input-boundary.mjs",
+      "sha256": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+      "sourceSha256": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+      "sourceBytes": 5075,
+      "storedBytes": 5075,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/mission10-construction.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/mission10-construction.json",
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "sourceSha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "sourceBytes": 3768,
+      "storedBytes": 3768,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/observer.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/observer.mjs",
+      "sha256": "fdb190a30dbd70e31c093c7cc5ee6865756c0d43a7bd7946167a6c15a2f70669",
+      "sourceSha256": "fdb190a30dbd70e31c093c7cc5ee6865756c0d43a7bd7946167a6c15a2f70669",
+      "sourceBytes": 14084,
+      "storedBytes": 14084,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/ordinary-input.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/ordinary-input.mjs",
+      "sha256": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+      "sourceSha256": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+      "sourceBytes": 9677,
+      "storedBytes": 9677,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/preflight.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/preflight.json",
+      "sha256": "e644afbdf2d9db38878d47156db051a672c585f7f7292b5f364990668a36f9fd",
+      "sourceSha256": "e644afbdf2d9db38878d47156db051a672c585f7f7292b5f364990668a36f9fd",
+      "sourceBytes": 7497,
+      "storedBytes": 7497,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/reference-inputs.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/reference-inputs.json",
+      "sha256": "0ce920931c2976013d6678489112c63ba2ffa6c832c44029130b5579df5d5e6c",
+      "sourceSha256": "0ce920931c2976013d6678489112c63ba2ffa6c832c44029130b5579df5d5e6c",
+      "sourceBytes": 1215,
+      "storedBytes": 1215,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/reference-scenario.mjs.txt",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/reference-scenario.mjs.txt",
+      "sha256": "198073123b03c51f92a18ce0b2b18c23117bccee6b59ad97d743f89fbefd5279",
+      "sourceSha256": "198073123b03c51f92a18ce0b2b18c23117bccee6b59ad97d743f89fbefd5279",
+      "sourceBytes": 30017,
+      "storedBytes": 30017,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/baseline-02/scenario.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-05-baseline02-failed/scenario.mjs",
+      "sha256": "c0afa8374e5ad7fd215a31050633b4fd6323bc568c70498c853f5faa1c78e7b9",
+      "sourceSha256": "c0afa8374e5ad7fd215a31050633b4fd6323bc568c70498c853f5faa1c78e7b9",
+      "sourceBytes": 28910,
+      "storedBytes": 28910,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/accepted-input.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/accepted-input.mjs",
+      "sha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "sourceSha256": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "sourceBytes": 2669,
+      "storedBytes": 2669,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/browser-probes.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/browser-probes.mjs",
+      "sha256": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+      "sourceSha256": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+      "sourceBytes": 10184,
+      "storedBytes": 10184,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/entry-identity.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/entry-identity.mjs",
+      "sha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+      "sourceSha256": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+      "sourceBytes": 4037,
+      "storedBytes": 4037,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/event-deadlines.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/event-deadlines.mjs",
+      "sha256": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7",
+      "sourceSha256": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7",
+      "sourceBytes": 983,
+      "storedBytes": 983,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/gesture-progress.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/gesture-progress.mjs",
+      "sha256": "d3c8017f1c03427ee43474c9f645ae1297dee0a4224efcdbb7991eeeb9e1ae4f",
+      "sourceSha256": "d3c8017f1c03427ee43474c9f645ae1297dee0a4224efcdbb7991eeeb9e1ae4f",
+      "sourceBytes": 516,
+      "storedBytes": 516,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/gesture-progress.test.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/gesture-progress.test.mjs",
+      "sha256": "4036ab35628370fd61b40f095718604f29ddf234505129e11bae2d9a2b488f53",
+      "sourceSha256": "4036ab35628370fd61b40f095718604f29ddf234505129e11bae2d9a2b488f53",
+      "sourceBytes": 989,
+      "storedBytes": 989,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/ground-and-dispatch.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/ground-and-dispatch.mjs",
+      "sha256": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7",
+      "sourceSha256": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7",
+      "sourceBytes": 9833,
+      "storedBytes": 9833,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/guard-assertions.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/guard-assertions.mjs",
+      "sha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "sourceSha256": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+      "sourceBytes": 5929,
+      "storedBytes": 5929,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/input-boundary.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/input-boundary.mjs",
+      "sha256": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+      "sourceSha256": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+      "sourceBytes": 5075,
+      "storedBytes": 5075,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/mission10-construction.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/mission10-construction.json",
+      "sha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "sourceSha256": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+      "sourceBytes": 3768,
+      "storedBytes": 3768,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/observer.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/observer.mjs",
+      "sha256": "fdb190a30dbd70e31c093c7cc5ee6865756c0d43a7bd7946167a6c15a2f70669",
+      "sourceSha256": "fdb190a30dbd70e31c093c7cc5ee6865756c0d43a7bd7946167a6c15a2f70669",
+      "sourceBytes": 14084,
+      "storedBytes": 14084,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/ordinary-input.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/ordinary-input.mjs",
+      "sha256": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+      "sourceSha256": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+      "sourceBytes": 9677,
+      "storedBytes": 9677,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/pause-input.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/pause-input.mjs",
+      "sha256": "ea87c0024e1934fefbfa7cdf22c414a5fedf620e885c5ca60823fdee6a30bb0c",
+      "sourceSha256": "ea87c0024e1934fefbfa7cdf22c414a5fedf620e885c5ca60823fdee6a30bb0c",
+      "sourceBytes": 3108,
+      "storedBytes": 3108,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/pause-input.test.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/pause-input.test.mjs",
+      "sha256": "d618c7dcd2f9a4a1191ab988af15b5aec93c76ab3a1a4a42039b8d2d2f6a85e4",
+      "sourceSha256": "d618c7dcd2f9a4a1191ab988af15b5aec93c76ab3a1a4a42039b8d2d2f6a85e4",
+      "sourceBytes": 1950,
+      "storedBytes": 1950,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/preflight.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/preflight.json",
+      "sha256": "c6b4d452ed506fc001b375fcceddc1a73f9662ba61e95ae074923fe0a13ebc7f",
+      "sourceSha256": "c6b4d452ed506fc001b375fcceddc1a73f9662ba61e95ae074923fe0a13ebc7f",
+      "sourceBytes": 8754,
+      "storedBytes": 8754,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/reference-inputs.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/reference-inputs.json",
+      "sha256": "0ce920931c2976013d6678489112c63ba2ffa6c832c44029130b5579df5d5e6c",
+      "sourceSha256": "0ce920931c2976013d6678489112c63ba2ffa6c832c44029130b5579df5d5e6c",
+      "sourceBytes": 1215,
+      "storedBytes": 1215,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/reference-scenario.mjs.txt",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/reference-scenario.mjs.txt",
+      "sha256": "198073123b03c51f92a18ce0b2b18c23117bccee6b59ad97d743f89fbefd5279",
+      "sourceSha256": "198073123b03c51f92a18ce0b2b18c23117bccee6b59ad97d743f89fbefd5279",
+      "sourceBytes": 30017,
+      "storedBytes": 30017,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/accepted/scenario.mjs",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-preparation/scenario.mjs",
+      "sha256": "cd699e6dcb29c57ba09ca7381fd3eb86416d8a44e5939eec8f9fe01f5adb0102",
+      "sourceSha256": "cd699e6dcb29c57ba09ca7381fd3eb86416d8a44e5939eec8f9fe01f5adb0102",
+      "sourceBytes": 32561,
+      "storedBytes": 32561,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/revision-07-controls.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-07-controls.json",
+      "sha256": "30c0a6bb6f705a1ccfbe90510167749c9cb6e2861c752e4367a695f5b8fcf657",
+      "sourceSha256": "30c0a6bb6f705a1ccfbe90510167749c9cb6e2861c752e4367a695f5b8fcf657",
+      "sourceBytes": 4261,
+      "storedBytes": 4261,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/revision-07-launch.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-07-launch.json",
+      "sha256": "9759a340b45aa47550fef6278246173cc3061254907dd5713c6b47ffacb661c4",
+      "sourceSha256": "9759a340b45aa47550fef6278246173cc3061254907dd5713c6b47ffacb661c4",
+      "sourceBytes": 3838,
+      "storedBytes": 3838,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/checkers/revision-07-candidate-launch.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/browser-review/revision-07-candidate-launch.json",
+      "sha256": "ac142cc29ffbc4929ca3b4e1bbcc969eca5ccccfca2c601518172aa7fd3ac6db",
+      "sourceSha256": "ac142cc29ffbc4929ca3b4e1bbcc969eca5ccccfca2c601518172aa7fd3ac6db",
+      "sourceBytes": 4298,
+      "storedBytes": 4298,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/failure-first-01.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/failure-first-01.json",
+      "sha256": "6e617718f02863791d381a3697944d0dd5beea7ac5e6a432af48a98bf7328548",
+      "sourceSha256": "6e617718f02863791d381a3697944d0dd5beea7ac5e6a432af48a98bf7328548",
+      "sourceBytes": 3356,
+      "storedBytes": 3356,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/failure-first-01.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/failure-first-01.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBytes": 0,
+      "storedBytes": 0,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/failure-first-01.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/failure-first-01.json.artifacts/stdout.log",
+      "sha256": "0190a40a10bb4c3994303b3eed1047652a68fffe2ac506fe0b4354656e9c4c3c",
+      "sourceSha256": "0190a40a10bb4c3994303b3eed1047652a68fffe2ac506fe0b4354656e9c4c3c",
+      "sourceBytes": 1042,
+      "storedBytes": 1042,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/focused-after-01.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/focused-after-01.json",
+      "sha256": "ec1b70006e2e63bbafd87c9c4b194d435ffe556157c610e8bbf31d660b866196",
+      "sourceSha256": "ec1b70006e2e63bbafd87c9c4b194d435ffe556157c610e8bbf31d660b866196",
+      "sourceBytes": 2706,
+      "storedBytes": 2706,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/focused-after-01.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/focused-after-01.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBytes": 0,
+      "storedBytes": 0,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/focused-after-01.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/focused-after-01.json.artifacts/stdout.log",
+      "sha256": "b366a2cdb10d78cd0b0d05d50f34a09f40fafffde6fea10285155c2630fc27c3",
+      "sourceSha256": "b366a2cdb10d78cd0b0d05d50f34a09f40fafffde6fea10285155c2630fc27c3",
+      "sourceBytes": 378,
+      "storedBytes": 378,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/import-01.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/import-01.json",
+      "sha256": "eb9cc9a89f6fcd4e4766ba55b2dac040f966cd1b430ab4efbb4132e9fa087e3a",
+      "sourceSha256": "eb9cc9a89f6fcd4e4766ba55b2dac040f966cd1b430ab4efbb4132e9fa087e3a",
+      "sourceBytes": 2721,
+      "storedBytes": 2721,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/idempotent-import-01.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/idempotent-import-01.json",
+      "sha256": "007f3adb343b5e3701c195006780972e3b7afca700db8a318d26244f7c93b517",
+      "sourceSha256": "007f3adb343b5e3701c195006780972e3b7afca700db8a318d26244f7c93b517",
+      "sourceBytes": 4088,
+      "storedBytes": 4088,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/idempotent-import-01.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/idempotent-import-01.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBytes": 0,
+      "storedBytes": 0,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/idempotent-import-01.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/idempotent-import-01.json.artifacts/stdout.log",
+      "sha256": "f740b7d42a997dae976fa5f074864cc478cdd12d9b40921eeca045e7b32def65",
+      "sourceSha256": "f740b7d42a997dae976fa5f074864cc478cdd12d9b40921eeca045e7b32def65",
+      "sourceBytes": 119,
+      "storedBytes": 119,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/static-pixels-01.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/static-pixels-01.json",
+      "sha256": "c24d60b8f793849bfb4811a06c8661f17c5a17eb8b69a2e5bf2d911bf4760e6a",
+      "sourceSha256": "c24d60b8f793849bfb4811a06c8661f17c5a17eb8b69a2e5bf2d911bf4760e6a",
+      "sourceBytes": 6083,
+      "storedBytes": 6083,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/static-pixels-01.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/static-pixels-01.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBytes": 0,
+      "storedBytes": 0,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/static-pixels-01.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/static-pixels-01.json.artifacts/stdout.log",
+      "sha256": "0a317f4b262c8d3d31d8136cb96fd8712393235bc4e97fed84d8d73ea783d3c5",
+      "sourceSha256": "0a317f4b262c8d3d31d8136cb96fd8712393235bc4e97fed84d8d73ea783d3c5",
+      "sourceBytes": 1957,
+      "storedBytes": 1957,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/static-pixels-result-01.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/static-pixels-result-01.json",
+      "sha256": "ae76ccfdf6b25fc0de29a59f439bf641c8f68d606a72e5ee6099768354e40645",
+      "sourceSha256": "ae76ccfdf6b25fc0de29a59f439bf641c8f68d606a72e5ee6099768354e40645",
+      "sourceBytes": 103187,
+      "storedBytes": 103187,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/native-layers-01.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/native-layers-01.json",
+      "sha256": "482c8863f79d801143751f0c35fd6c719eea2b6b9f0749fe788c8a9d9b3fb22f",
+      "sourceSha256": "482c8863f79d801143751f0c35fd6c719eea2b6b9f0749fe788c8a9d9b3fb22f",
+      "sourceBytes": 1310595,
+      "storedBytes": 1310595,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/native-layers-01.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/native-layers-01.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBytes": 0,
+      "storedBytes": 0,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/native-layers-01.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/native-layers-01.json.artifacts/stdout.log",
+      "sha256": "cf258351eb7bbf12b92f7cf76c1cf0804d6a38a004533ad1e2f6d39a1f9d5abe",
+      "sourceSha256": "cf258351eb7bbf12b92f7cf76c1cf0804d6a38a004533ad1e2f6d39a1f9d5abe",
+      "sourceBytes": 1152562,
+      "storedBytes": 1152562,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/native-metadata-correspondence.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/native-metadata-correspondence.json",
+      "sha256": "7b5c6c2dbc653068f8b3514414f243089cf98a2347e9a96acb6c459e41fcc333",
+      "sourceSha256": "7b5c6c2dbc653068f8b3514414f243089cf98a2347e9a96acb6c459e41fcc333",
+      "sourceBytes": 453,
+      "storedBytes": 453,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/native-preflight-run-01.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/native-preflight-run-01.json",
+      "sha256": "f2ff905fc56693d27e7b191a1967b546d7d82671267450f23c16dff451f8484d",
+      "sourceSha256": "f2ff905fc56693d27e7b191a1967b546d7d82671267450f23c16dff451f8484d",
+      "sourceBytes": 6279,
+      "storedBytes": 6279,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/native-preflight-scaled.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/native-preflight-scaled.json",
+      "sha256": "c9a70b9151e9f6371c82b9514b33d6d461d1c333faa83a0ef3f3365bdec1b6c5",
+      "sourceSha256": "c9a70b9151e9f6371c82b9514b33d6d461d1c333faa83a0ef3f3365bdec1b6c5",
+      "sourceBytes": 6264,
+      "storedBytes": 6264,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/shaman-preservation-test-repair-01.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/shaman-preservation-test-repair-01.json",
+      "sha256": "2b4d8e2d1e0c4035e4e543e898fa02448c9d9cffa4a5e6c52f6a72e7a23519c2",
+      "sourceSha256": "2b4d8e2d1e0c4035e4e543e898fa02448c9d9cffa4a5e6c52f6a72e7a23519c2",
+      "sourceBytes": 3467,
+      "storedBytes": 3467,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/shaman-preservation-test-repair-01.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/shaman-preservation-test-repair-01.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBytes": 0,
+      "storedBytes": 0,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/shaman-preservation-test-repair-01.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/shaman-preservation-test-repair-01.json.artifacts/stdout.log",
+      "sha256": "76982a31508c4959e6f142807e563019fd40f2767cc0ff5d3679c9cc38b35c6f",
+      "sourceSha256": "76982a31508c4959e6f142807e563019fd40f2767cc0ff5d3679c9cc38b35c6f",
+      "sourceBytes": 1054,
+      "storedBytes": 1054,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/shaman-preservation-test-correspondence.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/shaman-preservation-test-correspondence.json",
+      "sha256": "27b7427de8c0b80534458f3f41d9f9d984536a9ade77ddf932eba8cfc5f09ffd",
+      "sourceSha256": "27b7427de8c0b80534458f3f41d9f9d984536a9ade77ddf932eba8cfc5f09ffd",
+      "sourceBytes": 6679,
+      "storedBytes": 6679,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-01/full-check.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-01/full-check.json",
+      "sha256": "41857f8e8d712c0f7ee76421cc0b77ce538c388b8471382d9fef9ab06c36ebf9",
+      "sourceSha256": "41857f8e8d712c0f7ee76421cc0b77ce538c388b8471382d9fef9ab06c36ebf9",
+      "sourceBytes": 129900,
+      "storedBytes": 129900,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-01/full-check.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-01/full-check.json.artifacts/stderr.log",
+      "sha256": "773016a4fac40395712b8f85fa45304a160cba0b0c44aa3aa5dbd006b6de058a",
+      "sourceSha256": "773016a4fac40395712b8f85fa45304a160cba0b0c44aa3aa5dbd006b6de058a",
+      "sourceBytes": 505,
+      "storedBytes": 505,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-01/full-check.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-01/full-check.json.artifacts/stdout.log",
+      "sha256": "f288cb44a38472c6b023f294d03cb75aef3579023b74eed96ceaa4a2d27225da",
+      "sourceSha256": "f288cb44a38472c6b023f294d03cb75aef3579023b74eed96ceaa4a2d27225da",
+      "sourceBytes": 123644,
+      "storedBytes": 123644,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-02/affected-js-quality.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/affected-js-quality.json",
+      "sha256": "e097e6d0ece7187c7e1e3835f93f07124210f8729315ff223bd67160c796315e",
+      "sourceSha256": "e097e6d0ece7187c7e1e3835f93f07124210f8729315ff223bd67160c796315e",
+      "sourceBytes": 3596,
+      "storedBytes": 3596,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-02/affected-js-quality.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/affected-js-quality.json.artifacts/stderr.log",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "sourceBytes": 0,
+      "storedBytes": 0,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-02/affected-js-quality.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/affected-js-quality.json.artifacts/stdout.log",
+      "sha256": "91f8eceba29f6b4b4f256ea040c32624d17685f3d0c755a502e1aadd019b99fd",
+      "sourceSha256": "91f8eceba29f6b4b4f256ea040c32624d17685f3d0c755a502e1aadd019b99fd",
+      "sourceBytes": 1157,
+      "storedBytes": 1157,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-02/build.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/build.json",
+      "sha256": "6091d815b0abb88b17d19148c8eab8652178675ff2d511281c4354cfa6b4f7d1",
+      "sourceSha256": "6091d815b0abb88b17d19148c8eab8652178675ff2d511281c4354cfa6b4f7d1",
+      "sourceBytes": 7988,
+      "storedBytes": 7988,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-02/build.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/build.json.artifacts/stderr.log",
+      "sha256": "25af2ec44493f339bc9a517dbc42be2dc3c891b04178cde292a165e6a6a7c8af",
+      "sourceSha256": "25af2ec44493f339bc9a517dbc42be2dc3c891b04178cde292a165e6a6a7c8af",
+      "sourceBytes": 2133,
+      "storedBytes": 2133,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-02/build.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/build.json.artifacts/stdout.log",
+      "sha256": "5e149e65b43f299084c25b20aff439514cb54ee2fafccc0fb524f626c61b6dbe",
+      "sourceSha256": "5e149e65b43f299084c25b20aff439514cb54ee2fafccc0fb524f626c61b6dbe",
+      "sourceBytes": 1143,
+      "storedBytes": 1143,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-02/full-check.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/full-check.json",
+      "sha256": "0efde1dd037a9a584f8c37e7258c66733437ded23c181016e17b1d05dc76220c",
+      "sourceSha256": "0efde1dd037a9a584f8c37e7258c66733437ded23c181016e17b1d05dc76220c",
+      "sourceBytes": 141912,
+      "storedBytes": 141912,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-02/full-check.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/full-check.json.artifacts/stderr.log",
+      "sha256": "02285cf98c9d88b48ecc3ef7fa38f35659b7c27d82ad3139b4a57f8bed24e9b1",
+      "sourceSha256": "02285cf98c9d88b48ecc3ef7fa38f35659b7c27d82ad3139b4a57f8bed24e9b1",
+      "sourceBytes": 1119,
+      "storedBytes": 1119,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-02/full-check.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/full-check.json.artifacts/stdout.log",
+      "sha256": "d07907a5148b12cb1c961810aa36182d0a024f1ad26fee4f453c27eaf546a9a7",
+      "sourceSha256": "d07907a5148b12cb1c961810aa36182d0a024f1ad26fee4f453c27eaf546a9a7",
+      "sourceBytes": 134314,
+      "storedBytes": 134314,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-02/lint-standard.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/lint-standard.json",
+      "sha256": "4d416402d1d74e3fe71ce8880f7722f33d813936cbd7f7b94eab7150cb08c3dc",
+      "sourceSha256": "4d416402d1d74e3fe71ce8880f7722f33d813936cbd7f7b94eab7150cb08c3dc",
+      "sourceBytes": 283279,
+      "storedBytes": 283279,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-02/lint-standard.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/lint-standard.json.artifacts/stderr.log",
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "sourceSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "sourceBytes": 99,
+      "storedBytes": 99,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-02/lint-standard.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/lint-standard.json.artifacts/stdout.log",
+      "sha256": "975f7663dfe66a55caa96d0d4583c4a9b1d35a1fc230b8e736ca9f96dd122903",
+      "sourceSha256": "975f7663dfe66a55caa96d0d4583c4a9b1d35a1fc230b8e736ca9f96dd122903",
+      "sourceBytes": 277225,
+      "storedBytes": 277225,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-02/paired-lint-comparison.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/paired-lint-comparison.json",
+      "sha256": "52b97110e5c134dae47ed7a7a48cd320d7af2d6ce709a57baae2aea6b608c4ec",
+      "sourceSha256": "52b97110e5c134dae47ed7a7a48cd320d7af2d6ce709a57baae2aea6b608c4ec",
+      "sourceBytes": 1238,
+      "storedBytes": 1238,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/final-gates-02/quality-disposition.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/quality-disposition.json",
+      "sha256": "9a66df79df9b3bd7b14ce6fb7e59da333bf1acd3e6f57e1d102971a3bca4c62a",
+      "sourceSha256": "9a66df79df9b3bd7b14ce6fb7e59da333bf1acd3e6f57e1d102971a3bca4c62a",
+      "sourceBytes": 16970,
+      "storedBytes": 16970,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/baseline-lint.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline03-lint.json",
+      "sha256": "1843c6f1b600fee267dd559aa2109ebbc95008693dca70674beb9496740ba85b",
+      "sourceSha256": "1843c6f1b600fee267dd559aa2109ebbc95008693dca70674beb9496740ba85b",
+      "sourceBytes": 280948,
+      "storedBytes": 280948,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/baseline-lint.json.artifacts/stderr.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline03-lint.json.artifacts/stderr.log",
+      "sha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "sourceSha256": "7125f194612fcff2f454c05d848e7cb71facc1967b4d5017e25b34fdee3ba74f",
+      "sourceBytes": 99,
+      "storedBytes": 99,
+      "encoding": "identity"
+    },
+    {
+      "file": "checks/baseline-lint.json.artifacts/stdout.log",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline03-lint.json.artifacts/stdout.log",
+      "sha256": "703605f2a34c82508fe7038034911b982867739ad222d7e6e67795b76d939fa4",
+      "sourceSha256": "703605f2a34c82508fe7038034911b982867739ad222d7e6e67795b76d939fa4",
+      "sourceBytes": 277225,
+      "storedBytes": 277225,
+      "encoding": "identity"
+    },
+    {
+      "file": "browser/candidate-01/terminal-cleanup-observation.json",
+      "source": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-720-candidate-01/terminal-cleanup-observation.json",
+      "sha256": "3d3894695d2d4ec6e34fc0c9437e8f3bb9857253f99c512e566bf33403211b04",
+      "sourceSha256": "3d3894695d2d4ec6e34fc0c9437e8f3bb9857253f99c512e566bf33403211b04",
+      "sourceBytes": 1225,
+      "storedBytes": 1225,
+      "encoding": "identity"
+    },
+    {
+      "file": "independent-review-b020.md",
+      "source": "/workspace/shared/firewarrior-artwork-review-b020-20261006.md",
+      "sha256": "ce2e8d408377e4a8d16665bcd8e2d7a68c21e74ea347648b728b2ca1bcc3f06b",
+      "sourceSha256": "ce2e8d408377e4a8d16665bcd8e2d7a68c21e74ea347648b728b2ca1bcc3f06b",
+      "sourceBytes": 7706,
+      "storedBytes": 7706,
+      "encoding": "identity"
+    }
+  ]
+}

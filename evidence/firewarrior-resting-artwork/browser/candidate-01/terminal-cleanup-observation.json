@@ -1,0 +1,23 @@
+{
+  "status": "terminal-cleanup-followup-verified",
+  "observedAt": "2026-10-06T06:20:03.530506+00:00",
+  "originalSession": 65109,
+  "outerFinishedAt": "2026-10-06T06:14:29.428Z",
+  "outerStatus": "passed",
+  "outerExitCode": 0,
+  "outerReceiptSha256": "774a618acac551a19c7e28b98ee4d3c24e0485d38dd42e4c5065156397867382",
+  "harnessFinishedAt": "2026-10-06T06:14:26.334Z",
+  "harnessStatus": "passed",
+  "harnessReceiptSha256": "78abd74662a28b3e32cf4b5bf54b1d7eaa8c562dd29e1b7e25352e5e04bf4f77",
+  "sourceInputsUnchanged": true,
+  "applicationErrors": [],
+  "privateListeners4394And4395": [],
+  "harnessCleanupFieldPresent": false,
+  "harnessSourceSha256": "fb07de9e278f26b2b32324defeb6164832472a58d422aead1032b7db7ee85fcf",
+  "contract": "Ephemeral harness finally awaits browser.close, checks !browser.isConnected, awaits stopServer, then writes terminal receipt. Cleanup failure replaces outcome with failed; this receipt passed.",
+  "limits": [
+    "No persistent-profile cleanupVerified field exists for this ephemeral run.",
+    "Port table was read at observedAt after terminal completion, not at the exact terminal timestamp.",
+    "No process or browser was launched, killed or changed during this follow-up."
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "status": "identical-normalized-diagnostics",
+  "baselineReceipt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline03-lint.json",
+  "candidateReceipt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/final-gates-02/lint-standard.json",
+  "baselineSource": "89e68606a406f93715b930550317519818ddc081",
+  "candidateSource": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+  "baselineExitCode": 1,
+  "candidateExitCode": 1,
+  "baselineCount": 1409,
+  "candidateCount": 1409,
+  "baselineErrors": 671,
+  "candidateErrors": 671,
+  "normalization": "Keep each complete app path/line/column/severity/rule/message diagnostic unchanged, sort only order; omit npm headings/notices and timing summary.",
+  "added": [],
+  "removed": [],
+  "baselineDiagnosticsSha256": "bfeba71a98a23287d60f8d6c80bd1febe21d4fde4292df3d6ad14abb100e5ca1",
+  "candidateDiagnosticsSha256": "bfeba71a98a23287d60f8d6c80bd1febe21d4fde4292df3d6ad14abb100e5ca1",
+  "limits": [
+    "Both global lint commands still failed; this paired result only identifies whether their normalized diagnostics changed."
+  ]
+}

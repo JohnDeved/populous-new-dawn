@@ -1,0 +1,5 @@
+Traceback (most recent call last):
+  File "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-source720-recheck-20261006/evidence/firewarrior-source720/audit.py", line 87, in <module>
+    assert raw[0] == 13, 'Original person primitive selects draw_polygons case13'
+           ^^^^^^^^^^^^
+AssertionError: Original person primitive selects draw_polygons case13

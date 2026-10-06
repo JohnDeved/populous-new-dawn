@@ -1,0 +1,496 @@
+{
+  "status": "global-lint-failed-on-unchanged-source",
+  "head": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+  "base": "89e68606a406f93715b930550317519818ddc081",
+  "errorCount": 671,
+  "errorPaths": [
+    {
+      "path": "app/angel.ts",
+      "sha256": "9808728ff3b671b9e6ae87f400c480493ea05faba4d3eddb20d52d83d9156f03",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/animation.ts",
+      "sha256": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/armageddon.ts",
+      "sha256": "6cd2ad4301e6aaf4680b1413398e16f159b0e26f41792c7415b4bb64564a2280",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/building-damage.ts",
+      "sha256": "2edf267b12853719b2553d0ede485254ea101bbb2ae1ed6967306299895b90c3",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/building-runtime.ts",
+      "sha256": "d62fca552e99bf96792f21361fd73047b3fe064f2fcfbfb8af2307ba9e732463",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/campaign-command-runtime.ts",
+      "sha256": "7721cdb9954edc737d6c13828b42e69dac09b8046db8f93b7a7e92a05e0c908b",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/campaign-runtime.ts",
+      "sha256": "14db77faf860b168dea78e674788b3bc86437e26196e85f38fce6f3dfa541f89",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/celebration.ts",
+      "sha256": "a54f9a7a058cdf49c2a9bb88ce80354aecd6650af43403e1e910bbec89532aba",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/chatgpt-auth.ts",
+      "sha256": "9d9801a4470b64b082ce66d2ca516b8faf07f01763a9c067b685fa0d0674279a",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/combat-approach.ts",
+      "sha256": "1b81f8a744ef4b39e66f0add003904c0c657e4cba56d8e83b419954cf85541a8",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/combat-order-search.ts",
+      "sha256": "08ee4472132f4a75154d0b8ec586fd1e1f6aaf6436e6b654ddc5c6900249ad19",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/combat-orders.ts",
+      "sha256": "911b4c57f16e2f673668db441a6288dfb32d0294ebb987dfbc8e93e4dcbeeb03",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/combat-runtime.ts",
+      "sha256": "9cc7100f34547eb2a767928f25e0068a6c6c4749934271dd98a6fb643ead0d23",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/combat-targets.ts",
+      "sha256": "776a455e696905b3d2bad8dd256ab22074cf9c086e3801e935e3caf3ed2d1384",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/computer-runtime.ts",
+      "sha256": "1ca8fd533d5634cc5d82feb5909ab136506c966713c04508b1d487167e052f5c",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/computer-selection.ts",
+      "sha256": "ec5835a2285376120c23bb9c12a25cc14b82512157e192cb144f012f936074cd",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/computer-spells.ts",
+      "sha256": "a1ea1b2fd6d399248a0d476a92c31f564060e1269fd8f160e0007a5772fe4ccb",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/computer.ts",
+      "sha256": "7e7425a46cba84fa4eeb4c29be92c25c848f992b94e2912d570b9959027a666d",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/construction-runtime.ts",
+      "sha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/convert-wild.ts",
+      "sha256": "665bf05aa307dbd0ac91b115e99fe1df456a5658c8fca9b39173c2b6a3f5919a",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/earthquake.ts",
+      "sha256": "f26e0878f184ea65289b97c83eff1cf6b795326361f232c202f84e9948d4afd0",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/erosion.ts",
+      "sha256": "788ae0b14800e1a6d675279e08b2490702bc7c3e6fe305769d0bde25c8935d70",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/firestorm.ts",
+      "sha256": "a1ba3c8cc3f5a6f09af7d95598dcd2e35de3de521473502bee421a9bc42df195",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/firewarrior.ts",
+      "sha256": "600f11502d04e84f05cc3c11d439899e1fb982bba78ce23afe6709d1bbd9fc1b",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/flatten.ts",
+      "sha256": "f16bae3305c8aa296582586a13fa48912adef1665aa175e7a16a49c1e95992b2",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/flyby.ts",
+      "sha256": "f26ff256586988e1ec9d155abca20573d006b0f1c9a92a0a06f7566edcca912c",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/fps-graph.ts",
+      "sha256": "ccbd4e11b9f6527b98e3923110617b2c950d22ca6acd84c13a051e1dac916ce2",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/game-store.ts",
+      "sha256": "1bb66bc1db93af5bff36c54f2c32630b71000bc5c0085595e6c7f2bc3cf95565",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/hud.tsx",
+      "sha256": "a864ecf785e4f3090682834452c7385f17040a0088a9f9704130d48d0fab8e19",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/level-start-runtime.ts",
+      "sha256": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/live-building-combat.ts",
+      "sha256": "fa648b2ae6b1708c26f81b4fa019ce3c3ccc5c8813891412742a2ddf71e464a2",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/live-building-entry.ts",
+      "sha256": "94aca18d9dfb6fadb1df9f9f747a22683ff14c4f42ed3629ebb668688efe647f",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/live-combat.ts",
+      "sha256": "12107b400388222fb75453f86d055d6ea053813da355a75cf6a10ddb3553933a",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/live-command.ts",
+      "sha256": "4671406f827e92fb70432bf88af54d764b4f628e422b320b89384485a6411913",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/live-construction-runtime.ts",
+      "sha256": "232fe5fd59ead259fc09d94ec524fba173549e32fc07ab14f6b1006d631cd6fa",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/live-movement.ts",
+      "sha256": "18d87ec0e7baf08b31ac0e618fdba4c8c0f0521cd25b166da7dd787b95baca77",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/live-pathfinding.ts",
+      "sha256": "3a52a138448bcaae35acc85818a38381ea85d03717c750f51a33b8aad802c939",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/live-people.ts",
+      "sha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/live-resting.ts",
+      "sha256": "3164a20ff88fb05d919f8f53fd179b0375350c631af5420d667f7106d7f5f515",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/live-worship.ts",
+      "sha256": "31d3a291fa1f8d543f3da918d5eb4eb8208c46e6e9d3192ad14c5f7012ec47e6",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/mana.ts",
+      "sha256": "2db351005682c765353c834cff06e0eea0c8c9e20bd0ca536207fa9e81c77d33",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/melee-groups.ts",
+      "sha256": "6f70c87c5bb847af6365d13a1dca4c2809272c5adbd32ff698785be9f30291bd",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/messages.ts",
+      "sha256": "84f307387f09a3a787c11c491d08f05bcbfa797242d0f0320ee1f0e9f7537d78",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/mission-data.ts",
+      "sha256": "c4859525c084dfcd478a4fb5e08b93bb5f37c2aa1c2b8cd3250d5683b7e957cf",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/model.ts",
+      "sha256": "fc32041efee0a34ae32e26653dd8b45c2b54df8389d4e32ea11fa58e3cde4682",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/morph.ts",
+      "sha256": "e9bb1ef83cf2aea0b3a68b410ce4115d840e7695a993ba28b3c4d7707cda454c",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/native-terrain.ts",
+      "sha256": "bef0de5cda0ab5a54147ff2c91569b97a4e1b58ed46bd1dc9e9a85467f8e17a5",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/path-geometry.ts",
+      "sha256": "3ee1ee2b2cbf6f27c7b154087b4c289f0a4eec9bcc87afba1f74156c5a763f72",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/path-search.ts",
+      "sha256": "b772f8327026171a544119919901ee04e91e75c18f6ff74c1798630850ca7913",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/path-solver.ts",
+      "sha256": "753ce8f089f8478a4a0b77cebd13d5ba3dd0a0cd4711faaddf2c898f96a984a8",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/person-collision.ts",
+      "sha256": "fb4e3a388cca0a1f15f0cde99122d3d62c82eef14211f96ecba9ae01c0218a1c",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/person-idle.ts",
+      "sha256": "6dfb6f673b9d9856fac8727c29e4e5e1254e69df96d017d6e999820920c47350",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/person-motion.ts",
+      "sha256": "a8e87abdb010c7dcb20f4bfd438ec1340f82f2e92a8c4f1053c487c6c32d75d0",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/person-order-start.ts",
+      "sha256": "8d0ebf7c58bce163b372a78430c7697f39138bc5cc6c30a9fbc81622d72c85cc",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/person-order-update.ts",
+      "sha256": "23c2ff6108958715e45dc3caa034e5a3a558fdfcffa936e9129396ec8c48b286",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/person-orders.ts",
+      "sha256": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/person-physics.ts",
+      "sha256": "2775891b5ff41dae806eddeec53ebd44957b72f00c9aeec8569ef256908ddbc8",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/popscript.ts",
+      "sha256": "1e17b6e10f209893d472fe49a6483130633778aeaf85528c6026216fdd5afe45",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/reincarnation-wave-runtime.ts",
+      "sha256": "2fd81857a0abdb0b12c8d6e48b7c2990950bb3eb51a29271a3a6f62458f81535",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/reincarnation.ts",
+      "sha256": "d361f22db204184515e63c2dc134c78f42110a1a49e7d071b26223993eb1d182",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/resting-slots.ts",
+      "sha256": "3dab8cd975d8f85eeeecb7827eb7c7a41edcce8fb0ef7c7f9470ebea0f35b45f",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/route-advance.ts",
+      "sha256": "fe9b9a98472cac03309d9cc284a3d76467885200bd59120cd975b6f75fbd1671",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/scene-assets.ts",
+      "sha256": "d475b0017791e1ab0dc81da2e11ade9c1502514eb3f5b955ba825e67c0e9157f",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/scene-entities.ts",
+      "sha256": "cc7cb79c9e92e5b0cb283f745dadec503d8246ab3936b054313d577b97f2c4f4",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/scene-input-runtime.ts",
+      "sha256": "54def129260b6ffebbb4ddfd23591360ae004abe1adefeaaaf47757eaefd28f5",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/scene-terrain-runtime.ts",
+      "sha256": "815d8f2b0c1544a98cb7c05272873b58d9bbb28c8c679def6b1cb86d82e573b5",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/scene.ts",
+      "sha256": "8789a7751dd748ac5ebf86f3747e031070356840e787433225da801da5ac9c0b",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/selection-runtime.ts",
+      "sha256": "d1b61309818d87e85e329c24fd7384ebd00b474b4dbe8f57ef84061ecbb2be71",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/shaman-appearance.ts",
+      "sha256": "575dbcad01258180af2b5fafb4f51ffed39e0c97b372c3263b47f27580064fe8",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/site-wave-effects.ts",
+      "sha256": "ade4cd3d0cef0d034d0b2e1c5fd2b01bb63f65ad496687562db0a1bf55ba74c0",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/sky-environment.ts",
+      "sha256": "ea9b48cfda1788432b5151790dfe36dbd487f3b3345e6320a1127a2d4bd23703",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/sky.ts",
+      "sha256": "b3a9c35e55364f5750536ac1a146a1d1e07c766662172794593a033301df1385",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/special-battle.ts",
+      "sha256": "d979165760c76ce77ccc43b941457dd445a8d0aedc8c9af51fea8da714e07f87",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/spell-casting.ts",
+      "sha256": "d24000b5e151f1407f24646f8af1dd258d505938fb94681e9fafd2bd26f90905",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/spell-effects-runtime.ts",
+      "sha256": "87b379fcadfccbf4592d9e34e3342a5b1df482618687defdd96b5491c8e73e63",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/stone-head-animation.ts",
+      "sha256": "cea958795f6625272498d81b8b0799325805b048da9885db9f904802b56be981",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/swamp.ts",
+      "sha256": "f9632ea3358a58a73fe641c963f20bd486d76a85e36b81d15c4c46a7a8098cb0",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/territory.ts",
+      "sha256": "45de954b094fd4dd85036cbae986dfddefee479db58b0c67d589c16aa0f0546e",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/tooltips.ts",
+      "sha256": "7cb5133c90a9633b609b10267c8f923c5cabaf240a0ca03b475f601af287caa2",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/tornado-runtime.ts",
+      "sha256": "302ca07cb71b21a46a48270f085fb52c23374d7c79ded629b80f13224454398e",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/tornado.ts",
+      "sha256": "baa81b691fc5c770ababccff7443de65b9ad5d8d4c5363dc04dc162ea2d7ad62",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/tribe-turns.ts",
+      "sha256": "9b31e569f690ba2d59eb322614958ef5fcd4a701906ad39209a4fdd48fdea926",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/vault.ts",
+      "sha256": "d40771d046c920d5c226148a4e6e6c3738a24900e85216c22cfaddc88ca74a20",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/vehicle-routing.ts",
+      "sha256": "512b46e2b3b3dcb99b9633bbab3629ec7ec8e1c45ac4517d65c4dc2585415516",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/volcano.ts",
+      "sha256": "5656ed170b1f9eb57aa4fbb751976127a28c51e98ff3ef1cd324804b9cd5adbd",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/world-effects.ts",
+      "sha256": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/world-initialization.ts",
+      "sha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/world-state.ts",
+      "sha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/world-tasks.ts",
+      "sha256": "146f9856dd5ad69bccf6d470c977ca683454e67fe3d06fe67712edcf17849765",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/world-terrain-runtime.ts",
+      "sha256": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/world-turn.ts",
+      "sha256": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "app/world-types.ts",
+      "sha256": "39d0cf2a822e90a077ef86e43f74fb35e6966fe873f60d8e5b820f42c00cb3c4",
+      "unchangedFromBase": true
+    }
+  ],
+  "configCorrespondence": [
+    {
+      "path": ".oxlintrc.json",
+      "sha256": "caa0057ea1cbbc87402c3942667be83c2298b3a167957cea7153d0d72444ccff",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "package-lock.json",
+      "sha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "unchangedFromBase": true
+    },
+    {
+      "path": "package.json",
+      "sha256": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "unchangedFromBase": true
+    }
+  ],
+  "changedTypeScriptPaths": [],
+  "rawReceipt": "lint-standard.json",
+  "affectedJavaScriptQuality": "affected-js-quality.json",
+  "affectedTypeScriptQuality": "not-applicable: no TypeScript source changed; full typecheck passed in standard check",
+  "formatCheck": "not-run: whole-app format targets only unchanged TypeScript; no formatting claim",
+  "limits": [
+    "Both whole-app lint commands remain failed. Their complete path/line/column/severity/rule/message diagnostics match exactly after sorting; no diagnostic content was rewritten.",
+    "No full-check/build rerun or broad cleanup was performed for this comparison.",
+    "Changed test JavaScript passes its separate oxlint receipt; source correspondence remains separately recorded."
+  ],
+  "baselineDiagnosticComparison": "paired-lint-comparison.json: exact same1409 normalized diagnostics,671 errors, zero additions/removals"
+}

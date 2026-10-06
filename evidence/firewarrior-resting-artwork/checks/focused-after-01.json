@@ -1,0 +1,51 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "f403015a-96af-4c1c-8c65-4f526462d89c",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "32b619f677e91e83c5115583c2eba3235e91cc33",
+    "branch": "fix/firewarrior-resting-artwork-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "app/original-units.json": "7ad4cfe64aa6bff0c1de8be2761d7c37c7849ff8b391b37758f37cd3778e52c6",
+      "public/original/unit-layers.png": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd"
+    }
+  },
+  "command": [
+    "timeout",
+    "60s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node",
+    "--test",
+    "tests/firewarrior-resting-artwork.test.mjs",
+    "tests/sprite-layers.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006",
+  "startedAt": "2026-10-06T03:58:03.015Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/focused-after-01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/focused-after-01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T03:58:03.479Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ native Firewarrior resting source720 resolves its actual original frames (1.979945ms)\n✔ unit atlas retains reviewed tribe/state/direction layers when new models append (17.645282ms)\n✔ brave carry animations retain the baked timber body layer (0.383138ms)\nℹ tests 3\nℹ suites 0\nℹ pass 3\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 329.356016\n",
+  "stderr": "",
+  "stdoutSha256": "b366a2cdb10d78cd0b0d05d50f34a09f40fafffde6fea10285155c2630fc27c3",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "32b619f677e91e83c5115583c2eba3235e91cc33",
+    "branch": "fix/firewarrior-resting-artwork-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "app/original-units.json": "7ad4cfe64aa6bff0c1de8be2761d7c37c7849ff8b391b37758f37cd3778e52c6",
+      "public/original/unit-layers.png": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd"
+    }
+  }
+}

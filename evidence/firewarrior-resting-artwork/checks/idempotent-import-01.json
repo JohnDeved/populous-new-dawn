@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "19284718-dd78-4b54-b197-34fb3ef71d99",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "32b619f677e91e83c5115583c2eba3235e91cc33",
+    "branch": "fix/firewarrior-resting-artwork-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/import-original.py": "bf412564052bb6a3a7ac5c12190608b450407400f73d99f5becbdf40a7ae30bb",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "app/original-units.json": "7ad4cfe64aa6bff0c1de8be2761d7c37c7849ff8b391b37758f37cd3778e52c6",
+      "public/original/unit-layers.png": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd",
+      "public/original/provenance.json": "fa03c1e323054e559309a36ced0dbace5c8bfd5d5f79913e6fc9b5b0dfa1a85d",
+      "../prerequisites/game/data/vstart-0.ani": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa",
+      "../prerequisites/game/data/vfra-0.ani": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258",
+      "../prerequisites/game/data/vele-0.ani": "e6158220383ae2f17db8d12844c16e4fb931030780fb3d02416fde303257a7c9",
+      "../prerequisites/game/data/hspr0-0.dat": "62e5cc915a16302670027bac9535f6b90f00e38694575294418dcefb04394655",
+      "../prerequisites/game/data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+    }
+  },
+  "command": [
+    "timeout",
+    "60s",
+    "taskset",
+    "-c",
+    "0-3",
+    "env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "python",
+    "scripts/import-original.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game",
+    "--units-only"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006",
+  "startedAt": "2026-10-06T03:59:16.695Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/idempotent-import-01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/idempotent-import-01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T03:59:18.706Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Appended 0 original unit frames and 0 pieces; atlas 2048x8128; old frame/piece indices and animation clocks preserved.\n",
+  "stderr": "",
+  "stdoutSha256": "f740b7d42a997dae976fa5f074864cc478cdd12d9b40921eeca045e7b32def65",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "32b619f677e91e83c5115583c2eba3235e91cc33",
+    "branch": "fix/firewarrior-resting-artwork-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/import-original.py": "bf412564052bb6a3a7ac5c12190608b450407400f73d99f5becbdf40a7ae30bb",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "app/original-units.json": "7ad4cfe64aa6bff0c1de8be2761d7c37c7849ff8b391b37758f37cd3778e52c6",
+      "public/original/unit-layers.png": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd",
+      "public/original/provenance.json": "fa03c1e323054e559309a36ced0dbace5c8bfd5d5f79913e6fc9b5b0dfa1a85d",
+      "../prerequisites/game/data/vstart-0.ani": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa",
+      "../prerequisites/game/data/vfra-0.ani": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258",
+      "../prerequisites/game/data/vele-0.ani": "e6158220383ae2f17db8d12844c16e4fb931030780fb3d02416fde303257a7c9",
+      "../prerequisites/game/data/hspr0-0.dat": "62e5cc915a16302670027bac9535f6b90f00e38694575294418dcefb04394655",
+      "../prerequisites/game/data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+    }
+  }
+}

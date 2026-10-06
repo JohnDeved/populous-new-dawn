@@ -1,0 +1,130 @@
+{
+  "status": "prepared-not-run",
+  "candidate": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006",
+  "candidateHead": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+  "candidateAppTree": "70ca3233de4be0a958d47b84b9723b69291d1b34",
+  "baseline": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89",
+  "baselineHead": "89e68606a406f93715b930550317519818ddc081",
+  "baselineAppTree": "6f4235c9e6ca59f478d3c9834a9740a0c5142318",
+  "files": {
+    "accepted-input.mjs": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+    "browser-probes.mjs": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+    "entry-identity.mjs": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+    "event-deadlines.mjs": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7",
+    "gesture-progress.mjs": "d3c8017f1c03427ee43474c9f645ae1297dee0a4224efcdbb7991eeeb9e1ae4f",
+    "gesture-progress.test.mjs": "4036ab35628370fd61b40f095718604f29ddf234505129e11bae2d9a2b488f53",
+    "ground-and-dispatch.mjs": "bd2b5d27438985e7301c9a84ce5f31714005c194fb0488e18cba22917cafd7e7",
+    "guard-assertions.mjs": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+    "input-boundary.mjs": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+    "mission10-construction.json": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+    "observer.mjs": "fdb190a30dbd70e31c093c7cc5ee6865756c0d43a7bd7946167a6c15a2f70669",
+    "ordinary-input.mjs": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+    "pause-input.mjs": "ea87c0024e1934fefbfa7cdf22c414a5fedf620e885c5ca60823fdee6a30bb0c",
+    "pause-input.test.mjs": "d618c7dcd2f9a4a1191ab988af15b5aec93c76ab3a1a4a42039b8d2d2f6a85e4",
+    "reference-inputs.json": "0ce920931c2976013d6678489112c63ba2ffa6c832c44029130b5579df5d5e6c",
+    "reference-scenario.mjs.txt": "198073123b03c51f92a18ce0b2b18c23117bccee6b59ad97d743f89fbefd5279",
+    "scenario.mjs": "cd699e6dcb29c57ba09ca7381fd3eb86416d8a44e5939eec8f9fe01f5adb0102"
+  },
+  "referenceCommit": "b49b0f42ff8641db4b5d90f05df726c7aaa9a326",
+  "referencePrefix": "evidence/native-shaman-guard-input/candidate06-provenance/revision-08/",
+  "runtime": {
+    "browser": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/extract-browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+    "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "packageLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+    "node": "v24.19.0"
+  },
+  "resourcePlan": {
+    "cpu": "0-3",
+    "outerSeconds": 390,
+    "harnessMs": 360000,
+    "maxEntryMs": 60000,
+    "maxTrainingMs": 180000,
+    "naturalGestureSearchMs": 120000,
+    "gesturePauseF2Maximum": 5,
+    "nativeContinuationMs": 8000,
+    "observationMaxMs": 180000,
+    "ports": {
+      "baseline": 4394,
+      "candidate": 4395
+    },
+    "viewport": "existing harness1440x1000",
+    "profile": false,
+    "sequential": true,
+    "dependencyTransfer": "Use sole verified node_modules tree: fix\u2192baseline for first run, then baseline\u2192fix; receipt both moves. Never install a second tree.",
+    "prefixDeadlineMs": 39000,
+    "requiredPostMoveReserveMs": 220000,
+    "settledStateDeadlineMs": 10000,
+    "guardAdoptionDeadlineMs": 5000,
+    "guardCancellationDeadlineMs": 5000,
+    "separationAndViewDeadlineMs": 25000,
+    "setupCaptureMs": 90000,
+    "gestureCaptureMs": 140000,
+    "postViewReserveMs": 145000
+  },
+  "stoppingConditions": [
+    "Training ownership/cost/replacement must be observed through accepted public route",
+    "Event-based Guard history plus one ordinary separation Move and one camera adjustment must complete under their state/deadline gates",
+    "Fail if natural720 is absent within120s, or public Pause misses earlyf2\u22645",
+    "No phase/RNG injection, synthetic/uncertain input replay, hidden overlay, repeated camera trials or substitution of failed screenshots",
+    "Idle and selected720 screenshots while actually paused; exact expected nativef2 frame required oncandidate and missing720 art required onbaseline",
+    "Native person identity/phase continuation must survive resume and return to48 within8s",
+    "App/observer/renderer errors, source/input drift or missing actor/viewport visibility fail",
+    "One prospective baseline03 run only after exact driver review and coordinator grant; candidate remains unrun until accepted before pixels and cleanup"
+  ],
+  "limits": [
+    "Ordinary headless software-rendered gesture witness, not hardware performance or complete native pixels/blending",
+    "Independent RAF may skip logical turns; preserve raw gaps",
+    "No checkpoint claim; prior Guard checkpoint evidence stays separate"
+  ],
+  "harnessCorrespondence": {
+    "referenceHash": "af11148b0c896a255bc1a8f431b7054e6e3dee928b3c1217115a5c9b027d390c",
+    "currentHash": "fb07de9e278f26b2b32324defeb6164832472a58d422aead1032b7db7ee85fcf",
+    "change": "Main moved sourceReceipt unchanged into owned-profile.mjs to fix named-scenario import cycle; currentscenario imports shared exports directly and never imports executingharness. Other six construction input hashes stayexact."
+  },
+  "beforeScreenshotFinding": {
+    "source": "b49b0f4 candidate06 witness.json screenshot records",
+    "nearestBefore": "guard-36000-shaman-cancel",
+    "turnSpan": [
+      883,
+      895
+    ],
+    "source720Span": [
+      897,
+      921
+    ],
+    "conclusion": "No retained screenshot covers720; fresh ordinary baseline required."
+  },
+  "reviewRevision": 7,
+  "reviewRepairs": [
+    "Preserve both failed baselines:01 no natural720,02 genuine720 followed by public Pause atf2=7; neither is accepted before visual evidence.",
+    "Retain accepted event-based Guard action order, then use one unchanged ordinary Move adapter to separate Firewarrior and Shaman; require actual native resting, world distance>=4 and preserved native owner.",
+    "Clear through public Escape and assert Firewarrior unselected; use one unchanged ordinary minimap camera adjustment (+10 world x), require within-viewport off-center actor and projected separation>=40px. Final actual paused canvas ownership remains mandatory.",
+    "Prepare the normal Pause button mouse press in advance; observe trusted down/up/click at its real handler. Release once immediately after the exact720/f2<=3 detecting read, with no intervening full snapshot or disk log. Cleanup releases only a held press for which no release was attempted.",
+    "Keep pausedf2<=5, exact baseline missing-artwork/candidate native-f2 render, selection preservation, actual canvas and distinct-turn/f2 continuation gates unchanged.",
+    "Split only diagnostic RAF segments after setup; same scene/world/person/epoch and append-only raw file. No game clock, RNG, phase, actor or overlay writes.",
+    "Only two passive native fields remain added to the historical observer: anchorFlags and formationCell.",
+    "Both new Pause cleanup catch paths set cleanupFailure and throw at the existing finally boundary, so a cleanup error cannot yield a passed harness receipt. The one-attempt release guard stays unchanged."
+  ],
+  "priorUnrun": {
+    "scenarioSha256": "2ad8f0dfc50540868bfdb0952fff38d3f956471946203f68a0add9c836fdc09d",
+    "preflightSha256": "f345999bd30931ac04e039440ce6a7d7d5cf0eda7f3d9e52275226ef0fdb49b0",
+    "path": "../browser-review/revision-06-unrun",
+    "reason": "Two Pause cleanup catch paths now propagate failure through the existing finally boundary."
+  },
+  "priorRun": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-before-89/work/orchestration/firewarrior-720-baseline-02",
+    "status": "failed",
+    "session": 60529,
+    "reason": "15 natural720 rows, public Pause atf2=7 failed strict early-phase gate; actor overlap/overlay also prevented accepted before pixels.",
+    "scenarioSha256": "c0afa8374e5ad7fd215a31050633b4fd6323bc568c70498c853f5faa1c78e7b9",
+    "preflightSha256": "e644afbdf2d9db38878d47156db051a672c585f7f7292b5f364990668a36f9fd",
+    "frozenPreparation": "../browser-review/revision-05-baseline02-failed"
+  },
+  "candidateCorrespondence": {
+    "prior": "a577e3635e303e5026a4a576963d135f9b1641d4",
+    "record": "../shaman-preservation-test-correspondence.json",
+    "sha256": "27b7427de8c0b80534458f3f41d9f9d984536a9ade77ddf932eba8cfc5f09ffd",
+    "change": "Only reviewed Shaman preservation test changed; production app/assets/importer/native checker byte-identical."
+  }
+}

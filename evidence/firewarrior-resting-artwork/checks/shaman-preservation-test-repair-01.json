@@ -1,0 +1,52 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "55d70b11-acca-4e1b-8889-ce0ad165f212",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "a577e3635e303e5026a4a576963d135f9b1641d4",
+    "branch": "fix/firewarrior-resting-artwork-20261006",
+    "trackedDiffSha256": "61064730af3c9e6c795acd64ef46d8f91bcfc4730727007a7fc2f2e1857d1af3",
+    "inputs": {
+      "tests/shaman-appearance.test.mjs": "18b330f673771df62356b19533e303bca43bed008658c9b7bfc1e267980d42b8",
+      "app/original-units.json": "7ad4cfe64aa6bff0c1de8be2761d7c37c7849ff8b391b37758f37cd3778e52c6",
+      "public/original/unit-layers.png": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd"
+    }
+  },
+  "command": [
+    "timeout",
+    "30s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node",
+    "--test",
+    "tests/shaman-appearance.test.mjs",
+    "tests/firewarrior-resting-artwork.test.mjs",
+    "tests/sprite-layers.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006",
+  "startedAt": "2026-10-06T05:36:41.958Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/shaman-preservation-test-repair-01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/shaman-preservation-test-repair-01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T05:36:44.262Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "✔ native Firewarrior resting source720 resolves its actual original frames (2.394679ms)\n✔ Shaman import preserves every prior frame, piece and animation entry (45.881038ms)\n✔ actual tribe selects every native Shaman source and eight original directions (2.581785ms)\n✔ Shaman idle artwork uses all four distinct original body pieces (0.333995ms)\n✔ reincarnation distinguishes tribe bodies from shared spirit sources and layer owners (0.284021ms)\n✔ shipped live and effect renderers consume the Shaman selector without changing generic mechanics (0.60752ms)\n✔ all 3276 previous occupied sprite rectangles retain their reviewed RGBA (477.291436ms)\n✔ real Mission 23 Shaman identity and death heading survive checkpoint reconstruction (1237.417164ms)\n✔ unit atlas retains reviewed tribe/state/direction layers when new models append (19.333869ms)\n✔ brave carry animations retain the baked timber body layer (0.424389ms)\nℹ tests 10\nℹ suites 0\nℹ pass 10\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 2208.888287\n",
+  "stderr": "",
+  "stdoutSha256": "76982a31508c4959e6f142807e563019fd40f2767cc0ff5d3679c9cc38b35c6f",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "a577e3635e303e5026a4a576963d135f9b1641d4",
+    "branch": "fix/firewarrior-resting-artwork-20261006",
+    "trackedDiffSha256": "61064730af3c9e6c795acd64ef46d8f91bcfc4730727007a7fc2f2e1857d1af3",
+    "inputs": {
+      "tests/shaman-appearance.test.mjs": "18b330f673771df62356b19533e303bca43bed008658c9b7bfc1e267980d42b8",
+      "app/original-units.json": "7ad4cfe64aa6bff0c1de8be2761d7c37c7849ff8b391b37758f37cd3778e52c6",
+      "public/original/unit-layers.png": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd"
+    }
+  }
+}

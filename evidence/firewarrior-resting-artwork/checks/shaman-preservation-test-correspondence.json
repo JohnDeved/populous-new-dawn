@@ -1,0 +1,118 @@
+{
+  "status": "passed-static-correspondence",
+  "base": "89e68606a406f93715b930550317519818ddc081",
+  "prior": "a577e3635e303e5026a4a576963d135f9b1641d4",
+  "head": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+  "changed": [
+    "tests/shaman-appearance.test.mjs"
+  ],
+  "appTree": "70ca3233de4be0a958d47b84b9723b69291d1b34",
+  "focusedReceipt": "shaman-preservation-test-repair-01.json",
+  "focusedStatus": "passed",
+  "focusedInputsMatch": true,
+  "baselineDerivation": {
+    "gitObject": "0de045b3ebb16793cfbb9b728d39d3227ccc68ec",
+    "fileSha256": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+    "frames": 5021,
+    "framesHash": "6d2a9abb7e8bbd6d32b35aaf999093671355402d1480aafcf31facc4635d4a0d",
+    "pieces": 4004,
+    "piecesHash": "113f1251728d3fc8fe90b5984e7539fc6711cdea29414b9c0f5f749a2bbef9f9"
+  },
+  "allNativeInputs": [
+    {
+      "path": "work/orchestration/firewarrior-resting/native-preflight-run-01.json",
+      "expected": "f2ff905fc56693d27e7b191a1967b546d7d82671267450f23c16dff451f8484d",
+      "actual": "f2ff905fc56693d27e7b191a1967b546d7d82671267450f23c16dff451f8484d"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/scripts/check-native-sprite-layers.py",
+      "expected": "95ce087acbcf76f2b54513c6d10e746ee0349ec25362bb2bcabbf9afcb9b9548",
+      "actual": "95ce087acbcf76f2b54513c6d10e746ee0349ec25362bb2bcabbf9afcb9b9548"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/scripts/import-original.py",
+      "expected": "bf412564052bb6a3a7ac5c12190608b450407400f73d99f5becbdf40a7ae30bb",
+      "actual": "bf412564052bb6a3a7ac5c12190608b450407400f73d99f5becbdf40a7ae30bb"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/scripts/decomp.py",
+      "expected": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+      "actual": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/decomp/tools.json",
+      "expected": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484",
+      "actual": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/decomp/exports.json",
+      "expected": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+      "actual": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/app/original-units.json",
+      "expected": "7ad4cfe64aa6bff0c1de8be2761d7c37c7849ff8b391b37758f37cd3778e52c6",
+      "actual": "7ad4cfe64aa6bff0c1de8be2761d7c37c7849ff8b391b37758f37cd3778e52c6"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/app/original-rules.json",
+      "expected": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "actual": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/app/original-camera.json",
+      "expected": "988109e598f4e3c8b44ec16a1ce14f2c0fa5214364574d2e0411e8c2fd5be8b8",
+      "actual": "988109e598f4e3c8b44ec16a1ce14f2c0fa5214364574d2e0411e8c2fd5be8b8"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/app/sprite-layers.ts",
+      "expected": "5ceb5fddb5703198df08b83fc567b1cd8fc48c292749bf73101ba0032e680ecd",
+      "actual": "5ceb5fddb5703198df08b83fc567b1cd8fc48c292749bf73101ba0032e680ecd"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/app/projection.ts",
+      "expected": "2ee6b7640087b3e996cf13cefd4cecb4e6e9c0d52f4d7913265047bd66bafb97",
+      "actual": "2ee6b7640087b3e996cf13cefd4cecb4e6e9c0d52f4d7913265047bd66bafb97"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/public/original/unit-layers.png",
+      "expected": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd",
+      "actual": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/node_modules/.package-lock.json",
+      "expected": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "actual": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+      "expected": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "actual": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/hspr0-0.dat",
+      "expected": "62e5cc915a16302670027bac9535f6b90f00e38694575294418dcefb04394655",
+      "actual": "62e5cc915a16302670027bac9535f6b90f00e38694575294418dcefb04394655"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/pal0-c.dat",
+      "expected": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+      "actual": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vfra-0.ani",
+      "expected": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258",
+      "actual": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vele-0.ani",
+      "expected": "e6158220383ae2f17db8d12844c16e4fb931030780fb3d02416fde303257a7c9",
+      "actual": "e6158220383ae2f17db8d12844c16e4fb931030780fb3d02416fde303257a7c9"
+    }
+  ],
+  "limits": [
+    "No rerun of accepted928 native cases; exact recorded inputs remain byte-identical.",
+    "Full-check01 timeout and substantive failure retained; new full-check900s retry requires review.",
+    "Only test contract changed; browser driver labels must acknowledge this head correspondence before candidate launch."
+  ]
+}

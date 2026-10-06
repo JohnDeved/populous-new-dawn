@@ -1,0 +1,6040 @@
+{
+  "status": "PASS_STATIC_SHAMAN_ASSETS",
+  "scriptSha256": "496ff2dbb31eda9f9f27d49834b54dd630990d49b3063a16146b90d232ea31c3",
+  "inputIdentities": [
+    {
+      "path": "data/vstart-0.ani",
+      "bytes": 3168,
+      "sha256": "64a8975f234aa67eafc4d4d9edd7cc4aeba9f5743d028d8203e0c67ca199a1aa"
+    },
+    {
+      "path": "data/vfra-0.ani",
+      "bytes": 31688,
+      "sha256": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258"
+    },
+    {
+      "path": "data/vele-0.ani",
+      "bytes": 160760,
+      "sha256": "e6158220383ae2f17db8d12844c16e4fb931030780fb3d02416fde303257a7c9"
+    },
+    {
+      "path": "data/hspr0-0.dat",
+      "bytes": 1471487,
+      "sha256": "62e5cc915a16302670027bac9535f6b90f00e38694575294418dcefb04394655"
+    },
+    {
+      "path": "data/pal0-c.dat",
+      "bytes": 1024,
+      "sha256": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53"
+    }
+  ],
+  "originalFrames": 5091,
+  "originalPieces": 4042,
+  "directionalSources": 360,
+  "firewarriorRestingDirections": 16,
+  "atlasSha256": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd",
+  "atlasSize": [
+    2048,
+    8128
+  ],
+  "reviewedLayerFixtures": 576,
+  "reviewedPieceHashes": 3216,
+  "preservation": {
+    "oldFrames": 5021,
+    "oldPieces": 4004,
+    "oldFramesSha256": "6d2a9abb7e8bbd6d32b35aaf999093671355402d1480aafcf31facc4635d4a0d",
+    "oldPiecesSha256": "113f1251728d3fc8fe90b5984e7539fc6711cdea29414b9c0f5f749a2bbef9f9",
+    "oldAnimationsSha256": "8b1f070152376934f5af23adc698980c7da2063add9d83774b0b5a1d5e91d1d0",
+    "oldPieceHashesSha256": "044cefcab1dd57b6dea5b7152557a9e1792eba6b087e7b3eae587cd7d0e838b6",
+    "addedFrames": 70,
+    "addedPieces": 38
+  },
+  "pixelCases": [
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2419,
+          "x": -10,
+          "y": -30,
+          "w": 20,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 0,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2419,
+          "x": -10,
+          "y": -30,
+          "w": 20,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2423,
+          "x": -8,
+          "y": -30,
+          "w": 16,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 1,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2423,
+          "x": -8,
+          "y": -30,
+          "w": 16,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2427,
+          "x": -7,
+          "y": -30,
+          "w": 14,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 2,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2427,
+          "x": -7,
+          "y": -30,
+          "w": 14,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2431,
+          "x": -8,
+          "y": -29,
+          "w": 18,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 3,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2431,
+          "x": -8,
+          "y": -29,
+          "w": 18,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2435,
+          "x": -9,
+          "y": -29,
+          "w": 19,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 4,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2435,
+          "x": -9,
+          "y": -29,
+          "w": 19,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2431,
+          "x": -10,
+          "y": -29,
+          "w": 18,
+          "h": 32,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 5,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2431,
+          "x": -10,
+          "y": -29,
+          "w": 18,
+          "h": 32,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2427,
+          "x": -7,
+          "y": -30,
+          "w": 14,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 6,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2427,
+          "x": -7,
+          "y": -30,
+          "w": 14,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2423,
+          "x": -8,
+          "y": -30,
+          "w": 16,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "idle",
+      "base": 424,
+      "direction": 7,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2423,
+          "x": -8,
+          "y": -30,
+          "w": 16,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2572,
+          "x": -9,
+          "y": -29,
+          "w": 19,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 0,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2579,
+          "x": -9,
+          "y": -30,
+          "w": 19,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2580,
+          "x": -7,
+          "y": -28,
+          "w": 16,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 1,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2587,
+          "x": -8,
+          "y": -28,
+          "w": 17,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2588,
+          "x": -9,
+          "y": -28,
+          "w": 19,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 2,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2595,
+          "x": -8,
+          "y": -28,
+          "w": 15,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2596,
+          "x": -6,
+          "y": -27,
+          "w": 17,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 3,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2603,
+          "x": -5,
+          "y": -27,
+          "w": 16,
+          "h": 28,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2604,
+          "x": -9,
+          "y": -28,
+          "w": 19,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 4,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2611,
+          "x": -9,
+          "y": -29,
+          "w": 19,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2596,
+          "x": -11,
+          "y": -27,
+          "w": 17,
+          "h": 30,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 5,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2603,
+          "x": -11,
+          "y": -27,
+          "w": 16,
+          "h": 28,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2588,
+          "x": -10,
+          "y": -28,
+          "w": 19,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 6,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2595,
+          "x": -7,
+          "y": -28,
+          "w": 15,
+          "h": 30,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2580,
+          "x": -9,
+          "y": -28,
+          "w": 16,
+          "h": 32,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "walk",
+      "base": 616,
+      "direction": 7,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2587,
+          "x": -9,
+          "y": -28,
+          "w": 17,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2459,
+          "x": -10,
+          "y": -30,
+          "w": 20,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 0,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2462,
+          "x": -16,
+          "y": -30,
+          "w": 26,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2463,
+          "x": -10,
+          "y": -30,
+          "w": 18,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 1,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2466,
+          "x": -13,
+          "y": -30,
+          "w": 22,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2467,
+          "x": -7,
+          "y": -30,
+          "w": 14,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 2,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2470,
+          "x": -9,
+          "y": -30,
+          "w": 17,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2431,
+          "x": -8,
+          "y": -29,
+          "w": 18,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 3,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2473,
+          "x": -6,
+          "y": -29,
+          "w": 20,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2435,
+          "x": -9,
+          "y": -29,
+          "w": 19,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 4,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2476,
+          "x": -9,
+          "y": -29,
+          "w": 26,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2431,
+          "x": -10,
+          "y": -29,
+          "w": 18,
+          "h": 32,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 5,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2473,
+          "x": -14,
+          "y": -29,
+          "w": 20,
+          "h": 32,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2467,
+          "x": -7,
+          "y": -30,
+          "w": 14,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 6,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2470,
+          "x": -8,
+          "y": -30,
+          "w": 17,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2463,
+          "x": -8,
+          "y": -30,
+          "w": 18,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "attack",
+      "base": 456,
+      "direction": 7,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2466,
+          "x": -9,
+          "y": -30,
+          "w": 22,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "cast",
+      "base": 648,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2652,
+          "x": -13,
+          "y": -30,
+          "w": 27,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "cast",
+      "base": 648,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2653,
+          "x": -10,
+          "y": -30,
+          "w": 24,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "cast",
+      "base": 648,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2654,
+          "x": -8,
+          "y": -30,
+          "w": 14,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "cast",
+      "base": 648,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2655,
+          "x": -11,
+          "y": -28,
+          "w": 20,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "cast",
+      "base": 648,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2656,
+          "x": -13,
+          "y": -29,
+          "w": 27,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "cast",
+      "base": 648,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2655,
+          "x": -9,
+          "y": -28,
+          "w": 20,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "cast",
+      "base": 648,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2654,
+          "x": -6,
+          "y": -30,
+          "w": 14,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "cast",
+      "base": 648,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2653,
+          "x": -14,
+          "y": -30,
+          "w": 24,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2852,
+          "x": -11,
+          "y": -20,
+          "w": 22,
+          "h": 20,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 0,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2855,
+          "x": -11,
+          "y": -20,
+          "w": 21,
+          "h": 25,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2856,
+          "x": -11,
+          "y": -21,
+          "w": 28,
+          "h": 19,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 1,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2859,
+          "x": -16,
+          "y": -23,
+          "w": 24,
+          "h": 27,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2860,
+          "x": -12,
+          "y": -22,
+          "w": 28,
+          "h": 21,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 2,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2863,
+          "x": -9,
+          "y": -21,
+          "w": 16,
+          "h": 25,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2864,
+          "x": -9,
+          "y": -24,
+          "w": 26,
+          "h": 24,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 3,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2867,
+          "x": -12,
+          "y": -18,
+          "w": 21,
+          "h": 23,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2868,
+          "x": -10,
+          "y": -22,
+          "w": 23,
+          "h": 22,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 4,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2871,
+          "x": -9,
+          "y": -21,
+          "w": 23,
+          "h": 26,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2864,
+          "x": -17,
+          "y": -24,
+          "w": 26,
+          "h": 24,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 5,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2867,
+          "x": -9,
+          "y": -18,
+          "w": 21,
+          "h": 23,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2860,
+          "x": -16,
+          "y": -22,
+          "w": 28,
+          "h": 21,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 6,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2863,
+          "x": -7,
+          "y": -21,
+          "w": 16,
+          "h": 25,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2856,
+          "x": -17,
+          "y": -21,
+          "w": 28,
+          "h": 19,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "launch",
+      "base": 584,
+      "direction": 7,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2859,
+          "x": -8,
+          "y": -23,
+          "w": 24,
+          "h": 27,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3655,
+          "x": -10,
+          "y": -30,
+          "w": 20,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 0,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3660,
+          "x": -14,
+          "y": -8,
+          "w": 29,
+          "h": 15,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3661,
+          "x": -9,
+          "y": -30,
+          "w": 18,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 1,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3666,
+          "x": -16,
+          "y": -8,
+          "w": 29,
+          "h": 17,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3667,
+          "x": -7,
+          "y": -30,
+          "w": 14,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 2,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3672,
+          "x": -17,
+          "y": -5,
+          "w": 35,
+          "h": 11,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3673,
+          "x": -8,
+          "y": -29,
+          "w": 17,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 3,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3678,
+          "x": -14,
+          "y": -4,
+          "w": 27,
+          "h": 12,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3679,
+          "x": -9,
+          "y": -29,
+          "w": 21,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 4,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3684,
+          "x": -14,
+          "y": -7,
+          "w": 29,
+          "h": 15,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3673,
+          "x": -9,
+          "y": -29,
+          "w": 17,
+          "h": 32,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 5,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3678,
+          "x": -13,
+          "y": -4,
+          "w": 27,
+          "h": 12,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3667,
+          "x": -7,
+          "y": -30,
+          "w": 14,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 6,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3672,
+          "x": -18,
+          "y": -5,
+          "w": 35,
+          "h": 11,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3661,
+          "x": -9,
+          "y": -30,
+          "w": 18,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "blue",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 7,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3666,
+          "x": -13,
+          "y": -8,
+          "w": 29,
+          "h": 17,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2439,
+          "x": -13,
+          "y": -28,
+          "w": 27,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 0,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2439,
+          "x": -13,
+          "y": -28,
+          "w": 27,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2443,
+          "x": -9,
+          "y": -28,
+          "w": 17,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 1,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2443,
+          "x": -9,
+          "y": -28,
+          "w": 17,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2447,
+          "x": -7,
+          "y": -28,
+          "w": 11,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 2,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2447,
+          "x": -7,
+          "y": -28,
+          "w": 11,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2451,
+          "x": -8,
+          "y": -28,
+          "w": 18,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 3,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2451,
+          "x": -8,
+          "y": -28,
+          "w": 18,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2455,
+          "x": -14,
+          "y": -28,
+          "w": 27,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 4,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2455,
+          "x": -14,
+          "y": -28,
+          "w": 27,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2451,
+          "x": -10,
+          "y": -28,
+          "w": 18,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 5,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2451,
+          "x": -10,
+          "y": -28,
+          "w": 18,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2447,
+          "x": -4,
+          "y": -28,
+          "w": 11,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 6,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2447,
+          "x": -4,
+          "y": -28,
+          "w": 11,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2443,
+          "x": -8,
+          "y": -28,
+          "w": 17,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "idle",
+      "base": 424,
+      "direction": 7,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 2443,
+          "x": -8,
+          "y": -28,
+          "w": 17,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2612,
+          "x": -13,
+          "y": -27,
+          "w": 27,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 0,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2619,
+          "x": -13,
+          "y": -28,
+          "w": 27,
+          "h": 29,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2620,
+          "x": -8,
+          "y": -26,
+          "w": 16,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 1,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2627,
+          "x": -8,
+          "y": -26,
+          "w": 16,
+          "h": 29,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2628,
+          "x": -9,
+          "y": -26,
+          "w": 19,
+          "h": 29,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 2,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2635,
+          "x": -8,
+          "y": -26,
+          "w": 13,
+          "h": 28,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2636,
+          "x": -6,
+          "y": -26,
+          "w": 17,
+          "h": 29,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 3,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2643,
+          "x": -5,
+          "y": -26,
+          "w": 16,
+          "h": 27,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2644,
+          "x": -13,
+          "y": -27,
+          "w": 27,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 4,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2651,
+          "x": -13,
+          "y": -28,
+          "w": 27,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2636,
+          "x": -11,
+          "y": -26,
+          "w": 17,
+          "h": 29,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 5,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2643,
+          "x": -11,
+          "y": -26,
+          "w": 16,
+          "h": 27,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2628,
+          "x": -10,
+          "y": -26,
+          "w": 19,
+          "h": 29,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 6,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2635,
+          "x": -5,
+          "y": -26,
+          "w": 13,
+          "h": 28,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2620,
+          "x": -8,
+          "y": -26,
+          "w": 16,
+          "h": 30,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "walk",
+      "base": 616,
+      "direction": 7,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 2627,
+          "x": -8,
+          "y": -26,
+          "w": 16,
+          "h": 29,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2439,
+          "x": -13,
+          "y": -28,
+          "w": 27,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 0,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2479,
+          "x": -16,
+          "y": -28,
+          "w": 29,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2443,
+          "x": -10,
+          "y": -28,
+          "w": 17,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 1,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2482,
+          "x": -13,
+          "y": -28,
+          "w": 22,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2447,
+          "x": -7,
+          "y": -28,
+          "w": 11,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 2,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2485,
+          "x": -9,
+          "y": -28,
+          "w": 17,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2451,
+          "x": -8,
+          "y": -28,
+          "w": 18,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 3,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2488,
+          "x": -6,
+          "y": -28,
+          "w": 20,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2455,
+          "x": -14,
+          "y": -28,
+          "w": 27,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 4,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2491,
+          "x": -13,
+          "y": -28,
+          "w": 29,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2451,
+          "x": -10,
+          "y": -28,
+          "w": 18,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 5,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2488,
+          "x": -14,
+          "y": -28,
+          "w": 20,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2447,
+          "x": -4,
+          "y": -28,
+          "w": 11,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 6,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2485,
+          "x": -8,
+          "y": -28,
+          "w": 17,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2443,
+          "x": -7,
+          "y": -28,
+          "w": 17,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "attack",
+      "base": 456,
+      "direction": 7,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2482,
+          "x": -9,
+          "y": -28,
+          "w": 22,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "cast",
+      "base": 648,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2657,
+          "x": -13,
+          "y": -30,
+          "w": 27,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "cast",
+      "base": 648,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2658,
+          "x": -10,
+          "y": -30,
+          "w": 24,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "cast",
+      "base": 648,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2659,
+          "x": -6,
+          "y": -27,
+          "w": 12,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "cast",
+      "base": 648,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2660,
+          "x": -11,
+          "y": -28,
+          "w": 20,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "cast",
+      "base": 648,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2661,
+          "x": -13,
+          "y": -29,
+          "w": 27,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "cast",
+      "base": 648,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2660,
+          "x": -9,
+          "y": -28,
+          "w": 20,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "cast",
+      "base": 648,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2659,
+          "x": -6,
+          "y": -27,
+          "w": 12,
+          "h": 30,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "cast",
+      "base": 648,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2658,
+          "x": -14,
+          "y": -30,
+          "w": 24,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2872,
+          "x": -13,
+          "y": -19,
+          "w": 27,
+          "h": 19,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 0,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2875,
+          "x": -13,
+          "y": -18,
+          "w": 27,
+          "h": 23,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2876,
+          "x": -11,
+          "y": -20,
+          "w": 28,
+          "h": 18,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 1,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2879,
+          "x": -16,
+          "y": -21,
+          "w": 24,
+          "h": 25,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2880,
+          "x": -12,
+          "y": -19,
+          "w": 28,
+          "h": 18,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 2,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2883,
+          "x": -9,
+          "y": -19,
+          "w": 16,
+          "h": 23,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2884,
+          "x": -9,
+          "y": -23,
+          "w": 26,
+          "h": 23,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 3,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2887,
+          "x": -12,
+          "y": -17,
+          "w": 21,
+          "h": 22,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2888,
+          "x": -13,
+          "y": -21,
+          "w": 27,
+          "h": 21,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 4,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2891,
+          "x": -13,
+          "y": -20,
+          "w": 27,
+          "h": 25,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2884,
+          "x": -17,
+          "y": -23,
+          "w": 26,
+          "h": 23,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 5,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2887,
+          "x": -9,
+          "y": -17,
+          "w": 21,
+          "h": 22,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2880,
+          "x": -16,
+          "y": -19,
+          "w": 28,
+          "h": 18,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 6,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2883,
+          "x": -7,
+          "y": -19,
+          "w": 16,
+          "h": 23,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 2876,
+          "x": -17,
+          "y": -20,
+          "w": 28,
+          "h": 18,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "launch",
+      "base": 584,
+      "direction": 7,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 2879,
+          "x": -8,
+          "y": -21,
+          "w": 24,
+          "h": 25,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3685,
+          "x": -13,
+          "y": -28,
+          "w": 27,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 0,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3690,
+          "x": -13,
+          "y": -8,
+          "w": 28,
+          "h": 15,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3691,
+          "x": -9,
+          "y": -28,
+          "w": 17,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 1,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3696,
+          "x": -13,
+          "y": -8,
+          "w": 26,
+          "h": 17,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3697,
+          "x": -7,
+          "y": -28,
+          "w": 11,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 2,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3702,
+          "x": -15,
+          "y": -4,
+          "w": 33,
+          "h": 10,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3703,
+          "x": -8,
+          "y": -28,
+          "w": 18,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 3,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3708,
+          "x": -11,
+          "y": -4,
+          "w": 24,
+          "h": 12,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3709,
+          "x": -13,
+          "y": -28,
+          "w": 27,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 4,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3714,
+          "x": -13,
+          "y": -7,
+          "w": 28,
+          "h": 14,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3703,
+          "x": -10,
+          "y": -28,
+          "w": 18,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 5,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3708,
+          "x": -13,
+          "y": -4,
+          "w": 24,
+          "h": 12,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3697,
+          "x": -4,
+          "y": -28,
+          "w": 11,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 6,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3702,
+          "x": -18,
+          "y": -4,
+          "w": 33,
+          "h": 10,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3691,
+          "x": -8,
+          "y": -28,
+          "w": 17,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "red",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 7,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3696,
+          "x": -13,
+          "y": -8,
+          "w": 26,
+          "h": 17,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3376,
+          "x": -11,
+          "y": -33,
+          "w": 23,
+          "h": 35,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 0,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3376,
+          "x": -11,
+          "y": -33,
+          "w": 23,
+          "h": 35,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3380,
+          "x": -9,
+          "y": -33,
+          "w": 17,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 1,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3380,
+          "x": -9,
+          "y": -33,
+          "w": 17,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3384,
+          "x": -6,
+          "y": -33,
+          "w": 13,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 2,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3384,
+          "x": -6,
+          "y": -33,
+          "w": 13,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3388,
+          "x": -8,
+          "y": -33,
+          "w": 19,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 3,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3388,
+          "x": -8,
+          "y": -33,
+          "w": 19,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3392,
+          "x": -11,
+          "y": -33,
+          "w": 23,
+          "h": 35,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 4,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3392,
+          "x": -11,
+          "y": -33,
+          "w": 23,
+          "h": 35,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3388,
+          "x": -11,
+          "y": -33,
+          "w": 19,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 5,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3388,
+          "x": -11,
+          "y": -33,
+          "w": 19,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3384,
+          "x": -7,
+          "y": -33,
+          "w": 13,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 6,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3384,
+          "x": -7,
+          "y": -33,
+          "w": 13,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3380,
+          "x": -8,
+          "y": -33,
+          "w": 17,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "idle",
+      "base": 424,
+      "direction": 7,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3380,
+          "x": -8,
+          "y": -33,
+          "w": 17,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3565,
+          "x": -11,
+          "y": -32,
+          "w": 23,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 0,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3572,
+          "x": -11,
+          "y": -33,
+          "w": 23,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3573,
+          "x": -8,
+          "y": -31,
+          "w": 17,
+          "h": 35,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 1,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3580,
+          "x": -8,
+          "y": -31,
+          "w": 17,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3581,
+          "x": -9,
+          "y": -31,
+          "w": 19,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 2,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3588,
+          "x": -8,
+          "y": -31,
+          "w": 14,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3589,
+          "x": -6,
+          "y": -31,
+          "w": 18,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 3,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3596,
+          "x": -5,
+          "y": -31,
+          "w": 17,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3597,
+          "x": -11,
+          "y": -32,
+          "w": 23,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 4,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3604,
+          "x": -11,
+          "y": -33,
+          "w": 23,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3589,
+          "x": -12,
+          "y": -31,
+          "w": 18,
+          "h": 34,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 5,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3596,
+          "x": -12,
+          "y": -31,
+          "w": 17,
+          "h": 32,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3581,
+          "x": -10,
+          "y": -31,
+          "w": 19,
+          "h": 34,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 6,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3588,
+          "x": -6,
+          "y": -31,
+          "w": 14,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3573,
+          "x": -9,
+          "y": -31,
+          "w": 17,
+          "h": 35,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "walk",
+      "base": 616,
+      "direction": 7,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3580,
+          "x": -9,
+          "y": -31,
+          "w": 17,
+          "h": 34,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3376,
+          "x": -11,
+          "y": -33,
+          "w": 23,
+          "h": 35,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 0,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3418,
+          "x": -16,
+          "y": -33,
+          "w": 27,
+          "h": 35,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3380,
+          "x": -10,
+          "y": -33,
+          "w": 17,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 1,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3421,
+          "x": -13,
+          "y": -33,
+          "w": 22,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3384,
+          "x": -6,
+          "y": -33,
+          "w": 13,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 2,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3424,
+          "x": -8,
+          "y": -33,
+          "w": 17,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3388,
+          "x": -8,
+          "y": -33,
+          "w": 19,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 3,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3427,
+          "x": -6,
+          "y": -33,
+          "w": 20,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3392,
+          "x": -11,
+          "y": -33,
+          "w": 23,
+          "h": 35,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 4,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3430,
+          "x": -10,
+          "y": -33,
+          "w": 27,
+          "h": 35,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3388,
+          "x": -11,
+          "y": -33,
+          "w": 19,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 5,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3427,
+          "x": -14,
+          "y": -33,
+          "w": 20,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3384,
+          "x": -7,
+          "y": -33,
+          "w": 13,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 6,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3424,
+          "x": -9,
+          "y": -33,
+          "w": 17,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3380,
+          "x": -7,
+          "y": -33,
+          "w": 17,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "attack",
+      "base": 456,
+      "direction": 7,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3421,
+          "x": -9,
+          "y": -33,
+          "w": 22,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "cast",
+      "base": 648,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3645,
+          "x": -13,
+          "y": -30,
+          "w": 27,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "cast",
+      "base": 648,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3646,
+          "x": -10,
+          "y": -33,
+          "w": 24,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "cast",
+      "base": 648,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3647,
+          "x": -7,
+          "y": -31,
+          "w": 13,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "cast",
+      "base": 648,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3648,
+          "x": -11,
+          "y": -30,
+          "w": 20,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "cast",
+      "base": 648,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3649,
+          "x": -13,
+          "y": -29,
+          "w": 27,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "cast",
+      "base": 648,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3648,
+          "x": -9,
+          "y": -30,
+          "w": 20,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "cast",
+      "base": 648,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3647,
+          "x": -6,
+          "y": -31,
+          "w": 13,
+          "h": 34,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "cast",
+      "base": 648,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3646,
+          "x": -14,
+          "y": -33,
+          "w": 24,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3525,
+          "x": -11,
+          "y": -25,
+          "w": 23,
+          "h": 25,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 0,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3528,
+          "x": -11,
+          "y": -23,
+          "w": 23,
+          "h": 28,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3529,
+          "x": -11,
+          "y": -24,
+          "w": 28,
+          "h": 22,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 1,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3532,
+          "x": -16,
+          "y": -26,
+          "w": 24,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3533,
+          "x": -12,
+          "y": -24,
+          "w": 28,
+          "h": 23,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 2,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3536,
+          "x": -9,
+          "y": -22,
+          "w": 16,
+          "h": 26,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3537,
+          "x": -9,
+          "y": -28,
+          "w": 26,
+          "h": 28,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 3,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3540,
+          "x": -12,
+          "y": -22,
+          "w": 21,
+          "h": 27,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3541,
+          "x": -11,
+          "y": -24,
+          "w": 24,
+          "h": 24,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 4,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3544,
+          "x": -11,
+          "y": -25,
+          "w": 25,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3537,
+          "x": -17,
+          "y": -28,
+          "w": 26,
+          "h": 28,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 5,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3540,
+          "x": -9,
+          "y": -22,
+          "w": 21,
+          "h": 27,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3533,
+          "x": -16,
+          "y": -24,
+          "w": 28,
+          "h": 23,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 6,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3536,
+          "x": -7,
+          "y": -22,
+          "w": 16,
+          "h": 26,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3529,
+          "x": -17,
+          "y": -24,
+          "w": 28,
+          "h": 22,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "launch",
+      "base": 584,
+      "direction": 7,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3532,
+          "x": -8,
+          "y": -26,
+          "w": 24,
+          "h": 30,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3715,
+          "x": -11,
+          "y": -33,
+          "w": 23,
+          "h": 35,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 0,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3720,
+          "x": -13,
+          "y": -11,
+          "w": 28,
+          "h": 18,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3721,
+          "x": -9,
+          "y": -33,
+          "w": 18,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 1,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3726,
+          "x": -18,
+          "y": -9,
+          "w": 31,
+          "h": 18,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3727,
+          "x": -7,
+          "y": -33,
+          "w": 13,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 2,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3732,
+          "x": -20,
+          "y": -4,
+          "w": 38,
+          "h": 10,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3733,
+          "x": -8,
+          "y": -33,
+          "w": 19,
+          "h": 36,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 3,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3738,
+          "x": -15,
+          "y": -4,
+          "w": 28,
+          "h": 14,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3739,
+          "x": -11,
+          "y": -33,
+          "w": 23,
+          "h": 35,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 4,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3744,
+          "x": -13,
+          "y": -7,
+          "w": 28,
+          "h": 16,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3733,
+          "x": -11,
+          "y": -33,
+          "w": 19,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 5,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3738,
+          "x": -13,
+          "y": -4,
+          "w": 28,
+          "h": 14,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3727,
+          "x": -6,
+          "y": -33,
+          "w": 13,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 6,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3732,
+          "x": -18,
+          "y": -4,
+          "w": 38,
+          "h": 10,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3721,
+          "x": -9,
+          "y": -33,
+          "w": 18,
+          "h": 36,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "yellow",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 7,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3726,
+          "x": -13,
+          "y": -9,
+          "w": 31,
+          "h": 18,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3396,
+          "x": -10,
+          "y": -32,
+          "w": 20,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 0,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3396,
+          "x": -10,
+          "y": -32,
+          "w": 20,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3400,
+          "x": -10,
+          "y": -31,
+          "w": 18,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 1,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3400,
+          "x": -10,
+          "y": -31,
+          "w": 18,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3404,
+          "x": -6,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 2,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3404,
+          "x": -6,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3408,
+          "x": -7,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 3,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3408,
+          "x": -7,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3412,
+          "x": -9,
+          "y": -31,
+          "w": 21,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 4,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3412,
+          "x": -9,
+          "y": -31,
+          "w": 21,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3408,
+          "x": -8,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 5,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3408,
+          "x": -8,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3404,
+          "x": -9,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 6,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3404,
+          "x": -9,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3400,
+          "x": -8,
+          "y": -31,
+          "w": 18,
+          "h": 34,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "idle",
+      "base": 424,
+      "direction": 7,
+      "step": 4,
+      "draws": [
+        {
+          "piece": 3400,
+          "x": -8,
+          "y": -31,
+          "w": 18,
+          "h": 34,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3605,
+          "x": -8,
+          "y": -31,
+          "w": 15,
+          "h": 35,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 0,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3612,
+          "x": -8,
+          "y": -31,
+          "w": 15,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3613,
+          "x": -7,
+          "y": -29,
+          "w": 15,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 1,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3620,
+          "x": -8,
+          "y": -29,
+          "w": 16,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3621,
+          "x": -9,
+          "y": -28,
+          "w": 19,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 2,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3628,
+          "x": -8,
+          "y": -28,
+          "w": 16,
+          "h": 30,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3629,
+          "x": -6,
+          "y": -28,
+          "w": 15,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 3,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3636,
+          "x": -4,
+          "y": -28,
+          "w": 12,
+          "h": 29,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3637,
+          "x": -6,
+          "y": -29,
+          "w": 14,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 4,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3644,
+          "x": -5,
+          "y": -30,
+          "w": 12,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3629,
+          "x": -9,
+          "y": -28,
+          "w": 15,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 5,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3636,
+          "x": -8,
+          "y": -28,
+          "w": 12,
+          "h": 29,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3621,
+          "x": -10,
+          "y": -28,
+          "w": 19,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 6,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3628,
+          "x": -8,
+          "y": -28,
+          "w": 16,
+          "h": 30,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3613,
+          "x": -8,
+          "y": -29,
+          "w": 15,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "walk",
+      "base": 616,
+      "direction": 7,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3620,
+          "x": -8,
+          "y": -29,
+          "w": 16,
+          "h": 32,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3396,
+          "x": -10,
+          "y": -32,
+          "w": 20,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 0,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3433,
+          "x": -16,
+          "y": -32,
+          "w": 26,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3400,
+          "x": -9,
+          "y": -31,
+          "w": 18,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 1,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3436,
+          "x": -12,
+          "y": -31,
+          "w": 22,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3404,
+          "x": -6,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 2,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3439,
+          "x": -8,
+          "y": -30,
+          "w": 17,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3408,
+          "x": -7,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 3,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3442,
+          "x": -5,
+          "y": -30,
+          "w": 20,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3412,
+          "x": -9,
+          "y": -31,
+          "w": 21,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 4,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3445,
+          "x": -9,
+          "y": -31,
+          "w": 26,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3408,
+          "x": -8,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 5,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3442,
+          "x": -15,
+          "y": -30,
+          "w": 20,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3404,
+          "x": -9,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 6,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3439,
+          "x": -9,
+          "y": -30,
+          "w": 17,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3400,
+          "x": -9,
+          "y": -31,
+          "w": 18,
+          "h": 34,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "attack",
+      "base": 456,
+      "direction": 7,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3436,
+          "x": -10,
+          "y": -31,
+          "w": 22,
+          "h": 34,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "cast",
+      "base": 648,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3650,
+          "x": -13,
+          "y": -30,
+          "w": 27,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "cast",
+      "base": 648,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3651,
+          "x": -10,
+          "y": -30,
+          "w": 24,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "cast",
+      "base": 648,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3652,
+          "x": -7,
+          "y": -29,
+          "w": 15,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "cast",
+      "base": 648,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3653,
+          "x": -11,
+          "y": -28,
+          "w": 20,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "cast",
+      "base": 648,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3654,
+          "x": -13,
+          "y": -29,
+          "w": 27,
+          "h": 31,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "cast",
+      "base": 648,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3653,
+          "x": -9,
+          "y": -28,
+          "w": 20,
+          "h": 31,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "cast",
+      "base": 648,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3652,
+          "x": -8,
+          "y": -29,
+          "w": 15,
+          "h": 32,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "cast",
+      "base": 648,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3651,
+          "x": -14,
+          "y": -30,
+          "w": 24,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3545,
+          "x": -11,
+          "y": -22,
+          "w": 22,
+          "h": 22,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 0,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3548,
+          "x": -11,
+          "y": -20,
+          "w": 20,
+          "h": 25,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3549,
+          "x": -11,
+          "y": -22,
+          "w": 28,
+          "h": 20,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 1,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3552,
+          "x": -16,
+          "y": -24,
+          "w": 24,
+          "h": 28,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3553,
+          "x": -12,
+          "y": -22,
+          "w": 28,
+          "h": 21,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 2,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3556,
+          "x": -9,
+          "y": -21,
+          "w": 16,
+          "h": 25,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3557,
+          "x": -9,
+          "y": -25,
+          "w": 26,
+          "h": 25,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 3,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3560,
+          "x": -11,
+          "y": -19,
+          "w": 20,
+          "h": 24,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3561,
+          "x": -10,
+          "y": -22,
+          "w": 23,
+          "h": 22,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 4,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3564,
+          "x": -8,
+          "y": -22,
+          "w": 22,
+          "h": 27,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3557,
+          "x": -17,
+          "y": -25,
+          "w": 26,
+          "h": 25,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 5,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3560,
+          "x": -9,
+          "y": -19,
+          "w": 20,
+          "h": 24,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3553,
+          "x": -16,
+          "y": -22,
+          "w": 28,
+          "h": 21,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 6,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3556,
+          "x": -7,
+          "y": -21,
+          "w": 16,
+          "h": 25,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3549,
+          "x": -17,
+          "y": -22,
+          "w": 28,
+          "h": 20,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "launch",
+      "base": 584,
+      "direction": 7,
+      "step": 3,
+      "draws": [
+        {
+          "piece": 3552,
+          "x": -8,
+          "y": -24,
+          "w": 24,
+          "h": 28,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 0,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3745,
+          "x": -10,
+          "y": -32,
+          "w": 20,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 0,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3750,
+          "x": -13,
+          "y": -8,
+          "w": 28,
+          "h": 15,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 1,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3751,
+          "x": -9,
+          "y": -31,
+          "w": 18,
+          "h": 34,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 1,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3756,
+          "x": -17,
+          "y": -5,
+          "w": 29,
+          "h": 14,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 2,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3757,
+          "x": -7,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 2,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3762,
+          "x": -16,
+          "y": -7,
+          "w": 34,
+          "h": 13,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 3,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3763,
+          "x": -8,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 3,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3768,
+          "x": -15,
+          "y": -4,
+          "w": 28,
+          "h": 13,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 4,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3769,
+          "x": -9,
+          "y": -30,
+          "w": 21,
+          "h": 32,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 4,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3774,
+          "x": -13,
+          "y": -7,
+          "w": 28,
+          "h": 15,
+          "flags": 0
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 5,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3763,
+          "x": -7,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 5,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3768,
+          "x": -13,
+          "y": -4,
+          "w": 28,
+          "h": 13,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 6,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3757,
+          "x": -8,
+          "y": -30,
+          "w": 15,
+          "h": 33,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 6,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3762,
+          "x": -18,
+          "y": -7,
+          "w": 34,
+          "h": 13,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 7,
+      "step": 0,
+      "draws": [
+        {
+          "piece": 3751,
+          "x": -9,
+          "y": -31,
+          "w": 18,
+          "h": 34,
+          "flags": 1
+        }
+      ]
+    },
+    {
+      "team": "green",
+      "action": "bodyDeath",
+      "base": 680,
+      "direction": 7,
+      "step": 7,
+      "draws": [
+        {
+          "piece": 3756,
+          "x": -12,
+          "y": -5,
+          "w": 29,
+          "h": 14,
+          "flags": 1
+        }
+      ]
+    }
+  ],
+  "referenceKind": "static original layer bytes with retained no-owner/mirror/shadow contract; no new native execution",
+  "limits": "Original byte/asset comparison, not native execution, browser rendering or gameplay/performance acceptance."
+}

@@ -1,0 +1,122 @@
+{
+  "status": "prepared-not-run",
+  "sourceHead": "bfdce034117e2f4d86c86c97fa4d3c06df4b3e65",
+  "scope": "Existing native sprite checker bounded to720 plus728 control; geometry and explicit old shadow flag discrepancy, no fixture write",
+  "command": [
+    "timeout",
+    "60s",
+    "taskset",
+    "-c",
+    "4",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "-B",
+    "scripts/check-native-sprite-layers.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+    "--firewarrior-resting-only"
+  ],
+  "inputs": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/scripts/check-native-sprite-layers.py": "95ce087acbcf76f2b54513c6d10e746ee0349ec25362bb2bcabbf9afcb9b9548",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/scripts/import-original.py": "bf412564052bb6a3a7ac5c12190608b450407400f73d99f5becbdf40a7ae30bb",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/decomp/tools.json": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/decomp/exports.json": "51e55c295a9956e89be85c98df835f1da141e3e10cb6b16435f55423ff5b26db",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/app/original-units.json": "7ad4cfe64aa6bff0c1de8be2761d7c37c7849ff8b391b37758f37cd3778e52c6",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/app/original-camera.json": "988109e598f4e3c8b44ec16a1ce14f2c0fa5214364574d2e0411e8c2fd5be8b8",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/app/sprite-layers.ts": "5ceb5fddb5703198df08b83fc567b1cd8fc48c292749bf73101ba0032e680ecd",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/app/projection.ts": "2ee6b7640087b3e996cf13cefd4cecb4e6e9c0d52f4d7913265047bd66bafb97",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/public/original/unit-layers.png": "9bdbe47bc816c0c75036c7899a6bccdb8aeb47931dc0f49d541c957082afbcbd",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/hspr0-0.dat": "62e5cc915a16302670027bac9535f6b90f00e38694575294418dcefb04394655",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/pal0-c.dat": "6c61cd586fc96ef5f777c71966a9ac1875491a4a521342ba06d108df5e92bf53",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vfra-0.ani": "c91720da3c636fb74cb749c5f8747ae884c1d76dbeed4b845f5a199ef1a55258",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/data/vele-0.ani": "e6158220383ae2f17db8d12844c16e4fb931030780fb3d02416fde303257a7c9"
+  },
+  "allowedHostWrites": [
+    "fresh stdout/stderr/receipt under work/orchestration/firewarrior-resting"
+  ],
+  "nativeEntries": [
+    "0045f9d0 full original layer renderer"
+  ],
+  "suppliedLeaves": [
+    "005162e0 unscaled raster submission",
+    "00516430 scaled raster submission (not expected)"
+  ],
+  "suppliedInputs": [
+    "PE mapped by canonical native_cpu; no OS execution",
+    "HSPR indexed bank and loaded VFRA/VELE structs; same one-based bank equivalence as existing checker",
+    "VELE flags normalized by byte-verified0042c5b7..0042c5e3 mapping",
+    "Camera/options for896 unscaled plus32 representative scaled geometry cases; Blue/Red,720 and728 control."
+  ],
+  "expectedCases": 928,
+  "expectedFlagDifferences": 464,
+  "flagDifferenceBoundary": "Only existing HSPR22, port raw4/5 versus native loaded8/9; raw difference retained. No body/weapon flag difference accepted. No blending equality claimed.",
+  "acceptance": [
+    "All native calls return normally within existing instruction bound",
+    "Original atlas RGBA matches all4042pieces",
+    "Native versus port piece order/selection,signed coordinates,width,height match exactly",
+    "Each recorded flag difference is exactly documented preexisting shadow22",
+    "No original loader, renderer GPU or broader pixel/timing claim"
+  ],
+  "stopOn": [
+    "Unexpected native instruction bound or memory failure",
+    "Any geometry/piece/count mismatch",
+    "Any flag discrepancy outside specified old shadow22",
+    "Changed source/input hashes"
+  ],
+  "needs": "Independent preflight and coordinator CPU4 grant before execution; no installed dependency tree needed by pure Node comparison",
+  "committedCheckerSha256": "95ce087acbcf76f2b54513c6d10e746ee0349ec25362bb2bcabbf9afcb9b9548",
+  "scaledCases": {
+    "count": 32,
+    "owners": [
+      0,
+      1
+    ],
+    "sources": [
+      720,
+      728
+    ],
+    "directions": [
+      2,
+      6
+    ],
+    "phases": [
+      0,
+      13
+    ],
+    "hideShadow": [
+      false,
+      true
+    ],
+    "bucket": 2000,
+    "levelFlags": 256,
+    "view": {
+      "curvature": 46000,
+      "diameter": 50,
+      "scale": 40786,
+      "spriteScale": 40786,
+      "depth": 6500,
+      "perspective": 11,
+      "pitch": 1932,
+      "offsetX": 0,
+      "offsetY": 16,
+      "horizon": 195,
+      "width": 640,
+      "height": 480,
+      "shamanScale": 280,
+      "bounds": [
+        -10,
+        -16,
+        10,
+        -16,
+        16,
+        39,
+        -16,
+        39
+      ],
+      "boundsMode": 1,
+      "scaledSprites": 0
+    }
+  }
+}

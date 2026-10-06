@@ -1,0 +1,50 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "68b489f0-6efe-4fab-8c8e-80f8a8b68e82",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "14db30abf5f3b91a964ee2220e89908c41fb67f2",
+    "branch": "fix/firewarrior-resting-artwork-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/firewarrior-resting-artwork.test.mjs": "a817633f4eb4201b93b03c181db05658c7e7b8694bb9372b38cbc2021f91fa92",
+      "app/original-units.json": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    }
+  },
+  "command": [
+    "timeout",
+    "30s",
+    "taskset",
+    "-c",
+    "0-3",
+    "node",
+    "--test",
+    "tests/firewarrior-resting-artwork.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006",
+  "startedAt": "2026-10-06T03:55:17.911Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/failure-first-01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/work/orchestration/firewarrior-resting/failure-first-01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T03:55:18.234Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✖ native Firewarrior resting source720 resolves its actual original frames (2.669647ms)\nℹ tests 1\nℹ suites 0\nℹ pass 0\nℹ fail 1\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 201.146393\n\n✖ failing tests:\n\ntest at tests/firewarrior-resting-artwork.test.mjs:10:1\n✖ native Firewarrior resting source720 resolves its actual original frames (2.669647ms)\n  AssertionError [ERR_ASSERTION]: blue native source720 must bypass named-pose fallback\n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/firewarrior-resting-artwork-fix-20261006/tests/firewarrior-resting-artwork.test.mjs:20:12)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: true,\n    operator: '==',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "0190a40a10bb4c3994303b3eed1047652a68fffe2ac506fe0b4354656e9c4c3c",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "14db30abf5f3b91a964ee2220e89908c41fb67f2",
+    "branch": "fix/firewarrior-resting-artwork-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/firewarrior-resting-artwork.test.mjs": "a817633f4eb4201b93b03c181db05658c7e7b8694bb9372b38cbc2021f91fa92",
+      "app/original-units.json": "bc5b008fcf1f3073b28743f867bfcccc1724d9d60148ab05085af9fd328222f9",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    }
+  }
+}
