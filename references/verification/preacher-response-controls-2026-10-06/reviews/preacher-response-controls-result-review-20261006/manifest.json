@@ -1,0 +1,69 @@
+{
+  "schemaVersion": 1,
+  "verdict": "ACCEPT-native-controls; port-comparison-failed-incomplete",
+  "head": "d7b88bdb5a9a9909ebb1f1aea00fd682a2a93784",
+  "files": [
+    {
+      "path": "review.md",
+      "sha256": "774c0237a53cdaaf8dc9befbb5c3ef69de2d10be2f7ac92335f8457b0d92abc4"
+    },
+    {
+      "path": "verification.json",
+      "sha256": "cd03ed49a0f8c6243566198437bf838a4fdc8649ec0d7d682dfd83dfd35f585b"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/launch-01/receipt.json",
+      "sha256": "9d902ade84c2744af2f1bbbaa32234e64aa03e460ab5ed7caec576b9619fef75"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-01/receipt.json",
+      "sha256": "8a0b34f811b8aab0b2f234e7c55ff41ab5f3ca28a9d5867e80e2148a6d7cdbaf"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-01/launch.json",
+      "sha256": "889bd87af4de3205ef0ce13962911b3757d08ed9ccc704a74500b11fdce79ee5"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-01/port.stdout",
+      "sha256": "335b7630e7fa01264ceb3ccc03af48329fb6353d2c823b5b14911f537e0f8e47"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-01/port.stderr",
+      "sha256": "45c688d0e5b2883ca3949828f093adff29ffefeeee9980d46c5186f1690bdbc7"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-01/allocation-exhaustion/native-before.json",
+      "sha256": "42ec403bb695028f2e85e1fab729983685083a30b4fc5871ea78cfa6b157b079"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-01/allocation-exhaustion/native.json",
+      "sha256": "fad10c7212420688f8f4c8524c78eb14801bbeedef4302279fd9ee23219522b5"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-01/primary21-sharing/native-before.json",
+      "sha256": "ab930b77df918c52e03fe4a18a7be1187ee0242bb73fffce37fda1be63c44119"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-01/primary21-sharing/native.json",
+      "sha256": "4b5fc4d70c35a8b4f2289d705af2172745640063d268518f7e2926034fe252d5"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-01/reverse-alliance/native-before.json",
+      "sha256": "5a78decc153447782382d2ac0a8e5d3e8cdf3c942ca44b352e0fb30e976459be"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-01/reverse-alliance/native.json",
+      "sha256": "d9ebbfa4b97197d8e9dd58e1c9133bdaeaf0634f464840bb27ff090725e4d97e"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-01/stationary-sermon/native-before.json",
+      "sha256": "c0c87b2dde32368fbe25291666fc9279dddf44b783da52e6af0e3ff5e1ed9d07"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/preacher-response-controls-20261006/run-01/stationary-sermon/native.json",
+      "sha256": "6e59bd192e7b47fc1aa5300fad1a8d622477c5b406b9ef3ec394683e1e216c56"
+    }
+  ]
+}

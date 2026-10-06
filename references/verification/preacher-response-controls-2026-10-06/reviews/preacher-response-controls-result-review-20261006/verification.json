@@ -1,0 +1,70 @@
+{
+  "verdict": "ACCEPT four retained native controls; port comparison INCOMPLETE/FAILED",
+  "sourceHead": "d7b88bdb5a9a9909ebb1f1aea00fd682a2a93784",
+  "manifestSha256": "889bd87af4de3205ef0ce13962911b3757d08ed9ccc704a74500b11fdce79ee5",
+  "externalReceiptSha256": "9d902ade84c2744af2f1bbbaa32234e64aa03e460ab5ed7caec576b9619fef75",
+  "workerReceiptSha256": "8a0b34f811b8aab0b2f234e7c55ff41ab5f3ca28a9d5867e80e2148a6d7cdbaf",
+  "fingerprintsVerified": 105,
+  "nativeRows": [
+    {
+      "case": "stationary-sermon",
+      "nativeSha256": "6e59bd192e7b47fc1aa5300fad1a8d622477c5b406b9ef3ec394683e1e216c56",
+      "instructionCount": 648,
+      "memoryReads": 229,
+      "memoryWrites": 97,
+      "entryReturnPairs": 7,
+      "producerAL": 0,
+      "producerRawEax": 8704,
+      "fullRawPredictionMatches": true,
+      "readsAndWritesReconstructedFromCanonicalImage": true,
+      "bothRngsUnchanged": true
+    },
+    {
+      "case": "reverse-alliance",
+      "nativeSha256": "d9ebbfa4b97197d8e9dd58e1c9133bdaeaf0634f464840bb27ff090725e4d97e",
+      "instructionCount": 773,
+      "memoryReads": 271,
+      "memoryWrites": 127,
+      "entryReturnPairs": 8,
+      "producerAL": 0,
+      "producerRawEax": 8704,
+      "fullRawPredictionMatches": true,
+      "readsAndWritesReconstructedFromCanonicalImage": true,
+      "bothRngsUnchanged": true
+    },
+    {
+      "case": "allocation-exhaustion",
+      "nativeSha256": "fad10c7212420688f8f4c8524c78eb14801bbeedef4302279fd9ee23219522b5",
+      "instructionCount": 7156,
+      "memoryReads": 1052,
+      "memoryWrites": 126,
+      "entryReturnPairs": 11,
+      "producerAL": 0,
+      "producerRawEax": 0,
+      "fullRawPredictionMatches": true,
+      "readsAndWritesReconstructedFromCanonicalImage": true,
+      "bothRngsUnchanged": true
+    },
+    {
+      "case": "primary21-sharing",
+      "nativeSha256": "4b5fc4d70c35a8b4f2289d705af2172745640063d268518f7e2926034fe252d5",
+      "instructionCount": 831,
+      "memoryReads": 263,
+      "memoryWrites": 143,
+      "entryReturnPairs": 14,
+      "producerAL": 2,
+      "producerRawEax": 2,
+      "fullRawPredictionMatches": true,
+      "readsAndWritesReconstructedFromCanonicalImage": true,
+      "bothRngsUnchanged": true
+    }
+  ],
+  "portOutputBytes": 65536,
+  "portOutputSha256": "335b7630e7fa01264ceb3ccc03af48329fb6353d2c823b5b14911f537e0f8e47",
+  "portErrorSha256": "45c688d0e5b2883ca3949828f093adff29ffefeeee9980d46c5186f1690bdbc7",
+  "elapsedSeconds": 2.9313879900000757,
+  "cpu": 4,
+  "terminalGroupEmpty": true,
+  "retries": 0,
+  "reviewerExecution": "offline stdlib memory-log reconstruction only; no native or application execution"
+}

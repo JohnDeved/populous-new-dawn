@@ -1,0 +1,31 @@
+{
+  "schemaVersion": 1,
+  "verdict": "ACCEPT-source-preflight-only",
+  "sourceHead": "d7b88bdb5a9a9909ebb1f1aea00fd682a2a93784",
+  "runtimeHead": "4e3e95ca8495f99778479d5a8a90d9b57b7b7d10",
+  "reviewerExecution": "none; source/data/static disassembly only",
+  "files": [
+    {
+      "path": "review.md",
+      "sha256": "abc0fc27af0b747404b3a9f2597e74495e361526b51669f655e799c0eb3c54c4"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/decomp/research/preacher-response-controls/launch-manifest.json",
+      "sha256": "889bd87af4de3205ef0ce13962911b3757d08ed9ccc704a74500b11fdce79ee5"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/decomp/research/preacher-response-controls/controls.json",
+      "sha256": "f9a2935c1de4222cb4111ccf3666ffa7fdc926d86528b58d89b3efcc6b618bae"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/automatic-preacher-response/coherence-before-01.json",
+      "sha256": "e0282865134f13f810ceb2d09cb00eceb995ca4b646500873573872ef3511eaf"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/automatic-preacher-response-fix-20261006/work/orchestration/automatic-preacher-response/coherence-after-01.json",
+      "sha256": "e77af8ae79d2839b7f6d55a43ab6ac904793fb7f160a1ad75b2f4f5860866718"
+    }
+  ]
+}

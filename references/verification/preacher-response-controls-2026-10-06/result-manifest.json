@@ -1,0 +1,70 @@
+{
+  "executionHead": "d7b88bdb5a9a9909ebb1f1aea00fd682a2a93784",
+  "status": "failed-port-coverage-incomplete-port-stdout",
+  "nativeRows": "four verified by frozen driver; pending independent raw review",
+  "portAssertion": "primary21-sharing allocatePersonOrder count2 expected1",
+  "portStdout": "65536 bytes; JSON truncated on assertion process exit; not complete evidence",
+  "retry": false,
+  "files": {
+    "launch-01/receipt.json": {
+      "sha256": "9d902ade84c2744af2f1bbbaa32234e64aa03e460ab5ed7caec576b9619fef75",
+      "bytes": 45101
+    },
+    "launch-01/stderr.txt": {
+      "sha256": "584c89db7449cf729efac68230879c0d385e57c7be387c73424f768219523f32",
+      "bytes": 547
+    },
+    "launch-01/stdout.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "run-01/allocation-exhaustion/native-before.json": {
+      "sha256": "42ec403bb695028f2e85e1fab729983685083a30b4fc5871ea78cfa6b157b079",
+      "bytes": 26260
+    },
+    "run-01/allocation-exhaustion/native.json": {
+      "sha256": "fad10c7212420688f8f4c8524c78eb14801bbeedef4302279fd9ee23219522b5",
+      "bytes": 235190
+    },
+    "run-01/launch.json": {
+      "sha256": "889bd87af4de3205ef0ce13962911b3757d08ed9ccc704a74500b11fdce79ee5",
+      "bytes": 25355
+    },
+    "run-01/port.stderr": {
+      "sha256": "45c688d0e5b2883ca3949828f093adff29ffefeeee9980d46c5186f1690bdbc7",
+      "bytes": 449
+    },
+    "run-01/port.stdout": {
+      "sha256": "335b7630e7fa01264ceb3ccc03af48329fb6353d2c823b5b14911f537e0f8e47",
+      "bytes": 65536
+    },
+    "run-01/primary21-sharing/native-before.json": {
+      "sha256": "ab930b77df918c52e03fe4a18a7be1187ee0242bb73fffce37fda1be63c44119",
+      "bytes": 26786
+    },
+    "run-01/primary21-sharing/native.json": {
+      "sha256": "4b5fc4d70c35a8b4f2289d705af2172745640063d268518f7e2926034fe252d5",
+      "bytes": 123177
+    },
+    "run-01/receipt.json": {
+      "sha256": "8a0b34f811b8aab0b2f234e7c55ff41ab5f3ca28a9d5867e80e2148a6d7cdbaf",
+      "bytes": 641
+    },
+    "run-01/reverse-alliance/native-before.json": {
+      "sha256": "5a78decc153447782382d2ac0a8e5d3e8cdf3c942ca44b352e0fb30e976459be",
+      "bytes": 26258
+    },
+    "run-01/reverse-alliance/native.json": {
+      "sha256": "d9ebbfa4b97197d8e9dd58e1c9133bdaeaf0634f464840bb27ff090725e4d97e",
+      "bytes": 119032
+    },
+    "run-01/stationary-sermon/native-before.json": {
+      "sha256": "c0c87b2dde32368fbe25291666fc9279dddf44b783da52e6af0e3ff5e1ed9d07",
+      "bytes": 26258
+    },
+    "run-01/stationary-sermon/native.json": {
+      "sha256": "6e59bd192e7b47fc1aa5300fad1a8d622477c5b406b9ef3ec394683e1e216c56",
+      "bytes": 106898
+    }
+  }
+}
