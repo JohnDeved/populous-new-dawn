@@ -23,3 +23,11 @@ ordinary gameplay/lifecycle equality. Native controls were not repeated.
 result manifest and independent source/result review artifacts are unchanged.
 The separately reviewed port-only transport/coverage correction is prospective
 at source286b3ee6 and is not execution evidence in this archive.
+
+The separately granted port-only replay at286b3ee6 is now preserved under
+launch-02-port/run-02-port. It ran21:53:53.315974–21:53:55.990413 UTC,
+exit1, zero native calls, unchanged hashes and empty owned PGID32. It failed
+the same allocator coverage2-versus1 assertion. The complete552704-byte port
+JSON is retained; offline mapping found matching persistent fields/pool/RNG,
+but this remains an authoritative failed batch. The separate port replay
+archive manifest binds these additional files. No original native row changed.

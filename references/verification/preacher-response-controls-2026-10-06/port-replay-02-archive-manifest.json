@@ -1,0 +1,56 @@
+{
+  "head": "286b3ee63ac76edd37ae4ac15d77e499772c593d",
+  "status": "failed-allocator-coverage",
+  "newNativeCalls": 0,
+  "files": [
+    {
+      "path": "raw/launch-02-port/receipt.json.gz",
+      "decodedPath": "launch-02-port/receipt.json",
+      "sha256": "fd4baaec838d91fe038174bc527c43f2b6b13bdb4ab8d53b816b5407b1ece207",
+      "bytes": 53190,
+      "gzipSha256": "22b00514d2f3ac2826c274e9cd2b50394c23b253f0dcb9cb0b52d610e98f2d9c"
+    },
+    {
+      "path": "raw/launch-02-port/stderr.txt.gz",
+      "decodedPath": "launch-02-port/stderr.txt",
+      "sha256": "904932e0bf812484568d9c4a291e7675d09c489580dd4d6d66c4894becd7fdc5",
+      "bytes": 547,
+      "gzipSha256": "6061ab33bb94f3e20a8e517ce484678d9a8d9b4aa7b9d5680f3c477322303f0f"
+    },
+    {
+      "path": "raw/launch-02-port/stdout.txt.gz",
+      "decodedPath": "launch-02-port/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "gzipSha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec"
+    },
+    {
+      "path": "raw/run-02-port/launch.json.gz",
+      "decodedPath": "run-02-port/launch.json",
+      "sha256": "8a716d7c88947521de34d147b0ae0f93d585042e82a75beee1e65d3160b89196",
+      "bytes": 29015,
+      "gzipSha256": "0da380e801ade3efb4fa52e41591ed10c9a3cb7f370848587b80970cdf3347ba"
+    },
+    {
+      "path": "raw/run-02-port/port.stderr.gz",
+      "decodedPath": "run-02-port/port.stderr",
+      "sha256": "8cd2f71d30002f2093d2c6e0e447267d50295af58c9112c99aa2d7c9dee28e01",
+      "bytes": 449,
+      "gzipSha256": "b400855b3c9012818821f667608e4741a0ef45fd393681e4685b09fe3201c637"
+    },
+    {
+      "path": "raw/run-02-port/port.stdout.gz",
+      "decodedPath": "run-02-port/port.stdout",
+      "sha256": "1367c8340e771d5ab650a61339b65438c0d944dbc944cd5cfabe1945ed139c47",
+      "bytes": 552704,
+      "gzipSha256": "bccdb88a49cd99bcc7426d71478710f38d971cef0195c46dc6647244cd2873fc"
+    },
+    {
+      "path": "raw/run-02-port/receipt.json.gz",
+      "decodedPath": "run-02-port/receipt.json",
+      "sha256": "0e614d2c50320a26566d71fffbadbc53b96a245bd67d1e30fc0767973cb06207",
+      "bytes": 1876,
+      "gzipSha256": "36c9c6ec782a090cf8dae8dd40b7de733af3ef16eaefd75472b12aab2127e6a8"
+    }
+  ]
+}

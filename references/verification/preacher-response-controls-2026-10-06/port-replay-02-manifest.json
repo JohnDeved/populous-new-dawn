@@ -1,0 +1,38 @@
+{
+  "executionHead": "286b3ee63ac76edd37ae4ac15d77e499772c593d",
+  "launchManifestSha256": "8a716d7c88947521de34d147b0ae0f93d585042e82a75beee1e65d3160b89196",
+  "status": "failed-allocator-coverage",
+  "newNativeCalls": 0,
+  "completePortBytes": 552704,
+  "offlinePersistentComparison": "zero differences, pending independent review",
+  "files": {
+    "launch-02-port/receipt.json": {
+      "bytes": 53190,
+      "sha256": "fd4baaec838d91fe038174bc527c43f2b6b13bdb4ab8d53b816b5407b1ece207"
+    },
+    "launch-02-port/stderr.txt": {
+      "bytes": 547,
+      "sha256": "904932e0bf812484568d9c4a291e7675d09c489580dd4d6d66c4894becd7fdc5"
+    },
+    "launch-02-port/stdout.txt": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "run-02-port/launch.json": {
+      "bytes": 29015,
+      "sha256": "8a716d7c88947521de34d147b0ae0f93d585042e82a75beee1e65d3160b89196"
+    },
+    "run-02-port/port.stderr": {
+      "bytes": 449,
+      "sha256": "8cd2f71d30002f2093d2c6e0e447267d50295af58c9112c99aa2d7c9dee28e01"
+    },
+    "run-02-port/port.stdout": {
+      "bytes": 552704,
+      "sha256": "1367c8340e771d5ab650a61339b65438c0d944dbc944cd5cfabe1945ed139c47"
+    },
+    "run-02-port/receipt.json": {
+      "bytes": 1876,
+      "sha256": "0e614d2c50320a26566d71fffbadbc53b96a245bd67d1e30fc0767973cb06207"
+    }
+  }
+}
