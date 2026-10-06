@@ -1,0 +1,1825 @@
+{
+  "scope": "Exact unmodified ordinary callback rows from crossing02, used only for a passive-checker regression. The browser run remains failed at combat handoff4679; this is not new gameplay or native execution.",
+  "sourceHead": "f86aef9158107dbe2d82e4ed61ad770158799010",
+  "application": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "runId": "71b7b45b-de5c-4091-9e96-3155583ccf3b",
+  "rawPhaseSha256": "cba7c10ffc9bf8adfaaf7dccb1d97d3b02ef663056dacb9862b525d0e22ae923",
+  "pairs": [
+    {
+      "before": {
+        "phase": "beforeTurn",
+        "now": 129166.10000000894,
+        "turn": 4675,
+        "time": 389.5833333333333,
+        "animationFrame": 2679,
+        "animationTime": 0.01973400003259303,
+        "pendingTime": 0,
+        "rng": [
+          4285470302,
+          4229274872
+        ],
+        "sameWorld": true,
+        "sameActor": true,
+        "nativeOnly": true,
+        "registeredOwner": true,
+        "actor": {
+          "id": 3162,
+          "kind": "preacher",
+          "team": "blue",
+          "hp": 55,
+          "inside": null,
+          "x": -11.69921875,
+          "z": -94.98828125
+        },
+        "busy": false,
+        "admission": {
+          "work": null,
+          "target": null,
+          "tree": null,
+          "cargo": 0,
+          "harvest": false,
+          "delivery": false,
+          "vault": false,
+          "guard": false,
+          "attackReservation": true,
+          "starting": false,
+          "armageddon": false,
+          "landFlags": 0,
+          "supported": true,
+          "positionCoherent": true
+        },
+        "status": "playing",
+        "paused": false,
+        "speed": 1,
+        "visibility": "visible",
+        "person": {
+          "id": 3162,
+          "class": 1,
+          "model": 4,
+          "tribe": 0,
+          "state": 10,
+          "previousState": 10,
+          "substate": 0,
+          "commandStatus": 3,
+          "commandCursor": 0,
+          "immediateCommand": 0,
+          "workTarget": 0,
+          "workFlags": 0,
+          "flags2": 1109524992,
+          "flags3": 262145,
+          "flags4": 671088896,
+          "statusFlags": 3,
+          "assignment": 280,
+          "speed": 65,
+          "life": 1100,
+          "counter": 67,
+          "timer": 0,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "object": 40,
+          "draw": 16,
+          "f1": 0,
+          "f2": 2,
+          "stamp": 4675,
+          "x": 64589,
+          "y": 22269,
+          "h": 232,
+          "goalX": 62591,
+          "goalY": 20062,
+          "destinationX": 62720,
+          "destinationY": 20224,
+          "vehicle": 0,
+          "disguise": 0,
+          "motionGroup": 209,
+          "motionIndex": 3,
+          "cellNext": 0,
+          "cellPrevious": 0
+        },
+        "order": {
+          "id": 32,
+          "identity": 2,
+          "model": 3,
+          "flags": 0,
+          "references": 1,
+          "object": 0,
+          "a": 62591,
+          "b": 20062
+        },
+        "commands": [
+          32,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "queued": [
+          {
+            "id": 32,
+            "identity": 2,
+            "model": 3,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 62591,
+            "b": 20062
+          }
+        ],
+        "retiredOrders": [
+          {
+            "id": 26,
+            "identity": 1,
+            "model": 17,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 11008,
+            "b": 40704
+          }
+        ],
+        "orderUsers": [
+          3162
+        ],
+        "listeners": [],
+        "pendingDistance": 2977.0544167011794,
+        "facts": {
+          "range": 1,
+          "genericThreat": 0,
+          "primaryGuardIds": [],
+          "braves": [
+            {
+              "identity": 4,
+              "id": 3067,
+              "unitId": 3067,
+              "class": 1,
+              "kind": "brave",
+              "team": "yellow",
+              "hp": 50,
+              "inside": null,
+              "nativeOnly": true,
+              "registeredOwner": true,
+              "positionCoherent": true,
+              "x": 64112,
+              "y": 22016,
+              "world": {
+                "x": -13.5625,
+                "z": -94
+              },
+              "tribe": 2,
+              "model": 2,
+              "state": 10,
+              "workFlags": 0,
+              "flags2": 33690112,
+              "flags4": 537198848,
+              "life": 1000,
+              "disguise": 0,
+              "vehicle": 0,
+              "reverseAlliance": 0,
+              "pathLength": 2,
+              "pathEnds": [
+                {
+                  "x": -11,
+                  "z": -95
+                },
+                {
+                  "x": -11.515625,
+                  "z": -95.1875
+                }
+              ],
+              "target": null,
+              "work": null,
+              "motionGroup": 232,
+              "motionIndex": 0,
+              "routeOwner": 4,
+              "commandStatus": 21,
+              "workTarget": 3162,
+              "order": {
+                "id": 35,
+                "model": 21,
+                "flags": 48,
+                "references": 1,
+                "object": 0,
+                "a": 21752,
+                "b": 1028
+              }
+            }
+          ],
+          "gameFlags": 0,
+          "candidates": {
+            "source": {
+              "id": 3162,
+              "class": 1,
+              "model": 4,
+              "tribe": 0,
+              "life": 1100,
+              "state": 10,
+              "substate": 0,
+              "counter": 67,
+              "workFlags": 0,
+              "flags2": 1109524992,
+              "flags3": 262145,
+              "flags4": 671088896,
+              "vehicle": 0,
+              "disguise": 0,
+              "x": 64589,
+              "y": 22269,
+              "h": 232,
+              "speed": 65,
+              "commandStatus": 3,
+              "immediateCommand": 0,
+              "commandCursor": 0,
+              "workTarget": 0,
+              "cellNext": 0,
+              "cellPrevious": 0
+            },
+            "sourceCell": [
+              126,
+              43
+            ],
+            "scope": "nearby5x5-cells-before-filter",
+            "identityScope": "observer-lifetime",
+            "limit": 64,
+            "rows": [
+              {
+                "id": 3067,
+                "kind": "brave",
+                "team": "yellow",
+                "hp": 50,
+                "inside": null,
+                "world": {
+                  "x": -13.5625,
+                  "z": -94
+                },
+                "worldNative": {
+                  "x": 64112,
+                  "y": 22016
+                },
+                "worldCell": [
+                  125,
+                  43
+                ],
+                "nativeCell": [
+                  125,
+                  43
+                ],
+                "ownerSlot": "native",
+                "ownerIdentity": 4,
+                "slots": [
+                  {
+                    "slot": "native",
+                    "identity": 4,
+                    "native": {
+                      "id": 3067,
+                      "class": 1,
+                      "model": 2,
+                      "tribe": 2,
+                      "life": 1000,
+                      "state": 10,
+                      "substate": 2,
+                      "counter": 67,
+                      "workFlags": 0,
+                      "flags2": 33690112,
+                      "flags3": 262144,
+                      "flags4": 537198848,
+                      "vehicle": 0,
+                      "disguise": 0,
+                      "x": 64112,
+                      "y": 22016,
+                      "h": 196,
+                      "speed": 73,
+                      "commandStatus": 21,
+                      "immediateCommand": 35,
+                      "commandCursor": 0,
+                      "workTarget": 3162,
+                      "cellNext": 0,
+                      "cellPrevious": 0
+                    }
+                  }
+                ],
+                "native": {
+                  "id": 3067,
+                  "class": 1,
+                  "model": 2,
+                  "tribe": 2,
+                  "life": 1000,
+                  "state": 10,
+                  "substate": 2,
+                  "counter": 67,
+                  "workFlags": 0,
+                  "flags2": 33690112,
+                  "flags3": 262144,
+                  "flags4": 537198848,
+                  "vehicle": 0,
+                  "disguise": 0,
+                  "x": 64112,
+                  "y": 22016,
+                  "h": 196,
+                  "speed": 73,
+                  "commandStatus": 21,
+                  "immediateCommand": 35,
+                  "commandCursor": 0,
+                  "workTarget": 3162,
+                  "cellNext": 0,
+                  "cellPrevious": 0
+                },
+                "nativeOnly": true,
+                "registered": true,
+                "cellLinked": true,
+                "positionCoherent": true,
+                "reverseAlliance": 0,
+                "pathLength": 2,
+                "work": null,
+                "target": null,
+                "withinSecondary": true,
+                "predicates": {
+                  "nativeReverse": [],
+                  "ownership": [],
+                  "oldQaPrefilter": [
+                    "not-idle17",
+                    "has-path"
+                  ]
+                }
+              }
+            ],
+            "unmatchedPrimary": []
+          },
+          "effectiveScanCounter": 67,
+          "retainedPersonCounter": 67,
+          "levelFlags2": 0,
+          "scanMask": 1,
+          "autoEligible": true,
+          "availableOrder": true
+        }
+      },
+      "after": {
+        "phase": "afterTurn",
+        "now": 129167.29999999702,
+        "turn": 4676,
+        "time": 389.6666666666667,
+        "animationFrame": 2679,
+        "animationTime": 0.01973400003259303,
+        "pendingTime": 0,
+        "rng": [
+          4285470302,
+          4229274872
+        ],
+        "sameWorld": true,
+        "sameActor": true,
+        "nativeOnly": true,
+        "registeredOwner": true,
+        "actor": {
+          "id": 3162,
+          "kind": "preacher",
+          "team": "blue",
+          "hp": 55,
+          "inside": null,
+          "x": -11.8828125,
+          "z": -94.78515625
+        },
+        "busy": false,
+        "admission": {
+          "work": null,
+          "target": null,
+          "tree": null,
+          "cargo": 0,
+          "harvest": false,
+          "delivery": false,
+          "vault": false,
+          "guard": false,
+          "attackReservation": true,
+          "starting": false,
+          "armageddon": false,
+          "landFlags": 0,
+          "supported": true,
+          "positionCoherent": true
+        },
+        "status": "playing",
+        "paused": false,
+        "speed": 1,
+        "visibility": "visible",
+        "person": {
+          "id": 3162,
+          "class": 1,
+          "model": 4,
+          "tribe": 0,
+          "state": 10,
+          "previousState": 10,
+          "substate": 0,
+          "commandStatus": 3,
+          "commandCursor": 0,
+          "immediateCommand": 0,
+          "workTarget": 0,
+          "workFlags": 0,
+          "flags2": 1109524992,
+          "flags3": 262145,
+          "flags4": 671088896,
+          "statusFlags": 3,
+          "assignment": 280,
+          "speed": 65,
+          "life": 1100,
+          "counter": 68,
+          "timer": 0,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "object": 40,
+          "draw": 16,
+          "f1": 0,
+          "f2": 2,
+          "stamp": 4675,
+          "x": 64542,
+          "y": 22217,
+          "h": 228,
+          "goalX": 62591,
+          "goalY": 20062,
+          "destinationX": 62720,
+          "destinationY": 20224,
+          "vehicle": 0,
+          "disguise": 0,
+          "motionGroup": 209,
+          "motionIndex": 3,
+          "cellNext": 0,
+          "cellPrevious": 0
+        },
+        "order": {
+          "id": 32,
+          "identity": 2,
+          "model": 3,
+          "flags": 0,
+          "references": 1,
+          "object": 0,
+          "a": 62591,
+          "b": 20062
+        },
+        "commands": [
+          32,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "queued": [
+          {
+            "id": 32,
+            "identity": 2,
+            "model": 3,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 62591,
+            "b": 20062
+          }
+        ],
+        "retiredOrders": [
+          {
+            "id": 26,
+            "identity": 1,
+            "model": 17,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 11008,
+            "b": 40704
+          }
+        ],
+        "orderUsers": [
+          3162
+        ],
+        "listeners": [],
+        "pendingDistance": 2906.961644053805,
+        "facts": {
+          "range": 1,
+          "genericThreat": 0,
+          "primaryGuardIds": [],
+          "braves": [
+            {
+              "identity": 4,
+              "id": 3067,
+              "unitId": 3067,
+              "class": 1,
+              "kind": "brave",
+              "team": "yellow",
+              "hp": 50,
+              "inside": null,
+              "nativeOnly": true,
+              "registeredOwner": true,
+              "positionCoherent": true,
+              "x": 64171,
+              "y": 22039,
+              "world": {
+                "x": -13.33203125,
+                "z": -94.08984375
+              },
+              "tribe": 2,
+              "model": 2,
+              "state": 10,
+              "workFlags": 0,
+              "flags2": 33686016,
+              "flags4": 537198848,
+              "life": 1000,
+              "disguise": 0,
+              "vehicle": 0,
+              "reverseAlliance": 0,
+              "pathLength": 2,
+              "pathEnds": [
+                {
+                  "x": -11,
+                  "z": -95
+                },
+                {
+                  "x": -11.515625,
+                  "z": -95.1875
+                }
+              ],
+              "target": null,
+              "work": null,
+              "motionGroup": 232,
+              "motionIndex": 0,
+              "routeOwner": 4,
+              "commandStatus": 21,
+              "workTarget": 3162,
+              "order": {
+                "id": 35,
+                "model": 21,
+                "flags": 48,
+                "references": 1,
+                "object": 0,
+                "a": 21752,
+                "b": 1028
+              }
+            }
+          ],
+          "gameFlags": 0,
+          "candidates": {
+            "source": {
+              "id": 3162,
+              "class": 1,
+              "model": 4,
+              "tribe": 0,
+              "life": 1100,
+              "state": 10,
+              "substate": 0,
+              "counter": 68,
+              "workFlags": 0,
+              "flags2": 1109524992,
+              "flags3": 262145,
+              "flags4": 671088896,
+              "vehicle": 0,
+              "disguise": 0,
+              "x": 64542,
+              "y": 22217,
+              "h": 228,
+              "speed": 65,
+              "commandStatus": 3,
+              "immediateCommand": 0,
+              "commandCursor": 0,
+              "workTarget": 0,
+              "cellNext": 0,
+              "cellPrevious": 0
+            },
+            "sourceCell": [
+              126,
+              43
+            ],
+            "scope": "nearby5x5-cells-before-filter",
+            "identityScope": "observer-lifetime",
+            "limit": 64,
+            "rows": [
+              {
+                "id": 3067,
+                "kind": "brave",
+                "team": "yellow",
+                "hp": 50,
+                "inside": null,
+                "world": {
+                  "x": -13.33203125,
+                  "z": -94.08984375
+                },
+                "worldNative": {
+                  "x": 64171,
+                  "y": 22039
+                },
+                "worldCell": [
+                  125,
+                  43
+                ],
+                "nativeCell": [
+                  125,
+                  43
+                ],
+                "ownerSlot": "native",
+                "ownerIdentity": 4,
+                "slots": [
+                  {
+                    "slot": "native",
+                    "identity": 4,
+                    "native": {
+                      "id": 3067,
+                      "class": 1,
+                      "model": 2,
+                      "tribe": 2,
+                      "life": 1000,
+                      "state": 10,
+                      "substate": 2,
+                      "counter": 68,
+                      "workFlags": 0,
+                      "flags2": 33686016,
+                      "flags3": 262144,
+                      "flags4": 537198848,
+                      "vehicle": 0,
+                      "disguise": 0,
+                      "x": 64171,
+                      "y": 22039,
+                      "h": 200,
+                      "speed": 73,
+                      "commandStatus": 21,
+                      "immediateCommand": 35,
+                      "commandCursor": 0,
+                      "workTarget": 3162,
+                      "cellNext": 0,
+                      "cellPrevious": 0
+                    }
+                  }
+                ],
+                "native": {
+                  "id": 3067,
+                  "class": 1,
+                  "model": 2,
+                  "tribe": 2,
+                  "life": 1000,
+                  "state": 10,
+                  "substate": 2,
+                  "counter": 68,
+                  "workFlags": 0,
+                  "flags2": 33686016,
+                  "flags3": 262144,
+                  "flags4": 537198848,
+                  "vehicle": 0,
+                  "disguise": 0,
+                  "x": 64171,
+                  "y": 22039,
+                  "h": 200,
+                  "speed": 73,
+                  "commandStatus": 21,
+                  "immediateCommand": 35,
+                  "commandCursor": 0,
+                  "workTarget": 3162,
+                  "cellNext": 0,
+                  "cellPrevious": 0
+                },
+                "nativeOnly": true,
+                "registered": true,
+                "cellLinked": true,
+                "positionCoherent": true,
+                "reverseAlliance": 0,
+                "pathLength": 2,
+                "work": null,
+                "target": null,
+                "withinSecondary": true,
+                "predicates": {
+                  "nativeReverse": [],
+                  "ownership": [],
+                  "oldQaPrefilter": [
+                    "not-idle17",
+                    "has-path"
+                  ]
+                }
+              }
+            ],
+            "unmatchedPrimary": []
+          },
+          "effectiveScanCounter": 68,
+          "retainedPersonCounter": 68,
+          "levelFlags2": 0,
+          "scanMask": 1,
+          "autoEligible": true,
+          "availableOrder": true
+        }
+      }
+    },
+    {
+      "before": {
+        "phase": "beforeTurn",
+        "now": 129376.70000000298,
+        "turn": 4677,
+        "time": 389.75,
+        "animationFrame": 2683,
+        "animationTime": 0.028067333365906964,
+        "pendingTime": 0,
+        "rng": [
+          4285470302,
+          4229274872
+        ],
+        "sameWorld": true,
+        "sameActor": true,
+        "nativeOnly": true,
+        "registeredOwner": true,
+        "actor": {
+          "id": 3162,
+          "kind": "preacher",
+          "team": "blue",
+          "hp": 55,
+          "inside": null,
+          "x": -12.06640625,
+          "z": -94.58203125
+        },
+        "busy": false,
+        "admission": {
+          "work": null,
+          "target": null,
+          "tree": null,
+          "cargo": 0,
+          "harvest": false,
+          "delivery": false,
+          "vault": false,
+          "guard": false,
+          "attackReservation": true,
+          "starting": false,
+          "armageddon": false,
+          "landFlags": 0,
+          "supported": true,
+          "positionCoherent": true
+        },
+        "status": "playing",
+        "paused": false,
+        "speed": 1,
+        "visibility": "visible",
+        "person": {
+          "id": 3162,
+          "class": 1,
+          "model": 4,
+          "tribe": 0,
+          "state": 10,
+          "previousState": 10,
+          "substate": 0,
+          "commandStatus": 3,
+          "commandCursor": 0,
+          "immediateCommand": 0,
+          "workTarget": 0,
+          "workFlags": 0,
+          "flags2": 1109524992,
+          "flags3": 262145,
+          "flags4": 671088896,
+          "statusFlags": 3,
+          "assignment": 280,
+          "speed": 65,
+          "life": 1100,
+          "counter": 69,
+          "timer": 0,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "object": 40,
+          "draw": 16,
+          "f1": 0,
+          "f2": 0,
+          "stamp": 4677,
+          "x": 64495,
+          "y": 22165,
+          "h": 224,
+          "goalX": 62591,
+          "goalY": 20062,
+          "destinationX": 62720,
+          "destinationY": 20224,
+          "vehicle": 0,
+          "disguise": 0,
+          "motionGroup": 209,
+          "motionIndex": 3,
+          "cellNext": 3067,
+          "cellPrevious": 0
+        },
+        "order": {
+          "id": 32,
+          "identity": 2,
+          "model": 3,
+          "flags": 0,
+          "references": 1,
+          "object": 0,
+          "a": 62591,
+          "b": 20062
+        },
+        "commands": [
+          32,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "queued": [
+          {
+            "id": 32,
+            "identity": 2,
+            "model": 3,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 62591,
+            "b": 20062
+          }
+        ],
+        "retiredOrders": [
+          {
+            "id": 26,
+            "identity": 1,
+            "model": 17,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 11008,
+            "b": 40704
+          }
+        ],
+        "orderUsers": [
+          3162
+        ],
+        "listeners": [],
+        "pendingDistance": 2836.8688725424017,
+        "facts": {
+          "range": 1,
+          "genericThreat": 0,
+          "primaryGuardIds": [],
+          "braves": [
+            {
+              "identity": 4,
+              "id": 3067,
+              "unitId": 3067,
+              "class": 1,
+              "kind": "brave",
+              "team": "yellow",
+              "hp": 50,
+              "inside": null,
+              "nativeOnly": true,
+              "registeredOwner": true,
+              "positionCoherent": true,
+              "x": 64230,
+              "y": 22062,
+              "world": {
+                "x": -13.1015625,
+                "z": -94.1796875
+              },
+              "tribe": 2,
+              "model": 2,
+              "state": 10,
+              "workFlags": 0,
+              "flags2": 33686016,
+              "flags4": 537198848,
+              "life": 1000,
+              "disguise": 0,
+              "vehicle": 0,
+              "reverseAlliance": 0,
+              "pathLength": 2,
+              "pathEnds": [
+                {
+                  "x": -11,
+                  "z": -95
+                },
+                {
+                  "x": -11.515625,
+                  "z": -95.1875
+                }
+              ],
+              "target": null,
+              "work": null,
+              "motionGroup": 232,
+              "motionIndex": 0,
+              "routeOwner": 4,
+              "commandStatus": 21,
+              "workTarget": 3162,
+              "order": {
+                "id": 35,
+                "model": 21,
+                "flags": 48,
+                "references": 1,
+                "object": 0,
+                "a": 21752,
+                "b": 1028
+              }
+            }
+          ],
+          "gameFlags": 0,
+          "candidates": {
+            "source": {
+              "id": 3162,
+              "class": 1,
+              "model": 4,
+              "tribe": 0,
+              "life": 1100,
+              "state": 10,
+              "substate": 0,
+              "counter": 69,
+              "workFlags": 0,
+              "flags2": 1109524992,
+              "flags3": 262145,
+              "flags4": 671088896,
+              "vehicle": 0,
+              "disguise": 0,
+              "x": 64495,
+              "y": 22165,
+              "h": 224,
+              "speed": 65,
+              "commandStatus": 3,
+              "immediateCommand": 0,
+              "commandCursor": 0,
+              "workTarget": 0,
+              "cellNext": 3067,
+              "cellPrevious": 0
+            },
+            "sourceCell": [
+              125,
+              43
+            ],
+            "scope": "nearby5x5-cells-before-filter",
+            "identityScope": "observer-lifetime",
+            "limit": 64,
+            "rows": [
+              {
+                "id": 3067,
+                "kind": "brave",
+                "team": "yellow",
+                "hp": 50,
+                "inside": null,
+                "world": {
+                  "x": -13.1015625,
+                  "z": -94.1796875
+                },
+                "worldNative": {
+                  "x": 64230,
+                  "y": 22062
+                },
+                "worldCell": [
+                  125,
+                  43
+                ],
+                "nativeCell": [
+                  125,
+                  43
+                ],
+                "ownerSlot": "native",
+                "ownerIdentity": 4,
+                "slots": [
+                  {
+                    "slot": "native",
+                    "identity": 4,
+                    "native": {
+                      "id": 3067,
+                      "class": 1,
+                      "model": 2,
+                      "tribe": 2,
+                      "life": 1000,
+                      "state": 10,
+                      "substate": 2,
+                      "counter": 69,
+                      "workFlags": 0,
+                      "flags2": 33686016,
+                      "flags3": 262144,
+                      "flags4": 537198848,
+                      "vehicle": 0,
+                      "disguise": 0,
+                      "x": 64230,
+                      "y": 22062,
+                      "h": 204,
+                      "speed": 73,
+                      "commandStatus": 21,
+                      "immediateCommand": 35,
+                      "commandCursor": 0,
+                      "workTarget": 3162,
+                      "cellNext": 0,
+                      "cellPrevious": 3162
+                    }
+                  }
+                ],
+                "native": {
+                  "id": 3067,
+                  "class": 1,
+                  "model": 2,
+                  "tribe": 2,
+                  "life": 1000,
+                  "state": 10,
+                  "substate": 2,
+                  "counter": 69,
+                  "workFlags": 0,
+                  "flags2": 33686016,
+                  "flags3": 262144,
+                  "flags4": 537198848,
+                  "vehicle": 0,
+                  "disguise": 0,
+                  "x": 64230,
+                  "y": 22062,
+                  "h": 204,
+                  "speed": 73,
+                  "commandStatus": 21,
+                  "immediateCommand": 35,
+                  "commandCursor": 0,
+                  "workTarget": 3162,
+                  "cellNext": 0,
+                  "cellPrevious": 3162
+                },
+                "nativeOnly": true,
+                "registered": true,
+                "cellLinked": true,
+                "positionCoherent": true,
+                "reverseAlliance": 0,
+                "pathLength": 2,
+                "work": null,
+                "target": null,
+                "withinSecondary": true,
+                "predicates": {
+                  "nativeReverse": [],
+                  "ownership": [],
+                  "oldQaPrefilter": [
+                    "not-idle17",
+                    "has-path"
+                  ]
+                }
+              }
+            ],
+            "unmatchedPrimary": []
+          },
+          "effectiveScanCounter": 69,
+          "retainedPersonCounter": 69,
+          "levelFlags2": 0,
+          "scanMask": 1,
+          "autoEligible": true,
+          "availableOrder": true
+        }
+      },
+      "after": {
+        "phase": "afterTurn",
+        "now": 129377.79999999702,
+        "turn": 4678,
+        "time": 389.8333333333333,
+        "animationFrame": 2683,
+        "animationTime": 0.028067333365906964,
+        "pendingTime": 0,
+        "rng": [
+          4285470302,
+          4229274872
+        ],
+        "sameWorld": true,
+        "sameActor": true,
+        "nativeOnly": true,
+        "registeredOwner": true,
+        "actor": {
+          "id": 3162,
+          "kind": "preacher",
+          "team": "blue",
+          "hp": 55,
+          "inside": null,
+          "x": -12.26171875,
+          "z": -94.3671875
+        },
+        "busy": false,
+        "admission": {
+          "work": null,
+          "target": null,
+          "tree": null,
+          "cargo": 0,
+          "harvest": false,
+          "delivery": false,
+          "vault": false,
+          "guard": false,
+          "attackReservation": true,
+          "starting": false,
+          "armageddon": false,
+          "landFlags": 0,
+          "supported": true,
+          "positionCoherent": true
+        },
+        "status": "playing",
+        "paused": false,
+        "speed": 1,
+        "visibility": "visible",
+        "person": {
+          "id": 3162,
+          "class": 1,
+          "model": 4,
+          "tribe": 0,
+          "state": 10,
+          "previousState": 10,
+          "substate": 0,
+          "commandStatus": 3,
+          "commandCursor": 0,
+          "immediateCommand": 0,
+          "workTarget": 0,
+          "workFlags": 0,
+          "flags2": 1109524992,
+          "flags3": 262145,
+          "flags4": 671088896,
+          "statusFlags": 3,
+          "assignment": 280,
+          "speed": 65,
+          "life": 1100,
+          "counter": 70,
+          "timer": 0,
+          "commandAux": 0,
+          "commandPhase": 0,
+          "object": 40,
+          "draw": 16,
+          "f1": 0,
+          "f2": 0,
+          "stamp": 4677,
+          "x": 64445,
+          "y": 22110,
+          "h": 219,
+          "goalX": 62591,
+          "goalY": 20062,
+          "destinationX": 62720,
+          "destinationY": 20224,
+          "vehicle": 0,
+          "disguise": 0,
+          "motionGroup": 209,
+          "motionIndex": 3,
+          "cellNext": 3067,
+          "cellPrevious": 0
+        },
+        "order": {
+          "id": 32,
+          "identity": 2,
+          "model": 3,
+          "flags": 0,
+          "references": 1,
+          "object": 0,
+          "a": 62591,
+          "b": 20062
+        },
+        "commands": [
+          32,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ],
+        "queued": [
+          {
+            "id": 32,
+            "identity": 2,
+            "model": 3,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 62591,
+            "b": 20062
+          }
+        ],
+        "retiredOrders": [
+          {
+            "id": 26,
+            "identity": 1,
+            "model": 17,
+            "flags": 0,
+            "references": 0,
+            "object": 0,
+            "a": 11008,
+            "b": 40704
+          }
+        ],
+        "orderUsers": [
+          3162
+        ],
+        "listeners": [],
+        "pendingDistance": 2762.538687511905,
+        "facts": {
+          "range": 1,
+          "genericThreat": 0,
+          "primaryGuardIds": [],
+          "braves": [
+            {
+              "identity": 4,
+              "id": 3067,
+              "unitId": 3067,
+              "class": 1,
+              "kind": "brave",
+              "team": "yellow",
+              "hp": 50,
+              "inside": null,
+              "nativeOnly": true,
+              "registeredOwner": true,
+              "positionCoherent": true,
+              "x": 64289,
+              "y": 22085,
+              "world": {
+                "x": -12.87109375,
+                "z": -94.26953125
+              },
+              "tribe": 2,
+              "model": 2,
+              "state": 10,
+              "workFlags": 0,
+              "flags2": 33686016,
+              "flags4": 537198848,
+              "life": 1000,
+              "disguise": 0,
+              "vehicle": 0,
+              "reverseAlliance": 0,
+              "pathLength": 2,
+              "pathEnds": [
+                {
+                  "x": -11,
+                  "z": -95
+                },
+                {
+                  "x": -11.515625,
+                  "z": -95.1875
+                }
+              ],
+              "target": null,
+              "work": null,
+              "motionGroup": 232,
+              "motionIndex": 0,
+              "routeOwner": 4,
+              "commandStatus": 21,
+              "workTarget": 3162,
+              "order": {
+                "id": 35,
+                "model": 21,
+                "flags": 48,
+                "references": 1,
+                "object": 0,
+                "a": 21752,
+                "b": 1028
+              }
+            }
+          ],
+          "gameFlags": 0,
+          "candidates": {
+            "source": {
+              "id": 3162,
+              "class": 1,
+              "model": 4,
+              "tribe": 0,
+              "life": 1100,
+              "state": 10,
+              "substate": 0,
+              "counter": 70,
+              "workFlags": 0,
+              "flags2": 1109524992,
+              "flags3": 262145,
+              "flags4": 671088896,
+              "vehicle": 0,
+              "disguise": 0,
+              "x": 64445,
+              "y": 22110,
+              "h": 219,
+              "speed": 65,
+              "commandStatus": 3,
+              "immediateCommand": 0,
+              "commandCursor": 0,
+              "workTarget": 0,
+              "cellNext": 3067,
+              "cellPrevious": 0
+            },
+            "sourceCell": [
+              125,
+              43
+            ],
+            "scope": "nearby5x5-cells-before-filter",
+            "identityScope": "observer-lifetime",
+            "limit": 64,
+            "rows": [
+              {
+                "id": 3067,
+                "kind": "brave",
+                "team": "yellow",
+                "hp": 50,
+                "inside": null,
+                "world": {
+                  "x": -12.87109375,
+                  "z": -94.26953125
+                },
+                "worldNative": {
+                  "x": 64289,
+                  "y": 22085
+                },
+                "worldCell": [
+                  125,
+                  43
+                ],
+                "nativeCell": [
+                  125,
+                  43
+                ],
+                "ownerSlot": "native",
+                "ownerIdentity": 4,
+                "slots": [
+                  {
+                    "slot": "native",
+                    "identity": 4,
+                    "native": {
+                      "id": 3067,
+                      "class": 1,
+                      "model": 2,
+                      "tribe": 2,
+                      "life": 1000,
+                      "state": 10,
+                      "substate": 2,
+                      "counter": 70,
+                      "workFlags": 0,
+                      "flags2": 33686016,
+                      "flags3": 262144,
+                      "flags4": 537198848,
+                      "vehicle": 0,
+                      "disguise": 0,
+                      "x": 64289,
+                      "y": 22085,
+                      "h": 208,
+                      "speed": 73,
+                      "commandStatus": 21,
+                      "immediateCommand": 35,
+                      "commandCursor": 0,
+                      "workTarget": 3162,
+                      "cellNext": 0,
+                      "cellPrevious": 3162
+                    }
+                  }
+                ],
+                "native": {
+                  "id": 3067,
+                  "class": 1,
+                  "model": 2,
+                  "tribe": 2,
+                  "life": 1000,
+                  "state": 10,
+                  "substate": 2,
+                  "counter": 70,
+                  "workFlags": 0,
+                  "flags2": 33686016,
+                  "flags3": 262144,
+                  "flags4": 537198848,
+                  "vehicle": 0,
+                  "disguise": 0,
+                  "x": 64289,
+                  "y": 22085,
+                  "h": 208,
+                  "speed": 73,
+                  "commandStatus": 21,
+                  "immediateCommand": 35,
+                  "commandCursor": 0,
+                  "workTarget": 3162,
+                  "cellNext": 0,
+                  "cellPrevious": 3162
+                },
+                "nativeOnly": true,
+                "registered": true,
+                "cellLinked": true,
+                "positionCoherent": true,
+                "reverseAlliance": 0,
+                "pathLength": 2,
+                "work": null,
+                "target": null,
+                "withinSecondary": true,
+                "predicates": {
+                  "nativeReverse": [],
+                  "ownership": [],
+                  "oldQaPrefilter": [
+                    "not-idle17",
+                    "has-path"
+                  ]
+                }
+              }
+            ],
+            "unmatchedPrimary": []
+          },
+          "effectiveScanCounter": 70,
+          "retainedPersonCounter": 70,
+          "levelFlags2": 0,
+          "scanMask": 1,
+          "autoEligible": true,
+          "availableOrder": true
+        }
+      }
+    }
+  ],
+  "failedHandoff": {
+    "before": {
+      "phase": "beforeTurn",
+      "now": 129472.70000000298,
+      "turn": 4678,
+      "time": 389.8333333333333,
+      "animationFrame": 2685,
+      "animationTime": 0.01973400003259303,
+      "pendingTime": 0,
+      "rng": [
+        4285470302,
+        4229274872
+      ],
+      "sameWorld": true,
+      "sameActor": true,
+      "nativeOnly": true,
+      "registeredOwner": true,
+      "actor": {
+        "id": 3162,
+        "kind": "preacher",
+        "team": "blue",
+        "hp": 55,
+        "inside": null,
+        "x": -12.26171875,
+        "z": -94.3671875
+      },
+      "busy": false,
+      "admission": {
+        "work": null,
+        "target": null,
+        "tree": null,
+        "cargo": 0,
+        "harvest": false,
+        "delivery": false,
+        "vault": false,
+        "guard": false,
+        "attackReservation": true,
+        "starting": false,
+        "armageddon": false,
+        "landFlags": 0,
+        "supported": true,
+        "positionCoherent": true
+      },
+      "status": "playing",
+      "paused": false,
+      "speed": 1,
+      "visibility": "visible",
+      "person": {
+        "id": 3162,
+        "class": 1,
+        "model": 4,
+        "tribe": 0,
+        "state": 10,
+        "previousState": 10,
+        "substate": 0,
+        "commandStatus": 3,
+        "commandCursor": 0,
+        "immediateCommand": 0,
+        "workTarget": 0,
+        "workFlags": 0,
+        "flags2": 1109524992,
+        "flags3": 262145,
+        "flags4": 671088896,
+        "statusFlags": 3,
+        "assignment": 280,
+        "speed": 65,
+        "life": 1100,
+        "counter": 70,
+        "timer": 0,
+        "commandAux": 0,
+        "commandPhase": 0,
+        "object": 40,
+        "draw": 16,
+        "f1": 0,
+        "f2": 1,
+        "stamp": 4678,
+        "x": 64445,
+        "y": 22110,
+        "h": 219,
+        "goalX": 62591,
+        "goalY": 20062,
+        "destinationX": 62720,
+        "destinationY": 20224,
+        "vehicle": 0,
+        "disguise": 0,
+        "motionGroup": 209,
+        "motionIndex": 3,
+        "cellNext": 3067,
+        "cellPrevious": 0
+      },
+      "order": {
+        "id": 32,
+        "identity": 2,
+        "model": 3,
+        "flags": 0,
+        "references": 1,
+        "object": 0,
+        "a": 62591,
+        "b": 20062
+      },
+      "commands": [
+        32,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "queued": [
+        {
+          "id": 32,
+          "identity": 2,
+          "model": 3,
+          "flags": 0,
+          "references": 1,
+          "object": 0,
+          "a": 62591,
+          "b": 20062
+        }
+      ],
+      "retiredOrders": [
+        {
+          "id": 26,
+          "identity": 1,
+          "model": 17,
+          "flags": 0,
+          "references": 0,
+          "object": 0,
+          "a": 11008,
+          "b": 40704
+        }
+      ],
+      "orderUsers": [
+        3162
+      ],
+      "listeners": [],
+      "pendingDistance": 2762.538687511905,
+      "facts": {
+        "range": 1,
+        "genericThreat": 0,
+        "primaryGuardIds": [],
+        "braves": [
+          {
+            "identity": 4,
+            "id": 3067,
+            "unitId": 3067,
+            "class": 1,
+            "kind": "brave",
+            "team": "yellow",
+            "hp": 50,
+            "inside": null,
+            "nativeOnly": true,
+            "registeredOwner": true,
+            "positionCoherent": true,
+            "x": 64289,
+            "y": 22085,
+            "world": {
+              "x": -12.87109375,
+              "z": -94.26953125
+            },
+            "tribe": 2,
+            "model": 2,
+            "state": 10,
+            "workFlags": 0,
+            "flags2": 33686016,
+            "flags4": 537198848,
+            "life": 1000,
+            "disguise": 0,
+            "vehicle": 0,
+            "reverseAlliance": 0,
+            "pathLength": 2,
+            "pathEnds": [
+              {
+                "x": -11,
+                "z": -95
+              },
+              {
+                "x": -11.515625,
+                "z": -95.1875
+              }
+            ],
+            "target": null,
+            "work": null,
+            "motionGroup": 232,
+            "motionIndex": 0,
+            "routeOwner": 4,
+            "commandStatus": 21,
+            "workTarget": 3162,
+            "order": {
+              "id": 35,
+              "model": 21,
+              "flags": 48,
+              "references": 1,
+              "object": 0,
+              "a": 21752,
+              "b": 1028
+            }
+          }
+        ],
+        "gameFlags": 0,
+        "candidates": {
+          "source": {
+            "id": 3162,
+            "class": 1,
+            "model": 4,
+            "tribe": 0,
+            "life": 1100,
+            "state": 10,
+            "substate": 0,
+            "counter": 70,
+            "workFlags": 0,
+            "flags2": 1109524992,
+            "flags3": 262145,
+            "flags4": 671088896,
+            "vehicle": 0,
+            "disguise": 0,
+            "x": 64445,
+            "y": 22110,
+            "h": 219,
+            "speed": 65,
+            "commandStatus": 3,
+            "immediateCommand": 0,
+            "commandCursor": 0,
+            "workTarget": 0,
+            "cellNext": 3067,
+            "cellPrevious": 0
+          },
+          "sourceCell": [
+            125,
+            43
+          ],
+          "scope": "nearby5x5-cells-before-filter",
+          "identityScope": "observer-lifetime",
+          "limit": 64,
+          "rows": [
+            {
+              "id": 3067,
+              "kind": "brave",
+              "team": "yellow",
+              "hp": 50,
+              "inside": null,
+              "world": {
+                "x": -12.87109375,
+                "z": -94.26953125
+              },
+              "worldNative": {
+                "x": 64289,
+                "y": 22085
+              },
+              "worldCell": [
+                125,
+                43
+              ],
+              "nativeCell": [
+                125,
+                43
+              ],
+              "ownerSlot": "native",
+              "ownerIdentity": 4,
+              "slots": [
+                {
+                  "slot": "native",
+                  "identity": 4,
+                  "native": {
+                    "id": 3067,
+                    "class": 1,
+                    "model": 2,
+                    "tribe": 2,
+                    "life": 1000,
+                    "state": 10,
+                    "substate": 2,
+                    "counter": 70,
+                    "workFlags": 0,
+                    "flags2": 33686016,
+                    "flags3": 262144,
+                    "flags4": 537198848,
+                    "vehicle": 0,
+                    "disguise": 0,
+                    "x": 64289,
+                    "y": 22085,
+                    "h": 208,
+                    "speed": 73,
+                    "commandStatus": 21,
+                    "immediateCommand": 35,
+                    "commandCursor": 0,
+                    "workTarget": 3162,
+                    "cellNext": 0,
+                    "cellPrevious": 3162
+                  }
+                }
+              ],
+              "native": {
+                "id": 3067,
+                "class": 1,
+                "model": 2,
+                "tribe": 2,
+                "life": 1000,
+                "state": 10,
+                "substate": 2,
+                "counter": 70,
+                "workFlags": 0,
+                "flags2": 33686016,
+                "flags3": 262144,
+                "flags4": 537198848,
+                "vehicle": 0,
+                "disguise": 0,
+                "x": 64289,
+                "y": 22085,
+                "h": 208,
+                "speed": 73,
+                "commandStatus": 21,
+                "immediateCommand": 35,
+                "commandCursor": 0,
+                "workTarget": 3162,
+                "cellNext": 0,
+                "cellPrevious": 3162
+              },
+              "nativeOnly": true,
+              "registered": true,
+              "cellLinked": true,
+              "positionCoherent": true,
+              "reverseAlliance": 0,
+              "pathLength": 2,
+              "work": null,
+              "target": null,
+              "withinSecondary": true,
+              "predicates": {
+                "nativeReverse": [],
+                "ownership": [],
+                "oldQaPrefilter": [
+                  "not-idle17",
+                  "has-path"
+                ]
+              }
+            }
+          ],
+          "unmatchedPrimary": []
+        },
+        "effectiveScanCounter": 70,
+        "retainedPersonCounter": 70,
+        "levelFlags2": 0,
+        "scanMask": 1,
+        "autoEligible": true,
+        "availableOrder": true
+      }
+    },
+    "after": {
+      "phase": "afterTurn",
+      "now": 129474.40000000596,
+      "turn": 4679,
+      "time": 389.9166666666667,
+      "animationFrame": 2685,
+      "animationTime": 0.01973400003259303,
+      "pendingTime": 0,
+      "rng": [
+        1716341299,
+        4229274872
+      ],
+      "sameWorld": true,
+      "sameActor": false,
+      "nativeOnly": false,
+      "registeredOwner": false,
+      "actor": {
+        "id": 3162,
+        "kind": "preacher",
+        "team": "blue",
+        "hp": 55,
+        "inside": null,
+        "x": -12.26171875,
+        "z": -94.3671875
+      },
+      "busy": true,
+      "admission": null,
+      "status": "playing",
+      "paused": false,
+      "speed": 1,
+      "visibility": "visible",
+      "person": null,
+      "order": null,
+      "commands": [],
+      "queued": [],
+      "retiredOrders": [
+        {
+          "id": 26,
+          "identity": 1,
+          "model": 17,
+          "flags": 0,
+          "references": 0,
+          "object": 0,
+          "a": 11008,
+          "b": 40704
+        },
+        {
+          "id": 32,
+          "identity": 2,
+          "model": 3,
+          "flags": 0,
+          "references": 1,
+          "object": 0,
+          "a": 62591,
+          "b": 20062
+        }
+      ],
+      "orderUsers": [],
+      "listeners": [],
+      "pendingDistance": 0,
+      "facts": {
+        "range": 0,
+        "genericThreat": null,
+        "primaryGuardIds": [],
+        "braves": [],
+        "gameFlags": 0,
+        "candidates": null,
+        "effectiveScanCounter": 71,
+        "retainedPersonCounter": null,
+        "levelFlags2": 0,
+        "scanMask": 1,
+        "autoEligible": false,
+        "availableOrder": true
+      }
+    }
+  }
+}

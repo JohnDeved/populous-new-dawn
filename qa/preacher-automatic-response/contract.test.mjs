@@ -51,6 +51,33 @@ test('baseline absence requires a source-bound due visit while destination remai
   }
 })
 
+test('exact retained4676/4678 visits do not treat target reservation presence as a response veto', () => {
+  const f = JSON.parse(readFileSync(new URL('./retained-crossing02-precombat.json', import.meta.url)))
+  assert.equal(f.sourceHead, 'f86aef9158107dbe2d82e4ed61ad770158799010')
+  assert.deepEqual(f.pairs.map(p => p.after.turn), [4676, 4678])
+  for (const { before, after } of f.pairs) {
+    assert.equal(before.admission.attackReservation, true); assert.equal(after.admission.attackReservation, true)
+    assert.ok(qualifyingVisit(before, after))
+    const tracker = createResponseTracker({ baseline: true }); tracker.observe(before); tracker.observe(after)
+    assert.equal(tracker.progress.status, 'baseline-omission')
+    for (const change of [r => { r.admission.attackReservation = false }, r => { r.actor.hp-- },
+      r => { r.queued[0].a++ }, r => { r.facts.primaryGuardIds.push(47) }, r => { r.facts.braves[0].workFlags = 1 }]) {
+      const invalid = structuredClone(after); change(invalid)
+      assert.equal(qualifyingVisit(before, invalid), null)
+    }
+    for (const change of [r => { r.nativeOnly = false }, r => { r.sameActor = false },
+      r => { r.registeredOwner = false }, r => { r.busy = true }]) {
+      const invalid = structuredClone(after); change(invalid)
+      const denied = createResponseTracker({ baseline: true }); denied.observe(before); denied.observe(invalid)
+      assert.equal(denied.progress.status, 'failed')
+    }
+  }
+  const handoff = createResponseTracker({ baseline: true })
+  handoff.observe(f.failedHandoff.before); handoff.observe(f.failedHandoff.after)
+  assert.equal(handoff.progress.status, 'failed')
+  assert.equal(handoff.progress.reason, 'Original on-foot living owner/scene/clock changed')
+})
+
 test('actual production scan counter follows world turn even when retained person phase differs', () => {
   const before = row(15, 'beforeTurn'), after = row(16)
   before.person.counter = 30; after.person.counter = 31

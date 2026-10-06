@@ -147,6 +147,29 @@ and no automatic32 omission was earned. The next correspondence names this actua
 failed terminal run with verified cleanup, while original acquisition keeps1aa0414b/Run01.
 The actual adjacent-turn observer is unchanged by this polyline correction.
 
+Crossing02 at QA `f86aef91` issued one ordinary model3 move at4313, then failed
+its native-owner guard at4679 when the real Preacher entered combat ownership.
+The original failure and terminal receipts remain unchanged; cleanup and the full
+saved3336 digest passed. At due visits4676 and4678 the retained native Preacher,
+queue, HP, pending destination, source/candidate cells, eligible state10 Brave3067,
+cadence, capacity, primary absence and generic miss were stable. Only the QA
+reservation-presence veto rejected those earlier intervals. The reservation appeared
+at4668; no raw reservation payload was captured, so none is invented here.
+
+Source `world-turn.ts:1265` merely advances a present reservation's timer; it does
+not skip the person. The no-target lane calls `startLiveCombatResponse` at1473 before moving3 is
+stepped. `live-movement.ts:618` belongs to preaching, not this moving3 caller.
+The wrapper, allocator and
+`canAutoEngage` do not veto reservation-object presence. `live-combat.ts:162/344`
+stores this object on a selected target. The one-condition QA correction removes
+that extra veto while preserving its recorded boolean and the exact same-admission
+comparison. Every native ownership, health, queue and candidate predicate remains.
+`retained-crossing02-precombat.json` keeps the exact earlier rows and failed handoff
+for regression, with source/run/raw-trace attribution. This is post-run source-bound
+analysis pending independent acceptance, not a replay or an observed scanner AL.
+No new browser run is authorized by this correction; continuation pins still name
+the previous crossing01 edge and deliberately cannot launch against the latest run.
+
 ## Three separate claims
 
 The accepted supplied original/old-port comparison at `d0f1092f` establishes

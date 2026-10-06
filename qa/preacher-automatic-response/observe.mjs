@@ -54,7 +54,7 @@ function stableTriggerVisit(before, after) {
 export function admittedMovingLane(row) {
   const a = row.admission
   return !!a && a.work === null && a.target === null && a.tree === null && a.cargo === 0 &&
-    !a.harvest && !a.delivery && !a.vault && !a.guard && !a.attackReservation &&
+    !a.harvest && !a.delivery && !a.vault && !a.guard &&
     !a.starting && !a.armageddon && !(a.landFlags & 2) && a.supported && a.positionCoherent
 }
 
