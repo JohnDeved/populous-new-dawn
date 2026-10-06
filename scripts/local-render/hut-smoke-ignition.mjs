@@ -64,19 +64,40 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     await action('minimap-view', () => page.mouse.click(hit.x, hit.y))
     await settle()
   }
+  const prepareDispatch = async () => {
+    await page.evaluate(async () => {
+      await Promise.all([import('/app/person-orders.ts'), import('/app/live-command.ts'),
+        import('/qa/erosion-ordinary/input.mjs')])
+    })
+    await page.waitForFunction(() => {
+      const world = window.testSceneRef.current.world
+      return world.turn > world.lastOrderTurn
+    }, null, { timeout: 5000 })
+  }
   const entityPoint = (collection, id, expectedCommand, cast = false) => page.evaluate(
     async ({ collection, id, expectedCommand, cast }) => {
+      const [{ findEntityInput, inspectEntityPoint, createMoveContextProbe, entityInputState }, { spellTargetError }] =
+        await Promise.all([import('/qa/erosion-ordinary/input.mjs'), import('/app/live-command.ts')])
       const scene = window.testSceneRef.current, world = scene.world
       const target = world[collection].find(object => object.id === id)
-      if (!target) throw Error('Ordinary target disappeared')
-      const { findEntityInput, inspectEntityPoint, createMoveContextProbe } = await import('/qa/erosion-ordinary/input.mjs')
-      if (expectedCommand !== null) {
-        const context = createMoveContextProbe(world)(target)
-        if (!context.enabled || context.model !== expectedCommand) throw Error('Ordinary command context changed')
-      }
+      if (!target) return { id, collection, rejection: 'Ordinary target disappeared',
+        diagnostics: { turn: world.turn, camera: { ...scene.cameraPosition }, selected: [...world.selected] } }
+      const context = expectedCommand === null ? null : createMoveContextProbe(world)(target)
       const rect = scene.renderer.domElement.getBoundingClientRect(), projected = scene.screen(target)
       const center = { x: rect.left + (projected.x + 1) * rect.width / 2,
         y: rect.top + (1 - projected.y) * rect.height / 2 }, candidates = []
+      const mesh = collection === 'shrines' ? scene.shrineMeshes.get(id)?.g : scene.buildingMeshes.get(id)
+      // Same rendered-triangle interior candidates used by the accepted erosion input checker.
+      mesh?.traverse(child => {
+        if (child.userData.nativeModel === undefined || !child.visible) return
+        for (const { points } of scene.picking.model(child, JSON.stringify(scene.view.projection)).filter(item => item.kind === 'model'))
+          for (const weights of [[1, 1, 1], [2, 1, 1], [1, 2, 1], [1, 1, 2]]) {
+            const total = weights.reduce((sum, weight) => sum + weight, 0)
+            candidates.push({ x: rect.left + points.reduce((sum, point, i) => sum + point.x * weights[i], 0) / total,
+              y: rect.top + points.reduce((sum, point, i) => sum + point.y * weights[i], 0) / total })
+          }
+      })
+      candidates.sort((a, b) => Math.hypot(a.x - center.x, a.y - center.y) - Math.hypot(b.x - center.x, b.y - center.y))
       for (let dy = -140; dy <= 64; dy += 4)
         for (let dx = -100; dx <= 100; dx += 4) candidates.push({ x: center.x + dx, y: center.y + dy })
       const hit = findEntityInput(candidates, id, point => {
@@ -90,36 +111,36 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
         }
         return sample
       })
-      if (!hit) throw Error('No current rendered target interior with the required terrain cell')
-      const ground = cast ? scene.pick({ clientX: hit.x, clientY: hit.y }) : null
-      const { spellTargetError } = cast ? await import('/app/live-command.ts') : {}
-      const spellPreflight = cast ? { point: ground, selected: [...world.selected],
+      const diagnostics = { state: entityInputState(scene, { id, collection }, hit ?? center), context,
+        pick: inspectEntityPoint(scene, collection, hit ?? center), selected: [...world.selected] }
+      const rejection = expectedCommand !== null && (!context.enabled || context.model !== expectedCommand)
+        ? 'Ordinary command context changed' : !hit ? 'No current rendered target interior with the required terrain cell' : null
+      const ground = cast && hit ? scene.pick({ clientX: hit.x, clientY: hit.y }) : null
+      const spellPreflight = cast && ground ? { point: ground, selected: [...world.selected],
         shots: world.shots.lightning, turn: world.turn,
         rejection: spellTargetError(structuredClone(world), 'lightning', ground) } : null
-      return { ...hit, id, collection, turn: world.turn, expectedCommand, cast, spellPreflight }
+      return { ...hit, id, collection, turn: world.turn, expectedCommand, cast, spellPreflight, diagnostics,
+        rejection: rejection ?? (cast && !ground ? 'Lightning ground pick disappeared' : null) }
     }, { collection, id, expectedCommand, cast })
   const dispatch = async (hit, command, expectedIds) => {
-    await page.waitForFunction(() => {
-      const world = window.testSceneRef.current.world
-      return world.turn > world.lastOrderTurn
-    }, null, { timeout: 5000 })
-    await page.evaluate(async ({ hit, command }) => {
+    const preflight = await page.evaluate(async ({ hit, command }) => {
+      const [{ currentPersonOrder }, { findEntityInput, inspectEntityPoint, createMoveContextProbe, observeEntityPointer, entityInputState }] =
+        await Promise.all([import('/app/person-orders.ts'), import('/qa/erosion-ordinary/input.mjs')])
       const scene = window.testSceneRef.current, world = scene.world, canvas = scene.renderer.domElement
-      const { currentPersonOrder } = await import('/app/person-orders.ts')
-      const { findEntityInput, inspectEntityPoint, createMoveContextProbe, observeEntityPointer } =
-        await import('/qa/erosion-ordinary/input.mjs')
-      if (window.hutDispatch) throw Error('A dispatch observer is already armed')
-      if (hit.collection && !findEntityInput([hit], hit.id, point => inspectEntityPoint(scene, hit.collection, point)))
-        throw Error('Rendered target became stale before dispatch')
       const point = hit.collection ? world[hit.collection].find(object => object.id === hit.id) :
         scene.pick({ clientX: hit.x, clientY: hit.y })
-      if (!point || (!hit.collection && (document.elementFromPoint(hit.x, hit.y) !== canvas ||
-          scene.picking.pickPerson({ clientX: hit.x, clientY: hit.y }) ||
-          scene.pickWorldObject({ clientX: hit.x, clientY: hit.y }) ||
-          Math.hypot(point.x - hit.point.x, point.z - hit.point.z) > 0.05)))
-        throw Error('Ground target became stale before dispatch')
-      const context = createMoveContextProbe(world)(point)
-      if (!context.enabled || context.model !== command) throw Error('Fresh dispatch context rejected')
+      const context = point ? createMoveContextProbe(world)(point) : null
+      const pick = inspectEntityPoint(scene, hit.collection ?? 'buildings', hit)
+      const interior = hit.collection ? findEntityInput([hit], hit.id, p => inspectEntityPoint(scene, hit.collection, p)) : null
+      const diagnostics = { state: entityInputState(scene, hit.collection ? hit : null, hit), pick, interior, context,
+        point: point && { id: point.id ?? null, x: point.x, z: point.z }, selected: [...world.selected], lastOrderTurn: world.lastOrderTurn }
+      const rejection = window.hutDispatch ? 'A dispatch observer is already armed'
+        : hit.collection && !interior ? 'Rendered target became stale before dispatch'
+          : !point || (!hit.collection && (!pick.canvasOwned || pick.hitId !== null ||
+              Math.hypot(point.x - hit.point.x, point.z - hit.point.z) > 0.05))
+            ? 'Ground target became stale before dispatch'
+            : !context.enabled || context.model !== command ? 'Fresh dispatch context rejected' : null
+      if (rejection) return { rejection, diagnostics }
       const ids = [...world.selected]
       const sample = () => ({ turn: world.turn, selected: [...world.selected], lastOrderTurn: world.lastOrderTurn,
         ack: { ...scene.pointerAck }, worldMatches: scene.world === world && window.testStore.getWorld() === world,
@@ -137,7 +158,10 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
         canvas.removeEventListener('pointerup', after)
         return { ...record, delivered: delivery.finish() }
       } }
+      return { rejection: null, diagnostics }
     }, { hit, command })
+    report.actions.push({ label: 'final-dispatch-preflight', command, hit, preflight }); save()
+    assert.equal(preflight.rejection, null, JSON.stringify(preflight))
     let evidence
     try { await action(`command-${command}-click`, () => page.mouse.click(hit.x, hit.y)) }
     finally {
@@ -161,8 +185,10 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     assert.deepEqual(recipients.map(unit => unit.id), expectedIds ?? before.selected)
   }
   const clickEntity = async (collection, id, command, cast = false, expectedIds = null) => {
+    if (!cast) await prepareDispatch()
     const hit = await entityPoint(collection, id, command, cast)
     report.actions.push({ label: 'rendered-target', hit }); save()
+    assert.equal(hit.rejection, null, JSON.stringify(hit.diagnostics))
     if (cast) {
       assert.equal(hit.spellPreflight.rejection, null, JSON.stringify(hit.spellPreflight))
       assert.ok(hit.spellPreflight.shots > 0)
@@ -233,6 +259,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     report.hut = hut; save()
     await button('Select and focus shaman')
     await view(hut)
+    await prepareDispatch()
     const ground = await groundNear(hut)
     assert.ok(ground, 'No ordinary movement target near the authored hut')
     await dispatch(ground, 3, [shamanId])
