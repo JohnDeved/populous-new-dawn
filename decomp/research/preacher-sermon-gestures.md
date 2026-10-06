@@ -9,9 +9,12 @@ sermon loop. The port omits this branch entirely. Both source families are absen
 from its Preacher metadata, including all **140 distinct VFRA frames** and
 **48 of 75 distinct source pieces** used by the combined families.
 
-This is a source/table/disassembly finding. It does **not** establish an actual
+This section preserves the original static source/table/disassembly finding.
+The later accepted component run and decoded-piece measurement are recorded
+separately in [native-result.md](preacher-sermon-gestures/native-result.md).
+The static finding does **not** establish an actual
 original-game gesture observation, a new browser gesture observation, frequency
-in ordinary play, exact original wall-clock timing, or pixel equivalence. No
+in ordinary play, exact original wall-clock timing, or pixel equivalence. In this static audit, no
 original instructions, Node, browser, server, dependency manager, importer or
 Ghidra job ran. No gameplay, assets, parity, clock, issue or PR changed.
 
