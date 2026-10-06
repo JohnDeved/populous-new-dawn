@@ -148,9 +148,10 @@ test('flight and encounter owners suppress the detached sermon animation; ordina
   assert.ok(![176, 184].includes(unitAnimationSource(unit)?.object))
 })
 
-for (const [team, cue] of [['blue', 51], ['red', 189]]) {
-  test(`live ${team} sermon requests cue${cue} with its actual owner before the empty scan clears listeners`, () => {
+for (const [team, playerTribe, cue] of [['blue', 0, 51], ['red', 0, 189], ['red', 1, 51]]) {
+  test(`live ${team} sermon for player tribe${playerTribe} requests cue${cue} with its actual owner`, () => {
     const { world, unit, person } = sermon(0, team)
+    world.manaWorld.playerTribe = playerTribe
     person.assignment |= 64
     const serial = world.soundSerial, simulation = world.randomState
     stepLivePreaching(world, unit)
@@ -190,5 +191,17 @@ test('both sermon cue families have actual sample preload coverage', () => {
     assert.equal(samples.length, 4)
     for (const sample of samples)
       assert.ok(existsSync(fileURLToPath(new URL(`../public/original/audio/${bank}-${sample}.wav`, import.meta.url))))
+  }
+})
+
+// Shared-consumer fixtures do not assert an ordinary command32 producer.
+test('the live order dispatcher shares gesture ownership across commands17/31/32', () => {
+  for (const model of [17, 31, 32]) {
+    const { world, unit, person } = sermon()
+    currentPersonOrder(world.buildingOrders, person).model = model
+    person.commandStatus = model
+    stepLivePreaching(world, unit)
+    assert.equal(person.object, 176, `command${model}`)
+    assert.equal(unitAnimationSource(unit), person)
   }
 })

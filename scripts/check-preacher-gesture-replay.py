@@ -174,9 +174,14 @@ def main():
     except Exception as error:
         summary={'status':'failed','error':f'{type(error).__name__}: {error}','newNativeExecution':False}
     finally:
-        binding['candidateSourceAfter']=sources()
-        binding['nativeInputsAfter']={name:sha((args.native_run_dir/name).read_bytes()) for name in REFERENCE}
-        binding['nodeSha256After']=sha(Path(node).read_bytes())
+        def observed(path):
+            try:
+                return sha(path.read_bytes())
+            except OSError as error:
+                return {'error':f'{type(error).__name__}: {error}'}
+        binding['candidateSourceAfter']={path:observed(ROOT/path) for path in before}
+        binding['nativeInputsAfter']={name:observed(args.native_run_dir/name) for name in REFERENCE}
+        binding['nodeSha256After']=observed(Path(node))
         binding['unchanged']=(before==binding['candidateSourceAfter'] and
                               REFERENCE==binding['nativeInputsAfter'] and node_hash==binding['nodeSha256After'])
         (output/'binding.json').write_text(json.dumps(binding,indent=2)+'\n')
