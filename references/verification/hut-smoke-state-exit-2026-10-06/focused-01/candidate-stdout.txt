@@ -1,0 +1,52 @@
+TAP version 13
+# Subtest: Lightning retires a 3-resident hut root after fire initialization
+ok 1 - Lightning retires a 3-resident hut root after fire initialization
+  ---
+  duration_ms: 4715.892619
+  type: 'test'
+  ...
+# Subtest: Lightning retires a 1-resident hut root after fire initialization
+ok 2 - Lightning retires a 1-resident hut root after fire initialization
+  ---
+  duration_ms: 159.621437
+  type: 'test'
+  ...
+# Subtest: Lightning retires a 0-resident hut root after fire initialization
+ok 3 - Lightning retires a 0-resident hut root after fire initialization
+  ---
+  duration_ms: 128.538605
+  type: 'test'
+  ...
+# Subtest: blocked ignition preserves the completed root and its real residents
+ok 4 - blocked ignition preserves the completed root and its real residents
+  ---
+  duration_ms: 86.206381
+  type: 'test'
+  ...
+# Subtest: repeat ignition does not reset fire or mutate surviving children
+ok 5 - repeat ignition does not reset fire or mutate surviving children
+  ---
+  duration_ms: 90.636025
+  type: 'test'
+  ...
+# Subtest: paused restore retires historically saved burning roots while preserving children and legacy completed huts
+ok 6 - paused restore retires historically saved burning roots while preserving children and legacy completed huts
+  ---
+  duration_ms: 102.001244
+  type: 'test'
+  ...
+# Subtest: Spy command15 ignition retires the same occupied-hut root
+ok 7 - Spy command15 ignition retires the same occupied-hut root
+  ---
+  duration_ms: 96.312227
+  type: 'test'
+  ...
+1..7
+# tests 7
+# suites 0
+# pass 7
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5754.776464

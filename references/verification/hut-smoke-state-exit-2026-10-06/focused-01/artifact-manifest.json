@@ -1,0 +1,24 @@
+{
+  "candidateHead": "b26f66b24da4fe133441e83c5377467a5066ef64",
+  "redHead": "6fceacc80e13909dfd5866871c983d02e45b592e",
+  "files": {
+    "candidate-command-receipt.json": "5e064542eef9cf5f6aba8608caac8be0e78340875805788fa18bda8858ebdbd4",
+    "candidate-source-inventory.json.gz": "006b8cb4d380cbb248e6edc72aad0f46beb811d55d9c943db57ad0d2cd55da8a",
+    "candidate-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate-stdout.txt": "1439242afbe26e4662388413320f061d48bed7318f8ed23f90f290f881ca35c9",
+    "candidate-wrapper-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "candidate-wrapper-stdout.txt": "bacef6888143e4344c9a5c98de6acb1bdbe90fea1d837db4c1131aff5e61643f",
+    "dependency-inventory.json.gz": "2d8227abe3d2cd1f0c6943a0e27d9752c002e0dfdbca1973a744a62fc6d2db09",
+    "host-focused-red-green-01.py": "68703121810e8475e24c53f2638a4f44bdb7fa72eb07d4c127c9ba2b3834c330",
+    "receipt.json": "ce733676fca4b8598867b9441edb6c70679b8a1923ee98c6cc621036569e4e79",
+    "red-command-receipt.json": "526a0d9e1a6a54f2fdd569d47c2250915b6c268cff7546084f01bd8b18a40d60",
+    "red-source-inventory.json.gz": "0432355c23aaad850f1193cecba0842b04d599ba66f139bfc45fb37f1d90afce",
+    "red-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "red-stdout.txt": "e2dbd8681cb874ac8431bc42f509d5e0306653c814cd5aeb8b8b0823f868cb45",
+    "red-wrapper-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "red-wrapper-stdout.txt": "145ae992ff489789f9146dd6b2c4b9d264f7cbe1e77104458bd3dd9cb33cb1ae",
+    "result.md": "860243b483db44bf32c73b128cbe4db58f151a51d6daa1deacebb853f5aa5f7e",
+    "runtime-source-review-manifest.json": "5e15a964d3154be5d82b68864bdf6e42b671e7b28cc12f47a79bd5db7c5b8d11",
+    "runtime-source-review.md": "24b4ba0e5cfe1ea0164ad0f7a843c975949977464a75722915984e289ba6cfe6"
+  }
+}

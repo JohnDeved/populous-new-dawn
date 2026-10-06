@@ -1,0 +1,8 @@
+{
+  "status": "passed",
+  "output": "work/orchestration/hut-smoke-state-exit/focused-candidate-01.json",
+  "headOid": "b26f66b24da4fe133441e83c5377467a5066ef64",
+  "exitCode": 0,
+  "stdoutSha256": "1439242afbe26e4662388413320f061d48bed7318f8ed23f90f290f881ca35c9",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}

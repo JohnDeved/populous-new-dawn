@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "verdict": "ACCEPT-source-only; tests-and-ordinary-pending",
+  "head": "b26f66b24da4fe133441e83c5377467a5066ef64",
+  "files": [
+    {
+      "path": "review.md",
+      "sha256": "24b4ba0e5cfe1ea0164ad0f7a843c975949977464a75722915984e289ba6cfe6"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/app/hut-smoke-runtime.ts",
+      "sha256": "96b52d988b5d6fec0482e48d7e768e8a835e70483f1988b94217cbe2e3877c1b"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/app/spell-effects-runtime.ts",
+      "sha256": "1c0df0978804bee45702cd2a7331be6efaf7a8cb411997d257be6dd503a6d90d"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/app/live-building-combat.ts",
+      "sha256": "9ed318b09c0258afca86c87d3147d3cda1b2a9c3ad8e8e81d7ec3703afa74a4e"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/tests/hut-smoke-ignition.test.mjs",
+      "sha256": "6ac554e82c51fd92393f56fb0ae766dcc3927a2bd8a502744fa62f34d9c8654e"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/review-bundles/hut-smoke-state-exit-executable-review-20261006/result-a02-review.md",
+      "sha256": "ba2d402c994f9d0bb5a3edee586778d873c2b1dbc8df8919d51c1ccf8aab08e3"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/review-bundles/hut-smoke-state-exit-executable-review-20261006/live-baseline-result-review.md",
+      "sha256": "f2d60abbf3656eb986542045afa7384a0de2ec0af4d58981f63121b98a562aee"
+    }
+  ]
+}

@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "9729e3e7-b2ab-4dd5-b44c-b1bbf9a40742",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "6fceacc80e13909dfd5866871c983d02e45b592e",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/hut-smoke-ignition.test.mjs": "6ac554e82c51fd92393f56fb0ae766dcc3927a2bd8a502744fa62f34d9c8654e",
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/red-source-inventory.json.gz": "0432355c23aaad850f1193cecba0842b04d599ba66f139bfc45fb37f1d90afce",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/dependency-inventory.json.gz": "2d8227abe3d2cd1f0c6943a0e27d9752c002e0dfdbca1973a744a62fc6d2db09",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/host-focused-red-green-01.py": "68703121810e8475e24c53f2638a4f44bdb7fa72eb07d4c127c9ba2b3834c330"
+    }
+  },
+  "command": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "60s",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--max-old-space-size=1024",
+    "--test",
+    "--test-concurrency=1",
+    "--test-reporter=tap",
+    "tests/hut-smoke-ignition.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006",
+  "startedAt": "2026-10-06T22:24:09.466Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/work/orchestration/hut-smoke-state-exit/focused-red-01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/work/orchestration/hut-smoke-state-exit/focused-red-01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T22:24:15.639Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "TAP version 13\n# Subtest: Lightning retires a 3-resident hut root after fire initialization\nnot ok 1 - Lightning retires a 3-resident hut root after fire initialization\n  ---\n  duration_ms: 4893.232663\n  type: 'test'\n  location: '/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/tests/hut-smoke-ignition.test.mjs:45:3'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    \n    1 !== 0\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 0\n  actual: 1\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/tests/hut-smoke-ignition.test.mjs:78:14)\n    async Test.run (node:internal/test_runner/test:1389:7)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)\n  ...\n# Subtest: Lightning retires a 1-resident hut root after fire initialization\nnot ok 2 - Lightning retires a 1-resident hut root after fire initialization\n  ---\n  duration_ms: 147.802173\n  type: 'test'\n  location: '/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/tests/hut-smoke-ignition.test.mjs:45:3'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    \n    1 !== 0\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 0\n  actual: 1\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/tests/hut-smoke-ignition.test.mjs:78:14)\n    async Test.run (node:internal/test_runner/test:1389:7)\n    async Test.processPendingSubtests (node:internal/test_runner/test:960:7)\n  ...\n# Subtest: Lightning retires a 0-resident hut root after fire initialization\nok 3 - Lightning retires a 0-resident hut root after fire initialization\n  ---\n  duration_ms: 119.881995\n  type: 'test'\n  ...\n# Subtest: blocked ignition preserves the completed root and its real residents\nok 4 - blocked ignition preserves the completed root and its real residents\n  ---\n  duration_ms: 150.253889\n  type: 'test'\n  ...\n# Subtest: repeat ignition does not reset fire or mutate surviving children\nok 5 - repeat ignition does not reset fire or mutate surviving children\n  ---\n  duration_ms: 94.606242\n  type: 'test'\n  ...\n# Subtest: paused restore retires historically saved burning roots while preserving children and legacy completed huts\nnot ok 6 - paused restore retires historically saved burning roots while preserving children and legacy completed huts\n  ---\n  duration_ms: 94.2524\n  type: 'test'\n  location: '/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/tests/hut-smoke-ignition.test.mjs:148:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    \n    1 !== 0\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 0\n  actual: 1\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/tests/hut-smoke-ignition.test.mjs:175:12)\n    async Test.run (node:internal/test_runner/test:1389:7)\n    async Test.processPendingSubtests (node:internal/test_runner/test:960:7)\n  ...\n# Subtest: Spy command15 ignition retires the same occupied-hut root\nnot ok 7 - Spy command15 ignition retires the same occupied-hut root\n  ---\n  duration_ms: 87.899859\n  type: 'test'\n  location: '/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/tests/hut-smoke-ignition.test.mjs:199:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    \n    1 !== 0\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: 0\n  actual: 1\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/tests/hut-smoke-ignition.test.mjs:230:12)\n    async Test.run (node:internal/test_runner/test:1389:7)\n    async Test.processPendingSubtests (node:internal/test_runner/test:960:7)\n  ...\n1..7\n# tests 7\n# suites 0\n# pass 3\n# fail 4\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 6064.001782\n",
+  "stderr": "",
+  "stdoutSha256": "e2dbd8681cb874ac8431bc42f509d5e0306653c814cd5aeb8b8b0823f868cb45",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "6fceacc80e13909dfd5866871c983d02e45b592e",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/hut-smoke-ignition.test.mjs": "6ac554e82c51fd92393f56fb0ae766dcc3927a2bd8a502744fa62f34d9c8654e",
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/red-source-inventory.json.gz": "0432355c23aaad850f1193cecba0842b04d599ba66f139bfc45fb37f1d90afce",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/dependency-inventory.json.gz": "2d8227abe3d2cd1f0c6943a0e27d9752c002e0dfdbca1973a744a62fc6d2db09",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/host-focused-red-green-01.py": "68703121810e8475e24c53f2638a4f44bdb7fa72eb07d4c127c9ba2b3834c330"
+    }
+  }
+}

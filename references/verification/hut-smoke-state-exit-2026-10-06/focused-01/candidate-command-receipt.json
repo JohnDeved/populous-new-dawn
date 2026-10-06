@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "901a1e19-d2ee-42ce-906a-51ebee72001d",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "b26f66b24da4fe133441e83c5377467a5066ef64",
+    "branch": "research/hut-smoke-state-exit-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/hut-smoke-ignition.test.mjs": "6ac554e82c51fd92393f56fb0ae766dcc3927a2bd8a502744fa62f34d9c8654e",
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/candidate-source-inventory.json.gz": "006b8cb4d380cbb248e6edc72aad0f46beb811d55d9c943db57ad0d2cd55da8a",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/dependency-inventory.json.gz": "2d8227abe3d2cd1f0c6943a0e27d9752c002e0dfdbca1973a744a62fc6d2db09",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/host-focused-red-green-01.py": "68703121810e8475e24c53f2638a4f44bdb7fa72eb07d4c127c9ba2b3834c330"
+    }
+  },
+  "command": [
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "60s",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--max-old-space-size=1024",
+    "--test",
+    "--test-concurrency=1",
+    "--test-reporter=tap",
+    "tests/hut-smoke-ignition.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006",
+  "startedAt": "2026-10-06T22:24:15.792Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-candidate-01.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-candidate-01.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T22:24:21.596Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "TAP version 13\n# Subtest: Lightning retires a 3-resident hut root after fire initialization\nok 1 - Lightning retires a 3-resident hut root after fire initialization\n  ---\n  duration_ms: 4715.892619\n  type: 'test'\n  ...\n# Subtest: Lightning retires a 1-resident hut root after fire initialization\nok 2 - Lightning retires a 1-resident hut root after fire initialization\n  ---\n  duration_ms: 159.621437\n  type: 'test'\n  ...\n# Subtest: Lightning retires a 0-resident hut root after fire initialization\nok 3 - Lightning retires a 0-resident hut root after fire initialization\n  ---\n  duration_ms: 128.538605\n  type: 'test'\n  ...\n# Subtest: blocked ignition preserves the completed root and its real residents\nok 4 - blocked ignition preserves the completed root and its real residents\n  ---\n  duration_ms: 86.206381\n  type: 'test'\n  ...\n# Subtest: repeat ignition does not reset fire or mutate surviving children\nok 5 - repeat ignition does not reset fire or mutate surviving children\n  ---\n  duration_ms: 90.636025\n  type: 'test'\n  ...\n# Subtest: paused restore retires historically saved burning roots while preserving children and legacy completed huts\nok 6 - paused restore retires historically saved burning roots while preserving children and legacy completed huts\n  ---\n  duration_ms: 102.001244\n  type: 'test'\n  ...\n# Subtest: Spy command15 ignition retires the same occupied-hut root\nok 7 - Spy command15 ignition retires the same occupied-hut root\n  ---\n  duration_ms: 96.312227\n  type: 'test'\n  ...\n1..7\n# tests 7\n# suites 0\n# pass 7\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 5754.776464\n",
+  "stderr": "",
+  "stdoutSha256": "1439242afbe26e4662388413320f061d48bed7318f8ed23f90f290f881ca35c9",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "b26f66b24da4fe133441e83c5377467a5066ef64",
+    "branch": "research/hut-smoke-state-exit-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/hut-smoke-ignition.test.mjs": "6ac554e82c51fd92393f56fb0ae766dcc3927a2bd8a502744fa62f34d9c8654e",
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/candidate-source-inventory.json.gz": "006b8cb4d380cbb248e6edc72aad0f46beb811d55d9c943db57ad0d2cd55da8a",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/dependency-inventory.json.gz": "2d8227abe3d2cd1f0c6943a0e27d9752c002e0dfdbca1973a744a62fc6d2db09",
+      "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/host-focused-red-green-01.py": "68703121810e8475e24c53f2638a4f44bdb7fa72eb07d4c127c9ba2b3834c330"
+    }
+  }
+}

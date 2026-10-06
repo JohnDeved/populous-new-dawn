@@ -1,0 +1,202 @@
+{
+  "status": "terminal",
+  "startedAt": "2026-10-06T22:24:04.189082+00:00",
+  "donor": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/node_modules",
+  "identity": [
+    27,
+    1978923
+  ],
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "testSha256": "6ac554e82c51fd92393f56fb0ae766dcc3927a2bd8a502744fa62f34d9c8654e",
+  "runs": [
+    {
+      "label": "red",
+      "head": "6fceacc80e13909dfd5866871c983d02e45b592e",
+      "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--max-old-space-size=1024",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/scripts/orchestration/command-receipt.mjs",
+        "--output",
+        "work/orchestration/hut-smoke-state-exit/focused-red-01.json",
+        "--input",
+        "tests/hut-smoke-ignition.test.mjs",
+        "--input",
+        "package.json",
+        "--input",
+        "package-lock.json",
+        "--input",
+        "node_modules/.package-lock.json",
+        "--input",
+        "scripts/orchestration/command-receipt.mjs",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/red-source-inventory.json.gz",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/dependency-inventory.json.gz",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/host-focused-red-green-01.py",
+        "--",
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "60s",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--max-old-space-size=1024",
+        "--test",
+        "--test-concurrency=1",
+        "--test-reporter=tap",
+        "tests/hut-smoke-ignition.test.mjs"
+      ],
+      "receipt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/work/orchestration/hut-smoke-state-exit/focused-red-01.json",
+      "sourceInventorySha256": "0432355c23aaad850f1193cecba0842b04d599ba66f139bfc45fb37f1d90afce",
+      "startedAt": "2026-10-06T22:24:09.334997+00:00",
+      "session": 34,
+      "endedAt": "2026-10-06T22:24:15.675679+00:00",
+      "exitCode": 1,
+      "remainingOwnedProcesses": [],
+      "resourcesReleased": true,
+      "sourceUnchanged": true,
+      "installedLockUnchanged": true,
+      "commandStatus": "failed",
+      "counts": {
+        "tests": 7,
+        "pass": 3,
+        "fail": 4
+      },
+      "failureLocations": [
+        [
+          45,
+          78
+        ],
+        [
+          45,
+          78
+        ],
+        [
+          148,
+          175
+        ],
+        [
+          199,
+          230
+        ]
+      ],
+      "expectedFailureClassification": true
+    },
+    {
+      "label": "candidate",
+      "head": "b26f66b24da4fe133441e83c5377467a5066ef64",
+      "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--max-old-space-size=1024",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/scripts/orchestration/command-receipt.mjs",
+        "--output",
+        "work/orchestration/hut-smoke-state-exit/focused-candidate-01.json",
+        "--input",
+        "tests/hut-smoke-ignition.test.mjs",
+        "--input",
+        "package.json",
+        "--input",
+        "package-lock.json",
+        "--input",
+        "node_modules/.package-lock.json",
+        "--input",
+        "scripts/orchestration/command-receipt.mjs",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/candidate-source-inventory.json.gz",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-host-01/dependency-inventory.json.gz",
+        "--input",
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/host-focused-red-green-01.py",
+        "--",
+        "/usr/bin/timeout",
+        "--signal=TERM",
+        "--kill-after=5s",
+        "60s",
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--max-old-space-size=1024",
+        "--test",
+        "--test-concurrency=1",
+        "--test-reporter=tap",
+        "tests/hut-smoke-ignition.test.mjs"
+      ],
+      "receipt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/focused-candidate-01.json",
+      "sourceInventorySha256": "006b8cb4d380cbb248e6edc72aad0f46beb811d55d9c943db57ad0d2cd55da8a",
+      "startedAt": "2026-10-06T22:24:15.725133+00:00",
+      "session": 79,
+      "endedAt": "2026-10-06T22:24:21.634630+00:00",
+      "exitCode": 0,
+      "remainingOwnedProcesses": [],
+      "resourcesReleased": true,
+      "sourceUnchanged": true,
+      "installedLockUnchanged": true,
+      "commandStatus": "passed",
+      "counts": {
+        "tests": 7,
+        "pass": 7,
+        "fail": 0
+      },
+      "candidatePassed": true
+    }
+  ],
+  "moves": [
+    {
+      "at": "2026-10-06T22:24:09.330761+00:00",
+      "from": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/node_modules",
+      "to": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/node_modules",
+      "actualIdentity": [
+        27,
+        1978923
+      ],
+      "sourceStubIdentity": [
+        27,
+        820460
+      ],
+      "sourceStubLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    },
+    {
+      "at": "2026-10-06T22:24:15.722036+00:00",
+      "from": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ignition-red-20261006/node_modules",
+      "to": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/node_modules",
+      "actualIdentity": [
+        27,
+        1978923
+      ],
+      "sourceStubIdentity": [
+        27,
+        925264
+      ],
+      "sourceStubLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    },
+    {
+      "at": "2026-10-06T22:24:24.599026+00:00",
+      "from": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/node_modules",
+      "to": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/node_modules",
+      "actualIdentity": [
+        27,
+        1978923
+      ],
+      "sourceStubIdentity": [
+        27,
+        820460
+      ],
+      "sourceStubLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  ],
+  "returned": true,
+  "hostSourceSha256": "68703121810e8475e24c53f2638a4f44bdb7fa72eb07d4c127c9ba2b3834c330",
+  "retry": false,
+  "dependencyInventorySha256": "2d8227abe3d2cd1f0c6943a0e27d9752c002e0dfdbca1973a744a62fc6d2db09",
+  "launcherTools": {
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+    "/usr/bin/timeout": "6ca1891dfc0b05d7680770c2884c0391b92467c7bb6500a5c84677e6481739f1"
+  },
+  "dependencyTreeUnchanged": true,
+  "returnedAt": "2026-10-06T22:24:24.599777+00:00",
+  "returnedIdentity": [
+    27,
+    1978923
+  ],
+  "returnedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+}

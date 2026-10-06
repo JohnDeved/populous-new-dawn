@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "output": "work/orchestration/hut-smoke-state-exit/focused-red-01.json",
+  "headOid": "6fceacc80e13909dfd5866871c983d02e45b592e",
+  "exitCode": 1,
+  "stdoutSha256": "e2dbd8681cb874ac8431bc42f509d5e0306653c814cd5aeb8b8b0823f868cb45",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+}
