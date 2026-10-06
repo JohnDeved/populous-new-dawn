@@ -99,6 +99,8 @@ test('inside command 31 binds its building and uses the native five-cell sermon 
     stepPreachingOrder(
       {
         randomState: w.randomState,
+        poseRandom: w.cosmeticRandom,
+        playerTribe: w.manaWorld.playerTribe,
         loadFlags: w.manaWorld.loadFlags,
         orders: w.buildingOrders,
         tribeFlags: w.manaTribes.map(tribe => tribe.flags2),
@@ -108,6 +110,8 @@ test('inside command 31 binds its building and uses the native five-cell sermon 
       {
         animate: () => {},
         animationDuration: () => 1,
+        frameCount: () => 6,
+        sound: () => {},
         stop: () => {},
         acquire: radius => (radii.push(radius), 0),
         release: () => {},
@@ -172,6 +176,8 @@ test('sermon poses preserve native multi-turn RNG timing', () => {
     },
     state = {
       randomState: 1,
+      poseRandom: w.cosmeticRandom,
+      playerTribe: w.manaWorld.playerTribe,
       loadFlags: w.manaWorld.loadFlags,
       orders: w.buildingOrders,
       tribeFlags: w.manaTribes.map(tribe => tribe.flags2),
@@ -179,6 +185,8 @@ test('sermon poses preserve native multi-turn RNG timing', () => {
     effects = {
       animate: () => {},
       animationDuration: () => 1,
+      frameCount: () => 6,
+      sound: () => {},
       stop: () => {},
       acquire: () => 0,
       release: () => {},
@@ -354,12 +362,14 @@ test('an idle preacher sermons, converts by replacement, and releases listeners 
   listener.preacher.native.substate = 3
   listener.preacher.native.animationMode = 0
   stepPreachingOrder(
-    state,
+    { ...state, poseRandom: listener.w.cosmeticRandom, playerTribe: listener.w.manaWorld.playerTribe },
     listener.preacher.native,
     currentPersonOrder(listener.w.buildingOrders, listener.preacher.native),
     {
       animate: () => {},
       animationDuration: () => 1,
+      frameCount: () => 6,
+      sound: () => {},
       stop: () => {},
       acquire: () => 0,
       release: () => {},
