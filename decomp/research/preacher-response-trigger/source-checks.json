@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "kind": "source-only-preflight",
+  "createdAt": "2026-10-06T20:04:37+00:00",
+  "runtimeHead": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "files": [
+    {
+      "path": "scripts/probe-native-preacher-response.py",
+      "sha256": "267e7a8698d36610b413dd6cb4e4dce633974f80b4634f429ac9ef7d86a22534"
+    },
+    {
+      "path": "scripts/preacher-response-pair.mjs",
+      "sha256": "8ade2a1ecdfe87f5df8bcf571b6f48672853a4144a05b2c55425bda3e41cfade"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/fixture.json",
+      "sha256": "409584e74bee51536a14aa374fcbd8133770299cf9a98463eec0c68ed82b4f4b"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/people-input.bin",
+      "sha256": "eba91de5b1d95fc778618ce9a1ba47db1b2fc3f0473fa8aa95bf6e8779e1b860"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/orders-input.bin",
+      "sha256": "e245d571c8ab84f3694b35a8a71dacebcfbad90cf8174857c3b0da9d5798018e"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/launch-manifest.json",
+      "sha256": "8e375a0a726e95faa2b92b247f5cb679f96c2d28c7d8bfbfe6375e27b0e17019"
+    }
+  ],
+  "checks": [
+    {
+      "command": "python3: ast.parse scripts/probe-native-preacher-response.py",
+      "exitCode": 0,
+      "status": "passed"
+    },
+    {
+      "command": "node --check scripts/preacher-response-pair.mjs",
+      "exitCode": 0,
+      "status": "passed"
+    },
+    {
+      "command": "python3 scripts/probe-native-preacher-response.py",
+      "exitCode": 0,
+      "status": "passed",
+      "result": "Host-only source/input/ABI fixture guards; native and application not run."
+    },
+    {
+      "command": "git diff --cached --check",
+      "exitCode": 0,
+      "status": "passed"
+    }
+  ],
+  "limits": [
+    "No native emulation, application comparison, browser, Ghidra or runtime test/build.",
+    "Host syntax and source guards do not establish native/port outcomes.",
+    "Earlier Python AST parse found one unmatched closing parenthesis; fixed before the passing source checks."
+  ],
+  "resourcesHeld": []
+}
