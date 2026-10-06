@@ -1,4 +1,4 @@
-"""Frozen supplied-state sermon comparison. Preparation is not execution approval.
+"""Fixed supplied-state command17 terminal restart comparison. Preparation is not execution approval.
 
 --validate: source/input/case/static-disassembly preflight only; no Unicorn or Node.
 --execute: ONLY after a separate grant, actual bounded native/port comparison.
@@ -35,7 +35,7 @@ FIELDS = {
     'commandAux': (0xa9, 'B'), 'commandPhase': (0xaa, 'B'), 'statusFlags': (0xb2, 'B'),
 }
 P, COUNTS, STACK, STOP = 0x2000000, 0x2010000, 0x203d000, 0x203f000
-ORDER = 0x93883a
+ORDER = 0x938830 + 26*10
 COSMETIC, SIMULATION, SERIAL = 0x89bc72, 0x89d178, 0x897981
 RANGES = [
     (0x43a4d0, 0x43abd7), (0x4d4ee0, 0x4d4f3d),
@@ -43,10 +43,14 @@ RANGES = [
     (0x4ee7b0, 0x4ee7f8), (0x4ee85e, 0x4ee8ed), (0x4ee9cb, 0x4ee9cf),
 ]
 ACTUAL_ENTRIES = {0x43a4d0, 0x4d4ee0, 0x4d4040, 0x4ee700, 0x4ee7b0}
-LEAVES = {
-    0x43abf0: 'acquisition', 0x48a050: 'audio', 0x4ea460: 'registration',
-    0x4da170: 'reveal-check', 0x43aec0: 'release',
-}
+LEAVES = {0x43abf0: 'acquisition'}
+PHASES = ['beforeController', 'afterController', 'beforeUpdater', 'afterUpdater']
+FIXED_CASE_SHA = 'ea21b949c2e406219e53d2e9d98847b0f2a736ea7c2af34ac991d46b95823a74'
+RAW_SHA = '2500416fce721fbd6ea1a73979c125f0f72ca3059d584c82997099c024ca7290'
+ORDER_HEX = '110001000000002b009f'
+LIMITS = {'cases': 1, 'controllerCalls': 3, 'updaterCalls': 3,
+    'instructionsPerCall': 100000, 'secondsPerCall': 1, 'totalNativeSeconds': 10,
+    'portSeconds': 15, 'cpu': 4, 'outerSeconds': 27, 'cleanupSeconds': 3}
 
 
 class Blocked(RuntimeError):
@@ -65,35 +69,43 @@ def read_va(exe, address, size):
     raise Blocked(f'Unbacked PE bytes at {address:08x}')
 
 
+def pack_person(person, commands):
+    raw = bytearray(256)
+    if set(person) != set(FIELDS) or len(commands) != 8:
+        raise Blocked('Missing or additional mapped field/command slot')
+    for key, (offset, fmt) in FIELDS.items():
+        struct.pack_into('<'+fmt, raw, offset, person[key])
+    struct.pack_into('<8H', raw, 0x8b, *commands)
+    return bytes(raw)
+
+
+def fixed_case(raw):
+    if sha(raw) != FIXED_CASE_SHA:
+        raise Blocked('Fixed case drift; additional cases or altered inputs need review')
+    case = json.loads(raw)
+    case['person'] = {**case['observedPersonFields'], 'maxLife': case['suppliedFields']['maxLife']['value']}
+    if (case['id'] != 'ordinary17-terminal-restart' or case['pairs'] != 3 or
+            case['commands'] != [26, 0, 0, 0, 0, 0, 0, 0] or case['order']['id'] != 26 or
+            case['nextCounters'] != [150, 151, 152] or case['acquisitionCount'] != 0):
+        raise Blocked('Fixed case scope mismatch')
+    if sha(pack_person(case['person'], case['commands'])) != RAW_SHA:
+        raise Blocked('Final supplied raw256 drift')
+    order = case['order']
+    raw_order = struct.pack('<BBHHHH', *(order[k] for k in ['model','flags','references','object','a','b']))
+    if raw_order.hex() != ORDER_HEX:
+        raise Blocked('Order26 record drift')
+    return case
+
+
 def prepared():
     manifest_bytes = (HERE/'preflight.json').read_bytes()
     manifest = json.loads(manifest_bytes)
-    for path, expected in manifest['sourceSha256'].items():
-        if sha((ROOT/path).read_bytes()) != expected:
-            raise Blocked('Source drift: '+path)
-    for path, expected in manifest['inputSha256'].items():
-        if sha(Path(path).read_bytes()) != expected:
-            raise Blocked('Input drift: '+path)
-    if sha(Path(manifest['nodePath']).read_bytes()) != manifest['nodeSha256']:
-        raise Blocked('Node binary drift')
-    spec = json.loads((HERE/'cases.json').read_text())
-    cases = []
-    for family in ['main', 'boundaries']:
-        for case in spec[family]:
-            row = {**spec['defaults'], **case, 'family': family}
-            row['person'] = {**spec['defaults']['person'], **case.get('person', {})}
-            if set(row['person']) != set(FIELDS):
-                raise Blocked('Missing or unbound person field: '+row['id'])
-            if row['person']['state'] != 10 or row['person']['vehicle'] or row['person']['class'] != 1:
-                raise Blocked('Case outside on-foot live-person scope')
-            if row['person']['substate'] not in [2, 3] or row['acquisitionCount'] not in [0, 1]:
-                raise Blocked('Case outside approved controller/consumer scope')
-            cases.append(row)
-    count = sum(c['pairs'] for c in cases)
-    if len(spec['boundaries']) > 24 or count != manifest['controllerCalls'] or count > 80:
-        raise Blocked('Case budget drift')
-    if len({c['id'] for c in cases}) != len(cases):
-        raise Blocked('Duplicate case')
+    if manifest['limits'] != LIMITS or manifest['controllerCalls'] != 3:
+        raise Blocked('Fixed execution limits drift')
+    verification = postflight(manifest, manifest_bytes)
+    if verification['status'] != 'passed':
+        raise Blocked('Source/input/tool drift: '+json.dumps(verification))
+    case = fixed_case((HERE/'case-input.json').read_bytes())
     starts = list(struct.iter_unpack('<HH', Path(manifest['gameRoot'],'data/vstart-0.ani').read_bytes()))
     frames = list(struct.iter_unpack('<HBBBBH', Path(manifest['gameRoot'],'data/vfra-0.ani').read_bytes()))
     counts = []
@@ -108,16 +120,20 @@ def prepared():
             raise Blocked('Unexpected VFRA cycle')
         counts.append(len(seen) & 255)
     imported = json.loads((ROOT/'app/original-units.json').read_text())['frameCounts']
-    if counts != imported or [counts[s] for s in [160,168,176,184]] != [4,6,10,18]:
+    if counts != imported or [counts[s] for s in [48,160,168]] != [6,4,6]:
         raise Blocked('Loaded animation counts differ')
+    count_table = bytearray(len(counts)*6)
+    for index,count in enumerate(counts):
+        count_table[index*6+1] = count
+    if sha(count_table) != manifest['suppliedFrameCountTableSha256']:
+        raise Blocked('Six-byte-stride count table drift')
     from capstone import Cs, CS_ARCH_X86, CS_MODE_32
     disassembler = Cs(CS_ARCH_X86, CS_MODE_32)
     exe = Path(manifest['executable']).read_bytes()
     instructions = {}
     for first, end in RANGES:
         raw = read_va(exe, first, end-first)
-        expected = manifest['instructionRanges'][f'{first:08x}-{end:08x}']
-        if sha(raw) != expected:
+        if sha(raw) != manifest['instructionRanges'][f'{first:08x}-{end:08x}']:
             raise Blocked('Instruction-range drift')
         decoded = list(disassembler.disasm(raw, first))
         if not decoded or decoded[-1].address+decoded[-1].size != end:
@@ -125,26 +141,69 @@ def prepared():
         for instruction in decoded:
             instructions[instruction.address] = (instruction.mnemonic, instruction.op_str)
     rules = json.loads((ROOT/'app/original-rules.json').read_text())
-    for obj in [95,97,98,99]:
+    for table in manifest['tables']:
+        raw = read_va(exe, int(table['address'],16), len(bytes.fromhex(table['bytes'])))
+        if raw.hex() != table['bytes'] or sha(raw) != table['sha256']:
+            raise Blocked('Original table drift: '+table['name'])
+    for obj in [17,95,97]:
         if list(struct.unpack('<hh', read_va(exe,0x5a6858+obj*4,4))) != rules['animationObjects'][obj]:
-            raise Blocked('Object table drift')
-    return manifest, cases, counts, instructions, rules, manifest_bytes
+            raise Blocked('Imported object table drift')
+    for draw in [14,16,19]:
+        if rules['animationDescriptors'][draw]['mode'] != 2:
+            raise Blocked('Unexpected updater mode')
+    if rules['personAnimationObjects'][4] != 17 or not rules['personModels'][4]['flags'] & 1:
+        raise Blocked('Imported stop/model table drift')
+    return manifest, [case], counts, instructions, rules, manifest_bytes
+
+
+def permitted_write(address, size, phase):
+    if size < 1:
+        return False
+    if STACK-0x2000 <= address and address+size <= STACK+0x1000:
+        return True
+    names = ['f1', 'f2'] if phase == 'updater' else [
+        'flags2','substate','object','renderFlags','f1','f2','draw','morph','palette',
+        'speed','timer','assignment']
+    allowed_bytes = {P+offset+i for name in names
+        for offset,fmt in [FIELDS[name]] for i in range(struct.calcsize('<'+fmt))}
+    return all(byte in allowed_bytes for byte in range(address,address+size))
+
+
+def check_state(state, case):
+    if len(bytes.fromhex(state['raw'])) != 256 or set(state['fields']) != set(FIELDS):
+        raise Blocked('Incomplete state observation')
+    if pack_person(state['fields'], state['commands']).hex() != state['raw']:
+        raise Blocked('Unexpected unmapped person-byte mutation; raw256 retained')
+    if (state['commands'] != case['commands'] or state['order'] != case['order'] or
+            state['orderRaw'] != ORDER_HEX or state['owner'] != {
+                'personAddress': P, 'personId': 3164, 'orderId': 26, 'orderAddress': ORDER}):
+        raise Blocked('Order/owner/command queue drift')
+    for key in ['cosmeticRandom','simulationRandom']:
+        if state[key] != case[key]:
+            raise Blocked('Unexpected RNG change: '+key)
+    for key in ['id','class','model','state','flags3','flags4','assignment','statusFlags',
+                'animationMode','commandStatus','commandCursor','immediateCommand','vehicle','cargo']:
+        if state['fields'][key] != case['person'][key]:
+            raise Blocked('Fixed domain changed: '+key)
 
 
 def run_native(manifest, cases, counts, instructions, rules, result, output):
-    # Imports and emulation exist exclusively in the separately authorized path.
-    from unicorn import UC_HOOK_CODE, UC_HOOK_MEM_WRITE
+    # Imported only after the exact-code review and separate execution grant.
+    from unicorn import UC_HOOK_CODE, UC_HOOK_MEM_WRITE, UC_HOOK_MEM_READ
     from unicorn.x86_const import (UC_X86_REG_ESP, UC_X86_REG_EIP, UC_X86_REG_EAX,
         UC_X86_REG_EBX, UC_X86_REG_ECX, UC_X86_REG_EDX, UC_X86_REG_ESI,
         UC_X86_REG_EDI, UC_X86_REG_EBP, UC_X86_REG_EFLAGS)
     sys.path.insert(0, str(ROOT/'scripts'))
     from decomp import native_cpu
+    deadline = time.monotonic()+10
     cpu, identity = native_cpu(Path(manifest['executable']))
     cpu.mem_map(P, 0x40000)
-    deadline = time.monotonic()+60
-    controller_calls = 0
-    current = {}
+    current = {'visit': 0, 'phase': 'initial', 'controllerReturn': None}
     events = []
+    person_reads = set()
+    calls = []
+    result['calls'] = calls
+    scenario = cases[0]
 
     def write(address, fmt, *values):
         cpu.mem_write(address, struct.pack('<'+fmt, *values))
@@ -159,8 +218,11 @@ def run_native(manifest, cases, counts, instructions, rules, result, output):
             'objectIdCandidates':[i for i,pair in enumerate(rules['animationObjects'])
                 if pair == [values['object'],values['draw']]],
             'commands':[read(P+0x8b+i*2,'H') for i in range(8)],
-            'order':dict(zip(['model','flags','references','object','a','b'],order_values)),
+            'order':{'id':26, **dict(zip(['model','flags','references','object','a','b'],order_values))},
+            'orderRaw':bytes(cpu.mem_read(ORDER,10)).hex(),
+            'owner':{'personAddress':P,'personId':values['id'],'orderId':read(P+0x8b,'H'),'orderAddress':ORDER},
             'worldAnimationCounter':read(SERIAL,'I'),
+            'controllerReturn':current['controllerReturn'],
             'cosmeticRandom':read(COSMETIC,'I'),'simulationRandom':read(SIMULATION,'I')}
 
     def event(kind, args, boundary):
@@ -169,46 +231,22 @@ def run_native(manifest, cases, counts, instructions, rules, result, output):
 
     def code(_cpu, address, size, _user):
         if time.monotonic() >= deadline:
-            raise Blocked('60-second total native deadline')
+            raise Blocked('10-second total native deadline')
         current['instructions'] += 1
         if current['instructions'] > 100000:
             raise Blocked('100,000-instruction call budget')
         sp = cpu.reg_read(UC_X86_REG_ESP)
-        if address in LEAVES:
-            person = read(sp+4,'I')
-            if person != P:
-                raise Blocked('Unexpected supplied-leaf owner')
-            kind = LEAVES[address]
-            value = 0
-            if kind == 'acquisition':
-                radius, angle_out = read(sp+8,'I'),read(sp+12,'I')
-                if radius != 3 or not STACK-0x2000 <= angle_out <= STACK+0xffc:
-                    raise Blocked('Unexpected acquisition arguments')
-                event(kind,[P,radius],'supplied-count/status/first-angle')
-                value = current['case']['acquisitionCount']
-                flags = read(P+0xb2,'B')
-                write(P+0xb2,'B',flags|2 if value<=4 else flags&~2)
-                if value:
-                    write(angle_out,'I',current['case']['firstAngle'])
-            elif kind == 'audio':
-                cue, argument = read(sp+8,'I'),read(sp+12,'I')
-                if cue not in [51,189] or argument != 0:
-                    raise Blocked('Unexpected audio request')
-                event(kind,[P,cue,argument],'supplied-no-audio/no-extra-RNG')
-            elif kind == 'registration':
-                if read(P+0x63,'H'):
-                    raise Blocked('Unexpected motion-group registration')
-                event(kind,[P],'supplied-group0-no-writes')
-            elif kind == 'reveal-check':
-                if read(P+0x10,'I') & 0x1000:
-                    raise Blocked('Unexpected invisibility reveal')
-                event(kind,[P],'supplied-visible-no-writes')
-            elif kind == 'release':
-                radius = read(sp+8,'I')
-                if radius != 3 or current['case']['acquisitionCount']:
-                    raise Blocked('Unexpected release population')
-                event(kind,[P,radius],'supplied-empty-listeners-no-writes')
-            cpu.reg_write(UC_X86_REG_EAX,value)
+        if not STACK-0x2000 <= sp <= STACK:
+            raise Blocked('Stack escaped bounded cdecl window')
+        if address == 0x43abf0:
+            person, radius, angle_out = (read(sp+i,'I') for i in [4,8,12])
+            if (person != P or radius != 3 or current['phase'] != 'controller' or
+                    current['visit'] not in [1,3] or not STACK-0x2000 <= angle_out <= STACK-4 or
+                    scenario['acquisitionCount'] != 0):
+                raise Blocked('Unexpected acquisition owner/radius/output/population/visit')
+            event('acquisition',[P,radius],'supplied-empty-count/status; stack-out untouched')
+            write(P+0xb2,'B',read(P+0xb2,'B') | 2)
+            cpu.reg_write(UC_X86_REG_EAX,0)
             cpu.reg_write(UC_X86_REG_EIP,read(sp,'I'))
             cpu.reg_write(UC_X86_REG_ESP,sp+4)
             return
@@ -227,24 +265,33 @@ def run_native(manifest, cases, counts, instructions, rules, result, output):
                 raise Blocked('Unexpected stop owner')
             event('stop',[P],'actual-native')
         elif address == 0x4d4040:
-            if read(sp+4,'I') != P:
-                raise Blocked('Unexpected upper-setter owner')
-            event('upper-setter',[P,read(sp+8,'H')],'actual-native')
+            obj = read(sp+8,'I')
+            if read(sp+4,'I') != P or obj not in [17,95]:
+                raise Blocked('Unexpected upper-setter owner/object')
+            event('upper-setter',[P,obj],'actual-native')
         elif address == 0x4ee700:
-            if read(sp+4,'I') != P+0x33:
-                raise Blocked('Unexpected lower-setter owner')
-            event('lower-setter',[P+0x33,read(sp+8,'B'),read(sp+12,'H')],'actual-native')
+            args = [read(sp+i,'I') for i in [4,8,12]]
+            if args not in [[P+0x33,16,48],[P+0x33,19,160]]:
+                raise Blocked('Unexpected lower-setter owner/draw/source')
+            event('lower-setter',args,'actual-native')
 
-    def memory_write(_cpu, _access, address, size, _value, _user):
-        allowed = [(P,P+256),(STACK-0x2000,STACK+0x1000),
-                   (COSMETIC,COSMETIC+4),(SIMULATION,SIMULATION+4)]
-        if not any(first<=address and address+size<=last for first,last in allowed):
+    def memory_write(_cpu, _access, address, size, value, _user):
+        result['writes'].append({'visit':current['visit'],'phase':current['phase'],
+            'address':f'{address:08x}','size':size,'value':value,
+            'eip':f'{cpu.reg_read(UC_X86_REG_EIP):08x}'})
+        if not permitted_write(address,size,current['phase']):
             raise Blocked(f'Unlisted native write {address:08x}+{size}')
+
+    def memory_read(_cpu, _access, address, size, _value, _user):
+        if address < P+256 and P < address+size:
+            person_reads.update(range(max(address,P)-P,min(address+size,P+256)-P))
+            if address < P+0x6e and P+0x6c < address+size:
+                raise Blocked('Selected path read unobserved maxLife')
 
     def call(address, *args):
         current['instructions'] = 0
         if time.monotonic() >= deadline:
-            raise Blocked('60-second total native deadline')
+            raise Blocked('10-second total native deadline')
         cpu.mem_write(STACK-0x2000,bytes(0x3000))
         write(STACK,'I'*(len(args)+1),STOP,*args)
         for register in [UC_X86_REG_EAX,UC_X86_REG_EBX,UC_X86_REG_ECX,
@@ -252,70 +299,81 @@ def run_native(manifest, cases, counts, instructions, rules, result, output):
             cpu.reg_write(register,0)
         cpu.reg_write(UC_X86_REG_EFLAGS,2)
         cpu.reg_write(UC_X86_REG_ESP,STACK)
+        receipt = {'entry':f'{address:08x}','args':list(args),'visit':current['visit'],
+            'phase':current['phase'],'status':'running','callingConvention':'cdecl; ECX=0'}
+        calls.append(receipt)
+        start = time.monotonic()
         try:
             cpu.emu_start(address,STOP,timeout=1_000_000,count=100_000)
             if cpu.reg_read(UC_X86_REG_EIP) != STOP:
-                raise Blocked('Native call stopped before return: time/instruction budget or execution fault')
+                raise Blocked('Native call stopped before sentinel return: budget or execution fault')
+            if cpu.reg_read(UC_X86_REG_ESP) != STACK+4:
+                raise Blocked('Unexpected callee stack cleanup')
+            if time.monotonic()-start > 1 or time.monotonic() >= deadline:
+                raise Blocked('Native call/total wall-time budget')
+            receipt['status'] = 'returned'
+            receipt['returnAL'] = cpu.reg_read(UC_X86_REG_EAX)&255
+            return receipt['returnAL']
         except Exception:
-            result['interruptedCall'] = {'entry':f'{address:08x}',
-                'eip':f'{cpu.reg_read(UC_X86_REG_EIP):08x}', 'case':current['case']['id'],
-                'visit':current['visit'], 'phase':current['phase'], 'state':snapshot()}
+            receipt['status'] = 'blocked'
+            result['interruptedCall'] = {**receipt,'eip':f'{cpu.reg_read(UC_X86_REG_EIP):08x}',
+                'state':snapshot(),'events':list(events)}
             raise
-        return cpu.reg_read(UC_X86_REG_EAX)&255
+        finally:
+            receipt['instructions'] = current['instructions']
+            receipt['seconds'] = time.monotonic()-start
+            result['personReadOffsets'] = sorted(person_reads)
 
     write(0x59df44,'I',COUNTS)
     for index,count in enumerate(counts):
         write(COUNTS+index*6+1,'B',count)
-    write(0x89c6f0,'B',0)
-    write(0x89d17c,'I',0)
-    write(0x895da8,'I',8)
-    write(0x895da4,'I',0x10000)
-    write(0x96aa70,'I',0)
-    for tribe in range(4):
-        write(0x89d1c8+tribe*0xc65+0x93d,'I',0)
-        write(0x89d1c8+tribe*0xc65+0xc1f,'B',1)
+    for address in [0x89d17c,0x895da8,0x895da4]:
+        write(address,'I',0)
+    cpu.mem_write(P,pack_person(scenario['person'],scenario['commands']))
+    cpu.mem_write(ORDER,bytes.fromhex(ORDER_HEX))
+    write(COSMETIC,'I',scenario['cosmeticRandom'])
+    write(SIMULATION,'I',scenario['simulationRandom'])
+    write(SERIAL,'I',scenario['worldAnimationCounter'])
     cpu.hook_add(UC_HOOK_CODE,code)
     cpu.hook_add(UC_HOOK_MEM_WRITE,memory_write)
-    result['nativeIdentity'] = identity
-    for scenario in cases:
-        cpu.mem_write(P,bytes(256))
-        for key,(offset,fmt) in FIELDS.items():
-            write(P+offset,fmt,scenario['person'][key])
-        write(P+0x8b,'H',1)
-        cpu.mem_write(0x938830,bytes(20))
-        write(ORDER,'BBHHHH',scenario['person']['commandStatus'],0,1,0,
-              scenario['person']['x'],scenario['person']['y'])
-        write(COSMETIC,'I',scenario['cosmeticRandom'])
-        write(SIMULATION,'I',scenario['simulationRandom'])
-        write(SERIAL,'I',1000)
-        record = {'case':scenario['id'],'rows':[]}
-        result['cases'].append(record)
-        for visit in range(1,scenario['pairs']+1):
-            controller_calls += 1
-            if controller_calls > min(80,manifest['controllerCalls']):
-                raise Blocked('Controller-call cap')
-            current.update(case=scenario,visit=visit,phase='before-controller')
-            write(P+0x2e,'B',(read(P+0x2e,'B')+1)&255)
-            write(SERIAL,'I',1000+visit)
-            events.clear()
-            row = {'case':scenario['id'],'visit':visit,'beforeController':snapshot(),
-                   'events':events}
-            record['rows'].append(row)
-            current['phase'] = 'controller'
-            row['result'] = call(0x43a4d0,P,ORDER)
-            current['phase'] = 'after-controller'
-            row['afterController'] = snapshot()
-            write(P+0x18,'I',read(SERIAL,'I'))
-            current['phase'] = 'before-updater'
-            row['beforeUpdater'] = snapshot()
-            current['phase'] = 'updater'
-            call(0x4ee7b0,P)
-            current['phase'] = 'after-updater'
-            row['afterUpdater'] = snapshot()
-            row['events'] = list(events)
-            result['completedControllerCalls'] = controller_calls
-        # Durable partial evidence after every fixed case; never extends the plan.
+    cpu.hook_add(UC_HOOK_MEM_READ,memory_read)
+    result.update(nativeIdentity=identity,writes=[],personReadOffsets=[])
+    record = {'case':scenario['id'],'initial':snapshot(),'rows':[]}
+    result['cases'].append(record)
+    check_state(record['initial'],scenario)
+    for visit, counter in enumerate(scenario['nextCounters'],1):
+        if result['completedControllerCalls'] >= 3 or result['completedUpdaterCalls'] >= 3:
+            raise Blocked('Controller/updater call cap')
+        current.update(visit=visit,phase='before-controller',controllerReturn=None)
+        write(P+0x2e,'B',counter)
+        write(SERIAL,'I',scenario['worldAnimationCounter']+visit)
+        events.clear()
+        row = {'case':scenario['id'],'visit':visit,'beforeController':snapshot(),'events':[]}
+        record['rows'].append(row)
+        current['phase'] = 'controller'
+        row['result'] = call(0x43a4d0,P,ORDER)
+        result['completedControllerCalls'] += 1
+        current['controllerReturn'] = row['result']
+        current['phase'] = 'after-controller'
+        row['afterController'] = snapshot()
+        write(P+0x18,'I',read(SERIAL,'I'))
+        current['phase'] = 'before-updater'
+        row['beforeUpdater'] = snapshot()
+        current['phase'] = 'updater'
+        row['updaterReturnAL'] = call(0x4ee7b0,P)
+        result['completedUpdaterCalls'] += 1
+        current['phase'] = 'after-updater'
+        row['afterUpdater'] = snapshot()
+        row['events'] = list(events)
+        # Persist complete raw observations before checking any result assertion.
         (output/'native.json').write_text(json.dumps(result,indent=2)+'\n')
+        for phase in PHASES:
+            check_state(row[phase],scenario)
+        for item in row['events']:
+            check_state(item['state'],scenario)
+        if row['result'] != 0:
+            raise Blocked('Unexpected controller return/release')
+    result['nativeSeconds'] = 10-(deadline-time.monotonic())
     result['status'] = 'completed'
 
 
@@ -326,70 +384,81 @@ def differences(native, port):
             raise Blocked('Case order mismatch')
         for n,p in zip(ncase['rows'],pcase['rows'],strict=True):
             delta = {'case':n['case'],'visit':n['visit'],'phases':{}}
-            for phase in ['beforeController','afterController','beforeUpdater','afterUpdater']:
-                ns,ps=n[phase],p[phase]
-                changed={key:{'native':value,'port':ps['fields'][key]}
-                         for key,value in ns['fields'].items() if value!=ps['fields'][key]}
-                raw_n,raw_p=bytes.fromhex(ns['raw']),bytes.fromhex(ps['raw'])
-                entry={'fields':changed,
-                    'rawByteOffsets':[i for i,(a,b) in enumerate(zip(raw_n,raw_p,strict=True)) if a!=b]}
-                for key in ['cosmeticRandom','simulationRandom','commands','order',
-                            'objectIdCandidates','worldAnimationCounter']:
-                    if ns[key]!=ps[key]:entry[key]={'native':ns[key],'port':ps[key]}
-                if changed or entry['rawByteOffsets'] or len(entry)>2:
+            for phase in PHASES:
+                ns,ps = n[phase],p[phase]
+                entry = {key:{'native':ns.get(key),'port':ps.get(key)}
+                    for key in sorted(set(ns)|set(ps)) if ns.get(key)!=ps.get(key)}
+                if entry:
+                    raw_n,raw_p=bytes.fromhex(ns['raw']),bytes.fromhex(ps['raw'])
+                    entry['rawByteOffsets']=[i for i,(a,b) in enumerate(zip(raw_n,raw_p,strict=True)) if a!=b]
                     delta['phases'][phase]=entry
-            if n['result']!=p['result']:
-                delta['result']={'native':n['result'],'port':p['result']}
-            # Keep exact raw event sequences, including explicitly supplied adapter boundaries.
-            if n['events']!=p['events']:
-                delta['events']={'native':n['events'],'port':p['events']}
+            for key in ['result','events']:
+                if n[key]!=p[key]:
+                    delta[key]={'native':n[key],'port':p[key]}
             if delta['phases'] or 'result' in delta or 'events' in delta:
                 out.append(delta)
     return out
 
 
-def assert_failure_first(native,port):
-    n={c['case']:c['rows'] for c in native['cases']}
-    p={c['case']:c['rows'] for c in port['cases']}
-    for case,source,frame_count in [('gesture98-to-return',176,10),('gesture99-to-return',184,18)]:
-        birth=n[case][0]['afterController'];base=p[case][0]['afterController']
-        if not (birth['fields']['object']==source and birth['fields']['f1']==1 and
-                birth['fields']['f2']==0 and base['fields']['object']==168 and
-                birth['cosmeticRandom']!=base['cosmeticRandom']):
-            raise Blocked('Seeded missing-producer diagnosis not demonstrated: '+case)
-        final=n[case][frame_count-1]['afterUpdater']['fields']
-        ret=n[case][-1]
-        if not (final['object']==source and final['f2']==frame_count-1 and
-                ret['afterController']['fields']['object']==168 and
-                ret['afterController']['fields']['f1']==0 and
-                ret['afterController']['fields']['f2']==0 and
-                ret['afterUpdater']['fields']['f2']==1):
-            raise Blocked('Native gesture/return endpoint mismatch: '+case)
-    native_entry=n['entry-to-first-loop'];port_entry=p['entry-to-first-loop']
-    for index in [0,8]:
-        nf=native_entry[index]['afterController']['fields'];pf=port_entry[index]['afterController']['fields']
-        if (nf['f1'],nf['f2'])!=(1,0) or (nf['f1'],nf['f2'])==(pf['f1'],pf['f2']):
-            raise Blocked('Missing entry phase-reset divergence')
-    if not native_entry[-1]['afterController']['fields']['assignment']&16 or port_entry[-1]['afterController']['fields']['assignment']&16:
-        raise Blocked('Missing loop-entry assignment divergence')
-    active32=n['gesture99-to-return'][16]
-    if (active32['beforeController']['fields']['counter']!=32 or
-            active32['beforeController']['cosmeticRandom']!=active32['afterController']['cosmeticRandom'] or
-            any(event['kind']=='upper-setter' for event in active32['events'])):
-        raise Blocked('Active-gesture counter32 redrew or selected another object')
-    for case,residue in [('no-gesture-residue2',2),('no-gesture-residue3',3)]:
-        row=n[case][0]
-        if (row['afterController']['fields']['object']!=168 or
-                row['beforeController']['cosmeticRandom']==row['afterController']['cosmeticRandom'] or
-                row['afterController']['cosmeticRandom']&3!=residue):
-            raise Blocked('No-gesture decision did not consume native cosmetic RNG')
+def assess(native, port, case):
+    for name, result in [('native',native),('port',port)]:
+        if (len(result['cases']) != 1 or len(result['cases'][0]['rows']) != 3 or
+                result['completedControllerCalls'] != 3 or result['completedUpdaterCalls'] != 3):
+            raise Blocked('Incomplete fixed case: '+name)
+        check_state(result['cases'][0]['initial'],case)
+        for visit,row in enumerate(result['cases'][0]['rows'],1):
+            if row['visit'] != visit or row['result'] != 0:
+                raise Blocked('Unexpected visit/controller return: '+name)
+            for phase in PHASES:
+                state = row[phase]
+                check_state(state,case)
+                if state['fields']['counter'] != 149+visit or state['worldAnimationCounter'] != 4245+visit:
+                    raise Blocked('Scheduler supply drift: '+name)
+                expected_stamp = 4244+visit if phase in PHASES[:2] else 4245+visit
+                if state['fields']['stamp'] != expected_stamp:
+                    raise Blocked('Owner stamp drift: '+name)
+            for event in row['events']:
+                check_state(event['state'],case)
+    n = native['cases'][0]['rows']
+    p = port['cases'][0]['rows']
+    # Preserve every discrepancy; the hypothesis needs the concrete restart family.
+    native_pose = [n[1]['afterUpdater']['fields'][key] for key in ['object','draw']]
+    port_pose = [p[1]['afterUpdater']['fields'][key] for key in ['object','draw']]
+    supported = native_pose == [48,16] and port_pose == [168,14]
+    endpoints = []
+    for name,rows in [('native',n),('port',p)]:
+        for i,row in enumerate(rows):
+            f = row['afterUpdater']['fields']
+            expected = [840,4,168,14,0,0,0x42220200 if name=='native' else 0x02220200] if i==0 else (
+                [840,2,48 if name=='native' else 168,16 if name=='native' else 14,0,1,0x42220200]
+                if i==1 else [7,2,160,19,0,0,0x02220200])
+            actual = [f[key] for key in ['timer','substate','object','draw','f1','f2','flags2']]
+            endpoints.append({'implementation':name,'visit':i+1,'predicted':expected,
+                'observed':actual,'matchesPrediction':actual==expected})
+    def signatures(rows):
+        return [[(e['kind'],e['args']) for e in row['events']] for row in rows]
+    acquire = ('acquisition',[P,3])
+    stop = ('stop',[P])
+    upper17 = ('upper-setter',[P,17])
+    upper95 = ('upper-setter',[P,95])
+    native_expected = [[acquire],[stop,upper17,('lower-setter',[P+0x33,16,48])],
+        [stop,upper17,('lower-setter',[P+0x33,16,48]),upper95,('lower-setter',[P+0x33,19,160]),acquire]]
+    port_expected = [[acquire],[],[stop,upper17,('lower-setter-intent',[P+0x33,16,48]),
+        upper95,('lower-setter-intent',[P+0x33,19,160]),acquire]]
+    expected_events = signatures(n)==native_expected and signatures(p)==port_expected
+    return {'status':'hypothesis-supported' if supported and expected_events and all(
+                row['matchesPrediction'] for row in endpoints) else 'hypothesis-rejected',
+        'restartNativeSourceDraw':native_pose,'restartPortSourceDraw':port_pose,
+        'eventPredictionsMatch':expected_events,'endpointPredictions':endpoints,
+        'ordinaryRenderedImpact':'not-established',
+        'transientEntryBit':'not sufficient evidence of lasting or visible gameplay impact'}
 
 
 def postflight(manifest, manifest_bytes):
     checks = [('manifest', str(HERE/'preflight.json'), sha(manifest_bytes))]
     checks += [('source', str(ROOT/path), expected) for path,expected in manifest['sourceSha256'].items()]
     checks += [('input', path, expected) for path,expected in manifest['inputSha256'].items()]
-    checks.append(('node', manifest['nodePath'], manifest['nodeSha256']))
+    checks += [('tool', path, expected) for path,expected in manifest['toolSha256'].items()]
     rows = []
     for kind,path,expected in checks:
         row = {'kind':kind,'path':path,'expectedSha256':expected}
@@ -421,20 +490,23 @@ def main():
     if args.validate:
         print(json.dumps({'status':'preflight-passed','nativeExecution':'not-run',
             'portExecution':'not-run','cases':len(cases),'controllerCalls':sum(c['pairs'] for c in cases),
-            'boundaries':sum(c['family']=='boundaries' for c in cases),
+            'raw256Sha256':RAW_SHA,'orderAddress':f'{ORDER:08x}',
             'manifestSha256':sha(manifest_bytes)},indent=2))
         return
+    import os
+    if os.sched_getaffinity(0) != {4}:
+        raise Blocked('Execution requires the separately granted single CPU4 lane')
     output=ROOT/manifest['outputDirectory']
     output.mkdir(parents=True,exist_ok=False)
     result={'status':'running','scope':manifest['scope'],'cases':[],
-            'manifestSha256':sha(manifest_bytes),'completedControllerCalls':0}
+            'manifestSha256':sha(manifest_bytes),'completedControllerCalls':0,'completedUpdaterCalls':0}
     (output/'frozen-manifest.json').write_bytes(manifest_bytes)
     blockers=[]
     summary=None
     try:
         run_native(manifest,cases,counts,instructions,rules,result,output)
         (output/'native.json').write_text(json.dumps(result,indent=2)+'\n')
-        payload={'fields':FIELDS,'frameCounts':counts,'cases':cases,'addresses':{'person':P}}
+        payload={'fields':FIELDS,'frameCounts':counts,'cases':cases,'addresses':{'person':P,'order':ORDER}}
         (output/'supplied-input.json').write_text(json.dumps(payload,indent=2)+'\n')
         try:
             process=subprocess.run([manifest['nodePath'],str(HERE/'compare-port.mjs')],
@@ -451,11 +523,10 @@ def main():
         port=json.loads(process.stdout)
         inventory=differences(result,port)
         (output/'divergences.json').write_text(json.dumps(inventory,indent=2)+'\n')
-        assert_failure_first(result,port)
-        summary={'status':'diagnosis-supported','wholeSermonEquality':'rejected',
-                 'controllerCalls':result['completedControllerCalls'],'divergentRows':len(inventory),
-                 'ordinaryPlay':'not-established','audioRNG':'not-executed; supplied leaf',
-                 'manifestSha256':result['manifestSha256']}
+        summary=assess(result,port,cases[0])
+        summary.update(controllerCalls=result['completedControllerCalls'],
+            updaterCalls=result['completedUpdaterCalls'],divergentRows=len(inventory),
+            manifestSha256=result['manifestSha256'])
     except Exception as error:
         if result['status'] != 'completed':
             result['status']='blocked'
