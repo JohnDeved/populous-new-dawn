@@ -155,8 +155,7 @@ console.log(JSON.stringify(Object.fromEntries([
     resolved = json.loads(subprocess.check_output(['node', '--experimental-import-meta-resolve', '--input-type=module', '-e', code, str(dependencies)], cwd=ROOT, text=True))
     runtime_files = {str(Path(path).resolve()): sha(Path(path)) for path in resolved.values()}
     for relative in ('.package-lock.json', 'playwright-core/lib/coreBundle.js', 'vite/bin/vite.js',
-                     'three/package.json', 'three/src/renderers/webgl/WebGLTextures.js',
-                     'three/src/renderers/webgl/WebGLCapabilities.js', 'three/src/renderers/webgl/WebGLProperties.js'):
+                     *upload_runtime):
         path = dependencies / relative
         runtime_files[str(path.resolve())] = sha(path)
     output = ROOT / 'work/orchestration/firewarrior-firing-browser-candidate-01'
@@ -176,7 +175,9 @@ console.log(JSON.stringify(Object.fromEntries([
                       'runtimeReady': local, 'dependencyFiles': runtime_files,
                       'browser': str(args.browser.resolve()), 'browserSha256': BROWSER_SHA,
                       'node': subprocess.check_output(['node', '--version'], text=True).strip(),
-                      'proposedArgv': command, 'nativeExecution': False, 'browserExecution': False,
+                      'proposedArgv': command,
+                      'outerReceiptInputs': [str(dependencies / name) for name in upload_runtime],
+                      'nativeExecution': False, 'browserExecution': False,
                       'visualAcceptance': 'not-run', 'publication': 'local-unpushed-not-reset-durable'}, indent=2))
 
 

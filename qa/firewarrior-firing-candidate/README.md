@@ -151,7 +151,11 @@ timeout --signal=TERM --kill-after=5s 330s taskset -c 0-3 \
 ```
 
 Create fresh owned tmp/output directories and use the existing receipt wrapper,
-binding checker/preflight/manifest/runtime inputs. Check the private port before
+binding checker/preflight/manifest/runtime inputs. Include the actual ESM bundles
+with `--input node_modules/three/build/three.module.js` and
+`--input node_modules/three/build/three.core.js`; both are pinned in
+upload-runtime.json, runtime preflight dependencyFiles/outerReceiptInputs and the
+scenario's before/after runtime identity. Check the private port before
 launch without disturbing services. Retain the baseline's single CPU0–3 lane,
 ephemeral1440×1000 sandboxed official Headless Shell,300s harness/330s outer bound,
 entry60s,training110s/30s no-progress,route/firing42s,capture/recovery20s,
