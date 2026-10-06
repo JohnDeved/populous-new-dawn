@@ -545,11 +545,10 @@ function stepAreaAttack(
     if (!fireTarget) return true
     if (p.flags2 & 0x40000000) {
       p.flags2 = (p.flags2 & ~0x40000000) >>> 0
-      if (!firewarriorReady(w, u, fireTarget)) restart = true
-      else {
+      if (firewarriorReady(w, u, fireTarget)) {
         p.assignment |= 0x10
         p.animationMode = u.cooldown ? 45 : 44
-      }
+      } else restart = true
     }
     if (!restart) {
       if (p.animationMode === 40) {
