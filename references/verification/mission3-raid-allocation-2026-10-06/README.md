@@ -90,4 +90,6 @@ hardware performance and whole-mission parity remain outside this claim.
 
 Normal Git push authentication remains unavailable. The branch and incremental
 local Git bundle preserve all source and evidence; no API blob or Library upload
-substitutes for publication. Final independent code/evidence review is pending.
+substitutes for publication. Independent code/evidence review accepted the bounded
+repair and gates; see `final-review.md` and `source-manifest.json`. Publication and
+integration remain separate pending actions.

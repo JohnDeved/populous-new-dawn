@@ -3,7 +3,8 @@
 Status: original witnesses independently accepted; bounded repair passes all five
 native pairs, the unchanged natural raid/checkpoint test and standard check/build.
 Scoped formatting/ESLint pass; baseline Oxlint and advisory Fallow findings remain
-explicit. Final independent acceptance is pending. Owner:
+explicit. Independent code/gate review accepted the bounded repair; normal Git
+publication and integration remain pending. Owner:
 [issue227](https://github.com/JohnDeved/populous-new-dawn/issues/227).
 The [acceptance index](../../references/verification/mission3-raid-allocation-2026-10-06/README.md)
 records exact tested-source correspondence and retained quality limitations.
