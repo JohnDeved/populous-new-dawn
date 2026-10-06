@@ -1,5 +1,5 @@
 {
-  "status": "plan-only-no-new-driver-or-execution",
+  "status": "driver-prepared-awaiting-final-accepted-feature-adoption",
   "applicationMain": "d35835caba6f6d89d9ca97a4f87a4b68744a6bbf",
   "acceptedQa": "0ef63ba8e1dbf2ef51e33626948e179116c40ca4",
   "nativeProofSource": "90d79f20e2931d61e8125a7a7a4ecf11b634201d",
@@ -49,5 +49,12 @@
       128
     ]
   },
-  "futureApplicationAdoption": "Only exact independently accepted fix under parent coordination, with revised pins and fresh source review. No current claim of fix adoption."
+  "futureApplicationAdoption": "Only exact independently accepted fix under parent coordination, with revised pins and fresh source review. No current claim of fix adoption.",
+  "proposedFeature": "bd07a6302bb0170e9d6dc235983c2a961694d753",
+  "driverAdaptations": {
+    "observe.mjs": "Accepted candidate phase/owner predicates narrowed to scalar ordinary cutoff and48/16 stop; unchanged baseline chainPhaseObservers imported.",
+    "render.mjs": "Accepted render-observation geometry/layer reader made synchronous with preloaded inputs, actualDraw/material dimensions, three bounded existing-framebuffer reads. No forced rendering or layer changes.",
+    "scenario.mjs": "Accepted acquisition imported unchanged, same fresh command17 entry and finite observation, no Save/Load/pause/supersession; fatal retained cleanup.",
+    "run.mjs": "Accepted source/runtime-pinned runner adapted only to cutoff inputs/port4405/540s and disabled until source-inputs status ready."
+  }
 }

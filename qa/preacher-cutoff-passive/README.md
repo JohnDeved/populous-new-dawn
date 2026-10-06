@@ -1,7 +1,9 @@
 # Passive ordinary Preacher cutoff capture
 
-Source-only plan. No runnable new driver, package command, dependency transfer or
-browser run is included. This isolated QA branch preserves accepted QA0ef63ba8
+Source-only driver prepared from the independently accepted plan53bd2a40.
+Launch is disabled by source-inputs status until final accepted feature adoption
+and exact driver/command review. No package command, dependency transfer or
+browser run has been performed in this tree. This isolated QA branch preserves accepted QA0ef63ba8
 and normally merges current main d35835caba6f6d89d9ca97a4f87a4b68744a6bbf.
 Its app/public/scripts/tests trees equal that main, which carries exact b2 behavior.
 The accepted0ef tree and both candidate attempts remain immutable.
@@ -31,9 +33,8 @@ trainee admission row. Use the maintained harness/runner and exact accepted
 runtime hashes. Do not repeat conversion, combat, victory, gesture screenshots,
 Save/Load or movement supersession.
 
-New QA files after this plan's review would be only a small `observe.mjs`,
-`scenario.mjs`, `run.mjs`, source pins and focused dependency-free tests in this
-folder. Import the unchanged baseline `chainPhaseObservers`; adapt the narrow
+The new QA files are small `observe.mjs`, `render.mjs`, `scenario.mjs`, `run.mjs`,
+source pins and focused dependency-free tests in this folder. Import the unchanged baseline `chainPhaseObservers`; adapt the narrow
 read/progress predicates from the accepted candidate. The initial command3→fresh17
 entry, adjacent logical visits and timer1..840 remain mandatory. Existing helpers,
 app/public, scripts and tests are not edited. No generic orchestration is added.
@@ -128,3 +129,16 @@ owner/phase pairing, extra callbacks, failed restoration and expired900/120 boun
 A source test forbids render/tick/state-writing operations in the passive callback.
 Only syntax and these dependency-free tests are needed for the eventual QA delta;
 application standard gates belong to the separate runtime owner.
+
+
+## Source preparation receipt
+
+Nine dependency-free tests cover the supplied full loop with middle rendering
+skipped, controller/updater source/stamp ownership, old missing-bit/stop failures,
+entry/visit/clock/queue interruption, actual-frame/layer correspondence, callback
+forwarding and restoration, fatal cleanup, unchanged helper hashes, passive-source
+restrictions and900-visit/2800-row ceilings. These supplied rows are not runtime
+or native proof. Syntax checks and whitespace checks are retained at the frozen
+QA head. The actual passive readback retains raw RGBA only; PNG conversion, if
+needed for review, must encode those exact saved bytes with the recorded row order.
+There is no screenshot or framebuffer recreation inside the driver.
