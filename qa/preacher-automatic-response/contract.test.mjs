@@ -1,0 +1,116 @@
+import assert from 'node:assert/strict'
+import test from 'node:test'
+import { readFileSync } from 'node:fs'
+import { createHash } from 'node:crypto'
+import { movingEncounter, qualifyingVisit, createResponseTracker } from './observe.mjs'
+import { responseProjection, requireResponseCheckpoint, requireSameCheckpoint } from './checkpoint.mjs'
+import { requireCleanup } from './scenario.mjs'
+import { chainPhaseObservers } from '../preacher-gesture-baseline/observe.mjs'
+
+// Supplied diagnostic records test acceptance logic only. They are not ordinary
+// gameplay, native execution or rendered evidence.
+function row(turn, phase = 'afterTurn', response = false) {
+  const queued = { id: 10, identity: 2, model: 3, flags: 0, references: 1, object: 0, a: 20000, b: 20000 }
+  return { phase, turn, now: turn * 84, sameWorld: true, sameActor: true, nativeOnly: true,
+    registeredOwner: true, actor: { id: 5, kind: 'preacher', team: 'blue', hp: 55, inside: null }, busy: false,
+    status: 'playing', paused: false, speed: 1, visibility: 'visible', pendingDistance: 5000,
+    person: { id: 5, class: 1, model: 4, tribe: 0, state: 10, speed: 40, commandStatus: response ? 32 : 3,
+      commandCursor: 0, immediateCommand: response ? 11 : 0, commands: [10, 0], flags2: 0x20000, flags3: 0,
+      flags4: 0, assignment: 0, vehicle: 0, x: 0x2100, y: 0x2100, substate: 0, counter: turn & 255, timer: 0, draw: 14 },
+    commands: [10, 0], queued: [queued], order: response ? { id: 11, identity: 3, model: 32, flags: 32,
+      references: 1, object: 0, a: 0x2100, b: 0x2100 } : queued,
+    orderUsers: [5], retiredOrders: [], listeners: [], facts: { autoEligible: true, range: 1, genericThreat: 0,
+      primaryGuardIds: [], availableOrder: true, gameFlags: 0, levelFlags2: 0, scanMask: 15,
+      braves: [{ id: 6, identity: 6, x: 0x2180, y: 0x2100, model: 2, tribe: 1, state: 17,
+        life: 1000, flags2: 0x20000, flags4: 0, workFlags: 0, vehicle: 0, reverseAlliance: 0 }] } }
+}
+
+test('baseline absence requires a source-bound due visit while destination remains pending', () => {
+  const before = row(15, 'beforeTurn'), after = row(16)
+  assert.equal(movingEncounter(before), true); assert.ok(qualifyingVisit(before, after))
+  const tracker = createResponseTracker({ baseline: true }); tracker.observe(before); tracker.observe(after)
+  assert.equal(tracker.progress.status, 'baseline-omission')
+  for (const change of [v => { v.facts.primaryGuardIds = [7] }, v => { v.facts.genericThreat = 2 },
+    v => { v.pendingDistance = 0 }, v => { v.person.speed = 0 }, v => { v.facts.availableOrder = false },
+    v => { v.facts.braves[0].workFlags = 1 }, v => { v.facts.braves[0].identity = 9 },
+    v => { v.order.identity = 9 }, v => { v.commands[0] = 9 }, v => { v.turn = 17 }]) {
+    const changed = structuredClone(after); change(changed)
+    assert.equal(qualifyingVisit(before, changed), null)
+  }
+})
+
+test('automatic32 can attach on the first moving visit and need not expose persistent substate5', () => {
+  const tracker = createResponseTracker(), before = row(15, 'beforeTurn'), first = row(16, 'afterTurn', true)
+  first.person.commandStatus = 3
+  tracker.observe(before); tracker.observe(first)
+  assert.equal(tracker.progress.status, 'responding', tracker.progress.reason)
+  assert.equal(tracker.progress.startup, null)
+  const nextBefore = structuredClone(first); nextBefore.phase = 'beforeTurn'; tracker.observe(nextBefore)
+  const startup = row(17, 'afterTurn', true); startup.person.substate = 2; startup.person.speed = 0; startup.listeners = [6]
+  tracker.observe(startup)
+  assert.equal(tracker.progress.startup.person.substate, 2)
+  assert.deepEqual(tracker.progress.listenerIds, [6])
+  const releaseBefore = structuredClone(startup); releaseBefore.phase = 'beforeTurn'; tracker.observe(releaseBefore)
+  const released = row(18); released.retiredOrders = [{ id: 11, references: 0 }]; tracker.observe(released)
+  assert.equal(tracker.progress.status, 'released', tracker.progress.reason)
+  assert.equal(tracker.progress.rendered.length, 0, 'Supplied model rows cannot claim rendering')
+})
+
+test('idle17, shared32, changed queued3 and lost native owners cannot pass candidate acceptance', () => {
+  for (const change of [r => { r.order.model = 17 }, r => { r.order.model = 21 },
+    r => { r.orderUsers.push(7) }, r => { r.order.references = 2 }, r => { r.queued[0].a++ },
+    r => { r.person.immediateCommand = 0 }, r => { r.sameActor = false }, r => { r.nativeOnly = false },
+    r => { r.registeredOwner = false }]) {
+    const tracker = createResponseTracker(); tracker.observe(row(15, 'beforeTurn'))
+    const next = row(16, 'afterTurn', true); change(next); tracker.observe(next)
+    assert.equal(tracker.progress.status, 'failed', JSON.stringify(next))
+  }
+})
+
+test('ordinary interruption capture keeps bounds and ownership but does not invent natural expiry', () => {
+  const tracker = createResponseTracker({ loaded: true, captureOnly: true, maxVisits: 2 })
+  tracker.observe(row(1, 'afterTurn', true)); tracker.observe(row(2)); tracker.observe(row(3))
+  assert.equal(tracker.progress.status, 'failed'); assert.match(tracker.progress.reason, /visit cap/)
+  assert.equal(tracker.progress.released, null)
+  const rows = createResponseTracker({ maxRows: 1 }); rows.observe(row(1, 'beforeTurn')); rows.observe(row(2))
+  assert.match(rows.progress.reason, /row cap/)
+  const gap = createResponseTracker(); gap.observe(row(1)); gap.observe(row(3)); assert.match(gap.progress.reason, /Missing/)
+})
+
+test('paused checkpoint compares exact native queue/RNG and does not normalize Load auto-resume', () => {
+  const r = row(16, 'afterTurn', true), native = { ...r.person, commands: r.commands }, unit = { ...r.actor, native }
+  const world = { units: [unit], turn: 16, time: 2, speed: 1, paused: true, outcome: { level: 3 },
+    randomState: 7, cosmeticRandom: { randomState: 8 }, objectCells: { objects: new Map([[5, native]]) },
+    buildingOrders: { records: { 10: r.queued[0], 11: r.order } } }
+  const saved = responseProjection({ version: 1, world }, 5); requireResponseCheckpoint(saved)
+  requireSameCheckpoint(saved, structuredClone(saved))
+  for (const change of [v => { v.paused = false }, v => { v.turn++ }, v => { v.rng[0]++ },
+    v => { v.orders[0].references++ }, v => { v.native.commands[0] = 99 }, v => { v.registeredOwner = false }]) {
+    const changed = structuredClone(saved); change(changed); assert.throws(() => requireSameCheckpoint(saved, changed))
+  }
+})
+
+test('phase wrapper forwards one original callback and restores exact descriptor; errors remain fatal', () => {
+  const calls = [], clock = { beforeTurn(n) { calls.push([this, n]); return 7 }, afterTurn() { return 9 } }
+  const renderer = { render() { return 11 } }, original = Object.getOwnPropertyDescriptors(clock)
+  const chain = chainPhaseObservers(clock, renderer, () => { throw Error('observation failed') }, phase => ({ phase, turn: 1 }), () => true)
+  assert.equal(clock.beforeTurn(2), 7); assert.deepEqual(calls, [[clock, 2]])
+  const finish = chain.finish(); assert.equal(finish.restored, true); assert.equal(finish.errors.length, 1)
+  assert.deepEqual(Object.getOwnPropertyDescriptors(clock), original)
+  assert.throws(() => requireCleanup({ observer: finish }))
+  assert.throws(() => requireCleanup({ pointer: { restored: false, errors: [] } }))
+  assert.throws(() => requireCleanup({ tail: { errors: ['missing row'] } }))
+})
+
+test('reused drivers stay byte-identical and new observation contains no World/tick/render writes', () => {
+  const pins = JSON.parse(readFileSync(new URL('./source-inputs.json', import.meta.url)))
+  for (const [path, hash] of Object.entries(pins.inheritedFiles))
+    assert.equal(createHash('sha256').update(readFileSync(new URL(`../../${path}`, import.meta.url))).digest('hex'), hash, path)
+  const source = readFileSync(new URL('./observe.mjs', import.meta.url), 'utf8')
+  assert.doesNotMatch(source, /renderer\.render\s*\(|\b(?:tick|advanceGame|animateLiveObjects)\s*\(|nativeGuardRead\(/)
+  assert.doesNotMatch(source, /(?:\bw|\bworld|\bnative|\bscene\.world)\.[A-Za-z]+\s*=(?!=)/)
+  const scenario = readFileSync(new URL('./scenario.mjs', import.meta.url), 'utf8')
+  assert.doesNotMatch(scenario, /local-render\/harness|waitForFunction\(async|\.put\(|\.add\(/)
+  assert.match(scenario, /readQueuedPreservingStop/); assert.match(scenario, /requireSameCheckpoint/)
+  assert.equal(pins.candidateTrees, null, 'Candidate cannot launch before adopted reviewed application')
+})
