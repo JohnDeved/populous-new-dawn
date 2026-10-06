@@ -129,10 +129,12 @@ test('forward removal requires the actual defender gone, original healthy actors
   assert.throws(() => chooseForwardDefender([])); assert.throws(() => chooseForwardDefender([defender, { ...defender, id: 9 }]))
   const before = { shamanId: 5, preacherId: 6, preacherHp: 55, preacherPoint: { x: 35, z: 90 }, defender }
   const row = { sameWorld: true, originalShaman: true, originalPreacher: true, status: 'playing', paused: false,
-    speed: 1, visibility: 'visible', inputMask: 0, yellow: [defender], blue: [
+    speed: 1, visibility: 'visible', inputMask: 0, lockedId: 8, lockedTarget: defender, yellow: [defender], blue: [
       { id: 5, kind: 'shaman', team: 'blue', hp: 100, x: -1, z: -115 }, { id: 6, kind: 'preacher', team: 'blue', hp: 55, x: 35, z: 90 }] }
   assert.equal(requireDefenderRemoval(row, before, 8), false)
-  row.yellow = []; assert.equal(requireDefenderRemoval(row, before, 8), true)
+  row.yellow = []; row.lockedTarget = { ...defender, team: 'blue', kind: 'brave' }
+  assert.equal(requireDefenderRemoval(row, before, 8), false, 'Live target outside the Yellow-Preacher filter is not removal')
+  row.lockedTarget = null; assert.equal(requireDefenderRemoval(row, before, 8), true)
   for (const change of [r => { r.originalShaman = false }, r => { r.blue[0].hp = 0 },
     r => { r.blue[0].x = 35 }, r => { r.blue[1].hp-- }, r => { r.blue[1].x = 40 }, r => { r.blue[1].team = 'yellow' },
     r => { r.yellow.push({ ...defender, id: 9 }) }]) {

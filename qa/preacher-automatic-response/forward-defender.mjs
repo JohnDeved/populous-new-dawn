@@ -18,8 +18,8 @@ export function requireDefenderRemoval(row, before, id) {
   assert.ok(shaman?.kind === 'shaman' && shaman.team === 'blue' && shaman.hp > 0, 'Original Shaman must survive; no reincarnation retry')
   assert.ok(preacher?.kind === 'preacher' && preacher.team === 'blue' && preacher.hp === before.preacherHp && postDistance(preacher, before.preacherPoint) <= 2,
     'The acquired Blue Preacher must remain healthy at the safe base point')
-  const target = row.yellow.find(u => u.id === id)
-  if (target && target.hp > 0) return false
+  assert.equal(row.lockedId, id, 'Read the locked defender across all teams and kinds')
+  if (row.lockedTarget !== null) return false
   assert.ok(postDistance(shaman, before.defender) <= 8, 'Shaman must actually arrive at the removed forward defender')
   assert.equal(row.yellow.some(u => u.kind === 'preacher' && u.hp > 0 && postDistance(u) <= 12), false,
     'Another live forward specialist still covers departure')
@@ -36,20 +36,22 @@ export async function clearForwardDefender({ page, acquisition, check }) {
     window.preacherForwardOwners = { scene, world, shaman, preacher }
     return { shamanId, preacherId, preacherHp: preacher.hp, preacherPoint: { x: preacher.x, z: preacher.z } }
   }, { shamanId: acquisition.shamanId, preacherId: acquisition.preacherId })
-  const read = () => page.evaluate(() => {
+  const read = (targetId = null) => page.evaluate(targetId => {
     const o = window.preacherForwardOwners, scene = window.testSceneRef.current, w = scene.world
     const fields = u => ({ id: u.id, kind: u.kind, team: u.team, hp: u.hp, x: u.x, z: u.z, inside: u.inside,
       target: u.target, fight: !!u.fight, native: u.native && { state: u.native.state, model: u.native.model,
         life: u.native.life, workFlags: u.native.workFlags, immediateCommand: u.native.immediateCommand,
         commands: [...u.native.commands], commandCursor: u.native.commandCursor } })
+    const target = w.units.find(u => u.id === targetId)
     return { turn: w.turn, time: w.time, status: w.status, paused: w.paused, speed: w.speed,
+      lockedId: targetId, lockedTarget: target ? fields(target) : null,
       visibility: document.visibilityState, inputMask: w.inputMask,
       sameWorld: scene === o.scene && w === o.world && w === window.testStore.getWorld(),
       originalShaman: w.units.find(u => u.id === o.shaman.id) === o.shaman,
       originalPreacher: w.units.find(u => u.id === o.preacher.id) === o.preacher,
       blue: w.units.filter(u => u.id === o.shaman.id || u.id === o.preacher.id).map(fields),
       yellow: w.units.filter(u => u.team === 'yellow' && u.kind === 'preacher').map(fields) }
-  })
+  }, targetId)
   const bounded = () => { check(); assert.ok(performance.now() - started < 90000, '90-second forward-defender ceiling') }
   const health = async () => { bounded(); acquisition.health(await acquisition.read()); bounded() }
   let failure
@@ -57,8 +59,9 @@ export async function clearForwardDefender({ page, acquisition, check }) {
     await health()
     const initial = await read(), defender = chooseForwardDefender(initial.yellow)
     const before = { ...original, defender }
-    assert.equal(requireDefenderRemoval(initial, before, defender.id), false)
-    acquisition.log({ action: 'forward-defender-locked', before, initial,
+    const locked = await read(defender.id); bounded()
+    assert.equal(requireDefenderRemoval(locked, before, defender.id), false)
+    acquisition.log({ action: 'forward-defender-locked', before, initial, locked,
       evidence: 'Run13 ordinary Shaman attack precedent, pinned older runtime; current IDs/outcome must be observed anew' })
     assert.deepEqual(await acquisition.select('shaman'), [original.shamanId])
     await acquisition.ordinary.map(defender)
@@ -71,11 +74,11 @@ export async function clearForwardDefender({ page, acquisition, check }) {
       'Actual Shaman input must address the observed defender')
     let final
     for (;;) {
-      await health(); final = await read(); bounded()
+      await health(); final = await read(defender.id); bounded()
       if (requireDefenderRemoval(final, before, defender.id)) break
       await page.waitForTimeout(100)
     }
-    const result = { before, initial, attack, final, elapsedMs: performance.now() - started,
+    const result = { before, initial, locked, attack, final, elapsedMs: performance.now() - started,
       scope: 'One ordinary direct Shaman attack and observed removal/arrival; no spell, replacement actor or campaign victory' }
     acquisition.log({ action: 'forward-defender-cleared', ...result }); return result
   } catch (error) { failure = error; throw error }
