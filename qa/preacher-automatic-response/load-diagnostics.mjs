@@ -85,7 +85,7 @@ export default async function loadDiagnostics({ page, root, output, receipt, sig
     assert.equal(report.diagnostics.status, 'playing'); assert.equal(report.diagnostics.speed, 1)
     assert.ok(report.diagnostics.turn >= pins.checkpoint.turn)
     await page.screenshot({ path: resolve(output, 'loaded3336-paused.png'), timeout: 5000 }); check()
-    report.committedAfter = await observeCheckpoint('After ordinary Load and Pause; no Save'); check()
+    report.committedAfter = await observeCheckpoint('After ordinary Load and Pause - no Save'); check()
     assert.deepEqual(report.committedAfter.checkpoint, pins.checkpoint)
     report.status = 'passed'; save()
   } catch (error) { failure = error; report.status = 'failed'; report.failures.push(String(error?.stack ?? error)); save() }

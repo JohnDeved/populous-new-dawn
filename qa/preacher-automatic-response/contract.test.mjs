@@ -196,4 +196,7 @@ test('continuation admits only the exact genuine terminal checkpoint and origina
   const source = readFileSync(new URL('./load-diagnostics.mjs', import.meta.url), 'utf8')
   assert.match(source, /name: 'Load Game'/); assert.match(source, /name: 'Pause game'/)
   assert.doesNotMatch(source, /name: 'Save checkpoint'|mouse\.click|dispatch\.clickOrder|openMission\(/)
+  const labels = [...source.matchAll(/observeCheckpoint\('([^']+)'\)/g)].map(match => match[1])
+  assert.equal(labels.length, 1)
+  for (const label of labels) assert.match(label, /^[a-zA-Z0-9][a-zA-Z0-9 -]{0,79}$/, 'Maintained harness label contract')
 })
