@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "verdict": "ACCEPT-plan-only; executable-preflight-still-required",
+  "head": "5d0ac7ddcf45db446f0411373c27f392a07e64f5",
+  "files": [
+    {
+      "path": "review.md",
+      "sha256": "4612a7755c310c0232165f9867b3e8c8ddaa9a3fbb264ae377d1cbdf111c1d12"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-20261006/decomp/research/raid-phase6-settlement/manifest.json",
+      "sha256": "93e94f2fbcf0cee4387891782e6ba5ba5f4631e617085ddd7a1a619f3bec0062"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-20261006/decomp/research/raid-phase6-settlement/plan.md",
+      "sha256": "8700319877296813fe2ba2a9caaf87738c3385e40ad8b547c873a3c25f6e4e4b"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-20261006/decomp/research/raid-phase6-settlement/proposed-cases.json",
+      "sha256": "bf5a3e2dac75e22cbe2753b7a1e042b584659d7ce4bdeced015fc2cf648f556b"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-20261006/decomp/research/raid-phase6-settlement/observed-8370.json",
+      "sha256": "ae7ea7bc465233846ef9cec0fc59de3a72e6f8157dd7b641389f51e031507895"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/raid-phase6-settlement-20261006/decomp/research/raid-phase6-settlement/observed-8417.json",
+      "sha256": "18490c74d799f0aa0921ccb14a7fc72482378bb87f146ae0a5fb836f255b9234"
+    }
+  ]
+}
