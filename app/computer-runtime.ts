@@ -43,6 +43,7 @@ import { cellDistanceSquared, random, spiralCell } from './native-math.ts'
 import { isShaman, SPELLS } from './world-rules.ts'
 import {
   campaignPersonCount,
+  campaignPosition,
   campaignAttackEntity,
   campaignAttackTarget,
   campaignTeam,
@@ -1629,8 +1630,26 @@ export function stepComputerTasks(w: World, tribe: number) {
           },
           taskSpell: () => castAttackTaskSpell(w, tribe, task),
           select: (model, count, destination) => {
+            let recruitmentOrigin = destination
+            if (w.outcome.level === 3) {
+              if (w.ai.constructionBase === undefined) {
+                const team = campaignTeam(w, tribe)
+                if (team === 'wild') throw new Error('Invalid computer recruitment tribe')
+                const loadedPosition = nativePosition(w, campaignPosition(w, team))
+                recruitmentOrigin = ((loadedPosition.x >>> 8) & 254) | (loadedPosition.y & 0xfe00)
+              } else recruitmentOrigin = w.ai.constructionBase
+            }
             const current = (selection ??= computerSelectionWorld(w, tribe)),
-              ids = selectComputerPeople(current.world, model, model, -1, 1, destination, 7, count)
+              ids = selectComputerPeople(
+                current.world,
+                model,
+                model,
+                -1,
+                1,
+                recruitmentOrigin,
+                7,
+                count
+              )
             for (const id of ids) {
               const source = current.sources.get(id)
               if (source) source.flags3 = current.world.units.get(id)!.flags3

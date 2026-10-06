@@ -45,7 +45,7 @@ def inspect(executable):
             'debugDirectoryRva': debug_rva, 'debugDirectorySize': debug_size}
 
 
-def native_cpu(executable):
+def native_cpu(executable, *, tcg_buffer_size=None):
     """Map the verified PE image for isolated CPU comparisons; do not start Windows."""
     from unicorn import Uc, UC_ARCH_X86, UC_MODE_32
     identity = inspect(executable)
@@ -56,6 +56,8 @@ def native_cpu(executable):
     base = struct.unpack_from('<I', data, pe + 24 + 28)[0]
     size = struct.unpack_from('<I', data, pe + 24 + 56)[0]
     cpu = Uc(UC_ARCH_X86, UC_MODE_32)
+    if tcg_buffer_size is not None:
+        cpu.ctl_set_tcg_buffer_size(tcg_buffer_size)
     cpu.mem_map(base, (size + 4095) & ~4095)
     for i in range(count):
         _, _, va, length, offset = struct.unpack_from('<8sIIII', data, pe + 24 + opt + i * 40)
