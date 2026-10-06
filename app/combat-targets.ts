@@ -47,7 +47,7 @@ type AreaOrder = Pick<PersonOrder, 'model' | 'flags' | 'a' | 'b'>
 const allied = (w: CombatTargetWorld, tribe: number, other: number) =>
   tribe === -1 || other === -1 || tribe === other || !!(w.alliances[tribe] & (1 << other))
 
-function* areaCells(order: Pick<PersonOrder, 'a' | 'b'>) {
+export function* areaCells(order: Pick<PersonOrder, 'a' | 'b'>) {
   const rx = order.b & 255,
     ry = order.b >>> 8
   for (let row = 0; row <= ry; row++)

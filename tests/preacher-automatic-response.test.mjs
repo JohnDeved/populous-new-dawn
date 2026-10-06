@@ -89,6 +89,14 @@ for (const [name, change] of [
   ['enemy workFlags occupied', s => { s.enemy.native.workFlags = 9 }],
   ['enemy workFlags absent', s => { delete s.enemy.native.workFlags }],
   ['enemy ownership absent', s => { s.w.objectCells.objects.delete(s.enemy.id) }],
+  ['enemy detached with stale membership bit', s => { s.source.native.cellNext = 0 }],
+  ['enemy owned state absent', s => { delete s.enemy.native.state }],
+  ['enemy owned flags4 absent', s => { delete s.enemy.native.flags4 }],
+  ['enemy owned vehicle absent', s => { delete s.enemy.native.vehicle }],
+  ['enemy owned disguise absent', s => {
+    s.source.team = 'yellow'; s.source.native.tribe = 2
+    s.enemy.kind = 'spy'; s.enemy.native.model = 5; delete s.enemy.native.disguise
+  }],
   ['same tribe', s => { s.enemy.team = 'blue'; s.enemy.native.tribe = 0 }],
   ['reverse alliance', s => { s.w.outcome.alliances[1] = 1 }],
   ['allocation exhaustion', s => { fullPool(s.w) }],
@@ -150,6 +158,19 @@ for (const kind of ['water', 'state23', 'unknownWorkFlags']) test(`native primar
   const p = addPreacher(s, kind === 'water' ? { x: 0x2300 } : { state: 23 })
   if (kind === 'water') s.w.land.categories[2065] = 1
   if (kind === 'unknownWorkFlags') delete p.native.workFlags
+  const before = snapshot(s.w)
+  assert.equal(call(s), false)
+  assert.deepEqual(snapshot(s.w), before)
+})
+
+for (const [name, change] of [
+  ['missing live owner', (s, p) => { s.w.units = s.w.units.filter(u => u !== p) }],
+  ['dead live projection with positive native life', (s, p) => { p.hp = 0 }],
+  ['projected inside flag differs', (s, p) => { p.inside = 123 }],
+  ['projected invisibility differs', (s, p) => { p.invisibility = 1 }],
+]) test(`native primary-chain coherence veto protects a generic miss: ${name}`, () => {
+  const s = setup(), p = addPreacher(s)
+  change(s, p)
   const before = snapshot(s.w)
   assert.equal(call(s), false)
   assert.deepEqual(snapshot(s.w), before)

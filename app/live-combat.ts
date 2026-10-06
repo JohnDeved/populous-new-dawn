@@ -13,6 +13,7 @@ import {
 } from './person-orders.ts'
 import { shareCombatOrder, startCombatResponse } from './combat-orders.ts'
 import {
+  areaCells,
   detectCombatThreat,
   hasPreacherPrimaryThreat,
   hasPreacherResponseThreat,
@@ -235,7 +236,15 @@ function startPreacherResponse(
     primary = combatWorld(w, p, range),
     attack = detectCombatThreat(primary.world, p, area, false, false)
   if (!attack) {
-    if (p.model !== 4 || !Number.isFinite(p.speed)) return 0
+    const unsigned = (value: unknown, max: number) =>
+      typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= max
+    if (
+      p.model !== 4 || !Number.isInteger(p.speed) || p.speed < -32768 || p.speed > 32767 ||
+      !unsigned(p.state, rules.personStateFlags.length - 1) || !unsigned(p.substate, 255) ||
+      !unsigned(p.flags2, 0xffffffff) || !unsigned(p.flags4, 0xffffffff) ||
+      !Number.isInteger(p.life) || p.life < -32768 || p.life > 32767 ||
+      !unsigned(p.disguise, 255)
+    ) return 0
     if (
       (p.state === 10 || p.state === 33) &&
       order &&
@@ -245,6 +254,25 @@ function startPreacherResponse(
       p.speed === 0
     )
       return 0
+    // A live projection can omit a native primary threat. Inspect the actual
+    // chains before admitting the fallback, without changing legacy scan order.
+    const linked = new Map<number, number>()
+    for (const cell of areaCells({ a: area.a, b: 0x0202 })) {
+      let previous = 0
+      for (let id = w.objectCells.heads[cell]; id;) {
+        const record = w.objectCells.objects.get(id)
+        if (
+          !record || record.id !== id || linked.has(id) ||
+          !unsigned(record.flags2, 0xffffffff) || !(record.flags2 & 0x20000) ||
+          !unsigned(record.x, 65535) || !unsigned(record.y, 65535) ||
+          (record.y >> 9) * 128 + (record.x >> 9) !== cell ||
+          record.cellPrevious !== previous || !unsigned(record.cellNext, 65535)
+        ) return 0
+        linked.set(id, cell)
+        previous = id
+        id = record.cellNext
+      }
+    }
     const ownedFlags = (view: ReturnType<typeof combatWorld>) => (person: CombatPerson) => {
       const owner = view.owners.get(person.id)
       if (!owner || !('native' in owner)) return
@@ -257,12 +285,32 @@ function startPreacherResponse(
         record.model !== person.model ||
         record.tribe !== person.tribe ||
         w.objectCells.objects.get(person.id) !== record ||
-        !(record.flags2 & 0x20000) ||
+        !linked.has(person.id) ||
         record.x !== person.x || record.y !== person.y || record.life !== person.life ||
-        !Number.isInteger(record.workFlags) || record.workFlags < 0 || record.workFlags > 65535
+        !Number.isInteger(record.life) || record.life < -32768 || record.life > 32767 ||
+        !unsigned(record.workFlags, 65535) ||
+        !unsigned(record.state, rules.personStateFlags.length - 1) || record.state !== person.state ||
+        !unsigned(record.flags4, 0xffffffff) ||
+        ((record.flags2 ^ person.flags2) & 0x810000) ||
+        ((record.flags4 ^ person.flags4) & 0x1000) ||
+        !unsigned(record.vehicle, 65535) || record.vehicle !== person.vehicle ||
+        !unsigned(record.disguise, 255) || record.disguise !== person.disguise
       )
         return
       return record.workFlags
+    }
+    const primaryCells = new Set(areaCells(area))
+    for (const [id, cell] of linked) {
+      if (id === p.id || !primaryCells.has(cell)) continue
+      const record = w.objectCells.objects.get(id)!
+      if (
+        !('class' in record) || !('model' in record) ||
+        !unsigned(record.class, 255) || !unsigned(record.model, 255)
+      ) return 0
+      if (record.class !== 1 || (record.model !== 4 && record.model !== 7)) continue
+      const projected = primary.world.objects.get(id)
+      if (!projected || projected.class !== 1 || ownedFlags(primary)(projected) === undefined)
+        return 0
     }
     if (hasPreacherPrimaryThreat(primary.world, p, area, ownedFlags(primary))) return 0
     const secondary = range >= 3 ? primary : combatWorld(w, p, 3)
