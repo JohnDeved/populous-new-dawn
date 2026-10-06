@@ -1,0 +1,4 @@
+loaded config: /workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/.fallowrc.json
+  783 entry points detected (516 manual entry, 266 plugin, 1 package.json)
+
+✗ 8 files · 4 exports · 3 dev/optional dependencies · 38 unresolved imports · 1 unlisted dependency · 20 circular dependencies (0.45s)

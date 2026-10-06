@@ -1,0 +1,20 @@
+diff --git a/app/computer-runtime.ts b/app/computer-runtime.ts
+index 1ca2fe16..761187ef 100644
+--- a/app/computer-runtime.ts
++++ b/app/computer-runtime.ts
+@@ -1632,13 +1632,12 @@ export function stepComputerTasks(w: World, tribe: number) {
+           select: (model, count, destination) => {
+             let recruitmentOrigin = destination
+             if (w.outcome.level === 3) {
+-              if (w.ai.constructionBase !== undefined) recruitmentOrigin = w.ai.constructionBase
+-              else {
++              if (w.ai.constructionBase === undefined) {
+                 const team = campaignTeam(w, tribe)
+                 if (team === 'wild') throw new Error('Invalid computer recruitment tribe')
+                 const loadedPosition = nativePosition(w, campaignPosition(w, team))
+                 recruitmentOrigin = ((loadedPosition.x >>> 8) & 254) | (loadedPosition.y & 0xfe00)
+-              }
++              } else recruitmentOrigin = w.ai.constructionBase
+             }
+             const current = (selection ??= computerSelectionWorld(w, tribe)),
+               ids = selectComputerPeople(

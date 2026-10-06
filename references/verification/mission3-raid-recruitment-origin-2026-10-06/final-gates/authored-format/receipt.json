@@ -1,0 +1,53 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "2694fce6-bdb5-4922-bbed-b2ce47f161f9",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "118a5eeeb83a3cc29a49e3bdb8407f32bb5b61fe",
+    "branch": "research/mission3-raid-recruitment-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/computer-runtime.ts": "87863f9329f0cac44f06be2dfc9aa49500a8c07fc6f23fdc9dd18f83d48c990c",
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "60s",
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/computer-runtime.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006",
+  "startedAt": "2026-10-06T07:17:16.483Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/work/orchestration/mission3-raid-recruitment-origin/authored-format.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/work/orchestration/mission3-raid-recruitment-origin/authored-format.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T07:17:16.757Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 13ms on 1 files using 4 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "6406226d4b76fe85eba8eeed1798cf23fd7d72ba80d8e91de91b5df7a894fb8c",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "118a5eeeb83a3cc29a49e3bdb8407f32bb5b61fe",
+    "branch": "research/mission3-raid-recruitment-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/computer-runtime.ts": "87863f9329f0cac44f06be2dfc9aa49500a8c07fc6f23fdc9dd18f83d48c990c",
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      ".oxfmtrc.json": "3d994b16c5ebbf15cb6a77529615f68696433af8e0384da5a1f8420b38db7479"
+    }
+  }
+}

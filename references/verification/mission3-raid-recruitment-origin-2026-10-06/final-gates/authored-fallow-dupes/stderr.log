@@ -1,0 +1,5 @@
+loaded config: /workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/.fallowrc.json
+note: skipped 233 files matching default duplicates ignores (use --explain-skipped for the list)
+note: module wiring excluded from clone detection (--no-ignore-imports to include it)
+
+✗ 13,137 lines (9.4%) duplicated across 260 files (0.66s)

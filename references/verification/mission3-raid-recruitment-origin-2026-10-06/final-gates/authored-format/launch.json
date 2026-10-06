@@ -1,0 +1,32 @@
+{
+  "launchUtc": "2026-10-06T07:17:16.242477+00:00",
+  "sourceHead": "118a5eeeb83a3cc29a49e3bdb8407f32bb5b61fe",
+  "cpu": "0-3",
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "node",
+    "scripts/orchestration/command-receipt.mjs",
+    "--output",
+    "work/orchestration/mission3-raid-recruitment-origin/authored-format.json",
+    "--input",
+    "app/computer-runtime.ts",
+    "--input",
+    "package.json",
+    "--input",
+    "package-lock.json",
+    "--input",
+    "node_modules/.package-lock.json",
+    "--input",
+    ".oxfmtrc.json",
+    "--",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "60s",
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/computer-runtime.ts"
+  ]
+}

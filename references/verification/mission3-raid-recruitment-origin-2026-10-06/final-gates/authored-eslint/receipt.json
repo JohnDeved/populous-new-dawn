@@ -1,0 +1,61 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "086affd6-9e0c-48c2-bebd-f9cb4c91b730",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "118a5eeeb83a3cc29a49e3bdb8407f32bb5b61fe",
+    "branch": "research/mission3-raid-recruitment-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/computer-runtime.ts": "87863f9329f0cac44f06be2dfc9aa49500a8c07fc6f23fdc9dd18f83d48c990c",
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "eslint.config.mjs": "9578a25ed5bb7d9d6cd35f99459aa4b7987c9e32612ef1e020fa58826dc35543",
+      "scripts/mission3-raid-recruitment-pair.mjs": "0ef3de6aa6b72f9ae253b905ac4057f891277b9d82e7444b5006ac9df75e92c4",
+      "tests/mission3-raid-recruitment.test.mjs": "3939ccf4719a083983e6c3f33e7af641352a595f7d534aac5efee0fda79c491b",
+      "tests/mission3-raid-loaded-cell.test.mjs": "a722565d484fc28440eddf8ef8ebc0e21dc5edbea4082a84a2f3ae8bd2b49c55"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "60s",
+    "node_modules/.bin/eslint",
+    "app/computer-runtime.ts",
+    "scripts/mission3-raid-recruitment-pair.mjs",
+    "tests/mission3-raid-recruitment.test.mjs",
+    "tests/mission3-raid-loaded-cell.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006",
+  "startedAt": "2026-10-06T07:17:16.927Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/work/orchestration/mission3-raid-recruitment-origin/authored-eslint.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/work/orchestration/mission3-raid-recruitment-origin/authored-eslint.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T07:17:22.209Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "",
+  "stderr": "",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "118a5eeeb83a3cc29a49e3bdb8407f32bb5b61fe",
+    "branch": "research/mission3-raid-recruitment-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/computer-runtime.ts": "87863f9329f0cac44f06be2dfc9aa49500a8c07fc6f23fdc9dd18f83d48c990c",
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "eslint.config.mjs": "9578a25ed5bb7d9d6cd35f99459aa4b7987c9e32612ef1e020fa58826dc35543",
+      "scripts/mission3-raid-recruitment-pair.mjs": "0ef3de6aa6b72f9ae253b905ac4057f891277b9d82e7444b5006ac9df75e92c4",
+      "tests/mission3-raid-recruitment.test.mjs": "3939ccf4719a083983e6c3f33e7af641352a595f7d534aac5efee0fda79c491b",
+      "tests/mission3-raid-loaded-cell.test.mjs": "a722565d484fc28440eddf8ef8ebc0e21dc5edbea4082a84a2f3ae8bd2b49c55"
+    }
+  }
+}

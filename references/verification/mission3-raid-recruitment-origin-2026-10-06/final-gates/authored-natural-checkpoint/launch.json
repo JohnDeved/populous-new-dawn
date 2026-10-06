@@ -1,0 +1,33 @@
+{
+  "launchUtc": "2026-10-06T07:10:35.036721+00:00",
+  "receipt": "work/orchestration/mission3-raid-recruitment-origin/authored-natural-checkpoint.json",
+  "cpu": "0-3",
+  "sourceHead": "118a5eeeb83a3cc29a49e3bdb8407f32bb5b61fe",
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "scripts/orchestration/command-receipt.mjs",
+    "--output",
+    "work/orchestration/mission3-raid-recruitment-origin/authored-natural-checkpoint.json",
+    "--input",
+    "tests/early-mission-ai.test.mjs",
+    "--input",
+    "app/computer-runtime.ts",
+    "--input",
+    "app/computer.ts",
+    "--input",
+    "package-lock.json",
+    "--input",
+    "node_modules/.package-lock.json",
+    "--",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "180s",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--test",
+    "tests/early-mission-ai.test.mjs"
+  ]
+}

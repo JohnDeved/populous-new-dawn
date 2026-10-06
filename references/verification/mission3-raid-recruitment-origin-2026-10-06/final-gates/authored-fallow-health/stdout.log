@@ -1,0 +1,1085 @@
+■ Metrics: 173,411 LOC · dead files 1.0% · dead exports 0.2% · avg cyclomatic 2.5 · p90 cyclomatic 5 · maintainability 85.1 (good) · 0 churn hotspots (since 6 months) · 20 circular deps · 3 unused deps
+
+  Parameters:    94% low · 4% medium · 1% high · 0% very high  (0-2 / 3-4 / 5-6 / >=7 params)
+
+  Render fan-in: <HudSprite> 4 parents (6 incl. repeats) · <FollowerNumber> 2 parents (3 incl. repeats) · <TaskIcon> 1 parent (2 incl. repeats) · <FollowerTasks> 1 parent (1 incl. repeats) · <FollowerIcon> 1 parent (1 incl. repeats)
+
+● Hotspots (341 files, since 6 months)
+
+   31.7 ▼  tests/game.test.mjs [test]
+         155 commits   3083 churn  0.57 density   0 fan-in  ▼ cooling
+
+   10.6 ▼  app/game-store.ts
+          47 commits    544 churn  0.59 density  71 fan-in  ▼ cooling
+
+   10.3 ▼  app/live-people.ts
+          78 commits   2340 churn  0.36 density  125 fan-in  ▼ cooling
+
+   10.0 ▼  app/page.tsx
+          92 commits   3680 churn  0.29 density   3 fan-in  ▼ cooling
+
+    9.9 ▼  app/scene.ts
+         172 commits  10989 churn  0.16 density  16 fan-in  ▼ cooling
+
+    8.7 ─  app/computer-runtime.ts
+          42 commits   2801 churn  0.52 density  13 fan-in  ─ stable
+
+    7.3 ▼  app/world-turn.ts
+          43 commits   2137 churn  0.43 density   1 fan-in  ▼ cooling
+
+    6.9 ▼  app/campaign-command-runtime.ts
+          49 commits   1439 churn  0.37 density   4 fan-in  ▼ cooling
+
+    6.9 ▼  app/live-movement.ts
+          43 commits   1580 churn  0.42 density  27 fan-in  ▼ cooling
+
+    6.8 ▼  app/world-initialization.ts
+          35 commits    961 churn  0.51 density  22 fan-in  ▼ cooling
+
+    4.7 ▼  scripts/check-browser-celebration.mjs
+          12 commits    182 churn  1.11 density   0 fan-in  ▼ cooling
+
+    4.6 ▼  app/live-command.ts
+          21 commits    956 churn  0.57 density  31 fan-in  ▼ cooling
+
+    3.8 ▼  qa/native-visuals.mjs
+          15 commits    144 churn  0.73 density   0 fan-in  ▼ cooling
+
+    3.5 ▼  scripts/check-browser-mission4.mjs
+          20 commits   1096 churn  0.47 density   0 fan-in  ▼ cooling
+
+    3.5 ▼  app/scene-entities.ts
+          35 commits   1242 churn  0.26 density  10 fan-in  ▼ cooling
+
+    3.4 ▼  app/live-building-entry.ts
+          26 commits   1234 churn  0.36 density  23 fan-in  ▼ cooling
+
+    3.2 ▼  app/audio.ts
+          29 commits    748 churn  0.31 density  15 fan-in  ▼ cooling
+
+    2.8 ▼  app/live-building-combat.ts
+          20 commits   1098 churn  0.38 density   6 fan-in  ▼ cooling
+
+    2.8 ▲  scripts/check-browser-campaign-natural-victory.mjs
+          17 commits   1314 churn  0.39 density   3 fan-in  ▲ accelerating
+
+    2.7 ▼  app/campaign-runtime.ts
+          16 commits    431 churn  0.46 density  19 fan-in  ▼ cooling
+
+    2.7 ▼  tests/building-work.test.mjs [test]
+          10 commits    202 churn  0.74 density   0 fan-in  ▼ cooling
+
+    2.7 ─  app/model.ts
+         251 commits  23589 churn  0.03 density  324 fan-in  ─ stable
+
+    2.6 ▼  scripts/check-browser-checkpoint.mjs
+          17 commits    740 churn  0.41 density   1 fan-in  ▼ cooling
+
+    2.6 ─  qa/browser-check.mjs
+          11 commits    181 churn  0.67 density   0 fan-in  ─ stable
+
+    2.5 ▼  app/live-combat.ts
+          18 commits    506 churn  0.38 density  24 fan-in  ▼ cooling
+
+    2.4 ▼  app/building-panels.ts
+          17 commits    495 churn  0.38 density   2 fan-in  ▼ cooling
+
+    2.4 ▼  app/computer.ts
+          23 commits   1188 churn  0.27 density  17 fan-in  ▼ cooling
+
+    2.4 ▼  scripts/check-browser-vehicle-panel.mjs
+           7 commits    210 churn  0.79 density   3 fan-in  ▼ cooling
+
+    2.4 ▼  app/building-shapes.ts
+          24 commits    724 churn  0.28 density  84 fan-in  ▼ cooling
+
+    2.3 ▼  app/person-state.ts
+          21 commits    863 churn  0.31 density  46 fan-in  ▼ cooling
+
+    2.3 ▼  scripts/check-browser-hut-occupancy-smoke.mjs
+          16 commits   2715 churn  0.36 density   1 fan-in  ▼ cooling
+
+    2.3 ▼  app/live-vehicles.ts
+          15 commits    396 churn  0.40 density  24 fan-in  ▼ cooling
+
+    2.3 ─  app/mission-data.ts
+          24 commits    193 churn  0.26 density  47 fan-in  ─ stable
+
+    2.2 ▼  scripts/local-render/harness.mjs
+           9 commits    345 churn  0.57 density   5 fan-in  ▼ cooling
+
+    2.1 ▼  app/render-view.ts
+          24 commits   1284 churn  0.25 density   8 fan-in  ▼ cooling
+
+    2.0 ▼  app/scene-input-runtime.ts
+          13 commits    839 churn  0.39 density   1 fan-in  ▼ cooling
+
+    2.0 ▼  app/spell-effects-runtime.ts
+          15 commits   1389 churn  0.35 density   7 fan-in  ▼ cooling
+
+    2.0 ▼  app/world-effects.ts
+          20 commits    457 churn  0.26 density  25 fan-in  ▼ cooling
+
+    1.9 ▲  app/person-orders.ts
+          18 commits    889 churn  0.30 density  104 fan-in  ▲ accelerating
+
+    1.9 ▼  scripts/browser-game.mjs
+          11 commits    170 churn  0.45 density  200 fan-in  ▼ cooling
+
+    1.8 ▼  tests/combat-orders.test.mjs [test]
+          14 commits    368 churn  0.34 density   0 fan-in  ▼ cooling
+
+    1.8 ▼  scripts/check-browser-construction.mjs
+           7 commits    236 churn  0.72 density   0 fan-in  ▼ cooling
+
+    1.7 ▼  app/scene-effects.ts
+          17 commits    679 churn  0.26 density   4 fan-in  ▼ cooling
+
+    1.7 ─  app/selection-runtime.ts
+           7 commits    302 churn  0.62 density  12 fan-in  ─ stable
+
+    1.7 ▼  tests/mission6.test.mjs [test]
+          12 commits   1118 churn  0.38 density   0 fan-in  ▼ cooling
+
+    1.7 ▼  tests/training-entry.test.mjs [test]
+          10 commits    284 churn  0.44 density   0 fan-in  ▼ cooling
+
+    1.6 ─  app/object-panels.ts
+           9 commits    658 churn  0.46 density   1 fan-in  ─ stable
+
+    1.6 ▼  app/painter.ts
+          13 commits    566 churn  0.35 density   3 fan-in  ▼ cooling
+
+    1.6 ─  scripts/check-browser-ground-waypoints.mjs
+           6 commits    168 churn  0.75 density   0 fan-in  ─ stable
+
+    1.6 ▼  tests/building-workers.test.mjs [test]
+           8 commits    159 churn  0.55 density   0 fan-in  ▼ cooling
+
+    1.5 ─  qa/erosion-ordinary/scenario.mjs
+           6 commits    575 churn  0.59 density   1 fan-in  ─ stable
+
+    1.5 ▼  scripts/local-render/owned-profile.mjs
+           5 commits    154 churn  0.71 density   4 fan-in  ▼ cooling
+
+    1.5 ▼  app/spell-casting.ts
+          14 commits    689 churn  0.30 density  19 fan-in  ▼ cooling
+
+    1.5 ▼  qa/erosion-native-replay/capture.mjs
+           5 commits    123 churn  0.71 density   2 fan-in  ▼ cooling
+
+    1.5 ▼  app/live-pathfinding.ts
+          15 commits   1106 churn  0.27 density  17 fan-in  ▼ cooling
+
+    1.5 ▼  tests/building-preparation.test.mjs [test]
+           6 commits    182 churn  0.65 density   0 fan-in  ▼ cooling
+
+    1.5 ▼  tests/melee.test.mjs [test]
+          15 commits    452 churn  0.28 density   0 fan-in  ▼ cooling
+
+    1.5 ▼  tests/campaign-fixed-turn-adapter.test.mjs [test]
+          11 commits    257 churn  0.31 density   0 fan-in  ▼ cooling
+
+    1.4 ▼  app/computer-spells.ts
+          10 commits    909 churn  0.36 density  11 fan-in  ▼ cooling
+
+    1.4 ▼  app/world-state.ts
+          26 commits    556 churn  0.14 density  10 fan-in  ▼ cooling
+
+    1.4 ▼  scripts/check-browser-mission11.mjs
+          11 commits   2340 churn  0.34 density   0 fan-in  ▼ cooling
+
+    1.4 ▼  scripts/check-browser-selection.mjs
+           4 commits     60 churn  1.02 density   0 fan-in  ▼ cooling
+
+    1.4 ▼  scripts/check-browser-hud-population.mjs
+           5 commits     83 churn  0.80 density   0 fan-in  ▼ cooling
+
+    1.3 ▲  scripts/check-browser-shaman-death-ground.mjs
+           6 commits    700 churn  0.51 density   0 fan-in  ▲ accelerating
+
+    1.3 ▲  scripts/check-browser-command-target.mjs
+           6 commits    257 churn  0.60 density   0 fan-in  ▲ accelerating
+
+    1.3 ▼  tests/building-attack.test.mjs [test]
+           8 commits    161 churn  0.42 density   0 fan-in  ▼ cooling
+
+    1.3 ▼  tests/early-mission-ai.test.mjs [test]
+           5 commits    175 churn  0.61 density   0 fan-in  ▼ cooling
+
+    1.2 ─  app/computer-selection.ts
+           6 commits    365 churn  0.51 density   8 fan-in  ─ stable
+
+    1.2 ▼  scripts/check-browser-world-picking.mjs
+           7 commits    441 churn  0.45 density   0 fan-in  ▼ cooling
+
+    1.2 ▼  scripts/check-browser-follower-tasks.mjs
+           7 commits    350 churn  0.40 density   0 fan-in  ▼ cooling
+
+    1.2 ▼  app/construction-runtime.ts
+           9 commits    504 churn  0.36 density   9 fan-in  ▼ cooling
+
+    1.2 ▼  tests/level-start.test.mjs [test]
+           6 commits    231 churn  0.45 density   0 fan-in  ▼ cooling
+
+    1.2 ▼  scripts/check-browser-building-fire.mjs
+           6 commits    225 churn  0.54 density   0 fan-in  ▼ cooling
+
+    1.2 ▼  scripts/check-browser-reincarnation.mjs
+           8 commits    296 churn  0.41 density   0 fan-in  ▼ cooling
+
+    1.1 ▼  app/scene-camera-runtime.ts
+          11 commits    711 churn  0.27 density   2 fan-in  ▼ cooling
+
+    1.1 ▼  app/combat-targets.ts
+           6 commits    311 churn  0.49 density   9 fan-in  ▼ cooling
+
+    1.1 ▼  scripts/check-browser-building-debris.mjs
+           5 commits    159 churn  0.60 density   0 fan-in  ▼ cooling
+
+    1.1 ▼  scripts/check-browser-terrain.mjs
+           4 commits     57 churn  0.81 density   0 fan-in  ▼ cooling
+
+    1.1 ▼  scripts/profile-game.mjs
+          10 commits    576 churn  0.31 density   0 fan-in  ▼ cooling
+
+    1.1 ▼  scripts/check-browser-hud.mjs
+           4 commits     72 churn  0.77 density   0 fan-in  ▼ cooling
+
+    1.1 ─  tests/orchestration.test.mjs [test]
+          17 commits   1399 churn  0.17 density   0 fan-in  ─ stable
+
+    1.0 ▼  scripts/orchestration/cli.mjs
+           9 commits   1797 churn  0.30 density   4 fan-in  ▼ cooling
+
+    1.0 ─  scripts/check-browser-follower-transports.mjs
+           5 commits    876 churn  0.48 density   1 fan-in  ─ stable
+
+    1.0 ▼  scripts/check-browser-mission22.mjs
+           6 commits    812 churn  0.42 density   0 fan-in  ▼ cooling
+
+    1.0 ─  app/game-clock.ts
+           9 commits    139 churn  0.28 density  90 fan-in  ─ stable
+
+    1.0 ▼  app/projection.ts
+          10 commits    726 churn  0.29 density  50 fan-in  ▼ cooling
+
+    1.0 ▼  tests/mission2-replacement.test.mjs [test]
+           3 commits     94 churn  0.82 density   0 fan-in  ▼ cooling
+
+    1.0 ▼  tests/mission5-opening.test.mjs [test]
+           6 commits    151 churn  0.45 density   0 fan-in  ▼ cooling
+
+    1.0 ▼  scripts/check-browser-melee.mjs
+           6 commits    220 churn  0.46 density   0 fan-in  ▼ cooling
+
+    1.0 ▼  scripts/check-browser-spell-trails.mjs
+           3 commits     57 churn  0.98 density   0 fan-in  ▼ cooling
+
+    1.0 ▼  tests/dismantling.test.mjs [test]
+           5 commits    220 churn  0.51 density   0 fan-in  ▼ cooling
+
+    1.0 ─  scripts/check-browser-stone-head-animation.mjs
+           7 commits    248 churn  0.35 density   0 fan-in  ─ stable
+
+    1.0 ▼  scripts/check-browser-level-start.mjs
+           4 commits     83 churn  0.56 density   0 fan-in  ▼ cooling
+
+    0.9 ─  app/mana.ts
+           7 commits    609 churn  0.35 density  10 fan-in  ─ stable
+
+    0.9 ▼  app/level-start-runtime.ts
+           8 commits    851 churn  0.27 density   2 fan-in  ▼ cooling
+
+    0.9 ▲  app/follower-tasks-runtime.ts
+           3 commits    171 churn  0.68 density   6 fan-in  ▲ accelerating
+
+    0.9 ▼  app/firewarrior.ts
+           6 commits    229 churn  0.37 density   5 fan-in  ▼ cooling
+
+    0.9 ─  app/messages.ts
+           7 commits    234 churn  0.35 density  19 fan-in  ─ stable
+
+    0.9 ─  app/worship.ts
+           8 commits    309 churn  0.32 density  33 fan-in  ─ stable
+
+    0.9 ▼  scripts/check-browser-reincarnation-wave.mjs
+           5 commits    365 churn  0.41 density   0 fan-in  ▼ cooling
+
+    0.9 ─  tests/mission3-convert-wild.test.mjs [test]
+           5 commits    110 churn  0.44 density   0 fan-in  ─ stable
+
+    0.9 ▼  app/training-panel.ts
+           9 commits    275 churn  0.26 density  16 fan-in  ▼ cooling
+
+    0.9 ▼  tests/mission2-rebuilding.test.mjs [test]
+           3 commits    119 churn  0.72 density   0 fan-in  ▼ cooling
+
+    0.9 ─  app/model-faces.ts
+           8 commits    133 churn  0.32 density  22 fan-in  ─ stable
+
+    0.9 ▼  tests/mission2-raid.test.mjs [test]
+           5 commits    146 churn  0.45 density   0 fan-in  ▼ cooling
+
+    0.9 ▼  tests/mission3-convert-task.test.mjs [test]
+          10 commits    274 churn  0.20 density   0 fan-in  ▼ cooling
+
+    0.9 ▼  scripts/bench-area-attack.mjs
+           4 commits     81 churn  0.66 density   0 fan-in  ▼ cooling
+
+    0.9 ─  tests/erosion-ordinary-cleanup.test.mjs [test]
+           4 commits    154 churn  0.54 density   0 fan-in  ─ stable
+
+    0.8 ─  app/training.ts
+           7 commits    813 churn  0.34 density   8 fan-in  ─ stable
+
+    0.8 ▼  scripts/performance-queue.mjs
+           6 commits    976 churn  0.33 density   2 fan-in  ▼ cooling
+
+    0.8 ▼  app/vault.ts
+           5 commits    334 churn  0.44 density   2 fan-in  ▼ cooling
+
+    0.8 ─  app/globe-renderer.ts
+           9 commits    530 churn  0.26 density   1 fan-in  ─ stable
+
+    0.8 ▼  scripts/orchestration/verify.mjs
+           7 commits    376 churn  0.32 density   1 fan-in  ▼ cooling
+
+    0.8 ▼  app/animation.ts
+           6 commits    379 churn  0.33 density  25 fan-in  ▼ cooling
+
+    0.8 ─  scripts/check-browser-mission9.mjs
+           6 commits   1976 churn  0.37 density   0 fan-in  ─ stable
+
+    0.8 ▼  scripts/check-browser-vehicle-assets.mjs
+           4 commits    234 churn  0.51 density   0 fan-in  ▼ cooling
+
+    0.8 ▲  app/tooltips.ts
+           6 commits    324 churn  0.39 density   4 fan-in  ▲ accelerating
+
+    0.8 ─  app/world-terrain-runtime.ts
+           6 commits    295 churn  0.35 density  34 fan-in  ─ stable
+
+    0.8 ▼  scripts/check-browser-vault-appearance.mjs
+           6 commits    351 churn  0.36 density   0 fan-in  ▼ cooling
+
+    0.8 ▼  tests/mission3-defense-task.test.mjs [test]
+           4 commits    632 churn  0.44 density   0 fan-in  ▼ cooling
+
+    0.8 ─  tests/ground-waypoints.test.mjs [test]
+           4 commits    103 churn  0.52 density   0 fan-in  ─ stable
+
+    0.8 ▲  app/stone-head-animation.ts
+           6 commits    233 churn  0.31 density  10 fan-in  ▲ accelerating
+
+    0.8 ▼  tests/swarm-spell.test.mjs [test]
+           9 commits    489 churn  0.24 density   0 fan-in  ▼ cooling
+
+    0.8 ─  scripts/local-render/campaign-fixed-turn.mjs
+           7 commits     89 churn  0.27 density   1 fan-in  ─ stable
+
+    0.8 ▼  tests/combat-targets.test.mjs [test]
+           5 commits    127 churn  0.40 density   0 fan-in  ▼ cooling
+
+    0.8 ▼  tests/local-render-harness.test.mjs [test]
+           4 commits    111 churn  0.49 density   0 fan-in  ▼ cooling
+
+    0.8 ▼  scripts/check-browser-training-panel.mjs
+           6 commits    176 churn  0.37 density   0 fan-in  ▼ cooling
+
+    0.8 ▼  tests/owned-game-profile.test.mjs [test]
+           5 commits    187 churn  0.37 density   0 fan-in  ▼ cooling
+
+    0.7 ─  app/combat-runtime.ts
+           5 commits    583 churn  0.38 density   6 fan-in  ─ stable
+
+    0.7 ▼  app/tribe-turns.ts
+           5 commits    416 churn  0.37 density   4 fan-in  ▼ cooling
+
+    0.7 ▼  app/native-terrain.ts
+           8 commits    538 churn  0.25 density  88 fan-in  ▼ cooling
+
+    0.7 ▼  app/building-damage.ts
+           8 commits    508 churn  0.25 density  18 fan-in  ▼ cooling
+
+    0.7 ─  app/live-resting.ts
+           6 commits    244 churn  0.33 density   6 fan-in  ─ stable
+
+    0.7 ▼  scripts/check-browser-mission23.mjs
+           5 commits    265 churn  0.38 density   0 fan-in  ▼ cooling
+
+    0.7 ▼  scripts/check-browser-tutorial.mjs
+           5 commits    196 churn  0.35 density   0 fan-in  ▼ cooling
+
+    0.7 ▼  app/person-selection.ts
+           5 commits    116 churn  0.40 density  15 fan-in  ▼ cooling
+
+    0.7 ▼  app/person-update.ts
+           6 commits    310 churn  0.30 density  10 fan-in  ▼ cooling
+
+    0.7 ▼  scripts/check-browser-transport-idle.mjs
+           5 commits    229 churn  0.32 density   0 fan-in  ▼ cooling
+
+    0.7 ▲  scripts/check-browser-resting.mjs
+           3 commits     54 churn  0.69 density   0 fan-in  ▲ accelerating
+
+    0.7 ▼  scripts/check-browser-building-menu.mjs
+           5 commits    469 churn  0.35 density   0 fan-in  ▼ cooling
+
+    0.7 ▼  app/native-math.ts
+           8 commits    188 churn  0.25 density  109 fan-in  ▼ cooling
+
+    0.7 ▼  scripts/check-browser-hut-upgrade.mjs
+           3 commits     98 churn  0.69 density   0 fan-in  ▼ cooling
+
+    0.7 ─  scripts/check-browser-unit-shadows.mjs
+           5 commits    117 churn  0.40 density   0 fan-in  ─ stable
+
+    0.7 ▲  tests/mission3-preaching-message.test.mjs [test]
+           3 commits     84 churn  0.52 density   0 fan-in  ▲ accelerating
+
+    0.7 ▼  scripts/check-browser-spell-button.mjs
+           4 commits     74 churn  0.46 density   0 fan-in  ▼ cooling
+
+    0.6 ▼  app/person-routes.ts
+           7 commits    813 churn  0.26 density  27 fan-in  ▼ cooling
+
+    0.6 ─  tests/mission11-opening.test.mjs [test]
+           4 commits    213 churn  0.42 density   0 fan-in  ─ stable
+
+    0.6 ─  app/person-collision.ts
+           4 commits    247 churn  0.43 density  19 fan-in  ─ stable
+
+    0.6 ▲  qa/projection-check.mjs
+           3 commits    112 churn  0.57 density   0 fan-in  ▲ accelerating
+
+    0.6 ▼  app/reincarnation-wave-runtime.ts
+           5 commits    172 churn  0.28 density   3 fan-in  ▼ cooling
+
+    0.6 ▼  app/scene-assets.ts
+           7 commits    347 churn  0.23 density  16 fan-in  ▼ cooling
+
+    0.6 ▼  scripts/check-browser-mission3-convert-task.mjs
+           3 commits    136 churn  0.45 density   0 fan-in  ▼ cooling
+
+    0.6 ─  tests/command-context.test.mjs [test]
+           5 commits    136 churn  0.35 density   0 fan-in  ─ stable
+
+    0.6 ▼  tests/game-clock.test.mjs [test]
+           6 commits    240 churn  0.29 density   0 fan-in  ▼ cooling
+
+    0.6 ▼  tests/mission4-opening.test.mjs [test]
+           4 commits    190 churn  0.41 density   0 fan-in  ▼ cooling
+
+    0.6 ▼  scripts/check-browser-stone-head-149.mjs
+           6 commits   1294 churn  0.26 density   0 fan-in  ▼ cooling
+
+    0.6 ▼  app/unit-motion.ts
+           5 commits    139 churn  0.33 density  12 fan-in  ▼ cooling
+
+    0.6 ▼  tests/performance-queue.test.mjs [test]
+           8 commits    723 churn  0.20 density   0 fan-in  ▼ cooling
+
+    0.6 ▼  app/building-occupants.ts
+           6 commits    613 churn  0.27 density   7 fan-in  ▼ cooling
+
+    0.6 ▼  scripts/parity.mjs
+           6 commits    460 churn  0.28 density   1 fan-in  ▼ cooling
+
+    0.6 ▼  tests/person-panic.test.mjs [test]
+           5 commits    212 churn  0.30 density   0 fan-in  ▼ cooling
+
+    0.6 ▲  qa/audio-check.mjs
+           3 commits     20 churn  0.58 density   0 fan-in  ▲ accelerating
+
+    0.6 ─  tests/mixed-building-orders.test.mjs [test]
+           4 commits    287 churn  0.35 density   0 fan-in  ─ stable
+
+    0.6 ▼  tests/route-recovery.test.mjs [test]
+           3 commits    148 churn  0.50 density   0 fan-in  ▼ cooling
+
+    0.6 ─  app/worship-appearance.ts
+           5 commits     51 churn  0.31 density   4 fan-in  ─ stable
+
+    0.6 ─  app/hut-occupancy-smoke.ts
+           5 commits    176 churn  0.28 density  10 fan-in  ─ stable
+
+    0.6 ▼  app/timber.ts
+           6 commits    116 churn  0.29 density  13 fan-in  ▼ cooling
+
+    0.6 ▼  app/live-worship.ts
+           5 commits    138 churn  0.34 density  19 fan-in  ▼ cooling
+
+    0.6 ▲  scripts/check-browser-hud-portrait.mjs
+           3 commits     73 churn  0.53 density   0 fan-in  ▲ accelerating
+
+    0.6 ─  tests/resting-groups.test.mjs [test]
+           4 commits     98 churn  0.36 density   0 fan-in  ─ stable
+
+    0.6 ▼  scripts/check-browser-combat-targets.mjs
+           4 commits    107 churn  0.39 density   0 fan-in  ▼ cooling
+
+    0.6 ▼  tests/timber.test.mjs [test]
+           4 commits    134 churn  0.43 density   0 fan-in  ▼ cooling
+
+    0.6 ▼  scripts/check-browser-building-ground.mjs
+           3 commits    109 churn  0.61 density   0 fan-in  ▼ cooling
+
+    0.6 ─  tests/world-movement.test.mjs [test]
+           4 commits     79 churn  0.37 density   0 fan-in  ─ stable
+
+    0.6 ─  tests/hud.test.mjs [test]
+           5 commits     92 churn  0.32 density   0 fan-in  ─ stable
+
+    0.6 ▼  scripts/check-browser-mission3-opening.mjs
+           5 commits    197 churn  0.30 density   0 fan-in  ▼ cooling
+
+    0.6 ▼  scripts/check-browser-marching.mjs
+           3 commits    112 churn  0.53 density   0 fan-in  ▼ cooling
+
+    0.6 ▲  scripts/check-browser-hud-mana.mjs
+           3 commits     72 churn  0.54 density   0 fan-in  ▲ accelerating
+
+    0.5 ─  app/training-conversion.ts
+           4 commits    315 churn  0.36 density   2 fan-in  ─ stable
+
+    0.5 ▼  app/command-context.ts
+           3 commits     90 churn  0.48 density   4 fan-in  ▼ cooling
+
+    0.5 ▼  app/camera-motion.ts
+           5 commits    569 churn  0.29 density   6 fan-in  ▼ cooling
+
+    0.5 ─  app/scene-picking.ts
+           5 commits    343 churn  0.29 density   2 fan-in  ─ stable
+
+    0.5 ▼  app/hut-smoke-runtime.ts
+           3 commits    149 churn  0.36 density   6 fan-in  ▼ cooling
+
+    0.5 ─  tests/mission23.test.mjs [test]
+           4 commits    280 churn  0.33 density   0 fan-in  ─ stable
+
+    0.5 ─  scripts/check-browser-mission4-natural-victory.mjs
+           4 commits    814 churn  0.33 density   1 fan-in  ─ stable
+
+    0.5 ▼  app/reincarnation.ts
+           4 commits     81 churn  0.30 density  10 fan-in  ▼ cooling
+
+    0.5 ─  app/building-runtime.ts
+           4 commits    334 churn  0.34 density   3 fan-in  ─ stable
+
+    0.5 ▼  tests/melee-encounter.test.mjs [test]
+           5 commits    160 churn  0.27 density   0 fan-in  ▼ cooling
+
+    0.5 ▼  scripts/check-browser-mission8-natural.mjs
+           4 commits    475 churn  0.31 density   0 fan-in  ▼ cooling
+
+    0.5 ▼  app/model-lighting.ts
+           5 commits    178 churn  0.26 density  11 fan-in  ▼ cooling
+
+    0.5 ▼  app/globe.ts
+           5 commits    440 churn  0.26 density   9 fan-in  ▼ cooling
+
+    0.5 ▼  scripts/check-browser-building-combat.mjs
+           3 commits     97 churn  0.51 density   0 fan-in  ▼ cooling
+
+    0.5 ▼  scripts/mission3-raid-recruitment-pair.mjs
+           5 commits    227 churn  0.24 density   0 fan-in  ▼ cooling
+
+    0.5 ▼  scripts/check-browser-stone-head-orientation.mjs
+           3 commits    148 churn  0.40 density   0 fan-in  ▼ cooling
+
+    0.5 ▼  app/scene-terrain-runtime.ts
+           7 commits    434 churn  0.17 density   1 fan-in  ▼ cooling
+
+    0.5 ▼  scripts/local-render/building-construction-gauge.mjs
+           3 commits     95 churn  0.37 density   0 fan-in  ▼ cooling
+
+    0.5 ─  app/level-start.ts
+           7 commits    214 churn  0.16 density   6 fan-in  ─ stable
+
+    0.5 ▼  app/terrain-texture.ts
+           6 commits    346 churn  0.23 density  12 fan-in  ▼ cooling
+
+    0.5 ▼  tests/erosion-observation.test.mjs [test]
+           3 commits    214 churn  0.37 density   0 fan-in  ▼ cooling
+
+    0.5 ▲  scripts/local-render/checkpoint-restart.mjs
+           3 commits     96 churn  0.36 density   0 fan-in  ▲ accelerating
+
+    0.5 ─  scripts/check-browser-mission5-angel.mjs
+           5 commits    629 churn  0.24 density   0 fan-in  ─ stable
+
+    0.5 ─  app/vault-appearance.ts
+           4 commits    125 churn  0.28 density   7 fan-in  ─ stable
+
+    0.5 ▼  tests/live-movement.test.mjs [test]
+           3 commits    137 churn  0.43 density   0 fan-in  ▼ cooling
+
+    0.5 ▼  scripts/check-browser-scenery-fire.mjs
+           4 commits    162 churn  0.37 density   0 fan-in  ▼ cooling
+
+    0.5 ▼  tests/mission3-opening.test.mjs [test]
+           3 commits     90 churn  0.45 density   0 fan-in  ▼ cooling
+
+    0.5 ▼  scripts/check-browser-globe-footprints.mjs
+           3 commits    120 churn  0.51 density   0 fan-in  ▼ cooling
+
+    0.5 ▼  scripts/check-browser-camera-focus.mjs
+           4 commits     92 churn  0.35 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  app/person-order-update.ts
+           3 commits    443 churn  0.38 density   9 fan-in  ▼ cooling
+
+    0.4 ─  app/melee-encounter.ts
+           4 commits    307 churn  0.28 density   4 fan-in  ─ stable
+
+    0.4 ▼  app/person-idle.ts
+           4 commits    739 churn  0.25 density   6 fan-in  ▼ cooling
+
+    0.4 ▼  scripts/check-browser-spy-combat-lifecycle.mjs
+           4 commits   1693 churn  0.28 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  app/person-physics.ts
+           4 commits    646 churn  0.26 density   2 fan-in  ▼ cooling
+
+    0.4 ▼  app/building-workers.ts
+           3 commits    184 churn  0.41 density  17 fan-in  ▼ cooling
+
+    0.4 ▼  app/building-work.ts
+           4 commits    332 churn  0.27 density   9 fan-in  ▼ cooling
+
+    0.4 ▼  app/combat-order-search.ts
+           4 commits    241 churn  0.31 density   5 fan-in  ▼ cooling
+
+    0.4 ▼  app/live-construction-runtime.ts
+           3 commits    632 churn  0.34 density   1 fan-in  ▼ cooling
+
+    0.4 ▼  tests/building-clearing.test.mjs [test]
+           3 commits    285 churn  0.38 density   0 fan-in  ▼ cooling
+
+    0.4 ▲  scripts/check-browser-texture-filter.mjs
+           4 commits    213 churn  0.26 density   0 fan-in  ▲ accelerating
+
+    0.4 ▼  app/computer-defense.ts
+           3 commits    404 churn  0.29 density   2 fan-in  ▼ cooling
+
+    0.4 ▼  scripts/check-browser-water.mjs
+           4 commits    291 churn  0.29 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  scripts/check-browser-mission6-natural-victory.mjs
+           3 commits    762 churn  0.35 density   0 fan-in  ▼ cooling
+
+    0.4 ▲  scripts/check-browser-hut-smoke-events.mjs
+           3 commits    607 churn  0.36 density   0 fan-in  ▲ accelerating
+
+    0.4 ▼  scripts/check-browser-mission12-vault-bridge.mjs
+           4 commits    921 churn  0.25 density   0 fan-in  ▼ cooling
+
+    0.4 ▲  scripts/check-browser-sky.mjs
+           4 commits    355 churn  0.26 density   0 fan-in  ▲ accelerating
+
+    0.4 ▼  scripts/check-browser-mission16-bloodlust.mjs
+           3 commits    213 churn  0.30 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  app/spell-button.ts
+           3 commits     99 churn  0.39 density   6 fan-in  ▼ cooling
+
+    0.4 ─  app/building-debris.ts
+           4 commits    188 churn  0.26 density   5 fan-in  ─ stable
+
+    0.4 ▲  app/computer-convert.ts
+           3 commits     95 churn  0.28 density   2 fan-in  ▲ accelerating
+
+    0.4 ▼  scripts/check-browser-texture-cache-retry.mjs
+           3 commits    186 churn  0.31 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  app/melee.ts
+           4 commits     97 churn  0.29 density   4 fan-in  ▼ cooling
+
+    0.4 ▲  app/shaman-death-vfx.ts
+           4 commits     71 churn  0.28 density   6 fan-in  ▲ accelerating
+
+    0.4 ▼  app/lightning.ts
+           6 commits    256 churn  0.18 density  11 fan-in  ▼ cooling
+
+    0.4 ▲  tests/shaman-guard-input.test.mjs [test]
+           3 commits    377 churn  0.30 density   0 fan-in  ▲ accelerating
+
+    0.4 ▼  tests/blast-wave.test.mjs [test]
+           3 commits    106 churn  0.36 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  scripts/check-browser-mission8.mjs
+           3 commits    583 churn  0.35 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  qa/erosion-ordinary/source-policy.mjs
+           3 commits    121 churn  0.33 density   5 fan-in  ▼ cooling
+
+    0.4 ▼  tests/tower-entry.test.mjs [test]
+           5 commits    253 churn  0.23 density   0 fan-in  ▼ cooling
+
+    0.4 ▲  tests/mixed-combat-orders.test.mjs [test]
+           3 commits    193 churn  0.32 density   0 fan-in  ▲ accelerating
+
+    0.4 ▼  tests/mission3-preacher-task.test.mjs [test]
+           5 commits    399 churn  0.18 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  scripts/check-browser-loading-art.mjs
+           5 commits    450 churn  0.23 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  scripts/check-browser-drag-selection.mjs
+           3 commits    168 churn  0.38 density   0 fan-in  ▼ cooling
+
+    0.4 ─  app/ambient-sound.ts
+           4 commits     83 churn  0.26 density   5 fan-in  ─ stable
+
+    0.4 ─  tests/stone-head-animation.test.mjs [test]
+           4 commits    187 churn  0.24 density   0 fan-in  ─ stable
+
+    0.4 ▼  tests/mission22.test.mjs [test]
+           3 commits    336 churn  0.35 density   0 fan-in  ▼ cooling
+
+    0.4 ▲  tests/area-attack-orders.test.mjs [test]
+           3 commits    187 churn  0.30 density   0 fan-in  ▲ accelerating
+
+    0.4 ▲  app/hud-population.ts
+           3 commits     54 churn  0.35 density   6 fan-in  ▲ accelerating
+
+    0.4 ─  tests/support/hut-smoke-scene.mjs
+           4 commits    210 churn  0.26 density   2 fan-in  ─ stable
+
+    0.4 ▼  tests/painter-order.test.mjs [test]
+           6 commits    132 churn  0.21 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  scripts/check-browser-building-smoke.mjs
+           3 commits    120 churn  0.38 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  qa/erosion-native-replay/capture.test.mjs [test]
+           3 commits    151 churn  0.32 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  scripts/check-browser-person-panel.mjs
+           3 commits    199 churn  0.34 density   0 fan-in  ▼ cooling
+
+    0.4 ─  scripts/check-browser-construction-panel.mjs
+           4 commits    294 churn  0.27 density   0 fan-in  ─ stable
+
+    0.4 ▼  tests/authored-bridges.test.mjs [test]
+           3 commits    189 churn  0.31 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  tests/tutorial.test.mjs [test]
+           6 commits    181 churn  0.18 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  app/painter-order.ts
+           3 commits     36 churn  0.37 density  11 fan-in  ▼ cooling
+
+    0.4 ▼  app/object-cells.ts
+           5 commits    142 churn  0.21 density  28 fan-in  ▼ cooling
+
+    0.4 ▼  tests/timber-search.test.mjs [test]
+           3 commits    130 churn  0.33 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  tests/live-worship.test.mjs [test]
+           5 commits    360 churn  0.23 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  tests/housing-entry.test.mjs [test]
+           5 commits    163 churn  0.23 density   0 fan-in  ▼ cooling
+
+    0.4 ▼  scripts/check-browser-spell-hud-icons.mjs
+           3 commits    125 churn  0.31 density   0 fan-in  ▼ cooling
+
+    0.4 ▲  scripts/check-browser-hud-health.mjs
+           3 commits     66 churn  0.42 density   0 fan-in  ▲ accelerating
+
+    0.4 ▼  app/hud.tsx
+          10 commits    222 churn  0.11 density   3 fan-in  ▼ cooling
+
+    0.4 ▼  tests/sprite-layers.test.mjs [test]
+           8 commits     64 churn  0.12 density   0 fan-in  ▼ cooling
+
+    0.3 ▼  app/building-preparation.ts
+           3 commits    209 churn  0.30 density   3 fan-in  ▼ cooling
+
+    0.3 ▼  app/path-search.ts
+           3 commits    382 churn  0.32 density   6 fan-in  ▼ cooling
+
+    0.3 ▼  app/combat-approach.ts
+           3 commits    313 churn  0.28 density   5 fan-in  ▼ cooling
+
+    0.3 ▲  app/erosion.ts
+           3 commits    141 churn  0.23 density   9 fan-in  ▲ accelerating
+
+    0.3 ▼  app/resting-slots.ts
+           3 commits    331 churn  0.32 density   7 fan-in  ▼ cooling
+
+    0.3 ▼  app/person-motion.ts
+           3 commits    331 churn  0.29 density  11 fan-in  ▼ cooling
+
+    0.3 ▼  scripts/orchestration/review-bundle.mjs
+           5 commits   1076 churn  0.16 density   1 fan-in  ▼ cooling
+
+    0.3 ▼  app/vehicle-routing.ts
+           3 commits    330 churn  0.31 density  12 fan-in  ▼ cooling
+
+    0.3 ─  scripts/check-browser-audio-preferences.mjs
+           4 commits    328 churn  0.21 density   0 fan-in  ─ stable
+
+    0.3 ▲  app/combat-pursuit.ts
+           3 commits    219 churn  0.26 density   8 fan-in  ▲ accelerating
+
+    0.3 ▼  tests/mission10-opening.test.mjs [test]
+           3 commits    137 churn  0.29 density   0 fan-in  ▼ cooling
+
+    0.3 ─  app/minimap-renderer.ts
+           4 commits    152 churn  0.19 density   1 fan-in  ─ stable
+
+    0.3 ▼  scripts/check-browser-ground-overlay.mjs
+           3 commits    373 churn  0.26 density   0 fan-in  ▼ cooling
+
+    0.3 ▼  scripts/check-browser-loading-screen.mjs
+           4 commits    602 churn  0.22 density   0 fan-in  ▼ cooling
+
+    0.3 ▼  scripts/run-browser-hut-occupancy-smoke.mjs
+           3 commits    192 churn  0.30 density   0 fan-in  ▼ cooling
+
+    0.3 ▲  scripts/check-browser-worship-approach.mjs
+           3 commits    118 churn  0.27 density   0 fan-in  ▲ accelerating
+
+    0.3 ▼  app/vehicle-panel.ts
+           3 commits    160 churn  0.27 density   4 fan-in  ▼ cooling
+
+    0.3 ▼  tests/vehicle-appearance.test.mjs [test]
+           3 commits    156 churn  0.25 density   0 fan-in  ▼ cooling
+
+    0.3 ▼  tests/preacher-conversion.test.mjs [test]
+           3 commits    448 churn  0.23 density   0 fan-in  ▼ cooling
+
+    0.3 ▲  scripts/check-browser-campaign-message-presentation.mjs
+           3 commits    710 churn  0.26 density   0 fan-in  ▲ accelerating
+
+    0.3 ▼  app/camera-view.ts
+           3 commits    111 churn  0.24 density   6 fan-in  ▼ cooling
+
+    0.3 ▼  app/scene-hud-runtime.ts
+           3 commits     79 churn  0.24 density   1 fan-in  ▼ cooling
+
+    0.3 ─  scripts/check-browser-background-audio.mjs
+           4 commits    385 churn  0.21 density   0 fan-in  ─ stable
+
+    0.3 ▼  app/site-wave-effects.ts
+           3 commits    125 churn  0.21 density   2 fan-in  ▼ cooling
+
+    0.3 ▲  tests/person-panel.test.mjs [test]
+           3 commits     92 churn  0.26 density   0 fan-in  ▲ accelerating
+
+    0.3 ▼  app/person-panic.ts
+           4 commits     99 churn  0.21 density   3 fan-in  ▼ cooling
+
+    0.3 ▼  scripts/check-browser-ground-coverage.mjs
+           4 commits    303 churn  0.18 density   0 fan-in  ▼ cooling
+
+    0.3 ▼  app/spell-trails.ts
+           5 commits    266 churn  0.15 density   4 fan-in  ▼ cooling
+
+    0.3 ─  tests/workflow-handoff.test.mjs [test]
+           9 commits   1059 churn  0.08 density   0 fan-in  ─ stable
+
+    0.3 ▼  scripts/check-browser-followers-tab.mjs
+           3 commits    880 churn  0.26 density   0 fan-in  ▼ cooling
+
+    0.3 ▲  scripts/check-browser-person-panic.mjs
+           3 commits    450 churn  0.25 density   0 fan-in  ▲ accelerating
+
+    0.3 ─  tests/building-validity.test.mjs [test]
+           4 commits     72 churn  0.20 density   0 fan-in  ─ stable
+
+    0.3 ▼  app/vehicle-appearance.ts
+           3 commits     68 churn  0.23 density   6 fan-in  ▼ cooling
+
+    0.3 ▼  app/erosion-observation.ts
+           3 commits    205 churn  0.26 density   4 fan-in  ▼ cooling
+
+    0.3 ▼  scripts/orchestration/prepare.mjs
+           4 commits     90 churn  0.22 density   1 fan-in  ▼ cooling
+
+    0.3 ▼  qa/flyby-check.mjs
+           3 commits     54 churn  0.28 density   0 fan-in  ▼ cooling
+
+    0.3 ─  tests/firestorm.test.mjs [test]
+           4 commits    110 churn  0.22 density   0 fan-in  ─ stable
+
+    0.3 ▲  tests/hut-occupancy-smoke.test.mjs [test]
+           3 commits    126 churn  0.27 density   0 fan-in  ▲ accelerating
+
+    0.3 ▼  app/world-types.ts
+          41 commits    610 churn  0.02 density  77 fan-in  ▼ cooling
+
+    0.3 ▼  tests/parity.test.mjs [test]
+           6 commits    280 churn  0.12 density   0 fan-in  ▼ cooling
+
+    0.3 ▲  scripts/check-browser-messages.mjs
+           3 commits    100 churn  0.23 density   0 fan-in  ▲ accelerating
+
+    0.3 ▼  tests/globe.test.mjs [test]
+           3 commits     53 churn  0.24 density   0 fan-in  ▼ cooling
+
+    0.3 ▼  tests/player-orders.test.mjs [test]
+           3 commits    163 churn  0.25 density   0 fan-in  ▼ cooling
+
+    0.3 ▼  tests/follower-task-runtime.test.mjs [test]
+           4 commits    148 churn  0.18 density   0 fan-in  ▼ cooling
+
+    0.3 ▼  tests/campaign-start-readiness.test.mjs [test]
+           3 commits     95 churn  0.20 density   0 fan-in  ▼ cooling
+
+    0.3 ▼  app/hud-font.ts
+           3 commits     17 churn  0.25 density   2 fan-in  ▼ cooling
+
+    0.3 ▼  scripts/check-browser-camera-input.mjs
+           3 commits     80 churn  0.25 density   0 fan-in  ▼ cooling
+
+    0.2 ▲  app/tornado.ts
+           3 commits    195 churn  0.20 density   4 fan-in  ▲ accelerating
+
+    0.2 ▼  app/path-geometry.ts
+           3 commits    534 churn  0.21 density   4 fan-in  ▼ cooling
+
+    0.2 ▲  app/scenery-fire.ts
+           3 commits    192 churn  0.20 density   4 fan-in  ▲ accelerating
+
+    0.2 ▲  tests/tornado.test.mjs [test]
+           3 commits    270 churn  0.22 density   0 fan-in  ▲ accelerating
+
+    0.2 ─  tests/mission5-angel.test.mjs [test]
+           4 commits    283 churn  0.16 density   0 fan-in  ─ stable
+
+    0.2 ▼  scripts/check-browser-camera-view.mjs
+           4 commits    440 churn  0.16 density   0 fan-in  ▼ cooling
+
+    0.2 ▼  scripts/check-browser-camera-smoothing.mjs
+           3 commits    302 churn  0.21 density   0 fan-in  ▼ cooling
+
+    0.2 ▼  scripts/check-browser-globe.mjs
+           3 commits    129 churn  0.19 density   0 fan-in  ▼ cooling
+
+    0.2 ▼  app/drag-overlay.ts
+           3 commits    335 churn  0.18 density   1 fan-in  ▼ cooling
+
+    0.2 ▲  app/swarm.ts
+           3 commits    218 churn  0.17 density   4 fan-in  ▲ accelerating
+
+    0.2 ▼  tests/command-target.test.mjs [test]
+           3 commits     63 churn  0.22 density   0 fan-in  ▼ cooling
+
+    0.2 ▼  tests/reincarnation-wave.test.mjs [test]
+           3 commits    325 churn  0.18 density   0 fan-in  ▼ cooling
+
+    0.2 ▲  tests/secondary-hut-smoke-scene.test.mjs [test]
+           3 commits    178 churn  0.15 density   0 fan-in  ▲ accelerating
+
+    0.2 ▲  app/sky.ts
+           3 commits    255 churn  0.17 density   7 fan-in  ▲ accelerating
+
+    0.2 ▲  scripts/orchestration/command-receipt.mjs
+           3 commits    217 churn  0.20 density   1 fan-in  ▲ accelerating
+
+    0.2 ▲  app/vehicle-unload.ts
+           3 commits     69 churn  0.17 density   2 fan-in  ▲ accelerating
+
+    0.2 ▲  app/follower-tasks-view.tsx
+           3 commits    148 churn  0.17 density   1 fan-in  ▲ accelerating
+
+    0.2 ▲  app/world-rules.ts
+          12 commits    345 churn  0.05 density  29 fan-in  ▲ accelerating
+
+    0.2 ▲  vite.config.ts
+           3 commits     71 churn  0.14 density   0 fan-in  ▲ accelerating
+
+    0.2 ▼  scripts/check-browser-model-lighting.mjs
+           3 commits    268 churn  0.21 density   0 fan-in  ▼ cooling
+
+    0.2 ▲  tests/secondary-hut-smoke.test.mjs [test]
+           3 commits    351 churn  0.13 density   0 fan-in  ▲ accelerating
+
+    0.2 ▲  tests/hut-smoke-first-visit.test.mjs [test]
+           3 commits    214 churn  0.14 density   0 fan-in  ▲ accelerating
+
+    0.2 ▼  scripts/check-browser-minimap.mjs
+           3 commits    202 churn  0.16 density   0 fan-in  ▼ cooling
+
+    0.2 ▼  tests/vehicle-cell-membership.test.mjs [test]
+           3 commits    317 churn  0.19 density   0 fan-in  ▼ cooling
+
+    0.2 ▲  tests/terrain-notifications.test.mjs [test]
+           3 commits    131 churn  0.16 density   0 fan-in  ▲ accelerating
+
+    0.2 ▲  scripts/painter-baseline.mjs
+           3 commits     39 churn  0.20 density   5 fan-in  ▲ accelerating
+
+    0.1 ▲  scripts/check-browser-painter-work.mjs
+           3 commits    222 churn  0.11 density   0 fan-in  ▲ accelerating
+
+    0.1 ▼  app/layout.tsx
+           3 commits     63 churn  0.13 density   0 fan-in  ▼ cooling
+
+    0.1 ▼  app/world-selector-data.ts
+           4 commits   1060 churn  0.04 density   2 fan-in  ▼ cooling
+
+    0.1 ▲  tests/worship-appearance.test.mjs [test]
+           3 commits    149 churn  0.12 density   0 fan-in  ▲ accelerating
+
+    0.1 ▲  app/unit-kinds.ts
+           3 commits     37 churn  0.13 density  22 fan-in  ▲ accelerating
+
+  432 files excluded (< 3 commits)
+
+  Files with high churn and high complexity: https://docs.fallow.tools/explanations/health#hotspot-metrics
+
+● Refactoring targets (288)
+  186 medium · 102 high
+    score = quick-win ROI (higher = better) · pri = absolute priority
+
+   17.2  pri:34.4    scripts/campaign-conversion-observer.mjs
+         high impact · effort:medium · confidence:medium  Split high-impact file (26 LOC), 5 dependents amplify every change
+         importers: scripts/check-browser-campaign-natural-victory.mjs (observeCampaignConversions); scripts/check-browser-mission3-natural-preacher.mjs (observeCampaignConversions); scripts/mission3-natural-preacher-scenario.mjs (observeCampaignConversions); tests/campaign-conversion-observer.test.mjs (observeCampaignConversions); tests/mission3-natural-preacher.test.mjs (observeCampaignConversions)
+
+   17.2  pri:34.3    app/follower-tasks-runtime.ts
+         high impact · effort:medium · confidence:medium  Split high-impact file (146 LOC), 6 dependents amplify every change
+         importers: app/follower-transports-runtime.ts (hudTaskPeople); app/page.tsx (hudTaskPeople); app/scene-input-runtime.ts (hudTaskPeople, selectFollowerTask); scripts/check-browser-follower-tasks.mjs (hudTaskPeople); tests/follower-task-runtime.test.mjs (hudTaskPeople, selectFollowerTask)
+         clones: app/follower-transports-runtime.ts:31-41 dup:6f87acd9; app/selection-runtime.ts:179-188 dup:6f87acd9
+
+   15.5  pri:46.5    qa/erosion-ordinary/scenario.mjs
+         complexity · effort:high · confidence:high  Extract ordinaryErosion (cognitive: 38) in 320-LOC file into smaller functions
+         importers: tests/erosion-ordinary-cleanup.test.mjs (side effect)
+
+   14.8  pri:44.5    app/game-store.ts
+         high impact · effort:high · confidence:medium  Split high-impact file (425 LOC), 71 dependents amplify every change
+         importers: app/page.tsx (createGameStore); scripts/check-browser-mission3-defense-task.mjs (migrateCheckpoint); scripts/check-browser-mission4.mjs (migrateCheckpoint); scripts/mission3-raid-recruitment-pair.mjs (migrateCheckpoint); tests/ai-producer-schedule.test.mjs (migrateCheckpoint)
+         clones: app/stone-head-149.ts:22-30 dup:eddb9ddf
+
+   14.8  pri:44.5    qa/native-visuals.mjs
+         untested risk · effort:high · confidence:high  2 complex functions lack test coverage path, add tests before modifying
+         clones: qa/projection-check.mjs:3-7 dup:6f87acd9
+
+   14.5  pri:29.0    app/construction-runtime.ts
+         circular dependency · effort:medium · confidence:high  Break import cycle, 9 files depend on this, changes cascade through the cycle
+         importers: app/computer-runtime.ts (addBuilding, checkBuildingSite); app/live-command.ts (addBuilding, buildingPlanPose, constructionWorkers, placementError); app/live-construction-runtime.ts (timberCell); app/model.ts (side effect); app/world-initialization.ts (addBuilding)
+
+   14.4  pri:43.3    app/live-command.ts
+         high impact · effort:high · confidence:medium  Split high-impact file (769 LOC), 31 dependents amplify every change
+         importers: app/campaign-command-runtime.ts (route); app/computer-runtime.ts (entrance, findPath, route); app/live-construction-runtime.ts (buildingDoor, entrance, findPath, route, tell); app/model.ts (side effect); app/scene-input-runtime.ts (command)
+
+   14.0  pri:42.0    app/world-initialization.ts
+         high impact · effort:high · confidence:medium  Split high-impact file (492 LOC), 22 dependents amplify every change
+         importers: app/model.ts (side effect); scripts/check-browser-stone-head-orientation.mjs (createWorld); scripts/mission3-raid-recruitment-pair.mjs (createWorld); tests/automatic-boat-crossing.test.mjs (createWorld); tests/campaign-profile-recovery.test.mjs (createWorld)
+
+   13.8  pri:27.5    app/audio.ts
+         high impact · effort:medium · confidence:medium  Split high-impact file (407 LOC), 15 dependents amplify every change
+         importers: app/page.tsx (Soundscape); app/scene.ts (orderSound, playWorldSounds, soundEnvironment); qa/audio-check.mjs (Soundscape); scripts/check-browser-camera-smoothing.mjs (AUDIO_CUES); scripts/check-browser-display-audio.mjs (Soundscape, cueVariant)
+
+   13.6  pri:27.1    app/combat-targets.ts
+         high impact · effort:medium · confidence:medium  Split high-impact file (274 LOC), 9 dependents amplify every change
+         importers: app/combat-approach.ts (releaseAttackReservation); app/combat-orders.ts (CombatPerson, CombatTargetWorld, detectCombatThreat); app/live-building-combat.ts (availableFightSlot, eligibleCombatPerson, releaseAttackReservation); app/live-combat.ts (AttackReservation, CombatBuilding, CombatPerson, CombatTarget, CombatTargetWorld, detectCombatThreat, selectCombatTarget, selectFirewarriorTarget); app/melee-groups.ts (availableFightSlot)
+
+  ... and 278 more targets (--format json for full list)
+
+  Prioritized refactoring recommendations based on complexity, churn, and coupling signals: https://docs.fallow.tools/explanations/health#refactoring-targets
+

@@ -1,0 +1,21 @@
+{
+  "collectedAt": "2026-10-06T07:24:47.955702+00:00",
+  "sessionsCollected": [
+    11309,
+    14956,
+    55841,
+    61837,
+    94657,
+    76682,
+    43545,
+    26125
+  ],
+  "knownNativePeerTestBuildQualityProcessesInCurrentExecutionScope": [],
+  "nativeStop": "004cb6da",
+  "nativeLimits": "16MiB TCG,1GiB address space,30 CPU seconds,60-second alarm,65-second outer +5 grace,1M microseconds/2M instructions per call,128 trace records,5 calls,7 people maximum",
+  "portableLimits": "one 256MiB old-space peer;20-second request/watchdog,64KiB response,16KiB stderr,2-second close with kill+failure guard",
+  "remainingPackageJobs": 0,
+  "dependenciesRemainAt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/node_modules",
+  "dependencyDevice": 27,
+  "dependencyInode": 1978923
+}

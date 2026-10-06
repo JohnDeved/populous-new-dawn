@@ -1,0 +1,58 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "90b00aae-c4eb-4d5d-be19-06fbdc7d0ade",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "118a5eeeb83a3cc29a49e3bdb8407f32bb5b61fe",
+    "branch": "research/mission3-raid-recruitment-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/computer-runtime.ts": "87863f9329f0cac44f06be2dfc9aa49500a8c07fc6f23fdc9dd18f83d48c990c",
+      "scripts/mission3-raid-recruitment-pair.mjs": "0ef3de6aa6b72f9ae253b905ac4057f891277b9d82e7444b5006ac9df75e92c4",
+      "tests/mission3-raid-recruitment.test.mjs": "3939ccf4719a083983e6c3f33e7af641352a595f7d534aac5efee0fda79c491b",
+      "tests/mission3-raid-loaded-cell.test.mjs": "a722565d484fc28440eddf8ef8ebc0e21dc5edbea4082a84a2f3ae8bd2b49c55",
+      ".fallowrc.json": "251e2edbe9a78fc017a6f9f5eaa588bbf0be3df380cacf80e0a51c2b35a2834a",
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  },
+  "command": [
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "90s",
+    "node_modules/.bin/fallow",
+    "dead-code"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006",
+  "startedAt": "2026-10-06T07:21:50.791Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/work/orchestration/mission3-raid-recruitment-origin/authored-fallow-unused.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/work/orchestration/mission3-raid-recruitment-origin/authored-fallow-unused.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T07:21:51.475Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "── Unused Code ─────────────────────────────────────\n\n● Unused files (8)\n  qa/audio-check.mjs\n  qa/browser-check.mjs\n  qa/erosion-native-replay/capture.test.mjs\n  qa/flyby-check.mjs\n  qa/inspect.mjs\n  qa/native-visuals.mjs\n  qa/projection-check.mjs\n  worker/index.ts\n  Files not reachable from any entry point — https://docs.fallow.tools/explanations/dead-code#unused-files\n  To suppress: // fallow-ignore-file unused-file\n\n● Unused exports (4)\n  qa/erosion-ordinary/input.mjs (3)\n    :19 isOrdinaryMoveContext\n    :55 requireEntityContext\n    :71 entityInputState\n  qa/erosion-ordinary/scenario.mjs\n    :16 default\n  Exported symbols with no known consumers — https://docs.fallow.tools/explanations/dead-code#unused-exports\n  To auto-fix: fallow fix --dry-run\n  To suppress: // fallow-ignore-next-line unused-export\n\n── Dependencies ─────────────────────────────────────\n\n● Unused devDependencies (3)\n  @vitejs/plugin-rsc\n  oxc-standard\n  react-server-dom-webpack\n  Listed in devDependencies but never imported or referenced — https://docs.fallow.tools/explanations/dead-code#unused-dependencies\n\n● Unresolved imports (38)\n  scripts/bench-formation-phase.mjs (3)\n    :8 ../app/.formation-phase-baseline.ts\n    :9 ../app/.formation-movement-baseline.ts\n    :10 ../app/.formation-world-turn-baseline.ts\n  scripts/bench-terrain-notifications.mjs (2)\n    :9 ../app/.terrain-notifications-baseline.ts\n    :10 ../app/.terrain-notifications-world-turn-baseline.ts\n  scripts/check-browser-hut-occupancy-smoke.mjs (2)\n    :536 /app/original-effects.json\n    :537 /app/original-rules.json\n  scripts/shaman-worship-ground-observer.mjs (2)\n    :10 /app/original-worship-acquisition.json\n    :11 /app/original-hud.json\n  qa/native-visuals.mjs\n    :20 /app/original-units.json\n  qa/projection-check.mjs\n    :52 /app/original-models.json\n  scripts/bench-command-context.mjs\n    :8 ../app/.command-context-baseline.ts\n  scripts/bench-route-recovery.mjs\n    :9 ../app/.route-recovery-baseline.ts\n  scripts/bench-world-height.mjs\n    :9 ../app/.world-height-baseline.ts\n  scripts/check-browser-background-audio.mjs\n    :202 /app/original-music.json\n  ... and 23 more in 23 files (--format json for full list)\n  Import paths that could not be resolved, check for missing packages or broken paths. Framework-specific imports may need a plugin: https://docs.fallow.tools/plugins — https://docs.fallow.tools/explanations/dead-code#unresolved-imports\n  To suppress: // fallow-ignore-next-line unresolved-import\n\n● Unlisted dependencies (1)\n  next\n  Packages imported in code but missing from package.json — https://docs.fallow.tools/explanations/dead-code#unlisted-dependencies\n\n── Structure ─────────────────────────────────────\n\n● Circular dependencies (20)\n  app/computer-runtime.ts (4 cycles)\n    → live-building-entry.ts → model.ts → computer-runtime.ts\n    → live-movement.ts → model.ts → computer-runtime.ts\n    → live-pathfinding.ts → model.ts → computer-runtime.ts\n    → live-people.ts → model.ts → computer-runtime.ts\n\n  app/live-building-combat.ts (3 cycles)\n    → live-building-entry.ts → live-movement.ts → live-building-combat.ts\n    → live-building-entry.ts → world-tasks.ts → live-building-combat.ts\n    → live-movement.ts → live-building-combat.ts\n\n  app/campaign-command-runtime.ts (2 cycles)\n    → live-building-combat.ts → model.ts → campaign-command-runtime.ts\n    → live-movement.ts → model.ts → campaign-command-runtime.ts\n\n  app/combat-runtime.ts (2 cycles)\n    → live-people.ts → model.ts → combat-runtime.ts\n    → world-tasks.ts → live-building-combat.ts → combat-runtime.ts\n\n  app/construction-runtime.ts (2 cycles)\n    → live-building-entry.ts → model.ts → construction-runtime.ts\n    → live-people.ts → model.ts → construction-runtime.ts\n\n  app/live-building-entry.ts (2 cycles)\n    → live-movement.ts → live-building-entry.ts\n    → live-people.ts → live-building-entry.ts\n\n  app/live-movement.ts (2 cycles)\n    → live-people.ts → live-movement.ts\n    → world-tasks.ts → live-movement.ts\n\n  app/live-people.ts (2 cycles)\n    → live-resting.ts → live-people.ts\n    → world-tasks.ts → live-people.ts\n\n  app/live-pathfinding.ts\n    → live-people.ts → live-pathfinding.ts\n\n  Import cycles that can cause initialization failures and prevent tree-shaking — https://docs.fallow.tools/explanations/dead-code#circular-dependencies\n  To suppress: // fallow-ignore-next-line circular-dependency\n\n",
+  "stderr": "loaded config: /workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-recruitment-20261006/.fallowrc.json\n  783 entry points detected (516 manual entry, 266 plugin, 1 package.json)\n\n✗ 8 files · 4 exports · 3 dev/optional dependencies · 38 unresolved imports · 1 unlisted dependency · 20 circular dependencies (0.45s)\n",
+  "stdoutSha256": "871d6d092674de1e2ca2c75a973b98d1fa67e8fb0378e2182df4db39fb14af8a",
+  "stderrSha256": "096bfb2d49713b3f90b84f15fd06a9116ec718ba3fafd67bd6415be9a2fb2322",
+  "sourceAfter": {
+    "headOid": "118a5eeeb83a3cc29a49e3bdb8407f32bb5b61fe",
+    "branch": "research/mission3-raid-recruitment-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "app/computer-runtime.ts": "87863f9329f0cac44f06be2dfc9aa49500a8c07fc6f23fdc9dd18f83d48c990c",
+      "scripts/mission3-raid-recruitment-pair.mjs": "0ef3de6aa6b72f9ae253b905ac4057f891277b9d82e7444b5006ac9df75e92c4",
+      "tests/mission3-raid-recruitment.test.mjs": "3939ccf4719a083983e6c3f33e7af641352a595f7d534aac5efee0fda79c491b",
+      "tests/mission3-raid-loaded-cell.test.mjs": "a722565d484fc28440eddf8ef8ebc0e21dc5edbea4082a84a2f3ae8bd2b49c55",
+      ".fallowrc.json": "251e2edbe9a78fc017a6f9f5eaa588bbf0be3df380cacf80e0a51c2b35a2834a",
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+    }
+  }
+}

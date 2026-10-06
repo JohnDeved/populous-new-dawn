@@ -1,0 +1,12 @@
+{
+  "nativeNaturalFullBuildSource": "118a5eeeb83a3cc29a49e3bdb8407f32bb5b61fe",
+  "finalFocusedAndScopedSource": "0e94469658cf1ab3ad6e3cf795072182b77012b2",
+  "changedFile": "app/computer-runtime.ts",
+  "beforeSha256": "87863f9329f0cac44f06be2dfc9aa49500a8c07fc6f23fdc9dd18f83d48c990c",
+  "afterSha256": "fcaea74faacf6477a25c186b668eadc8e3a5a887cc74157683f818ee1a576872",
+  "patchSha256": "fcb3cd017b39a8d689ea6b65522b487826b71d7946eda6fc7acc3b5cf6a24ad6",
+  "exactSingleReplacementVerified": true,
+  "onlyTrackedFileDifferent": true,
+  "equivalence": "The === undefined condition is the Boolean complement of !== undefined for the same evaluated optional number. The authored fallback statements and base assignment only exchange branches. The same branch computations and property-read counts remain; neither is lifted. Zero remains a present base, undefined selects the authored record. No staging/radius/other mission or selector/copyback statement changes.",
+  "validationPolicy": "Independent reviewer/coordinator accepted this exact equivalent delta and explicitly required focused/format/ESLint/Oxlint repetition only. Native, natural, full check, build and advisory receipts retain their 118a5eee identity; they were not rerun or relabelled."
+}
