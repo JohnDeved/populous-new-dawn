@@ -72,7 +72,10 @@ Retain detailed before/after pairs from timer838 through the phase4 reset, next
 phase2 entry and first resumed timer1. Match cutoff by observed transitions, not
 expected wall times or the historical4174/4247 turn numbers. Record an active
 176/184 terminal gesture honestly: it is outside the native proof's supplied idle
-168/f1=0/f2=5 input unless the exact native-domain fields match. No next-cycle
+168/f1=0/f2=5 input unless the exact native-domain fields match. Record the native case's initial839 animation subset at the beforeTurn paired
+with the terminal controller; retain the middle840 animation subset separately.
+Neither subset is a claim that all supplied native inputs match. RNG values are whole-world
+callback snapshots, not isolated command17 controller-call inputs. No next-cycle
 search, RNG change or extended window repairs a nonmatching natural sample.
 The runtime proposal under review adds the terminal entry bit and a narrow
 phase4 stop that selects48/16 on the cargo0/on-foot model4 lane, with next-visit
@@ -133,7 +136,7 @@ application standard gates belong to the separate runtime owner.
 
 ## Source preparation receipt
 
-Nine dependency-free tests cover the supplied full loop with middle rendering
+Ten dependency-free tests cover the supplied full loop with middle rendering
 skipped, controller/updater source/stamp ownership, old missing-bit/stop failures,
 entry/visit/clock/queue interruption, actual-frame/layer correspondence, callback
 forwarding and restoration, fatal cleanup, unchanged helper hashes, passive-source

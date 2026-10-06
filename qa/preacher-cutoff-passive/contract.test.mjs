@@ -10,12 +10,12 @@ import { chainPhaseObservers } from '../preacher-gesture-baseline/observe.mjs'
 function row(turn, p, phase = 'afterTurn') {
   return { turn, now: turn * 84, phase, sameActor: true, sameWorld: true, registeredOwner: true, owner: 'native',
     hp: 55, kind: 'preacher', team: 'blue', inside: null, busy: false, status: 'playing', paused: false,
-    speed: 1, visibility: 'visible', landFlags: 0, listeners: [], threats: [], collision: 0, followingOrder: false,
-    order: { id: 26, model: 17, flags: 0 }, rng: { simulation: turn, cosmetic: 10 },
+    speed: 1, visibility: 'visible', landFlags: 0, listeners: [], threats: [], collision: 0, followingOrder: false, commands: [26, 0, 0, 0, 0, 0, 0, 0],
+    order: { id: 26, identity: 1, model: 17, flags: 0, object: 0, a: 11008, b: 40704 }, rng: { simulation: turn, cosmetic: 10 },
     person: { id: 3160, class: 1, model: 4, tribe: 0, vehicle: 0, cargo: 0, disguise: 0,
       flags2: 0, flags3: 0x40000, flags4: 0, state: 10, commandStatus: 17, substate: 3, timer: turn,
       counter: turn & 255, object: 168, draw: 14, f1: 0, f2: 0, stamp: turn - 1,
-      statusFlags: 2, assignment: 16, speed: 0, renderFlags: 384, ...p } }
+      statusFlags: 2, assignment: 16, speed: 0, commandCursor: 0, immediateCommand: 0, renderFlags: 384, ...p } }
 }
 // Supplied protocol records only; this is not an ordinary browser witness.
 function suppliedLoop(mutate = () => {}) {
@@ -37,8 +37,9 @@ function suppliedLoop(mutate = () => {}) {
       if (turn === 8 || turn === 857) Object.assign(p, { f1: 1, f2: 0 })
     }
     const after = row(turn, p); mutate(after); tracker.observe(after)
-    previous = { ...p, f1: p.f1 ? p.f1 - 1 : p.draw === 19 ? 1 : 0,
-      f2: p.f1 ? p.f2 : (p.f2 + 1) % ({ 48: 6, 160: 4, 168: 6 }[p.object]) }
+    const observed = after.person
+    previous = { ...observed, f1: observed.f1 ? observed.f1 - 1 : observed.draw === 19 ? 1 : 0,
+      f2: observed.f1 ? observed.f2 : (observed.f2 + 1) % ({ 48: 6, 160: 4, 168: 6 }[observed.object]) }
     // Deliberately render847 then849, skipping the real middle-reset848.
     if (turn !== 848) {
       const rendered = row(turn, { ...previous, stamp: turn }, 'render-after-updater')
@@ -81,7 +82,7 @@ test('missed entry, missing visits, recipient interruption and wall expiry fail 
   const missed = createCutoffTracker(), move = row(-1, { commandStatus: 3 }); move.order.model = 3
   missed.observe(move); missed.observe(row(3, {})); assert.match(missed.progress.reason, /entry missed/)
   for (const mutate of [r => { r.followingOrder = true }, r => { r.sameWorld = false },
-    r => { r.paused = true }, r => { r.now += 120000 }, r => { r.turn++ }]) {
+    r => { r.paused = true }, r => { r.order.identity++ }, r => { r.order.a++ }, r => { r.commands[1] = 27 }, r => { r.now += 120000 }, r => { r.turn++ }]) {
     const result = suppliedLoop(r => { if (r.turn === 100) mutate(r) }); assert.equal(result.progress.status, 'failed')
   }
 })
@@ -144,4 +145,14 @@ test('a prolonged pre-loop phase cannot exceed900 visits or2800 retained rows', 
   const rows = createCutoffTracker()
   for (let n = 0; n < 2801; n++) rows.observe(row(n, {}))
   assert.match(rows.progress.reason, /2800 compact phase/)
+})
+
+
+test('both first-loop and restart entries require real168/14 fresh phase despite consistent later updates', () => {
+  for (const turn of [8, 857]) {
+    for (const patch of [{ object: 48, draw: 16 }, { f1: 0 }, { f2: 1 }, { flags2: 0x40000000 }, { statusFlags: 3 }]) {
+      const tracker = suppliedLoop(r => { if (r.turn === turn) Object.assign(r.person, patch) })
+      assert.equal(tracker.progress.status, 'failed'); assert.match(tracker.progress.reason, /Fresh loop entry/)
+    }
+  }
 })

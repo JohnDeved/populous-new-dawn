@@ -22,9 +22,10 @@ export function cutoffRenderKind(row, progress) {
 export function createCutoffTracker() {
   const rows = [], events = [], progress = { status: 'awaiting-move', entryTurn: null, startMs: null,
     firstLoopTurn: null, terminalTurn: null, resetTurn: null, nextEntryTurn: null, restartTurn: null,
-    visits: 0, totalRows: 0, nativeDomain: null,
+    visits: 0, totalRows: 0, nativeDomain: { initial839AnimationSubset: null, middle840AnimationSubset: null,
+      scope: 'Animation subsets only; RNG values are world callback snapshots, not isolated controller inputs' },
     renders: { 'final-loop': 'render-not-observed', 'middle-reset': 'render-not-observed', 'next-entry': 'render-not-observed' } }
-  let orderId, previousAfter, timer = 0, before, pending
+  let orderId, orderIdentity, orderPayload, queue, previousAfter, timer = 0, before, pending
   const fail = reason => Object.assign(progress, { status: 'failed', reason })
   return { rows, events, progress, fail, observe(row) {
     if (['passed', 'failed'].includes(progress.status)) return
@@ -46,9 +47,14 @@ export function createCutoffTracker() {
       if (p.commandStatus === 17 && p.substate >= 3) return fail('Fresh entry missed')
       if (row.phase !== 'afterTurn' || p.commandStatus !== 17 || p.substate !== 2) return
       Object.assign(progress, { status: 'observing', entryTurn: row.turn, startMs: row.now }); orderId = row.order?.id
+      orderIdentity = row.order?.identity; orderPayload = JSON.stringify([row.order?.object, row.order?.a, row.order?.b])
+      queue = JSON.stringify([p.commandCursor, p.immediateCommand, row.commands])
     }
     if (row.now - progress.startMs >= 120000) return fail('120-second observation bound')
-    if (row.order?.id !== orderId || row.order.model !== 17 || row.order.flags & 1 ||
+    if (row.order?.id !== orderId || !Number.isInteger(orderIdentity) || orderIdentity < 1 ||
+      row.order.identity !== orderIdentity || JSON.stringify([row.order.object, row.order.a, row.order.b]) !== orderPayload ||
+      JSON.stringify([p.commandCursor, p.immediateCommand, row.commands]) !== queue ||
+      row.order.model !== 17 || row.order.flags & 1 ||
       p.state !== 10 || p.commandStatus !== 17 || !(p.flags3 & 0x40000) || row.collision ||
       row.threats.length || row.followingOrder) return fail('Stable command17/queue/site/logical-owner boundary changed')
     if (row.phase !== 'afterTurn') {
@@ -72,6 +78,8 @@ export function createCutoffTracker() {
     previousAfter = row.turn
     if (++progress.visits > 900) return fail('900 logical visit bound')
     if (p.substate === 3 && p.timer === 1) {
+      if (p.object !== 168 || p.draw !== 14 || p.f1 !== 1 || p.f2 !== 0 ||
+        p.flags2 & 0x40000000 || p.statusFlags & 1) return fail('Fresh loop entry is not168/14 with1/0 and consumed entry bit')
       if (progress.firstLoopTurn === null) progress.firstLoopTurn = row.turn
       else if (progress.terminalTurn !== null) progress.restartTurn = row.turn
     }
@@ -82,17 +90,21 @@ export function createCutoffTracker() {
       if (timer === 840) {
         if (p.substate !== 4 || !(p.flags2 & 0x40000000)) return fail('Terminal entry-state bit missing')
         progress.terminalTurn = row.turn
-        progress.nativeDomain = before?.person.object === 168 && before.person.draw === 14 &&
-          before.person.f1 === 0 && before.person.f2 === 5 && !(before.person.statusFlags & 1)
-          ? 'idle-animation-domain-matches-native-proof; full inputs retained' : 'different-natural-animation-input; no supplied-native-case equivalence claim'
+        const prior = before?.person
+        progress.nativeDomain.initial839AnimationSubset = !!prior && before.turn === row.turn - 1 &&
+          prior.timer === 839 && prior.substate === 3 && prior.object === 168 && prior.draw === 14 &&
+          prior.f1 === 0 && prior.f2 === 5 && !(prior.statusFlags & 1)
+
       }
     } else if (progress.terminalTurn !== null && row.turn === progress.terminalTurn + 1) {
       const prior = before?.person
       if (!prior || before.turn !== row.turn - 1 || prior.substate !== 4 || p.substate !== 2 ||
         p.timer !== 840 || !(p.flags2 & 0x40000000) || p.speed || p.object !== 48 || p.draw !== 16 ||
-        p.f1 !== prior.f1 || p.f2 !== (prior.f2 < 6 ? prior.f2 : 0) || p.renderFlags !== 384)
+        p.f1 !== 0 || p.f2 !== (prior.f2 < 6 ? prior.f2 : 0) || p.renderFlags !== 384)
         return fail('Real phase4 stop did not select the expected48/16 owner')
       progress.resetTurn = row.turn
+      progress.nativeDomain.middle840AnimationSubset = prior.object === 168 && prior.draw === 14 &&
+        prior.f1 === 0 && prior.f2 === 0 && prior.timer === 840 && prior.substate === 4 && !(prior.statusFlags & 1)
     } else if (progress.terminalTurn !== null && row.turn === progress.terminalTurn + 2) {
       if (p.substate !== 2 || p.timer !== 7 || p.flags2 & 0x40000000 || p.speed ||
         p.object !== 160 || p.draw !== 19 || p.f1 !== 1 || p.f2 !== 0)
@@ -100,7 +112,7 @@ export function createCutoffTracker() {
       progress.nextEntryTurn = row.turn
     }
     if (progress.terminalTurn !== null && row.turn >= progress.terminalTurn)
-      events.push({ kind: 'controller', turn: row.turn, before: before?.person, person: p, rngBefore: before?.rng, rng: row.rng })
+      events.push({ kind: 'controller', turn: row.turn, rngScope: 'World callback boundaries, not isolated command17 controller inputs', before: before?.person, person: p, rngBefore: before?.rng, rng: row.rng })
     pending = row
   } }
 }
@@ -112,6 +124,7 @@ export async function installCutoffObservation(id) {
     import('/app/world-types.ts'), import('/app/original-units.json'), import('/app/original-rules.json'), import('/app/sprite-layers.ts')])
   const scene = window.testSceneRef.current, world = scene.world, actor = world.units.find(u => u.id === id), native = actor?.native
   if (!native || unitAnimationSource(actor) !== native) throw Error('Acquired native owner missing')
+  const orderIdentities = new WeakMap(); let nextOrderIdentity = 0
   const tracker = createCutoffTracker(), renders = createPassiveRenderRead({ art, rules, spriteLayers, unitAnimationSource }, scene, id)
   const keys = ['id', 'class', 'model', 'tribe', 'state', 'previousState', 'substate', 'commandStatus',
     'counter', 'timer', 'flags2', 'flags3', 'flags4', 'statusFlags', 'speed', 'assignment', 'animationMode',
@@ -121,6 +134,7 @@ export async function installCutoffObservation(id) {
   const read = phase => {
     const w = scene.world, u = w.units.find(u => u.id === id), p = u && unitAnimationSource(u)
     const cell = p ? (p.y >> 9) * 128 + (p.x >> 9) : 0, order = p && currentPersonOrder(w.buildingOrders, p)
+    if (order && !orderIdentities.has(order)) orderIdentities.set(order, ++nextOrderIdentity)
     const short = value => ((value + 128) % 256 + 256) % 256 - 128
     const threat = v => v.hp > 0 && v.team !== 'blue' && v.team !== 'wild' &&
       !(w.outcome.alliances[0] & (1 << tribeForTeam(v.team))) && Math.hypot(short(v.x - u.x), short(v.z - u.z)) <= 16
@@ -134,7 +148,8 @@ export async function installCutoffObservation(id) {
       busy: !!(u?.flight || u?.fight || u?.fighting || u?.lift || u?.casting || u?.invisibility || u?.ghost || u && unitInvisibleToPlayer(w, u)),
       status: w.status, paused: w.paused, speed: w.speed, visibility: document.visibilityState, landFlags: w.land.landFlags,
       person: p ? Object.fromEntries(keys.map(key => [key, p[key] ?? null])) : null,
-      order: order ? { id: p.immediateCommand || p.commands[p.commandCursor], model: order.model, flags: order.flags, a: order.a, b: order.b } : null,
+      order: order ? { id: p.immediateCommand || p.commands[p.commandCursor], identity: orderIdentities.get(order),
+        model: order.model, flags: order.flags, references: order.references, object: order.object, a: order.a, b: order.b } : null,
       commands: p ? [...p.commands] : [], followingOrder: p ? p.commands.slice(p.commandCursor + 1).some(Boolean) : true,
       listeners: w.units.filter(v => { const n = v.native ?? v.entry?.person ?? v.fight?.motion; return v.hp > 0 && n?.state === 23 && n.workTarget === id }).map(v => v.id),
       threats: u ? [...w.units.filter(threat), ...w.buildings.filter(threat)].map(v => v.id) : [],
