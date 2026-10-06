@@ -44,7 +44,9 @@
     "recordCountsUniqueHandlesAndBounds": "passed",
     "sameRealCallSetSoundLeafPinnedInputs": "passed",
     "acceptedSuccessAndOldSixteenCaseUnchanged": "passed",
-    "nativeAppPackageBrowserExecution": "not-run"
+    "nativeAppPackageBrowserExecution": "not-run",
+    "initialPatchWhitespace": "failed at28f186f: blank unified-diff context markers; fixed by zero-context artifact, probe bytes unchanged",
+    "finalWhitespace": "passed"
   },
   "files": {
     "README.md": {
@@ -56,8 +58,8 @@
       "bytes": 18703
     },
     "source-delta.patch": {
-      "sha256": "878dcc459df61b54725fc0296899f247e48d082d6823baf837a6ecaccd625757",
-      "bytes": 11523
+      "sha256": "a6c35ce8ad339b0afd71d2f115fcd13c215d48d13fb9b2dcf4aa0933c85f3a0a",
+      "bytes": 8464
     }
   }
 }
