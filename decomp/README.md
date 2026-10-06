@@ -40,6 +40,7 @@ Recent reusable topic notes: [Preacher sermon gestures and original artwork](res
 [One-case automatic sermon producer proof packet](research/preacher-response-trigger/probe-packet.md),
 [Accepted automatic-sermon producer omission](../references/verification/preacher-response-trigger-2026-10-06/README.md),
 [Bounded automatic-sermon runtime/validation proposal](research/preacher-response-implementation-proposal.md),
+[Type-20 phase-6 settlement and combat timeout](research/raid-phase6-settlement/findings.md),
 [Shrine Erosion activation](research/erosion-activation.md),
 [Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
 [Ordinary native Shaman Guard input and deferred ownership](research/shaman-guard-input.md),
