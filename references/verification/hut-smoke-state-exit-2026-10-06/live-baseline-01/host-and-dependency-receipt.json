@@ -1,0 +1,96 @@
+{
+  "status": "terminal",
+  "startedAt": "2026-10-06T21:51:46.880133+00:00",
+  "head": "1d62a8181432b65106fe77f77b9f48cb07d95194",
+  "appCorrespondence": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "donor": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-automatic-response-qa-20261006/node_modules",
+  "borrower": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/node_modules",
+  "dependencyIdentity": [
+    27,
+    1978923
+  ],
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "rootLockSha256": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+  "cpuAffinity": [
+    0,
+    1,
+    2,
+    3
+  ],
+  "hostRunnerSha256": "7899f06e10c2178877573a01dedc8837c5d295eb831c1b7ac9939ed80ea2b5cf",
+  "nativeInputSha256": "a20ab0ea632b582f74bd24d5c14d968b4cb11d8d3d5f3f5a7e75fe20b311d3c7",
+  "toolSha256": {
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
+    "/usr/bin/timeout": "6ca1891dfc0b05d7680770c2884c0391b92467c7bb6500a5c84677e6481739f1"
+  },
+  "nativeOrBaselineRetry": false,
+  "dependenciesReturned": true,
+  "command": [
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--max-old-space-size=1024",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/scripts/orchestration/command-receipt.mjs",
+    "--output",
+    "work/orchestration/hut-smoke-state-exit/live-baseline-01.json",
+    "--input",
+    "decomp/research/hut-smoke-state-exit/capture-live-ignition-draft.mjs",
+    "--input",
+    "references/verification/hut-smoke-state-exit-2026-10-06/attempt-02/stdout.json",
+    "--input",
+    "package.json",
+    "--input",
+    "package-lock.json",
+    "--input",
+    "node_modules/.package-lock.json",
+    "--input",
+    "scripts/orchestration/command-receipt.mjs",
+    "--input",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-state-exit-audit-20261006/work/orchestration/hut-smoke-state-exit/host-live-baseline-01.py",
+    "--input",
+    "work/orchestration/hut-smoke-state-exit/live-baseline-host-01/source-before.json.gz",
+    "--input",
+    "work/orchestration/hut-smoke-state-exit/live-baseline-host-01/dependencies-before.json.gz",
+    "--",
+    "/usr/bin/timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "60s",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+    "--max-old-space-size=1024",
+    "decomp/research/hut-smoke-state-exit/capture-live-ignition-draft.mjs",
+    "references/verification/hut-smoke-state-exit-2026-10-06/attempt-02/stdout.json"
+  ],
+  "environment": {
+    "PATH": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin:/usr/bin:/bin",
+    "LANG": "C.UTF-8",
+    "LC_ALL": "C.UTF-8"
+  },
+  "sourceFileCount": 325,
+  "dependencyEntryCount": 21332,
+  "sourceInventorySha256": "e197b50e7c4010dfe1d1d9084af35c79807a0702eb0c6ac94c06aee8a367677f",
+  "dependencyInventorySha256": "2d8227abe3d2cd1f0c6943a0e27d9752c002e0dfdbca1973a744a62fc6d2db09",
+  "borrowedAt": "2026-10-06T21:51:57.554167+00:00",
+  "donorStubIdentity": [
+    27,
+    803847
+  ],
+  "donorStubLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "borrowerIdentity": [
+    27,
+    1978923
+  ],
+  "processSession": 17,
+  "childStartedAt": "2026-10-06T21:51:57.558567+00:00",
+  "childEndedAt": "2026-10-06T21:52:03.173553+00:00",
+  "wrapperExitCode": 1,
+  "remainingOwnedProcesses": [],
+  "resourcesReleased": true,
+  "sourceUnchanged": true,
+  "dependencyTreeUnchanged": true,
+  "installedLockUnchanged": true,
+  "returnedAt": "2026-10-06T21:52:06.986999+00:00",
+  "returnedIdentity": [
+    27,
+    1978923
+  ],
+  "returnedInstalledLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8"
+}

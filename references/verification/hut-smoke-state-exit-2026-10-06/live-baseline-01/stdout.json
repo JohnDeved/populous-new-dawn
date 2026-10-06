@@ -1,0 +1,975 @@
+{
+  "nativeCase": "full-root-existing-child-fire-allocation-failure",
+  "nativeReleaseCount": 1,
+  "samples": [
+    {
+      "label": "before-ignition",
+      "turn": 214,
+      "progress": 1,
+      "hp": 170,
+      "state": null,
+      "timer": null,
+      "residents": [
+        1184,
+        1186,
+        1188
+      ],
+      "admissionSlots": [
+        1184,
+        1186,
+        1188,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": 159,
+        "state": {
+          "lastBuildingCounter": 142,
+          "root": {
+            "mode": "full",
+            "visible": true,
+            "lifetime": -1,
+            "frameStart": 239
+          }
+        }
+      },
+      "roots": [
+        {
+          "kind": "hutRoot",
+          "building": 1023,
+          "counter": 152,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "serial": 2
+        }
+      ],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 129,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 16,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": true,
+      "animationFrame": 284,
+      "effectCounter": 129,
+      "cosmetic": 887945441,
+      "gameplay": 1864477631
+    },
+    {
+      "label": "immediate-ignition-return",
+      "turn": 214,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 127,
+      "residents": [
+        1184,
+        1186,
+        1188
+      ],
+      "admissionSlots": [
+        1184,
+        1186,
+        1188,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": 159,
+        "state": {
+          "lastBuildingCounter": 142,
+          "root": {
+            "mode": "full",
+            "visible": true,
+            "lifetime": -1,
+            "frameStart": 239
+          }
+        }
+      },
+      "roots": [
+        {
+          "kind": "hutRoot",
+          "building": 1023,
+          "counter": 152,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "serial": 2
+        }
+      ],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 129,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 16,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": true,
+      "animationFrame": 284,
+      "effectCounter": 129,
+      "cosmetic": 1875516858,
+      "gameplay": 1864477631
+    },
+    {
+      "label": "secondary-visit-1",
+      "turn": 215,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 126,
+      "residents": [
+        1184,
+        1186,
+        1188
+      ],
+      "admissionSlots": [
+        1184,
+        1186,
+        1188,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": 159,
+        "state": {
+          "lastBuildingCounter": 143,
+          "root": {
+            "mode": "full",
+            "visible": true,
+            "lifetime": -1,
+            "frameStart": 239
+          }
+        }
+      },
+      "roots": [
+        {
+          "kind": "hutRoot",
+          "building": 1023,
+          "counter": 153,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "serial": 2
+        }
+      ],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 130,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 15,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": true,
+      "animationFrame": 286,
+      "effectCounter": 130,
+      "cosmetic": 4140683863,
+      "gameplay": 373999390
+    },
+    {
+      "label": "secondary-visit-2",
+      "turn": 216,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 125,
+      "residents": [
+        1184,
+        1186,
+        1188
+      ],
+      "admissionSlots": [
+        1184,
+        1186,
+        1188,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": 159,
+        "state": {
+          "lastBuildingCounter": 144,
+          "root": {
+            "mode": "full",
+            "visible": true,
+            "lifetime": -1,
+            "frameStart": 239
+          }
+        }
+      },
+      "roots": [
+        {
+          "kind": "hutRoot",
+          "building": 1023,
+          "counter": 154,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "serial": 2
+        }
+      ],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 131,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 14,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": true,
+      "animationFrame": 288,
+      "effectCounter": 131,
+      "cosmetic": 1286686765,
+      "gameplay": 1736030802
+    },
+    {
+      "label": "secondary-visit-3",
+      "turn": 217,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 124,
+      "residents": [
+        1184,
+        1186,
+        1188
+      ],
+      "admissionSlots": [
+        1184,
+        1186,
+        1188,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": 159,
+        "state": {
+          "lastBuildingCounter": 145,
+          "root": {
+            "mode": "full",
+            "visible": true,
+            "lifetime": -1,
+            "frameStart": 239
+          }
+        }
+      },
+      "roots": [
+        {
+          "kind": "hutRoot",
+          "building": 1023,
+          "counter": 155,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "serial": 2
+        }
+      ],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 132,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 13,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": true,
+      "animationFrame": 290,
+      "effectCounter": 132,
+      "cosmetic": 3915468070,
+      "gameplay": 1427140596
+    },
+    {
+      "label": "secondary-visit-4",
+      "turn": 218,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 123,
+      "residents": [
+        1184,
+        1186,
+        1188
+      ],
+      "admissionSlots": [
+        1184,
+        1186,
+        1188,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": 159,
+        "state": {
+          "lastBuildingCounter": 146,
+          "root": {
+            "mode": "full",
+            "visible": true,
+            "lifetime": -1,
+            "frameStart": 239
+          }
+        }
+      },
+      "roots": [
+        {
+          "kind": "hutRoot",
+          "building": 1023,
+          "counter": 156,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "serial": 2
+        }
+      ],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 133,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 12,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": true,
+      "animationFrame": 292,
+      "effectCounter": 133,
+      "cosmetic": 237742168,
+      "gameplay": 1095681707
+    },
+    {
+      "label": "secondary-visit-5",
+      "turn": 219,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 122,
+      "residents": [
+        1184,
+        1186,
+        1188
+      ],
+      "admissionSlots": [
+        1184,
+        1186,
+        1188,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": 159,
+        "state": {
+          "lastBuildingCounter": 147,
+          "root": {
+            "mode": "full",
+            "visible": true,
+            "lifetime": -1,
+            "frameStart": 239
+          }
+        }
+      },
+      "roots": [
+        {
+          "kind": "hutRoot",
+          "building": 1023,
+          "counter": 157,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "serial": 2
+        }
+      ],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 134,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 11,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": true,
+      "animationFrame": 294,
+      "effectCounter": 134,
+      "cosmetic": 565733643,
+      "gameplay": 671877402
+    },
+    {
+      "label": "secondary-visit-6",
+      "turn": 220,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 121,
+      "residents": [
+        1184,
+        1186,
+        1188
+      ],
+      "admissionSlots": [
+        1184,
+        1186,
+        1188,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": 159,
+        "state": {
+          "lastBuildingCounter": 148,
+          "root": {
+            "mode": "full",
+            "visible": true,
+            "lifetime": -1,
+            "frameStart": 239
+          }
+        }
+      },
+      "roots": [
+        {
+          "kind": "hutRoot",
+          "building": 1023,
+          "counter": 158,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "serial": 2
+        }
+      ],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 135,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 10,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": true,
+      "animationFrame": 296,
+      "effectCounter": 135,
+      "cosmetic": 105979390,
+      "gameplay": 1895597515
+    },
+    {
+      "label": "secondary-visit-7",
+      "turn": 221,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 120,
+      "residents": [
+        1184,
+        1186,
+        1188
+      ],
+      "admissionSlots": [
+        1184,
+        1186,
+        1188,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": 159,
+        "state": {
+          "lastBuildingCounter": 149,
+          "root": {
+            "mode": "full",
+            "visible": true,
+            "lifetime": -1,
+            "frameStart": 239
+          }
+        }
+      },
+      "roots": [
+        {
+          "kind": "hutRoot",
+          "building": 1023,
+          "counter": 159,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "serial": 2
+        }
+      ],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 136,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 9,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": true,
+      "animationFrame": 298,
+      "effectCounter": 136,
+      "cosmetic": 3437955549,
+      "gameplay": 1214556457
+    },
+    {
+      "label": "secondary-visit-8",
+      "turn": 222,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 119,
+      "residents": [],
+      "admissionSlots": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": null,
+        "state": {
+          "lastBuildingCounter": 150,
+          "root": null
+        }
+      },
+      "roots": [],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 137,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 8,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": false,
+      "animationFrame": 300,
+      "effectCounter": 143,
+      "cosmetic": 3888344401,
+      "gameplay": 1452439443
+    },
+    {
+      "label": "secondary-visit-9",
+      "turn": 223,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 118,
+      "residents": [],
+      "admissionSlots": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": null,
+        "state": {
+          "lastBuildingCounter": 151,
+          "root": null
+        }
+      },
+      "roots": [],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 138,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 7,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": false,
+      "animationFrame": 302,
+      "effectCounter": 150,
+      "cosmetic": 2119134550,
+      "gameplay": 1051999960
+    },
+    {
+      "label": "secondary-visit-10",
+      "turn": 224,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 117,
+      "residents": [],
+      "admissionSlots": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": null,
+        "state": {
+          "lastBuildingCounter": 152,
+          "root": null
+        }
+      },
+      "roots": [],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 139,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 6,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": false,
+      "animationFrame": 304,
+      "effectCounter": 157,
+      "cosmetic": 551039808,
+      "gameplay": 803646452
+    },
+    {
+      "label": "secondary-visit-11",
+      "turn": 225,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 116,
+      "residents": [],
+      "admissionSlots": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": null,
+        "state": {
+          "lastBuildingCounter": 153,
+          "root": null
+        }
+      },
+      "roots": [],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 140,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 5,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": false,
+      "animationFrame": 306,
+      "effectCounter": 164,
+      "cosmetic": 241535291,
+      "gameplay": 3012871826
+    },
+    {
+      "label": "secondary-visit-12",
+      "turn": 226,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 115,
+      "residents": [],
+      "admissionSlots": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": null,
+        "state": {
+          "lastBuildingCounter": 154,
+          "root": null
+        }
+      },
+      "roots": [],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 141,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 4,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": false,
+      "animationFrame": 308,
+      "effectCounter": 171,
+      "cosmetic": 1336399947,
+      "gameplay": 715262487
+    },
+    {
+      "label": "secondary-visit-13",
+      "turn": 227,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 114,
+      "residents": [],
+      "admissionSlots": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": null,
+        "state": {
+          "lastBuildingCounter": 155,
+          "root": null
+        }
+      },
+      "roots": [],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 142,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 3,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": false,
+      "animationFrame": 310,
+      "effectCounter": 178,
+      "cosmetic": 1555905212,
+      "gameplay": 2489718081
+    },
+    {
+      "label": "secondary-visit-14",
+      "turn": 228,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 113,
+      "residents": [],
+      "admissionSlots": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": null,
+        "state": {
+          "lastBuildingCounter": 156,
+          "root": null
+        }
+      },
+      "roots": [],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 143,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 2,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": false,
+      "animationFrame": 312,
+      "effectCounter": 185,
+      "cosmetic": 1048009558,
+      "gameplay": 1393086912
+    },
+    {
+      "label": "secondary-visit-15",
+      "turn": 229,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 112,
+      "residents": [],
+      "admissionSlots": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": null,
+        "state": {
+          "lastBuildingCounter": 157,
+          "root": null
+        }
+      },
+      "roots": [],
+      "children": [
+        {
+          "kind": "hutPuff",
+          "counter": 144,
+          "position": {
+            "x": 1760,
+            "y": 55520,
+            "h": 432
+          },
+          "lifetime": 1,
+          "frameStart": 283,
+          "serial": 3
+        }
+      ],
+      "renderedRootVisible": false,
+      "animationFrame": 314,
+      "effectCounter": 192,
+      "cosmetic": 562204039,
+      "gameplay": 3415440483
+    },
+    {
+      "label": "secondary-visit-16",
+      "turn": 230,
+      "progress": 1,
+      "hp": 170,
+      "state": 4,
+      "timer": 111,
+      "residents": [],
+      "admissionSlots": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "retainedRoot": {
+        "slot": null,
+        "state": {
+          "lastBuildingCounter": 158,
+          "root": null
+        }
+      },
+      "roots": [],
+      "children": [],
+      "renderedRootVisible": false,
+      "animationFrame": 316,
+      "effectCounter": 199,
+      "cosmetic": 3469197949,
+      "gameplay": 2917334944
+    }
+  ],
+  "limits": "Controlled world/cohort; actual command8 admission and direct live Lightning ignition consumer; texture/projection supplied; no ordinary reward/HUD/GPU proof."
+}

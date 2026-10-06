@@ -10,7 +10,9 @@ passed the one full-root/child original-byte composition after the explicitly
 retained [attempt-01 ABI-checker failure](../../references/verification/hut-smoke-state-exit-2026-10-06/attempt-01/result.md).
 Its [independent result review](../../references/verification/hut-smoke-state-exit-2026-10-06/attempt-02/result-review.md)
 accepts the bounded composition; supporting live and ordinary rendered comparisons
-remain unrun. Its supplied fire/terrain/initialization boundaries
+have separate acceptance. The [controlled live baseline](../../references/verification/hut-smoke-state-exit-2026-10-06/live-baseline-01/result.md)
+reached the intended missing-root-retirement assertion with18 retained samples;
+ordinary rendered comparison remains unrun. The native supplied fire/terrain/initialization boundaries
 must remain attached to any claim.
 
 ## Finding

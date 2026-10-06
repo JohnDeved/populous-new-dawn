@@ -1,0 +1,52 @@
+{
+  "status": "expected-baseline-assertion-failed-awaiting-independent-result-review",
+  "sourceHead": "1d62a8181432b65106fe77f77b9f48cb07d95194",
+  "appCorrespondence": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97",
+  "captureSha256": "b2e40bb1a451d87d194db4508188aa3829b256dbdd73bd101474457ad400ff51",
+  "nativeInputSha256": "a20ab0ea632b582f74bd24d5c14d968b4cb11d8d3d5f3f5a7e75fe20b311d3c7",
+  "files": {
+    "command-receipt.json": {
+      "sha256": "f1e1ba6d5c64c269c7ff63e7aa709718c5b7138b3d7417a55445179bf1ff7592",
+      "bytes": 26634
+    },
+    "dependency-inventory.json.gz": {
+      "sha256": "2d8227abe3d2cd1f0c6943a0e27d9752c002e0dfdbca1973a744a62fc6d2db09",
+      "bytes": 986763
+    },
+    "host-and-dependency-receipt.json": {
+      "sha256": "d734d621dd710632f54e16bf34e304a74b64864321e006e056a194e1757c3ffd",
+      "bytes": 3886
+    },
+    "host-live-baseline.py": {
+      "sha256": "7899f06e10c2178877573a01dedc8837c5d295eb831c1b7ac9939ed80ea2b5cf",
+      "bytes": 8846
+    },
+    "result.md": {
+      "sha256": "f509eb0f4b6438372384cf548b099fea24c3ce65b579e2f51f92dd695f951325",
+      "bytes": 4396
+    },
+    "source-capture.mjs": {
+      "sha256": "b2e40bb1a451d87d194db4508188aa3829b256dbdd73bd101474457ad400ff51",
+      "bytes": 5785
+    },
+    "source-inventory.json.gz": {
+      "sha256": "e197b50e7c4010dfe1d1d9084af35c79807a0702eb0c6ac94c06aee8a367677f",
+      "bytes": 15314
+    },
+    "source-review.md": {
+      "sha256": "ea106c92a986997fa423dc3618775dd1918424c4d9bc7b1f5ce622ee048adb05",
+      "bytes": 2410
+    },
+    "stderr.txt": {
+      "sha256": "3c3a085ac176904f4da374e3d6e7e0bef3e9f6407d1b175020b1dde3efcbd4fe",
+      "bytes": 489
+    },
+    "stdout.json": {
+      "sha256": "30f06683ca09822f60c1291c0a90ef767d49e81c0b9013b3c26a09a593f6cc48",
+      "bytes": 19410
+    }
+  },
+  "originalAssetsOrDependencyBinariesIncluded": false,
+  "runtimeEdit": false,
+  "retry": false
+}
