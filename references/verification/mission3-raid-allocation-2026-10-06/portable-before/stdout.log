@@ -1,0 +1,219 @@
+✔ Mission3 authored raid allocation matches original: nominal accepted fixture (2.295279ms)
+✖ Mission3 authored raid allocation matches original: state20 disabled (2.38396ms)
+✖ Mission3 authored raid allocation matches original: one active raid reaches authored cap1 (1.149442ms)
+✖ Mission3 authored raid allocation matches original: all ten slots occupied by other tasks (0.476325ms)
+✔ Mission3 authored raid allocation matches original: only final slot free (0.14869ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 2
+ℹ fail 3
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1377.305919
+
+✖ failing tests:
+
+test at tests/mission3-raid-allocation.test.mjs:27:3
+✖ Mission3 authored raid allocation matches original: state20 disabled (2.38396ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      allocated: [],
+      attributes: [
+        40,
+        0,
+  ...
+      ],
+  +   rng: 851343515
+  -   rng: 305419896
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006/tests/mission3-raid-allocation.test.mjs:31:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: {
+      name: 'state20 disabled',
+      rng: 851343515,
+      reads: [ 1153, 2, 1 ],
+      allocated: [],
+      occupiedUnchanged: true,
+      attributes: [
+         40, 0, 1, 0, 0,  0,  0, 10, 0, 1,   0,
+        100, 0, 0, 2, 1,  0,  0, 20, 0, 0,   0,
+          0, 0, 0, 1, 0, 64, 20,  1, 0, 0, 128,
+          1, 0, 0, 0, 0,  0,  0,  0, 1, 0,  12,
+          0, 0, 1, 0
+      ]
+    },
+    expected: {
+      name: 'state20 disabled',
+      rng: 305419896,
+      reads: [ 1153, 2, 1 ],
+      allocated: [],
+      occupiedUnchanged: true,
+      attributes: [
+         40, 0, 1, 0, 0,  0,  0, 10, 0, 1,   0,
+        100, 0, 0, 2, 1,  0,  0, 20, 0, 0,   0,
+          0, 0, 0, 1, 0, 64, 20,  1, 0, 0, 128,
+          1, 0, 0, 0, 0,  0,  0,  0, 1, 0,  12,
+          0, 0, 1, 0
+      ]
+    },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/mission3-raid-allocation.test.mjs:27:3
+✖ Mission3 authored raid allocation matches original: one active raid reaches authored cap1 (1.149442ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+  +   allocated: [
+  +     {
+  +       damage: 8,
+  +       entity: 78,
+  +       flags: 1,
+  +       index: 1,
+  +       marker: 0,
+  +       origin: 20018,
+  +       phase: 0,
+  +       quotas: [
+  +         100,
+  +         0,
+  +         0,
+  +         0,
+  +         0,
+  +         0
+  +       ],
+  +       requested: 3,
+  +       retreatPercent: 20,
+  +       spells: [
+  +         0,
+  +         0,
+  +         0
+  +       ],
+  +       target: 20018,
+  +       type: 20
+  +     }
+  +   ],
+  -   allocated: [],
+      attributes: [
+        40,
+        0,
+        1,
+        0,
+  ...
+      ],
+  +   rng: 851343515
+  -   rng: 305419896
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006/tests/mission3-raid-allocation.test.mjs:31:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: {
+      name: 'one active raid reaches authored cap1',
+      rng: 851343515,
+      reads: [ 1153, 2, 1 ],
+      allocated: [ [Object] ],
+      occupiedUnchanged: true,
+      attributes: [
+         40, 0, 1, 0, 0,  0,  0, 10, 0, 1,   0,
+        100, 0, 0, 2, 1,  0,  0, 20, 0, 0,   0,
+          0, 0, 0, 1, 0, 64, 20,  1, 0, 0, 128,
+          1, 0, 0, 0, 0,  0,  0,  0, 1, 0,  12,
+          0, 0, 1, 0
+      ]
+    },
+    expected: {
+      name: 'one active raid reaches authored cap1',
+      rng: 305419896,
+      reads: [ 1153, 2, 1 ],
+      allocated: [],
+      occupiedUnchanged: true,
+      attributes: [
+         40, 0, 1, 0, 0,  0,  0, 10, 0, 1,   0,
+        100, 0, 0, 2, 1,  0,  0, 20, 0, 0,   0,
+          0, 0, 0, 1, 0, 64, 20,  1, 0, 0, 128,
+          1, 0, 0, 0, 0,  0,  0,  0, 1, 0,  12,
+          0, 0, 1, 0
+      ]
+    },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
+
+test at tests/mission3-raid-allocation.test.mjs:27:3
+✖ Mission3 authored raid allocation matches original: all ten slots occupied by other tasks (0.476325ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:
+  + actual - expected
+  ... Skipped lines
+  
+    {
+      allocated: [],
+      attributes: [
+        40,
+        0,
+  ...
+      ],
+  +   rng: 851343515
+  -   rng: 305419896
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006/tests/mission3-raid-allocation.test.mjs:31:12)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: {
+      name: 'all ten slots occupied by other tasks',
+      rng: 851343515,
+      reads: [ 1153, 2, 1 ],
+      allocated: [],
+      occupiedUnchanged: true,
+      attributes: [
+         40, 0, 1, 0, 0,  0,  0, 10, 0, 1,   0,
+        100, 0, 0, 2, 1,  0,  0, 20, 0, 0,   0,
+          0, 0, 0, 1, 0, 64, 20,  1, 0, 0, 128,
+          1, 0, 0, 0, 0,  0,  0,  0, 1, 0,  12,
+          0, 0, 1, 0
+      ]
+    },
+    expected: {
+      name: 'all ten slots occupied by other tasks',
+      rng: 305419896,
+      reads: [ 1153, 2, 1 ],
+      allocated: [],
+      occupiedUnchanged: true,
+      attributes: [
+         40, 0, 1, 0, 0,  0,  0, 10, 0, 1,   0,
+        100, 0, 0, 2, 1,  0,  0, 20, 0, 0,   0,
+          0, 0, 0, 1, 0, 64, 20,  1, 0, 0, 128,
+          1, 0, 0, 0, 0,  0,  0,  0, 1, 0,  12,
+          0, 0, 1, 0
+      ]
+    },
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
