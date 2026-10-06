@@ -1,0 +1,15 @@
+{
+  "verdict": "ACCEPT exact source; one ordinary run required",
+  "head": "4e3d7b07ac8d956a8bd7c45984e15e818ad3dc10",
+  "scenarioSha256": "efb5848bdf7525ceac90758e0d5d5349b51315db70158ba36594883dcb8ae75f",
+  "reviewedAt": "2026-10-06T23:13:00Z",
+  "verified": [
+    "Exact source delta inspected; node --check exit0. App/observer/contracts unchanged.",
+    "Both Shaman and Brave admitted by command27 mask; live handler requires a land route before any recipient. Failed attempt02 actual no-land-route message preserved.",
+    "Historical ordinary4186e9d source confirms head29,shore(0,20),Bridge(0,4). New code reuses destinations with current strict input/acceptance rather than old helper timing.",
+    "All path planning/terrain synchronization operates on structuredClone; current live terrain, stock, actors, clocks and RNG receive only ordinary UI actions.",
+    "Earned gift/stock decrease/original caster projectile or actual bridge count/completed controller and new worship path are asserted before Lightning. Actor loss stops.",
+    "Original Lightning/full housing/early real state4 rendered frame/root absence/resident retention/evacuation acceptance preserved."
+  ],
+  "next": "Rebind unchanged host to exact accepted source and fresh03 paths. Existing480s/510s+10s bounds remain; no automatic retry. Cannot claim new ordinary path success until observed."
+}

@@ -1,10 +1,10 @@
 {
-  "status": "source-only-unexecuted-attempt02-envelope",
-  "sourceAnchor": "545413962d957843330b6f2f430a80deaa8889f6",
+  "status": "source-only-unexecuted-attempt03-envelope",
+  "sourceAnchor": "4e3d7b07ac8d956a8bd7c45984e15e818ad3dc10",
   "applicationCommit": "b26f66b24da4fe133441e83c5377467a5066ef64",
   "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006",
   "sources": {
-    "scripts/local-render/hut-smoke-ignition.mjs": "63b702c0515d7fce66f0c5818e754a7f72fc74cf54fc820e44849843b778a03c",
+    "scripts/local-render/hut-smoke-ignition.mjs": "efb5848bdf7525ceac90758e0d5d5349b51315db70158ba36594883dcb8ae75f",
     "scripts/local-render/hut-smoke-ignition-observer.mjs": "8a50fa4bb93b6bb0fb9b927056dacb085049cb2125ebd6bb4db2579ea6f8b735",
     "scripts/local-render/harness.mjs": "fb07de9e278f26b2b32324defeb6164832472a58d422aead1032b7db7ee85fcf",
     "scripts/local-render/owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
@@ -34,7 +34,8 @@
     "worker/index.ts": "2ed36d7fa996e946d9d7695c5925e7760246f6bf8fa35c06f1bc515c087dc450",
     "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
     "decomp/research/hut-smoke-state-exit/ordinary-source-preflight.md": "ef5e33ca1183d616b44df32a76d2a98a3249772e52b856f909e8644727d265d2",
-    "decomp/research/hut-smoke-state-exit/ordinary-target-correction-review.json": "85f99abb0dc641b0df4bf1e9bf502eedd7e9b0eac45e2fa022ba091067e8b387"
+    "decomp/research/hut-smoke-state-exit/ordinary-target-correction-review.json": "85f99abb0dc641b0df4bf1e9bf502eedd7e9b0eac45e2fa022ba091067e8b387",
+    "decomp/research/hut-smoke-state-exit/ordinary-bridge-prerequisite-review.json": "06505ea0eaf7b4d7dc4d5594bc16d52b797fe74c24c01d4e1ab558c804518533"
   },
   "tools": {
     "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
@@ -71,10 +72,10 @@
     ".vite",
     ".vite-temp"
   ],
-  "profile": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-profiles/hut-smoke-ignition-02",
-  "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/orchestration/hut-smoke-state-exit/ordinary-02",
-  "hostOutput": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/orchestration/hut-smoke-state-exit/ordinary-host-02",
-  "temporary": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-temp/hut-smoke-ignition-02",
+  "profile": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-profiles/hut-smoke-ignition-03",
+  "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/orchestration/hut-smoke-state-exit/ordinary-03",
+  "hostOutput": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/orchestration/hut-smoke-state-exit/ordinary-host-03",
+  "temporary": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-temp/hut-smoke-ignition-03",
   "port": 4194,
   "cpu": [
     0,
@@ -87,7 +88,7 @@
     "--max-old-space-size=1024",
     "scripts/orchestration/command-receipt.mjs",
     "--output",
-    "work/orchestration/hut-smoke-state-exit/ordinary-host-02/command-receipt.json",
+    "work/orchestration/hut-smoke-state-exit/ordinary-host-03/command-receipt.json",
     "--input",
     "scripts/local-render/hut-smoke-ignition.mjs",
     "--input",
@@ -156,6 +157,8 @@
     "decomp/research/hut-smoke-state-exit/ordinary-host-packet.json",
     "--input",
     "decomp/research/hut-smoke-state-exit/ordinary-target-correction-review.json",
+    "--input",
+    "decomp/research/hut-smoke-state-exit/ordinary-bridge-prerequisite-review.json",
     "--",
     "/usr/bin/timeout",
     "--signal=TERM",
@@ -171,9 +174,9 @@
     "--scenario",
     "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/hut-smoke-ignition.mjs",
     "--profile",
-    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-profiles/hut-smoke-ignition-02",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-profiles/hut-smoke-ignition-03",
     "--output",
-    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/orchestration/hut-smoke-state-exit/ordinary-02",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/orchestration/hut-smoke-state-exit/ordinary-03",
     "--port",
     "4194",
     "--timeout",
@@ -187,11 +190,11 @@
     "CI": "1",
     "NO_COLOR": "1",
     "NODE_OPTIONS": "--max-old-space-size=1024",
-    "TMPDIR": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-temp/hut-smoke-ignition-02/tmp",
-    "TMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-temp/hut-smoke-ignition-02/tmp",
-    "TEMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-temp/hut-smoke-ignition-02/tmp",
-    "XDG_CACHE_HOME": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-temp/hut-smoke-ignition-02/cache",
-    "XDG_CONFIG_HOME": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-temp/hut-smoke-ignition-02/config",
+    "TMPDIR": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-temp/hut-smoke-ignition-03/tmp",
+    "TMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-temp/hut-smoke-ignition-03/tmp",
+    "TEMP": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-temp/hut-smoke-ignition-03/tmp",
+    "XDG_CACHE_HOME": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-temp/hut-smoke-ignition-03/cache",
+    "XDG_CONFIG_HOME": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/local-render-temp/hut-smoke-ignition-03/config",
     "CLOUDFLARE_CF_FETCH_ENABLED": "false",
     "WRANGLER_SEND_METRICS": "false",
     "WRANGLER_WRITE_LOGS": "false"
@@ -206,11 +209,11 @@
   "hostSha256": "e34570b0704c1b370d6d7f744ff5f9d53a675d18ed2fb86ba5ec425a4cb2e9dd",
   "approval": "This frozen packet does not itself grant launch or dependency transfer. The coordinator grants one exact committed-head invocation separately.",
   "preparationReceipt": {
-    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/orchestration/hut-smoke-state-exit/ordinary-02-preparation/receipt.json",
-    "sha256": "bd511aeb399d431d170c4e8c82ac7e23fe2d33b659b1ae09834e4ffe8b8f91eb",
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/work/orchestration/hut-smoke-state-exit/ordinary-03-preparation/receipt.json",
+    "sha256": "1da2504d0a1de3923a3edf30c62dc9f12d64f2b2eeca8d519c0a59bea4b780ed",
     "preservedStubIdentity": [
       27,
-      827654
+      828397
     ]
   }
 }
