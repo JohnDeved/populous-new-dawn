@@ -149,7 +149,7 @@ export function observeEntityPointer(scene, doc = document, hit = null) {
       canvas.removeEventListener(name, begin, true)
       canvas.removeEventListener(name, end, false)
     }
-    for (const { owner, name, original, wrapper, descriptor } of wrappers) {
+    for (const { owner, name, wrapper, descriptor } of wrappers) {
       if (owner[name] !== wrapper) errors.push(`Unexpected replacement of ${name}`)
       else if (descriptor) Object.defineProperty(owner, name, descriptor)
       else delete owner[name]

@@ -21,6 +21,8 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
   const started = Date.now(), commands = resolve(output, 'commands'), actions = []
   mkdirSync(commands, { recursive: false })
   let stopped = false, actorId, moduleObserver, attached = false, primaryError
+  let resultValue, primaryFailed = false, cleanupFailed = false, cleanupError
+  const cleanupFailures = []
   const record = entry => actions.push({ ordinal: actions.length + 1, wallMs: Date.now() - started, ...entry })
   const save = (name, data) => { const bytes = evidenceBytes(data); writeFileSync(resolve(output, name), bytes); return sha256(bytes) }
   const checkStop = async () => {
@@ -253,15 +255,20 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
       modules: save('modules.json', loadedAfter.modules), inputs: save('inputs.json', { version: 1, kind: 'ordinary-m3-shaman-erosion-inputs',
         runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint, originalActorId: actorId, initial, actions, final, restoreTested: false }) }
     await checkStop(); await page.screenshot({ path: resolve(output, 'erosion-retired.png'), timeout: 5000 }); await checkStop()
-    return { erosionReplay: { files, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint,
+    resultValue = { erosionReplay: { files, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint,
       launchPlanSha256: launch.planSha256, serverIdentity: launch.server, scriptObservations: loadedAfter.observations,
       originalActorId: actorId, firstTurn: result.capture.steps[0].turn, finalTurn: result.capture.steps.at(-1).turn,
       restoreTested: false, scope: 'Ordinary one-order activation and64 captured calls; no Save/Load or full native game claim' } }
-  } catch (error) { primaryError = error; throw error }
+  } catch (error) { primaryFailed = true; primaryError = error }
   finally {
-    let cleanupError
-    try { save('actions.json', { runId: receipt.profile.runId, actions, failure: primaryError ? String(primaryError) : null }) }
-    catch (error) { cleanupError = error }
+    const rememberCleanup = error => {
+      if (!cleanupFailed) { cleanupFailed = true; cleanupError = error }
+      let message = 'Cleanup failed'
+      try { message = String(error) || message } catch { /* Retain the nonempty diagnostic. */ }
+      cleanupFailures.push(message)
+    }
+    try { save('actions.json', { runId: receipt.profile.runId, actions, failure: primaryFailed ? String(primaryError) || 'Scenario failed' : null }) }
+    catch (error) { rememberCleanup(error) }
     if (attached) try {
       const closed = await page.evaluate(() => {
         const observed = window.erosionOrdinary
@@ -271,8 +278,11 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
         return epoch
       })
       assert.deepEqual(closed.errors, [], 'Diagnostic hooks did not close cleanly')
-    } catch (error) { cleanupError ??= error }
-    if (moduleObserver) try { await moduleObserver.dispose() } catch (error) { cleanupError ??= error }
-    if (!primaryError && cleanupError) throw cleanupError
+    } catch (error) { rememberCleanup(error) }
+    if (moduleObserver) try { await moduleObserver.dispose() } catch (error) { rememberCleanup(error) }
   }
+  if (cleanupFailed) receipt.erosionCleanupFailures = cleanupFailures
+  if (primaryFailed) throw primaryError
+  if (cleanupFailed) throw cleanupError
+  return resultValue
 }
