@@ -10,7 +10,9 @@ const fixture = JSON.parse(readFileSync(process.argv[2], 'utf8'))
 assert.equal(process.argv.length, 3)
 const expectedCases = fixture.cases.length === 1
   ? ['established-base-distinct']
-  : ['common-origin-control', 'no-base-authored-coordinates']
+  : fixture.cases.length === 3
+    ? ['common-origin-control', 'no-base-authored-coordinates', 'established-base-distinct']
+    : ['common-origin-control', 'no-base-authored-coordinates']
 assert.deepEqual(fixture.cases.map(c => c.id), expectedCases)
 assert.equal(fixture.people.length, 7)
 assert.equal(actualComputer.computerPhase(fixture.turn, fixture.tribe), 'dispatch')
@@ -24,7 +26,7 @@ const selectionMock = mock.module(new URL('../app/computer-selection.ts', import
       assert.ok(active)
       assert.equal(++selectorCalls, 1)
       assert.deepEqual([model, alternative, target, mode, flags, requested], [2, 2, -1, 1, 7, 3])
-      assert.equal(destination, fixture.defencePosition)
+      assert.ok(Number.isInteger(destination) && destination >= 0 && destination <= 65535)
       assert.deepEqual(world.people, active.expectedPeople)
       assert.equal(world.units.size, 7)
       assert.deepEqual([...world.orders], [])

@@ -45,7 +45,7 @@ def sha(path):
 class Portable:
     """One parked adapter. A request executes one case; no batch precomputation."""
     def __init__(self, node, fixture_path, maximum):
-        assert maximum in (1, 2)
+        assert maximum in (1, 2, 3)
         self.maximum = maximum
         self.process = subprocess.Popen(
             [str(node), '--max-old-space-size=256', '--experimental-test-module-mocks',
@@ -270,7 +270,10 @@ def main():
     parser.add_argument('executable', type=Path)
     parser.add_argument('--node', required=True, type=Path)
     parser.add_argument('--manifest', required=True, type=Path)
-    parser.add_argument('--established-base', action='store_true',
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument('--all-origins', action='store_true',
+                      help='Replay the three frozen origin cases only')
+    mode.add_argument('--established-base', action='store_true',
                         help='Only the predeclared established-base-distinct pair; preserve earlier witnesses')
     args = parser.parse_args()
     signal.alarm(60)
@@ -287,9 +290,10 @@ def main():
     assert str(Path(sys.modules['decomp'].__file__).resolve()) == str(ROOT / 'scripts/decomp.py')
     loaded_library = sys.modules['unicorn.unicorn_py3.unicorn'].uclib._name
     assert str(Path(loaded_library).resolve()) == manifest['unicornLibrary']
-    fixture_path = (ROOT / 'tests/fixtures/mission3-raid-recruitment-established.json'
-                    if args.established_base else FIXTURE)
-    expected_cases = (['established-base-distinct'] if args.established_base else
+    fixture_path = (ROOT / 'tests/fixtures/mission3-raid-recruitment-origins.json' if args.all_origins else
+                    ROOT / 'tests/fixtures/mission3-raid-recruitment-established.json' if args.established_base else FIXTURE)
+    expected_cases = (['common-origin-control', 'no-base-authored-coordinates', 'established-base-distinct']
+                      if args.all_origins else ['established-base-distinct'] if args.established_base else
                       ['common-origin-control', 'no-base-authored-coordinates'])
     assert manifest['plannedCases'] == expected_cases
     fixture = json.loads(fixture_path.read_text())
