@@ -222,6 +222,9 @@ function combatScan(
   return scanner
 }
 
+const unsigned = (value: unknown, max: number) =>
+  typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= max
+
 function startPreacherResponse(
   w: World,
   p: CombatPerson & OrderedPerson & { h: number; speed: number },
@@ -236,15 +239,21 @@ function startPreacherResponse(
     primary = combatWorld(w, p, range),
     attack = detectCombatThreat(primary.world, p, area, false, false)
   if (!attack) {
-    const unsigned = (value: unknown, max: number) =>
-      typeof value === 'number' && Number.isInteger(value) && value >= 0 && value <= max
     if (
-      p.model !== 4 || !Number.isInteger(p.speed) || p.speed < -32768 || p.speed > 32767 ||
-      !unsigned(p.state, rules.personStateFlags.length - 1) || !unsigned(p.substate, 255) ||
-      !unsigned(p.flags2, 0xffffffff) || !unsigned(p.flags4, 0xffffffff) ||
-      !Number.isInteger(p.life) || p.life < -32768 || p.life > 32767 ||
+      p.model !== 4 ||
+      !Number.isInteger(p.speed) ||
+      p.speed < -32768 ||
+      p.speed > 32767 ||
+      !unsigned(p.state, rules.personStateFlags.length - 1) ||
+      !unsigned(p.substate, 255) ||
+      !unsigned(p.flags2, 0xffffffff) ||
+      !unsigned(p.flags4, 0xffffffff) ||
+      !Number.isInteger(p.life) ||
+      p.life < -32768 ||
+      p.life > 32767 ||
       !unsigned(p.disguise, 255)
-    ) return 0
+    )
+      return 0
     if (
       (p.state === 10 || p.state === 33) &&
       order &&
@@ -262,12 +271,18 @@ function startPreacherResponse(
       for (let id = w.objectCells.heads[cell]; id;) {
         const record = w.objectCells.objects.get(id)
         if (
-          !record || record.id !== id || linked.has(id) ||
-          !unsigned(record.flags2, 0xffffffff) || !(record.flags2 & 0x20000) ||
-          !unsigned(record.x, 65535) || !unsigned(record.y, 65535) ||
+          !record ||
+          record.id !== id ||
+          linked.has(id) ||
+          !unsigned(record.flags2, 0xffffffff) ||
+          !(record.flags2 & 0x20000) ||
+          !unsigned(record.x, 65535) ||
+          !unsigned(record.y, 65535) ||
           (record.y >> 9) * 128 + (record.x >> 9) !== cell ||
-          record.cellPrevious !== previous || !unsigned(record.cellNext, 65535)
-        ) return 0
+          record.cellPrevious !== previous ||
+          !unsigned(record.cellNext, 65535)
+        )
+          return 0
         linked.set(id, cell)
         previous = id
         id = record.cellNext
@@ -277,7 +292,11 @@ function startPreacherResponse(
       const owner = view.owners.get(person.id)
       if (!owner || !('native' in owner)) return
       const record =
-        owner.builder?.person ?? owner.flight ?? owner.fight?.motion ?? owner.native ?? owner.entry?.person
+        owner.builder?.person ??
+        owner.flight ??
+        owner.fight?.motion ??
+        owner.native ??
+        owner.entry?.person
       if (
         !record ||
         record.id !== owner.id ||
@@ -286,15 +305,22 @@ function startPreacherResponse(
         record.tribe !== person.tribe ||
         w.objectCells.objects.get(person.id) !== record ||
         !linked.has(person.id) ||
-        record.x !== person.x || record.y !== person.y || record.life !== person.life ||
-        !Number.isInteger(record.life) || record.life < -32768 || record.life > 32767 ||
+        record.x !== person.x ||
+        record.y !== person.y ||
+        record.life !== person.life ||
+        !Number.isInteger(record.life) ||
+        record.life < -32768 ||
+        record.life > 32767 ||
         !unsigned(record.workFlags, 65535) ||
-        !unsigned(record.state, rules.personStateFlags.length - 1) || record.state !== person.state ||
+        !unsigned(record.state, rules.personStateFlags.length - 1) ||
+        record.state !== person.state ||
         !unsigned(record.flags4, 0xffffffff) ||
-        ((record.flags2 ^ person.flags2) & 0x810000) ||
-        ((record.flags4 ^ person.flags4) & 0x1000) ||
-        !unsigned(record.vehicle, 65535) || record.vehicle !== person.vehicle ||
-        !unsigned(record.disguise, 255) || record.disguise !== person.disguise
+        (record.flags2 ^ person.flags2) & 0x810000 ||
+        (record.flags4 ^ person.flags4) & 0x1000 ||
+        !unsigned(record.vehicle, 65535) ||
+        record.vehicle !== person.vehicle ||
+        !unsigned(record.disguise, 255) ||
+        record.disguise !== person.disguise
       )
         return
       return record.workFlags
@@ -304,9 +330,12 @@ function startPreacherResponse(
       if (id === p.id || !primaryCells.has(cell)) continue
       const record = w.objectCells.objects.get(id)!
       if (
-        !('class' in record) || !('model' in record) ||
-        !unsigned(record.class, 255) || !unsigned(record.model, 255)
-      ) return 0
+        !('class' in record) ||
+        !('model' in record) ||
+        !unsigned(record.class, 255) ||
+        !unsigned(record.model, 255)
+      )
+        return 0
       if (record.class !== 1 || (record.model !== 4 && record.model !== 7)) continue
       const projected = primary.world.objects.get(id)
       if (!projected || projected.class !== 1 || ownedFlags(primary)(projected) === undefined)
@@ -321,7 +350,10 @@ function startPreacherResponse(
   if (attack) prepareCellOrder(w.buildingOrders.records[id], area, 32, w.land.categories)
   else
     prepareMovementOrder(
-      w.buildingOrders.records[id], p, 32, w.land,
+      w.buildingOrders.records[id],
+      p,
+      32,
+      w.land,
       building => buildingOutsidePoint(buildingPose(w.buildings.find(b => b.id === building)!)),
       32
     )

@@ -106,10 +106,8 @@ export function hasPreacherPrimaryThreat(
 ) {
   for (const cell of areaCells(area))
     for (const target of w.cellObjects(cell)) {
-      if (
-        target.class !== 1 || target.id === p.id ||
-        (target.model !== 4 && target.model !== 7)
-      ) continue
+      if (target.class !== 1 || target.id === p.id || (target.model !== 4 && target.model !== 7))
+        continue
       const targetWorkFlags = workFlags(target)
       if (targetWorkFlags === undefined) return true
       if (
