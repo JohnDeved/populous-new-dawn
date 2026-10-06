@@ -1638,7 +1638,16 @@ export function stepComputerTasks(w: World, tribe: number) {
                     : 0
                 : destination
             const current = (selection ??= computerSelectionWorld(w, tribe)),
-              ids = selectComputerPeople(current.world, model, model, -1, 1, recruitmentOrigin, 7, count)
+              ids = selectComputerPeople(
+                current.world,
+                model,
+                model,
+                -1,
+                1,
+                recruitmentOrigin,
+                7,
+                count
+              )
             for (const id of ids) {
               const source = current.sources.get(id)
               if (source) source.flags3 = current.world.units.get(id)!.flags3
