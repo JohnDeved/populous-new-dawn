@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "verdict": "ACCEPT-diagnostic; BLOCK-unsupported-lifetime-expectation-change",
+  "files": [
+    {
+      "path": "model4_branch.asm",
+      "sha256": "057630ae688efdad38939347aef2f5837b1a1bf61cc51c200cba74549e379b15"
+    },
+    {
+      "path": "model4_dispatch.asm",
+      "sha256": "d232fc8fd0f93bed8d31d0852b1711229bc3caa11c9827d79c7d6e20039fd1aa"
+    },
+    {
+      "path": "phase16.asm",
+      "sha256": "8e2dd161915750cd14f0ad05009571d0446e73875199a64c62f67a7d6bf2b2e9"
+    },
+    {
+      "path": "phase6.asm",
+      "sha256": "64507b7c6eacc2a94dfaf43d44b9bf0b434961475491997f38a6d582ee11c3a6"
+    },
+    {
+      "path": "release_predicate.asm",
+      "sha256": "197d3b94f4a51b7439ec44045a02944f352df13b41a6105b10089bfea890b082"
+    },
+    {
+      "path": "review.md",
+      "sha256": "a57c5a8c994c7c5df17a0aa5c1c214c40edd1f8b99cb66826c046a0643c098e2"
+    },
+    {
+      "path": "sermon_predicate.asm",
+      "sha256": "70c3975b02bd24ed467ef2350c8ea4d921a2c0d9b096323438b2c85ae0a188b2"
+    },
+    {
+      "path": "static-ranges.json",
+      "sha256": "102f581f64489aba0d23dc4ea6aa821020ef1e83eba2fafd6ea620b6822f1dc4"
+    },
+    {
+      "path": "task-inventory.json",
+      "sha256": "8794435735359ab14589909a2e714a0767949dab057ce094d21ea4ece10bca7e"
+    },
+    {
+      "path": "task_helper.asm",
+      "sha256": "b5419d8aa6ac4b36fa895b89cde43e34d2e4319acdef15cdf324901b122a8fe3"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-mission6-diagnostic-20261006/manifest.json",
+      "sha256": "5ff63564f8b947b2ed8bd11d389719ad2cadc7bd24fabf042ebb888ce26bdcc7"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "scope": "qualification; original review/manifest unchanged",
+  "originalReviewSha256": "a57c5a8c994c7c5df17a0aa5c1c214c40edd1f8b99cb66826c046a0643c098e2",
+  "files": [
+    {
+      "path": "membership-addendum.md",
+      "sha256": "b86d5b58605a34ec76914e3c23d10fbf4c31b0953fc0ef410c8006c46f6be8bc"
+    },
+    {
+      "path": "membership-predicate.asm",
+      "sha256": "4a83a28b00a66f21fa2418af3ffc4de1d82b20142b700ad5e3979bfc3df15e72"
+    }
+  ]
+}
