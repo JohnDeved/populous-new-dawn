@@ -1,0 +1,12 @@
+✔ Mission3 recruitment preserves original common-origin-control (1.142203ms)
+✔ Mission3 recruitment preserves original no-base-authored-coordinates (0.147388ms)
+✔ Mission3 recruitment preserves original established-base-distinct (0.326524ms)
+✔ Mission3 recruitment retains a valid established base at cell zero (0.113518ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3217.890765

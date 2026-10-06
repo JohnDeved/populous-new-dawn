@@ -71,3 +71,5 @@ then Shaman fallback. Shared input.staging movement consumers and selection-worl
 radius are outside that proposal. No runtime correction is included.
 
 Evidence is committed and bundled locally, **unpushed and not reset-durable**.
+
+The accepted boundary now has a [callback-only repair and replay preflight](mission3-raid-recruitment-repair.md).
