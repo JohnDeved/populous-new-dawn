@@ -63,7 +63,14 @@ def observe_or_supply(_, address, size, user):
         assert SETTING_UP and read(pointer + 0x2a, 'B') == 7
         return_leaf()  # Root/child model fields below are explicit fixture inputs.
     elif address == 0x4ed8a0:
-        cls, model, owner, point = struct.unpack('<4I', cpu.mem_read(sp + 4, 16))
+        raw = struct.unpack('<4I', cpu.mem_read(sp + 4, 16))
+        cls, model, owner = (value & 255 for value in raw[:3])
+        point = raw[3]
+        # 00408972 loads DL before pushing EDX; upper tribe-argument bits are
+        # unspecified. The allocator consumes three bytes and a full pointer.
+        print(json.dumps({'event': 'fire-allocation-arguments', 'rawDwords': raw,
+                          'decodedByteArguments': [cls, model, owner], 'point': point}),
+              file=sys.stderr, flush=True)
         assert (cls, model, owner) == (5, 10, 0)
         fire_requests.append(list(struct.unpack('<HHh', cpu.mem_read(point, 6))))
         # Supplied allocation-failure contract: discard the staged 20-byte
