@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 import { movingEncounter, qualifyingVisit, createResponseTracker, eligibleBraveState } from './observe.mjs'
 import { responseProjection, requireResponseCheckpoint, requireSameCheckpoint } from './checkpoint.mjs'
-import { requireCleanup } from './scenario.mjs'
+import { requireCleanup, requirePausedResponse, requireInterruptedResponse, installInputResponseRead } from './scenario.mjs'
 import { chainPhaseObservers } from '../preacher-gesture-baseline/observe.mjs'
 import { chooseForwardDefender, requireDefenderRemoval } from './forward-defender.mjs'
 import { readResponsePeople } from './diagnostics.mjs'
@@ -126,6 +126,76 @@ test('ordinary interruption capture keeps bounds and ownership but does not inve
   const gap = createResponseTracker(); gap.observe(row(1)); gap.observe(row(3)); assert.match(gap.progress.reason, /Missing/)
 })
 
+function pausedPreparation() {
+  return { paused: true, turn: 16, time: 2, level: 3, status: 'playing', speed: 1,
+    visibility: 'visible', inputMask: 0, mode: null, selected: [5], epoch: 0, sceneIdentity: 1, worldIdentity: 2,
+    units: [{ id: 5, kind: 'preacher', team: 'blue', hp: 55, inside: null, nativeIdentity: 8, sourceIdentity: 8,
+      native: { registered: true, class: 1, model: 4, tribe: 0, state: 10, commandStatus: 32, immediateCommand: 11, life: 1100, commands: [10, 0], commandCursor: 0,
+        orders: [{ id: 10, record: { model: 3 } }] },
+      order: { id: 11, model: 32, flags: 32, references: 1 } }] }
+}
+function cancellationBoundary() {
+  const before = row(20, 'input-boundary', true), after = row(20, 'input-boundary')
+  after.order = { ...after.order, id: 12, identity: 12 }
+  after.retiredOrders = [{ ...before.order, references: 0 }]
+  return { inputBefore: { automaticResponse: before, units: [{ id: 5, nativeIdentity: 8, order: before.order }] },
+    inputAfter: { automaticResponse: after, units: [{ id: 5, nativeIdentity: 8, order: after.order, native: { immediateCommand: 0 } }] } }
+}
+
+test('paused preparation freezes selection and owner before camera/point work; Resume is for dispatch', () => {
+  const before = pausedPreparation(), after = structuredClone(before)
+  assert.doesNotThrow(() => requirePausedResponse(before, 5))
+  assert.doesNotThrow(() => requirePausedResponse(after, 5, before))
+  for (const mutate of [r => { r.paused = false }, r => { r.turn++ }, r => { r.selected = [6, 5] },
+    r => { r.inputMask = 64 }, r => { r.mode = 'temple' }, r => { r.units[0].sourceIdentity = 99 },
+    r => { r.units[0].native.registered = false }, r => { r.units[0].order.model = 3 }]) {
+    const invalid = structuredClone(after); mutate(invalid)
+    assert.throws(() => requirePausedResponse(invalid, 5, before))
+  }
+})
+
+test('synchronous cancellation survives later automatic re-engagement without inventing release', () => {
+  const input = cancellationBoundary(), later = { references: 1, registered: true, listeners: [6], currentModel: 32 }
+  assert.doesNotThrow(() => requireInterruptedResponse(input, 5, later))
+  for (const mutate of [x => { x.inputBefore.automaticResponse.order.model = 3 },
+    x => { x.inputAfter.automaticResponse.retiredOrders[0].references = 1 },
+    x => { x.inputAfter.automaticResponse.retiredOrders[0].identity++ },
+    x => { x.inputAfter.automaticResponse.listeners = [6] },
+    x => { x.inputAfter.automaticResponse.nativeOnly = false },
+    x => { x.inputAfter.units[0].nativeIdentity = 99 }]) {
+    const bad = structuredClone(input); mutate(bad)
+    assert.throws(() => requireInterruptedResponse(bad, 5, { references: 0, registered: true, listeners: [] }))
+  }
+})
+
+test('composed input read forwards once, keeps detached boundary rows and restores its descriptor', () => {
+  const previous = Object.getOwnPropertyDescriptor(globalThis, 'window'), input = cancellationBoundary()
+  let row = input.inputBefore.automaticResponse, calls = 0
+  const original = function (value) { calls++; assert.equal(this.marker, 7); return { value } }
+  const fake = { nativeGuardReadInput: original, preacherResponse: { read: () => structuredClone(row) } }
+  globalThis.window = fake
+  const descriptor = Object.getOwnPropertyDescriptor(fake, 'nativeGuardReadInput')
+  try {
+    installInputResponseRead()
+    const before = fake.nativeGuardReadInput.call({ marker: 7 }, 'before')
+    row = input.inputAfter.automaticResponse
+    const after = fake.nativeGuardReadInput.call({ marker: 7 }, 'after')
+    row.retiredOrders[0].references = 1; row.listeners = [6]
+    assert.equal(calls, 2); assert.equal(before.automaticResponse.order.model, 32)
+    assert.equal(after.automaticResponse.retiredOrders[0].references, 0)
+    assert.deepEqual(after.automaticResponse.listeners, [])
+    assert.deepEqual(fake.preacherInputRead.finish(), { restored: true, calls: 2, errors: [] })
+    assert.deepEqual(Object.getOwnPropertyDescriptor(fake, 'nativeGuardReadInput'), descriptor)
+    assert.equal(fake.preacherInputRead, undefined)
+    fake.preacherResponse.read = () => { throw Error('read failed') }
+    installInputResponseRead()
+    assert.throws(() => fake.nativeGuardReadInput.call({ marker: 7 }, 'failure'), /read failed/)
+    assert.equal(calls, 3, 'The original read still runs exactly once on an observation failure')
+    assert.equal(fake.preacherInputRead.finish().restored, true)
+    assert.deepEqual(Object.getOwnPropertyDescriptor(fake, 'nativeGuardReadInput'), descriptor)
+  } finally { if (previous) Object.defineProperty(globalThis, 'window', previous); else delete globalThis.window }
+})
+
 test('paused checkpoint compares exact native queue/RNG and does not normalize Load auto-resume', () => {
   const r = row(16, 'afterTurn', true), native = { ...r.person, commands: r.commands }, unit = { ...r.actor, native }
   const world = { units: [unit], turn: 16, time: 2, speed: 1, paused: true, outcome: { level: 3 },
@@ -148,6 +218,7 @@ test('phase wrapper forwards one original callback and restores exact descriptor
   assert.deepEqual(Object.getOwnPropertyDescriptors(clock), original)
   assert.throws(() => requireCleanup({ observer: finish }))
   assert.throws(() => requireCleanup({ pointer: { restored: false, errors: [] } }))
+  assert.throws(() => requireCleanup({ inputRead: { restored: false, errors: [] } }))
   assert.throws(() => requireCleanup({ tail: { errors: ['missing row'] } }))
 })
 

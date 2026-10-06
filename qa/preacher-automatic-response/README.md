@@ -170,6 +170,44 @@ analysis pending independent acceptance, not a replay or an observed scanner AL.
 Continuation pins name the actual latest crossing02 terminal receipt. A further
 browser run requires exact reviewed correspondence and a separate resource grant.
 
+## Candidate checker preparation after the accepted baseline
+
+Crossing03 at tested QA `e40eee37` prospectively retained the admitted ordinary
+4699→4700 moving3 visit with Brave3067 and absent immediate32. The independent
+result review accepted that bounded omission; inner/outer positive acceptance
+remains FAILED/exit1. The later paused4713 image is separate from the predicate
+instant. [Published evidence](https://github.com/JohnDeved/populous-new-dawn/blob/c6c427addcd80d586ed7dce75cc5cf4cb2c15ef1/references/verification/preacher-automatic-response-2026-10-06/baseline-crossing03/README.md)
+retains raw streams, exact pair, original3336 provenance, cleanup and review.
+
+The pending candidate uses the same measured crossing after its fresh ordinary
+acquisition. First32/startup semantics and passive odd/even observation stay
+unchanged: substate5 need not persist, and a one-visit odd-expiry hold is not a
+checkpoint target. The existing first32→Pause/Save→natural release→Load→movement
+interruption sequence remains, with three bounded corrections:
+
+- Fresh candidate approach uses the accepted polyline/context/primary tactic.
+- Load records its normal auto-resume, then ordinary Pause occurs before digest,
+  readiness and picking work. The paused readiness result remains honestly false;
+  alias/scene, input mask and actual native actors are checked separately. The
+  restored exact selected Preacher is verified rather than additively selected.
+  Camera preparation uses one+24-world-X offset from the existing retreat point,
+  leaving the central Pause badge clear; the inherited5×5 probe must still prove
+  actual canvas ownership and native context. No hit remains a retained failure.
+  Resume is reserved for the one fresh validated dispatch.
+- That dispatch composes the existing synchronous input read with the existing
+  passive response read. Actual inputAfter must show the exact former32 record
+  at reference0, released listeners, unchanged native identity and model3. Later
+  automatic re-engagement is retained separately and cannot rewrite cancellation.
+  The diagnostic read descriptor is restored in finally, including failure paths.
+
+No candidate game or browser run has occurred. Candidate trees remain disabled
+pending the reviewed combined247+248 runtime and its gates. The latest continuation
+metadata names the actual crossing03 terminal run. The companion engineering guide
+is a non-QA file, so the conservative harness counts its new bytes as application
+inputs: this checker head cannot reopen the old baseline profile. Its original
+source e40eee37/profile binding remains preserved; candidate validation requires a
+fresh profile after exact source/runtime review, not a profile migration.
+
 ## Three separate claims
 
 The accepted supplied original/old-port comparison at `d0f1092f` establishes

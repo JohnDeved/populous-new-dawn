@@ -14,10 +14,78 @@ import { chooseCrossing, confirmCrossing } from './crossing-input.mjs'
 
 export function requireCleanup(value) {
   assert.ok(value && !value.error, value?.error ?? 'Missing cleanup')
-  for (const result of [value.observer, value.pointer]) if (result) {
+  for (const result of [value.observer, value.pointer, value.inputRead]) if (result) {
     assert.deepEqual(result.errors, []); assert.equal(result.restored, true)
   }
   assert.deepEqual(value.tail?.errors ?? [], [])
+}
+
+// Paused preparation is camera/picking only. Actual dispatch remains unpaused.
+export function requirePausedResponse(row, id, before) {
+  assert.equal(row.paused, true); assert.equal(row.level, 3); assert.equal(row.status, 'playing')
+  assert.equal(row.speed, 1); assert.equal(row.visibility, 'visible'); assert.equal(row.inputMask, 0)
+  assert.equal(row.mode, null); assert.deepEqual(row.selected, [id])
+  const unit = row.units.find(u => u.id === id), p = unit?.native
+  assert.ok(p && Number.isInteger(unit.nativeIdentity) && unit.nativeIdentity > 0 && unit.nativeIdentity === unit.sourceIdentity)
+  assert.equal(unit.kind, 'preacher'); assert.equal(unit.team, 'blue'); assert.equal(unit.inside, null)
+  assert.ok(unit.hp > 0 && p.life === Math.round(unit.hp * 20)); assert.equal(p.registered, true)
+  assert.equal(p.class, 1); assert.equal(p.model, 4); assert.equal(p.tribe, 0)
+  assert.equal(p.state, 10); assert.equal(p.commandStatus, 32)
+  assert.equal(unit.order?.model, 32); assert.equal(unit.order.flags, 32); assert.equal(unit.order.references, 1)
+  assert.equal(p.immediateCommand, unit.order.id)
+  assert.equal(p.orders.find(q => q.id === p.commands[p.commandCursor])?.record?.model, 3)
+  if (before) {
+    for (const key of ['turn', 'time', 'epoch', 'sceneIdentity', 'worldIdentity']) assert.equal(row[key], before[key], key)
+    const old = before.units.find(u => u.id === id)
+    for (const key of ['nativeIdentity', 'sourceIdentity', 'hp', 'x', 'z']) assert.equal(unit[key], old[key], key)
+    assert.deepEqual([p.commands, p.commandCursor, unit.order], [old.native.commands, old.native.commandCursor, old.order])
+  }
+  return unit
+}
+
+export function requireInterruptedResponse(input, id) {
+  const before = input.inputBefore.automaticResponse, after = input.inputAfter.automaticResponse
+  assert.ok(before && after, 'Synchronous response snapshots are required')
+  for (const row of [before, after]) {
+    assert.ok(row.sameWorld && row.sameActor && row.nativeOnly && row.registeredOwner && !row.busy)
+    assert.equal(row.actor.id, id); assert.ok(row.actor.hp > 0 && row.person.life === Math.round(row.actor.hp * 20))
+  }
+  assert.equal(before.order?.model, 32); assert.equal(before.person.commandStatus, 32)
+  assert.equal(before.person.immediateCommand, before.order.id)
+  assert.equal(after.order?.model, 3); assert.equal(after.person.immediateCommand, 0)
+  const old = input.inputBefore.units.find(u => u.id === id), current = input.inputAfter.units.find(u => u.id === id)
+  assert.ok(Number.isInteger(old.nativeIdentity) && old.nativeIdentity > 0)
+  assert.equal(current.nativeIdentity, old.nativeIdentity)
+  const released = after.retiredOrders.find(q => q.id === before.order.id && q.identity === before.order.identity)
+  assert.ok(released, 'Exact old32 record must be observed after the input handler')
+  assert.equal(released.references, 0); assert.deepEqual(after.listeners, [])
+  return { scope: 'synchronous-existing-pointer-handler', beforeTurn: before.turn, afterTurn: after.turn,
+    nativeIdentity: current.nativeIdentity, released, listeners: after.listeners, currentOrder: after.order }
+}
+
+// Compose the existing synchronous input read with the existing passive response
+// read. No controller hook or game command is added. Restore the exact descriptor.
+export function installInputResponseRead() {
+  if (window.preacherInputRead) throw Error('Response input read already installed')
+  const descriptor = Object.getOwnPropertyDescriptor(window, 'nativeGuardReadInput')
+  const original = descriptor?.value, read = window.preacherResponse?.read
+  if (typeof original !== 'function' || typeof read !== 'function') throw Error('Owned input/response readers required')
+  let calls = 0
+  const wrapper = function (...args) {
+    const input = Reflect.apply(original, this, args)
+    if (Object.hasOwn(input, 'automaticResponse')) throw Error('Response field already owned')
+    calls++
+    return { ...input, automaticResponse: read('input-boundary') }
+  }
+  Object.defineProperty(window, 'nativeGuardReadInput', { ...descriptor, value: wrapper })
+  window.preacherInputRead = { finish() {
+    if (window.nativeGuardReadInput !== wrapper) throw Error('Input reader ownership changed')
+    Object.defineProperty(window, 'nativeGuardReadInput', descriptor)
+    const restored = window.nativeGuardReadInput === original
+    delete window.preacherInputRead
+    return { restored, calls, errors: [] }
+  } }
+  return { installed: true }
 }
 
 export default async function responseScenario(context) {
@@ -123,14 +191,14 @@ export default async function responseScenario(context) {
     begin('forward-defender-and-first-automatic32', 180000)
     report.forwardDefender = await clearForwardDefender({ page, acquisition, check }); persist()
     await acquisition.select('preacher')
-    if (loadedPrefix) {
+    if (loadedPrefix || !baseline) {
       report.crossingPlan = await chooseCrossing(page, id); check(); persist()
       assert.ok(report.crossingPlan.chosen, 'No coherent actual Brave has a bounded clear crossing')
     }
-    const destination = loadedPrefix ? report.crossingPlan.chosen.destination : { x: -39, z: -110 }
+    const destination = report.crossingPlan ? report.crossingPlan.chosen.destination : { x: -39, z: -110 }
     await acquisition.ordinary.map(destination)
     const hit = await acquisition.ground(destination); assert.ok(hit, 'Declared approach ground is unavailable')
-    if (loadedPrefix) { report.crossingConfirmed = await confirmCrossing(page, report.crossingPlan, hit); check(); persist() }
+    if (report.crossingPlan) { report.crossingConfirmed = await confirmCrossing(page, report.crossingPlan, hit); check(); persist() }
     await page.evaluate(async ({ id, baseline }) => {
       const { installResponseObservation } = await import('/qa/preacher-automatic-response/observe.mjs')
       return installResponseObservation({ id, baseline })
@@ -164,6 +232,19 @@ export default async function responseScenario(context) {
     const empty = await page.evaluate(() => ({ response: typeof window.preacherResponse, scene: typeof window.testSceneRef }))
     assert.deepEqual(empty, { response: 'undefined', scene: 'undefined' })
     await page.evaluate(installReplacementObservation); await button('Load Game')
+    // Observe normal auto-resume, then Pause before digest/binding/picking work.
+    // The replacement observer already owns the synchronous saved-state clone.
+    const autoResumed = await page.evaluate(() => {
+      const w = window.campaignReplacement.store.getWorld()
+      return { turn: w.turn, paused: w.paused }
+    })
+    assert.equal(autoResumed.paused, false)
+    await button('Pause game')
+    const pausedLoad = await page.evaluate(() => {
+      const w = window.campaignReplacement.store.getWorld()
+      return { turn: w.turn, paused: w.paused }
+    })
+    assert.equal(pausedLoad.paused, true)
     const boundary = await page.evaluate(async id => {
       const { readLoadedResponse } = await import('/qa/preacher-automatic-response/checkpoint.mjs')
       return readLoadedResponse(id)
@@ -175,16 +256,18 @@ export default async function responseScenario(context) {
     const identity = await page.evaluate(replacementIdentity)
     assert.ok(identity.sameStore && identity.newWorld && identity.newScene && identity.currentCorrespondence)
     assert.equal(identity.error, null)
-    let readiness
-    await poll(async () => { readiness = await readShamanReadiness(page); return readiness.ready === true })
-    assert.equal(readiness.level, 3)
+    const readiness = await readShamanReadiness(page)
+    assert.equal(readiness.level, 3); assert.equal(readiness.inputMask, 0)
+    assert.equal(readiness.shaman?.canOrder, true); assert.equal(readiness.shaman?.selectable, true)
+    // ready is correctly false while paused; never relabel that observation.
+    assert.equal(readiness.ready, false)
     await page.evaluate(installNativeGuardObserver)
     await page.evaluate(async () => {
       window.nativeGuardProbes = await import('/qa/preacher-gesture-baseline/inherited/browser-probes.mjs')
       window.nativeGuardCandidateGround = await import('/qa/preacher-gesture-candidate/ground-input.mjs')
     })
-    const firstBound = await acquisition.read(); assert.equal(firstBound.paused, false)
-    restored = { boundary, identity, firstBoundTurn: firstBound.turn, readiness, empty }
+    const firstBound = await acquisition.read(); requirePausedResponse(firstBound, id)
+    restored = { boundary, identity, autoResumed, pausedLoad, firstBoundTurn: firstBound.turn, readiness, empty }
     end({ savedTurn: saved.response.turn, firstBoundTurn: firstBound.turn })
 
     begin('loaded32-ordinary-movement-interruption', 30000)
@@ -193,28 +276,40 @@ export default async function responseScenario(context) {
       const { installResponseObservation } = await import('/qa/preacher-automatic-response/observe.mjs')
       return installResponseObservation({ id, loaded: true, captureOnly: true })
     }, id)
-    await acquisition.select('preacher')
-    const state = await acquisition.read(), unit = state.units.find(v => v.id === id)
-    assert.equal(unit.order?.model, 32, 'Restored32 expired before interruption')
-    // Camera first, then fresh ordinary ground/context/recipient validation.
+    // Save retains the exact selected Preacher. Do not use additive roster
+    // selection or spend the restored32 lifetime on a new focus/selection cycle.
+    const state = await acquisition.read(), unit = requirePausedResponse(state, id)
     const retreat = { x: unit.x + 6, z: unit.z + 2 }
-    await acquisition.ordinary.map(retreat)
-    const target = await acquisition.ground(retreat, null, 2); assert.ok(target)
-    report.interruption = await acquisition.dispatch.clickOrder(target)
-    const inputBefore = report.interruption.inputBefore.units.find(v => v.id === id)
-    const inputAfter = report.interruption.inputAfter.units.find(v => v.id === id)
-    assert.equal(inputBefore.order?.model, 32, 'Actual input handler no longer interrupts32')
-    assert.equal(inputAfter.order?.model, 3); assert.equal(inputAfter.native.immediateCommand, 0)
-    assert.equal(inputAfter.nativeIdentity, inputBefore.nativeIdentity)
+    // The normal centered hit(817,412) is covered by the paused badge. Keep one
+    // fixed camera offset; the inherited5x5 probe still proves actual canvas ownership.
+    const camera = { x: retreat.x + 24, z: retreat.z }
+    await acquisition.ordinary.map(camera); check()
+    requirePausedResponse(await acquisition.read(), id, state)
+    const target = await acquisition.ground(retreat, null, 2)
+    report.interruptionPreparation = { before: state, retreat, camera, target,
+      after: await acquisition.read(), scope: 'Ordinary paused camera and owned-canvas picking only' }
+    requirePausedResponse(report.interruptionPreparation.after, id, state); persist()
+    assert.ok(target, 'Paused offset view has no legal owned ground interior; retain no-hit diagnostics')
+    await page.evaluate(installInputResponseRead)
+    let inputFailure
+    try {
+      await button('Resume game')
+      report.interruption = await acquisition.dispatch.clickOrder(target)
+      report.interruption.released = requireInterruptedResponse(report.interruption, id)
+    } catch (error) { inputFailure = error; throw error }
+    finally {
+      try {
+        report.interruptionReadCleanup = await page.evaluate(() => window.preacherInputRead?.finish())
+        assert.ok(report.interruptionReadCleanup)
+        requireCleanup({ pointer: report.interruptionReadCleanup }); persist()
+      } catch (error) {
+        throw inputFailure ? new AggregateError([inputFailure, error], 'Input and read-restoration failures') : error
+      }
+    }
+    // This later ordinary state may already contain automatic re-engagement.
+    // It is retained separately and cannot overwrite the synchronous release.
+    report.interruption.later = await page.evaluate(() => window.preacherResponse.read('after-input-host-return'))
     await finishObserver()
-    const released = await page.evaluate(({ id, old }) => {
-      const w = window.testStore.getWorld(), u = w.units.find(v => v.id === id)
-      return { references: w.buildingOrders.records[old].references,
-        registered: w.objectCells.objects.get(id) === u.native,
-        listeners: w.units.filter(v => v.native?.state === 23 && v.native.workTarget === id).map(v => v.id) }
-    }, { id, old: inputBefore.order.id })
-    assert.equal(released.references, 0); assert.equal(released.registered, true); assert.deepEqual(released.listeners, [])
-    report.interruption.released = released
     await button('Pause game'); await shot('loaded32-interrupted-with-move3'); end({ accepted: true })
     report.status = 'passed'; persist()
   } catch (error) {
@@ -224,12 +319,13 @@ export default async function responseScenario(context) {
   } finally {
     try {
       const cleanup = await page.evaluate(finished => {
+        const inputRead = window.preacherInputRead?.finish()
         const pointer = window.campaignEntityPointer?.finish(); delete window.campaignEntityPointer
         delete window.preacherCrossingPin
         const observer = !finished ? window.preacherResponse?.finish() : undefined
         const tail = window.preacherResponse?.drain()
         window.campaignReplacement?.dispose?.()
-        return { pointer, observer, tail }
+        return { pointer, observer, tail, inputRead }
       }, originalFinished)
       retain(cleanup.tail); requireCleanup(cleanup)
       if (loadedPrefix) {
