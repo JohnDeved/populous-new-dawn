@@ -14,7 +14,8 @@ import struct
 import subprocess
 
 ROOT = Path(__file__).resolve().parents[1]
-MODULES = ('app/erosion.ts', 'app/erosion-observation.ts', 'app/world-turn.ts', 'app/game-clock.ts', 'qa/erosion-native-replay/capture.mjs')
+MODULES = ('app/erosion.ts', 'app/erosion-observation.ts', 'app/world-turn.ts', 'app/game-clock.ts', 'qa/erosion-native-replay/capture.mjs',
+           'qa/erosion-ordinary/lifecycle.mjs', 'qa/erosion-ordinary/input.mjs', 'qa/erosion-ordinary/minimap-input.mjs')
 
 
 def require(value, message):
@@ -201,19 +202,59 @@ def reject_constant(value):
     raise ValueError('Nonfinite JSON: ' + value)
 
 
+def admit_caller(receipt_bytes, receipt, expected):
+    """Expectations come from the coordinator's actual terminal run, not this bundle."""
+    require(hex_hash(expected['receipt']) and digest(receipt_bytes) == expected['receipt'], 'Caller-pinned terminal receipt mismatch')
+    require(receipt.get('source', {}).get('commit') == expected['source'], 'Caller-pinned source commit mismatch')
+    require(receipt.get('source', {}).get('fingerprint') == expected['fingerprint'], 'Caller-pinned source fingerprint mismatch')
+    require(receipt.get('profile', {}).get('runId') == expected['run'], 'Caller-pinned actual run mismatch')
+
+
+def admit_inputs(inputs, capture):
+    require(inputs.get('version') == 1 and inputs.get('kind') == 'ordinary-m3-shaman-erosion-inputs' and inputs.get('restoreTested') is False, 'Expected one ordinary Shaman capture input archive')
+    require(inputs.get('runId') == capture['runId'] and inputs.get('sourceFingerprint') == capture['source']['fingerprint'], 'Ordinary input run/source mismatch')
+    actor = inputs.get('originalActorId')
+    require(integer(actor, 1, 0x7fffffff), 'Missing original actor identity')
+    initial = inputs.get('initial', {}).get('actor', {})
+    require(initial.get('id') == actor and initial.get('team') == 'blue' and initial.get('kind') == 'shaman' and initial.get('hp', 0) > 0, 'Missing original living Blue Shaman')
+    actions = inputs.get('actions', [])
+    allowed = {'show-all-missions', 'mission-start', 'skip-introduction', 'key', 'button', 'minimap', 'camera-drag', 'head-hit-probe', 'detached-command-context', 'worship-click', 'worship-accepted'}
+    require(isinstance(actions, list) and 1 <= len(actions) <= 64 and all(a.get('kind') in allowed and a.get('ordinal') == i + 1 for i, a in enumerate(actions)), 'Unexpected or unbounded ordinary action archive')
+    clicks = [a for a in actions if a['kind'] == 'worship-click']
+    require(len(clicks) == 2 and [a.get('phase') for a in clicks] == ['before', 'completed'] and all(a.get('actorId') == actor and a.get('hit', {}).get('id') == 101 for a in clicks), 'Exactly one completed named worship dispatch required')
+    accepted = [a for a in actions if a['kind'] == 'worship-accepted']
+    require(len(accepted) == 1 and accepted[0].get('actorId') == actor, 'Missing actual worship acceptance')
+    entry = accepted[0]
+    order = entry.get('after', {}).get('actor', {}).get('order', {})
+    require(order.get('model') == 27 and order.get('a') == 101 and integer(order.get('flags'), 0, 255) and not order['flags'] & 1, 'Wrong accepted original worship order')
+    delivered = entry.get('delivered', {})
+    require(delivered.get('restored') is True and delivered.get('errors') == [], 'Pointer observation/cleanup failed')
+    events = delivered.get('events', [])
+    require([event.get('type') for event in events] == ['pointerdown', 'pointerup'], 'Missing actual delivered pointer pair')
+    for event in events:
+        require(event.get('button') == 0 and event.get('trusted') is True and event.get('canvasOwned') is True and event.get('canvasTarget') is True, 'Untrusted or unowned worship input')
+        require(all(event.get('args', {}).get(key) is False for key in ('ctrlKey', 'shiftKey', 'altKey', 'metaKey')), 'Modified worship input')
+    require(inputs.get('final', {}).get('complete') is True, 'Ordinary capture did not complete')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('capture', 'receipt', 'lifecycle', 'modules', 'inputs'):
         parser.add_argument('--' + name, type=Path, required=True)
     parser.add_argument('--executable', type=Path)
     parser.add_argument('--validate-only', action='store_true')
+    for name in ('receipt-sha256', 'source-commit', 'source-fingerprint', 'run-id'):
+        parser.add_argument('--expected-' + name, required=True)
     args = parser.parse_args()
     blobs = {}
     for name in ('capture', 'receipt', 'lifecycle', 'modules', 'inputs'):
         path = getattr(args, name)
         require(path.stat().st_size <= 32 * 1024 * 1024, 'Evidence file exceeds bounded 32MiB input: ' + name)
         blobs[name] = path.read_bytes()
-    documents = {name: json.loads(blobs[name], parse_constant=reject_constant, object_pairs_hook=strict_object) for name in ('capture', 'receipt', 'lifecycle', 'modules')}
+    documents = {name: json.loads(blobs[name], parse_constant=reject_constant, object_pairs_hook=strict_object) for name in ('capture', 'receipt', 'lifecycle', 'modules', 'inputs')}
+    admit_caller(blobs['receipt'], documents['receipt'], {'receipt': args.expected_receipt_sha256, 'source': args.expected_source_commit,
+                 'fingerprint': args.expected_source_fingerprint, 'run': args.expected_run_id})
+    admit_inputs(documents['inputs'], documents['capture'])
     hashes = {name: digest(blobs[name]) for name in ('capture', 'lifecycle', 'modules', 'inputs')}
     def source_bytes(commit, path):
         return subprocess.check_output(['git', 'show', commit + ':' + path], cwd=ROOT)
