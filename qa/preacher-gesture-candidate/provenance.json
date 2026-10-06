@@ -14,12 +14,14 @@
     "scripts/local-render/checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947"
   },
   "adaptations": {
-    "acquire.mjs": "Accepted baseline acquisition/ground route; retain first actual occupied-Temple row. Return its same UI helpers for later ordinary actions.",
+    "acquire.mjs": "Accepted baseline acquisition/ground route; retain first actual occupied-Temple row. Return its same UI helpers for later ordinary actions. Candidate-only ground sampler retains actual initial inspected pixels, and imports the candidate ground dispatch adapter.",
     "observe.mjs": "Reuse accepted phase chaining and actual owner reads; require both native gesture families and exact updater/return phases.",
     "pause-input.mjs": "Adapt accepted ordinary Pause pointer observer to command17 active gestures.",
     "render-observation.mjs": "Accepted firing actual-frame/layer helper with only function/signature changed to Preacher.",
     "pixels.mjs": "Reuse real body-layer differential and finally restoration; retain bounded raw RGBA crops at a paused verified phase.",
-    "load-boundary.mjs": "Exact two function bodies from473da60f:qa/campaign-continuity/boundaries.mjs."
+    "load-boundary.mjs": "Exact two function bodies from473da60f:qa/campaign-continuity/boundaries.mjs.",
+    "ground-dispatch.mjs": "Exact accepted inherited clickOrder body, except adopting the returned fresh ground hit; candidate-only preparation replaces stale single-pixel reuse. Entity dispatch and real event/recipient acceptance stay inherited.",
+    "ground-input.mjs": "Candidate-only finite freshness correction after preserved attempt01. Exact cross order from inherited groundHit; unchanged findEntityInput, 5x5 and <0.25 center drift. Actual picker diagnostics only."
   },
   "historicalSources": {
     "473da60f62d8a08e95a18d9802d4444e71a4c636:qa/campaign-continuity/boundaries.mjs": "6143b9f9ed19450cc80e4957f75e53b1f14557ac0a729239dcbcfc094141195f",

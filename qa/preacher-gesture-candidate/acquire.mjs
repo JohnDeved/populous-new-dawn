@@ -3,7 +3,7 @@ import assert from 'node:assert/strict'
 import { appendFileSync, writeFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { createOrdinaryInput } from '../preacher-gesture-baseline/inherited/ordinary-input.mjs'
-import { createOrderDispatch } from '../preacher-gesture-baseline/inherited/ground-and-dispatch.mjs'
+import { createOrderDispatch } from './ground-dispatch.mjs'
 import { installNativeGuardObserver, setNativeGuardObservedHut } from '../preacher-gesture-baseline/inherited/observer.mjs'
 
 export const SAFE_POINTS = Object.freeze([{ x: 35, z: 90 }])
@@ -76,6 +76,7 @@ export async function acquirePreacher({ page, openMission, output, receipt, sign
     await page.evaluate(installNativeGuardObserver)
     await page.evaluate(async () => {
       window.nativeGuardProbes = await import('/qa/preacher-gesture-baseline/inherited/browser-probes.mjs')
+      window.nativeGuardCandidateGround = await import('/qa/preacher-gesture-candidate/ground-input.mjs')
     })
     await wait('Shaman selectable after public Mission3 opening', row => row.readiness.ready && !row.inputMask)
     assert.equal(latest.units.filter(u => u.kind === 'preacher').length, 0, 'No supplied Blue Preacher')
@@ -91,18 +92,16 @@ export async function acquirePreacher({ page, openMission, output, receipt, sign
         const { findEntityInput, createMoveContextProbe } = window.nativeGuardProbes
         const clone = kind ? structuredClone(s.world) : null
         const moveContext = kind ? null : createMoveContextProbe(s.world)
-        const rejected = []
+        const rejected = [], probes = []
         for (let distance = 0; distance <= radius; distance++) for (let step = 0; step < (distance ? 24 : 1); step++) {
           const a = step * Math.PI / 12, target = { x: point.x + Math.cos(a) * distance, z: point.z + Math.sin(a) * distance }
           const q = s.screen(target), candidates = []
           const cx = r.x + (q.x + 1) * r.width / 2, cy = r.y + (1 - q.y) * r.height / 2
           for (const [dx, dy] of [[0, 0], [2, 0], [-2, 0], [0, 2], [0, -2]]) candidates.push({ x: cx + dx, y: cy + dy })
-          const hit = findEntityInput(candidates, 0, p => {
-            const e = { clientX: p.x, clientY: p.y }, canvasOwned = document.elementFromPoint(p.x, p.y) === s.renderer.domElement
-            const picked = canvasOwned ? s.pick(e) : null
-            return { canvasOwned, hitId: picked && s.picking.pick(e) === null &&
-              Math.hypot(picked.x - target.x, picked.z - target.z) <= 1.5 ? 0 : null }
-          })
+          const sampler = window.nativeGuardCandidateGround.groundSampler(s, document, target, true)
+          const hit = findEntityInput(candidates, 0, sampler.inspect)
+          probes.push({ target, candidates, turn: s.world.turn, frame: s.frame, now: performance.now(),
+            hit, samples: sampler.samples })
           if (!hit) continue
           const picked = s.pick({ clientX: hit.x, clientY: hit.y })
           const problem = kind ? placementError(clone, kind, picked) : null
@@ -111,9 +110,9 @@ export async function acquirePreacher({ page, openMission, output, receipt, sign
           const native = nativePosition(s.world, picked), cell = (native.y >> 9) * 128 + (native.x >> 9)
           const collision = restingCellCollision({ flags: s.world.land.flags[cell], category: s.world.land.categories[cell] }, s.world.land.walkMasks[0], native)
           if (!kind && collision) { rejected.push({ target, collision }); continue }
-          return { hit: { ...hit, point: { x: picked.x, z: picked.z }, context }, rejected }
+          return { hit: { ...hit, point: { x: picked.x, z: picked.z }, context }, rejected, probes }
         }
-        return { hit: null, rejected }
+        return { hit: null, rejected, probes }
       }, { point, kind, radius })
       log({ action: 'finite-ground-probe', point, kind, radius, ...result })
       return result.hit

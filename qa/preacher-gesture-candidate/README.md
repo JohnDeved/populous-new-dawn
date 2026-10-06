@@ -1,7 +1,9 @@
 # Ordinary Preacher gesture candidate QA
 
-Source-only candidate preparation. No candidate browser, install, full check,
-native execution or dependency transfer has been run by this QA task. The accepted
+Candidate attempt01 at QA `732652b2` failed safely before the Shaman home
+click. It observed Vault unlock, but no Temple, Preacher, gestures or Save/Load.
+Its unchanged-source receipt, normal harness termination and later port-bind
+cleanup evidence are retained; this source repair has not been run in a browser. The accepted
 baseline `9a54c932e5aaae1f50298e8e82e871ea87dfd2a8`, its original artifacts and source
 helpers remain unchanged. Candidate application input is the separate frozen
 feature `b2b04cf4915dafc7165e961f9b45ddb3efd4d103`, based on `169b5f38`.
@@ -128,7 +130,7 @@ After independent feature and QA review plus a separate execution/resource grant
 PND_QA_HEAD=<reviewed-final-QA-head> node qa/preacher-gesture-candidate/run.mjs \
   --browser ../prerequisites/extract-browser/chrome-headless-shell-linux64/chrome-headless-shell \
   --port 4404 --timeout 720000 \
-  --output work/orchestration/preacher-gesture-candidate/browser-attempt-01
+  --output work/orchestration/preacher-gesture-candidate/browser-attempt-02
 ```
 
 Proposed outer wrapper: maintained command receipt → taskset CPUs0–3 → timeout
@@ -140,9 +142,9 @@ paused visual/checkpoint work and reporting. That conservative total grants no
 extra logical visits or time inside the original900/120 observation. Every stage
 can still fail sooner at its own strict bound.
 
-The sole dependency tree (device27/inode1978923) is now held by the feature
-owner for quality and full gates. This QA preparation has not moved or provisioned
-it. No move, install, server or browser is authorized by this source plan. Parent coordination must release any later donor, verify hashes and
+The sole dependency tree (device27/inode1978923) is terminal in this candidate
+worktree after the receipted transfer and failed attempt01. Both lock hashes are
+unchanged. No move, install, server or browser is authorized by this repair plan. Parent coordination must release any later donor, verify hashes and
 ownership, check actual port availability, and approve the exact frozen argv/env.
 
 ## Evidence and limits
@@ -164,3 +166,50 @@ must equal the frozen implementation exactly; this branch adds QA only.
 
 Local commits/bundles are unpushed and not reset-durable. Publication remains
 stopped under parent coordination after the reported CONNECT-proxy403 failure.
+
+## Measured attempt01 and bounded pre-dispatch repair
+
+The immutable failed attempt is in
+`/workspace/shared/preacher-gesture-candidate-attempt01-732652b2/manifest.json`
+(SHA256 `800032db7f52c234f6159a66366c13ca8e13f6a77b3717b7a2a1cd059e5fbde7`).
+Session79409 started13:48:47.453 UTC and exited1 after236.153 seconds. At turn1893,
+165.605 seconds into acquisition, the home-ground revalidation failed before any
+home click. The initial pixel(824,401) was inspected976.249 ms earlier. Center
+terrain coordinates, selected Shaman46 and enabled model3 context still matched,
+but the original5×5 interior no longer passed. The failed sample was not retained;
+its exact DOM/object/terrain cause remains unknown. This is a measured freshness
+failure of the QA guard, not evidence of a specific occluder or game defect.
+
+`app/scene-input-runtime.ts:151` resolves terrain separately from object ownership.
+`app/scene-picking.ts:146` keys object picking by frame/view/pixel and resolves live
+person/painter occupancy. Therefore the same center terrain coordinates cannot
+certify25 neighboring current ownership samples. Initial and immediate probes
+also use different existing picker call orders; no cache-order cause is claimed.
+
+`ground-input.mjs` records only the sampler's actual DOM/picker calls, including
+rejected integer pixels, call flags, object ID, ground point, reason and turn/frame.
+Initial probes retain their existing ground-first order; immediate probes retain
+object-first order. There are no extra diagnostic re-picks. Center terrain/context
+checks are separately recorded as actual eligibility work.
+
+`ground-dispatch.mjs` copies the accepted dispatch body, changing only ground
+preparation and adopting its returned fresh hit. After pending reads, imports and
+detached clone synchronization, one synchronous browser evaluation checks the
+original center and the inherited firing cross sequence: r=0,2,4,6,8 with ±x/±y,
+20 declared entries/17 unique centers. It stops on the first eligible5×5 interior.
+The existing memoized `findEntityInput` samples each neighborhood pixel once
+(at most425 samples). Centers must stay strictly within the original0.25 world
+unit drift bound, have an enabled model3 context with no entity target, and pass
+the unchanged resting-cell rule. All25 samples remain canvas-owned, object-free
+terrain within1.5 world units. Selection, scene/world, normal input, unpaused
+status and mode must match before arming the existing pointer observer.
+
+No await or expensive read separates this synchronous fresh validation from
+observer arming. The returned integer point is used by the ordinary click and the
+unchanged real pointer/recipient/acceptance checks. Exhausted eligibility stops
+before input. A dispatched or rejected input never retries. This finite pre-click
+search creates no new clock, stage, simulation step or acquisition/window budget.
+Five dependency-free tests preserve the old failure first, validate a supplied
+nearby interior, reject ownership/context/recipient/collision/drift failures,
+verify sampling and prove zero clicks on exhaustion and no retries after input.
+These supplied cases are helper tests, not claims about attempt01's missing pixel.
