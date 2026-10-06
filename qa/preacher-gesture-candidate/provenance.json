@@ -1,0 +1,29 @@
+{
+  "acceptedBaseline": "9a54c932e5aaae1f50298e8e82e871ea87dfd2a8",
+  "inheritedFiles": {
+    "qa/preacher-gesture-baseline/observe.mjs": "38924d397c0fe342e14713410abf1ffc6a56dd44ab7ad3f011477b6718dcfcb9",
+    "qa/preacher-gesture-baseline/pixels.mjs": "2aed7490371f89388395d0433f0442187a2c812d79798d0bb4fb5dcaa2208c27",
+    "qa/preacher-gesture-baseline/inherited/accepted-input.mjs": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+    "qa/preacher-gesture-baseline/inherited/ground-and-dispatch.mjs": "f7b5ba5703e155ed5962685735eae3092dffd47fab49256b8e5cb197bd4f82b1",
+    "qa/preacher-gesture-baseline/inherited/browser-probes.mjs": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+    "qa/preacher-gesture-baseline/inherited/ordinary-input.mjs": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+    "qa/preacher-gesture-baseline/inherited/input-boundary.mjs": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+    "qa/preacher-gesture-baseline/inherited/observer.mjs": "b00d2465b9b9bb7a574a8c151ec35d1cda5423c847e138b808a8e16ad47d9186",
+    "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+    "scripts/checkpoint-readback.mjs": "256139ba93205ffd091b61b5df93eb6db849c493ecf13e9405431258291ecc80",
+    "scripts/local-render/checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947"
+  },
+  "adaptations": {
+    "acquire.mjs": "Accepted baseline acquisition/ground route; retain first actual occupied-Temple row. Return its same UI helpers for later ordinary actions.",
+    "observe.mjs": "Reuse accepted phase chaining and actual owner reads; require both native gesture families and exact updater/return phases.",
+    "pause-input.mjs": "Adapt accepted ordinary Pause pointer observer to command17 active gestures.",
+    "render-observation.mjs": "Accepted firing actual-frame/layer helper with only function/signature changed to Preacher.",
+    "pixels.mjs": "Reuse real body-layer differential and finally restoration; retain bounded raw RGBA crops at a paused verified phase.",
+    "load-boundary.mjs": "Exact two function bodies from473da60f:qa/campaign-continuity/boundaries.mjs."
+  },
+  "historicalSources": {
+    "473da60f62d8a08e95a18d9802d4444e71a4c636:qa/campaign-continuity/boundaries.mjs": "6143b9f9ed19450cc80e4957f75e53b1f14557ac0a729239dcbcfc094141195f",
+    "6a565e3da1d39adeb453338a25493322ffcba710:qa/firewarrior-firing-candidate/pause-input.mjs": "d19ca6499098468b073302b239ad1a0b43930da58e2c09226f4f4b5b7fa7b606",
+    "6a565e3da1d39adeb453338a25493322ffcba710:qa/firewarrior-firing-candidate/render-observation.mjs": "c99c65b8337e57ca31fb53871d79b843066bf182dda1196cb1426552acbd6ee8"
+  }
+}
