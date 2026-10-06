@@ -1,0 +1,21 @@
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+AssertionError [ERR_ASSERTION]: receipt output must be JSON under work/orchestration/
+    at safeOutput (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/orchestration/command-receipt.mjs:15:3)
+    at runCommandReceipt (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/orchestration/command-receipt.mjs:50:18)
+    at main (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/orchestration/command-receipt.mjs:139:15)
+    at file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/orchestration/command-receipt.mjs:157:76
+    at ModuleJob.run (node:internal/modules/esm/module_job:439:25)
+    at async node:internal/modules/esm/loader:643:26
+    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:101:5) {
+  generatedMessage: false,
+  code: 'ERR_ASSERTION',
+  actual: false,
+  expected: true,
+  operator: '==',
+  diff: 'simple'
+}
+
+Node.js v24.19.0
