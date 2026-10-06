@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "c09090a8-c729-4057-b1e2-1635752c7120",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "1831cddb7e1b0c25dedaa1669b0df9f7c1aac116",
+    "branch": "codex/mission3-raid-allocation-recovered-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/mission3-raid-allocation.test.mjs": "fcadf2a64f7a2c00bfc0e3d5dd645fe6b3b391709ce6e6d3dcf2b9287758d3b7",
+      "scripts/mission3-raid-allocation-pair.mjs": "b43e835fc839cb9a82bc7332e58ecb88f18654d11910dd13aae1fa32c13b96dc",
+      "tests/fixtures/mission3-raid-allocation.json": "da7c1916549335e2f731162b971533910e576f79736aee9850529e00a960c27a",
+      "references/verification/mission3-raid-allocation-2026-10-06/attempt2/stdout.log": "62da2b23a4d6ae19558abe1d8d0c7188579e51898e85ab7984add7876c6029d3",
+      "references/verification/mission3-raid-allocation-2026-10-06/attempt3/stdout.log": "f6478e2a10d2af13041d7836de364d2da722bfb233836dae3d361b5c3e4b2c6e"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "25s",
+    "node",
+    "--max-old-space-size=256",
+    "--test",
+    "tests/mission3-raid-allocation.test.mjs"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006",
+  "startedAt": "2026-10-06T03:56:09.332Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006/work/orchestration/mission3-raid-allocation/portable-before.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006/work/orchestration/mission3-raid-allocation/portable-before.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T03:56:10.810Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "✔ Mission3 authored raid allocation matches original: nominal accepted fixture (2.295279ms)\n✖ Mission3 authored raid allocation matches original: state20 disabled (2.38396ms)\n✖ Mission3 authored raid allocation matches original: one active raid reaches authored cap1 (1.149442ms)\n✖ Mission3 authored raid allocation matches original: all ten slots occupied by other tasks (0.476325ms)\n✔ Mission3 authored raid allocation matches original: only final slot free (0.14869ms)\nℹ tests 5\nℹ suites 0\nℹ pass 2\nℹ fail 3\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 1377.305919\n\n✖ failing tests:\n\ntest at tests/mission3-raid-allocation.test.mjs:27:3\n✖ Mission3 authored raid allocation matches original: state20 disabled (2.38396ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  ... Skipped lines\n  \n    {\n      allocated: [],\n      attributes: [\n        40,\n        0,\n  ...\n      ],\n  +   rng: 851343515\n  -   rng: 305419896\n    }\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006/tests/mission3-raid-allocation.test.mjs:31:12)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: {\n      name: 'state20 disabled',\n      rng: 851343515,\n      reads: [ 1153, 2, 1 ],\n      allocated: [],\n      occupiedUnchanged: true,\n      attributes: [\n         40, 0, 1, 0, 0,  0,  0, 10, 0, 1,   0,\n        100, 0, 0, 2, 1,  0,  0, 20, 0, 0,   0,\n          0, 0, 0, 1, 0, 64, 20,  1, 0, 0, 128,\n          1, 0, 0, 0, 0,  0,  0,  0, 1, 0,  12,\n          0, 0, 1, 0\n      ]\n    },\n    expected: {\n      name: 'state20 disabled',\n      rng: 305419896,\n      reads: [ 1153, 2, 1 ],\n      allocated: [],\n      occupiedUnchanged: true,\n      attributes: [\n         40, 0, 1, 0, 0,  0,  0, 10, 0, 1,   0,\n        100, 0, 0, 2, 1,  0,  0, 20, 0, 0,   0,\n          0, 0, 0, 1, 0, 64, 20,  1, 0, 0, 128,\n          1, 0, 0, 0, 0,  0,  0,  0, 1, 0,  12,\n          0, 0, 1, 0\n      ]\n    },\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/mission3-raid-allocation.test.mjs:27:3\n✖ Mission3 authored raid allocation matches original: one active raid reaches authored cap1 (1.149442ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  ... Skipped lines\n  \n    {\n  +   allocated: [\n  +     {\n  +       damage: 8,\n  +       entity: 78,\n  +       flags: 1,\n  +       index: 1,\n  +       marker: 0,\n  +       origin: 20018,\n  +       phase: 0,\n  +       quotas: [\n  +         100,\n  +         0,\n  +         0,\n  +         0,\n  +         0,\n  +         0\n  +       ],\n  +       requested: 3,\n  +       retreatPercent: 20,\n  +       spells: [\n  +         0,\n  +         0,\n  +         0\n  +       ],\n  +       target: 20018,\n  +       type: 20\n  +     }\n  +   ],\n  -   allocated: [],\n      attributes: [\n        40,\n        0,\n        1,\n        0,\n  ...\n      ],\n  +   rng: 851343515\n  -   rng: 305419896\n    }\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006/tests/mission3-raid-allocation.test.mjs:31:12)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: {\n      name: 'one active raid reaches authored cap1',\n      rng: 851343515,\n      reads: [ 1153, 2, 1 ],\n      allocated: [ [Object] ],\n      occupiedUnchanged: true,\n      attributes: [\n         40, 0, 1, 0, 0,  0,  0, 10, 0, 1,   0,\n        100, 0, 0, 2, 1,  0,  0, 20, 0, 0,   0,\n          0, 0, 0, 1, 0, 64, 20,  1, 0, 0, 128,\n          1, 0, 0, 0, 0,  0,  0,  0, 1, 0,  12,\n          0, 0, 1, 0\n      ]\n    },\n    expected: {\n      name: 'one active raid reaches authored cap1',\n      rng: 305419896,\n      reads: [ 1153, 2, 1 ],\n      allocated: [],\n      occupiedUnchanged: true,\n      attributes: [\n         40, 0, 1, 0, 0,  0,  0, 10, 0, 1,   0,\n        100, 0, 0, 2, 1,  0,  0, 20, 0, 0,   0,\n          0, 0, 0, 1, 0, 64, 20,  1, 0, 0, 128,\n          1, 0, 0, 0, 0,  0,  0,  0, 1, 0,  12,\n          0, 0, 1, 0\n      ]\n    },\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n\ntest at tests/mission3-raid-allocation.test.mjs:27:3\n✖ Mission3 authored raid allocation matches original: all ten slots occupied by other tasks (0.476325ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly deep-equal:\n  + actual - expected\n  ... Skipped lines\n  \n    {\n      allocated: [],\n      attributes: [\n        40,\n        0,\n  ...\n      ],\n  +   rng: 851343515\n  -   rng: 305419896\n    }\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006/tests/mission3-raid-allocation.test.mjs:31:12)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)\n      at Test.postRun (node:internal/test_runner/test:1522:19)\n      at Test.run (node:internal/test_runner/test:1447:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:960:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: {\n      name: 'all ten slots occupied by other tasks',\n      rng: 851343515,\n      reads: [ 1153, 2, 1 ],\n      allocated: [],\n      occupiedUnchanged: true,\n      attributes: [\n         40, 0, 1, 0, 0,  0,  0, 10, 0, 1,   0,\n        100, 0, 0, 2, 1,  0,  0, 20, 0, 0,   0,\n          0, 0, 0, 1, 0, 64, 20,  1, 0, 0, 128,\n          1, 0, 0, 0, 0,  0,  0,  0, 1, 0,  12,\n          0, 0, 1, 0\n      ]\n    },\n    expected: {\n      name: 'all ten slots occupied by other tasks',\n      rng: 305419896,\n      reads: [ 1153, 2, 1 ],\n      allocated: [],\n      occupiedUnchanged: true,\n      attributes: [\n         40, 0, 1, 0, 0,  0,  0, 10, 0, 1,   0,\n        100, 0, 0, 2, 1,  0,  0, 20, 0, 0,   0,\n          0, 0, 0, 1, 0, 64, 20,  1, 0, 0, 128,\n          1, 0, 0, 0, 0,  0,  0,  0, 1, 0,  12,\n          0, 0, 1, 0\n      ]\n    },\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": "",
+  "stdoutSha256": "52d92304e8a97d54d631ea049a34956da7c66bf77e988d9be1b8be46e7ab32cc",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "1831cddb7e1b0c25dedaa1669b0df9f7c1aac116",
+    "branch": "codex/mission3-raid-allocation-recovered-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "tests/mission3-raid-allocation.test.mjs": "fcadf2a64f7a2c00bfc0e3d5dd645fe6b3b391709ce6e6d3dcf2b9287758d3b7",
+      "scripts/mission3-raid-allocation-pair.mjs": "b43e835fc839cb9a82bc7332e58ecb88f18654d11910dd13aae1fa32c13b96dc",
+      "tests/fixtures/mission3-raid-allocation.json": "da7c1916549335e2f731162b971533910e576f79736aee9850529e00a960c27a",
+      "references/verification/mission3-raid-allocation-2026-10-06/attempt2/stdout.log": "62da2b23a4d6ae19558abe1d8d0c7188579e51898e85ab7984add7876c6029d3",
+      "references/verification/mission3-raid-allocation-2026-10-06/attempt3/stdout.log": "f6478e2a10d2af13041d7836de364d2da722bfb233836dae3d361b5c3e4b2c6e"
+    }
+  }
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "name": "full-check",
+    "status": "passed",
+    "exitCode": 0,
+    "source": "989edde0a327242671584d5fe9e2e5d89a48591a",
+    "sha256": "ed3d63c7ac5d70ddcd2f1288899068b22b694c2aaf4e975c96ae8622a26f5864"
+  },
+  {
+    "name": "build",
+    "status": "passed",
+    "exitCode": 0,
+    "source": "989edde0a327242671584d5fe9e2e5d89a48591a",
+    "sha256": "188ea701868ab50df506e1a8c2e111537d8abc48859c429756f490bbf6882a6d"
+  },
+  {
+    "name": "format-scoped",
+    "status": "passed",
+    "exitCode": 0,
+    "source": "989edde0a327242671584d5fe9e2e5d89a48591a",
+    "sha256": "2cdc128b39807ee581e29850c919426f351b174fc5dba38292ff30901b8b44b2"
+  },
+  {
+    "name": "eslint-scoped",
+    "status": "passed",
+    "exitCode": 0,
+    "source": "989edde0a327242671584d5fe9e2e5d89a48591a",
+    "sha256": "df084c380844d16a87b0e141f58195fc8d80b5be8ec27f1e7f5ead40415d1c93"
+  },
+  {
+    "name": "oxlint-scoped",
+    "status": "failed",
+    "exitCode": 1,
+    "source": "989edde0a327242671584d5fe9e2e5d89a48591a",
+    "sha256": "48de88a798258159fc7285eaaf8a3f989c1e432c18723426dee0361736a1d0ba"
+  },
+  {
+    "name": "oxlint-base",
+    "status": "failed",
+    "exitCode": 1,
+    "source": "989edde0a327242671584d5fe9e2e5d89a48591a",
+    "sha256": "ff4414ae93b2ba1a5b8313b30a990fe51358bd2fc5729186274370e8dbfb6762"
+  },
+  {
+    "name": "oxlint-base-absolute",
+    "status": "failed",
+    "exitCode": 1,
+    "source": "989edde0a327242671584d5fe9e2e5d89a48591a",
+    "sha256": "f40bbf0e0b500091087e01f538f9e17c90c0a6e105326af2d54b06f952d144d7"
+  },
+  {
+    "name": "fallow-health",
+    "status": "passed",
+    "exitCode": 0,
+    "source": "989edde0a327242671584d5fe9e2e5d89a48591a",
+    "sha256": "2fd93844b20c0ca040879abb4f9ab9c4534d5e31d477346363754921232509a6"
+  },
+  {
+    "name": "fallow-dupes",
+    "status": "passed",
+    "exitCode": 0,
+    "source": "989edde0a327242671584d5fe9e2e5d89a48591a",
+    "sha256": "58c67588a189d95c300f2b5e99fffc1fd2a23d10bc9fabe59efcf982aaae63a2"
+  },
+  {
+    "name": "fallow-unused",
+    "status": "failed",
+    "exitCode": 1,
+    "source": "989edde0a327242671584d5fe9e2e5d89a48591a",
+    "sha256": "34bba8fb6616c496f2a29441fac6de446f3e1d5fe65ab80862468e8ae76b2a75"
+  }
+]
