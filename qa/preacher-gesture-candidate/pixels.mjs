@@ -23,6 +23,8 @@ export async function capturePausedGesture(id) {
       (JSON.stringify(actual.uv) !== JSON.stringify(expected.uv) || JSON.stringify(actual.scale) !== JSON.stringify(expected.scale)))
       throw Error('Actual paused sprite layers do not match owned metadata')
   }
+  if (render.layers.slice(render.expectedLayers.length).some(layer => layer.visible))
+    throw Error('Unexpected trailing sprite layer remains visible')
   const s = window.testSceneRef.current, w = s.world, u = w.units.find(u => u.id === id), p = u.native
   const g = s.unitMeshes.get(id), gl = s.renderer.getContext(), r = s.renderer.domElement.getBoundingClientRect()
   const tuple = () => [w.turn, p.object, p.draw, p.f1, p.f2, p.counter, p.timer, p.stamp, w.paused]

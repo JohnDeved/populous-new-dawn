@@ -58,7 +58,16 @@ export function requireGesturePause(trace, detected) {
   }
   for (const key of ['turn', 'object', 'draw', 'f1', 'f2', 'counter', 'timer']) assert.equal(up[key], click[key])
   assert.ok(up.now >= detected.now && up.turn >= detected.turn)
-  return { detected, down, up, click }
+  const count = detected.object === 176 ? 10 : 18, elapsedVisits = up.turn - detected.turn
+  assert.ok(Number.isInteger(detected.f1) && detected.f1 >= 0 && detected.f1 <= 1)
+  assert.ok(Number.isInteger(detected.f2) && detected.f2 >= 0 && detected.f2 < count)
+  const remainingVisits = detected.f1 + count - detected.f2
+  assert.ok(elapsedVisits < remainingVisits, 'Pause release belongs to a later same-family episode')
+  assert.equal(up.f1, Math.max(0, detected.f1 - elapsedVisits))
+  assert.equal(up.f2, detected.f2 + Math.max(0, elapsedVisits - detected.f1))
+  assert.equal(up.counter, (detected.counter + elapsedVisits) & 255)
+  assert.equal(up.timer, detected.timer + elapsedVisits)
+  return { detected, down, up, click, elapsedVisits, remainingVisits }
 }
 
 // Reuses the reviewed pre-pressed ordinary Pause delivery. The predicate follows

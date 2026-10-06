@@ -6,6 +6,7 @@ import { createCandidateTracker, requireUpdatedPhase } from './observe.mjs'
 import { compareBodyPixels } from './pixels.mjs'
 import { gestureProjection, requireSavedGesture, requireSameGestureCheckpoint } from './checkpoint.mjs'
 import { requireGesturePause } from './pause-input.mjs'
+import { requireObserverCleanup } from './scenario.mjs'
 
 const sample = (turn, person, phase = 'afterTurn') => ({ turn, now: turn * 84, phase,
   sameActor: true, sameWorld: true, owner: 'native', hp: 30, kind: 'preacher', team: 'blue', inside: null,
@@ -107,6 +108,19 @@ test('Pause proof requires actual trusted events and frozen gesture phase at cli
   requireGesturePause(trace, { ...event, now: 99 })
   const changed = structuredClone(trace); changed.events[2].f2++
   assert.throws(() => requireGesturePause(changed, event))
+  const laterEpisode = structuredClone(trace)
+  for (const sample of laterEpisode.events.slice(1)) { sample.turn += 32; sample.now += 2700; sample.counter += 32; sample.timer += 32 }
+  assert.throws(() => requireGesturePause(laterEpisode, event), /later same-family episode/)
+  const nextVisit = structuredClone(trace)
+  for (const sample of nextVisit.events.slice(1)) { sample.turn++; sample.now += 84; sample.f2++; sample.counter++; sample.timer++ }
+  requireGesturePause(nextVisit, event)
+})
+
+test('cleanup errors, un-restored owners and loaded-tail failures are terminal', () => {
+  requireObserverCleanup({ original: { errors: [], restored: true }, loadedTail: { errors: [] } })
+  for (const cleanup of [{ error: 'page failed' }, { original: { restored: false } },
+    { pointer: { errors: ['picker not restored'] } }, { loadedTail: { errors: ['loaded epoch bound'] } },
+    { originalTail: { errors: ['logical phase read failed'] } }]) assert.throws(() => requireObserverCleanup(cleanup))
 })
 
 test('accepted inherited inputs remain byte-identical', () => {

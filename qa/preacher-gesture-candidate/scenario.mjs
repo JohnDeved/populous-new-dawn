@@ -15,10 +15,20 @@ import { checkpointObservation } from '../../scripts/local-render/checkpoint-obs
 
 const sha = bytes => createHash('sha256').update(bytes).digest('hex')
 const phase = p => [p.object, p.draw, p.f1, p.f2, p.counter, p.timer, p.stamp]
+export function requireObserverCleanup(cleanup) {
+  assert.ok(cleanup && !cleanup.error, cleanup?.error ?? 'Missing observer cleanup result')
+  for (const name of ['pointer', 'pause', 'original', 'loaded', 'originalTail', 'loadedTail']) {
+    const result = cleanup[name]
+    if (!result) continue
+    assert.ok(!result.error, `${name} cleanup error: ${result.error}`)
+    assert.deepEqual(result.errors ?? [], [], `${name} observer errors`)
+    assert.notEqual(result.restored, false, `${name} restoration failed`)
+  }
+}
 export default async function preacherCandidate(context) {
   const { page, output, signal, receipt } = context
   const started = performance.now(), stages = [], failures = [], captures = [], events = []
-  let acquisition, progress, saved, loaded, supersession, activeStage, originalRestored, loadedRestored
+  let acquisition, progress, saved, loaded, supersession, activeStage, originalRestored, loadedRestored, primaryFailure
   const save = status => writeFileSync(resolve(output, 'candidate.json'), JSON.stringify({ status,
     source: receipt.source, started, elapsedMs: performance.now() - started, stages, activeStage,
     failures, progress, captures, events, saved, loaded, supersession, originalRestored, loadedRestored }, null, 2) + '\n')
@@ -98,9 +108,11 @@ export default async function preacherCandidate(context) {
             const { readStoredGesture } = await import('/qa/preacher-gesture-candidate/checkpoint.mjs')
             return readStoredGesture(id)
           }, id)
+          check(); assert.ok(performance.now() - saveStarted < 15000, 'Active-gesture Save/readback ceiling after awaited read')
           if (!committed || committed.gesture.turn !== beforeSave.turn) return false
           requireSameGestureCheckpoint(beforeSave, committed.gesture); return true
         }), true)
+        check(); assert.ok(performance.now() - saveStarted < 15000, 'Active-gesture Save/readback ceiling before acceptance')
         saved = { ...committed, beforeSave, savedAt: new Date().toISOString(), elapsedMs: performance.now() - saveStarted }
         await page.getByRole('button', { name: /^Continue Game/ }).click()
       } else await page.getByRole('button', { name: 'Resume game', exact: true }).click()
@@ -196,7 +208,7 @@ export default async function preacherCandidate(context) {
     end({ inputTurn: accepted.inputAfter.turn, observedMovementTurn: movement.turn })
     save('passed'); return { progress, saved, loaded, supersession, captures,
       limits: 'Finite ordinary gesture/Save/Load/movement proof; audio scope is loader/request source evidence only, not audible output or native mixer equivalence.' }
-  } catch (error) { failures.push(String(error?.stack ?? error)); save('failed'); throw error }
+  } catch (error) { primaryFailure = error; failures.push(String(error?.stack ?? error)); save('failed'); throw error }
   finally {
     const cleanup = await page.evaluate(({ originalFinished, loadedFinished }) => {
       window.restorePreacherInput?.()
@@ -211,5 +223,11 @@ export default async function preacherCandidate(context) {
     for (const [epoch, tail] of [['original', cleanup.originalTail], ['loaded', cleanup.loadedTail]])
       for (const row of tail?.rows ?? []) appendFileSync(resolve(output, `${epoch}-phases.jsonl`), JSON.stringify(row) + '\n')
     writeFileSync(resolve(output, 'observer-cleanup.json'), JSON.stringify(cleanup, null, 2) + '\n')
+    try { requireObserverCleanup(cleanup) }
+    catch (error) {
+      failures.push(String(error?.stack ?? error)); save('failed')
+      if (primaryFailure) throw new AggregateError([primaryFailure, error], 'Candidate and observer cleanup both failed')
+      throw error
+    }
   }
 }
