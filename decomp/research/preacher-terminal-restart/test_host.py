@@ -78,6 +78,14 @@ class HostGuards(unittest.TestCase):
         self.assertFalse(proof.permitted_write(proof.P+0xc,4,'updater'))
         self.assertTrue(proof.permitted_write(proof.STACK-4,4,'controller'))
 
+    def test_cdecl_argument_widths_preserve_raw_slot_evidence(self):
+        slots = [proof.P+0x33,0x12340013,0x567800a0]
+        self.assertEqual(proof.setter_arguments(0x4ee700,slots),[proof.P+0x33,19,160])
+        self.assertEqual(slots,[proof.P+0x33,0x12340013,0x567800a0])
+        self.assertEqual(proof.setter_arguments(0x4d4040,[proof.P,0xabcd005f]),[proof.P,95])
+        with self.assertRaises(proof.Blocked):
+            proof.setter_arguments(0x4ee700,[proof.P+0x33,19,168])
+
     def test_comparison_retains_raw_events_and_rng_differences(self):
         row = {'case':self.case['id'],'visit':1,'result':0,'events':[]}
         for phase in proof.PHASES:

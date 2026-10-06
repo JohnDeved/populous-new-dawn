@@ -28,7 +28,9 @@ Actual cdecl controller0043a4d0, stop004d4ee0, upper004d4040, lower004ee700 and
 updater004ee7b0 execute within the same CPU instance and retained person state.
 Only acquisition0043abf0 is intercepted, returning zero and preserving status bit2;
 its stack-out is untouched. The caller supplies the original argument stack, with
-ECX zero, bounded stack and a sentinel plain-ret check. Every other leaf/call or
+ECX zero at top-level entry, bounded stack and a sentinel plain-ret check. Native
+setter object/source arguments are words and draw is a byte; complete pushed
+dword slots are retained alongside typed arguments in native event evidence. Every other leaf/call or
 unlisted memory write fails. Full raw256, all45 fields, both RNGs, order raw bytes,
 commands/owner, serial/stamp, controller AL and exact ordered event states are kept
 at all four phases. Raw differences and the port lower-setter-intent boundary are

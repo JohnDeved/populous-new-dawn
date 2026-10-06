@@ -191,6 +191,24 @@ def check_state(state, case):
             raise Blocked('Fixed domain changed: '+key)
 
 
+def setter_arguments(entry, stack_words):
+    # Cdecl slots are dwords, but the original callees consume uint16/uint8 args.
+    # Keep complete raw slots in event evidence; only argument typing uses widths.
+    if entry == 0x4d4040:
+        person, object_slot = stack_words
+        args = [person, object_slot & 0xffff]
+        if person != P or args[1] not in [17,95]:
+            raise Blocked('Unexpected upper-setter owner/object')
+    elif entry == 0x4ee700:
+        person, draw_slot, source_slot = stack_words
+        args = [person, draw_slot & 0xff, source_slot & 0xffff]
+        if args not in [[P+0x33,16,48],[P+0x33,19,160]]:
+            raise Blocked('Unexpected lower-setter owner/draw/source')
+    else:
+        raise Blocked('Unlisted setter boundary')
+    return args
+
+
 def run_native(manifest, cases, counts, instructions, rules, result, output):
     # Imported only after the exact-code review and separate execution grant.
     from unicorn import UC_HOOK_CODE, UC_HOOK_MEM_WRITE, UC_HOOK_MEM_READ
@@ -229,9 +247,12 @@ def run_native(manifest, cases, counts, instructions, rules, result, output):
             'controllerReturn':current['controllerReturn'],
             'cosmeticRandom':read(COSMETIC,'I'),'simulationRandom':read(SIMULATION,'I')}
 
-    def event(kind, args, boundary):
-        events.append({'visit':current['visit'],'phase':current['phase'],
-            'kind':kind,'args':args,'boundary':boundary,'state':snapshot()})
+    def event(kind, args, boundary, stack_words=None):
+        item = {'visit':current['visit'],'phase':current['phase'],
+            'kind':kind,'args':args,'boundary':boundary,'state':snapshot()}
+        if stack_words is not None:
+            item['rawStackArgumentWords'] = stack_words
+        events.append(item)
 
     def code(_cpu, address, size, _user):
         if time.monotonic() >= deadline:
@@ -248,7 +269,8 @@ def run_native(manifest, cases, counts, instructions, rules, result, output):
                     current['visit'] not in [1,3] or not STACK-0x2000 <= angle_out <= STACK-4 or
                     scenario['acquisitionCount'] != 0):
                 raise Blocked('Unexpected acquisition owner/radius/output/population/visit')
-            event('acquisition',[P,radius],'supplied-empty-count/status; stack-out untouched')
+            event('acquisition',[P,radius],'supplied-empty-count/status; stack-out untouched',
+                [person,radius,angle_out])
             write(P+0xb2,'B',read(P+0xb2,'B') | 2)
             cpu.reg_write(UC_X86_REG_EAX,0)
             cpu.reg_write(UC_X86_REG_EIP,read(sp,'I'))
@@ -267,17 +289,11 @@ def run_native(manifest, cases, counts, instructions, rules, result, output):
         if address == 0x4d4ee0:
             if read(sp+4,'I') != P:
                 raise Blocked('Unexpected stop owner')
-            event('stop',[P],'actual-native')
-        elif address == 0x4d4040:
-            obj = read(sp+8,'I')
-            if read(sp+4,'I') != P or obj not in [17,95]:
-                raise Blocked('Unexpected upper-setter owner/object')
-            event('upper-setter',[P,obj],'actual-native')
-        elif address == 0x4ee700:
-            args = [read(sp+i,'I') for i in [4,8,12]]
-            if args not in [[P+0x33,16,48],[P+0x33,19,160]]:
-                raise Blocked('Unexpected lower-setter owner/draw/source')
-            event('lower-setter',args,'actual-native')
+            event('stop',[P],'actual-native',[read(sp+4,'I')])
+        elif address in [0x4d4040,0x4ee700]:
+            slots = [read(sp+i,'I') for i in ([4,8] if address==0x4d4040 else [4,8,12])]
+            args = setter_arguments(address,slots)
+            event('upper-setter' if address==0x4d4040 else 'lower-setter',args,'actual-native',slots)
 
     def memory_write(_cpu, _access, address, size, value, _user):
         result['writes'].append({'visit':current['visit'],'phase':current['phase'],
