@@ -1,0 +1,32 @@
+{
+  "schemaVersion": 1,
+  "verdict": "ACCEPT-quality-correspondence; Oxlint-baseline-failure-retained",
+  "files": [
+    {
+      "path": "normalized-oxlint.json",
+      "sha256": "202690fc7fb423085059d286df46738d2a36d16aa6100b323e1ef42f44d6b2dd"
+    },
+    {
+      "path": "review.md",
+      "sha256": "106726abc08b8510c5264e4e49f6d164f37334754f8d306ad6a4697d8db84a84"
+    }
+  ],
+  "inputs": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-gates/scoped-format-repair-01/receipt.json",
+      "sha256": "c8d25edc639a260d6da7910679d21524a314328fc86bc38f822e651874cab7b4"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-gates/scoped-eslint-repair-01/receipt.json",
+      "sha256": "898838e085f4731e843aaa67c0a21201c2756130b12b9abadbdd3da4e614ae88"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-gates/scoped-oxlint-baseline-01/receipt.json",
+      "sha256": "77240ada41ce93c4701b73bb70af4f9e5f925ca9cb9563caa2d197a0163992aa"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-command32-expiry-20261006/work/orchestration/preacher-pr247-gates/scoped-oxlint-repair-01/receipt.json",
+      "sha256": "a0a04e4b4161037112978af5d026f43984d80df95472eacdebb1cfaafc5c2f14"
+    }
+  ]
+}

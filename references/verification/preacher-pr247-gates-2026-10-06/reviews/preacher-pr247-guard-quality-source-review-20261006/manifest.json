@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "verdict": "ACCEPT-narrow-source-correspondence-only",
+  "head": "d6c5ab372daebfef3dff33384b6accffa02c40f4",
+  "files": [
+    {
+      "path": "review.md",
+      "sha256": "677892d67e3cc7d32682d04aa03e61f7667fd04f35495ce4cdf760de14727af7"
+    },
+    {
+      "path": "reviewed.diff",
+      "sha256": "d080cca460919a9ba1e963ec5a72f825606bfb6e3642d393aea7a34ebdb21066"
+    }
+  ]
+}
