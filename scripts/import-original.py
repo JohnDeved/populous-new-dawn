@@ -1,6 +1,6 @@
 """Decode the supplied Populous assets; never execute the Windows installer.
 Usage: python3 scripts/import-original.py /path/to/extracted/game [--units-only | --vehicles-only | --training-huts-only | --hut-smoke-only]
---units-only appends Shaman families to the existing unit atlas and writes only
+--units-only appends Shaman families and Firewarrior resting artwork and writes only
 app/original-units.json, public/original/unit-layers.png and provenance.json.
 --vehicles-only appends original mesh143/144 to original-models.json and its
 provenance modelIds; it never regenerates the shared object atlas.
@@ -164,13 +164,13 @@ def building_shapes(data, objects, smoke_offsets=b''):
     ] for i in range(0,len(objects),54)]
     return dict(objects=indices,origins=origins,shapes=shapes,cells=list(data[64*48:]),socketOffsets={str(model):offsets[i] for i,model in enumerate(corrected)})
 
-def append_shaman_units(source, project):
-    """Add the original four-tribe model-7 families without reindexing old art.
+def append_unit_families(source, project):
+    """Append original Shaman families and the Firewarrior resting gesture.
 
     This bounded mode writes only original-units.json, unit-layers.png and its
     provenance.json. The normal full importer calls it after producing that same
     baseline, so a future full import cannot silently remove the added families.
-    004673b0 / 00450e60 select base + tribe*8, not follower-style recoloring.
+    Shaman sources use tribe*8; Firewarriors retain the descriptor/tribe layers.
     """
     output = project / 'public/original'
     units_path = project / 'app/original-units.json'
@@ -192,7 +192,9 @@ def append_shaman_units(source, project):
     assert len(starts) == 792 and len(bank) == 7953
     old_frames = list(units['frames'])
     old_pieces = list(units['pieces'])
-    old_animations = dict(units['animations'])
+    old_animations = {name: dict(states) for name, states in units['animations'].items()}
+    old_width, old_height, old_pixels = read_owned_rgba_png(output / 'unit-layers.png')
+    assert (old_width, old_height) == (units['width'], units['height'])
     piece_index = {piece['source']: i for i, piece in enumerate(old_pieces)}
     frame_index = {}
     for i, frame in enumerate(old_frames):
@@ -225,6 +227,15 @@ def append_shaman_units(source, project):
                 for layer in item['layers']] == raw_layers(item['source'])
     for item in old_pieces:
         assert (item['w'], item['h']) == bank[item['source']][:2]
+    # Refuse a mismatched source/atlas before any write. Each established piece's
+    # exact RGBA rectangle survives; new pieces may use formerly empty tail cells.
+    for index, item in enumerate(old_pieces):
+        width, height, rgba = bank[item['source']]
+        x = (index % units['columns']) * units['cell']
+        y = (index // units['columns']) * units['cell']
+        for row in range(height):
+            at = ((y + row) * old_width + x) * 4
+            assert old_pixels[at:at + width * 4] == rgba[row * width * 4:(row + 1) * width * 4]
     bases = {directions[0]['source'] for directions in units['animations']['blue-shaman'].values()}
     bases.update(rules['animationObjects'][obj][0]
                  for i, obj in enumerate(rules['personAnimationObjects']) if i % 9 == 7 and obj >= 0)
@@ -232,22 +243,26 @@ def append_shaman_units(source, project):
     # Original level-start circle creation uses source 520 plus tribe * 8.
     bases.add(rules['animationObjects'][0x5d][0])
     required_starts = sorted({base + tribe * 8 for base in bases for tribe in range(4)})
-    needed_frames = {frame for start in required_starts for direction in range(8)
-                     for frame in cycle(start + direction)[0]}
-    needed_pieces = {piece for frame in needed_frames for piece, *_ in raw_layers(frame)}
-    for source_piece in sorted(needed_pieces - piece_index.keys()):
-        width, height, _ = bank[source_piece]
-        assert max(width, height) <= units['cell']
-        piece_index[source_piece] = len(units['pieces'])
-        units['pieces'].append({'source': source_piece, 'w': width, 'h': height})
-    for source_frame in sorted(needed_frames - frame_index.keys()):
-        frame_index[source_frame] = len(units['frames'])
-        units['frames'].append({
-            'source': source_frame, 'nativeWidth': frames[source_frame][1],
-            'nativeHeight': frames[source_frame][2],
-            'layers': [{'piece': piece_index[piece], 'x': x, 'y': y, 'flags': flags}
-                       for piece, x, y, flags in raw_layers(source_frame)],
-        })
+    def append_sources(sources):
+        needed_frames = {frame for start in sources for direction in range(8)
+                         for frame in cycle(start + direction)[0]}
+        needed_pieces = {piece for frame in needed_frames for piece, *_ in raw_layers(frame)}
+        for source_piece in sorted(needed_pieces - piece_index.keys()):
+            width, height, _ = bank[source_piece]
+            assert max(width, height) <= units['cell']
+            piece_index[source_piece] = len(units['pieces'])
+            units['pieces'].append({'source': source_piece, 'w': width, 'h': height})
+        for source_frame in sorted(needed_frames - frame_index.keys()):
+            frame_index[source_frame] = len(units['frames'])
+            units['frames'].append({
+                'source': source_frame, 'nativeWidth': frames[source_frame][1],
+                'nativeHeight': frames[source_frame][2],
+                'layers': [{'piece': piece_index[piece], 'x': x, 'y': y, 'flags': flags}
+                           for piece, x, y, flags in raw_layers(source_frame)],
+            })
+
+    # Preserve the prior full-import order: Shaman additions precede source720.
+    append_sources(required_starts)
 
     def directions(start):
         result = []
@@ -258,17 +273,24 @@ def append_shaman_units(source, project):
                            'flip': mirror, 'source': start + direction})
         return result
 
-    # Existing blue/red signatures are intentionally byte-for-byte preserved.
-    # Direct native-source lookup also covers phase-specific shared spirit poses.
+    # Direct native-source lookup covers phase-specific shared Shaman poses.
     units['shamanSources'] = {str(start): directions(start) for start in required_starts}
     for team, tribe in [('yellow', 2), ('green', 3)]:
         units['animations'][team + '-shaman'] = {
             state: directions(old[0]['source'] + tribe * 8)
             for state, old in units['animations']['blue-shaman'].items()
         }
+    # 004d73e0 selects object163 for the model6 resting gesture. Source728 is a
+    # separate existing entry; append the real720 chain without relabelling it.
+    resting_source, resting_draw = rules['animationObjects'][163]
+    assert (resting_source, resting_draw) == (720, 18)
+    append_sources([resting_source])
+    for team in ['blue', 'red']:
+        units['animations'][team + '-firewarrior']['restingGesture'] = directions(resting_source)
     assert units['frames'][:len(old_frames)] == old_frames
     assert units['pieces'][:len(old_pieces)] == old_pieces
-    assert all(units['animations'][key] == value for key, value in old_animations.items())
+    assert all(units['animations'][name][state] == value
+               for name, states in old_animations.items() for state, value in states.items())
     cell, columns = units['cell'], units['columns']
     width = units['width']
     height = ((len(units['pieces']) + columns - 1) // columns) * cell
@@ -287,7 +309,7 @@ def append_shaman_units(source, project):
     provenance['spritePieces'] = len(units['pieces'])
     provenance['unitAtlasSha256'] = hashlib.sha256((output / 'unit-layers.png').read_bytes()).hexdigest()
     provenance_path.write_text(json.dumps(provenance, indent=2) + '\n')
-    print(f"Appended {len(units['frames']) - len(old_frames)} original Shaman frames and "
+    print(f"Appended {len(units['frames']) - len(old_frames)} original unit frames and "
           f"{len(units['pieces']) - len(old_pieces)} pieces; atlas {width}x{height}; "
           "old frame/piece indices and animation clocks preserved.")
 
@@ -582,7 +604,7 @@ def main():
     if '--units-only' in sys.argv[2:]:
         if sys.argv[2:] != ['--units-only']:
             raise ValueError('Usage: import-original.py GAME_ROOT --units-only')
-        append_shaman_units(source, project)
+        append_unit_families(source, project)
         return
     output = project / 'public/original'; output.mkdir(exist_ok=True)
     hashes = {}
@@ -795,7 +817,7 @@ def main():
     (output/'waves.bin').write_bytes(waves)
     unit_atlas_hash=hashlib.sha256((output/'unit-layers.png').read_bytes()).hexdigest()
     (output/'provenance.json').write_text(json.dumps({'landscapeBank':12,'requestedObjectBank':requested_bank,'objectBank':object_bank,'modelIds':selected,'sourceFrames':len(bank),'animationFrames':len(rendered),'spritePieces':len(pieces),'unitAtlasSha256':unit_atlas_hash,'sha256':hashes},indent=2)+'\n')
-    append_shaman_units(source, project)
+    append_unit_families(source, project)
     append_vehicle_models(source, project)
     print(f'Validated {len(models)} models, {len(bank)} sprites, {len(rendered)} layered animation frames, {len(icons)} UI tiles and level-one landscape bank c.')
 
