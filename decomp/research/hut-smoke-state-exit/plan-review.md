@@ -1,0 +1,27 @@
+# Independent PR244 hut-smoke state-exit plan review
+
+ACCEPT the bounded source plan at `100d0ba3f89a02e97a587628f76584b7380373ff`, `decomp/research/hut-smoke-state-exit.md`, SHA256 `d2b56996184b15b47c9d1383fb0f619a57bb9ae4df5d752f51b13b2bcaf025dc`. No gameplay or executable result is accepted yet. Exact fixture, ABI, permitted leaves and launch preflight remain required before any run.
+
+The original ignition producer00408cb0 enters state4 through actual004ed640→004030c0. Its state4 arm executes00408840, then its common tail calls004ef180 and zeroes the retained+0x92 root. This is distinct from burn-timer119 evacuation and the32-count occupancy sample. The existing fire probe jumps over that common tail, while the existing smoke-owner probe intercepts final removal; neither establishes this composition. Current live owner/render admission omits native damage state, supporting a concrete source gap without yet proving runtime output.
+
+I verified19 source hashes and49 disassembly byte rows against the canonical EXE. Source manifest SHA256: `a214fa30909f03e91b5314ecca75925b4756ee4e440c604efe98aaf5da5ec859`. Mission1 data confirms reward record29 settings[11,3,3,1] and Blue model1 huts41/42. That establishes an authored candidate route, not successful ordinary worship/casting or a rendered failure.
+
+## Smallest native composition
+
+Use one full retained root and one already-emitted child first. The owner may reuse the existing explicitly declared class5 fire-allocation-failure supply to isolate the unconditional root cleanup tail. This is a supplied native fire-allocation boundary; it must not be labelled complete fire-stream equality with the later actual live Lightning path. Partial, missing-root and protected/no-transition controls remain named follow-ups requiring fixed inputs before execution.
+
+Execute real00408cb0, its real004ed6f0 no-op, actual class dispatch/initializer and burn initializer, then real004ef180→004ed530. Calling/logging release alone is insufficient. Use the actual secondary address range00930ab8..00937a98,160 slots of179 bytes, indices1840–1999, with coherent unit table, allocated/free lists and count. Do not put a256-byte scratch record outside the secondary pool and accidentally exercise primary delayed deletion. Existing secondary-pool evidence can supply this setup and its declared sunlight-bookkeeping boundary; any other intercepted fire/terrain/audio leaf must be named with its actual input/output effect.
+
+Freeze building+0x84 as zero or explicitly compose that separate cleanup, and bind+0x92, root ID/pointer, root/child types/substates/lifetimes, membership flags, player tribe and complete list topology. Keep the full building and secondary records, pool/head/free/count, resident IDs/count, both RNGs and ordered call/return/write observations. Assert the root handle is zero, root class is cleared, count decrements and the root joins the free list immediately. An allocated child must retain identity/class/lifetime/frame/position at this boundary. Its prev/next pointers may legitimately change when the adjacent root is unlinked; do not require every child byte unchanged or mask unexplained changes.
+
+The first comparison needs exact finite instruction/time/process limits, pinned EXE/shapes/constants/source/tools, cdecl widths and declared read/write/call bounds before execution. Reuse the existing supervisor and freeze a fresh output directory. No broad native suite, new allocation framework or additional original-game run is requested by this review.
+
+## Live and ordinary evidence
+
+The supporting runtime fixture must obtain real occupancy/root ownership through existing admission support, then call actual Lightning/ignition. A supplied spell boundary is acceptable only when labelled. Observe immediately after ignition, after the next real secondary pass, and through evacuation; keep actual resident identities rather than treating lazily initialized damageState.occupants as the authoritative list. Track each pre-existing child independently, preserve ordinary child countdown/expiry and prove the retired root cannot process or emit another child.
+
+A later repair belongs at the state-transition/owner boundary, not merely in rendering or delayed evacuation. Preserve existing completed/legacy huts whose damageState is absent; current ensureBuildingDamage derives state2 from completion. Compare the actual ordering of fire initialization and root release. Keep allocation phase, resident admission/evacuation, burn duration, shared RNG,24Hz frame owner, logical child lifetime and pause/restore behavior unchanged.
+
+The ordinary Mission1 route must acquire the authored reward, house followers and cast via real HUD/input, then retain baseline, first actually rendered state4 frame with timer>119 and unchanged residents, and post-evacuation evidence. Record root/child IDs, atlas/frame choice, timings, source and pixels. Do not inject stock/actors/roots/state or force a skipped render; a missed early rendered window is a capture gap. Existing children may remain visible and must not be mistaken for a retained root. A second camera view is justified only by occlusion. Full/partial/empty admission, allocation-turn, restored-child and pause regressions remain acceptance checks.
+
+No ordinary rendered-impact, whole fire/secondary stream or complete original-game timing claim follows from this plan. No native/application/browser/package execution or runtime change occurred during review.

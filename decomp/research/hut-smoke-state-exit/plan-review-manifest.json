@@ -1,0 +1,14 @@
+{
+  "verdict": "ACCEPT bounded plan; execution preflight required",
+  "head": "100d0ba3f89a02e97a587628f76584b7380373ff",
+  "proposalSha256": "d2b56996184b15b47c9d1383fb0f619a57bb9ae4df5d752f51b13b2bcaf025dc",
+  "sourceManifestSha256": "a214fa30909f03e91b5314ecca75925b4756ee4e440c604efe98aaf5da5ec859",
+  "sourceHashesVerified": 19,
+  "instructionByteRowsVerified": 49,
+  "files": {
+    "review.md": {
+      "sha256": "8276d44fa42b0228a0cb715a5a02a58837eb66758361f9f22ad2f827de810f46",
+      "bytes": 5500
+    }
+  }
+}
