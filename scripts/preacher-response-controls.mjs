@@ -18,6 +18,7 @@ const post = (method, params = {}) => new Promise((accept, reject) =>
   session.post(method, params, (error, value) => error ? reject(error) : accept(value)))
 await post('Profiler.enable')
 for (const entry of controls.cases) {
+  await post('Profiler.startPreciseCoverage', { callCount: true, detailed: true })
   const fixturePath = resolve(directory, entry.fixture)
   const f = JSON.parse(readFileSync(fixturePath, 'utf8'))
   const rawPool = readFileSync(resolve(dirname(fixturePath), 'orders-input.bin'))
@@ -59,7 +60,9 @@ for (const entry of controls.cases) {
     })
   }
   const before = snapshot()
-  await post('Profiler.startPreciseCoverage', { callCount: true, detailed: true })
+  // Retain and reset all setup counts at the actual caller boundary. Counts
+  // left across stop/start must not be attributed to this response invocation.
+  const setupCoverage = (await post('Profiler.takePreciseCoverage')).result
   const result = startLiveCombatResponse(w, w.units[0])
   const coverage = (await post('Profiler.takePreciseCoverage')).result.filter(row => row.url.includes('/app/'))
   await post('Profiler.stopPreciseCoverage')
@@ -71,14 +74,20 @@ for (const entry of controls.cases) {
     ['live-combat.ts', 'allocateLiveCombatResponse', 1],
     ['live-combat.ts', 'startPreacherResponse', 1],
     ['person-orders.ts', 'allocatePersonOrder', ['allocation-exhaustion', 'primary21-sharing'].includes(f.case) ? 1 : 0],
+    ['person-orders.ts', 'prepareCellOrder', f.case === 'primary21-sharing' ? 1 : 0],
+    ['person-orders.ts', 'prepareMovementOrder', 0],
+    ['person-orders.ts', 'attachPersonOrder', f.case === 'primary21-sharing' ? 2 : 0],
     ['combat-orders.ts', 'shareCombatOrder', f.case === 'primary21-sharing' ? 1 : 0],
     ['live-people.ts', 'registerLivePerson', f.case === 'primary21-sharing' ? 2 : 0],
     ['preacher-conversion.ts', 'stepPreachingOrder', 0],
     ['person-order-start.ts', 'startPersonOrders', 0],
     ['world-turn.ts', 'tick', 0],
   ].map(([file, name, expected]) => ({ file, name, expected, actual: count(file, name) }))
-  rows.push({ case: f.case, before, after: snapshot(), result, calls, coverage })
+  rows.push({ case: f.case, before, after: snapshot(), result, calls, coverage, setupCoverage })
 }
 session.disconnect()
-console.log(JSON.stringify({ nodeVersion: process.version, rows }))
+await new Promise((accept, reject) => process.stdout.write(
+  JSON.stringify({ nodeVersion: process.version, rows }) + '\n',
+  error => error ? reject(error) : accept()
+))
 for (const row of rows) for (const call of row.calls) assert.equal(call.actual, call.expected, `${row.case}:${call.name}`)
