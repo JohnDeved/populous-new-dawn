@@ -559,10 +559,25 @@ function stepTurn(w: World) {
   }
   w.gifts = w.gifts.filter(g => g.remaining > 0)
   stepScenery(w)
-  // New class-7 effects are inserted before the current native list cursor;
-  // their first processor visit belongs to the following simulation turn.
+  // New effects are inserted before the current native list cursor. Their next
+  // scheduled visit is on the following turn; a producer can also process immediately.
   const effectCount = w.effects.length,
     terrainCenters: { cell: number; radius: number }[] = []
+  const queueErosionTerrain = (cell: number) => {
+    queueTerrain(w.land, cell, 6, 1, terrainTextures)
+    terrainCenters.push({ cell, radius: 6 })
+  }
+  const advanceErosion = (
+    fx: Effect,
+    erosion: Erosion,
+    terrain: (cell: number) => void = queueErosionTerrain
+  ) => {
+    const alive = stepErosion(w.land, erosion, w, {
+      sound: () => sound(w, 0xa9, fx),
+      terrain,
+    })
+    if (!alive) fx.duration = fx.age
+  }
   // Native allocated-object order is newest first; terrain and RNG effects are noncommutative.
   for (let index = effectCount - 1; index >= 0; index--) {
     const fx = w.effects[index]
@@ -659,16 +674,7 @@ function stepTurn(w: World) {
       })
       if (!alive) fx.duration = fx.age
     }
-    if (fx.erosion) {
-      const alive = stepErosion(w.land, fx.erosion, w, {
-        sound: () => sound(w, 0xa9, fx),
-        terrain: cell => {
-          queueTerrain(w.land, cell, 6, 1, terrainTextures)
-          terrainCenters.push({ cell, radius: 6 })
-        },
-      })
-      if (!alive) fx.duration = fx.age
-    }
+    if (fx.erosion) advanceErosion(fx, fx.erosion)
     if (fx.earthquake) {
       const alive = stepEarthquake(w.land, fx.earthquake, w, {
         sound: cue => sound(w, cue, fx),
@@ -847,6 +853,7 @@ function stepTurn(w: World) {
     notifyHeightChanges(w, terrainCenters)
     refreshTerrainSurface(w)
   }
+  terrainCenters.length = 0
   w.effects = w.effects.filter(f => f.age < f.duration)
   stepFirewarriorShots(w)
   processProjectiles(w)
@@ -933,6 +940,11 @@ function stepTurn(w: World) {
           const erosion = effect(w, 'erosion', target)
           erosion.erosion = createErosion(nativePosition(w, target))
           erosion.duration = Infinity
+          // The head processes each cloned reward before allocating its next link.
+          advanceErosion(erosion, erosion.erosion, cell => {
+            queueErosionTerrain(cell)
+            notifyHeightChanges(w, [{ cell, radius: 6 }])
+          })
         }
       } else if (shrine.kind === 'flattenEffect') {
         const flatten = effect(w, 'flatten', shrine.effectTarget!)
@@ -1011,6 +1023,13 @@ function stepTurn(w: World) {
       if (shrine.kind !== 'mana' && shrine.kind !== 'inert') sound(w, 0x70, shrine)
     }
     syncStoneHeadPresentation(shrine)
+  }
+  // New rewards have already notified their objects. Complete their queued
+  // landscape work after all shrine calls, without a second notification pass.
+  if (terrainCenters.length) {
+    processTerrain(w.land, terrainTextures)
+    for (const { cell, radius } of terrainCenters) updateWalkMasks(w.land, cell, radius)
+    refreshTerrainSurface(w)
   }
   // Imported availability selects rechargeable spells; head rewards remain one-off stocks.
   w.manaWorld.turn = w.turn
