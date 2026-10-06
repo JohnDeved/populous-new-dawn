@@ -14,13 +14,18 @@ const hash = value => createHash('sha256').update(JSON.stringify(value)).digest(
 test('Shaman import preserves every prior frame, piece and animation entry', () => {
   assert.equal(hash(units.frames.slice(0, 4250)), 'fc7e3f7c87e8d066d05935efb5c9aa587c9390c5aa47229b40df23f0e384bccf')
   assert.equal(hash(units.pieces.slice(0, 3276)), '8a02f51aa443b0c583be35ec691ab1f811048055098d54e46e9adf7d41dffddd')
-  assert.equal(hash(Object.fromEntries(Object.entries(units.animations).slice(0, 13))), 'a80bf4033d5ae38e84207bc6bfcb2615a5897861eaf2c931533940ce49f93575')
+  const priorAnimations = structuredClone(Object.fromEntries(Object.entries(units.animations).slice(0, 13)))
+  for (const team of ['blue', 'red']) delete priorAnimations[`${team}-firewarrior`].restingGesture
+  assert.equal(hash(priorAnimations), 'a80bf4033d5ae38e84207bc6bfcb2615a5897861eaf2c931533940ce49f93575')
   assert.equal(hash(units.frames.slice(0, 4770)), '890b8810167fbda4f3da7eaa07e2eaf197f3315e8ae83541a144f13b26e1f108')
   assert.equal(hash(units.pieces.slice(0, 3785)), '806e4138b33988fecd366ef22529c9ec74e2c7389273075e83ba17bf495e7898')
-  assert.equal(units.frames.length, 5021)
-  assert.equal(units.pieces.length, 4004)
+  // Exact pre-Firewarrior append prefixes from89e6860; all Shaman entries stay fixed.
+  assert.equal(hash(units.frames.slice(0, 5021)), '6d2a9abb7e8bbd6d32b35aaf999093671355402d1480aafcf31facc4635d4a0d')
+  assert.equal(hash(units.pieces.slice(0, 4004)), '113f1251728d3fc8fe90b5984e7539fc6711cdea29414b9c0f5f749a2bbef9f9')
+  assert.equal(units.frames.length, 5091)
+  assert.equal(units.pieces.length, 4042)
   assert.equal(units.frameCounts.length, 792)
-  assert.deepEqual([units.width, units.height, units.cell, units.columns], [2048, 8064, 64, 32])
+  assert.deepEqual([units.width, units.height, units.cell, units.columns], [2048, 8128, 64, 32])
 })
 
 test('actual tribe selects every native Shaman source and eight original directions', () => {
