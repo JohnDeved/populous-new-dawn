@@ -1,0 +1,54 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "ca622654-513e-4f16-852a-d0402e86ead5",
+  "status": "passed",
+  "phase": "finished",
+  "source": {
+    "headOid": "c172e144a6552f10e062d08745b036a251585c82",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "app/erosion.ts": "788ae0b14800e1a6d675279e08b2490702bc7c3e6fe305769d0bde25c8935d70",
+      "app/erosion-observation.ts": "8fcc841183c138b02f5eb33ad7f24efcc4f477a512655009c543cc8d004e2fd2",
+      "app/world-turn.ts": "e5f178dbd89bd304307c9ccfd28c7e4ac9e1a132f10cea5a932b5687b8039734"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "0-3",
+    "node_modules/.bin/oxfmt",
+    "--check",
+    "app/erosion.ts",
+    "app/erosion-observation.ts",
+    "app/world-turn.ts"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-final-gate-c172e14",
+  "startedAt": "2026-10-06T02:27:42.690Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-final-gate-c172e14/work/orchestration/erosion-final-c172e14/format-scoped.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-final-gate-c172e14/work/orchestration/erosion-final-c172e14/format-scoped.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T02:27:42.811Z",
+  "exitCode": 0,
+  "signal": null,
+  "stdout": "Checking formatting...\n\nAll matched files use the correct format.\nFinished in 4ms on 3 files using 4 threads.\n",
+  "stderr": "",
+  "stdoutSha256": "74832e5a20e48c732421c01559d729bb25248da31db58e1b209dff9c1a51ef29",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "sourceAfter": {
+    "headOid": "c172e144a6552f10e062d08745b036a251585c82",
+    "branch": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "node_modules/.package-lock.json": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+      "app/erosion.ts": "788ae0b14800e1a6d675279e08b2490702bc7c3e6fe305769d0bde25c8935d70",
+      "app/erosion-observation.ts": "8fcc841183c138b02f5eb33ad7f24efcc4f477a512655009c543cc8d004e2fd2",
+      "app/world-turn.ts": "e5f178dbd89bd304307c9ccfd28c7e4ac9e1a132f10cea5a932b5687b8039734"
+    }
+  }
+}

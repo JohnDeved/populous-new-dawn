@@ -1,0 +1,75 @@
+{
+  "kind": "erosion-final-integration-gates",
+  "sourceCommit": "c172e144a6552f10e062d08745b036a251585c82",
+  "actualCapturePacket": "d4b877ad56ca62f78fc6c49ee07cb4b5837c1f85",
+  "files": {
+    "build-input-correspondence.json": {
+      "bytes": 1890,
+      "sha256": "d127077cec031d8ea8afed37d480e1f01547710fe3fc9b8d23b670ee5532123f"
+    },
+    "build.json": {
+      "bytes": 215020,
+      "sha256": "93214c0e77279bed36f2581139bea2fcc128de6b15b866ce77d0a7343ebf1eae"
+    },
+    "build.json.artifacts/stderr.log": {
+      "bytes": 1476,
+      "sha256": "53ef78c27f0c36ab094b239dfd40eeead02ad3a6be674ca09574d343b10f1e55"
+    },
+    "build.json.artifacts/stdout.log": {
+      "bytes": 1143,
+      "sha256": "50de844a6aa3337ecbdf41b37acd607b0f999fb37f69b6d156b132d95f8d4196"
+    },
+    "check.json": {
+      "bytes": 139123,
+      "sha256": "9194c2d496fe031439dca5eda7eed234cb0fb5195541da80c313e79f37c2b4dc"
+    },
+    "check.json.artifacts/stderr.log": {
+      "bytes": 1119,
+      "sha256": "02285cf98c9d88b48ecc3ef7fa38f35659b7c27d82ad3139b4a57f8bed24e9b1"
+    },
+    "check.json.artifacts/stdout.log": {
+      "bytes": 133940,
+      "sha256": "972964a11278b715212d8e25860bfb216ec3164e6e4075f10df24da14b9604cf"
+    },
+    "eslint-scoped.json": {
+      "bytes": 196109,
+      "sha256": "8e4d02a3b0852508aa07d683dbb5a82c10be138d1dd14237702d5b322d0d0c41"
+    },
+    "eslint-scoped.json.artifacts/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "eslint-scoped.json.artifacts/stdout.log": {
+      "bytes": 174130,
+      "sha256": "2ea6fb3a452e6607462cc84d82cef5f69453270a4f716e93a486e9ba118e9b7a"
+    },
+    "format-scoped.json": {
+      "bytes": 2648,
+      "sha256": "5005ae52240d3761590c0e2b6a1b15c60f12a05c0a3c603bec12750f5f783310"
+    },
+    "format-scoped.json.artifacts/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "format-scoped.json.artifacts/stdout.log": {
+      "bytes": 110,
+      "sha256": "74832e5a20e48c732421c01559d729bb25248da31db58e1b209dff9c1a51ef29"
+    },
+    "gate-index.json": {
+      "bytes": 1662,
+      "sha256": "0b7624cb3dd77f7ee2a16ed5991a87fedb6e7967865b2466e0a79c71990f38e2"
+    },
+    "historical-c91-lint.json": {
+      "bytes": 40452,
+      "sha256": "bc4c876217e200cbd65d06cbe87cfe5864cd4dabfa17f932b0bdc84134d1d7cb"
+    },
+    "quality-correspondence.json": {
+      "bytes": 1199,
+      "sha256": "75d7876862f7d8bb1e2f08692234a6aa728d8b91deda4b4bbf4c6c8cb0c70a04"
+    },
+    "report.md": {
+      "bytes": 1970,
+      "sha256": "c4b1e9505ff7441f4ee634758395481fa9cfed6ff9d2e298d030189acc40f23a"
+    }
+  }
+}

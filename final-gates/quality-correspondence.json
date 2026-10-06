@@ -1,0 +1,24 @@
+{
+  "sourceHead": "c172e144a6552f10e062d08745b036a251585c82",
+  "format": {
+    "status": "passed",
+    "receipt": "format-scoped.json",
+    "receiptSha256": "5005ae52240d3761590c0e2b6a1b15c60f12a05c0a3c603bec12750f5f783310"
+  },
+  "eslint": {
+    "status": "failed",
+    "receipt": "eslint-scoped.json",
+    "receiptSha256": "8e4d02a3b0852508aa07d683dbb5a82c10be138d1dd14237702d5b322d0d0c41",
+    "scopedFiles": 24,
+    "diagnostics": 209,
+    "files": {
+      "app/world-turn.ts": 208,
+      "scripts/local-render/harness.mjs": 1
+    },
+    "baselineReceipt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-ordinary-controller-capture/work/orchestration/erosion-ordinary-gates-c91ce9d/lint.json",
+    "baselineReceiptSha256": "bc4c876217e200cbd65d06cbe87cfe5864cd4dabfa17f932b0bdc84134d1d7cb",
+    "comparison": "Each scoped diagnostic matches the accepted c91 full lint by file, rule, severity and message; source positions and stylish formatter omission of terminal full stops are normalized.",
+    "introduced": []
+  },
+  "limits": "Global lint, format and advisory failures remain disclosed at their historical source labels. This is a scoped check, not a global quality pass."
+}

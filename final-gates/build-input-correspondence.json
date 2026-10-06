@@ -1,0 +1,29 @@
+{
+  "head": "c172e144a6552f10e062d08745b036a251585c82",
+  "appTree": "84d4a529d361106feb3f760917a71b247e1c0c25",
+  "historicalBuildHead": "a411a79b29487fc554b5ca192c4cd4e2c79d67e3",
+  "historicalBuildReceipt": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-ordinary-controller-capture/work/orchestration/erosion-ordinary-gates-a411a79/build.json",
+  "historicalBuildReceiptSha256": "c9a47c0dab50811b8eb3133ba92026d433acbe1fe23d46f5afa671ac83d7a691",
+  "exactTrackedBuildInputs": {
+    "app": "84d4a529d361106feb3f760917a71b247e1c0c25",
+    "public": "fc25859de55ec2be22ebc7d9f4c1e9b9d06ac00d",
+    "build": "e4caf579c58061db70eac981f9475c4b07b702f8",
+    "worker": "534262246ef7d02635110a3989accfbd8a3494c9",
+    ".openai": "26024ebcc0b9bbae3f76cde9fdf5e8e4af055d2f",
+    "package.json": "69f7b0e5750edfa9dd0ddb6cd05cbcf7dffc69a1",
+    "package-lock.json": "97cd9ade0190af96e99b389c93d4ee20bef5065c",
+    "vite.config.ts": "21c69948143439c7950eb45126341ad293e009cd",
+    "next.config.ts": "e9ffa3083ad279ecf95fd8eae59cb253e9a539c4",
+    "postcss.config.mjs": "61e36849cf7cfa9f1f71b4a3964a4953e3e243d3",
+    "tsconfig.json": "76481812c25a92deb97ca2e5ad91f120751a848e",
+    "wrangler.cloudflare.jsonc": "6280db8db7afe28829a639416af34f9afad2b1cf"
+  },
+  "installedLockSha256": "65e45d0a87d1ecd4fbf56508b9821eb3bfb3867c8477db4aaa1452eb2bed13d8",
+  "sameMovedDependencyTreeInode": 925605,
+  "immutableCompilerPackageSubset": {
+    "packages": 196,
+    "files": 4643,
+    "byteIdentical": true
+  },
+  "boundary": "This compares every tracked app/public/build/worker/hosting/config/lock input and the retained196-package immutable compiler subset. The same private installed tree was receipted-moved without install/copy/link. The old snapshot does not include Tailwind packages, so it is not a complete installed build-package closure attestation; do not overstate that coverage."
+}

@@ -1,0 +1,45 @@
+{
+  "sourceHead": "c172e144a6552f10e062d08745b036a251585c82",
+  "tree": "bc53defe66d98341c3e619164c4c8eeb23405120",
+  "appTree": "84d4a529d361106feb3f760917a71b247e1c0c25",
+  "corePacketCommit": "d4b877ad56ca62f78fc6c49ee07cb4b5837c1f85",
+  "files": {
+    "check.json": {
+      "sha256": "9194c2d496fe031439dca5eda7eed234cb0fb5195541da80c313e79f37c2b4dc",
+      "bytes": 139123
+    },
+    "format-scoped.json": {
+      "sha256": "5005ae52240d3761590c0e2b6a1b15c60f12a05c0a3c603bec12750f5f783310",
+      "bytes": 2648
+    },
+    "eslint-scoped.json": {
+      "sha256": "8e4d02a3b0852508aa07d683dbb5a82c10be138d1dd14237702d5b322d0d0c41",
+      "bytes": 196109
+    },
+    "quality-correspondence.json": {
+      "sha256": "75d7876862f7d8bb1e2f08692234a6aa728d8b91deda4b4bbf4c6c8cb0c70a04",
+      "bytes": 1199
+    },
+    "build-input-correspondence.json": {
+      "sha256": "d127077cec031d8ea8afed37d480e1f01547710fe3fc9b8d23b670ee5532123f",
+      "bytes": 1890
+    },
+    "build.json": {
+      "sha256": "93214c0e77279bed36f2581139bea2fcc128de6b15b866ce77d0a7343ebf1eae",
+      "bytes": 215020
+    }
+  },
+  "check": {
+    "status": "passed",
+    "tests": 1296,
+    "sourceStable": true
+  },
+  "quality": "Global lint, format and advisory failures remain disclosed at their historical source labels. This is a scoped check, not a global quality pass.",
+  "build": {
+    "status": "passed",
+    "sourceHead": "c172e144a6552f10e062d08745b036a251585c82",
+    "startedAt": "2026-10-06T02:31:37.926Z",
+    "finishedAt": "2026-10-06T02:31:55.570Z",
+    "historicalCorrespondence": "Retained only as background; final readiness uses the fresh c172 production build."
+  }
+}
