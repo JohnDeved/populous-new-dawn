@@ -5,7 +5,9 @@ accepted issue223 producer `47d2e2dc229f35352f1a7a1cfb948789053c9b1c` and review
 recorder `b8cb2d013183d68a4abb60004e65a150f53601f7`. `policy.json` pins the unchanged
 combined app tree and source inputs. The first exact CLI attempt at c91ce9d exited13 during the cyclic scenario import,
 before any server, profile, browser or public input. Its failed receipt is retained.
-The repaired CLI import is checked explicitly before another browser attempt.
+The repaired CLI import is checked explicitly. The later [ordinary capture and
+native component replay](https://github.com/JohnDeved/populous-new-dawn/blob/d4b877ad56ca62f78fc6c49ee07cb4b5837c1f85/report.md) passed: one original Shaman, effect3155,
+all64 calls at turns688–751. Earlier failed attempts remain linked in that report.
 
 ## Route and bounds
 
@@ -112,9 +114,10 @@ and worst-case full-height exports under32MiB. Fixtures are explicitly synthetic
 they do not stand in for the ordinary run. The older recorder tests compare the
 actual pinned uninstrumented controller source too.
 
-A fresh review must bind the final driver head before launch. Combined aggregate,
-build/quality and observer overhead gates still need the coordinator's execution
-slot. Ordinary capture, actual copy/RAF timing and native replay remain unperformed.
+Fresh review must bind every new driver head and launch plan. Published source,
+aggregate/build/quality, observer-overhead, ordinary capture and native receipts
+keep their actual tested heads; no historical run is relabelled for documentation
+or integration changes. No general browser RAF/FPS parity is claimed.
 The replay compares all native heights/RNG/countdown and terrain notifications
 under both selected sound-bit settings. Actual sound policy, downstream native
 walk masks/queues, full engine timing and UI/IndexedDB restore remain unproved.

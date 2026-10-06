@@ -1,9 +1,15 @@
 # Actual-input Erosion controller replay
 
-This tooling prepares capture of a new ordinary browser Erosion and comparison of
-each observed controller call against `0050ff30 -> 004983a0`. No ordinary capture or native
-execution was performed while preparing it. Earlier effect3322's lifecycle record
-does not contain the missing per-step RNG/full heights and cannot supply inputs.
+The [2026-10-06 actual capture and native component replay](https://github.com/JohnDeved/populous-new-dawn/blob/d4b877ad56ca62f78fc6c49ee07cb4b5837c1f85/report.md)
+passed independent review. Original Blue Shaman46 used the authored Mission3
+head101 through one ordinary worship order. Effect3155 activated at turn688 and
+retired at751; every one of the16,384 heights, simulation RNG, countdown/liveness
+and terrain-notification cells matched on all64 calls under both explicitly
+selected sound-bit settings. No original OS binary was launched.
+
+Earlier effect3322's lifecycle record lacks per-step RNG/full heights; it was not
+reconstructed or reused. Each new native call restores its own actual captured
+browser input. This is not an uninterrupted original-game simulation.
 Same-input controller equivalence does not prove native reward activation
 scheduling, engine timing, terrain consumers, walk masks, rendering, or audio.
 
@@ -43,10 +49,12 @@ synchronizes terrain. Height is observed rather than predicted. This adapter
 neither creates a World nor issues game inputs.
 
 The source-only [ordinary driver](../../qa/erosion-ordinary/README.md) now combines
-the accepted issue223 immediate-activation producer and this recorder. It uses one
-original Blue Shaman and one authored-head worship dispatch. Ordinary execution
-still requires the exact frozen driver review, remaining combined gates and lane
-grant; no ordinary capture has been performed.
+the accepted issue223 immediate-activation producer and this recorder. The
+published run uses one original Blue Shaman and one authored-head worship dispatch.
+Future executions still require exact frozen source/runtime/plan review and the
+coordinated lane. The replay proof is separate from the earlier supplied-state
+producer/scheduler proof in [issue223](https://github.com/JohnDeved/populous-new-dawn/issues/223);
+neither establishes a full original-game run.
 
 ## Exact native boundary
 
@@ -132,7 +140,11 @@ afterTurn-only arming and terrain-touching observation are covered. The combined
 after each of64 corrected-producer visits with capture disabled/enabled. Python admission tests use synthetic documents and never invoke native
 code. These tests require that pinned git object to remain available.
 
-Before ordinary capture, obtain fresh source review, coordinated aggregate/build
-and quality gates, an alternating-order uninstrumented/disabled/enabled overhead
-measurement, and the exact reviewed browser composition. Native execution and
-ordinary observed copy/RAF timings remain not-run. No parity ledger is changed.
+The published capture and native replay retain their actual tested source head,
+plans, terminal receipts and all input hashes. Setup failures remain failed
+evidence. The alternating-order original/disabled/captured Node measurement is a
+bounded controller microbenchmark; browser copy timers have limited resolution.
+Neither provides a general FPS or native-render claim. Future runs need fresh
+source/runtime/plan correspondence and their coordinated execution gates. Actual
+audio cadence, downstream terrain/walk-mask/object/render consumers and UI restore
+remain outside this result. No parity ledger is changed.
