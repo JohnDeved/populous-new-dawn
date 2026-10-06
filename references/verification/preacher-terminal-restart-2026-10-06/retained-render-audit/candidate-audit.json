@@ -1,0 +1,226 @@
+{
+  "qaHead": "0ef63ba8e1dbf2ef51e33626948e179116c40ca4",
+  "applicationHead": "b2b04cf4915dafc7165e961f9b45ddb3efd4d103",
+  "streamRows": 2317,
+  "phaseCounts": {
+    "beforeTurn": 923,
+    "afterTurn": 923,
+    "render-after-updater": 471
+  },
+  "person": 3160,
+  "orderId": 26,
+  "commandModel": 17,
+  "terminalTurn": 4173,
+  "phase4To2Turn": 4174,
+  "actualRenderTurnsAtBoundary": [
+    {
+      "line": 2286,
+      "turn": 4171,
+      "source": 168,
+      "draw": 14,
+      "f1": 0,
+      "f2": 2,
+      "mesh": {
+        "visible": true,
+        "frame": 2966,
+        "frameFlip": true,
+        "draw": 14,
+        "owner": 0,
+        "layers": [
+          {
+            "visible": true,
+            "piece": 0,
+            "uv": [
+              -0.01025390625,
+              0.00048828125,
+              0.01025390625,
+              0.99951171875
+            ]
+          },
+          {
+            "visible": true,
+            "piece": 3229,
+            "uv": [
+              -0.0078125,
+              0.0035400390625,
+              0.9140625,
+              0.2152099609375
+            ]
+          },
+          {
+            "visible": false,
+            "piece": 2184,
+            "uv": [
+              -0.0048828125,
+              0.0018310546875,
+              0.2548828125,
+              0.4669189453125
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "line": 2291,
+      "turn": 4173,
+      "source": 168,
+      "draw": 14,
+      "f1": 0,
+      "f2": 4,
+      "mesh": {
+        "visible": true,
+        "frame": 2968,
+        "frameFlip": true,
+        "draw": 14,
+        "owner": 0,
+        "layers": [
+          {
+            "visible": true,
+            "piece": 0,
+            "uv": [
+              -0.01025390625,
+              0.00048828125,
+              0.01025390625,
+              0.99951171875
+            ]
+          },
+          {
+            "visible": true,
+            "piece": 3229,
+            "uv": [
+              -0.0078125,
+              0.0035400390625,
+              0.9140625,
+              0.2152099609375
+            ]
+          },
+          {
+            "visible": false,
+            "piece": 2184,
+            "uv": [
+              -0.0048828125,
+              0.0018310546875,
+              0.2548828125,
+              0.4669189453125
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "line": 2296,
+      "turn": 4175,
+      "source": 160,
+      "draw": 19,
+      "f1": 0,
+      "f2": 0,
+      "mesh": {
+        "visible": true,
+        "frame": 2944,
+        "frameFlip": true,
+        "draw": 19,
+        "owner": 0,
+        "layers": [
+          {
+            "visible": true,
+            "piece": 0,
+            "uv": [
+              -0.01025390625,
+              0.00048828125,
+              0.01025390625,
+              0.99951171875
+            ]
+          },
+          {
+            "visible": true,
+            "piece": 3226,
+            "uv": [
+              -0.00537109375,
+              0.0035400390625,
+              0.81787109375,
+              0.2152099609375
+            ]
+          },
+          {
+            "visible": false,
+            "piece": 2184,
+            "uv": [
+              -0.0048828125,
+              0.0018310546875,
+              0.2548828125,
+              0.4669189453125
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "restartIntervalMainRenderRecords": 0,
+  "restartIntervalPixelCaptures": 0,
+  "screenshotTurns": [
+    3412,
+    3505
+  ],
+  "screenshotImages": [
+    {
+      "path": "acquired-preacher.png",
+      "sha256": "601dd5c47512f687103f6358e5cfcb33a04efed1ebd688cfcd20e029743bb6b5"
+    },
+    {
+      "path": "source176-turn3412-actor.png",
+      "sha256": "095ee3f03f277307cd0a5b5c85cd48ce4dc50c7a11e0d489ec5ade150af45958"
+    },
+    {
+      "path": "source176-turn3412-body.rgba",
+      "sha256": "4dc3f51095863c1a9073f780804e5584f2a52167c4ca3616483f4b08c0fca9c6"
+    },
+    {
+      "path": "source176-turn3412-full.png",
+      "sha256": "1fdf8e848353ce7783fde448eff2d6a48af7bbed66257b08446b954f4e66ff82"
+    },
+    {
+      "path": "source176-turn3412-hidden-body.rgba",
+      "sha256": "6c200ae8f45f4c5c6ec309cccefbaaab6a2b1b0eec72fc42f371980ab1e0dba3"
+    },
+    {
+      "path": "source184-turn3505-actor.png",
+      "sha256": "16a6c3e6ef7e6590e18dc191a46929e78f448f4fa9fd8d204fd245d01ea17859"
+    },
+    {
+      "path": "source184-turn3505-body.rgba",
+      "sha256": "46ff57294150ad34002d68cbdf4ef128ea67a6f086a6156738daf1ff1db52414"
+    },
+    {
+      "path": "source184-turn3505-full.png",
+      "sha256": "392ffccd0286758baace8fe29abbb347b41a46e4ec8a9fed92dd8099286f5722"
+    },
+    {
+      "path": "source184-turn3505-hidden-body.rgba",
+      "sha256": "6c200ae8f45f4c5c6ec309cccefbaaab6a2b1b0eec72fc42f371980ab1e0dba3"
+    }
+  ],
+  "fullRawArchiveSha256": "7c1642c42b85e6dae44299f2611abd7de3fe708f21142b143a9f8bfade794809",
+  "rawStreamMatchesPublishedArchive": true,
+  "inputSha256": {
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/work/orchestration/preacher-gesture-candidate/browser-attempt-02/original-phases.jsonl": "e1f3ef97ac9620ae082527c706ec3b663292148907219e17c782808cf7369534",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/work/orchestration/preacher-gesture-candidate/browser-attempt-02/loaded-phases.jsonl": "12d1e483d0e5334d02bc9b422ec2118234ebc1a30d5e4fce2f66b425467eb693",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/work/orchestration/preacher-gesture-candidate/browser-attempt-02/candidate.json": "ccf1ca127ee81b71ab502d52358805963ab2d88c9ffee07268fa93427a01e9db",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/work/orchestration/preacher-gesture-candidate/browser-attempt-02/prelaunch.json": "215227cb87f6447b0d324008468aa9ba433ad63b421ca4bfea3b4737e4a1aed0",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/work/orchestration/preacher-gesture-candidate/browser-attempt-02/observer-cleanup.json": "461d6535b32b78abffafc1d68f831ad96b81adf1f89f58008335a1b1e370a8c3",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/work/orchestration/preacher-gesture-candidate/browser-attempt-02/receipt.json": "b8fd18702fb00c7c00a0850028c7d6d6e91c9c1bfc5bd80217c9efc39dbeba01",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/qa/preacher-gesture-baseline/observe.mjs": "38924d397c0fe342e14713410abf1ffc6a56dd44ab7ad3f011477b6718dcfcb9",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/qa/preacher-gesture-candidate/observe.mjs": "fd6bf1fc8312cab3a799b88b3779cb1d79ddc191cf877d3079f02a98bed292b7",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/qa/preacher-gesture-candidate/scenario.mjs": "ccaa4fb97feca6d98bd7b31190adb25609bd49279c71e7647d1413aa11d0c541",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/qa/preacher-gesture-candidate/acquire.mjs": "4fef9e4e3d3def13d7f685724b88a14253d7eeb63c888a0b11ef79643b6aa8ec"
+  },
+  "observerMeaning": "Calls original main renderer first, then reads mesh/owner; records first render for each distinct turn. No row4174 can be hidden by same-turn duplicate filtering between4173 and4175.",
+  "boundaryDomain": "same actor/world/native owner, sole order26/model17, zero listeners, no threat/busy/vehicle/inside/paused state at boundary; speed1; no active gesture at cutoff (statusFlags2).",
+  "limits": [
+    "This current-b2 actor3160 boundary is not the exact supplied baseline actor3164/counter149 input. Current cutoff counter77/f2=3 differs from the fixed initial counter149/f2=5 and cutoff counter150.",
+    "Earlier same-world logical sermon included ordinary screenshot/Save pauses; no logical actor/order replacement before cutoff.",
+    "afterTurn/beforeTurn mesh2968 is stale from the4173 render and is not a rendered4174 state.",
+    "Loaded epoch turns3493\u20133721 never reaches timer840; maximum recorded target timer270.",
+    "Existing screenshot and raw-pixel captures cover sources176/184 at3412/3505, not4174.",
+    "No current rendered source48-vs168 impact is established. No new native/application/browser/package code executed for this audit."
+  ]
+}

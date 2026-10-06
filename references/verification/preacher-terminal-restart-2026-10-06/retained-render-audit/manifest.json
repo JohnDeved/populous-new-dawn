@@ -1,0 +1,26 @@
+{
+  "status": "read-only retained-evidence audit; no new application/browser/native execution",
+  "result": "Both retained streams omit the phase4-to-2 intermediate main-render interval; no boundary pixels exist.",
+  "files": {
+    "README.md": {
+      "sha256": "f36084becd8cf1642068780f8739c716b1e847b424918166def80f34429b2398",
+      "bytes": 3251
+    },
+    "baseline-audit.json": {
+      "sha256": "688dae29923ff1bf249c9f85f62d838c11a65c60f1297304f57e767743b81797",
+      "bytes": 5556
+    },
+    "baseline-selected-records.json": {
+      "sha256": "9f744446b580663eb6d1f2d2a4d242c3e074d37693f281c001a35d37c18e845b",
+      "bytes": 46683
+    },
+    "candidate-audit.json": {
+      "sha256": "b5e7862c57d813c7bfdd117ce8f1b92a86a24b350a8d882c4e247879bb4f2908",
+      "bytes": 8409
+    },
+    "candidate-selected-records.json": {
+      "sha256": "6d42fb4f92fda9518ec3cf440509e9f9141891ffe1de7503f72021325959618f",
+      "bytes": 59255
+    }
+  }
+}
