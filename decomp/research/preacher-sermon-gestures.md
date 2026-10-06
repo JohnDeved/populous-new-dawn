@@ -68,10 +68,12 @@ across heads. All three independently have the stated gesture gap.
 ## Producer and caller chain
 
 Native class-1/model-4 metadata has default state **10**, idle state **17**.
-`004d6f90`'s model-4 idle-approach branch creates an order through `004deff0`:
+`004d6f90`'s model-4 idle-approach branch contains the order producer inline:
 allocate, choose **17** (or **31** with an adjacent occupied building), prepare,
-clear/attach, reset motion and initialize the ordinary state. Allocation failure
-returns without manufacturing a sermon. `004d32b0` state 10 calls `00432590`;
+clear/attach, reset motion and initialize the ordinary state. It does not call
+`004deff0`; that is a separate equivalent producer. The TypeScript path factors
+the behavior through `initializePreacherOrder`. Allocation failure returns without
+manufacturing a sermon. `004d32b0` state 10 calls `00432590`;
 its command cases **17/31/32** call `0043a4d0`. Cancelled/current-override order
 handling precedes that dispatch. State-33 query recognition is not proof that
 state 33 runs the sermon body.
@@ -167,6 +169,15 @@ next controller poll. This is a derived visit sequence, not measured original
 wall time. The return setter retains f2 unless it exceeds source168's base count6;
 both final gesture frames exceed it and clamp to0. It does not explicitly stamp
 f1=1 on return. Do not add worship's legacy hold or infer a global FPS change.
+
+The current port already differs on entry before the missing gesture decision.
+The native writes f1=1/f2=0 after selecting both95 and97, and assignment bit16 on
+loop entry. `stepPreachingOrder` omits those explicit writes. Its ordinary setters
+reset f1 to0 (descriptor hold0) and can retain an in-range prior f2;
+`stopPersonMovement` does not repair this. The entry→loop native comparison must
+retain that first divergence, not normalize it away. Gesture return differs from
+birth: return97 adds no new f1=1 write, and its following updater advances the
+clamped f2=0 to1. Capture before and after the updater.
 
 Two other pre-existing controller differences prevent a whole-sermon equivalence
 claim: the port falls from close substate1 into substate2 in the same call, while
@@ -284,3 +295,14 @@ changed paths are explicitly classified as research-only.
 Local commits/bundles are **unpushed and not reset-durable** until an authorized
 Git publication route is restored; they are preservation artifacts, not GitHub
 acceptance or completion evidence.
+
+## Review correction, 2026-10-06
+
+The fresh scope review accepted the static gap and finite direction, while
+requiring the inline-producer and entry-reset corrections above. The original
+static result remains unchanged at SHA-256
+`4711c12f4ab006e33e410f6ac47166c2930154bf691cc7364ac606d27ca8d1ec`.
+Implementation remains blocked pending a separately authorized native comparison
+and fresh ordinary browser baseline. Later artwork planning must respect the
+accepted firing atlas 2048×8128 and supplied MAX_TEXTURE_SIZE8192 limit; this
+audit does not measure remaining capacity or authorize an append.
