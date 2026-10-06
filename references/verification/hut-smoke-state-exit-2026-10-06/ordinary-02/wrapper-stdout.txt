@@ -1,0 +1,8 @@
+{
+  "status": "failed",
+  "output": "work/orchestration/hut-smoke-state-exit/ordinary-host-02/command-receipt.json",
+  "headOid": "1d56f4db8e48d65c08081088923c6d938f504980",
+  "exitCode": 1,
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "2e6f32e689d52f063ca999d0c0c72bad04f3b89d5236fe3461f0a97d54169298"
+}

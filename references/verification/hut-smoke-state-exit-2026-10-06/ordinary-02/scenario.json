@@ -1,0 +1,1723 @@
+{
+  "status": "failed",
+  "actions": [
+    {
+      "label": "Select and focus shaman",
+      "phase": "before",
+      "at": "2026-10-06T23:03:08.241Z"
+    },
+    {
+      "label": "Select and focus shaman",
+      "phase": "after",
+      "at": "2026-10-06T23:03:09.535Z"
+    },
+    {
+      "label": "minimap-view",
+      "phase": "before",
+      "at": "2026-10-06T23:03:11.095Z"
+    },
+    {
+      "label": "minimap-view",
+      "phase": "after",
+      "at": "2026-10-06T23:03:11.187Z"
+    },
+    {
+      "label": "rendered-target",
+      "hit": {
+        "x": 824,
+        "y": 380,
+        "interiorRadius": 2,
+        "id": 28,
+        "collection": "shrines",
+        "turn": 208,
+        "expectedCommand": 27,
+        "cast": false,
+        "spellPreflight": null,
+        "diagnostics": {
+          "state": {
+            "turn": 208,
+            "frame": 195,
+            "animationFrame": 417,
+            "currentSceneMatches": true,
+            "currentWorldMatches": true,
+            "rect": {
+              "left": 200,
+              "top": 0,
+              "width": 1240,
+              "height": 1000
+            },
+            "localPixel": {
+              "x": 624,
+              "y": 380
+            },
+            "camera": {
+              "x": 4977,
+              "y": 63245,
+              "angle": 1437
+            },
+            "center": {
+              "x": 4977,
+              "y": 63245
+            },
+            "rawCenter": {
+              "x": 4977,
+              "y": -2291
+            },
+            "projection": {
+              "curvature": 35248,
+              "depth": 6500,
+              "perspective": 11,
+              "scale": 40786,
+              "width": 1240,
+              "height": 1000,
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625,
+              "matrix": [
+                -4900,
+                1,
+                15634,
+                -5447,
+                15357,
+                -1708,
+                -14654,
+                -5708,
+                -4592
+              ]
+            },
+            "target": {
+              "id": 28,
+              "kind": "lightning",
+              "model": 45,
+              "x": 11,
+              "z": 1,
+              "active": true,
+              "enabled": true,
+              "stoneHead": {
+                "family": 45,
+                "object": 45,
+                "draw": 4,
+                "morph": 1,
+                "f1": 40,
+                "f2": 0,
+                "stamp": 208,
+                "flags3": 262144,
+                "renderFlags": 264,
+                "holdFrame": 1
+              }
+            },
+            "body": {
+              "nativeModel": 45,
+              "stoneHeadFrame": 10,
+              "frame": null,
+              "stage": 4,
+              "nativeSize": null,
+              "visible": true,
+              "positionVersion": 147,
+              "matrixWorld": [
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                11,
+                1.5859375,
+                1,
+                1
+              ]
+            },
+            "cache": {
+              "lastKey": "195,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,626,382",
+              "lastId": 28,
+              "lastKind": "model"
+            }
+          },
+          "context": {
+            "model": 27,
+            "enabled": true,
+            "buildingId": null,
+            "personId": null,
+            "shrineId": 28,
+            "treeId": null,
+            "vehicleId": null
+          },
+          "pick": {
+            "x": 824,
+            "y": 380,
+            "interiorRadius": 2,
+            "canvasOwned": true,
+            "hitId": 28
+          },
+          "selected": [
+            30
+          ]
+        },
+        "rejection": null
+      }
+    },
+    {
+      "label": "final-dispatch-preflight",
+      "command": 27,
+      "hit": {
+        "x": 824,
+        "y": 380,
+        "interiorRadius": 2,
+        "id": 28,
+        "collection": "shrines",
+        "turn": 208,
+        "expectedCommand": 27,
+        "cast": false,
+        "spellPreflight": null,
+        "diagnostics": {
+          "state": {
+            "turn": 208,
+            "frame": 195,
+            "animationFrame": 417,
+            "currentSceneMatches": true,
+            "currentWorldMatches": true,
+            "rect": {
+              "left": 200,
+              "top": 0,
+              "width": 1240,
+              "height": 1000
+            },
+            "localPixel": {
+              "x": 624,
+              "y": 380
+            },
+            "camera": {
+              "x": 4977,
+              "y": 63245,
+              "angle": 1437
+            },
+            "center": {
+              "x": 4977,
+              "y": 63245
+            },
+            "rawCenter": {
+              "x": 4977,
+              "y": -2291
+            },
+            "projection": {
+              "curvature": 35248,
+              "depth": 6500,
+              "perspective": 11,
+              "scale": 40786,
+              "width": 1240,
+              "height": 1000,
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625,
+              "matrix": [
+                -4900,
+                1,
+                15634,
+                -5447,
+                15357,
+                -1708,
+                -14654,
+                -5708,
+                -4592
+              ]
+            },
+            "target": {
+              "id": 28,
+              "kind": "lightning",
+              "model": 45,
+              "x": 11,
+              "z": 1,
+              "active": true,
+              "enabled": true,
+              "stoneHead": {
+                "family": 45,
+                "object": 45,
+                "draw": 4,
+                "morph": 1,
+                "f1": 40,
+                "f2": 0,
+                "stamp": 208,
+                "flags3": 262144,
+                "renderFlags": 264,
+                "holdFrame": 1
+              }
+            },
+            "body": {
+              "nativeModel": 45,
+              "stoneHeadFrame": 10,
+              "frame": null,
+              "stage": 4,
+              "nativeSize": null,
+              "visible": true,
+              "positionVersion": 147,
+              "matrixWorld": [
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                11,
+                1.5859375,
+                1,
+                1
+              ]
+            },
+            "cache": {
+              "lastKey": "195,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,626,382",
+              "lastId": 28,
+              "lastKind": "model"
+            }
+          },
+          "context": {
+            "model": 27,
+            "enabled": true,
+            "buildingId": null,
+            "personId": null,
+            "shrineId": 28,
+            "treeId": null,
+            "vehicleId": null
+          },
+          "pick": {
+            "x": 824,
+            "y": 380,
+            "interiorRadius": 2,
+            "canvasOwned": true,
+            "hitId": 28
+          },
+          "selected": [
+            30
+          ]
+        },
+        "rejection": null
+      },
+      "preflight": {
+        "rejection": null,
+        "diagnostics": {
+          "state": {
+            "turn": 221,
+            "frame": 203,
+            "animationFrame": 442,
+            "currentSceneMatches": true,
+            "currentWorldMatches": true,
+            "rect": {
+              "left": 200,
+              "top": 0,
+              "width": 1240,
+              "height": 1000
+            },
+            "localPixel": {
+              "x": 624,
+              "y": 380
+            },
+            "camera": {
+              "x": 4977,
+              "y": 63245,
+              "angle": 1437
+            },
+            "center": {
+              "x": 4977,
+              "y": 63245
+            },
+            "rawCenter": {
+              "x": 4977,
+              "y": -2291
+            },
+            "projection": {
+              "curvature": 35248,
+              "depth": 6500,
+              "perspective": 11,
+              "scale": 40786,
+              "width": 1240,
+              "height": 1000,
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625,
+              "matrix": [
+                -4900,
+                1,
+                15634,
+                -5447,
+                15357,
+                -1708,
+                -14654,
+                -5708,
+                -4592
+              ]
+            },
+            "target": {
+              "id": 28,
+              "kind": "lightning",
+              "model": 45,
+              "x": 11,
+              "z": 1,
+              "active": true,
+              "enabled": true,
+              "stoneHead": {
+                "family": 45,
+                "object": 45,
+                "draw": 4,
+                "morph": 1,
+                "f1": 20,
+                "f2": 0,
+                "stamp": 221,
+                "flags3": 262144,
+                "renderFlags": 264,
+                "holdFrame": 1
+              }
+            },
+            "body": {
+              "nativeModel": 45,
+              "stoneHeadFrame": 5,
+              "frame": null,
+              "stage": 4,
+              "nativeSize": null,
+              "visible": true,
+              "positionVersion": 155,
+              "matrixWorld": [
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                11,
+                1.5859375,
+                1,
+                1
+              ]
+            },
+            "cache": {
+              "lastKey": "203,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,626,382",
+              "lastId": 28,
+              "lastKind": "model"
+            }
+          },
+          "pick": {
+            "x": 824,
+            "y": 380,
+            "interiorRadius": 2,
+            "id": 28,
+            "collection": "shrines",
+            "turn": 208,
+            "expectedCommand": 27,
+            "cast": false,
+            "spellPreflight": null,
+            "diagnostics": {
+              "state": {
+                "turn": 208,
+                "frame": 195,
+                "animationFrame": 417,
+                "currentSceneMatches": true,
+                "currentWorldMatches": true,
+                "rect": {
+                  "left": 200,
+                  "top": 0,
+                  "width": 1240,
+                  "height": 1000
+                },
+                "localPixel": {
+                  "x": 624,
+                  "y": 380
+                },
+                "camera": {
+                  "x": 4977,
+                  "y": 63245,
+                  "angle": 1437
+                },
+                "center": {
+                  "x": 4977,
+                  "y": 63245
+                },
+                "rawCenter": {
+                  "x": 4977,
+                  "y": -2291
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "scale": 40786,
+                  "width": 1240,
+                  "height": 1000,
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625,
+                  "matrix": [
+                    -4900,
+                    1,
+                    15634,
+                    -5447,
+                    15357,
+                    -1708,
+                    -14654,
+                    -5708,
+                    -4592
+                  ]
+                },
+                "target": {
+                  "id": 28,
+                  "kind": "lightning",
+                  "model": 45,
+                  "x": 11,
+                  "z": 1,
+                  "active": true,
+                  "enabled": true,
+                  "stoneHead": {
+                    "family": 45,
+                    "object": 45,
+                    "draw": 4,
+                    "morph": 1,
+                    "f1": 40,
+                    "f2": 0,
+                    "stamp": 208,
+                    "flags3": 262144,
+                    "renderFlags": 264,
+                    "holdFrame": 1
+                  }
+                },
+                "body": {
+                  "nativeModel": 45,
+                  "stoneHeadFrame": 10,
+                  "frame": null,
+                  "stage": 4,
+                  "nativeSize": null,
+                  "visible": true,
+                  "positionVersion": 147,
+                  "matrixWorld": [
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    11,
+                    1.5859375,
+                    1,
+                    1
+                  ]
+                },
+                "cache": {
+                  "lastKey": "195,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,626,382",
+                  "lastId": 28,
+                  "lastKind": "model"
+                }
+              },
+              "context": {
+                "model": 27,
+                "enabled": true,
+                "buildingId": null,
+                "personId": null,
+                "shrineId": 28,
+                "treeId": null,
+                "vehicleId": null
+              },
+              "pick": {
+                "x": 824,
+                "y": 380,
+                "interiorRadius": 2,
+                "canvasOwned": true,
+                "hitId": 28
+              },
+              "selected": [
+                30
+              ]
+            },
+            "rejection": null,
+            "canvasOwned": true,
+            "hitId": 28
+          },
+          "interior": {
+            "x": 824,
+            "y": 380,
+            "interiorRadius": 2
+          },
+          "context": {
+            "model": 27,
+            "enabled": true,
+            "buildingId": null,
+            "personId": null,
+            "shrineId": 28,
+            "treeId": null,
+            "vehicleId": null
+          },
+          "point": {
+            "id": 28,
+            "x": 11,
+            "z": 1
+          },
+          "selected": [
+            30
+          ],
+          "lastOrderTurn": 0
+        }
+      }
+    },
+    {
+      "label": "command-27-click",
+      "phase": "before",
+      "at": "2026-10-06T23:03:15.099Z"
+    },
+    {
+      "label": "command-27-click",
+      "phase": "after",
+      "at": "2026-10-06T23:03:15.559Z"
+    },
+    {
+      "label": "actual-dispatch",
+      "command": 27,
+      "hit": {
+        "x": 824,
+        "y": 380,
+        "interiorRadius": 2,
+        "id": 28,
+        "collection": "shrines",
+        "turn": 208,
+        "expectedCommand": 27,
+        "cast": false,
+        "spellPreflight": null,
+        "diagnostics": {
+          "state": {
+            "turn": 208,
+            "frame": 195,
+            "animationFrame": 417,
+            "currentSceneMatches": true,
+            "currentWorldMatches": true,
+            "rect": {
+              "left": 200,
+              "top": 0,
+              "width": 1240,
+              "height": 1000
+            },
+            "localPixel": {
+              "x": 624,
+              "y": 380
+            },
+            "camera": {
+              "x": 4977,
+              "y": 63245,
+              "angle": 1437
+            },
+            "center": {
+              "x": 4977,
+              "y": 63245
+            },
+            "rawCenter": {
+              "x": 4977,
+              "y": -2291
+            },
+            "projection": {
+              "curvature": 35248,
+              "depth": 6500,
+              "perspective": 11,
+              "scale": 40786,
+              "width": 1240,
+              "height": 1000,
+              "centerX": 620,
+              "centerY": 423,
+              "fractionX": 4,
+              "fractionY": 4,
+              "pixelScaleX": 0.0625,
+              "pixelScaleY": 0.0625,
+              "matrix": [
+                -4900,
+                1,
+                15634,
+                -5447,
+                15357,
+                -1708,
+                -14654,
+                -5708,
+                -4592
+              ]
+            },
+            "target": {
+              "id": 28,
+              "kind": "lightning",
+              "model": 45,
+              "x": 11,
+              "z": 1,
+              "active": true,
+              "enabled": true,
+              "stoneHead": {
+                "family": 45,
+                "object": 45,
+                "draw": 4,
+                "morph": 1,
+                "f1": 40,
+                "f2": 0,
+                "stamp": 208,
+                "flags3": 262144,
+                "renderFlags": 264,
+                "holdFrame": 1
+              }
+            },
+            "body": {
+              "nativeModel": 45,
+              "stoneHeadFrame": 10,
+              "frame": null,
+              "stage": 4,
+              "nativeSize": null,
+              "visible": true,
+              "positionVersion": 147,
+              "matrixWorld": [
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                0,
+                0,
+                0,
+                2,
+                0,
+                11,
+                1.5859375,
+                1,
+                1
+              ]
+            },
+            "cache": {
+              "lastKey": "195,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,626,382",
+              "lastId": 28,
+              "lastKind": "model"
+            }
+          },
+          "context": {
+            "model": 27,
+            "enabled": true,
+            "buildingId": null,
+            "personId": null,
+            "shrineId": 28,
+            "treeId": null,
+            "vehicleId": null
+          },
+          "pick": {
+            "x": 824,
+            "y": 380,
+            "interiorRadius": 2,
+            "canvasOwned": true,
+            "hitId": 28
+          },
+          "selected": [
+            30
+          ]
+        },
+        "rejection": null
+      },
+      "evidence": {
+        "before": {
+          "turn": 221,
+          "selected": [
+            30
+          ],
+          "lastOrderTurn": 0,
+          "ack": {
+            "target": 0,
+            "until": 0
+          },
+          "worldMatches": true,
+          "units": [
+            {
+              "id": 30,
+              "kind": "shaman",
+              "hp": 100,
+              "inside": null,
+              "work": null
+            }
+          ]
+        },
+        "context": {
+          "model": 27,
+          "enabled": true,
+          "buildingId": null,
+          "personId": null,
+          "shrineId": 28,
+          "treeId": null,
+          "vehicleId": null
+        },
+        "point": {
+          "work": 0,
+          "target": 32,
+          "required": 1,
+          "remaining": 4,
+          "growth": 1,
+          "grown": false,
+          "enabled": true,
+          "reset": false,
+          "cooldown": 0,
+          "active": true,
+          "nextSlot": 0,
+          "slotTimer": 0,
+          "range": 1,
+          "followers": 0,
+          "forced": false,
+          "morph": null,
+          "mode": 0,
+          "model": 45,
+          "angle": 0.7853981633974483,
+          "id": 28,
+          "x": 11,
+          "z": 1,
+          "kind": "lightning",
+          "reward": "lightning",
+          "ordinarySpellReward": {
+            "head": 28,
+            "reward": 29,
+            "slot": 0,
+            "model": 3
+          },
+          "name": "Lightning stone head",
+          "progress": 0,
+          "duration": 10.666666666666666,
+          "uses": 0,
+          "stoneHead": {
+            "triggerIndex": 28,
+            "sceneryIndex": 33,
+            "family": 45,
+            "enabled": true,
+            "holdFrame": 1,
+            "object": 45,
+            "draw": 4,
+            "morph": 1,
+            "palette": 240,
+            "renderFlags": 264,
+            "f1": 44,
+            "f2": 0,
+            "stamp": 227,
+            "flags3": 262144,
+            "morphTimer": 0,
+            "morphFrames": 0
+          },
+          "panelActivity": {
+            "turn": 224,
+            "count": 0
+          },
+          "rewardRecipient": 0
+        },
+        "after": {
+          "turn": 222,
+          "selected": [
+            30
+          ],
+          "lastOrderTurn": 222,
+          "ack": {
+            "target": 28,
+            "until": 30837.033333336312
+          },
+          "worldMatches": true,
+          "units": [
+            {
+              "id": 30,
+              "kind": "shaman",
+              "hp": 100,
+              "inside": null,
+              "work": null
+            }
+          ]
+        },
+        "errors": [],
+        "delivered": {
+          "events": [
+            {
+              "type": "pointerdown",
+              "turn": 222,
+              "x": 824,
+              "y": 380,
+              "button": 0,
+              "buttons": 1,
+              "trusted": true,
+              "canvasTarget": true,
+              "canvasOwned": true,
+              "args": {
+                "clientX": 824,
+                "clientY": 380,
+                "button": 0,
+                "buttons": 1,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "state": {
+                "turn": 222,
+                "frame": 204,
+                "animationFrame": 444,
+                "currentSceneMatches": true,
+                "currentWorldMatches": true,
+                "rect": {
+                  "left": 200,
+                  "top": 0,
+                  "width": 1240,
+                  "height": 1000
+                },
+                "localPixel": {
+                  "x": 624,
+                  "y": 380
+                },
+                "camera": {
+                  "x": 4977,
+                  "y": 63245,
+                  "angle": 1437
+                },
+                "center": {
+                  "x": 4977,
+                  "y": 63245
+                },
+                "rawCenter": {
+                  "x": 4977,
+                  "y": -2291
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "scale": 40786,
+                  "width": 1240,
+                  "height": 1000,
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625,
+                  "matrix": [
+                    -4900,
+                    1,
+                    15634,
+                    -5447,
+                    15357,
+                    -1708,
+                    -14654,
+                    -5708,
+                    -4592
+                  ]
+                },
+                "target": {
+                  "id": 28,
+                  "kind": "lightning",
+                  "model": 45,
+                  "x": 11,
+                  "z": 1,
+                  "active": true,
+                  "enabled": true,
+                  "stoneHead": {
+                    "family": 45,
+                    "object": 45,
+                    "draw": 4,
+                    "morph": 1,
+                    "f1": 24,
+                    "f2": 0,
+                    "stamp": 222,
+                    "flags3": 262144,
+                    "renderFlags": 264,
+                    "holdFrame": 1
+                  }
+                },
+                "body": {
+                  "nativeModel": 45,
+                  "stoneHeadFrame": 6,
+                  "frame": null,
+                  "stage": 4,
+                  "nativeSize": null,
+                  "visible": true,
+                  "positionVersion": 156,
+                  "matrixWorld": [
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    11,
+                    1.5859375,
+                    1,
+                    1
+                  ]
+                },
+                "cache": {
+                  "lastKey": "203,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,626,382",
+                  "lastId": 28,
+                  "lastKind": "model"
+                },
+                "armedWorldMatches": true,
+                "armedCanvasMatches": true
+              },
+              "picks": [
+                {
+                  "name": "pick",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 824,
+                    "clientY": 380,
+                    "button": 0,
+                    "buttons": 1,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": 28,
+                  "point": null,
+                  "before": {
+                    "lastKey": "203,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,626,382",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  }
+                },
+                {
+                  "name": "pickPerson",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 824,
+                    "clientY": 380,
+                    "button": 0,
+                    "buttons": 1,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": null,
+                  "before": {
+                    "lastKey": "203,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,626,382",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  }
+                },
+                {
+                  "name": "pickUnit",
+                  "owner": "scene",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 824,
+                    "clientY": 380,
+                    "button": 0,
+                    "buttons": 1,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": null,
+                  "before": {
+                    "lastKey": "203,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,626,382",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  }
+                },
+                {
+                  "name": "pick",
+                  "owner": "scene",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 824,
+                    "clientY": 380,
+                    "button": 0,
+                    "buttons": 1,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": {
+                    "x": 10.718225877515067,
+                    "z": 0.9862045332158687
+                  },
+                  "before": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  }
+                }
+              ],
+              "after": {
+                "turn": 222,
+                "frame": 204,
+                "animationFrame": 444,
+                "currentSceneMatches": true,
+                "currentWorldMatches": true,
+                "rect": {
+                  "left": 200,
+                  "top": 0,
+                  "width": 1240,
+                  "height": 1000
+                },
+                "localPixel": {
+                  "x": 624,
+                  "y": 380
+                },
+                "camera": {
+                  "x": 4977,
+                  "y": 63245,
+                  "angle": 1437
+                },
+                "center": {
+                  "x": 4977,
+                  "y": 63245
+                },
+                "rawCenter": {
+                  "x": 4977,
+                  "y": -2291
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "scale": 40786,
+                  "width": 1240,
+                  "height": 1000,
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625,
+                  "matrix": [
+                    -4900,
+                    1,
+                    15634,
+                    -5447,
+                    15357,
+                    -1708,
+                    -14654,
+                    -5708,
+                    -4592
+                  ]
+                },
+                "target": {
+                  "id": 28,
+                  "kind": "lightning",
+                  "model": 45,
+                  "x": 11,
+                  "z": 1,
+                  "active": true,
+                  "enabled": true,
+                  "stoneHead": {
+                    "family": 45,
+                    "object": 45,
+                    "draw": 4,
+                    "morph": 1,
+                    "f1": 24,
+                    "f2": 0,
+                    "stamp": 222,
+                    "flags3": 262144,
+                    "renderFlags": 264,
+                    "holdFrame": 1
+                  }
+                },
+                "body": {
+                  "nativeModel": 45,
+                  "stoneHeadFrame": 6,
+                  "frame": null,
+                  "stage": 4,
+                  "nativeSize": null,
+                  "visible": true,
+                  "positionVersion": 156,
+                  "matrixWorld": [
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    11,
+                    1.5859375,
+                    1,
+                    1
+                  ]
+                },
+                "cache": {
+                  "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                  "lastId": 28,
+                  "lastKind": "model"
+                },
+                "armedWorldMatches": true,
+                "armedCanvasMatches": true
+              }
+            },
+            {
+              "type": "pointerup",
+              "turn": 222,
+              "x": 824,
+              "y": 380,
+              "button": 0,
+              "buttons": 0,
+              "trusted": true,
+              "canvasTarget": true,
+              "canvasOwned": true,
+              "args": {
+                "clientX": 824,
+                "clientY": 380,
+                "button": 0,
+                "buttons": 0,
+                "ctrlKey": false,
+                "shiftKey": false,
+                "altKey": false,
+                "metaKey": false,
+                "pointerType": "mouse"
+              },
+              "state": {
+                "turn": 222,
+                "frame": 204,
+                "animationFrame": 444,
+                "currentSceneMatches": true,
+                "currentWorldMatches": true,
+                "rect": {
+                  "left": 200,
+                  "top": 0,
+                  "width": 1240,
+                  "height": 1000
+                },
+                "localPixel": {
+                  "x": 624,
+                  "y": 380
+                },
+                "camera": {
+                  "x": 4977,
+                  "y": 63245,
+                  "angle": 1437
+                },
+                "center": {
+                  "x": 4977,
+                  "y": 63245
+                },
+                "rawCenter": {
+                  "x": 4977,
+                  "y": -2291
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "scale": 40786,
+                  "width": 1240,
+                  "height": 1000,
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625,
+                  "matrix": [
+                    -4900,
+                    1,
+                    15634,
+                    -5447,
+                    15357,
+                    -1708,
+                    -14654,
+                    -5708,
+                    -4592
+                  ]
+                },
+                "target": {
+                  "id": 28,
+                  "kind": "lightning",
+                  "model": 45,
+                  "x": 11,
+                  "z": 1,
+                  "active": true,
+                  "enabled": true,
+                  "stoneHead": {
+                    "family": 45,
+                    "object": 45,
+                    "draw": 4,
+                    "morph": 1,
+                    "f1": 24,
+                    "f2": 0,
+                    "stamp": 222,
+                    "flags3": 262144,
+                    "renderFlags": 264,
+                    "holdFrame": 1
+                  }
+                },
+                "body": {
+                  "nativeModel": 45,
+                  "stoneHeadFrame": 6,
+                  "frame": null,
+                  "stage": 4,
+                  "nativeSize": null,
+                  "visible": true,
+                  "positionVersion": 156,
+                  "matrixWorld": [
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    11,
+                    1.5859375,
+                    1,
+                    1
+                  ]
+                },
+                "cache": {
+                  "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                  "lastId": 28,
+                  "lastKind": "model"
+                },
+                "armedWorldMatches": true,
+                "armedCanvasMatches": true
+              },
+              "picks": [
+                {
+                  "name": "pick",
+                  "owner": "scene",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 824,
+                    "clientY": 380,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": {
+                    "x": 10.718225877515067,
+                    "z": 0.9862045332158687
+                  },
+                  "before": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  }
+                },
+                {
+                  "name": "pick",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 824,
+                    "clientY": 380,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": 28,
+                  "point": null,
+                  "before": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  }
+                },
+                {
+                  "name": "pickPerson",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 824,
+                    "clientY": 380,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": null,
+                  "point": null,
+                  "before": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  }
+                },
+                {
+                  "name": "pick",
+                  "owner": "picking",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 824,
+                    "clientY": 380,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": 28,
+                  "point": null,
+                  "before": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  }
+                },
+                {
+                  "name": "pickWorldObject",
+                  "owner": "scene",
+                  "receiverMatches": true,
+                  "args": {
+                    "clientX": 824,
+                    "clientY": 380,
+                    "button": 0,
+                    "buttons": 0,
+                    "ctrlKey": false,
+                    "shiftKey": false,
+                    "altKey": false,
+                    "metaKey": false,
+                    "pointerType": "mouse"
+                  },
+                  "id": 28,
+                  "point": {
+                    "x": 11,
+                    "z": 1
+                  },
+                  "before": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  },
+                  "after": {
+                    "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                    "lastId": 28,
+                    "lastKind": "model"
+                  }
+                }
+              ],
+              "after": {
+                "turn": 222,
+                "frame": 204,
+                "animationFrame": 444,
+                "currentSceneMatches": true,
+                "currentWorldMatches": true,
+                "rect": {
+                  "left": 200,
+                  "top": 0,
+                  "width": 1240,
+                  "height": 1000
+                },
+                "localPixel": {
+                  "x": 624,
+                  "y": 380
+                },
+                "camera": {
+                  "x": 4977,
+                  "y": 63245,
+                  "angle": 1437
+                },
+                "center": {
+                  "x": 4977,
+                  "y": 63245
+                },
+                "rawCenter": {
+                  "x": 4977,
+                  "y": -2291
+                },
+                "projection": {
+                  "curvature": 35248,
+                  "depth": 6500,
+                  "perspective": 11,
+                  "scale": 40786,
+                  "width": 1240,
+                  "height": 1000,
+                  "centerX": 620,
+                  "centerY": 423,
+                  "fractionX": 4,
+                  "fractionY": 4,
+                  "pixelScaleX": 0.0625,
+                  "pixelScaleY": 0.0625,
+                  "matrix": [
+                    -4900,
+                    1,
+                    15634,
+                    -5447,
+                    15357,
+                    -1708,
+                    -14654,
+                    -5708,
+                    -4592
+                  ]
+                },
+                "target": {
+                  "id": 28,
+                  "kind": "lightning",
+                  "model": 45,
+                  "x": 11,
+                  "z": 1,
+                  "active": true,
+                  "enabled": true,
+                  "stoneHead": {
+                    "family": 45,
+                    "object": 45,
+                    "draw": 4,
+                    "morph": 1,
+                    "f1": 24,
+                    "f2": 0,
+                    "stamp": 222,
+                    "flags3": 262144,
+                    "renderFlags": 264,
+                    "holdFrame": 1
+                  }
+                },
+                "body": {
+                  "nativeModel": 45,
+                  "stoneHeadFrame": 6,
+                  "frame": null,
+                  "stage": 4,
+                  "nativeSize": null,
+                  "visible": true,
+                  "positionVersion": 156,
+                  "matrixWorld": [
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    0,
+                    0,
+                    0,
+                    2,
+                    0,
+                    11,
+                    1.5859375,
+                    1,
+                    1
+                  ]
+                },
+                "cache": {
+                  "lastKey": "204,4977,63245,4977,-2291,35248,50,40786,40786,6500,11,1932,0,-77,425,1240,1000,280,-18,-20,18,-20,32,54,-32,54,1,0,-4900,1,15634,-5447,15357,-1708,-14654,-5708,-4592,620,423,4,4,0.0625,0.0625,624,380",
+                  "lastId": 28,
+                  "lastKind": "model"
+                },
+                "armedWorldMatches": true,
+                "armedCanvasMatches": true
+              }
+            }
+          ],
+          "errors": [],
+          "restored": true
+        }
+      }
+    }
+  ],
+  "screenshots": [],
+  "startup": {
+    "before": {
+      "ready": true,
+      "turn": 134,
+      "inputMask": 0,
+      "selected": [
+        30
+      ],
+      "levelStartPhase": 4,
+      "shaman": {
+        "id": 30,
+        "hp": 100,
+        "canOrder": true,
+        "selectable": true,
+        "state": 19,
+        "flags2": 131072,
+        "flags4": 536871168,
+        "commandStatus": 0
+      },
+      "level": 1
+    },
+    "after": {
+      "ready": true,
+      "turn": 134,
+      "inputMask": 0,
+      "selected": [
+        30
+      ],
+      "levelStartPhase": 4,
+      "shaman": {
+        "id": 30,
+        "hp": 100,
+        "canOrder": true,
+        "selectable": true,
+        "state": 19,
+        "flags2": 131072,
+        "flags4": 536871168,
+        "commandStatus": 0
+      },
+      "level": 1
+    },
+    "samples": 1
+  },
+  "renderer": {
+    "webglVersion": "WebGL 2.0 (OpenGL ES 3.0 Chromium)",
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "contextLost": false,
+    "canvas": [
+      1240,
+      1000
+    ],
+    "viewport": [
+      1440,
+      1000
+    ],
+    "dpr": 1
+  },
+  "initial": {
+    "turn": 139,
+    "speed": 1,
+    "paused": false,
+    "status": "playing",
+    "shots": 0,
+    "giftCount": 0,
+    "selected": [
+      30
+    ],
+    "mode": null,
+    "head": {
+      "id": 28,
+      "x": 11,
+      "z": 1,
+      "uses": 0,
+      "required": 1
+    },
+    "shaman": {
+      "id": 30,
+      "x": 9,
+      "z": 33,
+      "hp": 100,
+      "inside": null
+    },
+    "huts": [
+      {
+        "id": 36,
+        "x": -2.9296875,
+        "z": 40.9453125,
+        "progress": 1,
+        "hp": 170,
+        "burning": false,
+        "level": 1,
+        "residents": []
+      },
+      {
+        "id": 37,
+        "x": -11.0703125,
+        "z": 33.0546875,
+        "progress": 1,
+        "hp": 170,
+        "burning": false,
+        "level": 1,
+        "residents": []
+      }
+    ]
+  },
+  "error": "AssertionError [ERR_ASSERTION]: The actual command must reach a selected recipient\n    at dispatch (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/hut-smoke-ignition.mjs:184:12)\n    at async clickEntity (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/hut-smoke-ignition.mjs:196:12)\n    at async hutSmokeIgnition (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/hut-smoke-ignition.mjs:249:5)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/harness.mjs:153:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006/scripts/local-render/harness.mjs:240:21"
+}
