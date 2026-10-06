@@ -132,7 +132,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
         rejection: rejection ?? (cast && !ground ? 'Lightning ground pick disappeared' : null) }
     }, { collection, id, expectedCommand, cast })
   const dispatch = async (hit, command, expectedIds) => {
-    const preflight = await page.evaluate(async ({ hit, command }) => {
+    const preflight = await page.evaluate(async ({ hit, command, expectedIds }) => {
       const [{ currentPersonOrder }, { findEntityInput, inspectEntityPoint, createMoveContextProbe, observeEntityPointer, entityInputState }] =
         await Promise.all([import('/app/person-orders.ts'), import('/qa/erosion-ordinary/input.mjs')])
       const scene = window.testSceneRef.current, world = scene.world, canvas = scene.renderer.domElement
@@ -142,8 +142,15 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
       const pick = inspectEntityPoint(scene, hit.collection ?? 'buildings', hit)
       const interior = hit.collection ? findEntityInput([hit], hit.id, p => inspectEntityPoint(scene, hit.collection, p)) : null
       const diagnostics = { state: entityInputState(scene, hit.collection ? hit : null, hit), pick, interior, context,
-        point: point && { id: point.id ?? null, x: point.x, z: point.z }, selected: [...world.selected], lastOrderTurn: world.lastOrderTurn }
-      const rejection = window.hutDispatch ? 'A dispatch observer is already armed'
+        point: point && { id: point.id ?? null, x: point.x, z: point.z }, selected: [...world.selected], lastOrderTurn: world.lastOrderTurn,
+        selectedUnits: world.selected.map(id => { const unit = world.units.find(unit => unit.id === id);
+          return { id, kind: unit?.kind, team: unit?.team, hp: unit?.hp } }) }
+      const rejection = expectedIds && JSON.stringify(world.selected) !== JSON.stringify(expectedIds)
+        ? 'Selected recipients changed before dispatch'
+        : command === 8 && (!diagnostics.selectedUnits.length || diagnostics.selectedUnits.some(unit =>
+            unit.team !== 'blue' || unit.kind !== 'brave' || !(unit.hp > 0)))
+          ? 'Housing requires the intended living all-Brave cohort before input'
+          : window.hutDispatch ? 'A dispatch observer is already armed'
         : hit.collection && !interior ? 'Rendered target became stale before dispatch'
           : !point || (!hit.collection && (!pick.canvasOwned || pick.hitId !== null ||
               Math.hypot(point.x - hit.point.x, point.z - hit.point.z) > 0.05))
@@ -168,7 +175,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
         return { ...record, delivered: delivery.finish() }
       } }
       return { rejection: null, diagnostics }
-    }, { hit, command })
+    }, { hit, command, expectedIds })
     report.actions.push({ label: 'final-dispatch-preflight', command, hit, preflight }); save()
     assert.equal(preflight.rejection, null, JSON.stringify(preflight))
     let evidence
@@ -371,9 +378,21 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
       if (!unit || unit.hp <= 0) throw Error('Original Shaman was lost on the return route')
       return unit.inside === null && Math.hypot(unit.x - point.x, unit.z - point.z) < 2
     }, { id: shamanId, point: ground.point }, { timeout: 180000 })
+    assert.equal((await read()).mode, null, 'Ground dispatch must finish before changing the cohort')
+    await action('clear-Shaman-selection-before-Braves', () => page.keyboard.press('Escape'))
+    report.clearedSelection = await read(); save()
+    assert.deepEqual(report.clearedSelection.selected, [])
+    assert.equal(report.clearedSelection.mode, null)
     await action('Select-Braves-through-roster', () => page.getByRole('button', { name: 'Select brave', exact: true }).click({ modifiers: ['Shift'] }))
+    report.housingCohort = await page.evaluate(() => {
+      const world = window.testSceneRef.current.world
+      return world.selected.map(id => { const unit = world.units.find(unit => unit.id === id)
+        return { id, kind: unit?.kind, team: unit?.team, hp: unit?.hp } })
+    }); save()
+    assert.ok(report.housingCohort.length > 0 && report.housingCohort.every(unit =>
+      unit.team === 'blue' && unit.kind === 'brave' && unit.hp > 0))
     await view(hut)
-    await clickEntity('buildings', hut.id, 8)
+    await clickEntity('buildings', hut.id, 8, false, report.housingCohort.map(unit => unit.id))
     await page.waitForFunction(({ id, actorId }) => {
       const scene = window.testSceneRef.current, world = scene.world
       const actor = world.units.find(unit => unit.id === actorId)
@@ -386,6 +405,10 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     await pause()
     await button('Select and focus shaman')
     await view(hut)
+    report.beforeLightningSelection = await read(); save()
+    assert.deepEqual(report.beforeLightningSelection.selected, [shamanId])
+    assert.equal(report.beforeLightningSelection.mode, null)
+    assert.equal(report.beforeLightningSelection.shaman.inside, null)
     await page.evaluate(async id => {
       if (window.hutIgnitionFrames) throw Error('Ignition observer already exists')
       const { observeHutIgnitionFrames } = await import('/scripts/local-render/hut-smoke-ignition-observer.mjs')
