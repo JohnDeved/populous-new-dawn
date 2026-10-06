@@ -91,12 +91,83 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
         return sample
       })
       if (!hit) throw Error('No current rendered target interior with the required terrain cell')
-      return { ...hit, id, collection, turn: world.turn, expectedCommand, cast }
+      const ground = cast ? scene.pick({ clientX: hit.x, clientY: hit.y }) : null
+      const { spellTargetError } = cast ? await import('/app/live-command.ts') : {}
+      const spellPreflight = cast ? { point: ground, selected: [...world.selected],
+        shots: world.shots.lightning, turn: world.turn,
+        rejection: spellTargetError(structuredClone(world), 'lightning', ground) } : null
+      return { ...hit, id, collection, turn: world.turn, expectedCommand, cast, spellPreflight }
     }, { collection, id, expectedCommand, cast })
-  const clickEntity = async (collection, id, command, cast = false) => {
+  const dispatch = async (hit, command, expectedIds) => {
+    await page.waitForFunction(() => {
+      const world = window.testSceneRef.current.world
+      return world.turn > world.lastOrderTurn
+    }, null, { timeout: 5000 })
+    await page.evaluate(async ({ hit, command }) => {
+      const scene = window.testSceneRef.current, world = scene.world, canvas = scene.renderer.domElement
+      const { currentPersonOrder } = await import('/app/person-orders.ts')
+      const { findEntityInput, inspectEntityPoint, createMoveContextProbe, observeEntityPointer } =
+        await import('/qa/erosion-ordinary/input.mjs')
+      if (window.hutDispatch) throw Error('A dispatch observer is already armed')
+      if (hit.collection && !findEntityInput([hit], hit.id, point => inspectEntityPoint(scene, hit.collection, point)))
+        throw Error('Rendered target became stale before dispatch')
+      const point = hit.collection ? world[hit.collection].find(object => object.id === hit.id) :
+        scene.pick({ clientX: hit.x, clientY: hit.y })
+      if (!point || (!hit.collection && (document.elementFromPoint(hit.x, hit.y) !== canvas ||
+          scene.picking.pickPerson({ clientX: hit.x, clientY: hit.y }) ||
+          scene.pickWorldObject({ clientX: hit.x, clientY: hit.y }) ||
+          Math.hypot(point.x - hit.point.x, point.z - hit.point.z) > 0.05)))
+        throw Error('Ground target became stale before dispatch')
+      const context = createMoveContextProbe(world)(point)
+      if (!context.enabled || context.model !== command) throw Error('Fresh dispatch context rejected')
+      const ids = [...world.selected]
+      const sample = () => ({ turn: world.turn, selected: [...world.selected], lastOrderTurn: world.lastOrderTurn,
+        ack: { ...scene.pointerAck }, worldMatches: scene.world === world && window.testStore.getWorld() === world,
+        units: ids.map(id => {
+          const unit = world.units.find(unit => unit.id === id)
+          const person = unit?.builder?.person ?? unit?.flight ?? unit?.fight?.motion ?? unit?.native ?? unit?.entry?.person
+          return { id, kind: unit?.kind, hp: unit?.hp, inside: unit?.inside, work: unit?.work,
+            order: person ? structuredClone(currentPersonOrder(world.buildingOrders, person)) : null }
+        }) })
+      const delivery = observeEntityPointer(scene, document, hit.collection ? hit : null)
+      const record = { before: sample(), context, point, after: null, errors: [] }
+      const after = () => { try { record.after = sample() } catch (error) { record.errors.push(String(error)) } }
+      canvas.addEventListener('pointerup', after)
+      window.hutDispatch = { finish() {
+        canvas.removeEventListener('pointerup', after)
+        return { ...record, delivered: delivery.finish() }
+      } }
+    }, { hit, command })
+    let evidence
+    try { await action(`command-${command}-click`, () => page.mouse.click(hit.x, hit.y)) }
+    finally {
+      evidence = await page.evaluate(() => { const observer = window.hutDispatch; delete window.hutDispatch; return observer?.finish() })
+      report.actions.push({ label: 'actual-dispatch', command, hit, evidence }); save()
+    }
+    const { before, after, delivered, errors } = evidence
+    assert.deepEqual(errors, []); assert.deepEqual(delivered.errors, []); assert.equal(delivered.restored, true)
+    assert.ok(before.worldMatches && after?.worldMatches)
+    assert.deepEqual(delivered.events.map(event => [event.type, event.button, event.trusted, event.canvasOwned, event.canvasTarget]),
+      ['pointerdown', 'pointerup'].map(type => [type, 0, true, true, true]))
+    assert.ok(delivered.events.every(event => ['ctrlKey', 'shiftKey', 'altKey', 'metaKey'].every(key => !event.args[key])))
+    assert.ok(after.lastOrderTurn > before.lastOrderTurn)
+    assert.ok(after.ack.until > before.ack.until); assert.equal(after.ack.target, hit.id ?? 0)
+    assert.deepEqual(after.selected, before.selected)
+    if (expectedIds) assert.deepEqual(before.selected, expectedIds)
+    else assert.ok(before.units.length > 0 && before.units.every(unit => unit.kind === 'brave' && unit.hp > 0))
+    const recipients = after.units.filter(unit => unit.hp > 0 && (command === 8 ? unit.work === hit.id :
+      unit.order?.model === command && !(unit.order.flags & 1) && (command !== 27 || unit.order.a === hit.id)))
+    assert.ok(recipients.length > 0, 'The actual command must reach a selected recipient')
+    assert.deepEqual(recipients.map(unit => unit.id), expectedIds ?? before.selected)
+  }
+  const clickEntity = async (collection, id, command, cast = false, expectedIds = null) => {
     const hit = await entityPoint(collection, id, command, cast)
     report.actions.push({ label: 'rendered-target', hit }); save()
-    await action(cast ? 'Lightning-target-click' : `command-${command}-click`, () => page.mouse.click(hit.x, hit.y))
+    if (cast) {
+      assert.equal(hit.spellPreflight.rejection, null, JSON.stringify(hit.spellPreflight))
+      assert.ok(hit.spellPreflight.shots > 0)
+      await action('Lightning-target-click', () => page.mouse.click(hit.x, hit.y))
+    } else await dispatch(hit, command, expectedIds)
   }
   const groundNear = hut => page.evaluate(async hut => {
     const scene = window.testSceneRef.current
@@ -149,7 +220,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     const shamanId = report.initial.shaman.id, headId = report.initial.head.id
     await button('Select and focus shaman')
     await view(report.initial.head)
-    await clickEntity('shrines', headId, 27)
+    await clickEntity('shrines', headId, 27, false, [shamanId])
     await page.waitForFunction(id => {
       const world = window.testSceneRef.current.world
       return world.shots.lightning > 0 && world.shrines.find(head => head.id === id)?.uses > 0
@@ -164,7 +235,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     await view(hut)
     const ground = await groundNear(hut)
     assert.ok(ground, 'No ordinary movement target near the authored hut')
-    await action('Shaman-ground-order', () => page.mouse.click(ground.x, ground.y))
+    await dispatch(ground, 3, [shamanId])
     await page.waitForFunction(({ id, point }) => {
       const unit = window.testSceneRef.current.world.units.find(unit => unit.id === id)
       return unit?.hp > 0 && unit.inside === null && Math.hypot(unit.x - point.x, unit.z - point.z) < 2
