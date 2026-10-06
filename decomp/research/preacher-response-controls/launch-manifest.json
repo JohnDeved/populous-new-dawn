@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "kind": "unexecuted-four-preacher-response-controls",
+  "kind": "unexecuted-port-replay-of-four-retained-preacher-response-controls",
   "createdAt": "2026-10-06T21:41:23.595422+00:00",
   "issue": 243,
   "runtimeHead": "4e3e95ca8495f99778479d5a8a90d9b57b7b7d10",
@@ -15,7 +15,7 @@
   "constantsSha256": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
   "python": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
   "node": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
-  "output": "work/orchestration/preacher-response-controls-20261006/run-01",
+  "output": "work/orchestration/preacher-response-controls-20261006/run-02-port",
   "files": [
     {
       "path": "app/combat-orders.ts",
@@ -131,7 +131,7 @@
     },
     {
       "path": "decomp/research/preacher-response-controls/README.md",
-      "sha256": "08757ebaacd32a6d1850401f883c1b55e622db4cdf72a4435f7461abd8b68f07"
+      "sha256": "e30ea46b1bd2ce4f4135d08696795ebf9c75abe5a3c4b6f171b16f83f365c4c3"
     },
     {
       "path": "decomp/research/preacher-response-controls/allocation-exhaustion/fixture.json",
@@ -287,7 +287,7 @@
     },
     {
       "path": "scripts/preacher-response-controls.mjs",
-      "sha256": "5c1876c99e36ebf4d802b6cbd6a5f658c63a52d85d8a12694361cfb0a1fecd38"
+      "sha256": "ec44fa3b62c21bee9c3f53d1fe229a06ecd0b7899aa732a9e7ee701c9cf990c0"
     },
     {
       "path": "scripts/preacher-response-pair.mjs",
@@ -295,7 +295,7 @@
     },
     {
       "path": "scripts/probe-native-preacher-response-controls.py",
-      "sha256": "a04460a37c7c5c5a1a0e5dc5b83e90d997c8f2e118d24812209d8057970b0e24"
+      "sha256": "8a82b989b27a58fa891e231ba194a5ef91717d9e3b7e35993fdfeed345e92820"
     },
     {
       "path": "scripts/probe-native-preacher-response.py",
@@ -312,12 +312,76 @@
     {
       "path": "tests/preacher-automatic-response.test.mjs",
       "sha256": "6e80d44d91ac8cb4a2c0f484587c73bd18fe7795f037f0db2664ba4c8b80594f"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/launch-01/receipt.json",
+      "sha256": "9d902ade84c2744af2f1bbbaa32234e64aa03e460ab5ed7caec576b9619fef75"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/launch-01/stderr.txt",
+      "sha256": "584c89db7449cf729efac68230879c0d385e57c7be387c73424f768219523f32"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/launch-01/stdout.txt",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/result-manifest.json",
+      "sha256": "0f4c3ee136ff96289cbbddd585c42d5fd8e59baefeae3dd8f16d94448d7fbecd"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/run-01/allocation-exhaustion/native-before.json",
+      "sha256": "42ec403bb695028f2e85e1fab729983685083a30b4fc5871ea78cfa6b157b079"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/run-01/allocation-exhaustion/native.json",
+      "sha256": "fad10c7212420688f8f4c8524c78eb14801bbeedef4302279fd9ee23219522b5"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/run-01/launch.json",
+      "sha256": "889bd87af4de3205ef0ce13962911b3757d08ed9ccc704a74500b11fdce79ee5"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/run-01/port.stderr",
+      "sha256": "45c688d0e5b2883ca3949828f093adff29ffefeeee9980d46c5186f1690bdbc7"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/run-01/port.stdout",
+      "sha256": "335b7630e7fa01264ceb3ccc03af48329fb6353d2c823b5b14911f537e0f8e47"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/run-01/primary21-sharing/native-before.json",
+      "sha256": "ab930b77df918c52e03fe4a18a7be1187ee0242bb73fffce37fda1be63c44119"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/run-01/primary21-sharing/native.json",
+      "sha256": "4b5fc4d70c35a8b4f2289d705af2172745640063d268518f7e2926034fe252d5"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/run-01/receipt.json",
+      "sha256": "8a0b34f811b8aab0b2f234e7c55ff41ab5f3ca28a9d5867e80e2148a6d7cdbaf"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/run-01/reverse-alliance/native-before.json",
+      "sha256": "5a78decc153447782382d2ac0a8e5d3e8cdf3c942ca44b352e0fb30e976459be"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/run-01/reverse-alliance/native.json",
+      "sha256": "d9ebbfa4b97197d8e9dd58e1c9133bdaeaf0634f464840bb27ff090725e4d97e"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/run-01/stationary-sermon/native-before.json",
+      "sha256": "c0c87b2dde32368fbe25291666fc9279dddf44b783da52e6af0e3ff5e1ed9d07"
+    },
+    {
+      "path": "work/orchestration/preacher-response-controls-20261006/run-01/stationary-sermon/native.json",
+      "sha256": "6e59bd192e7b47fc1aa5300fad1a8d622477c5b406b9ef3ec394683e1e216c56"
     }
   ],
-  "authorization": "Source-only prospective four controls. Exact preflight review and a separate run grant are required.",
+  "authorization": "Source-only correction; exact review and separate port-only run grant required.",
   "execution": {
-    "nativeControls": "not-run",
-    "portControlRunner": "not-run",
+    "nativeControls": "one run completed; four rows verified; original batch failed port coverage",
+    "portControlRunner": "corrected checker not-run",
     "ghidra": "not-run"
   },
   "resourcesHeld": [],
@@ -473,7 +537,7 @@
     "taskset": "/usr/bin/taskset",
     "pythonLibrary": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/libpython3.12.so.1.0"
   },
-  "supervisorOutput": "work/orchestration/preacher-response-controls-20261006/launch-01",
+  "supervisorOutput": "work/orchestration/preacher-response-controls-20261006/launch-02-port",
   "externalEnvelope": {
     "cpu": 4,
     "termSeconds": 15,
@@ -507,13 +571,20 @@
       "allocation-exhaustion",
       "primary21-sharing"
     ],
-    "nativeCalls": 4,
+    "nativeCalls": 0,
     "portCalls": 4,
     "nativePerCallMicroseconds": 1000000,
     "nativePerCallInstructions": 100000,
     "portBatchSeconds": 5,
     "outerBatchSeconds": 15,
     "killGraceSeconds": 3,
-    "retry": false
+    "retry": false,
+    "retainedNativeCases": 4
+  },
+  "retainedNative": {
+    "head": "d7b88bdb5a9a9909ebb1f1aea00fd682a2a93784",
+    "manifestSha256": "889bd87af4de3205ef0ce13962911b3757d08ed9ccc704a74500b11fdce79ee5",
+    "root": "work/orchestration/preacher-response-controls-20261006/run-01",
+    "launchReceipt": "work/orchestration/preacher-response-controls-20261006/launch-01/receipt.json"
   }
 }

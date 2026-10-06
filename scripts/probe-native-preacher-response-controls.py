@@ -34,6 +34,20 @@ def preflight(args):
         assert digest((ROOT / row["path"]).read_bytes()) == row["sha256"], row["path"]
     for row in manifest["toolFiles"]:
         assert digest(Path(row["path"]).read_bytes()) == row["sha256"], row["path"]
+    retained = manifest.get("retainedNative")
+    if retained:
+        original_bytes = git("show", retained["head"] + ":decomp/research/preacher-response-controls/launch-manifest.json")
+        assert digest(original_bytes) == retained["manifestSha256"]
+        original_manifest = json.loads(original_bytes)
+        for item in original_manifest["files"]:
+            if ((item["path"].startswith("decomp/research/preacher-response-controls/") and not item["path"].endswith("README.md"))
+                    or item["path"] == "scripts/probe-native-preacher-response.py"):
+                assert digest((ROOT / item["path"]).read_bytes()) == item["sha256"], "Retained-native correspondence: " + item["path"]
+        launch = json.loads((ROOT / retained["launchReceipt"]).read_text())
+        assert launch["head"] == retained["head"] and launch["manifestSha256"] == retained["manifestSha256"]
+        assert launch["status"] == "failed" and launch["exitCode"] == 1
+        assert launch["sourceInputToolBefore"] == launch["sourceInputToolAfter"]
+        assert launch["remainingProcessGroupMembers"] == []
     executable = Path(manifest["executable"]["path"])
     blob = executable.read_bytes()
     assert digest(blob) == manifest["executable"]["sha256"]
@@ -63,6 +77,9 @@ def preflight(args):
         for fn in f["abi"]["functions"]:
             assert digest(positive.pe_bytes(blob, fn["entry"], fn["stopExclusive"])) == fn["nativeBytesSha256"]
             assert f["expected"]["entrySequence"].count(fn["entry"]) == fn["expectedCalls"]
+        if retained:
+            native = json.loads((ROOT / retained["root"] / f["case"] / "native.json").read_text())
+            verify_native(f, native, path.parent)
     return manifest, controls, executable
 
 
@@ -141,10 +158,16 @@ def main():
             case_output.mkdir()
             receipt["nativeCases"].append({"case": f["case"], "status": "started"})
             write_json(output / "receipt.json", receipt)
-            native = positive.native_once(f, executable, case_output, manifest["toolIdentity"], path.parent)
+            if manifest.get("retainedNative"):
+                retained_path = ROOT / manifest["retainedNative"]["root"] / f["case"] / "native.json"
+                native = json.loads(retained_path.read_text())
+                receipt["nativeCases"][-1]["retainedPath"] = str(retained_path)
+                receipt["nativeCases"][-1]["retainedSha256"] = digest(retained_path.read_bytes())
+            else:
+                native = positive.native_once(f, executable, case_output, manifest["toolIdentity"], path.parent)
             verify_native(f, native, path.parent)
             native_rows.append((f, native))
-            receipt["nativeCases"][-1]["status"] = "verified"
+            receipt["nativeCases"][-1]["status"] = "reused-verified" if manifest.get("retainedNative") else "verified"
             write_json(output / "receipt.json", receipt)
         command = [manifest["node"], str(ROOT / "scripts/preacher-response-controls.mjs"), str(PACKET / "controls.json")]
         try:
@@ -169,7 +192,8 @@ def main():
         raise
     finally:
         write_json(output / "receipt.json", receipt)
-    print(json.dumps({"status": receipt["status"], "cases": NAMES, "nativeInvocations": 4, "portInvocations": 4}))
+    print(json.dumps({"status": receipt["status"], "cases": NAMES,
+                      "nativeInvocations": 0 if manifest.get("retainedNative") else 4, "portInvocations": 4}))
 
 
 if __name__ == "__main__":

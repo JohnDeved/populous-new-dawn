@@ -1,6 +1,8 @@
 # Four automatic-sermon controls: prospective preflight
 
-Refs issue243. Source authoring only; **these four native controls have not run**.
+Refs issue243. The four native controls ran once at d7b88bdb and each verified its declared raw
+output. The complete batch failed its port coverage assertion; this revised
+checker is source-only and has not run.
 The accepted positive at dd6e4202 and its immutable archive are unchanged. The
 candidate runtime is4e3e95ca, including the reviewed coherence repair. The
 initial25 portable tests passed after7 expected baseline failures; eight newly
@@ -63,8 +65,8 @@ AL0-plus32 positive remains separate and is reused by candidate portable checks.
 The same external supervisor selects this fixed four-case driver with `--controls`.
 It retains CPU4,15s external TERM plus3s KILL grace, exact owned-group cleanup,
 cleared injection variables and hash-bound Python/Node/Unicorn/timeout/taskset.
-Each native call is limited to1s/100000 instructions; the single four-row port
-subprocess is limited to5s. The15s envelope covers the complete batch. If any
+The revised launch reuses the four hash-bound native rows with zero native
+invocations; the single four-row port subprocess is limited to5s. The15s envelope covers the complete batch. If any
 limit or assertion fails, retain evidence and stop; do not enlarge a budget or retry.
 
 Host-only validation:
@@ -80,7 +82,7 @@ is the pinned venv Python with `-E -s -B scripts/run-preacher-response-once.py
 --controls --execute --expected-source-head <reviewed-full-head>
 --expected-manifest-sha <reviewed-controls-manifest-sha256>`. Both pins are external.
 The new output directories are
-`work/orchestration/preacher-response-controls-20261006/{launch-01,run-01}`;
+`work/orchestration/preacher-response-controls-20261006/{launch-02-port,run-02-port}`;
 either existing path rejects launch. All source/input/tool hashes are checked
 before/after. This document grants no execution or final runtime acceptance.
 
@@ -89,3 +91,40 @@ ordinary lifecycle acceptance. Startup leaves substate0; the first sermon visit
 initializes5 and may immediately advance2 at current XY. Do not require or force
 a persistent5 endpoint. Ordinary QA and standard check/build/quality gates remain
 separately coordinated.
+
+## Retained failure and port-only correction
+
+The only original-code batch ran21:47:12.764141–21:47:15.695517 UTC on CPU4
+at d7b88bdb, manifest889bd87a. All four native rows verified full records/pool,
+cursors, RNG and the predeclared nested call sequence. The batch then failed
+`primary21-sharing:allocatePersonOrder`, observed2 versus expected1. Port stdout
+was truncated at65536 bytes because a failing assertion followed asynchronous
+console output. The old raw packet and failure labels are unchanged; no complete
+port equivalence result is claimed. Owned PGID31 was empty and all fingerprints
+were unchanged. `result-manifest.json` beside launch-01/run-01 pins all15 files.
+
+Static tie-out retains allocator1, preparation1 and attachment2 for primary21.
+`startPreacherResponse` has one allocation and one `prepareCellOrder`;
+`shareCombatOrder` attaches peer3 without allocating/preparing another record.
+Native trace independently records one00436c20, one00438730 with model21 and
+flags32, source attachment00436d00(1,2,-1), sharing00520480(1,2), then peer
+attachment00436d00(3,2,-1). Numeric1/3 here are person identities, not pointers.
+No expectation was raised to accommodate the observed coverage count.
+
+The checker now retains setup coverage and explicitly takes/resets it immediately
+before the one actual caller per case. This isolates the assertion from preceding
+setup/stop-start counts; the exact origin of the failed count remains unproved.
+Preparation/attachment counts are also asserted. The complete JSON write awaits
+its stdout callback before any coverage assertion can terminate the process.
+
+A newly reviewed launch may replay only the four port callers against those exact
+native rows. Preflight binds the original launch receipt/head/manifest and all raw
+files, compares unchanged fixture/pool/observer bytes with d7b88bdb, then verifies
+the native outputs offline. The native invocation branch is unreachable when the
+frozen `retainedNative` field is present. Outputs are fresh run-02-port/launch-02-port.
+The source-only correction does not grant this launch. The separate odd32 runtime
+commit is excluded from this response-only comparison.
+
+Documentation erratum: the original primary21 fixture's registration prose says
+source→enemy→null; its actual frozen chain is source→enemy→peer3→null. Its raw
+bytes and this README already describe that three-person chain correctly.
