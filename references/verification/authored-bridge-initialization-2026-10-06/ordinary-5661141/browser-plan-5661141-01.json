@@ -1,0 +1,34 @@
+{
+  "status": "prepared-not-launched",
+  "sourceHead": "56611410b260fa4a7abc38d83ad3aec6678841f3",
+  "gameRoot": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization",
+  "driver": "work/orchestration/authored-bridge-initialization/candidate.mjs",
+  "driverSha256": "3e8ad3a90e505fc4ea439f959aaf8d9e845c1c12eec70b271f3c130f55562aa5",
+  "port": 4376,
+  "origin": "http://127.0.0.1:4376",
+  "output": "work/orchestration/authored-bridge-initialization/browser-final-5661141-01",
+  "tmpdir": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/authored-bridge-initialization/work/orchestration/authored-bridge-initialization/tmp-browser-5661141-01",
+  "browser": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+  "browserSha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706",
+  "profile": "New ephemeral browser context and browser-owned temporary profile under the fresh task TMPDIR; no persistent or previous profile is used.",
+  "viewport": {
+    "width": 1440,
+    "height": 1000
+  },
+  "bounds": {
+    "harnessMs": 240000,
+    "outerSeconds": 300,
+    "outerKillAfterSeconds": 20
+  },
+  "cpus": "0-3",
+  "scenario": "Reviewed PR191 ordinary Mission2 shrine route, observed caches, active/completed Save/Load, screenshots and final terrain input for native replay. No birth-turn observer or simulation mutation.",
+  "cleanup": "Accepted scripts/local-render/harness.mjs owns the launched browser and detached Vite group and writes its terminal receipt after closing/killing only those resources. Outer timeout bounds failures.",
+  "receiptInputs": [
+    "package-lock.json",
+    "node_modules/.package-lock.json",
+    "work/orchestration/authored-bridge-initialization/candidate.mjs",
+    "work/orchestration/authored-bridge-initialization/browser-plan-5661141-01.json",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell"
+  ],
+  "requires": "Terminal source gates and explicit coordinator browser launch grant."
+}

@@ -1,0 +1,2180 @@
+{
+  "at": "2026-10-06T02:56:53.530Z",
+  "level": 2,
+  "turn": 542,
+  "time": 45.166666666666664,
+  "speed": 1,
+  "paused": true,
+  "status": "playing",
+  "inputMask": 0,
+  "selected": [
+    54
+  ],
+  "mode": null,
+  "stats": {
+    "built": 1,
+    "cast": 0,
+    "bridges": 1,
+    "trained": 0,
+    "battlesWon": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "shots": {
+    "blast": 4,
+    "convertWild": 0,
+    "hypnotise": 0,
+    "ghostArmy": 0,
+    "bridge": 0,
+    "lightning": 0,
+    "flatten": 0,
+    "erosion": 0,
+    "swamp": 0,
+    "firestorm": 0,
+    "earthquake": 0,
+    "angel": 0,
+    "volcano": 0,
+    "tornado": 0,
+    "shield": 0,
+    "invisibility": 0,
+    "armageddon": 0,
+    "bloodlust": 0,
+    "teleport": 0,
+    "swarm": 0
+  },
+  "mana": 0,
+  "message": "Guard Tower completed.",
+  "unlockedCamp": true,
+  "camera": {
+    "point": {
+      "x": -69.41015625,
+      "z": -104.84375
+    },
+    "bearing": 1.0615147052168636,
+    "overview": null
+  },
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "units": [
+    {
+      "id": 4,
+      "team": "green",
+      "kind": "brave",
+      "x": 85.0078125,
+      "z": 100.5078125,
+      "hp": 50,
+      "inside": 2,
+      "work": 2,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 5,
+      "team": "green",
+      "kind": "brave",
+      "x": 91,
+      "z": 101,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 6,
+      "team": "green",
+      "kind": "warrior",
+      "x": 53,
+      "z": 112.609375,
+      "hp": 90,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 1016.6875,
+        "y": 553.75
+      }
+    },
+    {
+      "id": 7,
+      "team": "green",
+      "kind": "warrior",
+      "x": 53.3359375,
+      "z": 113.1953125,
+      "hp": 90,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 1021.75,
+        "y": 555.375
+      }
+    },
+    {
+      "id": 8,
+      "team": "green",
+      "kind": "brave",
+      "x": 85.01171875,
+      "z": 100.5,
+      "hp": 50,
+      "inside": 2,
+      "work": 2,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 9,
+      "team": "green",
+      "kind": "brave",
+      "x": 67,
+      "z": 93,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 10,
+      "team": "green",
+      "kind": "brave",
+      "x": 41,
+      "z": 119,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 1030.6875,
+        "y": 501.93750000000006
+      }
+    },
+    {
+      "id": 11,
+      "team": "green",
+      "kind": "brave",
+      "x": 49,
+      "z": 114.6875,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 1020.8125,
+        "y": 534.125
+      }
+    },
+    {
+      "id": 12,
+      "team": "green",
+      "kind": "brave",
+      "x": 49,
+      "z": 115.3125,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 1025.375,
+        "y": 534.625
+      }
+    },
+    {
+      "id": 13,
+      "team": "green",
+      "kind": "warrior",
+      "x": 103.03515625,
+      "z": 117.01171875,
+      "hp": 90,
+      "inside": 71,
+      "work": 71,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 14,
+      "team": "green",
+      "kind": "warrior",
+      "x": 52.66015625,
+      "z": 113.19921875,
+      "hp": 90,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 1019.9375,
+        "y": 552.5625
+      }
+    },
+    {
+      "id": 15,
+      "team": "green",
+      "kind": "brave",
+      "x": 76.98828125,
+      "z": 113.0078125,
+      "hp": 50,
+      "inside": 3,
+      "work": 3,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 16,
+      "team": "green",
+      "kind": "brave",
+      "x": 76.57421875,
+      "z": 113.015625,
+      "hp": 50,
+      "inside": 3,
+      "work": 3,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 17,
+      "team": "green",
+      "kind": "brave",
+      "x": 69,
+      "z": 109,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 18,
+      "team": "green",
+      "kind": "brave",
+      "x": 76.765625,
+      "z": 113.01953125,
+      "hp": 50,
+      "inside": 3,
+      "work": 3,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 19,
+      "team": "green",
+      "kind": "warrior",
+      "x": 103.328125,
+      "z": 117.02734375,
+      "hp": 90,
+      "inside": 71,
+      "work": 71,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 20,
+      "team": "green",
+      "kind": "shaman",
+      "x": 91,
+      "z": 119,
+      "hp": 100,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 21,
+      "team": "green",
+      "kind": "warrior",
+      "x": 117,
+      "z": 123,
+      "hp": 90,
+      "inside": 22,
+      "work": 22,
+      "target": null,
+      "point": {
+        "x": -11264.125000000002,
+        "y": 8215.625
+      }
+    },
+    {
+      "id": 54,
+      "team": "blue",
+      "kind": "shaman",
+      "x": -113,
+      "z": 114.75,
+      "hp": 100,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -1336.8124999999998,
+        "y": 1213.125
+      }
+    },
+    {
+      "id": 278,
+      "team": "blue",
+      "kind": "brave",
+      "x": -107,
+      "z": -99,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -172.1875,
+        "y": 1699.9375
+      }
+    },
+    {
+      "id": 319,
+      "team": "blue",
+      "kind": "brave",
+      "x": -109,
+      "z": -99,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -358.6249999999999,
+        "y": 1934.875
+      }
+    },
+    {
+      "id": 281,
+      "team": "blue",
+      "kind": "brave",
+      "x": -109,
+      "z": -101,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -429.5625000000001,
+        "y": 1820
+      }
+    },
+    {
+      "id": 284,
+      "team": "blue",
+      "kind": "brave",
+      "x": -109,
+      "z": -103,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -492.2499999999998,
+        "y": 1719
+      }
+    },
+    {
+      "id": 170,
+      "team": "blue",
+      "kind": "brave",
+      "x": -107,
+      "z": -103,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -312.3124999999999,
+        "y": 1525.125
+      }
+    },
+    {
+      "id": 173,
+      "team": "blue",
+      "kind": "brave",
+      "x": -105,
+      "z": -103,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -160.6875,
+        "y": 1364.25
+      }
+    },
+    {
+      "id": 176,
+      "team": "blue",
+      "kind": "brave",
+      "x": -105,
+      "z": -101,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -92.93749999999994,
+        "y": 1431.6875
+      }
+    },
+    {
+      "id": 275,
+      "team": "blue",
+      "kind": "brave",
+      "x": -105,
+      "z": -99,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -17.99999999999997,
+        "y": 1507.875
+      }
+    },
+    {
+      "id": 1207,
+      "team": "green",
+      "kind": "brave",
+      "x": 103.046875,
+      "z": 117.015625,
+      "hp": 50,
+      "inside": 71,
+      "work": 71,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 1245,
+      "team": "green",
+      "kind": "brave",
+      "x": 76.6171875,
+      "z": 113.00390625,
+      "hp": 50,
+      "inside": 3,
+      "work": 3,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 1247,
+      "team": "blue",
+      "kind": "brave",
+      "x": -101.73046875,
+      "z": -114.78125,
+      "hp": 50,
+      "inside": 72,
+      "work": 72,
+      "target": null,
+      "point": {
+        "x": -264.5625,
+        "y": 968.125
+      }
+    },
+    {
+      "id": 1249,
+      "team": "green",
+      "kind": "brave",
+      "x": 84.97265625,
+      "z": 100.5078125,
+      "hp": 50,
+      "inside": 2,
+      "work": 2,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 1257,
+      "team": "green",
+      "kind": "brave",
+      "x": 77.0078125,
+      "z": 113,
+      "hp": 50,
+      "inside": 3,
+      "work": 3,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 1259,
+      "team": "green",
+      "kind": "brave",
+      "x": 102.984375,
+      "z": 117.0078125,
+      "hp": 50,
+      "inside": 71,
+      "work": 71,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    }
+  ],
+  "buildings": [
+    {
+      "id": 1,
+      "team": "green",
+      "kind": "camp",
+      "x": 68.921875,
+      "z": 100.703125,
+      "hp": 260,
+      "progress": 1,
+      "logs": 8,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 2,
+      "team": "green",
+      "kind": "hut",
+      "x": 82.8828125,
+      "z": 100.921875,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 3,
+      "team": "green",
+      "kind": "hut",
+      "x": 76.8828125,
+      "z": 112.9296875,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 22,
+      "team": "green",
+      "kind": "tower",
+      "x": 117.16796875,
+      "z": 123.02734375,
+      "hp": 260,
+      "progress": 1,
+      "logs": 5,
+      "point": {
+        "x": -11002.249999999998,
+        "y": 8032.500000000001
+      }
+    },
+    {
+      "id": 71,
+      "team": "green",
+      "kind": "hut",
+      "x": 103.1171875,
+      "z": 117.0703125,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 72,
+      "team": "blue",
+      "kind": "hut",
+      "x": -101.078125,
+      "z": -112.9375,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "point": {
+        "x": -189.9375,
+        "y": 965
+      }
+    },
+    {
+      "id": 1023,
+      "team": "green",
+      "kind": "tower",
+      "x": 44.83203125,
+      "z": 114.97265625,
+      "hp": 260,
+      "progress": 1,
+      "logs": 5,
+      "point": {
+        "x": 1011.1875,
+        "y": 516.4375
+      }
+    }
+  ],
+  "shrines": [
+    {
+      "id": 23,
+      "kind": "vault",
+      "x": 89,
+      "z": 111,
+      "required": 1,
+      "work": 0,
+      "target": 32,
+      "progress": 0,
+      "uses": 0,
+      "remaining": 1,
+      "followers": 0,
+      "active": true,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 55,
+      "kind": "bridgeEffect",
+      "x": -113,
+      "z": 113,
+      "required": 1,
+      "work": 0,
+      "target": 45,
+      "progress": 0,
+      "uses": 1,
+      "remaining": 0,
+      "followers": 1,
+      "active": false,
+      "point": {
+        "x": -1343.5000000000002,
+        "y": 1203.875
+      }
+    },
+    {
+      "id": 56,
+      "kind": "tornado",
+      "x": -59,
+      "z": -105,
+      "required": 2,
+      "work": 0,
+      "target": 82,
+      "progress": 0,
+      "uses": 0,
+      "remaining": 3,
+      "followers": 0,
+      "active": true,
+      "point": {
+        "x": 926.0625,
+        "y": 353.9375
+      }
+    }
+  ],
+  "effects": [
+    {
+      "id": 1261,
+      "kind": "bridge",
+      "x": -77,
+      "z": -105,
+      "duration": null
+    },
+    {
+      "id": 2450,
+      "kind": "trail",
+      "x": -78,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2451,
+      "kind": "trail",
+      "x": -78,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2452,
+      "kind": "trail",
+      "x": -78,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2453,
+      "kind": "trail",
+      "x": -78,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2454,
+      "kind": "trail",
+      "x": -76,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2455,
+      "kind": "trail",
+      "x": -76,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2456,
+      "kind": "trail",
+      "x": -76,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2457,
+      "kind": "trail",
+      "x": -76,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2458,
+      "kind": "trail",
+      "x": -74,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2459,
+      "kind": "trail",
+      "x": -74,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2460,
+      "kind": "trail",
+      "x": -74,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2461,
+      "kind": "trail",
+      "x": -74,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2462,
+      "kind": "trail",
+      "x": -72,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2463,
+      "kind": "trail",
+      "x": -72,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2464,
+      "kind": "trail",
+      "x": -72,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2465,
+      "kind": "trail",
+      "x": -72,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2466,
+      "kind": "trail",
+      "x": -70,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2467,
+      "kind": "trail",
+      "x": -70,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2468,
+      "kind": "trail",
+      "x": -70,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2469,
+      "kind": "trail",
+      "x": -70,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2470,
+      "kind": "trail",
+      "x": -68,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2471,
+      "kind": "trail",
+      "x": -68,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2472,
+      "kind": "trail",
+      "x": -68,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2473,
+      "kind": "trail",
+      "x": -68,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2474,
+      "kind": "trail",
+      "x": -66,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2475,
+      "kind": "trail",
+      "x": -66,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2476,
+      "kind": "trail",
+      "x": -66,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2477,
+      "kind": "trail",
+      "x": -66,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2478,
+      "kind": "trail",
+      "x": -64,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2479,
+      "kind": "trail",
+      "x": -64,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2480,
+      "kind": "trail",
+      "x": -64,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2481,
+      "kind": "trail",
+      "x": -64,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2482,
+      "kind": "trail",
+      "x": -62,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2483,
+      "kind": "trail",
+      "x": -62,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2484,
+      "kind": "trail",
+      "x": -62,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2485,
+      "kind": "trail",
+      "x": -62,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2486,
+      "kind": "trail",
+      "x": -78,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2487,
+      "kind": "trail",
+      "x": -78,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2488,
+      "kind": "trail",
+      "x": -78,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2489,
+      "kind": "trail",
+      "x": -78,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2490,
+      "kind": "trail",
+      "x": -76,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2491,
+      "kind": "trail",
+      "x": -76,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2492,
+      "kind": "trail",
+      "x": -76,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2493,
+      "kind": "trail",
+      "x": -76,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2494,
+      "kind": "trail",
+      "x": -74,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2495,
+      "kind": "trail",
+      "x": -74,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2496,
+      "kind": "trail",
+      "x": -74,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2497,
+      "kind": "trail",
+      "x": -74,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2498,
+      "kind": "trail",
+      "x": -72,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2499,
+      "kind": "trail",
+      "x": -72,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2500,
+      "kind": "trail",
+      "x": -72,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2501,
+      "kind": "trail",
+      "x": -72,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2502,
+      "kind": "trail",
+      "x": -70,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2503,
+      "kind": "trail",
+      "x": -70,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2504,
+      "kind": "trail",
+      "x": -70,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2505,
+      "kind": "trail",
+      "x": -70,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2506,
+      "kind": "trail",
+      "x": -68,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2507,
+      "kind": "trail",
+      "x": -68,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2508,
+      "kind": "trail",
+      "x": -68,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2509,
+      "kind": "trail",
+      "x": -68,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2510,
+      "kind": "trail",
+      "x": -66,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2511,
+      "kind": "trail",
+      "x": -66,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2512,
+      "kind": "trail",
+      "x": -66,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2513,
+      "kind": "trail",
+      "x": -66,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2514,
+      "kind": "trail",
+      "x": -64,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2515,
+      "kind": "trail",
+      "x": -64,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2516,
+      "kind": "trail",
+      "x": -64,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2517,
+      "kind": "trail",
+      "x": -64,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2518,
+      "kind": "trail",
+      "x": -62,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2519,
+      "kind": "trail",
+      "x": -62,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2520,
+      "kind": "trail",
+      "x": -62,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2521,
+      "kind": "trail",
+      "x": -62,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2522,
+      "kind": "trail",
+      "x": -78,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2523,
+      "kind": "trail",
+      "x": -78,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2524,
+      "kind": "trail",
+      "x": -78,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2525,
+      "kind": "trail",
+      "x": -78,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2526,
+      "kind": "trail",
+      "x": -76,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2527,
+      "kind": "trail",
+      "x": -76,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2528,
+      "kind": "trail",
+      "x": -76,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2529,
+      "kind": "trail",
+      "x": -76,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2530,
+      "kind": "trail",
+      "x": -74,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2531,
+      "kind": "trail",
+      "x": -74,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2532,
+      "kind": "trail",
+      "x": -74,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2533,
+      "kind": "trail",
+      "x": -74,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2534,
+      "kind": "trail",
+      "x": -72,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2535,
+      "kind": "trail",
+      "x": -72,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2536,
+      "kind": "trail",
+      "x": -72,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2537,
+      "kind": "trail",
+      "x": -72,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2538,
+      "kind": "trail",
+      "x": -70,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2539,
+      "kind": "trail",
+      "x": -70,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2540,
+      "kind": "trail",
+      "x": -70,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2541,
+      "kind": "trail",
+      "x": -70,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2542,
+      "kind": "trail",
+      "x": -68,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2543,
+      "kind": "trail",
+      "x": -68,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2544,
+      "kind": "trail",
+      "x": -68,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2545,
+      "kind": "trail",
+      "x": -68,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2546,
+      "kind": "trail",
+      "x": -66,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2547,
+      "kind": "trail",
+      "x": -66,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2548,
+      "kind": "trail",
+      "x": -66,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2549,
+      "kind": "trail",
+      "x": -66,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2550,
+      "kind": "trail",
+      "x": -64,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2551,
+      "kind": "trail",
+      "x": -64,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2552,
+      "kind": "trail",
+      "x": -64,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2553,
+      "kind": "trail",
+      "x": -64,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2554,
+      "kind": "trail",
+      "x": -62,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2555,
+      "kind": "trail",
+      "x": -62,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2556,
+      "kind": "trail",
+      "x": -62,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2557,
+      "kind": "trail",
+      "x": -62,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2558,
+      "kind": "trail",
+      "x": -78,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2559,
+      "kind": "trail",
+      "x": -78,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2560,
+      "kind": "trail",
+      "x": -78,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2561,
+      "kind": "trail",
+      "x": -78,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2562,
+      "kind": "trail",
+      "x": -76,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2563,
+      "kind": "trail",
+      "x": -76,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2564,
+      "kind": "trail",
+      "x": -76,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2565,
+      "kind": "trail",
+      "x": -76,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2566,
+      "kind": "trail",
+      "x": -74,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2567,
+      "kind": "trail",
+      "x": -74,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2568,
+      "kind": "trail",
+      "x": -74,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2569,
+      "kind": "trail",
+      "x": -74,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2570,
+      "kind": "trail",
+      "x": -72,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2571,
+      "kind": "trail",
+      "x": -72,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2572,
+      "kind": "trail",
+      "x": -72,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2573,
+      "kind": "trail",
+      "x": -72,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2574,
+      "kind": "trail",
+      "x": -70,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2575,
+      "kind": "trail",
+      "x": -70,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2576,
+      "kind": "trail",
+      "x": -70,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2577,
+      "kind": "trail",
+      "x": -70,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2578,
+      "kind": "trail",
+      "x": -68,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2579,
+      "kind": "trail",
+      "x": -68,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2580,
+      "kind": "trail",
+      "x": -68,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2581,
+      "kind": "trail",
+      "x": -68,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2582,
+      "kind": "trail",
+      "x": -66,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2583,
+      "kind": "trail",
+      "x": -66,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2584,
+      "kind": "trail",
+      "x": -66,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2585,
+      "kind": "trail",
+      "x": -66,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2586,
+      "kind": "trail",
+      "x": -64,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2587,
+      "kind": "trail",
+      "x": -64,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2588,
+      "kind": "trail",
+      "x": -64,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2589,
+      "kind": "trail",
+      "x": -64,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2590,
+      "kind": "trail",
+      "x": -62,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2591,
+      "kind": "trail",
+      "x": -62,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2592,
+      "kind": "trail",
+      "x": -62,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2593,
+      "kind": "trail",
+      "x": -62,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2594,
+      "kind": "trail",
+      "x": -78,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2595,
+      "kind": "trail",
+      "x": -78,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2596,
+      "kind": "trail",
+      "x": -78,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2597,
+      "kind": "trail",
+      "x": -78,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2598,
+      "kind": "trail",
+      "x": -76,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2599,
+      "kind": "trail",
+      "x": -76,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2600,
+      "kind": "trail",
+      "x": -76,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2601,
+      "kind": "trail",
+      "x": -76,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2602,
+      "kind": "trail",
+      "x": -74,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2603,
+      "kind": "trail",
+      "x": -74,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2604,
+      "kind": "trail",
+      "x": -74,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2605,
+      "kind": "trail",
+      "x": -74,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2606,
+      "kind": "trail",
+      "x": -72,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2607,
+      "kind": "trail",
+      "x": -72,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2608,
+      "kind": "trail",
+      "x": -72,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2609,
+      "kind": "trail",
+      "x": -72,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2610,
+      "kind": "trail",
+      "x": -70,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2611,
+      "kind": "trail",
+      "x": -70,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2612,
+      "kind": "trail",
+      "x": -70,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2613,
+      "kind": "trail",
+      "x": -70,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2614,
+      "kind": "trail",
+      "x": -68,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2615,
+      "kind": "trail",
+      "x": -68,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2616,
+      "kind": "trail",
+      "x": -68,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2617,
+      "kind": "trail",
+      "x": -68,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2618,
+      "kind": "trail",
+      "x": -66,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2619,
+      "kind": "trail",
+      "x": -66,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2620,
+      "kind": "trail",
+      "x": -66,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2621,
+      "kind": "trail",
+      "x": -66,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2622,
+      "kind": "trail",
+      "x": -64,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2623,
+      "kind": "trail",
+      "x": -64,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2624,
+      "kind": "trail",
+      "x": -64,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2625,
+      "kind": "trail",
+      "x": -64,
+      "z": -102,
+      "duration": null
+    },
+    {
+      "id": 2626,
+      "kind": "trail",
+      "x": -62,
+      "z": -104,
+      "duration": null
+    },
+    {
+      "id": 2627,
+      "kind": "trail",
+      "x": -62,
+      "z": -106,
+      "duration": null
+    },
+    {
+      "id": 2628,
+      "kind": "trail",
+      "x": -62,
+      "z": -108,
+      "duration": null
+    },
+    {
+      "id": 2629,
+      "kind": "trail",
+      "x": -62,
+      "z": -102,
+      "duration": null
+    }
+  ],
+  "messages": [
+    641,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "dom": [
+    {
+      "text": "Ⅱ WORLD PAUSEDClick to resume",
+      "aria": null,
+      "title": "",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "buildings B",
+      "title": "buildings",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "spells 1–3",
+      "title": "spells",
+      "disabled": false,
+      "pressed": "true"
+    },
+    {
+      "text": "",
+      "aria": "followers ",
+      "title": "followers",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Planet overview",
+      "title": "Planet overview · Enter",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "Select and focus shaman",
+      "title": "Shaman · H",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "?",
+      "aria": "Menu",
+      "title": "Help and game menu",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "Focus Matak tribe",
+      "title": "Matak: 23 followers",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "Select follower",
+      "title": "Select follower · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "Select brave",
+      "title": "Braves · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Select warrior",
+      "title": "Warriors · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Select firewarrior",
+      "title": "Firewarriors · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Select preacher",
+      "title": "Preachers · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Select spy",
+      "title": "Spies · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Blast, 4 shots",
+      "title": "Blast · Right-click to pause or resume charging",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Undiscovered spell",
+      "title": "Undiscovered spell",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Undiscovered spell",
+      "title": "Undiscovered spell",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Armageddon, 0 shots",
+      "title": "Armageddon · Right-click to pause or resume charging",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Bloodlust, 0 shots",
+      "title": "Bloodlust · Right-click to pause or resume charging",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Teleport, 0 shots",
+      "title": "Teleport · Right-click to pause or resume charging",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "♫",
+      "aria": "Enable sound",
+      "title": "Enable sound",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "▷",
+      "aria": "Resume game",
+      "title": "Pause / resume · Space",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "☰",
+      "aria": "Game settings",
+      "title": "Game settings",
+      "disabled": false,
+      "pressed": null
+    }
+  ],
+  "body": "✧Guard Tower completed.\nⅡ WORLD PAUSED\nClick to resume\n?\n♫\n▷\n☰"
+}

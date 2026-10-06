@@ -1,0 +1,896 @@
+{
+  "at": "2026-10-06T02:56:24.162Z",
+  "level": 2,
+  "turn": 342,
+  "time": 28.5,
+  "speed": 1,
+  "paused": true,
+  "status": "playing",
+  "inputMask": 0,
+  "selected": [
+    54
+  ],
+  "mode": null,
+  "stats": {
+    "built": 0,
+    "cast": 0,
+    "bridges": 0,
+    "trained": 0,
+    "battlesWon": [
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "shots": {
+    "blast": 4,
+    "convertWild": 0,
+    "hypnotise": 0,
+    "ghostArmy": 0,
+    "bridge": 0,
+    "lightning": 0,
+    "flatten": 0,
+    "erosion": 0,
+    "swamp": 0,
+    "firestorm": 0,
+    "earthquake": 0,
+    "angel": 0,
+    "volcano": 0,
+    "tornado": 0,
+    "shield": 0,
+    "invisibility": 0,
+    "armageddon": 0,
+    "bloodlust": 0,
+    "teleport": 0,
+    "swarm": 0
+  },
+  "mana": 0,
+  "message": "Worshipping Land raising stone head. One follower is enough.",
+  "unlockedCamp": true,
+  "camera": {
+    "point": {
+      "x": -69.17578125,
+      "z": -105.50390625
+    },
+    "bearing": 4.733864711415088,
+    "overview": null
+  },
+  "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+  "units": [
+    {
+      "id": 4,
+      "team": "green",
+      "kind": "brave",
+      "x": 85.0078125,
+      "z": 100.5078125,
+      "hp": 50,
+      "inside": 2,
+      "work": 2,
+      "target": null,
+      "point": {
+        "x": 1234.5,
+        "y": 527
+      }
+    },
+    {
+      "id": 5,
+      "team": "green",
+      "kind": "brave",
+      "x": 91,
+      "z": 101,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 1248.125,
+        "y": 504.06249999999994
+      }
+    },
+    {
+      "id": 6,
+      "team": "green",
+      "kind": "warrior",
+      "x": 53.47265625,
+      "z": 113.2734375,
+      "hp": 90,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 7,
+      "team": "green",
+      "kind": "warrior",
+      "x": 53.47265625,
+      "z": 112.7265625,
+      "hp": 90,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 8,
+      "team": "green",
+      "kind": "brave",
+      "x": 85.01171875,
+      "z": 100.5,
+      "hp": 50,
+      "inside": 2,
+      "work": 2,
+      "target": null,
+      "point": {
+        "x": 1234.5625,
+        "y": 526.875
+      }
+    },
+    {
+      "id": 9,
+      "team": "green",
+      "kind": "brave",
+      "x": 67,
+      "z": 93,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 1246.5625,
+        "y": 609.3125
+      }
+    },
+    {
+      "id": 10,
+      "team": "green",
+      "kind": "brave",
+      "x": 41,
+      "z": 119,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 11,
+      "team": "green",
+      "kind": "brave",
+      "x": 44.75,
+      "z": 115,
+      "hp": 50,
+      "inside": null,
+      "work": 1023,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 12,
+      "team": "green",
+      "kind": "brave",
+      "x": 44.6953125,
+      "z": 114.88671875,
+      "hp": 50,
+      "inside": null,
+      "work": 1023,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 13,
+      "team": "green",
+      "kind": "warrior",
+      "x": 103.03515625,
+      "z": 117.01171875,
+      "hp": 90,
+      "inside": 71,
+      "work": 71,
+      "target": null,
+      "point": {
+        "x": 1130.9375,
+        "y": 429.8125
+      }
+    },
+    {
+      "id": 14,
+      "team": "green",
+      "kind": "warrior",
+      "x": 53,
+      "z": 112.609375,
+      "hp": 90,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    },
+    {
+      "id": 15,
+      "team": "green",
+      "kind": "brave",
+      "x": 76.98828125,
+      "z": 113.0078125,
+      "hp": 50,
+      "inside": 3,
+      "work": 3,
+      "target": null,
+      "point": {
+        "x": 1110.1875,
+        "y": 514.375
+      }
+    },
+    {
+      "id": 16,
+      "team": "green",
+      "kind": "brave",
+      "x": 76.57421875,
+      "z": 113.015625,
+      "hp": 50,
+      "inside": 3,
+      "work": 3,
+      "target": null,
+      "point": {
+        "x": 1109.375,
+        "y": 515.75
+      }
+    },
+    {
+      "id": 17,
+      "team": "green",
+      "kind": "brave",
+      "x": 69,
+      "z": 109,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 1126.875,
+        "y": 550.3125
+      }
+    },
+    {
+      "id": 18,
+      "team": "green",
+      "kind": "brave",
+      "x": 76.765625,
+      "z": 113.01953125,
+      "hp": 50,
+      "inside": 3,
+      "work": 3,
+      "target": null,
+      "point": {
+        "x": 1109.625,
+        "y": 515.0625
+      }
+    },
+    {
+      "id": 19,
+      "team": "green",
+      "kind": "warrior",
+      "x": 103.328125,
+      "z": 117.02734375,
+      "hp": 90,
+      "inside": 71,
+      "work": 71,
+      "target": null,
+      "point": {
+        "x": 1131.5,
+        "y": 428.9375
+      }
+    },
+    {
+      "id": 20,
+      "team": "green",
+      "kind": "shaman",
+      "x": 91,
+      "z": 119,
+      "hp": 100,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 1086.4375,
+        "y": 448.375
+      }
+    },
+    {
+      "id": 21,
+      "team": "green",
+      "kind": "warrior",
+      "x": 117,
+      "z": 123,
+      "hp": 90,
+      "inside": 22,
+      "work": 22,
+      "target": null,
+      "point": {
+        "x": 1104.9375,
+        "y": 367.375
+      }
+    },
+    {
+      "id": 54,
+      "team": "blue",
+      "kind": "shaman",
+      "x": -113,
+      "z": 114.75,
+      "hp": 100,
+      "inside": null,
+      "work": 55,
+      "target": null,
+      "point": {
+        "x": 1301.125,
+        "y": 363.5
+      }
+    },
+    {
+      "id": 278,
+      "team": "blue",
+      "kind": "brave",
+      "x": -107,
+      "z": -99,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 711.125,
+        "y": 293.6875
+      }
+    },
+    {
+      "id": 319,
+      "team": "blue",
+      "kind": "brave",
+      "x": -109,
+      "z": -99,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 712.9375,
+        "y": 294.5
+      }
+    },
+    {
+      "id": 281,
+      "team": "blue",
+      "kind": "brave",
+      "x": -109,
+      "z": -101,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 742.0625,
+        "y": 293.125
+      }
+    },
+    {
+      "id": 284,
+      "team": "blue",
+      "kind": "brave",
+      "x": -109,
+      "z": -103,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 771.125,
+        "y": 292.0625
+      }
+    },
+    {
+      "id": 170,
+      "team": "blue",
+      "kind": "brave",
+      "x": -107,
+      "z": -103,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 770.6875,
+        "y": 291
+      }
+    },
+    {
+      "id": 173,
+      "team": "blue",
+      "kind": "brave",
+      "x": -105,
+      "z": -103,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 770.25,
+        "y": 290.4375
+      }
+    },
+    {
+      "id": 176,
+      "team": "blue",
+      "kind": "brave",
+      "x": -105,
+      "z": -101,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 739.875,
+        "y": 291.5625
+      }
+    },
+    {
+      "id": 275,
+      "team": "blue",
+      "kind": "brave",
+      "x": -105,
+      "z": -99,
+      "hp": 50,
+      "inside": null,
+      "work": null,
+      "target": null,
+      "point": {
+        "x": 709.4375,
+        "y": 293.1875
+      }
+    },
+    {
+      "id": 1207,
+      "team": "green",
+      "kind": "brave",
+      "x": 103.046875,
+      "z": 117.015625,
+      "hp": 50,
+      "inside": 71,
+      "work": 71,
+      "target": null,
+      "point": {
+        "x": 1130.875,
+        "y": 429.6875
+      }
+    },
+    {
+      "id": 1245,
+      "team": "green",
+      "kind": "brave",
+      "x": 76.6171875,
+      "z": 113.00390625,
+      "hp": 50,
+      "inside": 3,
+      "work": 3,
+      "target": null,
+      "point": {
+        "x": 1109.5,
+        "y": 515.625
+      }
+    },
+    {
+      "id": 1247,
+      "team": "blue",
+      "kind": "brave",
+      "x": -101.73046875,
+      "z": -114.78125,
+      "hp": 50,
+      "inside": 72,
+      "work": 72,
+      "target": null,
+      "point": {
+        "x": 954.3125,
+        "y": 304.125
+      }
+    },
+    {
+      "id": 1249,
+      "team": "green",
+      "kind": "brave",
+      "x": 84.97265625,
+      "z": 100.5078125,
+      "hp": 50,
+      "inside": 2,
+      "work": 2,
+      "target": null,
+      "point": {
+        "x": 1234.3125,
+        "y": 527
+      }
+    }
+  ],
+  "buildings": [
+    {
+      "id": 1,
+      "team": "green",
+      "kind": "camp",
+      "x": 68.921875,
+      "z": 100.703125,
+      "hp": 260,
+      "progress": 1,
+      "logs": 8,
+      "point": {
+        "x": 1191.6875,
+        "y": 574.8125
+      }
+    },
+    {
+      "id": 2,
+      "team": "green",
+      "kind": "hut",
+      "x": 82.8828125,
+      "z": 100.921875,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "point": {
+        "x": 1225,
+        "y": 531.5625
+      }
+    },
+    {
+      "id": 3,
+      "team": "green",
+      "kind": "hut",
+      "x": 76.8828125,
+      "z": 112.9296875,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "point": {
+        "x": 1110.625,
+        "y": 515
+      }
+    },
+    {
+      "id": 22,
+      "team": "green",
+      "kind": "tower",
+      "x": 117.16796875,
+      "z": 123.02734375,
+      "hp": 260,
+      "progress": 1,
+      "logs": 5,
+      "point": {
+        "x": 1105.0625,
+        "y": 366.9375
+      }
+    },
+    {
+      "id": 71,
+      "team": "green",
+      "kind": "hut",
+      "x": 103.1171875,
+      "z": 117.0703125,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "point": {
+        "x": 1130.625,
+        "y": 429.3125
+      }
+    },
+    {
+      "id": 72,
+      "team": "blue",
+      "kind": "hut",
+      "x": -101.078125,
+      "z": -112.9375,
+      "hp": 170,
+      "progress": 1,
+      "logs": 3,
+      "point": {
+        "x": 926.5,
+        "y": 302.3125
+      }
+    },
+    {
+      "id": 1023,
+      "team": "green",
+      "kind": "tower",
+      "x": 44.83203125,
+      "z": 114.97265625,
+      "hp": 260,
+      "progress": 0.4,
+      "logs": 2,
+      "point": {
+        "x": -9100,
+        "y": 7191
+      }
+    }
+  ],
+  "shrines": [
+    {
+      "id": 23,
+      "kind": "vault",
+      "x": 89,
+      "z": 111,
+      "required": 1,
+      "work": 0,
+      "target": 32,
+      "progress": 0,
+      "uses": 0,
+      "remaining": 1,
+      "followers": 0,
+      "active": true,
+      "point": {
+        "x": 1153.375,
+        "y": 479.3125
+      }
+    },
+    {
+      "id": 55,
+      "kind": "bridgeEffect",
+      "x": -113,
+      "z": 113,
+      "required": 1,
+      "work": 4,
+      "target": 45,
+      "progress": 0.08888888888888889,
+      "uses": 0,
+      "remaining": 1,
+      "followers": 1,
+      "active": true,
+      "point": {
+        "x": 1325,
+        "y": 370.875
+      }
+    },
+    {
+      "id": 56,
+      "kind": "tornado",
+      "x": -59,
+      "z": -105,
+      "required": 2,
+      "work": 0,
+      "target": 82,
+      "progress": 0,
+      "uses": 0,
+      "remaining": 3,
+      "followers": 0,
+      "active": true,
+      "point": {
+        "x": 810.75,
+        "y": 532.375
+      }
+    }
+  ],
+  "effects": [],
+  "messages": [
+    641,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null,
+    null
+  ],
+  "dom": [
+    {
+      "text": "",
+      "aria": "Toggle worshipper 1; Shift selects the group",
+      "title": "Click to select; Shift-click for all worshippers; right-click to focus",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "×",
+      "aria": "Dismiss campaign message",
+      "title": "",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "Ⅱ WORLD PAUSEDClick to resume",
+      "aria": null,
+      "title": "",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "buildings B",
+      "title": "buildings",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "spells 1–3",
+      "title": "spells",
+      "disabled": false,
+      "pressed": "true"
+    },
+    {
+      "text": "",
+      "aria": "followers ",
+      "title": "followers",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Planet overview",
+      "title": "Planet overview · Enter",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "Select and focus shaman",
+      "title": "Shaman · H",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "?",
+      "aria": "Menu",
+      "title": "Help and game menu",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "Focus Matak tribe",
+      "title": "Matak: 21 followers",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "Select follower",
+      "title": "Select follower · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "",
+      "aria": "Select brave",
+      "title": "Braves · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Select warrior",
+      "title": "Warriors · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Select firewarrior",
+      "title": "Firewarriors · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Select preacher",
+      "title": "Preachers · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Select spy",
+      "title": "Spies · Shift: all · Ctrl: five · Right-click: focus next",
+      "disabled": true,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Blast, 4 shots",
+      "title": "Blast · Right-click to pause or resume charging",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Undiscovered spell",
+      "title": "Undiscovered spell",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Undiscovered spell",
+      "title": "Undiscovered spell",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Armageddon, 0 shots",
+      "title": "Armageddon · Right-click to pause or resume charging",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Bloodlust, 0 shots",
+      "title": "Bloodlust · Right-click to pause or resume charging",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "",
+      "aria": "Teleport, 0 shots",
+      "title": "Teleport · Right-click to pause or resume charging",
+      "disabled": false,
+      "pressed": "false"
+    },
+    {
+      "text": "♫",
+      "aria": "Enable sound",
+      "title": "Enable sound",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "▷",
+      "aria": "Resume game",
+      "title": "Pause / resume · Space",
+      "disabled": false,
+      "pressed": null
+    },
+    {
+      "text": "☰",
+      "aria": "Game settings",
+      "title": "Game settings",
+      "disabled": false,
+      "pressed": null
+    }
+  ],
+  "body": "Now we must face the Matak Tribe. I sense many Warriors ready to stand against us. In my vision we are aided by magic from a Stone Head. There must be a way to reach it...\n\n×\nⅡ WORLD PAUSED\nClick to resume\n?\n♫\n▷\n☰"
+}
