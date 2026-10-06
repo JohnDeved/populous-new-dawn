@@ -1,10 +1,10 @@
 {
   "status": "source-and-host-frozen-attempt05-pending-one-review",
-  "sourceAnchor": "43a40353cd8db17871ebf0b5c57b408977c11aef",
+  "sourceAnchor": "906702c0ad791000ab541e9142ad987e06862e53",
   "applicationCommit": "b26f66b24da4fe133441e83c5377467a5066ef64",
   "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/hut-smoke-ordinary-checker-20261006",
   "sources": {
-    "scripts/local-render/hut-smoke-ignition.mjs": "c566e84d110cb6c3e42af2beff8018bb23151aaf2fb73179321da0d0cf8b4282",
+    "scripts/local-render/hut-smoke-ignition.mjs": "62d9a05b19e980b0e0f5b3c2eb80adfdc53486b0da5a02b5736a89c1b5a91a2a",
     "scripts/local-render/hut-smoke-ignition-observer.mjs": "8a50fa4bb93b6bb0fb9b927056dacb085049cb2125ebd6bb4db2579ea6f8b735",
     "scripts/local-render/harness.mjs": "fb07de9e278f26b2b32324defeb6164832472a58d422aead1032b7db7ee85fcf",
     "scripts/local-render/owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
@@ -37,8 +37,8 @@
     "decomp/research/hut-smoke-state-exit/ordinary-target-correction-review.json": "85f99abb0dc641b0df4bf1e9bf502eedd7e9b0eac45e2fa022ba091067e8b387",
     "decomp/research/hut-smoke-state-exit/ordinary-bridge-prerequisite-review.json": "06505ea0eaf7b4d7dc4d5594bc16d52b797fe74c24c01d4e1ab558c804518533",
     "decomp/research/hut-smoke-state-exit/ordinary-selection-correction-review.json": "bdbd8ab045e6993236f3540fb39d1ec871b1a01044b37aa534a5f5bedceb3d2a",
-    "decomp/research/hut-smoke-state-exit/ordinary-range-stock-correction.md": "4601f331a4ac2f28e2fd8b2ac51d52a1326133ff1dba0c0359c79ff7ac818cd8",
-    "decomp/research/hut-smoke-state-exit/ordinary-checker-manifest.json": "b298c355c8c9f47542ab6741c329ef6fb52511476ab59f38c1e233b6c3a3820d"
+    "decomp/research/hut-smoke-state-exit/ordinary-range-stock-correction.md": "2f1e768ca7629177a71e119d9957986cbbb5449db23a7469ea12b9527ce4dc28",
+    "decomp/research/hut-smoke-state-exit/ordinary-checker-manifest.json": "25020bd9a4254e86e76be73e5f65563545e40b45add40123ef1dfd2ab65221ef"
   },
   "tools": {
     "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12",
