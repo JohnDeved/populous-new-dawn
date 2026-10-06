@@ -34,6 +34,7 @@ ENTITIES, STACK, STOP = MEM + 0xC000, MEM + 0x3D000, MEM + 0x3E000
 TRIBES, AI, ATTRS = 0x89D1C8, 0x89D1C8 + 2 * 0xC65, 0x9607EA + 2 * 48
 TASK_BASE, STRIDE = AI + 0x36, 0x52
 RNG = 0x89D178
+TCG_BUFFER_SIZE = 16 * 1024 * 1024
 OBSERVE = {
     0x461D70: 1, 0x4F52C0: 1, 0x4D1420: 1,
     0x48C6B0: 2, 0x48FC50: 2, 0x4E5FD0: 14,
@@ -49,7 +50,12 @@ def sha(path):
 class Probe:
     def __init__(self, executable, fixture, case, program):
         self.fixture, self.case = fixture, case
-        self.cpu, self.identity = native_cpu(executable)
+        self.cpu, self.identity = native_cpu(executable, tcg_buffer_size=TCG_BUFFER_SIZE)
+        self.tcg_buffer_size = self.cpu.ctl_get_tcg_buffer_size()
+        assert 0 < self.tcg_buffer_size <= TCG_BUFFER_SIZE
+        self.setup_memory = {line.split(':', 1)[0]: line.split(':', 1)[1].strip()
+                             for line in Path('/proc/self/status').read_text().splitlines()
+                             if line.startswith(('VmSize:', 'VmRSS:'))}
         self.cpu.mem_map(MEM, SIZE)
         self.events, self.reads, self.rng_writes = [], [], []
         self.stage = 'initializer'
@@ -164,6 +170,8 @@ class Probe:
                   'attributes': list(self.cpu.mem_read(ATTRS, 48))}
         assert bool(allocated) == self.case['nativeAllocation'], result
         return result, {'events': self.events, 'rngWrites': self.rng_writes,
+                        'tcgBufferBytes': self.tcg_buffer_size, 'setupMemory': self.setup_memory,
+                        'peakRssKiB': resource.getrusage(resource.RUSAGE_SELF).ru_maxrss,
                         'attributesBefore': self.attributes_before,
                         'taskBytesBefore': self.before.hex(), 'taskBytesAfter': after.hex()}
 

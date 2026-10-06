@@ -1,6 +1,7 @@
 # Mission3 raid allocation: PhaseA source preflight
 
-Status: recovered source preparation, **not executed**. Runtime base is
+Status: attempt1 setup failed; bounded translator-buffer correction prepared.
+Runtime base is
 `89e68606a406f93715b930550317519818ddc081`. Only the two evidence programs,
 controlled fixture, and this note are added. Recruitment PhaseB, gameplay repair,
 ordinary campaign observation and rendering are deferred.
@@ -79,7 +80,12 @@ and20seconds subprocess timeout. A static import walk finds217 repository
 modules/data files and no external npm package dependency. Its entire source is
 bound by the evidence commit and clean tracked diff.
 
-The native phase then uses a1GiB process address-space limit,30seconds CPU limit,
+The native phase requests a16MiB TCG translation buffer before the first memory map,
+then reads back and asserts a positive actual size no greater than16MiB before any
+original instructions run. This optional keyword-only loader argument leaves every
+existing caller's default behavior unchanged. The report retains actual buffer
+bytes, setup VmSize/VmRSS and peak RSS; these are resource observations, not a
+performance benchmark. The phase uses a1GiB process address-space limit,30seconds CPU limit,
 and60seconds alarm. An outer timeout65seconds, TERM then KILL after5seconds,
 owns any stuck child. PE map is0x94c000bytes; scratch is0x40000bytes. Layout:
 object bank02000000(8532bytes), shapes02004000(4604), program02008000(12552),
@@ -97,7 +103,7 @@ An independent reviewer must inspect the witness before runtime implementation.
 
 ## Reproduction after preflight approval and lane grant
 
-Execution is also blocked until the coordinator restores and verifies prerequisites.
+The next execution requires the corrected source review and a new coordinator lane.
 From this isolated worktree, use the absolute Python/Node paths after that verified
 restoration. Recheck all original inputs and tool hashes; the fingerprints below
 describe the pre-reset readings, not proof that current tools were recovered.
@@ -123,7 +129,8 @@ Use a new attempt path if a later reviewed change authorizes another execution.
 
 SHA256:
 
-- Harness: `827512a1ffa133d5528ee39c89077fb3ec9327943bbc4b9bdb1f0b5a2648f614`
+- Corrected harness: `682244ce84837a737c49388d66f6ece96ea4ac8cd728ed11bba9555794f8a5dd`
+- Corrected shared loader: `0a4783a8ee924c52e1125a5df3e4e625b3ab00835e848a2013e444bcfd979c2e`
 - Pair adapter: `7bbe07e5dad4275cc33ba843b63d6089bd826aee1e173969c23265d15b4172af`
 - Fixture JSON: `da7c1916549335e2f731162b971533910e576f79736aee9850529e00a960c27a`
 - Supplied48attribute bytes: `c471187cb56bb6c813c4941ccd617c432e3b7634e96a26b35057371ba580bfc3`
@@ -141,3 +148,37 @@ SHA256:
 Before reset, prepared-source verification with Python AST parse without imports
 and Node `--check` passed. Tool version-only queries ran. Native/portable adapter execution,
 the five paired cases, natural simulation and browser checks are **not run**.
+
+## Attempt1 and the bounded correction
+
+On source69c94543ecda1e53ce7ba5632888e7442347970b, attempt1 ran once on CPU4
+from03:42:31.749 to03:42:33.024 UTC. All original input and Python/Unicorn/Node
+hashes matched the pre-reset fingerprints, and the source-bound receipt's before/
+after identities matched. Exit1 was **setup failure**, not a gameplay mismatch:
+stderr was `Could not allocate dynamic translator buffer`; stdout was empty.
+The portable subprocess returned successfully before native setup, but its result
+was still in process memory and was not emitted, so no paired observation is claimed.
+No original instruction result was produced. The prior paragraph's not-run status
+describes source preparation before this attempt; natural/browser checks remain not run.
+
+Raw receipt and logs are retained under
+`references/verification/mission3-raid-allocation-2026-10-06/attempt1/`.
+Receipt SHA256 is`c7c0e521aa40b62bad8423c57282f08c4678bc333041ebf308db70cc27467b63`.
+
+Read-only inspection of the pinned installed library explains the failure:
+`tcg_exec_init_x86_64` at library address0042f960 defaults to0x40000000bytes,
+then mmap at0042fa2a reserves that whole1GiB. Python plus the PE cannot fit beside
+it under a total1GiB virtual-address limit. This is a virtual reservation, not a
+claim that1GiB of resident RAM was used. The same library's control13 writer at
+003c68c0 stores the requested size before initialization. The shipped header
+documents `UC_CTL_TCG_BUFFER_SIZE`; the Python wrapper supplies
+`ctl_set_tcg_buffer_size` and its readback. The correction requests16MiB before
+the first `mem_map` without changing fixture values, original instructions,
+interceptions, task/target comparison, or CPU/time/address-space bounds.
+
+Pinned control-source hashes:
+- Python wrapper: `62ffe84341f4288e309040e06555b81798031817d32fd19a945e250813f872f0`
+- C header: `66fdf8f39df34e507a163eb550549669cec3399c2103b8dc84bc4131f600e55a`
+
+Corrected source AST parsing passed without imports or original execution. Retry
+is not yet run. Use a fresh `attempt2.json` receipt if independently approved.
