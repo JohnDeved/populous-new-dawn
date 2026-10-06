@@ -80,11 +80,17 @@ if resting_only:
                         cases.append(dict(source=source,owner=owner,direction=direction,step=step,
                                           frame=frame,options=options,view=views[0],
                                           draws=native(frame,options,views[0])))
+                        if direction in (2,6) and step in (0,13):
+                            scaled = dict(options, bucket=2000, scale=True, levelFlags=0x100)
+                            cases.append(dict(source=source,owner=owner,direction=direction,step=step,
+                                              frame=frame,options=scaled,view=views[0],
+                                              draws=native(frame,scaled,views[0])))
     js = """import {spriteLayers} from './app/sprite-layers.ts';import u from './app/original-units.json' with {type:'json'};let s='';for await(const c of process.stdin)s+=c;console.log(JSON.stringify(JSON.parse(s).map(c=>spriteLayers(u.frames[c.frame].layers,u.pieces,c.options,c.view))));"""
     compared = subprocess.run(['node','--input-type=module','-e',js],input=json.dumps(cases),text=True,capture_output=True,cwd=ROOT)
     assert compared.returncode == 0, compared.stderr
     actual = json.loads(compared.stdout)
-    assert len(actual) == len(cases) == 896
+    assert len(actual) == len(cases) == 928
+    assert sum(case['options']['scale'] for case in cases) == 32
     differences = []
     for index, (case, port) in enumerate(zip(cases, actual)):
         assert len(case['draws']) == len(port), ('layer count', index)
@@ -98,14 +104,14 @@ if resting_only:
                 differences.append(dict(case=index,source=case['source'],owner=case['owner'],
                                         direction=case['direction'],step=case['step'],layer=layer,
                                         pieceSource=22,portFlags=got['flags'],nativeFlags=expected['flags']))
-    assert len(differences) == 448
+    assert len(differences) == 464
     report = dict(status='PASS_NATIVE_LAYER_GEOMETRY_WITH_RETAINED_SHADOW_FLAG_DIFFERENCE',
                   cases=cases,shadowFlagDifferences=differences,atlasPieceCount=len(hashes),
                   atlasSha256=hashlib.sha256((ROOT/f"public/original/{units['atlas']}.png").read_bytes()).hexdigest(),
                   executableSha256=hashlib.sha256(exe.read_bytes()).hexdigest(),
                   scriptSha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
                   supplied='Loaded sprite tables, camera/scale inputs and terminal raster submissions; original0045f9d0 executes. No complete loader, GPU rasterization or person lifecycle.',
-                  limits='Unscaled geometry/layer selection and original atlas RGBA only. All448 flag differences are existing shadowpiece22; native raster flag/blending equivalence remains unclaimed.')
+                  limits='896 unscaled and32 representative scaled layer/geometry cases, plus original atlas RGBA. All464 flag differences are existing shadowpiece22; native raster flag/blending equivalence remains unclaimed.')
     print(json.dumps(report,indent=2))
     sys.exit(0)
 rng=random.Random(0x45f9d0);cases=[]
