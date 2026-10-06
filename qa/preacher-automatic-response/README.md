@@ -167,8 +167,8 @@ comparison. Every native ownership, health, queue and candidate predicate remain
 `retained-crossing02-precombat.json` keeps the exact earlier rows and failed handoff
 for regression, with source/run/raw-trace attribution. This is post-run source-bound
 analysis pending independent acceptance, not a replay or an observed scanner AL.
-No new browser run is authorized by this correction; continuation pins still name
-the previous crossing01 edge and deliberately cannot launch against the latest run.
+Continuation pins name the actual latest crossing02 terminal receipt. A further
+browser run requires exact reviewed correspondence and a separate resource grant.
 
 ## Three separate claims
 
