@@ -1,0 +1,72 @@
+{
+  "classification": "independently accepted expected failure-first result, not a passing regression",
+  "executionHead": "0105ddd7bfd86c0c36071fd02cc985824a704ce3",
+  "applicationBase": "a00eadc811e227559f9a2713eedbee5cd08af1c1",
+  "rawManifestSha256": "cf975f5abb2d990bb207ac875169dbd41c20ba403ea040d975b54b0ab1ebed2e",
+  "resultReviewManifestSha256": "da15a39abdd56b62b896d0af6afd94eb6f016c8439428e97e1fa35fd0b9a04b5",
+  "resultReviewSha256": "860324abea47102b1084f096bef1f4cbfae99a62892b4ad097eba29a3483b0ee",
+  "files": {
+    "result-review/manifest.json": {
+      "sha256": "da15a39abdd56b62b896d0af6afd94eb6f016c8439428e97e1fa35fd0b9a04b5",
+      "bytes": 465
+    },
+    "result-review/review.md": {
+      "sha256": "860324abea47102b1084f096bef1f4cbfae99a62892b4ad097eba29a3483b0ee",
+      "bytes": 2941
+    },
+    "result-review/verification.json": {
+      "sha256": "40ef141b305230d7d28bfbaa308262f9e4dcc4e63560c0482180edd0b6daf4e2",
+      "bytes": 4205
+    },
+    "run-01/manifest.json": {
+      "sha256": "cf975f5abb2d990bb207ac875169dbd41c20ba403ea040d975b54b0ab1ebed2e",
+      "bytes": 2769
+    },
+    "run-01/native-row-comparison.json": {
+      "sha256": "ee5f0bab8f32f73821b479add555e854eed26ef9ccf0a32ff74320aeef617828",
+      "bytes": 3418
+    },
+    "run-01/postflight.json": {
+      "sha256": "736eabb0a2aa4cfc21b30a91c5b6dbc508a9eeb92c93c5cd835e3ea697e18ed4",
+      "bytes": 36010
+    },
+    "run-01/preflight.json": {
+      "sha256": "736eabb0a2aa4cfc21b30a91c5b6dbc508a9eeb92c93c5cd835e3ea697e18ed4",
+      "bytes": 36010
+    },
+    "run-01/receipt.json": {
+      "sha256": "0eafebdc98dccdb9faed4dd1067192ef00c8318ed599aa6ba777a238fcc831fd",
+      "bytes": 1500
+    },
+    "run-01/rows.json": {
+      "sha256": "053d838488aa4fbf182499ec0beb47831fb02f6ed77eebb75e5f2ef458251643",
+      "bytes": 278476
+    },
+    "run-01/stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "run-01/stdout.txt": {
+      "sha256": "cae1b95b58a058b965f22f345bd6cdad45e0567ab86b64359d912ddbfca7e136",
+      "bytes": 1263
+    },
+    "run-01/summary.json": {
+      "sha256": "289679494a63342e529f4d4782e5611c1d0940b0c48d03c2d47bc4dfed328960",
+      "bytes": 2191
+    },
+    "run-01/tool-session.json": {
+      "sha256": "e0af7e788c70094d38573d100290335630cee04b7335073d114172f953933bbf",
+      "bytes": 295
+    },
+    "source-review/manifest.json": {
+      "sha256": "eaa14dff0b2f151b59bf4be3f6564ce3091e6d630622489946296c3e695395b3",
+      "bytes": 842
+    },
+    "source-review/review.md": {
+      "sha256": "a2cce20aa1a4f262df6a6d49cae4537d3eebe73451a8feddbb1ec3a1235ea08b",
+      "bytes": 5448
+    }
+  },
+  "preservation": "Raw files and both reviews are copied byte-for-byte. Original result manifest pending-review text is retained; later acceptance is separately bound. Test/fixture/application bytes are unchanged.",
+  "scope": "One supplied six-person case through actual stepLivePreaching/private acquisition, real physics counter and Preacher-only updater; no ordinary acquisition history or whole-native-world/render claim."
+}

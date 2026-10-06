@@ -1,0 +1,153 @@
+{
+  "verdict": "ACCEPT expected failure-first proof",
+  "head": "0105ddd7bfd86c0c36071fd02cc985824a704ce3",
+  "manifestSha256": "cf975f5abb2d990bb207ac875169dbd41c20ba403ea040d975b54b0ab1ebed2e",
+  "nativeSha256": "bca1801056967b4d73e704e446c2252cc6b5da30244a5aa46a06a80eada8c8b5",
+  "memberHashesVerified": 9,
+  "sourceAndNodeHashesPerPrePost": [
+    219,
+    219
+  ],
+  "completeFourPhaseRows": 3,
+  "snapshotsIncludingInitial": 13,
+  "listenerRowsVerified": 65,
+  "mappedPhaseComparisons": [
+    {
+      "visit": 1,
+      "phase": "afterWrapper",
+      "fieldDifferences": {},
+      "rngDifferences": {}
+    },
+    {
+      "visit": 1,
+      "phase": "beforeUpdater",
+      "fieldDifferences": {},
+      "rngDifferences": {}
+    },
+    {
+      "visit": 1,
+      "phase": "afterUpdater",
+      "fieldDifferences": {},
+      "rngDifferences": {}
+    },
+    {
+      "visit": 2,
+      "phase": "afterWrapper",
+      "fieldDifferences": {},
+      "rngDifferences": {}
+    },
+    {
+      "visit": 2,
+      "phase": "beforeUpdater",
+      "fieldDifferences": {},
+      "rngDifferences": {}
+    },
+    {
+      "visit": 2,
+      "phase": "afterUpdater",
+      "fieldDifferences": {},
+      "rngDifferences": {}
+    },
+    {
+      "visit": 3,
+      "phase": "afterWrapper",
+      "fieldDifferences": {
+        "animationMode": [
+          0,
+          2
+        ]
+      },
+      "rngDifferences": {
+        "simulationRandom": [
+          3603658299,
+          1607832750
+        ]
+      }
+    },
+    {
+      "visit": 3,
+      "phase": "beforeUpdater",
+      "fieldDifferences": {
+        "animationMode": [
+          0,
+          2
+        ]
+      },
+      "rngDifferences": {
+        "simulationRandom": [
+          3603658299,
+          1607832750
+        ]
+      }
+    },
+    {
+      "visit": 3,
+      "phase": "afterUpdater",
+      "fieldDifferences": {
+        "animationMode": [
+          0,
+          2
+        ]
+      },
+      "rngDifferences": {
+        "simulationRandom": [
+          3603658299,
+          1607832750
+        ]
+      }
+    }
+  ],
+  "fullPersonExtraFields": "unchanged in every retained phase",
+  "fullWorldGuard": "source-bound assertion line176 completed before final mode/RNG failure at177",
+  "receipt": {
+    "status": "exited",
+    "head": "0105ddd7bfd86c0c36071fd02cc985824a704ce3",
+    "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-turning-live-20261006",
+    "command": [
+      "timeout",
+      "--signal=TERM",
+      "--kill-after=3s",
+      "15s",
+      "taskset",
+      "--cpu-list",
+      "4",
+      "env",
+      "NODE_OPTIONS=",
+      "NODE_PATH=",
+      "PND_PREACHER_TERMINAL_OUTPUT=work/orchestration/preacher-terminal-turning-live/run-01/rows.json",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "--max-old-space-size=512",
+      "tests/preacher-terminal-turning-live.test.mjs"
+    ],
+    "startedAt": "2026-10-06T19:07:53.984752+00:00",
+    "termDeadline": "2026-10-06T19:08:08.984752+00:00",
+    "killDeadline": "2026-10-06T19:08:11.984752+00:00",
+    "cpu": 4,
+    "heapMegabytes": 512,
+    "attempt": 1,
+    "retryAuthorized": false,
+    "stdout": "stdout.txt",
+    "stderr": "stderr.txt",
+    "rows": "rows.json",
+    "codeReviewSha256": "a2cce20aa1a4f262df6a6d49cae4537d3eebe73451a8feddbb1ec3a1235ea08b",
+    "pid": 15,
+    "processGroup": 15,
+    "sessionId": 15,
+    "endedAt": "2026-10-06T19:07:56.012223+00:00",
+    "elapsedSeconds": 2.0274890899963793,
+    "exitCode": 1,
+    "signal": null,
+    "membersBeforeCleanup": [],
+    "membersAfterCleanup": [],
+    "cleanupStatus": "empty",
+    "stdoutSha256": "cae1b95b58a058b965f22f345bd6cdad45e0567ab86b64359d912ddbfca7e136",
+    "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "postflightStatus": "passed"
+  },
+  "limits": [
+    "Supplied six-person fixture through actual production caller; no ordinary five-listener history claim",
+    "One original native component remains separate from full native physics/world equivalence",
+    "No rendering or visible-impact evidence; mode1/2 remain source-backed obligations",
+    "No rerun or application execution performed by independent reviewer"
+  ]
+}

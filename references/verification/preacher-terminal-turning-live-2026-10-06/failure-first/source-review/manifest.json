@@ -1,0 +1,15 @@
+{
+  "verdict": "ACCEPT exact caller source and oracle adoption",
+  "blockingFindings": [],
+  "head": "0105ddd7bfd86c0c36071fd02cc985824a704ce3",
+  "priorHead": "e49ceeabd61be0905844854d4311b678ff780af4",
+  "packetManifestSha256": "d6610af7f225cac632717130e7dc00bff28b763c3c56707810cbde3725693612",
+  "testSha256": "cd75bc393e11dca897749fae769381566d5fe8a1c7c03dc35eecbcc01b65ba29",
+  "fixtureSha256": "ad7a1eebfac70ece199d9e9690638ef3d2ac95dad4fb09ff80eeb0128d8b4a87",
+  "sourceBindingSha256": "6bdd1fb60be22c8632d014adc83596e0de3915e5c1568262699d57976b2ca934",
+  "sourceFilesChecked": 218,
+  "expectedRows": "unchanged and equal independently accepted native output",
+  "executionByReviewer": "none",
+  "executionGrant": "separate coordinator decision",
+  "reviewSha256": "a2cce20aa1a4f262df6a6d49cae4537d3eebe73451a8feddbb1ec3a1235ea08b"
+}

@@ -1,5 +1,10 @@
 # Production preaching caller: source implementation
 
+The [single executed failure-first result](failure-first/README.md) is now
+independently accepted. Source0105ddd7 reaches only the expected terminal mode/RNG
+failure; all producer and unrelated-world guards pass. Its raw receipt and test
+remain unchanged. The authoring record below describes the preceding source stage.
+
 This branch implements the independently accepted one-case plan on application
 base `a00eadc811e227559f9a2713eedbee5cd08af1c1`. It changes only the test, its
 supplied input and provenance. There are no application edits.

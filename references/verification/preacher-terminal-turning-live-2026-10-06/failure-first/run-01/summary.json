@@ -1,0 +1,35 @@
+{
+  "head": "0105ddd7bfd86c0c36071fd02cc985824a704ce3",
+  "exitCode": 1,
+  "elapsedSeconds": 2.0274890899963793,
+  "cleanupStatus": "empty",
+  "postflightStatus": "passed",
+  "reportStatus": "failed",
+  "rows": 3,
+  "rowPhases": [
+    [
+      "beforeWrapper",
+      "afterWrapper",
+      "beforeUpdater",
+      "afterUpdater"
+    ],
+    [
+      "beforeWrapper",
+      "afterWrapper",
+      "beforeUpdater",
+      "afterUpdater"
+    ],
+    [
+      "beforeWrapper",
+      "afterWrapper",
+      "beforeUpdater",
+      "afterUpdater"
+    ]
+  ],
+  "error": {
+    "name": "AssertionError",
+    "message": "Original cutoff must skip terminal turning and its simulation RNG draw\n+ actual - expected\n\n  {\n+   animationMode: 2,\n+   simulationRandom: 1607832750\n-   animationMode: 0,\n-   simulationRandom: 3603658299\n  }\n"
+  },
+  "stdout": "\u2716 real five-listener preaching caller preserves the original terminal turning cutoff (174.141951ms)\n\u2139 tests 1\n\u2139 suites 0\n\u2139 pass 0\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 241.75162\n\n\u2716 failing tests:\n\ntest at tests/preacher-terminal-turning-live.test.mjs:122:1\n\u2716 real five-listener preaching caller preserves the original terminal turning cutoff (174.141951ms)\n  AssertionError [ERR_ASSERTION]: Original cutoff must skip terminal turning and its simulation RNG draw\n  + actual - expected\n  \n    {\n  +   animationMode: 2,\n  +   simulationRandom: 1607832750\n  -   animationMode: 0,\n  -   simulationRandom: 3603658299\n    }\n  \n      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-turning-live-20261006/tests/preacher-terminal-turning-live.test.mjs:177:14)\n      at Test.runInAsyncScope (node:async_hooks:227:14)\n      at Test.run (node:internal/test_runner/test:1382:25)\n      at Test.start (node:internal/test_runner/test:1242:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: [Object],\n    expected: [Object],\n    operator: 'deepStrictEqual',\n    diff: 'simple'\n  }\n",
+  "stderr": ""
+}

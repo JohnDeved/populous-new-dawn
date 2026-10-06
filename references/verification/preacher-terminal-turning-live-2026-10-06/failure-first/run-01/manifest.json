@@ -1,0 +1,70 @@
+{
+  "classification": "expected-failure-first; regression is failed, not passed",
+  "head": "0105ddd7bfd86c0c36071fd02cc985824a704ce3",
+  "applicationBase": "a00eadc811e227559f9a2713eedbee5cd08af1c1",
+  "sourceFreezeManifestSha256": "d6610af7f225cac632717130e7dc00bff28b763c3c56707810cbde3725693612",
+  "sourceReviewSha256": "a2cce20aa1a4f262df6a6d49cae4537d3eebe73451a8feddbb1ec3a1235ea08b",
+  "nativeOracleSha256": "bca1801056967b4d73e704e446c2252cc6b5da30244a5aa46a06a80eada8c8b5",
+  "nativeReviewSha256": "d197450d2435afd93b0625fb43c55243a5aab545d6fd041c73dfb99e986623dc",
+  "files": {
+    "native-row-comparison.json": {
+      "sha256": "ee5f0bab8f32f73821b479add555e854eed26ef9ccf0a32ff74320aeef617828",
+      "bytes": 3418
+    },
+    "postflight.json": {
+      "sha256": "736eabb0a2aa4cfc21b30a91c5b6dbc508a9eeb92c93c5cd835e3ea697e18ed4",
+      "bytes": 36010
+    },
+    "preflight.json": {
+      "sha256": "736eabb0a2aa4cfc21b30a91c5b6dbc508a9eeb92c93c5cd835e3ea697e18ed4",
+      "bytes": 36010
+    },
+    "receipt.json": {
+      "sha256": "0eafebdc98dccdb9faed4dd1067192ef00c8318ed599aa6ba777a238fcc831fd",
+      "bytes": 1500
+    },
+    "rows.json": {
+      "sha256": "053d838488aa4fbf182499ec0beb47831fb02f6ed77eebb75e5f2ef458251643",
+      "bytes": 278476
+    },
+    "stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "stdout.txt": {
+      "sha256": "cae1b95b58a058b965f22f345bd6cdad45e0567ab86b64359d912ddbfca7e136",
+      "bytes": 1263
+    },
+    "summary.json": {
+      "sha256": "289679494a63342e529f4d4782e5611c1d0940b0c48d03c2d47bc4dfed328960",
+      "bytes": 2191
+    },
+    "tool-session.json": {
+      "sha256": "e0af7e788c70094d38573d100290335630cee04b7335073d114172f953933bbf",
+      "bytes": 295
+    }
+  },
+  "testOutcome": {
+    "exitCode": 1,
+    "actualMode": 2,
+    "expectedNativeMode": 0,
+    "actualSimulationRandom": 1607832750,
+    "expectedNativeSimulationRandom": 3603658299,
+    "wrapperCallsCompleted": 3,
+    "preacherUpdatersCompleted": 3,
+    "fourPhaseRows": 3,
+    "earlierVisitAndProducerGuards": "passed before final assertion",
+    "unrelatedWorldGuards": "passed before final assertion",
+    "testStatus": "failed at final native mode/RNG assertion",
+    "elapsedSeconds": 2.0274890899963793,
+    "processGroupCleanup": "empty",
+    "sourcePostflight": "passed"
+  },
+  "limits": [
+    "One supplied six-person production-caller fixture, not ordinary listener acquisition history",
+    "No application edits or native/browser execution in this run",
+    "Counter advanced only by actual live physics; updater explicitly Preacher-only",
+    "No repeat launch or widened case authorized"
+  ],
+  "review": "pending independent exact result review"
+}

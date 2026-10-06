@@ -1,0 +1,118 @@
+{
+  "method": "Host-only comparison of retained actual-caller rows against accepted raw native snapshots; no execution or callback interception. Native order snapshot includes id; live order stores it in the person queue. Compare native order.id against actual immediateCommand/current queue ID, then exact six-field payload.",
+  "nativeSha256": "bca1801056967b4d73e704e446c2252cc6b5da30244a5aa46a06a80eada8c8b5",
+  "comparisons": [
+    {
+      "visit": 1,
+      "portPhase": "afterWrapper",
+      "nativePhase": "afterController",
+      "mappedFieldDifferences": {},
+      "rngDifferences": {},
+      "listeners": "exact initial snapshot",
+      "queue": "exact native payload and owner26"
+    },
+    {
+      "visit": 1,
+      "portPhase": "beforeUpdater",
+      "nativePhase": "beforeUpdater",
+      "mappedFieldDifferences": {},
+      "rngDifferences": {},
+      "listeners": "exact initial snapshot",
+      "queue": "exact native payload and owner26"
+    },
+    {
+      "visit": 1,
+      "portPhase": "afterUpdater",
+      "nativePhase": "afterUpdater",
+      "mappedFieldDifferences": {},
+      "rngDifferences": {},
+      "listeners": "exact initial snapshot",
+      "queue": "exact native payload and owner26"
+    },
+    {
+      "visit": 2,
+      "portPhase": "afterWrapper",
+      "nativePhase": "afterController",
+      "mappedFieldDifferences": {},
+      "rngDifferences": {},
+      "listeners": "exact initial snapshot",
+      "queue": "exact native payload and owner26"
+    },
+    {
+      "visit": 2,
+      "portPhase": "beforeUpdater",
+      "nativePhase": "beforeUpdater",
+      "mappedFieldDifferences": {},
+      "rngDifferences": {},
+      "listeners": "exact initial snapshot",
+      "queue": "exact native payload and owner26"
+    },
+    {
+      "visit": 2,
+      "portPhase": "afterUpdater",
+      "nativePhase": "afterUpdater",
+      "mappedFieldDifferences": {},
+      "rngDifferences": {},
+      "listeners": "exact initial snapshot",
+      "queue": "exact native payload and owner26"
+    },
+    {
+      "visit": 3,
+      "portPhase": "afterWrapper",
+      "nativePhase": "afterController",
+      "mappedFieldDifferences": {
+        "animationMode": [
+          0,
+          2
+        ]
+      },
+      "rngDifferences": {
+        "simulationRandom": [
+          3603658299,
+          1607832750
+        ]
+      },
+      "listeners": "exact initial snapshot",
+      "queue": "exact native payload and owner26"
+    },
+    {
+      "visit": 3,
+      "portPhase": "beforeUpdater",
+      "nativePhase": "beforeUpdater",
+      "mappedFieldDifferences": {
+        "animationMode": [
+          0,
+          2
+        ]
+      },
+      "rngDifferences": {
+        "simulationRandom": [
+          3603658299,
+          1607832750
+        ]
+      },
+      "listeners": "exact initial snapshot",
+      "queue": "exact native payload and owner26"
+    },
+    {
+      "visit": 3,
+      "portPhase": "afterUpdater",
+      "nativePhase": "afterUpdater",
+      "mappedFieldDifferences": {
+        "animationMode": [
+          0,
+          2
+        ]
+      },
+      "rngDifferences": {
+        "simulationRandom": [
+          3603658299,
+          1607832750
+        ]
+      },
+      "listeners": "exact initial snapshot",
+      "queue": "exact native payload and owner26"
+    }
+  ],
+  "result": "Exactly terminal mode and simulation word differ; nine compared mapped phase rows, all listeners and queues match."
+}

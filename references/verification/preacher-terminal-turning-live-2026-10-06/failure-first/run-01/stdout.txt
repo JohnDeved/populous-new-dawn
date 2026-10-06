@@ -1,0 +1,36 @@
+✖ real five-listener preaching caller preserves the original terminal turning cutoff (174.141951ms)
+ℹ tests 1
+ℹ suites 0
+ℹ pass 0
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 241.75162
+
+✖ failing tests:
+
+test at tests/preacher-terminal-turning-live.test.mjs:122:1
+✖ real five-listener preaching caller preserves the original terminal turning cutoff (174.141951ms)
+  AssertionError [ERR_ASSERTION]: Original cutoff must skip terminal turning and its simulation RNG draw
+  + actual - expected
+  
+    {
+  +   animationMode: 2,
+  +   simulationRandom: 1607832750
+  -   animationMode: 0,
+  -   simulationRandom: 3603658299
+    }
+  
+      at TestContext.<anonymous> (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-turning-live-20261006/tests/preacher-terminal-turning-live.test.mjs:177:14)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: false,
+    code: 'ERR_ASSERTION',
+    actual: [Object],
+    expected: [Object],
+    operator: 'deepStrictEqual',
+    diff: 'simple'
+  }
