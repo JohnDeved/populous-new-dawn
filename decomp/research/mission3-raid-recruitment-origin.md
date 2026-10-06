@@ -1,5 +1,9 @@
 # Mission 3 raid first-selection origin: source-only preflight
 
+The accepted plan now has a separate [two-pair probe preflight](mission3-raid-recruitment-preflight.md).
+It records unequal radius inputs honestly and stops incremental pairing at the
+first declared difference. Preparation is not execution or a runtime repair.
+
 ## Finding and boundary
 
 On source `89e68606a406f93715b930550317519818ddc081`, the live type-20
