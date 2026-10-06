@@ -7,6 +7,10 @@
   "terminalToolChunk": "561273",
   "runCount": 1,
   "files": {
+    "README.md": {
+      "sha256": "c54099180567c2f0e8b0204f5e2f1cf5da3984b0c4eeb85ab72d0178fa70d728",
+      "bytes": 2752
+    },
     "native-stderr.log": {
       "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
       "bytes": 0
@@ -16,8 +20,8 @@
       "bytes": 502701
     },
     "observations.json": {
-      "sha256": "0653ebb2745ec58d1017f0048f62e92fc349ef25148d66dc40dcc95cd632e3c8",
-      "bytes": 3054
+      "sha256": "0c23d025ee38f3e187d670eb6f2f1a9af4bbaae01dcc03b3fa327832ce308d4c",
+      "bytes": 3145
     },
     "owned-cleanup.json": {
       "sha256": "9d14fcc1f8e7d3e244e12635f655687c6000e8f1b6cc0c68788bdaea758a8e02",
@@ -26,6 +30,10 @@
     "receipt.json": {
       "sha256": "0023aa7df3edf5746f3cbe6c3caf298ffff3f4421cd6177c71ec881fadcbc2a2",
       "bytes": 531551
+    },
+    "result-review.md": {
+      "sha256": "4e23e6158e98b9e7a1af732884e8ec0a70ac812b8d04133843ffa3df371d5449",
+      "bytes": 2299
     },
     "source-review.md": {
       "sha256": "787357911740d77e4b8aec3aa62420fd7e19d86002aa9e7aebf49252563cc505",
@@ -38,10 +46,6 @@
     "supervisor.stdout.log": {
       "sha256": "5d9eea57fbcb0016369243ad0179934c2340ef96a972dc5776469ec0388e1209",
       "bytes": 367
-    },
-    "README.md": {
-      "sha256": "547984bdae5935378c7e5d228e12a9b30315adb072ce47841457e67928a240a7",
-      "bytes": 2733
     }
   }
 }

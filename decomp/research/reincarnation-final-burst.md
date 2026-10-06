@@ -187,5 +187,5 @@ This fixed supplied-state case stops at the controller return. It does not
 execute a scheduled visit, native death/mission history, allocator failure,
 phase4 wave, lifetime, app comparison or browser witness. Source/runtime inputs,
 raw traces, source preflight and same-invocation owned-process cleanup are
-retained; independent result review remains pending. No runtime or parity change
+retained; the independent result review ACCEPTs this fixed composition only. No runtime or parity change
 has been made and the later matrix remains unexecuted.
