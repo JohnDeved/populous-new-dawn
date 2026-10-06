@@ -45,7 +45,7 @@ export function installRecoveryObserver(expected, realm = globalThis) {
     const shots = world.effects.filter(effect => expected.projectileIds.includes(effect.id)).map(effect => {
       insist(effect.firewarriorShot?.source === expected.actorId && effect.firewarriorShot.target === expected.targetId,
         'Captured projectile attribution changed')
-      return { id: effect.id, ...effect.firewarriorShot }
+      return { ...structuredClone(effect.firewarriorShot), id: effect.id }
     })
     return { turn: world.turn, paused: world.paused, actorId: unit.id, nativeIdentity: identity(person),
       targetId: target.id, orderId, order: record ? { ...record } : null,

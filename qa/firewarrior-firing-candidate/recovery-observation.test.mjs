@@ -113,3 +113,11 @@ test('diagnostic failures never replace an ordinary callback result', () => {
   assert.deepEqual(f.step(121, 40), ['unchanged', 121])
   assert.equal(f.clock.afterTurn, f.original); assert.equal(f.read().failure, 'Recovery observation failed')
 })
+
+
+test('retained post-turn projectile snapshots do not follow later payload mutation', () => {
+  const f = fixture(); f.world.effects[0].firewarriorShot.destination = { x: 1, y: 2, h: 3 }; f.install()
+  f.step(121, 44); f.world.effects[0].firewarriorShot.destination.x = 99
+  assert.equal(f.read().rows[0].projectiles[0].destination.x, 1)
+  f.realm.firewarriorRecoveryObserver.finish()
+})
