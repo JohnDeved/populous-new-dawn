@@ -1,9 +1,10 @@
 # Mission3 raid allocation: PhaseA source preflight
 
-Status: attempt1 setup failed; bounded translator-buffer correction prepared.
+Status: attempt2 retained the first controlled RNG mismatch; witness review pending.
 Runtime base is
-`89e68606a406f93715b930550317519818ddc081`. Only the two evidence programs,
-controlled fixture, and this note are added. Recruitment PhaseB, gameplay repair,
+`89e68606a406f93715b930550317519818ddc081`. Changes are two evidence programs,
+a controlled fixture, an optional shared-loader buffer argument, this note and raw
+attempt receipts. Recruitment PhaseB, gameplay repair,
 ordinary campaign observation and rendering are deferred.
 
 The earlier workspace disappeared before source review or execution. Both programs
@@ -117,8 +118,9 @@ timeout --signal=TERM --kill-after=5s 65s env PYTHONDONTWRITEBYTECODE=1 \
   --node /opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node
 ```
 
-Wrap this payload with existing `scripts/orchestration/command-receipt.mjs`, output
-`work/orchestration/mission3-raid-allocation/attempt1.json`. Pass both new scripts,
+Wrap this payload with existing `scripts/orchestration/command-receipt.mjs`, using
+a fresh receipt path under `work/orchestration/mission3-raid-allocation/`.
+Attempts1/2 are already retained and must not be overwritten. Pass both new scripts,
 fixture, `scripts/decomp.py`, original EXE/script/geometry, env.sh, resolved Python
 and Node binaries, Unicorn shared library and package metadata as explicit inputs.
 The receipt retains exact HEAD/diff/input hashes and stdout/stderr. Its expected
@@ -182,3 +184,44 @@ Pinned control-source hashes:
 
 Corrected source AST parsing passed without imports or original execution. Retry
 is not yet run. Use a fresh `attempt2.json` receipt if independently approved.
+
+## Attempt2: first bounded mismatch, no runtime repair
+
+The preceding correction proposal was independently accepted and executed once on
+source `da998fa10559fcc35532943df520a447096c06ac`, CPU4, from03:47:07.167
+to03:47:08.496 UTC. Receipt and raw stdout/stderr are under
+`references/verification/mission3-raid-allocation-2026-10-06/attempt2/`.
+Exit1/receipt **failed** is the intentional first-mismatch stop, not a passing
+implementation. Stderr is empty; stdout contains both paired observations and the
+native call/task/RNG records. Source and explicit input identities remained unchanged.
+
+The nominal accepted fixture matched every projected field: slot0, type20,
+phase0, building78, target/origin20018, requested3, damage8, Brave quota100,
+other quotas/spells0, retreat20 and final RNG851343515. Only slot0's raw native
+bytes changed; slots1..9 stayed byte-identical. This is not ordinary gameplay or
+general target-geometry equivalence; the apparent inside/display-origin difference
+did not produce a different packed cell in this fixture.
+
+The second fixture differs only by disabling state20. Native executes the same
+script/ATTACK request, calls004627f0, then writes failure status1 through0048c650.
+It does not call either target selector, allocate a task, or write RNG. All ten
+raw task slots remain byte-identical and all48attributes are unchanged. Native RNG
+stays305419896 (the supplied0x12345678 seed).
+
+The real portable adapter also allocates no task, but `campaignAttackTarget` runs
+before `requestAttack`'s state gate and advances RNG once to851343515. The only
+compared mismatch field is `rng`. Both occupiedUnchanged values are true; neither
+of these first two fixtures contains an occupied slot, so that boolean is vacuous
+here and the raw whole-pool check is the substantive preservation evidence.
+
+Actual TCG buffer readback is16,777,216bytes in both native CPUs. Setup VmSize is
+94,096/102,304kB and VmRSS31,516/31,912kB. These establish the bounded setup ran;
+they are not hardware or gameplay performance claims.
+
+The original run stopped before the cap/full-pool/last-slot cases, exactly as
+reviewed. Their portable subprocess results were not emitted after that stop;
+there is no paired result for them. Native recruitment, original world-list creation,
+path/combat, natural campaign occurrence and rendering remain untested by this
+slice. The state20-off request is controlled; do not claim Mission3's authored
+script naturally disables state20. Runtime repair requires independent witness
+review and a bounded accepted scope before implementation.
