@@ -1,0 +1,198 @@
+{
+  "head": "d185c88ec604356df8dc665506270963b53e185b",
+  "base": "a00eadc811e227559f9a2713eedbee5cd08af1c1",
+  "files": {
+    "accepted-caller-failure-review/manifest.json": {
+      "sha256": "da15a39abdd56b62b896d0af6afd94eb6f016c8439428e97e1fa35fd0b9a04b5",
+      "bytes": 465
+    },
+    "accepted-caller-failure-review/review.md": {
+      "sha256": "860324abea47102b1084f096bef1f4cbfae99a62892b4ad097eba29a3483b0ee",
+      "bytes": 2941
+    },
+    "accepted-caller-failure-review/verification.json": {
+      "sha256": "40ef141b305230d7d28bfbaa308262f9e4dcc4e63560c0482180edd0b6daf4e2",
+      "bytes": 4205
+    },
+    "caller-after-01/rows.json": {
+      "sha256": "a21eacc48bbb4b5731d89d3cc49478ec89741a508b9a1f5df32af98053a4dc2e",
+      "bytes": 278191
+    },
+    "caller-after-launch-01/receipt.json": {
+      "sha256": "d619fac30aff368f236024d5512625e442e730311d836cac60abc3142165feb0",
+      "bytes": 44820
+    },
+    "caller-after-launch-01/stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "caller-after-launch-01/stdout.txt": {
+      "sha256": "f1bda2db027cd5a882e2cb3daaef58bc507e462ac8a9c6ad995425604bb8ac9f",
+      "bytes": 215
+    },
+    "check-disposition.json": {
+      "sha256": "f7eea64e4a2227eb8c9698f19939d065d7838c347aa3f0470d7f129352454ec0",
+      "bytes": 48875
+    },
+    "failure-first-01/receipt.json": {
+      "sha256": "b85b2759c12c6aff092703ceeb441f03e574ad583cbf91887d83a43939890da8",
+      "bytes": 2055
+    },
+    "failure-first-01/stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "failure-first-01/stdout.txt": {
+      "sha256": "e2c2ec70e90338368a037743254617eb93669ec074cce1befe85593306c64773",
+      "bytes": 10199
+    },
+    "focused-after-01/receipt.json": {
+      "sha256": "5d7031d3e8e4e6be983f94c9481c56bee6f3aaa3def832fb7dd0dc1902ec26eb",
+      "bytes": 44704
+    },
+    "focused-after-01/stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "focused-after-01/stdout.txt": {
+      "sha256": "7adee7486ad1911b6ee79a1dd583c56c9ec599035826cd0d923e2e9a59bd97bc",
+      "bytes": 1898
+    },
+    "full.diff": {
+      "sha256": "3c813f26a3f791521e7595d231b86bf5cb784fa705f39eadc5327dbca11bb870",
+      "bytes": 125843
+    },
+    "plan-main-a00-final.json": {
+      "sha256": "73a5e406b11163d0939b5ee1aa78596b99b8e617c3872de3217974e0430f13ef",
+      "bytes": 67716
+    },
+    "replay-after-01/binding.json": {
+      "sha256": "6d2d312864c8d17adff489c3d5a04ab3b2b768e4af99ea8a63c493a3e95d7669",
+      "bytes": 3253
+    },
+    "replay-after-01/differences.json": {
+      "sha256": "c0b02e092fd20ccf47f673fdd1f658fd0e4474f3fd1d6fb3ffbd811d672eeebe",
+      "bytes": 410411
+    },
+    "replay-after-01/port-status.json": {
+      "sha256": "fda02a5dc902a2879f12f3d12097df0fcc17ca4dd74b35c140c496cc8dfd4fc1",
+      "bytes": 36
+    },
+    "replay-after-01/port.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "replay-after-01/port.stdout.json": {
+      "sha256": "491bb3f8a54be2ee1a23ebd9b1427b98bb9fd3ed0edc26e8a8e6153ee4d90fee",
+      "bytes": 452090
+    },
+    "replay-after-01/summary.json": {
+      "sha256": "10d7d079314d824ebd47639238abcac41d559a2a92868aa27718b0f5601000a8",
+      "bytes": 388
+    },
+    "replay-after-launch-01/receipt.json": {
+      "sha256": "b713bd81d7a0c7c686693726b76424fe0ec04e137d9f635c3a04724b6d1a65f1",
+      "bytes": 44863
+    },
+    "replay-after-launch-01/stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "replay-after-launch-01/stdout.txt": {
+      "sha256": "10d7d079314d824ebd47639238abcac41d559a2a92868aa27718b0f5601000a8",
+      "bytes": 388
+    },
+    "replay-before-01/binding.json": {
+      "sha256": "f54bb506fcd8eebb8bdc06fcbb48a02313074081c277a8870201866b1483b4d7",
+      "bytes": 3253
+    },
+    "replay-before-01/port-status.json": {
+      "sha256": "fda02a5dc902a2879f12f3d12097df0fcc17ca4dd74b35c140c496cc8dfd4fc1",
+      "bytes": 36
+    },
+    "replay-before-01/port.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "replay-before-01/port.stdout.json": {
+      "sha256": "2bb2a99933482b2c87bda7540b79caac40d0ec5189952b069956afd31d7e4b23",
+      "bytes": 452130
+    },
+    "replay-before-01/summary.json": {
+      "sha256": "64a05c72e8d772f985de528c2cbdb6d9ad168d3e26818aac376bf399e7d19a43",
+      "bytes": 248
+    },
+    "replay-before-launch-01/receipt.json": {
+      "sha256": "da7e15d461aedd9f2453d5e536930fa491f2ad243b00edd11a93fae2e112224d",
+      "bytes": 1929
+    },
+    "replay-before-launch-01/stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "replay-before-launch-01/stdout.txt": {
+      "sha256": "64a05c72e8d772f985de528c2cbdb6d9ad168d3e26818aac376bf399e7d19a43",
+      "bytes": 248
+    },
+    "source/app/preacher-conversion.ts": {
+      "sha256": "fbb45d94d5dc7253f715ac11bf6b2813510d35d3778c0da2481cae2da6ec4806",
+      "bytes": 7445
+    },
+    "source/references/verification/preacher-terminal-turning-live-2026-10-06/README.md": {
+      "sha256": "2c292a34c183679b8ee5692a133378ea139642eb7dcab599b4cfbb9b726d8021",
+      "bytes": 4692
+    },
+    "source/references/verification/preacher-terminal-turning-live-2026-10-06/field-supply-ledger.json": {
+      "sha256": "27b44c0b828cab0c2da31467bfb9baa0d0ac477b0005b154d87b02c73c2411a6",
+      "bytes": 6666
+    },
+    "source/references/verification/preacher-terminal-turning-live-2026-10-06/input-provenance.json": {
+      "sha256": "bb456db129cb06cc9a8e9c20335075365642db821ceeb336a5a1b6f7254eb18b",
+      "bytes": 15076
+    },
+    "source/references/verification/preacher-terminal-turning-live-2026-10-06/launch-proposal.md": {
+      "sha256": "93cd3ae05fb9f9cdeddf4bc1424db8a9d995ce51c103a473a7e8f2b788859df3",
+      "bytes": 2291
+    },
+    "source/references/verification/preacher-terminal-turning-live-2026-10-06/native-result-review-manifest.json": {
+      "sha256": "898802d62549cd7862e85054c69823f1112d62ae632bc73f0b3f999c64de789b",
+      "bytes": 495
+    },
+    "source/references/verification/preacher-terminal-turning-live-2026-10-06/native-result-review.md": {
+      "sha256": "d197450d2435afd93b0625fb43c55243a5aab545d6fd041c73dfb99e986623dc",
+      "bytes": 4317
+    },
+    "source/references/verification/preacher-terminal-turning-live-2026-10-06/native-result-verification.json": {
+      "sha256": "39977406c9175b066522acdfa668e067623e2f5fb0a5979b3cd7f2df4c0182fe",
+      "bytes": 1413
+    },
+    "source/references/verification/preacher-terminal-turning-live-2026-10-06/plan-review.md": {
+      "sha256": "2802052e3b9ddfa9a07c5f219d04db3bb5994ab22abd862e3155a773620f5396",
+      "bytes": 5023
+    },
+    "source/references/verification/preacher-terminal-turning-live-2026-10-06/source-binding.json": {
+      "sha256": "6bdd1fb60be22c8632d014adc83596e0de3915e5c1568262699d57976b2ca934",
+      "bytes": 48854
+    },
+    "source/scripts/check-preacher-gesture-replay.py": {
+      "sha256": "27e2437c14bfd23aa5629446b4c6de51696f8955246c09fd892bea702d5c2c20",
+      "bytes": 11021
+    },
+    "source/tests/fixtures/preacher-terminal-turning-live.json": {
+      "sha256": "ad7a1eebfac70ece199d9e9690638ef3d2ac95dad4fb09ff80eeb0128d8b4a87",
+      "bytes": 13640
+    },
+    "source/tests/preacher-terminal-restart.test.mjs": {
+      "sha256": "9c26b21c83f6e4fb5fe6c379f2f4605446362969b660bf67458a62b3ee586ebd",
+      "bytes": 11791
+    },
+    "source/tests/preacher-terminal-turning-live.test.mjs": {
+      "sha256": "cd75bc393e11dca897749fae769381566d5fe8a1c7c03dc35eecbcc01b65ba29",
+      "bytes": 9141
+    },
+    "summary.json": {
+      "sha256": "505ce331cac74345d81c347cefbb3decba2f359bc9f89af214a7f52fd4e856b0",
+      "bytes": 1568
+    }
+  }
+}

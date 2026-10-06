@@ -1,0 +1,21 @@
+{
+  "verdict": "ACCEPT",
+  "head": "d185c88ec604356df8dc665506270963b53e185b",
+  "base": "a00eadc811e227559f9a2713eedbee5cd08af1c1",
+  "sourcePacketManifestSha256": "a38461e118caf52f3b38f099f123acaa79f2f1e38d1cfdcc2867c3d23acabc62",
+  "standardPacketManifestSha256": "95de1b81afcbba41c0e6d485abe2f65183883f9d6a384f5e22216ba04c5757ff",
+  "files": {
+    "review.md": {
+      "sha256": "60811827de3096f311bcaa2d6a5683148b283c9c6158e179bb33a8b4ad14485d",
+      "bytes": 5533
+    },
+    "source-focused-verification.json": {
+      "sha256": "bcedb8047cd0546d4608455f5b8ddc6245549874f2ad6e8e9569c4f464701cbe",
+      "bytes": 1918
+    },
+    "standard-verification.json": {
+      "sha256": "09034b5acd33a2be35b8086b8a7385a18b575a4ba675ac4111864dd5d3ef0940",
+      "bytes": 1567
+    }
+  }
+}

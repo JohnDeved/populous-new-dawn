@@ -1,0 +1,46 @@
+{
+  "status": "ACCEPT source and focused evidence; standard gates separately verified",
+  "head": "d185c88ec604356df8dc665506270963b53e185b",
+  "base": "a00eadc811e227559f9a2713eedbee5cd08af1c1",
+  "sourcePacketManifestSha256": "a38461e118caf52f3b38f099f123acaa79f2f1e38d1cfdcc2867c3d23acabc62",
+  "packetMemberHashesVerified": 48,
+  "fullDiffSha256": "3c813f26a3f791521e7595d231b86bf5cb784fa705f39eadc5327dbca11bb870",
+  "runtime": "one p.timer < 840 conjunction around whole unchanged turning block",
+  "originalSelectedInstructionsDataVerified": 151,
+  "controllerFailureFirst": {
+    "failedCutoffRows": 6,
+    "passedControls": 15,
+    "head": "48086268af317ebbac2318b9b3ee4f8d6593f7aa"
+  },
+  "controllerCorrected": {
+    "passed": 21,
+    "head": "0f092253e7fcb63ca9124e1123a94a340bb4cb17"
+  },
+  "candidateCarry": "d185c88e only adds historical-provenance README note after tested 0f092253; app/tests/checker byte-identical",
+  "unchangedActualCaller": {
+    "passed": 1,
+    "nativeEqualPhaseComparisons": 9,
+    "snapshotSets": 13
+  },
+  "strictRecordedReplay": {
+    "cases": 27,
+    "visits": 63,
+    "equalPhaseSnapshots": 252,
+    "equalRequestsAndStates": 73,
+    "rawEventDifferenceRows": 44,
+    "remainingReturnResidual": "command32-expiry-odd-known-difference native0/port1"
+  },
+  "planner": {
+    "total": 63,
+    "requiredCheckBuild": 2,
+    "portableCoveredByFullCheck": 12,
+    "unrelatedNativeBrowserNotApplicable": 49,
+    "allUnknownPathsReviewed": true
+  },
+  "limits": [
+    "Modes1/2 are source-backed boundary tests, not new native executions",
+    "Five listener records and terrain are supplied; no ordinary five-listener reachability or visible impact claim",
+    "Existing angle/heading and mode-phase-width residual domains outside tested equal/in-range values remain unchanged",
+    "Ordinary command31/32, Tower/vehicle, arrival and full native game parity not established"
+  ]
+}

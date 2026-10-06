@@ -1,0 +1,29 @@
+{
+  "status": "ACCEPT",
+  "head": "d185c88ec604356df8dc665506270963b53e185b",
+  "trackedFilesVerified": 3684,
+  "dependencyDevice": 27,
+  "dependencyInode": 1978923,
+  "qualityReceiptSha256": "acc3f72306d3a0836b1401587bfcdb3eec11de3324bbbdce0c8f6dc008c42e43",
+  "quality": "Oxfmt and ESLint pass; sole Oxlint re-export warning exactly equals baseline a00 source",
+  "fullCheck": "1365 tests passed; zero failed/skipped; TypeScript, parity and orchestration pass",
+  "gates": {
+    "full-check-01": {
+      "receiptSha256": "46c54e30435a8c9c3e446c736ac09cd45c0de8d3148b81a9565f3952256dbef1",
+      "seconds": 351.5170092319968,
+      "fullIdentitySha256": "c85a62d86d0d714c30e41ee016be2fc79e20a9caa8da2079eb12473ac259a4f4",
+      "stdoutSha256": "69971618d9960e736a41233465f9f84b177e86887b32f967532e4ff130a4681c",
+      "stderrSha256": "02285cf98c9d88b48ecc3ef7fa38f35659b7c27d82ad3139b4a57f8bed24e9b1",
+      "emptyProcessGroup": true
+    },
+    "build-01": {
+      "receiptSha256": "1f7489a123ea9820c371336a94fde06fd0f0f4a8c74635d15e51468d16dfaf41",
+      "seconds": 27.810182446999534,
+      "fullIdentitySha256": "c85a62d86d0d714c30e41ee016be2fc79e20a9caa8da2079eb12473ac259a4f4",
+      "stdoutSha256": "72fe4d193c501b2d9660313e5919744fb66c275d8bc15055820fe792b90fa0ee",
+      "stderrSha256": "187286b31a8a2ef878f6c654d96a312bd9286f7a0a93d5a096edafb040f4296a",
+      "emptyProcessGroup": true
+    }
+  },
+  "buildOutput": "All five stages complete; route-classification, chunk-size, plugin-timing and proxy/npm notices retained, no source-quality or build error"
+}

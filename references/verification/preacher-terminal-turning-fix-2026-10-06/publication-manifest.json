@@ -1,0 +1,44 @@
+{
+  "candidate": "d185c88ec604356df8dc665506270963b53e185b",
+  "base": "a00eadc811e227559f9a2713eedbee5cd08af1c1",
+  "verdict": "ACCEPT",
+  "reviewSha256": "60811827de3096f311bcaa2d6a5683148b283c9c6158e179bb33a8b4ad14485d",
+  "files": {
+    "README.md": {
+      "sha256": "af55ac7e4c74cf43318c16ca99dc157891f540e49f6fff46e3595ac271d12d97",
+      "bytes": 5025
+    },
+    "review-manifest.json": {
+      "sha256": "c66782d938788f52a3bc85c26cb5ddcfde9a2e5b0c74d2e4d452e080cd5b8e6f",
+      "bytes": 783
+    },
+    "review.md": {
+      "sha256": "60811827de3096f311bcaa2d6a5683148b283c9c6158e179bb33a8b4ad14485d",
+      "bytes": 5533
+    },
+    "source-focused-manifest.json": {
+      "sha256": "a38461e118caf52f3b38f099f123acaa79f2f1e38d1cfdcc2867c3d23acabc62",
+      "bytes": 8046
+    },
+    "source-focused-verification.json": {
+      "sha256": "bcedb8047cd0546d4608455f5b8ddc6245549874f2ad6e8e9569c4f464701cbe",
+      "bytes": 1918
+    },
+    "source-focused.tar.gz": {
+      "sha256": "f1a4dbeef071cadfb76667959c536f8bf07c4fc75bb3e1665a58c15aa6d3c1ae",
+      "bytes": 177570
+    },
+    "standard-quality-manifest.json": {
+      "sha256": "95de1b81afcbba41c0e6d485abe2f65183883f9d6a384f5e22216ba04c5757ff",
+      "bytes": 3576
+    },
+    "standard-quality.tar.gz": {
+      "sha256": "b3df5dab22c537ae341b0ffe546ec40665279d83fabc9869a70a9efe32579547",
+      "bytes": 737828
+    },
+    "standard-verification.json": {
+      "sha256": "09034b5acd33a2be35b8086b8a7385a18b575a4ba675ac4111864dd5d3ef0940",
+      "bytes": 1567
+    }
+  }
+}
