@@ -7,6 +7,8 @@ The fixed manifest owns paths, hashes and limits. Results never rewrite expectat
 import argparse
 import hashlib
 import json
+import os
+import signal
 from pathlib import Path
 import struct
 import subprocess
@@ -105,6 +107,8 @@ def prepared():
     verification = postflight(manifest, manifest_bytes)
     if verification['status'] != 'passed':
         raise Blocked('Source/input/tool drift: '+json.dumps(verification))
+    if Path(sys.executable).resolve() != Path(manifest['pythonPath']).resolve():
+        raise Blocked('Unbound Python interpreter')
     case = fixed_case((HERE/'case-input.json').read_bytes())
     starts = list(struct.iter_unpack('<HH', Path(manifest['gameRoot'],'data/vstart-0.ani').read_bytes()))
     frames = list(struct.iter_unpack('<HBBBBH', Path(manifest['gameRoot'],'data/vfra-0.ani').read_bytes()))
@@ -493,7 +497,6 @@ def main():
             'raw256Sha256':RAW_SHA,'orderAddress':f'{ORDER:08x}',
             'manifestSha256':sha(manifest_bytes)},indent=2))
         return
-    import os
     if os.sched_getaffinity(0) != {4}:
         raise Blocked('Execution requires the separately granted single CPU4 lane')
     output=ROOT/manifest['outputDirectory']
@@ -503,6 +506,10 @@ def main():
     (output/'frozen-manifest.json').write_bytes(manifest_bytes)
     blockers=[]
     summary=None
+    def interrupted(signum, _frame):
+        raise Blocked(f'Outer signal {signum}; preserve partial evidence, do not retry')
+    previous_term = signal.signal(signal.SIGTERM,interrupted)
+    previous_int = signal.signal(signal.SIGINT,interrupted)
     try:
         run_native(manifest,cases,counts,instructions,rules,result,output)
         (output/'native.json').write_text(json.dumps(result,indent=2)+'\n')
@@ -510,7 +517,8 @@ def main():
         (output/'supplied-input.json').write_text(json.dumps(payload,indent=2)+'\n')
         try:
             process=subprocess.run([manifest['nodePath'],str(HERE/'compare-port.mjs')],
-                input=json.dumps(payload),capture_output=True,text=True,cwd=ROOT,timeout=15)
+                input=json.dumps(payload),capture_output=True,text=True,cwd=ROOT,timeout=15,
+                env={**os.environ,'NODE_OPTIONS':'','NODE_PATH':''})
         except subprocess.TimeoutExpired as error:
             retain_port(output,error.stdout,error.stderr,{'status':'timed-out',
                 'timeoutSeconds':error.timeout,'exitCode':None,
@@ -532,6 +540,8 @@ def main():
             result['status']='blocked'
         blockers.append(f'{type(error).__name__}: {error}')
     finally:
+        signal.signal(signal.SIGTERM,previous_term)
+        signal.signal(signal.SIGINT,previous_int)
         verification=postflight(manifest,manifest_bytes)
         (output/'postflight.json').write_text(json.dumps(verification,indent=2)+'\n')
         result['postflightStatus']=verification['status']
