@@ -204,3 +204,15 @@ unchanged inputs and same-invocation owned cleanup; independent result review AC
 No retry visit, capacity restoration, outer loop, lifetime, app or ordinary
 rendered behavior is claimed. The success fixture and wider16-case preparation
 were not changed or rerun.
+
+### Next source-only scheduling proposal
+
+The [fixed eleven-call proposal](../../references/verification/reincarnation-scheduled-burst-proposal-2026-10-06/README.md)
+reuses the accepted wave and spark helpers, then composes actual phase4→phase5
+creation, first scheduled burst visits and native retirement while the wave
+continues. It corrects an earlier unexecuted preparation sentence: dispatch is
+state−1, so model9 state8 retires after two scheduled visits; model3 state3→4
+has the separate fade tail. Real cell/global unlink and free-list return, plus
+allocation-generation observation, are necessary because native slots may be
+reused before the fixed stop. This is a proposal, not an executed timeline,
+runtime repair or permission to normalize the app's `addUnit`/`native: null` gap.

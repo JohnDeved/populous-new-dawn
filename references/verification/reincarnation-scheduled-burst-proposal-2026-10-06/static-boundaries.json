@@ -1,0 +1,484 @@
+{
+  "mode": "static PE reading/disassembly only; no original execution",
+  "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "capstone": "5.0.7",
+  "stateDispatchTable": "0050afd4 + (state-1)*4",
+  "stateTargets": {
+    "3": "0050a790",
+    "4": "0050a7a0",
+    "7": "0050a7ec",
+    "8": "0050a7fc",
+    "11": "0050a84f",
+    "48": "0050abdb"
+  },
+  "ranges": [
+    {
+      "start": "0050a750",
+      "endExclusive": "0050a770",
+      "sha256": "3658a696af6b9a8749a21041f6cb9f4f7f201ca714adf94c05e9653716ea94c0",
+      "bytesHex": "83ec4833c053568b742454578a462c4883f84d0f8764080000ff2485d4af5000",
+      "disassembly": [
+        "0050a750 sub esp, 0x48",
+        "0050a753 xor eax, eax",
+        "0050a755 push ebx",
+        "0050a756 push esi",
+        "0050a757 mov esi, dword ptr [esp + 0x54]",
+        "0050a75b push edi",
+        "0050a75c mov al, byte ptr [esi + 0x2c]",
+        "0050a75f dec eax",
+        "0050a760 cmp eax, 0x4d",
+        "0050a763 ja 0x50afcd",
+        "0050a769 jmp dword ptr [eax*4 + 0x50afd4]"
+      ]
+    },
+    {
+      "start": "0050a790",
+      "endExclusive": "0050a7cc",
+      "sha256": "4208040ff6698d678ebc3ed28940660c084d78c138211334957963156d6fc672",
+      "bytesHex": "56e8da15000083c4045f5e5b83c448c356e8dad2fdff668b466c83c40466486689466c6685c00f8f1108000056e8be49feff83c4045f5e5b83c448c3",
+      "disassembly": [
+        "0050a790 push esi",
+        "0050a791 call 0x50bd70",
+        "0050a796 add esp, 4",
+        "0050a799 pop edi",
+        "0050a79a pop esi",
+        "0050a79b pop ebx",
+        "0050a79c add esp, 0x48",
+        "0050a79f ret",
+        "0050a7a0 push esi",
+        "0050a7a1 call 0x4e7a80",
+        "0050a7a6 mov ax, word ptr [esi + 0x6c]",
+        "0050a7aa add esp, 4",
+        "0050a7ad dec ax",
+        "0050a7af mov word ptr [esi + 0x6c], ax",
+        "0050a7b3 test ax, ax",
+        "0050a7b6 jg 0x50afcd",
+        "0050a7bc push esi",
+        "0050a7bd call 0x4ef180",
+        "0050a7c2 add esp, 4",
+        "0050a7c5 pop edi",
+        "0050a7c6 pop esi",
+        "0050a7c7 pop ebx",
+        "0050a7c8 add esp, 0x48",
+        "0050a7cb ret"
+      ]
+    },
+    {
+      "start": "0050a7fc",
+      "endExclusive": "0050a82f",
+      "sha256": "a319daf4aea76e2e02af5bb278ba571fc019e6a008e263dd00b40118cf5d9018",
+      "bytesHex": "668b466c816610ffffbfff6685c00f8cbd07000066486689466c6685c00f8fae07000056e85b49feff83c4045f5e5b83c448c3",
+      "disassembly": [
+        "0050a7fc mov ax, word ptr [esi + 0x6c]",
+        "0050a800 and dword ptr [esi + 0x10], 0xffbfffff",
+        "0050a807 test ax, ax",
+        "0050a80a jl 0x50afcd",
+        "0050a810 dec ax",
+        "0050a812 mov word ptr [esi + 0x6c], ax",
+        "0050a816 test ax, ax",
+        "0050a819 jg 0x50afcd",
+        "0050a81f push esi",
+        "0050a820 call 0x4ef180",
+        "0050a825 add esp, 4",
+        "0050a828 pop edi",
+        "0050a829 pop esi",
+        "0050a82a pop ebx",
+        "0050a82b add esp, 0x48",
+        "0050a82e ret"
+      ]
+    },
+    {
+      "start": "00401b40",
+      "endExclusive": "00401b9a",
+      "sha256": "7aa350a3193c80a78669fdfb59cd9dd869cdb1a70bd2b5b8aa925195a848499a",
+      "bytesHex": "8b4c2404568b018d510485c074078b32897004eb078b02a3280389008b0285c074048b318930668179248002c70100000000720fa11c0389008902890d1c038900eb0da1200389008902890d200389008b0285c0740289085ec3",
+      "disassembly": [
+        "00401b40 mov ecx, dword ptr [esp + 4]",
+        "00401b44 push esi",
+        "00401b45 mov eax, dword ptr [ecx]",
+        "00401b47 lea edx, [ecx + 4]",
+        "00401b4a test eax, eax",
+        "00401b4c je 0x401b55",
+        "00401b4e mov esi, dword ptr [edx]",
+        "00401b50 mov dword ptr [eax + 4], esi",
+        "00401b53 jmp 0x401b5c",
+        "00401b55 mov eax, dword ptr [edx]",
+        "00401b57 mov dword ptr [0x890328], eax",
+        "00401b5c mov eax, dword ptr [edx]",
+        "00401b5e test eax, eax",
+        "00401b60 je 0x401b66",
+        "00401b62 mov esi, dword ptr [ecx]",
+        "00401b64 mov dword ptr [eax], esi",
+        "00401b66 cmp word ptr [ecx + 0x24], 0x280",
+        "00401b6c mov dword ptr [ecx], 0",
+        "00401b72 jb 0x401b83",
+        "00401b74 mov eax, dword ptr [0x89031c]",
+        "00401b79 mov dword ptr [edx], eax",
+        "00401b7b mov dword ptr [0x89031c], ecx",
+        "00401b81 jmp 0x401b90",
+        "00401b83 mov eax, dword ptr [0x890320]",
+        "00401b88 mov dword ptr [edx], eax",
+        "00401b8a mov dword ptr [0x890320], ecx",
+        "00401b90 mov eax, dword ptr [edx]",
+        "00401b92 test eax, eax",
+        "00401b94 je 0x401b98",
+        "00401b96 mov dword ptr [eax], ecx",
+        "00401b98 pop esi",
+        "00401b99 ret"
+      ]
+    },
+    {
+      "start": "00401ba0",
+      "endExclusive": "00401be3",
+      "sha256": "7b722c6b09bbdeb36199f478b859d1b5168142b090e5f663b908a25825bb30d2",
+      "bytesHex": "8b542404568b028d720485c074078b0e894804eb078b06a3240389008b0685c074048b0a8908c70200000000a12803890089068915280389008b0685c0740289105ec3",
+      "disassembly": [
+        "00401ba0 mov edx, dword ptr [esp + 4]",
+        "00401ba4 push esi",
+        "00401ba5 mov eax, dword ptr [edx]",
+        "00401ba7 lea esi, [edx + 4]",
+        "00401baa test eax, eax",
+        "00401bac je 0x401bb5",
+        "00401bae mov ecx, dword ptr [esi]",
+        "00401bb0 mov dword ptr [eax + 4], ecx",
+        "00401bb3 jmp 0x401bbc",
+        "00401bb5 mov eax, dword ptr [esi]",
+        "00401bb7 mov dword ptr [0x890324], eax",
+        "00401bbc mov eax, dword ptr [esi]",
+        "00401bbe test eax, eax",
+        "00401bc0 je 0x401bc6",
+        "00401bc2 mov ecx, dword ptr [edx]",
+        "00401bc4 mov dword ptr [eax], ecx",
+        "00401bc6 mov dword ptr [edx], 0",
+        "00401bcc mov eax, dword ptr [0x890328]",
+        "00401bd1 mov dword ptr [esi], eax",
+        "00401bd3 mov dword ptr [0x890328], edx",
+        "00401bd9 mov eax, dword ptr [esi]",
+        "00401bdb test eax, eax",
+        "00401bdd je 0x401be1",
+        "00401bdf mov dword ptr [eax], edx",
+        "00401be1 pop esi",
+        "00401be2 ret"
+      ]
+    },
+    {
+      "start": "004ec890",
+      "endExclusive": "004ec98d",
+      "sha256": "f0e9c0304c0b4c3d07c51f355fbb255327bfca0104904f522c1d6cb6806105e3",
+      "bytesHex": "e8bbd5f9ff83c404a124038900830d69c689004085c0741c33db8b700438582c740c50fe402ee8450e000083c4048bc685f675e6832569c68900bfa16003890085c074468b700833c98a482a83e90283f908773033d28a9180ca4e00ff24956cca4e0050e88769f1ffeb1650e8dfc5f8ffeb0e50e827f6fcffeb0650e89f5f010083c4048bc685f675bae8d12e0000e83c3b0000a13003890085c074158b700450fe402ee8c70d000083c4048bc685f675ebe879010000e8044af1ff833d280389000074388b3d28038900be800200008b5f04fe4f2e751f83670cfe57e8ce51f1ff83c404ff0d51c68900663977247306ff0d59c689008bfb85db75d3",
+      "disassembly": [
+        "004ec890 call 0x489e50",
+        "004ec895 add esp, 4",
+        "004ec898 mov eax, dword ptr [0x890324]",
+        "004ec89d or dword ptr [0x89c669], 0x40",
+        "004ec8a4 test eax, eax",
+        "004ec8a6 je 0x4ec8c4",
+        "004ec8a8 xor ebx, ebx",
+        "004ec8aa mov esi, dword ptr [eax + 4]",
+        "004ec8ad cmp byte ptr [eax + 0x2c], bl",
+        "004ec8b0 je 0x4ec8be",
+        "004ec8b2 push eax",
+        "004ec8b3 inc byte ptr [eax + 0x2e]",
+        "004ec8b6 call 0x4ed700",
+        "004ec8bb add esp, 4",
+        "004ec8be mov eax, esi",
+        "004ec8c0 test esi, esi",
+        "004ec8c2 jne 0x4ec8aa",
+        "004ec8c4 and dword ptr [0x89c669], 0xffffffbf",
+        "004ec8cb mov eax, dword ptr [0x890360]",
+        "004ec8d0 test eax, eax",
+        "004ec8d2 je 0x4ec91a",
+        "004ec8d4 mov esi, dword ptr [eax + 8]",
+        "004ec8d7 xor ecx, ecx",
+        "004ec8d9 mov cl, byte ptr [eax + 0x2a]",
+        "004ec8dc sub ecx, 2",
+        "004ec8df cmp ecx, 8",
+        "004ec8e2 ja 0x4ec914",
+        "004ec8e4 xor edx, edx",
+        "004ec8e6 mov dl, byte ptr [ecx + 0x4eca80]",
+        "004ec8ec jmp dword ptr [edx*4 + 0x4eca6c]",
+        "004ec8f3 push eax",
+        "004ec8f4 call 0x403280",
+        "004ec8f9 jmp 0x4ec911",
+        "004ec8fb push eax",
+        "004ec8fc call 0x478ee0",
+        "004ec901 jmp 0x4ec911",
+        "004ec903 push eax",
+        "004ec904 call 0x4bbf30",
+        "004ec909 jmp 0x4ec911",
+        "004ec90b push eax",
+        "004ec90c call 0x5028b0",
+        "004ec911 add esp, 4",
+        "004ec914 mov eax, esi",
+        "004ec916 test esi, esi",
+        "004ec918 jne 0x4ec8d4",
+        "004ec91a call 0x4ef7f0",
+        "004ec91f call 0x4f0460",
+        "004ec924 mov eax, dword ptr [0x890330]",
+        "004ec929 test eax, eax",
+        "004ec92b je 0x4ec942",
+        "004ec92d mov esi, dword ptr [eax + 4]",
+        "004ec930 push eax",
+        "004ec931 inc byte ptr [eax + 0x2e]",
+        "004ec934 call 0x4ed700",
+        "004ec939 add esp, 4",
+        "004ec93c mov eax, esi",
+        "004ec93e test esi, esi",
+        "004ec940 jne 0x4ec92d",
+        "004ec942 call 0x4ecac0",
+        "004ec947 call 0x401350",
+        "004ec94c cmp dword ptr [0x890328], 0",
+        "004ec953 je 0x4ec98d",
+        "004ec955 mov edi, dword ptr [0x890328]",
+        "004ec95b mov esi, 0x280",
+        "004ec960 mov ebx, dword ptr [edi + 4]",
+        "004ec963 dec byte ptr [edi + 0x2e]",
+        "004ec966 jne 0x4ec987",
+        "004ec968 and dword ptr [edi + 0xc], 0xfffffffe",
+        "004ec96c push edi",
+        "004ec96d call 0x401b40",
+        "004ec972 add esp, 4",
+        "004ec975 dec dword ptr [0x89c651]",
+        "004ec97b cmp word ptr [edi + 0x24], si",
+        "004ec97f jae 0x4ec987",
+        "004ec981 dec dword ptr [0x89c659]",
+        "004ec987 mov edi, ebx",
+        "004ec989 test ebx, ebx",
+        "004ec98b jne 0x4ec960"
+      ]
+    },
+    {
+      "start": "004ef4ae",
+      "endExclusive": "004ef51c",
+      "sha256": "02308375ec02d2a5ff514e97e12e09326f2fc85599c6efaa65c9b939ee324341",
+      "bytesHex": "393580038900773939358c0389007231f6460e02740956e826f0ffff83c40456ff0d55c68900c6462a00e853e0ffff83c40456e8aaecffff83c4045f5e83c404c3f6460e02740956e8f5efffff83c404c6462a00834e0c0156e89426f1ff83c404c6462e0356e877ecffff83c404",
+      "disassembly": [
+        "004ef4ae cmp dword ptr [0x890380], esi",
+        "004ef4b4 ja 0x4ef4ef",
+        "004ef4b6 cmp dword ptr [0x89038c], esi",
+        "004ef4bc jb 0x4ef4ef",
+        "004ef4be test byte ptr [esi + 0xe], 2",
+        "004ef4c2 je 0x4ef4cd",
+        "004ef4c4 push esi",
+        "004ef4c5 call 0x4ee4f0",
+        "004ef4ca add esp, 4",
+        "004ef4cd push esi",
+        "004ef4ce dec dword ptr [0x89c655]",
+        "004ef4d4 mov byte ptr [esi + 0x2a], 0",
+        "004ef4d8 call 0x4ed530",
+        "004ef4dd add esp, 4",
+        "004ef4e0 push esi",
+        "004ef4e1 call 0x4ee190",
+        "004ef4e6 add esp, 4",
+        "004ef4e9 pop edi",
+        "004ef4ea pop esi",
+        "004ef4eb add esp, 4",
+        "004ef4ee ret",
+        "004ef4ef test byte ptr [esi + 0xe], 2",
+        "004ef4f3 je 0x4ef4fe",
+        "004ef4f5 push esi",
+        "004ef4f6 call 0x4ee4f0",
+        "004ef4fb add esp, 4",
+        "004ef4fe mov byte ptr [esi + 0x2a], 0",
+        "004ef502 or dword ptr [esi + 0xc], 1",
+        "004ef506 push esi",
+        "004ef507 call 0x401ba0",
+        "004ef50c add esp, 4",
+        "004ef50f mov byte ptr [esi + 0x2e], 3",
+        "004ef513 push esi",
+        "004ef514 call 0x4ee190",
+        "004ef519 add esp, 4"
+      ]
+    }
+  ],
+  "outerDirectCalls": [
+    {
+      "callSite": "004ec79d",
+      "target": "00418e30",
+      "plannedClassification": "must be unreachable under declared flags/empty lists"
+    },
+    {
+      "callSite": "004ec7a2",
+      "target": "004e4f40",
+      "plannedClassification": "must be unreachable under declared flags/empty lists"
+    },
+    {
+      "callSite": "004ec7ac",
+      "target": "0041b230",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec7b6",
+      "target": "00436db0",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec7bb",
+      "target": "00493af0",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec7c0",
+      "target": "004ec3b0",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec7da",
+      "target": "00501000",
+      "plannedClassification": "must be unreachable under declared flags/empty lists"
+    },
+    {
+      "callSite": "004ec7fe",
+      "target": "00518630",
+      "plannedClassification": "must be unreachable under declared flags/empty lists"
+    },
+    {
+      "callSite": "004ec80e",
+      "target": "00489e50",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec84c",
+      "target": "00404c50",
+      "plannedClassification": "must be unreachable under declared flags/empty lists"
+    },
+    {
+      "callSite": "004ec877",
+      "target": "00518fb0",
+      "plannedClassification": "must be unreachable under declared flags/empty lists"
+    },
+    {
+      "callSite": "004ec880",
+      "target": "00489e50",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec890",
+      "target": "00489e50",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec8b6",
+      "target": "004ed700",
+      "plannedClassification": "real traversal/retirement owner"
+    },
+    {
+      "callSite": "004ec8f4",
+      "target": "00403280",
+      "plannedClassification": "must be unreachable under declared flags/empty lists"
+    },
+    {
+      "callSite": "004ec8fc",
+      "target": "00478ee0",
+      "plannedClassification": "must be unreachable under declared flags/empty lists"
+    },
+    {
+      "callSite": "004ec904",
+      "target": "004bbf30",
+      "plannedClassification": "must be unreachable under declared flags/empty lists"
+    },
+    {
+      "callSite": "004ec90c",
+      "target": "005028b0",
+      "plannedClassification": "must be unreachable under declared flags/empty lists"
+    },
+    {
+      "callSite": "004ec91a",
+      "target": "004ef7f0",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec91f",
+      "target": "004f0460",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec934",
+      "target": "004ed700",
+      "plannedClassification": "real traversal/retirement owner"
+    },
+    {
+      "callSite": "004ec942",
+      "target": "004ecac0",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec947",
+      "target": "00401350",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec96d",
+      "target": "00401b40",
+      "plannedClassification": "real traversal/retirement owner"
+    },
+    {
+      "callSite": "004ec98d",
+      "target": "00504660",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec9a1",
+      "target": "00502090",
+      "plannedClassification": "must be unreachable under declared flags/empty lists"
+    },
+    {
+      "callSite": "004ec9b0",
+      "target": "004fc020",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec9f0",
+      "target": "0041cb40",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec9f5",
+      "target": "0044df40",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec9fa",
+      "target": "004f0bd0",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004ec9ff",
+      "target": "004f0e00",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004eca04",
+      "target": "004ec390",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004eca09",
+      "target": "00450a70",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004eca0e",
+      "target": "0041a550",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004eca13",
+      "target": "0041c6d0",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    },
+    {
+      "callSite": "004eca18",
+      "target": "004f42c0",
+      "plannedClassification": "supplied only at this outer call site; outside selected object ownership"
+    }
+  ],
+  "corrections": [
+    "model9 state8 is timer-only retirement at visit2, not the model3 fade transition",
+    "wave changes model60 to state11, not its default state47"
+  ],
+  "primaryRetirementRange": [
+    "00890380",
+    "0089038c"
+  ]
+}

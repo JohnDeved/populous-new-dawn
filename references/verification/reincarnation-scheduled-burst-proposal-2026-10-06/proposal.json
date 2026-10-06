@@ -1,0 +1,172 @@
+{
+  "mode": "one fixed source-only scheduling proposal; no executable probe or launch",
+  "acceptedCreationSource": "dbec147f4aae79a40a917b195f7d8d3b58d63bf8",
+  "acceptedControlsSource": "b970c05e933ab286e888e717773297f72fa5e3c1",
+  "acceptedControlsPublication": "06345b16e8bbc4bba01ce1e49ded79d9b8291940",
+  "entry": "004ec6f0",
+  "exactCalls": 11,
+  "parameterSweep": false,
+  "fixture": {
+    "owner": 0,
+    "localPlayer": 0,
+    "gameFlags": 32,
+    "body": {
+      "handle": 640,
+      "class": 10,
+      "model": 12,
+      "state": 12,
+      "phase": 4,
+      "timer": 5,
+      "flags2": "00020000",
+      "renderFlags": "0010",
+      "point": [
+        8192,
+        8192,
+        1408
+      ],
+      "sourceModel": 7,
+      "classifier": 7,
+      "tribeIndex": 0
+    },
+    "site": [
+      4096,
+      4096,
+      240
+    ],
+    "ground": 128,
+    "populationGate": 1,
+    "shamanPointer": 0,
+    "gameplayRng": "12345678",
+    "cosmeticRng": "11223344",
+    "classSeeds": 250,
+    "highFreeHandles": [
+      641,
+      1440
+    ],
+    "lowFree": 0,
+    "highOccupied": 1,
+    "lowOccupied": 0,
+    "otherObjectLists": "empty",
+    "secondaryPointerRange": [
+      0,
+      0
+    ],
+    "midRunSupplies": "none"
+  },
+  "timeline": [
+    {
+      "call": 1,
+      "expectedWaveVisits": 0,
+      "expected": "phase4 timer5 allocates mode2 wave; wave not visited"
+    },
+    {
+      "call": 2,
+      "expectedWaveVisits": 1,
+      "expected": "wave visit1; body timer4 to3"
+    },
+    {
+      "call": 3,
+      "expectedWaveVisits": 2,
+      "expected": "wave visit2; body timer3 to2"
+    },
+    {
+      "call": 4,
+      "expectedWaveVisits": 3,
+      "expected": "wave visit3; body timer2 to1"
+    },
+    {
+      "call": 5,
+      "expectedWaveVisits": 4,
+      "expected": "wave visit4; body reaches phase5"
+    },
+    {
+      "call": 6,
+      "expectedWaveVisits": 5,
+      "expected": "wave visit5 then successful person/root/32-spark creation; body retires; burst unscheduled"
+    },
+    {
+      "call": 7,
+      "expectedWaveVisits": 6,
+      "expected": "first scheduled birth sparks newest-first, root visit1, supplied person processor; older wave continues"
+    },
+    {
+      "call": 8,
+      "expectedWaveVisits": 7,
+      "expected": "root visit2 retires; spark fade paths continue"
+    },
+    {
+      "call": 9,
+      "expectedWaveVisits": 8,
+      "expected": "spark fade paths continue"
+    },
+    {
+      "call": 10,
+      "expectedWaveVisits": 9,
+      "expected": "initial-timer1 spark generations retire"
+    },
+    {
+      "call": 11,
+      "expectedWaveVisits": 10,
+      "expected": "initial-timer2 spark generations retire; stop even though wave and retirement countdowns remain"
+    }
+  ],
+  "realClass7Models": [
+    3,
+    8,
+    9,
+    60,
+    61
+  ],
+  "realClass7StateBindings": {
+    "3": "0050a790",
+    "4": "0050a7a0",
+    "7": "0050a7ec",
+    "8": "0050a7fc",
+    "11": "0050a84f",
+    "48": "0050abdb"
+  },
+  "suppliedPersonProcessor": {
+    "address": "004d32b0",
+    "only": "the newly allocated Shaman; creation stays native; outer counter/stamp stay native"
+  },
+  "expectedSpawnGround": 256,
+  "expectedBirthHeight": 346,
+  "identity": "host allocation-generation observation; never edit native identity; real free-list reuse must remain visible",
+  "primaryRemovalOwners": [
+    "004ee4f0",
+    "004ef180",
+    "00401ba0",
+    "00401b40"
+  ],
+  "sourceFrameBoundary": "loaded counts supplied; no draw-loop or presentation visits",
+  "boundsProposed": {
+    "cpu": 4,
+    "outerCalls": 11,
+    "instructionsPerCall": 200000,
+    "emulationMicrosecondsPerCall": 1000000,
+    "translationBufferBytes": 67108864,
+    "wallSeconds": 20,
+    "killGraceSeconds": 5,
+    "cpuSeconds": 15,
+    "addressSpaceBytes": 1073741824,
+    "fileBytes": 33554432,
+    "fdLimit": 128,
+    "coreLimit": 0
+  },
+  "stop": "after call11; any unexpected failure/call/write/identity/order or bound stops for review, no retry or extension",
+  "remainingBeforeLaunch": [
+    "review this proposal",
+    "prepare one exact executable with call-site-scoped supplied outside-world leaves",
+    "freeze full native physics/cell/retirement closure, input/write owners and unique output",
+    "obtain separate coordinated execution grant"
+  ],
+  "limits": [
+    "supplied body/roster/pool history",
+    "ordinary Shaman processor supplied after real initialization",
+    "no full wave completion or reclamation of every spark",
+    "no allocation failure/owner sweep",
+    "no app/native:null normalization, runtime or allocation-policy change",
+    "no rendered or ordinary Mission2 witness",
+    "no original OS-game route"
+  ]
+}

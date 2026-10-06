@@ -1,0 +1,44 @@
+{
+  "mode": "host-only source proposal validation",
+  "sources": {
+    "scripts/check-native-reincarnation-wave.py": "a14dad04230853d0ecd941d204f6603c7e68c36b6b750cfdbd7a3bf55344fc32",
+    "scripts/check-native-level-start.py": "9227c7676e59c3f8477fc3d560d599ecbc7de553eb9155b1359a4100c04d6a88",
+    "scripts/check-native-spell-trails.py": "f145aca70c0ae204662f11f013e0fde5dfdeda52b60882109ef6d2e86618d5ca",
+    "scripts/check-native-formation-phase.py": "b76ffa711a13b50b92963fa40b9be857b0a9bcb4e9a8169a5f9dd735e4aac49b",
+    "decomp/research/level-start-sequence.md": "2dc3a5f1a4a0f069768808de3551682a2d0252ce962249ed7a5a033e0d4a9225",
+    "decomp/research/reincarnation-site-wave.md": "e51e3c60907b9c34d54fdb890733e3979127223de8d5ce4cf2b323d60fc77173",
+    "decomp/generated/004ec6f0.c": "497df5820bfebb7f79eb9cbaf2b887295f7933431958ab4c992ebb33f39e7923",
+    "decomp/generated/004ed700.c": "598f405b7271fdf40b953d45ae594946d0872b5fbe67ff9c9c9880f6a837fdff",
+    "decomp/generated/00500ec0.c": "dfc936e970e151a073d470bdf854143a97683647d730c12bd13b7467148b065d",
+    "decomp/generated/0050a750.c": "dc5ef6d241520da22067940d4560a779b4a3eb363681effeb71f4d9b0c3fa9cd",
+    "decomp/generated/0050bd70.c": "f253a0a5bea221eb5bdde7d75cf41500bf74e1de270312dcfb36f804e0f7d811",
+    "decomp/generated/0050beb0.c": "32e7a655dfbd2b07ec294f09cd8a4640be42e89bed78b2e096aa070342f6b4fd",
+    "decomp/generated/0050c840.c": "af4631384d2b4af541429dac432b469b2766ec346fffa66ddb1cee31b870b08d",
+    "decomp/generated/00509c10.c": "a0a2c32a6880db40bd55984cf55e8be386d9c3e56967362f46811eb83e8d3a13",
+    "decomp/generated/004e7a80.c": "f31f057f062d678aa2fd0c83034da4499e49f6248fe2e2b06f7d931a3570bd8f",
+    "decomp/generated/004ee470.c": "ea580251ff6bd4de4efa0984310f41086acc964695584aafa2f4caf5c006e29d",
+    "decomp/generated/004ee580.c": "c4114595ecdc2931b5e3dff4827297807a7d97cb121327851fb3d5dbb2e197ef",
+    "decomp/generated/004ee4f0.c": "41a9628238bb14cfd8a6e945df0de187ba5df7525a56a17bdcc5e33479b0ba1a",
+    "decomp/generated/004ef180.c": "021baf2a38e2dcf2062bdffc12aa449b5f2e789898aab1e776f1c1a0913802ae",
+    "decomp/generated/004ee190.c": "f95f845fd5fe68186267215ca40ed760d40f90c29a85df4e18bdadf3892a6b9c",
+    "app/world-turn.ts": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
+    "app/world-state.ts": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6"
+  },
+  "files": {
+    "proposal.json": "fdca79adf2f4ec5ebfc32ede5f740400348c14d2dba2e188c735270f0a271879",
+    "README.md": "4ea23a2265b4cb655689459e8b38f6464ddebfaf9aa76111f6f1839127cac598",
+    "static-boundaries.json": "8f98eff76d190dca112b721cd0de2a1deb11399812026599084b343fe045db3c"
+  },
+  "checks": {
+    "canonicalExeIdentity": "passed",
+    "boundedStaticDecode": "passed, seven ranges",
+    "stateTableTargets": "passed, six states",
+    "finiteProposal": "one fixed eleven-call proposal",
+    "nativeAppGhidraPackageBrowserExecution": "not-run",
+    "sourceCorrespondence": "passed,22 paths match inspected main",
+    "timelineAndEntryFlag": "passed, host-only11-row and flag/count checks",
+    "relativeLinksAndWhitespace": "passed"
+  },
+  "nativeResults": "none for this proposed timeline",
+  "inspectedRuntimeMain": "1c7e6b05687aca14d9350e17c7ae14dc6c68bb97"
+}
