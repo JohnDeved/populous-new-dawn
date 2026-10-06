@@ -17,7 +17,7 @@ function row(turn, phase = 'afterTurn', response = false) {
       vault: false, guard: false, attackReservation: false, starting: false, armageddon: false,
       landFlags: 0, supported: true, positionCoherent: true },
     status: 'playing', paused: false, speed: 1, visibility: 'visible', pendingDistance: 5000,
-    person: { id: 5, class: 1, model: 4, tribe: 0, state: 10, speed: 40, commandStatus: response ? 32 : 3,
+    person: { id: 5, class: 1, model: 4, tribe: 0, state: 10, speed: 40, life: 1100, commandStatus: response ? 32 : 3,
       commandCursor: 0, immediateCommand: response ? 11 : 0, commands: [10, 0], flags2: 0x20000, flags3: 0,
       flags4: 0, assignment: 0, vehicle: 0, x: 0x2100, y: 0x2100, substate: 0, counter: turn & 255, timer: 0, draw: 14 },
     commands: [10, 0], queued: [queued], order: response ? { id: 11, identity: 3, model: 32, flags: 32,
@@ -39,7 +39,8 @@ test('baseline absence requires a source-bound due visit while destination remai
     v => { v.order.identity = 9 }, v => { v.commands[0] = 9 }, v => { v.turn = 17 },
     v => { v.admission.target = 99 }, v => { v.admission.work = 9 }, v => { v.admission.delivery = true },
     v => { v.admission.starting = true }, v => { v.admission.armageddon = true },
-    v => { v.admission.supported = false }, v => { v.actor.hp-- }]) {
+    v => { v.admission.supported = false }, v => { v.actor.hp-- },
+    v => { v.person.life = 0 }, v => { v.person.life = 1000 }]) {
     const changed = structuredClone(after); change(changed)
     assert.equal(qualifyingVisit(before, changed), null)
   }

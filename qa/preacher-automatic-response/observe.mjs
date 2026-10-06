@@ -18,6 +18,7 @@ export function admittedMovingLane(row) {
 export function movingEncounter(row) {
   const p = row.person, f = row.facts
   return !!p && admittedMovingLane(row) && row.order?.model === 3 && !p.immediateCommand && p.commandStatus === 3 &&
+    p.life > 0 && p.life === Math.round(row.actor.hp * 20) &&
     p.state === 10 && p.speed > 0 && !(row.order.flags & 1) && row.pendingDistance > 512 &&
     f.autoEligible && f.range === 1 && f.genericThreat === 0 && f.primaryGuardIds.length === 0 &&
     f.availableOrder && f.braves.length > 0 && f.gameFlags === 0 && f.levelFlags2 === 0 &&
