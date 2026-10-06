@@ -1,0 +1,415 @@
+{
+  "createdAt": "2026-10-06T16:05:13.568731+00:00",
+  "status": "runtime-passed-awaiting-independent-result-review",
+  "qaHead": "0ef63ba8e1dbf2ef51e33626948e179116c40ca4",
+  "applicationHead": "b2b04cf4915dafc7165e961f9b45ddb3efd4d103",
+  "originalSession": 48782,
+  "launchSha256": "d35e1789d192c13de8973e78b1018231942a5f338b3c39fe6941c19c880bc229",
+  "sourceBundle": {
+    "path": "/workspace/shared/preacher-gesture-candidate-repair-0ef63ba8.bundle",
+    "sha256": "32a97a55c133bd3740c8c34b8b112155ac843ce451aa0c205efbefbcd60bb878",
+    "prerequisite": "732652b27399dbfe799c1e89353fc895bc3f2b93"
+  },
+  "application": {
+    "status": "ready",
+    "featureCommit": "b2b04cf4915dafc7165e961f9b45ddb3efd4d103",
+    "applicationBase": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+    "appTree": "ebffcbf36afa3ac4ecd5f33a60e01c93e659f20f",
+    "publicTree": "7afafb32546784eea20fd993df0f9eb5f9b86779",
+    "files": {
+      "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+      "scripts/campaign-start-readiness.mjs": "214ffc2ce95ea039328e356d493ba8beb887e2d5ef1084b672fb0413fac48d28",
+      "scripts/local-render/harness.mjs": "fb07de9e278f26b2b32324defeb6164832472a58d422aead1032b7db7ee85fcf",
+      "scripts/local-render/owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
+      "scripts/local-render/checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+      "scripts/local-render/vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27",
+      "app/preacher-conversion.ts": "2369864ac8f0d20d51a1570bc8bddc608241d3da55fea6fba4b3a233e0c7933d",
+      "app/game-clock.ts": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+      "app/live-people.ts": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+      "app/live-movement.ts": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20",
+      "app/person-idle.ts": "6dfb6f673b9d9856fac8727c29e4e5e1254e69df96d017d6e999820920c47350",
+      "app/selection-runtime.ts": "d1b61309818d87e85e329c24fd7384ebd00b474b4dbe8f57ef84061ecbb2be71",
+      "app/scene-entities.ts": "95a2a64f5741ca3445431a4b962e7a0aeef6e502841f56b2b90138addb236952",
+      "app/original-units.json": "e55160f7b2f269213de064a0db928708855b7e22affe6902a66ed3183bf9a12c",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "public/original/unit-layers.png": "c61aabf4692fc518efa3c879827298cf767831e308560fbad80ca03aee09aa4d",
+      "package.json": "75177ce9ebe6a221ecb1e4e3c35c2697ed92882a6924577d8892f03538f7e51c",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "app/animation.ts": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af",
+      "app/page.tsx": "50358f6ae119026e8b1f9215fa436126bb26b7595832140c136ed271fbc52fc2",
+      "app/game-store.ts": "1bb66bc1db93af5bff36c54f2c32630b71000bc5c0085595e6c7f2bc3cf95565",
+      "app/person-orders.ts": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394",
+      "app/audio.ts": "696d570b569a16c0402ad59c4fad59737554a3349b78acd5110844474cf52a5b",
+      "app/original-sound.json": "5ddccef0c8990ebf26f125f0c5aa19e946c20f23def8e887902b8f20d132557f"
+    },
+    "scriptsTree": "e60da49f0c994dd2bc2bd50f2ffbeca730dd2786",
+    "testsTree": "420c5b2f91eafe428d3204a3c088012c422058d2"
+  },
+  "sourceAndRuntimeReceipt": {
+    "bytes": 9114,
+    "sha256": "215227cb87f6447b0d324008468aa9ba433ad63b421ca4bfea3b4737e4a1aed0"
+  },
+  "terminalInputsReceipt": {
+    "bytes": 5725,
+    "sha256": "65a98a27f5cc3152d5ca236d4969b844a6b28622e4f23d1af970354054bd3a6f"
+  },
+  "execution": {
+    "startedAt": "2026-10-06T15:54:14.344027+00:00",
+    "finishedAt": "2026-10-06T16:02:10.744702+00:00",
+    "exitCode": 0,
+    "outerInterruptDeadline": "2026-10-06T16:06:44.344027+00:00",
+    "outerKillDeadline": "2026-10-06T16:07:04.344027+00:00"
+  },
+  "result": {
+    "progress": {
+      "status": "passed",
+      "entryTurn": 3326,
+      "startMs": 289467,
+      "firstLoopTurn": 3334,
+      "terminalTurn": 4173,
+      "restartTurn": 4183,
+      "visits": 858,
+      "opportunities": 52,
+      "families": {
+        "176": {
+          "births": 9,
+          "returns": 9
+        },
+        "184": {
+          "births": 14,
+          "returns": 14
+        }
+      },
+      "moveTurn": 3270,
+      "completedPhase": "render-after-updater"
+    },
+    "stages": [
+      {
+        "name": "ordinary-acquisition-to-fresh-entry",
+        "startedAt": "2026-10-06T15:55:05.145Z",
+        "capMs": 360000,
+        "elapsedMs": 280718.115091,
+        "finishedAt": "2026-10-06T15:59:45.864Z",
+        "outcome": "passed",
+        "turn": 3326
+      },
+      {
+        "name": "original-world-900-visits-and-both-gesture-families",
+        "startedAt": "2026-10-06T15:59:46.115Z",
+        "capMs": 119612.70000000298,
+        "elapsedMs": 92038.906602,
+        "finishedAt": "2026-10-06T16:01:18.155Z",
+        "outcome": "passed"
+      },
+      {
+        "name": "fresh-page-committed-Load-and-auto-resumed-epoch",
+        "startedAt": "2026-10-06T16:01:18.166Z",
+        "capMs": 90000,
+        "elapsedMs": 15563.601873000036,
+        "finishedAt": "2026-10-06T16:01:33.730Z",
+        "outcome": "passed",
+        "boundaryTurn": 3412,
+        "firstBoundTurn": 3495,
+        "resumedTurn": 3499
+      },
+      {
+        "name": "loaded-epoch-active-gesture-movement-supersession",
+        "startedAt": "2026-10-06T16:01:33.737Z",
+        "capMs": 40000,
+        "elapsedMs": 18724.119041000027,
+        "finishedAt": "2026-10-06T16:01:52.461Z",
+        "outcome": "passed"
+      }
+    ],
+    "screenshotsAndPixels": [
+      {
+        "frozen": [
+          3412,
+          176,
+          14,
+          0,
+          4,
+          84,
+          79,
+          3412,
+          true
+        ],
+        "changedPixels": 223,
+        "rgba": {
+          "format": "RGBA8",
+          "rowOrder": "bottom-to-top",
+          "x": 584,
+          "y": 572,
+          "width": 69,
+          "height": 78,
+          "before": {
+            "path": "source176-turn3412-body.rgba",
+            "sha256": "4dc3f51095863c1a9073f780804e5584f2a52167c4ca3616483f4b08c0fca9c6",
+            "bytes": 21528
+          },
+          "hidden": {
+            "path": "source176-turn3412-hidden-body.rgba",
+            "sha256": "6c200ae8f45f4c5c6ec309cccefbaaab6a2b1b0eec72fc42f371980ab1e0dba3",
+            "bytes": 21528
+          }
+        },
+        "screenshots": [
+          {
+            "path": "source176-turn3412-full.png",
+            "sha256": "1fdf8e848353ce7783fde448eff2d6a48af7bbed66257b08446b954f4e66ff82",
+            "turn": 3412,
+            "phase": [
+              176,
+              14,
+              0,
+              4,
+              84,
+              79,
+              3412
+            ]
+          },
+          {
+            "path": "source176-turn3412-actor.png",
+            "sha256": "095ee3f03f277307cd0a5b5c85cd48ce4dc50c7a11e0d489ec5ade150af45958",
+            "turn": 3412,
+            "phase": [
+              176,
+              14,
+              0,
+              4,
+              84,
+              79,
+              3412
+            ]
+          }
+        ],
+        "maxTextureSize": 8192,
+        "restored": true
+      },
+      {
+        "frozen": [
+          3505,
+          184,
+          14,
+          0,
+          1,
+          177,
+          172,
+          3505,
+          true
+        ],
+        "changedPixels": 216,
+        "rgba": {
+          "format": "RGBA8",
+          "rowOrder": "bottom-to-top",
+          "x": 584,
+          "y": 572,
+          "width": 69,
+          "height": 78,
+          "before": {
+            "path": "source184-turn3505-body.rgba",
+            "sha256": "46ff57294150ad34002d68cbdf4ef128ea67a6f086a6156738daf1ff1db52414",
+            "bytes": 21528
+          },
+          "hidden": {
+            "path": "source184-turn3505-hidden-body.rgba",
+            "sha256": "6c200ae8f45f4c5c6ec309cccefbaaab6a2b1b0eec72fc42f371980ab1e0dba3",
+            "bytes": 21528
+          }
+        },
+        "screenshots": [
+          {
+            "path": "source184-turn3505-full.png",
+            "sha256": "392ffccd0286758baace8fe29abbb347b41a46e4ec8a9fed92dd8099286f5722",
+            "turn": 3505,
+            "phase": [
+              184,
+              14,
+              0,
+              1,
+              177,
+              172,
+              3505
+            ]
+          },
+          {
+            "path": "source184-turn3505-actor.png",
+            "sha256": "16a6c3e6ef7e6590e18dc191a46929e78f448f4fa9fd8d204fd245d01ea17859",
+            "turn": 3505,
+            "phase": [
+              184,
+              14,
+              0,
+              1,
+              177,
+              172,
+              3505
+            ]
+          }
+        ],
+        "maxTextureSize": 8192,
+        "restored": true
+      }
+    ],
+    "originalRestored": {
+      "errors": [],
+      "restored": true
+    },
+    "loadedRestored": {
+      "errors": [],
+      "restored": true
+    },
+    "savedCheckpointSha256": "fe14e71be7aa7bccd0414f0ec79aa52833cbf897a8a3a064426139d34ab16a33",
+    "savedTurn": 3412,
+    "firstTraineeAdmissionTurn": 2856,
+    "movementTurn": 3608,
+    "activeBeforeMovement": {
+      "id": 3160,
+      "object": 184,
+      "draw": 14,
+      "f1": 0,
+      "f2": 3,
+      "statusFlags": 3
+    }
+  },
+  "failedAttempt01": {
+    "path": "/workspace/shared/preacher-gesture-candidate-attempt01-732652b2",
+    "manifestSha256": "800032db7f52c234f6159a66366c13ca8e13f6a77b3717b7a2a1cd059e5fbde7",
+    "archiveSha256": "aa00d242f067051b3857b41dc9dfa572859ecb1c2637507c50a351b6b5aae609",
+    "status": "failed before home-ground click; rejected neighborhood cause unretained/unknown; preserved independently"
+  },
+  "archive": {
+    "path": "raw-evidence.tar.gz",
+    "bytes": 10930915,
+    "sha256": "7c1642c42b85e6dae44299f2611abd7de3fe708f21142b143a9f8bfade794809",
+    "members": {
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/acquired-preacher.png": {
+        "bytes": 2042570,
+        "sha256": "601dd5c47512f687103f6358e5cfcb33a04efed1ebd688cfcd20e029743bb6b5"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/acquisition.json": {
+        "bytes": 613889,
+        "sha256": "ea780308b674dc7bfbbb4f782c3c5d9fd8a6b5c20008478d9f491e1022434023"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/actions.jsonl": {
+        "bytes": 197699,
+        "sha256": "45438da0662313e95aad7837b7a3405d6cbe06920f5929f93db882a7174de3ab"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/candidate.json": {
+        "bytes": 622319,
+        "sha256": "ccf1ca127ee81b71ab502d52358805963ab2d88c9ffee07268fa93427a01e9db"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/first-trainee-admission.json": {
+        "bytes": 69880,
+        "sha256": "99eaa9030321bb057341d39e91548c6512e61230960737e4e876bab117b30886"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/loaded-phases.jsonl": {
+        "bytes": 20825158,
+        "sha256": "12d1e483d0e5334d02bc9b422ec2118234ebc1a30d5e4fce2f66b425467eb693"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/observer-cleanup.json": {
+        "bytes": 23736919,
+        "sha256": "461d6535b32b78abffafc1d68f831ad96b81adf1f89f58008335a1b1e370a8c3"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/original-phases.jsonl": {
+        "bytes": 5662354,
+        "sha256": "e1f3ef97ac9620ae082527c706ec3b663292148907219e17c782808cf7369534"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/prelaunch.json": {
+        "bytes": 9114,
+        "sha256": "215227cb87f6447b0d324008468aa9ba433ad63b421ca4bfea3b4737e4a1aed0"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/receipt.json": {
+        "bytes": 320195,
+        "sha256": "b8fd18702fb00c7c00a0850028c7d6d6e91c9c1bfc5bd80217c9efc39dbeba01"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/server.log": {
+        "bytes": 871,
+        "sha256": "d04321a8f51c0d7b1853ba7c5cd0e144bc7159f7097ac65fdfa5b1bc2b5d11d1"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source176-turn3412-actor.png": {
+        "bytes": 10426,
+        "sha256": "095ee3f03f277307cd0a5b5c85cd48ce4dc50c7a11e0d489ec5ade150af45958"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source176-turn3412-body.rgba": {
+        "bytes": 21528,
+        "sha256": "4dc3f51095863c1a9073f780804e5584f2a52167c4ca3616483f4b08c0fca9c6"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source176-turn3412-full.png": {
+        "bytes": 2072760,
+        "sha256": "1fdf8e848353ce7783fde448eff2d6a48af7bbed66257b08446b954f4e66ff82"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source176-turn3412-hidden-body.rgba": {
+        "bytes": 21528,
+        "sha256": "6c200ae8f45f4c5c6ec309cccefbaaab6a2b1b0eec72fc42f371980ab1e0dba3"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source184-turn3505-actor.png": {
+        "bytes": 10435,
+        "sha256": "16a6c3e6ef7e6590e18dc191a46929e78f448f4fa9fd8d204fd245d01ea17859"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source184-turn3505-body.rgba": {
+        "bytes": 21528,
+        "sha256": "46ff57294150ad34002d68cbdf4ef128ea67a6f086a6156738daf1ff1db52414"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source184-turn3505-full.png": {
+        "bytes": 2084018,
+        "sha256": "392ffccd0286758baace8fe29abbb347b41a46e4ec8a9fed92dd8099286f5722"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source184-turn3505-hidden-body.rgba": {
+        "bytes": 21528,
+        "sha256": "6c200ae8f45f4c5c6ec309cccefbaaab6a2b1b0eec72fc42f371980ab1e0dba3"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/terminal-inputs.json": {
+        "bytes": 5725,
+        "sha256": "65a98a27f5cc3152d5ca236d4969b844a6b28622e4f23d1af970354054bd3a6f"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02-command.json": {
+        "bytes": 162258,
+        "sha256": "10474c095f3e54c42f0aeee83bcf924580516ba776bf448d56e7a865cfbcc233"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02-command.json.artifacts/stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02-command.json.artifacts/stdout.log": {
+        "bytes": 134991,
+        "sha256": "2c10f3a61895d36c7d317d280b3f659d452555b0deb1592880f76ab80149d23e"
+      },
+      "work/orchestration/preacher-gesture-candidate/dependency-transfer-01.json": {
+        "bytes": 1071,
+        "sha256": "519b3acfac1504b06b5714e4f4b6b3c4558bcc6790aa23e8103a9e06c9a88893"
+      },
+      "work/orchestration/preacher-gesture-candidate/execution-preflight-02.json": {
+        "bytes": 662,
+        "sha256": "d31855137c3c43f4df63f1f3ab2364f669914fcf37d25691857dc2d7722ec145"
+      },
+      "work/orchestration/preacher-gesture-candidate/execution-session-02.json": {
+        "bytes": 2983,
+        "sha256": "79bd345489da578b1c20d504a6dca0c583046df688bad760ef4404c62c7f1f03"
+      },
+      "work/orchestration/preacher-gesture-candidate/source-repair-0ef63ba8/launch.json": {
+        "bytes": 8061,
+        "sha256": "d35e1789d192c13de8973e78b1018231942a5f338b3c39fe6941c19c880bc229"
+      },
+      "work/orchestration/preacher-gesture-candidate/source-repair-0ef63ba8/receipt.json": {
+        "bytes": 6818,
+        "sha256": "57d0bfd4c4fee7af97013e1e182a7494f4b58fa25ff1be5a08526e15a33438f9"
+      },
+      "work/orchestration/preacher-gesture-candidate/terminal-cleanup-02.json": {
+        "bytes": 25451776,
+        "sha256": "56eb129aac2e19c86c50741af3cf076545a3ff2020bb87f73f3d8a951bf5ec07"
+      },
+      "work/reviews/preacher-ground-repair-review-0ef63ba8.md": {
+        "bytes": 4849,
+        "sha256": "9e7de86e993b495be98794ee7bfafd8778794bc543796dbda458239bc1ddf4b4"
+      }
+    }
+  },
+  "limitations": [
+    "Load boundary turn3412 is exact; firstBound3495 and resumed3499 are later observations, with intervening updates not reconstructed.",
+    "Cleanup port bind was observed after terminal, not at exit time.",
+    "SwiftShader WebGL2 visible-pixel proof; no hardware GPU or native mixer audibility claim.",
+    "Audio parity remains request/loader-only in independently accepted source/focused evidence.",
+    "One finite ordinary candidate run; no conversion/combat/victory replay or general campaign proof."
+  ]
+}

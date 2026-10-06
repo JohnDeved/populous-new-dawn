@@ -1,0 +1,13 @@
+{
+  "status": "independently ACCEPTED source and ordinary baseline",
+  "qaHead": "9a54c932e5aaae1f50298e8e82e871ea87dfd2a8",
+  "application": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+  "resultManifestSha256": "fc9dc105f3cd94a7de52b778f6a65acb6ff5cf55ef6701e5c5218aa0bfc4935b",
+  "reviews": {
+    "preacher-baseline-source-review-9a54c932.md": "0fa8364df146ab0f902699e766eea1dff6149ff1dd536dee585e06d2b9fb28e6",
+    "preacher-baseline-source-audit-9a54c932.json": "c0263cf61399196627806322f70942a9cc3023bdd3f6c82a0935b7a98bd9549a",
+    "preacher-baseline-result-review-9a54c932.md": "480a807bb53f18372f1a51e2cd234f3e20a177679ff5a8780ec5225b082aa601",
+    "preacher-baseline-result-audit-9a54c932.json": "ee992297b3cf61b0166ca0e79bb3d17724608b1ea7a155cd189ce8a976b76ea1"
+  },
+  "sourceClean": true
+}

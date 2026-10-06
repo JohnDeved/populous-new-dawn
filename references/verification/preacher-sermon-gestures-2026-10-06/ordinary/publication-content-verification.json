@@ -1,0 +1,39 @@
+[
+  {
+    "attempt": "attempt01",
+    "manifestSha256": "800032db7f52c234f6159a66366c13ca8e13f6a77b3717b7a2a1cd059e5fbde7",
+    "archiveSha256": "aa00d242f067051b3857b41dc9dfa572859ecb1c2637507c50a351b6b5aae609",
+    "verifiedMembers": 18,
+    "retainedDirectFiles": [
+      "browser-attempt-01/candidate.json",
+      "browser-attempt-01/failure-0.png",
+      "browser-attempt-01/receipt.json",
+      "terminal-cleanup-01.json",
+      "source-final-732652b2/receipt.json"
+    ],
+    "credentialPatternMatches": 0
+  },
+  {
+    "attempt": "attempt02",
+    "manifestSha256": "731367da25827702c2eecf77e7bb377c0d915172372d4861b2e31c20c1d6e5dc",
+    "archiveSha256": "7c1642c42b85e6dae44299f2611abd7de3fe708f21142b143a9f8bfade794809",
+    "verifiedMembers": 30,
+    "retainedDirectFiles": [
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/candidate.json",
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/first-trainee-admission.json",
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/receipt.json",
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source176-turn3412-actor.png",
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source176-turn3412-body.rgba",
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source176-turn3412-full.png",
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source176-turn3412-hidden-body.rgba",
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source184-turn3505-actor.png",
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source184-turn3505-body.rgba",
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source184-turn3505-full.png",
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/source184-turn3505-hidden-body.rgba",
+      "work/orchestration/preacher-gesture-candidate/browser-attempt-02/terminal-inputs.json",
+      "work/orchestration/preacher-gesture-candidate/source-repair-0ef63ba8/receipt.json",
+      "work/reviews/preacher-ground-repair-review-0ef63ba8.md"
+    ],
+    "credentialPatternMatches": 0
+  }
+]

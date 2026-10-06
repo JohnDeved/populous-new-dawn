@@ -1,0 +1,85 @@
+{
+  "createdAt": "2026-10-06T13:59:05.313441+00:00",
+  "status": "failed safely before home-return pointer dispatch; candidate visual/checkpoint proof not reached",
+  "qaHead": "732652b27399dbfe799c1e89353fc895bc3f2b93",
+  "application": "b2b04cf4915dafc7165e961f9b45ddb3efd4d103",
+  "files": {
+    "browser-attempt-01/acquisition.json": {
+      "bytes": 253202,
+      "sha256": "e477f591b3db743841e5652d33a715e06414cafafe61df3b7186b8d28e640edd"
+    },
+    "browser-attempt-01/actions.jsonl": {
+      "bytes": 33100,
+      "sha256": "02135116381c71dfd606dcc58e13d917bd3c99313caff1d2d2bc4669f33e0b61"
+    },
+    "browser-attempt-01/candidate.json": {
+      "bytes": 1924,
+      "sha256": "23f308b20f0745556e876eb545064c33e50386c05d3a2993e8b053487319f972"
+    },
+    "browser-attempt-01/failure-0.png": {
+      "bytes": 1936619,
+      "sha256": "4c5c40ecac2cc5da51ca3e4197ee3a2fc869494a83fb51abb4330e98f8100d44"
+    },
+    "browser-attempt-01/observer-cleanup.json": {
+      "bytes": 3,
+      "sha256": "ca3d163bab055381827226140568f3bef7eaac187cebd76878e0b63e9e442356"
+    },
+    "browser-attempt-01/prelaunch.json": {
+      "bytes": 8740,
+      "sha256": "c2aef6dabe0fc0aeb3917953aa0d0ec1921ce40f944d08b9f6420a1bea70119d"
+    },
+    "browser-attempt-01/receipt.json": {
+      "bytes": 3485,
+      "sha256": "f0c87f06f4eb2c0ce2665d2fa185e11813ba552489e46a334bd1c3f55f558cb5"
+    },
+    "browser-attempt-01/server.log": {
+      "bytes": 1012,
+      "sha256": "d0355c64c4e6e8f509940c63811242e8eb773a1c623994461ebc333a6df11c16"
+    },
+    "browser-attempt-01/terminal-inputs.json": {
+      "bytes": 5351,
+      "sha256": "3d72e389b6467314275151bcbddf489d351ee994f98e373758a0d45183a26442"
+    },
+    "browser-attempt-01-command.json": {
+      "bytes": 10039,
+      "sha256": "2167cf59887e7bb55f8057497d504f6c4df6d36440128d580ccdfeac2721c3bd"
+    },
+    "browser-attempt-01-command.json.artifacts/stdout.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "browser-attempt-01-command.json.artifacts/stderr.log": {
+      "bytes": 1806,
+      "sha256": "1752759f007cdb82cce4ecb3118a300e69b67d3d289d8dadc13092495f05db0a"
+    },
+    "dependency-transfer-01.json": {
+      "bytes": 1071,
+      "sha256": "519b3acfac1504b06b5714e4f4b6b3c4558bcc6790aa23e8103a9e06c9a88893"
+    },
+    "execution-preflight-01.json": {
+      "bytes": 662,
+      "sha256": "568f7ec959674771b79b755a5a2f93497b71fb7a63aa1ca92f1f18e55ea824bf"
+    },
+    "execution-session-01.json": {
+      "bytes": 2768,
+      "sha256": "2f9fed34a13f1805179e5b0361fbe7f707064d0cdcc735858555df5a582d2eaa"
+    },
+    "terminal-cleanup-01.json": {
+      "bytes": 1843,
+      "sha256": "7a3ac716fecdd91480b962d6845e6d7c42183b06340f6266fdc757200c33324d"
+    },
+    "source-final-732652b2/receipt.json": {
+      "bytes": 7348,
+      "sha256": "a66bec605976bddf5a81cdeb5a5da0177db7607c458061547b3bd123c1ec8739"
+    },
+    "source-final-732652b2/launch.json": {
+      "bytes": 7572,
+      "sha256": "839f85bd493df7622cfb901964ea739f252d263977de177250a207b8dc57d00b"
+    }
+  },
+  "archive": {
+    "name": "raw-evidence.tar.gz",
+    "bytes": 1967516,
+    "sha256": "aa00d242f067051b3857b41dc9dfa572859ecb1c2637507c50a351b6b5aae609"
+  }
+}

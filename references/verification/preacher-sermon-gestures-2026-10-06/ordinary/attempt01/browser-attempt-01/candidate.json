@@ -1,0 +1,26 @@
+{
+  "status": "failed",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006",
+    "commit": "732652b27399dbfe799c1e89353fc895bc3f2b93",
+    "tree": "b3386c1a13d30280cbee6662302ea74e00df5051",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "fc2aca6fcac355e05a6ef8da9257416d5c70767b33c3825806f03c7143ec077d"
+  },
+  "started": 64567.277067,
+  "elapsedMs": 165614.443808,
+  "stages": [],
+  "activeStage": {
+    "name": "ordinary-acquisition-to-fresh-entry",
+    "startedAt": "2026-10-06T13:49:52.587Z",
+    "started": 64567.540268,
+    "capMs": 360000
+  },
+  "failures": [
+    "AssertionError [ERR_ASSERTION]: Ground pixel changed before delivery\n\nfalse !== true\n\n    at prepareGround (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/qa/preacher-gesture-baseline/inherited/ground-and-dispatch.mjs:37:12)\n    at async Object.clickOrder (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/qa/preacher-gesture-baseline/inherited/ground-and-dispatch.mjs:54:12)\n    at async acquirePreacher (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/qa/preacher-gesture-candidate/acquire.mjs:129:29)\n    at async preacherCandidate (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/qa/preacher-gesture-candidate/scenario.mjs:75:19)\n    at async runLocalBrowser (file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/scripts/local-render/harness.mjs:153:20)\n    at async file:///workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/qa/preacher-gesture-candidate/run.mjs:55:18"
+  ],
+  "captures": [],
+  "events": []
+}

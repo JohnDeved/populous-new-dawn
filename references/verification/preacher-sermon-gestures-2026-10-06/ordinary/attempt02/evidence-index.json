@@ -1,0 +1,594 @@
+{
+  "qaHead": "0ef63ba8e1dbf2ef51e33626948e179116c40ca4",
+  "rawManifestSha256": "731367da25827702c2eecf77e7bb377c0d915172372d4861b2e31c20c1d6e5dc",
+  "originalStream": "work/orchestration/preacher-gesture-candidate/browser-attempt-02/original-phases.jsonl",
+  "families": {
+    "176": {
+      "firstBirth": 3408,
+      "firstReturn": 3418,
+      "rows": [
+        {
+          "line": 356,
+          "turn": 3407,
+          "phase": "afterTurn",
+          "person": {
+            "object": 168,
+            "draw": 14,
+            "f1": 0,
+            "f2": 3,
+            "stamp": 3406,
+            "statusFlags": 2,
+            "counter": 79,
+            "timer": 74,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3848841983,
+            "cosmetic": 2401232359
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 357,
+          "turn": 3407,
+          "phase": "render-after-updater",
+          "person": {
+            "object": 168,
+            "draw": 14,
+            "f1": 0,
+            "f2": 4,
+            "stamp": 3407,
+            "statusFlags": 2,
+            "counter": 79,
+            "timer": 74,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3848841983,
+            "cosmetic": 2401232359
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 358,
+          "turn": 3407,
+          "phase": "beforeTurn",
+          "person": {
+            "object": 168,
+            "draw": 14,
+            "f1": 0,
+            "f2": 4,
+            "stamp": 3407,
+            "statusFlags": 2,
+            "counter": 79,
+            "timer": 74,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3848841983,
+            "cosmetic": 2401232359
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 359,
+          "turn": 3408,
+          "phase": "afterTurn",
+          "person": {
+            "object": 176,
+            "draw": 14,
+            "f1": 1,
+            "f2": 0,
+            "stamp": 3407,
+            "statusFlags": 3,
+            "counter": 80,
+            "timer": 75,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3848841983,
+            "cosmetic": 3107191585
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 360,
+          "turn": 3408,
+          "phase": "beforeTurn",
+          "person": {
+            "object": 176,
+            "draw": 14,
+            "f1": 0,
+            "f2": 0,
+            "stamp": 3408,
+            "statusFlags": 3,
+            "counter": 80,
+            "timer": 75,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3848841983,
+            "cosmetic": 3107191585
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 380,
+          "turn": 3417,
+          "phase": "afterTurn",
+          "person": {
+            "object": 176,
+            "draw": 14,
+            "f1": 0,
+            "f2": 8,
+            "stamp": 3416,
+            "statusFlags": 3,
+            "counter": 89,
+            "timer": 84,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3848841983,
+            "cosmetic": 3305523213
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 381,
+          "turn": 3417,
+          "phase": "render-after-updater",
+          "person": {
+            "object": 176,
+            "draw": 14,
+            "f1": 0,
+            "f2": 9,
+            "stamp": 3417,
+            "statusFlags": 3,
+            "counter": 89,
+            "timer": 84,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3848841983,
+            "cosmetic": 3305523213
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 382,
+          "turn": 3417,
+          "phase": "beforeTurn",
+          "person": {
+            "object": 176,
+            "draw": 14,
+            "f1": 0,
+            "f2": 9,
+            "stamp": 3417,
+            "statusFlags": 3,
+            "counter": 89,
+            "timer": 84,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3848841983,
+            "cosmetic": 3305523213
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 383,
+          "turn": 3418,
+          "phase": "afterTurn",
+          "person": {
+            "object": 168,
+            "draw": 14,
+            "f1": 0,
+            "f2": 0,
+            "stamp": 3417,
+            "statusFlags": 2,
+            "counter": 90,
+            "timer": 85,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3848841983,
+            "cosmetic": 3305523213
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 384,
+          "turn": 3418,
+          "phase": "render-after-updater",
+          "person": {
+            "object": 168,
+            "draw": 14,
+            "f1": 0,
+            "f2": 1,
+            "stamp": 3418,
+            "statusFlags": 2,
+            "counter": 90,
+            "timer": 85,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3848841983,
+            "cosmetic": 3305523213
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 385,
+          "turn": 3418,
+          "phase": "beforeTurn",
+          "person": {
+            "object": 168,
+            "draw": 14,
+            "f1": 0,
+            "f2": 1,
+            "stamp": 3418,
+            "statusFlags": 2,
+            "counter": 90,
+            "timer": 85,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3848841983,
+            "cosmetic": 3305523213
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        }
+      ],
+      "capture": {
+        "turn": 3412,
+        "source": 176,
+        "f1": 0,
+        "f2": 4,
+        "actualFrame": 5140,
+        "actualVfra": 807,
+        "changedPixels": 223,
+        "screenshots": [
+          {
+            "path": "source176-turn3412-full.png",
+            "sha256": "1fdf8e848353ce7783fde448eff2d6a48af7bbed66257b08446b954f4e66ff82",
+            "turn": 3412,
+            "phase": [
+              176,
+              14,
+              0,
+              4,
+              84,
+              79,
+              3412
+            ]
+          },
+          {
+            "path": "source176-turn3412-actor.png",
+            "sha256": "095ee3f03f277307cd0a5b5c85cd48ce4dc50c7a11e0d489ec5ade150af45958",
+            "turn": 3412,
+            "phase": [
+              176,
+              14,
+              0,
+              4,
+              84,
+              79,
+              3412
+            ]
+          }
+        ]
+      }
+    },
+    "184": {
+      "firstBirth": 3344,
+      "firstReturn": 3362,
+      "rows": [
+        {
+          "line": 201,
+          "turn": 3343,
+          "phase": "afterTurn",
+          "person": {
+            "object": 168,
+            "draw": 14,
+            "f1": 0,
+            "f2": 2,
+            "stamp": 3342,
+            "statusFlags": 2,
+            "counter": 15,
+            "timer": 10,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 2690112978,
+            "cosmetic": 1030982973
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 202,
+          "turn": 3343,
+          "phase": "beforeTurn",
+          "person": {
+            "object": 168,
+            "draw": 14,
+            "f1": 0,
+            "f2": 3,
+            "stamp": 3343,
+            "statusFlags": 2,
+            "counter": 15,
+            "timer": 10,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 2690112978,
+            "cosmetic": 1030982973
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 203,
+          "turn": 3344,
+          "phase": "afterTurn",
+          "person": {
+            "object": 184,
+            "draw": 14,
+            "f1": 1,
+            "f2": 0,
+            "stamp": 3343,
+            "statusFlags": 3,
+            "counter": 16,
+            "timer": 11,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 2690112978,
+            "cosmetic": 1642540100
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 204,
+          "turn": 3344,
+          "phase": "beforeTurn",
+          "person": {
+            "object": 184,
+            "draw": 14,
+            "f1": 0,
+            "f2": 0,
+            "stamp": 3344,
+            "statusFlags": 3,
+            "counter": 16,
+            "timer": 11,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 2690112978,
+            "cosmetic": 1642540100
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 243,
+          "turn": 3361,
+          "phase": "afterTurn",
+          "person": {
+            "object": 184,
+            "draw": 14,
+            "f1": 0,
+            "f2": 16,
+            "stamp": 3360,
+            "statusFlags": 3,
+            "counter": 33,
+            "timer": 28,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3152923407,
+            "cosmetic": 1561896164
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 244,
+          "turn": 3361,
+          "phase": "render-after-updater",
+          "person": {
+            "object": 184,
+            "draw": 14,
+            "f1": 0,
+            "f2": 17,
+            "stamp": 3361,
+            "statusFlags": 3,
+            "counter": 33,
+            "timer": 28,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3152923407,
+            "cosmetic": 1561896164
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 245,
+          "turn": 3361,
+          "phase": "beforeTurn",
+          "person": {
+            "object": 184,
+            "draw": 14,
+            "f1": 0,
+            "f2": 17,
+            "stamp": 3361,
+            "statusFlags": 3,
+            "counter": 33,
+            "timer": 28,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3152923407,
+            "cosmetic": 1561896164
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 246,
+          "turn": 3362,
+          "phase": "afterTurn",
+          "person": {
+            "object": 168,
+            "draw": 14,
+            "f1": 0,
+            "f2": 0,
+            "stamp": 3361,
+            "statusFlags": 2,
+            "counter": 34,
+            "timer": 29,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3152923407,
+            "cosmetic": 1561896164
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        },
+        {
+          "line": 247,
+          "turn": 3362,
+          "phase": "beforeTurn",
+          "person": {
+            "object": 168,
+            "draw": 14,
+            "f1": 0,
+            "f2": 1,
+            "stamp": 3362,
+            "statusFlags": 2,
+            "counter": 34,
+            "timer": 29,
+            "commandStatus": 17
+          },
+          "rng": {
+            "simulation": 3152923407,
+            "cosmetic": 1561896164
+          },
+          "sameActor": true,
+          "sameWorld": true,
+          "owner": "native"
+        }
+      ],
+      "capture": {
+        "turn": 3505,
+        "source": 184,
+        "f1": 0,
+        "f2": 1,
+        "actualFrame": 5203,
+        "actualVfra": 870,
+        "changedPixels": 216,
+        "screenshots": [
+          {
+            "path": "source184-turn3505-full.png",
+            "sha256": "392ffccd0286758baace8fe29abbb347b41a46e4ec8a9fed92dd8099286f5722",
+            "turn": 3505,
+            "phase": [
+              184,
+              14,
+              0,
+              1,
+              177,
+              172,
+              3505
+            ]
+          },
+          {
+            "path": "source184-turn3505-actor.png",
+            "sha256": "16a6c3e6ef7e6590e18dc191a46929e78f448f4fa9fd8d204fd245d01ea17859",
+            "turn": 3505,
+            "phase": [
+              184,
+              14,
+              0,
+              1,
+              177,
+              172,
+              3505
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "exactCheckpoint": "candidate.json saved.gesture and loaded.boundary.gesture (turn3412); saved.digest checkpointSha256 fe14e71be7aa7bccd0414f0ec79aa52833cbf897a8a3a064426139d34ab16a33",
+  "loadedBoundaryAndContinuation": {
+    "firstBound": 3495,
+    "resumed": 3499
+  },
+  "supersession": {
+    "inputBeforeTurn": 3603,
+    "inputAfterTurn": 3603,
+    "actualBefore": {
+      "id": 3160,
+      "object": 184,
+      "draw": 14,
+      "f1": 0,
+      "f2": 3,
+      "statusFlags": 3
+    },
+    "acceptance": {
+      "kind": "fresh-input-new-order",
+      "recipientIds": [
+        3160
+      ],
+      "marker": {
+        "id": 3165,
+        "kind": "orderMarker",
+        "x": 41,
+        "z": 89,
+        "turnsRemaining": 4,
+        "secondaryOwner": {
+          "slot": 159,
+          "kind": "orderMarker",
+          "effect": 3165,
+          "serial": 3
+        }
+      }
+    },
+    "movementTurn": 3608
+  }
+}

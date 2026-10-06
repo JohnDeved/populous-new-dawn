@@ -1,0 +1,172 @@
+{
+  "time": "2026-10-06T13:41:29.337549+00:00",
+  "head": "732652b27399dbfe799c1e89353fc895bc3f2b93",
+  "gitStatus": "",
+  "featureCommit": "b2b04cf4915dafc7165e961f9b45ddb3efd4d103",
+  "trees": {
+    "app": "ebffcbf36afa3ac4ecd5f33a60e01c93e659f20f",
+    "public": "7afafb32546784eea20fd993df0f9eb5f9b86779",
+    "scripts": "e60da49f0c994dd2bc2bd50f2ffbeca730dd2786",
+    "tests": "420c5b2f91eafe428d3204a3c088012c422058d2"
+  },
+  "sourceBefore": {
+    "qa/preacher-gesture-candidate/README.md": "13fe0c27e153a0704d30f1f532c6ba216a712a6360d12418e103e127a53bcc26",
+    "qa/preacher-gesture-candidate/acquire.mjs": "2e799f825446f84b561a2a91afd4651e8b73fe5a53b510a4d0f6e3d973aba4fe",
+    "qa/preacher-gesture-candidate/application-inputs.json": "2f876069283b3c945fb51dbd471c30b3a934b6f9f1d629705e5829b71b233135",
+    "qa/preacher-gesture-candidate/checkpoint.mjs": "419f875aa7d20f914f9f3e421a417e83c4d8a3dd5a622c3e385eb957e758c6c4",
+    "qa/preacher-gesture-candidate/contract.test.mjs": "b369274afcf397f93a3c80ce42f61fdd070d9b94e31c634dc1f0a9dfe6a91428",
+    "qa/preacher-gesture-candidate/expected-runtime.json": "14b1df0f9b38157214acbd8370cc53992ebb0ee15e72a30f6d556d373b2bf617",
+    "qa/preacher-gesture-candidate/load-boundary.mjs": "46ca676143212890e4465d2daf857e959377f93eed2b9f1179d8af05edbf5940",
+    "qa/preacher-gesture-candidate/observe.mjs": "fd6bf1fc8312cab3a799b88b3779cb1d79ddc191cf877d3079f02a98bed292b7",
+    "qa/preacher-gesture-candidate/pause-input.mjs": "2e79c54892a8e33a3e77f1694f322b7322ef02a93193f97ab87443f071297514",
+    "qa/preacher-gesture-candidate/pixels.mjs": "e64a8fbc8001c9fbfc86441b84d473cf1083704324460d500b75602a3193927c",
+    "qa/preacher-gesture-candidate/provenance.json": "bf5106520af512a12d5af49e6682113686ee5d0e3ca4ebc6077e92c27ea2325c",
+    "qa/preacher-gesture-candidate/render-observation.mjs": "86ec0d5b68ebfd8f93324d5cce38001060da48301c72a66b6a57e15c6b1d2682",
+    "qa/preacher-gesture-candidate/run.mjs": "38267dffe28eaf1e2b0e7b89c55d507e58c561076ba0a8b211b1c9d6da52b44e",
+    "qa/preacher-gesture-candidate/scenario.mjs": "0b9360ad22af5a29e9336e36240bb0e33f2ba058f2d3ecc5c9bef1ba67605177"
+  },
+  "sourceAfter": {
+    "qa/preacher-gesture-candidate/README.md": "13fe0c27e153a0704d30f1f532c6ba216a712a6360d12418e103e127a53bcc26",
+    "qa/preacher-gesture-candidate/acquire.mjs": "2e799f825446f84b561a2a91afd4651e8b73fe5a53b510a4d0f6e3d973aba4fe",
+    "qa/preacher-gesture-candidate/application-inputs.json": "2f876069283b3c945fb51dbd471c30b3a934b6f9f1d629705e5829b71b233135",
+    "qa/preacher-gesture-candidate/checkpoint.mjs": "419f875aa7d20f914f9f3e421a417e83c4d8a3dd5a622c3e385eb957e758c6c4",
+    "qa/preacher-gesture-candidate/contract.test.mjs": "b369274afcf397f93a3c80ce42f61fdd070d9b94e31c634dc1f0a9dfe6a91428",
+    "qa/preacher-gesture-candidate/expected-runtime.json": "14b1df0f9b38157214acbd8370cc53992ebb0ee15e72a30f6d556d373b2bf617",
+    "qa/preacher-gesture-candidate/load-boundary.mjs": "46ca676143212890e4465d2daf857e959377f93eed2b9f1179d8af05edbf5940",
+    "qa/preacher-gesture-candidate/observe.mjs": "fd6bf1fc8312cab3a799b88b3779cb1d79ddc191cf877d3079f02a98bed292b7",
+    "qa/preacher-gesture-candidate/pause-input.mjs": "2e79c54892a8e33a3e77f1694f322b7322ef02a93193f97ab87443f071297514",
+    "qa/preacher-gesture-candidate/pixels.mjs": "e64a8fbc8001c9fbfc86441b84d473cf1083704324460d500b75602a3193927c",
+    "qa/preacher-gesture-candidate/provenance.json": "bf5106520af512a12d5af49e6682113686ee5d0e3ca4ebc6077e92c27ea2325c",
+    "qa/preacher-gesture-candidate/render-observation.mjs": "86ec0d5b68ebfd8f93324d5cce38001060da48301c72a66b6a57e15c6b1d2682",
+    "qa/preacher-gesture-candidate/run.mjs": "38267dffe28eaf1e2b0e7b89c55d507e58c561076ba0a8b211b1c9d6da52b44e",
+    "qa/preacher-gesture-candidate/scenario.mjs": "0b9360ad22af5a29e9336e36240bb0e33f2ba058f2d3ecc5c9bef1ba67605177"
+  },
+  "status": "passed",
+  "checks": [
+    {
+      "command": [
+        "node",
+        "--check",
+        "qa/preacher-gesture-candidate/acquire.mjs"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "qa/preacher-gesture-candidate/checkpoint.mjs"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "qa/preacher-gesture-candidate/contract.test.mjs"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "qa/preacher-gesture-candidate/load-boundary.mjs"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "qa/preacher-gesture-candidate/observe.mjs"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "qa/preacher-gesture-candidate/pause-input.mjs"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "qa/preacher-gesture-candidate/pixels.mjs"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "qa/preacher-gesture-candidate/render-observation.mjs"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "qa/preacher-gesture-candidate/run.mjs"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "qa/preacher-gesture-candidate/scenario.mjs"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "qa/preacher-gesture-candidate/contract.test.mjs"
+      ],
+      "exitCode": 0,
+      "stdout": "\u2714 native birth hold, final frame and return updater are distinct checked phases (2.955003ms)\n\u2714 finite full window requires both naturally born families and exact return ownership (40.835487ms)\n\u2714 ordinary pauses consume the unchanged wall window, and missed entry cannot be repaired later (0.650535ms)\n\u2714 checkpoint projection binds exact active phase, queue, alias and both RNGs (1.750416ms)\n\u2714 retained raw RGBA body differences are independently countable (0.207268ms)\n\u2714 Pause proof requires actual trusted events and frozen gesture phase at click (3.703282ms)\n\u2714 cleanup errors, un-restored owners and loaded-tail failures are terminal (1.462248ms)\n\u2714 accepted inherited inputs remain byte-identical (2.416244ms)\n\u2139 tests 8\n\u2139 suites 0\n\u2139 pass 8\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 247.17686\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "b2b04cf4915dafc7165e961f9b45ddb3efd4d103",
+        "HEAD",
+        "--",
+        "qa/preacher-gesture-candidate"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "limits": "Source-only syntax, dependency-free contracts, exact feature tree/hash and QA whitespace checks. No browser/install/dependency transfer/full/native/package job."
+}

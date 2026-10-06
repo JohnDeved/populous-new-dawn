@@ -1,0 +1,193 @@
+{
+  "decision": "ACCEPT bounded ordinary missing-gesture baseline",
+  "head": "9a54c932e5aaae1f50298e8e82e871ea87dfd2a8",
+  "application": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+  "outerInputCount": 13,
+  "outerInnerSourceStable": true,
+  "runtimeAndQAStable": true,
+  "rows": 2327,
+  "phaseCounts": {
+    "beforeTurn": 925,
+    "afterTurn": 925,
+    "render-after-updater": 477
+  },
+  "entry": 3399,
+  "firstLoop": 3407,
+  "terminal": 4246,
+  "restart": 4256,
+  "activeVisits": 858,
+  "opportunities": 53,
+  "observationMs": 71425.59999999776,
+  "acquisitionMs": 287677.3774,
+  "sourceBrave": 300,
+  "preacher": 3164,
+  "nativeIdentity": 255,
+  "order": 26,
+  "pixelMetric": {
+    "id": 3164,
+    "turn": 4281,
+    "source": 168,
+    "draw": 14,
+    "f1": 0,
+    "f2": 3,
+    "counter": 185,
+    "stamp": 4281,
+    "direction": 6,
+    "frameIndex": 2967,
+    "nativeVFRA": 768,
+    "frame": {
+      "source": 768,
+      "nativeWidth": 21,
+      "nativeHeight": 30,
+      "layers": [
+        {
+          "piece": 0,
+          "x": -8,
+          "y": 0,
+          "flags": 516
+        },
+        {
+          "piece": 3230,
+          "x": -3,
+          "y": -26,
+          "flags": 0
+        },
+        {
+          "piece": 3245,
+          "x": 2,
+          "y": -10,
+          "flags": 528
+        },
+        {
+          "piece": 3255,
+          "x": 2,
+          "y": -10,
+          "flags": 1040
+        },
+        {
+          "piece": 3268,
+          "x": 2,
+          "y": -10,
+          "flags": 1552
+        }
+      ]
+    },
+    "flip": true,
+    "changedPixels": 216,
+    "changedBounds": {
+      "minX": 627,
+      "minY": 375,
+      "maxX": 642,
+      "maxY": 403
+    },
+    "layers": [
+      {
+        "piece": 3230,
+        "uv": [
+          -0.0078125,
+          0.003567913385826772,
+          0.9453125,
+          0.2090305118110236
+        ],
+        "atlas": {
+          "x": 1920,
+          "y": 6400
+        },
+        "metadata": {
+          "source": 6552,
+          "w": 16,
+          "h": 29
+        }
+      }
+    ],
+    "atlas": {
+      "width": 2048,
+      "height": 8128,
+      "file": "unit-layers"
+    },
+    "viewport": {
+      "width": 1440,
+      "height": 1000,
+      "dpr": 1
+    },
+    "canvas": [
+      1240,
+      1000
+    ],
+    "maxTextureSize": 8192,
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "restored": true,
+    "method": "Synchronous ordinary rendered buffer minus the same buffer with only this Preacher\u2019s visible body sprite layers hidden; all visibility restored in finally. No world, animation, camera, or clock writes."
+  },
+  "admissionScope": "Retained live assertion trainingAdmission=true with actual before/after order and replacement records. Individual occupied-Temple polling snapshot was not persisted.",
+  "pixelScope": "216 is the source-bound runtime buffer-difference metric; raw before/hidden buffers were not saved for independent recomputation. Actual full screenshot visually inspected; it is later than metric turn4281.",
+  "cleanupScope": "Harness terminal cleanup contract passed; separate exclusive-bind port observation at12:19:54.762916 is post-terminal, not contemporaneous with12:18:16 harness exit.",
+  "files": {
+    "work/orchestration/preacher-gesture-baseline/browser-attempt-01-command.json": {
+      "bytes": 7422,
+      "sha256": "f13112e23a9a22d178fd30b28241d8c9761d1270d9be3746587ffd347f0951cf"
+    },
+    "work/orchestration/preacher-gesture-baseline/dependency-transfer-01.json": {
+      "bytes": 1477,
+      "sha256": "354f3fedf6699c8270a4dfd1b6e14231a87f6d5a7a2521ad6463cedb4dd70268"
+    },
+    "work/orchestration/preacher-gesture-baseline/execution-preflight-01.json": {
+      "bytes": 660,
+      "sha256": "fbe34c023b9e5bf4b6fbf914e8ad4cab91eccd412481cb4b76ee4626e3698316"
+    },
+    "work/orchestration/preacher-gesture-baseline/execution-session-01.json": {
+      "bytes": 1989,
+      "sha256": "0352b243fe6af881c38758eb6b1cd074c17f02fff0ddde0c49a42d4693dfe7e8"
+    },
+    "work/orchestration/preacher-gesture-baseline/terminal-cleanup-01.json": {
+      "bytes": 630,
+      "sha256": "da2f31373e1613937a1e4fdfd797b34086b2ba55144f5e7c69f7280b9f67af2a"
+    },
+    "work/orchestration/preacher-gesture-baseline/browser-attempt-01/receipt.json": {
+      "bytes": 4908,
+      "sha256": "e5dcadff9eb7770f0fc5b4edb761446d301712093ce210b94ef6175cf0f1451e"
+    },
+    "work/orchestration/preacher-gesture-baseline/browser-attempt-01/baseline.json": {
+      "bytes": 828551,
+      "sha256": "4d5572f96038f7ade2429f62d88fdeb7696bab41091261436583980c645586cf"
+    },
+    "work/orchestration/preacher-gesture-baseline/browser-attempt-01/actions.jsonl": {
+      "bytes": 150777,
+      "sha256": "2b096990dffe68dbeff804808c09617677cb1470dafb2f659dccbd449741ad91"
+    },
+    "work/orchestration/preacher-gesture-baseline/browser-attempt-01/phases.jsonl": {
+      "bytes": 5731606,
+      "sha256": "d7f623cc9b8315a0a17d974fb6b7108b7271ce0b0a4cf827fa55cd897e27c7bb"
+    },
+    "work/orchestration/preacher-gesture-baseline/browser-attempt-01/prelaunch.json": {
+      "bytes": 6274,
+      "sha256": "4d15236aea99e89f6578de2cf78b4c4bcdd4b733d108552eb8fb9c6bf2538fd8"
+    },
+    "work/orchestration/preacher-gesture-baseline/browser-attempt-01/terminal-inputs.json": {
+      "bytes": 3758,
+      "sha256": "31b9bf8a645d5640a31650967aa0ff0168e2243402fd5f9ab9e0e1b24639131f"
+    },
+    "work/orchestration/preacher-gesture-baseline/browser-attempt-01/acquired-preacher.png": {
+      "bytes": 2042015,
+      "sha256": "d0d776ce3421f1c9e449fd7bd31aee867e506d00b162e26a8ddf43cb87a481e8"
+    },
+    "work/orchestration/preacher-gesture-baseline/browser-attempt-01/safe-preacher-entry.png": {
+      "bytes": 2089519,
+      "sha256": "42d47964f2b3768a64f5980a06ddf659c7ae5a24630221874f8084e73d8a4057"
+    },
+    "work/orchestration/preacher-gesture-baseline/browser-attempt-01/source168-visible-preacher.png": {
+      "bytes": 2082580,
+      "sha256": "c3d0e61a2868322eb171f3eba21bb4d24446a8573032a77bb3dddd8cdc6517a9"
+    }
+  },
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x341c04b29600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x341c04b29600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x341c04b29600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x341c04b29600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "reviewerExecution": "Read-only source/JSON/hash/phase arithmetic/image inspection; no execution retry."
+}

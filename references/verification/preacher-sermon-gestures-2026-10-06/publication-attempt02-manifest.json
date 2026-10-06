@@ -1,0 +1,196 @@
+{
+  "status": "all required bounded PR240 gates passed; independently ACCEPTED",
+  "featureHead": "b2b04cf4915dafc7165e961f9b45ddb3efd4d103",
+  "qaHead": "0ef63ba8e1dbf2ef51e33626948e179116c40ca4",
+  "previousEvidenceHead": "e7490e3d6e37b3ed72504eb915b2f7353b795750",
+  "oldEvidenceFilesByteIdentical": 114,
+  "files": {
+    "ordinary/README.md": {
+      "sha256": "88ab6b364282f2ffb83aeed1b460a3904e723827a725da2e302251e0456b8ea5",
+      "bytes": 4638
+    },
+    "ordinary/attempt01/browser-attempt-01/candidate.json": {
+      "sha256": "23f308b20f0745556e876eb545064c33e50386c05d3a2993e8b053487319f972",
+      "bytes": 1924
+    },
+    "ordinary/attempt01/browser-attempt-01/failure-0.png": {
+      "sha256": "4c5c40ecac2cc5da51ca3e4197ee3a2fc869494a83fb51abb4330e98f8100d44",
+      "bytes": 1936619
+    },
+    "ordinary/attempt01/browser-attempt-01/receipt.json": {
+      "sha256": "f0c87f06f4eb2c0ce2665d2fa185e11813ba552489e46a334bd1c3f55f558cb5",
+      "bytes": 3485
+    },
+    "ordinary/attempt01/manifest.json": {
+      "sha256": "800032db7f52c234f6159a66366c13ca8e13f6a77b3717b7a2a1cd059e5fbde7",
+      "bytes": 3245
+    },
+    "ordinary/attempt01/raw-evidence.tar.gz": {
+      "sha256": "aa00d242f067051b3857b41dc9dfa572859ecb1c2637507c50a351b6b5aae609",
+      "bytes": 1967516
+    },
+    "ordinary/attempt01/source-final-732652b2/receipt.json": {
+      "sha256": "a66bec605976bddf5a81cdeb5a5da0177db7607c458061547b3bd123c1ec8739",
+      "bytes": 7348
+    },
+    "ordinary/attempt01/terminal-cleanup-01.json": {
+      "sha256": "7a3ac716fecdd91480b962d6845e6d7c42183b06340f6266fdc757200c33324d",
+      "bytes": 1843
+    },
+    "ordinary/attempt02/evidence-index.json": {
+      "sha256": "db28ad81a3623683f5a604887988f912279ff3a76c2ffd6d77b29cfe151ea895",
+      "bytes": 14521
+    },
+    "ordinary/attempt02/manifest.json": {
+      "sha256": "731367da25827702c2eecf77e7bb377c0d915172372d4861b2e31c20c1d6e5dc",
+      "bytes": 17058
+    },
+    "ordinary/attempt02/raw-evidence.tar.gz": {
+      "sha256": "7c1642c42b85e6dae44299f2611abd7de3fe708f21142b143a9f8bfade794809",
+      "bytes": 10930915
+    },
+    "ordinary/attempt02/review-manifest.json": {
+      "sha256": "0a23b578d24c64a107ff3c0899445e74e6309ddeac2ae7110fe5dc58a136b248",
+      "bytes": 1331
+    },
+    "ordinary/attempt02/reviews/preacher-candidate-result-audit-0ef63ba8.json": {
+      "sha256": "b318cd4430a1cb15aae5c4520002fcc22a015fab9f65019a755d22949aed601f",
+      "bytes": 9049
+    },
+    "ordinary/attempt02/reviews/preacher-candidate-result-review-0ef63ba8.md": {
+      "sha256": "da778ac1a88188dc142ae6b67b2095f0de4822f0ed06dd056895820241393c43",
+      "bytes": 9775
+    },
+    "ordinary/attempt02/reviews/preacher-ground-repair-audit-0ef63ba8.json": {
+      "sha256": "e1cd61e2025ab853d6ca753fe01a955b6c61a2f993f4c5bcc97c9d9233e8dec3",
+      "bytes": 7267
+    },
+    "ordinary/attempt02/reviews/preacher-ground-repair-review-0ef63ba8.md": {
+      "sha256": "9e7de86e993b495be98794ee7bfafd8778794bc543796dbda458239bc1ddf4b4",
+      "bytes": 4849
+    },
+    "ordinary/attempt02/work/orchestration/preacher-gesture-candidate/browser-attempt-02/candidate.json": {
+      "sha256": "ccf1ca127ee81b71ab502d52358805963ab2d88c9ffee07268fa93427a01e9db",
+      "bytes": 622319
+    },
+    "ordinary/attempt02/work/orchestration/preacher-gesture-candidate/browser-attempt-02/first-trainee-admission.json": {
+      "sha256": "99eaa9030321bb057341d39e91548c6512e61230960737e4e876bab117b30886",
+      "bytes": 69880
+    },
+    "ordinary/attempt02/work/orchestration/preacher-gesture-candidate/browser-attempt-02/receipt.json": {
+      "sha256": "b8fd18702fb00c7c00a0850028c7d6d6e91c9c1bfc5bd80217c9efc39dbeba01",
+      "bytes": 320195
+    },
+    "ordinary/attempt02/work/orchestration/preacher-gesture-candidate/browser-attempt-02/source176-turn3412-actor.png": {
+      "sha256": "095ee3f03f277307cd0a5b5c85cd48ce4dc50c7a11e0d489ec5ade150af45958",
+      "bytes": 10426
+    },
+    "ordinary/attempt02/work/orchestration/preacher-gesture-candidate/browser-attempt-02/source176-turn3412-body.rgba": {
+      "sha256": "4dc3f51095863c1a9073f780804e5584f2a52167c4ca3616483f4b08c0fca9c6",
+      "bytes": 21528
+    },
+    "ordinary/attempt02/work/orchestration/preacher-gesture-candidate/browser-attempt-02/source176-turn3412-full.png": {
+      "sha256": "1fdf8e848353ce7783fde448eff2d6a48af7bbed66257b08446b954f4e66ff82",
+      "bytes": 2072760
+    },
+    "ordinary/attempt02/work/orchestration/preacher-gesture-candidate/browser-attempt-02/source176-turn3412-hidden-body.rgba": {
+      "sha256": "6c200ae8f45f4c5c6ec309cccefbaaab6a2b1b0eec72fc42f371980ab1e0dba3",
+      "bytes": 21528
+    },
+    "ordinary/attempt02/work/orchestration/preacher-gesture-candidate/browser-attempt-02/source184-turn3505-actor.png": {
+      "sha256": "16a6c3e6ef7e6590e18dc191a46929e78f448f4fa9fd8d204fd245d01ea17859",
+      "bytes": 10435
+    },
+    "ordinary/attempt02/work/orchestration/preacher-gesture-candidate/browser-attempt-02/source184-turn3505-body.rgba": {
+      "sha256": "46ff57294150ad34002d68cbdf4ef128ea67a6f086a6156738daf1ff1db52414",
+      "bytes": 21528
+    },
+    "ordinary/attempt02/work/orchestration/preacher-gesture-candidate/browser-attempt-02/source184-turn3505-full.png": {
+      "sha256": "392ffccd0286758baace8fe29abbb347b41a46e4ec8a9fed92dd8099286f5722",
+      "bytes": 2084018
+    },
+    "ordinary/attempt02/work/orchestration/preacher-gesture-candidate/browser-attempt-02/source184-turn3505-hidden-body.rgba": {
+      "sha256": "6c200ae8f45f4c5c6ec309cccefbaaab6a2b1b0eec72fc42f371980ab1e0dba3",
+      "bytes": 21528
+    },
+    "ordinary/attempt02/work/orchestration/preacher-gesture-candidate/browser-attempt-02/terminal-inputs.json": {
+      "sha256": "65a98a27f5cc3152d5ca236d4969b844a6b28622e4f23d1af970354054bd3a6f",
+      "bytes": 5725
+    },
+    "ordinary/attempt02/work/orchestration/preacher-gesture-candidate/source-repair-0ef63ba8/receipt.json": {
+      "sha256": "57d0bfd4c4fee7af97013e1e182a7494f4b58fa25ff1be5a08526e15a33438f9",
+      "bytes": 6818
+    },
+    "ordinary/attempt02/work/reviews/preacher-ground-repair-review-0ef63ba8.md": {
+      "sha256": "9e7de86e993b495be98794ee7bfafd8778794bc543796dbda458239bc1ddf4b4",
+      "bytes": 4849
+    },
+    "ordinary/baseline/browser-attempt-01/baseline.json": {
+      "sha256": "4d5572f96038f7ade2429f62d88fdeb7696bab41091261436583980c645586cf",
+      "bytes": 828551
+    },
+    "ordinary/baseline/browser-attempt-01/receipt.json": {
+      "sha256": "e5dcadff9eb7770f0fc5b4edb761446d301712093ce210b94ef6175cf0f1451e",
+      "bytes": 4908
+    },
+    "ordinary/baseline/browser-attempt-01/source168-visible-preacher.png": {
+      "sha256": "c3d0e61a2868322eb171f3eba21bb4d24446a8573032a77bb3dddd8cdc6517a9",
+      "bytes": 2082580
+    },
+    "ordinary/baseline/manifest.json": {
+      "sha256": "fc9dc105f3cd94a7de52b778f6a65acb6ff5cf55ef6701e5c5218aa0bfc4935b",
+      "bytes": 4055
+    },
+    "ordinary/baseline/raw-evidence.tar.gz": {
+      "sha256": "c90c93671068b8b947c486e78d84ed2c3bdbca0a7209659fd84bad78248c2b5a",
+      "bytes": 6379377
+    },
+    "ordinary/baseline/review-manifest.json": {
+      "sha256": "ff1d62b7db010aa3fcbb657bc8aa7052de6c32000327074e9cdf4cb63bd7c75b",
+      "bytes": 801
+    },
+    "ordinary/baseline/reviews/preacher-baseline-result-audit-9a54c932.json": {
+      "sha256": "ee992297b3cf61b0166ca0e79bb3d17724608b1ea7a155cd189ce8a976b76ea1",
+      "bytes": 7066
+    },
+    "ordinary/baseline/reviews/preacher-baseline-result-review-9a54c932.md": {
+      "sha256": "480a807bb53f18372f1a51e2cd234f3e20a177679ff5a8780ec5225b082aa601",
+      "bytes": 7884
+    },
+    "ordinary/baseline/reviews/preacher-baseline-source-audit-9a54c932.json": {
+      "sha256": "c0263cf61399196627806322f70942a9cc3023bdd3f6c82a0935b7a98bd9549a",
+      "bytes": 6715
+    },
+    "ordinary/baseline/reviews/preacher-baseline-source-review-9a54c932.md": {
+      "sha256": "0fa8364df146ab0f902699e766eea1dff6149ff1dd536dee585e06d2b9fb28e6",
+      "bytes": 9673
+    },
+    "ordinary/baseline/terminal-cleanup-01.json": {
+      "sha256": "da2f31373e1613937a1e4fdfd797b34086b2ba55144f5e7c69f7280b9f67af2a",
+      "bytes": 630
+    },
+    "ordinary/publication-content-verification.json": {
+      "sha256": "3e66d96ecc7b64a1d23dac017df23e3bececb7dc5b8700e2903cb7bf299223b2",
+      "bytes": 2196
+    },
+    "LATEST.md": {
+      "sha256": "e6ecaa6f87b801dfdc4d1ee1d7ea06851a7eaab98b50431585dfdbd83b196c2a",
+      "bytes": 2229
+    }
+  },
+  "exclusions": [
+    "Original game executable/data files",
+    "Recovered tools or dependencies",
+    "Browser profiles",
+    "Authentication",
+    "QA source code"
+  ],
+  "limitations": [
+    "Four known native state/return residual rows retained",
+    "Audio request/loader/owner cleanup only; no audible or native mixer proof",
+    "Software WebGL2; no hardware GPU or original renderer parity",
+    "Load3412 boundary exact; firstBound3495/resumed3499 later with intervening updates unrecorded",
+    "Baseline screenshot later than turn4281 pixel readback",
+    "Failed attempt01 retained unchanged"
+  ]
+}

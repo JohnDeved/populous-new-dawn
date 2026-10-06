@@ -1,0 +1,157 @@
+{
+  "startedAt": "2026-10-06T12:11:25.804Z",
+  "source": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-baseline-20261006",
+    "commit": "9a54c932e5aaae1f50298e8e82e871ea87dfd2a8",
+    "tree": "ce0d3062a98450f756f2805d43a809b7f4ef5c1a",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "1dfe2fb8c732e7e9bf31b7b5339f559f6407ab4dd82cd7117a5c4fd122848a72"
+  },
+  "launch": {
+    "executablePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/extract-browser/chrome-headless-shell-linux64/chrome-headless-shell",
+    "headless": true,
+    "chromiumSandbox": true,
+    "ignoreDefaultArgs": true,
+    "args": [
+      "--remote-debugging-pipe"
+    ],
+    "timeout": 30000
+  },
+  "softwarePerformanceOnly": true,
+  "errors": [],
+  "warnings": [
+    "[]Automatic fallback to software WebGL has been deprecated. Please use the --enable-unsafe-swiftshader flag to opt in to lower security guarantees for trusted content.",
+    "[.WebGL-0x341c04b29600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x341c04b29600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "THREE.WebGLRenderer: Texture marked for update but no image data found.",
+    "[.WebGL-0x341c04b29600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels",
+    "[.WebGL-0x341c04b29600]GL Driver Message (OpenGL, Performance, GL_CLOSE_PATH_NV, High): GPU stall due to ReadPixels (this message will no longer repeat)"
+  ],
+  "status": "passed",
+  "browserVersion": "154.0.8037.92",
+  "result": {
+    "preacherId": 3164,
+    "progress": {
+      "status": "passed",
+      "entryTurn": 3399,
+      "startMs": 297935,
+      "firstLoopTurn": 3407,
+      "terminalTurn": 4246,
+      "restartTurn": 4256,
+      "visits": 858,
+      "opportunities": 53,
+      "moveTurn": 3338,
+      "completedPhase": "render-after-updater"
+    },
+    "pixels": {
+      "id": 3164,
+      "turn": 4281,
+      "source": 168,
+      "draw": 14,
+      "f1": 0,
+      "f2": 3,
+      "counter": 185,
+      "stamp": 4281,
+      "direction": 6,
+      "frameIndex": 2967,
+      "nativeVFRA": 768,
+      "frame": {
+        "source": 768,
+        "nativeWidth": 21,
+        "nativeHeight": 30,
+        "layers": [
+          {
+            "piece": 0,
+            "x": -8,
+            "y": 0,
+            "flags": 516
+          },
+          {
+            "piece": 3230,
+            "x": -3,
+            "y": -26,
+            "flags": 0
+          },
+          {
+            "piece": 3245,
+            "x": 2,
+            "y": -10,
+            "flags": 528
+          },
+          {
+            "piece": 3255,
+            "x": 2,
+            "y": -10,
+            "flags": 1040
+          },
+          {
+            "piece": 3268,
+            "x": 2,
+            "y": -10,
+            "flags": 1552
+          }
+        ]
+      },
+      "flip": true,
+      "changedPixels": 216,
+      "changedBounds": {
+        "minX": 627,
+        "minY": 375,
+        "maxX": 642,
+        "maxY": 403
+      },
+      "layers": [
+        {
+          "piece": 3230,
+          "uv": [
+            -0.0078125,
+            0.003567913385826772,
+            0.9453125,
+            0.2090305118110236
+          ],
+          "atlas": {
+            "x": 1920,
+            "y": 6400
+          },
+          "metadata": {
+            "source": 6552,
+            "w": 16,
+            "h": 29
+          }
+        }
+      ],
+      "atlas": {
+        "width": 2048,
+        "height": 8128,
+        "file": "unit-layers"
+      },
+      "viewport": {
+        "width": 1440,
+        "height": 1000,
+        "dpr": 1
+      },
+      "canvas": [
+        1240,
+        1000
+      ],
+      "maxTextureSize": 8192,
+      "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "restored": true,
+      "method": "Synchronous ordinary rendered buffer minus the same buffer with only this Preacher’s visible body sprite layers hidden; all visibility restored in finally. No world, animation, camera, or clock writes."
+    },
+    "application": "9a54c932e5aaae1f50298e8e82e871ea87dfd2a8"
+  },
+  "finishedAt": "2026-10-06T12:18:16.475Z",
+  "sourceAfter": {
+    "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-baseline-20261006",
+    "commit": "9a54c932e5aaae1f50298e8e82e871ea87dfd2a8",
+    "tree": "ce0d3062a98450f756f2805d43a809b7f4ef5c1a",
+    "status": "",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "untracked": [],
+    "fingerprint": "1dfe2fb8c732e7e9bf31b7b5339f559f6407ab4dd82cd7117a5c4fd122848a72"
+  }
+}

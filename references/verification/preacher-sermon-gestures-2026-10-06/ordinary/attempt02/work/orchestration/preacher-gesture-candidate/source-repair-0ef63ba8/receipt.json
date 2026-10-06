@@ -1,0 +1,105 @@
+{
+  "time": "2026-10-06T15:51:46.578405+00:00",
+  "head": "0ef63ba8e1dbf2ef51e33626948e179116c40ca4",
+  "gitStatus": "",
+  "featureCommit": "b2b04cf4915dafc7165e961f9b45ddb3efd4d103",
+  "trees": {
+    "app": "ebffcbf36afa3ac4ecd5f33a60e01c93e659f20f",
+    "public": "7afafb32546784eea20fd993df0f9eb5f9b86779",
+    "scripts": "e60da49f0c994dd2bc2bd50f2ffbeca730dd2786",
+    "tests": "420c5b2f91eafe428d3204a3c088012c422058d2"
+  },
+  "sourceBefore": {
+    "qa/preacher-gesture-candidate/README.md": "e6ca83ca9e75fec1d19fdafc209a32789c5c4add884f24d5da06940c3454a9b2",
+    "qa/preacher-gesture-candidate/acquire.mjs": "4fef9e4e3d3def13d7f685724b88a14253d7eeb63c888a0b11ef79643b6aa8ec",
+    "qa/preacher-gesture-candidate/application-inputs.json": "2f876069283b3c945fb51dbd471c30b3a934b6f9f1d629705e5829b71b233135",
+    "qa/preacher-gesture-candidate/checkpoint.mjs": "419f875aa7d20f914f9f3e421a417e83c4d8a3dd5a622c3e385eb957e758c6c4",
+    "qa/preacher-gesture-candidate/contract.test.mjs": "b369274afcf397f93a3c80ce42f61fdd070d9b94e31c634dc1f0a9dfe6a91428",
+    "qa/preacher-gesture-candidate/expected-runtime.json": "14b1df0f9b38157214acbd8370cc53992ebb0ee15e72a30f6d556d373b2bf617",
+    "qa/preacher-gesture-candidate/ground-dispatch.mjs": "42139eca57022912489c4a036981794afd668b3f335ef376e6abbe54e5f89e72",
+    "qa/preacher-gesture-candidate/ground-input.mjs": "0e108c481d44441078e8ce5317654baa0a4535ca461e90b29e7455d4c8802b6d",
+    "qa/preacher-gesture-candidate/ground-input.test.mjs": "b8f2c031a3e3fd88301292fdd3533cae3f1460c23a3e21bea6f870f4ec4572c3",
+    "qa/preacher-gesture-candidate/load-boundary.mjs": "46ca676143212890e4465d2daf857e959377f93eed2b9f1179d8af05edbf5940",
+    "qa/preacher-gesture-candidate/observe.mjs": "fd6bf1fc8312cab3a799b88b3779cb1d79ddc191cf877d3079f02a98bed292b7",
+    "qa/preacher-gesture-candidate/pause-input.mjs": "2e79c54892a8e33a3e77f1694f322b7322ef02a93193f97ab87443f071297514",
+    "qa/preacher-gesture-candidate/pixels.mjs": "e64a8fbc8001c9fbfc86441b84d473cf1083704324460d500b75602a3193927c",
+    "qa/preacher-gesture-candidate/provenance.json": "5687de31815ec93fa768a1499438171ca765adc01dc16cbe0abe28e433f79f14",
+    "qa/preacher-gesture-candidate/render-observation.mjs": "86ec0d5b68ebfd8f93324d5cce38001060da48301c72a66b6a57e15c6b1d2682",
+    "qa/preacher-gesture-candidate/run.mjs": "38267dffe28eaf1e2b0e7b89c55d507e58c561076ba0a8b211b1c9d6da52b44e",
+    "qa/preacher-gesture-candidate/scenario.mjs": "ccaa4fb97feca6d98bd7b31190adb25609bd49279c71e7647d1413aa11d0c541"
+  },
+  "checks": [
+    {
+      "command": [
+        "node",
+        "--check",
+        "qa/preacher-gesture-candidate/scenario.mjs"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--check",
+        "qa/preacher-gesture-candidate/ground-input.test.mjs"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--test",
+        "qa/preacher-gesture-candidate/ground-input.test.mjs"
+      ],
+      "exitCode": 0,
+      "stdout": "\u2714 failure first: same center terrain and context can lose one of its 25 ownership samples (4.680596ms)\n\u2714 finite cross and original drift bound reject exhausted ownership/context/collision (1.876505ms)\n\u2714 recipient/scene/world/pause changes fail before any picker call (1.212048ms)\n\u2714 sampler records actual reasons and adds no diagnostic re-picks (0.325382ms)\n\u2714 ground dispatch never clicks an exhausted probe or retries after delivery fails (4.059454ms)\n\u2714 both initial and fresh-page bootstrap install the sampler used by retained ground helper (0.798786ms)\n\u2139 tests 6\n\u2139 suites 0\n\u2139 pass 6\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 184.74766\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "diff",
+        "--check",
+        "HEAD^",
+        "HEAD",
+        "--",
+        "qa/preacher-gesture-candidate"
+      ],
+      "exitCode": 0,
+      "stdout": "",
+      "stderr": ""
+    }
+  ],
+  "inheritedRepairReceipt": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/work/orchestration/preacher-gesture-candidate/source-repair-e72dec39/receipt.json",
+    "sha256": "1a638c8d4386a717ef39db5c2aab1494ee8dce7a840f178e6bc3f8493727dd07"
+  },
+  "bootstrapFailureFirst": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-gesture-candidate-20261006/work/orchestration/preacher-gesture-candidate/source-repair-e72dec39/bootstrap-failure-first.json",
+    "sha256": "f98b6929c7610b790c33517e19360fe44726459f1447732ee90e28d73f5710d7"
+  },
+  "sourceAfter": {
+    "qa/preacher-gesture-candidate/README.md": "e6ca83ca9e75fec1d19fdafc209a32789c5c4add884f24d5da06940c3454a9b2",
+    "qa/preacher-gesture-candidate/acquire.mjs": "4fef9e4e3d3def13d7f685724b88a14253d7eeb63c888a0b11ef79643b6aa8ec",
+    "qa/preacher-gesture-candidate/application-inputs.json": "2f876069283b3c945fb51dbd471c30b3a934b6f9f1d629705e5829b71b233135",
+    "qa/preacher-gesture-candidate/checkpoint.mjs": "419f875aa7d20f914f9f3e421a417e83c4d8a3dd5a622c3e385eb957e758c6c4",
+    "qa/preacher-gesture-candidate/contract.test.mjs": "b369274afcf397f93a3c80ce42f61fdd070d9b94e31c634dc1f0a9dfe6a91428",
+    "qa/preacher-gesture-candidate/expected-runtime.json": "14b1df0f9b38157214acbd8370cc53992ebb0ee15e72a30f6d556d373b2bf617",
+    "qa/preacher-gesture-candidate/ground-dispatch.mjs": "42139eca57022912489c4a036981794afd668b3f335ef376e6abbe54e5f89e72",
+    "qa/preacher-gesture-candidate/ground-input.mjs": "0e108c481d44441078e8ce5317654baa0a4535ca461e90b29e7455d4c8802b6d",
+    "qa/preacher-gesture-candidate/ground-input.test.mjs": "b8f2c031a3e3fd88301292fdd3533cae3f1460c23a3e21bea6f870f4ec4572c3",
+    "qa/preacher-gesture-candidate/load-boundary.mjs": "46ca676143212890e4465d2daf857e959377f93eed2b9f1179d8af05edbf5940",
+    "qa/preacher-gesture-candidate/observe.mjs": "fd6bf1fc8312cab3a799b88b3779cb1d79ddc191cf877d3079f02a98bed292b7",
+    "qa/preacher-gesture-candidate/pause-input.mjs": "2e79c54892a8e33a3e77f1694f322b7322ef02a93193f97ab87443f071297514",
+    "qa/preacher-gesture-candidate/pixels.mjs": "e64a8fbc8001c9fbfc86441b84d473cf1083704324460d500b75602a3193927c",
+    "qa/preacher-gesture-candidate/provenance.json": "5687de31815ec93fa768a1499438171ca765adc01dc16cbe0abe28e433f79f14",
+    "qa/preacher-gesture-candidate/render-observation.mjs": "86ec0d5b68ebfd8f93324d5cce38001060da48301c72a66b6a57e15c6b1d2682",
+    "qa/preacher-gesture-candidate/run.mjs": "38267dffe28eaf1e2b0e7b89c55d507e58c561076ba0a8b211b1c9d6da52b44e",
+    "qa/preacher-gesture-candidate/scenario.mjs": "ccaa4fb97feca6d98bd7b31190adb25609bd49279c71e7647d1413aa11d0c541"
+  },
+  "status": "passed"
+}

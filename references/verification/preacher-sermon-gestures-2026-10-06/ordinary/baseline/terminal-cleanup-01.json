@@ -1,0 +1,17 @@
+{
+  "checkedAt": "2026-10-06T12:19:54.762916+00:00",
+  "status": "passed",
+  "originalSession": 52293,
+  "outerExitCode": 0,
+  "harnessStatus": "passed",
+  "harnessFinishedAt": "2026-10-06T12:18:16.475Z",
+  "sourceBeforeAfterEqual": true,
+  "runtimeBeforeAfterEqual": true,
+  "gitStatus": "",
+  "observerRestored": {
+    "errors": [],
+    "restored": true
+  },
+  "port4403": "exclusive post-terminal bind succeeded; released immediately",
+  "meaning": "Original foreground invocation exited0; maintained harness returned passed after browser.close/connection check and owned server-group cleanup; no other process was stopped."
+}

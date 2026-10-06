@@ -1,0 +1,105 @@
+{
+  "createdAt": "2026-10-06T12:21:23.326243+00:00",
+  "qaHead": "9a54c932e5aaae1f50298e8e82e871ea87dfd2a8",
+  "application": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+  "status": "one ordinary baseline passed; independent raw-evidence review pending",
+  "sourceBundle": {
+    "path": "/workspace/shared/preacher-gesture-baseline-9a54c932.bundle",
+    "sha256": "6ce4c17256ee726b9d3c8ee1d858f55aa974db17f91100ddeb8a599679c005ae"
+  },
+  "files": {
+    "browser-attempt-01/prelaunch.json": {
+      "bytes": 6274,
+      "sha256": "4d15236aea99e89f6578de2cf78b4c4bcdd4b733d108552eb8fb9c6bf2538fd8"
+    },
+    "browser-attempt-01/terminal-inputs.json": {
+      "bytes": 3758,
+      "sha256": "31b9bf8a645d5640a31650967aa0ff0168e2243402fd5f9ab9e0e1b24639131f"
+    },
+    "browser-attempt-01/baseline.json": {
+      "bytes": 828551,
+      "sha256": "4d5572f96038f7ade2429f62d88fdeb7696bab41091261436583980c645586cf"
+    },
+    "browser-attempt-01/actions.jsonl": {
+      "bytes": 150777,
+      "sha256": "2b096990dffe68dbeff804808c09617677cb1470dafb2f659dccbd449741ad91"
+    },
+    "browser-attempt-01/phases.jsonl": {
+      "bytes": 5731606,
+      "sha256": "d7f623cc9b8315a0a17d974fb6b7108b7271ce0b0a4cf827fa55cd897e27c7bb"
+    },
+    "browser-attempt-01/receipt.json": {
+      "bytes": 4908,
+      "sha256": "e5dcadff9eb7770f0fc5b4edb761446d301712093ce210b94ef6175cf0f1451e"
+    },
+    "browser-attempt-01/server.log": {
+      "bytes": 953,
+      "sha256": "f46137588ee9d5c598c7bb9ea7676682b49dee76323413073504cadd9caee3ae"
+    },
+    "browser-attempt-01/acquired-preacher.png": {
+      "bytes": 2042015,
+      "sha256": "d0d776ce3421f1c9e449fd7bd31aee867e506d00b162e26a8ddf43cb87a481e8"
+    },
+    "browser-attempt-01/safe-preacher-entry.png": {
+      "bytes": 2089519,
+      "sha256": "42d47964f2b3768a64f5980a06ddf659c7ae5a24630221874f8084e73d8a4057"
+    },
+    "browser-attempt-01/source168-visible-preacher.png": {
+      "bytes": 2082580,
+      "sha256": "c3d0e61a2868322eb171f3eba21bb4d24446a8573032a77bb3dddd8cdc6517a9"
+    },
+    "browser-attempt-01-command.json": {
+      "bytes": 7422,
+      "sha256": "f13112e23a9a22d178fd30b28241d8c9761d1270d9be3746587ffd347f0951cf"
+    },
+    "browser-attempt-01-command.json.artifacts/stdout.log": {
+      "bytes": 1882,
+      "sha256": "10338e3baf1df7627f8c6ae7aa27196a13d67c2be64d81775ab2ab146ec2faf7"
+    },
+    "browser-attempt-01-command.json.artifacts/stderr.log": {
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "dependency-transfer-01.json": {
+      "bytes": 1477,
+      "sha256": "354f3fedf6699c8270a4dfd1b6e14231a87f6d5a7a2521ad6463cedb4dd70268"
+    },
+    "execution-preflight-01.json": {
+      "bytes": 660,
+      "sha256": "fbe34c023b9e5bf4b6fbf914e8ad4cab91eccd412481cb4b76ee4626e3698316"
+    },
+    "execution-session-01.json": {
+      "bytes": 1989,
+      "sha256": "0352b243fe6af881c38758eb6b1cd074c17f02fff0ddde0c49a42d4693dfe7e8"
+    },
+    "terminal-cleanup-01.json": {
+      "bytes": 630,
+      "sha256": "da2f31373e1613937a1e4fdfd797b34086b2ba55144f5e7c69f7280b9f67af2a"
+    },
+    "raw-evidence-summary-01.json": {
+      "bytes": 1400,
+      "sha256": "619845db92865866d23984874db92a3cbe0f68bae235c6b4da0dc14cd2b2d56b"
+    },
+    "source-final-9a54c932/receipt.json": {
+      "bytes": 8731,
+      "sha256": "928f406b18c9c3e690fd43312feb898d35c4deeb877494b767f7d811b3b36be3"
+    },
+    "source-final-9a54c932/launch.json": {
+      "bytes": 5620,
+      "sha256": "e7e4e9b9a51234a05fb3aa89fc157819bd7e2f2172f2c4d441c19ca9abf11fda"
+    },
+    "source-attempt-01/receipt.json": {
+      "bytes": 5440,
+      "sha256": "936620b424505cdf2f9418169d9038830784e3958f45bf171d8de0870ec86017"
+    },
+    "source-attempt-01/inherited-whitespace-failure.json": {
+      "bytes": 410,
+      "sha256": "80997860fc1a17556a79aea0acfe3e8f5a14e9539f3938bcff4d8427d46213ad"
+    }
+  },
+  "archive": {
+    "name": "raw-evidence.tar.gz",
+    "sha256": "c90c93671068b8b947c486e78d84ed2c3bdbca0a7209659fd84bad78248c2b5a",
+    "bytes": 6379377
+  }
+}

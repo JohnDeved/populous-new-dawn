@@ -1,0 +1,16 @@
+{
+  "createdAt": "2026-10-06T16:12:33.214062+00:00",
+  "qaHead": "0ef63ba8e1dbf2ef51e33626948e179116c40ca4",
+  "applicationHead": "b2b04cf4915dafc7165e961f9b45ddb3efd4d103",
+  "status": "independently-accepted",
+  "rawManifestSha256": "731367da25827702c2eecf77e7bb377c0d915172372d4861b2e31c20c1d6e5dc",
+  "rawArchiveSha256": "7c1642c42b85e6dae44299f2611abd7de3fe708f21142b143a9f8bfade794809",
+  "evidenceIndexSha256": "db28ad81a3623683f5a604887988f912279ff3a76c2ffd6d77b29cfe151ea895",
+  "reviews": {
+    "reviews/preacher-ground-repair-review-0ef63ba8.md": "9e7de86e993b495be98794ee7bfafd8778794bc543796dbda458239bc1ddf4b4",
+    "reviews/preacher-ground-repair-audit-0ef63ba8.json": "e1cd61e2025ab853d6ca753fe01a955b6c61a2f993f4c5bcc97c9d9233e8dec3",
+    "reviews/preacher-candidate-result-review-0ef63ba8.md": "da778ac1a88188dc142ae6b67b2095f0de4822f0ed06dd056895820241393c43",
+    "reviews/preacher-candidate-result-audit-0ef63ba8.json": "b318cd4430a1cb15aae5c4520002fcc22a015fab9f65019a755d22949aed601f"
+  },
+  "boundary": "Ordinary acquisition, both natural gesture families/exact returns/paused real pixels, exact active Save/committed Load boundary, separate resumed epoch and active movement supersession accepted. Source/runtime immutable, failed attempt01 separately preserved. No audible mixer or hardware GPU claim."
+}
