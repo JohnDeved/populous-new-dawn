@@ -66,7 +66,8 @@ def read_va(exe, address, size):
 
 
 def prepared():
-    manifest = json.loads((HERE/'preflight.json').read_text())
+    manifest_bytes = (HERE/'preflight.json').read_bytes()
+    manifest = json.loads(manifest_bytes)
     for path, expected in manifest['sourceSha256'].items():
         if sha((ROOT/path).read_bytes()) != expected:
             raise Blocked('Source drift: '+path)
@@ -127,7 +128,7 @@ def prepared():
     for obj in [95,97,98,99]:
         if list(struct.unpack('<hh', read_va(exe,0x5a6858+obj*4,4))) != rules['animationObjects'][obj]:
             raise Blocked('Object table drift')
-    return manifest, cases, counts, instructions, rules
+    return manifest, cases, counts, instructions, rules, manifest_bytes
 
 
 def run_native(manifest, cases, counts, instructions, rules, result, output):
@@ -384,33 +385,67 @@ def assert_failure_first(native,port):
             raise Blocked('No-gesture decision did not consume native cosmetic RNG')
 
 
+def postflight(manifest, manifest_bytes):
+    checks = [('manifest', str(HERE/'preflight.json'), sha(manifest_bytes))]
+    checks += [('source', str(ROOT/path), expected) for path,expected in manifest['sourceSha256'].items()]
+    checks += [('input', path, expected) for path,expected in manifest['inputSha256'].items()]
+    checks.append(('node', manifest['nodePath'], manifest['nodeSha256']))
+    rows = []
+    for kind,path,expected in checks:
+        row = {'kind':kind,'path':path,'expectedSha256':expected}
+        try:
+            row['actualSha256'] = sha(Path(path).read_bytes())
+            row['status'] = 'passed' if row['actualSha256']==expected else 'drift'
+        except OSError as error:
+            row['status']='unreadable';row['error']=f'{type(error).__name__}: {error}'
+        rows.append(row)
+    return {'status':'passed' if all(r['status']=='passed' for r in rows) else 'blocked',
+            'checks':rows}
+
+
+def retain_port(output, stdout, stderr, status):
+    # TimeoutExpired may carry bytes even when subprocess.run uses text=True.
+    for name,value in [('port.stdout.json',stdout),('port.stderr.txt',stderr)]:
+        raw = value if isinstance(value,bytes) else (value or '').encode('utf-8')
+        (output/name).write_bytes(raw)
+    (output/'port-status.json').write_text(json.dumps(status,indent=2)+'\n')
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     mode=parser.add_mutually_exclusive_group(required=True)
     mode.add_argument('--validate',action='store_true')
     mode.add_argument('--execute',action='store_true')
     args=parser.parse_args()
-    manifest,cases,counts,instructions,rules=prepared()
+    manifest,cases,counts,instructions,rules,manifest_bytes=prepared()
     if args.validate:
         print(json.dumps({'status':'preflight-passed','nativeExecution':'not-run',
             'portExecution':'not-run','cases':len(cases),'controllerCalls':sum(c['pairs'] for c in cases),
             'boundaries':sum(c['family']=='boundaries' for c in cases),
-            'manifestSha256':sha((HERE/'preflight.json').read_bytes())},indent=2))
+            'manifestSha256':sha(manifest_bytes)},indent=2))
         return
     output=ROOT/manifest['outputDirectory']
     output.mkdir(parents=True,exist_ok=False)
     result={'status':'running','scope':manifest['scope'],'cases':[],
-            'manifestSha256':sha((HERE/'preflight.json').read_bytes()),'completedControllerCalls':0}
-    (output/'frozen-manifest.json').write_bytes((HERE/'preflight.json').read_bytes())
+            'manifestSha256':sha(manifest_bytes),'completedControllerCalls':0}
+    (output/'frozen-manifest.json').write_bytes(manifest_bytes)
+    blockers=[]
+    summary=None
     try:
         run_native(manifest,cases,counts,instructions,rules,result,output)
         (output/'native.json').write_text(json.dumps(result,indent=2)+'\n')
         payload={'fields':FIELDS,'frameCounts':counts,'cases':cases,'addresses':{'person':P}}
         (output/'supplied-input.json').write_text(json.dumps(payload,indent=2)+'\n')
-        process=subprocess.run([manifest['nodePath'],str(HERE/'compare-port.mjs')],
-            input=json.dumps(payload),capture_output=True,text=True,cwd=ROOT,timeout=15)
-        (output/'port.stdout.json').write_text(process.stdout)
-        (output/'port.stderr.txt').write_text(process.stderr)
+        try:
+            process=subprocess.run([manifest['nodePath'],str(HERE/'compare-port.mjs')],
+                input=json.dumps(payload),capture_output=True,text=True,cwd=ROOT,timeout=15)
+        except subprocess.TimeoutExpired as error:
+            retain_port(output,error.stdout,error.stderr,{'status':'timed-out',
+                'timeoutSeconds':error.timeout,'exitCode':None,
+                'childTermination':'subprocess.run kills the direct child and waits before raising TimeoutExpired'})
+            raise Blocked('Port process timed out; captured streams retained') from error
+        retain_port(output,process.stdout,process.stderr,
+                    {'status':'exited','exitCode':process.returncode,'timedOut':False})
         if process.returncode:
             raise Blocked(f'Port process exit {process.returncode}')
         port=json.loads(process.stdout)
@@ -421,17 +456,27 @@ def main():
                  'controllerCalls':result['completedControllerCalls'],'divergentRows':len(inventory),
                  'ordinaryPlay':'not-established','audioRNG':'not-executed; supplied leaf',
                  'manifestSha256':result['manifestSha256']}
-        (output/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
-        print(json.dumps(summary))
     except Exception as error:
         if result['status'] != 'completed':
             result['status']='blocked'
-        result['comparisonStatus']='blocked'
-        result['blocker']=f'{type(error).__name__}: {error}'
+        blockers.append(f'{type(error).__name__}: {error}')
+    finally:
+        verification=postflight(manifest,manifest_bytes)
+        (output/'postflight.json').write_text(json.dumps(verification,indent=2)+'\n')
+        result['postflightStatus']=verification['status']
+        if verification['status']!='passed':
+            blockers.append('Postflight source/input/manifest identity drift; see postflight.json')
+        if blockers:
+            result['comparisonStatus']='blocked'
+            result['blockers']=blockers
         (output/'native.json').write_text(json.dumps(result,indent=2)+'\n')
-        (output/'blocked.json').write_text(json.dumps({'status':'blocked','reason':result['blocker']},indent=2)+'\n')
-        print(result['blocker'],file=sys.stderr)
+    if blockers:
+        (output/'blocked.json').write_text(json.dumps({'status':'blocked','reasons':blockers},indent=2)+'\n')
+        print('; '.join(blockers),file=sys.stderr)
         raise SystemExit(2)
+    summary['postflightStatus']='passed'
+    (output/'summary.json').write_text(json.dumps(summary,indent=2)+'\n')
+    print(json.dumps(summary))
 
 
 if __name__=='__main__':

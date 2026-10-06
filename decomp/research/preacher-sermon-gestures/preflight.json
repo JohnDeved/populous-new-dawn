@@ -30,8 +30,8 @@
     "app/world-turn.ts": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a",
     "decomp/research/preacher-sermon-gestures/cases.json": "3693e3738f70feb41fc3c1f89bdb42311b884e699abe2307db386000cff19108",
     "decomp/research/preacher-sermon-gestures/compare-port.mjs": "6fbb68f2810e701544009127ad9abfb19cb1d7c0e92e4f6236bdc87f650e0e31",
-    "decomp/research/preacher-sermon-gestures/compare.py": "938e0238b4e0bbbfcc24748a564e1ddec7065c7d305e98f1b5a34869100d467e",
-    "decomp/research/preacher-sermon-gestures/comparison-plan.md": "9fc66ae69a2fdcd1b0853ab14bca8f5198d1b7c7495b6bcc73317e4b284f1ca8",
+    "decomp/research/preacher-sermon-gestures/compare.py": "34f2216bccbf6c30e1d0b163ea2627c0a66d55a4e16e5a0085d5466c0b2d44de",
+    "decomp/research/preacher-sermon-gestures/comparison-plan.md": "62a165a4c4846b203ff12181ca232afcc6126c1e5f55b5d37344c00bc46fac27",
     "decomp/tools.json": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484",
     "scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da"
   },
@@ -88,5 +88,7 @@
       "169b5f38e8cc9f7aacbae222ba804ac519ec1f27": "fcaea74faacf6477a25c186b668eadc8e3a5a887cc74157683f818ee1a576872"
     }
   },
-  "futureArtworkConstraint": "Accepted firing packed2048x8128; supplied actual MAX_TEXTURE_SIZE8192. No capacity or pixel proof in this probe."
+  "futureArtworkConstraint": "Accepted firing packed2048x8128; supplied actual MAX_TEXTURE_SIZE8192. No capacity or pixel proof in this probe.",
+  "supersedesManifestSha256": "5e01eb2c7c02179051f0e2b239c7ad067d7cbf28e11569d9663846a46c61526a",
+  "preflightRepair": "Postflight identities on success/failure; TimeoutExpired captured streams/status. Cases, native scope, leaves and expected values unchanged."
 }

@@ -124,3 +124,20 @@ A successful preflight is neither a successful native run nor a successful port
 syntax/runtime check. The independent reviewer should inspect this exact source
 before any execution grant. Later ordinary browser baseline and implementation
 acceptance remain separate.
+
+## Narrow preflight evidence repair
+
+The original c169cf80 proposal remains preserved. The corrected runner checks
+its original captured manifest bytes, every frozen source/input and the Node
+binary again in a finally block after success or a handled failure. Each expected
+and observed hash (or read error) is retained in postflight.json. Drift blocks the
+comparison and prevents a diagnosis-supported summary. A missing postflight after
+an external forced termination also blocks acceptance; an outer receipt alone
+cannot establish unchanged inputs.
+
+Port normal exits and TimeoutExpired retain stdout/stderr and port-status.json.
+Timeout streams are preserved byte-for-byte, including incomplete JSON. The
+standard subprocess.run timeout kills its direct child and waits before raising;
+no retry or extra process runner is added. The later approved launch can use the
+parent's source-bound command receipt and process-group outer87-second TERM plus
+3-second KILL limit. No case, native range, supplied leaf or expected value changed.
