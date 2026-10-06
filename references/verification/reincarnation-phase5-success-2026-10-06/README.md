@@ -2,8 +2,9 @@
 
 This packet incorporates the staged-plan review and clarified PR245 head
 `ba308395ed3889058a30974440f8a0c9a6b8106f`. It is source only. No native
-instruction, app/browser/package code or Ghidra was executed. The source rejects
-execution, has no registered check entry, and has no accepted native result.
+instruction, app/browser/package code or Ghidra was executed. The source requires
+the explicit prepared launcher flag, has no registered check entry, and has no
+accepted native result. Preparing the launcher does not grant execution.
 
 ## One input, one controller return
 
@@ -67,6 +68,29 @@ game-clock advance and real combat death with surviving followers, then visible
 reincarnation, public Save/Load and pause without replay. The older diagnostic
 supports route feasibility only. It cannot be relabeled as ordinary elapsed play.
 
+## Bounded launcher freeze
+
+`launch.json` uses the existing `scripts/orchestration/command-receipt.mjs`,
+not a new supervisor. It pins CPU4, a20-second TERM timeout with5-second kill
+grace,15 CPU seconds,1GiB address space,32MiB file output,128 file descriptors
+and no core dump. The child environment is explicitly sanitized. The native
+translation buffer is exactly64MiB and checked through Unicorn's getter.
+The one native call additionally has its existing1-second/200,000-instruction
+limit and now asserts both returned EIP and `ESP == STACK + 4`.
+
+The launch manifest binds the actual Python executable, Unicorn source/library
+and metadata, supervisor/Node/OS wrappers, `decomp.py`, tools lock, imported
+constants, original `constant.dat`, EXE and search/animation inputs. The existing
+supervisor will fingerprint those inputs again before/after a permitted run and
+refuses the fresh output path if it already exists. Source SHA agreement is
+required in addition to any future terminal receipt; no retries are preapproved.
+
+Static retirement audit: `004edcf0..004ede07` performs the fixture's cell unlink,
+active-list removal and retirement-list insertion inline. Its sole direct call,
+`00401140`, requires body flags2/`04000000`, which is absent here and asserted at
+retirement entry. It remains outside REAL_CALLS; no destructor or lighting stub
+was added. An unexpected direct call still fails closed.
+
 Host-only AST/source/hash checks are recorded in `source-validation.json`.
-The first executable source is still pending review; no execution is requested
-by this packet and no shared resource has been reserved.
+The final source/launcher freeze remains subject to the parent's independent
+review. No execution is requested by this packet or resource reserved.

@@ -1,7 +1,7 @@
 """ONE phase5 success composition, source draft only; never executed yet.
 
 No import/run of the earlier 16-case fixture. No outer loop or browser caller.
-Execution remains gated until review of this source and authorization to run.
+Prepared execution requires the explicit launcher flag; no execution has occurred.
 """
 import hashlib
 import json
@@ -10,7 +10,7 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
-EXECUTABLE_FREEZE = False
+TRANSLATION_BUFFER_BYTES = 64 * 1024 * 1024
 EXE_SHA = '3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f'
 INPUTS = {
     'mwsearch.dat': '0c39b12d160658863c2df89aa34484dff459e48ea0b5634658b7473ca940fae0',
@@ -39,9 +39,9 @@ def sha(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def prepare_one_success(exe):
-    if not EXECUTABLE_FREEZE:
-        raise RuntimeError('Source draft only: executable freeze and native run are not authorized')
+def prepare_one_success(exe, *, execute_reviewed=False):
+    if not execute_reviewed:
+        raise RuntimeError('Use only the reviewed, separately authorized single-run launcher')
     # These imports and the CPU constructor have NOT been invoked in preparation.
     sys.path.insert(0, str(ROOT / 'scripts'))
     from decomp import native_cpu, configure_native_constants
@@ -50,7 +50,8 @@ def prepare_one_success(exe):
 
     raw = exe.read_bytes()
     assert sha(raw) == EXE_SHA
-    cpu, identity = native_cpu(exe)
+    cpu, identity = native_cpu(exe, tcg_buffer_size=TRANSLATION_BUFFER_BYTES)
+    assert cpu.ctl_get_tcg_buffer_size() == TRANSLATION_BUFFER_BYTES
     configure_native_constants(cpu, exe)
     cpu.mem_map(SCRATCH, SCRATCH_BYTES)
     read = lambda address, fmt: struct.unpack(
@@ -215,6 +216,10 @@ def prepare_one_success(exe):
                    'afterArgumentFlag': read(0x89243a, 'B')}
             events.append({'return': row})
         elif address in (0x4da0f0, 0x4da16d, 0x4d5920, 0x4d23d0, 0x50ccd0, 0x50bf60, 0x4edcf0):
+            if address == 0x4edcf0:
+                # This body has no0x04000000 auxiliary-record owner. Original
+                # unlink/retirement is inline; conditional00401140 is unreachable.
+                assert read(sp + 4, 'I') == BODY and not read(BODY + 0xc, 'I') & 0x04000000
             events.append({'boundary': hex(address), 'firstArgument': read(sp + 4, 'I'),
                            'rawEax': cpu.reg_read(UC_X86_REG_EAX),
                            'argumentStack': read(0x892443, 'I'), 'argumentFlag': read(0x89243a, 'B'),
@@ -242,6 +247,7 @@ def prepare_one_success(exe):
                       'body': bytes(cpu.mem_read(BODY, 0xb3)).hex(),
                       'pool': bytes(cpu.mem_read(POOL, 34 * 256)).hex()}), flush=True)
     assert cpu.reg_read(UC_X86_REG_EIP) == STOP
+    assert cpu.reg_read(UC_X86_REG_ESP) == STACK + 4
     guard('after the one phase5 success call')
 
     requests = [event['request'] for event in events if 'request' in event]
@@ -267,6 +273,7 @@ def prepare_one_success(exe):
     return {
         'mode': 'one fixed phase5 creation, no scheduled visits/lifetime/capacity/browser claim',
         'executable': identity, 'inputs': INPUTS, 'beforeRngs': before_rngs, 'afterRngs': rngs(),
+        'translationBufferBytes': cpu.ctl_get_tcg_buffer_size(),
         'initial': initial, 'finalOwnership': ownership(),
         'savedSite': [4096, 4096, 240], 'currentGround': 128,
         'events': events, 'directCalls': calls, 'accesses': sorted(accesses),
@@ -279,4 +286,6 @@ def prepare_one_success(exe):
 
 
 if __name__ == '__main__':
-    raise SystemExit('SOURCE DRAFT ONLY: native execution remains disabled')
+    if len(sys.argv) != 3 or sys.argv[1] != '--execute-reviewed':
+        raise SystemExit('Usage after separate launch authorization: probe-draft.py --execute-reviewed EXE')
+    print(json.dumps(prepare_one_success(Path(sys.argv[2]), execute_reviewed=True)), flush=True)

@@ -1,0 +1,25 @@
+{
+  "mode": "static PE reads only",
+  "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "range": {
+    "start": "004edcf0",
+    "endExclusive": "004ede08",
+    "sha256": "63a2b3ca78801d981e42f89fe2302d4d8c05029b6c4234b24612b6b4362e9589",
+    "bytesHex": "8b4c240483ec04f6410e025356747b668b413d668b513f8864240a33c08874240b668b44240a33d2668b54240a25fe00000003c081e200fe00000bc28d71208d1485e4038a00668b41226685c074130fb7c0668b168b1c859003890066895320eb07668b0666894206668b066685c074120fb7c0668b51228b1c85900389006689532281610cfffffdff8b018d7104c6412a0083490c0185c074078b16895004eb078b06a3240389008b0685c074048b118910c70100000000a1280389008906890d280389008b0685c074028908c6412e03f6410f04743a668b492433d2be467c9300668b460a662bc1663d01001bc033dbf7d88a1e85c3750f4283c63d83fa327ce05e5b83c404c356e84133f1ff83c4045e5b83c404c3"
+  },
+  "conditionalCall": {
+    "instruction": "004eddfa",
+    "target": "00401140",
+    "guardBytesAt004eddc2": "f6410f04743a",
+    "requiresBodyFlags2": "04000000",
+    "fixtureBodyFlags2": "40020000",
+    "classification": "unreachable in the fixed fixture; entry assertion preserves this; not added to REAL_CALLS"
+  },
+  "inlineOwners": [
+    "terrain cell unlink",
+    "active list unlink",
+    "retirement list prepend",
+    "class0/removal flag and counter3"
+  ],
+  "nativeExecution": "not-run"
+}

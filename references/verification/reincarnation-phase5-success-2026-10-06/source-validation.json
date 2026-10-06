@@ -45,15 +45,23 @@
     "scripts/check-native-animation.py": "d24a59e7fd242cce787531ae19ddd9c4dcb551910704a1b981990ff285af9edc"
   },
   "packetSources": {
-    "probe-draft.py": "7aab3ac40a98d0d39d619a714648058a3b0f612e07d2b42d5a7c00774289d421",
-    "README.md": "bbfaf946d3a68799b602372369bad7bd597621e1f33afa33dc333d9e549dc474"
+    "probe-draft.py": "a37d1a93702507eca13e42b1c012cad844dc1c46adf292da8df5f63554149f56",
+    "README.md": "b160dc7528904919b37507224dc62e9b3fbf21b635ae2125fe9cd7f8eb774049",
+    "launch.json": "458575c8c37cbb50cd38d830c965a00d4417c85ac4fe2ab47b0e3217e6586083",
+    "closure-audit.json": "b6b162b8133b1d10c1cce5e5f23db13a89f29243a63d8866631cc477fa1ec28b"
   },
   "checks": {
     "astParse": "passed",
     "singlePhase5EmulationCallInSource": "passed",
     "sourceCorrespondence": "passed, 38 paths",
     "whitespace": "passed",
-    "draftImportAndNativeAppPackageBrowserGhidraExecution": "not-run"
+    "draftImportAndNativeAppPackageBrowserGhidraExecution": "not-run",
+    "native64MiBBufferArgumentAndGetter": "passed, source only",
+    "returnedEspAssertion": "passed, source only",
+    "retirementConditionalCallClassification": "passed, static bytes only",
+    "launchInputHashes": "passed, 40 inputs",
+    "freshOutputAndWorktreeAbsent": "passed; neither created",
+    "launchExecution": "not-run"
   },
   "bound": "One fixed success fixture; sound supplied and frame counts loaded as supplied data; no outer traversal, owner/capacity sweep, lifetime, application or ordinary witness"
 }
