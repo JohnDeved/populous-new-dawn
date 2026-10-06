@@ -105,9 +105,12 @@ Freshly re-read coherent Yellow Braves, rank by current wrapped distance and ID,
 and consider only the first4. Each gets two prospective endpoints6 or8 units past
 its current position in the approach direction. Reject anything without a clear
 native model3 context. On a detached World with its own cloned Preacher, reuse
-`findPath`; no planned route is installed. The path must have two consecutive
-waypoints in the Brave's real3×3 secondary cells, each more than768 native units
-from the destination and outside every current specialist's conservative5×5 guard.
+`findPath`; no planned route is installed. The returned path is a smoothed polyline. Inspect its wrapped connecting segments
+at native512 cell boundaries, including the segment from the actual source. A
+qualifying cell interval must lie in the Brave's real3×3 area, span at least256
+native units, stay more than768 native units from the destination throughout, and
+lie outside every current specialist's conservative5×5 guard. These are geometric
+planning conditions, not simulated game visits.
 At most8 paths of512 points are inspected. If none qualifies, fail without input.
 
 Choose exactly one such crossing. Prepare the camera, obtain a real visible clear
@@ -123,7 +126,26 @@ Proposed crossing envelope:90s Load diagnostic prefix,20s control rebinding,
 the existing180s combined defender/approach stage with90s defender sub-cap;
 420s harness,450s outer INT plus20s kill grace, CPU0–3, same4407/profile/game.
 Fresh output/TMP and exact reviewed correspondence from the immediately prior
-successful Load-only run are mandatory. This crossing source has not run.
+terminal run are mandatory. This corrected crossing source has not run.
+
+The first crossing attempt at QA `7e62df91` failed honestly before any Preacher
+movement click. Ordinary Load matched3336, first bound3370, and defender3158 was
+absent at4197; original Shaman46 had99.9HP and Preacher3162 retained55HP at home.
+At4227 all eight route predictions were rejected. The old planner treated their
+4–5 smoothed turning/end vertices as consecutive spatial samples, so none
+qualified even when a connecting segment passed through eligible cells. Native
+move contexts separately rejected3067/beyond6 (person2909) and53/beyond6
+(building1018/model19). `retained-crossing01-routes.json` contains those exact
+bounded predictions with raw response hash/source/run attribution. Source
+`live-pathfinding.ts:212` owns smoothing; `liveRoutePoints`/`findLivePath` at297–315
+return the sparse route, and `stepLiveRoute` at371–385 consumes it. The regression
+exercises all eight real paths, including wrapping, context and primary exclusions.
+
+Both inner and outer outcomes remain failed. Cleanup/continuation, source/runtime
+identity and the unchanged full3336 digest passed; no response observer was armed
+and no automatic32 omission was earned. The next correspondence names this actual
+failed terminal run with verified cleanup, while original acquisition keeps1aa0414b/Run01.
+The actual adjacent-turn observer is unchanged by this polyline correction.
 
 ## Three separate claims
 

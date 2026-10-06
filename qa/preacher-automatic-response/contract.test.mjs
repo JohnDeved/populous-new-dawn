@@ -191,16 +191,21 @@ test('both omission and first32 require the same eligible native reference and c
   }
 })
 
-test('geometry requires two adjacent secondary cells, primary clearance and a pending destination margin', () => {
-  const path = [-12, -14, -16, -18, -20].map(x => ({ x, z: -93 })), destination = { x: -21, z: -93 }
-  const context = { model: 3, enabled: true, buildingId: null, personId: null, shrineId: null, treeId: null, vehicleId: null }
-  const result = crossingWitness(path, [124, 42], destination, [], context)
-  assert.ok(result); assert.ok(result.witnesses.length >= 2)
-  assert.equal(crossingWitness(path, [124, 42], { x: -17, z: -93 }, [], context), null)
-  assert.equal(crossingWitness(path, [124, 42], destination, [[125, 42]], context), null)
-  assert.equal(crossingWitness([path[1]], [124, 42], destination, [], context), null)
-  assert.equal(crossingWitness(path, [124, 42], destination, [], { ...context, model: 31 }), null)
-  assert.equal(crossingWitness(path, [124, 42], destination, [], { ...context, personId: 53 }), null)
+test('exact eight retained sparse routes are judged by wrapped cell segments, with context and margins retained', () => {
+  const f = JSON.parse(readFileSync(new URL('./retained-crossing01-routes.json', import.meta.url)))
+  assert.equal(f.sourceHead, '7e62df915f42f492bb0a1b57efb973648579996a')
+  assert.equal(f.turn, 4227); assert.equal(f.probes.length, 8)
+  const results = f.probes.map(p => crossingWitness(p.path, p.targetCell, p.destination, f.primaryCells, p.context, f.origin))
+  assert.deepEqual(results.map(Boolean), [false, true, true, true, true, true, false, true])
+  assert.deepEqual(results[1].witnesses.map(w => w.cell), [[125, 43], [125, 42], [124, 41]])
+  assert.ok(Math.abs(results[1].witnesses[0].spanNative - 282.89297115660315) < 1e-6)
+  const p = f.probes[1]
+  assert.equal(crossingWitness(p.path, p.targetCell, p.destination, [...f.primaryCells, p.targetCell], p.context, f.origin), null)
+  const singleCellEnd = { x: -13, z: -94 }, origin = { x: -13.1, z: -94 }
+  assert.equal(crossingWitness([singleCellEnd], p.targetCell, p.destination, [], p.context, origin), null, 'Short cell grazing cannot admit a crossing')
+  assert.equal(crossingWitness([{ x: -13, z: -94 }], p.targetCell, { x: -13, z: -94 }, [], p.context, { x: -14, z: -94 }), null, 'Destination margin still applies')
+  assert.equal(crossingWitness(p.path, p.targetCell, p.destination, [], { ...p.context, model: 31 }, f.origin), null)
+  assert.equal(crossingWitness(p.path, p.targetCell, p.destination, [], { ...p.context, personId: 53 }, f.origin), null)
 })
 
 test('forward removal requires the actual defender gone, original healthy actors and real arrival', () => {

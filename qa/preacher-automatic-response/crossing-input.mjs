@@ -1,7 +1,6 @@
 const wrap = n => ((n + 128) % 256 + 256) % 256 - 128
 const cellDelta = (a, b) => ((a - b + 64) & 127) - 64
 const pointNative = p => ({ x: Math.round((p.x + 8) * 256) & 65535, y: Math.round((-p.z - 8) * 256) & 65535 })
-const pointCell = p => { const n = pointNative(p); return [n.x >>> 9, n.y >>> 9] }
 const nearCell = (a, b, radius) => Math.abs(cellDelta(a[0], b[0])) <= radius && Math.abs(cellDelta(a[1], b[1])) <= radius
 
 export function coherentCrossingBrave(item) {
@@ -11,19 +10,45 @@ export function coherentCrossingBrave(item) {
     item.predicates.oldQaPrefilter.every(reason => ['not-idle17', 'outside-secondary3x3'].includes(reason))
 }
 
-export function crossingWitness(path, targetCell, destination, primaryCells, context) {
+// findLivePath returns smoothed route vertices, not per-turn positions. Split
+// each wrapped segment at native512 cell boundaries; never advance a controller.
+export function crossingWitness(path, targetCell, destination, primaryCells, context, origin) {
   if (path.length > 512) throw Error('Detached crossing path exceeds512 points')
-  if (!context || context.model !== 3 || context.enabled !== true ||
+  if (!origin || !context || context.model !== 3 || context.enabled !== true ||
     !['buildingId', 'personId', 'shrineId', 'treeId', 'vehicleId'].every(k => context[k] === null)) return null
-  const witnesses = []
-  for (let index = 0; index < path.length; index++) {
-    const point = path[index], cell = pointCell(point), remaining = Math.hypot(wrap(destination.x - point.x), wrap(destination.z - point.z)) * 256
-    if (nearCell(cell, targetCell, 1) && remaining > 768 && !primaryCells.some(p => nearCell(cell, p, 2)))
-      witnesses.push({ index, point, cell, remaining })
+  const witnesses = [], goal = pointNative(destination), points = [origin, ...path].map(pointNative)
+  const short = n => (n << 16) >> 16
+  for (let index = 1; index < points.length; index++) {
+    const a = points[index - 1], b = points[index], dx = short(b.x - a.x), dy = short(b.y - a.y),
+      length = Math.hypot(dx, dy), cuts = [0, 1]
+    if (!length) continue
+    for (const [start, delta] of [[a.x, dx], [a.y, dy]]) {
+      if (!delta) continue
+      const low = Math.min(start, start + delta), high = Math.max(start, start + delta)
+      for (let edge = (Math.floor(low / 512) + 1) * 512; edge < high; edge += 512)
+        cuts.push((edge - start) / delta)
+    }
+    cuts.sort((a, b) => a - b)
+    for (let i = 1; i < cuts.length; i++) {
+      const low = cuts[i - 1], high = cuts[i], span = (high - low) * length
+      if (span < 256) continue
+      const middle = (low + high) / 2, x = a.x + middle * dx, y = a.y + middle * dy,
+        cell = [Math.floor(x / 512) & 127, Math.floor(y / 512) & 127]
+      if (!nearCell(cell, targetCell, 1) || primaryCells.some(p => nearCell(cell, p, 2))) continue
+      // Use the nearest wrapped goal image, then its closest point on this cell
+      // interval. This bounds the whole interval's destination distance.
+      const gx = goal.x + Math.round((x - goal.x) / 65536) * 65536,
+        gy = goal.y + Math.round((y - goal.y) / 65536) * 65536,
+        closest = Math.max(low, Math.min(high, ((gx - a.x) * dx + (gy - a.y) * dy) / (length * length))),
+        remaining = Math.hypot(gx - a.x - closest * dx, gy - a.y - closest * dy)
+      if (remaining <= 768) continue
+      witnesses.push({ segment: index - 1, interval: [low, high], cell, spanNative: span,
+        remainingNative: remaining, from: points[index - 1], to: points[index] })
+    }
   }
-  if (!witnesses.some((row, index) => index && row.index === witnesses[index - 1].index + 1)) return null
-  return { witnesses, targetCell, destination, primaryCells, margin: 768,
-    scope: 'Detached path prediction only; actual adjacent moving3/cadence/eligibility still required' }
+  if (!witnesses.length) return null
+  return { witnesses, targetCell, destination, primaryCells, origin: { x: origin.x, z: origin.z }, margin: 768, minimumCellSpanNative: 256,
+    scope: 'Wrapped polyline cell intersections only; no simulated visits. Actual adjacent moving3/cadence/eligibility still required' }
 }
 
 export async function chooseCrossing(page, id) {
@@ -47,7 +72,7 @@ export async function chooseCrossing(page, id) {
       const destination = { x: wrap(brave.world.x + beyond * dx / length), z: wrap(brave.world.z + beyond * dz / length) }
       const context = contextAt(destination), clone = structuredClone(world), clonedActor = clone.units.find(u => u.id === id)
       const path = findPath(clone, clonedActor, destination)
-      const witness = crossingWitness(path, brave.nativeCell, destination, primaryCells, context)
+      const witness = crossingWitness(path, brave.nativeCell, destination, primaryCells, context, actor)
       probes.push({ braveId: brave.id, beyond, destination, context, path, witness })
       if (!witness) continue
       const target = world.units.find(u => u.id === brave.id)
@@ -75,7 +100,7 @@ export async function confirmCrossing(page, plan, hit) {
     primaryCells.push(...diagnostic.unmatchedPrimary.map(v => v.nativeCell))
     const context = window.nativeGuardProbes.createMoveContextProbe(w)(hit.point)
     const clone = structuredClone(w), actor = clone.units.find(u => u.id === pin.actor.id), path = findPath(clone, actor, hit.point)
-    const witness = crossingWitness(path, target.nativeCell, hit.point, primaryCells, context)
+    const witness = crossingWitness(path, target.nativeCell, hit.point, primaryCells, context, pin.actor)
     if (!witness) throw Error('Actual picked ground lacks the declared crossing/pending-destination margin')
     return { turn: w.turn, target, context, path, witness, diagnostic }
   }, { plan, hit })
