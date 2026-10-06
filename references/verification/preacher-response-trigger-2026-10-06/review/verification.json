@@ -1,0 +1,45 @@
+{
+  "verdict": "ACCEPT exact supplied-state response-producer mismatch",
+  "sourceHead": "dd6e42029f352ed425b2555ccbbd8fd83c03a326",
+  "launchManifestSha256": "0cfb004728ba8b9f0e3158eba502e145a141407e2a03839eb3c52864a54c1514",
+  "nativeSha256": "a2184aa455a89c892f17efec168a68a61a2008002d4ec30647c0ca484a00e14e",
+  "portSha256": "a936e5435e9168e418a68bdb7e3cee65e84e525c8a848deb01dd3bb928a0ab92",
+  "externalReceiptSha256": "061927d523329db62a8755ade25f9c5233a1878c95cc226deab328acb088e25d",
+  "prePostFingerprintsVerified": 80,
+  "nativeInstructionCountRecorded": 894,
+  "memoryEventsIndependentlyReplayed": {
+    "write": 160,
+    "read": 293
+  },
+  "nativeEntryReturnPairsVerified": 13,
+  "producerAL": 0,
+  "producerRawEax": 9641984,
+  "fullPeopleBytesPerSnapshot": 512,
+  "fullPoolBytesPerSnapshot": 8000,
+  "portCoverageAssertionsRecomputed": 17,
+  "sourceRawChangedOffsets": [
+    12,
+    131,
+    132,
+    155
+  ],
+  "poolRawChangedOffsets": [
+    20,
+    21,
+    22,
+    27,
+    29
+  ],
+  "bothRngsUnchanged": true,
+  "registrationAndQueuePreserved": true,
+  "portPersistentChanges": false,
+  "terminalExit": 0,
+  "elapsedSeconds": 2.4743185760016786,
+  "cpu": 4,
+  "terminalGroupEmpty": true,
+  "limits": [
+    "One supplied retained-initiator response-only case",
+    "No ordinary acquisition, fresh-person adoption, startup, sermon, expiry, queue-resumption or rendering claim",
+    "No rerun/native/application execution by reviewer"
+  ]
+}

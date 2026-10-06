@@ -1,0 +1,137 @@
+{
+  "schemaVersion": 1,
+  "kind": "immutable-accepted-response-producer-evidence",
+  "sourceHead": "dd6e42029f352ed425b2555ccbbd8fd83c03a326",
+  "launchManifestSha256": "0cfb004728ba8b9f0e3158eba502e145a141407e2a03839eb3c52864a54c1514",
+  "verdict": "ACCEPT one supplied response-producer omission; not parity equality or ordinary campaign history.",
+  "sourcePacket": "../../../decomp/research/preacher-response-trigger/probe-packet.md",
+  "rawFiles": [
+    {
+      "originalPath": "launch-01/receipt.json",
+      "path": "raw/launch-01/receipt.json.gz",
+      "encoding": "gzip",
+      "sha256": "b66a478896e72c6e0a86f938a8bdd73aeab025058fd0df5f105b78fe939c69a5",
+      "bytes": 5434,
+      "originalSha256": "061927d523329db62a8755ade25f9c5233a1878c95cc226deab328acb088e25d",
+      "originalBytes": 33307
+    },
+    {
+      "originalPath": "launch-01/stderr.txt",
+      "path": "raw/launch-01/stderr.txt.gz",
+      "encoding": "gzip",
+      "sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "bytes": 20,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalBytes": 0
+    },
+    {
+      "originalPath": "launch-01/stdout.txt",
+      "path": "raw/launch-01/stdout.txt.gz",
+      "encoding": "gzip",
+      "sha256": "78d47a19dc25ff0d8e332c64ca94dc1025fb7b247583aea5d17ddbcc93b1fbe3",
+      "bytes": 238,
+      "originalSha256": "85e9e8aab89c719f08c262a58110100beb9e814cbcf3da6778568c38ff3f0d61",
+      "originalBytes": 400
+    },
+    {
+      "originalPath": "run-01/comparison.json",
+      "path": "raw/run-01/comparison.json.gz",
+      "encoding": "gzip",
+      "sha256": "efdb56e7f7bc011c1be0de65ddc45e87d83ff62224ee2e0677797485ef776a8c",
+      "bytes": 257,
+      "originalSha256": "56f652f09d997d4f5126930a3be7c3e34c83dab4964a4ef6f62d6a7fb351e1ff",
+      "originalBytes": 530
+    },
+    {
+      "originalPath": "run-01/launch.json",
+      "path": "raw/run-01/launch.json.gz",
+      "encoding": "gzip",
+      "sha256": "08cc323500e17d49f3fe94ab252fc2e91d0f50d79967e9f7bd15268867020498",
+      "bytes": 5490,
+      "originalSha256": "0cfb004728ba8b9f0e3158eba502e145a141407e2a03839eb3c52864a54c1514",
+      "originalBytes": 20206
+    },
+    {
+      "originalPath": "run-01/native-before.json",
+      "path": "raw/run-01/native-before.json.gz",
+      "encoding": "gzip",
+      "sha256": "c6bad1d03a74ea963e337a3de7d378102ecf83d6591e7bae48081549057e5c2b",
+      "bytes": 390,
+      "originalSha256": "5a78decc153447782382d2ac0a8e5d3e8cdf3c942ca44b352e0fb30e976459be",
+      "originalBytes": 26258
+    },
+    {
+      "originalPath": "run-01/native.json",
+      "path": "raw/run-01/native.json.gz",
+      "encoding": "gzip",
+      "sha256": "31442bcbf28e38ce3520176218906b868ed349e44ee540f4e768fafb4e0d5cd6",
+      "bytes": 5046,
+      "originalSha256": "a2184aa455a89c892f17efec168a68a61a2008002d4ec30647c0ca484a00e14e",
+      "originalBytes": 129628
+    },
+    {
+      "originalPath": "run-01/port.json",
+      "path": "raw/run-01/port.json.gz",
+      "encoding": "gzip",
+      "sha256": "dc99ceaa2c0e92bf7841168d06fe291b7923221e841faa356f6d05b8da847ea1",
+      "bytes": 6665,
+      "originalSha256": "a936e5435e9168e418a68bdb7e3cee65e84e525c8a848deb01dd3bb928a0ab92",
+      "originalBytes": 603976
+    },
+    {
+      "originalPath": "run-01/port.stderr",
+      "path": "raw/run-01/port.stderr.gz",
+      "encoding": "gzip",
+      "sha256": "f61f27bd17de546264aa58f40f3aafaac7021e0ef69c17f6b1b4cd7664a037ec",
+      "bytes": 20,
+      "originalSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "originalBytes": 0
+    },
+    {
+      "originalPath": "run-01/port.stdout",
+      "path": "raw/run-01/port.stdout.gz",
+      "encoding": "gzip",
+      "sha256": "b136e9b705af6a2b48072795fa92cc3db4789395c749c3f8fdd3576e07d46664",
+      "bytes": 4459,
+      "originalSha256": "3b298751880147a16dacdbe3d6bc5269590bfa9dabed1827f941d455189574e7",
+      "originalBytes": 211429
+    },
+    {
+      "originalPath": "run-01/receipt.json",
+      "path": "raw/run-01/receipt.json.gz",
+      "encoding": "gzip",
+      "sha256": "29234045fd981c577dd3299fd225a5440f5e8a129fc5565375c1565ac7026d19",
+      "bytes": 524,
+      "originalSha256": "4cf26173ac70be57f64ac4afb852669ca5db518b27690296eb9efc553c1ab5b2",
+      "originalBytes": 781
+    }
+  ],
+  "reviewFiles": [
+    {
+      "path": "review/review.md",
+      "sha256": "966c545b1f6015511e45ff4d8610ea204145685dacdebbd0de68c381bc01405b",
+      "bytes": 4536
+    },
+    {
+      "path": "review/verification.json",
+      "sha256": "b97107b1cd118ad75c495af67fbcf8fe24eed8c0e243dbca65b9de15bc7989c4",
+      "bytes": 1453
+    },
+    {
+      "path": "review/manifest.json",
+      "sha256": "639256e6bb0eec4f8ab9ce91151d5c9ca7c2c8824b8a0152a51607e10f6dc521",
+      "bytes": 2078
+    }
+  ],
+  "preservation": "All11 original raw/launch files retained byte-for-byte under lossless gzip; all3 review files copied unchanged. No original artifact was edited or rerun.",
+  "limits": [
+    "One positive two-person supplied retained-initiator case",
+    "No runtime patch, additional case, ordinary acquisition, sermon startup/lifecycle, expiry/resumption or rendering acceptance"
+  ],
+  "checks": {
+    "rawDecompression": "passed",
+    "originalRawHashesAgainstIndependentReview": "passed",
+    "reviewCopyHashes": "passed",
+    "newExecution": "not-run"
+  }
+}

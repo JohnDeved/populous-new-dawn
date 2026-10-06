@@ -38,6 +38,7 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 Recent reusable topic notes: [Preacher sermon gestures and original artwork](research/preacher-sermon-gestures.md),
 [Automatic Preacher sermon trigger and paired proof plan](research/preacher-response-trigger.md),
 [One-case automatic sermon producer proof packet](research/preacher-response-trigger/probe-packet.md),
+[Accepted automatic-sermon producer omission](../references/verification/preacher-response-trigger-2026-10-06/README.md),
 [Shrine Erosion activation](research/erosion-activation.md),
 [Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
 [Ordinary native Shaman Guard input and deferred ownership](research/shaman-guard-input.md),
