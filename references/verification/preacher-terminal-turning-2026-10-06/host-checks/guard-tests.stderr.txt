@@ -1,0 +1,18 @@
+test_diff_retains_events_rng_and_each_record_byte (__main__.HostGuards.test_diff_retains_events_rng_and_each_record_byte) ... ok
+test_exact_cdecl_boundaries_reject_scope_changes (__main__.HostGuards.test_exact_cdecl_boundaries_reject_scope_changes) ... ok
+test_exact_six_records_and_brave_type (__main__.HostGuards.test_exact_six_records_and_brave_type) ... ok
+test_expected_terminal_mode_rng_and_assignment_are_distinct (__main__.HostGuards.test_expected_terminal_mode_rng_and_assignment_are_distinct) ... ok
+test_input_case_listener_and_schedule_mutations_fail (__main__.HostGuards.test_input_case_listener_and_schedule_mutations_fail) ... ok
+test_no_top_level_unicorn_or_subprocess_execution (__main__.HostGuards.test_no_top_level_unicorn_or_subprocess_execution) ... ok
+test_raw_unknown_and_listener_writes_rejected (__main__.HostGuards.test_raw_unknown_and_listener_writes_rejected) ... ok
+test_reads_bind_null_slot_heads_tables_and_exclude_rng_unknown_maxlife (__main__.HostGuards.test_reads_bind_null_slot_heads_tables_and_exclude_rng_unknown_maxlife) ... ok
+test_timeout_and_postflight_failures_are_retained (__main__.HostGuards.test_timeout_and_postflight_failures_are_retained) ... ok
+test_topology_queue_and_both_rng_guards (__main__.HostGuards.test_topology_queue_and_both_rng_guards) ... ok
+test_unowned_field_mutation_rejected_even_when_raw_matches (__main__.HostGuards.test_unowned_field_mutation_rejected_even_when_raw_matches) ... ok
+test_validation_cannot_execute_native_or_port (__main__.HostGuards.test_validation_cannot_execute_native_or_port) ... ok
+test_write_allowlist_keeps_listeners_rng_queues_tables_readonly (__main__.HostGuards.test_write_allowlist_keeps_listeners_rng_queues_tables_readonly) ... ok
+
+----------------------------------------------------------------------
+Ran 13 tests in 0.853s
+
+OK

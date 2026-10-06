@@ -1,0 +1,26 @@
+{
+  "status": "independently accepted executed component result",
+  "executionSourceHead": "410cdb6747cd2641582a305a19f6a075057f4a10",
+  "applicationBase": "a00eadc811e227559f9a2713eedbee5cd08af1c1",
+  "rawArchiveSha256": "7ec160cb09351c11e2c6217025ad1bd8636603d14d3d5adee490725a9775b967",
+  "resultPacketManifestSha256": "4dad693936c368db05388d60337646199cb3755b4174f29ac4d37082cf3e3f68",
+  "independentReviewSha256": "d197450d2435afd93b0625fb43c55243a5aab545d6fd041c73dfb99e986623dc",
+  "independentReviewManifestSha256": "898802d62549cd7862e85054c69823f1112d62ae632bc73f0b3f999c64de789b",
+  "nativeSource": "actual original acquisition/angle/reveal over supplied records/topology",
+  "portAcquisition": "supplied count/status adapter; production caller separate",
+  "nativeFinal": {
+    "animationMode": 0,
+    "simulationRandom": 3603658299,
+    "assignment": 336
+  },
+  "portFinal": {
+    "animationMode": 2,
+    "simulationRandom": 1607832750,
+    "assignment": 336
+  },
+  "runtimePatch": false,
+  "ordinaryFiveListenerHistory": "not-established",
+  "renderedImpact": "not-established",
+  "sourceNote": "result.md",
+  "portableEvidence": "../../../references/verification/preacher-terminal-turning-2026-10-06/README.md"
+}

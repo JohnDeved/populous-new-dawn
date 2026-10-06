@@ -1,0 +1,62 @@
+{
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/preacher-terminal-turning-proof-20261006",
+  "sourceHead": "410cdb6747cd2641582a305a19f6a075057f4a10",
+  "gitStatusBefore": "",
+  "startedAt": "2026-10-06T18:35:28.880104+00:00",
+  "scope": "Host-only guard/negative/static-disassembly and Node syntax-only parsing; no Unicorn or application module execution",
+  "beforeSha256": {
+    "decomp/research/preacher-terminal-turning/preflight.json": "28ae1d15bf9fc9867df6548527518346efa7e83ee4974dedd6f9d5a2b9e0adfb",
+    "decomp/research/preacher-terminal-turning/compare-port.mjs": "631e33b39723694d6b80576fb6a4667a5efbe9004e4ec43f3c09a960befb4150",
+    "decomp/research/preacher-terminal-turning/launch-proposal.md": "e133e64989a1bcd41edfcf08c801d8a5a288382b879c1a6ca15a3f6bcdaa24e3",
+    "decomp/research/preacher-terminal-turning/compare.py": "b0938b8028e160b33916a8e9bbe246073120e45b7ccacf6a62664ebb4c54e051",
+    "decomp/research/preacher-terminal-turning/test_host.py": "46f2d5f3f9e9658926014eaefd88fab98d1c209ec9f97f0f20eb030220759a2a",
+    "decomp/research/preacher-terminal-turning/proposal/case-input-proposal.json": "cb82a929da6f450f8232f24a1d8ffde71e5038508d5a894592267df4b5c9a704",
+    "decomp/research/preacher-terminal-turning/proposal/evidence.json": "37ab506760f5bea2e3148f01073ab1370b56d2932034206fcc17a28519381c7b",
+    "decomp/research/preacher-terminal-turning/proposal/review-review.md": "7b3f607598212adb1e35daa89a3023e6dd00c687b22fed6fb179b8a6c172e791",
+    "decomp/research/preacher-terminal-turning/proposal/outline.md": "1591eeb21e48f56a4b077ec53562933224ba0d7e2399aa7bb164da3e4534946e",
+    "decomp/research/preacher-terminal-turning/proposal/review-manifest.json": "c5bd241d1bc2a0d0ac9e6df01d78cb090b747607a902cc96b5a522de1ff04942",
+    "decomp/research/preacher-terminal-turning/proposal/manifest.json": "0f46c4b47cbf312295b9d1c057562502d506ec9837494d58c3821220e8cbda4b"
+  },
+  "checks": [
+    {
+      "name": "guard-tests",
+      "command": [
+        "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+        "decomp/research/preacher-terminal-turning/test_host.py",
+        "-v"
+      ],
+      "exitCode": 0,
+      "seconds": 1.1200014259957243,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "277dfd27ba32dff4f959f1e7528e70b6d79db2b42e7ab784c5589195dd33e72c"
+    },
+    {
+      "name": "port-syntax",
+      "command": [
+        "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+        "--check",
+        "decomp/research/preacher-terminal-turning/compare-port.mjs"
+      ],
+      "exitCode": 0,
+      "seconds": 0.1148422690021107,
+      "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  ],
+  "endedAt": "2026-10-06T18:35:30.116934+00:00",
+  "afterSha256": {
+    "decomp/research/preacher-terminal-turning/preflight.json": "28ae1d15bf9fc9867df6548527518346efa7e83ee4974dedd6f9d5a2b9e0adfb",
+    "decomp/research/preacher-terminal-turning/compare-port.mjs": "631e33b39723694d6b80576fb6a4667a5efbe9004e4ec43f3c09a960befb4150",
+    "decomp/research/preacher-terminal-turning/launch-proposal.md": "e133e64989a1bcd41edfcf08c801d8a5a288382b879c1a6ca15a3f6bcdaa24e3",
+    "decomp/research/preacher-terminal-turning/compare.py": "b0938b8028e160b33916a8e9bbe246073120e45b7ccacf6a62664ebb4c54e051",
+    "decomp/research/preacher-terminal-turning/test_host.py": "46f2d5f3f9e9658926014eaefd88fab98d1c209ec9f97f0f20eb030220759a2a",
+    "decomp/research/preacher-terminal-turning/proposal/case-input-proposal.json": "cb82a929da6f450f8232f24a1d8ffde71e5038508d5a894592267df4b5c9a704",
+    "decomp/research/preacher-terminal-turning/proposal/evidence.json": "37ab506760f5bea2e3148f01073ab1370b56d2932034206fcc17a28519381c7b",
+    "decomp/research/preacher-terminal-turning/proposal/review-review.md": "7b3f607598212adb1e35daa89a3023e6dd00c687b22fed6fb179b8a6c172e791",
+    "decomp/research/preacher-terminal-turning/proposal/outline.md": "1591eeb21e48f56a4b077ec53562933224ba0d7e2399aa7bb164da3e4534946e",
+    "decomp/research/preacher-terminal-turning/proposal/review-manifest.json": "c5bd241d1bc2a0d0ac9e6df01d78cb090b747607a902cc96b5a522de1ff04942",
+    "decomp/research/preacher-terminal-turning/proposal/manifest.json": "0f46c4b47cbf312295b9d1c057562502d506ec9837494d58c3821220e8cbda4b"
+  },
+  "gitStatusAfter": "",
+  "status": "passed"
+}

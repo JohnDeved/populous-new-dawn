@@ -1,0 +1,312 @@
+{
+  "status": "executed once; awaiting independent result review",
+  "sourceHead": "410cdb6747cd2641582a305a19f6a075057f4a10",
+  "nativeSnapshotSets": 25,
+  "portSnapshotSets": 17,
+  "raw256Snapshots": 252,
+  "nativeReadEvents": 487,
+  "nativeWriteEvents": 178,
+  "nativeInstructionTrace": 1243,
+  "nativePersonWrites": 16,
+  "nativeSeconds": 0.13250529499782715,
+  "nativeBoundaryCounts": {
+    "acquisition": 2,
+    "angle": 2,
+    "reveal": 2
+  },
+  "result": {
+    "status": "hypothesis-supported",
+    "phasePredictions": [
+      {
+        "implementation": "native",
+        "visit": 1,
+        "phase": "beforeController",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "native",
+        "visit": 1,
+        "phase": "afterController",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "native",
+        "visit": 1,
+        "phase": "beforeUpdater",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "native",
+        "visit": 1,
+        "phase": "afterUpdater",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "native",
+        "visit": 2,
+        "phase": "beforeController",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "native",
+        "visit": 2,
+        "phase": "afterController",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "native",
+        "visit": 2,
+        "phase": "beforeUpdater",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "native",
+        "visit": 2,
+        "phase": "afterUpdater",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "native",
+        "visit": 3,
+        "phase": "beforeController",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "native",
+        "visit": 3,
+        "phase": "afterController",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "native",
+        "visit": 3,
+        "phase": "beforeUpdater",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "native",
+        "visit": 3,
+        "phase": "afterUpdater",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "port",
+        "visit": 1,
+        "phase": "beforeController",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "port",
+        "visit": 1,
+        "phase": "afterController",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "port",
+        "visit": 1,
+        "phase": "beforeUpdater",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "port",
+        "visit": 1,
+        "phase": "afterUpdater",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "port",
+        "visit": 2,
+        "phase": "beforeController",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "port",
+        "visit": 2,
+        "phase": "afterController",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "port",
+        "visit": 2,
+        "phase": "beforeUpdater",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "port",
+        "visit": 2,
+        "phase": "afterUpdater",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "port",
+        "visit": 3,
+        "phase": "beforeController",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "port",
+        "visit": 3,
+        "phase": "afterController",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "port",
+        "visit": 3,
+        "phase": "beforeUpdater",
+        "matchesPrediction": true,
+        "differences": {}
+      },
+      {
+        "implementation": "port",
+        "visit": 3,
+        "phase": "afterUpdater",
+        "matchesPrediction": true,
+        "differences": {}
+      }
+    ],
+    "eventPredictions": [
+      {
+        "implementation": "native",
+        "visit": 1,
+        "expected": [
+          "acquisition-entry",
+          "angle-entry",
+          "angle-return",
+          "acquisition-return",
+          "reveal-entry",
+          "reveal-return"
+        ],
+        "observed": [
+          "acquisition-entry",
+          "angle-entry",
+          "angle-return",
+          "acquisition-return",
+          "reveal-entry",
+          "reveal-return"
+        ],
+        "matchesPrediction": true
+      },
+      {
+        "implementation": "native",
+        "visit": 2,
+        "expected": [],
+        "observed": [],
+        "matchesPrediction": true
+      },
+      {
+        "implementation": "native",
+        "visit": 3,
+        "expected": [
+          "acquisition-entry",
+          "angle-entry",
+          "angle-return",
+          "acquisition-return",
+          "reveal-entry",
+          "reveal-return"
+        ],
+        "observed": [
+          "acquisition-entry",
+          "angle-entry",
+          "angle-return",
+          "acquisition-return",
+          "reveal-entry",
+          "reveal-return"
+        ],
+        "matchesPrediction": true
+      },
+      {
+        "implementation": "port",
+        "visit": 1,
+        "expected": [
+          "acquisition-adapter-before",
+          "acquisition-adapter-after"
+        ],
+        "observed": [
+          "acquisition-adapter-before",
+          "acquisition-adapter-after"
+        ],
+        "matchesPrediction": true
+      },
+      {
+        "implementation": "port",
+        "visit": 2,
+        "expected": [],
+        "observed": [],
+        "matchesPrediction": true
+      },
+      {
+        "implementation": "port",
+        "visit": 3,
+        "expected": [
+          "acquisition-adapter-before",
+          "acquisition-adapter-after"
+        ],
+        "observed": [
+          "acquisition-adapter-before",
+          "acquisition-adapter-after"
+        ],
+        "matchesPrediction": true
+      }
+    ],
+    "nativeFinal": {
+      "assignment": 336,
+      "animationMode": 0,
+      "timer": 840,
+      "substate": 4,
+      "object": 168,
+      "draw": 14,
+      "f1": 0,
+      "f2": 0
+    },
+    "portFinal": {
+      "assignment": 336,
+      "animationMode": 2,
+      "timer": 840,
+      "substate": 4,
+      "object": 168,
+      "draw": 14,
+      "f1": 0,
+      "f2": 0
+    },
+    "nativeSimulation": 3603658299,
+    "portSimulation": 1607832750,
+    "nativeProducer": "Actual acquisition over supplied Brave records/topology; angle/reveal actual",
+    "portProducer": "Supplied count5/status-clear adapter; production caller remains unverified here",
+    "ordinaryFiveListenerHistory": "not-established",
+    "renderedImpact": "not-established",
+    "controllerCalls": 3,
+    "updaterCalls": 3,
+    "actualAcquisitionCalls": 2,
+    "divergentRows": 3,
+    "manifestSha256": "28ae1d15bf9fc9867df6548527518346efa7e83ee4974dedd6f9d5a2b9e0adfb",
+    "postflightStatus": "passed"
+  },
+  "limitations": [
+    "Five Brave records/topology/counter alignment are supplied, not ordinary five-listener history",
+    "Port count/status adapter supplied; actual production-caller regression remains separate",
+    "No visible/rendering/whole-sermon or command32 claim",
+    "No retry"
+  ]
+}

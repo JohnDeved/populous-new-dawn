@@ -1,0 +1,20 @@
+{
+  "verdict": "ACCEPT exact source/preflight",
+  "blockingFindings": [],
+  "base": "a00eadc811e227559f9a2713eedbee5cd08af1c1",
+  "head": "410cdb6747cd2641582a305a19f6a075057f4a10",
+  "bundleManifestSha256": "cadca30839f9f7f578fd16bf44093d9123ca7b78380add333bd914e5ec9001af",
+  "preflightSha256": "28ae1d15bf9fc9867df6548527518346efa7e83ee4974dedd6f9d5a2b9e0adfb",
+  "diffSha256": "80f6a8d5166a6c84cff173c2a7ebc00931d4a59c31f68f510021fe5ae998fe1f",
+  "hashChecks": {
+    "source": 24,
+    "input": 25,
+    "tools": 62,
+    "nativeInstructionRanges": 7,
+    "nativeTables": 9
+  },
+  "hostReceipt": "13 tests and Node syntax check passed at exact head; reviewed not rerun",
+  "executionByReviewer": "none",
+  "executionAuthorization": "separate coordinator grant required",
+  "reviewSha256": "c9de4bf75de8289f31f41b569a67b2d72f9325f947b8f7c4344baf2210e3a2f2"
+}

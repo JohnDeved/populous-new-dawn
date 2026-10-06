@@ -1,0 +1,66 @@
+{
+  "executionSourceHead": "410cdb6747cd2641582a305a19f6a075057f4a10",
+  "applicationBase": "a00eadc811e227559f9a2713eedbee5cd08af1c1",
+  "verdict": "ACCEPT fixed executed component",
+  "rawMembersVerified": 17,
+  "files": {
+    "README.md": {
+      "sha256": "a00525dd7cd266113f7e6643f03c50fb807c486729111b50c2686d1b0129a59b",
+      "bytes": 4181
+    },
+    "component-run-01.tar.gz": {
+      "sha256": "7ec160cb09351c11e2c6217025ad1bd8636603d14d3d5adee490725a9775b967",
+      "bytes": 79719
+    },
+    "host-checks/guard-tests.stderr.txt": {
+      "sha256": "277dfd27ba32dff4f959f1e7528e70b6d79db2b42e7ab784c5589195dd33e72c",
+      "bytes": 1828
+    },
+    "host-checks/guard-tests.stdout.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "host-checks/port-syntax.stderr.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "host-checks/port-syntax.stdout.txt": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0
+    },
+    "host-checks/receipt.json": {
+      "sha256": "1353224789d064c81a0dd435a2e2ee2022fa0cc48bb488c2fb23a7699c5ab7b1",
+      "bytes": 4523
+    },
+    "result-packet-manifest.json": {
+      "sha256": "4dad693936c368db05388d60337646199cb3755b4174f29ac4d37082cf3e3f68",
+      "bytes": 2660
+    },
+    "result-packet-summary.json": {
+      "sha256": "1044a21d38ab69a2b3da3894dbfde96fddca76993b6032facc41e8132e235995",
+      "bytes": 7847
+    },
+    "result-review-manifest.json": {
+      "sha256": "898802d62549cd7862e85054c69823f1112d62ae632bc73f0b3f999c64de789b",
+      "bytes": 495
+    },
+    "result-review-review.md": {
+      "sha256": "d197450d2435afd93b0625fb43c55243a5aab545d6fd041c73dfb99e986623dc",
+      "bytes": 4317
+    },
+    "result-review-verification.json": {
+      "sha256": "39977406c9175b066522acdfa668e067623e2f5fb0a5979b3cd7f2df4c0182fe",
+      "bytes": 1413
+    },
+    "source-review-manifest.json": {
+      "sha256": "5987c7d712b213201d7a5110c5b7682b6df5c6e84f988d2e2b8a91fa3c99210c",
+      "bytes": 859
+    },
+    "source-review-review.md": {
+      "sha256": "c9de4bf75de8289f31f41b569a67b2d72f9325f947b8f7c4344baf2210e3a2f2",
+      "bytes": 6428
+    }
+  },
+  "sourceNoteSha256": "041bfc2783e53fd1d198ab18e401d05afc732db3cde2cb2e7b30e3e2ba0fa297",
+  "resultJsonSha256": "3c3803c0caed64e2bf61820ca743975eaa62e5e00bea7f48172e66edaa11c9ca"
+}
