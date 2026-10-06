@@ -931,7 +931,12 @@ function stepTurn(w: World) {
         )
         // The authored clone processes once before its producer returns. This
         // first visit caches the crossing without terrain changes or trails.
-        stepLandBridge(w.land, bridge.bridge, () => {}, () => {})
+        stepLandBridge(
+          w.land,
+          bridge.bridge,
+          () => {},
+          () => {}
+        )
         bridge.team = 'blue'
         bridge.duration = Infinity
         w.stats.bridges++
