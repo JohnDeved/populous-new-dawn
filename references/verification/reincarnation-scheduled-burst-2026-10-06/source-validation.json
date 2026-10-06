@@ -1,0 +1,19 @@
+{
+  "mode": "host AST/static PE/hash checks only",
+  "probeSha256": "d6034f564b02ef6497edf5da3f8a8d03469aadc7876ea5ce114812cd5470ce84",
+  "planReviewSha256": "2ccaa530cc3bcc5dfafe621508e106237728c73f9cbc2bb516f3f00baea606ef",
+  "abiSha256": "39729bfdf6b377c3fc932794c000db101482baa8543bb12c858a3554ce865b7c",
+  "checks": {
+    "candidateNotImported": true,
+    "noNativeCpuConstructed": true,
+    "singleEmuStartInsideRange1To12": true,
+    "all29SuppliedCallBytesMatch": 29,
+    "disjointImmutableIntervals": 252,
+    "immutableOverlapEquivalentBoundaryChecks": 8820,
+    "originalFunctionRanges": 26,
+    "unexpectedDirectAndIndirectCallsFailClosed": true,
+    "allocatedGenerationTagsAreHostOnly": true,
+    "noFixtureWritesInsideOuterLoopExceptDriverStack": true
+  },
+  "status": "prepared; no execution grant/no native result"
+}
