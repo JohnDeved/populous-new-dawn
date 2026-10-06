@@ -1,5 +1,12 @@
 # Production preaching caller: source implementation
 
+Historical checkpoint: the source/launch bindings below describe unmodified
+application source `0105ddd7bfd86c0c36071fd02cc985824a704ce3`. Its independently
+accepted failure-first run is [retained here](https://github.com/JohnDeved/populous-new-dawn/blob/37feab9099db67fc76ee2ea7235c674a5e799164/references/verification/preacher-terminal-turning-live-2026-10-06/failure-first/README.md).
+Those immutable hashes preserve the original failure and are not candidate-source
+validators after the timer correction. The unchanged test/fixture keep the accepted
+native expectation; later candidate receipts bind the then-current application.
+
 This branch implements the independently accepted one-case plan on application
 base `a00eadc811e227559f9a2713eedbee5cd08af1c1`. It changes only the test, its
 supplied input and provenance. There are no application edits.
