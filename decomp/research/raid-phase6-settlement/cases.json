@@ -1,0 +1,15 @@
+{
+  "caseCount": 2,
+  "cases": [
+    {
+      "case": "captured-combat-timeout",
+      "fixture": "captured-combat-timeout/fixture.json",
+      "sha256": "29ab6fd7cc29d93633d5d7bfc4d3bd19ec26901ca0d6837a180cc58862775130"
+    },
+    {
+      "case": "captured-moving-not-settled",
+      "fixture": "captured-moving-not-settled/fixture.json",
+      "sha256": "3f596d308d96c7e5ae11d7698b3bea66fa48e2f2819fa61c81c42aa0ddedf8d4"
+    }
+  ]
+}

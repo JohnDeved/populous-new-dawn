@@ -1,0 +1,56 @@
+{
+  "exeSha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+  "ranges": [
+    {
+      "name": "phase6",
+      "start": "0x4cb8b7",
+      "stopExclusive": "0x4cb8e8",
+      "nativeBytesSha256": "c24ad1e66fd9873aede9f4e612d2eeb8f2c035835b2d21e68410451e1e174b2b",
+      "asmSha256": "64507b7c6eacc2a94dfaf43d44b9bf0b434961475491997f38a6d582ee11c3a6"
+    },
+    {
+      "name": "task_helper",
+      "start": "0x4d14f0",
+      "stopExclusive": "0x4d190c",
+      "nativeBytesSha256": "b087b676507dfd1b074c10c601f63f4f9c50afba286c6f4b1e25bfd35911d78b",
+      "asmSha256": "b5419d8aa6ac4b36fa895b89cde43e34d2e4319acdef15cdf324901b122a8fe3"
+    },
+    {
+      "name": "sermon_predicate",
+      "start": "0x4df0e0",
+      "stopExclusive": "0x4df13f",
+      "nativeBytesSha256": "68c6eb0ec6d1308d0f72de474729c9244f81e420a7e23dff03cfceb555303198",
+      "asmSha256": "70c3975b02bd24ed467ef2350c8ea4d921a2c0d9b096323438b2c85ae0a188b2"
+    },
+    {
+      "name": "release_predicate",
+      "start": "0x4f39f0",
+      "stopExclusive": "0x4f3a19",
+      "nativeBytesSha256": "21df11f89742dc22db42a28826d8a82715dc2b771f41e15c94f91c78caf4be41",
+      "asmSha256": "197d3b94f4a51b7439ec44045a02944f352df13b41a6105b10089bfea890b082"
+    },
+    {
+      "name": "phase16",
+      "start": "0x4cc112",
+      "stopExclusive": "0x4cc308",
+      "nativeBytesSha256": "c4e04814cdd5e2c0803215d4470190cbf88afc228580a87a9d943855da7303f5",
+      "asmSha256": "8e2dd161915750cd14f0ad05009571d0446e73875199a64c62f67a7d6bf2b2e9"
+    },
+    {
+      "name": "model4_dispatch",
+      "start": "0x4ce37e",
+      "stopExclusive": "0x4ce392",
+      "nativeBytesSha256": "1ddc820c41f0cc8d9e26cdab6a03802215c81cfb25723437608c67147c8b63a2",
+      "asmSha256": "d232fc8fd0f93bed8d31d0852b1711229bc3caa11c9827d79c7d6e20039fd1aa"
+    },
+    {
+      "name": "model4_branch",
+      "start": "0x4ce43d",
+      "stopExclusive": "0x4ce4c9",
+      "nativeBytesSha256": "91b9e9e8a22f3bf1fb7d54d116bbd3fe90735e9984145a652f9cd179dfe847f6",
+      "asmSha256": "057630ae688efdad38939347aef2f5837b1a1bf61cc51c200cba74549e379b15"
+    }
+  ],
+  "phase6TableEntry": "0x4cb8b7",
+  "model4BranchTableEntry": "0x4ce43d"
+}

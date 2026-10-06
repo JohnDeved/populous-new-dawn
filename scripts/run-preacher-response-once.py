@@ -16,7 +16,9 @@ import sys
 import time
 
 ROOT = Path(__file__).resolve().parents[1]
-PROBE_SCRIPT = "probe-native-preacher-response-controls.py" if "--controls" in sys.argv else "probe-native-preacher-response.py"
+PROBE_SCRIPT = ("probe-native-raid-phase6.py" if "--settlement" in sys.argv else
+                "probe-native-preacher-response-controls.py" if "--controls" in sys.argv else
+                "probe-native-preacher-response.py")
 spec = importlib.util.spec_from_file_location("response_probe", ROOT / "scripts" / PROBE_SCRIPT)
 probe = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(probe)  # Definitions and standard-library imports only.
@@ -41,6 +43,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--controls", action="store_true")
+    parser.add_argument("--settlement", action="store_true")
     parser.add_argument("--expected-source-head")
     parser.add_argument("--expected-manifest-sha")
     args = parser.parse_args()
