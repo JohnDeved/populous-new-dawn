@@ -1,6 +1,6 @@
 import units from './original-units.json' with { type: 'json' }
 import hud from './original-hud.json' with { type: 'json' }
-import { spriteLayers } from './sprite-layers.ts'
+import { spriteAtlasOrigin, spriteLayers } from './sprite-layers.ts'
 import type { CameraConfig } from './projection.ts'
 
 // 0x49fe70: missing shamans clear the interior, including while hovered.
@@ -42,14 +42,15 @@ export function drawPortrait(
     { flags: 2 | Number(flip) },
     view
   )) {
-    const mirror = !!(layer.flags & 1)
+    const mirror = !!(layer.flags & 1),
+      origin = spriteAtlasOrigin(units.pieces[layer.piece], layer.piece, units)
     context.save()
     context.translate(47 + layer.x + (mirror ? layer.w : 0), 144 + layer.y)
     context.scale(mirror ? -1 : 1, 1)
     context.drawImage(
       atlas,
-      (layer.piece % units.columns) * units.cell,
-      Math.floor(layer.piece / units.columns) * units.cell,
+      origin.x,
+      origin.y,
       layer.w,
       layer.h,
       0,

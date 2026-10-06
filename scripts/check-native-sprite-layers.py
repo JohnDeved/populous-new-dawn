@@ -46,7 +46,7 @@ assert atlas.size == (units['width'],units['height'])
 hashes = []
 for i,p in enumerate(units['pieces']):
     w,h,data=raw[p['source']]; assert (w,h)==(p['w'],p['h'])
-    x=i%units['columns']*units['cell']; y=i//units['columns']*units['cell']
+    x=p.get('atlasX', i%units['columns']*units['cell']); y=p.get('atlasY', i//units['columns']*units['cell'])
     assert atlas.crop((x,y,x+w,y+h)).tobytes()==data, ('atlas piece',i,p['source'])
     hashes.append(hashlib.sha256(data).hexdigest())
 def submit(cpu,a,size,user):

@@ -30,7 +30,7 @@ def main():
     assert new['pieces'][:len(old['pieces'])] == old['pieces']
     assert len(new['frames']) - len(old['frames']) == 25
     assert len(new['pieces']) - len(old['pieces']) == 80
-    for key in old.keys() - {'frames', 'pieces', 'animations', 'height'}:
+    for key in old.keys() - {'frames', 'pieces', 'animations'}:
         assert new[key] == old[key], key
     assert new.keys() == old.keys()
     stripped = json.loads(json.dumps(new['animations']))
@@ -53,6 +53,7 @@ def main():
         ow, oh, before = decoder.read_owned_rgba_png(base_png)
     nw, nh, after = decoder.read_owned_rgba_png(ROOT / 'public/original/unit-layers.png')
     assert ow == nw == old['width'] == new['width']
+    assert (ow, oh, nw, nh) == (2048, 8128, 2048, 8128)
     assert (oh, nh) == (old['height'], new['height'])
     # Newly appended pieces may fill only unused cells at the tail of the old
     # final row. Every older full cell, including its padding, remains exact.
@@ -62,9 +63,6 @@ def main():
         for row in range(cell):
             at = ((y + row) * ow + x) * 4
             assert before[at:at + cell * 4] == after[at:at + cell * 4], index
-    for index, byte in enumerate(before):
-        if byte:
-            assert after[index] == byte, ('occupied-byte', index)
 
     inputs = {}
     for name in ('vstart-0.ani', 'vfra-0.ani', 'vele-0.ani', 'hspr0-0.dat', 'pal0-c.dat'):
@@ -111,16 +109,41 @@ def main():
     old_sources = {piece['source'] for piece in old['pieces']}
     assert source_pieces & old_sources == {22}, 'Only the existing shared shadow is reused'
     assert source_pieces - old_sources == {piece['source'] for piece in new['pieces'][len(old['pieces']):]}
+    expected_pixels = bytearray(before)
+    destinations = set()
+    for offset, piece in enumerate(new['pieces'][len(old['pieces']):]):
+        assert max(piece['w'], piece['h']) <= 32
+        x, y = piece['atlasX'], piece['atlasY']
+        container = 4042 + offset // 4
+        assert (x, y) == ((container % 32) * 64 + (offset % 2) * 32,
+                          (container // 32) * 64 + ((offset // 2) % 2) * 32)
+        assert 0 <= x <= nw - 32 and 0 <= y <= nh - 32
+        assert (y // 64) * 32 + x // 64 >= len(old['pieces'])
+        for row in range(32):
+            at = ((y + row) * nw + x) * 4
+            assert not any(before[at:at + 32 * 4]), 'Only prior empty cells can be filled'
+            for column in range(32):
+                pixel = (y + row) * nw + x + column
+                assert pixel not in destinations, 'Appended subslots must not overlap'
+                destinations.add(pixel)
+        width, height, rgba = bank[piece['source']]
+        for row in range(height):
+            at = ((y + row) * nw + x) * 4
+            expected_pixels[at:at + width * 4] = rgba[row * width * 4:(row + 1) * width * 4]
+    assert after == expected_pixels, 'Every other atlas byte, including padding, must stay unchanged'
     for index, piece in enumerate(new['pieces']):
         width, height, rgba = bank[piece['source']]
         assert (piece['w'], piece['h']) == (width, height)
-        x, y = (index % columns) * cell, (index // columns) * cell
+        x = piece.get('atlasX', (index % columns) * cell)
+        y = piece.get('atlasY', (index // columns) * cell)
         for row in range(height):
             at = ((y + row) * nw + x) * 4
             assert after[at:at + width * 4] == rgba[row * width * 4:(row + 1) * width * 4]
     print(json.dumps({'status': 'passed', 'base': BASE, 'oldFrames': len(old['frames']),
                       'oldPieces': len(old['pieces']), 'addedFrames': 25, 'addedPieces': 80,
-                      'sharedShadowSource': 22, 'allOldCellsAndOccupiedBytesPreserved': True,
+                      'sharedShadowSource': 22, 'atlasDimensions': [nw, nh],
+                      'disjointPriorEmptySubslots': len(destinations) // (32 * 32),
+                      'allOldCellsAndOccupiedBytesPreserved': True,
                       'originalFrameLayerPiecePixels': 'passed', 'atlasSha256': provenance['unitAtlasSha256']}))
 
 
