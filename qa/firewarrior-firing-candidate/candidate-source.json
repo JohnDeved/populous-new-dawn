@@ -1,0 +1,31 @@
+{
+  "status": "ready",
+  "applicationBase": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+  "candidateCommit": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
+  "appTree": "00f20a2d45a10b42145b9c342cf1583ce9dc0006",
+  "publicTree": "07c5aa3a57e0011988cc4ffdca4aa5bb7b8215c8",
+  "changedFiles": {
+    "app/campaign-command-runtime.ts": "5badf47c9b0e55d99f307a1a82c3ba311c835ac78edeabc9f6c7796a39314182",
+    "app/computer-runtime.ts": "fcaea74faacf6477a25c186b668eadc8e3a5a887cc74157683f818ee1a576872",
+    "app/hud-portrait.ts": "0540aae533d746fb34fd27fd212ddcc376fedfb4717593e5f63408cbd7c76bb8",
+    "app/live-building-combat.ts": "c8c0a8f3b83157562154ad354206d9d7900f669c67134d5071d0471623617d23",
+    "app/original-units.json": "9937b9949047824db757960884eaa7941db014073b47c4b671046cfddf6f6909",
+    "app/scene-entities.ts": "95a2a64f5741ca3445431a4b962e7a0aeef6e502841f56b2b90138addb236952",
+    "app/sprite-layers.ts": "0d76231e0844a131c37e207cbb8dab2a67d611711bd4f46ff39327e794043750",
+    "public/original/provenance.json": "535095682081ef7842fff65a169126448ef19bf93fede6fcad73279240c2923c",
+    "public/original/unit-layers.png": "5b43e27e9ab1baf156fd092d0b50a0bb9f9a58bd162532e779441d583da71d7a"
+  },
+  "atlas": {
+    "width": 2048,
+    "height": 8128,
+    "columns": 32,
+    "cell": 64,
+    "oldPieces": 4042,
+    "newPieces": 80,
+    "frames": 5116
+  },
+  "native": {
+    "source": 56,
+    "draw": 13
+  }
+}

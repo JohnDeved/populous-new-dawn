@@ -1,0 +1,56 @@
+{
+  "sourceCommit": "dc9c2b2df91066f210fd013df1dd9f49ebd8c0f8",
+  "sourcePrefix": "qa/firewarrior-firing-baseline/",
+  "sourceSha256": {
+    "README.md": "b4c01e01f8b5f615e43626c1ed7582b1d7f689d05b0ea8760491a263b96e6d46",
+    "accepted-input.mjs": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+    "browser-probes.mjs": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+    "entry-identity.mjs": "a72943d933abeab19f627a5613e69481c746e59832e4fc690cb61b7529d2589c",
+    "event-deadlines.mjs": "8676d50935a16d1c46b56c48295ec18ccea6b41cb0b619ac2dd2e7ad710f3be7",
+    "ground-and-dispatch.mjs": "f7b5ba5703e155ed5962685735eae3092dffd47fab49256b8e5cb197bd4f82b1",
+    "guard-assertions.mjs": "7f1298c189f113b04a6c30fc2d3b903c74f9d2e24a2c139c4f193c47db2c1160",
+    "helper-provenance.json": "02992b10c3f23528e31362c4c0aeaefb29c40621f22a1b5e6441b41b0cca0ee9",
+    "input-boundary.mjs": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+    "mission10-construction.json": "313a6eb81997c8bc1169666610ea59f62dadacf1e1c81861dbf93a56894e35cf",
+    "observer.mjs": "b00d2465b9b9bb7a574a8c151ec35d1cda5423c847e138b808a8e16ad47d9186",
+    "ordinary-input.mjs": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+    "pause-input.mjs": "d19ca6499098468b073302b239ad1a0b43930da58e2c09226f4f4b5b7fa7b606",
+    "pause-input.test.mjs": "8d810150acfe105c66f3a5ff96dbc615292f4ea9148bb4bd30f3a0194e6e57e0",
+    "preflight.py": "8a2553f42fbb63f60c23e39c9331ddde9be79ddf62c7d4900c3466bcbcd5a00d",
+    "render-observation.mjs": "01df9cbebf9609dbff4afa84f01744080799303825ce5caf970e1a38f368444b",
+    "scenario.mjs": "dd65f6baf03cc14222ef1ee5cdd35b72ef3482df5d5068da2efa1a297490acad"
+  },
+  "adapted": {
+    "README.md": "candidate scope, provenance and upload-observation limits",
+    "preflight.py": "exact candidate manifest plus historical baseline integrity; source-only mode",
+    "scenario.mjs": "candidate source56/draw13 and texture observation gates",
+    "render-observation.mjs": "explicit new-piece coordinates and actual material-map capture"
+  },
+  "historicalExpectations": {
+    "source": 48,
+    "draw": 14,
+    "observedFirewarrior": 178,
+    "observedTower": 65,
+    "automaticOrder": 21,
+    "automaticFlags": 34,
+    "substate": 11,
+    "capturedVolley": "not first; no first-volley claim"
+  },
+  "baselineEvidenceSha256": {
+    "actions.jsonl.gz": "6ccf5a917c9be92b7520d4a99eb282641a1d069da5dce0240a0c80aa3f136f5e",
+    "command.json.gz": "885f82ca21a2d63e23b340c530dd3d5f3092e072c741a6cc2a3dee1ee07b6102",
+    "findings.md": "a0f18c964206b0a80b76d553371f5f1dd9ea59a1dec220f788e28739d61f6256",
+    "firing-actor.png": "cced0602e4933ca9aa13da57ed8ca1ec2285a2933fd1a48a57e5bb684fa71caf",
+    "firing-full.png": "b7ac2654583b81f15d651a424c1b36ef72e4fdd44f6e33c846d6abce677bf653",
+    "harness-receipt.json.gz": "fa2c3eefba12daae25f083b8168c3f53c3784e69742f9fffe22fdcf3d768d25d",
+    "manifest.json": "be8dd307a031d1c6bcfb14ea6492b0f08318b3b182ff383694a66199ac254bd3",
+    "outer-receipt.json.gz": "b5656b7c96ff1dc2dce5f1b97a54d6a48b2a7ec2731f36e6fb9c9974ba330a0d",
+    "outer-stderr.txt": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "outer-stdout.txt.gz": "be4a9b8cc0c13843db8044052f742c85e5c68008d1c4cf9ef8ec17ffd78e08a3",
+    "prelaunch.json": "12fab8a256ee85e0dee5cac04d4e6bdb14ad2407671451c1c12b3bed7fc03562",
+    "rows.jsonl.gz": "7114db0b914d1cdfc2421550ac1d939a7b726cd3a9f64966ad094cdcfe139dfd",
+    "server.log.gz": "8b5d73bee8dfc97c7dd1bd285b97cbb53ef226a5434e30ac9200c1b80db13c2e",
+    "terminal-cleanup.json": "0f056b5c5a1dce37fb41b7982de3bfe9c7551fa26c32d3389b07a469aa67f708",
+    "witness.json.gz": "3b88a5ca2f9c5ff31c96370fb9fa526db25837abd21cebadb282bd21d0826710"
+  }
+}
