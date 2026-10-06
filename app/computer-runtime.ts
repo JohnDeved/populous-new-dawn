@@ -559,6 +559,8 @@ function computerAttackUnits(w: World, index: number) {
 }
 const computerAttackReady = (u: Unit) =>
   !u.flight && !u.fight && !u.fighting && !u.casting && !u.lift
+const unsignedAttackField = (value: number, maximum: number) =>
+  Number.isInteger(value) && value >= 0 && value <= maximum
 
 // 0x4d14f0: task.members supplies the port's admitted-member ownership. Inspect
 // the registered person, including a fight owner that shadows stale u.native.
@@ -573,9 +575,11 @@ function computerAttackSettled(w: World, index: number) {
       )
     if (
       !p ||
-      !Number.isInteger(p.state) || p.state < 0 || p.state > 255 ||
-      !Number.isInteger(p.flags2) || p.flags2 < 0 || p.flags2 > 0xffffffff ||
-      !Number.isInteger(p.speed) || p.speed < -32768 || p.speed > 32767
+      !unsignedAttackField(p.state, 255) ||
+      !unsignedAttackField(p.flags2, 0xffffffff) ||
+      !Number.isInteger(p.speed) ||
+      p.speed < -32768 ||
+      p.speed > 32767
     ) {
       settled = false
       continue
@@ -587,18 +591,36 @@ function computerAttackSettled(w: World, index: number) {
     // cannot settle here; neither can an owner with unknown release fields.
     if (
       p.state === 33 &&
-      (!Number.isInteger(p.substate) || p.substate < 0 || p.substate > 255 ||
+      (!unsignedAttackField(p.substate, 255) ||
         p.substate === 3 ||
-        (p.substate === 2 &&
-          (!Number.isInteger(p.commandPhase) || p.commandPhase < 0 || p.commandPhase > 4)))
+        (p.substate === 2 && !unsignedAttackField(p.commandPhase, 4)))
     ) {
       settled = false
       continue
     }
     if (p.speed !== 0) settled = false
     if (rules.personStateFlags[p.state] & 8 || p.state === 25 || p.state === 29) continue
-    const order = (p.state === 10 || p.state === 33) && currentPersonOrder(w.buildingOrders, p)
-    if (!order || order.flags & 1 || ![17, 31, 32].includes(order.model)) settled = false
+    if (
+      (p.state !== 10 && p.state !== 33) ||
+      !unsignedAttackField(p.immediateCommand, 65535) ||
+      (!p.immediateCommand &&
+        (!unsignedAttackField(p.commandCursor, 255) ||
+          !Array.isArray(p.commands) ||
+          !unsignedAttackField(p.commands[p.commandCursor], 65535)))
+    ) {
+      settled = false
+      continue
+    }
+    // Raw immediate priority is preserved: a shadowed queue is never consumed.
+    const order = currentPersonOrder(w.buildingOrders, p)
+    if (
+      !order ||
+      !unsignedAttackField(order.model, 255) ||
+      !unsignedAttackField(order.flags, 255) ||
+      order.flags & 1 ||
+      ![17, 31, 32].includes(order.model)
+    )
+      settled = false
   }
   return settled
 }
