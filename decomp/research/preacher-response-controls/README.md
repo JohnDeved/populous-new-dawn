@@ -128,3 +128,22 @@ commit is excluded from this response-only comparison.
 Documentation erratum: the original primary21 fixture's registration prose says
 source→enemy→null; its actual frozen chain is source→enemy→peer3→null. Its raw
 bytes and this README already describe that three-person chain correctly.
+
+## Second retained port envelope
+
+The one port-only launch at286b3ee6 ran21:53:53.315974–21:53:55.990413 UTC,
+exit1, with zero native calls, unchanged hashes and empty owned PGID32. It failed
+the same allocation coverage2-versus1 assertion. Its full552704-byte JSON was
+flushed and retained. Offline decoding of that output matches all four native
+full pools, mapped person/queue fields, counters and RNGs; the envelope still
+remains failed, pending independent review of that narrower evidence.
+
+Exhaustion reports allocator block coverage with root1/loop800; the following
+primary row reports function-only coverage/root2. Other primary counts (caller1,
+preparation1, attachment2, sharing1) agree. Its cursor moves2→3. The earlier
+setup reset did not remove the anomaly. The next prospective correction keeps
+precise coverage active continuously across the batch, retaining the same
+per-case setup snapshot/reset and per-case result reset. It removes stop/start
+transitions that can change V8 instrumentation between controls. The exact cause
+of the old counter remains unproved, and expected allocator1 remains unchanged.
+The new output names are launch-03-port/run-03-port. This code has not run.

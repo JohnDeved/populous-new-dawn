@@ -17,8 +17,8 @@ session.connect()
 const post = (method, params = {}) => new Promise((accept, reject) =>
   session.post(method, params, (error, value) => error ? reject(error) : accept(value)))
 await post('Profiler.enable')
+await post('Profiler.startPreciseCoverage', { callCount: true, detailed: true })
 for (const entry of controls.cases) {
-  await post('Profiler.startPreciseCoverage', { callCount: true, detailed: true })
   const fixturePath = resolve(directory, entry.fixture)
   const f = JSON.parse(readFileSync(fixturePath, 'utf8'))
   const rawPool = readFileSync(resolve(dirname(fixturePath), 'orders-input.bin'))
@@ -65,7 +65,6 @@ for (const entry of controls.cases) {
   const setupCoverage = (await post('Profiler.takePreciseCoverage')).result
   const result = startLiveCombatResponse(w, w.units[0])
   const coverage = (await post('Profiler.takePreciseCoverage')).result.filter(row => row.url.includes('/app/'))
-  await post('Profiler.stopPreciseCoverage')
   const count = (file, name) => coverage.filter(row => row.url.endsWith(`/app/${file}`))
     .flatMap(row => row.functions).filter(fn => fn.functionName === name)
     .reduce((total, fn) => total + fn.ranges[0].count, 0)
@@ -85,6 +84,7 @@ for (const entry of controls.cases) {
   ].map(([file, name, expected]) => ({ file, name, expected, actual: count(file, name) }))
   rows.push({ case: f.case, before, after: snapshot(), result, calls, coverage, setupCoverage })
 }
+await post('Profiler.stopPreciseCoverage')
 session.disconnect()
 await new Promise((accept, reject) => process.stdout.write(
   JSON.stringify({ nodeVersion: process.version, rows }) + '\n',
