@@ -585,8 +585,7 @@ function computerAttackSettled(w: World, index: number) {
       continue
     }
     // This side effect visits every member even after settlement is disproved.
-    if (p.state === 25 || p.state === 29 || p.flags2 & 0x80000)
-      w.ai.tasks[index].elapsed = 1801
+    if (p.state === 25 || p.state === 29 || p.flags2 & 0x80000) w.ai.tasks[index].elapsed = 1801
     // 0x4f39f0's state33 release/relocation remains uncomposed. Such a member
     // cannot settle here; neither can an owner with unknown release fields.
     if (
