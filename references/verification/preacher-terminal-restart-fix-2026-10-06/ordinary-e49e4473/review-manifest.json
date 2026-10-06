@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-10-06T17:37:22.833069+00:00",
+  "status": "independently-accepted-model-state-result",
+  "qaHead": "e49e4473adc256450874cbbe48ff9c97bbc4fbd0",
+  "applicationCommit": "bd07a6302bb0170e9d6dc235983c2a961694d753",
+  "rawManifestSha256": "085218753b3d76a534d9acaea6ae2744f52cf5ce3cdd9bb5bcb2b2c03a95048c",
+  "rawArchiveSha256": "3117f7f3f7cd389624c850e0e34620d41cde035b9871e6293349a84f2f1360f9",
+  "reviews": {
+    "reviews/preacher-cutoff-result-review-e49e4473.md": "635d90a89a3437a77348aab152a76613b05216ae8761ba3a8b40bbbec0a2afc1",
+    "reviews/preacher-cutoff-result-audit-e49e4473.json": "b7556d66d99122ed1ecb2d7be8b376913f0eacd5b7132b74d82ae987e68a21a3"
+  },
+  "boundary": "858 observed controller/updater pairs and840-loop reach real48/16 stop,160/19 entry,168/14 restart. Middle4140 has no render or pixels. Native animation subsets false; world RNG snapshots and89/88.5ms readback cadence effects remain explicit."
+}

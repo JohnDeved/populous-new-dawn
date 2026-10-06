@@ -1,0 +1,271 @@
+{
+  "createdAt": "2026-10-06T17:33:06.945583+00:00",
+  "status": "model-state-passed-awaiting-independent-result-review",
+  "qaHead": "e49e4473adc256450874cbbe48ff9c97bbc4fbd0",
+  "applicationCommit": "bd07a6302bb0170e9d6dc235983c2a961694d753",
+  "pins": {
+    "status": "ready",
+    "applicationMain": "d35835caba6f6d89d9ca97a4f87a4b68744a6bbf",
+    "acceptedQa": "0ef63ba8e1dbf2ef51e33626948e179116c40ca4",
+    "nativeProofSource": "90d79f20e2931d61e8125a7a7a4ecf11b634201d",
+    "trees": {
+      "app": "de673aa2e69dbd162411521779569fc2bc4127f0",
+      "public": "7afafb32546784eea20fd993df0f9eb5f9b86779",
+      "scripts": "8a660e4ea72afed78bc88220cd9f51869a71e5bf",
+      "tests": "3c5772224d59d368bef2b5e1ab6adc993b541dfa"
+    },
+    "applicationFiles": {
+      "app/preacher-conversion.ts": "a402baa5e394ebf13347a3b371a957d25cb2bd519b44da77a886646a710fd784",
+      "app/live-movement.ts": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20",
+      "app/person-state.ts": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17",
+      "app/live-people.ts": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
+      "app/game-clock.ts": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
+      "app/scene.ts": "8789a7751dd748ac5ebf86f3747e031070356840e787433225da801da5ac9c0b",
+      "app/scene-entities.ts": "95a2a64f5741ca3445431a4b962e7a0aeef6e502841f56b2b90138addb236952",
+      "app/original-units.json": "e55160f7b2f269213de064a0db928708855b7e22affe6902a66ed3183bf9a12c",
+      "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+      "package-lock.json": "c1599d8d7e3f028e290a13561c653cf926e739e98eb9ec1b476dbe1c2a4558ba",
+      "scripts/local-render/harness.mjs": "fb07de9e278f26b2b32324defeb6164832472a58d422aead1032b7db7ee85fcf"
+    },
+    "inheritedFiles": {
+      "qa/preacher-gesture-candidate/acquire.mjs": "4fef9e4e3d3def13d7f685724b88a14253d7eeb63c888a0b11ef79643b6aa8ec",
+      "qa/preacher-gesture-candidate/ground-input.mjs": "0e108c481d44441078e8ce5317654baa0a4535ca461e90b29e7455d4c8802b6d",
+      "qa/preacher-gesture-candidate/ground-dispatch.mjs": "42139eca57022912489c4a036981794afd668b3f335ef376e6abbe54e5f89e72",
+      "qa/preacher-gesture-candidate/render-observation.mjs": "86ec0d5b68ebfd8f93324d5cce38001060da48301c72a66b6a57e15c6b1d2682",
+      "qa/preacher-gesture-candidate/expected-runtime.json": "14b1df0f9b38157214acbd8370cc53992ebb0ee15e72a30f6d556d373b2bf617",
+      "qa/preacher-gesture-baseline/observe.mjs": "38924d397c0fe342e14713410abf1ffc6a56dd44ab7ad3f011477b6718dcfcb9",
+      "qa/preacher-gesture-baseline/inherited/accepted-input.mjs": "5c45f65f530865ab71bd0bb34498afd897fae2d8edec25baf73ca2449343f2a2",
+      "qa/preacher-gesture-baseline/inherited/ground-and-dispatch.mjs": "f7b5ba5703e155ed5962685735eae3092dffd47fab49256b8e5cb197bd4f82b1",
+      "qa/preacher-gesture-baseline/inherited/browser-probes.mjs": "a4ae152d98aa97b6aeafefb61b2a505f99bea840824e702edb75ae0a4c653cdd",
+      "qa/preacher-gesture-baseline/inherited/ordinary-input.mjs": "29708369124b7b1cbfde0150007f13f7ec25a27bc8ea6a9f7b6826ca693f8e85",
+      "qa/preacher-gesture-baseline/inherited/input-boundary.mjs": "704b9c03c24419e9bee553ba259c9e6b7d9bb9b9121e06848e52691c4e861ac7",
+      "qa/preacher-gesture-baseline/inherited/observer.mjs": "b00d2465b9b9bb7a574a8c151ec35d1cda5423c847e138b808a8e16ad47d9186"
+    },
+    "caps": {
+      "acquisitionMs": 360000,
+      "observationMs": 120000,
+      "logicalVisits": 900,
+      "harnessMs": 540000,
+      "outerInterruptSeconds": 570,
+      "outerKillGraceSeconds": 20,
+      "maxNaturalPixelCrops": 3,
+      "maxCropPixels": [
+        128,
+        128
+      ]
+    },
+    "futureApplicationAdoption": "Exact source-accepted and quality-frozen bd07a630 adopted normally; launch still requires terminal standard gates, exact command preflight and parent resource grant.",
+    "driverAdaptations": {
+      "observe.mjs": "Accepted candidate phase/owner predicates narrowed to scalar ordinary cutoff and48/16 stop; unchanged baseline chainPhaseObservers imported.",
+      "render.mjs": "Accepted render-observation geometry/layer reader made synchronous with preloaded inputs, actualDraw/material dimensions, three bounded existing-framebuffer reads. No forced rendering or layer changes.",
+      "scenario.mjs": "Accepted acquisition imported unchanged, same fresh command17 entry and finite observation, no Save/Load/pause/supersession; fatal retained cleanup.",
+      "run.mjs": "Accepted source/runtime-pinned runner adapted only to cutoff inputs/port4405/540s and disabled until source-inputs status ready."
+    },
+    "applicationCommit": "bd07a6302bb0170e9d6dc235983c2a961694d753"
+  },
+  "originalSession": 49110,
+  "execution": {
+    "startedAt": "2026-10-06T17:23:56.214445+00:00",
+    "finishedAt": "2026-10-06T17:30:31.465177+00:00",
+    "exitCode": 0,
+    "outerInterruptDeadline": "2026-10-06T17:33:26.214445+00:00",
+    "outerKillDeadline": "2026-10-06T17:33:46.214445+00:00"
+  },
+  "launchSha256": "29677ee60dd520df32b18b088e4a171fa7ad32c9100d901560f1a3918fcbfe5c",
+  "sourceBundle": {
+    "path": "/workspace/shared/preacher-cutoff-passive-e49e4473.bundle",
+    "sha256": "9682eb1244d2475862bc58fd48ba18413e91859bf3357c974f9b4b5b8e3c0e6a"
+  },
+  "progress": {
+    "status": "passed",
+    "entryTurn": 3292,
+    "startMs": 287885.8999999985,
+    "firstLoopTurn": 3300,
+    "terminalTurn": 4139,
+    "resetTurn": 4140,
+    "nextEntryTurn": 4141,
+    "restartTurn": 4149,
+    "visits": 858,
+    "totalRows": 2352,
+    "nativeDomain": {
+      "initial839AnimationSubset": false,
+      "middle840AnimationSubset": false,
+      "scope": "Animation subsets only; RNG values are world callback snapshots, not isolated controller inputs"
+    },
+    "renders": {
+      "final-loop": "actual-framebuffer-crop",
+      "middle-reset": "render-not-observed",
+      "next-entry": "actual-framebuffer-crop"
+    },
+    "moveTurn": 3239,
+    "completedPhase": "render-after-updater",
+    "elapsedMs": 71474.30000000447
+  },
+  "firstTraineeAdmissionTurn": 2838,
+  "cutoffRows": {
+    "terminal": 4139,
+    "stopReset": 4140,
+    "nextEntry": 4141,
+    "firstRestartLoop": 4149
+  },
+  "derivedFramebuffers": [
+    {
+      "path": "framebuffer-crops/final-loop-turn4138-source168.png",
+      "sha256": "4854f5d86f83af8e453404f05003d61146bdeb34dcb7fb51f43675dd3a3e638d",
+      "rawPath": "work/orchestration/preacher-cutoff-passive/browser-attempt-01/final-loop-turn4138-source168.rgba",
+      "rawSha256": "3ebe3103b1e127be79d6672f5840bb48c3960e0d5caa9d512631d0bfc6011db4",
+      "turn": 4138,
+      "source": 168,
+      "draw": 14,
+      "f1": 0,
+      "f2": 3,
+      "observationMs": 89,
+      "encoding": "Lossless RGBA PNG, rows reversed from bottom-to-top raw readPixels. Pixel bytes roundtrip verified. This is a framebuffer crop, not a screenshot."
+    },
+    {
+      "path": "framebuffer-crops/next-entry-turn4141-source160.png",
+      "sha256": "0a8570c4e88baba62ad07b92fb3dc6dd0378caaa840b21a3126a3a58135f7a37",
+      "rawPath": "work/orchestration/preacher-cutoff-passive/browser-attempt-01/next-entry-turn4141-source160.rgba",
+      "rawSha256": "7f1a196414db4f7d60b6485f89428271420ac697b44fee3a0edd6a6be8cac21a",
+      "turn": 4141,
+      "source": 160,
+      "draw": 19,
+      "f1": 0,
+      "f2": 0,
+      "observationMs": 88.5,
+      "encoding": "Lossless RGBA PNG, rows reversed from bottom-to-top raw readPixels. Pixel bytes roundtrip verified. This is a framebuffer crop, not a screenshot."
+    }
+  ],
+  "archive": {
+    "path": "raw-evidence.tar.gz",
+    "bytes": 2249603,
+    "sha256": "3117f7f3f7cd389624c850e0e34620d41cde035b9871e6293349a84f2f1360f9",
+    "members": {
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01/acquired-preacher.png": {
+        "bytes": 2040320,
+        "sha256": "68d19fe0b09d7826564266d949d84edb4ed9540f6d5cd88cd3a6a1f5a8951b04"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01/acquisition.json": {
+        "bytes": 613159,
+        "sha256": "e22190779658c320fcbfa857e934d35b08c01c8f1b4d7374c4a957da0c70c239"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01/actions.jsonl": {
+        "bytes": 174752,
+        "sha256": "62aae2b0352e72b968fc1c1b8954c7113980697e8c0f94d5cc472c3ed88456d4"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01/cutoff.json": {
+        "bytes": 53253,
+        "sha256": "ad2c53da3c320d53ed5e4f3d86bd855c2d05239619161a397c44ab1d2c71f696"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01/final-loop-turn4138-source168.rgba": {
+        "bytes": 21528,
+        "sha256": "3ebe3103b1e127be79d6672f5840bb48c3960e0d5caa9d512631d0bfc6011db4"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01/first-trainee-admission.json": {
+        "bytes": 69378,
+        "sha256": "f4543ce6b0f2c049121f1d86b28836533d15b5a696f5b2babdecd9cd8a6a2bcd"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01/next-entry-turn4141-source160.rgba": {
+        "bytes": 21528,
+        "sha256": "7f1a196414db4f7d60b6485f89428271420ac697b44fee3a0edd6a6be8cac21a"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01/observer-cleanup.json": {
+        "bytes": 946,
+        "sha256": "a33c5674799df9af30ff22eb71f4f458c025697c45e740ae6087f160c3f52116"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01/phases.jsonl": {
+        "bytes": 3193305,
+        "sha256": "2b1b83b3963e77e080472e1ac66fae5a5dccb35a9525e1cffb00bec6d4e9c9dc"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01/prelaunch.json": {
+        "bytes": 9610,
+        "sha256": "d1114eaa6ec32f69ce36b188f52f1dfd2f49a59971b99a2017d21c57cc5d0e87"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01/receipt.json": {
+        "bytes": 4674,
+        "sha256": "a5f7919f8c5b97a4660ecdb39d1c4e39f2f40babba7edb29377de5b290ee9dab"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01/server.log": {
+        "bytes": 891,
+        "sha256": "3600f6b53428ef2f8a215753758e86a3539874d6b7518e178e654b6b9121b0f1"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01/terminal-inputs.json": {
+        "bytes": 4645,
+        "sha256": "f5e9bb733008d56225f72b28b64d2699a70e4aa7142d6dcbd0e192b83904abc2"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01-command.json": {
+        "bytes": 11249,
+        "sha256": "782af9b920817bc5024d86dda459f8910646a47a9caf4f4f1654cbeb57347b20"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01-command.json.artifacts/stderr.log": {
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      "work/orchestration/preacher-cutoff-passive/browser-attempt-01-command.json.artifacts/stdout.log": {
+        "bytes": 2131,
+        "sha256": "64d893514a9c779200beda8590ef6a421c6e18c6c295dba34e398aef3c79f595"
+      },
+      "work/orchestration/preacher-cutoff-passive/dependency-transfer-01.json": {
+        "bytes": 2187,
+        "sha256": "9208279ba5334f571860427daa41616cd6a50405fd5d2d993fa284cf7da7ce70"
+      },
+      "work/orchestration/preacher-cutoff-passive/execution-preflight-01.json": {
+        "bytes": 756,
+        "sha256": "68b08a243e1f1dcde8c6f65b4b947c2ecb5e5d779045b1faf8ec6c3064516b26"
+      },
+      "work/orchestration/preacher-cutoff-passive/execution-session-01.json": {
+        "bytes": 2852,
+        "sha256": "47bd7003b97d22d3bb6bce34c97b8397ab7f42c26bece64d0f7d452fb8b46486"
+      },
+      "work/orchestration/preacher-cutoff-passive/source-final-e49e4473/launch.json": {
+        "bytes": 8119,
+        "sha256": "29677ee60dd520df32b18b088e4a171fa7ad32c9100d901560f1a3918fcbfe5c"
+      },
+      "work/orchestration/preacher-cutoff-passive/source-final-e49e4473/receipt.json": {
+        "bytes": 8192,
+        "sha256": "38640ca37cab178da458ad0fc42f9c57cb40950e38c856d4d220a4cc7aad9466"
+      },
+      "work/orchestration/preacher-cutoff-passive/terminal-cleanup-01.json": {
+        "bytes": 672,
+        "sha256": "e12a628c7d934a5bb51ab50c98a6416232ea54e25d99948e263e3bee68e35458"
+      },
+      "work/reviews/preacher-cutoff-driver-3c048bc0-false-pass.json": {
+        "bytes": 3757,
+        "sha256": "949bfdfbe33b4d837f4bcb90a7ad1018b1775ca2d19fa3f8637977b2d1b652ce"
+      },
+      "work/reviews/preacher-cutoff-driver-audit-33c57b77.json": {
+        "bytes": 2362,
+        "sha256": "a1ae35f37a1acbff39aec3bce2edcc0c73c80480c346f821e84e21b50b21063a"
+      },
+      "work/reviews/preacher-cutoff-driver-review-33c57b77.md": {
+        "bytes": 8716,
+        "sha256": "e4a34fa0ab76c33638a23bfd5d180a8345defd83d33ed5494fbbb50c027f256c"
+      },
+      "work/reviews/preacher-cutoff-launch-audit-e49e4473.json": {
+        "bytes": 11041,
+        "sha256": "84559fcedae1616739202c4700f895f53f72f84476a7d35d9ec1f1a0f879076e"
+      },
+      "work/reviews/preacher-cutoff-launch-review-e49e4473.md": {
+        "bytes": 5121,
+        "sha256": "a53880f5f20cc0cd1b9fda85de05ae53626fb30ac93617fd6491601a7fda0efa"
+      },
+      "work/reviews/preacher-cutoff-passive-plan-audit-53bd2a40.json": {
+        "bytes": 4509,
+        "sha256": "17b296cf29ce5195de233a52859636b9eb6944778aac20d330fb52e67c1354a0"
+      },
+      "work/reviews/preacher-cutoff-passive-plan-review-53bd2a40.md": {
+        "bytes": 6107,
+        "sha256": "6311248eefb9a74159093d2fa341d0ab07498c1ba96e7cad6d5056be9f16ec22"
+      }
+    }
+  },
+  "limitations": [
+    "Middle reset4140 has exact controller and next-beforeTurn updater evidence but no actual main render or pixel crop. No visible48/16 or unavoidable user-visible effect is claimed.",
+    "The actual natural initial839/middle840 f2 values differ from the supplied native case; both animation-subset booleans are false, without invalidating observed stop/reset rule.",
+    "RNG words are world callback snapshots, not isolated command17 controller inputs.",
+    "Readback observations cost89ms and88.5ms and can affect presentation cadence. The missing middle render is only an observation of this instrumented run.",
+    "PNG artifacts losslessly encode captured framebuffer bytes; they are not browser screenshots or body-hiding differentials.",
+    "The port4405 bind was checked after terminal, not at exit time.",
+    "No audible/native mixer, hardware GPU, new baseline, Save/Load or broader campaign claim."
+  ]
+}

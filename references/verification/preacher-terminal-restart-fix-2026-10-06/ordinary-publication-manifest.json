@@ -1,0 +1,46 @@
+{
+  "candidate": "bd07a6302bb0170e9d6dc235983c2a961694d753",
+  "qaHead": "e49e4473adc256450874cbbe48ff9c97bbc4fbd0",
+  "ordinaryVerdict": "ACCEPT for model-state/reachability only",
+  "rawManifestSha256": "085218753b3d76a534d9acaea6ae2744f52cf5ce3cdd9bb5bcb2b2c03a95048c",
+  "rawArchiveSha256": "3117f7f3f7cd389624c850e0e34620d41cde035b9871e6293349a84f2f1360f9",
+  "reviewManifestSha256": "66fa4bc2682c59643e4b707a3048ffc20733f1e70bb69ce58d48b292dac0d0c9",
+  "rawMembersVerified": 29,
+  "priorPublishedFilesUnchanged": true,
+  "newFiles": {
+    "ordinary-e49e4473/README.md": {
+      "sha256": "9a385f54dfb8ebaa4be67e0e64f8c6cabf95aabf6dd098cedc60b9889664d3b5",
+      "bytes": 1779
+    },
+    "ordinary-e49e4473/framebuffer-crops/final-loop-turn4138-source168.png": {
+      "sha256": "4854f5d86f83af8e453404f05003d61146bdeb34dcb7fb51f43675dd3a3e638d",
+      "bytes": 12798
+    },
+    "ordinary-e49e4473/framebuffer-crops/next-entry-turn4141-source160.png": {
+      "sha256": "0a8570c4e88baba62ad07b92fb3dc6dd0378caaa840b21a3126a3a58135f7a37",
+      "bytes": 12763
+    },
+    "ordinary-e49e4473/manifest.json": {
+      "sha256": "085218753b3d76a534d9acaea6ae2744f52cf5ce3cdd9bb5bcb2b2c03a95048c",
+      "bytes": 14599
+    },
+    "ordinary-e49e4473/raw-evidence.tar.gz": {
+      "sha256": "3117f7f3f7cd389624c850e0e34620d41cde035b9871e6293349a84f2f1360f9",
+      "bytes": 2249603
+    },
+    "ordinary-e49e4473/review-manifest.json": {
+      "sha256": "66fa4bc2682c59643e4b707a3048ffc20733f1e70bb69ce58d48b292dac0d0c9",
+      "bytes": 945
+    },
+    "ordinary-e49e4473/reviews/preacher-cutoff-result-audit-e49e4473.json": {
+      "sha256": "b7556d66d99122ed1ecb2d7be8b376913f0eacd5b7132b74d82ae987e68a21a3",
+      "bytes": 30964
+    },
+    "ordinary-e49e4473/reviews/preacher-cutoff-result-review-e49e4473.md": {
+      "sha256": "635d90a89a3437a77348aab152a76613b05216ae8761ba3a8b40bbbec0a2afc1",
+      "bytes": 10192
+    }
+  },
+  "latestIndexSha256": "2387afdc4e63ffbdc3feb40ebfc826a1bdd65728d389a7e43c4034732a1f4093",
+  "renderLimit": "No middle4140 render; surrounding framebuffer readbacks cost89/88.5ms; native subset flags false; world RNG snapshots not isolated."
+}
