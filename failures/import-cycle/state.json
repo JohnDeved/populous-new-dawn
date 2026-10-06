@@ -1,0 +1,11 @@
+{
+  "attemptStatus": "failed",
+  "exitCode": 13,
+  "startedAt": "2026-10-06T01:19:50.223Z",
+  "finishedAt": "2026-10-06T01:19:50.532Z",
+  "profileExists": false,
+  "outputExists": false,
+  "tmpExists": true,
+  "browserStarted": false,
+  "evidence": "harness entry awaits scenario import before runLocalBrowser; Node exited13 at that import; fresh profile/output are absent"
+}

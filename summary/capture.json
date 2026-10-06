@@ -1,0 +1,81 @@
+{
+  "status": "passed",
+  "runId": "cdc3e4be-2980-4557-8322-29e0f241b4b9",
+  "profileId": "a42d6da4-2e7f-48c8-bc8f-5c318aeb38b2",
+  "source": {
+    "commit": "b3285f6b0559799197a83ed970c5df529481ec73",
+    "fingerprint": "af1c9ab70c894a8fb91b999d29b969b2b6cf1aac5ba6986b518b4c77fc6e82d1"
+  },
+  "sourceStable": true,
+  "runtimeStable": true,
+  "cleanupVerified": true,
+  "continuationVerified": true,
+  "errors": [],
+  "effectId": 3155,
+  "activationTurn": 688,
+  "retirementTurn": 751,
+  "calls": 64,
+  "firstCounters": [
+    64,
+    63
+  ],
+  "lastCounter": 0,
+  "uniqueChangedHeightCells": 98,
+  "perCallChangedCellRange": [
+    0,
+    48
+  ],
+  "observedCopyMilliseconds": {
+    "median": 0.0,
+    "max": 2.9000000059604645
+  },
+  "witnesses": [
+    {
+      "kind": "worship-accepted",
+      "turn": 180,
+      "actorId": 46
+    },
+    {
+      "kind": "worship-arrival",
+      "turn": 535,
+      "actorId": 46
+    },
+    {
+      "kind": "worship-work",
+      "turn": 535,
+      "actorId": 46
+    }
+  ],
+  "files": {
+    "receipt": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-ordinary-controller-capture/work/orchestration/erosion-ordinary/original-shaman-b3285f6-01/receipt.json",
+      "bytes": 597934,
+      "sha256": "f1f3b953c1f99e8e08ea8d66dcccf49ede643ac0b8ba9f798b4ec55448f8ed3f"
+    },
+    "capture": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-ordinary-controller-capture/work/orchestration/erosion-ordinary/original-shaman-b3285f6-01/capture.json",
+      "bytes": 4641237,
+      "sha256": "dec59b891c79ff988f3cc452621d189653f83312fe5ec1f8c5877ca1fad82fae"
+    },
+    "lifecycle": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-ordinary-controller-capture/work/orchestration/erosion-ordinary/original-shaman-b3285f6-01/lifecycle.json",
+      "bytes": 1348,
+      "sha256": "c9d84aa94ad7974e67e1a467cc67a6ee00e1d908088a009ff89c1dddc1f5c689"
+    },
+    "modules": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-ordinary-controller-capture/work/orchestration/erosion-ordinary/original-shaman-b3285f6-01/modules.json",
+      "bytes": 314426,
+      "sha256": "3f1fccb41d3de4f31e4e7cf5fa52a77c92eb918eaeed8e8987dd98234ebfb7b9"
+    },
+    "inputs": {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-ordinary-controller-capture/work/orchestration/erosion-ordinary/original-shaman-b3285f6-01/inputs.json",
+      "bytes": 21579,
+      "sha256": "ccf070962e13b21d9136ee849e652ecfd9aced618807ab90a912afcf7e610627"
+    }
+  },
+  "screenshot": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-ordinary-controller-capture/work/orchestration/erosion-ordinary/original-shaman-b3285f6-01/erosion-retired.png",
+    "bytes": 2061010,
+    "sha256": "00232a438223496dc1073987bc56750a1142738a8d890e72cf0757b2cc152cf5"
+  }
+}

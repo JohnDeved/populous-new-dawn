@@ -1,0 +1,3970 @@
+{
+  "status": "passed",
+  "nativeExecuted": true,
+  "executable": {
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "bytes": 2275840,
+    "debugDirectoryRva": 0,
+    "debugDirectorySize": 0
+  },
+  "calls": [
+    {
+      "turn": 688,
+      "selectedSoundBit": 0,
+      "heightsSha256": "a23d05fb51797b360f3ff951680f514b739f13d7d935ea76bbd6b6818db1a33e",
+      "randomState": 1764938717,
+      "remaining": 63,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35061,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35061,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 689,
+      "selectedSoundBit": 0,
+      "heightsSha256": "cec6342b8961e42720feb353bb1b0acd171ea980a9d3db91db7c6404c4a996c5",
+      "randomState": 1707047397,
+      "remaining": 62,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34804,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34804,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 690,
+      "selectedSoundBit": 0,
+      "heightsSha256": "99de2802e1f038073953d52d46f8f4c21ebc0f7ec990211ca66ba58262f80204",
+      "randomState": 35993108,
+      "remaining": 61,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34548,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34548,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 691,
+      "selectedSoundBit": 0,
+      "heightsSha256": "b0361c3aeee06d9f1424210f6b7ee60b8f61416f4127eee06df772788a755789",
+      "randomState": 1498971909,
+      "remaining": 60,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35835,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35835,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 692,
+      "selectedSoundBit": 0,
+      "heightsSha256": "d70676be7f2c430b62b04c7ca51efdc410947946bb8b981b166b04d6b65a2b15",
+      "randomState": 222952535,
+      "remaining": 59,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34041,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34041,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 693,
+      "selectedSoundBit": 0,
+      "heightsSha256": "0bab823542b2fc67d83d4203ed5aba8b54ef4297b8833ae0777e3ff27a9fbc90",
+      "randomState": 2547882342,
+      "remaining": 58,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35572,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35572,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 694,
+      "selectedSoundBit": 0,
+      "heightsSha256": "93fef55b2b709f1ec76f95e961450af8b11e4dda95e4d1ec61412dc06a6a51d8",
+      "randomState": 4230227852,
+      "remaining": 57,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34043,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34043,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 695,
+      "selectedSoundBit": 0,
+      "heightsSha256": "5d5be5b29794051a2209d088c2fec9c46f64112f48769afb78c8032b642069c9",
+      "randomState": 1183216025,
+      "remaining": 56,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34041,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34041,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 696,
+      "selectedSoundBit": 0,
+      "heightsSha256": "190cf5cc593510e34c92dc7b2bed4a744094426420b2f28e79d7678e0ec6c339",
+      "randomState": 790631151,
+      "remaining": 55,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35316,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35316,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 697,
+      "selectedSoundBit": 0,
+      "heightsSha256": "a22e34761823f4786b45cf8d375cafc85a6d504683b03ccb082bed9ed5963cf0",
+      "randomState": 781086790,
+      "remaining": 54,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35577,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35577,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 698,
+      "selectedSoundBit": 0,
+      "heightsSha256": "85384b5c5b5a8f2927bdbe114a0b2cfcc7c28e09b3861dcebc1de0e70c3f5258",
+      "randomState": 887819981,
+      "remaining": 53,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35576,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35576,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 699,
+      "selectedSoundBit": 0,
+      "heightsSha256": "e0cdb7d07899d768d66820ae8212661f5ec58bc3e4411806fd08ba8a1ec56904",
+      "randomState": 3439187644,
+      "remaining": 52,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35574,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35574,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 700,
+      "selectedSoundBit": 0,
+      "heightsSha256": "492fee11ef751f26ad59297b66906c5e9ebbaf99ec7530c6722d28be56196570",
+      "randomState": 1034813129,
+      "remaining": 51,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35321,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35321,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 701,
+      "selectedSoundBit": 0,
+      "heightsSha256": "578460f9ba868ba056263cf0f75254e085cf8846c1c5d6d0d43f8ce5779b7f16",
+      "randomState": 2958958295,
+      "remaining": 50,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34553,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34553,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 702,
+      "selectedSoundBit": 0,
+      "heightsSha256": "0bd0d60cc3734ec3e05d93a1e3c1ca357297b8d183265f61f3f7aa3f2d9dd8e0",
+      "randomState": 4286728144,
+      "remaining": 49,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35322,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35322,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 703,
+      "selectedSoundBit": 0,
+      "heightsSha256": "0690d0d01d75fc77860dfc9297f2b21398d3b544294a899a3a455e24c11f4046",
+      "randomState": 2361554533,
+      "remaining": 48,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35832,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35832,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 704,
+      "selectedSoundBit": 0,
+      "heightsSha256": "3f79a2c33ea08489ebf566754289a5eb88d02f9215484db4474392eb7844e033",
+      "randomState": 1137967032,
+      "remaining": 47,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34299,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34299,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 705,
+      "selectedSoundBit": 0,
+      "heightsSha256": "7c52be5cb975defa7ff3bd3b641fb492b2ab32c3dd6b2413389103c670849678",
+      "randomState": 4274836890,
+      "remaining": 46,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34810,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34810,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 706,
+      "selectedSoundBit": 0,
+      "heightsSha256": "f80267eb222d10942297b77b0269b00e902bde844bab49f805ef0dffc18fddae",
+      "randomState": 1659198820,
+      "remaining": 45,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34554,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34554,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 707,
+      "selectedSoundBit": 0,
+      "heightsSha256": "d28d854ac27ae84308d50fcff8417b6727f088ad76003f109e42b2b86a1f6cc9",
+      "randomState": 3746283543,
+      "remaining": 44,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35579,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35579,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 708,
+      "selectedSoundBit": 0,
+      "heightsSha256": "4e3322b524f2dc0a40bdad5ddcea9e45c7749a38f9adf3febd51e019ce695671",
+      "randomState": 1296595564,
+      "remaining": 43,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34037,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34037,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 709,
+      "selectedSoundBit": 0,
+      "heightsSha256": "d5fba1e4f3494a144bda594c40951a331c5cc5a392f2ad3d57e25c735cf61b8b",
+      "randomState": 2190357637,
+      "remaining": 42,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34550,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34550,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 710,
+      "selectedSoundBit": 0,
+      "heightsSha256": "dc6e5381be7ab74fb8776ae9d30d0f6e494b7a5e6d9bbdbeb022700963b56dc5",
+      "randomState": 4033698768,
+      "remaining": 41,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34299,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34299,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 711,
+      "selectedSoundBit": 0,
+      "heightsSha256": "d6f20f61f3ca72a42515ef4b5c503c3763f7e0bffb2463e845c18ffa9e687d08",
+      "randomState": 2446072912,
+      "remaining": 40,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34805,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34805,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 712,
+      "selectedSoundBit": 0,
+      "heightsSha256": "80bf2e2e63ce5bf677ba3f399f2e8bbd52425138e0a39ca7e14a4f0d910f4dd3",
+      "randomState": 3389043322,
+      "remaining": 39,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34549,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34549,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 713,
+      "selectedSoundBit": 0,
+      "heightsSha256": "74fedea904fd840a681cc49c2593f3d7f85133673a52a3806d704804afae178e",
+      "randomState": 3328439962,
+      "remaining": 38,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35320,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35320,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 714,
+      "selectedSoundBit": 0,
+      "heightsSha256": "a1e6d0e3ec0f66623d8ed17d3ef7144eaab88ad33ca0146629e929ac6e2e25b2",
+      "randomState": 1374019200,
+      "remaining": 37,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35579,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35579,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 715,
+      "selectedSoundBit": 0,
+      "heightsSha256": "fcd4ce7f50cbc22bc79471361f27797240dcd4bd65d73365b2f6b1aaa0c7fdf2",
+      "randomState": 3635868480,
+      "remaining": 36,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34804,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34804,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 716,
+      "selectedSoundBit": 0,
+      "heightsSha256": "bb4db7ce236821ca06699cef989f058a66f42b9f71e8a191255b324a9e5862bd",
+      "randomState": 3301452360,
+      "remaining": 35,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34549,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34549,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 717,
+      "selectedSoundBit": 0,
+      "heightsSha256": "43eb8f2392a8137f19e9e90cff4166907e97010363ba2e06c00f1972e9ddcfe5",
+      "randomState": 1405696397,
+      "remaining": 34,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35834,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35834,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 718,
+      "selectedSoundBit": 0,
+      "heightsSha256": "0b40f074be4409be030835b6d400ba6cdea7423b76387d879bb0ec623e348ad4",
+      "randomState": 3451720989,
+      "remaining": 33,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34037,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34037,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 719,
+      "selectedSoundBit": 0,
+      "heightsSha256": "c9ce1c4ef042f39c01383f36f7bd6ad7c197c273fd483fbfd6b82e8aa1aa2e5f",
+      "randomState": 1314244336,
+      "remaining": 32,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34296,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34296,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 720,
+      "selectedSoundBit": 0,
+      "heightsSha256": "2c76d6c5dd042d0e06cf5d62eb451a093970c90e4a4a3256aac1ccc976ff5049",
+      "randomState": 1719197763,
+      "remaining": 31,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35828,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35828,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 721,
+      "selectedSoundBit": 0,
+      "heightsSha256": "31ca271591e1e7a523b871aaeec902e4003d1b5e76b27fa15c68fa0f8713d6f6",
+      "randomState": 1057803585,
+      "remaining": 30,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35576,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35576,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 722,
+      "selectedSoundBit": 0,
+      "heightsSha256": "af9971467c73a82dbf76912c1400fe0ee96135329221cd9c81a10c2dda98ce8c",
+      "randomState": 3689631338,
+      "remaining": 29,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35574,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35574,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 723,
+      "selectedSoundBit": 0,
+      "heightsSha256": "d108f12774b5dcedf31ae0b786ed31fb7e4421c847c63cb6389fafd74a3f75b2",
+      "randomState": 3698731091,
+      "remaining": 28,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34038,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34038,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 724,
+      "selectedSoundBit": 0,
+      "heightsSha256": "ebf81ec19f67419680be8103781139b0371bc0f79e78bd18e72cd10d550ac253",
+      "randomState": 3902925812,
+      "remaining": 27,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35317,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35317,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 725,
+      "selectedSoundBit": 0,
+      "heightsSha256": "31eab143d7d56d6138f4c6415af0f0494af33dcc8c56c82e68190cd12d460d55",
+      "randomState": 2579859301,
+      "remaining": 26,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34042,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34042,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 726,
+      "selectedSoundBit": 0,
+      "heightsSha256": "73b634d72ba579320586f5df4782ac55ab6f4e1c2de47f45cf9271b209b3fb08",
+      "randomState": 2699274177,
+      "remaining": 25,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34551,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34551,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 727,
+      "selectedSoundBit": 0,
+      "heightsSha256": "4c6036eef397d92e3611c3e9aef1786c24b8ffb03ddb4eefc4e626b9bcc824a4",
+      "randomState": 2277493038,
+      "remaining": 24,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35578,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35578,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 728,
+      "selectedSoundBit": 0,
+      "heightsSha256": "48775ca4b2859b5221af04b78d8697bedb4732b5537d83553506b68f68a95e38",
+      "randomState": 332580089,
+      "remaining": 23,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35061,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35061,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 729,
+      "selectedSoundBit": 0,
+      "heightsSha256": "69f695fffb377543d81dbd365ac784eb57dbbd77dfa654e325d5362ca7b47728",
+      "randomState": 2487341383,
+      "remaining": 22,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34804,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34804,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 730,
+      "selectedSoundBit": 0,
+      "heightsSha256": "072bebbe7358652daca44575075dec90744d0930a6fc73bef972eab7d5b90c33",
+      "randomState": 2050001971,
+      "remaining": 21,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34297,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34297,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 731,
+      "selectedSoundBit": 0,
+      "heightsSha256": "ea0133f9074421e9046e1714b6599b519c26a84ba8a0a48045733a9c5b86c2db",
+      "randomState": 2130182502,
+      "remaining": 20,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35061,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35061,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 732,
+      "selectedSoundBit": 0,
+      "heightsSha256": "fd9e7edcb58112bf676d3f7f5fa2e6dfd40f62629328bc9b9f05d4159cc07f3a",
+      "randomState": 1142438997,
+      "remaining": 19,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34806,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34806,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 733,
+      "selectedSoundBit": 0,
+      "heightsSha256": "108698e53d36d309ddc15065ff6b85b18d5404b9826fa6dcc6b845608b585065",
+      "randomState": 199940190,
+      "remaining": 18,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35828,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35828,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 734,
+      "selectedSoundBit": 0,
+      "heightsSha256": "e5d4af49e459f24c211929a4c5b7fff8945dde90e91342ac210c7f65ecd71fd0",
+      "randomState": 2548983517,
+      "remaining": 17,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34295,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34295,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 735,
+      "selectedSoundBit": 0,
+      "heightsSha256": "08d6f3044e7c014f96786c6da1ef5e0f4d93110648a07a553edad1fef57b7eec",
+      "randomState": 2237418647,
+      "remaining": 16,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34555,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34555,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 736,
+      "selectedSoundBit": 0,
+      "heightsSha256": "cd2c5e913b386e9ffb3c08227942035049230e27fd3138765a10294232f79b36",
+      "randomState": 4073129818,
+      "remaining": 15,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35320,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35320,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 737,
+      "selectedSoundBit": 0,
+      "heightsSha256": "883cc1ccea0ee04015fb86005006f6bdaef6fcbd6270aca7800f530dcafefefc",
+      "randomState": 3863212627,
+      "remaining": 14,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34295,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34295,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 738,
+      "selectedSoundBit": 0,
+      "heightsSha256": "103f2e9c7401a5d6ab0e8e6f3cff02a069a120c086ed29a54ea15f8bca1159e1",
+      "randomState": 3365319866,
+      "remaining": 13,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34550,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34550,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 739,
+      "selectedSoundBit": 0,
+      "heightsSha256": "1304bfced70ec5eac2e8e603ddd6af97a6441c07ab411049ae7135daf5e69af5",
+      "randomState": 947580201,
+      "remaining": 12,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35835,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35835,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 740,
+      "selectedSoundBit": 0,
+      "heightsSha256": "c893d8e5edb8854da1d59b66d618f2b60532f819ea0097c09feb6caef51b3247",
+      "randomState": 169973273,
+      "remaining": 11,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34036,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34036,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 741,
+      "selectedSoundBit": 0,
+      "heightsSha256": "c16fc3e3a97a21491d5b779d7487e5a40fd722584eb58420d6c1eefd4dc70cf6",
+      "randomState": 2825241736,
+      "remaining": 10,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34804,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34804,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 742,
+      "selectedSoundBit": 0,
+      "heightsSha256": "3602e46bc57b8ac6268b2ed3c21e0211987338be71dad30da21ca451ef8f498e",
+      "randomState": 1163728453,
+      "remaining": 9,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34554,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34554,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 743,
+      "selectedSoundBit": 0,
+      "heightsSha256": "5872f595d9e9081894b3b783c9533400dc3759df29dbbf198a2303fa24438f2c",
+      "randomState": 2249987970,
+      "remaining": 8,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35066,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35066,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 744,
+      "selectedSoundBit": 0,
+      "heightsSha256": "280f93dcd35b63740fe19f87f9e9ced7ef5444754f0bd170cf6dd027ce1a796f",
+      "randomState": 2807299086,
+      "remaining": 7,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35061,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35061,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 745,
+      "selectedSoundBit": 0,
+      "heightsSha256": "73558f30cc6446f2dc0a629b79299184b062bb8f739f5cd317bbf49b6284a9c9",
+      "randomState": 2342328686,
+      "remaining": 6,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35833,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35833,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 746,
+      "selectedSoundBit": 0,
+      "heightsSha256": "950aec6c0d5e79b3dfa954b9eec5eb6c9d812ac61018f641e182cc9df1dad916",
+      "randomState": 4201505731,
+      "remaining": 5,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35576,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35576,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 747,
+      "selectedSoundBit": 0,
+      "heightsSha256": "ce559fdcc186ba983eafcf237e1cfe24ae8f6e724914c0904cb9ee704f2185f6",
+      "randomState": 1479223957,
+      "remaining": 4,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35322,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35322,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 748,
+      "selectedSoundBit": 0,
+      "heightsSha256": "e0da4902076a27d3cdebc17350ca5e0407208432eb073f12420d94ab292b581a",
+      "randomState": 3285713036,
+      "remaining": 3,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34299,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34299,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 749,
+      "selectedSoundBit": 0,
+      "heightsSha256": "a75eb6bea47dff616343a89d710f48afaef056c3f5e22770f97eb49ba8d69702",
+      "randomState": 2750300855,
+      "remaining": 2,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            35317,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35317,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 750,
+      "selectedSoundBit": 0,
+      "heightsSha256": "e72463ff7493357b22c3bf1ada9f8789f5172dbc953c240bef1f9040f50feee2",
+      "randomState": 425490542,
+      "remaining": 1,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "sound",
+          "args": [
+            33554432,
+            169,
+            2
+          ]
+        },
+        {
+          "kind": "queue",
+          "args": [
+            34042,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34042,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 751,
+      "selectedSoundBit": 0,
+      "heightsSha256": "7b8a2bc8f49be973e9e7f5d4b532934d6e5da01a3506de7674b6f9ffe8f82dcc",
+      "randomState": 425490542,
+      "remaining": 0,
+      "alive": false,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "delete",
+          "args": [
+            33554432
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 688,
+      "selectedSoundBit": 16,
+      "heightsSha256": "a23d05fb51797b360f3ff951680f514b739f13d7d935ea76bbd6b6818db1a33e",
+      "randomState": 1764938717,
+      "remaining": 63,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35061,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35061,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 689,
+      "selectedSoundBit": 16,
+      "heightsSha256": "cec6342b8961e42720feb353bb1b0acd171ea980a9d3db91db7c6404c4a996c5",
+      "randomState": 1707047397,
+      "remaining": 62,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34804,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34804,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 690,
+      "selectedSoundBit": 16,
+      "heightsSha256": "99de2802e1f038073953d52d46f8f4c21ebc0f7ec990211ca66ba58262f80204",
+      "randomState": 35993108,
+      "remaining": 61,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34548,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34548,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 691,
+      "selectedSoundBit": 16,
+      "heightsSha256": "b0361c3aeee06d9f1424210f6b7ee60b8f61416f4127eee06df772788a755789",
+      "randomState": 1498971909,
+      "remaining": 60,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35835,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35835,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 692,
+      "selectedSoundBit": 16,
+      "heightsSha256": "d70676be7f2c430b62b04c7ca51efdc410947946bb8b981b166b04d6b65a2b15",
+      "randomState": 222952535,
+      "remaining": 59,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34041,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34041,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 693,
+      "selectedSoundBit": 16,
+      "heightsSha256": "0bab823542b2fc67d83d4203ed5aba8b54ef4297b8833ae0777e3ff27a9fbc90",
+      "randomState": 2547882342,
+      "remaining": 58,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35572,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35572,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 694,
+      "selectedSoundBit": 16,
+      "heightsSha256": "93fef55b2b709f1ec76f95e961450af8b11e4dda95e4d1ec61412dc06a6a51d8",
+      "randomState": 4230227852,
+      "remaining": 57,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34043,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34043,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 695,
+      "selectedSoundBit": 16,
+      "heightsSha256": "5d5be5b29794051a2209d088c2fec9c46f64112f48769afb78c8032b642069c9",
+      "randomState": 1183216025,
+      "remaining": 56,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34041,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34041,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 696,
+      "selectedSoundBit": 16,
+      "heightsSha256": "190cf5cc593510e34c92dc7b2bed4a744094426420b2f28e79d7678e0ec6c339",
+      "randomState": 790631151,
+      "remaining": 55,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35316,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35316,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 697,
+      "selectedSoundBit": 16,
+      "heightsSha256": "a22e34761823f4786b45cf8d375cafc85a6d504683b03ccb082bed9ed5963cf0",
+      "randomState": 781086790,
+      "remaining": 54,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35577,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35577,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 698,
+      "selectedSoundBit": 16,
+      "heightsSha256": "85384b5c5b5a8f2927bdbe114a0b2cfcc7c28e09b3861dcebc1de0e70c3f5258",
+      "randomState": 887819981,
+      "remaining": 53,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35576,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35576,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 699,
+      "selectedSoundBit": 16,
+      "heightsSha256": "e0cdb7d07899d768d66820ae8212661f5ec58bc3e4411806fd08ba8a1ec56904",
+      "randomState": 3439187644,
+      "remaining": 52,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35574,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35574,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 700,
+      "selectedSoundBit": 16,
+      "heightsSha256": "492fee11ef751f26ad59297b66906c5e9ebbaf99ec7530c6722d28be56196570",
+      "randomState": 1034813129,
+      "remaining": 51,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35321,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35321,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 701,
+      "selectedSoundBit": 16,
+      "heightsSha256": "578460f9ba868ba056263cf0f75254e085cf8846c1c5d6d0d43f8ce5779b7f16",
+      "randomState": 2958958295,
+      "remaining": 50,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34553,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34553,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 702,
+      "selectedSoundBit": 16,
+      "heightsSha256": "0bd0d60cc3734ec3e05d93a1e3c1ca357297b8d183265f61f3f7aa3f2d9dd8e0",
+      "randomState": 4286728144,
+      "remaining": 49,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35322,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35322,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 703,
+      "selectedSoundBit": 16,
+      "heightsSha256": "0690d0d01d75fc77860dfc9297f2b21398d3b544294a899a3a455e24c11f4046",
+      "randomState": 2361554533,
+      "remaining": 48,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35832,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35832,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 704,
+      "selectedSoundBit": 16,
+      "heightsSha256": "3f79a2c33ea08489ebf566754289a5eb88d02f9215484db4474392eb7844e033",
+      "randomState": 1137967032,
+      "remaining": 47,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34299,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34299,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 705,
+      "selectedSoundBit": 16,
+      "heightsSha256": "7c52be5cb975defa7ff3bd3b641fb492b2ab32c3dd6b2413389103c670849678",
+      "randomState": 4274836890,
+      "remaining": 46,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34810,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34810,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 706,
+      "selectedSoundBit": 16,
+      "heightsSha256": "f80267eb222d10942297b77b0269b00e902bde844bab49f805ef0dffc18fddae",
+      "randomState": 1659198820,
+      "remaining": 45,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34554,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34554,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 707,
+      "selectedSoundBit": 16,
+      "heightsSha256": "d28d854ac27ae84308d50fcff8417b6727f088ad76003f109e42b2b86a1f6cc9",
+      "randomState": 3746283543,
+      "remaining": 44,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35579,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35579,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 708,
+      "selectedSoundBit": 16,
+      "heightsSha256": "4e3322b524f2dc0a40bdad5ddcea9e45c7749a38f9adf3febd51e019ce695671",
+      "randomState": 1296595564,
+      "remaining": 43,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34037,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34037,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 709,
+      "selectedSoundBit": 16,
+      "heightsSha256": "d5fba1e4f3494a144bda594c40951a331c5cc5a392f2ad3d57e25c735cf61b8b",
+      "randomState": 2190357637,
+      "remaining": 42,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34550,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34550,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 710,
+      "selectedSoundBit": 16,
+      "heightsSha256": "dc6e5381be7ab74fb8776ae9d30d0f6e494b7a5e6d9bbdbeb022700963b56dc5",
+      "randomState": 4033698768,
+      "remaining": 41,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34299,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34299,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 711,
+      "selectedSoundBit": 16,
+      "heightsSha256": "d6f20f61f3ca72a42515ef4b5c503c3763f7e0bffb2463e845c18ffa9e687d08",
+      "randomState": 2446072912,
+      "remaining": 40,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34805,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34805,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 712,
+      "selectedSoundBit": 16,
+      "heightsSha256": "80bf2e2e63ce5bf677ba3f399f2e8bbd52425138e0a39ca7e14a4f0d910f4dd3",
+      "randomState": 3389043322,
+      "remaining": 39,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34549,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34549,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 713,
+      "selectedSoundBit": 16,
+      "heightsSha256": "74fedea904fd840a681cc49c2593f3d7f85133673a52a3806d704804afae178e",
+      "randomState": 3328439962,
+      "remaining": 38,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35320,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35320,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 714,
+      "selectedSoundBit": 16,
+      "heightsSha256": "a1e6d0e3ec0f66623d8ed17d3ef7144eaab88ad33ca0146629e929ac6e2e25b2",
+      "randomState": 1374019200,
+      "remaining": 37,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35579,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35579,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 715,
+      "selectedSoundBit": 16,
+      "heightsSha256": "fcd4ce7f50cbc22bc79471361f27797240dcd4bd65d73365b2f6b1aaa0c7fdf2",
+      "randomState": 3635868480,
+      "remaining": 36,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34804,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34804,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 716,
+      "selectedSoundBit": 16,
+      "heightsSha256": "bb4db7ce236821ca06699cef989f058a66f42b9f71e8a191255b324a9e5862bd",
+      "randomState": 3301452360,
+      "remaining": 35,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34549,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34549,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 717,
+      "selectedSoundBit": 16,
+      "heightsSha256": "43eb8f2392a8137f19e9e90cff4166907e97010363ba2e06c00f1972e9ddcfe5",
+      "randomState": 1405696397,
+      "remaining": 34,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35834,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35834,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 718,
+      "selectedSoundBit": 16,
+      "heightsSha256": "0b40f074be4409be030835b6d400ba6cdea7423b76387d879bb0ec623e348ad4",
+      "randomState": 3451720989,
+      "remaining": 33,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34037,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34037,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 719,
+      "selectedSoundBit": 16,
+      "heightsSha256": "c9ce1c4ef042f39c01383f36f7bd6ad7c197c273fd483fbfd6b82e8aa1aa2e5f",
+      "randomState": 1314244336,
+      "remaining": 32,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34296,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34296,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 720,
+      "selectedSoundBit": 16,
+      "heightsSha256": "2c76d6c5dd042d0e06cf5d62eb451a093970c90e4a4a3256aac1ccc976ff5049",
+      "randomState": 1719197763,
+      "remaining": 31,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35828,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35828,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 721,
+      "selectedSoundBit": 16,
+      "heightsSha256": "31ca271591e1e7a523b871aaeec902e4003d1b5e76b27fa15c68fa0f8713d6f6",
+      "randomState": 1057803585,
+      "remaining": 30,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35576,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35576,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 722,
+      "selectedSoundBit": 16,
+      "heightsSha256": "af9971467c73a82dbf76912c1400fe0ee96135329221cd9c81a10c2dda98ce8c",
+      "randomState": 3689631338,
+      "remaining": 29,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35574,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35574,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 723,
+      "selectedSoundBit": 16,
+      "heightsSha256": "d108f12774b5dcedf31ae0b786ed31fb7e4421c847c63cb6389fafd74a3f75b2",
+      "randomState": 3698731091,
+      "remaining": 28,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34038,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34038,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 724,
+      "selectedSoundBit": 16,
+      "heightsSha256": "ebf81ec19f67419680be8103781139b0371bc0f79e78bd18e72cd10d550ac253",
+      "randomState": 3902925812,
+      "remaining": 27,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35317,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35317,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 725,
+      "selectedSoundBit": 16,
+      "heightsSha256": "31eab143d7d56d6138f4c6415af0f0494af33dcc8c56c82e68190cd12d460d55",
+      "randomState": 2579859301,
+      "remaining": 26,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34042,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34042,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 726,
+      "selectedSoundBit": 16,
+      "heightsSha256": "73b634d72ba579320586f5df4782ac55ab6f4e1c2de47f45cf9271b209b3fb08",
+      "randomState": 2699274177,
+      "remaining": 25,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34551,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34551,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 727,
+      "selectedSoundBit": 16,
+      "heightsSha256": "4c6036eef397d92e3611c3e9aef1786c24b8ffb03ddb4eefc4e626b9bcc824a4",
+      "randomState": 2277493038,
+      "remaining": 24,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35578,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35578,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 728,
+      "selectedSoundBit": 16,
+      "heightsSha256": "48775ca4b2859b5221af04b78d8697bedb4732b5537d83553506b68f68a95e38",
+      "randomState": 332580089,
+      "remaining": 23,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35061,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35061,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 729,
+      "selectedSoundBit": 16,
+      "heightsSha256": "69f695fffb377543d81dbd365ac784eb57dbbd77dfa654e325d5362ca7b47728",
+      "randomState": 2487341383,
+      "remaining": 22,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34804,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34804,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 730,
+      "selectedSoundBit": 16,
+      "heightsSha256": "072bebbe7358652daca44575075dec90744d0930a6fc73bef972eab7d5b90c33",
+      "randomState": 2050001971,
+      "remaining": 21,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34297,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34297,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 731,
+      "selectedSoundBit": 16,
+      "heightsSha256": "ea0133f9074421e9046e1714b6599b519c26a84ba8a0a48045733a9c5b86c2db",
+      "randomState": 2130182502,
+      "remaining": 20,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35061,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35061,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 732,
+      "selectedSoundBit": 16,
+      "heightsSha256": "fd9e7edcb58112bf676d3f7f5fa2e6dfd40f62629328bc9b9f05d4159cc07f3a",
+      "randomState": 1142438997,
+      "remaining": 19,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34806,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34806,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 733,
+      "selectedSoundBit": 16,
+      "heightsSha256": "108698e53d36d309ddc15065ff6b85b18d5404b9826fa6dcc6b845608b585065",
+      "randomState": 199940190,
+      "remaining": 18,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35828,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35828,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 734,
+      "selectedSoundBit": 16,
+      "heightsSha256": "e5d4af49e459f24c211929a4c5b7fff8945dde90e91342ac210c7f65ecd71fd0",
+      "randomState": 2548983517,
+      "remaining": 17,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34295,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34295,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 735,
+      "selectedSoundBit": 16,
+      "heightsSha256": "08d6f3044e7c014f96786c6da1ef5e0f4d93110648a07a553edad1fef57b7eec",
+      "randomState": 2237418647,
+      "remaining": 16,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34555,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34555,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 736,
+      "selectedSoundBit": 16,
+      "heightsSha256": "cd2c5e913b386e9ffb3c08227942035049230e27fd3138765a10294232f79b36",
+      "randomState": 4073129818,
+      "remaining": 15,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35320,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35320,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 737,
+      "selectedSoundBit": 16,
+      "heightsSha256": "883cc1ccea0ee04015fb86005006f6bdaef6fcbd6270aca7800f530dcafefefc",
+      "randomState": 3863212627,
+      "remaining": 14,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34295,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34295,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 738,
+      "selectedSoundBit": 16,
+      "heightsSha256": "103f2e9c7401a5d6ab0e8e6f3cff02a069a120c086ed29a54ea15f8bca1159e1",
+      "randomState": 3365319866,
+      "remaining": 13,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34550,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34550,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 739,
+      "selectedSoundBit": 16,
+      "heightsSha256": "1304bfced70ec5eac2e8e603ddd6af97a6441c07ab411049ae7135daf5e69af5",
+      "randomState": 947580201,
+      "remaining": 12,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35835,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35835,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 740,
+      "selectedSoundBit": 16,
+      "heightsSha256": "c893d8e5edb8854da1d59b66d618f2b60532f819ea0097c09feb6caef51b3247",
+      "randomState": 169973273,
+      "remaining": 11,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34036,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34036,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 741,
+      "selectedSoundBit": 16,
+      "heightsSha256": "c16fc3e3a97a21491d5b779d7487e5a40fd722584eb58420d6c1eefd4dc70cf6",
+      "randomState": 2825241736,
+      "remaining": 10,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34804,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34804,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 742,
+      "selectedSoundBit": 16,
+      "heightsSha256": "3602e46bc57b8ac6268b2ed3c21e0211987338be71dad30da21ca451ef8f498e",
+      "randomState": 1163728453,
+      "remaining": 9,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34554,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34554,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 743,
+      "selectedSoundBit": 16,
+      "heightsSha256": "5872f595d9e9081894b3b783c9533400dc3759df29dbbf198a2303fa24438f2c",
+      "randomState": 2249987970,
+      "remaining": 8,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35066,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35066,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 744,
+      "selectedSoundBit": 16,
+      "heightsSha256": "280f93dcd35b63740fe19f87f9e9ced7ef5444754f0bd170cf6dd027ce1a796f",
+      "randomState": 2807299086,
+      "remaining": 7,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35061,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35061,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 745,
+      "selectedSoundBit": 16,
+      "heightsSha256": "73558f30cc6446f2dc0a629b79299184b062bb8f739f5cd317bbf49b6284a9c9",
+      "randomState": 2342328686,
+      "remaining": 6,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35833,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35833,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 746,
+      "selectedSoundBit": 16,
+      "heightsSha256": "950aec6c0d5e79b3dfa954b9eec5eb6c9d812ac61018f641e182cc9df1dad916",
+      "randomState": 4201505731,
+      "remaining": 5,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35576,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35576,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 747,
+      "selectedSoundBit": 16,
+      "heightsSha256": "ce559fdcc186ba983eafcf237e1cfe24ae8f6e724914c0904cb9ee704f2185f6",
+      "randomState": 1479223957,
+      "remaining": 4,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35322,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35322,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 748,
+      "selectedSoundBit": 16,
+      "heightsSha256": "e0da4902076a27d3cdebc17350ca5e0407208432eb073f12420d94ab292b581a",
+      "randomState": 3285713036,
+      "remaining": 3,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34299,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34299,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 749,
+      "selectedSoundBit": 16,
+      "heightsSha256": "a75eb6bea47dff616343a89d710f48afaef056c3f5e22770f97eb49ba8d69702",
+      "randomState": 2750300855,
+      "remaining": 2,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            35317,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            35317,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 750,
+      "selectedSoundBit": 16,
+      "heightsSha256": "e72463ff7493357b22c3bf1ada9f8789f5172dbc953c240bef1f9040f50feee2",
+      "randomState": 425490542,
+      "remaining": 1,
+      "alive": true,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "queue",
+          "args": [
+            34042,
+            6,
+            1
+          ]
+        },
+        {
+          "kind": "terrain",
+          "args": [
+            1,
+            34042,
+            6,
+            4294967295
+          ]
+        }
+      ]
+    },
+    {
+      "turn": 751,
+      "selectedSoundBit": 16,
+      "heightsSha256": "7b8a2bc8f49be973e9e7f5d4b532934d6e5da01a3506de7674b6f9ffe8f82dcc",
+      "randomState": 425490542,
+      "remaining": 0,
+      "alive": false,
+      "nativeInterceptedEvents": [
+        {
+          "kind": "delete",
+          "args": [
+            33554432
+          ]
+        }
+      ]
+    }
+  ],
+  "claim": "Same observed per-call heights/RNG/countdown and terrain notification cells under both explicitly selected sound-bit settings.",
+  "notEstablished": [
+    "Actual native sound policy/cadence",
+    "Native reward activation scheduling",
+    "Full engine timing",
+    "Downstream terrain queue, walk masks, object updates or rendering"
+  ],
+  "intercepted": [
+    "0048a050",
+    "0044ddf0",
+    "0044f2f0",
+    "004edcf0"
+  ],
+  "files": {
+    "capture": "dec59b891c79ff988f3cc452621d189653f83312fe5ec1f8c5877ca1fad82fae",
+    "lifecycle": "c9d84aa94ad7974e67e1a467cc67a6ee00e1d908088a009ff89c1dddc1f5c689",
+    "modules": "3f1fccb41d3de4f31e4e7cf5fa52a77c92eb918eaeed8e8987dd98234ebfb7b9",
+    "inputs": "ccf070962e13b21d9136ee849e652ecfd9aced618807ab90a912afcf7e610627"
+  },
+  "receiptSha256": "f1f3b953c1f99e8e08ea8d66dcccf49ede643ac0b8ba9f798b4ec55448f8ed3f"
+}

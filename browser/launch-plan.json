@@ -1,0 +1,39 @@
+{
+  "kind": "erosion-ordinary-capture-launch-plan",
+  "purpose": "capture",
+  "operationalGrantReceived": true,
+  "sourceHead": "b3285f6b0559799197a83ed970c5df529481ec73",
+  "sourceFingerprint": "af1c9ab70c894a8fb91b999d29b969b2b6cf1aac5ba6986b518b4c77fc6e82d1",
+  "root": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-ordinary-controller-capture",
+  "applicationTree": "84d4a529d361106feb3f760917a71b247e1c0c25",
+  "serverIdentitySha256": "e7c3196879d34b0a738460d28a6fdad4dedc41fa4ba7ab1c6c636515a8a680f7",
+  "origin": "http://127.0.0.1:4377",
+  "profilePath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-ordinary-controller-capture/work/local-render-profiles/erosion-original-shaman-b3285f6-01",
+  "output": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-ordinary-controller-capture/work/orchestration/erosion-ordinary/original-shaman-b3285f6-01",
+  "limits": {
+    "wallMs": 900000,
+    "startupMs": 120000,
+    "cameraMs": 30000,
+    "progressMs": 90000,
+    "retirementMs": 30000
+  },
+  "restoreTested": false,
+  "scenarioSha256": "7cba0bcaa349eb97f5f3d715acf7706de2db089c01ff87593d4a9644724121ae",
+  "browser": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/chrome-headless-shell-linux64/chrome-headless-shell",
+    "sha256": "7c141b276aacc74fe51f06986345fb0dbce0e3756413746fb18541b878c17706"
+  },
+  "harness": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-ordinary-controller-capture/scripts/local-render/harness.mjs",
+    "sha256": "fb07de9e278f26b2b32324defeb6164832472a58d422aead1032b7db7ee85fcf"
+  },
+  "tmpPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-ordinary-capture-tmp-b3285f6-01",
+  "bounds": {
+    "scenarioWallMs": 900000,
+    "harnessMs": 960000,
+    "outerMs": 1020000,
+    "outerKillAfterMs": 20000
+  },
+  "stopPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/erosion-ordinary-controller-capture/work/orchestration/erosion-ordinary/original-shaman-b3285f6-01/commands/0001.json",
+  "stopContract": "Sole current-run stop-preserve-latest; no Save. Awaited-boundary checks,2s shared waits, up to three sequential bindGame waits."
+}

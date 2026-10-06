@@ -1,0 +1,49 @@
+{
+  "status": "passed",
+  "source": "b3285f6b0559799197a83ed970c5df529481ec73",
+  "startedAt": "2026-10-06T02:06:36.505Z",
+  "finishedAt": "2026-10-06T02:06:38.140Z",
+  "receiptSha256": "ca6c5e23b8ac5440f2ab5c0d26522f369c7ad526afe4de6fe56154dad27d2762",
+  "stdoutSha256": "e643fff656a8a6e3ed4dd2d8cfc0db9aa96fb80ffeb73b27504d6920b47f32d7",
+  "stderrSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "nativeExecutable": {
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+    "bytes": 2275840,
+    "debugDirectoryRva": 0,
+    "debugDirectorySize": 0
+  },
+  "browserReceiptSha256": "f1f3b953c1f99e8e08ea8d66dcccf49ede643ac0b8ba9f798b4ec55448f8ed3f",
+  "calls": 128,
+  "modes": {
+    "0": {
+      "calls": 64,
+      "events": {
+        "sound": 63,
+        "queue": 63,
+        "terrain": 63,
+        "delete": 1
+      }
+    },
+    "16": {
+      "calls": 64,
+      "events": {
+        "queue": 63,
+        "terrain": 63,
+        "delete": 1
+      }
+    }
+  },
+  "claim": "Same observed per-call heights/RNG/countdown and terrain notification cells under both explicitly selected sound-bit settings.",
+  "notEstablished": [
+    "Actual native sound policy/cadence",
+    "Native reward activation scheduling",
+    "Full engine timing",
+    "Downstream terrain queue, walk masks, object updates or rendering"
+  ],
+  "intercepted": [
+    "0048a050",
+    "0044ddf0",
+    "0044f2f0",
+    "004edcf0"
+  ]
+}
