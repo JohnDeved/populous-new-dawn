@@ -142,12 +142,12 @@ runtime preflight and a separately coordinated browser grant:
 
 ```sh
 timeout --signal=TERM --kill-after=5s 330s taskset -c 0-3 \
-  env TMPDIR="$PWD/work/orchestration/firewarrior-firing-browser-candidate-01/tmp" \
+  env TMPDIR="$PWD/work/orchestration/firewarrior-firing-browser-candidate-02/tmp" \
   CLOUDFLARE_CF_FETCH_ENABLED=false WRANGLER_SEND_METRICS=false \
   node scripts/local-render/harness.mjs --game-root "$PWD" --browser "$POPULOUS_BROWSER" \
   --port 4401 --mission 10 --timeout 300000 \
   --scenario "$PWD/qa/firewarrior-firing-candidate/scenario.mjs" \
-  --output "$PWD/work/orchestration/firewarrior-firing-browser-candidate-01/run"
+  --output "$PWD/work/orchestration/firewarrior-firing-browser-candidate-02/run"
 ```
 
 Create fresh owned tmp/output directories and use the existing receipt wrapper,
@@ -165,3 +165,32 @@ Retain harness terminal receipt and actual original-session termination.
 Source review, candidate browser execution, screenshots and visual review remain
 separate gates. No new parity, hardware-performance, person-target, whole-command,
 whole-game or release-completion claim is supported by this source preparation.
+
+
+## Candidate-01 recovery sampling correction
+
+Candidate-01 remains failed. It rendered the real source56/draw13 firing pose and
+proved2048x8128 upload on an8192-limit context, but RAF samples jumped from the
+captured volley's turn543/phase44/timer1 to turn545/idle. Earlier phase40 samples
+belonged to a different volley and do not satisfy this capture's requirement.
+
+Candidate-02 arms recovery-observation.mjs only while ordinarily paused, immediately
+before the real Resume button. It uses the existing scene.gameClock.afterTurn
+callback after each actual stepTurn and before the next catch-up turn. The adapter
+forwards the original exactly once with its unchanged receiver/arguments/result
+and error, then reads a compact snapshot. It does not call tick, advanceGame,
+animation, rendering, or mutate World, person, projectile, timing values or input.
+
+The observer pins this run's actual scene/world/native/target identities, command
+and captured pair. It requires adjacent real turns, a phase40 row belonging to
+that command and target, subsequent command completion and disappearance of that
+pair. Earlier or later volleys cannot satisfy it. It stops after32 rows or8seconds,
+restores only its owned callback, and keeps every row and cleanup result. RAF,
+ordinary input, frozen pose, pixels, texture assertions and all existing deadlines
+remain. This is an explicit reviewed extension of the old RAF-only boundary;
+it is not inferred interpolation or a clock-parity claim.
+
+Before the separately granted candidate-02 browser, run the existing host command
+with recovery-observation.test.mjs added. It includes the missed-turn failure,
+adjacent completion without40, same-volley attribution, forwarding/exception and
+ownership/row/lifetime cleanup checks. No old failed run is overwritten.

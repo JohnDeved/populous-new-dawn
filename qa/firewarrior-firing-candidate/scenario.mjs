@@ -16,6 +16,7 @@ import { installPauseInputObserver, requirePauseInput } from './pause-input.mjs'
 import { pinIdentityEpoch, requireIdentityEpoch } from './guard-assertions.mjs'
 import { installTextureObserver, captureUnitTexture } from './texture-observation.mjs'
 import { requireUnitTexture, requireSameUnitTexture } from './texture-assertions.mjs'
+import { installRecoveryObserver } from './recovery-observation.mjs'
 
 const here=dirname(fileURLToPath(import.meta.url))
 const hash=bytes=>createHash('sha256').update(bytes).digest('hex')
@@ -67,13 +68,14 @@ export default async function firingCandidate({page,root,output,receipt,signal,u
   let latest,capture=false,captureStarted,fwId,shamanId,braveId,hutId,towerId,pin,pinnedAt=Infinity
   let initial,move,pauseMouseHeld=false,detectionHandle,detected,pauseTrace,render,continuation
   let rawRows=0,rawBytes=0,textureBefore,textureAfter,textureCleanup,textureObserverInstalled=false
+  let recoveryObserverInstalled=false,recoveryTrace,recoveryCleanup
   const training={sawOccupant:false,sawCost4000:false},observations=[],screenshots=[],failures=[]
   const projectiles=new Map();let observedRestAfterMove=false
   const log=event=>appendFileSync(resolve(output,'actions.jsonl'),JSON.stringify({at:new Date().toISOString(),...event})+'\n')
   const remaining=()=>300000-(Date.now()-Date.parse(receipt.startedAt))
   const events=createEventDeadlines({globalCheck:()=>{signal.throwIfAborted();assert.ok(remaining()>0,'Overall witness bound')},log})
   const check=events.check
-  const progress=status=>writeFileSync(resolve(output,'witness.json'),JSON.stringify({status,head,inputs,runtimeBefore,candidate,textureBefore,textureAfter,textureCleanup,warnings:[...receipt.warnings],
+  const progress=status=>writeFileSync(resolve(output,'witness.json'),JSON.stringify({status,head,inputs,runtimeBefore,candidate,textureBefore,textureAfter,textureCleanup,recoveryTrace,recoveryCleanup,warnings:[...receipt.warnings],
     sourceFacts,towerPose,hutId,towerId,fwId,shamanId,braveId,training,move,detected,pauseTrace,render,continuation,
     observations,screenshots,projectiles:[...projectiles.values()],rawRows,rawBytes,eventStage:events.current(),
     failures,latest,limits:{entryMs:60000,trainingMs:110000,routeAndFiringMs:42000,captureResumeMs:20000,
@@ -254,30 +256,39 @@ export default async function firingCandidate({page,root,output,receipt,signal,u
       screenshots.push({name,clip,sha256:hash(readFileSync(path)),turn:after.turn,phase:pausedPhase})
     }
     const volleyIds=detected.projectiles.map(p=>p.id)
+    const target=paused.buildings.find(building=>building.id===towerId)
+    recoveryTrace=await page.evaluate(installRecoveryObserver,{
+      actorId:fwId,targetId:towerId,startTurn:paused.turn,orderId:u.native.activeId,projectileIds:volleyIds,
+      sceneIdentity:pin.sceneIdentity,worldIdentity:pin.worldIdentity,epoch:pin.epoch,
+      unitIdentity:u.identity,nativeIdentity:u.nativeIdentity,targetIdentity:target.identity,
+    })
+    recoveryObserverInstalled=true
+    assert.equal(recoveryTrace.failure,null);assert.equal(recoveryTrace.initial.paused,true)
     await button('Resume game',true)
-    let saw40=false,complete=false
     const until=performance.now()+8000
-    while(!complete) {
-      const rows=await drain();const s=await read();health(s)
-      for(const row of [...rows,s]) {
-        const p=actor(row,fwId)?.native
-        if(p?.commandStatus===21&&p.animationMode===40)saw40=true
-        if(row.turn>paused.turn&&p?.animationMode!==44&&p?.animationMode!==40&&
-          !row.effects.some(e=>volleyIds.includes(e.id)))complete=true
-      }
+    while(!recoveryTrace.complete) {
+      await drain();health(await read())
+      recoveryTrace=await page.evaluate(()=>window.firewarriorRecoveryObserver.read())
+      writeFileSync(resolve(output,'recovery-turns.json'),JSON.stringify(recoveryTrace,null,2)+'\n')
+      assert.equal(recoveryTrace.failure,null,'Captured-volley turn observer failed')
       assert.ok(performance.now()<until,'Ordinary launch/recovery observation deadline')
-      if(!complete)await page.waitForTimeout(50)
+      if(!recoveryTrace.complete)await page.waitForTimeout(50)
     }
-    continuation={saw40,complete,volleyIds,observedRestAfterMove,
-      last:latest,meaning:'Independent RAF observations; completion/facing fields remain owned by outer live callers'}
-    assert.ok(saw40,'A real post-launch phase40 observation is required')
+    recoveryCleanup=await page.evaluate(()=>window.firewarriorRecoveryObserver.finish())
+    assert.equal(recoveryCleanup.failure,null);assert.equal(recoveryCleanup.restored,true)
+    assert.ok(recoveryTrace.saw40,'A real post-launch phase40 observation is required')
+    assert.ok(recoveryTrace.rows.some(row=>row.orderId===u.native.activeId&&row.native.animationMode===40))
+    assert.deepEqual(recoveryTrace.rows.map(row=>row.turn),
+      Array.from({length:recoveryTrace.rows.length},(_,i)=>paused.turn+i+1),'Adjacent actual turns are required')
+    continuation={saw40:recoveryTrace.saw40,complete:recoveryTrace.complete,volleyIds,observedRestAfterMove,
+      recoveryTrace,last:latest,meaning:'Actual adjacent post-turn observations for the captured volley; RAF rows and pixels remain independent.'}
     await drain(true);events.finish()
     requireUnitTexture(await page.evaluate(captureUnitTexture,fwId),receipt.warnings,url)
     assert.deepEqual(runtime(),runtimeBefore);assert.equal(git('status','--porcelain'),'')
     for(const [name,digest]of Object.entries(inputs))assert.equal(hash(readFileSync(resolve(here,name))),digest)
     progress('captured-pending-visual-review')
     return {kind:'ordinary-Mission10-command21-firing-candidate',status:'captured-pending-visual-review',head,
-      inputs,runtime:runtimeBefore,candidate,textureBefore,textureAfter,textureCleanup,warnings:[...receipt.warnings],training,move,detected,pauseTrace,render,continuation,screenshots,observations,
+      inputs,runtime:runtimeBefore,candidate,textureBefore,textureAfter,textureCleanup,recoveryTrace,recoveryCleanup,warnings:[...receipt.warnings],training,move,detected,pauseTrace,render,continuation,screenshots,observations,
       limits:['One naturally acquired on-foot building-target witness.','RAF may miss transient visits; no complete animation clock proof.',
         'Screenshots require visual inspection; mesh visibility alone is not pixel acceptance.',
         'Observed GL calls returned normally; no error-queue consumption or GPU texture readback.',
@@ -287,6 +298,15 @@ export default async function firingCandidate({page,root,output,receipt,signal,u
   } finally {
     let cleanupFailure
     if(pauseMouseHeld){pauseMouseHeld=false;try{await page.mouse.up({button:'left'})}catch(e){cleanupFailure??=e}}
+    if(recoveryObserverInstalled)try {
+      recoveryCleanup=await page.evaluate(()=>{
+        const owned=window.firewarriorRecoveryObserver
+        if(!owned)throw Error('Owned recovery observer disappeared')
+        const result=owned.finish();delete window.firewarriorRecoveryObserver;return result
+      })
+      writeFileSync(resolve(output,'recovery-cleanup.json'),JSON.stringify(recoveryCleanup,null,2)+'\n')
+      assert.equal(recoveryCleanup.failure,null);assert.equal(recoveryCleanup.restored,true)
+    }catch(e){cleanupFailure??=e}
     if(textureObserverInstalled)try {
       textureCleanup=await page.evaluate(()=>{
         const owned=window.firewarriorTextureObserver

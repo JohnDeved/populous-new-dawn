@@ -158,7 +158,7 @@ console.log(JSON.stringify(Object.fromEntries([
                      *upload_runtime):
         path = dependencies / relative
         runtime_files[str(path.resolve())] = sha(path)
-    output = ROOT / 'work/orchestration/firewarrior-firing-browser-candidate-01'
+    output = ROOT / 'work/orchestration/firewarrior-firing-browser-candidate-02'
     command = ['timeout', '--signal=TERM', '--kill-after=5s', '330s', 'taskset', '-c', '0-3',
                'env', f'TMPDIR={output / "tmp"}', 'CLOUDFLARE_CF_FETCH_ENABLED=false',
                'WRANGLER_SEND_METRICS=false', 'node', 'scripts/local-render/harness.mjs',
