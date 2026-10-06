@@ -1,4 +1,4 @@
-"""Verify imported Shaman chains and original pixels without executing native code.
+"""Verify appended unit chains and original pixels without executing native code.
 
 Usage: python3 -B scripts/check-static-shaman-appearance.py --data-root GAME_ROOT
 Optional --baseline-dir DIR accepts original-units.json and unit-layers.png from
@@ -52,7 +52,8 @@ def main():
     for index, piece in enumerate(units['pieces']):
         w, h, rgba = bank[piece['source']]
         assert (w, h) == (piece['w'], piece['h'])
-        x, y = index % units['columns'] * units['cell'], index // units['columns'] * units['cell']
+        x = piece.get('atlasX', index % units['columns'] * units['cell'])
+        y = piece.get('atlasY', index // units['columns'] * units['cell'])
         assert atlas.crop((x, y, x + w, y + h)).tobytes() == rgba, ('original pixel', index)
         piece_hashes.append(digest(rgba))
     for packed, frame in enumerate(units['frames']):
@@ -89,6 +90,23 @@ def main():
             for existing, canonical in zip(units['animations'][team + '-shaman'][name], units['shamanSources'][str(source)]):
                 assert existing['source'] == canonical['source'] and existing['flip'] == canonical['flip']
                 assert [units['frames'][i]['source'] for i in existing['frames']] == [units['frames'][i]['source'] for i in canonical['frames']]
+    resting_cases = 0
+    for team in ['blue', 'red']:
+        states = units['animations'][team + '-firewarrior']
+        assert states['idleGesture'][0]['source'] == 728, 'Retain the existing gesture entry'
+        for direction, cycle in enumerate(states['restingGesture']):
+            first, mirror = starts[720 + direction]
+            frame, sequence = first, []
+            while frame and frame not in sequence:
+                sequence.append(frame)
+                frame = frames[frame][-1]
+            assert frame in (0, first)
+            assert cycle['source'] == 720 + direction
+            assert cycle['flip'] == bool(mirror)
+            assert [units['frames'][index]['source'] for index in cycle['frames']] == sequence
+            assert len(sequence) == units['frameCounts'][720 + direction] == 14
+            resting_cases += 1
+    assert resting_cases == 16
     fixture = json.loads((ROOT / 'tests/fixtures/unit-sprites.json').read_text())
     assert len(fixture['pieceHashes']) == 3216 and len(fixture['cases']) == 576
     assert piece_hashes[:3216] == fixture['pieceHashes']
@@ -99,9 +117,14 @@ def main():
         assert units['frames'][:len(old['frames'])] == old['frames']
         assert units['pieces'][:len(old['pieces'])] == old['pieces']
         assert units['frameCounts'] == old['frameCounts']
-        assert all(units['animations'][name] == value for name, value in old['animations'].items())
+        for name, states in old['animations'].items():
+            assert all(units['animations'][name][state] == value for state, value in states.items())
+            additions = units['animations'][name].keys() - states.keys()
+            allowed = {'restingGesture', 'firing'} if name in ('blue-firewarrior', 'red-firewarrior') else set()
+            assert additions <= allowed, ('unrelated animation addition', name, additions)
         for index, piece in enumerate(old['pieces']):
-            x, y = index % old['columns'] * old['cell'], index // old['columns'] * old['cell']
+            x = piece.get('atlasX', index % old['columns'] * old['cell'])
+            y = piece.get('atlasY', index // old['columns'] * old['cell'])
             rectangle = (x, y, x + piece['w'], y + piece['h'])
             assert previous.crop(rectangle).tobytes() == atlas.crop(rectangle).tobytes(), index
         preservation = {
@@ -138,6 +161,7 @@ def main():
         'status': 'PASS_STATIC_SHAMAN_ASSETS', 'scriptSha256': digest(Path(__file__).read_bytes()),
         'inputIdentities': identities, 'originalFrames': len(units['frames']),
         'originalPieces': len(units['pieces']), 'directionalSources': cases,
+        'firewarriorRestingDirections': resting_cases,
         'atlasSha256': digest(atlas_path.read_bytes()), 'atlasSize': list(atlas.size),
         'reviewedLayerFixtures': 576, 'reviewedPieceHashes': 3216,
         'preservation': preservation, 'pixelCases': pixel_cases,

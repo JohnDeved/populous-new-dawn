@@ -9,6 +9,20 @@ interface Layer {
 interface Piece {
   w: number
   h: number
+  atlasX?: number
+  atlasY?: number
+}
+
+// Appended artwork can occupy an explicit rectangle without moving older cells.
+export function spriteAtlasOrigin(
+  piece: Piece,
+  index: number,
+  atlas: { columns: number; cell: number }
+) {
+  return {
+    x: piece.atlasX ?? (index % atlas.columns) * atlas.cell,
+    y: piece.atlasY ?? Math.floor(index / atlas.columns) * atlas.cell,
+  }
 }
 
 // 0x45efd0 / 0x45f4a0 / 0x45f9d0 select layers before applying mirroring

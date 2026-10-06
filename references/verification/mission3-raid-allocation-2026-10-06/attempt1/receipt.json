@@ -1,0 +1,78 @@
+{
+  "version": 1,
+  "kind": "pnd-command-receipt",
+  "runId": "914b6b0a-e071-476b-9906-1226f83a286d",
+  "status": "failed",
+  "phase": "finished",
+  "source": {
+    "headOid": "69c94543ecda1e53ce7ba5632888e7442347970b",
+    "branch": "codex/mission3-raid-allocation-recovered-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-native-mission3-raid-allocation.py": "827512a1ffa133d5528ee39c89077fb3ec9327943bbc4b9bdb1f0b5a2648f614",
+      "scripts/mission3-raid-allocation-pair.mjs": "7bbe07e5dad4275cc33ba843b63d6089bd826aee1e173969c23265d15b4172af",
+      "tests/fixtures/mission3-raid-allocation.json": "da7c1916549335e2f731162b971533910e576f79736aee9850529e00a960c27a",
+      "scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "../prerequisites/env.sh": "a4d664f4d9d86cd147e1c487854166572e7bb7e304f683a27191fa65916697c3",
+      "../prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "../prerequisites/game/levels/cpscr012.dat": "d5dfcd826f77909a64cca03ca9d9e3d351d2a7cb3f63eb8ba811b59916e83601",
+      "../prerequisites/game/objects/objs0-2.dat": "e1af6bdf050608d7c1832700826bece72ca592abdff3ee9c2138c50ed8a8607d",
+      "../prerequisites/game/objects/shapes.dat": "ae1188129d84c266d91a1e9e75d960e99e80cdfd573f85d524742e970a0b2849",
+      "../prerequisites/venv/bin/python": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "../prerequisites/venv/lib/python3.12/site-packages/unicorn/lib/libunicorn.so.2": "ddb196ec82b52e502c18e4a34478bf7b9f61c83c2ebaa95c74d8ded45a95da9c",
+      "../prerequisites/venv/lib/python3.12/site-packages/unicorn-2.1.4.dist-info/METADATA": "ce96de4160dc06c1bbcf35074cb542c9f296219f740aa0f34606f8837650c2e8",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+    }
+  },
+  "command": [
+    "taskset",
+    "-c",
+    "4",
+    "timeout",
+    "--signal=TERM",
+    "--kill-after=5s",
+    "65s",
+    "env",
+    "PYTHONDONTWRITEBYTECODE=1",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+    "scripts/check-native-mission3-raid-allocation.py",
+    "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+    "--node",
+    "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node"
+  ],
+  "cwd": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006",
+  "startedAt": "2026-10-06T03:42:31.749Z",
+  "artifacts": {
+    "stdout": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006/work/orchestration/mission3-raid-allocation/attempt1.json.artifacts/stdout.log",
+    "stderr": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/mission3-raid-allocation-recovered-20261006/work/orchestration/mission3-raid-allocation/attempt1.json.artifacts/stderr.log"
+  },
+  "finishedAt": "2026-10-06T03:42:33.024Z",
+  "exitCode": 1,
+  "signal": null,
+  "stdout": "",
+  "stderr": "Could not allocate dynamic translator buffer\n",
+  "stdoutSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "stderrSha256": "28be675d11f614b87752ba0215497c84ac91ac15661ff4b989db031eec7d4ea5",
+  "sourceAfter": {
+    "headOid": "69c94543ecda1e53ce7ba5632888e7442347970b",
+    "branch": "codex/mission3-raid-allocation-recovered-20261006",
+    "trackedDiffSha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "inputs": {
+      "scripts/check-native-mission3-raid-allocation.py": "827512a1ffa133d5528ee39c89077fb3ec9327943bbc4b9bdb1f0b5a2648f614",
+      "scripts/mission3-raid-allocation-pair.mjs": "7bbe07e5dad4275cc33ba843b63d6089bd826aee1e173969c23265d15b4172af",
+      "tests/fixtures/mission3-raid-allocation.json": "da7c1916549335e2f731162b971533910e576f79736aee9850529e00a960c27a",
+      "scripts/decomp.py": "d29b753d36590c6dd5ecff5116343d34d55b05bd6af6b6b8ed3215730a3807da",
+      "scripts/orchestration/command-receipt.mjs": "653149aec33ccc6f79f37b8c6ca344c305ec0bfcfe355bfad41b940b1acbccc2",
+      "../prerequisites/env.sh": "a4d664f4d9d86cd147e1c487854166572e7bb7e304f683a27191fa65916697c3",
+      "../prerequisites/game/d3dpoptb.exe": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f",
+      "../prerequisites/game/levels/cpscr012.dat": "d5dfcd826f77909a64cca03ca9d9e3d351d2a7cb3f63eb8ba811b59916e83601",
+      "../prerequisites/game/objects/objs0-2.dat": "e1af6bdf050608d7c1832700826bece72ca592abdff3ee9c2138c50ed8a8607d",
+      "../prerequisites/game/objects/shapes.dat": "ae1188129d84c266d91a1e9e75d960e99e80cdfd573f85d524742e970a0b2849",
+      "../prerequisites/venv/bin/python": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+      "../prerequisites/venv/lib/python3.12/site-packages/unicorn/lib/libunicorn.so.2": "ddb196ec82b52e502c18e4a34478bf7b9f61c83c2ebaa95c74d8ded45a95da9c",
+      "../prerequisites/venv/lib/python3.12/site-packages/unicorn-2.1.4.dist-info/METADATA": "ce96de4160dc06c1bbcf35074cb542c9f296219f740aa0f34606f8837650c2e8",
+      "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+    }
+  }
+}

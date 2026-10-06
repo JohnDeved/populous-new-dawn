@@ -49,7 +49,7 @@ import {
 } from './projection.ts'
 import { morphCoordinate } from './morph.ts'
 import { modelHighlight } from './model-lighting.ts'
-import { spriteLayers } from './sprite-layers.ts'
+import { spriteAtlasOrigin, spriteLayers } from './sprite-layers.ts'
 import nativeUnits from './original-units.json'
 import { nativeUnitDraw } from './unit-kinds.ts'
 import { originalVehicleMesh, originalVehicleUV } from './vehicle-appearance.ts'
@@ -68,6 +68,10 @@ import {
 } from './vault-appearance.ts'
 import { makeVaultWorldPresentation, drawVaultWorldPresentation } from './scene-vault-knowledge.ts'
 import { animateVaultKnowledgeMarker, makeVaultKnowledgeMarker } from './scene-effects.ts'
+
+const unitAtlasOrigins = nativeUnits.pieces.map((piece, index) =>
+  spriteAtlasOrigin(piece, index, nativeUnits)
+)
 
 const teamColor = {
   blue: 0x303fc1,
@@ -347,8 +351,7 @@ export function animatePerson(
   const cycle = directions[direction],
     step = frameNumber ?? Math.floor(age * nativeUnits.fps),
     index =
-      cycle.frames[once ? Math.min(step, cycle.frames.length - 1) : step % cycle.frames.length],
-    cell = nativeUnits.cell
+      cycle.frames[once ? Math.min(step, cycle.frames.length - 1) : step % cycle.frames.length]
   const frame = nativeUnits.frames[index]
   g.userData.frame = index
   g.userData.frameFlip = cycle.flip
@@ -409,13 +412,14 @@ export function animatePerson(
     layer.userData.piece = draw.piece
     if (!layer.visible) continue
     const piece = nativeUnits.pieces[draw.piece],
+      origin = unitAtlasOrigins[draw.piece],
       uv = (layer.userData.atlasTransform ??= new THREE.Vector4()),
       flip = !!(draw.flags & 1)
     uv.set(
       (flip ? -piece.w : piece.w) / nativeUnits.width,
       piece.h / nativeUnits.height,
-      ((draw.piece % nativeUnits.columns) * cell + (flip ? piece.w : 0)) / nativeUnits.width,
-      1 - (Math.floor(draw.piece / nativeUnits.columns) * cell + piece.h) / nativeUnits.height
+      (origin.x + (flip ? piece.w : 0)) / nativeUnits.width,
+      1 - (origin.y + piece.h) / nativeUnits.height
     )
     layer.center.set(-draw.x / draw.w, 1 + draw.y / draw.h)
     layer.scale.set(draw.w, draw.h, 1)

@@ -1,0 +1,51 @@
+{
+  "kind": "prospective-firewarrior-owned-projection",
+  "status": "frozen-before-runtime-repair",
+  "freezeSourceHead": "c8732a30e0398511ea26e8324f6046f7758ffddc",
+  "reviewedSourceHead": "634501cd72f19b43c17839f630a2bbff1957b249",
+  "applicationBase": "b0208188b8de345a6ad5e86cb7c49769624dda86",
+  "baselineComparisonSourceHead": "4656907be4bc2d97bff4cbf161963be1fe89ada4",
+  "baselineComparisonSha256": "86ad04157e8783eb290360ac376cdbcd4e306240bd4fe47d4d78704eee2def28",
+  "baselineDifferenceCount": 394,
+  "baselineFullEntryVisitCounts": { "native": 11, "port": 13 },
+  "fixtureSha256": "9ad6cabf2ddd1dbc7305816b6b795a9c62ca606a83218c3857f90d2d3a39561d",
+  "casePolicy": "Keep the existing sixteen cases, supplied leaves, fixtures, order, resource limits and raw comparison unchanged.",
+  "visitPolicy": {
+    "pairBy": ["case name", "zero-based controller invocation index"],
+    "completion": "Compare actual completion boolean on every paired invocation, including the terminal invocation. A differing boolean, missing invocation or extra invocation fails the owned projection. Preserve the original stop-on-completion or declared-cap policy.",
+    "activeState": "Compare owned after-state only when both actual completion booleans are false. Do not compare residual after-state as owned acceptance when either body reports completion.",
+    "declaredCap": "A case reaching its unchanged cap with false on both sides is a bounded partial observation, not lifecycle completion.",
+    "rawState": "Retain every full before/after record, event, original comparison field and raw difference at all boundaries, including terminal invocations. Never relabel the original whole-record comparison passed on an owned-only match."
+  },
+  "activeAfterFields": [
+    "animationMode", "object", "draw", "f1", "f2", "timer", "assignment",
+    "renderFlags", "morph", "palette", "trackedProjectile", "cooldown"
+  ],
+  "activeAfterBits": [
+    { "field": "flags2", "maskHex": "0x40000000", "meaning": "Ranged changed-target entry pending bit; consumed by the original ranged entry before readiness/phase selection." }
+  ],
+  "assignmentPolicy": "Compare the entire assignment word during active visits, not just a mask. Original ranged entry/phase uses 0x10 and 0x200; the real upper setter clears 0x80. Unrelated bits must remain preserved for the fixed input.",
+  "normalizations": {
+    "trackedProjectile": "Native actor +0x72 versus port p.stateObject; preserve raw native +0x87 and port p.target separately.",
+    "cooldown": "Native byte versus round(Unit.cooldown * TURNS_PER_SECOND), using the unchanged twelve-turn fixture normalization."
+  },
+  "invariantGuards": [
+    "All existing source/input/hash/write/instruction/resource guards remain.",
+    "The sixteen normalized initial comparison records must still match; no fixture tuning to make the candidate pass.",
+    "The paired launch and projectile attribution remain unchanged; no extra projectile creation during the active phase.",
+    "Original code/setter execution and the baseline records remain immutable."
+  ],
+  "diagnosticOnly": [
+    "All facing fields: angle, heading, turnAngle, turnY and Unit.heading.",
+    "All flags2 bits except the explicitly owned 0x40000000 entry bit.",
+    "State, substate, commandStatus, commandAux, commandPhase, speed, workTarget and caller-owned queue/state transitions.",
+    "All residual after-state on a completion invocation, including source/draw/reset/hold/timer/assignment/projectile fields.",
+    "All remaining full-record fields and raw differences already retained by the baseline probe."
+  ],
+  "claimsAllowed": [
+    "The scoped active selector/reset/hold/timer/assignment behavior and body-completion visit boundary match for the fixed sixteen synthetic cases."
+  ],
+  "claimsExcluded": [
+    "Whole-command, outer-caller, orientation, elapsed gameplay, animation-clock, native-scene, ordinary person-target or global parity equivalence."
+  ]
+}

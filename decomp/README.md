@@ -278,6 +278,9 @@ recorded in the [Mission 3 opening note](research/mission3-opening.md).
 The complete periodic three-Brave raid block and its natural recruitment/combat
 path are documented in [early mission AI](research/early-mission-ai.md); later
 Mission 3 command blocks and rendered acceptance remain separate.
+The subsequent [Mission3 raid allocator composition](research/mission3-raid-allocation-preflight.md)
+proves the original state/cap/free-slot gates before target RNG, with retained
+failure-first adapter witnesses and the bounded Mission3-only correction.
 The state-23 listener warning is documented separately in
 [Mission 3 anti-preaching notification](research/mission3-preaching-message.md),
 including the scoped original message-107 import and one-shot checkpoint path.
