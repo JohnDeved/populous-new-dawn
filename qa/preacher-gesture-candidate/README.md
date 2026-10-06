@@ -4,9 +4,10 @@ Source-only candidate preparation. No candidate browser, install, full check,
 native execution or dependency transfer has been run by this QA task. The accepted
 baseline `9a54c932e5aaae1f50298e8e82e871ea87dfd2a8`, its original artifacts and source
 helpers remain unchanged. Candidate application input is the separate frozen
-feature `6ded591b9e969bdb3ad98d789d319bf3bf6fbe55`, based on `169b5f38`.
-Its test-only compatibility follow-up retains the exact app/public/runtime bytes
-from the original frozen `cf223a2b` implementation.
+feature `b2b04cf4915dafc7165e961f9b45ddb3efd4d103`, based on `169b5f38`.
+Its reviewed follow-ups repair test compatibility and import the same sound
+binding through the existing model facade, removing one unnecessary module-cycle
+edge. Assets and gesture behavior remain unchanged from `cf223a2b`.
 
 The independent baseline ACCEPT and22-file raw archive are preserved at
 `/workspace/shared/preacher-gesture-baseline-results-9a54c932/review-manifest.json`.
@@ -66,7 +67,9 @@ pins reuse the accepted baseline runtime, without provisioning it here.
    Pause button down, wait for an actually active uncaptured family, then release
    it immediately through Playwright's real pointer input. No predicted wall-time
    schedule selects the gesture. Require the real trusted pointerdown/up/click
-   sequence and the same gesture owner at the actual Pause boundary. If it has
+   sequence and the same gesture owner at the actual Pause boundary. The release
+   must fit the detected episode’s remaining native visits, with matching
+   f1/f2/counter/timer advancement, so a later same-family episode cannot pass. If it has
    already expired or the original window ended, fail rather than reclassifying
    a later gesture. Await the application's own paused rendered frame. Record
    source/direction/VFRA, actual and expected layers/UVs, actual material image
@@ -112,6 +115,9 @@ The loaded observer has a separate60-second/1500-row ceiling after binding. It
 does not adopt the old world's identity or refund any original-world budget.
 Every stage retains wall timestamps and a named outcome. Exceptions and partial
 rows are retained; callbacks and pointer listeners are restored in final cleanup.
+Cleanup is persisted before errors, failed restorations or tail errors make the
+run terminally failed. A successful Save read is also deadline-checked after its
+await and before acceptance; no slow final read can exceed the nested15 seconds.
 Only the maintained harness closes its own browser and server group.
 
 ## Proposed resource envelope
@@ -134,9 +140,9 @@ paused visual/checkpoint work and reporting. That conservative total grants no
 extra logical visits or time inside the original900/120 observation. Every stage
 can still fail sooner at its own strict bound.
 
-The sole dependency tree remains terminal in the original baseline worktree,
-device27/inode1978923. No move, install, server or browser is authorized by this
-source plan. Parent coordination must release any later donor, verify hashes and
+The sole dependency tree (device27/inode1978923) is now held by the feature
+owner for quality and full gates. This QA preparation has not moved or provisioned
+it. No move, install, server or browser is authorized by this source plan. Parent coordination must release any later donor, verify hashes and
 ownership, check actual port availability, and approve the exact frozen argv/env.
 
 ## Evidence and limits

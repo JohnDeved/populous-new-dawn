@@ -1,8 +1,8 @@
 {
   "status": "ready",
-  "featureCommit": "6ded591b9e969bdb3ad98d789d319bf3bf6fbe55",
+  "featureCommit": "b2b04cf4915dafc7165e961f9b45ddb3efd4d103",
   "applicationBase": "169b5f38e8cc9f7aacbae222ba804ac519ec1f27",
-  "appTree": "58ede42021608a8cbe4ead8bc4ee6d4133b1628a",
+  "appTree": "ebffcbf36afa3ac4ecd5f33a60e01c93e659f20f",
   "publicTree": "7afafb32546784eea20fd993df0f9eb5f9b86779",
   "files": {
     "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
@@ -14,7 +14,7 @@
     "app/preacher-conversion.ts": "2369864ac8f0d20d51a1570bc8bddc608241d3da55fea6fba4b3a233e0c7933d",
     "app/game-clock.ts": "d4f850867943a54ebf86e79b6d71e2f842d0e6c61c70bb2884872bd6d002eef6",
     "app/live-people.ts": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3",
-    "app/live-movement.ts": "ddb085910d28e63c0fdca51961a633dbcb923b182ae8b6feb1a862f1b5d350fd",
+    "app/live-movement.ts": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20",
     "app/person-idle.ts": "6dfb6f673b9d9856fac8727c29e4e5e1254e69df96d017d6e999820920c47350",
     "app/selection-runtime.ts": "d1b61309818d87e85e329c24fd7384ebd00b474b4dbe8f57ef84061ecbb2be71",
     "app/scene-entities.ts": "95a2a64f5741ca3445431a4b962e7a0aeef6e502841f56b2b90138addb236952",
