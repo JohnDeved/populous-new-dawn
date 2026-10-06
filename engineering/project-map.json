@@ -816,6 +816,7 @@
       "decomp/research/preacher-response-trigger.md",
       "decomp/research/preacher-response-trigger/probe-packet.md",
       "scripts/probe-native-preacher-response.py",
+      "scripts/run-preacher-response-once.py",
       "scripts/preacher-response-pair.mjs",
       "tests/preacher-gestures.test.mjs",
       "scripts/check-preacher-gesture-assets.py",

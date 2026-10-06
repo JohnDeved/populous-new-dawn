@@ -88,7 +88,8 @@ Arguments occupy32-bit cdecl slots. Predicate/scanner/producer results use AL;
 range and disguise use EAX; allocation uses AX; dispatcher/preparation/attachment
 are void. Raw argument slots are retained, with masks applied only to the
 documented consumed byte/word widths. Return stack balance and preserved registers
-are checked. Scan output pointers are read from the actual callee arguments at
+are checked. Every return also retains the complete raw EAX, including void
+returns, alongside its masked semantic value. Scan output pointers are read from the actual callee arguments at
 return; primary AL0/friendly0 and secondary AL2/threat=enemy2 must be observed.
 
 The sole port invocation is actual exported `startLiveCombatResponse`, reaching
@@ -110,7 +111,10 @@ The comparator verifies both complete snapshots and labels success
 ## Source guards, host checks and prospective launch
 
 [launch-manifest.json](launch-manifest.json) pins the fixture, raw inputs,
-launcher, actual-port runner, source evidence and helper files. It also binds
+launcher, actual-port runner, source evidence and helper files. Python3.12.14,
+Node24.19.0, Unicorn2.1.4's Python bindings/native library, GNU timeout and taskset
+are hash-bound. Actual imported Unicorn module/library paths and version are
+checked before emulation, and interpreter/affinity details are retained. It also binds
 runtime main`1c7e6b05`: preflight rejects any local app change or any app difference
 from that reviewed main. Accepted static/adoption evidence is preserved unchanged.
 The runtime's sole delta from the originala00 baseline is the already-accepted
@@ -120,25 +124,47 @@ Host-only preflight:
 
 ```sh
 python3 scripts/probe-native-preacher-response.py
+python3 scripts/run-preacher-response-once.py
 node --check scripts/preacher-response-pair.mjs
 ```
 
-The first command imports neither Unicorn nor application code. Python AST parse,
+The Python commands import neither Unicorn nor application code and launch no
+child process without --execute. Python AST parse,
 JSON/raw reconstruction/hash checks and `git diff --check` are the only other
 checks performed during source preparation. Standard application tests/build,
 rendering, native emulation and Ghidra were not run.
 
 After independent review and a separate coordinator execution grant, the exact
-launch is the prerequisite venv Python with `scripts/probe-native-preacher-response.py
---execute --expected-source-head <reviewed-full-head>
+launch is the prerequisite venv Python with `-E -s -B
+scripts/run-preacher-response-once.py --execute --expected-source-head <reviewed-full-head>
 --expected-manifest-sha <reviewed-launch-manifest-sha256>`. Those two pins must be
 supplied externally; the script does not infer permission from the manifest.
 Output is the fresh task-owned
 `work/orchestration/preacher-response-trigger-proof-20261006/run-01` under this
-research worktree. An existing directory rejects the launch.
+research worktree. The external supervisor has a separate fresh `launch-01`
+directory beside it for stdout/stderr and the terminal receipt. Either existing
+directory rejects the launch. The supervisor adapts the previously used
+`/tmp/run_restart_once.py` pattern without running that old case.
+
+The exact child command begins `/usr/bin/timeout --signal=TERM --kill-after=3s
+15s /usr/bin/taskset --cpu-list 4 <pinned-python> -E -s -B`; it covers the child's
+entire preflight, imports, native invocation and Node subprocess. Inherited
+NODE_OPTIONS/NODE_PATH, Python optimization/path/home overrides and native-library
+overrides are removed. The child rejects optimized Python, requires ignored
+Python environment/user-site settings and observes actual CPU affinity `{4}`.
+
+The external process owns one new session/process group, writes start/TERM/KILL
+deadlines and PID before waiting, and retains exit/end time, cleared variable
+names and all source/input/tool hashes before/after. The pinned timeout sends
+TERM at15s and KILL after3s; a separate18.25s supervisor watchdog kills the same
+owned group if the timeout wrapper itself fails. Any leftover group receives
+TERM with at most3s cleanup grace and then KILL; the final `/proc` membership
+scan must be empty. No other process group is signalled. Worker group/CPU receipts
+must agree with the external owner before success is reported.
 
 There is one native invocation and one port subprocess, no controls and no retry.
 Limits are100,000 native instructions,1,000,000 native microseconds,5 port seconds
-and15 outer seconds. Timeouts/errors retain observations and terminate. No Ghidra,
+and15 outer seconds plus the explicitly bounded3s cleanup grace. Timeouts/errors
+retain observations and terminate. No Ghidra,
 browser, server, fixed port or fixture/parity recorder is used. Review must accept
 the exact source/fixture/allowlist packet before any execution.

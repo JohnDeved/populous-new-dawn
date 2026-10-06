@@ -7,6 +7,7 @@ grant is required. The launcher never retries and never records parity/fixtures.
 import argparse
 import hashlib
 import json
+import os
 import signal
 import struct
 import subprocess
@@ -39,6 +40,8 @@ def pe_bytes(executable, start, end):
 
 
 def preflight(args):
+    if sys.flags.optimize:
+        raise RuntimeError("Optimized Python would remove proof guards")
     raw_manifest = (PACKET / "launch-manifest.json").read_bytes()
     if args.expected_manifest_sha:
         assert digest(raw_manifest) == args.expected_manifest_sha, "Launch manifest drift"
@@ -49,6 +52,8 @@ def preflight(args):
     assert not git("diff", manifest["runtimeHead"], "--", "app"), "Runtime differs from reviewed main"
     for row in manifest["files"]:
         assert digest((ROOT / row["path"]).read_bytes()) == row["sha256"], row["path"]
+    for row in manifest["toolFiles"]:
+        assert digest(Path(row["path"]).read_bytes()) == row["sha256"], row["path"]
     exe = Path(manifest["executable"]["path"])
     executable = exe.read_bytes()
     assert digest(executable) == manifest["executable"]["sha256"]
@@ -88,13 +93,18 @@ def write_json(path, value):
     path.write_text(json.dumps(value, indent=2) + "\n")
 
 
-def native_once(fixture, executable, output):
+def native_once(fixture, executable, output, tools):
     # Imports remain behind the explicit execution gate.
     import unicorn
     from unicorn import UC_HOOK_CODE, UC_HOOK_MEM_READ, UC_HOOK_MEM_WRITE
     from unicorn import UC_HOOK_MEM_INVALID, UC_MEM_WRITE
     from unicorn import x86_const as x86
     from decomp import native_cpu, configure_native_constants
+    from unicorn.unicorn_py3.unicorn import uclib
+
+    assert Path(unicorn.__file__).resolve() == Path(tools["unicornModule"]).resolve()
+    assert Path(uclib._name).resolve() == Path(tools["unicornLibrary"]).resolve()
+    assert unicorn.__version__ == tools["unicornVersion"]
 
     cpu, identity = native_cpu(executable)
     configure_native_constants(cpu, executable)
@@ -134,7 +144,8 @@ def native_once(fixture, executable, output):
             "stackHex": bytes(cpu.mem_read(stack - 4096, 4104)).hex(),
         }
 
-    result = {"identity": identity, "unicorn": unicorn.__version__, "before": snapshot(),
+    result = {"identity": identity, "unicorn": unicorn.__version__,
+              "unicornModule": unicorn.__file__, "unicornLibrary": uclib._name, "before": snapshot(),
               "calls": [], "memory": [], "instructionCount": 0, "interceptedLeaves": []}
     frames = []
     entries = {row["entry"]: row for row in abi["functions"]}
@@ -144,6 +155,7 @@ def native_once(fixture, executable, output):
         assert cpu.reg_read(x86.UC_X86_REG_ESP) == frame["sp"] + 4, "cdecl stack drift"
         bits = frame["function"]["returnBits"]
         event = {"phase": "return", "entry": frame["function"]["entry"], "pc": address,
+                 "rawEax": cpu.reg_read(x86.UC_X86_REG_EAX),
                  "value": cpu.reg_read(x86.UC_X86_REG_EAX) & ((1 << bits) - 1) if bits else None}
         if frame["function"]["entry"] == 0x51f030:
             event["friendlyPointer"] = read(frame["args"][6], "I") if frame["args"][6] else None
@@ -271,10 +283,17 @@ def main():
         print("PASS: host-only source/input/ABI fixture guards; native and application not run")
         return
     assert args.expected_source_head and args.expected_manifest_sha, "Execution requires externally pinned source and manifest"
+    assert os.environ.get("PND_PREACHER_RESPONSE_SUPERVISED") == "1", "Use the reviewed external supervisor"
+    assert sys.flags.ignore_environment and not sys.flags.optimize and sys.flags.no_user_site
+    assert Path(sys.executable).resolve() == Path(manifest["python"]).resolve()
+    assert os.sched_getaffinity(0) == {4}, "The one comparison requires CPU4"
+    assert not os.environ.get("NODE_OPTIONS") and not os.environ.get("NODE_PATH")
     output = ROOT / manifest["output"]
     output.mkdir(parents=True, exist_ok=False)
     receipt = {"status": "running", "sourceHead": args.expected_source_head,
-               "manifestSha256": args.expected_manifest_sha, "retry": False}
+               "manifestSha256": args.expected_manifest_sha, "retry": False,
+               "pid": os.getpid(), "processGroup": os.getpgrp(), "cpuAffinity": sorted(os.sched_getaffinity(0)),
+               "python": {"executable": sys.executable, "version": sys.version, "flags": str(sys.flags)}}
     write_json(output / "launch.json", manifest)
     write_json(output / "receipt.json", receipt)
     def timeout(_signal, _frame):
@@ -282,7 +301,7 @@ def main():
     signal.signal(signal.SIGALRM, timeout)
     signal.alarm(fixture["limits"]["outerSeconds"])
     try:
-        native = native_once(fixture, executable, output)
+        native = native_once(fixture, executable, output, manifest["toolIdentity"])
         command = [manifest["node"], str(ROOT / "scripts/preacher-response-pair.mjs"), str(PACKET / "fixture.json")]
         try:
             run = subprocess.run(command, cwd=ROOT, capture_output=True, text=True,

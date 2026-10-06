@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "kind": "source-only-external-envelope-preflight",
+  "createdAt": "2026-10-06T20:18:30+00:00",
+  "baseHead": "83c10ebb05d8ea27d7456c62adb5ba1b0ecbe4a6",
+  "files": [
+    {
+      "path": "scripts/probe-native-preacher-response.py",
+      "sha256": "c599b99aaf2b41fbe0ca52f6ae0eaae5cb41f817144e69166a3e19c00a9332f5"
+    },
+    {
+      "path": "scripts/run-preacher-response-once.py",
+      "sha256": "261963c898288db7da4cea1e4c2c451a0ef5ff9733dcb19fbaa41c3d0bd94532"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/launch-manifest.json",
+      "sha256": "0cfb004728ba8b9f0e3158eba502e145a141407e2a03839eb3c52864a54c1514"
+    },
+    {
+      "path": "decomp/research/preacher-response-trigger/probe-packet.md",
+      "sha256": "3a4aa8e3e5729fc12b23e920b60cc7865d64336971abdd5b38d2512e3eff86d0"
+    }
+  ],
+  "toolFileCount": 28,
+  "unchangedCaseInputs": [
+    "fixture.json",
+    "people-input.bin",
+    "orders-input.bin",
+    "scripts/preacher-response-pair.mjs"
+  ],
+  "checks": [
+    {
+      "command": "python3: ast.parse both changed Python sources",
+      "exitCode": 0,
+      "status": "passed"
+    },
+    {
+      "command": "python3 scripts/probe-native-preacher-response.py",
+      "exitCode": 0,
+      "status": "passed"
+    },
+    {
+      "command": "python3 scripts/run-preacher-response-once.py",
+      "exitCode": 0,
+      "status": "passed"
+    },
+    {
+      "command": "../prerequisites/venv/bin/python -E -s -B scripts/run-preacher-response-once.py",
+      "exitCode": 0,
+      "status": "passed",
+      "result": "External-envelope host guards; no child process launched."
+    },
+    {
+      "command": "git diff --check",
+      "exitCode": 0,
+      "status": "passed"
+    }
+  ],
+  "execution": {
+    "native": "not-run",
+    "application": "not-run",
+    "externalComparisonChild": "not-run",
+    "ghidra": "not-run"
+  },
+  "resourcesHeld": []
+}

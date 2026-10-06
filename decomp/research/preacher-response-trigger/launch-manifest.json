@@ -167,7 +167,7 @@
     },
     {
       "path": "decomp/research/preacher-response-trigger/probe-packet.md",
-      "sha256": "3824f6a2d0fe7a2ca90c017a70562483486dc811ccbbc48cf0101bfb9678cc8e"
+      "sha256": "3a4aa8e3e5729fc12b23e920b60cc7865d64336971abdd5b38d2512e3eff86d0"
     },
     {
       "path": "decomp/sections.tsv",
@@ -203,11 +203,15 @@
     },
     {
       "path": "scripts/probe-native-preacher-response.py",
-      "sha256": "267e7a8698d36610b413dd6cb4e4dce633974f80b4634f429ac9ef7d86a22534"
+      "sha256": "c599b99aaf2b41fbe0ca52f6ae0eaae5cb41f817144e69166a3e19c00a9332f5"
     },
     {
       "path": "tests/mission3-natural-preacher.test.mjs",
       "sha256": "a84aee5bfc9e904ed1065c69c2bdd0204a2c425722501be3d2c5c3ec3699e390"
+    },
+    {
+      "path": "scripts/run-preacher-response-once.py",
+      "sha256": "261963c898288db7da4cea1e4c2c451a0ef5ff9733dcb19fbaa41c3d0bd94532"
     }
   ],
   "authorization": "Source preparation only. No native/application/Ghidra execution has been authorized for this packet. A separate coordinator grant and independent source/fixture review are required.",
@@ -216,5 +220,182 @@
     "application": "not-run",
     "ghidra": "not-run"
   },
-  "resourcesHeld": []
+  "resourcesHeld": [],
+  "toolFiles": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+      "resolvedPath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+      "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+    },
+    {
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "resolvedPath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+    },
+    {
+      "path": "/usr/bin/timeout",
+      "resolvedPath": "/usr/bin/timeout",
+      "sha256": "6ca1891dfc0b05d7680770c2884c0391b92467c7bb6500a5c84677e6481739f1"
+    },
+    {
+      "path": "/usr/bin/taskset",
+      "resolvedPath": "/usr/bin/taskset",
+      "sha256": "0c34de807bc9c617406360836fca2c7505eb86ede4df5a34854bde6eeddad9f3"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/lib/libunicorn.so.2",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/lib/libunicorn.so.2",
+      "sha256": "ddb196ec82b52e502c18e4a34478bf7b9f61c83c2ebaa95c74d8ded45a95da9c"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn-2.1.4.dist-info/METADATA",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn-2.1.4.dist-info/METADATA",
+      "sha256": "ce96de4160dc06c1bbcf35074cb542c9f296219f740aa0f34606f8837650c2e8"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/__init__.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/__init__.py",
+      "sha256": "9ad32123bca674cf205c308fd4d0d2a4db877c9dc2afac4feab7c84c8cf7043b"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/arm64_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/arm64_const.py",
+      "sha256": "92f91a2b0a36cd34deee16db4f8da4ac0c9ae35c3ea1089296e5ef9d170a5be9"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/arm_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/arm_const.py",
+      "sha256": "44fdb7a9f7a9d8c62be07fefaf21e20060813b2a503b6228e378e6bbff7f7b41"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/m68k_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/m68k_const.py",
+      "sha256": "7503e32454751bf66bdf1fcb19dd847537bcf6a5538e18125d8f53d8d448fed9"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/mips_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/mips_const.py",
+      "sha256": "3a04993d82610ea5f492af2d74fa79d849224a044ac0448281033ee331b58dac"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/ppc_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/ppc_const.py",
+      "sha256": "154aaa45f947dab3e488e58e74ad99a09c8d772766c561ff92ecb85cdedd61af"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/riscv_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/riscv_const.py",
+      "sha256": "278e10baf05cfb7c8675475081ae7f2d2037616c79cb907d51963aa2c5b490e4"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/s390x_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/s390x_const.py",
+      "sha256": "54d7026dd70b5bfca1d02e00e7a58d652eaa974b9ea980ba49ed4b80911b9fde"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/sparc_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/sparc_const.py",
+      "sha256": "bcdb0491b6e42c647b104ee53d61610504a97831302dd5280fd2123e05572e95"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/tricore_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/tricore_const.py",
+      "sha256": "1b6005a147d77a3fc1ab5c81fc878eeac3b9bb0b68d518e4a4226830d1356c4c"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn.py",
+      "sha256": "e823b17649d0610c6f52b665902ac9dc46962785feebcac8465a0d7c477f25b7"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_const.py",
+      "sha256": "556c6a27336dc6dd3e0d49348951bde17e1b0f69166f2217773e6b3a7199f45d"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py2.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py2.py",
+      "sha256": "66e2555d679e4f56a0117c2b8de0895a0a138fa3827e3a8a3621255e348d145a"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/__init__.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/__init__.py",
+      "sha256": "ee70d3a7de9ea545406d727436ee835f9d644aeb7428f0e4f1510f9190b28726"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/__init__.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/arm.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/arm.py",
+      "sha256": "c28693f90d8681c091f0ff92caed0a290350a969ea0a38343bb843a26b726711"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/arm64.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/arm64.py",
+      "sha256": "62963378864bae452f7cd2a784ddcd64ab6bdc8a6a69e033d48e8faaab0b2515"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/intel.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/intel.py",
+      "sha256": "8a04281923b5f4dd65ce5f122e222bd86df3e8efc7eae99086e0d372fd7a1a75"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/types.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/types.py",
+      "sha256": "2e103854e371ef576680073f44ead45b8177a73c450a6125e609b7c54e0bc844"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/unicorn.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/unicorn.py",
+      "sha256": "62ffe84341f4288e309040e06555b81798031817d32fd19a945e250813f872f0"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/x86_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/x86_const.py",
+      "sha256": "3b33c55b97503ab25e8ed8bbe576c1cee693f495df6785b04adc1c8ab47a79c4"
+    },
+    {
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/libpython3.12.so.1.0",
+      "resolvedPath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/libpython3.12.so.1.0",
+      "sha256": "7e177a680eabb11fcb7d3867f7a1b9c4b93a9bd5b18129ce1af51ec07977b024"
+    }
+  ],
+  "toolIdentity": {
+    "pythonVersion": "3.12.14",
+    "nodeVersion": "v24.19.0",
+    "unicornVersion": "2.1.4",
+    "unicornModule": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/__init__.py",
+    "unicornLibrary": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/lib/libunicorn.so.2",
+    "timeout": "/usr/bin/timeout",
+    "taskset": "/usr/bin/taskset",
+    "pythonLibrary": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/libpython3.12.so.1.0"
+  },
+  "supervisorOutput": "work/orchestration/preacher-response-trigger-proof-20261006/launch-01",
+  "externalEnvelope": {
+    "cpu": 4,
+    "termSeconds": 15,
+    "killGraceSeconds": 3,
+    "watchdogSeconds": 18.25,
+    "processGroup": "New task-owned session; verified via /proc; final membership must be empty.",
+    "pythonFlags": [
+      "-E",
+      "-s",
+      "-B"
+    ],
+    "clearedEnvironment": [
+      "NODE_OPTIONS",
+      "NODE_PATH",
+      "PYTHONOPTIMIZE",
+      "PYTHONPATH",
+      "PYTHONHOME",
+      "LIBUNICORN_PATH",
+      "UNICORN_LIB_PATH",
+      "LD_PRELOAD",
+      "LD_LIBRARY_PATH"
+    ],
+    "rawReturnEvidence": "Full EAX retained on every return alongside the declared semantic AL/AX/EAX/null value."
+  }
 }
