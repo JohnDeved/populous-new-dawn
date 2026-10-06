@@ -1,0 +1,71 @@
+{
+  "sourceHead": "3007dd9f1865bc616568ba473758f1246c82c1a7",
+  "status": "failed unchanged final active1 assertion",
+  "files": [
+    {
+      "path": "cleanup.json",
+      "bytes": 1165,
+      "sha256": "fbec6b9c1c934d3c1e6284ff4a34d2c704bb0272cc40731f0f3781ceeb46db71"
+    },
+    {
+      "path": "diagnostic.mjs",
+      "bytes": 11953,
+      "sha256": "8d3a09a334663e12056a6c3c5c187819009246916635ae925712fc6d7bb76823"
+    },
+    {
+      "path": "guardian.py",
+      "bytes": 2462,
+      "sha256": "8cec1f2a4f0abf8059bfe9a86fe1b50823df77a81c1e080be6a6df171423610e"
+    },
+    {
+      "path": "phase-transitions.json",
+      "bytes": 143548,
+      "sha256": "c44beeea824d37de21f0e0acee1f750bffd41fee7894d2324c6fa74784996e2a"
+    },
+    {
+      "path": "preflight.json",
+      "bytes": 949,
+      "sha256": "b5fe2284e2214697bebbef6263745f3c1d9f64bad7d6edd61252ed2b2d99c5e9"
+    },
+    {
+      "path": "provenance.json",
+      "bytes": 433,
+      "sha256": "9058479c82fe92ba2ea0c4724e242f07e016bd4ca93ebe6a6f616d3dc59ca7e7"
+    },
+    {
+      "path": "receipt.json",
+      "bytes": 5646,
+      "sha256": "0c035e95459ffa156f5bc0468564b56bc106d726b02813aae98e372e53bbf9f9"
+    },
+    {
+      "path": "receipt.json.artifacts/stderr.log",
+      "bytes": 1197,
+      "sha256": "b0a1bc36dd06bb3b9351e55b27c2b2e3adcb8f3307b33716958f8494761a49d4"
+    },
+    {
+      "path": "receipt.json.artifacts/stdout.log",
+      "bytes": 0,
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "result.json",
+      "bytes": 1267,
+      "sha256": "093ba094d4ad0b03581c10b48b08be151181668f1de1c9a7686757a05ca05531"
+    },
+    {
+      "path": "scenario-source.txt",
+      "bytes": 5380,
+      "sha256": "316220d90c5ed15db31b419d839874e26a4823c85c76f92f056b0c6ef3d0a0d6"
+    },
+    {
+      "path": "started.json",
+      "bytes": 990,
+      "sha256": "938fe858c1be2350fe9811ee2ebf0eaad1571d251e50dd89aad8008321cb1705"
+    },
+    {
+      "path": "trace.jsonl",
+      "bytes": 39660634,
+      "sha256": "49fca2fd28c04f3ab560b7eb151d3968c9a4ec8916526195fe66c665f7b4a0b4"
+    }
+  ]
+}

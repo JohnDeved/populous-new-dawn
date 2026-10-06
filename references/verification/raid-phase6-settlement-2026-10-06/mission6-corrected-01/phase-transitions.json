@@ -1,0 +1,7232 @@
+{
+  "events": [
+    {
+      "line": 6991,
+      "world": 3,
+      "turn": 6988,
+      "beforeTask": null,
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 3,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 0,
+        "remaining": 0,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 0,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [],
+      "afterMembers": [],
+      "previousLine": null
+    },
+    {
+      "line": 6992,
+      "world": 4,
+      "turn": 6988,
+      "beforeTask": null,
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 3,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 0,
+        "remaining": 0,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 0,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [],
+      "afterMembers": [],
+      "previousLine": null
+    },
+    {
+      "line": 6998,
+      "world": 4,
+      "turn": 6994,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 3,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 3,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 0,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 4,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 0,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 35584,
+            "b": 53504
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            35,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 35584,
+            "b": 53504
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            35,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 6997
+    },
+    {
+      "line": 7000,
+      "world": 4,
+      "turn": 6996,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 4,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 0,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 5,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 0,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 35584,
+            "b": 53504
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            35,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 35584,
+            "b": 53504
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            35,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 6999
+    },
+    {
+      "line": 7002,
+      "world": 4,
+      "turn": 6998,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 5,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 0,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 6,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 18,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 14,
+          "substate": 0,
+          "speed": 0,
+          "flags2": 1090654336,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 35584,
+            "b": 53504
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 14,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            35,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 69,
+          "flags2": 1107431936,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 69,
+          "immediate": 0,
+          "queued": [
+            96,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 60,
+          "flags2": 1107431936,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 60,
+          "immediate": 0,
+          "queued": [
+            96,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 65,
+          "flags2": 1107431936,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 65,
+          "immediate": 0,
+          "queued": [
+            96,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 61,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 61,
+          "immediate": 0,
+          "queued": [
+            96,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 7001
+    },
+    {
+      "line": 7427,
+      "world": 4,
+      "turn": 7423,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 6,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 407,
+        "mode": 0,
+        "fallback": 18,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 18,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 408,
+        "mode": 0,
+        "fallback": 18,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 3,
+          "speed": 0,
+          "flags2": 35783168,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 36096,
+            "b": 47360
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            101,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 3,
+          "speed": 0,
+          "flags2": 35783168,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 36096,
+            "b": 47360
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            101,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 7426
+    },
+    {
+      "line": 7428,
+      "world": 4,
+      "turn": 7424,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 18,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 408,
+        "mode": 0,
+        "fallback": 18,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 7,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 408,
+        "mode": 0,
+        "fallback": 18,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 3,
+          "speed": 0,
+          "flags2": 35783168,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 36096,
+            "b": 47360
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            101,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 3,
+          "speed": 0,
+          "flags2": 35783168,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 36096,
+            "b": 47360
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            101,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 7427
+    },
+    {
+      "line": 7429,
+      "world": 4,
+      "turn": 7425,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 7,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 408,
+        "mode": 0,
+        "fallback": 18,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 9,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 408,
+        "mode": 0,
+        "fallback": 18,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 3,
+          "speed": 0,
+          "flags2": 35783168,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 36096,
+            "b": 47360
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            101,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 3,
+          "speed": 0,
+          "flags2": 35783168,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 36096,
+            "b": 47360
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            101,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 7428
+    },
+    {
+      "line": 7430,
+      "world": 4,
+      "turn": 7426,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 9,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 408,
+        "mode": 0,
+        "fallback": 18,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 10,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 18,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 3,
+          "speed": 0,
+          "flags2": 35783168,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 36096,
+            "b": 47360
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            101,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 60,
+          "flags2": 1107431936,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 60,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 61,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 61,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 59,
+          "flags2": 1107431936,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 59,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 62,
+          "flags2": 1107431936,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 62,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 7429
+    },
+    {
+      "line": 7877,
+      "world": 4,
+      "turn": 7873,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 10,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 18,
+        "regroup": 0,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 11,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 18,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 88,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 88,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 62,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 62,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 88,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 88,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 59,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 59,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 88,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 88,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 59,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 59,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 62,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 62,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 88,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 88,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 7876
+    },
+    {
+      "line": 7880,
+      "world": 4,
+      "turn": 7876,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 11,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 18,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 12,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 18,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 62,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 62,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 62,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 62,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 88,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 88,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 64,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 64,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 62,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 62,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 64,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 64,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 62,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 62,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 88,
+          "flags2": 3257010688,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 88,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 7879
+    },
+    {
+      "line": 7882,
+      "world": 4,
+      "turn": 7878,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 12,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 18,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 6,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 14,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 62,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 62,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 62,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 62,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 65,
+          "flags2": 1109531136,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 65,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 64,
+          "flags2": 1109524992,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 64,
+          "immediate": 0,
+          "queued": [
+            103,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 64,
+          "flags2": 1107431936,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 64,
+          "immediate": 0,
+          "queued": [
+            103,
+            110,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 71,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 71,
+          "immediate": 0,
+          "queued": [
+            103,
+            110,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 64,
+          "flags2": 1107431936,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 64,
+          "immediate": 0,
+          "queued": [
+            103,
+            110,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 65,
+          "flags2": 1107431936,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 14976,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 65,
+          "immediate": 0,
+          "queued": [
+            103,
+            110,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 7881
+    },
+    {
+      "line": 8247,
+      "world": 4,
+      "turn": 8243,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 6,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 349,
+        "mode": 0,
+        "fallback": 14,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 14,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 351,
+        "mode": 0,
+        "fallback": 14,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 3,
+          "speed": 0,
+          "flags2": 35783296,
+          "order": {
+            "model": 32,
+            "flags": 32,
+            "references": 1,
+            "object": 0,
+            "a": 15420,
+            "b": 14929
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 113,
+          "queued": [
+            103,
+            110,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 3,
+          "speed": 0,
+          "flags2": 35787392,
+          "order": {
+            "model": 32,
+            "flags": 32,
+            "references": 1,
+            "object": 0,
+            "a": 15420,
+            "b": 14929
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 113,
+          "queued": [
+            103,
+            110,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 8246
+    },
+    {
+      "line": 8249,
+      "world": 4,
+      "turn": 8245,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 14,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 351,
+        "mode": 0,
+        "fallback": 14,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 15,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 351,
+        "mode": 0,
+        "fallback": 14,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 3,
+          "speed": 0,
+          "flags2": 35783296,
+          "order": {
+            "model": 32,
+            "flags": 32,
+            "references": 1,
+            "object": 0,
+            "a": 15420,
+            "b": 14929
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 113,
+          "queued": [
+            103,
+            110,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 5,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 3,
+          "speed": 0,
+          "flags2": 35787392,
+          "order": {
+            "model": 32,
+            "flags": 32,
+            "references": 1,
+            "object": 0,
+            "a": 15420,
+            "b": 14929
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 113,
+          "queued": [
+            103,
+            110,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 8248
+    },
+    {
+      "line": 8251,
+      "world": 4,
+      "turn": 8247,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 15,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 351,
+        "mode": 0,
+        "fallback": 14,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 16,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 351,
+        "mode": 0,
+        "fallback": 14,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 5,
+          "speed": 0,
+          "flags2": 131072,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 19,
+          "substate": 5,
+          "speed": 0,
+          "flags2": 1073872896,
+          "order": null,
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 19,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 3,
+          "speed": 0,
+          "flags2": 35783296,
+          "order": {
+            "model": 32,
+            "flags": 32,
+            "references": 1,
+            "object": 0,
+            "a": 15420,
+            "b": 14929
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 113,
+          "queued": [
+            103,
+            110,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 64,
+          "flags2": 33690112,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "references": 3,
+            "object": 0,
+            "a": 13882,
+            "b": 2056
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 64,
+          "immediate": 0,
+          "queued": [
+            121,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 2,
+          "speed": 0,
+          "flags2": 35787392,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 32896,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            122,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 65,
+          "flags2": 33690112,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "references": 3,
+            "object": 0,
+            "a": 13882,
+            "b": 2056
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 65,
+          "immediate": 0,
+          "queued": [
+            121,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 61,
+          "flags2": 33690112,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "references": 3,
+            "object": 0,
+            "a": 13882,
+            "b": 2056
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 61,
+          "immediate": 0,
+          "queued": [
+            121,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 8250
+    },
+    {
+      "line": 8252,
+      "world": 5,
+      "turn": 8247,
+      "beforeTask": null,
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 16,
+        "target": 13882,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 351,
+        "mode": 0,
+        "fallback": 14,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 0,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [],
+      "afterMembers": [
+        {
+          "id": 386,
+          "absent": true
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 2,
+          "speed": 0,
+          "flags2": 35783296,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 32896,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            122,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "absent": true
+        },
+        {
+          "id": 445,
+          "absent": true
+        }
+      ],
+      "previousLine": null
+    },
+    {
+      "line": 8821,
+      "world": 4,
+      "turn": 8317,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 16,
+        "target": 7249,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 351,
+        "mode": 0,
+        "fallback": 14,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 32,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 6,
+        "target": 18460,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 23,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 33,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 2,
+          "speed": 59,
+          "flags2": 35787264,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "references": 3,
+            "object": 0,
+            "a": 13882,
+            "b": 2056
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 59,
+          "immediate": 0,
+          "queued": [
+            121,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 2,
+          "speed": 71,
+          "flags2": 35787264,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "references": 3,
+            "object": 0,
+            "a": 13882,
+            "b": 2056
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 71,
+          "immediate": 0,
+          "queued": [
+            121,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 62,
+          "flags2": 35783168,
+          "order": {
+            "model": 19,
+            "flags": 0,
+            "references": 3,
+            "object": 0,
+            "a": 13882,
+            "b": 2056
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 62,
+          "immediate": 0,
+          "queued": [
+            121,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 3,
+          "speed": 0,
+          "flags2": 35783296,
+          "order": {
+            "model": 17,
+            "flags": 0,
+            "references": 1,
+            "object": 0,
+            "a": 32896,
+            "b": 13952
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 0,
+          "immediate": 0,
+          "queued": [
+            122,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 68,
+          "flags2": 1107431936,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 68,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 62,
+          "flags2": 1107431936,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 62,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 67,
+          "flags2": 1107431936,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 67,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 61,
+          "flags2": 1107431936,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 61,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 8820
+    },
+    {
+      "line": 8825,
+      "world": 4,
+      "turn": 8321,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 6,
+        "target": 18460,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 23,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 33,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 23,
+        "target": 18460,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 1801,
+        "mode": 0,
+        "fallback": 23,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 33,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 68,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 68,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 67,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 67,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 61,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 61,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 29,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 2228864,
+          "order": {
+            "model": 32,
+            "flags": 32,
+            "references": 1,
+            "object": 0,
+            "a": 15454,
+            "b": 14873
+          },
+          "registryOwner": true,
+          "nativeOwner": false,
+          "nativeState": null,
+          "nativeSpeed": null,
+          "immediate": 125,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 68,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 68,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 29,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 2228864,
+          "order": {
+            "model": 32,
+            "flags": 32,
+            "references": 1,
+            "object": 0,
+            "a": 15454,
+            "b": 14873
+          },
+          "registryOwner": true,
+          "nativeOwner": false,
+          "nativeState": null,
+          "nativeSpeed": null,
+          "immediate": 125,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 67,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 67,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 61,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 61,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 8824
+    },
+    {
+      "line": 8828,
+      "world": 4,
+      "turn": 8324,
+      "beforeTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 23,
+        "target": 18460,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 1801,
+        "mode": 0,
+        "fallback": 23,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 33,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "afterTask": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 0,
+        "type": 20,
+        "phase": 23,
+        "target": 18460,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 1801,
+        "mode": 0,
+        "fallback": 23,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 33,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "beforeMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 68,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 68,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 67,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 67,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 61,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 61,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 29,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 2228864,
+          "order": {
+            "model": 32,
+            "flags": 32,
+            "references": 1,
+            "object": 0,
+            "a": 15454,
+            "b": 14873
+          },
+          "registryOwner": true,
+          "nativeOwner": false,
+          "nativeState": null,
+          "nativeSpeed": null,
+          "immediate": 125,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "afterMembers": [
+        {
+          "id": 386,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 68,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 68,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 398,
+          "hp": 55,
+          "team": "yellow",
+          "state": 29,
+          "substate": 7,
+          "speed": 0,
+          "flags2": 2757248,
+          "order": {
+            "model": 32,
+            "flags": 32,
+            "references": 1,
+            "object": 0,
+            "a": 15454,
+            "b": 14873
+          },
+          "registryOwner": true,
+          "nativeOwner": false,
+          "nativeState": null,
+          "nativeSpeed": null,
+          "immediate": 125,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 415,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 67,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 67,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        },
+        {
+          "id": 445,
+          "hp": 90,
+          "team": "yellow",
+          "state": 10,
+          "substate": 0,
+          "speed": 61,
+          "flags2": 1107427840,
+          "order": {
+            "model": 3,
+            "flags": 0,
+            "references": 4,
+            "object": 0,
+            "a": 35968,
+            "b": 47232
+          },
+          "registryOwner": true,
+          "nativeOwner": true,
+          "nativeState": 10,
+          "nativeSpeed": 61,
+          "immediate": 0,
+          "queued": [
+            123,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "assignment": 0
+        }
+      ],
+      "previousLine": 8827
+    }
+  ],
+  "maxActiveChumaraTasksPerWorld": {
+    "1": 0,
+    "2": 0,
+    "3": 1,
+    "4": 1,
+    "5": 1
+  },
+  "finalRows": {
+    "1": {
+      "line": 2049,
+      "turn": 2048,
+      "tasks": []
+    },
+    "2": {
+      "line": 3922,
+      "turn": 3920,
+      "tasks": []
+    },
+    "3": {
+      "line": 6991,
+      "turn": 6988,
+      "tasks": [
+        {
+          "tribe": 2,
+          "index": 0,
+          "flags": 1,
+          "type": 20,
+          "phase": 3,
+          "target": 13882,
+          "requested": 4,
+          "extra": 20,
+          "selected": 0,
+          "remaining": 0,
+          "elapsed": 0,
+          "mode": 0,
+          "fallback": 0,
+          "regroup": 0,
+          "origin": 13882,
+          "entity": 290,
+          "damage": 0,
+          "retries": 0,
+          "retreatPercent": 25,
+          "spells": [
+            0,
+            0,
+            0
+          ],
+          "quotas": [
+            0,
+            80,
+            30,
+            0,
+            0,
+            0
+          ],
+          "members": [],
+          "route": [
+            {
+              "marker": 42,
+              "secondary": -1,
+              "quotas": [
+                0,
+                1,
+                0,
+                0
+              ]
+            },
+            {
+              "marker": -1,
+              "secondary": 0,
+              "quotas": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "marker": -1,
+              "secondary": 0,
+              "quotas": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "marker": -1,
+              "secondary": 0,
+              "quotas": [
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "4": {
+      "line": 9264,
+      "turn": 8760,
+      "tasks": [
+        {
+          "tribe": 2,
+          "index": 0,
+          "flags": 0,
+          "type": 20,
+          "phase": 23,
+          "target": 18460,
+          "requested": 4,
+          "extra": 20,
+          "selected": 4,
+          "remaining": 6,
+          "elapsed": 1801,
+          "mode": 0,
+          "fallback": 23,
+          "regroup": 23112,
+          "origin": 13882,
+          "entity": 290,
+          "damage": 0,
+          "retries": 33,
+          "retreatPercent": 25,
+          "spells": [
+            0,
+            0,
+            0
+          ],
+          "quotas": [
+            0,
+            80,
+            30,
+            0,
+            0,
+            0
+          ],
+          "members": [],
+          "route": [
+            {
+              "marker": 42,
+              "secondary": -1,
+              "quotas": [
+                0,
+                1,
+                0,
+                0
+              ]
+            },
+            {
+              "marker": -1,
+              "secondary": 0,
+              "quotas": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "marker": -1,
+              "secondary": 0,
+              "quotas": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "marker": -1,
+              "secondary": 0,
+              "quotas": [
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "5": {
+      "line": 8751,
+      "turn": 8247,
+      "tasks": [
+        {
+          "tribe": 2,
+          "index": 0,
+          "flags": 1,
+          "type": 20,
+          "phase": 16,
+          "target": 13882,
+          "requested": 4,
+          "extra": 20,
+          "selected": 4,
+          "remaining": 6,
+          "elapsed": 351,
+          "mode": 0,
+          "fallback": 14,
+          "regroup": 23112,
+          "origin": 13882,
+          "entity": 290,
+          "damage": 0,
+          "retries": 0,
+          "retreatPercent": 25,
+          "spells": [
+            0,
+            0,
+            0
+          ],
+          "quotas": [
+            0,
+            80,
+            30,
+            0,
+            0,
+            0
+          ],
+          "members": [
+            386,
+            415,
+            445,
+            398
+          ],
+          "route": [
+            {
+              "marker": 42,
+              "secondary": -1,
+              "quotas": [
+                0,
+                1,
+                0,
+                0
+              ]
+            },
+            {
+              "marker": -1,
+              "secondary": 0,
+              "quotas": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "marker": -1,
+              "secondary": 0,
+              "quotas": [
+                0,
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "marker": -1,
+              "secondary": 0,
+              "quotas": [
+                0,
+                0,
+                0,
+                0
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}
