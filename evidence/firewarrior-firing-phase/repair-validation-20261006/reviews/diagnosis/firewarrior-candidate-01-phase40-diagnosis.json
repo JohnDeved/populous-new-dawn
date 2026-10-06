@@ -1,0 +1,734 @@
+{
+  "sourceHead": "6f93bf493139bb61e86e3b275269277c12c09593",
+  "run": "candidate-01",
+  "lineConvention": "JSONL line numbers are 1-based; array indices are one lower",
+  "rawSha256": {
+    "work/orchestration/firewarrior-firing-browser-candidate-01/run/rows.jsonl": "5e4db6699b75e961458b3a00a784836efcdde6852e2b49ed420f8a2af1c47c92",
+    "work/orchestration/firewarrior-firing-browser-candidate-01/run/witness.json": "87bae287598c17b632620a639a040774e696743378d36ad42799a6d528ebe9ba",
+    "work/orchestration/firewarrior-firing-browser-candidate-01/run/actions.jsonl": "ada5774522c92b28e19b4c3db19a7724d96765980af69f0e1a450f4eda12a659",
+    "work/orchestration/firewarrior-firing-browser-candidate-01/run/receipt.json": "a0676208d259b66fa96c8720a7cf9ca218ca1a68ebaa39e51ce381914ebf11c6",
+    "work/orchestration/firewarrior-firing-browser-candidate-01/outer-01.json": "4761de5045ba90926f985224acce6fb81b68a658edcb844150a896d097b17b8f",
+    "work/orchestration/firewarrior-firing-browser-candidate-01/terminal-cleanup.json": "1d5871ba11856c0c467241020e2527ed8045f42ac5767d53b66814c4984a2b10"
+  },
+  "totalRafRows": 288,
+  "phase40Lines": [
+    [
+      187,
+      517
+    ],
+    [
+      188,
+      518
+    ]
+  ],
+  "capturedVolley": [
+    {
+      "id": 190,
+      "source": 178,
+      "target": 65,
+      "attacker": 0,
+      "remaining": 16,
+      "tower": false,
+      "bloodlust": false,
+      "impact": false,
+      "destination": {
+        "x": 4871,
+        "y": -1237,
+        "h": 1054
+      }
+    },
+    {
+      "id": 191,
+      "source": 178,
+      "target": 65,
+      "attacker": 0,
+      "remaining": 16,
+      "tower": false,
+      "bloodlust": false,
+      "impact": true,
+      "destination": {
+        "x": 4871,
+        "y": -1237,
+        "h": 1054
+      }
+    }
+  ],
+  "pausedTurn": 540,
+  "gapMilliseconds": 119.5,
+  "gapSceneMilliseconds": 116.60000000000582,
+  "retainedRows": [
+    {
+      "jsonlLine1Based": 185,
+      "turn": 514,
+      "now": 59283.400000002235,
+      "sceneNow": 59249,
+      "paused": false,
+      "unitIdentity": 94,
+      "nativeIdentity": 95,
+      "native": {
+        "state": 10,
+        "previousState": 10,
+        "commandStatus": 21,
+        "substate": 11,
+        "animationMode": 44,
+        "object": 56,
+        "draw": 13,
+        "f1": 0,
+        "f2": 1,
+        "timer": 3,
+        "stateObject": 186,
+        "workTarget": 65,
+        "assignment": 768,
+        "stamp": 514
+      },
+      "order": {
+        "id": 36,
+        "model": 21,
+        "flags": 34,
+        "references": 1,
+        "object": 0,
+        "a": 63514,
+        "b": 2056
+      },
+      "projectiles": [
+        {
+          "id": 185,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 15,
+          "tower": false,
+          "bloodlust": false,
+          "impact": false,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        },
+        {
+          "id": 186,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 15,
+          "tower": false,
+          "bloodlust": false,
+          "impact": true,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        }
+      ]
+    },
+    {
+      "jsonlLine1Based": 186,
+      "turn": 515,
+      "now": 59440.400000002235,
+      "sceneNow": 59382.3,
+      "paused": false,
+      "unitIdentity": 94,
+      "nativeIdentity": 95,
+      "native": {
+        "state": 10,
+        "previousState": 10,
+        "commandStatus": 21,
+        "substate": 11,
+        "animationMode": 44,
+        "object": 56,
+        "draw": 13,
+        "f1": 0,
+        "f2": 2,
+        "timer": 2,
+        "stateObject": 186,
+        "workTarget": 65,
+        "assignment": 768,
+        "stamp": 515
+      },
+      "order": {
+        "id": 36,
+        "model": 21,
+        "flags": 34,
+        "references": 1,
+        "object": 0,
+        "a": 63514,
+        "b": 2056
+      },
+      "projectiles": [
+        {
+          "id": 185,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 14,
+          "tower": false,
+          "bloodlust": false,
+          "impact": false,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        },
+        {
+          "id": 186,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 14,
+          "tower": false,
+          "bloodlust": false,
+          "impact": true,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        }
+      ]
+    },
+    {
+      "jsonlLine1Based": 187,
+      "turn": 517,
+      "now": 59558.400000002235,
+      "sceneNow": 59515.6,
+      "paused": false,
+      "unitIdentity": 94,
+      "nativeIdentity": 95,
+      "native": {
+        "state": 10,
+        "previousState": 10,
+        "commandStatus": 21,
+        "substate": 11,
+        "animationMode": 40,
+        "object": 56,
+        "draw": 13,
+        "f1": 0,
+        "f2": 4,
+        "timer": 0,
+        "stateObject": 186,
+        "workTarget": 65,
+        "assignment": 784,
+        "stamp": 517
+      },
+      "order": {
+        "id": 36,
+        "model": 21,
+        "flags": 34,
+        "references": 1,
+        "object": 0,
+        "a": 63514,
+        "b": 2056
+      },
+      "projectiles": [
+        {
+          "id": 185,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 12,
+          "tower": false,
+          "bloodlust": false,
+          "impact": false,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        },
+        {
+          "id": 186,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 12,
+          "tower": false,
+          "bloodlust": false,
+          "impact": true,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        }
+      ]
+    },
+    {
+      "jsonlLine1Based": 188,
+      "turn": 518,
+      "now": 59743.400000002235,
+      "sceneNow": 59649,
+      "paused": false,
+      "unitIdentity": 94,
+      "nativeIdentity": 95,
+      "native": {
+        "state": 10,
+        "previousState": 10,
+        "commandStatus": 21,
+        "substate": 11,
+        "animationMode": 40,
+        "object": 56,
+        "draw": 13,
+        "f1": 1,
+        "f2": 0,
+        "timer": 5,
+        "stateObject": 186,
+        "workTarget": 65,
+        "assignment": 768,
+        "stamp": 518
+      },
+      "order": {
+        "id": 36,
+        "model": 21,
+        "flags": 34,
+        "references": 1,
+        "object": 0,
+        "a": 63514,
+        "b": 2056
+      },
+      "projectiles": []
+    },
+    {
+      "jsonlLine1Based": 189,
+      "turn": 521,
+      "now": 59915.300000000745,
+      "sceneNow": 59865.7,
+      "paused": false,
+      "unitIdentity": 94,
+      "nativeIdentity": 95,
+      "native": {
+        "state": 17,
+        "previousState": 10,
+        "commandStatus": 0,
+        "substate": 0,
+        "animationMode": 0,
+        "object": 40,
+        "draw": 18,
+        "f1": 1,
+        "f2": 2,
+        "timer": 0,
+        "stateObject": 0,
+        "workTarget": 0,
+        "assignment": 256,
+        "stamp": 521
+      },
+      "order": null,
+      "projectiles": []
+    },
+    {
+      "jsonlLine1Based": 204,
+      "turn": 540,
+      "now": 61472,
+      "sceneNow": 61448.9,
+      "paused": false,
+      "unitIdentity": 94,
+      "nativeIdentity": 95,
+      "native": {
+        "state": 10,
+        "previousState": 10,
+        "commandStatus": 21,
+        "substate": 11,
+        "animationMode": 44,
+        "object": 56,
+        "draw": 13,
+        "f1": 0,
+        "f2": 0,
+        "timer": 4,
+        "stateObject": 191,
+        "workTarget": 65,
+        "assignment": 768,
+        "stamp": 540
+      },
+      "order": {
+        "id": 37,
+        "model": 21,
+        "flags": 34,
+        "references": 1,
+        "object": 0,
+        "a": 64022,
+        "b": 2056
+      },
+      "projectiles": [
+        {
+          "id": 190,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 16,
+          "tower": false,
+          "bloodlust": false,
+          "impact": false,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        },
+        {
+          "id": 191,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 16,
+          "tower": false,
+          "bloodlust": false,
+          "impact": true,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        }
+      ]
+    },
+    {
+      "jsonlLine1Based": 205,
+      "turn": 540,
+      "now": 61585.199999999255,
+      "sceneNow": 61548.9,
+      "paused": true,
+      "unitIdentity": 94,
+      "nativeIdentity": 95,
+      "native": {
+        "state": 10,
+        "previousState": 10,
+        "commandStatus": 21,
+        "substate": 11,
+        "animationMode": 44,
+        "object": 56,
+        "draw": 13,
+        "f1": 0,
+        "f2": 0,
+        "timer": 4,
+        "stateObject": 191,
+        "workTarget": 65,
+        "assignment": 768,
+        "stamp": 540
+      },
+      "order": {
+        "id": 37,
+        "model": 21,
+        "flags": 34,
+        "references": 1,
+        "object": 0,
+        "a": 64022,
+        "b": 2056
+      },
+      "projectiles": [
+        {
+          "id": 190,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 16,
+          "tower": false,
+          "bloodlust": false,
+          "impact": false,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        },
+        {
+          "id": 191,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 16,
+          "tower": false,
+          "bloodlust": false,
+          "impact": true,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        }
+      ]
+    },
+    {
+      "jsonlLine1Based": 277,
+      "turn": 540,
+      "now": 70339.10000000149,
+      "sceneNow": 70315.2,
+      "paused": true,
+      "unitIdentity": 94,
+      "nativeIdentity": 95,
+      "native": {
+        "state": 10,
+        "previousState": 10,
+        "commandStatus": 21,
+        "substate": 11,
+        "animationMode": 44,
+        "object": 56,
+        "draw": 13,
+        "f1": 0,
+        "f2": 0,
+        "timer": 4,
+        "stateObject": 191,
+        "workTarget": 65,
+        "assignment": 768,
+        "stamp": 540
+      },
+      "order": {
+        "id": 37,
+        "model": 21,
+        "flags": 34,
+        "references": 1,
+        "object": 0,
+        "a": 64022,
+        "b": 2056
+      },
+      "projectiles": [
+        {
+          "id": 190,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 16,
+          "tower": false,
+          "bloodlust": false,
+          "impact": false,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        },
+        {
+          "id": 191,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 16,
+          "tower": false,
+          "bloodlust": false,
+          "impact": true,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        }
+      ]
+    },
+    {
+      "jsonlLine1Based": 278,
+      "turn": 542,
+      "now": 70526.80000000075,
+      "sceneNow": 70448.6,
+      "paused": false,
+      "unitIdentity": 94,
+      "nativeIdentity": 95,
+      "native": {
+        "state": 10,
+        "previousState": 10,
+        "commandStatus": 21,
+        "substate": 11,
+        "animationMode": 44,
+        "object": 56,
+        "draw": 13,
+        "f1": 0,
+        "f2": 2,
+        "timer": 2,
+        "stateObject": 191,
+        "workTarget": 65,
+        "assignment": 768,
+        "stamp": 542
+      },
+      "order": {
+        "id": 37,
+        "model": 21,
+        "flags": 34,
+        "references": 1,
+        "object": 0,
+        "a": 64022,
+        "b": 2056
+      },
+      "projectiles": [
+        {
+          "id": 190,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 14,
+          "tower": false,
+          "bloodlust": false,
+          "impact": false,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        },
+        {
+          "id": 191,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 14,
+          "tower": false,
+          "bloodlust": false,
+          "impact": true,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        }
+      ]
+    },
+    {
+      "jsonlLine1Based": 279,
+      "turn": 543,
+      "now": 70634.60000000149,
+      "sceneNow": 70598.5,
+      "paused": false,
+      "unitIdentity": 94,
+      "nativeIdentity": 95,
+      "native": {
+        "state": 10,
+        "previousState": 10,
+        "commandStatus": 21,
+        "substate": 11,
+        "animationMode": 44,
+        "object": 56,
+        "draw": 13,
+        "f1": 0,
+        "f2": 3,
+        "timer": 1,
+        "stateObject": 191,
+        "workTarget": 65,
+        "assignment": 768,
+        "stamp": 543
+      },
+      "order": {
+        "id": 37,
+        "model": 21,
+        "flags": 34,
+        "references": 1,
+        "object": 0,
+        "a": 64022,
+        "b": 2056
+      },
+      "projectiles": [
+        {
+          "id": 190,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 13,
+          "tower": false,
+          "bloodlust": false,
+          "impact": false,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        },
+        {
+          "id": 191,
+          "source": 178,
+          "target": 65,
+          "attacker": 0,
+          "remaining": 13,
+          "tower": false,
+          "bloodlust": false,
+          "impact": true,
+          "destination": {
+            "x": 4871,
+            "y": -1237,
+            "h": 1054
+          }
+        }
+      ]
+    },
+    {
+      "jsonlLine1Based": 280,
+      "turn": 545,
+      "now": 70754.10000000149,
+      "sceneNow": 70715.1,
+      "paused": false,
+      "unitIdentity": 94,
+      "nativeIdentity": 95,
+      "native": {
+        "state": 17,
+        "previousState": 10,
+        "commandStatus": 0,
+        "substate": 0,
+        "animationMode": 0,
+        "object": 40,
+        "draw": 18,
+        "f1": 1,
+        "f2": 1,
+        "timer": 0,
+        "stateObject": 0,
+        "workTarget": 0,
+        "assignment": 256,
+        "stamp": 545
+      },
+      "order": null,
+      "projectiles": []
+    },
+    {
+      "jsonlLine1Based": 281,
+      "turn": 546,
+      "now": 70867.90000000224,
+      "sceneNow": 70831.8,
+      "paused": false,
+      "unitIdentity": 94,
+      "nativeIdentity": 95,
+      "native": {
+        "state": 17,
+        "previousState": 10,
+        "commandStatus": 0,
+        "substate": 0,
+        "animationMode": 0,
+        "object": 40,
+        "draw": 18,
+        "f1": 0,
+        "f2": 1,
+        "timer": 0,
+        "stateObject": 0,
+        "workTarget": 0,
+        "assignment": 256,
+        "stamp": 546
+      },
+      "order": null,
+      "projectiles": []
+    },
+    {
+      "jsonlLine1Based": 285,
+      "turn": 557,
+      "now": 71760.40000000224,
+      "sceneNow": 71731.8,
+      "paused": false,
+      "unitIdentity": 94,
+      "nativeIdentity": 95,
+      "native": {
+        "state": 17,
+        "previousState": 10,
+        "commandStatus": 0,
+        "substate": 0,
+        "animationMode": 0,
+        "object": 40,
+        "draw": 18,
+        "f1": 1,
+        "f2": 3,
+        "timer": 0,
+        "stateObject": 0,
+        "workTarget": 0,
+        "assignment": 256,
+        "stamp": 557
+      },
+      "order": null,
+      "projectiles": []
+    }
+  ],
+  "existingOutcome": "failed; no retrospective acceptance",
+  "changesMade": "Scratch diagnosis only; no runtime or QA source edit"
+}
