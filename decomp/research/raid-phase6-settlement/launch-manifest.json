@@ -1,0 +1,1242 @@
+{
+  "schemaVersion": 1,
+  "executable": {
+    "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/game/d3dpoptb.exe",
+    "sha256": "3a5065c7420b3fcde208bf220bc86dfbac95e025ab2492caf9c7ea5308dfbe4f"
+  },
+  "constantsSha256": "e905e513c798171d5540082565b8addc9f54e5851006b56e8d1976687ba42f24",
+  "python": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+  "node": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+  "toolIdentity": {
+    "pythonVersion": "3.12.14",
+    "nodeVersion": "v24.19.0",
+    "unicornVersion": "2.1.4",
+    "unicornModule": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/__init__.py",
+    "unicornLibrary": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/lib/libunicorn.so.2",
+    "timeout": "/usr/bin/timeout",
+    "taskset": "/usr/bin/taskset",
+    "pythonLibrary": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/libpython3.12.so.1.0"
+  },
+  "toolFiles": [
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/bin/python",
+      "resolvedPath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python3.12",
+      "sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7"
+    },
+    {
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "resolvedPath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "sha256": "bc17c508ffeed0ec622934f9b7fa72f8e78da65350e63c3eceb56fa688aa5e12"
+    },
+    {
+      "path": "/usr/bin/timeout",
+      "resolvedPath": "/usr/bin/timeout",
+      "sha256": "6ca1891dfc0b05d7680770c2884c0391b92467c7bb6500a5c84677e6481739f1"
+    },
+    {
+      "path": "/usr/bin/taskset",
+      "resolvedPath": "/usr/bin/taskset",
+      "sha256": "0c34de807bc9c617406360836fca2c7505eb86ede4df5a34854bde6eeddad9f3"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/lib/libunicorn.so.2",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/lib/libunicorn.so.2",
+      "sha256": "ddb196ec82b52e502c18e4a34478bf7b9f61c83c2ebaa95c74d8ded45a95da9c"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn-2.1.4.dist-info/METADATA",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn-2.1.4.dist-info/METADATA",
+      "sha256": "ce96de4160dc06c1bbcf35074cb542c9f296219f740aa0f34606f8837650c2e8"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/__init__.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/__init__.py",
+      "sha256": "9ad32123bca674cf205c308fd4d0d2a4db877c9dc2afac4feab7c84c8cf7043b"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/arm64_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/arm64_const.py",
+      "sha256": "92f91a2b0a36cd34deee16db4f8da4ac0c9ae35c3ea1089296e5ef9d170a5be9"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/arm_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/arm_const.py",
+      "sha256": "44fdb7a9f7a9d8c62be07fefaf21e20060813b2a503b6228e378e6bbff7f7b41"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/m68k_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/m68k_const.py",
+      "sha256": "7503e32454751bf66bdf1fcb19dd847537bcf6a5538e18125d8f53d8d448fed9"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/mips_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/mips_const.py",
+      "sha256": "3a04993d82610ea5f492af2d74fa79d849224a044ac0448281033ee331b58dac"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/ppc_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/ppc_const.py",
+      "sha256": "154aaa45f947dab3e488e58e74ad99a09c8d772766c561ff92ecb85cdedd61af"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/riscv_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/riscv_const.py",
+      "sha256": "278e10baf05cfb7c8675475081ae7f2d2037616c79cb907d51963aa2c5b490e4"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/s390x_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/s390x_const.py",
+      "sha256": "54d7026dd70b5bfca1d02e00e7a58d652eaa974b9ea980ba49ed4b80911b9fde"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/sparc_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/sparc_const.py",
+      "sha256": "bcdb0491b6e42c647b104ee53d61610504a97831302dd5280fd2123e05572e95"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/tricore_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/tricore_const.py",
+      "sha256": "1b6005a147d77a3fc1ab5c81fc878eeac3b9bb0b68d518e4a4226830d1356c4c"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn.py",
+      "sha256": "e823b17649d0610c6f52b665902ac9dc46962785feebcac8465a0d7c477f25b7"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_const.py",
+      "sha256": "556c6a27336dc6dd3e0d49348951bde17e1b0f69166f2217773e6b3a7199f45d"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py2.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py2.py",
+      "sha256": "66e2555d679e4f56a0117c2b8de0895a0a138fa3827e3a8a3621255e348d145a"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/__init__.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/__init__.py",
+      "sha256": "ee70d3a7de9ea545406d727436ee835f9d644aeb7428f0e4f1510f9190b28726"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/__init__.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/__init__.py",
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/arm.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/arm.py",
+      "sha256": "c28693f90d8681c091f0ff92caed0a290350a969ea0a38343bb843a26b726711"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/arm64.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/arm64.py",
+      "sha256": "62963378864bae452f7cd2a784ddcd64ab6bdc8a6a69e033d48e8faaab0b2515"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/intel.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/intel.py",
+      "sha256": "8a04281923b5f4dd65ce5f122e222bd86df3e8efc7eae99086e0d372fd7a1a75"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/types.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/arch/types.py",
+      "sha256": "2e103854e371ef576680073f44ead45b8177a73c450a6125e609b7c54e0bc844"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/unicorn.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/unicorn_py3/unicorn.py",
+      "sha256": "62ffe84341f4288e309040e06555b81798031817d32fd19a945e250813f872f0"
+    },
+    {
+      "path": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/x86_const.py",
+      "resolvedPath": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/prerequisites/venv/lib/python3.12/site-packages/unicorn/x86_const.py",
+      "sha256": "3b33c55b97503ab25e8ed8bbe576c1cee693f495df6785b04adc1c8ab47a79c4"
+    },
+    {
+      "path": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/libpython3.12.so.1.0",
+      "resolvedPath": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/lib/libpython3.12.so.1.0",
+      "sha256": "7e177a680eabb11fcb7d3867f7a1b9c4b93a9bd5b18129ce1af51ec07977b024"
+    }
+  ],
+  "externalEnvelope": {
+    "cpu": 4,
+    "termSeconds": 15,
+    "killGraceSeconds": 3,
+    "watchdogSeconds": 18.25,
+    "processGroup": "New task-owned session; verified via /proc; final membership must be empty.",
+    "pythonFlags": [
+      "-E",
+      "-s",
+      "-B"
+    ],
+    "clearedEnvironment": [
+      "NODE_OPTIONS",
+      "NODE_PATH",
+      "PYTHONOPTIMIZE",
+      "PYTHONPATH",
+      "PYTHONHOME",
+      "LIBUNICORN_PATH",
+      "UNICORN_LIB_PATH",
+      "LD_PRELOAD",
+      "LD_LIBRARY_PATH"
+    ],
+    "rawReturnEvidence": "Full EAX retained on every return alongside the declared semantic AL/AX/EAX/null value."
+  },
+  "kind": "unexecuted-two-raid-phase6-compositions",
+  "issue": 248,
+  "acceptedPlanHead": "5d0ac7ddcf45db446f0411373c27f392a07e64f5",
+  "planReviewSha256": "4612a7755c310c0232165f9867b3e8c8ddaa9a3fbb264ae377d1cbdf111c1d12",
+  "runtimeHead": "0d278277145a83fccdc691874121c84ae71cec19",
+  "runtimeAppTree": "902b00688e914c749e65cbcd20f0a8ef9c602f56",
+  "authorization": "Source/preflight only; separate coordinator execution grant required",
+  "execution": {
+    "native": "not-run",
+    "port": "not-run",
+    "ghidra": "not-run"
+  },
+  "output": "work/orchestration/raid-phase6-settlement-20261006/run-01",
+  "supervisorOutput": "work/orchestration/raid-phase6-settlement-20261006/launch-01",
+  "successStatus": "expected-settlement-mismatches-confirmed",
+  "limits": {
+    "caseCount": 2,
+    "nativeInvocations": 2,
+    "nativeMicrosecondsPerCall": 1000000,
+    "nativeInstructionsPerCall": 100000,
+    "portInvocations": 2,
+    "portBatchSeconds": 5,
+    "outerSeconds": 15,
+    "killGraceSeconds": 3,
+    "retry": false
+  },
+  "files": [
+    {
+      "path": "app/angel.ts",
+      "sha256": "9808728ff3b671b9e6ae87f400c480493ea05faba4d3eddb20d52d83d9156f03"
+    },
+    {
+      "path": "app/animation.ts",
+      "sha256": "81ce8a1c1b4f7ec9dc228405023337856fed007146b9abed4ff2e43d6fbf78af"
+    },
+    {
+      "path": "app/armageddon.ts",
+      "sha256": "6cd2ad4301e6aaf4680b1413398e16f159b0e26f41792c7415b4bb64564a2280"
+    },
+    {
+      "path": "app/blast-wave.ts",
+      "sha256": "ce6e26f642a290fd977894b166bd878dff979979647332834a7013cd41ccafe3"
+    },
+    {
+      "path": "app/building-clearing.ts",
+      "sha256": "4eb4386f580efac0bc758074ee5ed59a2896eca947d1d3e6dbc6844c6ab1bbc9"
+    },
+    {
+      "path": "app/building-damage.ts",
+      "sha256": "2edf267b12853719b2553d0ede485254ea101bbb2ae1ed6967306299895b90c3"
+    },
+    {
+      "path": "app/building-debris.ts",
+      "sha256": "b6d7125dab58dd119d2e60caf3430683fbe19ec4326d0c0f78cd2700eec460bf"
+    },
+    {
+      "path": "app/building-dismantle.ts",
+      "sha256": "cf6d9d53978d891097221845cffe1f8a58238ad9868fc3637c51c2df3a81e8b1"
+    },
+    {
+      "path": "app/building-fetch.ts",
+      "sha256": "3a79971ead533fde8b27f9bec01bc07f29f55584bba54b1b7bdc96e6ba8a6567"
+    },
+    {
+      "path": "app/building-occupants.ts",
+      "sha256": "24e6458718cd665b52188ac5473bfe265d179bb03ac530217c761addd471797a"
+    },
+    {
+      "path": "app/building-preparation.ts",
+      "sha256": "0d80320ac62a9366f63ea4dc216ba0ef9ee5fc7b421fa5516561272865b13df2"
+    },
+    {
+      "path": "app/building-runtime.ts",
+      "sha256": "d62fca552e99bf96792f21361fd73047b3fe064f2fcfbfb8af2307ba9e732463"
+    },
+    {
+      "path": "app/building-shapes.ts",
+      "sha256": "8e697a8ac76900bb95183907702323b0d477950c92b3e703744376c0fefc7457"
+    },
+    {
+      "path": "app/building-sinking.ts",
+      "sha256": "ce7ad82cf0c8a31cdbab97327912335b06eb3136d931f0c83bd36cd75fdc081a"
+    },
+    {
+      "path": "app/building-smoke.ts",
+      "sha256": "bff123b1ed70751207ae5fa943c332068be9e8530fddaa88ef328af1a1a8a9fc"
+    },
+    {
+      "path": "app/building-terrain.ts",
+      "sha256": "eefc0bf4f8faf0d129678d3e5430fc661b9b16c1bf5b496c87a968b5bd9c5692"
+    },
+    {
+      "path": "app/building-validity.ts",
+      "sha256": "8aee47bb6b0ca234f686f08e72c5b74fc10d590bae9d27518054b2587008bb2d"
+    },
+    {
+      "path": "app/building-work.ts",
+      "sha256": "387f8461939033e3b1d6ed3fa5f63330921e66215e06ec8e6c38fa894dee729d"
+    },
+    {
+      "path": "app/building-workers.ts",
+      "sha256": "1ed0901d343fe9d1d6e9335f43e069acc5ef3ec9bedb1235c643786dcd3ca290"
+    },
+    {
+      "path": "app/campaign-command-runtime.ts",
+      "sha256": "5badf47c9b0e55d99f307a1a82c3ba311c835ac78edeabc9f6c7796a39314182"
+    },
+    {
+      "path": "app/campaign-runtime.ts",
+      "sha256": "14db77faf860b168dea78e674788b3bc86437e26196e85f38fce6f3dfa541f89"
+    },
+    {
+      "path": "app/celebration.ts",
+      "sha256": "a54f9a7a058cdf49c2a9bb88ce80354aecd6650af43403e1e910bbec89532aba"
+    },
+    {
+      "path": "app/combat-approach.ts",
+      "sha256": "1b81f8a744ef4b39e66f0add003904c0c657e4cba56d8e83b419954cf85541a8"
+    },
+    {
+      "path": "app/combat-building.ts",
+      "sha256": "a304b163de2630affa1659a7e9b1487bde8f63446c74bb847a107aefc5579a49"
+    },
+    {
+      "path": "app/combat-order-search.ts",
+      "sha256": "08ee4472132f4a75154d0b8ec586fd1e1f6aaf6436e6b654ddc5c6900249ad19"
+    },
+    {
+      "path": "app/combat-orders.ts",
+      "sha256": "911b4c57f16e2f673668db441a6288dfb32d0294ebb987dfbc8e93e4dcbeeb03"
+    },
+    {
+      "path": "app/combat-pursuit.ts",
+      "sha256": "7c0bc5498a9a74276959e14be945c969194da015312b3ac1cbc41ad2ef84bf47"
+    },
+    {
+      "path": "app/combat-runtime.ts",
+      "sha256": "9cc7100f34547eb2a767928f25e0068a6c6c4749934271dd98a6fb643ead0d23"
+    },
+    {
+      "path": "app/combat-targets.ts",
+      "sha256": "6094fd3547b0571ffe5ebc080ec4bcccb7bf4f5fedd7d5e23637e727e719b71f"
+    },
+    {
+      "path": "app/command-context.ts",
+      "sha256": "b418b37bef71210052645cdba946fc12612a63ec0962c98c65d6ae199a760700"
+    },
+    {
+      "path": "app/computer-convert.ts",
+      "sha256": "264ca37fd944e63545f903be8e51bdc0a9fd5874aeedd6273223ad53df5ea0e3"
+    },
+    {
+      "path": "app/computer-defense.ts",
+      "sha256": "663472843e8fed4a8bca9aaea10c16870e6e538ad94d35674a145f4e2f4a76f5"
+    },
+    {
+      "path": "app/computer-runtime.ts",
+      "sha256": "fcaea74faacf6477a25c186b668eadc8e3a5a887cc74157683f818ee1a576872"
+    },
+    {
+      "path": "app/computer-selection.ts",
+      "sha256": "ec5835a2285376120c23bb9c12a25cc14b82512157e192cb144f012f936074cd"
+    },
+    {
+      "path": "app/computer-spells.ts",
+      "sha256": "a1ea1b2fd6d399248a0d476a92c31f564060e1269fd8f160e0007a5772fe4ccb"
+    },
+    {
+      "path": "app/computer.ts",
+      "sha256": "7e7425a46cba84fa4eeb4c29be92c25c848f992b94e2912d570b9959027a666d"
+    },
+    {
+      "path": "app/construction-order.ts",
+      "sha256": "f4dc10fd622cb9435c446f85830ce26f43aeea0f7e257ea95accc1108bdae7e5"
+    },
+    {
+      "path": "app/construction-runtime.ts",
+      "sha256": "2ea49ae789ae747732c3bc327d58735f501b52dfcff84c17eef83ca4386c0653"
+    },
+    {
+      "path": "app/convert-wild.ts",
+      "sha256": "665bf05aa307dbd0ac91b115e99fe1df456a5658c8fca9b39173c2b6a3f5919a"
+    },
+    {
+      "path": "app/drag-selection.ts",
+      "sha256": "d20dc572da826ecb70677527d876f1d883bc3ebddf2ff4361e2e2bf099fda93f"
+    },
+    {
+      "path": "app/earthquake.ts",
+      "sha256": "f26e0878f184ea65289b97c83eff1cf6b795326361f232c202f84e9948d4afd0"
+    },
+    {
+      "path": "app/effect-motion.ts",
+      "sha256": "09aed949e22799f0b34ea36a5a19e416fccf366ef0e4e2aceccbe3dc354f74b4"
+    },
+    {
+      "path": "app/erosion-observation.ts",
+      "sha256": "8fcc841183c138b02f5eb33ad7f24efcc4f477a512655009c543cc8d004e2fd2"
+    },
+    {
+      "path": "app/erosion.ts",
+      "sha256": "788ae0b14800e1a6d675279e08b2490702bc7c3e6fe305769d0bde25c8935d70"
+    },
+    {
+      "path": "app/firestorm.ts",
+      "sha256": "a1ba3c8cc3f5a6f09af7d95598dcd2e35de3de521473502bee421a9bc42df195"
+    },
+    {
+      "path": "app/firewarrior.ts",
+      "sha256": "600f11502d04e84f05cc3c11d439899e1fb982bba78ce23afe6709d1bbd9fc1b"
+    },
+    {
+      "path": "app/flatten.ts",
+      "sha256": "f16bae3305c8aa296582586a13fa48912adef1665aa175e7a16a49c1e95992b2"
+    },
+    {
+      "path": "app/flyby.ts",
+      "sha256": "f26ff256586988e1ec9d155abca20573d006b0f1c9a92a0a06f7566edcca912c"
+    },
+    {
+      "path": "app/footprints.ts",
+      "sha256": "f8e5cbb9530e9a8bf266608199218ce59fa466c78f2d0838d207ce8109dfa6fb"
+    },
+    {
+      "path": "app/hud-selection.ts",
+      "sha256": "21738b749f85d9cf2daf9df5dfb3825283722775c7e5ff475843ad51c539ef3c"
+    },
+    {
+      "path": "app/hut-birth.ts",
+      "sha256": "7945933534e07a1c11cab0580901f84f68e84a10f88387d90665a08598afb24d"
+    },
+    {
+      "path": "app/hut-occupancy-smoke.ts",
+      "sha256": "4d6660697dfa08ed6a99d5a906b857f9b259d3152abb7f33f82d389d84d1ed07"
+    },
+    {
+      "path": "app/hut-smoke-runtime.ts",
+      "sha256": "db740f09664eb124bba32f95740eb2842fe441bbaaa0653e408f4eba68f2a8c7"
+    },
+    {
+      "path": "app/hut-upgrade.ts",
+      "sha256": "ed011ed756c506cbf18ea917ba3f082343a3c2b405a1d2832393bc5dda0bd839"
+    },
+    {
+      "path": "app/indexed-search.ts",
+      "sha256": "b1b7e755c00f678f1a2bc5f3504452b38f1bacefe511d45a0a4b0bda0d523e1f"
+    },
+    {
+      "path": "app/land-bridge.ts",
+      "sha256": "b616b62e26e73dd51606d7b1e6deaf78bd31c07cb5036148f017a563b40bcac1"
+    },
+    {
+      "path": "app/level-eight.ts",
+      "sha256": "df365b5486abe812a8922a32c9f274c2257af3bf02a433b846cb796d906dc9c1"
+    },
+    {
+      "path": "app/level-eighteen.ts",
+      "sha256": "a04200cfbfcad3b711aeb1eb1b81592573439d937d60793d1172140e99fc36de"
+    },
+    {
+      "path": "app/level-eleven.ts",
+      "sha256": "63633951dce7bf847726e6ccd679dc37d9f32e6bf7cf1c2cfc196501b7b0d0eb"
+    },
+    {
+      "path": "app/level-fifteen.ts",
+      "sha256": "ea1c6d1012030a1a4c286ba8c0c816a0867648ec92794eac4f3f53774ccabf3d"
+    },
+    {
+      "path": "app/level-five.ts",
+      "sha256": "c62ed5dc14ae53f9d4f00081419083afe92d777aa6327b93dd1bd5dcf1f4c4f7"
+    },
+    {
+      "path": "app/level-four.ts",
+      "sha256": "222ff10fd61d5be6956df077db5c80c05d3e324abd83029dcf819cb3fb8d26f7"
+    },
+    {
+      "path": "app/level-fourteen.ts",
+      "sha256": "125a3414f903b6162c282fb1f9b4bff87131d02c50cec4bda50185da92d3228e"
+    },
+    {
+      "path": "app/level-nine.ts",
+      "sha256": "f03bd298b4d479681caa522313346fb5f4aab2a0d830ff5274d1b330fb86676e"
+    },
+    {
+      "path": "app/level-nineteen.ts",
+      "sha256": "d45b2242bfb9f51352b8e9dfdd7628537da9648f5c09e81c1346bac0c03d810f"
+    },
+    {
+      "path": "app/level-one.ts",
+      "sha256": "e840e4ea8895ada4131c7d2da2ce70330307956ea7a6e647e55e76bf6026bd33"
+    },
+    {
+      "path": "app/level-seven.ts",
+      "sha256": "9bb64b5f53059d4cddf6fe9d180b770756a61396bd9f5cc13807498b9f34c0e6"
+    },
+    {
+      "path": "app/level-seventeen.ts",
+      "sha256": "deb06ffd68c0f33cb748596c61d47fbc78d82675bfffeb4cffcefba4abcedd04"
+    },
+    {
+      "path": "app/level-six.ts",
+      "sha256": "3600fc524adac3f289428cb3c22f6e8517241cefdf87ff7d87e49bab524a1feb"
+    },
+    {
+      "path": "app/level-sixteen.ts",
+      "sha256": "69cc4d97650ca5484c22d7dc943780c30447932ff799ced2d88a247f5de15c44"
+    },
+    {
+      "path": "app/level-start-runtime.ts",
+      "sha256": "cce900dc4e08ce890ac88060d7db41bb1cde578f80c2424317d4842d8884451b"
+    },
+    {
+      "path": "app/level-start.ts",
+      "sha256": "987b88e203cc863df79ca1afddb602329f9b68f29be715b6ddb1c4fd48c29948"
+    },
+    {
+      "path": "app/level-ten.ts",
+      "sha256": "debcec7f3cc9772fdc33116848e2b3641f3522901f5100cb24b6da445841058f"
+    },
+    {
+      "path": "app/level-thirteen.ts",
+      "sha256": "38739fa268b75b11c598d119ec28fe31a4a91869c6ca2d150826657262160d0c"
+    },
+    {
+      "path": "app/level-three.ts",
+      "sha256": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07"
+    },
+    {
+      "path": "app/level-tutorial.ts",
+      "sha256": "5ffbfe4acc0772706c6ea0dc93a1f4e5cf53b4335725976b41003e91d49c183c"
+    },
+    {
+      "path": "app/level-twelve.ts",
+      "sha256": "5c01f8133a81046627a92db7f7a2186cdd638f107e0138dcd8e4c40c5f642c73"
+    },
+    {
+      "path": "app/level-twenty-one.ts",
+      "sha256": "7642b1cddfc96ca8d6f21e046fa10a1c3d448e1331c5c5e6df1604a071f08f74"
+    },
+    {
+      "path": "app/level-twenty-three.ts",
+      "sha256": "66d035bc1de82b34a870118ccb27ee87e9051bb3b95df5b6ef73acdb66557a3c"
+    },
+    {
+      "path": "app/level-twenty-two.ts",
+      "sha256": "f37720f9f525c135abb872791a4f8df9f5d64d7df4b4448c473cdcc054e28736"
+    },
+    {
+      "path": "app/level-twenty.ts",
+      "sha256": "97c80e6aa0e315c80de90fd453990690f5ce2c9e15ad3d3fe6a5dbaa3e693d31"
+    },
+    {
+      "path": "app/level-two.ts",
+      "sha256": "c576f47683ab6e58682e78c221eed5f44e91717e2e27097be0f5b5ba9f97c111"
+    },
+    {
+      "path": "app/lightning.ts",
+      "sha256": "ace6f9d85ec07be651c021f1673e3c9b969bf99b42d8e6a404c1e1c57c8f44fb"
+    },
+    {
+      "path": "app/live-building-combat.ts",
+      "sha256": "9eba26069c40b94fa9d6c3076bc4dfd008234d87bd92a8746c160057c7740e74"
+    },
+    {
+      "path": "app/live-building-entry.ts",
+      "sha256": "94aca18d9dfb6fadb1df9f9f747a22683ff14c4f42ed3629ebb668688efe647f"
+    },
+    {
+      "path": "app/live-combat.ts",
+      "sha256": "302ac73456dc801ebfb637a37e2d7081682b334c7ce8e0b8bae067d2248bd6b2"
+    },
+    {
+      "path": "app/live-command.ts",
+      "sha256": "4671406f827e92fb70432bf88af54d764b4f628e422b320b89384485a6411913"
+    },
+    {
+      "path": "app/live-construction-runtime.ts",
+      "sha256": "232fe5fd59ead259fc09d94ec524fba173549e32fc07ab14f6b1006d631cd6fa"
+    },
+    {
+      "path": "app/live-movement.ts",
+      "sha256": "626f7a07bbafe1f82e858b9a4e06490bda9f28f18b15be4a432d410ad1048e20"
+    },
+    {
+      "path": "app/live-pathfinding.ts",
+      "sha256": "3a52a138448bcaae35acc85818a38381ea85d03717c750f51a33b8aad802c939"
+    },
+    {
+      "path": "app/live-people.ts",
+      "sha256": "1b8b2f1c3015317709298d5610067d13c3a17cb1a53a1a0fdd8117000ccb01c3"
+    },
+    {
+      "path": "app/live-resting.ts",
+      "sha256": "3164a20ff88fb05d919f8f53fd179b0375350c631af5420d667f7106d7f5f515"
+    },
+    {
+      "path": "app/live-vehicles.ts",
+      "sha256": "7fbff4f2197bf77f6cad8ca6a9265dbc95ea74cc89270b814f11991c1265cebb"
+    },
+    {
+      "path": "app/live-worship.ts",
+      "sha256": "31d3a291fa1f8d543f3da918d5eb4eb8208c46e6e9d3192ad14c5f7012ec47e6"
+    },
+    {
+      "path": "app/mana.ts",
+      "sha256": "2db351005682c765353c834cff06e0eea0c8c9e20bd0ca536207fa9e81c77d33"
+    },
+    {
+      "path": "app/marching-formations.ts",
+      "sha256": "647045896f6134fc189c28ab094ab5596337c1a4f8eef37e2549497f7d8a40ff"
+    },
+    {
+      "path": "app/melee-encounter.ts",
+      "sha256": "f1f45b0012410f89500c457b822bb2dd36a8e44a05b7546cfcf7f4cb1447e51c"
+    },
+    {
+      "path": "app/melee-engagement.ts",
+      "sha256": "5e2a7d124328f63de97f75686c74027893b3012d34f13c6dc2bdd50184480cde"
+    },
+    {
+      "path": "app/melee-groups.ts",
+      "sha256": "6f70c87c5bb847af6365d13a1dca4c2809272c5adbd32ff698785be9f30291bd"
+    },
+    {
+      "path": "app/melee-placement.ts",
+      "sha256": "8eb866a23813f5d665b22faba79dd985036204033cc7afbc1ddbe079f3b7be76"
+    },
+    {
+      "path": "app/melee.ts",
+      "sha256": "c425264b3db07a4731a7f918629db4f080d7ae61fd6dd181c61838916ca4f9e7"
+    },
+    {
+      "path": "app/messages.ts",
+      "sha256": "84f307387f09a3a787c11c491d08f05bcbfa797242d0f0320ee1f0e9f7537d78"
+    },
+    {
+      "path": "app/mission-data.ts",
+      "sha256": "c4859525c084dfcd478a4fb5e08b93bb5f37c2aa1c2b8cd3250d5683b7e957cf"
+    },
+    {
+      "path": "app/model-faces.ts",
+      "sha256": "6e6d7f28eb6d1f027e571e3541ef751d23b10b99d6813ff7805e5367fca8634d"
+    },
+    {
+      "path": "app/model.ts",
+      "sha256": "fc32041efee0a34ae32e26653dd8b45c2b54df8389d4e32ea11fa58e3cde4682"
+    },
+    {
+      "path": "app/morph.ts",
+      "sha256": "e9bb1ef83cf2aea0b3a68b410ce4115d840e7695a993ba28b3c4d7707cda454c"
+    },
+    {
+      "path": "app/native-math.ts",
+      "sha256": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc"
+    },
+    {
+      "path": "app/native-terrain.ts",
+      "sha256": "bef0de5cda0ab5a54147ff2c91569b97a4e1b58ed46bd1dc9e9a85467f8e17a5"
+    },
+    {
+      "path": "app/object-cells.ts",
+      "sha256": "cc693d083d0829c69f6295d9710b3c7762bd70f407ff9c5c408380dbd7465909"
+    },
+    {
+      "path": "app/original-camera.json",
+      "sha256": "988109e598f4e3c8b44ec16a1ce14f2c0fa5214364574d2e0411e8c2fd5be8b8"
+    },
+    {
+      "path": "app/original-constants.json",
+      "sha256": "ce71bff4c5971d1aae1539b4d014d69378ddc30067068d70353b5b78979fb47c"
+    },
+    {
+      "path": "app/original-effects.json",
+      "sha256": "8e43389fe9610e70fcedbbd8fe63b11d4addf9a001378225ee5ce273c5b83fdb"
+    },
+    {
+      "path": "app/original-fire.json",
+      "sha256": "a8859a510c220487d5ef112e7b938019dfa631a9d37a1a64c3ff4bcc4cb805c9"
+    },
+    {
+      "path": "app/original-hud.json",
+      "sha256": "3b24abb207a0ad2fc92f7225866352f0d485cf9ac7d13fb8b76842fecc928929"
+    },
+    {
+      "path": "app/original-messages.json",
+      "sha256": "c5de281ea8a3f7ce146992f2d10afb500620dbbb9e6e690d6afc1b95fba4235a"
+    },
+    {
+      "path": "app/original-models.json",
+      "sha256": "1665fcc36e57bbb765259ec9b7c1755a6b126db837787c9038ed955c76a8afc5"
+    },
+    {
+      "path": "app/original-rules.json",
+      "sha256": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6"
+    },
+    {
+      "path": "app/original-script-eight.json",
+      "sha256": "d5f4b7916b97d7b9b9622ac2ac9524807a979c91deefba0a784297c1c0ebdd5d"
+    },
+    {
+      "path": "app/original-script-eighteen.json",
+      "sha256": "a4040dc873067e0c54ecdc7060dbda2c1f32579fdf56d9a14185405a5c715f6c"
+    },
+    {
+      "path": "app/original-script-eleven.json",
+      "sha256": "a3ecb659f10e930c28950f6308e965f6c844cc56d440352f25c73f378c154ba3"
+    },
+    {
+      "path": "app/original-script-fifteen.json",
+      "sha256": "e4166e6538dca31e8334986d35922a186304aebc786c3d4f995004860c68a5c3"
+    },
+    {
+      "path": "app/original-script-five.json",
+      "sha256": "2c72b13228e8e3d5eafed5d80813510dd88e318832bc4009f622abe5d2d7c2b8"
+    },
+    {
+      "path": "app/original-script-four.json",
+      "sha256": "24fc1b7c610fae2c441b0f7024a930b51d1a7ce43dd2986a959cbeeacf2542da"
+    },
+    {
+      "path": "app/original-script-fourteen.json",
+      "sha256": "84ad1f10b0bea88f4be12c50f1e7d73b937f6e63ecaa6edc6a796a7745b4a665"
+    },
+    {
+      "path": "app/original-script-nine.json",
+      "sha256": "28e9d5067c63642a39066a01ead910f31a16ecb28c3b2992e823c86fb2f90ebf"
+    },
+    {
+      "path": "app/original-script-nineteen.json",
+      "sha256": "55e2e9bbe3861eed9f308239502b5f74707966e63ceb51b0f54ed81115bb647b"
+    },
+    {
+      "path": "app/original-script-seven.json",
+      "sha256": "b6ce50cbb783b1dd61d9ec159a35020dc613ab9cc16fe51e508548f2b57145c5"
+    },
+    {
+      "path": "app/original-script-seventeen.json",
+      "sha256": "a66a0b58383a1a51c5e0402b58917ac818d21d0f0a9a8f05e5d3f6b24ec2cd6e"
+    },
+    {
+      "path": "app/original-script-six.json",
+      "sha256": "672d6c911118ca34a1a274a820f214c55782e7fdf88cf0205416e3e0b1fc12b6"
+    },
+    {
+      "path": "app/original-script-sixteen.json",
+      "sha256": "3279b13bcffde6df88052f0ffb04221a41df8c8c0150822476108b67c4b91039"
+    },
+    {
+      "path": "app/original-script-ten.json",
+      "sha256": "fc55d5f157e86a061d701f83b14a833960574b9342682210ca3ff58b9aab6628"
+    },
+    {
+      "path": "app/original-script-thirteen.json",
+      "sha256": "b33215da998f1690aaf65ec6ace1da15eb1dbbf71624bc8a94c466b236355321"
+    },
+    {
+      "path": "app/original-script-three.json",
+      "sha256": "7362d19fef54dc06869b9c54c41c2d8229acf2942a4b22e6056aab6208789ccc"
+    },
+    {
+      "path": "app/original-script-tutorial.json",
+      "sha256": "d7e6125fae3768eec84fbd97361d2ea18660d31469feef7d593981acdd323a8c"
+    },
+    {
+      "path": "app/original-script-twelve.json",
+      "sha256": "057637116a76ce13653f001fb2a0834bf9f6ebd9f7a613b3e34dc1bb27317e97"
+    },
+    {
+      "path": "app/original-script-twenty-one.json",
+      "sha256": "570551c07e3ddae8bc868c3965b906020ed2260a08294d524c0d85a9bf6bcca8"
+    },
+    {
+      "path": "app/original-script-twenty-three.json",
+      "sha256": "8f76d3144e412c7f3e4fe6baf5d716e806f3ffcd917b8d44c4ad1a3cf1cb9a0b"
+    },
+    {
+      "path": "app/original-script-twenty-two.json",
+      "sha256": "5614cb096dd69e744f6de20a8830fa63af5a17e7f1003d4c33b963571d78cd1c"
+    },
+    {
+      "path": "app/original-script-twenty.json",
+      "sha256": "47598850f9ab71d41ab92c0f30a4adab38faae8c004f18f5b0875b2e370f1657"
+    },
+    {
+      "path": "app/original-script-two.json",
+      "sha256": "2a3b71e046b4935cfb54fa27c04c84f4b90d6f9b7d92c0471e28c505e4a2f94b"
+    },
+    {
+      "path": "app/original-script.json",
+      "sha256": "ced4ce5323a9c68962f4c0762c799c08102bd75157c24b681047e27e539d342c"
+    },
+    {
+      "path": "app/original-search.json",
+      "sha256": "ebb9c2b55caf00b5ca4f6de720b437bae95d944ea22c5c8b8ecb34ea9630d31a"
+    },
+    {
+      "path": "app/original-shapes.json",
+      "sha256": "0d0fcd2252efe0bae7cbb9a7f3a9acc4f6f0bb7a6e6e83eb5fe4e34ec247e094"
+    },
+    {
+      "path": "app/original-stone-heads.json",
+      "sha256": "8dfa738e04170a3874baaae433577538326c90786eb000feb08aa31ed0d29f20"
+    },
+    {
+      "path": "app/original-units.json",
+      "sha256": "e55160f7b2f269213de064a0db928708855b7e22affe6902a66ed3183bf9a12c"
+    },
+    {
+      "path": "app/original-vault-knowledge.json",
+      "sha256": "ed729494e87f6ba6434a9acb915c4da30aa04e1e37b5628ab5d3c7a42bc830bb"
+    },
+    {
+      "path": "app/path-geometry.ts",
+      "sha256": "3ee1ee2b2cbf6f27c7b154087b4c289f0a4eec9bcc87afba1f74156c5a763f72"
+    },
+    {
+      "path": "app/path-search.ts",
+      "sha256": "b772f8327026171a544119919901ee04e91e75c18f6ff74c1798630850ca7913"
+    },
+    {
+      "path": "app/path-solver.ts",
+      "sha256": "753ce8f089f8478a4a0b77cebd13d5ba3dd0a0cd4711faaddf2c898f96a984a8"
+    },
+    {
+      "path": "app/person-collision.ts",
+      "sha256": "fb4e3a388cca0a1f15f0cde99122d3d62c82eef14211f96ecba9ae01c0218a1c"
+    },
+    {
+      "path": "app/person-idle.ts",
+      "sha256": "6dfb6f673b9d9856fac8727c29e4e5e1254e69df96d017d6e999820920c47350"
+    },
+    {
+      "path": "app/person-motion.ts",
+      "sha256": "a8e87abdb010c7dcb20f4bfd438ec1340f82f2e92a8c4f1053c487c6c32d75d0"
+    },
+    {
+      "path": "app/person-order-start.ts",
+      "sha256": "8d0ebf7c58bce163b372a78430c7697f39138bc5cc6c30a9fbc81622d72c85cc"
+    },
+    {
+      "path": "app/person-order-update.ts",
+      "sha256": "23c2ff6108958715e45dc3caa034e5a3a558fdfcffa936e9129396ec8c48b286"
+    },
+    {
+      "path": "app/person-orders.ts",
+      "sha256": "27600291a988813415ce88a4b046101fb772894490d44607b84f739a433eb1f3"
+    },
+    {
+      "path": "app/person-panic.ts",
+      "sha256": "e9fc4f62f450076cd4e7711b79256072becaaeca5f5a2d281026464d73e05ce5"
+    },
+    {
+      "path": "app/person-physics.ts",
+      "sha256": "2775891b5ff41dae806eddeec53ebd44957b72f00c9aeec8569ef256908ddbc8"
+    },
+    {
+      "path": "app/person-route-recovery.ts",
+      "sha256": "8fad4da6b52ba661478597008b2deb83f5f9a8e84db40b6dc58a82bee39d6a2b"
+    },
+    {
+      "path": "app/person-routes.ts",
+      "sha256": "9ede023ac1ff1e3fcc1cdba0ff0beed9146f56003600a9ffce689048baa4f500"
+    },
+    {
+      "path": "app/person-selection.ts",
+      "sha256": "a9e2f65c572b954c871921ae9a0366b5af20ab05fceab6e17661a52094fc7cc8"
+    },
+    {
+      "path": "app/person-state.ts",
+      "sha256": "da771659e4da644ce0aa7eb6a988907888a9971e77745e3afeb95215f983cc17"
+    },
+    {
+      "path": "app/person-update.ts",
+      "sha256": "0d77d8decb63f78dd0a129ad8d95953d628c71028921299325f832e924cffc9f"
+    },
+    {
+      "path": "app/person-worship.ts",
+      "sha256": "471f5165c2f7f82a38b70522e76f258ef7311b97bf7f9608528dd7e0bcd2efca"
+    },
+    {
+      "path": "app/popscript.ts",
+      "sha256": "1e17b6e10f209893d472fe49a6483130633778aeaf85528c6026216fdd5afe45"
+    },
+    {
+      "path": "app/preacher-conversion.ts",
+      "sha256": "42b5f4ee351a8858f38c0a905880d368bbcdea6b07e992b731e587034b85a4b3"
+    },
+    {
+      "path": "app/projection.ts",
+      "sha256": "2ee6b7640087b3e996cf13cefd4cecb4e6e9c0d52f4d7913265047bd66bafb97"
+    },
+    {
+      "path": "app/reincarnation-wave-runtime.ts",
+      "sha256": "2fd81857a0abdb0b12c8d6e48b7c2990950bb3eb51a29271a3a6f62458f81535"
+    },
+    {
+      "path": "app/reincarnation.ts",
+      "sha256": "d361f22db204184515e63c2dc134c78f42110a1a49e7d071b26223993eb1d182"
+    },
+    {
+      "path": "app/resting-slots.ts",
+      "sha256": "3dab8cd975d8f85eeeecb7827eb7c7a41edcce8fb0ef7c7f9470ebea0f35b45f"
+    },
+    {
+      "path": "app/route-advance.ts",
+      "sha256": "fe9b9a98472cac03309d9cc284a3d76467885200bd59120cd975b6f75fbd1671"
+    },
+    {
+      "path": "app/scenery-fire.ts",
+      "sha256": "60d3700cf95dedfe4fa4ae67d024249387bb0db0ef58107e89eb89ca93b1a6cd"
+    },
+    {
+      "path": "app/secondary-effects.ts",
+      "sha256": "d3cd7bcadad17a6bb95204040a1da6a43f66cd7488295ae38440e42420582417"
+    },
+    {
+      "path": "app/selection-runtime.ts",
+      "sha256": "d1b61309818d87e85e329c24fd7384ebd00b474b4dbe8f57ef84061ecbb2be71"
+    },
+    {
+      "path": "app/shaman-death-vfx.ts",
+      "sha256": "dd271694c881c321b865305d581fe1bf880ed542e4ce8f46971edb7c1355ab18"
+    },
+    {
+      "path": "app/shaman-guard.ts",
+      "sha256": "3d35fe7fb9c63770d564a9caab239434bded6952326f486df474eba0fa94b83a"
+    },
+    {
+      "path": "app/site-wave-effects.ts",
+      "sha256": "ade4cd3d0cef0d034d0b2e1c5fd2b01bb63f65ad496687562db0a1bf55ba74c0"
+    },
+    {
+      "path": "app/special-battle.ts",
+      "sha256": "d979165760c76ce77ccc43b941457dd445a8d0aedc8c9af51fea8da714e07f87"
+    },
+    {
+      "path": "app/spell-casting.ts",
+      "sha256": "d24000b5e151f1407f24646f8af1dd258d505938fb94681e9fafd2bd26f90905"
+    },
+    {
+      "path": "app/spell-effects-runtime.ts",
+      "sha256": "87b379fcadfccbf4592d9e34e3342a5b1df482618687defdd96b5491c8e73e63"
+    },
+    {
+      "path": "app/spell-trails.ts",
+      "sha256": "884319866f64247e81d6ec2f5aeda1be57ea2c306b2c5f57d7b1e9562bd0fa67"
+    },
+    {
+      "path": "app/stone-head-animation.ts",
+      "sha256": "cea958795f6625272498d81b8b0799325805b048da9885db9f904802b56be981"
+    },
+    {
+      "path": "app/stone-head-orientation.ts",
+      "sha256": "b06c8d10ed2f9b744821c14206d63523a4a9d156a6336ae7edb59756c42c0098"
+    },
+    {
+      "path": "app/swamp.ts",
+      "sha256": "f9632ea3358a58a73fe641c963f20bd486d76a85e36b81d15c4c46a7a8098cb0"
+    },
+    {
+      "path": "app/swarm.ts",
+      "sha256": "a388ff1ad7686824445cd9acfe7b0e5c63c102cda87bef31a09bfa7e925312c4"
+    },
+    {
+      "path": "app/terrain-light.ts",
+      "sha256": "40c694835d920df3aad356f6bdaffeb318de561f21914c6122534ea9be414316"
+    },
+    {
+      "path": "app/terrain-notifications.ts",
+      "sha256": "6d577f0f6dd498b344530003e884e1fdc346385948cee10d1320f13ad47fa24a"
+    },
+    {
+      "path": "app/territory.ts",
+      "sha256": "45de954b094fd4dd85036cbae986dfddefee479db58b0c67d589c16aa0f0546e"
+    },
+    {
+      "path": "app/timber-search.ts",
+      "sha256": "d40f4cfb96cca9d3ece24e5517fafd1c73f44f6188def954a15e7c169d7a9784"
+    },
+    {
+      "path": "app/timber.ts",
+      "sha256": "79a068ad1edbc513dd3ddb2dbe4bf9b115f02006b58a9aea83f18c6681a594ea"
+    },
+    {
+      "path": "app/tornado-runtime.ts",
+      "sha256": "302ca07cb71b21a46a48270f085fb52c23374d7c79ded629b80f13224454398e"
+    },
+    {
+      "path": "app/tornado.ts",
+      "sha256": "baa81b691fc5c770ababccff7443de65b9ad5d8d4c5363dc04dc162ea2d7ad62"
+    },
+    {
+      "path": "app/training-conversion.ts",
+      "sha256": "6c8cade2447474f1d966cdfad22e9098d2fd4a5535891fe8c942ba7266806bf7"
+    },
+    {
+      "path": "app/training.ts",
+      "sha256": "6cb9a9d09b0f4455a78899a17f3160e916ffd10ba3935e500857882f09e12ace"
+    },
+    {
+      "path": "app/tree-growth.ts",
+      "sha256": "1e30ee962ff88b5f56d76b16f92514e15c0ed49605ddcd6ccd869c2ebe077b3e"
+    },
+    {
+      "path": "app/tribe-turns.ts",
+      "sha256": "9b31e569f690ba2d59eb322614958ef5fcd4a701906ad39209a4fdd48fdea926"
+    },
+    {
+      "path": "app/unit-kinds.ts",
+      "sha256": "5c6903d13aef2e99645fc8cfa3d86afde5e109a6b099aa775f0061f8b060162f"
+    },
+    {
+      "path": "app/vault-appearance.ts",
+      "sha256": "4e7307cbce00416abf9464f80a60841214759f5f7a4e10f1337af1aca8b3a010"
+    },
+    {
+      "path": "app/vault.ts",
+      "sha256": "d40771d046c920d5c226148a4e6e6c3738a24900e85216c22cfaddc88ca74a20"
+    },
+    {
+      "path": "app/vehicle-routing.ts",
+      "sha256": "512b46e2b3b3dcb99b9633bbab3629ec7ec8e1c45ac4517d65c4dc2585415516"
+    },
+    {
+      "path": "app/vehicle-seats.ts",
+      "sha256": "7766f3fe1035f147320e61b9a87b979d1669ff0d5bc8231f98ad8e21a2a63161"
+    },
+    {
+      "path": "app/volcano.ts",
+      "sha256": "5656ed170b1f9eb57aa4fbb751976127a28c51e98ff3ef1cd324804b9cd5adbd"
+    },
+    {
+      "path": "app/world-coordinates.ts",
+      "sha256": "5fab890c7ab683323d873c7350700a0bb3bf977f1b6512ddca6fa823f5a5fa4f"
+    },
+    {
+      "path": "app/world-effects.ts",
+      "sha256": "d831dcd87d1e2db3a5698b6124330c48e13940d0859c6ffc0d9cb110788e7352"
+    },
+    {
+      "path": "app/world-initialization.ts",
+      "sha256": "0b2accb95c180d87e71bad8788f9c28f3f49ab8af66d5189fd26af69ab717fe2"
+    },
+    {
+      "path": "app/world-rules.ts",
+      "sha256": "5688538516b4f908930dbcd46ebb807a958ee3f7edbbcd59e7067d04bf74fd2a"
+    },
+    {
+      "path": "app/world-state.ts",
+      "sha256": "880c00574e29d9f9e2cffd59d79ff337dcfe07d023d45b95481c09ff9e056ff6"
+    },
+    {
+      "path": "app/world-tasks.ts",
+      "sha256": "146f9856dd5ad69bccf6d470c977ca683454e67fe3d06fe67712edcf17849765"
+    },
+    {
+      "path": "app/world-terrain-runtime.ts",
+      "sha256": "4fcf001bde3e32f5647a6efa25066dc9332320f244b034a8f41881a15af4a757"
+    },
+    {
+      "path": "app/world-turn.ts",
+      "sha256": "957422e62b080cdbe787d78673336fb97957cdd6d2ce1ae547f1a280db2df26a"
+    },
+    {
+      "path": "app/world-types.ts",
+      "sha256": "39d0cf2a822e90a077ef86e43f74fb35e6966fe873f60d8e5b820f42c00cb3c4"
+    },
+    {
+      "path": "app/worship-acquisition-runtime.ts",
+      "sha256": "78e4a73406614305067fb3bad7c1ec7351da6060e3dcfef1f32735d1a4c12444"
+    },
+    {
+      "path": "app/worship-acquisition-source.ts",
+      "sha256": "76d96f4b5c584747d09166f48d12b309fbc23b26a2e14422efe945cec86b0626"
+    },
+    {
+      "path": "app/worship-acquisition.ts",
+      "sha256": "0d73b8bd93bcbb77c1863422bd65c53b6e242bb6a43974930b6c72315b341001"
+    },
+    {
+      "path": "app/worship-appearance.ts",
+      "sha256": "1a8c7b4cbc09aff87a107e8b1ee09af8eb5c28ff5b1954a0d4cfbf39e04937a5"
+    },
+    {
+      "path": "app/worship-panel-activity.ts",
+      "sha256": "1a1a98cbc5efad14d6e0ec526e9299211cd1eb36a2b11fca8acfc55249e5d1c5"
+    },
+    {
+      "path": "app/worship.ts",
+      "sha256": "f0e60f01e2b164e5d9e0ce6b8bd595ae3e4ca5f62ced9ef7c3e57dfb1ff75618"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/allocator-final-marker-store.asm",
+      "sha256": "d61d6e565a6af262249d6b4fadc9fff98e732f69095822522e9431b36dcf553c"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/allocator-ground-mode-store.asm",
+      "sha256": "4aaed9037528cd550316280e2aa74494211468abf1d6930c2cdc6cadd027cf98"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/allocator-prologue.asm",
+      "sha256": "05312ff2f71865b3a1bfc50a82e8a3a7b11664f4781b3b11630eb44bf5064a9a"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/attack-operand-and-call.asm",
+      "sha256": "1671f82086b7c042115b4540826df79c1dfe216552ba64c6473e46e21b4ca030"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-combat-timeout/fixture.json",
+      "sha256": "29ab6fd7cc29d93633d5d7bfc4d3bd19ec26901ca0d6837a180cc58862775130"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-combat-timeout/orders-input.bin",
+      "sha256": "e318bd0619dc93057b6274cdb984c40149114e274a58a71b0a6debb034dcc509"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-combat-timeout/people-input.bin",
+      "sha256": "683efdf0f7015de5cbf33f7cfe479f34b627c97e04dbc63fc5957347b78ac3d2"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-combat-timeout/pointers-input.bin",
+      "sha256": "b0f19579441075f47aeeac0f804034fb3cfa14322525a251839c994eaaf87def"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-combat-timeout/tombstone-input.bin",
+      "sha256": "f9e7a5789e211e2aa836718b734219f95e2c35b2458113eeff42b6f70957401f"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-combat-timeout/tribe-expected.bin",
+      "sha256": "34494b3ffc3691c7ce2c6d102ba30b50ede1ab10ab4e0df5d6cfb81242768070"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-combat-timeout/tribe-input.bin",
+      "sha256": "024b6d9f00de5def675fcc9de6f0249aa37b5c6e496a97bc56b90a9d1fdda2ac"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-moving-not-settled/fixture.json",
+      "sha256": "3f596d308d96c7e5ae11d7698b3bea66fa48e2f2819fa61c81c42aa0ddedf8d4"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-moving-not-settled/orders-input.bin",
+      "sha256": "ddaa78f8f23dabe3db7deb0ca7a64fdb8f105b612477e49c6756ba6dc6ba28fc"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-moving-not-settled/people-input.bin",
+      "sha256": "4b1df7feffd16c3f1949f40b664f58bb422c4223f5176523c1f99c7916603e1e"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-moving-not-settled/pointers-input.bin",
+      "sha256": "b0f19579441075f47aeeac0f804034fb3cfa14322525a251839c994eaaf87def"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-moving-not-settled/tombstone-input.bin",
+      "sha256": "f9e7a5789e211e2aa836718b734219f95e2c35b2458113eeff42b6f70957401f"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-moving-not-settled/tribe-expected.bin",
+      "sha256": "fd47345f12b268922766f570634aaa5d5df2483411a029941d8ad116eb1d3ed3"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/captured-moving-not-settled/tribe-input.bin",
+      "sha256": "203639cf1c98e5b5673622d58ee26a1b52a53c41d3925be6bfbafdfd925277c8"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/cases.json",
+      "sha256": "4684967e107f4b51e677efc45ed4b773d3294e7090d705adaf8446abc5b0f2b2"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/manifest.json",
+      "sha256": "93e94f2fbcf0cee4387891782e6ba5ba5f4631e617085ddd7a1a619f3bec0062"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/no-cast-binding.json",
+      "sha256": "1fb2a48ec1e47e3498e03c3c32a238c9465406b3418a52c19026532261924a10"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/observed-8370.json",
+      "sha256": "ae7ea7bc465233846ef9cec0fc59de3a72e6f8157dd7b641389f51e031507895"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/observed-8417.json",
+      "sha256": "18490c74d799f0aa0921ccb14a7fc72482378bb87f146ae0a5fb836f255b9234"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/phase6.asm",
+      "sha256": "64507b7c6eacc2a94dfaf43d44b9bf0b434961475491997f38a6d582ee11c3a6"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/plan.md",
+      "sha256": "8700319877296813fe2ba2a9caaf87738c3385e40ad8b547c873a3c25f6e4e4b"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/port-import-closure.json",
+      "sha256": "f50db77e60e82b61e3045202f629d7f315436680b287ff4b69b44c59fe43c7dc"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/preflight.md",
+      "sha256": "a8e3eee8d9da78c07769077aee3a289a3a1e3587beb2fbdb0aa7939384940874"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/proposed-cases.json",
+      "sha256": "bf5a3e2dac75e22cbe2753b7a1e042b584659d7ce4bdeced015fc2cf648f556b"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/release_predicate.asm",
+      "sha256": "197d3b94f4a51b7439ec44045a02944f352df13b41a6105b10089bfea890b082"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/sermon_predicate.asm",
+      "sha256": "70c3975b02bd24ed467ef2350c8ea4d921a2c0d9b096323438b2c85ae0a188b2"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/static-ranges.json",
+      "sha256": "102f581f64489aba0d23dc4ea6aa821020ef1e83eba2fafd6ea620b6822f1dc4"
+    },
+    {
+      "path": "decomp/research/raid-phase6-settlement/task_helper.asm",
+      "sha256": "b5419d8aa6ac4b36fa895b89cde43e34d2e4319acdef15cdf324901b122a8fe3"
+    },
+    {
+      "path": "decomp/tools.json",
+      "sha256": "21154d63e900ca6342190d31a13960c0ed677ce2e86399ff72f82d713a1f9484"
+    },
+    {
+      "path": "scripts/check-native-computer-attack.py",
+      "sha256": "0a9694bd36f0d60c1bb4772531d3a670bc0c1f60d502569c1af25d81cfb72942"
+    },
+    {
+      "path": "scripts/decomp.py",
+      "sha256": "0a4783a8ee924c52e1125a5df3e4e625b3ab00835e848a2013e444bcfd979c2e"
+    },
+    {
+      "path": "scripts/inspect-executable.py",
+      "sha256": "e926dbfba27443eb0ab8f3ee9e6510a68ceaea0d4cabe0062ed28063ac65a207"
+    },
+    {
+      "path": "scripts/probe-native-preacher-response.py",
+      "sha256": "5786a182f5265443d05c8f095cc046ec20c42033efe51743f20bfd760376f6b0"
+    },
+    {
+      "path": "scripts/probe-native-raid-phase6.py",
+      "sha256": "75b55631640c45d3ab1a4011a798e986966ef7abfc3b4f8d7c138efa5852888b"
+    },
+    {
+      "path": "scripts/raid-phase6-pair.mjs",
+      "sha256": "ca8b7cc7015d12795561e5af5fc79eb7002bec83d43c351de5d0a0aa4124e87c"
+    },
+    {
+      "path": "scripts/run-preacher-response-once.py",
+      "sha256": "23dd99728374a2021231ff16c3cdb171bdfbecb65443a004589c9e382d7e349b"
+    },
+    {
+      "path": "tests/mission6.test.mjs",
+      "sha256": "76506b6ad0b5df21b6b6a803ebe2174351d425e321c97a542b679e6a5ed290e7"
+    }
+  ]
+}

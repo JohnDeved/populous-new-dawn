@@ -1339,7 +1339,7 @@
       "shamanAbsent": true,
       "countCarrier": "slot1 flags1; otherwise untouched createComputerQueue defaults"
     },
-    "cellChains": "Only captured head/ID/link metadata retained; uncaptured chain-node fields are not synthesized."
+    "cellChains": "Captured chain IDs/links are materialized. Uncaptured nodes have explicitly supplied cell-center XY, membership flags and opaque identity only; they are not live units or native task members."
   },
   "abi": {
     "entry": 5026816,
@@ -1358,7 +1358,8 @@
       "EDX": 3570717908,
       "ESI": 3857049061,
       "EDI": 4143380214,
-      "EBP": 387389207
+      "EBP": 387389207,
+      "EFLAGS": 2
     },
     "functions": [
       {
