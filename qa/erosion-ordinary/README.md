@@ -38,6 +38,11 @@ Scene binding retries only the actual Playwright TimeoutError within that shared
 120-second startup deadline. Up to64 timeout diagnostics are retained separately
 from physical actions. Non-timeout errors propagate immediately; each awaited bind
 is followed by the existing stop/deadline check. Physical inputs are not retried.
+Only the optional Skip click uses Playwright's `noWaitAfter:true`. Its visible,
+enabled/stable and initial hit-target checks and physical action remain awaited;
+navigation barriers and the post-action hit-interceptor result are not awaited.
+The same-scene/original-actor readiness gate proves opening completion. Click
+errors still propagate; worship and other proof-critical clicks keep their waits.
 
 ## Launch, stop and receipts
 

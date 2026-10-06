@@ -151,7 +151,7 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
     assert.equal(initial.shrine.kind, 'erosionEffect'); assert.equal(initial.shrine.uses, 0)
     save('initial.json', initial)
     const skip = page.getByRole('button', { name: /^Skip introduction/ })
-    if (await skip.isVisible()) await input('skip-introduction', {}, () => skip.click({ timeout: 1500 }))
+    if (await skip.isVisible()) await input('skip-introduction', {}, () => skip.click({ timeout: 1500, noWaitAfter: true }))
     let resumedAtStartup = false
     await poll(async () => {
       if ((await read()).paused) {

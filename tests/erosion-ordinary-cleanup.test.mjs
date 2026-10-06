@@ -32,16 +32,18 @@ import { pollWithPreservation } from '../qa/erosion-ordinary/stop.mjs'
 import { browserModules } from '../qa/erosion-ordinary/source-policy.mjs'
 import { errors } from '@playwright/test'
 
-function smokeFixture({ bind = async () => {}, polling = pollWithPreservation, stop = () => null } = {}) {
+function smokeFixture({ bind = async () => {}, polling = pollWithPreservation, stop = () => null, skipVisible = false, skipClick = async () => {} } = {}) {
   const plan = { ...launch.plan, purpose: 'startup-smoke', bounds: { scenarioWallMs: 120000 } }
   const smokeLaunch = { ...launch, plan, server: {}, planSha256: 'synthetic-hash' }
   const state = { level: 3, turn: 10, speed: 1, paused: false, status: 'playing', contextLost: false,
     actor: { id: 46, team: 'blue', kind: 'shaman', hp: 100, fighting: false },
     shrine: { id: 101, kind: 'erosionEffect', uses: 0 }, lifecycle: null, complete: false }
+  let readinessReads = 0
   const saved = new Map(), calls = [], receipt = { source: sourceReceipt, errors: [], profile: {
     mode: 'created', path: plan.profilePath, previousRun: null, checkpointAtStart: null, runId: 'synthetic' } }
   const page = { setDefaultTimeout() {},
-    getByRole: (_, options) => ({ isVisible: async () => false, focus: async () => calls.push(['focus', options.name]) }),
+    getByRole: (_, options) => ({ isVisible: async () => options.name instanceof RegExp && skipVisible,
+      focus: async () => calls.push(['focus', options.name]), click: async clickOptions => { calls.push(['skip-click', clickOptions]); await skipClick(clickOptions) } }),
     keyboard: { press: async key => calls.push(['key', key]) },
     evaluate: async (fn, value) => {
       assert.doesNotMatch(fn.toString(), /observeOrdinaryErosion\(/, 'smoke must not call the observer constructor')
@@ -55,9 +57,9 @@ function smokeFixture({ bind = async () => {}, polling = pollWithPreservation, s
     observeLoadedModules: async () => ({ read: async () => { calls.push(['source-read']); return { modules: {}, observations: [] } }, dispose: async () => calls.push(['dispose']) }),
     limits: { wallMs: 900000, startupMs: 120000 }, readQueuedPreservingStop: stop, pollWithPreservation: polling,
     showAllMissions: async () => calls.push(['show-all']), bindGame: async () => { calls.push(['bind']); await bind() },
-    readShamanReadiness: async () => ({ ready: true }), browserModules, serverIdentity: () => ({}), readFileSync: () => 'synthetic plan' }
+    readShamanReadiness: async () => { readinessReads++; return { ready: true } }, browserModules, serverIdentity: () => ({}), readFileSync: () => 'synthetic plan' }
   const scenario = new Function(...Object.keys(bindings), `return (${body})`)(...Object.values(bindings))
-  return { saved, calls, receipt, run: () => scenario({ page, root, output: plan.output, url: plan.origin, signal: { throwIfAborted() {} }, receipt }) }
+  return { saved, calls, receipt, get readinessReads() { return readinessReads }, run: () => scenario({ page, root, output: plan.output, url: plan.origin, signal: { throwIfAborted() {} }, receipt }) }
 }
 
 test('startup-smoke uses the ordinary prefix and cleanup without capture or worship', async () => {
@@ -108,4 +110,27 @@ test('a preserving stop arriving during a successful bind rejects before later w
   await assert.rejects(f.run(), /Requested current-run preserving stop/)
   assert.equal(f.calls.some(row => row[0] === 'modules'), false)
   assert.equal(f.calls.filter(row => row[0] === 'key').length, 1)
+})
+
+
+test('Skip dispatches once without a navigation barrier and still waits for original-actor readiness', async () => {
+  let physical = 0
+  const f = smokeFixture({ skipVisible: true, skipClick: async options => {
+    physical++
+    if (!options.noWaitAfter) throw new errors.TimeoutError('click action done; waiting for scheduled navigations to finish')
+    assert.deepEqual(options, { timeout: 1500, noWaitAfter: true })
+  } })
+  assert.ok((await f.run()).erosionStartupSmoke)
+  assert.equal(physical, 1); assert.equal(f.readinessReads, 1)
+  const actions = f.saved.get('/synthetic/out/actions.json').actions.filter(row => row.kind === 'skip-introduction')
+  assert.deepEqual(actions.map(row => row.phase), ['before', 'completed'])
+})
+
+test('Skip action errors retain identity and never cause a second physical click or readiness continuation', async () => {
+  const error = new errors.TimeoutError('actual physical action failed')
+  let physical = 0
+  const f = smokeFixture({ skipVisible: true, skipClick: async () => { physical++; throw error } })
+  await assert.rejects(f.run(), actual => actual === error)
+  assert.equal(physical, 1); assert.equal(f.readinessReads, 0)
+  assert.equal(f.calls.some(row => row[0] === 'modules'), false)
 })
