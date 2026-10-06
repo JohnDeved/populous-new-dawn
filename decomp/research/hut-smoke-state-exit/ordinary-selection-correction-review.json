@@ -1,0 +1,13 @@
+{
+  "verdict": "ACCEPT narrow selection correction",
+  "head": "bbd19436eb562861b740e97b3acbf81ab59492be",
+  "scenarioSha256": "565126eb64dc35c24a730bb92ec6553ebb3098beff9a3521f74395a4574fa365",
+  "checks": [
+    "Full delta inspected and node --check passed. App/observer/contracts unchanged.",
+    "Ordinary Escape now clears existing Shaman selection before additive Shift Brave roster selection. Empty selection and null mode verified.",
+    "Intended living Blue Brave IDs recorded and exact cohort rechecked before real housing click; all trusted event/native recipient assertions retained.",
+    "Shaman replacement selection, outside-hut state and null mode verified before camera-prepared Lightning mode selection.",
+    "Failed mixed-cohort dispatch remains preserved; no retrospective smoke witness."
+  ],
+  "next": "One fresh04 run after unchanged-host metadata rebind/readback, preserving all bounds/source checks/dependency lifecycle. No additional source changes or automatic retry."
+}
