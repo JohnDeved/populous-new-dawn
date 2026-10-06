@@ -28,7 +28,8 @@ function row(turn, phase = 'afterTurn', response = false) {
       references: 1, object: 0, a: 0x2100, b: 0x2100 } : queued,
     orderUsers: [5], retiredOrders: [], listeners: [], facts: { autoEligible: true, range: 1, genericThreat: 0,
       primaryGuardIds: [], availableOrder: true, gameFlags: 0, levelFlags2: 0, scanMask: 15,
-      braves: [{ id: 6, identity: 6, x: 0x2180, y: 0x2100, model: 2, tribe: 1, state: 17,
+      braves: [{ id: 6, unitId: 6, identity: 6, class: 1, kind: 'brave', team: 'red', hp: 50, inside: null,
+        nativeOnly: true, registeredOwner: true, positionCoherent: true, routeOwner: 6, motionGroup: 0, x: 0x2180, y: 0x2100, model: 2, tribe: 1, state: 17,
         life: 1000, flags2: 0x20000, flags4: 0, workFlags: 0, vehicle: 0, reverseAlliance: 0 }] } }
 }
 
@@ -138,16 +139,50 @@ test('reused drivers stay byte-identical and new observation contains no World/t
   assert.equal(pins.candidateTrees, null, 'Candidate cannot launch before adopted reviewed application')
 })
 
-test('observed state19 is admitted without admitting listeners or unknown ownership', () => {
-  assert.equal(eligibleBraveState(17), true); assert.equal(eligibleBraveState(19), true)
-  for (const state of [23, undefined, null, 0, 10]) assert.equal(eligibleBraveState(state), false)
+test('scan witness admits10/17/19 while initial crossing anchor stays stationary17/19', () => {
+  for (const state of [10, 17, 19]) assert.equal(eligibleBraveState(state), true)
+  for (const state of [23, undefined, null, 0]) assert.equal(eligibleBraveState(state), false)
   const item = { kind: 'brave', team: 'yellow', hp: 50, inside: null, nativeOnly: true,
     native: { state: 19 }, pathLength: 0, predicates: { nativeReverse: [], ownership: [], oldQaPrefilter: ['not-idle17', 'outside-secondary3x3'] } }
   assert.equal(coherentCrossingBrave(item), true)
-  for (const mutate of [v => { v.native.state = 23 }, v => { v.nativeOnly = false },
+  for (const mutate of [v => { v.native.state = 10 }, v => { v.native.state = 23 }, v => { v.nativeOnly = false },
     v => { v.predicates.ownership = ['selected-record-missing'] }, v => { v.pathLength = 1 },
     v => { v.predicates.nativeReverse = ['actual-workFlags-not0'] }]) {
     const bad = structuredClone(item); mutate(bad); assert.equal(coherentCrossingBrave(bad), false)
+  }
+})
+
+test('both omission and first32 require the same eligible native reference and cell despite target movement', () => {
+  const before = row(15, 'beforeTurn'), after = row(16)
+  before.facts.braves[0].state = 19
+  Object.assign(after.facts.braves[0], { state: 10, x: 0x21b0, pathLength: 3,
+    order: { model: 21 }, commandStatus: 21, workTarget: 5, motionIndex: 1 })
+  const visit = qualifyingVisit(before, after)
+  assert.equal(visit.brave.before.state, 19); assert.equal(visit.brave.after.state, 10)
+  const alreadyMoving = structuredClone(before)
+  Object.assign(alreadyMoving.facts.braves[0], { state: 10, pathLength: 2 })
+  assert.ok(qualifyingVisit(alreadyMoving, after))
+  const first = row(16, 'afterTurn', true); first.facts.braves = after.facts.braves
+  const tracker = createResponseTracker(); tracker.observe(before); tracker.observe(first)
+  assert.equal(tracker.progress.status, 'responding', tracker.progress.reason)
+  assert.equal(tracker.progress.firstResponse.brave.after.pathLength, 3)
+  for (const change of [b => { b.state = 23 }, b => { b.identity = 99 }, b => { b.routeOwner = 99 },
+    b => { b.x += 512 }, b => { b.x = 0x21b0 + 0.5 }, b => { b.x = 65536 },
+    b => { b.positionCoherent = false }, b => { b.registeredOwner = false }, b => { b.nativeOnly = false },
+    b => { b.unitId++ }, b => { b.team = 'yellow' }, b => { b.life = 0 }, b => { b.life = 999 },
+    b => { b.workFlags = 1 }, b => { b.motionGroup = 1 }, b => { b.reverseAlliance = 1 },
+    b => { b.reverseAlliance = undefined }, b => { b.tribe = undefined; b.team = 'unknown' }]) {
+    const changed = structuredClone(after); change(changed.facts.braves[0])
+    assert.equal(qualifyingVisit(before, changed), null)
+    const response = structuredClone(first); response.facts.braves = changed.facts.braves
+    const denied = createResponseTracker(); denied.observe(before); denied.observe(response)
+    assert.equal(denied.progress.status, 'failed', JSON.stringify(changed.facts.braves[0]))
+  }
+  for (const change of [r => { r.actor.hp-- }, r => { r.admission.target = 7 },
+    r => { r.facts.primaryGuardIds = [7] }, r => { r.turn = 17 }]) {
+    const response = structuredClone(first); change(response)
+    const denied = createResponseTracker(); denied.observe(before); denied.observe(response)
+    assert.equal(denied.progress.status, 'failed')
   }
 })
 

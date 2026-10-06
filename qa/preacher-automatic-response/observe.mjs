@@ -5,7 +5,47 @@ const same = (a, b) => JSON.stringify(a) === JSON.stringify(b)
 const queue = row => [row.person.commandCursor, row.commands, row.queued]
 const short = n => (n << 16) >> 16
 const cell = p => [(p.x >>> 9) & 127, (p.y >>> 9) & 127]
-export const eligibleBraveState = state => state === 17 || state === 19
+export const eligibleBraveState = state => state === 10 || state === 17 || state === 19
+const tribes = { blue: 0, red: 1, yellow: 2, green: 3 }
+const word = n => Number.isInteger(n) && n >= 0 && n <= 65535
+
+export function eligibleObservedBrave(source, brave) {
+  return !!brave && brave.identity > 0 && brave.id === brave.unitId && brave.class === 1 && brave.model === 2 &&
+    brave.kind === 'brave' && Number.isInteger(brave.tribe) && brave.tribe >= 0 && brave.tribe <= 3 &&
+    brave.tribe === tribes[brave.team] && brave.tribe !== source.tribe &&
+    brave.hp > 0 && brave.life > 0 && brave.life === Math.round(brave.hp * 20) && brave.inside === null &&
+    brave.nativeOnly && brave.registeredOwner && brave.positionCoherent && word(brave.x) && word(brave.y) &&
+    eligibleBraveState(brave.state) && brave.workFlags === 0 && !brave.vehicle &&
+    !(brave.flags2 & 0x810000) && !!(brave.flags2 & 0x20000) && !(brave.flags4 & 0x1000) &&
+    Number.isInteger(brave.reverseAlliance) && !(brave.reverseAlliance & (1 << source.tribe)) &&
+    cell(brave).every((n, i) => Math.abs(((n - cell(source)[i] + 64) & 127) - 64) <= 1)
+}
+
+export function stableBravePair(before, after) {
+  for (const a of before.facts.braves) {
+    if (!eligibleObservedBrave(before.person, a)) continue
+    const b = after.facts.braves.find(b => eligibleObservedBrave(after.person, b) &&
+      a.identity === b.identity && a.id === b.id && a.class === b.class && a.model === b.model &&
+      a.tribe === b.tribe && a.motionGroup === b.motionGroup && a.routeOwner === b.routeOwner && same(cell(a), cell(b)))
+    if (b) return { before: a, after: b, cell: cell(a) }
+  }
+  return null
+}
+
+// Shared by absence and first32. Retain raw endpoint changes; equal native cells
+// establish the scanner's spatial input, not an unobserved path or internal AL.
+function stableTriggerVisit(before, after) {
+  if (before?.phase !== 'beforeTurn' || after.phase !== 'afterTurn' || after.turn !== before.turn + 1 ||
+    !movingEncounter(before) || !admittedMovingLane(after) || !same(queue(before), queue(after)) ||
+    !same(before.admission, after.admission) || before.actor.hp !== after.actor.hp ||
+    after.person.life !== Math.round(after.actor.hp * 20) || after.person.life <= 0 ||
+    !same(cell(before.person), cell(after.person)) ||
+    Math.hypot(short(after.person.x - before.person.x), short(after.person.y - before.person.y)) > 128 ||
+    Math.hypot(short(before.order.a - after.person.x), short(before.order.b - after.person.y)) <= 512 ||
+    after.facts.primaryGuardIds.length || after.facts.gameFlags !== 0 || after.facts.levelFlags2 !== 0 ||
+    !(!(after.turn & after.facts.scanMask) || before.person.flags3 & 0x800)) return null
+  return stableBravePair(before, after)
+}
 
 export function admittedMovingLane(row) {
   const a = row.admission
@@ -31,17 +71,11 @@ export function qualifyingVisit(before, after) {
   // Production startLiveCombatResponse gates w.turn, and combatScan passes a
   // detached {...p, counter: w.turn & 255} to automaticCombatScanner. The stored
   // person's separate counter is retained, but does not own this caller's scan.
-  if (before?.phase !== 'beforeTurn' || after.phase !== 'afterTurn' || after.turn !== before.turn + 1 ||
-    !movingEncounter(before) || !movingEncounter(after) || !same(queue(before), queue(after)) ||
-    before.order.id !== after.order.id || before.order.identity !== after.order.identity ||
-    !same(before.admission, after.admission) || before.actor.hp !== after.actor.hp ||
-    !same(cell(before.person), cell(after.person)) ||
-    Math.hypot(short(after.person.x - before.person.x), short(after.person.y - before.person.y)) > 128 ||
-    !(!(after.turn & after.facts.scanMask) || before.person.flags3 & 0x800)) return null
-  const brave = before.facts.braves.find(a => after.facts.braves.some(b => same(a, b)))
+  if (!movingEncounter(after) || before?.order?.id !== after.order.id || before.order.identity !== after.order.identity) return null
+  const brave = stableTriggerVisit(before, after)
   if (!brave) return null
   return { beforeTurn: before.turn, afterTurn: after.turn, brave, before, after,
-    basis: 'Adjacent retained moving3; explicit world-turn no-target/no-task admission; pending destination; stable eligible native Brave; due scanner; empty primary guard; actual generic miss; free order capacity. No internal AL observed.' }
+    basis: 'Adjacent retained moving3; explicit world-turn no-target/no-task admission; pending destination; same eligible native Brave reference/cell at both endpoints; due scanner; empty primary guard; actual generic miss; free order capacity. No internal AL observed.' }
 }
 
 export function createResponseTracker({ baseline = false, loaded = false, captureOnly = false, maxRows = 12000, maxVisits = 3600 } = {}) {
@@ -84,16 +118,14 @@ export function createResponseTracker({ baseline = false, loaded = false, captur
     }
     if (!responseId && row.order?.model === 32) {
       if (loaded) originalQueue = queue(row)
-      else if (!progress.move || !movingEncounter(before) || !same(queue(before), queue(row)) ||
-        !same(queue(row), originalQueue) || !same(cell(before.person), cell(p)) ||
-        !(!(row.turn & row.facts.scanMask) || before.person.flags3 & 0x800))
+      else if (!progress.move || !stableTriggerVisit(before, row) || !same(queue(row), originalQueue))
         return fail('First32 has no source-bound moving3 trigger and preserved queue')
       if (baseline) return fail('Baseline unexpectedly produced32; preserve actual result')
       if (!p.immediateCommand || row.order.id !== p.immediateCommand || row.order.flags !== 32 ||
         row.order.references !== 1 || row.order.a !== p.x || row.order.b !== p.y || row.orderUsers.length !== 1)
         return fail('Immediate32 payload/reference/initiator ownership failed')
       responseId = row.order.id; responseIdentity = row.order.identity
-      progress.firstResponse = { before: loaded ? null : before, after: row, loaded }
+      progress.firstResponse = { before: loaded ? null : before, after: row, loaded, brave: loaded ? null : stableBravePair(before, row) }
       progress.status = 'responding'; events.push({ kind: loaded ? 'loaded32' : 'first-automatic32', ...progress.firstResponse })
     }
     if (!responseId) {
@@ -161,16 +193,21 @@ export async function installResponseObservation({ id, baseline = false, loaded 
     const braves = []
     for (const other of w.units) {
       const v = other.native
-      if (!p || other.kind !== 'brave' || other.hp <= 0 || other.inside !== null || !v || v.class !== 1 ||
-        v.model !== 2 || v.tribe < 0 || v.tribe === p.tribe || !eligibleBraveState(v.state) || v.life <= 0 ||
-        v.workFlags !== 0 || v.vehicle || v.flags2 & 0x810000 || v.flags4 & 0x1000 ||
-        other.flight || other.fight || other.builder || other.entry || other.path.length ||
-        w.outcome.alliances[v.tribe] & (1 << p.tribe) || !inEngagementArea(p, v, 3) ||
-        w.objectCells.objects.get(v.id) !== v || !(v.flags2 & 0x20000) || !linked(v) ||
-        v.x !== (Math.round((other.x + 8) * 256) & 65535) || v.y !== (Math.round((-other.z - 8) * 256) & 65535)) continue
-      braves.push({ identity: identity(v), id: v.id, x: v.x, y: v.y, tribe: v.tribe, model: v.model,
+      if (!p || !v || other.kind !== 'brave' || !inEngagementArea(p, v, 3)) continue
+      const order = currentPersonOrder(w.buildingOrders, v), orderId = v.immediateCommand || v.commands[v.commandCursor]
+      const brave = { identity: identity(v), id: v.id, unitId: other.id, class: v.class,
+        kind: other.kind, team: other.team, hp: other.hp, inside: other.inside,
+        nativeOnly: unitAnimationSource(other) === v && !other.flight && !other.fight && !other.builder && !other.entry,
+        registeredOwner: w.objectCells.objects.get(other.id) === v && !!(v.flags2 & 0x20000) && linked(v),
+        positionCoherent: v.x === (Math.round((other.x + 8) * 256) & 65535) && v.y === (Math.round((-other.z - 8) * 256) & 65535),
+        x: v.x, y: v.y, world: { x: other.x, z: other.z }, tribe: v.tribe, model: v.model,
         state: v.state, workFlags: v.workFlags, flags2: v.flags2, flags4: v.flags4, life: v.life,
-        disguise: v.disguise, vehicle: v.vehicle, reverseAlliance: w.outcome.alliances[v.tribe] })
+        disguise: v.disguise, vehicle: v.vehicle, reverseAlliance: w.outcome.alliances[v.tribe],
+        pathLength: other.path.length, pathEnds: other.path.length ? [other.path[0], other.path.at(-1)].map(q => ({ x: q.x, z: q.z })) : [],
+        target: other.target, work: other.work, motionGroup: v.motionGroup ?? null, motionIndex: v.motionIndex ?? null,
+        routeOwner: identity(other.native), commandStatus: v.commandStatus, workTarget: v.workTarget,
+        order: order ? { id: orderId, ...order } : null }
+      if (eligibleObservedBrave(p, brave)) braves.push(brave)
     }
     let genericThreat = null
     if (p && current?.model === 3 && range === 1) {

@@ -2,8 +2,8 @@
 
 Application/base remains `1c7e6b05687aca14d9350e17c7ae14dc6c68bb97`.
 Baseline attempt01 at QA `1aa0414b` failed before any qualifying Brave encounter.
-The new QA-only delta prepares bounded diagnostic capture and genuine Load→Pause
-from its retained checkpoint. It has not run. Exact-source review, profile
+The reviewed Load-only continuation restored its retained checkpoint exactly.
+The new QA-only delta prepares one measured crossing; it has not run. Exact-source review, profile
 correspondence and a separate resource grant are required before continuation.
 Runtime fixes remain with the producer owner; no candidate or full gate ran here.
 
@@ -62,12 +62,34 @@ error. Two builder-owned records have actual registration/position mismatches;
 three housed Braves have no selected native record. These are current3387 facts,
 not reconstructed Run01 positions.
 
-The narrow acceptance correction adds observed19 alongside17, preserving all
-other source/target ownership, flags, health, path, range, admission and cadence
-guards. Native reverse excludes23; the19 allowance is backed by that recovered
-source and the observed ordinary records, not a new original-executable case.
-Unknown native ownership and listener23 remain rejected. Complete rejected records
-remain in the new phase stream.
+The scan witness admits coherent states10/17/19. Native reverse excludes23 and
+has no idle/pathless requirement. Initial crossing choice remains stationary17/19;
+its later target may move or attack while the Preacher approaches. Both omission
+and first32 require the same actual native reference, identity/class/model/tribe,
+route owner/group and native cell at both adjacent scan endpoints, with eligibility
+rechecked independently at each. Raw XY, state, path endpoints/length and current
+order changes remain in the rows. Whole-record equality is not required. Changed
+cell, missing/replaced owner, incoherent native/world XY or life, listener23,
+workFlags, alliance or primary failure invalidates the witness. Source admission,
+HP, queue, cadence and pending destination stay guarded. These endpoint facts are
+source-bound inference; they do not expose scanner AL or an intermediate path.
+
+State19 is supported by the ordinary3387 records above. State10 also occurs in
+the maintained Mission6 fixed-step production diagnostic: at8000 candidate
+`0d278277145a83fccdc691874121c84ae71cec19` installs immediate32 on moving Preacher398;
+coherent registered Blue Braves290/282 in cell3613 are state10/current21, targeting
+398, workFlags0. Baseline is1c7e6b05; all retained fields match through7999.
+This is app simulation, not ordinary UI or a new original-executable execution.
+Published evidence commit `1b1183f8` and the producer's
+`work/orchestration/preacher-mission6-diagnostic-20261006/` retain `findings.md`,
+`first-divergence.json` (SHA256
+`c203d54ec5262f9c7c6c69ce4ee0494a0fa570becf65cee38ea04d97903733e1`),
+`selected-turns.json` (SHA256
+`e9954e802098bf756e860b5bea180b76f9fa7c4ff1505f68ad7e88c307c06e15`),
+and manifest SHA256
+`5ff63564f8b947b2ed8bd11d389719ad2cadc7bd24fabf042ebb888ce26bdcc7`.
+The original native reverse source and this real caller observation justify the
+narrow domain correction; they do not establish this browser crossing's outcome.
 
 `PND_RESPONSE_PHASE=crossing` reuses genuine3336 Load and the original acquisition
 proof. The acquisition helper has one explicit loaded-prefix branch; its existing
@@ -175,7 +197,7 @@ render, hidden layer, image synthesis or native pixel-equivalence claim is used.
    snapshot from the callback. Reuse the reviewed callback chaining/restoration.
 5. Baseline qualification requires an adjacent before/after moving-3 visit with
    pending destination, stable owned queue, due scan cadence, a stable registered
-   idle enemy Brave, and available order capacity. Explicit no-target/no-task
+   enemy Brave in state10/17/19 and the same native cell, and available order capacity. Explicit no-target/no-task
    world-turn admission (work, target, tree, cargo, harvest, delivery, vault, guard,
    reservation, opening/Armageddon, support and coherent position) stays valid at
    both boundaries. A wider guard excludes every native/live model4/7 candidate,
