@@ -1,0 +1,34 @@
+{
+  "issue": 248,
+  "status": "source-only proposal; no execution/runtime/test change",
+  "applicationHead": "0d278277145a83fccdc691874121c84ae71cec19",
+  "caseCount": 2,
+  "diagnosticManifestSha256": "5ff63564f8b947b2ed8bd11d389719ad2cadc7bd24fabf042ebb888ce26bdcc7",
+  "sourceFiles": {
+    "app/computer.ts": "7e7425a46cba84fa4eeb4c29be92c25c848f992b94e2912d570b9959027a666d",
+    "app/computer-runtime.ts": "fcaea74faacf6477a25c186b668eadc8e3a5a887cc74157683f818ee1a576872",
+    "app/campaign-runtime.ts": "14db77faf860b168dea78e674788b3bc86437e26196e85f38fce6f3dfa541f89",
+    "app/campaign-command-runtime.ts": "5badf47c9b0e55d99f307a1a82c3ba311c835ac78edeabc9f6c7796a39314182",
+    "app/person-orders.ts": "27600291a988813415ce88a4b046101fb772894490d44607b84f739a433eb1f3",
+    "app/original-rules.json": "876ec0fad0fd380b6ae305624a3707f50ec5fa0d7b6a4c75702e50c2499ed4c6",
+    "app/original-script-six.json": "672d6c911118ca34a1a274a820f214c55782e7fdf88cf0205416e3e0b1fc12b6",
+    "scripts/check-native-computer-attack.py": "0a9694bd36f0d60c1bb4772531d3a670bc0c1f60d502569c1af25d81cfb72942",
+    "scripts/decomp.py": "0a4783a8ee924c52e1125a5df3e4e625b3ab00835e848a2013e444bcfd979c2e",
+    "scripts/inspect-executable.py": "e926dbfba27443eb0ab8f3ee9e6510a68ceaea0d4cabe0062ed28063ac65a207",
+    "decomp/generated/00462750.c": "d3ad2f646f886be173f2be8cf19fc1dcb4236222114f279158db5a941b037db1",
+    "decomp/generated/004f2460.c": "d59c9298778eb7ea45678580e424c18b5ee00293bebef7004503b6f90a25efec",
+    "decomp/generated/004f39f0.c": "2c48580c7a176068e3e541e08043f0557dc51f21094983bb7e0f1e93ab0f994c",
+    "decomp/generated/004df0e0.c": "e95f3d77d9ef66b7ff2f6c608b482820e6c7fe41e095034f2cb6b6222d645b09"
+  },
+  "packetFiles": {
+    "observed-8370.json": "ae7ea7bc465233846ef9cec0fc59de3a72e6f8157dd7b641389f51e031507895",
+    "observed-8417.json": "18490c74d799f0aa0921ccb14a7fc72482378bb87f146ae0a5fb836f255b9234",
+    "phase6.asm": "64507b7c6eacc2a94dfaf43d44b9bf0b434961475491997f38a6d582ee11c3a6",
+    "plan.md": "8700319877296813fe2ba2a9caaf87738c3385e40ad8b547c873a3c25f6e4e4b",
+    "proposed-cases.json": "bf5a3e2dac75e22cbe2753b7a1e042b584659d7ce4bdeced015fc2cf648f556b",
+    "release_predicate.asm": "197d3b94f4a51b7439ec44045a02944f352df13b41a6105b10089bfea890b082",
+    "sermon_predicate.asm": "70c3975b02bd24ed467ef2350c8ea4d921a2c0d9b096323438b2c85ae0a188b2",
+    "static-ranges.json": "102f581f64489aba0d23dc4ea6aa821020ef1e83eba2fafd6ea620b6822f1dc4",
+    "task_helper.asm": "b5419d8aa6ac4b36fa895b89cde43e34d2e4319acdef15cdf324901b122a8fe3"
+  }
+}

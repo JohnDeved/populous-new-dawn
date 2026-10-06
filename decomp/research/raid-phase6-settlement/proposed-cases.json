@@ -1,0 +1,463 @@
+{
+  "issue": 248,
+  "caseCount": 2,
+  "scope": "conditional ownership projection; not a literal raw-port/native equality claim",
+  "cases": [
+    {
+      "name": "captured-combat-timeout",
+      "turn": 8370,
+      "source": "captured post-tick record; supplied isolated next task visit",
+      "task": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 6,
+        "target": 14111,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 0,
+        "mode": 0,
+        "fallback": 23,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 33,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "suppliedActiveTaskCount": 2,
+      "activeCountBasis": "Observed next task elapsed delta2; other active task record is an opaque supplied count carrier, not a captured full tribe image.",
+      "members": [
+        {
+          "id": 386,
+          "chosenRecord": "registered fight.motion",
+          "observedComputerAssignment": 0,
+          "proposedNativeAssignment": 1,
+          "mappingBasis": "Port task.members is the admitted semantic owner; native004f2460 represents this with index+1. Observed byte0 remains in the captured JSON and port input. Mapping needs explicit preflight acceptance.",
+          "state": 25,
+          "substate": 1,
+          "speed": 0,
+          "flags2": 2228864,
+          "currentOrder": {
+            "model": 19,
+            "flags": 0,
+            "references": 3,
+            "object": 0,
+            "a": 14394,
+            "b": 2056
+          },
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "registryIdentity": true
+        },
+        {
+          "id": 415,
+          "chosenRecord": "registered fight.motion",
+          "observedComputerAssignment": 0,
+          "proposedNativeAssignment": 1,
+          "mappingBasis": "Port task.members is the admitted semantic owner; native004f2460 represents this with index+1. Observed byte0 remains in the captured JSON and port input. Mapping needs explicit preflight acceptance.",
+          "state": 25,
+          "substate": 1,
+          "speed": 0,
+          "flags2": 2228864,
+          "currentOrder": {
+            "model": 19,
+            "flags": 0,
+            "references": 3,
+            "object": 0,
+            "a": 14394,
+            "b": 2056
+          },
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "registryIdentity": true
+        },
+        {
+          "id": 445,
+          "chosenRecord": "registered fight.motion",
+          "observedComputerAssignment": 0,
+          "proposedNativeAssignment": 1,
+          "mappingBasis": "Port task.members is the admitted semantic owner; native004f2460 represents this with index+1. Observed byte0 remains in the captured JSON and port input. Mapping needs explicit preflight acceptance.",
+          "state": 25,
+          "substate": 0,
+          "speed": 71,
+          "flags2": 1075970560,
+          "currentOrder": {
+            "model": 19,
+            "flags": 0,
+            "references": 3,
+            "object": 0,
+            "a": 14394,
+            "b": 2056
+          },
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "registryIdentity": true
+        },
+        {
+          "id": 398,
+          "chosenRecord": "registered fight.motion",
+          "observedComputerAssignment": 0,
+          "proposedNativeAssignment": 1,
+          "mappingBasis": "Port task.members is the admitted semantic owner; native004f2460 represents this with index+1. Observed byte0 remains in the captured JSON and port input. Mapping needs explicit preflight acceptance.",
+          "state": 29,
+          "substate": 4,
+          "speed": 0,
+          "flags2": 2228864,
+          "currentOrder": {
+            "model": 32,
+            "flags": 32,
+            "references": 1,
+            "object": 0,
+            "a": 15436,
+            "b": 14972
+          },
+          "immediateCommand": 254,
+          "commands": [
+            249,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "registryIdentity": true
+        }
+      ],
+      "staticPrediction": {
+        "nativeElapsed": 1801,
+        "nativePhase": 23,
+        "portElapsed": 2,
+        "portPhase": 6,
+        "membersUnchanged": true,
+        "nativeExecution": "not-run",
+        "portComposition": "not-run"
+      }
+    },
+    {
+      "name": "captured-moving-not-settled",
+      "turn": 8417,
+      "source": "captured post-tick record; supplied isolated next task visit",
+      "task": {
+        "tribe": 2,
+        "index": 0,
+        "flags": 1,
+        "type": 20,
+        "phase": 6,
+        "target": 14111,
+        "requested": 4,
+        "extra": 20,
+        "selected": 4,
+        "remaining": 6,
+        "elapsed": 45,
+        "mode": 0,
+        "fallback": 23,
+        "regroup": 23112,
+        "origin": 13882,
+        "entity": 290,
+        "damage": 0,
+        "retries": 33,
+        "retreatPercent": 25,
+        "spells": [
+          0,
+          0,
+          0
+        ],
+        "quotas": [
+          0,
+          80,
+          30,
+          0,
+          0,
+          0
+        ],
+        "members": [
+          386,
+          415,
+          445,
+          398
+        ],
+        "route": [
+          {
+            "marker": 42,
+            "secondary": -1,
+            "quotas": [
+              0,
+              1,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          {
+            "marker": -1,
+            "secondary": 0,
+            "quotas": [
+              0,
+              0,
+              0,
+              0
+            ]
+          }
+        ]
+      },
+      "suppliedActiveTaskCount": 2,
+      "activeCountBasis": "Observed next task elapsed delta2; other active task record is an opaque supplied count carrier, not a captured full tribe image.",
+      "members": [
+        {
+          "id": 386,
+          "chosenRecord": "retained native",
+          "observedComputerAssignment": 0,
+          "proposedNativeAssignment": 1,
+          "mappingBasis": "Port task.members is the admitted semantic owner; native004f2460 represents this with index+1. Observed byte0 remains in the captured JSON and port input. Mapping needs explicit preflight acceptance.",
+          "state": 10,
+          "substate": 1,
+          "speed": 68,
+          "flags2": 33690112,
+          "currentOrder": {
+            "model": 19,
+            "flags": 0,
+            "references": 3,
+            "object": 0,
+            "a": 14394,
+            "b": 2056
+          },
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "registryIdentity": true
+        },
+        {
+          "id": 415,
+          "chosenRecord": "retained native",
+          "observedComputerAssignment": 0,
+          "proposedNativeAssignment": 1,
+          "mappingBasis": "Port task.members is the admitted semantic owner; native004f2460 represents this with index+1. Observed byte0 remains in the captured JSON and port input. Mapping needs explicit preflight acceptance.",
+          "state": 10,
+          "substate": 1,
+          "speed": 64,
+          "flags2": 33690112,
+          "currentOrder": {
+            "model": 19,
+            "flags": 0,
+            "references": 3,
+            "object": 0,
+            "a": 14394,
+            "b": 2056
+          },
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "registryIdentity": true
+        },
+        {
+          "id": 445,
+          "chosenRecord": "retained native",
+          "observedComputerAssignment": 0,
+          "proposedNativeAssignment": 1,
+          "mappingBasis": "Port task.members is the admitted semantic owner; native004f2460 represents this with index+1. Observed byte0 remains in the captured JSON and port input. Mapping needs explicit preflight acceptance.",
+          "state": 10,
+          "substate": 1,
+          "speed": 69,
+          "flags2": 33690112,
+          "currentOrder": {
+            "model": 19,
+            "flags": 0,
+            "references": 3,
+            "object": 0,
+            "a": 14394,
+            "b": 2056
+          },
+          "immediateCommand": 0,
+          "commands": [
+            247,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "registryIdentity": true
+        },
+        {
+          "id": 398,
+          "chosenRecord": "retained native",
+          "observedComputerAssignment": 0,
+          "proposedNativeAssignment": 1,
+          "mappingBasis": "Port task.members is the admitted semantic owner; native004f2460 represents this with index+1. Observed byte0 remains in the captured JSON and port input. Mapping needs explicit preflight acceptance.",
+          "state": 10,
+          "substate": 1,
+          "speed": 60,
+          "flags2": 33690112,
+          "currentOrder": {
+            "model": 21,
+            "flags": 32,
+            "references": 1,
+            "object": 0,
+            "a": 14908,
+            "b": 514
+          },
+          "immediateCommand": 255,
+          "commands": [
+            249,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0,
+            0
+          ],
+          "commandCursor": 0,
+          "registryIdentity": true
+        }
+      ],
+      "staticPrediction": {
+        "nativeElapsed": 47,
+        "nativePhase": 6,
+        "portElapsed": 47,
+        "portPhase": 23,
+        "membersUnchanged": true,
+        "nativeExecution": "not-run",
+        "portComposition": "not-run"
+      }
+    }
+  ]
+}
