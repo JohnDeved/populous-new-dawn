@@ -200,6 +200,46 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     assert.ok(recipients.length > 0, 'The actual command must reach a selected recipient')
     assert.deepEqual(recipients.map(unit => unit.id), expectedIds ?? before.selected)
   }
+  const castInput = async (hit, spell) => {
+    const preflight = await page.evaluate(async ({ hit, spell, actorId }) => {
+      const { spellTargetError } = await import('/app/live-command.ts')
+      const scene = window.testSceneRef.current, world = scene.world, canvas = scene.renderer.domElement
+      const point = hit.point ?? hit.spellPreflight.point
+      const rejection = spellTargetError(structuredClone(world), spell, point)
+      const preflight = { turn: world.turn, point, spell, mode: world.mode, paused: world.paused,
+        actorId, stock: world.shots[spell], rejection }
+      if (rejection || world.paused || world.mode !== spell || world.shots[spell] <= 0) return preflight
+      if (window.hutCastInput) throw Error('A cast observation is already armed')
+      const record = { before: [], after: [] }
+      const sample = event => ({ turn: world.turn, stock: world.shots[spell], gifts: world.giftCounts[spell],
+        mode: world.mode, trusted: event.isTrusted, button: event.button, canvasTarget: event.target === canvas,
+        worldMatches: scene.world === world && window.testStore.getWorld() === world,
+        caster: world.units.find(unit => unit.id === actorId)?.id ?? null })
+      const before = event => record.before.push(sample(event)), after = event => record.after.push(sample(event))
+      canvas.addEventListener('pointerup', before, true); canvas.addEventListener('pointerup', after)
+      window.hutCastInput = { finish() {
+        canvas.removeEventListener('pointerup', before, true); canvas.removeEventListener('pointerup', after)
+        return record
+      } }
+      return preflight
+    }, { hit, spell, actorId: originalShamanId })
+    report.actions.push({ label: 'actual-cast-preflight', preflight }); save()
+    assert.equal(preflight.rejection, null); assert.equal(preflight.paused, false)
+    assert.equal(preflight.mode, spell); assert.ok(preflight.stock > 0)
+    let delivered
+    try { await action(`${spell}-target-click`, () => page.mouse.click(hit.x, hit.y)) }
+    finally {
+      delivered = await page.evaluate(() => { const observer = window.hutCastInput; delete window.hutCastInput; return observer?.finish() })
+      report.actions.push({ label: 'actual-cast-stock', spell, delivered }); save()
+    }
+    assert.equal(delivered.before.length, 1); assert.equal(delivered.after.length, 1)
+    const before = delivered.before[0], after = delivered.after[0]
+    assert.ok([before, after].every(row => row.trusted && row.button === 0 && row.canvasTarget && row.worldMatches && row.caster === originalShamanId))
+    assert.equal(after.turn, before.turn)
+    assert.equal(after.stock, before.stock - 1, 'One real handler must spend one immediately observed earned shot')
+    assert.equal(after.mode, null)
+    return { preflight, before, after }
+  }
   const clickEntity = async (collection, id, command, cast = false, expectedIds = null) => {
     if (!cast) await prepareDispatch()
     const hit = await entityPoint(collection, id, command, cast)
@@ -208,7 +248,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     if (cast) {
       assert.equal(hit.spellPreflight.rejection, null, JSON.stringify(hit.spellPreflight))
       assert.ok(hit.spellPreflight.shots > 0)
-      await action('Lightning-target-click', () => page.mouse.click(hit.x, hit.y))
+      report.lightningCast = await castInput(hit, 'lightning'); save()
     } else await dispatch(hit, command, expectedIds)
   }
   const groundNear = hut => page.evaluate(async hut => {
@@ -245,14 +285,22 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
       eligibility: { canOrder: canOrder(actor), accepts27: acceptsPersonOrder(person, 27), model: person.model, flags4: person.flags4 },
       routeFound: path !== null, nativeRoute: path && { x: path.x, y: path.y, motionGroup: path.motionGroup, motionIndex: path.motionIndex } }
   }, { label, shrineId, actorId: originalShamanId })
-  const fixedGround = (target, spell = null) => page.evaluate(async ({ target, spell }) => {
-    const [{ createMoveContextProbe, entityInputState }, { spellTargetError }] = await Promise.all([
-      import('/qa/erosion-ordinary/input.mjs'), import('/app/live-command.ts')])
+  const fixedGround = (target, spell = null) => page.evaluate(async ({ target, spell, actorId }) => {
+    const [{ createMoveContextProbe, entityInputState }, { spellTargetError }, { spellRange }, { nativePosition }, { positionDistance }] = await Promise.all([
+      import('/qa/erosion-ordinary/input.mjs'), import('/app/live-command.ts'), import('/app/spell-casting.ts'),
+      import('/app/world-terrain-runtime.ts'), import('/app/native-math.ts')])
     const scene = window.testSceneRef.current, world = scene.world, rect = scene.renderer.domElement.getBoundingClientRect()
     const projected = scene.screen(target), center = { x: rect.left + (projected.x + 1) * rect.width / 2,
       y: rect.top + (1 - projected.y) * rect.height / 2 }, candidates = []
     const snap = point => ({ x: Math.floor(point.x / 2) * 2 + 1, z: -Math.floor(-point.z / 2) * 2 - 1 })
-    const wanted = snap(target), probe = createMoveContextProbe(world)
+    const wanted = snap(target), probe = createMoveContextProbe(world), rejected = []
+    const spellWorld = spell ? structuredClone(world) : null
+    const actor = spellWorld?.units.find(unit => unit.id === actorId)
+    const caster = actor ? { id: actor.id, x: actor.x, z: actor.z, hp: actor.hp, inside: actor.inside,
+      native: nativePosition(spellWorld, actor), range: spellRange(spellWorld, actor, 12) * 256,
+      paused: world.paused, turn: world.turn } : null
+    const minimumMargin = 128 // A half-world-unit witness margin; the shipped spell range is unchanged.
+    if (spell && (!actor || actor.hp <= 0)) return { target, rejection: 'Original Shaman is unavailable', caster, rejected }
     for (let dy = -180; dy <= 180; dy += 4) for (let dx = -180; dx <= 180; dx += 4) candidates.push({ dx, dy })
     candidates.sort((a, b) => a.dx * a.dx + a.dy * a.dy - b.dx * b.dx - b.dy * b.dy)
     for (const offset of candidates) {
@@ -265,14 +313,20 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
       const snapped = snap(point)
       if (spell ? snapped.x !== wanted.x || snapped.z !== wanted.z : Math.hypot(point.x - target.x, point.z - target.z) > 0.35) continue
       const context = spell ? null : probe(point)
-      const rejection = spell ? spellTargetError(structuredClone(world), spell, point)
+      const rejection = spell ? spellTargetError(spellWorld, spell, point)
         : context.model !== 3 || !context.enabled ? 'Ground command context rejected' : null
-      return { ...hit, point, target, snapped, context, rejection,
+      const nativeTarget = spell ? nativePosition(spellWorld, point) : null
+      const distance = spell ? positionDistance(caster.native, nativeTarget) : null
+      const margin = spell ? caster.range - distance : null
+      if (spell && (rejection || margin < minimumMargin)) {
+        rejected.push({ ...hit, point, nativeTarget, rejection, distance, margin }); continue
+      }
+      return { ...hit, point, target, snapped, context, rejection, caster, nativeTarget, distance, margin, minimumMargin, rejected,
         diagnostics: entityInputState(scene, null, hit), turn: world.turn }
     }
-    return { target, rejection: 'No owned rendered ground point in the required native cell',
-      diagnostics: entityInputState(scene, null, center) }
-  }, { target, spell })
+    return { target, rejection: 'No owned rendered point in the required native cell meets the shipped predicate and range margin',
+      caster, minimumMargin, rejected, diagnostics: entityInputState(scene, null, center) }
+  }, { target, spell, actorId: originalShamanId })
   const retainFrames = async () => {
     if (!armed) return
     const observed = await page.evaluate(() => window.hutIgnitionFrames.read())
@@ -322,26 +376,33 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     report.bridgeReward = await read(); save()
     assert.ok(report.bridgeReward.bridgeGifts > report.initial.bridgeGifts)
     await button('Select and focus shaman')
-    await view({ x: 0, z: 20 })
+    const shoreDestination = { x: 0.5, z: 19 } // Interior of the already demonstrated native shore cell.
+    await view(shoreDestination)
     await prepareDispatch()
-    const shore = await fixedGround({ x: 0, z: 20 })
+    const shore = await fixedGround(shoreDestination)
     report.shoreInput = shore; save(); assert.equal(shore.rejection, null)
     await dispatch(shore, 3, [shamanId])
-    await page.waitForFunction(id => {
+    await page.waitForFunction(({ id, point }) => {
       const actor = window.testSceneRef.current.world.units.find(unit => unit.id === id)
       if (!actor || actor.hp <= 0) throw Error('Original Shaman was lost before the shore')
-      return actor.inside === null && Math.hypot(actor.x, actor.z - 20) < 1.3
-    }, shamanId, { timeout: 180000 })
+      const person = actor.builder?.person ?? actor.flight ?? actor.fight?.motion ?? actor.native ?? actor.entry?.person
+      return actor.inside === null && !actor.path.length && (person?.speed ?? 0) === 0 &&
+        Math.hypot(actor.x - point.x, actor.z - point.z) < 0.35
+    }, { id: shamanId, point: shore.point }, { timeout: 180000 })
+    await pause()
+    report.shoreArrival = await read(); save()
     await view({ x: 0, z: 4 }) // Camera preparation precedes ordinary spell selection.
     await action('select-earned-Land-Bridge', () => page.keyboard.press('2'))
     assert.equal((await read()).mode, 'bridge')
     const bridgePoint = await fixedGround({ x: 0, z: 4 }, 'bridge')
     report.bridgeInput = bridgePoint; save(); assert.equal(bridgePoint.rejection, null)
+    assert.equal(bridgePoint.caster.paused, true)
+    assert.ok(bridgePoint.margin >= bridgePoint.minimumMargin)
+    await resume()
     const bridgeBefore = await read()
-    await action('Land-Bridge-target-click', () => page.mouse.click(bridgePoint.x, bridgePoint.y))
+    const bridgeDelivery = await castInput(bridgePoint, 'bridge')
     const bridgeAfter = await read()
-    report.bridgeCast = { before: bridgeBefore, after: bridgeAfter }; save()
-    assert.equal(bridgeAfter.bridgeShots, bridgeBefore.bridgeShots - 1)
+    report.bridgeCast = { before: bridgeBefore, after: bridgeAfter, delivered: bridgeDelivery }; save()
     assert.ok(bridgeAfter.bridgeProjectiles.some(projectile => projectile.caster === shamanId &&
       !bridgeBefore.bridgeProjectiles.some(prior => prior.id === projectile.id)) || bridgeAfter.bridges > bridgeBefore.bridges)
     await page.waitForFunction(({ actorId, before }) => {
@@ -445,7 +506,7 @@ export default async function hutSmokeIgnition({ page, openMission, output, sign
     assert.deepEqual(burning.admissionSlots, before.admissionSlots)
     assert.equal(burning.roots.length, 0)
     assert.equal(burning.rootVisible, false)
-    assert.ok((await read()).shots < report.reward.shots, 'The actual earned shot must be consumed')
+    assert.equal(report.lightningCast.after.stock, report.lightningCast.before.stock - 1)
     await page.screenshot({ path: resolve(output, 'hut-smoke-paused-after-ignition.png') })
     report.screenshots.push('hut-smoke-paused-after-ignition.png')
     await resume()

@@ -1,8 +1,8 @@
 {
-  "status": "source-only-unexecuted-housing-selection-correction",
+  "status": "source-only-unexecuted-range-and-immediate-stock-correction",
   "applicationCommit": "b26f66b24da4fe133441e83c5377467a5066ef64",
   "files": {
-    "scripts/local-render/hut-smoke-ignition.mjs": "565126eb64dc35c24a730bb92ec6553ebb3098beff9a3521f74395a4574fa365",
+    "scripts/local-render/hut-smoke-ignition.mjs": "c566e84d110cb6c3e42af2beff8018bb23151aaf2fb73179321da0d0cf8b4282",
     "scripts/local-render/hut-smoke-ignition-observer.mjs": "8a50fa4bb93b6bb0fb9b927056dacb085049cb2125ebd6bb4db2579ea6f8b735",
     "scripts/local-render/harness.mjs": "fb07de9e278f26b2b32324defeb6164832472a58d422aead1032b7db7ee85fcf",
     "scripts/local-render/owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
@@ -43,6 +43,9 @@
     "app/person-orders.ts": "9b5bbf2f8b353db09f4cc344893f0d52e4afa14b4f5f5202a6de62b4ac677394",
     "decomp/research/hut-smoke-state-exit/ordinary-selection-correction.md": "54e0a21b5b6ee6dc07bd2316af1817b315bf6757da389de874f35fdde01708b3",
     "app/hud-selection.ts": "21738b749f85d9cf2daf9df5dfb3825283722775c7e5ff475843ad51c539ef3c",
-    "engineering/local-render-harness.md": "dbcdd8770002bdb675f75578a78bbca562d7cc2dadb961f299885f233d56202e"
+    "engineering/local-render-harness.md": "dbcdd8770002bdb675f75578a78bbca562d7cc2dadb961f299885f233d56202e",
+    "decomp/research/hut-smoke-state-exit/ordinary-range-stock-correction.md": "4601f331a4ac2f28e2fd8b2ac51d52a1326133ff1dba0c0359c79ff7ac818cd8",
+    "app/spell-casting.ts": "d24000b5e151f1407f24646f8af1dd258d505938fb94681e9fafd2bd26f90905",
+    "app/native-math.ts": "223fa6c4dc5d14a66daec1c1a15a5252802e1fa7e4f3cc7c5a2fcc07818435cc"
   }
 }
