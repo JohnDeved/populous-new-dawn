@@ -1,8 +1,9 @@
 # One bounded Node launch proposal (not run)
 
-Prerequisites: independently accepted native raw result; fixture expectations
-promoted with exact result/review hashes and rebound source manifest; exact code
-review ACCEPT; parent execution grant and exclusive CPU4 allocation. If any input,
+Native oracle adoption is complete: raw result `bca1801056967b4d73e704e446c2252cc6b5da30244a5aa46a06a80eada8c8b5`,
+independent review `d197450d2435afd93b0625fb43c55243a5aab545d6fd041c73dfb99e986623dc`;
+expected rows and test body are unchanged. Remaining prerequisites: exact code
+review ACCEPT, parent execution grant and exclusive CPU4 allocation. If any input,
 Node binary, application source, expected row or boundary changes, stop and review.
 
 Run from this branch's isolated worktree. Verify its reviewed commit and clean

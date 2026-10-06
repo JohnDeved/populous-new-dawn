@@ -1086,8 +1086,8 @@
       "gitBlobAtBase": "aeda0f01776760e2b1999b1adb6939dab2b3b737"
     },
     "tests/fixtures/preacher-terminal-turning-live.json": {
-      "sha256": "39cac2278e248db847bc7540aab45dd71a34495c3cdf158c6cb43db9a5895d11",
-      "bytes": 12244,
+      "sha256": "ad7a1eebfac70ece199d9e9690638ef3d2ac95dad4fb09ff80eeb0128d8b4a87",
+      "bytes": 13640,
       "gitBlobAtBase": null
     },
     "tests/preacher-terminal-turning-live.test.mjs": {
@@ -1159,7 +1159,7 @@
     "versionExecuted": false
   },
   "excludedBindingFiles": "This provenance directory and its own binding are bound by the reviewed commit/full diff, avoiding self-referential hashes.",
-  "expectedResultStatus": "provisional; exact native result/review hashes still required before launch",
+  "expectedResultStatus": "reviewed-native-result; separate production-caller code review and execution grant remain required",
   "importGraph": {
     "edgeCount": 1263,
     "canonicalEdgesSha256": "82b862d3297aa0e8738c53e2ae77d5c376a4512ca6e4d9e395209265f4f101bf",

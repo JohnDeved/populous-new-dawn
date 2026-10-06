@@ -24,11 +24,12 @@ actual `stepObjectAnimation`. It does not call `tick`, `advanceGame`, or
 guarded against changes. Only entry and supportHeight properties with the exact
 value `undefined` are normalized during setup to match known wrapper assignments.
 
-The final native mode0/RNG3603658299 expectation is still a source prediction.
-The test refuses to construct its fixture until provenance is promoted to
-`reviewed-native-result` with an accepted result reference. Native result/review
-hashes and exact unchanged expected rows must be checked before that promotion;
-it is not permission to execute this source. The current application is predicted
+The final native mode0/RNG3603658299 expectation now comes from the independently
+accepted native result. All three expected rows and the test body are byte-identical
+to source head `e49ceeab`; only oracle provenance/status and its binding changed.
+`native-result-review.md`, its manifest and verification bind that acceptance.
+The test retains its reviewed-native-result guard. Oracle acceptance is not
+permission to execute this source. The current application is predicted
 to fail with mode2/RNG1607832750 after passing real acquisition assertions.
 
 At the final boundary the test compares a clone of the world with precisely those
@@ -42,7 +43,7 @@ listener, queue and RNG snapshots even when the last assertion fails.
 - `tests/preacher-terminal-turning-live.test.mjs`: one test, three wrapper and
   three Preacher-only updater calls.
 - `tests/fixtures/preacher-terminal-turning-live.json`: full ordinary person,
-  corrected listeners, explicit supplies and provisional expectations.
+  corrected listeners, explicit supplies and reviewed native expectations.
 - `field-supply-ledger.json`: accepted supply ownership and limitations.
 - `plan-review.md`: verbatim independent plan ACCEPT, SHA256
   `2802052e3b9ddfa9a07c5f219d04db3bb5994ab22abd862e3155a773620f5396`.

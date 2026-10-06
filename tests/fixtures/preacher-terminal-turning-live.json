@@ -1,6 +1,6 @@
 {
   "provenance": {
-    "expectationStatus": "provisional-source-prediction; do not launch before native result and exact source review",
+    "expectationStatus": "reviewed-native-result",
     "applicationBase": "a00eadc811e227559f9a2713eedbee5cd08af1c1",
     "acceptedPlanManifestSha256": "83cc398de042af02a53dcbec9d248a4f6c544256556318e5e52c266c69a46704",
     "acceptedPlanReviewSha256": "2802052e3b9ddfa9a07c5f219d04db3bb5994ab22abd862e3155a773620f5396",
@@ -15,7 +15,22 @@
       "lineWithoutNewlineSha256": "e4f2501ee502fe714e9c36fd4956667cd79f122d20b1959f227cf098a2977749"
     },
     "kind": "One supplied production-caller regression; neither ordinary five-listener acquisition nor whole-world/native-physics equivalence.",
-    "nativeResult": null
+    "nativeResult": {
+      "sourceHead": "410cdb6747cd2641582a305a19f6a075057f4a10",
+      "resultPacket": "/workspace/scratch/69fd8163d94e/cloud-dev-20261004/review-bundles/preacher-terminal-turning-result-20261006",
+      "resultManifestSha256": "4dad693936c368db05388d60337646199cb3755b4174f29ac4d37082cf3e3f68",
+      "nativeFile": "run-01/native.json",
+      "nativeSha256": "bca1801056967b4d73e704e446c2252cc6b5da30244a5aa46a06a80eada8c8b5",
+      "suppliedInputSha256": "8d153eb0b5e56ebe410407b93520756521ae472a7b400dfd1b035a64d6a33816",
+      "frozenManifestSha256": "28ae1d15bf9fc9867df6548527518346efa7e83ee4974dedd6f9d5a2b9e0adfb",
+      "launchReceiptSha256": "92deec9502f9fa21e951ff6ef93cdc0c4e56655c283a0b0c07d20037b8cc4195",
+      "independentReviewFile": "references/verification/preacher-terminal-turning-live-2026-10-06/native-result-review.md",
+      "independentReviewSha256": "d197450d2435afd93b0625fb43c55243a5aab545d6fd041c73dfb99e986623dc",
+      "independentReviewManifestSha256": "898802d62549cd7862e85054c69823f1112d62ae632bc73f0b3f999c64de789b",
+      "independentVerificationSha256": "39977406c9175b066522acdfa668e067623e2f5fb0a5979b3cd7f2df4c0182fe",
+      "expectedRowsCanonicalSha256": "e7eff430dd3e65000b106c372dd415ed00b314ee885090843b51af66a841c361",
+      "scope": "Actual native producer/controller/updater on one supplied six-record topology; port side used supplied count/status adapter. This is the oracle, not production-caller execution."
+    }
   },
   "ordinaryPerson": {
     "id": 3164,
