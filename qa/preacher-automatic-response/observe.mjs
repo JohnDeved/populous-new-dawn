@@ -5,12 +5,19 @@ const queue = row => [row.person.commandCursor, row.commands, row.queued]
 const short = n => (n << 16) >> 16
 const cell = p => [(p.x >>> 9) & 127, (p.y >>> 9) & 127]
 
+export function admittedMovingLane(row) {
+  const a = row.admission
+  return !!a && a.work === null && a.target === null && a.tree === null && a.cargo === 0 &&
+    !a.harvest && !a.delivery && !a.vault && !a.guard && !a.attackReservation &&
+    !a.starting && !a.armageddon && !(a.landFlags & 2) && a.supported && a.positionCoherent
+}
+
 // A deliberately narrow ordinary-domain witness, not a second implementation of
 // 0051f030. No model4/7 candidate exists in the guarded area, so its primary is
 // empty without weakening any native predicate. The actual generic read also misses.
 export function movingEncounter(row) {
   const p = row.person, f = row.facts
-  return !!p && row.order?.model === 3 && !p.immediateCommand && p.commandStatus === 3 &&
+  return !!p && admittedMovingLane(row) && row.order?.model === 3 && !p.immediateCommand && p.commandStatus === 3 &&
     p.state === 10 && p.speed > 0 && !(row.order.flags & 1) && row.pendingDistance > 512 &&
     f.autoEligible && f.range === 1 && f.genericThreat === 0 && f.primaryGuardIds.length === 0 &&
     f.availableOrder && f.braves.length > 0 && f.gameFlags === 0 && f.levelFlags2 === 0 &&
@@ -21,13 +28,14 @@ export function qualifyingVisit(before, after) {
   if (before?.phase !== 'beforeTurn' || after.phase !== 'afterTurn' || after.turn !== before.turn + 1 ||
     !movingEncounter(before) || !movingEncounter(after) || !same(queue(before), queue(after)) ||
     before.order.id !== after.order.id || before.order.identity !== after.order.identity ||
+    !same(before.admission, after.admission) || before.actor.hp !== after.actor.hp ||
     !same(cell(before.person), cell(after.person)) ||
     Math.hypot(short(after.person.x - before.person.x), short(after.person.y - before.person.y)) > 128 ||
     !(!(after.turn & after.facts.scanMask) || before.person.flags3 & 0x800)) return null
   const brave = before.facts.braves.find(a => after.facts.braves.some(b => same(a, b)))
   if (!brave) return null
   return { beforeTurn: before.turn, afterTurn: after.turn, brave, before, after,
-    basis: 'Adjacent retained moving3; pending destination; stable eligible native Brave; due scanner; empty primary guard; actual generic miss; free order capacity. No internal AL observed.' }
+    basis: 'Adjacent retained moving3; explicit world-turn no-target/no-task admission; pending destination; stable eligible native Brave; due scanner; empty primary guard; actual generic miss; free order capacity. No internal AL observed.' }
 }
 
 export function createResponseTracker({ baseline = false, loaded = false, captureOnly = false, maxRows = 12000, maxVisits = 3600 } = {}) {
@@ -107,9 +115,9 @@ export function createResponseTracker({ baseline = false, loaded = false, captur
 
 export async function installResponseObservation({ id, baseline = false, loaded = false, captureOnly = false }) {
   const [{ unitAnimationSource }, { currentPersonOrder }, { engagementRange, inEngagementArea, canAutoEngage },
-    { combatWorld }, { detectCombatThreat }, { default: rules }] = await Promise.all([
+    { combatWorld }, { detectCombatThreat }, { terrainSupportsPerson }, { default: rules }] = await Promise.all([
     import('/app/model.ts'), import('/app/person-orders.ts'), import('/app/melee-engagement.ts'),
-    import('/app/live-combat.ts'), import('/app/combat-targets.ts'), import('/app/original-rules.json')])
+    import('/app/live-combat.ts'), import('/app/combat-targets.ts'), import('/app/person-collision.ts'), import('/app/original-rules.json')])
   const scene = window.testSceneRef.current, world = scene.world, actor = world.units.find(u => u.id === id), native = actor?.native
   if (!native || unitAnimationSource(actor) !== native) throw Error('Acquired native owner unavailable')
   const identities = new WeakMap(), seenOrders = new Set(); let nextIdentity = 0
@@ -119,6 +127,19 @@ export async function installResponseObservation({ id, baseline = false, loaded 
   const tracker = createResponseTracker({ baseline, loaded, captureOnly })
   const read = phase => {
     const w = scene.world, u = w.units.find(u => u.id === id), p = u?.native, current = p && currentPersonOrder(w.buildingOrders, p)
+    const linked = person => {
+      const visited = new Set(), index = ((person.y & 65535) >>> 9) * 128 + ((person.x & 65535) >>> 9)
+      let next = w.objectCells.heads[index]
+      while (next) {
+        if (visited.has(next)) throw Error('Cyclic observed native cell chain')
+        visited.add(next)
+        const member = w.objectCells.objects.get(next)
+        if (!member) throw Error('Missing observed native cell member')
+        if (member === person) return true
+        next = member.cellNext
+      }
+      return false
+    }
     const record = orderId => { const q = w.buildingOrders.records[orderId]; return q ? { id: orderId, identity: identity(q), ...q } : null }
     const active = p && (p.immediateCommand || p.commands[p.commandCursor])
     if (active) seenOrders.add(active)
@@ -139,7 +160,7 @@ export async function installResponseObservation({ id, baseline = false, loaded 
         v.workFlags !== 0 || v.vehicle || v.flags2 & 0x810000 || v.flags4 & 0x1000 ||
         other.flight || other.fight || other.builder || other.entry || other.path.length ||
         w.outcome.alliances[v.tribe] & (1 << p.tribe) || !inEngagementArea(p, v, 3) ||
-        w.objectCells.objects.get(v.id) !== v || !(v.flags2 & 0x20000) ||
+        w.objectCells.objects.get(v.id) !== v || !(v.flags2 & 0x20000) || !linked(v) ||
         v.x !== (Math.round((other.x + 8) * 256) & 65535) || v.y !== (Math.round((-other.z - 8) * 256) & 65535)) continue
       braves.push({ identity: identity(v), id: v.id, x: v.x, y: v.y, tribe: v.tribe, model: v.model,
         state: v.state, workFlags: v.workFlags, flags2: v.flags2, flags4: v.flags4, life: v.life,
@@ -157,9 +178,16 @@ export async function installResponseObservation({ id, baseline = false, loaded 
       pendingTime: w.pendingTime, rng: [w.randomState, w.cosmeticRandom.randomState],
       sameWorld: scene === window.testSceneRef.current && w === world && w === window.testStore.getWorld(),
       sameActor: u === actor && p === native, nativeOnly,
-      registeredOwner: !!p && w.objectCells.objects.get(id) === p && !!(p.flags2 & 0x20000),
+      registeredOwner: !!p && w.objectCells.objects.get(id) === p && !!(p.flags2 & 0x20000) && linked(p),
       actor: u && { id, kind: u.kind, team: u.team, hp: u.hp, inside: u.inside, x: u.x, z: u.z },
       busy: !!(u?.flight || u?.fight || u?.fighting || u?.lift || u?.casting || u?.ghost || u?.invisibility),
+      admission: u && p && { work: u.work, target: u.target, tree: u.tree, cargo: u.cargo,
+        harvest: !!u.harvest, delivery: !!u.delivery, vault: !!u.vault, guard: !!u.guard,
+        attackReservation: !!u.attackReservation,
+        starting: !!w.levelStart?.some(site => site.shaman === id && site.phase < 4),
+        armageddon: w.effects.some(fx => !!fx.armageddon), landFlags: w.land.landFlags,
+        supported: !!terrainSupportsPerson(w.land.categories[(p.y >>> 9) * 128 + (p.x >>> 9)], p),
+        positionCoherent: p.x === (Math.round((u.x + 8) * 256) & 65535) && p.y === (Math.round((-u.z - 8) * 256) & 65535) },
       status: w.status, paused: w.paused, speed: w.speed, visibility: document.visibilityState,
       person: snapshot(p), order: active ? record(active) : null,
       commands: p ? [...p.commands] : [], queued: p ? p.commands.filter(Boolean).map(record) : [],
@@ -173,7 +201,7 @@ export async function installResponseObservation({ id, baseline = false, loaded 
       facts: { range, genericThreat, primaryGuardIds: guarded, braves, gameFlags: w.manaWorld.gameFlags,
         levelFlags2: w.levelFlags2, scanMask: rules.personModels[4].scanMask,
         autoEligible: !!p && canAutoEngage(p, current, () => false),
-        availableOrder: w.buildingOrders.records.slice(1).some(q => !q.references) } }
+        availableOrder: w.buildingOrders.records.slice(1).some(q => q.references === 0) } }
     if (phase === 'render-after-updater') {
       const mesh = scene.unitMeshes.get(id)
       row.render = { actualMainRender: true, frame: mesh?.userData.frame, draw: mesh?.userData.draw,

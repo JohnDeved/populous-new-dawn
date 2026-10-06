@@ -53,6 +53,9 @@ writeFileSync(resolve(options.output, 'prelaunch.json'), JSON.stringify({ head: 
   side, inputs, sourceBefore, runtimeBefore, review, argv: process.argv.slice(2) }, null, 2) + '\n')
 try {
   const result = await runLocalBrowser(options, scenario)
+  // The pinned harness already throws after writing a failed terminal receipt.
+  // Keep failure uncaught so the outer command receipt also records nonzero exit.
+  assert.equal(result.status, 'passed')
   console.log(JSON.stringify({ status: result.status, source: result.source, result: result.result }))
 } finally {
   const runtimeAfter = runtime(), sourceAfter = hashes()

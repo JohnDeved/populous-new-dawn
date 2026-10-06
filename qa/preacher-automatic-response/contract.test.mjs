@@ -13,6 +13,9 @@ function row(turn, phase = 'afterTurn', response = false) {
   const queued = { id: 10, identity: 2, model: 3, flags: 0, references: 1, object: 0, a: 20000, b: 20000 }
   return { phase, turn, now: turn * 84, sameWorld: true, sameActor: true, nativeOnly: true,
     registeredOwner: true, actor: { id: 5, kind: 'preacher', team: 'blue', hp: 55, inside: null }, busy: false,
+    admission: { work: null, target: null, tree: null, cargo: 0, harvest: false, delivery: false,
+      vault: false, guard: false, attackReservation: false, starting: false, armageddon: false,
+      landFlags: 0, supported: true, positionCoherent: true },
     status: 'playing', paused: false, speed: 1, visibility: 'visible', pendingDistance: 5000,
     person: { id: 5, class: 1, model: 4, tribe: 0, state: 10, speed: 40, commandStatus: response ? 32 : 3,
       commandCursor: 0, immediateCommand: response ? 11 : 0, commands: [10, 0], flags2: 0x20000, flags3: 0,
@@ -33,7 +36,10 @@ test('baseline absence requires a source-bound due visit while destination remai
   for (const change of [v => { v.facts.primaryGuardIds = [7] }, v => { v.facts.genericThreat = 2 },
     v => { v.pendingDistance = 0 }, v => { v.person.speed = 0 }, v => { v.facts.availableOrder = false },
     v => { v.facts.braves[0].workFlags = 1 }, v => { v.facts.braves[0].identity = 9 },
-    v => { v.order.identity = 9 }, v => { v.commands[0] = 9 }, v => { v.turn = 17 }]) {
+    v => { v.order.identity = 9 }, v => { v.commands[0] = 9 }, v => { v.turn = 17 },
+    v => { v.admission.target = 99 }, v => { v.admission.work = 9 }, v => { v.admission.delivery = true },
+    v => { v.admission.starting = true }, v => { v.admission.armageddon = true },
+    v => { v.admission.supported = false }, v => { v.actor.hp-- }]) {
     const changed = structuredClone(after); change(changed)
     assert.equal(qualifyingVisit(before, changed), null)
   }

@@ -47,8 +47,16 @@ render, hidden layer, image synthesis or native pixel-equivalence claim is used.
    queue/cursor, registered membership, source and nearby person fields, clocks,
    scan cadence and both RNG words. Never call a model command or whole-world
    snapshot from the callback. Reuse the reviewed callback chaining/restoration.
-5. The baseline retains the first eligible-looking ordinary encounter and bounded
-   actual outcome. Absence of 32 is a failed positive acceptance, not a simulated
+5. Baseline qualification requires an adjacent before/after moving-3 visit with
+   pending destination, stable owned queue, due scan cadence, a stable registered
+   idle enemy Brave, and available order capacity. Explicit no-target/no-task
+   world-turn admission (work, target, tree, cargo, harvest, delivery, vault, guard,
+   reservation, opening/Armageddon, support and coherent position) stays valid at
+   both boundaries. A wider guard excludes every native/live model4/7 candidate,
+   while the reviewed read-only generic scan must independently miss. This is a
+   deliberately narrow ordinary domain, not an implementation of all native
+   eligibility. Native registration also requires actual cell-chain membership.
+   Absence of 32 is a failed positive acceptance, not a simulated
    original result. Scene-level snapshots cannot prove an unobserved internal
    scanner return or AL value. Any candidate response requires exact immediate 32,
    retained queued 3 with the same ID/record, living native actor, and subsequent
