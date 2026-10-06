@@ -35,7 +35,8 @@ To inspect callers or references to a data address, run `ExportCallers.java OUTP
 
 ## Port index
 
-Recent reusable topic notes: [Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
+Recent reusable topic notes: [Shrine Erosion activation](research/erosion-activation.md),
+[Authored scripted Land Bridge origins](research/authored-bridge-origins.md),
 [Ordinary native Shaman Guard input and deferred ownership](research/shaman-guard-input.md),
 [Model45 Stone Head logical animation visits](research/stone-head-logical-visits.md),
 [Ordinary person and Splash logical animation visits](research/sprite-logical-visits.md),
@@ -5229,3 +5230,10 @@ and damage leaf. It proves next-turn first processing, continued lifetime at spa
 exact height quantization, exclusions, repeated protected-transition damage, busy
 duplicate cleanup and allocation failure without retry. Startup mode1 conversion
 remains separate. This evidence alone does not claim live browser completion.
+
+## Actual-input Erosion controller replay
+
+[Passive capture and replay](research/erosion-actual-capture.md) specifies exact
+per-call native height/RNG inputs, detached observation and strict source/runtime
+admission. Native sound ownership, reward activation timing and downstream terrain
+consumers remain explicit boundaries. Browser/native execution is not yet claimed.

@@ -1,0 +1,27 @@
+{
+  "version": 1,
+  "compositionCommit": "ecb51b5aab912ecd62e736eef372105b71397ec6",
+  "producerCommit": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+  "recorderCommit": "b8cb2d013183d68a4abb60004e65a150f53601f7",
+  "applicationTree": "84d4a529d361106feb3f760917a71b247e1c0c25",
+  "inputs": {
+    "scripts/local-render/harness.mjs": "fb07de9e278f26b2b32324defeb6164832472a58d422aead1032b7db7ee85fcf",
+    "scripts/local-render/owned-profile.mjs": "445a29903f994f7fd4c4d0ee32924400b31b6c73673ec2e04d3f4ad3eee403f5",
+    "scripts/local-render/checkpoint-observer.mjs": "3133e50554eb1cb5b72e5f08135aedd3e6987a0d9b239c6b7c70f0e3a2f8a947",
+    "scripts/local-render/vite.config.mjs": "8881994ee4147886f31efc199c2f2459736de7266546d7dd3f7cd1a60b98ff27",
+    "scripts/browser-game.mjs": "061ecb23dbcc5296fa6cdd044f44910af52884bb20d4fce5a9d64eb4391d9ba9",
+    "scripts/campaign-start-readiness.mjs": "214ffc2ce95ea039328e356d493ba8beb887e2d5ef1084b672fb0413fac48d28",
+    "app/world-turn.ts": "e5f178dbd89bd304307c9ccfd28c7e4ac9e1a132f10cea5a932b5687b8039734",
+    "app/erosion.ts": "788ae0b14800e1a6d675279e08b2490702bc7c3e6fe305769d0bde25c8935d70",
+    "app/erosion-observation.ts": "8fcc841183c138b02f5eb33ad7f24efcc4f477a512655009c543cc8d004e2fd2",
+    "app/level-three.ts": "7de51508c51d8193ee961de63a79016be4c58de284aefc3a707339b5e9b81e07"
+  },
+  "limits": {
+    "wallMs": 900000,
+    "startupMs": 120000,
+    "cameraMs": 30000,
+    "progressMs": 90000,
+    "retirementMs": 30000
+  },
+  "restoreTested": false
+}

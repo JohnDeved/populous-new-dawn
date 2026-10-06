@@ -1,11 +1,11 @@
-import { spawn, execFileSync } from 'node:child_process'
-import { mkdirSync, writeFileSync, createWriteStream, existsSync, readFileSync, lstatSync, readlinkSync } from 'node:fs'
-import { createHash } from 'node:crypto'
+import { spawn } from 'node:child_process'
+import { mkdirSync, writeFileSync, createWriteStream, existsSync, readFileSync } from 'node:fs'
 import { resolve, dirname } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createRequire } from 'node:module'
-import { acquireProfile, persistentLaunchOptions, profileInputReceipt, sha256, validateProfilePaths } from './owned-profile.mjs'
+import { acquireProfile, persistentLaunchOptions, profileInputReceipt, sha256, validateProfilePaths, sourceReceipt } from './owned-profile.mjs'
 import { readCommittedCheckpoint } from './checkpoint-observer.mjs'
+export { sourceReceipt }
 const here = dirname(fileURLToPath(import.meta.url))
 export function launchOptions(browserPath) {
   if (!browserPath) throw Error('Set --browser or POPULOUS_BROWSER to an installed official Chrome Headless Shell')
@@ -25,17 +25,6 @@ export function parseOptions(args) {
   if (!Number.isFinite(options.timeout) || options.timeout < 1000) throw Error('Timeout must be at least 1000ms')
   if (options.profileCorrespondence && !options.profile) throw Error('Profile correspondence requires --profile')
   return options
-}
-export function sourceReceipt(root) {
-  const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
-  const digest = value => createHash('sha256').update(value).digest('hex')
-  const untracked = git('ls-files', '--others', '--exclude-standard', '-z').split('\0').filter(Boolean).sort().map(path => {
-    const absolute = resolve(root, path), stat = lstatSync(absolute)
-    if (!stat.isFile() && !stat.isSymbolicLink()) throw Error(`Cannot fingerprint non-file source: ${path}`)
-    return { path, mode: stat.mode, sha256: digest(stat.isSymbolicLink() ? readlinkSync(absolute) : readFileSync(absolute)) }
-  })
-  const source = { root, commit: git('rev-parse', 'HEAD').trim(), tree: git('rev-parse', 'HEAD^{tree}').trim(), status: git('status', '--porcelain').trim(), trackedDiffSha256: digest(git('diff', '--binary', 'HEAD', '--')), untracked }
-  return { ...source, fingerprint: digest(JSON.stringify(source)) }
 }
 function profileRuntimeReceipt(root, browserPath, require) {
   return {

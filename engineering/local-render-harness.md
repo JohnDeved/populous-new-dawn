@@ -144,6 +144,43 @@ Read this before writing or extending a journey. These contracts were checked
 against main `ab6e857` on 2026-10-04. Inspect the named callers again when their
 source changes; a successful DOM click alone does not prove an accepted command.
 
+### Keep scenario imports and startup completion explicit
+
+A named CLI scenario must not import the executing harness module. The harness
+awaits that scenario import, so importing the harness back can leave top-level
+await unsettled before a server starts. Shared source fingerprinting now lives in
+`owned-profile.mjs`; the harness re-exports it for existing callers. Exercise the
+real named-scenario CLI entry, then a short actual server/scene startup before a
+long route. An import-only check does not establish rendered startup.
+
+Use one bounded startup budget for scene binding and native actor readiness.
+Short individual waits may time out while a cold scene becomes visible. Retry
+only genuine Playwright `TimeoutError` from the read-only binding operation,
+retain those diagnostics, and check cancellation/deadline after each await before
+accepting success. Other errors propagate immediately. Keep physical mission,
+Skip and command inputs single-shot; never repeat a click merely because its
+completion wait failed. Once bound, pin the scene, World and original actor.
+
+For the optional Skip setup control, a scenario can use a single supported
+`Locator.click({ noWaitAfter: true })` followed by its explicit same-scene/native
+readiness gate. In the verified Playwright 1.63 implementation this still awaits
+the physical action and initial actionability checks, but skips navigation and
+post-action hit-interceptor waits. That return alone does not prove the opening
+finished. Do not apply this completion choice to a proof-critical worship/order
+click without its own reviewed input/recipient contract.
+
+The Erosion QA CLI, startup, cancellation and click regressions retain the three
+observed failures: import-cycle exit 13, the initial two-second canvas wait, and a
+Skip click that physically completed before its navigation wait timed out. The
+startup-only result is separate from an ordinary controller capture/native replay.
+
+Retained evidence: [CLI import exit 13](https://github.com/JohnDeved/populous-new-dawn/blob/d4b877ad56ca62f78fc6c49ee07cb4b5837c1f85/failures/import-cycle/command-receipt.json),
+[initial canvas timeout](https://github.com/JohnDeved/populous-new-dawn/blob/d4b877ad56ca62f78fc6c49ee07cb4b5837c1f85/failures/scene-binding/receipt.json), and
+[Skip completion timeout](https://github.com/JohnDeved/populous-new-dawn/blob/d4b877ad56ca62f78fc6c49ee07cb4b5837c1f85/failures/skip-completion/receipt.json).
+The [actual Erosion capture and bounded native replay](https://github.com/JohnDeved/populous-new-dawn/blob/d4b877ad56ca62f78fc6c49ee07cb4b5837c1f85/report.md) succeeded after
+these fixes. Regressions are [the real CLI boundary](../tests/erosion-ordinary-cli.test.mjs)
+and [startup/stop/click completion](../tests/erosion-ordinary-cleanup.test.mjs).
+
 ### Selectors depend on the current screen
 
 Use button roles and the actual accessible name, scoped to the visible dialog
