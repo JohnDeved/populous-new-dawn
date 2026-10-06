@@ -50,8 +50,8 @@ export async function clearForwardDefender({ page, acquisition, check }) {
       blue: w.units.filter(u => u.id === o.shaman.id || u.id === o.preacher.id).map(fields),
       yellow: w.units.filter(u => u.team === 'yellow' && u.kind === 'preacher').map(fields) }
   })
-  const health = async () => { check(); assert.ok(performance.now() - started < 90000, '90-second forward-defender ceiling')
-    acquisition.health(await acquisition.read()) }
+  const bounded = () => { check(); assert.ok(performance.now() - started < 90000, '90-second forward-defender ceiling') }
+  const health = async () => { bounded(); acquisition.health(await acquisition.read()); bounded() }
   let failure
   try {
     await health()
@@ -71,7 +71,7 @@ export async function clearForwardDefender({ page, acquisition, check }) {
       'Actual Shaman input must address the observed defender')
     let final
     for (;;) {
-      await health(); final = await read()
+      await health(); final = await read(); bounded()
       if (requireDefenderRemoval(final, before, defender.id)) break
       await page.waitForTimeout(100)
     }
