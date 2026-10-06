@@ -5,7 +5,7 @@ import { createHash } from 'node:crypto'
 import { execFileSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { resolve, dirname } from 'node:path'
-import { sourceReceipt } from '../../scripts/local-render/harness.mjs'
+import { sourceReceipt } from '../../scripts/local-render/owned-profile.mjs'
 import policy from './policy.json' with { type: 'json' }
 
 export const sha256 = bytes => createHash('sha256').update(bytes).digest('hex')
@@ -80,6 +80,10 @@ export function packageCodeIdentity(roots) {
 
 export function validatePlan(plan, source, server, expectedRoot) {
   assert.equal(plan.kind, 'erosion-ordinary-capture-launch-plan')
+  assert.ok(['capture', 'startup-smoke'].includes(plan.purpose), 'An explicit capture or startup-smoke purpose is required')
+  assert.deepEqual(plan.bounds, plan.purpose === 'capture'
+    ? { scenarioWallMs: 900000, harnessMs: 960000, outerMs: 1020000, outerKillAfterMs: 20000 }
+    : { scenarioWallMs: 120000, harnessMs: 150000, outerMs: 180000, outerKillAfterMs: 20000 })
   assert.equal(plan.operationalGrantReceived, true, 'Coordinator runtime grant is still required')
   assert.equal(source.status, ''); assert.deepEqual(source.untracked, [])
   assert.equal(plan.sourceHead, source.commit); assert.equal(plan.sourceFingerprint, source.fingerprint)

@@ -20,7 +20,7 @@ def runtime_fixture():
     server = {'node': 'v22', 'platform': 'linux', 'arch': 'x64', 'files': files,
               'packages': {root + '/node_modules/vite': {'name': 'vite', 'version': '8', 'files': {'bin/vite.js': 'e' * 64}}},
               'launcher': {'path': root + '/node_modules/.bin/vite', 'target': root + '/node_modules/vite/bin/vite.js', 'sha256': 'e' * 64}}
-    plan = {'kind': 'erosion-ordinary-capture-launch-plan', 'operationalGrantReceived': True, 'sourceHead': source['commit'],
+    plan = {'kind': 'erosion-ordinary-capture-launch-plan', 'purpose': 'capture', 'operationalGrantReceived': True, 'sourceHead': source['commit'],
             'sourceFingerprint': source['fingerprint'], 'root': root, 'applicationTree': policy['applicationTree'], 'limits': policy['limits'],
             'restoreTested': False, 'scenarioSha256': 'f' * 64, 'profilePath': root + '/work/local-render-profiles/new',
             'serverIdentitySha256': p.digest(json.dumps(server, separators=(',', ':')).encode()), 'origin': 'http://127.0.0.1:4188'}
@@ -75,6 +75,7 @@ class OrdinaryAdmissionTests(unittest.TestCase):
         changes = [
             lambda f: f.update(plan_bytes=f['plan_bytes'] + b' '),
             lambda f: f['plan'].update(sourceHead='0' * 40),
+            lambda f: f['plan'].update(purpose='startup-smoke'),
             lambda f: f['plan'].update(serverIdentitySha256='0' * 64),
             lambda f: f['receipt']['profile'].update(mode='reused'),
             lambda f: f['receipt']['runtime'].update(installedLockSha256='0' * 64),

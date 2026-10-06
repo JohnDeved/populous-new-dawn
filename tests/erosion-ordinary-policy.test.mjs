@@ -49,11 +49,16 @@ test('polling rejects stop or timeout arriving during an awaited ready predicate
 
 test('external launch plan rejects wrong source, compiler, dirty source, bounds and reused path shape', () => {
   const root = '/synthetic/root', source = { commit: 'a'.repeat(40), fingerprint: 'b'.repeat(64), status: '', untracked: [] }, server = { synthetic: true }
-  const plan = { kind: 'erosion-ordinary-capture-launch-plan', operationalGrantReceived: true, sourceHead: source.commit,
+  const plan = { kind: 'erosion-ordinary-capture-launch-plan', purpose: 'capture', operationalGrantReceived: true, sourceHead: source.commit,
     sourceFingerprint: source.fingerprint, root, applicationTree: '84d4a529d361106feb3f760917a71b247e1c0c25',
     serverIdentitySha256: sha256(JSON.stringify(server)), origin: 'http://127.0.0.1:4188', profilePath: `${root}/work/local-render-profiles/new`,
-    output: `${root}/work/orchestration/erosion-ordinary/new`, limits, restoreTested: false }
+    output: `${root}/work/orchestration/erosion-ordinary/new`, limits, restoreTested: false,
+    bounds: { scenarioWallMs: 900000, harnessMs: 960000, outerMs: 1020000, outerKillAfterMs: 20000 } }
   validatePlan(plan, source, server, root)
+  const smoke = { ...plan, purpose: 'startup-smoke', bounds: { scenarioWallMs: 120000, harnessMs: 150000, outerMs: 180000, outerKillAfterMs: 20000 } }
+  validatePlan(smoke, source, server, root)
+  assert.throws(() => validatePlan({ ...smoke, bounds: plan.bounds }, source, server, root))
+  assert.throws(() => validatePlan({ ...plan, purpose: undefined }, source, server, root))
   for (const patch of [{ operationalGrantReceived: false }, { sourceHead: 'c'.repeat(40) }, { serverIdentitySha256: 'c'.repeat(64) },
     { profilePath: '/old/profile' }, { limits: { ...limits, wallMs: Infinity } }, { restoreTested: true }])
     assert.throws(() => validatePlan({ ...plan, ...patch }, source, server, root))

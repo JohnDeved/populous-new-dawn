@@ -27,3 +27,42 @@ for (const primary of [undefined, null, false, 0, '', new Error('synthetic prima
     assert.deepEqual(receipt.erosionCleanupFailures, [String(cleanup)])
   })
 }
+
+import { pollWithPreservation } from '../qa/erosion-ordinary/stop.mjs'
+import { browserModules } from '../qa/erosion-ordinary/source-policy.mjs'
+
+test('startup-smoke uses the ordinary prefix and cleanup without capture or worship', async () => {
+  const plan = { ...launch.plan, purpose: 'startup-smoke', bounds: { scenarioWallMs: 120000 } }
+  const smokeLaunch = { ...launch, plan, server: {}, planSha256: 'synthetic-hash' }
+  const state = { level: 3, turn: 10, speed: 1, paused: false, status: 'playing', contextLost: false,
+    actor: { id: 46, team: 'blue', kind: 'shaman', hp: 100, fighting: false },
+    shrine: { id: 101, kind: 'erosionEffect', uses: 0 }, lifecycle: null, complete: false }
+  const saved = new Map(), calls = [], receipt = { source: sourceReceipt, errors: [], profile: {
+    mode: 'created', path: plan.profilePath, previousRun: null, checkpointAtStart: null, runId: 'synthetic' } }
+  const page = { setDefaultTimeout() {},
+    getByRole: (_, options) => ({ isVisible: async () => false, focus: async () => calls.push(['focus', options.name]) }),
+    keyboard: { press: async key => calls.push(['key', key]) },
+    evaluate: async (fn, value) => {
+      assert.doesNotMatch(fn.toString(), /observeOrdinaryErosion\(/, 'smoke must not call the observer constructor')
+      if (Array.isArray(value)) { assert.deepEqual(value, browserModules); calls.push(['modules']); return }
+      return structuredClone(state)
+    },
+    screenshot: async options => calls.push(['screenshot', options.path]),
+  }
+  const bindings = { assert, resolve, ownRoot: root, launch: smokeLaunch, mkdirSync() {},
+    writeFileSync: (path, bytes) => saved.set(path, JSON.parse(bytes)), sha256: () => 'synthetic-hash', evidenceBytes: JSON.stringify,
+    observeLoadedModules: async () => ({ read: async () => { calls.push(['source-read']); return { modules: {}, observations: [] } }, dispose: async () => calls.push(['dispose']) }),
+    limits: { wallMs: 900000, startupMs: 120000 }, readQueuedPreservingStop: () => null, pollWithPreservation,
+    showAllMissions: async () => calls.push(['show-all']), bindGame: async () => calls.push(['bind']),
+    readShamanReadiness: async () => ({ ready: true }), browserModules, serverIdentity: () => ({}), readFileSync: () => 'synthetic plan' }
+  const scenario = new Function(...Object.keys(bindings), `return (${body})`)(...Object.values(bindings))
+  const result = await scenario({ page, root, output: plan.output, url: plan.origin, signal: { throwIfAborted() {} }, receipt })
+  assert.deepEqual(Object.keys(result), ['erosionStartupSmoke'])
+  assert.equal(result.erosionStartupSmoke.originalActorId, 46)
+  assert.deepEqual(calls, [['show-all'], ['focus', 'Mission 3'], ['key', 'Enter'], ['bind'], ['modules'], ['source-read'],
+    ['screenshot', '/synthetic/out/startup-ready.png'], ['dispose']])
+  assert.equal([...saved.keys()].some(path => path.endsWith('/capture.json')), false)
+  const actions = saved.get('/synthetic/out/actions.json').actions
+  assert.deepEqual([...new Set(actions.map(action => action.kind))], ['show-all-missions', 'mission-start'])
+  assert.equal(receipt.erosionCleanupFailures, undefined)
+})

@@ -269,6 +269,7 @@ def admit_runtime(plan_bytes, plan, receipt, modules, source_bytes):
     require(hex_hash(binding.get('launchPlanSha256')) and digest(plan_bytes) == binding['launchPlanSha256'], 'Reviewed launch-plan bytes mismatch')
     policy = json.loads(source_bytes(source['commit'], 'qa/erosion-ordinary/policy.json'))
     require(plan.get('kind') == 'erosion-ordinary-capture-launch-plan' and plan.get('operationalGrantReceived') is True, 'Missing reviewed launch plan')
+    require(plan.get('purpose') == 'capture', 'Startup-only smoke cannot be admitted as an Erosion capture')
     require(plan.get('sourceHead') == source['commit'] and plan.get('sourceFingerprint') == source['fingerprint'] and plan.get('root') == source.get('root'), 'Launch/source mismatch')
     require(plan.get('applicationTree') == policy['applicationTree'] and plan.get('limits') == policy['limits'] and plan.get('restoreTested') is False and binding.get('restoreTested') is False, 'Wrong application composition or scope')
     require(plan.get('scenarioSha256') == receipt['scenario']['sha256'] and receipt['scenario']['path'] == str(Path(plan['root']) / 'qa/erosion-ordinary/scenario.mjs'), 'Launch/scenario mismatch')

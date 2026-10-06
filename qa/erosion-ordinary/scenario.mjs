@@ -5,7 +5,7 @@ import { resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { bindGame, showAllMissions, readShamanReadiness } from '../../scripts/browser-game.mjs'
 import { readQueuedPreservingStop, pollWithPreservation } from './stop.mjs'
-import { limits, readLaunchPlan, serverIdentity, sha256, evidenceBytes } from './source-policy.mjs'
+import { limits, readLaunchPlan, serverIdentity, sha256, evidenceBytes, browserModules } from './source-policy.mjs'
 import { observeLoadedModules } from './runtime.mjs'
 
 const ownRoot = resolve(fileURLToPath(new URL('../../', import.meta.url)))
@@ -28,7 +28,7 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
   const checkStop = async () => {
     signal.throwIfAborted()
     assert.equal(stopped, false, 'The run is already stopping')
-    assert.ok(Date.now() - started < limits.wallMs, '15-minute scenario wall bound reached')
+    assert.ok(Date.now() - started < launch.plan.bounds.scenarioWallMs, 'Scenario wall bound reached')
     const stop = readQueuedPreservingStop(commands, 1, receipt.profile.runId, { includeOrdinary: true })
     if (!stop) return
     stopped = true
@@ -124,6 +124,11 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
     const hit = findEntityInput(candidates, 101, point => inspectEntityPoint(s, 'shrines', point))
     return hit && { ...hit, id: 101, collection: 'shrines' }
   })
+  const verifyInputs = () => {
+    assert.deepEqual(serverIdentity(root), launch.server, 'Compiler/server/harness inputs changed')
+    assert.equal(sha256(readFileSync(process.env.POPULOUS_EROSION_LAUNCH_PLAN)), launch.planSha256, 'Reviewed launch plan changed')
+    assert.deepEqual(receipt.errors, [])
+  }
   try {
     moduleObserver = await observeLoadedModules(page, root, url, checkStop)
     await input('show-all-missions', {}, () => showAllMissions(page))
@@ -147,118 +152,135 @@ export default async function ordinaryErosion({ page, root, output, url, signal,
       return (await readShamanReadiness(page)).ready === true
     }, limits.startupMs, 'original Shaman opening completion')
     health(await read())
-    for (let n = 0; n < 3; n++) {
-      const current = await read()
-      if (!current.mode && !current.selected.length && !current.orderCursor) break
-      await input('key', { key: 'Escape' }, () => page.keyboard.press('Escape'))
-    }
-    await button('Select and focus shaman')
-    const selected = await read(); health(selected); assert.deepEqual(selected.selected, [actorId]); assert.equal(selected.mode, null)
-    await viewHead(selected.shrine)
-    let hit
-    for (let attempt = 0; attempt < 4; attempt++) {
-      hit = await findHeadInput(); record({ kind: 'head-hit-probe', attempt, hit })
-      if (hit) break
-      if (attempt === 3) break
-      const corridor = await page.evaluate(() => {
+    if (launch.plan.purpose === 'startup-smoke') {
+      await checkStop()
+      await page.evaluate(async paths => {
+        window.erosionOriginal.current()
+        for (const path of paths) await import('/' + path)
+        window.erosionOriginal.current()
+        if (window.erosionOrdinary) throw Error('Startup smoke must not arm capture')
+      }, browserModules)
+      await checkStop()
+      const loaded = await moduleObserver.read(), final = await read()
+      health(final); assert.equal(final.shrine.uses, 0); assert.equal(final.lifecycle, null)
+      verifyInputs()
+      const files = { modules: save('modules.json', loaded.modules), startup: save('startup-smoke.json', { initial, final, actions, restoreTested: false }) }
+      await checkStop(); await page.screenshot({ path: resolve(output, 'startup-ready.png'), timeout: 5000 }); await checkStop()
+      resultValue = { erosionStartupSmoke: { files, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint,
+        originalActorId: actorId, launchPlanSha256: launch.planSha256, serverIdentity: launch.server, scriptObservations: loaded.observations,
+        scope: 'Startup and module/scene readiness only; no capture declaration or worship dispatch', restoreTested: false } }
+    } else {
+      for (let n = 0; n < 3; n++) {
+        const current = await read()
+        if (!current.mode && !current.selected.length && !current.orderCursor) break
+        await input('key', { key: 'Escape' }, () => page.keyboard.press('Escape'))
+      }
+      await button('Select and focus shaman')
+      const selected = await read(); health(selected); assert.deepEqual(selected.selected, [actorId]); assert.equal(selected.mode, null)
+      await viewHead(selected.shrine)
+      let hit
+      for (let attempt = 0; attempt < 4; attempt++) {
+        hit = await findHeadInput(); record({ kind: 'head-hit-probe', attempt, hit })
+        if (hit) break
+        if (attempt === 3) break
+        const corridor = await page.evaluate(() => {
+          const s = window.erosionOriginal.current()
+          for (const y of [750, 650, 550]) if ([280, 792].every(x => document.elementFromPoint(x, y) === s.renderer.domElement)) return { x: 280, y, end: 792 }
+          return null
+        })
+        assert.ok(corridor, 'Visible canvas corridor required for ordinary camera drag')
+        await input('camera-drag', corridor, async () => {
+          await page.mouse.move(corridor.x, corridor.y); await checkStop()
+          await page.mouse.down({ button: 'right' })
+          try { await checkStop(); await page.mouse.move(corridor.end, corridor.y, { steps: 12 }) }
+          finally { await page.mouse.up({ button: 'right' }) }
+        })
+        await settleCamera()
+      }
+      assert.ok(hit, 'No owned integer head interior; do not substitute another input')
+      const context = await page.evaluate(async () => {
+        const s = window.erosionOriginal.current(), { createMoveContextProbe } = await import('/qa/erosion-ordinary/input.mjs')
+        return createMoveContextProbe(s.world)(s.world.shrines.find(h => h.id === 101))
+      })
+      assert.equal(context.model, 27); assert.equal(context.enabled, true); assert.equal(context.shrineId, 101)
+      record({ kind: 'detached-command-context', context })
+      const identity = { runId: receipt.profile.runId, profileId: receipt.profile.id,
+        source: { commit: receipt.source.commit, fingerprint: receipt.source.fingerprint } }
+      await page.evaluate(async ({ identity, actorId }) => {
+        const { observeOrdinaryErosion } = await import('/qa/erosion-ordinary/lifecycle.mjs')
         const s = window.erosionOriginal.current()
-        for (const y of [750, 650, 550]) if ([280, 792].every(x => document.elementFromPoint(x, y) === s.renderer.domElement)) return { x: 280, y, end: 792 }
-        return null
-      })
-      assert.ok(corridor, 'Visible canvas corridor required for ordinary camera drag')
-      await input('camera-drag', corridor, async () => {
-        await page.mouse.move(corridor.x, corridor.y); await checkStop()
-        await page.mouse.down({ button: 'right' })
-        try { await checkStop(); await page.mouse.move(corridor.end, corridor.y, { steps: 12 }) }
-        finally { await page.mouse.up({ button: 'right' }) }
-      })
-      await settleCamera()
-    }
-    assert.ok(hit, 'No owned integer head interior; do not substitute another input')
-    const context = await page.evaluate(async () => {
-      const s = window.erosionOriginal.current(), { createMoveContextProbe } = await import('/qa/erosion-ordinary/input.mjs')
-      return createMoveContextProbe(s.world)(s.world.shrines.find(h => h.id === 101))
-    })
-    assert.equal(context.model, 27); assert.equal(context.enabled, true); assert.equal(context.shrineId, 101)
-    record({ kind: 'detached-command-context', context })
-    const identity = { runId: receipt.profile.runId, profileId: receipt.profile.id,
-      source: { commit: receipt.source.commit, fingerprint: receipt.source.fingerprint } }
-    await page.evaluate(async ({ identity, actorId }) => {
-      const { observeOrdinaryErosion } = await import('/qa/erosion-ordinary/lifecycle.mjs')
-      const s = window.erosionOriginal.current()
-      if (window.erosionOrdinary) throw Error('No observer rearming')
-      window.erosionOrdinary = { world: s.world, observer: observeOrdinaryErosion(s.gameClock, s.world, identity, actorId) }
-    }, { identity, actorId }); attached = true
-    const loadedBefore = await moduleObserver.read()
-    await poll(() => page.evaluate(() => { const w = window.erosionOriginal.current().world; return w.turn > w.lastOrderTurn }), 5000, 'fresh user-order turn')
-    const before = await read(); health(before); assert.equal(before.inputMask, 0); assert.equal(before.orderCursor, 0); assert.deepEqual(before.selected, [actorId])
-    await page.evaluate(async hit => {
-      const { findEntityInput, inspectEntityPoint, observeEntityPointer } = await import('/qa/erosion-ordinary/input.mjs')
-      const s = window.erosionOriginal.current()
-      if (!findEntityInput([hit], 101, p => inspectEntityPoint(s, 'shrines', p))) throw Error('Head hit became stale')
-      window.erosionPointer = observeEntityPointer(s, document, hit)
-    }, hit)
-    let delivered
-    try { await input('worship-click', { hit, actorId }, () => page.mouse.click(hit.x, hit.y)) }
-    finally {
-      delivered = await page.evaluate(() => {
-        const observer = window.erosionPointer; delete window.erosionPointer
-        return observer?.finish()
-      })
-    }
-    const after = await read(); health(after)
-    assert.equal(delivered?.restored, true); assert.deepEqual(delivered.errors, [])
-    assert.deepEqual(delivered.events.map(e => [e.type, e.x, e.y, e.button, e.trusted, e.canvasOwned, e.canvasTarget]),
-      ['pointerdown', 'pointerup'].map(type => [type, hit.x, hit.y, 0, true, true, true]))
-    assert.ok(delivered.events.every(e => ['ctrlKey', 'shiftKey', 'altKey', 'metaKey'].every(key => e.args[key] === false)), 'Worship input must be unmodified')
-    for (const event of delivered.events) {
-      for (const state of [event.state, event.after]) {
-        assert.equal(state.currentSceneMatches, true); assert.equal(state.currentWorldMatches, true)
-        assert.equal(state.armedWorldMatches, true); assert.equal(state.armedCanvasMatches, true)
-        assert.equal(state.target?.id, 101); assert.equal(state.target?.kind, 'erosionEffect')
+        if (window.erosionOrdinary) throw Error('No observer rearming')
+        window.erosionOrdinary = { world: s.world, observer: observeOrdinaryErosion(s.gameClock, s.world, identity, actorId) }
+      }, { identity, actorId }); attached = true
+      const loadedBefore = await moduleObserver.read()
+      await poll(() => page.evaluate(() => { const w = window.erosionOriginal.current().world; return w.turn > w.lastOrderTurn }), 5000, 'fresh user-order turn')
+      const before = await read(); health(before); assert.equal(before.inputMask, 0); assert.equal(before.orderCursor, 0); assert.deepEqual(before.selected, [actorId])
+      await page.evaluate(async hit => {
+        const { findEntityInput, inspectEntityPoint, observeEntityPointer } = await import('/qa/erosion-ordinary/input.mjs')
+        const s = window.erosionOriginal.current()
+        if (!findEntityInput([hit], 101, p => inspectEntityPoint(s, 'shrines', p))) throw Error('Head hit became stale')
+        window.erosionPointer = observeEntityPointer(s, document, hit)
+      }, hit)
+      let delivered
+      try { await input('worship-click', { hit, actorId }, () => page.mouse.click(hit.x, hit.y)) }
+      finally {
+        delivered = await page.evaluate(() => {
+          const observer = window.erosionPointer; delete window.erosionPointer
+          return observer?.finish()
+        })
       }
-      assert.ok(event.picks.every(pick => pick.receiverMatches && !pick.threw), 'Actual picker receiver/error mismatch')
-    }
-    assert.ok(delivered.events.some(event => event.picks.some(pick => pick.id === 101)), 'Actual handler did not pick the authored head')
-    assert.ok(after.lastOrderTurn > before.lastOrderTurn && after.pointerAck.until > before.pointerAck.until && after.pointerAck.target === 101)
-    assert.equal(after.actor.order?.model, 27); assert.equal(after.actor.order.flags & 1, 0); assert.equal(after.actor.order.a, 101)
-    record({ kind: 'worship-accepted', actorId, hit, before, after, delivered })
-    let progress = JSON.stringify([after.actor.x, after.actor.z, after.shrine.work]), progressAt = Date.now(), activationAt = null
-    let arrived = false, worked = false
-    await poll(async () => {
-      const state = await read(); health(state)
-      save('progress.json', state)
-      if (!state.lifecycle?.erosion.use) {
-        assert.equal(state.actor.order?.model, 27, 'Original worship order changed before activation; no reissue')
-        assert.equal(state.actor.order.a, 101)
-        const wrap = value => ((value + 128) % 256 + 256) % 256 - 128
-        const near = Math.hypot(wrap(state.actor.x - state.shrine.x), wrap(state.actor.z - state.shrine.z)) <= 4
-        const qualifying = near && [10, 33].includes(state.actor.state) && state.actor.speed === 0 && state.actor.substate > 0 && state.shrine.followers > 0
-        if (qualifying && !arrived) { arrived = true; record({ kind: 'worship-arrival', state }) }
-        if (qualifying && state.shrine.work > after.shrine.work && !worked) { worked = true; record({ kind: 'worship-work', state }) }
+      const after = await read(); health(after)
+      assert.equal(delivered?.restored, true); assert.deepEqual(delivered.errors, [])
+      assert.deepEqual(delivered.events.map(e => [e.type, e.x, e.y, e.button, e.trusted, e.canvasOwned, e.canvasTarget]),
+        ['pointerdown', 'pointerup'].map(type => [type, hit.x, hit.y, 0, true, true, true]))
+      assert.ok(delivered.events.every(e => ['ctrlKey', 'shiftKey', 'altKey', 'metaKey'].every(key => e.args[key] === false)), 'Worship input must be unmodified')
+      for (const event of delivered.events) {
+        for (const state of [event.state, event.after]) {
+          assert.equal(state.currentSceneMatches, true); assert.equal(state.currentWorldMatches, true)
+          assert.equal(state.armedWorldMatches, true); assert.equal(state.armedCanvasMatches, true)
+          assert.equal(state.target?.id, 101); assert.equal(state.target?.kind, 'erosionEffect')
+        }
+        assert.ok(event.picks.every(pick => pick.receiverMatches && !pick.threw), 'Actual picker receiver/error mismatch')
       }
-      const key = JSON.stringify([Math.round(state.actor.x * 4), Math.round(state.actor.z * 4), state.shrine.work])
-      if (key !== progress) { progress = key; progressAt = Date.now() }
-      assert.ok(Date.now() - progressAt < limits.progressMs, 'No original-actor travel/head-work progress for90seconds')
-      if (state.lifecycle?.erosion.use) activationAt ??= Date.now()
-      if (activationAt !== null) assert.ok(Date.now() - activationAt < limits.retirementMs, 'Erosion retirement exceeded30seconds')
-      return state.complete
-    }, limits.wallMs - (Date.now() - started), 'ordinary Erosion activation and retirement')
-    assert.ok(arrived && worked, 'Actual original-actor arrival and head-work transition were not observed')
-    const final = await read(), result = await page.evaluate(() => window.erosionOrdinary.observer.read())
-    const loadedAfter = await moduleObserver.read()
-    assert.deepEqual(loadedAfter, loadedBefore, 'Loaded source/module identity changed')
-    assert.deepEqual(serverIdentity(root), launch.server, 'Compiler/server/harness inputs changed')
-    assert.equal(sha256(readFileSync(process.env.POPULOUS_EROSION_LAUNCH_PLAN)), launch.planSha256, 'Reviewed launch plan changed')
-    assert.deepEqual(receipt.errors, [])
-    const files = { capture: save('capture.json', result.capture), lifecycle: save('lifecycle.json', result.lifecycle),
-      modules: save('modules.json', loadedAfter.modules), inputs: save('inputs.json', { version: 1, kind: 'ordinary-m3-shaman-erosion-inputs',
-        runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint, originalActorId: actorId, initial, actions, final, restoreTested: false }) }
-    await checkStop(); await page.screenshot({ path: resolve(output, 'erosion-retired.png'), timeout: 5000 }); await checkStop()
-    resultValue = { erosionReplay: { files, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint,
-      launchPlanSha256: launch.planSha256, serverIdentity: launch.server, scriptObservations: loadedAfter.observations,
-      originalActorId: actorId, firstTurn: result.capture.steps[0].turn, finalTurn: result.capture.steps.at(-1).turn,
-      restoreTested: false, scope: 'Ordinary one-order activation and64 captured calls; no Save/Load or full native game claim' } }
+      assert.ok(delivered.events.some(event => event.picks.some(pick => pick.id === 101)), 'Actual handler did not pick the authored head')
+      assert.ok(after.lastOrderTurn > before.lastOrderTurn && after.pointerAck.until > before.pointerAck.until && after.pointerAck.target === 101)
+      assert.equal(after.actor.order?.model, 27); assert.equal(after.actor.order.flags & 1, 0); assert.equal(after.actor.order.a, 101)
+      record({ kind: 'worship-accepted', actorId, hit, before, after, delivered })
+      let progress = JSON.stringify([after.actor.x, after.actor.z, after.shrine.work]), progressAt = Date.now(), activationAt = null
+      let arrived = false, worked = false
+      await poll(async () => {
+        const state = await read(); health(state)
+        save('progress.json', state)
+        if (!state.lifecycle?.erosion.use) {
+          assert.equal(state.actor.order?.model, 27, 'Original worship order changed before activation; no reissue')
+          assert.equal(state.actor.order.a, 101)
+          const wrap = value => ((value + 128) % 256 + 256) % 256 - 128
+          const near = Math.hypot(wrap(state.actor.x - state.shrine.x), wrap(state.actor.z - state.shrine.z)) <= 4
+          const qualifying = near && [10, 33].includes(state.actor.state) && state.actor.speed === 0 && state.actor.substate > 0 && state.shrine.followers > 0
+          if (qualifying && !arrived) { arrived = true; record({ kind: 'worship-arrival', state }) }
+          if (qualifying && state.shrine.work > after.shrine.work && !worked) { worked = true; record({ kind: 'worship-work', state }) }
+        }
+        const key = JSON.stringify([Math.round(state.actor.x * 4), Math.round(state.actor.z * 4), state.shrine.work])
+        if (key !== progress) { progress = key; progressAt = Date.now() }
+        assert.ok(Date.now() - progressAt < limits.progressMs, 'No original-actor travel/head-work progress for90seconds')
+        if (state.lifecycle?.erosion.use) activationAt ??= Date.now()
+        if (activationAt !== null) assert.ok(Date.now() - activationAt < limits.retirementMs, 'Erosion retirement exceeded30seconds')
+        return state.complete
+      }, limits.wallMs - (Date.now() - started), 'ordinary Erosion activation and retirement')
+      assert.ok(arrived && worked, 'Actual original-actor arrival and head-work transition were not observed')
+      const final = await read(), result = await page.evaluate(() => window.erosionOrdinary.observer.read())
+      const loadedAfter = await moduleObserver.read()
+      assert.deepEqual(loadedAfter, loadedBefore, 'Loaded source/module identity changed')
+      verifyInputs()
+      const files = { capture: save('capture.json', result.capture), lifecycle: save('lifecycle.json', result.lifecycle),
+        modules: save('modules.json', loadedAfter.modules), inputs: save('inputs.json', { version: 1, kind: 'ordinary-m3-shaman-erosion-inputs',
+          runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint, originalActorId: actorId, initial, actions, final, restoreTested: false }) }
+      await checkStop(); await page.screenshot({ path: resolve(output, 'erosion-retired.png'), timeout: 5000 }); await checkStop()
+      resultValue = { erosionReplay: { files, runId: receipt.profile.runId, sourceFingerprint: receipt.source.fingerprint,
+        launchPlanSha256: launch.planSha256, serverIdentity: launch.server, scriptObservations: loadedAfter.observations,
+        originalActorId: actorId, firstTurn: result.capture.steps[0].turn, finalTurn: result.capture.steps.at(-1).turn,
+        restoreTested: false, scope: 'Ordinary one-order activation and64 captured calls; no Save/Load or full native game claim' } }
+    }
   } catch (error) { primaryFailed = true; primaryError = error }
   finally {
     const rememberCleanup = error => {

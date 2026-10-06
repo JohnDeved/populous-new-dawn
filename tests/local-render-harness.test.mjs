@@ -29,6 +29,11 @@ import { execFileSync } from 'node:child_process'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { createHash } from 'node:crypto'
 import { sourceReceipt } from '../scripts/local-render/harness.mjs'
+import { sourceReceipt as profileSourceReceipt } from '../scripts/local-render/owned-profile.mjs'
+
+test('harness preserves the exact side-effect-free source fingerprint export', () => {
+  assert.equal(sourceReceipt, profileSourceReceipt)
+})
 
 test('source fingerprint catches dirty tracked and untracked byte drift with unchanged porcelain', () => {
   const root = mkdtempSync(join(tmpdir(), 'local-render-source-'))
@@ -67,10 +72,11 @@ async function lateScenarioResult(trigger) {
   const browser = { version: () => 'test-only', isConnected: () => !browserClosed, async newContext() { return context }, contexts: () => [context], async close() { browserClosed = true } }
   let source = readFileSync(new URL('../scripts/local-render/harness.mjs', import.meta.url), 'utf8')
   source = source.slice(0, source.indexOf('\nif (process.argv[1]'))
-    .replace(/^import .*$/gm, '').replaceAll('export ', '')
+    .replace(/^import .*$/gm, '').replace(/^export \{ sourceReceipt \}$/gm, '').replaceAll('export ', '')
     .replaceAll('import.meta.url', JSON.stringify('file:///fixture/scripts/local-render/harness.mjs'))
     .replace("const { bindGame } = await import(pathToFileURL(resolve(root, 'scripts/browser-game.mjs')).href)", 'const bindGame = async () => {}')
   const sandbox = {
+    sourceReceipt: () => ({ fingerprint: 'fixed-clean-identity' }),
     console, resolve, dirname, fileURLToPath, pathToFileURL, createHash, AbortController, AbortSignal, structuredClone,
     process: fakeProcess, setTimeout: (fn, ms) => setTimeout(fn, ms === 250 ? 1 : ms), clearTimeout,
     mkdirSync() {}, existsSync: () => true,

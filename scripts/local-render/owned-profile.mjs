@@ -1,7 +1,7 @@
 // One game-only profile lease. No stale-lock recovery or personal-profile adoption.
 import { execFileSync } from 'node:child_process'
 import { createHash, randomUUID } from 'node:crypto'
-import { lstatSync, mkdirSync, readFileSync, renameSync, unlinkSync, writeFileSync } from 'node:fs'
+import { lstatSync, mkdirSync, readFileSync, readlinkSync, renameSync, unlinkSync, writeFileSync } from 'node:fs'
 import { basename, dirname, isAbsolute, relative, resolve, sep } from 'node:path'
 import { hostname } from 'node:os'
 import { isDeepStrictEqual } from 'node:util'
@@ -13,6 +13,17 @@ const runtimeScripts = new Set(['harness.mjs', 'owned-profile.mjs', 'checkpoint-
 const checkerPath = path => path.startsWith('qa/') ||
   (path.startsWith('scripts/local-render/') && !runtimeScripts.has(basename(path)))
 
+export function sourceReceipt(root) {
+  const git = (...args) => execFileSync('git', ['-C', root, ...args], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
+  const digest = value => createHash('sha256').update(value).digest('hex')
+  const untracked = git('ls-files', '--others', '--exclude-standard', '-z').split('\0').filter(Boolean).sort().map(path => {
+    const absolute = resolve(root, path), stat = lstatSync(absolute)
+    if (!stat.isFile() && !stat.isSymbolicLink()) throw Error(`Cannot fingerprint non-file source: ${path}`)
+    return { path, mode: stat.mode, sha256: digest(stat.isSymbolicLink() ? readlinkSync(absolute) : readFileSync(absolute)) }
+  })
+  const source = { root, commit: git('rev-parse', 'HEAD').trim(), tree: git('rev-parse', 'HEAD^{tree}').trim(), status: git('status', '--porcelain').trim(), trackedDiffSha256: digest(git('diff', '--binary', 'HEAD', '--')), untracked }
+  return { ...source, fingerprint: digest(JSON.stringify(source)) }
+}
 export function profileInputReceipt(root, scenario) {
   const names = execFileSync('git', ['-C', root, 'ls-files', '--cached', '--others', '--exclude-standard', '-z'], { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 })
   const inputs = [...new Set(names.split('\0').filter(Boolean))].sort().map(path => {

@@ -3,7 +3,9 @@
 Source composition: merge `ecb51b5aab912ecd62e736eef372105b71397ec6` joins
 accepted issue223 producer `47d2e2dc229f35352f1a7a1cfb948789053c9b1c` and reviewed
 recorder `b8cb2d013183d68a4abb60004e65a150f53601f7`. `policy.json` pins the unchanged
-combined app tree and source inputs. This driver has not been launched.
+combined app tree and source inputs. The first exact CLI attempt at c91ce9d exited13 during the cyclic scenario import,
+before any server, profile, browser or public input. Its failed receipt is retained.
+The repaired CLI import is checked explicitly before another browser attempt.
 
 ## Route and bounds
 
@@ -35,7 +37,17 @@ ambiguous creation or unexpected control ends the attempt without another tactic
 
 ## Launch, stop and receipts
 
-The existing local-render harness is the only launcher. Its named scenario module
+The existing local-render harness is the only launcher. The pure sourceReceipt
+implementation lives in owned-profile.mjs and is re-exported by the harness; named
+scenarios can read it without importing the CLI while its top-level await is active.
+
+Plans require an explicit purpose: capture or startup-smoke. The smoke runs the
+same public Mission3/Skip/one-time Resume/original-Shaman readiness prefix, imports
+and observes all eight pinned modules, and takes a genuine scene screenshot. It
+then returns only erosionStartupSmoke and closes normally, without arming capture
+or dispatching worship. It cannot satisfy the native replay admission. Smoke bounds
+are120 seconds for the scenario,150 for the harness,180 outer plus20 for forced
+termination; resources are fresh. Capture retains the full existing route/gates. Its named scenario module
 requires `POPULOUS_EROSION_LAUNCH_PLAN` before the harness creates any browser,
 server or profile. A coordinator-reviewed external launch plan must pin the exact
 clean source head/fingerprint, combined app tree, scenario hash, server identity
