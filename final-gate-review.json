@@ -1,0 +1,201 @@
+{
+  "review": "ACCEPT",
+  "scope": "Frozen source correspondence, completed check/build and inherited-quality-diagnostic classification; ordinary browser/native capture acceptance remains pending",
+  "issue": 223,
+  "pullRequest": 224,
+  "head": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+  "base": "b28b031f6917f6d814536ba10a7d46e7be71de05",
+  "completedAt": "2026-10-06T00:13:41Z",
+  "priorSourceReviewHead": "432f28e6faf9bb2fa65f76400f4b373403df01df",
+  "priorSourceReviewArtifact": "work/reviews/issue223-432f28e-source-review.json",
+  "priorSourceReviewSha256": "17bb8b475e506c586d98a81e99fbf461284683cebdf8c46536fbfe62cd91d4eb",
+  "adoptionReceipt": "work/orchestration/issue223-erosion-activation/main-adoption.json",
+  "adoptionReceiptSha256": "8bb2c731bdcef7cf62d139a4296c9c3eb528075c8c76c53dd83fb630592a96c4",
+  "sourceSha256": {
+    "app/world-turn.ts": "e5f178dbd89bd304307c9ccfd28c7e4ac9e1a132f10cea5a932b5687b8039734",
+    "app/erosion.ts": "33823b3db91d1a711d4babcd8b435d5344f2e29db8fc593f34d43532623db5e2",
+    "tests/erosion-shrine-activation.test.mjs": "fb4f368f0b193a00249737ca76a929eef09098e989c30f5964598bbcd7b9bc25",
+    "decomp/research/erosion-activation.md": "1f1793445020990eb90aeb1c5ab470ca4219cfae7c0f79abd1c54ea7224c1d28",
+    "decomp/README.md": "1d681f1fcd8d8cd55bfeeddb32366988b25d6a28f8d5c76f8f96f39a97556a24",
+    "engineering/project-map.json": "72efb2204d5d00fded28785780f61cd63e796a065e912446e08ca80a57333625"
+  },
+  "receiptSha256": {
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/build.json": "3475e782aea61a27065badbff626a4c79317fc96e9f6f5c271df712c644f789e",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/check.json": "f98bfb7b03cb54d313b4b6d15a819ec823536a46e7403ededcc2673bfda91aec",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/dupes.json": "13f9b6391c6c5f9d14e533c07865053ff6d2c00de5031b96835d1a9e1848cae6",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/eslint-baseline.json": "4031db8a4070946519cc1b81f3d75553da6ee815906c0df64fa434ea79aedce7",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/eslint-changed.json": "56027683fee5b29f9cf048bc78dd78957d94042543fc7b68e7725fa64c97aebf",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/format.json": "7a3b6b037e6ca983de002856f7a371da2b4926bc72d2d897ed26b58e76639112",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/health.json": "72919d369b8e7d27c6f073f278b18fcb99e2ef1e9ec8bbadedc30752ebed775d",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/lane-release.json": "6a34290dbd1615c3a0309ed39f5dd379378ccb2872079e24a102dccfe70baeeb",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/lint.json": "36454595e430a8072a91e16872ff36bbcd3a33e159eb55a7c565b4bf23a4d620",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/quality-comparison.json": "4899bda0cb6a464ab2dfb42749cc7e680c064b97504afc39e023fdee82314732",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/standard-baseline-absolute.json": "67fb161c4d135c6166058d79393ec6562865cdf87edf0ada780df8cb4dc16aa9",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/standard-baseline-source.json": "2fb7da5464a7af7991bad2d3563bea75c703c86918191f79320a6ba9fa45e01e",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/standard-baseline.json": "165453fa5b304b3a0be0c0919ae694e6bb173db8aa9ab9b77fadab3e4d8a3fd1",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/standard-changed.json": "ad02e6a9b1a603b736548f3d89ef21659775388aab36145200ad00ed4fa7f375",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/standard.json": "f64d4f5924bc2531f4073daf1e794168dc5958e964a0828a80509db0e592a998",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/summary.json": "ece7c9b53b7bc69645308036b803e6675a81371e32213e357cfe43000bf5c0b8",
+    "work/orchestration/issue223-erosion-activation/gates-47d2e2d/unused.json": "204b9f8840e159ff9b5d701b2a24d2e6d73aacc2daa9499551f0a555f4cdaa3a"
+  },
+  "verified": [
+    "Clean final head is 47d2e2dc229f35352f1a7a1cfb948789053c9b1c.",
+    "All five added/removed Erosion source deltas against adopted main b28b031 match the originally reviewed 432f28e deltas against 10f1687. The prior review remains frozen at its original head; this artifact separately accepts the adoption correspondence.",
+    "Every command receipt has exact final head, empty tracked diff, equal before/after source, matching current explicit input fingerprints, and matching raw stdout/stderr files and hashes.",
+    "npm run check passes typecheck, 1242/1242 tests with zero failures including all four new Erosion tests, parity check and orchestration check.",
+    "npm run build completes with exit 0. Retained warnings include chunk sizes, plugin timings and route classification; no performance claim is inferred.",
+    "format:check fails only for unchanged app/render-view.ts and app/viewport-bounds.ts. The changed maintained TypeScript is clean.",
+    "Global ESLint remains failed with 284 diagnostics. The source-matched world-turn baseline has 210 and final 208; no introduced rule/severity/message diagnostics, and both removed diagnostics are the now-used Effect/Erosion imports. The new test has zero diagnostics. All other reported diagnostic files are unchanged from adopted main.",
+    "Global Oxlint remains failed with 1409 diagnostics. The source-matched world-turn baseline has 281 and final 279; no introduced severity/rule/message diagnostics, and both removed diagnostics concern the now-used Effect/Erosion imports. All 122 other reported source files are unchanged from adopted main.",
+    "The Oxlint baseline donor app tree matches adopted main. Both comparison setup failures are retained and excluded from diagnostic evidence.",
+    "Fallow health and duplication commands exit 0 with advisory findings; unused exits1 with advisory findings, not a tool failure. These reports do not justify unrelated refactors or deletions."
+  ],
+  "gateResults": [
+    {
+      "name": "check",
+      "status": "passed",
+      "exitCode": 0,
+      "command": [
+        "timeout",
+        "900s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "check"
+      ],
+      "receipt": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/check.json"
+    },
+    {
+      "name": "build",
+      "status": "passed",
+      "exitCode": 0,
+      "command": [
+        "timeout",
+        "300s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "build"
+      ],
+      "receipt": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/build.json"
+    },
+    {
+      "name": "format",
+      "status": "failed",
+      "exitCode": 1,
+      "command": [
+        "timeout",
+        "120s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "format:check"
+      ],
+      "receipt": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/format.json"
+    },
+    {
+      "name": "lint",
+      "status": "failed",
+      "exitCode": 1,
+      "command": [
+        "timeout",
+        "300s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "lint"
+      ],
+      "receipt": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/lint.json"
+    },
+    {
+      "name": "standard",
+      "status": "failed",
+      "exitCode": 1,
+      "command": [
+        "timeout",
+        "120s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "lint:standard"
+      ],
+      "receipt": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/standard.json"
+    },
+    {
+      "name": "health",
+      "status": "passed",
+      "exitCode": 0,
+      "command": [
+        "timeout",
+        "120s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "quality:health"
+      ],
+      "receipt": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/health.json"
+    },
+    {
+      "name": "dupes",
+      "status": "passed",
+      "exitCode": 0,
+      "command": [
+        "timeout",
+        "120s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "quality:dupes"
+      ],
+      "receipt": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/dupes.json"
+    },
+    {
+      "name": "unused",
+      "status": "failed",
+      "exitCode": 1,
+      "command": [
+        "timeout",
+        "120s",
+        "taskset",
+        "-c",
+        "0-3",
+        "npm",
+        "run",
+        "quality:unused"
+      ],
+      "receipt": "work/orchestration/issue223-erosion-activation/gates-47d2e2d/unused.json"
+    }
+  ],
+  "typescriptQualityVerdict": "Accepted changed-source quality with no introduced diagnostics; global format/lint/lint:standard statuses remain FAILED due to classified inherited findings, not relabelled as passing.",
+  "remainingAcceptance": [
+    "Capture one actual ordinary Erosion shrine activation through the shipped path, all 64 controller calls including the retiring call, and retirement; bind the recorder before activation.",
+    "Perform the intended per-step native replay/comparison of that captured input and retain source-bound results and declared intercepted/supplied boundaries.",
+    "Review any substantive source changes after this exact candidate and revalidate affected evidence."
+  ],
+  "checkpointClarification": {
+    "newPersistenceRiskFound": false,
+    "activeUiSaveLoadRequiredForThisFix": false,
+    "explanation": "The prior UI/IndexedDB restore item listed broader uncovered evidence only. This fix adds no saved fields. The focused structuredClone continuation covers the timing state and follows the existing store cloning model. Do not expand the lean ordinary capture driver to Save/Load solely for this fix.",
+    "stillUnproved": "Actual IndexedDB/UI restore was not exercised and must not be claimed as passed."
+  },
+  "claimLimits": [
+    "No ordinary browser capture or new native job was run for this review; pending ordinary/replay acceptance is not complete.",
+    "No full native allocation-failure ownership, complete startup, mixed-class scheduler, sound backend/playback cadence, hardware performance, parity credit or broader mission completion claim.",
+    "The earlier Mission10 reference remains port integration evidence; structuredClone remains a continuation test rather than UI persistence evidence."
+  ],
+  "execution": "Read-only source/receipt inspection and offline hash/diagnostic comparisons only. No package, Node test, aggregate, build, browser, native or profile jobs were launched. This review artifact is the only write."
+}

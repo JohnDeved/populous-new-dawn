@@ -1,0 +1,16 @@
+{
+  "sourceHead": "47d2e2dc229f35352f1a7a1cfb948789053c9b1c",
+  "review": "ACCEPT source/gates",
+  "reviewSha256": "7a0ddb361ebf0c3698fd2f746813e7a2d3edacbbcdf77ae7516e4d350e752853",
+  "requiredOutstandingAcceptance": [
+    "genuine ordinary shrine activation through all64 controller calls including retiring call and observed retirement",
+    "intended per-step native replay/comparison of captured inputs with explicit boundaries"
+  ],
+  "outsideBoundedFix": {
+    "uiIndexedDbRestore": "unproved; not an added required gate",
+    "newPersistenceDefect": false,
+    "reason": "No saved fields changed; structuredClone continuation covers changed timing state"
+  },
+  "supersedes": "Earlier publication and historical lane-release remainingAcceptance wording that presented UI restore as required",
+  "preservation": "47d2e2d source and every original raw command/source receipt remain unchanged"
+}

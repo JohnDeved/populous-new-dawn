@@ -6,8 +6,8 @@
   "issue": 223,
   "files": {
     "README.md": {
-      "sha256": "ccc0aebc21dd39b87b509448cc9b9597971ba4c01eea88bdd038dfd6596ad2be",
-      "bytes": 2512
+      "sha256": "946d0bb0601ab3d608a060c6e151c04454034e657ed77521fa1bc22d82ba96d3",
+      "bytes": 3070
     },
     "baseline-test.mjs": {
       "sha256": "251dc35aa806a0d3e768392827f85680b5e634b4c230a0b0853e0379456c69ae",
@@ -248,7 +248,17 @@
     "source-review.json": {
       "sha256": "17bb8b475e506c586d98a81e99fbf461284683cebdf8c46536fbfe62cd91d4eb",
       "bytes": 4729
+    },
+    "final-gate-review.json": {
+      "sha256": "7a0ddb361ebf0c3698fd2f746813e7a2d3edacbbcdf77ae7516e4d350e752853",
+      "bytes": 10787
+    },
+    "acceptance-clarification.json": {
+      "sha256": "31c246605c248f3aecb66d8643e1761f4bec06b69d8c0052895bcea49cf3be75",
+      "bytes": 901
     }
   },
-  "fileCountExcludingManifest": 61
+  "fileCountExcludingManifest": 63,
+  "finalGateReview": "final-gate-review.json",
+  "acceptanceClarification": "acceptance-clarification.json"
 }
