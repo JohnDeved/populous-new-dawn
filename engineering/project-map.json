@@ -607,7 +607,7 @@
         },
         {
           "path": "scripts/import-original.py",
-          "symbol": "append_shaman_units"
+          "symbol": "append_unit_families"
         }
       ],
       "parityIds": [
